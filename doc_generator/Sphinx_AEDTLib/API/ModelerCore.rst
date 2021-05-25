@@ -6,7 +6,7 @@
 Modeler
 ===================================
 
-.. inheritance-diagram:: pyaedt.core.modeler.Modeler pyaedt.core.modeler.Model3D pyaedt.core.modeler.Model2D pyaedt.core.modeler.Model3DLayout
+.. inheritance-diagram:: pyaedt.modeler.Modeler pyaedt.modeler.Model3D pyaedt.modeler.Model2D pyaedt.modeler.Model3DLayout
    :parts: 1
 
 

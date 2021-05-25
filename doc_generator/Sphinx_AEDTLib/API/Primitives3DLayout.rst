@@ -5,5 +5,5 @@
 
 Primitives Layout
 ===================================
-.. autoclass:: pyaedt.core.modeler.Primitives3DLayout.Primitives3DLayout
+.. autoclass:: pyaedt.modeler.Primitives3DLayout.Primitives3DLayout
     :members:

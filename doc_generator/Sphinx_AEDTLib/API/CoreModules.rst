@@ -6,7 +6,7 @@
 Core Modules
 ===================================
 
-This Section contain info about all the Core Modules of pyaedt.core. In particular:
+This Section contain info about all the Core Modules of pyaedt. In particular:
 
 
 #. Design

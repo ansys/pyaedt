@@ -61,8 +61,8 @@ __________
 
 .. code:: python
 
-    from pyaedt.core.Destkop import Desktop
-    from pyaedt.core.Circuit import Maxwell3d
+    from pyaedt.Destkop import Desktop
+    from pyaedt.Circuit import Maxwell3d
 
     with Desktop("2020.1", NG=True):
          # AEDT 2020R1 in Non-Graphicalmode will be launched

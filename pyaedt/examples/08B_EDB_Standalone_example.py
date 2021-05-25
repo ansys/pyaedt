@@ -6,8 +6,8 @@
 import os
 import shutil
 import time
-from pyaedt.core import Edb
-from pyaedt.core.generic.general_methods import generate_unique_name
+from pyaedt import Edb
+from pyaedt.generic.general_methods import generate_unique_name
 
 project_dir = os.path.join(os.environ['TEMP'], generate_unique_name('Example', n=16))
 if not os.path.exists(project_dir):

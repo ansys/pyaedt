@@ -4,8 +4,8 @@
 #
 # -------------------------------------------------------------------------------
 
-from pyaedt.core import Circuit
-from pyaedt.core import Desktop
+from pyaedt import Circuit
+from pyaedt import Desktop
 
 
 desktopVersion = "2021.1"

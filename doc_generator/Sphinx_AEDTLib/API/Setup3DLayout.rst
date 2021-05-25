@@ -6,7 +6,7 @@
 3D Layout Setup
 ===================================
 
-.. autoclass:: pyaedt.core.modules.SolveSetup.Setup3DLayout
+.. autoclass:: pyaedt.modules.SolveSetup.Setup3DLayout
     :members:
 
 .. toctree::

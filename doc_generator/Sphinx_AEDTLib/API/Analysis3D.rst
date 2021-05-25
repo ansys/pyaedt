@@ -6,5 +6,5 @@
 Analysis 3D
 ===================================
 
-.. autoclass:: pyaedt.core.application.Analysis3D.FieldAnalysis3D
+.. autoclass:: pyaedt.application.Analysis3D.FieldAnalysis3D
     :members:

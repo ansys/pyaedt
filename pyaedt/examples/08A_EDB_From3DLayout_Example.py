@@ -7,9 +7,9 @@ import os
 import shutil
 import time
 # from pyaedt.EDB import EDB  # EDB class is part of modeler Module and edb_core is opened in Readonly
-from pyaedt.core import Hfss3dLayout
-from pyaedt.core import Desktop
-from pyaedt.core.generic.general_methods import generate_unique_name
+from pyaedt import Hfss3dLayout
+from pyaedt import Desktop
+from pyaedt.generic.general_methods import generate_unique_name
 
 project_dir = os.path.join(os.environ['TEMP'], generate_unique_name('Example', n=16))
 if not os.path.exists(project_dir):

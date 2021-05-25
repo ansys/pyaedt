@@ -6,8 +6,8 @@ from .conftest import scratch_path
 import gc
 
 # Import required modules
-from pyaedt.core import Hfss3dLayout
-from pyaedt.core.generic.filesystem import Scratch
+from pyaedt import Hfss3dLayout
+from pyaedt.generic.filesystem import Scratch
 
 # Input Data and version for the test
 

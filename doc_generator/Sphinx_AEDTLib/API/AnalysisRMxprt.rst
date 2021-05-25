@@ -6,5 +6,5 @@
 Analysis RMxprt
 ===================================
 
-.. autoclass:: pyaedt.core.application.AnalysisRMxprt.FieldAnalysisRMxprt
+.. autoclass:: pyaedt.application.AnalysisRMxprt.FieldAnalysisRMxprt
     :members:

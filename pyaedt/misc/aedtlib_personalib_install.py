@@ -4,7 +4,7 @@ local_path = os.path.dirname(os.path.realpath(__file__))
 pyaedtpath = os.path.join(local_path, "..", )
 sys.path.append(os.path.join(pyaedtpath, ".."))
 
-from pyaedt.core import Desktop
+from pyaedt import Desktop
 
 if len(sys.argv) < 2:
     version = "2021.1"

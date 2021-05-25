@@ -8,7 +8,7 @@ Desktop & Messenger
 
 **Diagram**
 
-.. inheritance-diagram:: pyaedt.core.Desktop pyaedt.core.application.MessageManager
+.. inheritance-diagram:: pyaedt.Desktop pyaedt.application.MessageManager
     :parts: 1
 
 .. toctree::

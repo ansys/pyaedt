@@ -19,8 +19,8 @@ from .conftest import local_path, scratch_path
 
 
 # Import required modules
-from pyaedt.core import Maxwell2d
-from pyaedt.core.generic.filesystem import Scratch
+from pyaedt import Maxwell2d
+from pyaedt.generic.filesystem import Scratch
 import gc
 
 class TestMaxwell2D:

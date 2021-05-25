@@ -3,7 +3,7 @@ import os
 import time
 import shutil
 import sys
-from pyaedt.core import Desktop
+from pyaedt import Desktop
 import pathlib
 local_path = os.path.dirname(os.path.realpath(__file__))
 module_path = pathlib.Path(local_path)

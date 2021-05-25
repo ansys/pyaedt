@@ -6,7 +6,7 @@
 Setup for 3D Tools
 ===================================
 
-.. autoclass:: pyaedt.core.modules.SolveSetup.Setup
+.. autoclass:: pyaedt.modules.SolveSetup.Setup
     :members:
 
 .. toctree::

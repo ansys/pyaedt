@@ -6,7 +6,7 @@
 Mesh 3D
 ===================================
 
-.. autoclass:: pyaedt.core.modules.Mesh.Mesh
+.. autoclass:: pyaedt.modules.Mesh.Mesh
     :members:
 
 .. toctree::

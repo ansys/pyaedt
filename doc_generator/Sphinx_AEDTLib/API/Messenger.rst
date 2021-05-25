@@ -6,7 +6,7 @@
 Messenger
 ===================================
 
-.. automodule:: pyaedt.core.application.MessageManager
+.. automodule:: pyaedt.application.MessageManager
     :members:
 
 

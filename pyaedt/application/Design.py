@@ -42,7 +42,7 @@ from collections import OrderedDict
 from ..application.MessageManager import AEDTMessageManager
 from ..application.Variables import VariableManager, DataSet
 from ..desktop import exception_to_desktop, Desktop, force_close_desktop, release_desktop, get_version_env_variable
-from pyaedt.core.generic.LoadAEDTFile import load_entire_aedt_file
+from ..generic.LoadAEDTFile import load_entire_aedt_file
 from ..generic.general_methods import aedt_exception_handler
 from ..modules.Boundary import BoundaryObject
 
@@ -230,7 +230,7 @@ class Design(object):
     Class Design. Contains all functions and objects connected to the active Project and Design
     """
     def __str__(self):
-        pyaedt_details = "      pyaedt API for Python\n"
+        pyaedt_details = "      pyaedt API\n"
         pyaedt_details += "pyaedt running AEDT Version {} \n".format(self._aedt_version)
         pyaedt_details += "Running {} tool in AEDT\n".format(self.design_type)
         pyaedt_details += "Solution Type: {} \n".format(self.solution_type)

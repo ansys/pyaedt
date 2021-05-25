@@ -6,5 +6,5 @@
 Analysis 2D
 ===================================
 
-.. autoclass:: pyaedt.core.application.Analysis2D.FieldAnalysis2D
+.. autoclass:: pyaedt.application.Analysis2D.FieldAnalysis2D
     :members:

@@ -4,9 +4,9 @@
 # NOTE This example produces and error at the moment
 #
 # -------------------------------------------------------------------------------
-from pyaedt.core import Desktop
-from pyaedt.core import Maxwell2d, Maxwell3d
-from pyaedt.core.application.Variables import Variable, VariableManager
+from pyaedt import Desktop
+from pyaedt import Maxwell2d, Maxwell3d
+from pyaedt.application.Variables import Variable, VariableManager
 
 with Desktop(specified_version="2021.1"):
     M2D = Maxwell2d()

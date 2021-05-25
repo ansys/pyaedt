@@ -4,11 +4,11 @@
 #
 # -------------------------------------------------------------------------------
 try:
-    from pyaedt.core import Hfss3dLayout
-    from pyaedt.core import Desktop
+    from pyaedt import Hfss3dLayout
+    from pyaedt import Desktop
 except:
-    from pyaedt.core import Hfss3dLayout
-    from pyaedt.core import Desktop
+    from pyaedt import Hfss3dLayout
+    from pyaedt import Desktop
 
 desktopVersion = "2021.1"
 oDesktop = None

@@ -6,5 +6,5 @@
 Analysis Nexxim
 ===================================
 
-.. autoclass:: pyaedt.core.application.AnalysisNexxim.FieldAnalysisCircuit
+.. autoclass:: pyaedt.application.AnalysisNexxim.FieldAnalysisCircuit
     :members:

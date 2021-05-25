@@ -7,7 +7,7 @@ Maxwell3D/2D
 ===================================
 
 
-.. automodule:: pyaedt.core.maxwell
+.. automodule:: pyaedt.maxwell
     :members:
 
 

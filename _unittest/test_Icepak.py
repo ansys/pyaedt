@@ -5,8 +5,8 @@ import time
 from .conftest import local_path, scratch_path
 
 # Import required modules
-from pyaedt.core import Icepak
-from pyaedt.core.generic.filesystem import Scratch
+from pyaedt import Icepak
+from pyaedt.generic.filesystem import Scratch
 import gc
 
 # Access the desktop

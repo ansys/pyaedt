@@ -8,7 +8,7 @@ Materia Library
 
 
 
-.. automodule:: pyaedt.core.modules.MaterialLib
+.. automodule:: pyaedt.modules.MaterialLib
     :members:
 
 .. toctree::

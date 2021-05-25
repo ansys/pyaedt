@@ -7,7 +7,7 @@ Hfss3dLayout Objects
 ===================================
 
 
-.. automodule:: pyaedt.core.Hfss3dLayout
+.. automodule:: pyaedt.Hfss3dLayout
     :members:
 
 

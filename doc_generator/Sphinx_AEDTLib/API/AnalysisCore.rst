@@ -9,7 +9,7 @@ Analysis Core Modules
 
 **Diagram**
 
-.. inheritance-diagram:: pyaedt.core.application.Analysis pyaedt.core.application.Analysis2D pyaedt.core.application.Analysis3D pyaedt.core.application.Analysis3DLayout pyaedt.core.application.AnalysisIcepak pyaedt.core.application.AnalysisNexxim pyaedt.core.application.AnalysisRMxprt pyaedt.core.application.AnalysisSimplorer
+.. inheritance-diagram:: pyaedt.application.Analysis pyaedt.application.Analysis2D pyaedt.application.Analysis3D pyaedt.application.Analysis3DLayout pyaedt.application.AnalysisIcepak pyaedt.application.AnalysisNexxim pyaedt.application.AnalysisRMxprt pyaedt.application.AnalysisSimplorer
     :parts: 1
 
 

@@ -9,7 +9,7 @@ Material & Stackup
 **Diagram**
 
 
-.. inheritance-diagram:: pyaedt.core.modules.MaterialLib pyaedt.core.modules.Material
+.. inheritance-diagram:: pyaedt.modules.MaterialLib pyaedt.modules.Material
     :parts: 1
 
 

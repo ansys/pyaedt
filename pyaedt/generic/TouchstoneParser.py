@@ -3,7 +3,7 @@ import os
 from datetime import datetime
 import math
 import cmath
-from pyaedt.core.generic.general_methods import generate_unique_name, aedt_exception_handler
+from .general_methods import generate_unique_name, aedt_exception_handler
 REAL_IMAG = 'RI'
 MAG_ANGLE = 'MA'
 DB_ANGLE = 'DB'

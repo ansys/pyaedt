@@ -8,7 +8,7 @@ Setup
 
 **Diagram**
 
-.. inheritance-diagram:: pyaedt.core.modules.SolveSetup pyaedt.core.modules.SetupTemplates pyaedt.core.modules.SolutionType
+.. inheritance-diagram:: pyaedt.modules.SolveSetup pyaedt.modules.SetupTemplates pyaedt.modules.SolutionType
     :parts: 1
 
 .. toctree::

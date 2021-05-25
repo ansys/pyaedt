@@ -5,7 +5,7 @@
 
 Mesh Icepak
 ===================================
-.. autoclass:: pyaedt.core.modules.MeshIcepak.IcepakMesh
+.. autoclass:: pyaedt.modules.MeshIcepak.IcepakMesh
     :members:
 
 .. toctree::

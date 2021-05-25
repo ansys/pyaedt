@@ -6,7 +6,7 @@
 Desktop
 ===================================
 
-.. automodule:: pyaedt.core.Desktop
+.. automodule:: pyaedt.Desktop
     :members:
 
 

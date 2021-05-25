@@ -8,7 +8,7 @@ Application Objects
 
 **Diagram**
 
-.. inheritance-diagram:: pyaedt.core.Hfss pyaedt.core.Q3d pyaedt.core.Icepak pyaedt.core.Circuit pyaedt.core.Edb pyaedt.core.Hfss3dLayout  pyaedt.core.Maxwell3d pyaedt.core.Maxwell2d pyaedt.core.Mechanical pyaedt.core.Simplorer pyaedt.core.Rmxprt
+.. inheritance-diagram:: pyaedt.Hfss pyaedt.Q3d pyaedt.Icepak pyaedt.Circuit pyaedt.Edb pyaedt.Hfss3dLayout  pyaedt.Maxwell3d pyaedt.Maxwell2d pyaedt.Mechanical pyaedt.Simplorer pyaedt.Rmxprt
     :parts: 1
 
 

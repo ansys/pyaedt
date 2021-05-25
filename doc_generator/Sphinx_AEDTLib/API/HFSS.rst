@@ -6,7 +6,7 @@
 Hfss
 ===================================
 
-.. automodule:: pyaedt.core.Hfss
+.. automodule:: pyaedt.Hfss
     :members:
 
 

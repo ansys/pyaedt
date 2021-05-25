@@ -5,7 +5,7 @@
 
 Layer Stackup
 ===================================
-.. automodule:: pyaedt.core.modules.LayerStackup
+.. automodule:: pyaedt.modules.LayerStackup
     :members:
 
 .. toctree::

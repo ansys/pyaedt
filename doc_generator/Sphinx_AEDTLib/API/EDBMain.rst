@@ -7,7 +7,7 @@ EDB Main Class
 ===================================
 
 
-.. automodule:: pyaedt.core.Edb
+.. automodule:: pyaedt.Edb
     :members:
 
 .. toctree::

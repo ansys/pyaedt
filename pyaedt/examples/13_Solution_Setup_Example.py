@@ -4,12 +4,12 @@
 #
 #
 # -------------------------------------------------------------------------------
-from pyaedt.core import Desktop
-from pyaedt.core import Hfss
-from pyaedt.core import Maxwell2d, Maxwell3d
-from pyaedt.core import Icepak
-from pyaedt.core import Q3d
-from pyaedt.core import Circuit
+from pyaedt import Desktop
+from pyaedt import Hfss
+from pyaedt import Maxwell2d, Maxwell3d
+from pyaedt import Icepak
+from pyaedt import Q3d
+from pyaedt import Circuit
 
 with Desktop("2021.1"):
     q3d = Q3d()

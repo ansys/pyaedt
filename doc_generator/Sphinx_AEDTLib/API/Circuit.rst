@@ -9,7 +9,7 @@ Circuit Tools
 
 **Diagram**
 
-.. inheritance-diagram:: pyaedt.core.Circuit pyaedt.core.Simplorer
+.. inheritance-diagram:: pyaedt.Circuit pyaedt.Simplorer
     :parts: 1
 
 .. toctree::

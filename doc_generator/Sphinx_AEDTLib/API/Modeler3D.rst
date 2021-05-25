@@ -6,5 +6,5 @@
 Modeler 3D
 ===================================
 
-.. autoclass:: pyaedt.core.modeler.Model3D.Modeler3D
+.. autoclass:: pyaedt.modeler.Model3D.Modeler3D
     :members:

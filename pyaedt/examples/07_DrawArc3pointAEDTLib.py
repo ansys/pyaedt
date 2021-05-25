@@ -4,8 +4,8 @@
 #
 # -------------------------------------------------------------------------------
 
-from pyaedt.core import Desktop
-from pyaedt.core import Maxwell3d
+from pyaedt import Desktop
+from pyaedt import Maxwell3d
 
 with Desktop(specified_version="2021.1"):
     M3D = Maxwell3d(solution_type="EddyCurrent")

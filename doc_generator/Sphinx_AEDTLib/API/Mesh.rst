@@ -8,7 +8,7 @@ Mesh
 
 **Diagram**
 
-.. inheritance-diagram:: pyaedt.core.modules.Mesh pyaedt.core.modules.MeshIcepak pyaedt.core.modules.Mesh3DLayout
+.. inheritance-diagram:: pyaedt.modules.Mesh pyaedt.modules.MeshIcepak pyaedt.modules.Mesh3DLayout
     :parts: 1
 
 .. toctree::

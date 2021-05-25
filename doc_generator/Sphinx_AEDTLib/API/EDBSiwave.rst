@@ -6,7 +6,7 @@
 EDB Siwave
 ===================================
 
-.. automodule:: pyaedt.core.edb_core.siwave
+.. automodule:: pyaedt.edb_core.siwave
     :members:
 
 .. toctree::

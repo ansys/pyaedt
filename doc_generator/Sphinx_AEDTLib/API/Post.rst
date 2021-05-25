@@ -10,7 +10,7 @@ PostProcessing
 
 **Diagram**
 
-.. inheritance-diagram:: pyaedt.core.modules.PostProcessor pyaedt.core.modules.AdvancedPostProcessing
+.. inheritance-diagram:: pyaedt.modules.PostProcessor pyaedt.modules.AdvancedPostProcessing
     :parts: 1
 
 

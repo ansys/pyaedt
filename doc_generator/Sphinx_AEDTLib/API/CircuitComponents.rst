@@ -5,11 +5,11 @@
 
 Primitives Circuit Components
 ===================================
-.. autoclass:: pyaedt.core.modeler.PrimitivesNexxim.NexximComponents
+.. autoclass:: pyaedt.modeler.PrimitivesNexxim.NexximComponents
     :members:
 
-.. autoclass:: pyaedt.core.modeler.PrimitivesSimplorer.SimplorerComponents
+.. autoclass:: pyaedt.modeler.PrimitivesSimplorer.SimplorerComponents
     :members:
 
-.. autoclass::  pyaedt.core.modeler.PrimitivesCircuit.CircuitComponents
+.. autoclass::  pyaedt.modeler.PrimitivesCircuit.CircuitComponents
     :members:

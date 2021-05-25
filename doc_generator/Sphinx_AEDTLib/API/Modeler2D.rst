@@ -6,5 +6,5 @@
 Modeler 2D
 ===================================
 
-.. autoclass:: pyaedt.core.modeler.Model2D.Modeler2D
+.. autoclass:: pyaedt.modeler.Model2D.Modeler2D
     :members:

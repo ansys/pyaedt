@@ -8,7 +8,7 @@ Primitives
 
 **Diagram**
 
-.. inheritance-diagram:: pyaedt.core.modeler.Primitives pyaedt.core.modeler.Primitives2D pyaedt.core.modeler.Primitives3D pyaedt.core.modeler.Primitives3DLayout pyaedt.core.modeler.PrimitivesCircuit pyaedt.core.modeler.PrimitivesNexxim pyaedt.core.modeler.PrimitivesSimplorer pyaedt.core.modeler.GeometryOperators pyaedt.core.modeler.Object3d
+.. inheritance-diagram:: pyaedt.modeler.Primitives pyaedt.modeler.Primitives2D pyaedt.modeler.Primitives3D pyaedt.modeler.Primitives3DLayout pyaedt.modeler.PrimitivesCircuit pyaedt.modeler.PrimitivesNexxim pyaedt.modeler.PrimitivesSimplorer pyaedt.modeler.GeometryOperators pyaedt.modeler.Object3d
     :parts: 1
 
 

@@ -6,5 +6,5 @@
 Analysis 3DLayout
 ===================================
 
-.. autoclass:: pyaedt.core.application.Analysis3DLayout.FieldAnalysis3DLayout
+.. autoclass:: pyaedt.application.Analysis3DLayout.FieldAnalysis3DLayout
     :members:

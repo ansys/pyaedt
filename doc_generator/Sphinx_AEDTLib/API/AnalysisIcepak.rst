@@ -6,5 +6,5 @@
 Analysis Icepak
 ===================================
 
-.. autoclass:: pyaedt.core.application.AnalysisIcepak.FieldAnalysisIcepak
+.. autoclass:: pyaedt.application.AnalysisIcepak.FieldAnalysisIcepak
     :members:

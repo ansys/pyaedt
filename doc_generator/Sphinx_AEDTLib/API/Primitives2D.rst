@@ -6,5 +6,5 @@
 Primitives 2D
 ===================================
 
-.. autoclass:: pyaedt.core.modeler.Primitives2D.Primitives2D
+.. autoclass:: pyaedt.modeler.Primitives2D.Primitives2D
     :members:

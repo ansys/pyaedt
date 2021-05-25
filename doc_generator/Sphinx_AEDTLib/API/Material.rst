@@ -8,7 +8,7 @@ Material
 
 
 
-.. automodule:: pyaedt.core.modules.Material
+.. automodule:: pyaedt.modules.Material
     :members:
 
 .. toctree::

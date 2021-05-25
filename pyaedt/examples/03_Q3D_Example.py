@@ -6,9 +6,9 @@
 # -------------------------------------------------------------------------------
 import os
 
-from pyaedt.core import Q3d
-from pyaedt.core import Desktop
-from pyaedt.core.generic.general_methods import generate_unique_name
+from pyaedt import Q3d
+from pyaedt import Desktop
+from pyaedt.generic.general_methods import generate_unique_name
 
 project_dir = os.path.join(os.environ['TEMP'], generate_unique_name('Example', n=16))
 if not os.path.exists(project_dir):

@@ -6,7 +6,7 @@
 Mesh 3D Layout
 ===================================
 
-.. autoclass:: pyaedt.core.modules.Mesh3DLayout.Mesh
+.. autoclass:: pyaedt.modules.Mesh3DLayout.Mesh
     :members:
 
 .. toctree::

@@ -3,8 +3,8 @@ import os
 from .conftest import scratch_path
 import gc
 # Import required modules
-from pyaedt.core import Rmxprt
-from pyaedt.core.generic.filesystem import Scratch
+from pyaedt import Rmxprt
+from pyaedt.generic.filesystem import Scratch
 
 test_project_name = "motor"
 

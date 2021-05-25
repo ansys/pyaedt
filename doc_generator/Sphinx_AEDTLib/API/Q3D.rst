@@ -6,7 +6,7 @@
 Q3D/Q2D Extractor
 ===================================
 
-.. automodule:: pyaedt.core.Q3d
+.. automodule:: pyaedt.Q3d
     :members:
 
 

@@ -6,7 +6,7 @@
 Design XPloration
 ===================================
 
-.. automodule:: pyaedt.core.modules.DesignXPloration
+.. automodule:: pyaedt.modules.DesignXPloration
     :members:
 
 

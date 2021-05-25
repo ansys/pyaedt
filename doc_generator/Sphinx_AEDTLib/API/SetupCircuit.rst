@@ -6,5 +6,5 @@
 Circuit Setup
 ===================================
 
-.. autoclass:: pyaedt.core.modules.SolveSetup.SetupCircuit
+.. autoclass:: pyaedt.modules.SolveSetup.SetupCircuit
     :members:

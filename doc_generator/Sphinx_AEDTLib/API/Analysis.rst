@@ -6,5 +6,5 @@
 Analysis
 ===================================
 
-.. autoclass:: pyaedt.core.application.Analysis.Analysis
+.. autoclass:: pyaedt.application.Analysis.Analysis
     :members:

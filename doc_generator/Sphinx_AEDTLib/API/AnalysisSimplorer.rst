@@ -6,5 +6,5 @@
 Analysis Simplorer
 ===================================
 
-.. autoclass:: pyaedt.core.application.AnalysisSimplorer.FieldAnalysisSimplorer
+.. autoclass:: pyaedt.application.AnalysisSimplorer.FieldAnalysisSimplorer
     :members:

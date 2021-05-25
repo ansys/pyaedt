@@ -6,7 +6,7 @@
 Design
 ===================================
 
-.. automodule:: pyaedt.core.application.Design
+.. automodule:: pyaedt.application.Design
     :members:
 
 .. toctree::

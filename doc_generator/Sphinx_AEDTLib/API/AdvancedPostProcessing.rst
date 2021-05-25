@@ -7,7 +7,7 @@
 
 Advanced Post Processing (only Python 3.x)
 =============================================
-.. automodule:: pyaedt.core.modules.AdvancedPostProcessing
+.. automodule:: pyaedt.modules.AdvancedPostProcessing
     :members:
 
 .. toctree::

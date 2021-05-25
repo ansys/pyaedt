@@ -7,7 +7,7 @@ EDB HFSS
 ===================================
 **Diagram**
 
-.. automodule:: pyaedt.core.edb_core.hfss
+.. automodule:: pyaedt.edb_core.hfss
     :members:
 
 .. toctree::

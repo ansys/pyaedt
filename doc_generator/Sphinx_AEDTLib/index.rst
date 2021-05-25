@@ -111,8 +111,8 @@ Examples of usage:
 
 .. code:: python
 
-    from pyaedt.core.Destkop import Desktop
-    from pyaedt.core.Circuit import Circuit
+    from pyaedt.Destkop import Desktop
+    from pyaedt.Circuit import Circuit
     with Desktop("2020.1", NG=True):
         print("AEDT 2020R1 in Non-Graphicalmode will be launched)
         circuit = Circuit()
@@ -127,7 +127,7 @@ Examples of usage:
 
 .. code:: python
 
-    from pyaedt.core.Circuit import Circuit
+    from pyaedt.Circuit import Circuit
     with Circuit as circuit:
         print("Latest version of Desktop in Graphical mode will be launched")
         ...
@@ -139,7 +139,7 @@ Examples of usage:
 
 .. code:: python
 
-    from pyaedt.core.HFSS import HFSS
+    from pyaedt.HFSS import HFSS
     with HFSS as hfss:
          hfss["dim"]="1mm"   #this is a design variable
          hfss["$dim"] = "1mm"  #this is a project variable
@@ -149,7 +149,7 @@ Examples of usage:
 
 .. code:: python
 
-    from pyaedt.core.HFSS import HFSS
+    from pyaedt.HFSS import HFSS
     with HFSS as hfss:
          # Same command to create the box, assign variables, and assign materials
          hfss.modeler.primitives.create_box([0,0,0], [10,"dim",10], "mybox", "aluminum")

@@ -7,7 +7,7 @@ RMxprt
 ===================================
 
 
-.. automodule:: pyaedt.core.Rmxprt
+.. automodule:: pyaedt.Rmxprt
     :members:
 
 

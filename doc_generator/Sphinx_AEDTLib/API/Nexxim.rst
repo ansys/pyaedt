@@ -6,7 +6,7 @@
 Nexxim
 ===================================
 
-.. automodule:: pyaedt.core.Circuit
+.. automodule:: pyaedt.Circuit
     :members:
 
 

@@ -6,11 +6,11 @@
 Modeler
 ===================================
 
-.. autoclass:: pyaedt.core.modeler.Modeler.Modeler
+.. autoclass:: pyaedt.modeler.Modeler.Modeler
     :members:
 
-.. autoclass:: pyaedt.core.modeler.Modeler.GeometryModeler
+.. autoclass:: pyaedt.modeler.Modeler.GeometryModeler
     :members:
 
-.. autoclass:: pyaedt.core.modeler.Modeler.CoordinateSystem
+.. autoclass:: pyaedt.modeler.Modeler.CoordinateSystem
     :members:

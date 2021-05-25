@@ -6,5 +6,5 @@
 Modeler 3DLayout
 ===================================
 
-.. autoclass:: pyaedt.core.modeler.Model3DLayout.Modeler3DLayout
+.. autoclass:: pyaedt.modeler.Model3DLayout.Modeler3DLayout
     :members:

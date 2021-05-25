@@ -6,7 +6,7 @@
 Variables
 ===================================
 
-.. automodule:: pyaedt.core.application.Variables
+.. automodule:: pyaedt.application.Variables
     :members:
 
 

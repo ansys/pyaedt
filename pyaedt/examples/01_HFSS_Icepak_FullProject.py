@@ -11,14 +11,14 @@ import os
 import sys
 import pathlib
 import glob
-from pyaedt.core import Hfss
-from pyaedt.core import Icepak
-from pyaedt.core import Desktop
-from pyaedt.core.generic.general_methods import generate_unique_name
+from pyaedt import Hfss
+from pyaedt import Icepak
+from pyaedt import Desktop
+from pyaedt.generic.general_methods import generate_unique_name
 sys.path.append(r'..\DLLs\PDFReport')
 import clr
 clr.AddReference("AnsysReport")
-from pyaedt.core.application.DataHandlers import create_table_for_csharp
+from pyaedt.application.DataHandlers import create_table_for_csharp
 import AnsysReport
 
 try:

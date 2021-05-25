@@ -4,9 +4,9 @@ from .conftest import local_path, scratch_path
 import gc
 
 # Import required modules
-from pyaedt.core import Circuit
-from pyaedt.core.generic.filesystem import Scratch
-from pyaedt.core.generic.TouchstoneParser import read_touchstone
+from pyaedt import Circuit
+from pyaedt.generic.filesystem import Scratch
+from pyaedt.generic.TouchstoneParser import read_touchstone
 
 test_project_name = "Galileo"
 netlist1 = 'netlist_small.cir'
