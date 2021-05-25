@@ -87,7 +87,7 @@ class FieldAnalysisSimplorer(Analysis):
 
         Returns
         -------
-        type
+        :class: SetupCircuit
             setup object
 
         """
