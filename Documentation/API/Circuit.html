@@ -1,0 +1,301 @@
+
+<!DOCTYPE html>
+
+<html lang="Python">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Circuit Tools &#8212; pyaedt 0.5.0 documentation</title>
+    
+  <link rel="stylesheet" href="../_static/css/index.f658d18f9b420779cfdf24aa0a7e2d77.css">
+
+    
+  <link rel="stylesheet"
+    href="../_static/vendor/fontawesome/5.13.0/css/all.min.css">
+  <link rel="preload" as="font" type="font/woff2" crossorigin
+    href="../_static/vendor/fontawesome/5.13.0/webfonts/fa-solid-900.woff2">
+  <link rel="preload" as="font" type="font/woff2" crossorigin
+    href="../_static/vendor/fontawesome/5.13.0/webfonts/fa-brands-400.woff2">
+
+    
+      
+  <link rel="stylesheet"
+    href="../_static/vendor/open-sans_all/1.44.1/index.css">
+  <link rel="stylesheet"
+    href="../_static/vendor/lato_latin-ext/1.44.1/index.css">
+
+    
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/basic.css" type="text/css" />
+    <link rel="stylesheet" type="text/css" href="../_static/copybutton.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/graphviz.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/css/ansys.css" />
+    
+  <link rel="preload" as="script" href="../_static/js/index.d3f166471bb80abb5163.js">
+
+    <script id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+    <script src="../_static/jquery.js"></script>
+    <script src="../_static/underscore.js"></script>
+    <script src="../_static/doctools.js"></script>
+    <script src="../_static/clipboard.min.js"></script>
+    <script src="../_static/copybutton.js"></script>
+    <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Nexxim" href="Nexxim.html" />
+    <link rel="prev" title="Icepak" href="Icepak.html" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="docsearch:language" content="en" />
+  </head>
+  <body data-spy="scroll" data-target="#bd-toc-nav" data-offset="80">
+    
+    <nav class="navbar navbar-light navbar-expand-lg bg-light fixed-top bd-navbar" id="navbar-main">
+<div class="container-xl">
+
+    <a class="navbar-brand" href="../index.html">
+    
+      <img src="../_static/logo-ansys.png" class="logo" alt="logo" />
+    
+    </a>
+    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbar-menu" aria-controls="navbar-menu" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+    </button>
+
+    <div id="navbar-menu" class="col-lg-9 collapse navbar-collapse">
+      <ul id="navbar-main-elements" class="navbar-nav mr-auto">
+        
+        
+        <li class="nav-item ">
+            <a class="nav-link" href="../LICENSE.html">License Agreeement</a>
+        </li>
+        
+        <li class="nav-item ">
+            <a class="nav-link" href="../Resources/Installation.html">Installation</a>
+        </li>
+        
+        <li class="nav-item active">
+            <a class="nav-link" href="API.html">API documentation</a>
+        </li>
+        
+        <li class="nav-item ">
+            <a class="nav-link" href="Examples.html">Examples</a>
+        </li>
+        
+        <li class="nav-item ">
+            <a class="nav-link" href="../Resources/Code_Guidelines.html">Code Guidelines</a>
+        </li>
+        
+        <li class="nav-item ">
+            <a class="nav-link" href=""></a>
+        </li>
+        
+        
+      </ul>
+
+
+      
+
+      <ul class="navbar-nav">
+        
+        
+      </ul>
+    </div>
+</div>
+    </nav>
+    
+
+    <div class="container-xl">
+      <div class="row">
+          
+          <div class="col-12 col-md-3 bd-sidebar"><form class="bd-search d-flex align-items-center" action="../search.html" method="get">
+  <i class="icon fas fa-search"></i>
+  <input type="search" class="form-control" name="q" id="search-input" placeholder="Search the docs ..." aria-label="Search the docs ..." autocomplete="off" >
+</form>
+<nav class="bd-links" id="bd-docs-nav" aria-label="Main navigation">
+
+    <div class="bd-toc-item active">
+    
+  
+    <ul class="nav bd-sidenav">
+        
+        
+        
+        
+        
+        
+          
+            
+  
+                <li class="active">
+                    <a href="Application.html">Application Objects</a>
+                    <ul>
+                    
+                        <li class="">
+                            <a href="HFSS.html">Hfss</a>
+                        </li>
+                    
+                        <li class="">
+                            <a href="Q3D.html">Q3D/Q2D Extractor</a>
+                        </li>
+                    
+                        <li class="">
+                            <a href="Maxwell.html">Maxwell3D/2D</a>
+                        </li>
+                    
+                        <li class="">
+                            <a href="Icepak.html">Icepak</a>
+                        </li>
+                    
+                        <li class="active">
+                            <a href="">Circuit Tools</a>
+                        </li>
+                    
+                        <li class="">
+                            <a href="EDB.html">Edb</a>
+                        </li>
+                    
+                        <li class="">
+                            <a href="HFSS3DLayout.html">Hfss3dLayout Objects</a>
+                        </li>
+                    
+                        <li class="">
+                            <a href="Mechanical.html">AEDT Mechanical</a>
+                        </li>
+                    
+                        <li class="">
+                            <a href="RMxprt.html">RMxprt</a>
+                        </li>
+                    
+                    </ul>
+                </li>
+            
+          
+            
+                <li class="">
+                    <a href="DesktopMessenger.html">Desktop & Messenger</a>
+                </li>
+            
+          
+            
+                <li class="">
+                    <a href="CoreModules.html">Core Modules</a>
+                </li>
+            
+          
+            
+                <li class="">
+                    <a href="Primitives.html">Primitives</a>
+                </li>
+            
+          
+            
+                <li class="">
+                    <a href="Mesh.html">Mesh</a>
+                </li>
+            
+          
+            
+                <li class="">
+                    <a href="MaterialManagement.html">Material & Stackup</a>
+                </li>
+            
+          
+            
+                <li class="">
+                    <a href="Setup.html">Setup</a>
+                </li>
+            
+          
+            
+                <li class="">
+                    <a href="Post.html">PostProcessing</a>
+                </li>
+            
+          
+        
+        
+        
+        
+        
+        
+        
+        
+      </ul>
+  
+  </nav>
+          </div>
+          
+
+          
+          <div class="d-none d-xl-block col-xl-2 bd-toc">
+              
+
+<nav id="bd-toc-nav">
+    <ul class="nav section-nav flex-column">
+    
+    </ul>
+</nav>
+
+
+              
+          </div>
+          
+
+          
+          <main class="col-12 col-md-9 col-xl-7 py-md-5 pl-md-5 pr-md-4 bd-content" role="main">
+              
+              <div>
+                
+  <div class="section" id="circuit-tools">
+<h1>Circuit Tools<a class="headerlink" href="#circuit-tools" title="Permalink to this headline">¶</a></h1>
+<p><strong>Diagram</strong></p>
+<div class="graphviz"><img src="../_images/inheritance-856e2a4f639bb576b3bdf76578ae097aa87756fd.png" alt="Inheritance diagram of pyaedt.Circuit, pyaedt.Simplorer" usemap="#inheritancec5677059e5" class="inheritance graphviz" /></div>
+<map id="inheritancec5677059e5" name="inheritancec5677059e5">
+<area shape="poly" id="node1" href="Analysis.html#pyaedt.application.Analysis.Analysis" target="_top" title="**Class Analysis**" alt="" coords="557,89,554,78,547,68,536,60,522,55,506,53,490,55,476,60,465,68,458,78,455,89,458,100,465,110,476,118,490,124,506,125,522,124,536,118,547,110,554,100"/>
+<area shape="poly" id="node4" href="AnalysisNexxim.html#pyaedt.application.AnalysisNexxim.FieldAnalysisCircuit" target="_top" title="**AEDT_CircuitAnalysis**" alt="" coords="391,41,386,30,371,20,348,12,320,7,288,5,256,7,227,12,204,20,190,30,184,41,190,52,204,62,227,70,256,76,288,77,320,76,348,70,371,62,386,52"/>
+<area shape="poly" id="node5" href="AnalysisSimplorer.html#pyaedt.application.AnalysisSimplorer.FieldAnalysisSimplorer" target="_top" title="**AEDT_CircuitAnalysis**" alt="" coords="407,137,401,126,384,116,358,108,325,103,288,101,251,103,217,108,191,116,174,126,168,137,174,148,191,158,217,166,251,172,288,173,325,172,358,166,384,158,401,148"/>
+<area shape="poly" id="node2" href="Design.html#pyaedt.application.Design.Design" target="_top" title="Class Design. Contains all functions and objects connected to the active Project and Design" alt="" coords="696,89,694,78,687,68,677,60,665,55,650,53,636,55,624,60,613,68,607,78,605,89,607,100,613,110,624,118,636,124,650,125,665,124,677,118,687,110,694,100"/>
+</map><div class="toctree-wrapper compound">
+<p class="caption"><span class="caption-text">Classes:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="Nexxim.html">Nexxim</a><ul class="simple">
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="Simplorer.html">Simplorer</a><ul class="simple">
+</ul>
+</li>
+</ul>
+</div>
+</div>
+
+
+              </div>
+              
+              
+              <div class='prev-next-bottom'>
+                
+    <a class='left-prev' id="prev-link" href="Icepak.html" title="previous page">Icepak</a>
+    <a class='right-next' id="next-link" href="Nexxim.html" title="next page">Nexxim</a>
+
+              </div>
+              
+          </main>
+          
+
+      </div>
+    </div>
+
+    
+  <script src="../_static/js/index.d3f166471bb80abb5163.js"></script>
+
+
+    <footer class="footer mt-5 mt-md-0">
+  <div class="container">
+    <p>
+          &copy; Copyright Copyright(c) 1986-2021, ANSYSInc. unauthorised use, distribution or duplication is prohibited. This tool release is unofficial and not covered by standard Ansys Support license..<br/>
+        Created using <a href="http://sphinx-doc.org/">Sphinx</a> 3.5.2.<br/>
+    </p>
+  </div>
+</footer>
+  </body>
+</html>

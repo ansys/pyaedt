@@ -1,0 +1,1005 @@
+
+<!DOCTYPE html>
+
+<html lang="Python">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Primitives Circuit Components &#8212; pyaedt 0.5.0 documentation</title>
+    
+  <link rel="stylesheet" href="../_static/css/index.f658d18f9b420779cfdf24aa0a7e2d77.css">
+
+    
+  <link rel="stylesheet"
+    href="../_static/vendor/fontawesome/5.13.0/css/all.min.css">
+  <link rel="preload" as="font" type="font/woff2" crossorigin
+    href="../_static/vendor/fontawesome/5.13.0/webfonts/fa-solid-900.woff2">
+  <link rel="preload" as="font" type="font/woff2" crossorigin
+    href="../_static/vendor/fontawesome/5.13.0/webfonts/fa-brands-400.woff2">
+
+    
+      
+  <link rel="stylesheet"
+    href="../_static/vendor/open-sans_all/1.44.1/index.css">
+  <link rel="stylesheet"
+    href="../_static/vendor/lato_latin-ext/1.44.1/index.css">
+
+    
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/basic.css" type="text/css" />
+    <link rel="stylesheet" type="text/css" href="../_static/copybutton.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/graphviz.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/css/ansys.css" />
+    
+  <link rel="preload" as="script" href="../_static/js/index.d3f166471bb80abb5163.js">
+
+    <script id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+    <script src="../_static/jquery.js"></script>
+    <script src="../_static/underscore.js"></script>
+    <script src="../_static/doctools.js"></script>
+    <script src="../_static/clipboard.min.js"></script>
+    <script src="../_static/copybutton.js"></script>
+    <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Mesh" href="Mesh.html" />
+    <link rel="prev" title="Primitives Layout" href="Primitives3DLayout.html" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="docsearch:language" content="en" />
+  </head>
+  <body data-spy="scroll" data-target="#bd-toc-nav" data-offset="80">
+    
+    <nav class="navbar navbar-light navbar-expand-lg bg-light fixed-top bd-navbar" id="navbar-main">
+<div class="container-xl">
+
+    <a class="navbar-brand" href="../index.html">
+    
+      <img src="../_static/logo-ansys.png" class="logo" alt="logo" />
+    
+    </a>
+    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbar-menu" aria-controls="navbar-menu" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+    </button>
+
+    <div id="navbar-menu" class="col-lg-9 collapse navbar-collapse">
+      <ul id="navbar-main-elements" class="navbar-nav mr-auto">
+        
+        
+        <li class="nav-item ">
+            <a class="nav-link" href="../LICENSE.html">License Agreeement</a>
+        </li>
+        
+        <li class="nav-item ">
+            <a class="nav-link" href="../Resources/Installation.html">Installation</a>
+        </li>
+        
+        <li class="nav-item active">
+            <a class="nav-link" href="API.html">API documentation</a>
+        </li>
+        
+        <li class="nav-item ">
+            <a class="nav-link" href="Examples.html">Examples</a>
+        </li>
+        
+        <li class="nav-item ">
+            <a class="nav-link" href="../Resources/Code_Guidelines.html">Code Guidelines</a>
+        </li>
+        
+        <li class="nav-item ">
+            <a class="nav-link" href=""></a>
+        </li>
+        
+        
+      </ul>
+
+
+      
+
+      <ul class="navbar-nav">
+        
+        
+      </ul>
+    </div>
+</div>
+    </nav>
+    
+
+    <div class="container-xl">
+      <div class="row">
+          
+          <div class="col-12 col-md-3 bd-sidebar"><form class="bd-search d-flex align-items-center" action="../search.html" method="get">
+  <i class="icon fas fa-search"></i>
+  <input type="search" class="form-control" name="q" id="search-input" placeholder="Search the docs ..." aria-label="Search the docs ..." autocomplete="off" >
+</form>
+<nav class="bd-links" id="bd-docs-nav" aria-label="Main navigation">
+
+    <div class="bd-toc-item active">
+    
+  
+    <ul class="nav bd-sidenav">
+        
+        
+        
+        
+        
+        
+          
+            
+                <li class="">
+                    <a href="Application.html">Application Objects</a>
+                </li>
+            
+          
+            
+                <li class="">
+                    <a href="DesktopMessenger.html">Desktop & Messenger</a>
+                </li>
+            
+          
+            
+                <li class="">
+                    <a href="CoreModules.html">Core Modules</a>
+                </li>
+            
+          
+            
+  
+                <li class="active">
+                    <a href="Primitives.html">Primitives</a>
+                    <ul>
+                    
+                        <li class="">
+                            <a href="Primitives3D.html">Primitives 3D</a>
+                        </li>
+                    
+                        <li class="">
+                            <a href="Primitives2D.html">Primitives 2D</a>
+                        </li>
+                    
+                        <li class="">
+                            <a href="Primitives3DLayout.html">Primitives Layout</a>
+                        </li>
+                    
+                        <li class="active">
+                            <a href="">Primitives Circuit Components</a>
+                        </li>
+                    
+                    </ul>
+                </li>
+            
+          
+            
+                <li class="">
+                    <a href="Mesh.html">Mesh</a>
+                </li>
+            
+          
+            
+                <li class="">
+                    <a href="MaterialManagement.html">Material & Stackup</a>
+                </li>
+            
+          
+            
+                <li class="">
+                    <a href="Setup.html">Setup</a>
+                </li>
+            
+          
+            
+                <li class="">
+                    <a href="Post.html">PostProcessing</a>
+                </li>
+            
+          
+        
+        
+        
+        
+        
+        
+        
+        
+      </ul>
+  
+  </nav>
+          </div>
+          
+
+          
+          <div class="d-none d-xl-block col-xl-2 bd-toc">
+              
+
+<nav id="bd-toc-nav">
+    <ul class="nav section-nav flex-column">
+    
+    </ul>
+</nav>
+
+
+              
+          </div>
+          
+
+          
+          <main class="col-12 col-md-9 col-xl-7 py-md-5 pl-md-5 pr-md-4 bd-content" role="main">
+              
+              <div>
+                
+  <div class="section" id="primitives-circuit-components">
+<h1>Primitives Circuit Components<a class="headerlink" href="#primitives-circuit-components" title="Permalink to this headline">¶</a></h1>
+<dl class="py class">
+<dt id="pyaedt.modeler.PrimitivesNexxim.NexximComponents">
+<em class="property"><span class="pre">class</span> </em><code class="sig-prename descclassname"><span class="pre">pyaedt.modeler.PrimitivesNexxim.</span></code><code class="sig-name descname"><span class="pre">NexximComponents</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">parent</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">modeler</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pyaedt/modeler/PrimitivesNexxim.html#NexximComponents"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyaedt.modeler.PrimitivesNexxim.NexximComponents" title="Permalink to this definition">¶</a></dt>
+<dd><p>Class for management of all CircuitComponents for Nexxim</p>
+<dl class="py method">
+<dt id="pyaedt.modeler.PrimitivesNexxim.NexximComponents.add_subcircuit_hfss_link">
+<code class="sig-name descname"><span class="pre">add_subcircuit_hfss_link</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">compName</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pin_names</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">source_project_path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">source_project_name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">source_design_name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">solution_name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'Setup1</span> <span class="pre">:</span> <span class="pre">Sweep'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pyaedt/modeler/PrimitivesNexxim.html#NexximComponents.add_subcircuit_hfss_link"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyaedt.modeler.PrimitivesNexxim.NexximComponents.add_subcircuit_hfss_link" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>compName</strong> -- </p></li>
+<li><p><strong>pin_names</strong> -- </p></li>
+<li><p><strong>source_project_path</strong> -- </p></li>
+<li><p><strong>source_project_name</strong> -- </p></li>
+<li><p><strong>source_design_name</strong> -- </p></li>
+<li><p><strong>solution_name</strong> -- </p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="pyaedt.modeler.PrimitivesNexxim.NexximComponents.assign_sin_excitation2ports">
+<code class="sig-name descname"><span class="pre">assign_sin_excitation2ports</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ports</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">settings</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pyaedt/modeler/PrimitivesNexxim.html#NexximComponents.assign_sin_excitation2ports"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyaedt.modeler.PrimitivesNexxim.NexximComponents.assign_sin_excitation2ports" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>ports</strong> -- List of circuit ports for excitation assignation</p></li>
+<li><p><strong>settings</strong> -- List of parameters values used in voltage sinusoidal excitation creation:</p></li>
+<li><p><strong>settings</strong><strong>[</strong><strong>0</strong><strong>]</strong> -- AC magnitude for small-signal analysis</p></li>
+<li><p><strong>settings</strong><strong>[</strong><strong>1</strong><strong>]</strong> -- AC phase for small-signal analysis</p></li>
+<li><p><strong>settings</strong><strong>[</strong><strong>2</strong><strong>]</strong> -- DC voltage</p></li>
+<li><p><strong>settings</strong><strong>[</strong><strong>3</strong><strong>]</strong> -- Voltage offset from zero</p></li>
+<li><p><strong>settings</strong><strong>[</strong><strong>4</strong><strong>]</strong> -- Voltage amplitude</p></li>
+<li><p><strong>settings</strong><strong>[</strong><strong>5</strong><strong>]</strong> -- Frequency</p></li>
+<li><p><strong>settings</strong><strong>[</strong><strong>6</strong><strong>]</strong> -- Delay to start of sine wave</p></li>
+<li><p><strong>settings</strong><strong>[</strong><strong>7</strong><strong>]</strong> -- Damping factor</p></li>
+<li><p><strong>settings</strong><strong>[</strong><strong>8</strong><strong>]</strong> -- Phase Delay</p></li>
+<li><p><strong>settings</strong><strong>[</strong><strong>9</strong><strong>]</strong> -- Frequency to use for harmonic balance analysis</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="pyaedt.modeler.PrimitivesNexxim.NexximComponents.create_3dlayout_subcircuit">
+<code class="sig-name descname"><span class="pre">create_3dlayout_subcircuit</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">sourcename</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pyaedt/modeler/PrimitivesNexxim.html#NexximComponents.create_3dlayout_subcircuit"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyaedt.modeler.PrimitivesNexxim.NexximComponents.create_3dlayout_subcircuit" title="Permalink to this definition">¶</a></dt>
+<dd><p>Create a new subcircuit</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>sourcename</strong> -- name of the source design</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>el, composed_name if succeeded or False</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="pyaedt.modeler.PrimitivesNexxim.NexximComponents.create_capacitor">
+<code class="sig-name descname"><span class="pre">create_capacitor</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">compname</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">value</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">50</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">xpos</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ypos</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">angle</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">use_instance_id_netlist</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pyaedt/modeler/PrimitivesNexxim.html#NexximComponents.create_capacitor"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyaedt.modeler.PrimitivesNexxim.NexximComponents.create_capacitor" title="Permalink to this definition">¶</a></dt>
+<dd><p>Create a new Capacitor</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>compname</strong> -- name</p></li>
+<li><p><strong>value</strong> -- value</p></li>
+<li><p><strong>xpos</strong> -- x pos</p></li>
+<li><p><strong>ypos</strong> -- y pos</p></li>
+<li><p><strong>angle</strong> -- angle</p></li>
+<li><p><strong>use_instance_id_netlist</strong> -- bool</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>id, name</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="pyaedt.modeler.PrimitivesNexxim.NexximComponents.create_coupling_inductors">
+<code class="sig-name descname"><span class="pre">create_coupling_inductors</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">compname</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">l1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">l2</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">value</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">xpos</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ypos</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">angle</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">use_instance_id_netlist</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pyaedt/modeler/PrimitivesNexxim.html#NexximComponents.create_coupling_inductors"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyaedt.modeler.PrimitivesNexxim.NexximComponents.create_coupling_inductors" title="Permalink to this definition">¶</a></dt>
+<dd><p>Create a new Coupling Inductor</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>compname</strong> -- name</p></li>
+<li><p><strong>value</strong> -- value</p></li>
+<li><p><strong>xpos</strong> -- x pos</p></li>
+<li><p><strong>ypos</strong> -- y pos</p></li>
+<li><p><strong>angle</strong> -- angle</p></li>
+<li><p><strong>use_instance_id_netlist</strong> -- bool</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>id, name</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="pyaedt.modeler.PrimitivesNexxim.NexximComponents.create_current_dc">
+<code class="sig-name descname"><span class="pre">create_current_dc</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">compname</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">value</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">xpos</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ypos</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">angle</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">use_instance_id_netlist</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pyaedt/modeler/PrimitivesNexxim.html#NexximComponents.create_current_dc"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyaedt.modeler.PrimitivesNexxim.NexximComponents.create_current_dc" title="Permalink to this definition">¶</a></dt>
+<dd><p>Create a new Current DC Source</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>compname</strong> -- name</p></li>
+<li><p><strong>value</strong> -- value</p></li>
+<li><p><strong>xpos</strong> -- x pos</p></li>
+<li><p><strong>ypos</strong> -- y pos</p></li>
+<li><p><strong>angle</strong> -- angle</p></li>
+<li><p><strong>use_instance_id_netlist</strong> -- bool</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>id, name</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="pyaedt.modeler.PrimitivesNexxim.NexximComponents.create_current_pulse">
+<code class="sig-name descname"><span class="pre">create_current_pulse</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">compname</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">value_lists</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">[]</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">xpos</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ypos</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">angle</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">use_instance_id_netlist</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pyaedt/modeler/PrimitivesNexxim.html#NexximComponents.create_current_pulse"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyaedt.modeler.PrimitivesNexxim.NexximComponents.create_current_pulse" title="Permalink to this definition">¶</a></dt>
+<dd><p>Create a new Current Pulse</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>compname</strong> -- name</p></li>
+<li><p><strong>value</strong> -- value</p></li>
+<li><p><strong>xpos</strong> -- x pos</p></li>
+<li><p><strong>ypos</strong> -- y pos</p></li>
+<li><p><strong>angle</strong> -- angle</p></li>
+<li><p><strong>use_instance_id_netlist</strong> -- bool</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>id, name</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="pyaedt.modeler.PrimitivesNexxim.NexximComponents.create_diode">
+<code class="sig-name descname"><span class="pre">create_diode</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">compname</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">model_name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'required'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">xpos</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ypos</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">angle</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">use_instance_id_netlist</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pyaedt/modeler/PrimitivesNexxim.html#NexximComponents.create_diode"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyaedt.modeler.PrimitivesNexxim.NexximComponents.create_diode" title="Permalink to this definition">¶</a></dt>
+<dd><p>Create a new Diode</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>compname</strong> -- name</p></li>
+<li><p><strong>value</strong> -- value</p></li>
+<li><p><strong>xpos</strong> -- x pos</p></li>
+<li><p><strong>ypos</strong> -- y pos</p></li>
+<li><p><strong>angle</strong> -- angle</p></li>
+<li><p><strong>use_instance_id_netlist</strong> -- bool</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>id, name</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="pyaedt.modeler.PrimitivesNexxim.NexximComponents.create_field_model">
+<code class="sig-name descname"><span class="pre">create_field_model</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">design_name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">solution_name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pin_names</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">model_type</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'hfss'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">posx</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">posy</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pyaedt/modeler/PrimitivesNexxim.html#NexximComponents.create_field_model"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyaedt.modeler.PrimitivesNexxim.NexximComponents.create_field_model" title="Permalink to this definition">¶</a></dt>
+<dd><p>Create Field Model</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>design_name</strong> -- </p></li>
+<li><p><strong>solution_name</strong> -- </p></li>
+<li><p><strong>pin_names</strong> -- </p></li>
+<li><p><strong>model_type</strong> -- </p></li>
+<li><p><strong>posx</strong> -- </p></li>
+<li><p><strong>posy</strong> -- </p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="pyaedt.modeler.PrimitivesNexxim.NexximComponents.create_inductor">
+<code class="sig-name descname"><span class="pre">create_inductor</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">compname</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">value</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">50</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">xpos</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ypos</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">angle</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">use_instance_id_netlist</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pyaedt/modeler/PrimitivesNexxim.html#NexximComponents.create_inductor"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyaedt.modeler.PrimitivesNexxim.NexximComponents.create_inductor" title="Permalink to this definition">¶</a></dt>
+<dd><p>Create a new Inductor</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>compname</strong> -- name</p></li>
+<li><p><strong>value</strong> -- value</p></li>
+<li><p><strong>xpos</strong> -- x pos</p></li>
+<li><p><strong>ypos</strong> -- y pos</p></li>
+<li><p><strong>angle</strong> -- angle</p></li>
+<li><p><strong>use_instance_id_netlist</strong> -- bool</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>id, name</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="pyaedt.modeler.PrimitivesNexxim.NexximComponents.create_new_component_from_symbol">
+<code class="sig-name descname"><span class="pre">create_new_component_from_symbol</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">symbol_name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pin_lists</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">Refbase</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'U'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">parameter_list</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">[]</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">parameter_value</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">[]</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pyaedt/modeler/PrimitivesNexxim.html#NexximComponents.create_new_component_from_symbol"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyaedt.modeler.PrimitivesNexxim.NexximComponents.create_new_component_from_symbol" title="Permalink to this definition">¶</a></dt>
+<dd><p>Create a new Component from symbol</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>symbol_name</strong> -- symbol name</p></li>
+<li><p><strong>pin_lists</strong> -- list of pins name</p></li>
+<li><p><strong>Refbase</strong> -- reference base</p></li>
+<li><p><strong>parameter_list</strong> -- list of parameters</p></li>
+<li><p><strong>parameter_value</strong> -- list of parameters values</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>true</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="pyaedt.modeler.PrimitivesNexxim.NexximComponents.create_npn">
+<code class="sig-name descname"><span class="pre">create_npn</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">compname</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">value</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">xpos</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ypos</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">angle</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">use_instance_id_netlist</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pyaedt/modeler/PrimitivesNexxim.html#NexximComponents.create_npn"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyaedt.modeler.PrimitivesNexxim.NexximComponents.create_npn" title="Permalink to this definition">¶</a></dt>
+<dd><p>Create a new Transistor NPN</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>compname</strong> -- name</p></li>
+<li><p><strong>value</strong> -- value</p></li>
+<li><p><strong>xpos</strong> -- x pos</p></li>
+<li><p><strong>ypos</strong> -- y pos</p></li>
+<li><p><strong>angle</strong> -- angle</p></li>
+<li><p><strong>use_instance_id_netlist</strong> -- bool</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>id, name</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="pyaedt.modeler.PrimitivesNexxim.NexximComponents.create_pnp">
+<code class="sig-name descname"><span class="pre">create_pnp</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">compname</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">value</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">50</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">xpos</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ypos</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">angle</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">use_instance_id_netlist</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pyaedt/modeler/PrimitivesNexxim.html#NexximComponents.create_pnp"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyaedt.modeler.PrimitivesNexxim.NexximComponents.create_pnp" title="Permalink to this definition">¶</a></dt>
+<dd><p>Create a new Transistor PNP</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>compname</strong> -- name</p></li>
+<li><p><strong>value</strong> -- value</p></li>
+<li><p><strong>xpos</strong> -- x pos</p></li>
+<li><p><strong>ypos</strong> -- y pos</p></li>
+<li><p><strong>angle</strong> -- angle</p></li>
+<li><p><strong>use_instance_id_netlist</strong> -- bool</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>id, name</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="pyaedt.modeler.PrimitivesNexxim.NexximComponents.create_resistor">
+<code class="sig-name descname"><span class="pre">create_resistor</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">compname</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">value</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">50</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">xpos</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ypos</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">angle</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">use_instance_id_netlist</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pyaedt/modeler/PrimitivesNexxim.html#NexximComponents.create_resistor"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyaedt.modeler.PrimitivesNexxim.NexximComponents.create_resistor" title="Permalink to this definition">¶</a></dt>
+<dd><p>Create a new Resistor</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>compname</strong> -- name</p></li>
+<li><p><strong>value</strong> -- value</p></li>
+<li><p><strong>xpos</strong> -- x pos</p></li>
+<li><p><strong>ypos</strong> -- y pos</p></li>
+<li><p><strong>angle</strong> -- angle</p></li>
+<li><p><strong>use_instance_id_netlist</strong> -- bool</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>id, name</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="pyaedt.modeler.PrimitivesNexxim.NexximComponents.create_voltage_dc">
+<code class="sig-name descname"><span class="pre">create_voltage_dc</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">compname</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">value</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">xpos</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ypos</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">angle</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">use_instance_id_netlist</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pyaedt/modeler/PrimitivesNexxim.html#NexximComponents.create_voltage_dc"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyaedt.modeler.PrimitivesNexxim.NexximComponents.create_voltage_dc" title="Permalink to this definition">¶</a></dt>
+<dd><p>Create a new Voltage DC Source</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>compname</strong> -- name</p></li>
+<li><p><strong>value</strong> -- value</p></li>
+<li><p><strong>xpos</strong> -- x pos</p></li>
+<li><p><strong>ypos</strong> -- y pos</p></li>
+<li><p><strong>angle</strong> -- angle</p></li>
+<li><p><strong>use_instance_id_netlist</strong> -- bool</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>id, name</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="pyaedt.modeler.PrimitivesNexxim.NexximComponents.create_voltage_pulse">
+<code class="sig-name descname"><span class="pre">create_voltage_pulse</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">compname</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">value_lists</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">[]</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">xpos</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ypos</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">angle</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">use_instance_id_netlist</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pyaedt/modeler/PrimitivesNexxim.html#NexximComponents.create_voltage_pulse"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyaedt.modeler.PrimitivesNexxim.NexximComponents.create_voltage_pulse" title="Permalink to this definition">¶</a></dt>
+<dd><p>Create a new Voltage Pulse</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>compname</strong> -- name</p></li>
+<li><p><strong>value</strong> -- value</p></li>
+<li><p><strong>xpos</strong> -- x pos</p></li>
+<li><p><strong>ypos</strong> -- y pos</p></li>
+<li><p><strong>angle</strong> -- angle</p></li>
+<li><p><strong>use_instance_id_netlist</strong> -- bool</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>id, name</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="pyaedt.modeler.PrimitivesNexxim.NexximComponents.get_comp_custom_settings">
+<code class="sig-name descname"><span class="pre">get_comp_custom_settings</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">toolNum</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dc</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">interp</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">extrap</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">conv</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">passivity</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">reciprocal</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'False'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">opt</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">data_type</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pyaedt/modeler/PrimitivesNexxim.html#NexximComponents.get_comp_custom_settings"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyaedt.modeler.PrimitivesNexxim.NexximComponents.get_comp_custom_settings" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>toolNum</strong> -- </p></li>
+<li><p><strong>dc</strong> -- </p></li>
+<li><p><strong>interp</strong> -- </p></li>
+<li><p><strong>extrap</strong> -- </p></li>
+<li><p><strong>conv</strong> -- </p></li>
+<li><p><strong>passivity</strong> -- </p></li>
+<li><p><strong>reciprocal</strong> -- </p></li>
+<li><p><strong>opt</strong> -- </p></li>
+<li><p><strong>data_type</strong> -- </p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="pyaedt.modeler.PrimitivesNexxim.NexximComponents.set_sim_option_on_hfss_subcircuit">
+<code class="sig-name descname"><span class="pre">set_sim_option_on_hfss_subcircuit</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">component</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pyaedt/modeler/PrimitivesNexxim.html#NexximComponents.set_sim_option_on_hfss_subcircuit"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyaedt.modeler.PrimitivesNexxim.NexximComponents.set_sim_option_on_hfss_subcircuit" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>component</strong> -- <a class="reference external" href="mailto:CompInst&#37;&#52;&#48;Galileo_cutout3">CompInst<span>&#64;</span>Galileo_cutout3</a>;87;1</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="pyaedt.modeler.PrimitivesNexxim.NexximComponents.update_object_properties">
+<code class="sig-name descname"><span class="pre">update_object_properties</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">o</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pyaedt/modeler/PrimitivesNexxim.html#NexximComponents.update_object_properties"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyaedt.modeler.PrimitivesNexxim.NexximComponents.update_object_properties" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>o</strong> -- object</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>object with properties</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt id="pyaedt.modeler.PrimitivesSimplorer.SimplorerComponents">
+<em class="property"><span class="pre">class</span> </em><code class="sig-prename descclassname"><span class="pre">pyaedt.modeler.PrimitivesSimplorer.</span></code><code class="sig-name descname"><span class="pre">SimplorerComponents</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">parent</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">modeler</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pyaedt/modeler/PrimitivesSimplorer.html#SimplorerComponents"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyaedt.modeler.PrimitivesSimplorer.SimplorerComponents" title="Permalink to this definition">¶</a></dt>
+<dd><p>Class for management of all CircuitComponents for Simplorer</p>
+<dl class="py method">
+<dt id="pyaedt.modeler.PrimitivesSimplorer.SimplorerComponents.create_capacitor">
+<code class="sig-name descname"><span class="pre">create_capacitor</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">compname</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">value</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">50</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">xpos</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ypos</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">angle</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">use_instance_id_netlist</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pyaedt/modeler/PrimitivesSimplorer.html#SimplorerComponents.create_capacitor"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyaedt.modeler.PrimitivesSimplorer.SimplorerComponents.create_capacitor" title="Permalink to this definition">¶</a></dt>
+<dd><p>Create a new Capacitor</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>compname</strong> -- name</p></li>
+<li><p><strong>value</strong> -- value</p></li>
+<li><p><strong>xpos</strong> -- x pos</p></li>
+<li><p><strong>ypos</strong> -- y pos</p></li>
+<li><p><strong>angle</strong> -- angle</p></li>
+<li><p><strong>use_instance_id_netlist</strong> -- bool</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>id, name</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="pyaedt.modeler.PrimitivesSimplorer.SimplorerComponents.create_diode">
+<code class="sig-name descname"><span class="pre">create_diode</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">compname</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">model_name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'required'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">xpos</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ypos</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">angle</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">use_instance_id_netlist</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pyaedt/modeler/PrimitivesSimplorer.html#SimplorerComponents.create_diode"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyaedt.modeler.PrimitivesSimplorer.SimplorerComponents.create_diode" title="Permalink to this definition">¶</a></dt>
+<dd><p>Create a new Diode</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>compname</strong> -- name</p></li>
+<li><p><strong>value</strong> -- value</p></li>
+<li><p><strong>xpos</strong> -- x pos</p></li>
+<li><p><strong>ypos</strong> -- y pos</p></li>
+<li><p><strong>angle</strong> -- angle</p></li>
+<li><p><strong>use_instance_id_netlist</strong> -- bool</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>id, name</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="pyaedt.modeler.PrimitivesSimplorer.SimplorerComponents.create_inductor">
+<code class="sig-name descname"><span class="pre">create_inductor</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">compname</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">value</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">50</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">xpos</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ypos</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">angle</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">use_instance_id_netlist</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pyaedt/modeler/PrimitivesSimplorer.html#SimplorerComponents.create_inductor"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyaedt.modeler.PrimitivesSimplorer.SimplorerComponents.create_inductor" title="Permalink to this definition">¶</a></dt>
+<dd><p>Create a new Inductor</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>compname</strong> -- name</p></li>
+<li><p><strong>value</strong> -- value</p></li>
+<li><p><strong>xpos</strong> -- x pos</p></li>
+<li><p><strong>ypos</strong> -- y pos</p></li>
+<li><p><strong>angle</strong> -- angle</p></li>
+<li><p><strong>use_instance_id_netlist</strong> -- bool</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>id, name</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="pyaedt.modeler.PrimitivesSimplorer.SimplorerComponents.create_npn">
+<code class="sig-name descname"><span class="pre">create_npn</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">compname</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">value</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">xpos</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ypos</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">angle</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">use_instance_id_netlist</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pyaedt/modeler/PrimitivesSimplorer.html#SimplorerComponents.create_npn"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyaedt.modeler.PrimitivesSimplorer.SimplorerComponents.create_npn" title="Permalink to this definition">¶</a></dt>
+<dd><p>Create a new Transistor NPN</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>compname</strong> -- name</p></li>
+<li><p><strong>value</strong> -- value</p></li>
+<li><p><strong>xpos</strong> -- x pos</p></li>
+<li><p><strong>ypos</strong> -- y pos</p></li>
+<li><p><strong>angle</strong> -- angle</p></li>
+<li><p><strong>use_instance_id_netlist</strong> -- bool</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>id, name</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="pyaedt.modeler.PrimitivesSimplorer.SimplorerComponents.create_pnp">
+<code class="sig-name descname"><span class="pre">create_pnp</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">compname</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">value</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">50</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">xpos</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ypos</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">angle</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">use_instance_id_netlist</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pyaedt/modeler/PrimitivesSimplorer.html#SimplorerComponents.create_pnp"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyaedt.modeler.PrimitivesSimplorer.SimplorerComponents.create_pnp" title="Permalink to this definition">¶</a></dt>
+<dd><p>Create a new Transistor PNP</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>compname</strong> -- name</p></li>
+<li><p><strong>value</strong> -- value</p></li>
+<li><p><strong>xpos</strong> -- x pos</p></li>
+<li><p><strong>ypos</strong> -- y pos</p></li>
+<li><p><strong>angle</strong> -- angle</p></li>
+<li><p><strong>use_instance_id_netlist</strong> -- bool</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>id, name</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="pyaedt.modeler.PrimitivesSimplorer.SimplorerComponents.create_resistor">
+<code class="sig-name descname"><span class="pre">create_resistor</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">compname</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">value</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">50</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">xpos</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ypos</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">angle</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">use_instance_id_netlist</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pyaedt/modeler/PrimitivesSimplorer.html#SimplorerComponents.create_resistor"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyaedt.modeler.PrimitivesSimplorer.SimplorerComponents.create_resistor" title="Permalink to this definition">¶</a></dt>
+<dd><p>Create a new Resistor</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>compname</strong> -- name</p></li>
+<li><p><strong>value</strong> -- value</p></li>
+<li><p><strong>xpos</strong> -- x pos</p></li>
+<li><p><strong>ypos</strong> -- y pos</p></li>
+<li><p><strong>angle</strong> -- angle</p></li>
+<li><p><strong>use_instance_id_netlist</strong> -- bool</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>id, name</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt id="pyaedt.modeler.PrimitivesCircuit.CircuitComponents">
+<em class="property"><span class="pre">class</span> </em><code class="sig-prename descclassname"><span class="pre">pyaedt.modeler.PrimitivesCircuit.</span></code><code class="sig-name descname"><span class="pre">CircuitComponents</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">parent</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">modeler</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pyaedt/modeler/PrimitivesCircuit.html#CircuitComponents"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyaedt.modeler.PrimitivesCircuit.CircuitComponents" title="Permalink to this definition">¶</a></dt>
+<dd><p>Common Class for management of all CircuitComponents for Nexxim and Simplorer</p>
+<dl class="py method">
+<dt id="pyaedt.modeler.PrimitivesCircuit.CircuitComponents.add_id_to_component">
+<code class="sig-name descname"><span class="pre">add_id_to_component</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">id</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pyaedt/modeler/PrimitivesCircuit.html#CircuitComponents.add_id_to_component"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyaedt.modeler.PrimitivesCircuit.CircuitComponents.add_id_to_component" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>id</strong> -- </p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="pyaedt.modeler.PrimitivesCircuit.CircuitComponents.create_component">
+<code class="sig-name descname"><span class="pre">create_component</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">inst_name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">component_library</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'Resistors'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">component_name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'RES_'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">xpos</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ypos</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">angle</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">use_instance_id_netlist</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">global_netlist_list</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">[]</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pyaedt/modeler/PrimitivesCircuit.html#CircuitComponents.create_component"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyaedt.modeler.PrimitivesCircuit.CircuitComponents.create_component" title="Permalink to this definition">¶</a></dt>
+<dd><p>Create new component from Library</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>inst_name</strong> -- Instance Name</p></li>
+<li><p><strong>component_library</strong> -- Component Library (Default Resistors)</p></li>
+<li><p><strong>component_name</strong> -- Component name in library Default RES</p></li>
+<li><p><strong>xpos</strong> -- x position</p></li>
+<li><p><strong>ypos</strong> -- y position</p></li>
+<li><p><strong>angle</strong> -- component angle</p></li>
+<li><p><strong>use_instance_id_netlist</strong> -- bool to enable instance id in netlist</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>id , composed_name</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="pyaedt.modeler.PrimitivesCircuit.CircuitComponents.create_gnd">
+<code class="sig-name descname"><span class="pre">create_gnd</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">posx</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">posy</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pyaedt/modeler/PrimitivesCircuit.html#CircuitComponents.create_gnd"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyaedt.modeler.PrimitivesCircuit.CircuitComponents.create_gnd" title="Permalink to this definition">¶</a></dt>
+<dd><p>Create GNDt</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>posx</strong> -- x position</p></li>
+<li><p><strong>posy</strong> -- y position</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>gnd object,  gnd name</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="pyaedt.modeler.PrimitivesCircuit.CircuitComponents.create_iport">
+<code class="sig-name descname"><span class="pre">create_iport</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">posx</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">posy</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">angle</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pyaedt/modeler/PrimitivesCircuit.html#CircuitComponents.create_iport"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyaedt.modeler.PrimitivesCircuit.CircuitComponents.create_iport" title="Permalink to this definition">¶</a></dt>
+<dd><p>Create new port</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>name</strong> -- port name</p></li>
+<li><p><strong>posx</strong> -- x position</p></li>
+<li><p><strong>posy</strong> -- y position</p></li>
+<li><p><strong>angle</strong> -- angle rotation</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>port object,  port_name</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="pyaedt.modeler.PrimitivesCircuit.CircuitComponents.create_new_component_from_symbol">
+<code class="sig-name descname"><span class="pre">create_new_component_from_symbol</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">symbol_name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pin_lists</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">Refbase</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'U'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">parameter_list</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">[]</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">parameter_value</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">[]</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pyaedt/modeler/PrimitivesCircuit.html#CircuitComponents.create_new_component_from_symbol"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyaedt.modeler.PrimitivesCircuit.CircuitComponents.create_new_component_from_symbol" title="Permalink to this definition">¶</a></dt>
+<dd><p>Create new Component from Symbol</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>symbol_name</strong> -- Symbol Name</p></li>
+<li><p><strong>pin_lists</strong> -- Pin Lists</p></li>
+<li><p><strong>Refbase</strong> -- Reference Base</p></li>
+<li><p><strong>parameter_list</strong> -- Parameter Lists</p></li>
+<li><p><strong>parameter_value</strong> -- Parameter Value Lists</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="pyaedt.modeler.PrimitivesCircuit.CircuitComponents.create_page_port">
+<code class="sig-name descname"><span class="pre">create_page_port</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">posx</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">posy</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">angle</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pyaedt/modeler/PrimitivesCircuit.html#CircuitComponents.create_page_port"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyaedt.modeler.PrimitivesCircuit.CircuitComponents.create_page_port" title="Permalink to this definition">¶</a></dt>
+<dd><p>Create new Page port</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>name</strong> -- port name</p></li>
+<li><p><strong>posx</strong> -- x position</p></li>
+<li><p><strong>posy</strong> -- y position</p></li>
+<li><p><strong>angle</strong> -- angle rotation</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>port id,  port_name</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="pyaedt.modeler.PrimitivesCircuit.CircuitComponents.create_symbol">
+<code class="sig-name descname"><span class="pre">create_symbol</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">symbol_name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pin_lists</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pyaedt/modeler/PrimitivesCircuit.html#CircuitComponents.create_symbol"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyaedt.modeler.PrimitivesCircuit.CircuitComponents.create_symbol" title="Permalink to this definition">¶</a></dt>
+<dd><p>Create new symbol</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>symbol_name</strong> -- symbol name</p></li>
+<li><p><strong>pin_lists</strong> -- name of pins</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Bool</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="pyaedt.modeler.PrimitivesCircuit.CircuitComponents.create_wire">
+<code class="sig-name descname"><span class="pre">create_wire</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">points_array</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pyaedt/modeler/PrimitivesCircuit.html#CircuitComponents.create_wire"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyaedt.modeler.PrimitivesCircuit.CircuitComponents.create_wire" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>points_array</strong> -- list of list of points coordinate [[x1,y1], [x2,y2]....]</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="pyaedt.modeler.PrimitivesCircuit.CircuitComponents.disable_data_netlist">
+<code class="sig-name descname"><span class="pre">disable_data_netlist</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">component_name</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pyaedt/modeler/PrimitivesCircuit.html#CircuitComponents.disable_data_netlist"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyaedt.modeler.PrimitivesCircuit.CircuitComponents.disable_data_netlist" title="Permalink to this definition">¶</a></dt>
+<dd><p>Disable Nexxim Global Netlist</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>component_name</strong> -- Name of Component</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Bool</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="pyaedt.modeler.PrimitivesCircuit.CircuitComponents.enable_global_netlist">
+<code class="sig-name descname"><span class="pre">enable_global_netlist</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">component_name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">global_netlist_list</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">[]</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pyaedt/modeler/PrimitivesCircuit.html#CircuitComponents.enable_global_netlist"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyaedt.modeler.PrimitivesCircuit.CircuitComponents.enable_global_netlist" title="Permalink to this definition">¶</a></dt>
+<dd><p>Enable Nexxim Global Netlist</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>component_name</strong> -- Name of Component</p></li>
+<li><p><strong>global_netlist_list</strong> -- List of line to be included</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Bool</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="pyaedt.modeler.PrimitivesCircuit.CircuitComponents.get_pin_location">
+<code class="sig-name descname"><span class="pre">get_pin_location</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">partid</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pinname</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pyaedt/modeler/PrimitivesCircuit.html#CircuitComponents.get_pin_location"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyaedt.modeler.PrimitivesCircuit.CircuitComponents.get_pin_location" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>partid</strong> -- component ID</p></li>
+<li><p><strong>pinname</strong> -- Name of the Pin</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>[x, y] list</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="pyaedt.modeler.PrimitivesCircuit.CircuitComponents.get_pins">
+<code class="sig-name descname"><span class="pre">get_pins</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">partid</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pyaedt/modeler/PrimitivesCircuit.html#CircuitComponents.get_pins"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyaedt.modeler.PrimitivesCircuit.CircuitComponents.get_pins" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>partid</strong> -- component ID (int) or component full name (str)</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>object with properties</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="pyaedt.modeler.PrimitivesCircuit.CircuitComponents.refresh_all_ids">
+<code class="sig-name descname"><span class="pre">refresh_all_ids</span></code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pyaedt/modeler/PrimitivesCircuit.html#CircuitComponents.refresh_all_ids"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyaedt.modeler.PrimitivesCircuit.CircuitComponents.refresh_all_ids" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>Refresh all Ids and return number of components</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="pyaedt.modeler.PrimitivesCircuit.CircuitComponents.update_object_properties">
+<code class="sig-name descname"><span class="pre">update_object_properties</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">o</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pyaedt/modeler/PrimitivesCircuit.html#CircuitComponents.update_object_properties"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyaedt.modeler.PrimitivesCircuit.CircuitComponents.update_object_properties" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>o</strong> -- object</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>object with properties</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+
+
+              </div>
+              
+              
+              <div class='prev-next-bottom'>
+                
+    <a class='left-prev' id="prev-link" href="Primitives3DLayout.html" title="previous page">Primitives Layout</a>
+    <a class='right-next' id="next-link" href="Mesh.html" title="next page">Mesh</a>
+
+              </div>
+              
+          </main>
+          
+
+      </div>
+    </div>
+
+    
+  <script src="../_static/js/index.d3f166471bb80abb5163.js"></script>
+
+
+    <footer class="footer mt-5 mt-md-0">
+  <div class="container">
+    <p>
+          &copy; Copyright Copyright(c) 1986-2021, ANSYSInc. unauthorised use, distribution or duplication is prohibited. This tool release is unofficial and not covered by standard Ansys Support license..<br/>
+        Created using <a href="http://sphinx-doc.org/">Sphinx</a> 3.5.2.<br/>
+    </p>
+  </div>
+</footer>
+  </body>
+</html>

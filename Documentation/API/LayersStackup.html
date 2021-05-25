@@ -1,0 +1,315 @@
+
+<!DOCTYPE html>
+
+<html lang="Python">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Layer Stackup &#8212; pyaedt 0.5.0 documentation</title>
+    
+  <link rel="stylesheet" href="../_static/css/index.f658d18f9b420779cfdf24aa0a7e2d77.css">
+
+    
+  <link rel="stylesheet"
+    href="../_static/vendor/fontawesome/5.13.0/css/all.min.css">
+  <link rel="preload" as="font" type="font/woff2" crossorigin
+    href="../_static/vendor/fontawesome/5.13.0/webfonts/fa-solid-900.woff2">
+  <link rel="preload" as="font" type="font/woff2" crossorigin
+    href="../_static/vendor/fontawesome/5.13.0/webfonts/fa-brands-400.woff2">
+
+    
+      
+  <link rel="stylesheet"
+    href="../_static/vendor/open-sans_all/1.44.1/index.css">
+  <link rel="stylesheet"
+    href="../_static/vendor/lato_latin-ext/1.44.1/index.css">
+
+    
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/basic.css" type="text/css" />
+    <link rel="stylesheet" type="text/css" href="../_static/copybutton.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/graphviz.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/css/ansys.css" />
+    
+  <link rel="preload" as="script" href="../_static/js/index.d3f166471bb80abb5163.js">
+
+    <script id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+    <script src="../_static/jquery.js"></script>
+    <script src="../_static/underscore.js"></script>
+    <script src="../_static/doctools.js"></script>
+    <script src="../_static/clipboard.min.js"></script>
+    <script src="../_static/copybutton.js"></script>
+    <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Setup" href="Setup.html" />
+    <link rel="prev" title="Material" href="Material.html" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="docsearch:language" content="en" />
+  </head>
+  <body data-spy="scroll" data-target="#bd-toc-nav" data-offset="80">
+    
+    <nav class="navbar navbar-light navbar-expand-lg bg-light fixed-top bd-navbar" id="navbar-main">
+<div class="container-xl">
+
+    <a class="navbar-brand" href="../index.html">
+    
+      <img src="../_static/logo-ansys.png" class="logo" alt="logo" />
+    
+    </a>
+    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbar-menu" aria-controls="navbar-menu" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+    </button>
+
+    <div id="navbar-menu" class="col-lg-9 collapse navbar-collapse">
+      <ul id="navbar-main-elements" class="navbar-nav mr-auto">
+        
+        
+        <li class="nav-item ">
+            <a class="nav-link" href="../LICENSE.html">License Agreeement</a>
+        </li>
+        
+        <li class="nav-item ">
+            <a class="nav-link" href="../Resources/Installation.html">Installation</a>
+        </li>
+        
+        <li class="nav-item active">
+            <a class="nav-link" href="API.html">API documentation</a>
+        </li>
+        
+        <li class="nav-item ">
+            <a class="nav-link" href="Examples.html">Examples</a>
+        </li>
+        
+        <li class="nav-item ">
+            <a class="nav-link" href="../Resources/Code_Guidelines.html">Code Guidelines</a>
+        </li>
+        
+        <li class="nav-item ">
+            <a class="nav-link" href=""></a>
+        </li>
+        
+        
+      </ul>
+
+
+      
+
+      <ul class="navbar-nav">
+        
+        
+      </ul>
+    </div>
+</div>
+    </nav>
+    
+
+    <div class="container-xl">
+      <div class="row">
+          
+          <div class="col-12 col-md-3 bd-sidebar"><form class="bd-search d-flex align-items-center" action="../search.html" method="get">
+  <i class="icon fas fa-search"></i>
+  <input type="search" class="form-control" name="q" id="search-input" placeholder="Search the docs ..." aria-label="Search the docs ..." autocomplete="off" >
+</form>
+<nav class="bd-links" id="bd-docs-nav" aria-label="Main navigation">
+
+    <div class="bd-toc-item active">
+    
+  
+    <ul class="nav bd-sidenav">
+        
+        
+        
+        
+        
+        
+          
+            
+                <li class="">
+                    <a href="Application.html">Application Objects</a>
+                </li>
+            
+          
+            
+                <li class="">
+                    <a href="DesktopMessenger.html">Desktop & Messenger</a>
+                </li>
+            
+          
+            
+                <li class="">
+                    <a href="CoreModules.html">Core Modules</a>
+                </li>
+            
+          
+            
+                <li class="">
+                    <a href="Primitives.html">Primitives</a>
+                </li>
+            
+          
+            
+                <li class="">
+                    <a href="Mesh.html">Mesh</a>
+                </li>
+            
+          
+            
+  
+                <li class="active">
+                    <a href="MaterialManagement.html">Material & Stackup</a>
+                    <ul>
+                    
+                        <li class="">
+                            <a href="MaterialLib.html">Materia Library</a>
+                        </li>
+                    
+                        <li class="">
+                            <a href="Material.html">Material</a>
+                        </li>
+                    
+                        <li class="active">
+                            <a href="">Layer Stackup</a>
+                        </li>
+                    
+                    </ul>
+                </li>
+            
+          
+            
+                <li class="">
+                    <a href="Setup.html">Setup</a>
+                </li>
+            
+          
+            
+                <li class="">
+                    <a href="Post.html">PostProcessing</a>
+                </li>
+            
+          
+        
+        
+        
+        
+        
+        
+        
+        
+      </ul>
+  
+  </nav>
+          </div>
+          
+
+          
+          <div class="d-none d-xl-block col-xl-2 bd-toc">
+              
+<div class="tocsection onthispage pt-5 pb-3">
+    <i class="fas fa-list"></i> On this page
+</div>
+
+<nav id="bd-toc-nav">
+    <ul class="nav section-nav flex-column">
+    
+        <li class="nav-item toc-entry toc-h2">
+            <a href="#layer-stackup-class" class="nav-link">Layer Stackup Class</a><ul class="nav section-nav flex-column">
+                
+        <li class="nav-item toc-entry toc-h3">
+            <a href="#disclaimer" class="nav-link">Disclaimer</a>
+        </li>
+    
+        <li class="nav-item toc-entry toc-h3">
+            <a href="#description" class="nav-link">Description</a>
+        </li>
+    
+            </ul>
+        </li>
+    
+    </ul>
+</nav>
+
+
+              
+          </div>
+          
+
+          
+          <main class="col-12 col-md-9 col-xl-7 py-md-5 pl-md-5 pr-md-4 bd-content" role="main">
+              
+              <div>
+                
+  <div class="section" id="module-pyaedt.modules.LayerStackup">
+<span id="layer-stackup"></span><h1>Layer Stackup<a class="headerlink" href="#module-pyaedt.modules.LayerStackup" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="layer-stackup-class">
+<h2>Layer Stackup Class<a class="headerlink" href="#layer-stackup-class" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="disclaimer">
+<h3>Disclaimer<a class="headerlink" href="#disclaimer" title="Permalink to this headline">¶</a></h3>
+<p><strong>Copyright (c) 1986-2021, ANSYS Inc. unauthorised use, distribution or duplication is prohibited</strong></p>
+<p><strong>This tool release is unofficial and not covered by standard Ansys Support license.</strong></p>
+</div>
+<div class="section" id="description">
+<h3>Description<a class="headerlink" href="#description" title="Permalink to this headline">¶</a></h3>
+<p>This class contains all the layer stackup functionalities of AEDT. it is used by Circuit and HFSS3DLayout</p>
+<hr class="docutils" />
+<dl class="py class">
+<dt id="pyaedt.modules.LayerStackup.Layer">
+<em class="property"><span class="pre">class</span> </em><code class="sig-prename descclassname"><span class="pre">pyaedt.modules.LayerStackup.</span></code><code class="sig-name descname"><span class="pre">Layer</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">editor</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">type</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'signal'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">layerunits</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'mm'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">roughunit</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'um'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pyaedt/modules/LayerStackup.html#Layer"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyaedt.modules.LayerStackup.Layer" title="Permalink to this definition">¶</a></dt>
+<dd><p>description of class</p>
+<dl class="py method">
+<dt id="pyaedt.modules.LayerStackup.Layer.create_stackup_layer">
+<code class="sig-name descname"><span class="pre">create_stackup_layer</span></code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pyaedt/modules/LayerStackup.html#Layer.create_stackup_layer"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyaedt.modules.LayerStackup.Layer.create_stackup_layer" title="Permalink to this definition">¶</a></dt>
+<dd><p>Create a new stackup layer</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="pyaedt.modules.LayerStackup.Layer.update_stackup_layer">
+<code class="sig-name descname"><span class="pre">update_stackup_layer</span></code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pyaedt/modules/LayerStackup.html#Layer.update_stackup_layer"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyaedt.modules.LayerStackup.Layer.update_stackup_layer" title="Permalink to this definition">¶</a></dt>
+<dd><p>Works from 2021R1
+:return:</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+</div>
+<div class="toctree-wrapper compound">
+</div>
+</div>
+
+
+              </div>
+              
+              
+              <div class='prev-next-bottom'>
+                
+    <a class='left-prev' id="prev-link" href="Material.html" title="previous page">Material</a>
+    <a class='right-next' id="next-link" href="Setup.html" title="next page">Setup</a>
+
+              </div>
+              
+          </main>
+          
+
+      </div>
+    </div>
+
+    
+  <script src="../_static/js/index.d3f166471bb80abb5163.js"></script>
+
+
+    <footer class="footer mt-5 mt-md-0">
+  <div class="container">
+    <p>
+          &copy; Copyright Copyright(c) 1986-2021, ANSYSInc. unauthorised use, distribution or duplication is prohibited. This tool release is unofficial and not covered by standard Ansys Support license..<br/>
+        Created using <a href="http://sphinx-doc.org/">Sphinx</a> 3.5.2.<br/>
+    </p>
+  </div>
+</footer>
+  </body>
+</html>

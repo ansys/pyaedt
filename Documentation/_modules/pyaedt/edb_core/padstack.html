@@ -1,0 +1,414 @@
+
+<!DOCTYPE html>
+
+<html lang="Python">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>pyaedt.edb_core.padstack &#8212; pyaedt 0.5.0 documentation</title>
+    
+  <link rel="stylesheet" href="../../../_static/css/index.f658d18f9b420779cfdf24aa0a7e2d77.css">
+
+    
+  <link rel="stylesheet"
+    href="../../../_static/vendor/fontawesome/5.13.0/css/all.min.css">
+  <link rel="preload" as="font" type="font/woff2" crossorigin
+    href="../../../_static/vendor/fontawesome/5.13.0/webfonts/fa-solid-900.woff2">
+  <link rel="preload" as="font" type="font/woff2" crossorigin
+    href="../../../_static/vendor/fontawesome/5.13.0/webfonts/fa-brands-400.woff2">
+
+    
+      
+  <link rel="stylesheet"
+    href="../../../_static/vendor/open-sans_all/1.44.1/index.css">
+  <link rel="stylesheet"
+    href="../../../_static/vendor/lato_latin-ext/1.44.1/index.css">
+
+    
+    <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" href="../../../_static/basic.css" type="text/css" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/copybutton.css" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/graphviz.css" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/css/ansys.css" />
+    
+  <link rel="preload" as="script" href="../../../_static/js/index.d3f166471bb80abb5163.js">
+
+    <script id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
+    <script src="../../../_static/jquery.js"></script>
+    <script src="../../../_static/underscore.js"></script>
+    <script src="../../../_static/doctools.js"></script>
+    <script src="../../../_static/clipboard.min.js"></script>
+    <script src="../../../_static/copybutton.js"></script>
+    <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="docsearch:language" content="en" />
+  </head>
+  <body data-spy="scroll" data-target="#bd-toc-nav" data-offset="80">
+    
+    <nav class="navbar navbar-light navbar-expand-lg bg-light fixed-top bd-navbar" id="navbar-main">
+<div class="container-xl">
+
+    <a class="navbar-brand" href="../../../index.html">
+    
+      <img src="../../../_static/logo-ansys.png" class="logo" alt="logo" />
+    
+    </a>
+    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbar-menu" aria-controls="navbar-menu" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+    </button>
+
+    <div id="navbar-menu" class="col-lg-9 collapse navbar-collapse">
+      <ul id="navbar-main-elements" class="navbar-nav mr-auto">
+        
+        
+        <li class="nav-item ">
+            <a class="nav-link" href="../../../LICENSE.html">License Agreeement</a>
+        </li>
+        
+        <li class="nav-item ">
+            <a class="nav-link" href="../../../Resources/Installation.html">Installation</a>
+        </li>
+        
+        <li class="nav-item ">
+            <a class="nav-link" href="../../../API/API.html">API documentation</a>
+        </li>
+        
+        <li class="nav-item ">
+            <a class="nav-link" href="../../../API/Examples.html">Examples</a>
+        </li>
+        
+        <li class="nav-item ">
+            <a class="nav-link" href="../../../Resources/Code_Guidelines.html">Code Guidelines</a>
+        </li>
+        
+        <li class="nav-item ">
+            <a class="nav-link" href=""></a>
+        </li>
+        
+        
+      </ul>
+
+
+      
+
+      <ul class="navbar-nav">
+        
+        
+      </ul>
+    </div>
+</div>
+    </nav>
+    
+
+    <div class="container-xl">
+      <div class="row">
+          
+          <div class="col-12 col-md-3 bd-sidebar"><form class="bd-search d-flex align-items-center" action="../../../search.html" method="get">
+  <i class="icon fas fa-search"></i>
+  <input type="search" class="form-control" name="q" id="search-input" placeholder="Search the docs ..." aria-label="Search the docs ..." autocomplete="off" >
+</form>
+<nav class="bd-links" id="bd-docs-nav" aria-label="Main navigation">
+
+    <div class="bd-toc-item active">
+    
+  
+    <ul class="nav bd-sidenav">
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+      </ul>
+  
+  </nav>
+          </div>
+          
+
+          
+          <div class="d-none d-xl-block col-xl-2 bd-toc">
+              
+
+<nav id="bd-toc-nav">
+    <ul class="nav section-nav flex-column">
+    
+    </ul>
+</nav>
+
+
+              
+          </div>
+          
+
+          
+          <main class="col-12 col-md-9 col-xl-7 py-md-5 pl-md-5 pr-md-4 bd-content" role="main">
+              
+              <div>
+                
+  <h1>Source code for pyaedt.edb_core.padstack</h1><div class="highlight"><pre>
+<span></span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">EdbPadstack Class</span>
+<span class="sd">-------------------</span>
+
+<span class="sd">This class manages Edb Padstacks and related methods</span>
+
+<span class="sd">Disclaimer</span>
+<span class="sd">==========</span>
+
+<span class="sd">**Copyright (c) 1986-2021, ANSYS Inc. unauthorised use, distribution or duplication is prohibited**</span>
+
+<span class="sd">**This tool release is unofficial and not covered by standard Ansys Support license.**</span>
+
+
+
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">import</span> <span class="nn">clr</span>
+<span class="kn">from</span> <span class="nn">.general</span> <span class="kn">import</span> <span class="o">*</span>
+<span class="kn">from</span> <span class="nn">..generic.general_methods</span> <span class="kn">import</span> <span class="n">get_filename_without_extension</span><span class="p">,</span> <span class="n">generate_unique_name</span>
+<span class="kn">from</span> <span class="nn">System</span> <span class="kn">import</span> <span class="n">Convert</span><span class="p">,</span> <span class="n">String</span>
+<span class="kn">from</span> <span class="nn">System</span> <span class="kn">import</span> <span class="n">Double</span><span class="p">,</span> <span class="n">Array</span>
+<span class="kn">from</span> <span class="nn">System.Collections.Generic</span> <span class="kn">import</span> <span class="n">List</span>
+
+
+<div class="viewcode-block" id="EdbPadstacks"><a class="viewcode-back" href="../../../API/EDBPadstack.html#pyaedt.edb_core.padstack.EdbPadstacks">[docs]</a><span class="k">class</span> <span class="nc">EdbPadstacks</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;HFSS 3DLayout object</span>
+
+
+<span class="sd">    &quot;&quot;&quot;</span>
+
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">parent</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">parent</span> <span class="o">=</span> <span class="n">parent</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">builder</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">parent</span><span class="o">.</span><span class="n">builder</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">edb</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">parent</span><span class="o">.</span><span class="n">edb</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">edb_value</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">parent</span><span class="o">.</span><span class="n">edb_value</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">active_layout</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">parent</span><span class="o">.</span><span class="n">active_layout</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">cell</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">parent</span><span class="o">.</span><span class="n">cell</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">db</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">parent</span><span class="o">.</span><span class="n">db</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">padstack_methods</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">parent</span><span class="o">.</span><span class="n">edblib</span><span class="o">.</span><span class="n">Layout</span><span class="o">.</span><span class="n">PadStackMethods</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">messenger</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">parent</span><span class="o">.</span><span class="n">messenger</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">padstacks</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Get all via padstack definitions</span>
+
+
+<span class="sd">        :return: List of padstack definitions</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">viadefList</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="k">for</span> <span class="n">padstackdef</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">db</span><span class="o">.</span><span class="n">PadstackDefs</span><span class="p">:</span>
+            <span class="n">PadStackData</span> <span class="o">=</span> <span class="n">padstackdef</span><span class="o">.</span><span class="n">GetData</span><span class="p">()</span>
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">PadStackData</span><span class="o">.</span><span class="n">GetLayerNames</span><span class="p">())</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
+                <span class="n">viadefList</span><span class="p">[</span><span class="n">padstackdef</span><span class="o">.</span><span class="n">GetName</span><span class="p">()]</span> <span class="o">=</span> <span class="n">padstackdef</span>
+        <span class="k">return</span> <span class="n">viadefList</span>
+
+<div class="viewcode-block" id="EdbPadstacks.get_padstack_info"><a class="viewcode-back" href="../../../API/EDBPadstack.html#pyaedt.edb_core.padstack.EdbPadstacks.get_padstack_info">[docs]</a>    <span class="nd">@aedt_exception_handler</span>
+    <span class="k">def</span> <span class="nf">get_padstack_info</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Get All Via padstack definition</span>
+
+<span class="sd">        :param vianame: optional via name</span>
+<span class="sd">        :return: dictionary of vias</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># Via padstack definition</span>
+        <span class="n">ViaDefinition</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">padstacks</span>
+        <span class="n">vias</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">via</span> <span class="ow">in</span> <span class="n">ViaDefinition</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">viaDefName</span> <span class="o">=</span> <span class="n">name</span>
+                <span class="n">viaData</span> <span class="o">=</span> <span class="n">via</span><span class="o">.</span><span class="n">GetData</span><span class="p">()</span>
+
+                <span class="k">if</span> <span class="s2">&quot;IronPython&quot;</span> <span class="ow">in</span> <span class="n">sys</span><span class="o">.</span><span class="n">version</span> <span class="ow">or</span> <span class="s2">&quot;.NETFramework&quot;</span> <span class="ow">in</span> <span class="n">sys</span><span class="o">.</span><span class="n">version</span><span class="p">:</span>
+                    <span class="n">out</span> <span class="o">=</span> <span class="n">viaData</span><span class="o">.</span><span class="n">GetHoleParametersValue</span><span class="p">()</span>
+                    <span class="n">HoleParam</span> <span class="o">=</span> <span class="n">out</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">value0</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">parent</span><span class="o">.</span><span class="n">edb_value</span><span class="p">(</span><span class="s2">&quot;0.0&quot;</span><span class="p">)</span>
+                    <span class="n">ptype</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">edb</span><span class="o">.</span><span class="n">Definition</span><span class="o">.</span><span class="n">PadGeometryType</span><span class="o">.</span><span class="n">Circle</span>
+                    <span class="n">HoleParam</span> <span class="o">=</span> <span class="n">Array</span><span class="p">[</span><span class="nb">type</span><span class="p">(</span><span class="n">value0</span><span class="p">)]([])</span>
+                    <span class="n">out</span> <span class="o">=</span> <span class="n">viaData</span><span class="o">.</span><span class="n">GetHoleParametersValue</span><span class="p">(</span><span class="n">ptype</span><span class="p">,</span> <span class="n">HoleParam</span><span class="p">,</span> <span class="n">value0</span><span class="p">,</span> <span class="n">value0</span><span class="p">,</span> <span class="n">value0</span><span class="p">)</span>
+                    <span class="n">HoleParam</span> <span class="o">=</span> <span class="n">out</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span>
+                <span class="n">HoleDiameter</span> <span class="o">=</span> <span class="n">HoleParam</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">ToDouble</span><span class="p">()</span>
+                <span class="n">PlatingRatio</span> <span class="o">=</span> <span class="n">viaData</span><span class="o">.</span><span class="n">GetHolePlatingPercentage</span><span class="p">()</span>
+                <span class="c1"># PlatingRatio = 30.0</span>
+                <span class="n">PlatingThickness</span> <span class="o">=</span> <span class="p">(</span><span class="n">HoleDiameter</span><span class="o">*</span><span class="n">PlatingRatio</span><span class="o">/</span><span class="mi">100</span><span class="p">)</span><span class="o">/</span><span class="mi">2</span>
+                <span class="c1"># PlatingThickness = 25.0 * 1e-6</span>
+                <span class="n">FinishedHole</span> <span class="o">=</span> <span class="n">HoleDiameter</span> <span class="o">-</span> <span class="p">(</span><span class="n">PlatingThickness</span> <span class="o">*</span> <span class="mi">2</span><span class="p">)</span>
+                <span class="n">viaLayers</span> <span class="o">=</span> <span class="n">viaData</span><span class="o">.</span><span class="n">GetLayerNames</span><span class="p">()</span>
+                <span class="n">StartLay</span> <span class="o">=</span> <span class="n">viaLayers</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+                <span class="n">StopLay</span> <span class="o">=</span> <span class="n">viaLayers</span><span class="p">[</span><span class="nb">len</span><span class="p">(</span><span class="n">viaLayers</span><span class="p">)</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+                <span class="n">vias</span><span class="p">[</span><span class="n">viaDefName</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;Diameter&quot;</span><span class="p">:</span> <span class="nb">str</span><span class="p">(</span><span class="n">HoleDiameter</span> <span class="o">*</span> <span class="mf">1e6</span><span class="p">)</span> <span class="o">+</span> <span class="s1">&#39;um&#39;</span><span class="p">,</span> <span class="s2">&quot;Thickness&quot;</span><span class="p">:</span> <span class="nb">str</span><span class="p">(</span>
+                    <span class="n">PlatingThickness</span> <span class="o">*</span> <span class="mf">1e6</span><span class="p">)</span> <span class="o">+</span> <span class="s1">&#39;um&#39;</span><span class="p">,</span> <span class="s2">&quot;FinishedHole&quot;</span><span class="p">:</span> <span class="nb">str</span><span class="p">(</span><span class="n">FinishedHole</span> <span class="o">*</span> <span class="mf">1e6</span><span class="p">)</span> <span class="o">+</span> <span class="s1">&#39;um&#39;</span><span class="p">,</span>
+                                    <span class="s2">&quot;StartLayer&quot;</span><span class="p">:</span> <span class="n">StartLay</span><span class="p">,</span> <span class="s2">&quot;StopLayer&quot;</span><span class="p">:</span> <span class="n">StopLay</span><span class="p">}</span>
+            <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>
+                <span class="k">pass</span>
+
+        <span class="k">return</span> <span class="n">vias</span></div>
+
+<div class="viewcode-block" id="EdbPadstacks.create_circular_padstack"><a class="viewcode-back" href="../../../API/EDBPadstack.html#pyaedt.edb_core.padstack.EdbPadstacks.create_circular_padstack">[docs]</a>    <span class="nd">@aedt_exception_handler</span>
+    <span class="k">def</span> <span class="nf">create_circular_padstack</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">padstackname</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">holediam</span><span class="o">=</span><span class="s1">&#39;300um&#39;</span><span class="p">,</span> <span class="n">paddiam</span><span class="o">=</span><span class="s1">&#39;400um&#39;</span><span class="p">,</span> <span class="n">antipaddiam</span><span class="o">=</span><span class="s1">&#39;600um&#39;</span><span class="p">,</span>
+                        <span class="n">startlayer</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">endlayer</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Create a new Padskack</span>
+<span class="sd">        :param endlayer: End Layer. If none is entered, default is bottom</span>
+<span class="sd">        :param startlayer: Start Layer. If none is entered, default is top</span>
+<span class="sd">        :param padstackname: name of the padstack</span>
+<span class="sd">        :param holediam: hole diameter with units</span>
+<span class="sd">        :param paddiam: pad diameter with units</span>
+<span class="sd">        :param antipaddiam: antipad diameter with units</span>
+<span class="sd">        :return: padstackname if operation is completed</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">builder</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">padstack_methods</span><span class="o">.</span><span class="n">CreateCircularPadStackDef</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">builder</span><span class="p">,</span> <span class="n">padstackname</span><span class="p">,</span> <span class="n">holediam</span><span class="p">,</span> <span class="n">paddiam</span><span class="p">,</span>
+                                                                   <span class="n">antipaddiam</span><span class="p">,</span> <span class="n">startlayer</span><span class="p">,</span> <span class="n">endlayer</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="EdbPadstacks.get_pinlist_from_component_and_net"><a class="viewcode-back" href="../../../API/EDBPadstack.html#pyaedt.edb_core.padstack.EdbPadstacks.get_pinlist_from_component_and_net">[docs]</a>    <span class="nd">@aedt_exception_handler</span>
+    <span class="k">def</span> <span class="nf">get_pinlist_from_component_and_net</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">refdes</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">netname</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Get Pins from given component refdes and net name</span>
+
+<span class="sd">        :param Component refdes: Component name</span>
+<span class="sd">        :param netname: the name of the nets to search for. Will return False if the net does not belong to the component</span>
+<span class="sd">        :return: dictionary of vias</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">builder</span><span class="p">:</span>
+            <span class="n">pinlist</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">padstack_methods</span><span class="o">.</span><span class="n">GetPinsFromComponentAndNets</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">builder</span><span class="p">,</span> <span class="n">refdes</span><span class="p">,</span> <span class="n">netname</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">pinlist</span><span class="o">.</span><span class="n">Item1</span><span class="p">:</span>
+                <span class="k">return</span> <span class="n">pinlist</span><span class="o">.</span><span class="n">Item2</span></div>
+
+<div class="viewcode-block" id="EdbPadstacks.create_padstack"><a class="viewcode-back" href="../../../API/EDBPadstack.html#pyaedt.edb_core.padstack.EdbPadstacks.create_padstack">[docs]</a>    <span class="nd">@aedt_exception_handler</span>
+    <span class="k">def</span> <span class="nf">create_padstack</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">padstackname</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">holediam</span><span class="o">=</span><span class="s1">&#39;300um&#39;</span><span class="p">,</span> <span class="n">paddiam</span><span class="o">=</span><span class="s1">&#39;400um&#39;</span><span class="p">,</span> <span class="n">antipaddiam</span><span class="o">=</span><span class="s1">&#39;600um&#39;</span><span class="p">,</span>
+                        <span class="n">startlayer</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">endlayer</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Create a new Padskack</span>
+
+
+<span class="sd">        :param endlayer: End Layer. If none is entered, default is bottom</span>
+<span class="sd">        :param startlayer: Start Layer. If none is entered, default is top</span>
+<span class="sd">        :param padstackname: name of the padstack</span>
+<span class="sd">        :param holediam: hole diameter with units</span>
+<span class="sd">        :param paddiam: pad diameter with units</span>
+<span class="sd">        :param antipaddiam: antipad diameter with units</span>
+<span class="sd">        :return: padstackname if operation is completed</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">padstackname</span><span class="p">:</span>
+            <span class="n">padstackname</span> <span class="o">=</span> <span class="n">generate_unique_name</span><span class="p">(</span><span class="s2">&quot;VIA&quot;</span><span class="p">)</span>
+        <span class="c1"># assert not self.isreadonly, &quot;Write Functions are not avaiable within AEDT&quot;</span>
+        <span class="n">padstackData</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">edb</span><span class="o">.</span><span class="n">Definition</span><span class="o">.</span><span class="n">PadstackDefData</span><span class="o">.</span><span class="n">Create</span><span class="p">()</span>
+        <span class="n">ptype</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">edb</span><span class="o">.</span><span class="n">Definition</span><span class="o">.</span><span class="n">PadGeometryType</span><span class="o">.</span><span class="n">Circle</span>
+        <span class="n">holparam</span> <span class="o">=</span> <span class="n">Array</span><span class="p">[</span><span class="nb">type</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">edb_value</span><span class="p">(</span><span class="n">holediam</span><span class="p">))]([</span><span class="bp">self</span><span class="o">.</span><span class="n">edb_value</span><span class="p">(</span><span class="n">holediam</span><span class="p">)])</span>
+        <span class="n">value0</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">edb_value</span><span class="p">(</span><span class="s2">&quot;0.0&quot;</span><span class="p">)</span>
+
+        <span class="n">padstackData</span><span class="o">.</span><span class="n">SetHoleParameters</span><span class="p">(</span><span class="n">ptype</span><span class="p">,</span> <span class="n">holparam</span><span class="p">,</span> <span class="n">value0</span><span class="p">,</span> <span class="n">value0</span><span class="p">,</span> <span class="n">value0</span><span class="p">)</span>
+
+        <span class="n">padstackData</span><span class="o">.</span><span class="n">SetHolePlatingPercentage</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">edb_value</span><span class="p">(</span><span class="mf">20.0</span><span class="p">))</span>
+        <span class="n">padstackData</span><span class="o">.</span><span class="n">SetHoleRange</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">edb</span><span class="o">.</span><span class="n">Definition</span><span class="o">.</span><span class="n">PadstackHoleRange</span><span class="o">.</span><span class="n">UpperPadToLowerPad</span><span class="p">)</span>
+        <span class="n">padstackData</span><span class="o">.</span><span class="n">SetMaterial</span><span class="p">(</span><span class="s1">&#39;copper&#39;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">startlayer</span><span class="p">:</span>
+            <span class="n">layers</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">parent</span><span class="o">.</span><span class="n">core_stackup</span><span class="o">.</span><span class="n">signal_layers</span><span class="o">.</span><span class="n">layers</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span>
+            <span class="n">startlayer</span> <span class="o">=</span> <span class="n">layers</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">endlayer</span><span class="p">:</span>
+            <span class="n">layers</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">parent</span><span class="o">.</span><span class="n">core_stackup</span><span class="o">.</span><span class="n">signal_layers</span><span class="o">.</span><span class="n">layers</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span>
+            <span class="n">endlayer</span> <span class="o">=</span> <span class="n">layers</span><span class="p">[</span><span class="nb">len</span><span class="p">(</span><span class="n">layers</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span><span class="p">]</span>
+        <span class="k">for</span> <span class="n">layer</span> <span class="ow">in</span> <span class="p">[</span><span class="n">startlayer</span><span class="p">,</span> <span class="s1">&#39;Default&#39;</span><span class="p">,</span> <span class="n">endlayer</span><span class="p">]:</span>
+            <span class="n">padparam_array</span> <span class="o">=</span> <span class="n">Array</span><span class="p">[</span><span class="nb">type</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">edb_value</span><span class="p">(</span><span class="n">paddiam</span><span class="p">))]([</span><span class="bp">self</span><span class="o">.</span><span class="n">edb_value</span><span class="p">(</span><span class="n">paddiam</span><span class="p">)])</span>
+            <span class="n">padstackData</span><span class="o">.</span><span class="n">SetPadParameters</span><span class="p">(</span>
+                <span class="n">layer</span><span class="p">,</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">edb</span><span class="o">.</span><span class="n">Definition</span><span class="o">.</span><span class="n">PadType</span><span class="o">.</span><span class="n">RegularPad</span><span class="p">,</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">edb</span><span class="o">.</span><span class="n">Definition</span><span class="o">.</span><span class="n">PadGeometryType</span><span class="o">.</span><span class="n">Circle</span><span class="p">,</span>
+                <span class="n">padparam_array</span><span class="p">,</span>
+                <span class="n">value0</span><span class="p">,</span>
+                <span class="n">value0</span><span class="p">,</span>
+                <span class="n">value0</span>
+            <span class="p">)</span>
+            <span class="n">antipad_array</span> <span class="o">=</span> <span class="n">Array</span><span class="p">[</span><span class="nb">type</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">edb_value</span><span class="p">(</span><span class="n">antipaddiam</span><span class="p">))]([</span><span class="bp">self</span><span class="o">.</span><span class="n">edb_value</span><span class="p">(</span><span class="n">antipaddiam</span><span class="p">)])</span>
+
+            <span class="n">padstackData</span><span class="o">.</span><span class="n">SetPadParameters</span><span class="p">(</span>
+                <span class="n">layer</span><span class="p">,</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">edb</span><span class="o">.</span><span class="n">Definition</span><span class="o">.</span><span class="n">PadType</span><span class="o">.</span><span class="n">AntiPad</span><span class="p">,</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">edb</span><span class="o">.</span><span class="n">Definition</span><span class="o">.</span><span class="n">PadGeometryType</span><span class="o">.</span><span class="n">Circle</span><span class="p">,</span>
+                <span class="n">antipad_array</span><span class="p">,</span>
+                <span class="n">value0</span><span class="p">,</span>
+                <span class="n">value0</span><span class="p">,</span>
+                <span class="n">value0</span>
+            <span class="p">)</span>
+        <span class="n">padstackLayerIdMap</span> <span class="o">=</span> <span class="p">{</span><span class="n">k</span><span class="p">:</span> <span class="n">v</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">padstackData</span><span class="o">.</span><span class="n">GetLayerNames</span><span class="p">(),</span> <span class="n">padstackData</span><span class="o">.</span><span class="n">GetLayerIds</span><span class="p">())}</span>
+        <span class="n">padstackLayerMap</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">edb</span><span class="o">.</span><span class="n">Utility</span><span class="o">.</span><span class="n">LayerMap</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">edb</span><span class="o">.</span><span class="n">Utility</span><span class="o">.</span><span class="n">UniqueDirection</span><span class="o">.</span><span class="n">ForwardUnique</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">layer</span><span class="p">,</span> <span class="n">padstackLayerName</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">active_layout</span><span class="o">.</span><span class="n">GetLayerCollection</span><span class="p">()</span><span class="o">.</span><span class="n">Layers</span><span class="p">(</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">edb</span><span class="o">.</span><span class="n">Cell</span><span class="o">.</span><span class="n">LayerTypeSet</span><span class="o">.</span><span class="n">SignalLayerSet</span>
+                <span class="p">),</span>
+                <span class="p">[</span><span class="n">startlayer</span><span class="p">,</span> <span class="s1">&#39;Default&#39;</span><span class="p">,</span> <span class="n">endlayer</span><span class="p">]</span>
+        <span class="p">):</span>
+            <span class="n">padstackLayerMap</span><span class="o">.</span><span class="n">SetMapping</span><span class="p">(</span>
+                <span class="n">layer</span><span class="o">.</span><span class="n">GetLayerId</span><span class="p">(),</span>
+                <span class="n">padstackLayerIdMap</span><span class="p">[</span><span class="n">padstackLayerName</span><span class="p">]</span>
+            <span class="p">)</span>
+        <span class="n">padstackDefinition</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">edb</span><span class="o">.</span><span class="n">Definition</span><span class="o">.</span><span class="n">PadstackDef</span><span class="o">.</span><span class="n">Create</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">db</span><span class="p">,</span> <span class="n">padstackname</span><span class="p">)</span>
+        <span class="n">padstackDefinition</span><span class="o">.</span><span class="n">SetData</span><span class="p">(</span><span class="n">padstackData</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">messenger</span><span class="o">.</span><span class="n">add_info_message</span><span class="p">(</span><span class="s2">&quot;Padstack </span><span class="si">{}</span><span class="s2"> create correctly&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">padstackname</span><span class="p">))</span>
+        <span class="k">return</span> <span class="n">padstackname</span></div></div>
+</pre></div>
+
+              </div>
+              
+              
+              <div class='prev-next-bottom'>
+                
+
+              </div>
+              
+          </main>
+          
+
+      </div>
+    </div>
+
+    
+  <script src="../../../_static/js/index.d3f166471bb80abb5163.js"></script>
+
+
+    <footer class="footer mt-5 mt-md-0">
+  <div class="container">
+    <p>
+          &copy; Copyright Copyright(c) 1986-2021, ANSYSInc. unauthorised use, distribution or duplication is prohibited. This tool release is unofficial and not covered by standard Ansys Support license..<br/>
+        Created using <a href="http://sphinx-doc.org/">Sphinx</a> 3.5.2.<br/>
+    </p>
+  </div>
+</footer>
+  </body>
+</html>

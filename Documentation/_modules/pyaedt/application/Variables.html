@@ -1,0 +1,1074 @@
+
+<!DOCTYPE html>
+
+<html lang="Python">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>pyaedt.application.Variables &#8212; pyaedt 0.5.0 documentation</title>
+    
+  <link rel="stylesheet" href="../../../_static/css/index.f658d18f9b420779cfdf24aa0a7e2d77.css">
+
+    
+  <link rel="stylesheet"
+    href="../../../_static/vendor/fontawesome/5.13.0/css/all.min.css">
+  <link rel="preload" as="font" type="font/woff2" crossorigin
+    href="../../../_static/vendor/fontawesome/5.13.0/webfonts/fa-solid-900.woff2">
+  <link rel="preload" as="font" type="font/woff2" crossorigin
+    href="../../../_static/vendor/fontawesome/5.13.0/webfonts/fa-brands-400.woff2">
+
+    
+      
+  <link rel="stylesheet"
+    href="../../../_static/vendor/open-sans_all/1.44.1/index.css">
+  <link rel="stylesheet"
+    href="../../../_static/vendor/lato_latin-ext/1.44.1/index.css">
+
+    
+    <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" href="../../../_static/basic.css" type="text/css" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/copybutton.css" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/graphviz.css" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/css/ansys.css" />
+    
+  <link rel="preload" as="script" href="../../../_static/js/index.d3f166471bb80abb5163.js">
+
+    <script id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
+    <script src="../../../_static/jquery.js"></script>
+    <script src="../../../_static/underscore.js"></script>
+    <script src="../../../_static/doctools.js"></script>
+    <script src="../../../_static/clipboard.min.js"></script>
+    <script src="../../../_static/copybutton.js"></script>
+    <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="docsearch:language" content="en" />
+  </head>
+  <body data-spy="scroll" data-target="#bd-toc-nav" data-offset="80">
+    
+    <nav class="navbar navbar-light navbar-expand-lg bg-light fixed-top bd-navbar" id="navbar-main">
+<div class="container-xl">
+
+    <a class="navbar-brand" href="../../../index.html">
+    
+      <img src="../../../_static/logo-ansys.png" class="logo" alt="logo" />
+    
+    </a>
+    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbar-menu" aria-controls="navbar-menu" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+    </button>
+
+    <div id="navbar-menu" class="col-lg-9 collapse navbar-collapse">
+      <ul id="navbar-main-elements" class="navbar-nav mr-auto">
+        
+        
+        <li class="nav-item ">
+            <a class="nav-link" href="../../../LICENSE.html">License Agreeement</a>
+        </li>
+        
+        <li class="nav-item ">
+            <a class="nav-link" href="../../../Resources/Installation.html">Installation</a>
+        </li>
+        
+        <li class="nav-item ">
+            <a class="nav-link" href="../../../API/API.html">API documentation</a>
+        </li>
+        
+        <li class="nav-item ">
+            <a class="nav-link" href="../../../API/Examples.html">Examples</a>
+        </li>
+        
+        <li class="nav-item ">
+            <a class="nav-link" href="../../../Resources/Code_Guidelines.html">Code Guidelines</a>
+        </li>
+        
+        <li class="nav-item ">
+            <a class="nav-link" href=""></a>
+        </li>
+        
+        
+      </ul>
+
+
+      
+
+      <ul class="navbar-nav">
+        
+        
+      </ul>
+    </div>
+</div>
+    </nav>
+    
+
+    <div class="container-xl">
+      <div class="row">
+          
+          <div class="col-12 col-md-3 bd-sidebar"><form class="bd-search d-flex align-items-center" action="../../../search.html" method="get">
+  <i class="icon fas fa-search"></i>
+  <input type="search" class="form-control" name="q" id="search-input" placeholder="Search the docs ..." aria-label="Search the docs ..." autocomplete="off" >
+</form>
+<nav class="bd-links" id="bd-docs-nav" aria-label="Main navigation">
+
+    <div class="bd-toc-item active">
+    
+  
+    <ul class="nav bd-sidenav">
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+      </ul>
+  
+  </nav>
+          </div>
+          
+
+          
+          <div class="d-none d-xl-block col-xl-2 bd-toc">
+              
+
+<nav id="bd-toc-nav">
+    <ul class="nav section-nav flex-column">
+    
+    </ul>
+</nav>
+
+
+              
+          </div>
+          
+
+          
+          <main class="col-12 col-md-9 col-xl-7 py-md-5 pl-md-5 pr-md-4 bd-content" role="main">
+              
+              <div>
+                
+  <h1>Source code for pyaedt.application.Variables</h1><div class="highlight"><pre>
+<span></span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">Variables Library Class</span>
+<span class="sd">----------------------------------------------------------------</span>
+
+<span class="sd">Disclaimer</span>
+<span class="sd">============================================================</span>
+
+<span class="sd">**Copyright (c) 1986-2021, ANSYS Inc. unauthorised use, distribution or duplication is prohibited**</span>
+
+<span class="sd">**This tool release is unofficial and not covered by standard Ansys Support license.**</span>
+
+
+<span class="sd">Description</span>
+<span class="sd">==================================================</span>
+
+<span class="sd">This class contains all the functionalities to create and edit design and project variable in a very easy way in all the 3D Tools</span>
+
+<span class="sd">:Example:</span>
+
+<span class="sd">hfss = HFSS()</span>
+<span class="sd">hfss[&quot;$d&quot;] = &quot;5mm&quot;   create a project variable</span>
+
+
+<span class="sd">hfss[&quot;d&quot;] = &quot;5mm&quot;   create a local variable</span>
+<span class="sd">pip install sphinx-adc-theme</span>
+<span class="sd">hfss[&quot;postd&quot;] = &quot;1W&quot;   create a postprocessing variable</span>
+
+
+<span class="sd">================</span>
+
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="n">absolute_import</span>
+<span class="kn">import</span> <span class="nn">math</span>
+<span class="kn">import</span> <span class="nn">re</span>
+<span class="kn">import</span> <span class="nn">numbers</span>
+<span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">from</span> <span class="nn">..generic.general_methods</span> <span class="kn">import</span> <span class="n">aedt_exception_handler</span><span class="p">,</span> <span class="n">generate_unique_name</span>
+
+
+<span class="n">rad2deg</span> <span class="o">=</span> <span class="mf">180.0</span><span class="o">/</span><span class="n">math</span><span class="o">.</span><span class="n">pi</span>
+<span class="n">deg2rad</span> <span class="o">=</span> <span class="n">math</span><span class="o">.</span><span class="n">pi</span><span class="o">/</span><span class="mf">180.0</span>
+<span class="n">sec2min</span> <span class="o">=</span> <span class="mi">1</span><span class="o">/</span><span class="mf">60.0</span>
+<span class="n">sec2hour</span> <span class="o">=</span> <span class="mi">1</span><span class="o">/</span><span class="mf">3600.0</span>
+<span class="n">inv2pi</span> <span class="o">=</span> <span class="mf">0.5</span><span class="o">/</span><span class="n">math</span><span class="o">.</span><span class="n">pi</span>
+<span class="n">invpi</span> <span class="o">=</span> <span class="mf">1.0</span><span class="o">/</span><span class="n">math</span><span class="o">.</span><span class="n">pi</span>
+<span class="n">m2in</span> <span class="o">=</span> <span class="mf">0.0254</span>
+
+
+<span class="nd">@aedt_exception_handler</span>
+<span class="k">def</span> <span class="nf">dB</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">inverse</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+    <span class="k">if</span> <span class="n">inverse</span><span class="p">:</span>
+        <span class="k">return</span> <span class="mi">20</span><span class="o">*</span><span class="n">math</span><span class="o">.</span><span class="n">log10</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">math</span><span class="o">.</span><span class="n">pow</span><span class="p">(</span><span class="mi">10</span><span class="p">,</span> <span class="n">x</span><span class="o">/</span><span class="mf">20.0</span><span class="p">)</span>
+
+
+<span class="nd">@aedt_exception_handler</span>
+<span class="k">def</span> <span class="nf">fah2kel</span><span class="p">(</span><span class="n">val</span><span class="p">,</span> <span class="n">inverse</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+    <span class="k">if</span> <span class="n">inverse</span><span class="p">:</span>
+        <span class="k">return</span> <span class="p">(</span><span class="n">val</span> <span class="o">-</span> <span class="mf">273.15</span><span class="p">)</span> <span class="o">*</span> <span class="mi">9</span> <span class="o">/</span> <span class="mi">5</span> <span class="o">+</span> <span class="mi">32</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">return</span> <span class="p">(</span><span class="n">val</span> <span class="o">-</span> <span class="mi">32</span><span class="p">)</span> <span class="o">*</span> <span class="mi">5</span> <span class="o">/</span> <span class="mi">9</span> <span class="o">+</span> <span class="mf">273.15</span>
+
+
+<span class="nd">@aedt_exception_handler</span>
+<span class="k">def</span> <span class="nf">cel2kel</span><span class="p">(</span><span class="n">val</span><span class="p">,</span> <span class="n">inverse</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+    <span class="k">if</span> <span class="n">inverse</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">val</span> <span class="o">-</span> <span class="mf">273.15</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">val</span> <span class="o">+</span> <span class="mf">273.15</span>
+
+
+<div class="viewcode-block" id="unit_system"><a class="viewcode-back" href="../../../API/Variables.html#pyaedt.application.Variables.unit_system">[docs]</a><span class="nd">@aedt_exception_handler</span>
+<span class="k">def</span> <span class="nf">unit_system</span><span class="p">(</span><span class="n">units</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot; Return the name of the unit system associated with the given unit string. Raise an exception if not known.&quot;&quot;&quot;</span>
+    <span class="n">found</span> <span class="o">=</span> <span class="kc">False</span>
+    <span class="k">for</span> <span class="n">unit_type</span><span class="p">,</span> <span class="n">unit_list</span> <span class="ow">in</span> <span class="n">AEDT_units</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+        <span class="k">for</span> <span class="n">test_unit</span> <span class="ow">in</span> <span class="n">unit_list</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">test_unit</span> <span class="o">==</span> <span class="n">units</span><span class="p">:</span>
+                <span class="n">found</span> <span class="o">=</span> <span class="kc">True</span>
+                <span class="k">break</span>
+        <span class="k">if</span> <span class="n">found</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">unit_type</span>
+    <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">&quot;Unit </span><span class="si">{0}</span><span class="s2"> is not defined&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">units</span><span class="p">))</span></div>
+
+
+<span class="c1">#TODO Add additional units</span>
+<span class="n">AEDT_units</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s1">&#39;AngularSpeed&#39;</span><span class="p">:</span> <span class="p">{</span><span class="s1">&#39;deg_per_hr&#39;</span><span class="p">:</span> <span class="n">sec2hour</span> <span class="o">*</span> <span class="n">deg2rad</span><span class="p">,</span> <span class="s1">&#39;rad_per_hr&#39;</span><span class="p">:</span> <span class="n">sec2hour</span><span class="p">,</span> <span class="s1">&#39;deg_per_min&#39;</span><span class="p">:</span> <span class="n">sec2min</span> <span class="o">*</span> <span class="n">deg2rad</span><span class="p">,</span>
+                     <span class="s1">&#39;rad_per_min&#39;</span><span class="p">:</span> <span class="n">sec2min</span><span class="p">,</span> <span class="s1">&#39;deg_per_sec&#39;</span><span class="p">:</span> <span class="n">deg2rad</span><span class="p">,</span> <span class="s1">&#39;rad_per_sec&#39;</span><span class="p">:</span> <span class="mf">1.0</span><span class="p">,</span> <span class="s1">&#39;rev_per_sec&#39;</span><span class="p">:</span> <span class="n">inv2pi</span><span class="p">,</span>
+                     <span class="s1">&#39;per_sec&#39;</span><span class="p">:</span> <span class="n">inv2pi</span><span class="p">,</span> <span class="s1">&#39;rpm&#39;</span><span class="p">:</span> <span class="n">sec2min</span> <span class="o">*</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">math</span><span class="o">.</span><span class="n">pi</span><span class="p">},</span>
+    <span class="s1">&#39;Angle&#39;</span><span class="p">:</span> <span class="p">{</span><span class="s1">&#39;deg&#39;</span><span class="p">:</span> <span class="n">deg2rad</span><span class="p">,</span> <span class="s1">&#39;rad&#39;</span><span class="p">:</span> <span class="mf">1.0</span><span class="p">,</span> <span class="s1">&#39;degmin&#39;</span><span class="p">:</span> <span class="n">deg2rad</span> <span class="o">*</span> <span class="mi">60</span><span class="p">,</span> <span class="s1">&#39;degsec&#39;</span><span class="p">:</span> <span class="n">deg2rad</span> <span class="o">*</span> <span class="mi">3600</span><span class="p">},</span>
+    <span class="s1">&#39;Current&#39;</span><span class="p">:</span> <span class="p">{</span><span class="s1">&#39;fA&#39;</span><span class="p">:</span> <span class="mf">1e-15</span><span class="p">,</span> <span class="s1">&#39;pA&#39;</span><span class="p">:</span> <span class="mf">1e-12</span><span class="p">,</span> <span class="s1">&#39;nA&#39;</span><span class="p">:</span> <span class="mf">1e-9</span><span class="p">,</span> <span class="s1">&#39;uA&#39;</span><span class="p">:</span> <span class="mf">1e-6</span><span class="p">,</span> <span class="s1">&#39;mA&#39;</span><span class="p">:</span> <span class="mf">1e-3</span><span class="p">,</span> <span class="s1">&#39;A&#39;</span><span class="p">:</span> <span class="mf">1.0</span><span class="p">,</span> <span class="s1">&#39;kA&#39;</span><span class="p">:</span> <span class="mf">1e3</span><span class="p">,</span> <span class="s1">&#39;MegA&#39;</span><span class="p">:</span> <span class="mf">1e6</span><span class="p">,</span>
+                <span class="s1">&#39;gA&#39;</span><span class="p">:</span> <span class="mf">1e9</span><span class="p">,</span> <span class="s1">&#39;dBA&#39;</span><span class="p">:</span> <span class="p">(</span><span class="n">dB</span><span class="p">,)},</span>
+    <span class="s1">&#39;Flux&#39;</span><span class="p">:</span> <span class="p">{</span><span class="s1">&#39;Wb&#39;</span><span class="p">:</span> <span class="mf">1.0</span><span class="p">,</span> <span class="s1">&#39;mx&#39;</span><span class="p">:</span> <span class="mf">1e-8</span><span class="p">,</span> <span class="s1">&#39;vh&#39;</span><span class="p">:</span> <span class="mi">3600</span><span class="p">,</span> <span class="s1">&#39;vs&#39;</span><span class="p">:</span> <span class="mf">1.0</span><span class="p">},</span>
+    <span class="s1">&#39;Freq&#39;</span><span class="p">:</span> <span class="p">{</span><span class="s1">&#39;Hz&#39;</span><span class="p">:</span> <span class="mf">1.0</span><span class="p">,</span> <span class="s1">&#39;kHz&#39;</span><span class="p">:</span> <span class="mf">1e3</span><span class="p">,</span> <span class="s1">&#39;MHz&#39;</span><span class="p">:</span> <span class="mf">1e6</span><span class="p">,</span> <span class="s1">&#39;GHz&#39;</span><span class="p">:</span> <span class="mf">1e9</span><span class="p">,</span> <span class="s1">&#39;THz&#39;</span><span class="p">:</span> <span class="mf">1e12</span><span class="p">,</span> <span class="s1">&#39;rps&#39;</span><span class="p">:</span> <span class="mf">1.0</span><span class="p">,</span> <span class="s1">&#39;per_sec&#39;</span><span class="p">:</span> <span class="mf">1.0</span><span class="p">},</span>
+    <span class="s1">&#39;Inductance&#39;</span><span class="p">:</span> <span class="p">{</span><span class="s1">&#39;fH&#39;</span><span class="p">:</span> <span class="mf">1e-15</span><span class="p">,</span> <span class="s1">&#39;pH&#39;</span><span class="p">:</span> <span class="mf">1e-12</span><span class="p">,</span> <span class="s1">&#39;nH&#39;</span><span class="p">:</span> <span class="mf">1e-9</span><span class="p">,</span> <span class="s1">&#39;uH&#39;</span><span class="p">:</span> <span class="mf">1e-6</span><span class="p">,</span> <span class="s1">&#39;mH&#39;</span><span class="p">:</span> <span class="mf">1e-3</span><span class="p">,</span> <span class="s1">&#39;H&#39;</span><span class="p">:</span> <span class="mf">1.0</span><span class="p">},</span>
+    <span class="s1">&#39;Length&#39;</span><span class="p">:</span> <span class="p">{</span><span class="s1">&#39;fm&#39;</span><span class="p">:</span> <span class="mf">1e-15</span><span class="p">,</span> <span class="s1">&#39;pm&#39;</span><span class="p">:</span> <span class="mf">1e-12</span><span class="p">,</span> <span class="s1">&#39;nm&#39;</span><span class="p">:</span> <span class="mf">1e-9</span><span class="p">,</span> <span class="s1">&#39;um&#39;</span><span class="p">:</span> <span class="mf">1e-6</span><span class="p">,</span> <span class="s1">&#39;mm&#39;</span><span class="p">:</span> <span class="mf">1e-3</span><span class="p">,</span> <span class="s1">&#39;cm&#39;</span><span class="p">:</span> <span class="mf">1e-2</span><span class="p">,</span> <span class="s1">&#39;dm&#39;</span><span class="p">:</span> <span class="mf">1e-1</span><span class="p">,</span> <span class="s1">&#39;meter&#39;</span><span class="p">:</span> <span class="mf">1.0</span><span class="p">,</span>
+               <span class="s1">&#39;km&#39;</span><span class="p">:</span> <span class="mf">1e3</span><span class="p">,</span> <span class="s1">&#39;uin&#39;</span><span class="p">:</span> <span class="n">m2in</span> <span class="o">*</span> <span class="mf">1e-6</span><span class="p">,</span> <span class="s1">&#39;mil&#39;</span><span class="p">:</span> <span class="n">m2in</span> <span class="o">*</span> <span class="mf">1e-3</span><span class="p">,</span> <span class="s1">&#39;in&#39;</span><span class="p">:</span> <span class="n">m2in</span><span class="p">,</span> <span class="s1">&#39;ft&#39;</span><span class="p">:</span> <span class="n">m2in</span> <span class="o">*</span> <span class="mi">12</span><span class="p">,</span> <span class="s1">&#39;yd&#39;</span><span class="p">:</span> <span class="n">m2in</span> <span class="o">*</span> <span class="mi">144</span><span class="p">},</span>
+    <span class="s1">&#39;None&#39;</span><span class="p">:</span> <span class="p">{</span><span class="s1">&#39;f&#39;</span><span class="p">:</span> <span class="mf">1e-15</span><span class="p">,</span> <span class="s1">&#39;p&#39;</span><span class="p">:</span> <span class="mf">1e-12</span><span class="p">,</span> <span class="s1">&#39;n&#39;</span><span class="p">:</span> <span class="mf">1e-9</span><span class="p">,</span> <span class="s1">&#39;u&#39;</span><span class="p">:</span> <span class="mf">1e-6</span><span class="p">,</span> <span class="s1">&#39;m&#39;</span><span class="p">:</span> <span class="mf">1e-3</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">:</span> <span class="mf">1.0</span><span class="p">,</span> <span class="s1">&#39;k&#39;</span><span class="p">:</span> <span class="mf">1e3</span><span class="p">,</span> <span class="s1">&#39;meg&#39;</span><span class="p">:</span> <span class="mf">1e6</span><span class="p">,</span> <span class="s1">&#39;g&#39;</span><span class="p">:</span> <span class="mf">1e9</span><span class="p">,</span> <span class="s1">&#39;t&#39;</span><span class="p">:</span> <span class="mf">1e12</span><span class="p">},</span>
+    <span class="s1">&#39;Resistance&#39;</span><span class="p">:</span> <span class="p">{</span><span class="s1">&#39;uOhm&#39;</span><span class="p">:</span> <span class="mf">1e-6</span><span class="p">,</span> <span class="s1">&#39;mOhm&#39;</span><span class="p">:</span> <span class="mf">1e-3</span><span class="p">,</span> <span class="s1">&#39;ohm&#39;</span><span class="p">:</span> <span class="mf">1.0</span><span class="p">,</span> <span class="s1">&#39;kOhm&#39;</span><span class="p">:</span> <span class="mf">1e3</span><span class="p">,</span> <span class="s1">&#39;megohm&#39;</span><span class="p">:</span> <span class="mf">1e6</span><span class="p">,</span> <span class="s1">&#39;GOhm&#39;</span><span class="p">:</span> <span class="mf">1e9</span> <span class="p">},</span>
+    <span class="s1">&#39;Time&#39;</span><span class="p">:</span> <span class="p">{</span><span class="s1">&#39;fs&#39;</span><span class="p">:</span> <span class="mf">1e-15</span><span class="p">,</span> <span class="s1">&#39;ps&#39;</span><span class="p">:</span> <span class="mf">1e-12</span><span class="p">,</span> <span class="s1">&#39;ns&#39;</span><span class="p">:</span> <span class="mf">1e-9</span><span class="p">,</span> <span class="s1">&#39;us&#39;</span><span class="p">:</span> <span class="mf">1e-6</span><span class="p">,</span> <span class="s1">&#39;ms&#39;</span><span class="p">:</span> <span class="mf">1e-3</span><span class="p">,</span> <span class="s1">&#39;s&#39;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span> <span class="s1">&#39;min&#39;</span><span class="p">:</span> <span class="mi">60</span><span class="p">,</span> <span class="s1">&#39;hour&#39;</span><span class="p">:</span> <span class="mi">3600</span><span class="p">,</span> <span class="s1">&#39;day&#39;</span><span class="p">:</span> <span class="mi">3600</span><span class="o">*</span><span class="mi">12</span><span class="p">},</span>
+    <span class="s1">&#39;Torque&#39;</span><span class="p">:</span> <span class="p">{</span><span class="s1">&#39;fNewtonMeter&#39;</span><span class="p">:</span> <span class="mf">1e-15</span><span class="p">,</span> <span class="s1">&#39;pNewtonMeter&#39;</span><span class="p">:</span> <span class="mf">1e-12</span><span class="p">,</span> <span class="s1">&#39;nNewtonMeter&#39;</span><span class="p">:</span> <span class="mf">1e-9</span><span class="p">,</span> <span class="s1">&#39;uNewtonMeter&#39;</span><span class="p">:</span> <span class="mf">1e-6</span><span class="p">,</span> <span class="s1">&#39;mNewtonMeter&#39;</span><span class="p">:</span> <span class="mf">1e-3</span><span class="p">,</span>
+               <span class="s1">&#39;cNewtonMeter&#39;</span><span class="p">:</span> <span class="mf">1e-2</span><span class="p">,</span> <span class="s1">&#39;NewtonMeter&#39;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span> <span class="s1">&#39;kNewtonMeter&#39;</span><span class="p">:</span> <span class="mf">1e3</span><span class="p">,</span> <span class="s1">&#39;megNewtonMeter&#39;</span><span class="p">:</span> <span class="mf">1e6</span><span class="p">,</span> <span class="s1">&#39;gNewtonMeter&#39;</span><span class="p">:</span> <span class="mf">1e9</span><span class="p">},</span>
+    <span class="s1">&#39;Voltage&#39;</span><span class="p">:</span> <span class="p">{</span><span class="s1">&#39;fV&#39;</span><span class="p">:</span> <span class="mf">1e-15</span><span class="p">,</span> <span class="s1">&#39;pV&#39;</span><span class="p">:</span> <span class="mf">1e-12</span><span class="p">,</span> <span class="s1">&#39;nV&#39;</span><span class="p">:</span> <span class="mf">1e-9</span><span class="p">,</span> <span class="s1">&#39;uV&#39;</span><span class="p">:</span> <span class="mf">1e-6</span><span class="p">,</span> <span class="s1">&#39;mV&#39;</span><span class="p">:</span> <span class="mf">1e-3</span><span class="p">,</span> <span class="s1">&#39;V&#39;</span><span class="p">:</span> <span class="mf">1.0</span><span class="p">,</span> <span class="s1">&#39;kV&#39;</span><span class="p">:</span> <span class="mf">1e3</span><span class="p">,</span> <span class="s1">&#39;MegV&#39;</span><span class="p">:</span> <span class="mf">1e6</span><span class="p">,</span>
+                <span class="s1">&#39;gV&#39;</span><span class="p">:</span> <span class="mf">1e9</span><span class="p">,</span> <span class="s1">&#39;dBV&#39;</span><span class="p">:</span> <span class="p">(</span><span class="n">dB</span><span class="p">,)},</span>
+    <span class="s1">&#39;Temperature&#39;</span><span class="p">:</span> <span class="p">{</span><span class="s1">&#39;kel&#39;</span><span class="p">:</span> <span class="mf">1.0</span><span class="p">,</span> <span class="s1">&#39;cel&#39;</span><span class="p">:</span> <span class="p">(</span><span class="n">cel2kel</span><span class="p">,),</span> <span class="s1">&#39;fah&#39;</span><span class="p">:</span> <span class="p">(</span><span class="n">fah2kel</span><span class="p">,)},</span>
+    <span class="s1">&#39;Power&#39;</span><span class="p">:</span> <span class="p">{</span><span class="s1">&#39;fW&#39;</span><span class="p">:</span> <span class="mf">1e-15</span><span class="p">,</span> <span class="s1">&#39;pW&#39;</span><span class="p">:</span> <span class="mf">1e-12</span><span class="p">,</span> <span class="s1">&#39;nW&#39;</span><span class="p">:</span> <span class="mf">1e-9</span><span class="p">,</span> <span class="s1">&#39;uW&#39;</span><span class="p">:</span> <span class="mf">1e-6</span><span class="p">,</span> <span class="s1">&#39;mW&#39;</span><span class="p">:</span> <span class="mf">1e-3</span><span class="p">,</span> <span class="s1">&#39;W&#39;</span><span class="p">:</span> <span class="mf">1.0</span><span class="p">,</span> <span class="s1">&#39;kW&#39;</span><span class="p">:</span> <span class="mf">1e3</span><span class="p">,</span> <span class="s1">&#39;megW&#39;</span><span class="p">:</span> <span class="mf">1e6</span><span class="p">,</span> <span class="s1">&#39;gW&#39;</span><span class="p">:</span> <span class="mf">1e9</span><span class="p">}</span>
+<span class="p">}</span>
+<span class="n">SI_units</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s1">&#39;AngularSpeed&#39;</span><span class="p">:</span>  <span class="s1">&#39;deg_per_sec&#39;</span><span class="p">,</span> <span class="s1">&#39;Angle&#39;</span><span class="p">:</span> <span class="s1">&#39;deg&#39;</span><span class="p">,</span>    <span class="s1">&#39;Current&#39;</span><span class="p">:</span> <span class="s1">&#39;A&#39;</span><span class="p">,</span> <span class="s1">&#39;Flux&#39;</span><span class="p">:</span> <span class="s1">&#39;vs&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;Freq&#39;</span><span class="p">:</span> <span class="s1">&#39;Hz&#39;</span><span class="p">,</span>   <span class="s1">&#39;Inductance&#39;</span><span class="p">:</span> <span class="s1">&#39;H&#39;</span><span class="p">,</span>    <span class="s1">&#39;Length&#39;</span><span class="p">:</span> <span class="s1">&#39;meter&#39;</span><span class="p">,</span>    <span class="s1">&#39;None&#39;</span><span class="p">:</span> <span class="s1">&#39;&#39;</span><span class="p">,</span>    <span class="s1">&#39;Resistance&#39;</span><span class="p">:</span> <span class="s1">&#39;ohm&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;Time&#39;</span><span class="p">:</span>  <span class="s1">&#39;s&#39;</span><span class="p">,</span>   <span class="s1">&#39;Torque&#39;</span><span class="p">:</span> <span class="s1">&#39;NewtonMeter&#39;</span><span class="p">,</span>     <span class="s1">&#39;Voltage&#39;</span><span class="p">:</span> <span class="s1">&#39;V&#39;</span><span class="p">,</span>    <span class="s1">&#39;Temperature&#39;</span><span class="p">:</span> <span class="s1">&#39;kel&#39;</span><span class="p">,</span>    <span class="s1">&#39;Power&#39;</span><span class="p">:</span> <span class="s1">&#39;W&#39;</span><span class="p">}</span>
+
+<span class="k">class</span> <span class="nc">CSVDataset</span><span class="p">:</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">number_of_rows</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_data</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">variable</span><span class="p">,</span> <span class="n">data_list</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_data</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+                <span class="k">return</span> <span class="nb">len</span><span class="p">(</span><span class="n">data_list</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="mi">0</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">number_of_columns</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_header</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">header</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_header</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">data</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_data</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">path</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">realpath</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_csv_file</span><span class="p">))</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">csv_file</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">separator</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">units_dict</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">append_dict</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">valid_solutions</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">invalid_solutions</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39; Reads in the csv file and extracts header, data and units information as well as being able</span>
+<span class="sd">            to augment the data with constant values</span>
+
+<span class="sd">        :param csv_file:    Input file consisting of delimited data with first line as header file.</span>
+<span class="sd">                            Data values support AEDT units such as e.g. 1.23Wb</span>
+<span class="sd">        :param separator:   Data delimiter. Default is comma</span>
+<span class="sd">        :param units_dict:  Dictionary consisting of {Variable Name: unit} used to rescale data if not in the desired</span>
+<span class="sd">                            unit system</span>
+<span class="sd">        :param append_dict: Dictionary {New Variable Name: value} Additional variable with constant value for all</span>
+<span class="sd">                            Data points. (Used to add multiple sweeps to one result file</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_header</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_data</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_unit_dict</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_append_dict</span> <span class="o">=</span> <span class="p">{}</span>
+
+        <span class="c1"># Set the index counter explicitly to zero</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_index</span> <span class="o">=</span> <span class="mi">0</span>
+
+        <span class="k">if</span> <span class="n">separator</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_separator</span> <span class="o">=</span> <span class="n">separator</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_separator</span> <span class="o">=</span> <span class="s2">&quot;,&quot;</span>
+
+        <span class="k">if</span> <span class="n">units_dict</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_unit_dict</span> <span class="o">=</span> <span class="n">units_dict</span>
+
+        <span class="k">if</span> <span class="n">append_dict</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_append_dict</span> <span class="o">=</span> <span class="n">append_dict</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_csv_file</span> <span class="o">=</span> <span class="n">csv_file</span>
+        <span class="k">if</span> <span class="n">csv_file</span><span class="p">:</span>
+            <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">csv_file</span><span class="p">,</span> <span class="s1">&#39;r&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">fi</span><span class="p">:</span>
+                <span class="n">file_data</span> <span class="o">=</span> <span class="n">fi</span><span class="o">.</span><span class="n">readlines</span><span class="p">()</span>
+                <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">file_data</span><span class="p">:</span>
+                    <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_header</span><span class="p">:</span>
+                        <span class="n">line_data</span> <span class="o">=</span> <span class="n">line</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_separator</span><span class="p">)</span>
+                        <span class="c1"># Check for invalid data in the line (fields with &#39;nan&#39;)</span>
+                        <span class="k">if</span> <span class="ow">not</span> <span class="s1">&#39;nan&#39;</span> <span class="ow">in</span> <span class="n">line_data</span><span class="p">:</span>
+                            <span class="k">for</span> <span class="n">j</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">line_data</span><span class="p">):</span>
+                                <span class="n">var_name</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_header</span><span class="p">[</span><span class="n">j</span><span class="p">]</span>
+                                <span class="k">if</span> <span class="n">var_name</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_unit_dict</span><span class="p">:</span>
+                                    <span class="n">var_value</span> <span class="o">=</span> <span class="n">Variable</span><span class="p">(</span><span class="n">value</span><span class="p">)</span><span class="o">.</span><span class="n">rescale_to</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_unit_dict</span><span class="p">[</span><span class="n">var_name</span><span class="p">])</span><span class="o">.</span><span class="n">numeric_value</span>
+                                <span class="k">else</span><span class="p">:</span>
+                                    <span class="n">var_value</span> <span class="o">=</span> <span class="n">Variable</span><span class="p">(</span><span class="n">value</span><span class="p">)</span><span class="o">.</span><span class="n">value</span>
+                                <span class="bp">self</span><span class="o">.</span><span class="n">_data</span><span class="p">[</span><span class="n">var_name</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">var_value</span><span class="p">)</span>
+
+                            <span class="c1"># Add augmented quantities</span>
+                            <span class="k">for</span> <span class="n">entry</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_append_dict</span><span class="p">:</span>
+                                <span class="n">var_value_str</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_append_dict</span><span class="p">[</span><span class="n">entry</span><span class="p">]</span>
+                                <span class="n">numeric_value</span> <span class="o">=</span> <span class="n">Variable</span><span class="p">(</span><span class="n">var_value_str</span><span class="p">)</span><span class="o">.</span><span class="n">numeric_value</span>
+                                <span class="bp">self</span><span class="o">.</span><span class="n">_data</span><span class="p">[</span><span class="n">entry</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">numeric_value</span><span class="p">)</span>
+
+                    <span class="k">else</span><span class="p">:</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">_header</span> <span class="o">=</span> <span class="n">line</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;,&quot;</span><span class="p">)</span>
+                        <span class="k">for</span> <span class="n">additional_quantity_name</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_append_dict</span><span class="p">:</span>
+                            <span class="bp">self</span><span class="o">.</span><span class="n">_header</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">additional_quantity_name</span><span class="p">)</span>
+                        <span class="k">for</span> <span class="n">quantity_name</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_header</span><span class="p">:</span>
+                            <span class="bp">self</span><span class="o">.</span><span class="n">_data</span><span class="p">[</span><span class="n">quantity_name</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
+
+        <span class="k">pass</span>
+
+    <span class="nd">@aedt_exception_handler</span>
+    <span class="k">def</span> <span class="fm">__getitem__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">item</span><span class="p">):</span>
+        <span class="n">variable_list</span> <span class="o">=</span> <span class="n">item</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;,&#39;</span><span class="p">)</span>
+        <span class="n">data_out</span> <span class="o">=</span> <span class="n">CSVDataset</span><span class="p">()</span>
+        <span class="k">for</span> <span class="n">variable</span> <span class="ow">in</span> <span class="n">variable_list</span><span class="p">:</span>
+            <span class="n">found_variable</span> <span class="o">=</span> <span class="kc">False</span>
+            <span class="k">for</span> <span class="n">key_string</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_data</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">variable</span> <span class="ow">in</span> <span class="n">key_string</span><span class="p">:</span>
+                    <span class="n">found_variable</span> <span class="o">=</span> <span class="kc">True</span>
+                    <span class="k">break</span>
+            <span class="k">assert</span> <span class="n">found_variable</span><span class="p">,</span> <span class="s2">&quot;Input string </span><span class="si">{}</span><span class="s2"> is not a key of the data dictionary!&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">variable</span><span class="p">)</span>
+            <span class="n">data_out</span><span class="o">.</span><span class="n">_data</span><span class="p">[</span><span class="n">variable</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_data</span><span class="p">[</span><span class="n">key_string</span><span class="p">]</span>
+            <span class="n">data_out</span><span class="o">.</span><span class="n">_header</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">variable</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">data_out</span>
+
+    <span class="nd">@aedt_exception_handler</span>
+    <span class="k">def</span> <span class="fm">__add__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
+        <span class="k">assert</span> <span class="bp">self</span><span class="o">.</span><span class="n">number_of_columns</span> <span class="o">==</span> <span class="n">other</span><span class="o">.</span><span class="n">number_of_columns</span><span class="p">,</span> <span class="s2">&quot;Inconsistent number of columns&quot;</span>
+        <span class="c1"># Create a new object to return, avoiding changing the original inputs</span>
+        <span class="n">new_dataset</span> <span class="o">=</span> <span class="n">CSVDataset</span><span class="p">()</span>
+        <span class="c1"># Add empty columns to new_dataset</span>
+        <span class="k">for</span> <span class="n">column</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_data</span><span class="p">:</span>
+            <span class="n">new_dataset</span><span class="o">.</span><span class="n">_data</span><span class="p">[</span><span class="n">column</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
+
+        <span class="c1"># Add the data from &#39;self&#39; to a the new dataset</span>
+        <span class="k">for</span> <span class="n">column</span><span class="p">,</span> <span class="n">row_data</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="k">for</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">row_data</span><span class="p">:</span>
+                <span class="n">new_dataset</span><span class="o">.</span><span class="n">_data</span><span class="p">[</span><span class="n">column</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
+
+        <span class="c1"># Add the data from &#39;other&#39; to a the new dataset</span>
+        <span class="k">for</span> <span class="n">column</span><span class="p">,</span> <span class="n">row_data</span> <span class="ow">in</span> <span class="n">other</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="k">for</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">row_data</span><span class="p">:</span>
+                <span class="n">new_dataset</span><span class="o">.</span><span class="n">_data</span><span class="p">[</span><span class="n">column</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">new_dataset</span>
+
+    <span class="k">def</span> <span class="fm">__iadd__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39; Incrementally add one CSVDataset to another. This assumes that the number of columns are the same,</span>
+<span class="sd">            or that self is an empty CSVDataset. No checking for equivalency of units/variable names is done&#39;&#39;&#39;</span>
+
+        <span class="c1"># Handle the case of an empty data set and create empty lists for the column data</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">number_of_columns</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_header</span> <span class="o">=</span> <span class="n">other</span><span class="o">.</span><span class="n">header</span>
+            <span class="k">for</span> <span class="n">column</span> <span class="ow">in</span> <span class="n">other</span><span class="o">.</span><span class="n">data</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_data</span><span class="p">[</span><span class="n">column</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
+
+        <span class="k">assert</span> <span class="bp">self</span><span class="o">.</span><span class="n">number_of_columns</span> <span class="o">==</span> <span class="n">other</span><span class="o">.</span><span class="n">number_of_columns</span><span class="p">,</span> <span class="s2">&quot;Inconsistent number of columns&quot;</span>
+
+        <span class="c1"># Append the data from &#39;other&#39;</span>
+        <span class="k">for</span> <span class="n">column</span><span class="p">,</span> <span class="n">row_data</span> <span class="ow">in</span> <span class="n">other</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="k">for</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">row_data</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_data</span><span class="p">[</span><span class="n">column</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
+
+
+        <span class="k">return</span> <span class="bp">self</span>
+
+    <span class="c1"># Called when iteration is initialized</span>
+    <span class="k">def</span> <span class="fm">__iter__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_index</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="k">return</span> <span class="bp">self</span>
+
+    <span class="c1"># Create an iterator to yield the row data as a string as we loop thorugh the object</span>
+    <span class="k">def</span> <span class="fm">__next__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_index</span> <span class="o">&lt;</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">number_of_rows</span><span class="o">-</span><span class="mi">1</span><span class="p">):</span>
+            <span class="n">output</span> <span class="o">=</span> <span class="p">[]</span>
+            <span class="k">for</span> <span class="n">column</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_header</span><span class="p">:</span>
+                <span class="n">string_value</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_data</span><span class="p">[</span><span class="n">column</span><span class="p">][</span><span class="bp">self</span><span class="o">.</span><span class="n">_index</span><span class="p">])</span>
+                <span class="n">output</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">string_value</span><span class="p">)</span>
+            <span class="n">output_string</span> <span class="o">=</span> <span class="s2">&quot; &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">output</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_index</span> <span class="o">+=</span> <span class="mi">1</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">StopIteration</span>
+
+        <span class="k">return</span> <span class="n">output_string</span>
+
+    <span class="k">def</span> <span class="nf">next</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="fm">__next__</span><span class="p">()</span>
+
+<span class="nd">@aedt_exception_handler</span>
+<span class="k">def</span> <span class="nf">decompose_variable_value</span><span class="p">(</span><span class="n">variable_value</span><span class="p">):</span>
+    <span class="k">if</span> <span class="n">variable_value</span> <span class="o">==</span> <span class="s1">&#39;nan&#39;</span><span class="p">:</span>
+        <span class="n">float_value</span> <span class="o">=</span> <span class="s1">&#39;nan&#39;</span>
+        <span class="n">units</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">loc</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="s1">&#39;[a-zA-Z]+$&#39;</span><span class="p">,</span> <span class="n">variable_value</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">loc</span><span class="p">:</span>
+            <span class="n">b</span> <span class="o">=</span> <span class="n">loc</span><span class="o">.</span><span class="n">span</span><span class="p">()[</span><span class="mi">0</span><span class="p">]</span>
+            <span class="n">units</span> <span class="o">=</span> <span class="n">variable_value</span><span class="p">[</span><span class="n">b</span><span class="p">:]</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">float_value</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">variable_value</span><span class="p">[</span><span class="mi">0</span><span class="p">:</span><span class="n">b</span><span class="p">])</span>
+            <span class="k">except</span><span class="p">:</span>
+                <span class="n">float_value</span> <span class="o">=</span> <span class="n">variable_value</span><span class="p">[</span><span class="mi">0</span><span class="p">:</span><span class="n">b</span><span class="p">]</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">float_value</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">variable_value</span><span class="p">)</span>
+                <span class="n">units</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span>
+            <span class="k">except</span><span class="p">:</span>
+                <span class="n">float_value</span> <span class="o">=</span> <span class="n">variable_value</span>
+                <span class="n">units</span> <span class="o">=</span><span class="s1">&#39;&#39;</span>
+    <span class="k">return</span> <span class="n">float_value</span><span class="p">,</span> <span class="n">units</span>
+
+
+<div class="viewcode-block" id="VariableManager"><a class="viewcode-back" href="../../../API/Variables.html#pyaedt.application.Variables.VariableManager">[docs]</a><span class="k">class</span> <span class="nc">VariableManager</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Variable Manager Class</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">variables</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_variable_dict</span><span class="p">([</span><span class="bp">self</span><span class="o">.</span><span class="n">odesign</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">oproject</span><span class="p">])</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">design_variables</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_variable_dict</span><span class="p">([</span><span class="bp">self</span><span class="o">.</span><span class="n">odesign</span><span class="p">])</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">project_variables</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_variable_dict</span><span class="p">([</span><span class="bp">self</span><span class="o">.</span><span class="n">oproject</span><span class="p">])</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">independent_variables</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_variable_dict</span><span class="p">([</span><span class="bp">self</span><span class="o">.</span><span class="n">odesign</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">oproject</span><span class="p">],</span> <span class="n">dependent</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">independent_project_variables</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_variable_dict</span><span class="p">([</span><span class="bp">self</span><span class="o">.</span><span class="n">oproject</span><span class="p">],</span> <span class="n">dependent</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">independent_design_variables</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_variable_dict</span><span class="p">([</span><span class="bp">self</span><span class="o">.</span><span class="n">odesign</span><span class="p">],</span> <span class="n">dependent</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">dependent_variables</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_variable_dict</span><span class="p">([</span><span class="bp">self</span><span class="o">.</span><span class="n">odesign</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">oproject</span><span class="p">],</span> <span class="n">independent</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">variable_names</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="p">[</span><span class="n">var_name</span> <span class="k">for</span> <span class="n">var_name</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">variables</span><span class="p">]</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">project_variable_names</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="p">[</span><span class="n">var_name</span> <span class="k">for</span> <span class="n">var_name</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">project_variables</span><span class="p">]</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">independent_project_variable_names</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="p">[</span><span class="n">var_name</span> <span class="k">for</span> <span class="n">var_name</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">independent_project_variables</span><span class="p">]</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">design_variable_names</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="p">[</span><span class="n">var_name</span> <span class="k">for</span> <span class="n">var_name</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">design_variables</span><span class="p">]</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">independent_design_variable_names</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="p">[</span><span class="n">var_name</span> <span class="k">for</span> <span class="n">var_name</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">independent_design_variables</span><span class="p">]</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">independent_variable_names</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="p">[</span><span class="n">var_name</span> <span class="k">for</span> <span class="n">var_name</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">independent_variables</span><span class="p">]</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">dependent_variable_names</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="p">[</span><span class="n">var_name</span> <span class="k">for</span> <span class="n">var_name</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">dependent_variables</span><span class="p">]</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">oproject</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_parent</span><span class="o">.</span><span class="n">_oproject</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">odesign</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_parent</span><span class="o">.</span><span class="n">_odesign</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">messenger</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_parent</span><span class="o">.</span><span class="n">_messenger</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">parent</span><span class="p">):</span>
+
+        <span class="c1"># Global Desktop Environment</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_parent</span> <span class="o">=</span> <span class="n">parent</span>
+
+    <span class="nd">@aedt_exception_handler</span>
+    <span class="k">def</span> <span class="fm">__getitem__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">variable_name</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">interpret_variable_value</span><span class="p">(</span><span class="n">variable_name</span><span class="p">)</span>
+
+    <span class="nd">@aedt_exception_handler</span>
+    <span class="k">def</span> <span class="fm">__setitem__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">variable</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">set_variable</span><span class="p">(</span><span class="n">variable</span><span class="p">,</span> <span class="n">value</span><span class="p">)</span>
+        <span class="k">return</span> <span class="kc">True</span>
+
+    <span class="nd">@aedt_exception_handler</span>
+    <span class="k">def</span> <span class="nf">_variable_dict</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">object_list</span><span class="p">,</span> <span class="n">dependent</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">independent</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+        <span class="n">var_dict</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="k">for</span> <span class="n">obj</span> <span class="ow">in</span> <span class="n">object_list</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">variable_name</span> <span class="ow">in</span> <span class="n">obj</span><span class="o">.</span><span class="n">GetVariables</span><span class="p">():</span>
+                <span class="n">variable_expression</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_expression</span><span class="p">(</span><span class="n">variable_name</span><span class="p">)</span>
+                <span class="k">try</span><span class="p">:</span>
+                    <span class="n">value</span> <span class="o">=</span> <span class="n">Variable</span><span class="p">(</span><span class="n">variable_expression</span><span class="p">)</span>
+                    <span class="k">if</span> <span class="n">independent</span> <span class="ow">and</span> <span class="nb">type</span><span class="p">(</span><span class="n">value</span><span class="o">.</span><span class="n">value</span><span class="p">)</span> <span class="ow">is</span> <span class="nb">float</span> <span class="ow">or</span> <span class="nb">type</span><span class="p">(</span><span class="n">value</span><span class="o">.</span><span class="n">value</span><span class="p">)</span> <span class="ow">is</span> <span class="nb">int</span><span class="p">:</span>
+                        <span class="n">var_dict</span><span class="p">[</span><span class="n">variable_name</span><span class="p">]</span> <span class="o">=</span> <span class="n">value</span>
+                    <span class="k">elif</span> <span class="n">dependent</span> <span class="ow">and</span> <span class="nb">type</span><span class="p">(</span><span class="n">value</span><span class="o">.</span><span class="n">value</span><span class="p">)</span> <span class="ow">is</span> <span class="nb">str</span><span class="p">:</span>
+                            <span class="n">float_value</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_evaluated_value</span><span class="p">(</span><span class="n">variable_name</span><span class="p">)</span>
+                            <span class="n">var_dict</span><span class="p">[</span><span class="n">variable_name</span><span class="p">]</span> <span class="o">=</span> <span class="n">Expression</span><span class="p">(</span><span class="n">variable_expression</span><span class="p">,</span> <span class="n">float_value</span><span class="p">)</span>
+                <span class="k">except</span><span class="p">:</span>
+                    <span class="k">if</span> <span class="n">dependent</span><span class="p">:</span>
+                        <span class="n">float_value</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_evaluated_value</span><span class="p">(</span><span class="n">variable_name</span><span class="p">)</span>
+                        <span class="n">var_dict</span><span class="p">[</span><span class="n">variable_name</span><span class="p">]</span> <span class="o">=</span> <span class="n">Expression</span><span class="p">(</span><span class="n">variable_expression</span><span class="p">,</span> <span class="n">float_value</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">var_dict</span>
+
+<div class="viewcode-block" id="VariableManager.get_evaluated_value"><a class="viewcode-back" href="../../../API/Variables.html#pyaedt.application.Variables.VariableManager.get_evaluated_value">[docs]</a>    <span class="nd">@aedt_exception_handler</span>
+    <span class="k">def</span> <span class="nf">get_evaluated_value</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">variable_name</span><span class="p">,</span> <span class="n">variation</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Return the evaluated value of a project or design variable as a float value&quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">variation</span><span class="p">:</span>
+            <span class="n">variation</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">odesign</span><span class="o">.</span><span class="n">GetNominalVariation</span><span class="p">()</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">odesign</span><span class="o">.</span><span class="n">GetVariationVariableValue</span><span class="p">(</span><span class="n">variation</span><span class="p">,</span> <span class="n">variable_name</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="VariableManager.get_expression"><a class="viewcode-back" href="../../../API/Variables.html#pyaedt.application.Variables.VariableManager.get_expression">[docs]</a>    <span class="nd">@aedt_exception_handler</span>
+    <span class="k">def</span> <span class="nf">get_expression</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">variable_name</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Return the variable value of a project or design variable as a string&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">aedt_object</span><span class="p">(</span><span class="n">variable_name</span><span class="p">)</span><span class="o">.</span><span class="n">GetVariableValue</span><span class="p">(</span><span class="n">variable_name</span><span class="p">)</span></div>
+
+    <span class="nd">@aedt_exception_handler</span>
+    <span class="k">def</span> <span class="nf">aedt_object</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">variable</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">variable</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;$&quot;</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">oproject</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">odesign</span>
+
+    <span class="nd">@aedt_exception_handler</span>
+    <span class="k">def</span> <span class="nf">interpret_variable_value</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">variable_name</span><span class="p">):</span>
+        <span class="n">tol</span> <span class="o">=</span> <span class="mf">0.01</span>
+        <span class="n">float_value</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_evaluated_value</span><span class="p">(</span><span class="n">variable_name</span><span class="p">)</span>
+        <span class="n">expression_value</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_expression</span><span class="p">(</span><span class="n">variable_name</span><span class="p">)</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">value</span> <span class="o">=</span> <span class="n">Variable</span><span class="p">(</span><span class="n">expression_value</span><span class="p">)</span>
+            <span class="n">check</span> <span class="o">=</span> <span class="n">value</span><span class="o">.</span><span class="n">value</span>
+            <span class="k">assert</span> <span class="p">(</span><span class="n">check</span> <span class="o">-</span> <span class="n">float_value</span><span class="p">)</span> <span class="o">&lt;</span> <span class="n">float_value</span><span class="o">*</span><span class="n">tol</span><span class="p">,</span> <span class="s2">&quot;Error in interpreting variable </span><span class="si">{0}</span><span class="s2">:=</span><span class="si">{1}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">variable_name</span><span class="p">,</span> <span class="n">expression_value</span><span class="p">)</span>
+        <span class="k">except</span><span class="p">:</span>
+            <span class="n">value</span> <span class="o">=</span> <span class="n">Expression</span><span class="p">(</span><span class="n">expression_value</span><span class="p">,</span> <span class="n">float_value</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">value</span>
+
+<div class="viewcode-block" id="VariableManager.set_variable"><a class="viewcode-back" href="../../../API/Variables.html#pyaedt.application.Variables.VariableManager.set_variable">[docs]</a>    <span class="nd">@aedt_exception_handler</span>
+    <span class="k">def</span> <span class="nf">set_variable</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">variable_name</span><span class="p">,</span> <span class="n">expression</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">prop_type</span><span class="o">=</span><span class="s2">&quot;VariableProp&quot;</span><span class="p">,</span>
+                     <span class="n">readonly</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">hidden</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">description</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="n">overwrite</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Add a design variable to an existing design and overwrite an existing variable if present</span>
+
+<span class="sd">        :param variable_name:  name of the variable</span>
+<span class="sd">        :param expression:</span>
+<span class="sd">        :param prop_type:</span>
+<span class="sd">        :param readonly:</span>
+<span class="sd">        :param hidden:</span>
+<span class="sd">        :param description:</span>
+<span class="sd">        :param overwrite:</span>
+<span class="sd">        :return:</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="n">desktop_object</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">aedt_object</span><span class="p">(</span><span class="n">variable_name</span><span class="p">)</span>
+        <span class="n">test</span> <span class="o">=</span> <span class="n">desktop_object</span><span class="o">.</span><span class="n">GetName</span><span class="p">()</span>
+        <span class="n">proj_name</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">oproject</span><span class="o">.</span><span class="n">GetName</span><span class="p">()</span>
+        <span class="n">var_type</span> <span class="o">=</span> <span class="s2">&quot;Project&quot;</span> <span class="k">if</span> <span class="n">test</span> <span class="o">==</span> <span class="n">proj_name</span> <span class="k">else</span> <span class="s2">&quot;Local&quot;</span>
+
+        <span class="k">if</span> <span class="n">expression</span> <span class="ow">and</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">expression</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+            <span class="n">variable</span> <span class="o">=</span> <span class="n">expression</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="c1"># Handle input type variable</span>
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">expression</span><span class="p">,</span> <span class="n">Variable</span><span class="p">):</span>
+                <span class="n">variable</span> <span class="o">=</span> <span class="n">expression</span><span class="o">.</span><span class="n">string_value</span>
+            <span class="c1"># Handle input type int/float, etc (including numeric 0)</span>
+            <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">expression</span><span class="p">,</span> <span class="n">numbers</span><span class="o">.</span><span class="n">Number</span><span class="p">):</span>
+                <span class="n">variable</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">expression</span><span class="p">)</span>
+            <span class="c1"># Handle None, &quot;&quot; as Separator</span>
+            <span class="k">elif</span> <span class="ow">not</span> <span class="n">expression</span><span class="p">:</span>
+                <span class="n">prop_type</span> <span class="o">=</span> <span class="s2">&quot;SeparatorProp&quot;</span>
+                <span class="n">variable</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
+                <span class="k">try</span><span class="p">:</span>
+                    <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">delete_separator</span><span class="p">(</span><span class="n">variable_name</span><span class="p">):</span>
+                        <span class="n">desktop_object</span><span class="o">.</span><span class="n">Undo</span><span class="p">()</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">messenger</span><span class="o">.</span><span class="n">clear_messages</span><span class="p">()</span>
+                        <span class="k">return</span>
+                <span class="k">except</span><span class="p">:</span>
+                    <span class="k">pass</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">&quot;Unhandled input type to design/project variable.&quot;</span><span class="p">)</span>
+                <span class="c1">#TODO</span>
+                <span class="c1">#variable = variable.replace(&quot;\&#39;&quot;, &quot;\&quot;&quot;)</span>
+
+        <span class="k">if</span> <span class="s2">&quot;post&quot;</span> <span class="ow">in</span> <span class="n">variable_name</span><span class="o">.</span><span class="n">lower</span><span class="p">()[</span><span class="mi">0</span><span class="p">:</span><span class="mi">5</span><span class="p">]:</span>
+            <span class="n">prop_type</span> <span class="o">=</span> <span class="s2">&quot;PostProcessingVariableProp&quot;</span>
+
+        <span class="c1"># Get all design and project variables in lower case for a case-sensitive comparison</span>
+        <span class="n">var_list</span> <span class="o">=</span> <span class="n">desktop_object</span><span class="o">.</span><span class="n">GetVariables</span><span class="p">()</span>
+        <span class="n">lower_case_vars</span> <span class="o">=</span> <span class="p">[</span><span class="n">var_name</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="k">for</span> <span class="n">var_name</span> <span class="ow">in</span> <span class="n">var_list</span><span class="p">]</span>
+
+        <span class="k">if</span> <span class="n">variable_name</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">lower_case_vars</span><span class="p">:</span>
+
+            <span class="n">desktop_object</span><span class="o">.</span><span class="n">ChangeProperty</span><span class="p">(</span>
+                <span class="p">[</span>
+                    <span class="s2">&quot;NAME:AllTabs&quot;</span><span class="p">,</span>
+                    <span class="p">[</span>
+                        <span class="s2">&quot;NAME:</span><span class="si">{0}</span><span class="s2">VariableTab&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">var_type</span><span class="p">),</span>
+                        <span class="p">[</span>
+                            <span class="s2">&quot;NAME:PropServers&quot;</span><span class="p">,</span>
+                            <span class="s2">&quot;</span><span class="si">{0}</span><span class="s2">Variables&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">var_type</span><span class="p">)</span>
+                        <span class="p">],</span>
+                        <span class="p">[</span>
+                            <span class="s2">&quot;NAME:NewProps&quot;</span><span class="p">,</span>
+                            <span class="p">[</span>
+                                <span class="s2">&quot;NAME:&quot;</span> <span class="o">+</span> <span class="n">variable_name</span><span class="p">,</span>
+                                <span class="s2">&quot;PropType:=&quot;</span><span class="p">,</span> <span class="n">prop_type</span><span class="p">,</span>
+                                <span class="s2">&quot;UserDef:=&quot;</span><span class="p">,</span> <span class="kc">True</span><span class="p">,</span>
+                                <span class="s2">&quot;Value:=&quot;</span><span class="p">,</span> <span class="n">variable</span><span class="p">,</span>
+                                <span class="s2">&quot;Description:=&quot;</span><span class="p">,</span> <span class="n">description</span><span class="p">,</span>
+                                <span class="s2">&quot;ReadOnly:=&quot;</span><span class="p">,</span> <span class="n">readonly</span><span class="p">,</span>
+                                <span class="s2">&quot;Hidden:=&quot;</span><span class="p">,</span> <span class="n">hidden</span>
+                            <span class="p">]</span>
+                        <span class="p">]</span>
+                    <span class="p">]</span>
+                <span class="p">])</span>
+        <span class="k">elif</span> <span class="n">overwrite</span><span class="p">:</span>
+            <span class="n">desktop_object</span><span class="o">.</span><span class="n">ChangeProperty</span><span class="p">(</span>
+                <span class="p">[</span>
+                    <span class="s2">&quot;NAME:AllTabs&quot;</span><span class="p">,</span>
+                    <span class="p">[</span>
+                        <span class="s2">&quot;NAME:</span><span class="si">{}</span><span class="s2">VariableTab&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">var_type</span><span class="p">),</span>
+                        <span class="p">[</span>
+                            <span class="s2">&quot;NAME:PropServers&quot;</span><span class="p">,</span>
+                            <span class="s2">&quot;</span><span class="si">{}</span><span class="s2">Variables&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">var_type</span><span class="p">)</span>
+                        <span class="p">],</span>
+                        <span class="p">[</span>
+                            <span class="s2">&quot;NAME:ChangedProps&quot;</span><span class="p">,</span>
+                            <span class="p">[</span>
+                                <span class="s2">&quot;NAME:&quot;</span> <span class="o">+</span> <span class="n">variable_name</span><span class="p">,</span>
+                                <span class="s2">&quot;Value:=&quot;</span>		<span class="p">,</span> <span class="n">variable</span><span class="p">,</span>
+                                <span class="s2">&quot;Description:=&quot;</span>		<span class="p">,</span> <span class="n">description</span><span class="p">,</span>
+                                <span class="s2">&quot;ReadOnly:=&quot;</span>		<span class="p">,</span> <span class="n">readonly</span><span class="p">,</span>
+                                <span class="s2">&quot;Hidden:=&quot;</span>		<span class="p">,</span> <span class="n">hidden</span>
+                            <span class="p">]</span>
+                        <span class="p">]</span>
+                    <span class="p">]</span>
+                <span class="p">])</span></div>
+
+<div class="viewcode-block" id="VariableManager.delete_separator"><a class="viewcode-back" href="../../../API/Variables.html#pyaedt.application.Variables.VariableManager.delete_separator">[docs]</a>    <span class="nd">@aedt_exception_handler</span>
+    <span class="k">def</span> <span class="nf">delete_separator</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">separator_name</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">            Deletes a separator from either the active project or design</span>
+
+<span class="sd">        :param separator_name: Separator text</span>
+<span class="sd">        :return: True if the separator exists and can be deleted, False otherwise</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">object_list</span> <span class="o">=</span> <span class="p">[</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">odesign</span><span class="p">,</span> <span class="s2">&quot;Local&quot;</span><span class="p">),</span>
+                        <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">oproject</span><span class="p">,</span> <span class="s2">&quot;Project&quot;</span><span class="p">)]</span>
+
+        <span class="k">for</span> <span class="n">object_tuple</span> <span class="ow">in</span> <span class="n">object_list</span><span class="p">:</span>
+            <span class="n">desktop_object</span> <span class="o">=</span> <span class="n">object_tuple</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+            <span class="n">var_type</span> <span class="o">=</span> <span class="n">object_tuple</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">desktop_object</span><span class="o">.</span><span class="n">ChangeProperty</span><span class="p">(</span>
+                    <span class="p">[</span>
+                        <span class="s2">&quot;NAME:AllTabs&quot;</span><span class="p">,</span>
+                        <span class="p">[</span>
+                            <span class="s2">&quot;NAME:</span><span class="si">{0}</span><span class="s2">VariableTab&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">var_type</span><span class="p">),</span>
+                            <span class="p">[</span>
+                                <span class="s2">&quot;NAME:PropServers&quot;</span><span class="p">,</span>
+                                <span class="s2">&quot;</span><span class="si">{0}</span><span class="s2">Variables&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">var_type</span><span class="p">)</span>
+                            <span class="p">],</span>
+                            <span class="p">[</span>
+                                <span class="s2">&quot;NAME:DeletedProps&quot;</span><span class="p">,</span>
+                                <span class="n">separator_name</span>
+                            <span class="p">]</span>
+                        <span class="p">]</span>
+                    <span class="p">])</span>
+                <span class="k">return</span> <span class="kc">True</span>
+            <span class="k">except</span><span class="p">:</span>
+                <span class="k">pass</span>
+        <span class="k">return</span> <span class="kc">False</span></div>
+
+    <span class="nd">@aedt_exception_handler</span>
+    <span class="k">def</span> <span class="nf">delete_variable</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">sVarName</span><span class="p">):</span>
+        <span class="n">desktop_object</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">aedt_object</span><span class="p">(</span><span class="n">sVarName</span><span class="p">)</span>
+        <span class="n">var_type</span> <span class="o">=</span> <span class="s2">&quot;Project&quot;</span> <span class="k">if</span> <span class="n">desktop_object</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">oproject</span> <span class="k">else</span> <span class="s2">&quot;Local&quot;</span>
+
+        <span class="n">var_list</span> <span class="o">=</span> <span class="n">desktop_object</span><span class="o">.</span><span class="n">GetVariables</span><span class="p">()</span>
+        <span class="n">lower_case_vars</span> <span class="o">=</span> <span class="p">[</span><span class="n">var_name</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="k">for</span> <span class="n">var_name</span> <span class="ow">in</span> <span class="n">var_list</span><span class="p">]</span>
+
+        <span class="k">if</span> <span class="n">sVarName</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="ow">in</span> <span class="n">lower_case_vars</span><span class="p">:</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">desktop_object</span><span class="o">.</span><span class="n">ChangeProperty</span><span class="p">(</span>
+                    <span class="p">[</span>
+                        <span class="s2">&quot;NAME:AllTabs&quot;</span><span class="p">,</span>
+                        <span class="p">[</span>
+                            <span class="s2">&quot;NAME:</span><span class="si">{0}</span><span class="s2">VariableTab&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">var_type</span><span class="p">),</span>
+                            <span class="p">[</span>
+                                <span class="s2">&quot;NAME:PropServers&quot;</span><span class="p">,</span>
+                                <span class="s2">&quot;</span><span class="si">{0}</span><span class="s2">Variables&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">var_type</span><span class="p">)</span>
+                            <span class="p">],</span>
+                            <span class="p">[</span>
+                                <span class="s2">&quot;NAME:DeletedProps&quot;</span><span class="p">,</span>
+                                <span class="n">sVarName</span>
+                            <span class="p">]</span>
+                        <span class="p">]</span>
+                    <span class="p">])</span>
+            <span class="k">except</span><span class="p">:</span>
+                <span class="k">pass</span></div>
+
+
+<div class="viewcode-block" id="Variable"><a class="viewcode-back" href="../../../API/Variables.html#pyaedt.application.Variables.Variable">[docs]</a><span class="k">class</span> <span class="nc">Variable</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Variable Class. It store Varabiable and allows operations on it</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+<div class="viewcode-block" id="Variable.rescale_to"><a class="viewcode-back" href="../../../API/Variables.html#pyaedt.application.Variables.Variable.rescale_to">[docs]</a>    <span class="nd">@aedt_exception_handler</span>
+    <span class="k">def</span> <span class="nf">rescale_to</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">units</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Change the unit system of the expression to a new unit within the same unit system &quot;&quot;&quot;</span>
+        <span class="n">new_unit_system</span> <span class="o">=</span> <span class="n">unit_system</span><span class="p">(</span><span class="n">units</span><span class="p">)</span>
+        <span class="k">assert</span> <span class="n">new_unit_system</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">unit_system</span><span class="p">,</span> \
+            <span class="s2">&quot;New unit system </span><span class="si">{0}</span><span class="s2"> inconsistent with current unit system </span><span class="si">{1}</span><span class="s2">.&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_units</span> <span class="o">=</span> <span class="n">units</span>
+        <span class="k">return</span> <span class="bp">self</span></div>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">unit_system</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Return the unit system of the expression as a string &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">unit_system</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_units</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">units</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Return the units of the expression as a string &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_units</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">value</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Return the value of the expression as a float value in SI units&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_value</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">numeric_value</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Return the numeric part of the expression as a float value &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_normalize</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_value</span><span class="p">,</span> <span class="n">inverse</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">string_value</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="nb">str</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">numeric_value</span><span class="p">)</span>  <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">_units</span><span class="p">)</span>
+
+    <span class="nd">@aedt_exception_handler</span>
+    <span class="k">def</span> <span class="nf">format</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="nb">format</span><span class="p">):</span>
+        <span class="k">return</span> <span class="p">(</span><span class="s1">&#39;{0:&#39;</span> <span class="o">+</span> <span class="nb">format</span> <span class="o">+</span> <span class="s1">&#39;}</span><span class="si">{1}</span><span class="s1">&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">numeric_value</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_units</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+        <span class="n">value</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_units</span> <span class="o">=</span> <span class="n">decompose_variable_value</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_value</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_normalize</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
+
+    <span class="nd">@aedt_exception_handler</span>
+    <span class="k">def</span> <span class="fm">__mul__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
+        <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">other</span><span class="p">,</span> <span class="n">numbers</span><span class="o">.</span><span class="n">Number</span><span class="p">)</span> <span class="ow">or</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">other</span><span class="p">,</span> <span class="n">Variable</span><span class="p">),</span> <span class="s2">&quot;Multiplier must be a scalar quantity or a variable!&quot;</span>
+        <span class="n">op_data</span> <span class="o">=</span> <span class="n">Variable</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">string_value</span><span class="p">)</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">other</span><span class="p">,</span> <span class="n">Variable</span><span class="p">):</span>
+            <span class="n">op_data</span><span class="o">.</span><span class="n">_units</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
+            <span class="n">op_data</span><span class="o">.</span><span class="n">_value</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_value</span> <span class="o">*</span> <span class="n">other</span><span class="o">.</span><span class="n">_value</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">op_data</span><span class="o">.</span><span class="n">_value</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span> <span class="n">value</span> <span class="o">*</span> <span class="n">other</span>
+        <span class="k">return</span> <span class="n">op_data</span>
+
+    <span class="fm">__rmul__</span> <span class="o">=</span> <span class="fm">__mul__</span>
+
+    <span class="c1"># Python 3.x version</span>
+    <span class="nd">@aedt_exception_handler</span>
+    <span class="k">def</span> <span class="fm">__truediv__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
+        <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">other</span><span class="p">,</span> <span class="n">numbers</span><span class="o">.</span><span class="n">Number</span><span class="p">)</span> <span class="ow">or</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">other</span><span class="p">,</span> <span class="n">Variable</span><span class="p">),</span> <span class="s2">&quot;Divisor must be a scalar quantity or a variable!&quot;</span>
+        <span class="n">op_data</span> <span class="o">=</span> <span class="n">Variable</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">string_value</span><span class="p">)</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">other</span><span class="p">,</span> <span class="n">Variable</span><span class="p">):</span>
+            <span class="n">op_data</span><span class="o">.</span><span class="n">_units</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
+            <span class="n">op_data</span><span class="o">.</span><span class="n">_value</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_value</span> <span class="o">/</span> <span class="n">other</span><span class="o">.</span><span class="n">_value</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">op_data</span><span class="o">.</span><span class="n">_value</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_value</span> <span class="o">/</span> <span class="n">other</span>
+        <span class="k">return</span> <span class="n">op_data</span>
+
+    <span class="c1"># Python 2.7 version</span>
+    <span class="nd">@aedt_exception_handler</span>
+    <span class="k">def</span> <span class="nf">__div__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="fm">__truediv__</span><span class="p">(</span><span class="n">other</span><span class="p">)</span>
+
+    <span class="nd">@aedt_exception_handler</span>
+    <span class="k">def</span> <span class="nf">_normalize</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">,</span> <span class="n">inverse</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Scale the expression value to the SI units of the given system</span>
+<span class="sd">            With inverse=True, scale in reverse direction&quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">value</span> <span class="o">==</span> <span class="s1">&#39;nan&#39;</span> <span class="ow">or</span> <span class="nb">type</span><span class="p">(</span><span class="n">value</span><span class="p">)</span> <span class="ow">is</span> <span class="nb">str</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">value</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">scale</span> <span class="o">=</span> <span class="n">AEDT_units</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">unit_system</span><span class="p">][</span><span class="bp">self</span><span class="o">.</span><span class="n">_units</span><span class="p">]</span>
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">scale</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">):</span>
+                <span class="k">return</span> <span class="n">scale</span><span class="p">[</span><span class="mi">0</span><span class="p">](</span><span class="n">value</span><span class="p">,</span> <span class="n">inverse</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">inverse</span><span class="p">:</span>
+                    <span class="k">return</span> <span class="n">value</span> <span class="o">/</span> <span class="n">scale</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="k">return</span> <span class="n">value</span> <span class="o">*</span> <span class="n">scale</span></div>
+
+
+<div class="viewcode-block" id="Expression"><a class="viewcode-back" href="../../../API/Variables.html#pyaedt.application.Variables.Expression">[docs]</a><span class="k">class</span> <span class="nc">Expression</span><span class="p">(</span><span class="n">Variable</span><span class="p">,</span> <span class="nb">object</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Class to manipulate variable expressions</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">expression</span><span class="p">,</span> <span class="n">float_value</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_expression</span> <span class="o">=</span> <span class="n">expression</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_value</span> <span class="o">=</span> <span class="n">float_value</span>
+        <span class="c1"># TODO. Try to identify the unit system from the expression !</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">value</span><span class="p">,</span> <span class="n">units</span> <span class="o">=</span> <span class="n">decompose_variable_value</span><span class="p">(</span><span class="n">expression</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_units</span> <span class="o">=</span> <span class="n">units</span>
+        <span class="k">except</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_units</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">expression</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_expression</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="DataSet"><a class="viewcode-back" href="../../../API/Variables.html#pyaedt.application.Variables.DataSet">[docs]</a><span class="k">class</span> <span class="nc">DataSet</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Class for Dataset Management</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">parent</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">z</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">v</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">xunit</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="n">yunit</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="n">zunit</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="n">vunit</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_parent</span> <span class="o">=</span> <span class="n">parent</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="n">name</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">x</span> <span class="o">=</span> <span class="n">x</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">y</span> <span class="o">=</span> <span class="n">y</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">z</span> <span class="o">=</span> <span class="n">z</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">v</span> <span class="o">=</span> <span class="n">v</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">xunit</span> <span class="o">=</span> <span class="n">xunit</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">yunit</span> <span class="o">=</span> <span class="n">yunit</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">zunit</span> <span class="o">=</span> <span class="n">zunit</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">vunit</span> <span class="o">=</span> <span class="n">vunit</span>
+
+    <span class="nd">@aedt_exception_handler</span>
+    <span class="k">def</span> <span class="nf">_args</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">arg</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">arg</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;Name:&quot;</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
+        <span class="n">arg2</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;Name:Coordinates&quot;</span><span class="p">]</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">z</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">arg2</span><span class="o">.</span><span class="n">append</span><span class="p">([</span><span class="s2">&quot;NAME:DimUnits&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">xunit</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">yunit</span><span class="p">])</span>
+        <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">v</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;$&quot;</span><span class="p">:</span>
+            <span class="n">arg2</span><span class="o">.</span><span class="n">append</span><span class="p">([</span><span class="s2">&quot;NAME:DimUnits&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">xunit</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">yunit</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">zunit</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">vunit</span><span class="p">])</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">False</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">z</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;$&quot;</span><span class="p">:</span>
+            <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">z</span><span class="p">,</span> <span class="n">v</span> <span class="o">=</span> <span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="n">t</span><span class="p">)</span> <span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="o">*</span><span class="nb">sorted</span><span class="p">(</span><span class="nb">zip</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">x</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">y</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">z</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">v</span><span class="p">))))</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">x</span><span class="p">,</span> <span class="n">y</span> <span class="o">=</span> <span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="n">t</span><span class="p">)</span> <span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="o">*</span><span class="nb">sorted</span><span class="p">(</span><span class="nb">zip</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">x</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">y</span><span class="p">))))</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">x</span><span class="p">)):</span>
+            <span class="n">arg3</span> <span class="o">=</span> <span class="p">[]</span>
+            <span class="n">arg3</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;NAME:Coordinate&quot;</span><span class="p">)</span>
+            <span class="n">arg4</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;NAME:CoordPoint&quot;</span><span class="p">]</span>
+            <span class="n">arg4</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="n">x</span><span class="p">[</span><span class="n">i</span><span class="p">]))</span>
+            <span class="n">arg4</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="n">y</span><span class="p">[</span><span class="n">i</span><span class="p">]))</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">z</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;$&quot;</span><span class="p">:</span>
+                <span class="n">arg4</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="n">z</span><span class="p">[</span><span class="n">i</span><span class="p">]))</span>
+                <span class="n">arg4</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="n">v</span><span class="p">[</span><span class="n">i</span><span class="p">]))</span>
+            <span class="n">arg3</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">arg4</span><span class="p">)</span>
+            <span class="n">arg2</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">arg3</span><span class="p">)</span>
+        <span class="n">arg</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">arg2</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">arg</span>
+
+<div class="viewcode-block" id="DataSet.create"><a class="viewcode-back" href="../../../API/Variables.html#pyaedt.application.Variables.DataSet.create">[docs]</a>    <span class="nd">@aedt_exception_handler</span>
+    <span class="k">def</span> <span class="nf">create</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Create a new Dataset</span>
+
+
+<span class="sd">        :return:Bool</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;$&quot;</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_parent</span><span class="o">.</span><span class="n">_oproject</span><span class="o">.</span><span class="n">AddDataset</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_args</span><span class="p">())</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_parent</span><span class="o">.</span><span class="n">odesign</span><span class="o">.</span><span class="n">AddDataset</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_args</span><span class="p">())</span>
+        <span class="k">return</span> <span class="kc">True</span></div>
+
+<div class="viewcode-block" id="DataSet.add_point"><a class="viewcode-back" href="../../../API/Variables.html#pyaedt.application.Variables.DataSet.add_point">[docs]</a>    <span class="nd">@aedt_exception_handler</span>
+    <span class="k">def</span> <span class="nf">add_point</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">z</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">v</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Add a new point to the existing dataset</span>
+
+
+<span class="sd">        :param x: float</span>
+<span class="sd">        :param y: float</span>
+<span class="sd">        :param z: float or None</span>
+<span class="sd">        :param v: float or None</span>
+<span class="sd">        :return: Bool</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">x</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">y</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">y</span><span class="p">)</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">z</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">v</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">z</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">z</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">v</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">v</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">update</span><span class="p">()</span></div>
+
+<div class="viewcode-block" id="DataSet.remove_point_from_x"><a class="viewcode-back" href="../../../API/Variables.html#pyaedt.application.Variables.DataSet.remove_point_from_x">[docs]</a>    <span class="nd">@aedt_exception_handler</span>
+    <span class="k">def</span> <span class="nf">remove_point_from_x</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Remove Point from given x value</span>
+
+<span class="sd">        :param x: float</span>
+<span class="sd">        :return: Bool</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">x</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">x</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_parent</span><span class="o">.</span><span class="n">_messenger</span><span class="o">.</span><span class="n">add_error_message</span><span class="p">(</span><span class="s2">&quot;Value </span><span class="si">{}</span><span class="s2"> not found.&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">x</span><span class="p">))</span>
+            <span class="k">return</span> <span class="kc">False</span>
+        <span class="n">id_to_remove</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">x</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">remove_point_from_index</span><span class="p">(</span><span class="n">id_to_remove</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="DataSet.remove_point_from_index"><a class="viewcode-back" href="../../../API/Variables.html#pyaedt.application.Variables.DataSet.remove_point_from_index">[docs]</a>    <span class="nd">@aedt_exception_handler</span>
+    <span class="k">def</span> <span class="nf">remove_point_from_index</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">id_to_remove</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Remove Point from a specific index.</span>
+
+
+<span class="sd">        :param id_to_remove: index to remove (integer)</span>
+<span class="sd">        :return: Bool</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">id_to_remove</span> <span class="o">&lt;</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">x</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">2</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">x</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="n">id_to_remove</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">y</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="n">id_to_remove</span><span class="p">)</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">z</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">v</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">z</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="n">id_to_remove</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">v</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="n">id_to_remove</span><span class="p">)</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">update</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_parent</span><span class="o">.</span><span class="n">_messenger</span><span class="o">.</span><span class="n">add_error_message</span><span class="p">(</span><span class="s2">&quot;cannot Remove </span><span class="si">{}</span><span class="s2"> index.&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">id_to_remove</span><span class="p">))</span>
+        <span class="k">return</span> <span class="kc">False</span></div>
+
+<div class="viewcode-block" id="DataSet.update"><a class="viewcode-back" href="../../../API/Variables.html#pyaedt.application.Variables.DataSet.update">[docs]</a>    <span class="nd">@aedt_exception_handler</span>
+    <span class="k">def</span> <span class="nf">update</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Update Dataset</span>
+
+
+<span class="sd">        :return: Bool</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">args</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_args</span><span class="p">()</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">args</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">False</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;$&quot;</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_parent</span><span class="o">.</span><span class="n">_oproject</span><span class="o">.</span><span class="n">EditDataset</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_args</span><span class="p">())</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_parent</span><span class="o">.</span><span class="n">odesign</span><span class="o">.</span><span class="n">EditDataset</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_args</span><span class="p">())</span>
+        <span class="k">return</span> <span class="kc">True</span></div>
+
+<div class="viewcode-block" id="DataSet.delete"><a class="viewcode-back" href="../../../API/Variables.html#pyaedt.application.Variables.DataSet.delete">[docs]</a>    <span class="nd">@aedt_exception_handler</span>
+    <span class="k">def</span> <span class="nf">delete</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Delete a Dataset</span>
+
+
+<span class="sd">        :return: Bool</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;$&quot;</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_parent</span><span class="o">.</span><span class="n">_oproject</span><span class="o">.</span><span class="n">DeleteDataset</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
+            <span class="k">del</span> <span class="bp">self</span><span class="o">.</span><span class="n">_parent</span><span class="o">.</span><span class="n">project_datasets</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">]</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_parent</span><span class="o">.</span><span class="n">odesign</span><span class="o">.</span><span class="n">DeleteDataset</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
+            <span class="k">del</span> <span class="bp">self</span><span class="o">.</span><span class="n">_parent</span><span class="o">.</span><span class="n">project_datasets</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">]</span>
+        <span class="k">return</span> <span class="kc">True</span></div>
+
+<div class="viewcode-block" id="DataSet.export"><a class="viewcode-back" href="../../../API/Variables.html#pyaedt.application.Variables.DataSet.export">[docs]</a>    <span class="nd">@aedt_exception_handler</span>
+    <span class="k">def</span> <span class="nf">export</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dataset_path</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Export Dataset</span>
+
+
+<span class="sd">        :param dataset_path: path where to export. if None the dataset will be exported to project_path</span>
+<span class="sd">        :return: Bool</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">dataset_path</span><span class="p">:</span>
+            <span class="n">dataset_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_parent</span><span class="o">.</span><span class="n">project_path</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="o">+</span><span class="s2">&quot;.tab&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;$&quot;</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_parent</span><span class="o">.</span><span class="n">_oproject</span><span class="o">.</span><span class="n">ExportDataset</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="n">dataset_path</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_parent</span><span class="o">.</span><span class="n">odesign</span><span class="o">.</span><span class="n">ExportDataset</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="n">dataset_path</span><span class="p">)</span>
+        <span class="k">return</span> <span class="kc">True</span></div></div>
+
+</pre></div>
+
+              </div>
+              
+              
+              <div class='prev-next-bottom'>
+                
+
+              </div>
+              
+          </main>
+          
+
+      </div>
+    </div>
+
+    
+  <script src="../../../_static/js/index.d3f166471bb80abb5163.js"></script>
+
+
+    <footer class="footer mt-5 mt-md-0">
+  <div class="container">
+    <p>
+          &copy; Copyright Copyright(c) 1986-2021, ANSYSInc. unauthorised use, distribution or duplication is prohibited. This tool release is unofficial and not covered by standard Ansys Support license..<br/>
+        Created using <a href="http://sphinx-doc.org/">Sphinx</a> 3.5.2.<br/>
+    </p>
+  </div>
+</footer>
+  </body>
+</html>

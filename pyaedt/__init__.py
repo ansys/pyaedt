@@ -26,15 +26,15 @@ def pyaedt_help(modulename="index", browser="chrome"):
     """
 
     if modulename.lower() == "index":
-        filename = os.path.join(os.path.dirname(__file__), "Documentation", modulename+".html")
+        filename = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "Documentation", modulename+".html"))
     else:
-        filename = os.path.join(os.path.dirname(__file__), "Documentation","API", modulename+".html")
+        filename = os.path.abspath(os.path.join(os.path.dirname(__file__),  "..", "Documentation", "API", modulename+".html"))
 
     if os.path.exists(filename):
         filepath = filename.replace(":\\", ":/").replace("\\", "/")
         networkpath = "file:///" + filepath
     else:
-        filename = os.path.dirname(__file__)+"/Documentation/search.html?q={}&".format(modulename)
+        filename = os.path.dirname(__file__)+"/../Documentation/search.html?q={}&".format(modulename)
         filepath = filename.replace(":\\", ":/").replace("\\", "/")
         networkpath = "file:///" + filepath
     try:

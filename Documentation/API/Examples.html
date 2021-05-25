@@ -1,0 +1,331 @@
+
+<!DOCTYPE html>
+
+<html lang="Python">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Examples &#8212; pyaedt 0.5.0 documentation</title>
+    
+  <link rel="stylesheet" href="../_static/css/index.f658d18f9b420779cfdf24aa0a7e2d77.css">
+
+    
+  <link rel="stylesheet"
+    href="../_static/vendor/fontawesome/5.13.0/css/all.min.css">
+  <link rel="preload" as="font" type="font/woff2" crossorigin
+    href="../_static/vendor/fontawesome/5.13.0/webfonts/fa-solid-900.woff2">
+  <link rel="preload" as="font" type="font/woff2" crossorigin
+    href="../_static/vendor/fontawesome/5.13.0/webfonts/fa-brands-400.woff2">
+
+    
+      
+  <link rel="stylesheet"
+    href="../_static/vendor/open-sans_all/1.44.1/index.css">
+  <link rel="stylesheet"
+    href="../_static/vendor/lato_latin-ext/1.44.1/index.css">
+
+    
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/basic.css" type="text/css" />
+    <link rel="stylesheet" type="text/css" href="../_static/copybutton.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/graphviz.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/css/ansys.css" />
+    
+  <link rel="preload" as="script" href="../_static/js/index.d3f166471bb80abb5163.js">
+
+    <script id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+    <script src="../_static/jquery.js"></script>
+    <script src="../_static/underscore.js"></script>
+    <script src="../_static/doctools.js"></script>
+    <script src="../_static/clipboard.min.js"></script>
+    <script src="../_static/copybutton.js"></script>
+    <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Code Guidelines" href="../Resources/Code_Guidelines.html" />
+    <link rel="prev" title="Advanced Post Processing (only Python 3.x)" href="AdvancedPostProcessing.html" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="docsearch:language" content="en" />
+  </head>
+  <body data-spy="scroll" data-target="#bd-toc-nav" data-offset="80">
+    
+    <nav class="navbar navbar-light navbar-expand-lg bg-light fixed-top bd-navbar" id="navbar-main">
+<div class="container-xl">
+
+    <a class="navbar-brand" href="../index.html">
+    
+      <img src="../_static/logo-ansys.png" class="logo" alt="logo" />
+    
+    </a>
+    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbar-menu" aria-controls="navbar-menu" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+    </button>
+
+    <div id="navbar-menu" class="col-lg-9 collapse navbar-collapse">
+      <ul id="navbar-main-elements" class="navbar-nav mr-auto">
+        
+        
+        <li class="nav-item ">
+            <a class="nav-link" href="../LICENSE.html">License Agreeement</a>
+        </li>
+        
+        <li class="nav-item ">
+            <a class="nav-link" href="../Resources/Installation.html">Installation</a>
+        </li>
+        
+        <li class="nav-item ">
+            <a class="nav-link" href="API.html">API documentation</a>
+        </li>
+        
+        <li class="nav-item active">
+            <a class="nav-link" href="">Examples</a>
+        </li>
+        
+        <li class="nav-item ">
+            <a class="nav-link" href="../Resources/Code_Guidelines.html">Code Guidelines</a>
+        </li>
+        
+        <li class="nav-item ">
+            <a class="nav-link" href=""></a>
+        </li>
+        
+        
+      </ul>
+
+
+      
+
+      <ul class="navbar-nav">
+        
+        
+      </ul>
+    </div>
+</div>
+    </nav>
+    
+
+    <div class="container-xl">
+      <div class="row">
+          
+          <div class="col-12 col-md-3 bd-sidebar"><form class="bd-search d-flex align-items-center" action="../search.html" method="get">
+  <i class="icon fas fa-search"></i>
+  <input type="search" class="form-control" name="q" id="search-input" placeholder="Search the docs ..." aria-label="Search the docs ..." autocomplete="off" >
+</form>
+<nav class="bd-links" id="bd-docs-nav" aria-label="Main navigation">
+
+    <div class="bd-toc-item active">
+    
+  
+    <ul class="nav bd-sidenav">
+        
+        
+        
+        
+        
+        
+        
+        
+          
+        
+        
+        
+        
+        
+        
+      </ul>
+  
+  </nav>
+          </div>
+          
+
+          
+          <div class="d-none d-xl-block col-xl-2 bd-toc">
+              
+<div class="tocsection onthispage pt-5 pb-3">
+    <i class="fas fa-list"></i> On this page
+</div>
+
+<nav id="bd-toc-nav">
+    <ul class="nav section-nav flex-column">
+    
+        <li class="nav-item toc-entry toc-h2">
+            <a href="#example" class="nav-link">Example</a>
+        </li>
+    
+    </ul>
+</nav>
+
+
+              
+          </div>
+          
+
+          
+          <main class="col-12 col-md-9 col-xl-7 py-md-5 pl-md-5 pr-md-4 bd-content" role="main">
+              
+              <div>
+                
+  <div class="section" id="examples">
+<h1>Examples<a class="headerlink" href="#examples" title="Permalink to this headline">¶</a></h1>
+<p>Here you can find a list of examples that shows how to use AEDTLib in real practical cases.</p>
+<p><strong>Getting Started Examples:</strong></p>
+<ul class="simple">
+<li><p><a class="reference external" href="../../Examples/Notebooks/HFSS_Icepak_fullEXample.ipynb">JupyterLab HFSS Full Example</a>: It is a Jupyter lab file that shows how user can launch AEDTLib from Jupyter lab. It requires Juputer Lab to be installed on your machine.</p></li>
+<li><p><a class="reference external" href="../../Examples/Notebooks/HFSS_Icepak_fullEXample-NG.ipynb">JupyterLab HFSS Full Example Non Graphical</a>: It is a Jupyter lab file that shows how user can launch AEDTLib from Jupyter lab. It requires Juputer Lab to be installed on your machine. Non Graphical Version</p></li>
+<li><p><a class="reference external" href="../../Examples/Notebooks/far_field_test.ipynb">JupyterLab Far Field PostProcessing Example</a>: It is a Jupyter lab file that shows how user can use matplotly to postprocess data from AEDT in Non-Graphical mode. It requires Juputer Lab to be installed on your machine.</p></li>
+<li><p><a class="reference external" href="../../Examples/Notebooks/SherlockToIcepak.ipynb">JupyterLab Sherlock to Icepak Example</a>: It is a Jupyter lab file that shows how user can import files from Sherlock and create Icepak Project.</p></li>
+<li><p><a class="reference external" href="../../Examples/Notebooks/maxwell_aedtlib_test.ipynb">JupyterLab Maxwll Example 1</a>: It is a Jupyter lab file that shows how user can create a maxwell project, run analysis and plot results.</p></li>
+<li><p><a class="reference external" href="../../Examples/Notebooksmaxwell_aedtlib_test-NG.ipynb">JupyterLab Maxwll Example 2</a>: It is a Jupyter lab file that shows how user can create a maxwell project, run analysis and plot results. Non Graphical Version</p></li>
+<li><p><a class="reference external" href="../../Examples/Notebooks/Netlist.ipynb">JupyterLab Netlist Example</a>: It is a Jupyter lab file that shows how user can read a netlist and create a schematic</p></li>
+<li><p><a class="reference external" href="../../Examples/01_HFSS_Icepak_FullProject.py">HFSS Example</a>: Includes HFSS and Icepak Analysis</p></li>
+<li><p><a class="reference external" href="../../Examples/02_Maxwell_Icepak_App_Example.py">Maxwell 3D Example</a>: It includes Maxwell and Icepak Analysis</p></li>
+<li><p><a class="reference external" href="../../Examples/13_Solution_Setup_Example.py">Solution Setup Example</a>: It includes example to create automatically a Simulation Setup in different tools</p></li>
+<li><p><a class="reference external" href="../../Examples/03_Q3D_Example.py">Q3D Example</a> Q3D_Example.py: It includes an example of creating Q3D Project</p></li>
+<li><p><a class="reference external" href="../../Examples/08A_EDB_From3DLayout_Example.py">EDB Example</a>: It includes an example of using Edb API from AEDTLib within 3DLayout (read ONLY)</p></li>
+<li><p><a class="reference external" href="../../Examples/08B_EDB_Standalone_example.py">EDB Standalone Example</a>: It includes an example of using Edb API ouside aedt (read/write)</p></li>
+<li><p><a class="reference external" href="../../Examples/08C_HFSS_3DLayout_example.py">HFSS 3D Layout Example</a>: It includes an example of using HFSS3DLayout</p></li>
+<li><p><a class="reference external" href="../../Examples/05_Dipole_Example.py">Dipole Example</a>: It includes an example of using HFSS</p></li>
+<li><p><a class="reference external" href="../../Examples/06_Circuit_Example.py">Circuit Example</a>: A Simple RLC Example</p></li>
+<li><p><a class="reference external" href="../../Examples/09_Import_Netlist.py">Netlist Example</a>: A Simple HSPICE Netlist Import Example</p></li>
+<li><p><a class="reference external" href="../../Examples/10_Geometry_Creation_Package.py">Geometry Creation Example</a>: A Simple Package Creation Example</p></li>
+<li><p><a class="reference external" href="../../Examples/11_Ansys_Report.py">Ansys Report Example</a>: An example on how to create pdf reports</p></li>
+<li><p><a class="reference external" href="../../Examples/11_Ansys_Report.py">HeatSink Example</a>: An example on how to create a fully parametrized HeatSink</p></li>
+</ul>
+<p>Jupyeter can be launched with the following command:</p>
+<p><em>&quot;jupyter lab pathtoAEDTLibRoot/Documentation/Examples/example_name.ipynb&quot;</em> and jupyter server will be launched and the notebook will be loaded</p>
+<div class="section" id="example">
+<h2>Example<a class="headerlink" href="#example" title="Permalink to this headline">¶</a></h2>
+<p><strong>1. Insert a Maxwell design and instantiate Geometry modeler.</strong></p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">pyaedt.Destkop</span> <span class="kn">import</span> <span class="n">Desktop</span>
+<span class="kn">from</span> <span class="nn">pyaedt.Circuit</span> <span class="kn">import</span> <span class="n">Maxwell3d</span>
+
+<span class="k">with</span> <span class="n">Desktop</span><span class="p">(</span><span class="s2">&quot;2020.1&quot;</span><span class="p">,</span> <span class="n">NG</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+     <span class="c1"># AEDT 2020R1 in Non-Graphicalmode will be launched</span>
+     <span class="n">M3D</span> <span class="o">=</span> <span class="n">Maxwell3D</span><span class="p">(</span><span class="n">solution_type</span><span class="o">=</span><span class="s2">&quot;EddyCurrent&quot;</span><span class="p">)</span>
+     <span class="n">GEO</span> <span class="o">=</span> <span class="n">M3D</span><span class="o">.</span><span class="n">modeler</span>
+     <span class="n">GEO</span><span class="o">.</span><span class="n">model_units</span> <span class="o">=</span> <span class="s2">&quot;mm&quot;</span>
+     <span class="n">CS</span> <span class="o">=</span> <span class="n">GEO</span><span class="o">.</span><span class="n">coordinate_system</span>
+</pre></div>
+</div>
+<p><strong>2. Create the Model</strong></p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">plate</span> <span class="o">=</span> <span class="n">GEO</span><span class="o">.</span><span class="n">primitives</span><span class="o">.</span><span class="n">create_box</span><span class="p">([</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span> <span class="p">[</span><span class="mi">294</span><span class="p">,</span> <span class="mi">294</span><span class="p">,</span> <span class="mi">19</span><span class="p">],</span> <span class="n">name</span><span class="o">=</span><span class="s2">&quot;Plate&quot;</span><span class="p">,</span> <span class="n">matname</span><span class="o">=</span><span class="s2">&quot;aluminum&quot;</span><span class="p">)</span>
+<span class="n">hole</span> <span class="o">=</span> <span class="n">GEO</span><span class="o">.</span><span class="n">primitives</span><span class="o">.</span><span class="n">create_box</span><span class="p">([</span><span class="mi">18</span><span class="p">,</span><span class="mi">18</span><span class="p">,</span><span class="mi">0</span><span class="p">],</span> <span class="p">[</span><span class="mi">108</span><span class="p">,</span> <span class="mi">108</span><span class="p">,</span> <span class="mi">19</span><span class="p">],</span> <span class="n">name</span><span class="o">=</span><span class="s2">&quot;Hole&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p><strong>3. Modeler operations</strong></p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">GEO</span><span class="o">.</span><span class="n">subtract</span><span class="p">([</span><span class="n">plate</span><span class="p">],</span> <span class="p">[</span><span class="n">hole</span><span class="p">])</span>
+<span class="n">M3D</span><span class="o">.</span><span class="n">assignmaterial</span><span class="p">(</span><span class="n">plate</span><span class="p">,</span> <span class="s2">&quot;aluminum&quot;</span><span class="p">)</span>
+<span class="n">M3D</span><span class="o">.</span><span class="n">solve_inside</span><span class="p">(</span><span class="s2">&quot;Plate&quot;</span><span class="p">)</span>
+<span class="n">adaptive_frequency</span> <span class="o">=</span> <span class="s2">&quot;200Hz&quot;</span>
+<span class="n">p_plate</span> <span class="o">=</span> <span class="n">M3D</span><span class="o">.</span><span class="n">post</span><span class="o">.</span><span class="n">volumetric_loss</span><span class="p">(</span><span class="s2">&quot;Plate&quot;</span><span class="p">)</span> <span class="c1"># Create fields postprocessing variable for loss in object Plate</span>
+<span class="n">M3D</span><span class="o">.</span><span class="n">save_project</span><span class="p">(</span><span class="n">project_name</span><span class="p">)</span> <span class="c1"># unable to save file by passing the file name or directory as an argument.</span>
+</pre></div>
+</div>
+<p><strong>4. Create Coils</strong></p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">center_hole</span> <span class="o">=</span> <span class="n">M3D</span><span class="o">.</span><span class="n">modeler</span><span class="o">.</span><span class="n">Position</span><span class="p">(</span><span class="mi">119</span><span class="p">,</span> <span class="mi">25</span><span class="p">,</span> <span class="mi">49</span><span class="p">)</span>
+<span class="n">center_coil</span> <span class="o">=</span> <span class="n">M3D</span><span class="o">.</span><span class="n">modeler</span><span class="o">.</span><span class="n">Position</span><span class="p">(</span><span class="mi">94</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">49</span><span class="p">)</span>
+<span class="n">coil_hole</span> <span class="o">=</span> <span class="n">GEO</span><span class="o">.</span><span class="n">primitives</span><span class="o">.</span><span class="n">create_box</span><span class="p">(</span><span class="n">center_hole</span><span class="p">,</span> <span class="p">[</span><span class="mi">150</span><span class="p">,</span> <span class="mi">150</span><span class="p">,</span> <span class="mi">100</span><span class="p">],</span> <span class="n">name</span><span class="o">=</span><span class="s2">&quot;Coil_Hole&quot;</span><span class="p">)</span>  <span class="c1"># All positions in model units</span>
+<span class="n">coil</span> <span class="o">=</span> <span class="n">GEO</span><span class="o">.</span><span class="n">primitives</span><span class="o">.</span><span class="n">create_box</span><span class="p">(</span><span class="n">center_coil</span><span class="p">,</span> <span class="p">[</span><span class="mi">200</span><span class="p">,</span> <span class="mi">200</span><span class="p">,</span> <span class="mi">100</span><span class="p">],</span> <span class="n">name</span><span class="o">=</span><span class="s2">&quot;Coil&quot;</span><span class="p">)</span>  <span class="c1"># All positions in model units</span>
+<span class="n">GEO</span><span class="o">.</span><span class="n">subtract</span><span class="p">([</span><span class="n">coil</span><span class="p">],</span> <span class="p">[</span><span class="n">coil_hole</span><span class="p">])</span>
+<span class="n">M3D</span><span class="o">.</span><span class="n">assignmaterial</span><span class="p">(</span><span class="n">coil</span><span class="p">,</span> <span class="s2">&quot;copper&quot;</span><span class="p">)</span>
+<span class="n">M3D</span><span class="o">.</span><span class="n">solve_inside</span><span class="p">(</span><span class="s2">&quot;Coil&quot;</span><span class="p">)</span>
+<span class="n">p_coil</span> <span class="o">=</span> <span class="n">M3D</span><span class="o">.</span><span class="n">post</span><span class="o">.</span><span class="n">volumetric_loss</span><span class="p">(</span><span class="s2">&quot;Coil&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p><strong>5. Create relative coordinate system</strong></p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">CS</span><span class="o">.</span><span class="n">create</span><span class="p">([</span><span class="mi">200</span><span class="p">,</span> <span class="mi">100</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span> <span class="n">view</span><span class="o">=</span><span class="s2">&quot;XY&quot;</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s2">&quot;Coil_CS&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p><strong>6. Create coil terminal</strong></p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">GEO</span><span class="o">.</span><span class="n">section</span><span class="p">([</span><span class="s2">&quot;Coil&quot;</span><span class="p">],</span> <span class="n">M3D</span><span class="o">.</span><span class="n">CoordinateSystemPlane</span><span class="o">.</span><span class="n">ZXPlane</span><span class="p">)</span>
+<span class="n">GEO</span><span class="o">.</span><span class="n">separate_bodies</span><span class="p">([</span><span class="s2">&quot;Coil_Section1&quot;</span><span class="p">])</span>
+<span class="n">GEO</span><span class="o">.</span><span class="n">primitives</span><span class="o">.</span><span class="n">delete</span><span class="p">(</span><span class="s2">&quot;Coil_Section1_Separate1&quot;</span><span class="p">)</span>
+<span class="n">M3D</span><span class="o">.</span><span class="n">assign_current</span><span class="p">([</span><span class="s2">&quot;Coil_Section1&quot;</span><span class="p">],</span> <span class="n">amplitude</span><span class="o">=</span><span class="mi">2472</span><span class="p">)</span>
+</pre></div>
+</div>
+<p><strong>7. draw region</strong></p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">M3D</span><span class="o">.</span><span class="n">modeler</span><span class="o">.</span><span class="n">create_air_region</span><span class="p">(</span><span class="n">pad_percent</span><span class="o">=</span><span class="p">[</span><span class="mi">300</span><span class="p">]</span> <span class="o">*</span> <span class="mi">6</span><span class="p">)</span>
+</pre></div>
+</div>
+<p><strong>8. Simulation Setup</strong></p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">M3D</span><span class="o">.</span><span class="n">eddy_effects_on</span><span class="p">([</span><span class="s1">&#39;Plate&#39;</span><span class="p">])</span>
+<span class="n">Setup</span> <span class="o">=</span> <span class="n">M3D</span><span class="o">.</span><span class="n">create_setup</span><span class="p">()</span>
+<span class="n">Setup</span><span class="o">.</span><span class="n">props</span><span class="p">[</span><span class="s2">&quot;MaximumPasses&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">12</span>
+<span class="n">Setup</span><span class="o">.</span><span class="n">props</span><span class="p">[</span><span class="s2">&quot;MinimumPasses&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">2</span>
+<span class="n">Setup</span><span class="o">.</span><span class="n">props</span><span class="p">[</span><span class="s2">&quot;MinimumConvergedPasses&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">1</span>
+<span class="n">Setup</span><span class="o">.</span><span class="n">props</span><span class="p">[</span><span class="s2">&quot;PercentRefinement&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">30</span>
+<span class="n">Setup</span><span class="o">.</span><span class="n">props</span><span class="p">[</span><span class="s2">&quot;Frequency&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">adaptive_frequency</span>
+<span class="n">Setup</span><span class="o">.</span><span class="n">props</span><span class="p">[</span><span class="s2">&quot;HasSweepSetup&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">True</span>
+<span class="n">Setup</span><span class="o">.</span><span class="n">props</span><span class="p">[</span><span class="s2">&quot;StartValue&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;1e-08GHz&quot;</span>
+<span class="n">Setup</span><span class="o">.</span><span class="n">props</span><span class="p">[</span><span class="s2">&quot;StopValue&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;1e-06GHz&quot;</span>
+<span class="n">Setup</span><span class="o">.</span><span class="n">props</span><span class="p">[</span><span class="s2">&quot;StepSize&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;2e-08GHz&quot;</span>
+
+<span class="n">Setup</span><span class="o">.</span><span class="n">update</span><span class="p">()</span>
+<span class="n">Setup</span><span class="o">.</span><span class="n">enable_expression_cache</span><span class="p">([</span><span class="n">p_plate</span><span class="p">,</span> <span class="n">p_coil</span><span class="p">],</span> <span class="s2">&quot;Fields&quot;</span><span class="p">,</span> <span class="s2">&quot;Phase=</span><span class="se">\&#39;</span><span class="s2">0deg</span><span class="se">\&#39;</span><span class="s2"> &quot;</span><span class="p">,</span> <span class="kc">True</span><span class="p">)</span>
+</pre></div>
+</div>
+<p><strong>8. Solve Project</strong></p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">M3D</span><span class="o">.</span><span class="n">analyse_nominal</span><span class="p">()</span>
+</pre></div>
+</div>
+<p><strong>8. Get Report Data</strong></p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">M3D</span><span class="o">.</span><span class="n">post</span><span class="o">.</span><span class="n">report_types</span>
+<span class="p">[</span><span class="s1">&#39;EddyCurrent&#39;</span><span class="p">,</span> <span class="s1">&#39;Fields&#39;</span><span class="p">]</span>
+<span class="n">val</span> <span class="o">=</span> <span class="n">M3D</span><span class="o">.</span><span class="n">post</span><span class="o">.</span><span class="n">get_report_data</span><span class="p">(</span><span class="n">expression</span><span class="o">=</span><span class="s2">&quot;SolidLoss&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p><strong>8. Advanced Plot with matplotlib</strong></p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">fig</span><span class="p">,</span> <span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">20</span><span class="p">,</span> <span class="mi">10</span><span class="p">))</span>
+
+<span class="n">ax</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="n">xlabel</span><span class="o">=</span><span class="s1">&#39;Frequency (Hz)&#39;</span><span class="p">,</span> <span class="n">ylabel</span><span class="o">=</span><span class="s1">&#39;Solid Losses (W)&#39;</span><span class="p">,</span> <span class="n">title</span><span class="o">=</span><span class="s1">&#39;Losses Chart&#39;</span><span class="p">)</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">grid</span><span class="p">()</span>
+<span class="n">mag_data</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">val</span><span class="o">.</span><span class="n">data_magnitude</span><span class="p">())</span>
+<span class="n">freq_data</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">i</span><span class="o">*</span><span class="mf">1e9</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">val</span><span class="o">.</span><span class="n">sweeps</span><span class="p">[</span><span class="s2">&quot;Freq&quot;</span><span class="p">]])</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">freq_data</span><span class="p">,</span> <span class="n">mag_data</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</pre></div>
+</div>
+<div class="figure align-default" id="id1">
+<a class="reference internal image-reference" href="../_images/maxwell_losses.png"><img alt="../_images/maxwell_losses.png" src="../_images/maxwell_losses.png" style="width: 600pt;" /></a>
+<p class="caption"><span class="caption-text">Matplotlib Losses Plot</span><a class="headerlink" href="#id1" title="Permalink to this image">¶</a></p>
+</div>
+<p><strong>9. Save and Close</strong></p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">M3D</span><span class="o">.</span><span class="n">save_project</span><span class="p">(</span><span class="n">project_name</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Plot can be done in AEDT or outside like shown in this example. Additional examples shows that the same way of working
+can be applied to touchstons or other report data. Furthermore Field Plots can be exported and processed using Plotly package</p>
+</div>
+</div>
+
+
+              </div>
+              
+              
+              <div class='prev-next-bottom'>
+                
+    <a class='left-prev' id="prev-link" href="AdvancedPostProcessing.html" title="previous page">Advanced Post Processing (only Python 3.x)</a>
+    <a class='right-next' id="next-link" href="../Resources/Code_Guidelines.html" title="next page">Code Guidelines</a>
+
+              </div>
+              
+          </main>
+          
+
+      </div>
+    </div>
+
+    
+  <script src="../_static/js/index.d3f166471bb80abb5163.js"></script>
+
+
+    <footer class="footer mt-5 mt-md-0">
+  <div class="container">
+    <p>
+          &copy; Copyright Copyright(c) 1986-2021, ANSYSInc. unauthorised use, distribution or duplication is prohibited. This tool release is unofficial and not covered by standard Ansys Support license..<br/>
+        Created using <a href="http://sphinx-doc.org/">Sphinx</a> 3.5.2.<br/>
+    </p>
+  </div>
+</footer>
+  </body>
+</html>

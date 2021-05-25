@@ -1,0 +1,919 @@
+
+<!DOCTYPE html>
+
+<html lang="Python">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>pyaedt.modules.SolveSetup &#8212; pyaedt 0.5.0 documentation</title>
+    
+  <link rel="stylesheet" href="../../../_static/css/index.f658d18f9b420779cfdf24aa0a7e2d77.css">
+
+    
+  <link rel="stylesheet"
+    href="../../../_static/vendor/fontawesome/5.13.0/css/all.min.css">
+  <link rel="preload" as="font" type="font/woff2" crossorigin
+    href="../../../_static/vendor/fontawesome/5.13.0/webfonts/fa-solid-900.woff2">
+  <link rel="preload" as="font" type="font/woff2" crossorigin
+    href="../../../_static/vendor/fontawesome/5.13.0/webfonts/fa-brands-400.woff2">
+
+    
+      
+  <link rel="stylesheet"
+    href="../../../_static/vendor/open-sans_all/1.44.1/index.css">
+  <link rel="stylesheet"
+    href="../../../_static/vendor/lato_latin-ext/1.44.1/index.css">
+
+    
+    <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" href="../../../_static/basic.css" type="text/css" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/copybutton.css" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/graphviz.css" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/css/ansys.css" />
+    
+  <link rel="preload" as="script" href="../../../_static/js/index.d3f166471bb80abb5163.js">
+
+    <script id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
+    <script src="../../../_static/jquery.js"></script>
+    <script src="../../../_static/underscore.js"></script>
+    <script src="../../../_static/doctools.js"></script>
+    <script src="../../../_static/clipboard.min.js"></script>
+    <script src="../../../_static/copybutton.js"></script>
+    <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="docsearch:language" content="en" />
+  </head>
+  <body data-spy="scroll" data-target="#bd-toc-nav" data-offset="80">
+    
+    <nav class="navbar navbar-light navbar-expand-lg bg-light fixed-top bd-navbar" id="navbar-main">
+<div class="container-xl">
+
+    <a class="navbar-brand" href="../../../index.html">
+    
+      <img src="../../../_static/logo-ansys.png" class="logo" alt="logo" />
+    
+    </a>
+    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbar-menu" aria-controls="navbar-menu" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+    </button>
+
+    <div id="navbar-menu" class="col-lg-9 collapse navbar-collapse">
+      <ul id="navbar-main-elements" class="navbar-nav mr-auto">
+        
+        
+        <li class="nav-item ">
+            <a class="nav-link" href="../../../LICENSE.html">License Agreeement</a>
+        </li>
+        
+        <li class="nav-item ">
+            <a class="nav-link" href="../../../Resources/Installation.html">Installation</a>
+        </li>
+        
+        <li class="nav-item ">
+            <a class="nav-link" href="../../../API/API.html">API documentation</a>
+        </li>
+        
+        <li class="nav-item ">
+            <a class="nav-link" href="../../../API/Examples.html">Examples</a>
+        </li>
+        
+        <li class="nav-item ">
+            <a class="nav-link" href="../../../Resources/Code_Guidelines.html">Code Guidelines</a>
+        </li>
+        
+        <li class="nav-item ">
+            <a class="nav-link" href=""></a>
+        </li>
+        
+        
+      </ul>
+
+
+      
+
+      <ul class="navbar-nav">
+        
+        
+      </ul>
+    </div>
+</div>
+    </nav>
+    
+
+    <div class="container-xl">
+      <div class="row">
+          
+          <div class="col-12 col-md-3 bd-sidebar"><form class="bd-search d-flex align-items-center" action="../../../search.html" method="get">
+  <i class="icon fas fa-search"></i>
+  <input type="search" class="form-control" name="q" id="search-input" placeholder="Search the docs ..." aria-label="Search the docs ..." autocomplete="off" >
+</form>
+<nav class="bd-links" id="bd-docs-nav" aria-label="Main navigation">
+
+    <div class="bd-toc-item active">
+    
+  
+    <ul class="nav bd-sidenav">
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+      </ul>
+  
+  </nav>
+          </div>
+          
+
+          
+          <div class="d-none d-xl-block col-xl-2 bd-toc">
+              
+
+<nav id="bd-toc-nav">
+    <ul class="nav section-nav flex-column">
+    
+    </ul>
+</nav>
+
+
+              
+          </div>
+          
+
+          
+          <main class="col-12 col-md-9 col-xl-7 py-md-5 pl-md-5 pr-md-4 bd-content" role="main">
+              
+              <div>
+                
+  <h1>Source code for pyaedt.modules.SolveSetup</h1><div class="highlight"><pre>
+<span></span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">Setup Library Class</span>
+<span class="sd">----------------</span>
+
+<span class="sd">**Disclaimer**</span>
+
+<span class="sd">*Copyright (c) 1986-2021, ANSYS Inc. unauthorised use, distribution or duplication is prohibited*</span>
+
+<span class="sd">*This tool release is unofficial and not covered by standard Ansys Support license.*</span>
+
+
+<span class="sd">**Description**</span>
+
+
+<span class="sd">This class contains all the functionalities to create and edit a setup. It is based on templates in order to allow to create and modify setup properties easily</span>
+
+
+<span class="sd">================</span>
+
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="n">absolute_import</span>
+
+<span class="kn">from</span> <span class="nn">collections</span> <span class="kn">import</span> <span class="n">OrderedDict</span>
+<span class="kn">import</span> <span class="nn">os.path</span>
+
+<span class="kn">from</span> <span class="nn">..generic.general_methods</span> <span class="kn">import</span> <span class="n">aedt_exception_handler</span><span class="p">,</span> <span class="n">generate_unique_name</span>
+
+<span class="kn">from</span> <span class="nn">.SetupTemplates</span> <span class="kn">import</span> <span class="n">SweepHFSS</span><span class="p">,</span> <span class="n">SweepQ3D</span><span class="p">,</span> <span class="n">SetupKeys</span>
+<span class="kn">from</span> <span class="nn">..application.DataHandlers</span> <span class="kn">import</span> <span class="n">tuple2dict</span><span class="p">,</span> <span class="n">dict2arg</span>
+
+
+<div class="viewcode-block" id="Setup"><a class="viewcode-back" href="../../../API/Setup3D.html#pyaedt.modules.SolveSetup.Setup">[docs]</a><span class="k">class</span> <span class="nc">Setup</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    This Class defines the functions to initialize, create and update a Setup in Electronic Desktop</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">parent</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_parent</span>
+
+    <span class="nd">@parent</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">parent</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_parent</span> <span class="o">=</span> <span class="n">value</span>
+        <span class="k">pass</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">omodule</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_parent</span><span class="o">.</span><span class="n">oanalysis</span>
+
+    <span class="k">def</span> <span class="fm">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="s2">&quot;SetupName &quot;</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="o">+</span> <span class="s2">&quot; with &quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">sweeps</span><span class="p">))</span> <span class="o">+</span> <span class="s2">&quot; Sweeps&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">parent</span><span class="p">,</span> <span class="n">solutiontype</span><span class="p">,</span> <span class="n">setupname</span><span class="o">=</span><span class="s2">&quot;MySetupAuto&quot;</span><span class="p">,</span> <span class="n">isnewsetup</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        :param parent: AEDT Module for Analysis Setup</span>
+<span class="sd">        :param setupname: Setup Name</span>
+<span class="sd">        :param solutiontype: Setup Type of Apllication.SolutionType</span>
+<span class="sd">        :param isnewsetup: Boolean. True if is a new setup to be created from template. False to access existing Setup</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_parent</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">parent</span> <span class="o">=</span> <span class="n">parent</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">setuptype</span> <span class="o">=</span> <span class="n">solutiontype</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="n">setupname</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">props</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">sweeps</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">if</span> <span class="n">isnewsetup</span><span class="p">:</span>
+            <span class="n">setup_template</span> <span class="o">=</span> <span class="n">SetupKeys</span><span class="o">.</span><span class="n">SetupTemplates</span><span class="p">[</span><span class="n">solutiontype</span><span class="p">]</span>
+            <span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="n">setup_template</span><span class="p">:</span>
+                <span class="n">tuple2dict</span><span class="p">(</span><span class="n">t</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">props</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">setups_data</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">parent</span><span class="o">.</span><span class="n">design_properties</span><span class="p">[</span><span class="s2">&quot;AnalysisSetup&quot;</span><span class="p">][</span><span class="s2">&quot;SolveSetups&quot;</span><span class="p">]</span>
+                <span class="k">if</span> <span class="n">setupname</span> <span class="ow">in</span> <span class="n">setups_data</span><span class="p">:</span>
+                    <span class="n">setup_data</span> <span class="o">=</span> <span class="n">setups_data</span><span class="p">[</span><span class="n">setupname</span><span class="p">]</span>
+                    <span class="k">if</span> <span class="s2">&quot;Sweeps&quot;</span> <span class="ow">in</span> <span class="n">setup_data</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">setuptype</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="mi">7</span><span class="p">]:</span>   <span class="c1">#0 and 7 represent setup HFSSDrivenAuto</span>
+                        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">setuptype</span> <span class="o">&lt;=</span> <span class="mi">4</span><span class="p">:</span>
+                            <span class="n">app</span> <span class="o">=</span> <span class="n">setup_data</span><span class="p">[</span><span class="s2">&quot;Sweeps&quot;</span><span class="p">]</span>
+                            <span class="n">app</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s1">&#39;NextUniqueID&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+                            <span class="n">app</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s1">&#39;MoveBackForward&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+                            <span class="n">app</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s1">&#39;MoveBackwards&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+                            <span class="k">for</span> <span class="n">el</span> <span class="ow">in</span> <span class="n">app</span><span class="p">:</span>
+                                <span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="n">app</span><span class="p">[</span><span class="n">el</span><span class="p">])</span> <span class="ow">is</span> <span class="n">OrderedDict</span><span class="p">:</span>
+                                    <span class="bp">self</span><span class="o">.</span><span class="n">sweeps</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">SweepHFSS</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">omodule</span><span class="p">,</span> <span class="n">setupname</span><span class="p">,</span> <span class="n">el</span><span class="p">,</span> <span class="n">props</span><span class="o">=</span><span class="n">app</span><span class="p">[</span><span class="n">el</span><span class="p">]))</span>
+
+                        <span class="k">else</span><span class="p">:</span>
+                            <span class="n">app</span> <span class="o">=</span> <span class="n">setup_data</span><span class="p">[</span><span class="s2">&quot;Sweeps&quot;</span><span class="p">]</span>
+                            <span class="k">for</span> <span class="n">el</span> <span class="ow">in</span> <span class="n">app</span><span class="p">:</span>
+                                <span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="n">app</span><span class="p">[</span><span class="n">el</span><span class="p">])</span> <span class="ow">is</span> <span class="n">OrderedDict</span><span class="p">:</span>
+                                    <span class="bp">self</span><span class="o">.</span><span class="n">sweeps</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">SweepQ3D</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">omodule</span><span class="p">,</span> <span class="n">setupname</span><span class="p">,</span> <span class="n">el</span><span class="p">,</span> <span class="n">props</span><span class="o">=</span><span class="n">app</span><span class="p">[</span><span class="n">el</span><span class="p">]))</span>
+                        <span class="n">setup_data</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s1">&#39;Sweeps&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">props</span> <span class="o">=</span> <span class="n">OrderedDict</span><span class="p">(</span><span class="n">setup_data</span><span class="p">)</span>
+            <span class="k">except</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">props</span> <span class="o">=</span> <span class="n">OrderedDict</span><span class="p">()</span>
+
+
+    <span class="nd">@aedt_exception_handler</span>
+    <span class="k">def</span> <span class="nf">check_dict</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">listin</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">out</span><span class="p">):</span>
+        <span class="n">arg</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;Name:&quot;</span> <span class="o">+</span> <span class="n">name</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;__&quot;</span><span class="p">,</span> <span class="s2">&quot; &quot;</span><span class="p">)]</span>
+        <span class="k">for</span> <span class="n">a</span> <span class="ow">in</span> <span class="n">listin</span><span class="p">:</span>
+            <span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="n">a</span><span class="p">)</span> <span class="ow">is</span> <span class="nb">tuple</span><span class="p">:</span>
+                <span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="n">a</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span> <span class="ow">is</span> <span class="nb">list</span> <span class="ow">and</span> <span class="nb">type</span><span class="p">(</span><span class="n">a</span><span class="p">[</span><span class="mi">1</span><span class="p">][</span><span class="mi">0</span><span class="p">])</span> <span class="ow">is</span> <span class="nb">tuple</span><span class="p">:</span>
+                    <span class="n">arg</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">check_dict</span><span class="p">(</span><span class="n">a</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">a</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">arg</span><span class="p">)</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">arg</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">a</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;__&quot;</span><span class="p">,</span> <span class="s2">&quot; &quot;</span><span class="p">)</span> <span class="o">+</span> <span class="s2">&quot;:=&quot;</span><span class="p">)</span>
+                    <span class="n">arg</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">a</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">arg</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">a</span><span class="p">)</span>
+        <span class="n">out</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">arg</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">out</span>
+
+<div class="viewcode-block" id="Setup.create"><a class="viewcode-back" href="../../../API/Setup3D.html#pyaedt.modules.SolveSetup.Setup.create">[docs]</a>    <span class="nd">@aedt_exception_handler</span>
+    <span class="k">def</span> <span class="nf">create</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Insert a new Setup based on Class settings into the AEDT Application</span>
+
+<span class="sd">        :return: the argument list</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">soltype</span> <span class="o">=</span> <span class="n">SetupKeys</span><span class="o">.</span><span class="n">SetupNames</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">setuptype</span><span class="p">]</span>
+        <span class="n">arg</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;NAME:&quot;</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">]</span>
+        <span class="n">dict2arg</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">props</span><span class="p">,</span> <span class="n">arg</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">omodule</span><span class="o">.</span><span class="n">InsertSetup</span><span class="p">(</span><span class="n">soltype</span><span class="p">,</span> <span class="n">arg</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">arg</span></div>
+
+<div class="viewcode-block" id="Setup.update"><a class="viewcode-back" href="../../../API/Setup3D.html#pyaedt.modules.SolveSetup.Setup.update">[docs]</a>    <span class="nd">@aedt_exception_handler</span>
+    <span class="k">def</span> <span class="nf">update</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">update_dictionary</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        update the setup based on the class argument or to the updated dictionary passed as arcument</span>
+
+<span class="sd">        :param update_dictionary: optional dictionary of settings to apply</span>
+<span class="sd">        :return: bool</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">update_dictionary</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">el</span> <span class="ow">in</span> <span class="n">update_dictionary</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">props</span><span class="p">[</span><span class="n">el</span><span class="p">]</span><span class="o">=</span><span class="n">update_dictionary</span><span class="p">[</span><span class="n">el</span><span class="p">]</span>
+        <span class="n">arg</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;NAME:&quot;</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">]</span>
+        <span class="n">dict2arg</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">props</span><span class="p">,</span> <span class="n">arg</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">omodule</span><span class="o">.</span><span class="n">EditSetup</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="n">arg</span><span class="p">)</span>
+        <span class="k">return</span> <span class="kc">True</span></div>
+
+    <span class="nd">@aedt_exception_handler</span>
+    <span class="k">def</span> <span class="nf">_expression_cache</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">expression_list</span><span class="p">,</span> <span class="n">report_type_list</span><span class="p">,</span><span class="n">intrinsics_list</span><span class="p">,</span> <span class="n">isconvergence_list</span><span class="p">,</span>
+                          <span class="n">isrelativeconvergence</span><span class="p">,</span> <span class="n">conv_criteria</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">isrelativeconvergence</span><span class="p">:</span>
+            <span class="n">userelative</span> <span class="o">=</span> <span class="mi">1</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">userelative</span> <span class="o">=</span> <span class="mi">0</span>
+
+        <span class="n">list_data</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;NAME:ExpressionCache&quot;</span><span class="p">]</span>
+        <span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="n">expression_list</span><span class="p">)</span> <span class="ow">is</span> <span class="nb">list</span><span class="p">:</span>
+            <span class="n">i</span><span class="o">=</span><span class="mi">0</span>
+            <span class="k">while</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="nb">len</span><span class="p">(</span><span class="n">expression_list</span><span class="p">):</span>
+                <span class="n">expression</span><span class="o">=</span><span class="n">expression_list</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
+                <span class="n">name</span> <span class="o">=</span> <span class="n">expression</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;(&quot;</span><span class="p">,</span> <span class="s2">&quot;_&quot;</span><span class="p">)</span> <span class="o">+</span> <span class="s2">&quot;1&quot;</span>
+                <span class="n">name</span> <span class="o">=</span> <span class="n">name</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;)&quot;</span><span class="p">,</span> <span class="s2">&quot;_&quot;</span><span class="p">)</span>
+                <span class="n">name</span> <span class="o">=</span> <span class="n">name</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot; &quot;</span><span class="p">,</span> <span class="s2">&quot;_&quot;</span><span class="p">)</span>
+                <span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="n">report_type_list</span><span class="p">)</span> <span class="ow">is</span> <span class="nb">list</span><span class="p">:</span>
+                    <span class="n">report_type</span> <span class="o">=</span> <span class="n">report_type_list</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">report_type</span> <span class="o">=</span> <span class="n">report_type_list</span>
+                <span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="n">isconvergence_list</span><span class="p">)</span> <span class="ow">is</span> <span class="nb">list</span><span class="p">:</span>
+                    <span class="n">isconvergence</span> <span class="o">=</span> <span class="n">isconvergence_list</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">isconvergence</span> <span class="o">=</span> <span class="n">isconvergence_list</span>
+                <span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="n">intrinsics_list</span><span class="p">)</span> <span class="ow">is</span> <span class="nb">list</span><span class="p">:</span>
+                    <span class="n">intrinsics</span> <span class="o">=</span> <span class="n">intrinsics_list</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">intrinsics</span> <span class="o">=</span> <span class="n">intrinsics_list</span>
+                <span class="n">list_data</span><span class="o">.</span><span class="n">append</span><span class="p">([</span>
+                    <span class="s2">&quot;NAME:CacheItem&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;Title:=&quot;</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span>
+                    <span class="s2">&quot;Expression:=&quot;</span><span class="p">,</span> <span class="n">expression</span><span class="p">,</span>
+                    <span class="s2">&quot;Intrinsics:=&quot;</span><span class="p">,</span> <span class="n">intrinsics</span><span class="p">,</span>
+                    <span class="s2">&quot;IsConvergence:=&quot;</span><span class="p">,</span> <span class="n">isconvergence</span><span class="p">,</span>
+                    <span class="s2">&quot;UseRelativeConvergence:=&quot;</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span>
+                    <span class="s2">&quot;MaxConvergenceDelta:=&quot;</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span>
+                    <span class="s2">&quot;MaxConvergeValue:=&quot;</span><span class="p">,</span> <span class="s2">&quot;0.01&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;ReportType:=&quot;</span><span class="p">,</span> <span class="n">report_type</span><span class="p">,</span>
+                    <span class="p">[</span>
+                        <span class="s2">&quot;NAME:ExpressionContext&quot;</span>
+                    <span class="p">]</span>
+                <span class="p">])</span>
+                <span class="n">i</span><span class="o">+=</span><span class="mi">1</span>
+
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">name</span> <span class="o">=</span> <span class="n">expression_list</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;(&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)</span> <span class="o">+</span> <span class="s2">&quot;1&quot;</span>
+            <span class="n">name</span> <span class="o">=</span> <span class="n">name</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;)&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)</span>
+            <span class="n">name</span> <span class="o">=</span> <span class="n">name</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot; &quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)</span>
+            <span class="n">name</span> <span class="o">=</span> <span class="n">name</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;,&quot;</span><span class="p">,</span> <span class="s2">&quot;_&quot;</span><span class="p">)</span>
+            <span class="n">list_data</span><span class="o">.</span><span class="n">append</span><span class="p">([</span>
+                <span class="s2">&quot;NAME:CacheItem&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;Title:=&quot;</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span>
+                <span class="s2">&quot;Expression:=&quot;</span><span class="p">,</span> <span class="n">expression_list</span><span class="p">,</span>
+                <span class="s2">&quot;Intrinsics:=&quot;</span><span class="p">,</span> <span class="n">intrinsics_list</span><span class="p">,</span>
+                <span class="s2">&quot;IsConvergence:=&quot;</span><span class="p">,</span> <span class="n">isconvergence_list</span><span class="p">,</span>
+                <span class="s2">&quot;UseRelativeConvergence:=&quot;</span><span class="p">,</span> <span class="n">userelative</span><span class="p">,</span>
+                <span class="s2">&quot;MaxConvergenceDelta:=&quot;</span><span class="p">,</span> <span class="n">conv_criteria</span><span class="p">,</span>
+                <span class="s2">&quot;MaxConvergeValue:=&quot;</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">conv_criteria</span><span class="p">),</span>
+                <span class="s2">&quot;ReportType:=&quot;</span><span class="p">,</span> <span class="n">report_type_list</span><span class="p">,</span>
+                <span class="p">[</span>
+                    <span class="s2">&quot;NAME:ExpressionContext&quot;</span>
+                <span class="p">]</span>
+            <span class="p">])</span>
+
+        <span class="k">return</span> <span class="n">list_data</span>
+
+<div class="viewcode-block" id="Setup.enable_expression_cache"><a class="viewcode-back" href="../../../API/Setup3D.html#pyaedt.modules.SolveSetup.Setup.enable_expression_cache">[docs]</a>    <span class="nd">@aedt_exception_handler</span>
+    <span class="k">def</span> <span class="nf">enable_expression_cache</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">expressions</span><span class="p">,</span> <span class="n">report_type</span><span class="o">=</span><span class="s2">&quot;Fields&quot;</span><span class="p">,</span> <span class="n">intrinsics</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="n">isconvergence</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+                                <span class="n">isrelativeconvergence</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">conv_criteria</span><span class="o">=</span><span class="mi">1</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Enable Setup Expression Cache</span>
+
+<span class="sd">        :param conv_criteria:</span>
+<span class="sd">        :param isrelativeconvergence:</span>
+<span class="sd">        :param expressions: Formula to be added to the expression cache. It can be a list or a string</span>
+<span class="sd">        :param report_type: Report type of expression cache (eg. Fields). It can be a list or a string (same length of expression_list)</span>
+<span class="sd">        :param isconvergence: Boolean if expression is in convergence criteria. It can be a list or a string (same length of expression_list)</span>
+<span class="sd">        :param intrinsics: List of Intrinsics of expression (if any). It can be a list or a string (same length of expression_list)</span>
+<span class="sd">        :return: none</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">arg</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;NAME:&quot;</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">]</span>
+        <span class="n">dict2arg</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">props</span><span class="p">,</span> <span class="n">arg</span><span class="p">)</span>
+        <span class="n">expression_cache</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_expression_cache</span><span class="p">(</span><span class="n">expressions</span><span class="p">,</span> <span class="n">report_type</span><span class="p">,</span> <span class="n">intrinsics</span><span class="p">,</span> <span class="n">isconvergence</span><span class="p">,</span>
+                                                  <span class="n">isrelativeconvergence</span><span class="p">,</span> <span class="n">conv_criteria</span><span class="p">)</span>
+        <span class="n">arg</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">expression_cache</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">omodule</span><span class="o">.</span><span class="n">EditSetup</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="n">arg</span><span class="p">)</span>
+        <span class="k">return</span> <span class="kc">True</span></div>
+
+<div class="viewcode-block" id="Setup.add_derivatives"><a class="viewcode-back" href="../../../API/Setup3D.html#pyaedt.modules.SolveSetup.Setup.add_derivatives">[docs]</a>    <span class="nd">@aedt_exception_handler</span>
+    <span class="k">def</span> <span class="nf">add_derivatives</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">derivative_list</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Add Derivatives to setup</span>
+
+
+<span class="sd">        :param derivative_list: derivative list</span>
+<span class="sd">        :return: Bool</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">arg</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;NAME:&quot;</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">]</span>
+        <span class="n">dict2arg</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">props</span><span class="p">,</span> <span class="n">arg</span><span class="p">)</span>
+        <span class="n">arg</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;VariablesForDerivatives:=&quot;</span><span class="p">)</span>
+        <span class="n">arg</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">derivative_list</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">omodule</span><span class="o">.</span><span class="n">EditSetup</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="n">arg</span><span class="p">)</span>
+        <span class="k">return</span> <span class="kc">True</span></div>
+
+<div class="viewcode-block" id="Setup.enable"><a class="viewcode-back" href="../../../API/Setup3D.html#pyaedt.modules.SolveSetup.Setup.enable">[docs]</a>    <span class="nd">@aedt_exception_handler</span>
+    <span class="k">def</span> <span class="nf">enable</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">setup_name</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Enable specific Setup</span>
+
+<span class="sd">        :param setup_name: optional setup name</span>
+<span class="sd">        :return: none</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">setup_name</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">omodule</span><span class="o">.</span><span class="n">EditSetup</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">,</span>
+                                   <span class="p">[</span>
+                                       <span class="s2">&quot;NAME:&quot;</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">,</span>
+                                       <span class="s2">&quot;IsEnabled:=&quot;</span>		<span class="p">,</span> <span class="kc">True</span><span class="p">])</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">omodule</span><span class="o">.</span><span class="n">EditSetup</span><span class="p">(</span><span class="n">setup_name</span><span class="p">,</span>
+                                   <span class="p">[</span>
+                                       <span class="s2">&quot;NAME:&quot;</span> <span class="o">+</span> <span class="n">setup_name</span><span class="p">,</span>
+                                       <span class="s2">&quot;IsEnabled:=&quot;</span>		<span class="p">,</span> <span class="kc">True</span><span class="p">])</span>
+        <span class="k">return</span> <span class="kc">True</span></div>
+
+<div class="viewcode-block" id="Setup.disable"><a class="viewcode-back" href="../../../API/Setup3D.html#pyaedt.modules.SolveSetup.Setup.disable">[docs]</a>    <span class="nd">@aedt_exception_handler</span>
+    <span class="k">def</span> <span class="nf">disable</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">setup_name</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Disable specific Setup</span>
+
+<span class="sd">        :param setup_name: optional setup name</span>
+<span class="sd">        :return: none</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">setup_name</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">omodule</span><span class="o">.</span><span class="n">EditSetup</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">,</span>
+                                   <span class="p">[</span>
+                                       <span class="s2">&quot;NAME:&quot;</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">,</span>
+                                       <span class="s2">&quot;IsEnabled:=&quot;</span>		<span class="p">,</span> <span class="kc">False</span><span class="p">])</span>
+
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">omodule</span><span class="o">.</span><span class="n">EditSetup</span><span class="p">(</span><span class="n">setup_name</span><span class="p">,</span>
+                                   <span class="p">[</span>
+                                       <span class="s2">&quot;NAME:&quot;</span> <span class="o">+</span> <span class="n">setup_name</span><span class="p">,</span>
+                                       <span class="s2">&quot;IsEnabled:=&quot;</span>		<span class="p">,</span> <span class="kc">False</span><span class="p">])</span>
+        <span class="k">return</span> <span class="kc">True</span></div>
+
+<div class="viewcode-block" id="Setup.add_sweep"><a class="viewcode-back" href="../../../API/Setup3D.html#pyaedt.modules.SolveSetup.Setup.add_sweep">[docs]</a>    <span class="nd">@aedt_exception_handler</span>
+    <span class="k">def</span> <span class="nf">add_sweep</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">sweepname</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">sweeptype</span><span class="o">=</span> <span class="s2">&quot;Interpolating&quot;</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Add a Sweep to the Project</span>
+
+<span class="sd">        :param sweepname: str Sweep Name</span>
+<span class="sd">        :param sweeptype: sweep type</span>
+<span class="sd">        :return: sweep object</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">sweepname</span><span class="p">:</span>
+            <span class="n">sweepname</span> <span class="o">=</span> <span class="n">generate_unique_name</span><span class="p">(</span><span class="s2">&quot;Sweep&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">setuptype</span> <span class="o">&lt;=</span> <span class="mi">4</span><span class="p">:</span>
+            <span class="n">sweep_n</span> <span class="o">=</span> <span class="n">SweepHFSS</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">omodule</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="n">sweepname</span><span class="p">,</span> <span class="n">sweeptype</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">sweep_n</span> <span class="o">=</span> <span class="n">SweepQ3D</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">omodule</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="n">sweepname</span><span class="p">,</span> <span class="n">sweeptype</span><span class="p">)</span>
+        <span class="n">sweep_n</span><span class="o">.</span><span class="n">create</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">sweeps</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">sweep_n</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">sweep_n</span></div>
+
+<div class="viewcode-block" id="Setup.add_mesh_link"><a class="viewcode-back" href="../../../API/Setup3D.html#pyaedt.modules.SolveSetup.Setup.add_mesh_link">[docs]</a>    <span class="nd">@aedt_exception_handler</span>
+    <span class="k">def</span> <span class="nf">add_mesh_link</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">design_name</span><span class="p">,</span> <span class="n">solution_name</span><span class="p">,</span> <span class="n">parameters_dict</span><span class="p">,</span> <span class="n">project_name</span><span class="o">=</span><span class="s2">&quot;This Project*&quot;</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Add Mesh Link to another design. Design can be in the same project (default) or external project</span>
+
+
+<span class="sd">        :param project_name: name of project &quot;This Project*&quot; by default</span>
+<span class="sd">        :param design_name: str name of the design</span>
+<span class="sd">        :param solution_name: str, name of solution in the format &quot;setupname : solutionname&quot;. Optionally use appname.nominal_adaptive to get nominal adaptive or appname.nominal_sweep</span>
+<span class="sd">        :param parameters_dict: dictionary of parameters. Optionally use appname.available_variations.nominal_w_values_dict property to get nominal values</span>
+<span class="sd">        :return: Bool</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">meshlinks</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">props</span><span class="p">[</span><span class="s2">&quot;MeshLink&quot;</span><span class="p">]</span>
+        <span class="n">meshlinks</span><span class="p">[</span><span class="s2">&quot;ImportMesh&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="n">meshlinks</span><span class="p">[</span><span class="s2">&quot;Project&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">project_name</span>
+        <span class="n">meshlinks</span><span class="p">[</span><span class="s2">&quot;Product&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;ElectronicsDesktop&quot;</span>
+        <span class="n">meshlinks</span><span class="p">[</span><span class="s2">&quot;Design&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">design_name</span>
+        <span class="n">meshlinks</span><span class="p">[</span><span class="s2">&quot;Soln&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">solution_name</span>
+        <span class="n">meshlinks</span><span class="p">[</span><span class="s2">&quot;Params&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">OrderedDict</span><span class="p">({})</span>
+        <span class="k">for</span> <span class="n">el</span> <span class="ow">in</span> <span class="n">parameters_dict</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">el</span> <span class="ow">in</span> <span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_parent</span><span class="o">.</span><span class="n">available_variations</span><span class="o">.</span><span class="n">nominal_w_values_dict</span><span class="o">.</span><span class="n">keys</span><span class="p">()):</span>
+                <span class="n">meshlinks</span><span class="p">[</span><span class="s2">&quot;Params&quot;</span><span class="p">][</span><span class="n">el</span><span class="p">]</span> <span class="o">=</span> <span class="n">el</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">meshlinks</span><span class="p">[</span><span class="s2">&quot;Params&quot;</span><span class="p">][</span><span class="n">el</span><span class="p">]</span> <span class="o">=</span> <span class="n">parameters_dict</span><span class="p">[</span><span class="n">el</span><span class="p">]</span>
+        <span class="n">meshlinks</span><span class="p">[</span><span class="s2">&quot;ForceSourceToSolve&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="n">meshlinks</span><span class="p">[</span><span class="s2">&quot;PreservePartnerSoln&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="n">meshlinks</span><span class="p">[</span><span class="s2">&quot;PathRelativeTo&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;TargetProject&quot;</span>
+        <span class="n">meshlinks</span><span class="p">[</span><span class="s2">&quot;ApplyMeshOp&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">update</span><span class="p">()</span>
+        <span class="k">return</span> <span class="kc">True</span></div></div>
+
+<div class="viewcode-block" id="SetupCircuit"><a class="viewcode-back" href="../../../API/SetupCircuit.html#pyaedt.modules.SolveSetup.SetupCircuit">[docs]</a><span class="k">class</span> <span class="nc">SetupCircuit</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    This Class defines the functions to initialize, create and update a Setup in Electronic Desktop</span>
+
+<span class="sd">    :param design: AEDT oDesign module</span>
+<span class="sd">    :param setupmodule: AEDT Module for Analysis Setup</span>
+<span class="sd">    :param setupname: Setup Name</span>
+<span class="sd">    :param solutiontype: Setup Type of Apllication.SolutionType</span>
+<span class="sd">    :param isnewsetup: Boolean. True if is a new setup to be created from template. False to access existing Setup</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">name</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_Name</span>
+
+    <span class="nd">@name</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">name</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_Name</span> <span class="o">=</span> <span class="n">name</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">props</span><span class="p">[</span><span class="s2">&quot;Name&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">name</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">parent</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_parent</span>
+
+    <span class="nd">@parent</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">parent</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_parent</span> <span class="o">=</span> <span class="n">name</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">odesign</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_parent</span><span class="o">.</span><span class="n">odesign</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">omodule</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_parent</span><span class="o">.</span><span class="n">oanalysis</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">parent</span><span class="p">,</span>  <span class="n">solutiontype</span><span class="p">,</span> <span class="n">setupname</span><span class="o">=</span><span class="s2">&quot;MySetupAuto&quot;</span><span class="p">,</span> <span class="n">isnewsetup</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_parent</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">parent</span> <span class="o">=</span> <span class="n">parent</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">setuptype</span> <span class="o">=</span> <span class="n">solutiontype</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_Name</span> <span class="o">=</span> <span class="s2">&quot;LinearFrequency&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">props</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="k">if</span> <span class="n">isnewsetup</span><span class="p">:</span>
+            <span class="n">setup_template</span> <span class="o">=</span> <span class="n">SetupKeys</span><span class="o">.</span><span class="n">SetupTemplates</span><span class="p">[</span><span class="n">solutiontype</span><span class="p">]</span>
+            <span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="n">setup_template</span><span class="p">:</span>
+                <span class="n">tuple2dict</span><span class="p">(</span><span class="n">t</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">props</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">setups_data</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">parent</span><span class="o">.</span><span class="n">design_properties</span><span class="p">[</span><span class="s2">&quot;SimSetups&quot;</span><span class="p">][</span><span class="s2">&quot;SimSetup&quot;</span><span class="p">]</span>
+                <span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="n">setups_data</span><span class="p">)</span> <span class="ow">is</span> <span class="ow">not</span> <span class="nb">list</span><span class="p">:</span>
+                    <span class="n">setups_data</span><span class="o">=</span><span class="p">[</span><span class="n">setups_data</span><span class="p">]</span>
+                <span class="k">for</span> <span class="n">setup</span> <span class="ow">in</span> <span class="n">setups_data</span><span class="p">:</span>
+                    <span class="k">if</span> <span class="n">setupname</span> <span class="o">==</span> <span class="n">setup</span><span class="p">[</span><span class="s2">&quot;Name&quot;</span><span class="p">]:</span>
+                        <span class="n">setup_data</span> <span class="o">=</span> <span class="n">setup</span>
+                        <span class="n">setup_data</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s1">&#39;Sweeps&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">props</span> <span class="o">=</span> <span class="n">setup_data</span>
+            <span class="k">except</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">props</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="n">setupname</span>
+
+    <span class="nd">@aedt_exception_handler</span>
+    <span class="k">def</span> <span class="nf">check_dict</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">listin</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">out</span><span class="p">):</span>
+        <span class="n">arg</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;Name:&quot;</span> <span class="o">+</span> <span class="n">name</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;__&quot;</span><span class="p">,</span> <span class="s2">&quot; &quot;</span><span class="p">)]</span>
+        <span class="k">for</span> <span class="n">a</span> <span class="ow">in</span> <span class="n">listin</span><span class="p">:</span>
+            <span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="n">a</span><span class="p">)</span> <span class="ow">is</span> <span class="nb">tuple</span><span class="p">:</span>
+                <span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="n">a</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span> <span class="ow">is</span> <span class="nb">list</span> <span class="ow">and</span> <span class="nb">type</span><span class="p">(</span><span class="n">a</span><span class="p">[</span><span class="mi">1</span><span class="p">][</span><span class="mi">0</span><span class="p">])</span> <span class="ow">is</span> <span class="nb">tuple</span><span class="p">:</span>
+                    <span class="n">arg</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">check_dict</span><span class="p">(</span><span class="n">a</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">a</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">arg</span><span class="p">)</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">arg</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">a</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;__&quot;</span><span class="p">,</span> <span class="s2">&quot; &quot;</span><span class="p">)</span> <span class="o">+</span> <span class="s2">&quot;:=&quot;</span><span class="p">)</span>
+                    <span class="n">arg</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">a</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">arg</span> <span class="o">=</span><span class="n">name</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;__&quot;</span><span class="p">,</span> <span class="s2">&quot; &quot;</span><span class="p">)</span><span class="o">+</span> <span class="s2">&quot;:=&quot;</span>
+                <span class="n">out</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">arg</span><span class="p">)</span>
+                <span class="n">arg</span> <span class="o">=</span> <span class="kc">None</span>
+                <span class="n">out</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">listin</span><span class="p">)</span>
+                <span class="k">break</span>
+        <span class="k">if</span> <span class="n">arg</span><span class="p">:</span>
+            <span class="n">out</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">arg</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">out</span>
+
+<div class="viewcode-block" id="SetupCircuit.create"><a class="viewcode-back" href="../../../API/SetupCircuit.html#pyaedt.modules.SolveSetup.SetupCircuit.create">[docs]</a>    <span class="nd">@aedt_exception_handler</span>
+    <span class="k">def</span> <span class="nf">create</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Insert a new Setup based on Class settings into the AEDT Application</span>
+
+<span class="sd">        :return: the argument list</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">soltype</span> <span class="o">=</span> <span class="n">SetupKeys</span><span class="o">.</span><span class="n">SetupNames</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">setuptype</span><span class="p">]</span>
+        <span class="n">arg</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;NAME:SimSetup&quot;</span><span class="p">]</span>
+        <span class="n">dict2arg</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">props</span><span class="p">,</span> <span class="n">arg</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_setup</span><span class="p">(</span><span class="n">soltype</span><span class="p">,</span> <span class="n">arg</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">arg</span></div>
+
+    <span class="nd">@aedt_exception_handler</span>
+    <span class="k">def</span> <span class="nf">_setup</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">soltype</span><span class="p">,</span> <span class="n">arg</span><span class="p">,</span> <span class="n">newsetup</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">newsetup</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">soltype</span> <span class="o">==</span> <span class="s2">&quot;NexximLNA&quot;</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">omodule</span><span class="o">.</span><span class="n">AddLinearNetworkAnalysis</span><span class="p">(</span><span class="n">arg</span><span class="p">)</span>
+            <span class="k">elif</span> <span class="n">soltype</span> <span class="o">==</span> <span class="s2">&quot;NexximDC&quot;</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">omodule</span><span class="o">.</span><span class="n">AddDCAnalysis</span><span class="p">(</span><span class="n">arg</span><span class="p">)</span>
+            <span class="k">elif</span> <span class="n">soltype</span> <span class="o">==</span> <span class="s2">&quot;NexximTransient&quot;</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">omodule</span><span class="o">.</span><span class="n">AddTransient</span><span class="p">(</span><span class="n">arg</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Not Implemented Yet&quot;</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">soltype</span> <span class="o">==</span> <span class="s2">&quot;NexximLNA&quot;</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">omodule</span><span class="o">.</span><span class="n">EditLinearNetworkAnalysis</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="n">arg</span><span class="p">)</span>
+            <span class="k">elif</span> <span class="n">soltype</span> <span class="o">==</span> <span class="s2">&quot;NexximDC&quot;</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">omodule</span><span class="o">.</span><span class="n">EditDCAnalysis</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="n">arg</span><span class="p">)</span>
+            <span class="k">elif</span> <span class="n">soltype</span> <span class="o">==</span> <span class="s2">&quot;NexximTransient&quot;</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">omodule</span><span class="o">.</span><span class="n">EditTransient</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="n">arg</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Not Implemented Yet&quot;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="kc">True</span>
+
+<div class="viewcode-block" id="SetupCircuit.update"><a class="viewcode-back" href="../../../API/SetupCircuit.html#pyaedt.modules.SolveSetup.SetupCircuit.update">[docs]</a>    <span class="nd">@aedt_exception_handler</span>
+    <span class="k">def</span> <span class="nf">update</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">update_dictionary</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        update the setup based on the class argument or to the updated dictionary passed as arcument</span>
+
+<span class="sd">        :param update_dictionary: optional dictionary of settings to apply</span>
+<span class="sd">        :return: bool</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">update_dictionary</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">el</span> <span class="ow">in</span> <span class="n">update_dictionary</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">props</span><span class="p">[</span><span class="n">el</span><span class="p">]</span><span class="o">=</span><span class="n">update_dictionary</span><span class="p">[</span><span class="n">el</span><span class="p">]</span>
+        <span class="n">arg</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;NAME:SimSetup&quot;</span><span class="p">]</span>
+        <span class="n">soltype</span> <span class="o">=</span> <span class="n">SetupKeys</span><span class="o">.</span><span class="n">SetupNames</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">setuptype</span><span class="p">]</span>
+        <span class="n">dict2arg</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">props</span><span class="p">,</span> <span class="n">arg</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_setup</span><span class="p">(</span><span class="n">soltype</span><span class="p">,</span> <span class="n">arg</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span>
+        <span class="k">return</span> <span class="kc">True</span></div>
+
+    <span class="nd">@aedt_exception_handler</span>
+    <span class="k">def</span> <span class="nf">_expression_cache</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">expression_list</span><span class="p">,</span> <span class="n">report_type_list</span><span class="p">,</span> <span class="n">intrinsics_list</span><span class="p">,</span> <span class="n">isconvergence_list</span><span class="p">,</span>
+                          <span class="n">isrelativeconvergence</span><span class="p">,</span> <span class="n">conv_criteria</span><span class="p">):</span>
+
+        <span class="k">if</span> <span class="n">isrelativeconvergence</span><span class="p">:</span>
+            <span class="n">userelative</span> <span class="o">=</span> <span class="mi">1</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">userelative</span> <span class="o">=</span> <span class="mi">0</span>
+
+        <span class="n">list_data</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;NAME:ExpressionCache&quot;</span><span class="p">]</span>
+        <span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="n">expression_list</span><span class="p">)</span> <span class="ow">is</span> <span class="nb">list</span><span class="p">:</span>
+            <span class="n">i</span><span class="o">=</span><span class="mi">0</span>
+            <span class="k">while</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="nb">len</span><span class="p">(</span><span class="n">expression_list</span><span class="p">):</span>
+                <span class="n">expression</span><span class="o">=</span><span class="n">expression_list</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
+                <span class="n">name</span> <span class="o">=</span> <span class="n">expression</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;(&quot;</span><span class="p">,</span> <span class="s2">&quot;_&quot;</span><span class="p">)</span> <span class="o">+</span> <span class="s2">&quot;1&quot;</span>
+                <span class="n">name</span> <span class="o">=</span> <span class="n">name</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;)&quot;</span><span class="p">,</span> <span class="s2">&quot;_&quot;</span><span class="p">)</span>
+                <span class="n">name</span> <span class="o">=</span> <span class="n">name</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot; &quot;</span><span class="p">,</span> <span class="s2">&quot;_&quot;</span><span class="p">)</span>
+                <span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="n">report_type_list</span><span class="p">)</span> <span class="ow">is</span> <span class="nb">list</span><span class="p">:</span>
+                    <span class="n">report_type</span> <span class="o">=</span> <span class="n">report_type_list</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">report_type</span> <span class="o">=</span> <span class="n">report_type_list</span>
+                <span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="n">isconvergence_list</span><span class="p">)</span> <span class="ow">is</span> <span class="nb">list</span><span class="p">:</span>
+                    <span class="n">isconvergence</span> <span class="o">=</span> <span class="n">isconvergence_list</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">isconvergence</span> <span class="o">=</span> <span class="n">isconvergence_list</span>
+                <span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="n">intrinsics_list</span><span class="p">)</span> <span class="ow">is</span> <span class="nb">list</span><span class="p">:</span>
+                    <span class="n">intrinsics</span> <span class="o">=</span> <span class="n">intrinsics_list</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">intrinsics</span> <span class="o">=</span> <span class="n">intrinsics_list</span>
+                <span class="n">list_data</span><span class="o">.</span><span class="n">append</span><span class="p">([</span>
+                    <span class="s2">&quot;NAME:CacheItem&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;Title:=&quot;</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span>
+                    <span class="s2">&quot;Expression:=&quot;</span><span class="p">,</span> <span class="n">expression</span><span class="p">,</span>
+                    <span class="s2">&quot;Intrinsics:=&quot;</span><span class="p">,</span> <span class="n">intrinsics</span><span class="p">,</span>
+                    <span class="s2">&quot;IsConvergence:=&quot;</span><span class="p">,</span> <span class="n">isconvergence</span><span class="p">,</span>
+                    <span class="s2">&quot;UseRelativeConvergence:=&quot;</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span>
+                    <span class="s2">&quot;MaxConvergenceDelta:=&quot;</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span>
+                    <span class="s2">&quot;MaxConvergeValue:=&quot;</span><span class="p">,</span> <span class="s2">&quot;0.01&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;ReportType:=&quot;</span><span class="p">,</span> <span class="n">report_type</span><span class="p">,</span>
+                    <span class="p">[</span>
+                        <span class="s2">&quot;NAME:ExpressionContext&quot;</span>
+                    <span class="p">]</span>
+                <span class="p">])</span>
+                <span class="n">i</span><span class="o">+=</span><span class="mi">1</span>
+
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">name</span> <span class="o">=</span> <span class="n">expression_list</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;(&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)</span> <span class="o">+</span> <span class="s2">&quot;1&quot;</span>
+            <span class="n">name</span> <span class="o">=</span> <span class="n">name</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;)&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)</span>
+            <span class="n">name</span> <span class="o">=</span> <span class="n">name</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot; &quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)</span>
+            <span class="n">name</span> <span class="o">=</span> <span class="n">name</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;,&quot;</span><span class="p">,</span> <span class="s2">&quot;_&quot;</span><span class="p">)</span>
+            <span class="n">list_data</span><span class="o">.</span><span class="n">append</span><span class="p">([</span>
+                <span class="s2">&quot;NAME:CacheItem&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;Title:=&quot;</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span>
+                <span class="s2">&quot;Expression:=&quot;</span><span class="p">,</span> <span class="n">expression_list</span><span class="p">,</span>
+                <span class="s2">&quot;Intrinsics:=&quot;</span><span class="p">,</span> <span class="n">intrinsics_list</span><span class="p">,</span>
+                <span class="s2">&quot;IsConvergence:=&quot;</span><span class="p">,</span> <span class="n">isconvergence_list</span><span class="p">,</span>
+                <span class="s2">&quot;UseRelativeConvergence:=&quot;</span><span class="p">,</span> <span class="n">userelative</span><span class="p">,</span>
+                <span class="s2">&quot;MaxConvergenceDelta:=&quot;</span><span class="p">,</span> <span class="n">conv_criteria</span><span class="p">,</span>
+                <span class="s2">&quot;MaxConvergeValue:=&quot;</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">conv_criteria</span><span class="p">),</span>
+                <span class="s2">&quot;ReportType:=&quot;</span><span class="p">,</span> <span class="n">report_type_list</span><span class="p">,</span>
+                <span class="p">[</span>
+                    <span class="s2">&quot;NAME:ExpressionContext&quot;</span>
+                <span class="p">]</span>
+            <span class="p">])</span>
+
+        <span class="k">return</span> <span class="n">list_data</span>
+
+<div class="viewcode-block" id="SetupCircuit.enable_expression_cache"><a class="viewcode-back" href="../../../API/SetupCircuit.html#pyaedt.modules.SolveSetup.SetupCircuit.enable_expression_cache">[docs]</a>    <span class="nd">@aedt_exception_handler</span>
+    <span class="k">def</span> <span class="nf">enable_expression_cache</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">expressions</span><span class="p">,</span> <span class="n">report_type</span><span class="o">=</span><span class="s2">&quot;Fields&quot;</span><span class="p">,</span> <span class="n">intrinsics</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="n">isconvergence</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+                                <span class="n">isrelativeconvergence</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">conv_criteria</span><span class="o">=</span><span class="mi">1</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+
+<span class="sd">        :param conv_criteria:</span>
+<span class="sd">        :param isrelativeconvergence:</span>
+<span class="sd">        :param expressions: Formula to be added to the expression cache. It can be a list or a string</span>
+<span class="sd">        :param report_type: Report type of expression cache (eg. Fields). It can be a list or a string (same length of expression_list)</span>
+<span class="sd">        :param isconvergence: Boolean if expression is in convergence criteria. It can be a list or a string (same length of expression_list)</span>
+<span class="sd">        :param intrinsics: List of Intrinsics of expression (if any). It can be a list or a string (same length of expression_list)</span>
+<span class="sd">        :return: none</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">arg</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;Name:SimSetup&quot;</span><span class="p">]</span>
+        <span class="n">dict2arg</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">props</span><span class="p">,</span> <span class="n">arg</span><span class="p">)</span>
+        <span class="n">expression_cache</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_expression_cache</span><span class="p">(</span><span class="n">expressions</span><span class="p">,</span> <span class="n">report_type</span><span class="p">,</span> <span class="n">intrinsics</span><span class="p">,</span> <span class="n">isconvergence</span><span class="p">,</span>
+                                                  <span class="n">isrelativeconvergence</span><span class="p">,</span> <span class="n">conv_criteria</span><span class="p">)</span>
+        <span class="n">arg</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">expression_cache</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">omodule</span><span class="o">.</span><span class="n">EditSetup</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="n">arg</span><span class="p">)</span>
+        <span class="k">return</span> <span class="kc">True</span></div>
+
+<div class="viewcode-block" id="SetupCircuit.add_derivatives"><a class="viewcode-back" href="../../../API/SetupCircuit.html#pyaedt.modules.SolveSetup.SetupCircuit.add_derivatives">[docs]</a>    <span class="nd">@aedt_exception_handler</span>
+    <span class="k">def</span> <span class="nf">add_derivatives</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">derivative_list</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Add Derivatives to Setup</span>
+
+<span class="sd">        :param derivative_list:derivative lists</span>
+<span class="sd">        :return: Bool</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">arg</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;Name:SimSetup&quot;</span><span class="p">]</span>
+        <span class="n">dict2arg</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">props</span><span class="p">,</span> <span class="n">arg</span><span class="p">)</span>
+        <span class="n">arg</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;VariablesForDerivatives:=&quot;</span><span class="p">)</span>
+        <span class="n">arg</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">derivative_list</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">omodule</span><span class="o">.</span><span class="n">EditSetup</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="n">arg</span><span class="p">)</span>
+        <span class="k">return</span> <span class="kc">True</span></div>
+
+<div class="viewcode-block" id="SetupCircuit.enable"><a class="viewcode-back" href="../../../API/SetupCircuit.html#pyaedt.modules.SolveSetup.SetupCircuit.enable">[docs]</a>    <span class="nd">@aedt_exception_handler</span>
+    <span class="k">def</span> <span class="nf">enable</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">setup_name</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Enable specific Setup</span>
+
+<span class="sd">        :param setup_name: optional setup name</span>
+<span class="sd">        :return: none</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">setup_name</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">odesign</span><span class="o">.</span><span class="n">EnableSolutionSetup</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="kc">True</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">odesign</span><span class="o">.</span><span class="n">EnableSolutionSetup</span><span class="p">(</span><span class="n">setup_name</span><span class="p">,</span> <span class="kc">True</span><span class="p">)</span>
+        <span class="k">return</span> <span class="kc">True</span></div>
+
+<div class="viewcode-block" id="SetupCircuit.disable"><a class="viewcode-back" href="../../../API/SetupCircuit.html#pyaedt.modules.SolveSetup.SetupCircuit.disable">[docs]</a>    <span class="nd">@aedt_exception_handler</span>
+    <span class="k">def</span> <span class="nf">disable</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">setup_name</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Disable specific Setup</span>
+
+<span class="sd">        :param setup_name: optional setup name</span>
+<span class="sd">        :return: none</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">setup_name</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">odesign</span><span class="o">.</span><span class="n">EnableSolutionSetup</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">odesign</span><span class="o">.</span><span class="n">EnableSolutionSetup</span><span class="p">(</span><span class="n">setup_name</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span>
+        <span class="k">return</span> <span class="kc">True</span></div></div>
+
+
+<div class="viewcode-block" id="Setup3DLayout"><a class="viewcode-back" href="../../../API/Setup3DLayout.html#pyaedt.modules.SolveSetup.Setup3DLayout">[docs]</a><span class="k">class</span> <span class="nc">Setup3DLayout</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    This Class defines the functions to initialize, create and update a Setup in Electronic Desktop</span>
+
+
+<span class="sd">    :param setupmodule: AEDT Module for Analysis Setup</span>
+<span class="sd">    :param setupname: Setup Name</span>
+<span class="sd">    :param solutiontype: Setup Type of Application.SolutionType</span>
+<span class="sd">    :param isnewsetup: Boolean. True if is a new setup to be created from template. False to access existing Setup</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">omodule</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">parent</span><span class="o">.</span><span class="n">oanalysis</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">parent</span><span class="p">,</span> <span class="n">solutiontype</span><span class="p">,</span> <span class="n">setupname</span><span class="o">=</span><span class="s2">&quot;MySetupAuto&quot;</span><span class="p">,</span> <span class="n">isnewsetup</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">parent</span> <span class="o">=</span> <span class="n">parent</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_solutiontype</span> <span class="o">=</span> <span class="n">solutiontype</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="n">setupname</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">props</span> <span class="o">=</span> <span class="n">OrderedDict</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">sweeps</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">if</span> <span class="n">isnewsetup</span><span class="p">:</span>
+            <span class="n">setup_template</span> <span class="o">=</span> <span class="n">SetupKeys</span><span class="o">.</span><span class="n">SetupTemplates</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">_solutiontype</span><span class="p">]</span>
+            <span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="n">setup_template</span><span class="p">:</span>
+                <span class="n">tuple2dict</span><span class="p">(</span><span class="n">t</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">props</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">setups_data</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">parent</span><span class="o">.</span><span class="n">design_properties</span><span class="p">[</span><span class="s2">&quot;Setup&quot;</span><span class="p">][</span><span class="s2">&quot;Data&quot;</span><span class="p">]</span>
+                <span class="k">if</span> <span class="n">setupname</span> <span class="ow">in</span> <span class="n">setups_data</span><span class="p">:</span>
+                    <span class="n">setup_data</span> <span class="o">=</span> <span class="n">setups_data</span><span class="p">[</span><span class="n">setupname</span><span class="p">]</span>
+                    <span class="k">if</span> <span class="s2">&quot;Data&quot;</span> <span class="ow">in</span> <span class="n">setup_data</span><span class="p">:</span>   <span class="c1">#0 and 7 represent setup HFSSDrivenAuto</span>
+                        <span class="n">app</span> <span class="o">=</span> <span class="n">setup_data</span><span class="p">[</span><span class="s2">&quot;Data&quot;</span><span class="p">]</span>
+                        <span class="k">for</span> <span class="n">el</span> <span class="ow">in</span> <span class="n">app</span><span class="p">:</span>
+                            <span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="n">app</span><span class="p">[</span><span class="n">el</span><span class="p">])</span> <span class="ow">is</span> <span class="n">OrderedDict</span><span class="p">:</span>
+                                <span class="bp">self</span><span class="o">.</span><span class="n">sweeps</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">SweepHFSS</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">omodule</span><span class="p">,</span> <span class="n">setupname</span><span class="p">,</span> <span class="n">el</span><span class="p">,</span> <span class="n">props</span><span class="o">=</span><span class="n">app</span><span class="p">[</span><span class="n">el</span><span class="p">]))</span>
+
+                    <span class="bp">self</span><span class="o">.</span><span class="n">props</span> <span class="o">=</span> <span class="n">OrderedDict</span><span class="p">(</span><span class="n">setup_data</span><span class="p">)</span>
+            <span class="k">except</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">props</span> <span class="o">=</span> <span class="n">OrderedDict</span><span class="p">()</span>
+            <span class="c1">#</span>
+            <span class="c1"># setup_data = self.omodule.GetSetupData(setupname)</span>
+            <span class="c1"># dict_data = OrderedDict()</span>
+            <span class="c1"># _arg2dict(setup_data, dict_data)</span>
+            <span class="c1"># self.props = dict_data[setupname]</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">setup_type</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+
+<span class="sd">        :return: setup type</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="s1">&#39;SolveSetupType&#39;</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">props</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">props</span><span class="p">[</span><span class="s1">&#39;SolveSetupType&#39;</span><span class="p">]</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">None</span>
+
+<div class="viewcode-block" id="Setup3DLayout.create"><a class="viewcode-back" href="../../../API/Setup3DLayout.html#pyaedt.modules.SolveSetup.Setup3DLayout.create">[docs]</a>    <span class="nd">@aedt_exception_handler</span>
+    <span class="k">def</span> <span class="nf">create</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Insert a new Setup based on Class settings into the AEDT Application</span>
+
+<span class="sd">        :return: the argument list</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">arg</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;NAME:&quot;</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">]</span>
+        <span class="n">dict2arg</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">props</span><span class="p">,</span> <span class="n">arg</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">omodule</span><span class="o">.</span><span class="n">Add</span><span class="p">(</span><span class="n">arg</span><span class="p">)</span>
+        <span class="k">return</span> <span class="kc">True</span></div>
+
+<div class="viewcode-block" id="Setup3DLayout.update"><a class="viewcode-back" href="../../../API/Setup3DLayout.html#pyaedt.modules.SolveSetup.Setup3DLayout.update">[docs]</a>    <span class="nd">@aedt_exception_handler</span>
+    <span class="k">def</span> <span class="nf">update</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        update the setup based on the class argument or to the updated dictionary passed as arcument</span>
+
+<span class="sd">        :param update_dictionary: optional dictionary of settings to apply</span>
+<span class="sd">        :return: Bool</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">arg</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;NAME:&quot;</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">]</span>
+        <span class="n">dict2arg</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">props</span><span class="p">,</span> <span class="n">arg</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">omodule</span><span class="o">.</span><span class="n">Edit</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="n">arg</span><span class="p">)</span>
+        <span class="k">return</span> <span class="kc">True</span></div>
+
+<div class="viewcode-block" id="Setup3DLayout.enable"><a class="viewcode-back" href="../../../API/Setup3DLayout.html#pyaedt.modules.SolveSetup.Setup3DLayout.enable">[docs]</a>    <span class="nd">@aedt_exception_handler</span>
+    <span class="k">def</span> <span class="nf">enable</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Enable specific Setup</span>
+
+<span class="sd">        :param setup_name: optional setup name</span>
+<span class="sd">        :return: Bool</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">props</span><span class="p">[</span><span class="s1">&#39;Properties&#39;</span><span class="p">][</span><span class="s1">&#39;Enable&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;true&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">update</span><span class="p">()</span>
+        <span class="k">return</span> <span class="kc">True</span></div>
+
+<div class="viewcode-block" id="Setup3DLayout.disable"><a class="viewcode-back" href="../../../API/Setup3DLayout.html#pyaedt.modules.SolveSetup.Setup3DLayout.disable">[docs]</a>    <span class="nd">@aedt_exception_handler</span>
+    <span class="k">def</span> <span class="nf">disable</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Disable specific Setup</span>
+
+<span class="sd">        :param setup_name: optional setup name</span>
+<span class="sd">        :return: Bool</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">props</span><span class="p">[</span><span class="s1">&#39;Properties&#39;</span><span class="p">][</span><span class="s1">&#39;Enable&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;false&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">update</span><span class="p">()</span>
+        <span class="k">return</span> <span class="kc">True</span></div>
+
+<div class="viewcode-block" id="Setup3DLayout.export_to_hfss"><a class="viewcode-back" href="../../../API/Setup3DLayout.html#pyaedt.modules.SolveSetup.Setup3DLayout.export_to_hfss">[docs]</a>    <span class="nd">@aedt_exception_handler</span>
+    <span class="k">def</span> <span class="nf">export_to_hfss</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">file_fullname</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Export Project to</span>
+
+<span class="sd">        :param file_fullname: fullname of desgintation</span>
+<span class="sd">        :return: Bool</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="n">file_fullname</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">normpath</span><span class="p">(</span><span class="n">file_fullname</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">isdir</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="n">file_fullname</span><span class="p">)):</span>
+            <span class="k">return</span> <span class="kc">False</span>
+        <span class="n">file_fullname</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">splitext</span><span class="p">(</span><span class="n">file_fullname</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span> <span class="o">+</span> <span class="s1">&#39;.aedt&#39;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">omodule</span><span class="o">.</span><span class="n">ExportToHfss</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="n">file_fullname</span><span class="p">)</span>
+        <span class="k">return</span> <span class="kc">True</span></div>
+
+
+<div class="viewcode-block" id="Setup3DLayout.add_sweep"><a class="viewcode-back" href="../../../API/Setup3DLayout.html#pyaedt.modules.SolveSetup.Setup3DLayout.add_sweep">[docs]</a>    <span class="nd">@aedt_exception_handler</span>
+    <span class="k">def</span> <span class="nf">add_sweep</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">sweepname</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">sweeptype</span><span class="o">=</span><span class="s2">&quot;Interpolating&quot;</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Add Frequency Sweep</span>
+
+<span class="sd">        :param sweepname: str sweep name</span>
+<span class="sd">        :param sweeptype: str sweep type</span>
+<span class="sd">        :return: sweep object</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">sweepname</span><span class="p">:</span>
+            <span class="n">sweepname</span> <span class="o">=</span> <span class="n">generate_unique_name</span><span class="p">(</span><span class="s2">&quot;Sweep&quot;</span><span class="p">)</span>
+        <span class="n">sweep_n</span> <span class="o">=</span> <span class="n">SweepHFSS</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">omodule</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="n">sweepname</span><span class="p">,</span> <span class="n">sweeptype</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">sweeps</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">sweep_n</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">sweep_n</span></div></div>
+</pre></div>
+
+              </div>
+              
+              
+              <div class='prev-next-bottom'>
+                
+
+              </div>
+              
+          </main>
+          
+
+      </div>
+    </div>
+
+    
+  <script src="../../../_static/js/index.d3f166471bb80abb5163.js"></script>
+
+
+    <footer class="footer mt-5 mt-md-0">
+  <div class="container">
+    <p>
+          &copy; Copyright Copyright(c) 1986-2021, ANSYSInc. unauthorised use, distribution or duplication is prohibited. This tool release is unofficial and not covered by standard Ansys Support license..<br/>
+        Created using <a href="http://sphinx-doc.org/">Sphinx</a> 3.5.2.<br/>
+    </p>
+  </div>
+</footer>
+  </body>
+</html>

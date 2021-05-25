@@ -1,0 +1,272 @@
+
+<!DOCTYPE html>
+
+<html lang="Python">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>pyaedt.application.Analysis2D &#8212; pyaedt 0.5.0 documentation</title>
+    
+  <link rel="stylesheet" href="../../../_static/css/index.f658d18f9b420779cfdf24aa0a7e2d77.css">
+
+    
+  <link rel="stylesheet"
+    href="../../../_static/vendor/fontawesome/5.13.0/css/all.min.css">
+  <link rel="preload" as="font" type="font/woff2" crossorigin
+    href="../../../_static/vendor/fontawesome/5.13.0/webfonts/fa-solid-900.woff2">
+  <link rel="preload" as="font" type="font/woff2" crossorigin
+    href="../../../_static/vendor/fontawesome/5.13.0/webfonts/fa-brands-400.woff2">
+
+    
+      
+  <link rel="stylesheet"
+    href="../../../_static/vendor/open-sans_all/1.44.1/index.css">
+  <link rel="stylesheet"
+    href="../../../_static/vendor/lato_latin-ext/1.44.1/index.css">
+
+    
+    <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" href="../../../_static/basic.css" type="text/css" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/copybutton.css" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/graphviz.css" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/css/ansys.css" />
+    
+  <link rel="preload" as="script" href="../../../_static/js/index.d3f166471bb80abb5163.js">
+
+    <script id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
+    <script src="../../../_static/jquery.js"></script>
+    <script src="../../../_static/underscore.js"></script>
+    <script src="../../../_static/doctools.js"></script>
+    <script src="../../../_static/clipboard.min.js"></script>
+    <script src="../../../_static/copybutton.js"></script>
+    <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="docsearch:language" content="en" />
+  </head>
+  <body data-spy="scroll" data-target="#bd-toc-nav" data-offset="80">
+    
+    <nav class="navbar navbar-light navbar-expand-lg bg-light fixed-top bd-navbar" id="navbar-main">
+<div class="container-xl">
+
+    <a class="navbar-brand" href="../../../index.html">
+    
+      <img src="../../../_static/logo-ansys.png" class="logo" alt="logo" />
+    
+    </a>
+    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbar-menu" aria-controls="navbar-menu" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+    </button>
+
+    <div id="navbar-menu" class="col-lg-9 collapse navbar-collapse">
+      <ul id="navbar-main-elements" class="navbar-nav mr-auto">
+        
+        
+        <li class="nav-item ">
+            <a class="nav-link" href="../../../LICENSE.html">License Agreeement</a>
+        </li>
+        
+        <li class="nav-item ">
+            <a class="nav-link" href="../../../Resources/Installation.html">Installation</a>
+        </li>
+        
+        <li class="nav-item ">
+            <a class="nav-link" href="../../../API/API.html">API documentation</a>
+        </li>
+        
+        <li class="nav-item ">
+            <a class="nav-link" href="../../../API/Examples.html">Examples</a>
+        </li>
+        
+        <li class="nav-item ">
+            <a class="nav-link" href="../../../Resources/Code_Guidelines.html">Code Guidelines</a>
+        </li>
+        
+        <li class="nav-item ">
+            <a class="nav-link" href=""></a>
+        </li>
+        
+        
+      </ul>
+
+
+      
+
+      <ul class="navbar-nav">
+        
+        
+      </ul>
+    </div>
+</div>
+    </nav>
+    
+
+    <div class="container-xl">
+      <div class="row">
+          
+          <div class="col-12 col-md-3 bd-sidebar"><form class="bd-search d-flex align-items-center" action="../../../search.html" method="get">
+  <i class="icon fas fa-search"></i>
+  <input type="search" class="form-control" name="q" id="search-input" placeholder="Search the docs ..." aria-label="Search the docs ..." autocomplete="off" >
+</form>
+<nav class="bd-links" id="bd-docs-nav" aria-label="Main navigation">
+
+    <div class="bd-toc-item active">
+    
+  
+    <ul class="nav bd-sidenav">
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+      </ul>
+  
+  </nav>
+          </div>
+          
+
+          
+          <div class="d-none d-xl-block col-xl-2 bd-toc">
+              
+
+<nav id="bd-toc-nav">
+    <ul class="nav section-nav flex-column">
+    
+    </ul>
+</nav>
+
+
+              
+          </div>
+          
+
+          
+          <main class="col-12 col-md-9 col-xl-7 py-md-5 pl-md-5 pr-md-4 bd-content" role="main">
+              
+              <div>
+                
+  <h1>Source code for pyaedt.application.Analysis2D</h1><div class="highlight"><pre>
+<span></span><span class="kn">from</span> <span class="nn">.Analysis</span> <span class="kn">import</span> <span class="n">Analysis</span>
+<span class="kn">from</span> <span class="nn">..modeler.Model2D</span> <span class="kn">import</span> <span class="n">Modeler2D</span>
+<span class="kn">from</span> <span class="nn">..modules.Mesh</span> <span class="kn">import</span> <span class="n">Mesh</span>
+<span class="kn">from</span> <span class="nn">..generic.general_methods</span> <span class="kn">import</span> <span class="n">aedt_exception_handler</span><span class="p">,</span> <span class="n">generate_unique_name</span>
+
+
+<div class="viewcode-block" id="FieldAnalysis2D"><a class="viewcode-back" href="../../../API/Analysis2D.html#pyaedt.application.Analysis2D.FieldAnalysis2D">[docs]</a><span class="k">class</span> <span class="nc">FieldAnalysis2D</span><span class="p">(</span><span class="n">Analysis</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot; **AEDT_2D_FieldAnalysis**</span>
+
+<span class="sd">    Class for 2D Field Analysis Setup (Maxwell2D, Q2D)</span>
+
+<span class="sd">    It is automatically initialized by Application call. Refer to Application function for inputs definition</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">application</span><span class="p">,</span> <span class="n">projectname</span><span class="p">,</span> <span class="n">designname</span><span class="p">,</span> <span class="n">solution_type</span><span class="p">,</span> <span class="n">setup_name</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+
+
+        <span class="n">Analysis</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">application</span><span class="p">,</span> <span class="n">projectname</span><span class="p">,</span> <span class="n">designname</span><span class="p">,</span> <span class="n">solution_type</span><span class="p">,</span> <span class="n">setup_name</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_modeler</span> <span class="o">=</span> <span class="n">Modeler2D</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_mesh</span> <span class="o">=</span> <span class="n">Mesh</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+        <span class="c1"># self._post = PostProcessor(self)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">modeler</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_modeler</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">mesh</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_mesh</span>
+
+    <span class="c1"># @property</span>
+    <span class="c1"># def post(self):</span>
+    <span class="c1">#     return self._post</span>
+
+<div class="viewcode-block" id="FieldAnalysis2D.assignmaterial"><a class="viewcode-back" href="../../../API/Analysis2D.html#pyaedt.application.Analysis2D.FieldAnalysis2D.assignmaterial">[docs]</a>    <span class="nd">@aedt_exception_handler</span>
+    <span class="k">def</span> <span class="nf">assignmaterial</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">obj</span><span class="p">,</span> <span class="n">mat</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; The function assigns Material mat to object obj. If material mat is not present it will be created</span>
+
+
+<span class="sd">        :param obj: list of objects to which assign materials</span>
+<span class="sd">        :type obj: str, list</span>
+<span class="sd">        :param mat: material to assign</span>
+<span class="sd">        :type mat: str</span>
+<span class="sd">        :return: True if succeded | False if failed</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">mat</span> <span class="o">=</span> <span class="n">mat</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span>
+        <span class="n">selections</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">modeler</span><span class="o">.</span><span class="n">convert_to_selections</span><span class="p">(</span><span class="n">obj</span><span class="p">)</span>
+        <span class="n">arg1</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;NAME:Selections&quot;</span><span class="p">]</span>
+        <span class="n">arg1</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;Selections:=&quot;</span><span class="p">),</span> <span class="n">arg1</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">selections</span><span class="p">)</span>
+        <span class="n">arg2</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;NAME:Attributes&quot;</span><span class="p">]</span>
+        <span class="n">arg2</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;MaterialValue:=&quot;</span><span class="p">),</span> <span class="n">arg2</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="nb">chr</span><span class="p">(</span><span class="mi">34</span><span class="p">)</span> <span class="o">+</span> <span class="n">mat</span> <span class="o">+</span> <span class="nb">chr</span><span class="p">(</span><span class="mi">34</span><span class="p">))</span>
+        <span class="k">if</span> <span class="n">mat</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">materials</span><span class="o">.</span><span class="n">material_keys</span><span class="p">:</span>
+            <span class="n">Mat</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">materials</span><span class="o">.</span><span class="n">material_keys</span><span class="p">[</span><span class="n">mat</span><span class="p">]</span>
+            <span class="n">Mat</span><span class="o">.</span><span class="n">update</span><span class="p">()</span>
+            <span class="k">if</span> <span class="n">Mat</span><span class="o">.</span><span class="n">is_dielectric</span><span class="p">():</span>
+                <span class="n">arg2</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;SolveInside:=&quot;</span><span class="p">),</span> <span class="n">arg2</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="kc">True</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">arg2</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;SolveInside:=&quot;</span><span class="p">),</span> <span class="n">arg2</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="kc">False</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">modeler</span><span class="o">.</span><span class="n">oeditor</span><span class="o">.</span><span class="n">AssignMaterial</span><span class="p">(</span><span class="n">arg1</span><span class="p">,</span> <span class="n">arg2</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_messenger</span><span class="o">.</span><span class="n">add_info_message</span><span class="p">(</span><span class="s1">&#39;Assign Material &#39;</span> <span class="o">+</span> <span class="n">mat</span> <span class="o">+</span> <span class="s1">&#39; to object &#39;</span> <span class="o">+</span> <span class="n">selections</span><span class="p">)</span>
+            <span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="n">obj</span><span class="p">)</span> <span class="ow">is</span> <span class="nb">list</span><span class="p">:</span>
+                <span class="k">for</span> <span class="n">el</span> <span class="ow">in</span> <span class="n">obj</span><span class="p">:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">modeler</span><span class="o">.</span><span class="n">primitives</span><span class="p">[</span><span class="n">el</span><span class="p">]</span><span class="o">.</span><span class="n">material_name</span> <span class="o">=</span> <span class="n">mat</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">modeler</span><span class="o">.</span><span class="n">primitives</span><span class="p">[</span><span class="n">obj</span><span class="p">]</span><span class="o">.</span><span class="n">material_name</span> <span class="o">=</span> <span class="n">mat</span>
+            <span class="k">return</span> <span class="kc">True</span>
+        <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">materials</span><span class="o">.</span><span class="n">checkifmaterialexists</span><span class="p">(</span><span class="n">mat</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">materials</span><span class="o">.</span><span class="n">_aedmattolibrary</span><span class="p">(</span><span class="n">mat</span><span class="p">)</span>
+            <span class="n">Mat</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">materials</span><span class="o">.</span><span class="n">material_keys</span><span class="p">[</span><span class="n">mat</span><span class="p">]</span>
+            <span class="k">if</span> <span class="n">Mat</span><span class="o">.</span><span class="n">is_dielectric</span><span class="p">():</span>
+                <span class="n">arg2</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;SolveInside:=&quot;</span><span class="p">),</span> <span class="n">arg2</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="kc">True</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">arg2</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;SolveInside:=&quot;</span><span class="p">),</span> <span class="n">arg2</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="kc">False</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">modeler</span><span class="o">.</span><span class="n">oeditor</span><span class="o">.</span><span class="n">AssignMaterial</span><span class="p">(</span><span class="n">arg1</span><span class="p">,</span> <span class="n">arg2</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_messenger</span><span class="o">.</span><span class="n">add_info_message</span><span class="p">(</span><span class="s1">&#39;Assign Material &#39;</span> <span class="o">+</span> <span class="n">mat</span> <span class="o">+</span> <span class="s1">&#39; to object &#39;</span> <span class="o">+</span> <span class="n">selections</span><span class="p">)</span>
+            <span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="n">obj</span><span class="p">)</span> <span class="ow">is</span> <span class="nb">list</span><span class="p">:</span>
+                <span class="k">for</span> <span class="n">el</span> <span class="ow">in</span> <span class="n">obj</span><span class="p">:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">modeler</span><span class="o">.</span><span class="n">primitives</span><span class="p">[</span><span class="n">el</span><span class="p">]</span><span class="o">.</span><span class="n">material_name</span> <span class="o">=</span> <span class="n">mat</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">modeler</span><span class="o">.</span><span class="n">primitives</span><span class="p">[</span><span class="n">obj</span><span class="p">]</span><span class="o">.</span><span class="n">material_name</span> <span class="o">=</span> <span class="n">mat</span>
+
+            <span class="k">return</span> <span class="kc">True</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_messenger</span><span class="o">.</span><span class="n">add_error_message</span><span class="p">(</span><span class="s2">&quot;Material Does Not Exists&quot;</span><span class="p">)</span>
+            <span class="k">return</span> <span class="kc">False</span></div></div>
+</pre></div>
+
+              </div>
+              
+              
+              <div class='prev-next-bottom'>
+                
+
+              </div>
+              
+          </main>
+          
+
+      </div>
+    </div>
+
+    
+  <script src="../../../_static/js/index.d3f166471bb80abb5163.js"></script>
+
+
+    <footer class="footer mt-5 mt-md-0">
+  <div class="container">
+    <p>
+          &copy; Copyright Copyright(c) 1986-2021, ANSYSInc. unauthorised use, distribution or duplication is prohibited. This tool release is unofficial and not covered by standard Ansys Support license..<br/>
+        Created using <a href="http://sphinx-doc.org/">Sphinx</a> 3.5.2.<br/>
+    </p>
+  </div>
+</footer>
+  </body>
+</html>
