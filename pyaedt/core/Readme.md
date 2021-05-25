@@ -9,7 +9,7 @@ This tool has actually been tested on HFSS, Icepak and Maxwell 3D, EDB, Q3D.
 Useful Links:
 - [AEDTLib Documentation](Documentation/index.html)
 
-- [Coding Guidelines](../../Doc/Sphinx_AEDTLib/Resources/Code_Guidelines.md)
+- [Coding Guidelines](../../doc_generator/Sphinx_AEDTLib/Resources/Code_Guidelines.md)
 
 - [Installation Guidelines](Installation.md)
 
