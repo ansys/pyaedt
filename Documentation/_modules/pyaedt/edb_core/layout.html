@@ -183,16 +183,15 @@
 
 
 <div class="viewcode-block" id="EdbLayout"><a class="viewcode-back" href="../../../API/EDBLayout.html#pyaedt.edb_core.layout.EdbLayout">[docs]</a><span class="k">class</span> <span class="nc">EdbLayout</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;HFSS 3DLayout object</span>
-
-
-<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="sd">&quot;&quot;&quot;HFSS 3DLayout object&quot;&quot;&quot;</span>
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">edb</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">parent</span><span class="o">.</span><span class="n">edb</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">messenger</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">parent</span><span class="o">.</span><span class="n">messenger</span>
 
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">parent</span><span class="p">):</span>
@@ -201,57 +200,68 @@
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">builder</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">parent</span><span class="o">.</span><span class="n">builder</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">edb</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">parent</span><span class="o">.</span><span class="n">edb</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">edb_value</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">parent</span><span class="o">.</span><span class="n">edb_value</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">edbutils</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">parent</span><span class="o">.</span><span class="n">edbutils</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">active_layout</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">parent</span><span class="o">.</span><span class="n">active_layout</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">cell</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">parent</span><span class="o">.</span><span class="n">cell</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">db</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">parent</span><span class="o">.</span><span class="n">db</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">layers</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">parent</span><span class="o">.</span><span class="n">core_stackup</span><span class="o">.</span><span class="n">stackup_layers</span><span class="o">.</span><span class="n">layers</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">polygons</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
-
-<span class="sd">        :return: list of polygons</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="sd">&quot;&quot;&quot;:return: list of polygons&quot;&quot;&quot;</span>
         <span class="n">layoutInstance</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">active_layout</span><span class="o">.</span><span class="n">GetLayoutInstance</span><span class="p">()</span>
         <span class="n">layoutObjectInstances</span> <span class="o">=</span> <span class="n">layoutInstance</span><span class="o">.</span><span class="n">GetAllLayoutObjInstances</span><span class="p">()</span>
         <span class="n">objs</span> <span class="o">=</span> <span class="p">[</span><span class="n">el</span><span class="o">.</span><span class="n">GetLayoutObj</span><span class="p">()</span> <span class="k">for</span> <span class="n">el</span> <span class="ow">in</span> <span class="n">layoutObjectInstances</span><span class="o">.</span><span class="n">Items</span> <span class="k">if</span> <span class="n">el</span><span class="o">.</span><span class="n">GetLayoutObj</span><span class="p">()</span><span class="o">.</span><span class="n">GetType</span><span class="p">()</span><span class="o">.</span><span class="n">Name</span> <span class="o">==</span> <span class="s2">&quot;Path&quot;</span><span class="p">]</span>
         <span class="k">return</span> <span class="n">objs</span>
 
 <div class="viewcode-block" id="EdbLayout.get_polygons_by_layer"><a class="viewcode-back" href="../../../API/EDBLayout.html#pyaedt.edb_core.layout.EdbLayout.get_polygons_by_layer">[docs]</a>    <span class="k">def</span> <span class="nf">get_polygons_by_layer</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">layer_name</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Return the polygons beloning to a specific layer</span>
-
+        <span class="sd">&quot;&quot;&quot;Return the polygons beloning to a specific layer</span>
+<span class="sd">        </span>
 <span class="sd">        :example:</span>
 
-<span class="sd">        &gt;&gt;&gt; poly = edb_core.core_primitives.get_polygons_by_layer(&quot;GND&quot;)</span>
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        layer_name :</span>
+<span class="sd">            str layer name</span>
 
-<span class="sd">        :param layer_name: str layer name</span>
-<span class="sd">        :return: list of polygons</span>
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        type</span>
+<span class="sd">            list of polygons</span>
+
+<span class="sd">        &gt;&gt;&gt; poly = edb_core.core_primitives.get_polygons_by_layer(&quot;GND&quot;)</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">objinst</span><span class="o">=</span><span class="p">[]</span>
         <span class="k">for</span> <span class="n">el</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">polygons</span><span class="p">:</span>
@@ -260,16 +270,22 @@
         <span class="k">return</span> <span class="n">objinst</span></div>
 
 <div class="viewcode-block" id="EdbLayout.get_polygon_bounding_box"><a class="viewcode-back" href="../../../API/EDBLayout.html#pyaedt.edb_core.layout.EdbLayout.get_polygon_bounding_box">[docs]</a>    <span class="k">def</span> <span class="nf">get_polygon_bounding_box</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">polygon</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Return the polygon bounding box</span>
-
+        <span class="sd">&quot;&quot;&quot;Return the polygon bounding box</span>
+<span class="sd">        </span>
 <span class="sd">        :example:</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        polygon :</span>
+<span class="sd">            edb_core polygon</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        type</span>
+<span class="sd">            bouding box [-x,-y,+x,+y]</span>
 
 <span class="sd">        &gt;&gt;&gt; poly = edb_core.core_primitives.get_polygons_by_layer(&quot;GND&quot;)</span>
 <span class="sd">        &gt;&gt;&gt; bounding = edb_core.core_primitives.get_polygon_bounding_box(poly[0])</span>
-
-<span class="sd">        :param polygon: edb_core polygon</span>
-<span class="sd">        :return: bouding box [-x,-y,+x,+y]</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">bounding</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="k">try</span><span class="p">:</span>
@@ -280,15 +296,22 @@
         <span class="k">return</span> <span class="n">bounding</span></div>
 
 <div class="viewcode-block" id="EdbLayout.get_polygon_points"><a class="viewcode-back" href="../../../API/EDBLayout.html#pyaedt.edb_core.layout.EdbLayout.get_polygon_points">[docs]</a>    <span class="k">def</span> <span class="nf">get_polygon_points</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">polygon</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Return Polygon Points list. for Arcs, 1 point will be returned</span>
-
+        <span class="sd">&quot;&quot;&quot;Return Polygon Points list. for Arcs, 1 point will be returned</span>
+<span class="sd">        </span>
 <span class="sd">        :example:</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        polygon :</span>
+<span class="sd">            edb_core polygon</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        type</span>
+<span class="sd">            list of list of double</span>
+
 <span class="sd">        &gt;&gt;&gt; poly = edb_core.core_primitives.get_polygons_by_layer(&quot;GND&quot;)</span>
 <span class="sd">        &gt;&gt;&gt; points  = edb_core.core_primitives.get_polygon_points(poly[0])</span>
-
-<span class="sd">        :param polygon: edb_core polygon</span>
-<span class="sd">        :return: list of list of double</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">points</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="n">i</span><span class="o">=</span><span class="mi">0</span>

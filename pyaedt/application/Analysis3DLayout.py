@@ -7,9 +7,15 @@ from ..modules.Mesh3DLayout import Mesh
 
 
 class FieldAnalysis3DLayout(Analysis):
-    """ **AEDT_3DLayout_FieldAnalysis**
+    """**AEDT_3DLayout_FieldAnalysis**
     Class for HFSS 3DLayoyt Field Analysis Setup
     It is automatically initialized by Application call (like HFSS, Q3D...). Refer to Application function for inputs definition
+
+    Parameters
+    ----------
+
+    Returns
+    -------
 
     """
     def __init__(self, application, projectname, designname, solution_type, setup_name=None):
@@ -24,31 +30,34 @@ class FieldAnalysis3DLayout(Analysis):
 
     @property
     def oboundary(self):
-        """
-        :return: BoundarySetup Module object
-        """
+        """:return: BoundarySetup Module object"""
         return self._odesign.GetModule("Excitations")
 
     @property
     def mesh(self):
+        """ """
         return self._mesh
 
     @property
     def get_excitations_name(self):
-        """
-        :return: BoundarySetup Module object
-        """
+        """:return: BoundarySetup Module object"""
         return list(self.oboundary.GetAllPortsList())
 
     @property
     def get_all_sparameter_list(self, excitation_names=[]):
-        """
-        Get the list of all the SParameter from a list of exitations. If no exitation is provided it will provide a full list of sparameters
+        """Get the list of all the SParameter from a list of exitations. If no exitation is provided it will provide a full list of sparameters
         Example: excitation_names ["1","2"] output ["S(1,1)", "S(1,2)", S(2,2)]
 
+        Parameters
+        ----------
+        excitation_names :
+            list of excitation to include (Default value = [])
 
-        :param excitation_names: list of excitation to include
-        :return: list of strin representing Sparameters of excitations
+        Returns
+        -------
+        type
+            list of strin representing Sparameters of excitations
+
         """
         if not excitation_names:
             excitation_names = self.get_excitations_name
@@ -63,13 +72,21 @@ class FieldAnalysis3DLayout(Analysis):
 
     @aedt_exception_handler
     def get_all_return_loss_list(self, excitation_names=[], excitation_name_prefix=''):
-        """
-        Get the list of all the Returnloss from a list of exitations. If no exitation is provided it will provide a full list of return Losses
+        """Get the list of all the Returnloss from a list of exitations. If no exitation is provided it will provide a full list of return Losses
         Example: excitation_names ["1","2"] output ["S(1,1)",, S(2,2)]
 
+        Parameters
+        ----------
+        excitation_names :
+            list of excitation to include (Default value = [])
+        excitation_name_prefix :
+             (Default value = '')
 
-        :param excitation_names: list of excitation to include
-        :return: list of string representing Return Losses of excitations
+        Returns
+        -------
+        type
+            list of string representing Return Losses of excitations
+
         """
         if not excitation_names:
             excitation_names = self.get_excitations_name
@@ -82,17 +99,26 @@ class FieldAnalysis3DLayout(Analysis):
 
     @aedt_exception_handler
     def get_all_insertion_loss_list(self, trlist=[], reclist=[], tx_prefix='', rx_prefix=''):
-        """
-        Get the list of all the Insertion Losses from two list of exitations (driver and receiver). Optionally prefix can
+        """Get the list of all the Insertion Losses from two list of exitations (driver and receiver). Optionally prefix can
         be used to retrive driver and receiver names.
         Example: excitation_names ["1"] ["2"] output ["S(1,2)"]
 
+        Parameters
+        ----------
+        trlist :
+            list of Drivers to include (Default value = [])
+        reclist :
+            list of Receiver to include. Number of Driver = Number of Receiver an (Default value = [])
+        tx_prefix :
+            prefix for TX (eg. "DIE") (Default value = '')
+        rx_prefix :
+            prefix for RX (eg. "BGA") (Default value = '')
 
-        :param trlist: list of Drivers to include
-        :param reclist: list of Receiver to include. Number of Driver = Number of Receiver an
-        :param tx_prefix: prefix for TX (eg. "DIE")
-        :param rx_prefix: prefix for RX (eg. "BGA")
-        :return: list of string representing Insertion Losses of excitations
+        Returns
+        -------
+        type
+            list of string representing Insertion Losses of excitations
+
         """
         spar = []
         if not trlist:
@@ -108,15 +134,22 @@ class FieldAnalysis3DLayout(Analysis):
 
     @aedt_exception_handler
     def get_next_xtalk_list(self, trlist=[], tx_prefix=""):
-        """
-        Get the list of all the Near End XTalk a list of exitation. Optionally prefix can
+        """Get the list of all the Near End XTalk a list of exitation. Optionally prefix can
         be used to retrive driver names.
         Example: excitation_names ["1", "2", "3"] output ["S(1,2)", "S(1,3)", "S(2,3)"]
 
+        Parameters
+        ----------
+        trlist :
+            list of Drivers to include (Default value = [])
+        tx_prefix :
+            prefix for TX (eg. "DIE") (Default value = "")
 
-        :param trlist: list of Drivers to include
-        :param tx_prefix: prefix for TX (eg. "DIE")
-        :return: list of string representing Near End XTalks
+        Returns
+        -------
+        type
+            list of string representing Near End XTalks
+
         """
         next = []
         if not trlist:
@@ -130,20 +163,29 @@ class FieldAnalysis3DLayout(Analysis):
 
     @aedt_exception_handler
     def get_fext_xtalk_list(self, trlist=[], reclist=[], tx_prefix='', rx_prefix='', skip_same_index_couples=True):
-        """
-        Get the list of all the Far End XTalk from 2 lists of exitations. Optionally prefix can
+        """Get the list of all the Far End XTalk from 2 lists of exitations. Optionally prefix can
         be used to retrive driver and receivers names. If skip_same_index_couples is true, the tx and rx with same index
         position will be considered insertion losses and excluded from the list
         Example: excitation_names ["1", "2"] ["3","4"] output ["S(1,4)", "S(2,3)"]
 
+        Parameters
+        ----------
+        trlist :
+            list of Drivers to include (Default value = [])
+        tx_prefix :
+            prefix for TX (eg. "DIE") (Default value = '')
+        reclist :
+            list of Receiver to include (Default value = [])
+        rx_prefix :
+            prefix for RX (eg. "BGA") (Default value = '')
+        skip_same_index_couples :
+            Boolean ignore TX and RX couple with same index (Default value = True)
 
-        :param trlist: list of Drivers to include
-        :param tx_prefix: prefix for TX (eg. "DIE")
-        :param reclist: list of Receiver to include
-        :param rx_prefix: prefix for RX (eg. "BGA")
-        :param skip_same_index_couples: Boolean ignore TX and RX couple with same index
+        Returns
+        -------
+        type
+            list of string representing Far End XTalks
 
-        :return: list of string representing Far End XTalks
         """
         fext = []
         if not trlist:
@@ -158,6 +200,7 @@ class FieldAnalysis3DLayout(Analysis):
 
     @property
     def modeler(self):
+        """ """
         return self._modeler
 
     # @property
@@ -170,41 +213,49 @@ class FieldAnalysis3DLayout(Analysis):
 
     @property
     def osolution(self):
+        """ """
         return self.odesign.GetModule("SolveSetups")
 
     @property
     def oexcitation(self):
+        """ """
         return self.odesign.GetModule("Excitations")
 
     @property
     def port_list(self):
+        """ """
         return self.oexcitation.GetAllPortsList()
 
     @property
     def oanalysis(self):
+        """ """
         return self.odesign.GetModule("SolveSetups")
 
     @property
     def existing_analysis_setups(self):
-        """ Return a list of all defined analysis setup names in the maxwell design.
-
-        return: list of setup
-        """
+        """Return a list of all defined analysis setup names in the maxwell design."""
         oModule = self.odesign.GetModule("SolveSetups")
         setups = list(oModule.GetSetups())
         return setups
 
     @aedt_exception_handler
     def create_setup(self, setupname="MySetupAuto", setuptype=None, props={}):
-        """  Create a new Setup.
+        """Create a new Setup.
 
+        Parameters
+        ----------
+        setupname : str
+            optional, name of the new setup (Default value = "MySetupAuto")
+        setuptype : SetupTypes
+            optional, setup type. if None, default type will be applied
+        props :
+            optional dictionary of properties with values (Default value = {})
 
-        :param setupname: optional, name of the new setup
-        :type setupname: str
-        :param setuptype: optional, setup type. if None, default type will be applied
-        :type setuptype: SetupTypes
-        :param props: optional dictionary of properties with values
-        :return: setup object
+        Returns
+        -------
+        type
+            setup object
+
         """
         if setuptype is None:
             setuptype = SetupKeys.defaultSetups[self.solution_type]
@@ -221,14 +272,20 @@ class FieldAnalysis3DLayout(Analysis):
 
     @aedt_exception_handler
     def get_setup(self, setupname, setuptype=None):
-        """  Get an existing Setup.
+        """Get an existing Setup.
 
+        Parameters
+        ----------
+        setupname : str
+            name of the setup
+        setuptype : SetupTypes
+            optional, setup type. if None, default type will be applied
 
-        :param setupname: name of the setup
-        :type setupname: str
-        :param setuptype: optional, setup type. if None, default type will be applied
-        :type setuptype: SetupTypes
-        :return: setup object
+        Returns
+        -------
+        type
+            setup object
+
         """
         if setuptype is None:
             setuptype = SetupKeys.defaultSetups[self.solution_type]

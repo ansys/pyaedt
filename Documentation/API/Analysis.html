@@ -384,15 +384,18 @@ Container of all Common Functions.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>name</strong> -- name of setup</p></li>
-<li><p><strong>copymesh</strong> -- Bool Copy equivalent mesh</p></li>
-<li><p><strong>simsetup</strong> -- List of setups to include. if None all setups will be added</p></li>
-<li><p><strong>varlist</strong> -- list of variables</p></li>
-<li><p><strong>varvalues</strong> -- list of list of variation for each variable. An expression can be entered but all variations has to be expressions</p></li>
+<li><p><strong>name</strong> -- name of setup (Default value = &quot;ParametricSetup1&quot;)</p></li>
+<li><p><strong>copymesh</strong> -- Bool Copy equivalent mesh (Default value = False)</p></li>
+<li><p><strong>simsetup</strong> -- List of setups to include. if None all setups will be added (Default value = [])</p></li>
+<li><p><strong>varlist</strong> -- list of variables (Default value = [])</p></li>
+<li><p><strong>varvalues</strong> -- list of list of variation for each variable. An expression can be entered but all variations has to be expressions (Default value = [])</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>
 <dd class="field-even"><p>True if succeded</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>type</p>
 </dd>
 </dl>
 </dd></dl>
@@ -400,21 +403,17 @@ Container of all Common Functions.</p>
 <dl class="py method">
 <dt id="pyaedt.application.Analysis.Analysis.create_dx_component_with_goal">
 <code class="sig-name descname"><span class="pre">create_dx_component_with_goal</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">paramlist</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">inputlist</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">copy_mesh</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">inputfreq</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">deltasweep</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pointsnum</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">451</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pyaedt/application/Analysis.html#Analysis.create_dx_component_with_goal"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyaedt.application.Analysis.Analysis.create_dx_component_with_goal" title="Permalink to this definition">¶</a></dt>
-<dd><p>Create a DesignXplorer object</p>
-<dl class="field-list simple">
+<dd><dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>name</strong> -- name of the simulation + Type of Simulation. Example &quot;dB(S(Port1,Port1))Adaptive&quot; or &quot; (dB(S(Port2,Port2)), -3 )Sweep&quot;</p></li>
-<li><p><strong>paramlist</strong> -- list of output parameters</p></li>
-<li><p><strong>copy_mesh</strong> -- Copy equivalent mesh</p></li>
-<li><p><strong>inputlist</strong> -- list of input variables</p></li>
-<li><p><strong>inputfreq</strong> -- Frequency at which the parameter must be evaluated. None for Eigen mode analysis</p></li>
-<li><p><strong>deltasweep</strong> -- optional</p></li>
-<li><p><strong>pointsnum</strong> -- number of points</p></li>
+<li><p><strong>name</strong> -- </p></li>
+<li><p><strong>paramlist</strong> -- </p></li>
+<li><p><strong>inputlist</strong> -- </p></li>
+<li><p><strong>copy_mesh</strong> -- </p></li>
+<li><p><strong>inputfreq</strong> -- (Default value = None)</p></li>
+<li><p><strong>deltasweep</strong> -- (Default value = None)</p></li>
+<li><p><strong>pointsnum</strong> -- (Default value = 451)</p></li>
 </ul>
-</dd>
-<dt class="field-even">Returns</dt>
-<dd class="field-even"><p>Nothing</p>
 </dd>
 </dl>
 </dd></dl>
@@ -433,6 +432,25 @@ Container of all Common Functions.</p>
 <dt class="field-even">Returns</dt>
 <dd class="field-even"><p>True  object</p>
 </dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>type</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="pyaedt.application.Analysis.Analysis.create_parametric_sweep">
+<code class="sig-name descname"><span class="pre">create_parametric_sweep</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'ParametricSetup1'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">copymesh</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">simsetup</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">[]</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">varlist</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">[]</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">varvalues</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">[]</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pyaedt/application/Analysis.html#Analysis.create_parametric_sweep"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyaedt.application.Analysis.Analysis.create_parametric_sweep" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>name</strong> -- (Default value = &quot;ParametricSetup1&quot;)</p></li>
+<li><p><strong>copymesh</strong> -- (Default value = False)</p></li>
+<li><p><strong>simsetup</strong> -- (Default value = [])</p></li>
+<li><p><strong>varlist</strong> -- (Default value = [])</p></li>
+<li><p><strong>varvalues</strong> -- (Default value = [])</p></li>
+</ul>
+</dd>
 </dl>
 </dd></dl>
 
@@ -443,13 +461,16 @@ Container of all Common Functions.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>setupname</strong> -- optional, name of the new setup</p></li>
+<li><p><strong>setupname</strong> -- optional, name of the new setup (Default value = &quot;MySetupAuto&quot;)</p></li>
 <li><p><strong>setuptype</strong> -- optional, setup type. if None, default type will be applied</p></li>
-<li><p><strong>props</strong> -- optional dictionary of properties with values</p></li>
+<li><p><strong>props</strong> -- optional dictionary of properties with values (Default value = {})</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>
 <dd class="field-even"><p>setup object</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>type</p>
 </dd>
 </dl>
 </dd></dl>
@@ -462,11 +483,14 @@ Container of all Common Functions.</p>
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>setupname</strong> (<em>str</em>) -- name of the setup</p></li>
-<li><p><strong>properties_dict</strong> (<em>dict</em>) -- dictionary containing the property to update with the value</p></li>
+<li><p><strong>properties_dict</strong> (<em>dict: dict</em>) -- dictionary containing the property to update with the value</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>
 <dd class="field-even"><p>setup object</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>type</p>
 </dd>
 </dl>
 </dd></dl>
@@ -502,11 +526,14 @@ Container of all Common Functions.</p>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>sweepname</strong> (<em>str</em>) -- optimetrics sweep name</p></li>
 <li><p><strong>filename</strong> (<em>str</em>) -- full path filename  (.csv)</p></li>
-<li><p><strong>exportunits</strong> (<em>bool</em>) -- True (export units with value) | False (export only value)</p></li>
+<li><p><strong>exportunits</strong> (<em>bool</em>) -- True (export units with value) | False (export only value) (Default value = True)</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>
 <dd class="field-even"><p>True (succeded) | False (Failed)</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>type</p>
 </dd>
 </dl>
 </dd></dl>
@@ -518,6 +545,9 @@ Container of all Common Functions.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns</dt>
 <dd class="field-odd"><p>setup_name</p>
+</dd>
+<dt class="field-even">Parameters</dt>
+<dd class="field-even"><p><strong>setup_name</strong> -- (Default value = None)</p>
 </dd>
 </dl>
 </dd></dl>
@@ -539,12 +569,15 @@ Container of all Common Functions.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>object_list</strong> -- (list) objects for which get material_properties. if None, all objects will be considered</p></li>
-<li><p><strong>prop_names</strong> -- (str or list) property to be exported. If None, all properties will be exported. Objects with no defined property will be ignored</p></li>
+<li><p><strong>object_list</strong> -- list) objects for which get material_properties. if None, all objects will be considered (Default value = None)</p></li>
+<li><p><strong>prop_names</strong> -- str or list) property to be exported. If None, all properties will be exported. Objects with no defined property will be ignored (Default value = None)</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>
 <dd class="field-even"><p>dictionary of object with material properties</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>type</p>
 </dd>
 </dl>
 </dd></dl>
@@ -557,12 +590,15 @@ Container of all Common Functions.</p>
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>variable</strong> -- name of the variable</p></li>
-<li><p><strong>solution_name</strong> -- optional Solution Name</p></li>
-<li><p><strong>report_type_name</strong> -- optional report type name</p></li>
+<li><p><strong>solution_name</strong> -- optional Solution Name (Default value = None)</p></li>
+<li><p><strong>report_type_name</strong> -- optional report type name (Default value = None)</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>
 <dd class="field-even"><p>Value</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>type</p>
 </dd>
 </dl>
 </dd></dl>
@@ -578,16 +614,26 @@ Container of all Common Functions.</p>
 <dt class="field-even">Returns</dt>
 <dd class="field-even"><p>setup object</p>
 </dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>type</p>
+</dd>
 </dl>
 </dd></dl>
 
 <dl class="py method">
 <dt id="pyaedt.application.Analysis.Analysis.get_setups">
 <code class="sig-name descname"><span class="pre">get_setups</span></code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pyaedt/application/Analysis.html#Analysis.get_setups"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyaedt.application.Analysis.Analysis.get_setups" title="Permalink to this definition">¶</a></dt>
-<dd><p>Return a list of all defined analysis setup names in the design.</p>
-<dl class="field-list simple">
+<dd><dl class="field-list simple">
 <dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p><dl class="field-list simple">
+<dt class="field-odd">return</dt>
 <dd class="field-odd"><p>List of all Setup names</p>
+</dd>
+</dl>
+</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>type</p>
 </dd>
 </dl>
 </dd></dl>
@@ -595,10 +641,20 @@ Container of all Common Functions.</p>
 <dl class="py method">
 <dt id="pyaedt.application.Analysis.Analysis.get_sweeps">
 <code class="sig-name descname"><span class="pre">get_sweeps</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pyaedt/application/Analysis.html#Analysis.get_sweeps"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyaedt.application.Analysis.Analysis.get_sweeps" title="Permalink to this definition">¶</a></dt>
-<dd><p>Return a list of all defined analysis setup sweeps in the design.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Returns</dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>name</strong> -- </p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><dl class="field-list simple">
+<dt class="field-odd">return</dt>
 <dd class="field-odd"><p>list of all available sweep names of specific setup</p>
+</dd>
+</dl>
+</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>type</p>
 </dd>
 </dl>
 </dd></dl>
@@ -639,33 +695,32 @@ Container of all Common Functions.</p>
 <dl class="py method">
 <dt id="pyaedt.application.Analysis.Analysis.nominal_adaptive">
 <em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">nominal_adaptive</span></code><a class="headerlink" href="#pyaedt.application.Analysis.Analysis.nominal_adaptive" title="Permalink to this definition">¶</a></dt>
-<dd><p>SweepName&quot;</p>
-<dl class="field-list simple">
-<dt class="field-odd">Returns</dt>
-<dd class="field-odd"><p>str nominal adaptive setup</p>
-</dd>
-<dt class="field-even">Type</dt>
-<dd class="field-even"><p>Return The nominal setup last adaptive in the format needed by postprocessing &quot;Setupname</p>
-</dd>
-</dl>
+<dd><p>returns: :return: str nominal adaptive setup
+:rtype: type</p>
 </dd></dl>
 
 <dl class="py method">
 <dt id="pyaedt.application.Analysis.Analysis.nominal_sweep">
 <em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">nominal_sweep</span></code><a class="headerlink" href="#pyaedt.application.Analysis.Analysis.nominal_sweep" title="Permalink to this definition">¶</a></dt>
-<dd><dl class="simple">
-<dt>SweepName&quot;.if no</dt><dd><p>sweep is available it will return the lastadaptive</p>
-</dd>
-</dl>
-<dl class="field-list simple">
-<dt class="field-odd">Returns</dt>
+<dd><p>returns: sweep is available it will return the lastadaptive</p>
+<blockquote>
+<div><dl class="field-list simple">
+<dt class="field-odd">return</dt>
 <dd class="field-odd"><p>str nominal setup sweep if present</p>
 </dd>
-<dt class="field-even">Type</dt>
-<dd class="field-even"><p>Return The nominal setup last adaptive in the format needed by postprocessing &quot;Setupname</p>
+</dl>
+</div></blockquote>
+<dl class="field-list simple">
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>type</p>
 </dd>
 </dl>
 </dd></dl>
+
+<dl class="py method">
+<dt id="pyaedt.application.Analysis.Analysis.oanalysis">
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">oanalysis</span></code><a class="headerlink" href="#pyaedt.application.Analysis.Analysis.oanalysis" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
 
 <dl class="py method">
 <dt id="pyaedt.application.Analysis.Analysis.ooptimetrics">
@@ -736,6 +791,9 @@ Container of all Common Functions.</p>
 <dt class="field-even">Returns</dt>
 <dd class="field-even"><p>None</p>
 </dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>type</p>
+</dd>
 </dl>
 </dd></dl>
 
@@ -757,9 +815,9 @@ Container of all Common Functions.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>filename</strong> -- Optional name of the setup. if none the active project will be solved</p></li>
-<li><p><strong>machine</strong> -- optional remote machine name</p></li>
-<li><p><strong>run_in_thread</strong> -- bool if true the batch command is submitted as thread</p></li>
+<li><p><strong>filename</strong> -- Optional name of the setup. if none the active project will be solved (Default value = None)</p></li>
+<li><p><strong>machine</strong> -- optional remote machine name (Default value = &quot;local&quot;)</p></li>
+<li><p><strong>run_in_thread</strong> -- bool if true the batch command is submitted as thread (Default value = False)</p></li>
 </ul>
 </dd>
 </dl>
@@ -772,14 +830,18 @@ Container of all Common Functions.</p>
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>clustername</strong> -- name of the cluster to which submit the job</p></li>
-<li><p><strong>aedt_full_exe_path</strong> -- if None it will be clusternameAnsysEMAnsysEM2x.xWin64nsysedt(.exe)</p></li>
-<li><p><strong>numnodes</strong> -- number of nodes</p></li>
-<li><p><strong>numcores</strong> -- number of cores</p></li>
-<li><p><strong>setting_file</strong> -- Optional if provided it will be used as template</p></li>
+<li><p><strong>aedt_full_exe_path</strong> -- if None it will be clusternameAnsysEMAnsysEM2x.xWin64nsysedt(.exe) (Default value = None)</p></li>
+<li><p><strong>numnodes</strong> -- number of nodes (Default value = 1)</p></li>
+<li><p><strong>numcores</strong> -- number of cores (Default value = 32)</p></li>
+<li><p><strong>setting_file</strong> -- Optional if provided it will be used as template (Default value = None)</p></li>
+<li><p><strong>wait_for_license</strong> -- (Default value = True)</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>
 <dd class="field-even"><p>Job Id</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>type</p>
 </dd>
 </dl>
 </dd></dl>

@@ -542,6 +542,17 @@ TransientFlowOnly = [("Enabled", True), ("Flow Regime", "Laminar"), ("Include Te
                                ("N Steps:=", "10s"), ("Enable Control Program", False), ("Control Program Name", "")]
 
 def HFSS3DLayout_AdaptiveFrequencyData(freq):
+    """
+
+    Parameters
+    ----------
+    freq :
+        
+
+    Returns
+    -------
+
+    """
     value = [
         ("AdaptiveFrequency", freq),
         ("MaxDelta", "0.02"),
@@ -652,6 +663,7 @@ GRM = [("Enabled", True), ("MeshLink", meshlink),
 TR = []
 
 class SweepHFSS(object):
+    """ """
     def __init__(self, oanalysis, setupname, sweepname, sweeptype="Interpolating", props=None):
         self.oanalysis = oanalysis
         self.props={}
@@ -694,14 +706,24 @@ class SweepHFSS(object):
 
     @aedt_exception_handler
     def add_subrange(self, rangetype, start, end, count):
-        """
-        Add Subrange to sweep
+        """Add Subrange to sweep
 
-        :param rangetype: subrange type
-        :param start: freq start
-        :param end: freq end
-        :param count: freq count or freq step
-        :return: bool
+        Parameters
+        ----------
+        rangetype :
+            subrange type
+        start :
+            freq start
+        end :
+            freq end
+        count :
+            freq count or freq step
+
+        Returns
+        -------
+        type
+            bool
+
         """
         range={}
         range["RangeType"] = rangetype
@@ -720,10 +742,16 @@ class SweepHFSS(object):
 
     @aedt_exception_handler
     def create(self):
-        """
-        Create Sweep
-
+        """Create Sweep
+        
         :return:Bool
+
+        Parameters
+        ----------
+
+        Returns
+        -------
+
         """
         self.oanalysis.InsertFrequencySweep(self.setupname, self._get_args())
         return True
@@ -731,10 +759,16 @@ class SweepHFSS(object):
 
     @aedt_exception_handler
     def update(self):
-        """
-        Update Sweep
-
+        """Update Sweep
+        
         :return:Bool
+
+        Parameters
+        ----------
+
+        Returns
+        -------
+
         """
         self.oanalysis.EditFrequencySweep(self.setupname, self.name, self._get_args())
         return True
@@ -742,6 +776,17 @@ class SweepHFSS(object):
 
     @aedt_exception_handler
     def _get_args(self, props=None):
+        """
+
+        Parameters
+        ----------
+        props :
+             (Default value = None)
+
+        Returns
+        -------
+
+        """
         if props is None:
             props = self.props
         arg = ["NAME:" + self.name]
@@ -750,6 +795,7 @@ class SweepHFSS(object):
 
 
 class SweepQ3D(object):
+    """ """
 
     def __init__(self, oanalysis, setupname, sweepname, sweeptype="Interpolating", props=None):
         self.oanalysis = oanalysis
@@ -775,14 +821,24 @@ class SweepQ3D(object):
 
     @aedt_exception_handler
     def add_subrange(self, type, start, end, count):
-        """
-        Add Subrange to sweep
+        """Add Subrange to sweep
 
-        :param type: subrange type
-        :param start: freq start
-        :param end: freq end
-        :param count: freq count or freq step
-        :return: bool
+        Parameters
+        ----------
+        type :
+            subrange type
+        start :
+            freq start
+        end :
+            freq end
+        count :
+            freq count or freq step
+
+        Returns
+        -------
+        type
+            bool
+
         """
         range={}
         range["RangeType"] = type
@@ -800,20 +856,32 @@ class SweepQ3D(object):
 
     @aedt_exception_handler
     def create(self):
-        """
-        Create a Sweep
-
+        """Create a Sweep
+        
         :return: Bool
+
+        Parameters
+        ----------
+
+        Returns
+        -------
+
         """
         self.oanalysis.InsertSweep(self.setupname, self._get_args())
         return True
 
     @aedt_exception_handler
     def update(self):
-        """
-        Update Sweep
-
+        """Update Sweep
+        
         :return: Bool
+
+        Parameters
+        ----------
+
+        Returns
+        -------
+
         """
         self.oanalysis.EditSweep(self.setupname, self.name, self._get_args())
 
@@ -821,6 +889,17 @@ class SweepQ3D(object):
 
     @aedt_exception_handler
     def _get_args(self, props=None):
+        """
+
+        Parameters
+        ----------
+        props :
+             (Default value = None)
+
+        Returns
+        -------
+
+        """
         if props is None:
             props = self.props
         arg = ["NAME:" + self.name]
@@ -831,6 +910,7 @@ class SweepQ3D(object):
 
 
 class SetupKeys(object):
+    """ """
     defaultSetups = {"DrivenModal": 1, "DrivenTerminal": 1, "Eigenmode": 2,
                      "Transient Network": 3, "SBR+": 4, "Transient": 5, "Magnetostatic": 6, "EddyCurrent": 7,
                      "Electrostatic": 8, "ElectroDCConduction": 9,

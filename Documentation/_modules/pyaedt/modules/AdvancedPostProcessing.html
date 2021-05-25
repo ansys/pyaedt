@@ -201,20 +201,29 @@
 
 
 <div class="viewcode-block" id="PostProcessor"><a class="viewcode-back" href="../../../API/AdvancedPostProcessing.html#pyaedt.modules.AdvancedPostProcessing.PostProcessor">[docs]</a><span class="k">class</span> <span class="nc">PostProcessor</span><span class="p">(</span><span class="n">Post</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot; &quot;&quot;&quot;</span>
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">parent</span><span class="p">):</span>
         <span class="n">Post</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">parent</span><span class="p">)</span>
 
 <div class="viewcode-block" id="PostProcessor.get_efields_data"><a class="viewcode-back" href="../../../API/AdvancedPostProcessing.html#pyaedt.modules.AdvancedPostProcessing.PostProcessor.get_efields_data">[docs]</a>    <span class="nd">@aedt_exception_handler</span>
     <span class="k">def</span> <span class="nf">get_efields_data</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">setup_sweep_name</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="n">ff_setup</span><span class="o">=</span><span class="s2">&quot;Infinite Sphere1&quot;</span><span class="p">,</span> <span class="n">freq</span><span class="o">=</span><span class="s1">&#39;All&#39;</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        WARNING this functions requires Numpy installed on your machine</span>
+        <span class="sd">&quot;&quot;&quot;WARNING this functions requires Numpy installed on your machine</span>
 <span class="sd">        this function compute Etheta and EPhi and return and returns an array of [theta_range, phi_range, Etheta, Ephi]</span>
 
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        setup_sweep_name :</span>
+<span class="sd">            Name of setup to compute report. if None, nominal adaptive will be applied (Default value = &#39;&#39;)</span>
+<span class="sd">        ff_setup :</span>
+<span class="sd">            Far Field Setup (Default value = &quot;Infinite Sphere1&quot;)</span>
+<span class="sd">        freq :</span>
+<span class="sd">            return: [theta_range, phi_range, Etheta, Ephi] (Default value = &#39;All&#39;)</span>
 
-<span class="sd">        :param setup_sweep_name: Name of setup to compute report. if None, nominal adaptive will be applied</span>
-<span class="sd">        :param ff_setup: Far Field Setup</span>
-<span class="sd">        :param freq:</span>
-<span class="sd">        :return: [theta_range, phi_range, Etheta, Ephi]</span>
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        type</span>
+<span class="sd">            theta_range, phi_range, Etheta, Ephi]</span>
+
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="n">setup_sweep_name</span><span class="p">:</span>
             <span class="n">setup_sweep_name</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_parent</span><span class="o">.</span><span class="n">nominal_adaptive</span>
@@ -269,8 +278,23 @@
             <span class="n">results_dict</span><span class="p">[</span><span class="n">source_name_without_mode</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="n">theta_range</span><span class="p">,</span> <span class="n">phi_range</span><span class="p">,</span> <span class="n">Etheta</span><span class="p">,</span> <span class="n">Ephi</span><span class="p">]</span>
         <span class="k">return</span> <span class="n">results_dict</span></div>
 
-    <span class="nd">@aedt_exception_handler</span>
+<div class="viewcode-block" id="PostProcessor.ff_sum_with_delta_phase"><a class="viewcode-back" href="../../../API/AdvancedPostProcessing.html#pyaedt.modules.AdvancedPostProcessing.PostProcessor.ff_sum_with_delta_phase">[docs]</a>    <span class="nd">@aedt_exception_handler</span>
     <span class="k">def</span> <span class="nf">ff_sum_with_delta_phase</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ff_data</span><span class="p">,</span> <span class="n">xphase</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">yphase</span><span class="o">=</span><span class="mi">0</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        ff_data :</span>
+<span class="sd">            </span>
+<span class="sd">        xphase :</span>
+<span class="sd">             (Default value = 0)</span>
+<span class="sd">        yphase :</span>
+<span class="sd">             (Default value = 0)</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">array_size</span> <span class="o">=</span> <span class="p">[</span><span class="mi">4</span><span class="p">,</span> <span class="mi">4</span><span class="p">]</span>
         <span class="n">loc_offset</span> <span class="o">=</span> <span class="mi">2</span>
 
@@ -283,10 +307,25 @@
                 <span class="n">mag</span> <span class="o">=</span> <span class="n">mag</span><span class="p">[</span><span class="n">m</span><span class="p">][</span><span class="n">n</span><span class="p">]</span>
                 <span class="n">ang</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">radians</span><span class="p">(</span><span class="n">xphase</span> <span class="o">*</span> <span class="n">m</span><span class="p">)</span> <span class="o">+</span> <span class="n">np</span><span class="o">.</span><span class="n">radians</span><span class="p">(</span><span class="n">yphase</span> <span class="o">*</span> <span class="n">n</span><span class="p">)</span>
                 <span class="n">weight</span><span class="p">[</span><span class="n">m</span><span class="p">][</span><span class="n">n</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">mag</span><span class="p">)</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="mi">1</span> <span class="o">*</span> <span class="n">ang</span><span class="p">)</span>
-        <span class="k">return</span> <span class="kc">True</span>
+        <span class="k">return</span> <span class="kc">True</span></div>
 
     <span class="nd">@aedt_exception_handler</span>
     <span class="k">def</span> <span class="nf">_triangle_vertex</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">elements_nodes</span><span class="p">,</span> <span class="n">num_nodes_per_element</span><span class="p">,</span> <span class="n">take_all_nodes</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        elements_nodes :</span>
+<span class="sd">            </span>
+<span class="sd">        num_nodes_per_element :</span>
+<span class="sd">            </span>
+<span class="sd">        take_all_nodes :</span>
+<span class="sd">             (Default value = True)</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">trg_vertex</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="k">if</span> <span class="n">num_nodes_per_element</span> <span class="o">==</span> <span class="mi">10</span> <span class="ow">and</span> <span class="n">take_all_nodes</span><span class="p">:</span>
             <span class="k">for</span> <span class="n">e</span> <span class="ow">in</span> <span class="n">elements_nodes</span><span class="p">:</span>
@@ -342,19 +381,31 @@
     <span class="nd">@aedt_exception_handler</span>
     <span class="k">def</span> <span class="nf">_plot_from_aedtplt</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">aedtplt_files</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">imageformat</span><span class="o">=</span><span class="s2">&quot;jpg&quot;</span><span class="p">,</span> <span class="n">view</span><span class="o">=</span><span class="s2">&quot;iso&quot;</span><span class="p">,</span> <span class="n">plot_type</span><span class="o">=</span><span class="s2">&quot;Full&quot;</span><span class="p">,</span>
                            <span class="n">plot_label</span><span class="o">=</span><span class="s2">&quot;Temperature&quot;</span><span class="p">,</span> <span class="n">model_color</span><span class="o">=</span><span class="s2">&quot;#8faf8f&quot;</span><span class="p">,</span> <span class="n">show_model_edge</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">jupyter</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        This function exports the 3D Field Solver Mesh &amp;/or fields as images using Python Plotly. This is currently</span>
+        <span class="sd">&quot;&quot;&quot;This function exports the 3D Field Solver Mesh &amp;/or fields as images using Python Plotly. This is currently</span>
 <span class="sd">        supported only on Windows using CPython</span>
 
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        aedtplt_files :</span>
+<span class="sd">            str or list of aedtplt files generated by AEDT (Default value = None)</span>
+<span class="sd">        imageformat :</span>
+<span class="sd">            str default output format (jpg, png, svg, webp)</span>
+<span class="sd">        view :</span>
+<span class="sd">            str default output view ( iso, x , y, z, all). all option export all the views files</span>
+<span class="sd">        plot_type :</span>
+<span class="sd">            Full&quot; (Default value = &quot;Full&quot;)</span>
+<span class="sd">        plot_label :</span>
+<span class="sd">            Plot Color Label (Default value = &quot;Temperature&quot;)</span>
+<span class="sd">        model_color :</span>
+<span class="sd">            3D Model Color. Default &quot;silver&quot;</span>
+<span class="sd">        show_model_edge :</span>
+<span class="sd">            boolean</span>
+<span class="sd">            return: list of files generated (Default value = False)</span>
+<span class="sd">        jupyter :</span>
+<span class="sd">             (Default value = False)</span>
 
-<span class="sd">        :param aedtplt_files: str or list of aedtplt files generated by AEDT</span>
-<span class="sd">        :param imageformat: str default output format (jpg, png, svg, webp)</span>
-<span class="sd">        :param view: str default output view ( iso, x , y, z, all). all option export all the views files</span>
-<span class="sd">        :param plot_type: &quot;Full&quot;</span>
-<span class="sd">        :param plot_label: Plot Color Label</span>
-<span class="sd">        :param model_color: 3D Model Color. Default &quot;silver&quot;</span>
-<span class="sd">        :param show_model_edge: boolean</span>
-<span class="sd">        return: list of files generated</span>
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
 
 <span class="sd">        &quot;&quot;&quot;</span>
 
@@ -389,6 +440,17 @@
                 <span class="n">mesh</span> <span class="o">=</span> <span class="n">pv</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="n">file</span><span class="p">)</span>
 
                 <span class="k">def</span> <span class="nf">create_object_mesh</span><span class="p">(</span><span class="n">opacity</span><span class="p">):</span>
+                    <span class="sd">&quot;&quot;&quot;</span>
+
+<span class="sd">                    Parameters</span>
+<span class="sd">                    ----------</span>
+<span class="sd">                    opacity :</span>
+<span class="sd">                        </span>
+
+<span class="sd">                    Returns</span>
+<span class="sd">                    -------</span>
+
+<span class="sd">                    &quot;&quot;&quot;</span>
                     <span class="k">try</span><span class="p">:</span>
                         <span class="n">plot</span><span class="o">.</span><span class="n">remove_actor</span><span class="p">(</span><span class="s2">&quot;Volumes&quot;</span><span class="p">)</span>
                     <span class="k">except</span><span class="p">:</span>
@@ -472,6 +534,7 @@
                 <span class="n">plot</span><span class="o">.</span><span class="n">add_text</span><span class="p">(</span><span class="s2">&quot;Full Plot&quot;</span><span class="p">,</span> <span class="n">font_size</span><span class="o">=</span><span class="mi">15</span><span class="p">)</span>
                 <span class="k">if</span> <span class="n">solution</span><span class="p">:</span>
                     <span class="k">class</span> <span class="nc">MyCustomRoutine</span><span class="p">():</span>
+                        <span class="sd">&quot;&quot;&quot; &quot;&quot;&quot;</span>
                         <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">mesh</span><span class="p">):</span>
                             <span class="bp">self</span><span class="o">.</span><span class="n">output</span> <span class="o">=</span> <span class="n">mesh</span>  <span class="c1"># Expected PyVista mesh type</span>
                             <span class="c1"># default parameters</span>
@@ -485,6 +548,7 @@
                             <span class="bp">self</span><span class="o">.</span><span class="n">update</span><span class="p">()</span>
 
                         <span class="k">def</span> <span class="nf">update</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+                            <span class="sd">&quot;&quot;&quot; &quot;&quot;&quot;</span>
                             <span class="c1"># This is where you call your simulation</span>
                             <span class="k">try</span><span class="p">:</span>
                                 <span class="n">plot</span><span class="o">.</span><span class="n">remove_actor</span><span class="p">(</span><span class="s2">&quot;FieldPlot&quot;</span><span class="p">)</span>
@@ -513,6 +577,7 @@
                 <span class="n">plot</span><span class="o">.</span><span class="n">add_text</span><span class="p">(</span><span class="s2">&quot;Full Plot&quot;</span><span class="p">,</span> <span class="n">font_size</span><span class="o">=</span><span class="mi">15</span><span class="p">)</span>
                 <span class="k">if</span> <span class="n">solution</span><span class="p">:</span>
                     <span class="k">class</span> <span class="nc">MyCustomRoutine</span><span class="p">():</span>
+                        <span class="sd">&quot;&quot;&quot; &quot;&quot;&quot;</span>
                         <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">mesh</span><span class="p">):</span>
                             <span class="bp">self</span><span class="o">.</span><span class="n">output</span> <span class="o">=</span> <span class="n">mesh</span>  <span class="c1"># Expected PyVista mesh type</span>
                             <span class="c1"># default parameters</span>
@@ -526,6 +591,7 @@
                             <span class="bp">self</span><span class="o">.</span><span class="n">update</span><span class="p">()</span>
 
                         <span class="k">def</span> <span class="nf">update</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+                            <span class="sd">&quot;&quot;&quot; &quot;&quot;&quot;</span>
                             <span class="c1"># This is where you call your simulation</span>
                             <span class="k">try</span><span class="p">:</span>
                                 <span class="n">plot</span><span class="o">.</span><span class="n">remove_actor</span><span class="p">(</span><span class="s2">&quot;FieldPlot&quot;</span><span class="p">)</span>
@@ -573,6 +639,19 @@
                     <span class="n">plot</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
             <span class="k">else</span><span class="p">:</span>
                 <span class="k">def</span> <span class="nf">show</span><span class="p">(</span><span class="n">screen</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">interactive</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+                    <span class="sd">&quot;&quot;&quot;</span>
+
+<span class="sd">                    Parameters</span>
+<span class="sd">                    ----------</span>
+<span class="sd">                    screen :</span>
+<span class="sd">                         (Default value = None)</span>
+<span class="sd">                    interactive :</span>
+<span class="sd">                         (Default value = True)</span>
+
+<span class="sd">                    Returns</span>
+<span class="sd">                    -------</span>
+
+<span class="sd">                    &quot;&quot;&quot;</span>
                     <span class="k">if</span> <span class="n">screen</span><span class="p">:</span>
                         <span class="n">plot</span><span class="o">.</span><span class="n">show</span><span class="p">(</span><span class="n">screenshot</span><span class="o">=</span><span class="n">screen</span><span class="p">,</span> <span class="n">interactive</span><span class="o">=</span><span class="n">interactive</span><span class="p">,</span> <span class="n">full_screen</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
                     <span class="k">else</span><span class="p">:</span>
@@ -591,14 +670,29 @@
     <span class="nd">@aedt_exception_handler</span>
     <span class="k">def</span> <span class="nf">_animation_from_aedtflt</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">aedtplt_files</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">variation_var</span><span class="o">=</span><span class="s2">&quot;Time&quot;</span><span class="p">,</span> <span class="n">variation_list</span><span class="o">=</span><span class="p">[],</span>
                                 <span class="n">plot_label</span><span class="o">=</span><span class="s2">&quot;Temperature&quot;</span><span class="p">,</span> <span class="n">model_color</span><span class="o">=</span><span class="s2">&quot;#8faf8f&quot;</span><span class="p">,</span> <span class="n">export_gif</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">off_screen</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        This function exports the 3D Field Solver Mesh &amp;/or fields as images using Python Plotly. This is currently</span>
+        <span class="sd">&quot;&quot;&quot;This function exports the 3D Field Solver Mesh &amp;/or fields as images using Python Plotly. This is currently</span>
 <span class="sd">        supported only on Windows using CPython</span>
 
-<span class="sd">        :param aedtplt_files: str or list of aedtplt files generated by AEDT</span>
-<span class="sd">        :param plot_label: Plot Color Label</span>
-<span class="sd">        :param model_color: 3D Model Color. Default &quot;silver&quot;</span>
-<span class="sd">        return: list of files generated</span>
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        aedtplt_files :</span>
+<span class="sd">            str or list of aedtplt files generated by AEDT (Default value = None)</span>
+<span class="sd">        plot_label :</span>
+<span class="sd">            Plot Color Label (Default value = &quot;Temperature&quot;)</span>
+<span class="sd">        model_color :</span>
+<span class="sd">            3D Model Color. Default &quot;silver&quot;</span>
+<span class="sd">            return: list of files generated</span>
+<span class="sd">        variation_var :</span>
+<span class="sd">             (Default value = &quot;Time&quot;)</span>
+<span class="sd">        variation_list :</span>
+<span class="sd">             (Default value = [])</span>
+<span class="sd">        export_gif :</span>
+<span class="sd">             (Default value = False)</span>
+<span class="sd">        off_screen :</span>
+<span class="sd">             (Default value = False)</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
 
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">frame_per_seconds</span> <span class="o">=</span> <span class="mf">0.5</span>
@@ -794,8 +888,9 @@
         <span class="k">return</span> <span class="n">gifname</span>
 
 
-    <span class="nd">@aedt_exception_handler</span>
+<div class="viewcode-block" id="PostProcessor.export_model_obj"><a class="viewcode-back" href="../../../API/AdvancedPostProcessing.html#pyaedt.modules.AdvancedPostProcessing.PostProcessor.export_model_obj">[docs]</a>    <span class="nd">@aedt_exception_handler</span>
     <span class="k">def</span> <span class="nf">export_model_obj</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; &quot;&quot;&quot;</span>
         <span class="k">assert</span> <span class="bp">self</span><span class="o">.</span><span class="n">_parent</span><span class="o">.</span><span class="n">_aedt_version</span> <span class="o">&gt;=</span> <span class="s2">&quot;2021.2&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">messenger</span><span class="o">.</span><span class="n">add_error_message</span><span class="p">(</span><span class="s2">&quot;Obj supported from AEDT 2021R2&quot;</span><span class="p">)</span>
         <span class="n">project_path</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_parent</span><span class="o">.</span><span class="n">project_path</span>
         <span class="n">obj_list</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_parent</span><span class="o">.</span><span class="n">modeler</span><span class="o">.</span><span class="n">primitives</span><span class="o">.</span><span class="n">get_all_objects_names</span><span class="p">()</span>
@@ -807,10 +902,23 @@
                                 <span class="bp">self</span><span class="o">.</span><span class="n">_parent</span><span class="o">.</span><span class="n">modeler</span><span class="o">.</span><span class="n">primitives</span><span class="o">.</span><span class="n">get_obj_id</span><span class="p">(</span><span class="n">i</span><span class="p">)]</span><span class="o">.</span><span class="n">material_name</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="o">!=</span> <span class="s2">&quot;air&quot;</span><span class="p">)]</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_parent</span><span class="o">.</span><span class="n">modeler</span><span class="o">.</span><span class="n">oeditor</span><span class="o">.</span><span class="n">ExportModelMeshToFile</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">project_path</span><span class="p">,</span> <span class="s2">&quot;Model.obj&quot;</span><span class="p">),</span>
                                                            <span class="n">obj_list</span><span class="p">)</span>
-        <span class="k">return</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">project_path</span><span class="p">,</span> <span class="s2">&quot;Model.obj&quot;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">project_path</span><span class="p">,</span> <span class="s2">&quot;Model.obj&quot;</span><span class="p">)</span></div>
 
-    <span class="nd">@aedt_exception_handler</span>
+<div class="viewcode-block" id="PostProcessor.export_mesh_obj"><a class="viewcode-back" href="../../../API/AdvancedPostProcessing.html#pyaedt.modules.AdvancedPostProcessing.PostProcessor.export_mesh_obj">[docs]</a>    <span class="nd">@aedt_exception_handler</span>
     <span class="k">def</span> <span class="nf">export_mesh_obj</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">setup_name</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">intrinsic_dict</span><span class="o">=</span><span class="p">{}):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        setup_name :</span>
+<span class="sd">             (Default value = None)</span>
+<span class="sd">        intrinsic_dict :</span>
+<span class="sd">             (Default value = {})</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">project_path</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_parent</span><span class="o">.</span><span class="n">project_path</span>
 
         <span class="k">if</span> <span class="ow">not</span> <span class="n">setup_name</span><span class="p">:</span>
@@ -828,10 +936,23 @@
             <span class="n">file_to_add</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">export_field_plot</span><span class="p">(</span><span class="n">plot</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="n">project_path</span><span class="p">)</span>
             <span class="n">plot</span><span class="o">.</span><span class="n">delete</span><span class="p">()</span>
             <span class="k">return</span> <span class="n">file_to_add</span>
-        <span class="k">return</span> <span class="kc">None</span>
+        <span class="k">return</span> <span class="kc">None</span></div>
 
-    <span class="nd">@aedt_exception_handler</span>
+<div class="viewcode-block" id="PostProcessor.plot_model_obj"><a class="viewcode-back" href="../../../API/AdvancedPostProcessing.html#pyaedt.modules.AdvancedPostProcessing.PostProcessor.plot_model_obj">[docs]</a>    <span class="nd">@aedt_exception_handler</span>
     <span class="k">def</span> <span class="nf">plot_model_obj</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">export_afterplot</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">jupyter</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        export_afterplot :</span>
+<span class="sd">             (Default value = True)</span>
+<span class="sd">        jupyter :</span>
+<span class="sd">             (Default value = False)</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">assert</span> <span class="bp">self</span><span class="o">.</span><span class="n">_parent</span><span class="o">.</span><span class="n">_aedt_version</span> <span class="o">&gt;=</span> <span class="s2">&quot;2021.2&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">messenger</span><span class="o">.</span><span class="n">add_error_message</span><span class="p">(</span><span class="s2">&quot;Obj supported from AEDT 2021R2&quot;</span><span class="p">)</span>
         <span class="n">files</span> <span class="o">=</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">export_model_obj</span><span class="p">()]</span>
         <span class="k">if</span> <span class="n">export_afterplot</span><span class="p">:</span>
@@ -839,24 +960,39 @@
         <span class="k">else</span><span class="p">:</span>
             <span class="n">imageformat</span><span class="o">=</span><span class="kc">None</span>
         <span class="n">file_list</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_plot_from_aedtplt</span><span class="p">(</span><span class="n">files</span><span class="p">,</span> <span class="n">imageformat</span><span class="o">=</span><span class="n">imageformat</span><span class="p">,</span> <span class="n">plot_label</span><span class="o">=</span><span class="s2">&quot;3D Model&quot;</span><span class="p">,</span> <span class="n">model_color</span><span class="o">=</span><span class="s2">&quot;#8faf8f&quot;</span><span class="p">,</span> <span class="n">show_model_edge</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">jupyter</span><span class="o">=</span><span class="n">jupyter</span><span class="p">)</span>
-        <span class="k">return</span> <span class="n">file_list</span>
+        <span class="k">return</span> <span class="n">file_list</span></div>
 
 <div class="viewcode-block" id="PostProcessor.plot_field_from_fieldplot"><a class="viewcode-back" href="../../../API/AdvancedPostProcessing.html#pyaedt.modules.AdvancedPostProcessing.PostProcessor.plot_field_from_fieldplot">[docs]</a>    <span class="nd">@aedt_exception_handler</span>
     <span class="k">def</span> <span class="nf">plot_field_from_fieldplot</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">plotname</span><span class="p">,</span> <span class="n">project_path</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="n">meshplot</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">setup_name</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
                                   <span class="n">intrinsic_dict</span><span class="o">=</span><span class="p">{},</span> <span class="n">imageformat</span><span class="o">=</span><span class="s2">&quot;jpg&quot;</span><span class="p">,</span> <span class="n">view</span><span class="o">=</span><span class="s2">&quot;iso&quot;</span><span class="p">,</span> <span class="n">plot_label</span><span class="o">=</span><span class="s2">&quot;Temperature&quot;</span><span class="p">,</span> <span class="n">plot_folder</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Export Field Plot to picture format (jpg, png) using PLOTLY method which rebuilds the mesh and overlap fields on it</span>
+        <span class="sd">&quot;&quot;&quot;Export Field Plot to picture format (jpg, png) using PLOTLY method which rebuilds the mesh and overlap fields on it</span>
 
-<span class="sd">        :param plotname: name of the plot to export</span>
-<span class="sd">        :param project_path: path where to save the image</span>
-<span class="sd">        :param meshplot: create and plot the mesh over the fields</span>
-<span class="sd">        :param setup_name: name of the setup - sweep to use for the export</span>
-<span class="sd">        :param intrinsic_dict: intrinsic dictionary needed for export of the mesh. Valid only if meshplot is True</span>
-<span class="sd">        :param imageformat:  image format. Defalult jpg</span>
-<span class="sd">        :param view: image view. Default iso</span>
-<span class="sd">        :param plot_label: Plot Type. Default Temperature</span>
-<span class="sd">        :param plot_folder: Plot Folder to force update before export the field. If none all the plots will be updated</span>
-<span class="sd">        :return: list of the files exported</span>
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        plotname :</span>
+<span class="sd">            name of the plot to export</span>
+<span class="sd">        project_path :</span>
+<span class="sd">            path where to save the image (Default value = &quot;&quot;)</span>
+<span class="sd">        meshplot :</span>
+<span class="sd">            create and plot the mesh over the fields (Default value = False)</span>
+<span class="sd">        setup_name :</span>
+<span class="sd">            name of the setup - sweep to use for the export (Default value = None)</span>
+<span class="sd">        intrinsic_dict :</span>
+<span class="sd">            intrinsic dictionary needed for export of the mesh. Valid only if meshplot is True (Default value = {})</span>
+<span class="sd">        imageformat :</span>
+<span class="sd">            image format. Defalult jpg (Default value = &quot;jpg&quot;)</span>
+<span class="sd">        view :</span>
+<span class="sd">            image view. Default iso</span>
+<span class="sd">        plot_label :</span>
+<span class="sd">            Plot Type. Default Temperature</span>
+<span class="sd">        plot_folder :</span>
+<span class="sd">            Plot Folder to force update before export the field. If none all the plots will be updated (Default value = None)</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        type</span>
+<span class="sd">            list of the files exported</span>
+
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="n">plot_folder</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">ofieldsreporter</span><span class="o">.</span><span class="n">UpdateAllFieldsPlots</span><span class="p">()</span>
@@ -886,30 +1022,59 @@
             <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Field Generation, export and plot time: &quot;</span><span class="p">,</span> <span class="n">endt</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">file_list</span></div>
 
-    <span class="nd">@staticmethod</span>
+<div class="viewcode-block" id="PostProcessor.is_float"><a class="viewcode-back" href="../../../API/AdvancedPostProcessing.html#pyaedt.modules.AdvancedPostProcessing.PostProcessor.is_float">[docs]</a>    <span class="nd">@staticmethod</span>
     <span class="k">def</span> <span class="nf">is_float</span><span class="p">(</span><span class="n">istring</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        istring :</span>
+<span class="sd">            </span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">try</span><span class="p">:</span>
             <span class="k">return</span> <span class="nb">float</span><span class="p">(</span><span class="n">istring</span><span class="o">.</span><span class="n">strip</span><span class="p">())</span>
         <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>
-            <span class="k">return</span> <span class="mi">0</span>
+            <span class="k">return</span> <span class="mi">0</span></div>
 
 
 <div class="viewcode-block" id="PostProcessor.animate_fields_from_aedtplt"><a class="viewcode-back" href="../../../API/AdvancedPostProcessing.html#pyaedt.modules.AdvancedPostProcessing.PostProcessor.animate_fields_from_aedtplt">[docs]</a>    <span class="nd">@aedt_exception_handler</span>
     <span class="k">def</span> <span class="nf">animate_fields_from_aedtplt</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">plotname</span><span class="p">,</span> <span class="n">plot_folder</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">meshplot</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">setup_name</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
                                     <span class="n">intrinsic_dict</span><span class="o">=</span><span class="p">{},</span> <span class="n">variation_variable</span><span class="o">=</span><span class="s2">&quot;Phi&quot;</span><span class="p">,</span> <span class="n">variation_list</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;0deg&#39;</span><span class="p">],</span>
                                     <span class="n">project_path</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="n">export_gif</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">off_screen</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Generate  Field Plot to picture format (jpg, png) using PYVISTA method which rebuilds the mesh and overlap fields on it</span>
+        <span class="sd">&quot;&quot;&quot;Generate  Field Plot to picture format (jpg, png) using PYVISTA method which rebuilds the mesh and overlap fields on it</span>
 
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        plotname :</span>
+<span class="sd">            name of the plot to use or name o</span>
+<span class="sd">        plot_folder :</span>
+<span class="sd">            optional name of the plot_folder (Default value = None)</span>
+<span class="sd">        setup_name :</span>
+<span class="sd">            name of the setup - sweep to use for the export (Default value = None)</span>
+<span class="sd">        intrinsic_dict :</span>
+<span class="sd">            intrinsic dictionary needed for export (Default value = {})</span>
+<span class="sd">        variation_variable :</span>
+<span class="sd">            variation variable. Default &quot;Phi&quot;</span>
+<span class="sd">        variation_list :</span>
+<span class="sd">            list of variation values (Default value = [&#39;0deg&#39;])</span>
+<span class="sd">        project_path :</span>
+<span class="sd">            path for the export (Default value = &quot;&quot;)</span>
+<span class="sd">        meshplot :</span>
+<span class="sd">             (Default value = False)</span>
+<span class="sd">        export_gif :</span>
+<span class="sd">             (Default value = False)</span>
+<span class="sd">        off_screen :</span>
+<span class="sd">             (Default value = False)</span>
 
-<span class="sd">        :param plotname: name of the plot to use or name o</span>
-<span class="sd">        :param plot_folder: optional name of the plot_folder</span>
-<span class="sd">        :param setup_name: name of the setup - sweep to use for the export</span>
-<span class="sd">        :param intrinsic_dict: intrinsic dictionary needed for export</span>
-<span class="sd">        :param variation_variable: variation variable. Default &quot;Phi&quot;</span>
-<span class="sd">        :param variation_list: list of variation values</span>
-<span class="sd">        :param project_path: path for the export</span>
-<span class="sd">        :return: Boolean</span>
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        type</span>
+<span class="sd">            Boolean</span>
+
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="n">plot_folder</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">ofieldsreporter</span><span class="o">.</span><span class="n">UpdateAllFieldsPlots</span><span class="p">()</span>
@@ -951,20 +1116,39 @@
     <span class="k">def</span> <span class="nf">animate_fields_from_aedtplt_2</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">quantityname</span><span class="p">,</span> <span class="n">object_list</span><span class="p">,</span> <span class="n">plottype</span><span class="p">,</span> <span class="n">meshplot</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">setup_name</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
                                     <span class="n">intrinsic_dict</span><span class="o">=</span><span class="p">{},</span> <span class="n">variation_variable</span><span class="o">=</span><span class="s2">&quot;Phi&quot;</span><span class="p">,</span> <span class="n">variation_list</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;0deg&#39;</span><span class="p">],</span>
                                     <span class="n">project_path</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="n">export_gif</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">off_screen</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Generate  Field Plot to picture format (jpg, png) using PYVISTA method which rebuilds the mesh and overlap fields on it.</span>
+        <span class="sd">&quot;&quot;&quot;Generate  Field Plot to picture format (jpg, png) using PYVISTA method which rebuilds the mesh and overlap fields on it.</span>
 <span class="sd">        This method creates the plot and export it. is alternative to animate_fields_from_aedtplt which uses existing plot</span>
 
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        quantityname :</span>
+<span class="sd">            name of the plot to use or name o</span>
+<span class="sd">        object_list :</span>
+<span class="sd">            optional name of the plot_folder</span>
+<span class="sd">        plottype :</span>
+<span class="sd">            Plot Type. &quot;Surface&quot;, &quot;Volume&quot; or &quot;CutPlane&quot;</span>
+<span class="sd">        setup_name :</span>
+<span class="sd">            name of the setup - sweep to use for the export (Default value = None)</span>
+<span class="sd">        intrinsic_dict :</span>
+<span class="sd">            intrinsic dictionary needed for export (Default value = {})</span>
+<span class="sd">        variation_variable :</span>
+<span class="sd">            variation variable. Default &quot;Phi&quot;</span>
+<span class="sd">        variation_list :</span>
+<span class="sd">            list of variation values (Default value = [&#39;0deg&#39;])</span>
+<span class="sd">        project_path :</span>
+<span class="sd">            path for the export (Default value = &quot;&quot;)</span>
+<span class="sd">        meshplot :</span>
+<span class="sd">             (Default value = False)</span>
+<span class="sd">        export_gif :</span>
+<span class="sd">             (Default value = False)</span>
+<span class="sd">        off_screen :</span>
+<span class="sd">             (Default value = False)</span>
 
-<span class="sd">        :param quantityname: name of the plot to use or name o</span>
-<span class="sd">        :param object_list: optional name of the plot_folder</span>
-<span class="sd">        :param plottype: Plot Type. &quot;Surface&quot;, &quot;Volume&quot; or &quot;CutPlane&quot;</span>
-<span class="sd">        :param setup_name: name of the setup - sweep to use for the export</span>
-<span class="sd">        :param intrinsic_dict: intrinsic dictionary needed for export</span>
-<span class="sd">        :param variation_variable: variation variable. Default &quot;Phi&quot;</span>
-<span class="sd">        :param variation_list: list of variation values</span>
-<span class="sd">        :param project_path: path for the export</span>
-<span class="sd">        :return: Boolean</span>
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        type</span>
+<span class="sd">            Boolean</span>
+
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="n">project_path</span><span class="p">:</span>
             <span class="n">project_path</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_parent</span><span class="o">.</span><span class="n">project_path</span>
@@ -995,8 +1179,31 @@
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_animation_from_aedtflt</span><span class="p">(</span><span class="n">files_to_add</span><span class="p">,</span> <span class="n">variation_variable</span><span class="p">,</span> <span class="n">variation_list</span><span class="p">,</span> <span class="n">export_gif</span><span class="o">=</span><span class="n">export_gif</span><span class="p">,</span> <span class="n">off_screen</span><span class="o">=</span><span class="n">off_screen</span><span class="p">)</span></div>
 
 
-    <span class="nd">@aedt_exception_handler</span>
+<div class="viewcode-block" id="PostProcessor.far_field_plot"><a class="viewcode-back" href="../../../API/AdvancedPostProcessing.html#pyaedt.modules.AdvancedPostProcessing.PostProcessor.far_field_plot">[docs]</a>    <span class="nd">@aedt_exception_handler</span>
     <span class="k">def</span> <span class="nf">far_field_plot</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ff_data</span><span class="p">,</span> <span class="n">x</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">y</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">qty</span><span class="o">=</span><span class="s1">&#39;rETotal&#39;</span><span class="p">,</span> <span class="n">dB</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">array_size</span><span class="o">=</span><span class="p">[</span><span class="mi">4</span><span class="p">,</span> <span class="mi">4</span><span class="p">]):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        ff_data :</span>
+<span class="sd">            </span>
+<span class="sd">        x :</span>
+<span class="sd">             (Default value = 0)</span>
+<span class="sd">        y :</span>
+<span class="sd">             (Default value = 0)</span>
+<span class="sd">        qty :</span>
+<span class="sd">             (Default value = &#39;rETotal&#39;)</span>
+<span class="sd">        dB :</span>
+<span class="sd">             (Default value = True)</span>
+<span class="sd">        array_size :</span>
+<span class="sd">             (Default value = [4)</span>
+<span class="sd">        4] :</span>
+<span class="sd">            </span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
 
         <span class="n">loc_offset</span> <span class="o">=</span> <span class="mi">2</span>  <span class="c1"># if array index is not starting at [1,1]</span>
         <span class="n">xphase</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">y</span><span class="p">)</span>
@@ -1079,21 +1286,29 @@
         <span class="n">plt</span><span class="o">.</span><span class="n">imshow</span><span class="p">(</span><span class="n">qty_to_plot</span><span class="p">,</span> <span class="n">cmap</span><span class="o">=</span><span class="s1">&#39;jet&#39;</span><span class="p">)</span>
         <span class="n">plt</span><span class="o">.</span><span class="n">colorbar</span><span class="p">()</span>
 
-        <span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">qty_to_plot</span><span class="p">)</span>
+        <span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">qty_to_plot</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="PostProcessor.create_3d_plot"><a class="viewcode-back" href="../../../API/AdvancedPostProcessing.html#pyaedt.modules.AdvancedPostProcessing.PostProcessor.create_3d_plot">[docs]</a>    <span class="nd">@aedt_exception_handler</span>
     <span class="k">def</span> <span class="nf">create_3d_plot</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">solution_data</span><span class="p">,</span> <span class="n">nominal_sweep</span><span class="o">=</span><span class="s2">&quot;Freq&quot;</span><span class="p">,</span> <span class="n">nominal_value</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">primary_sweep</span><span class="o">=</span><span class="s2">&quot;Theta&quot;</span><span class="p">,</span>
                        <span class="n">secondary_sweep</span><span class="o">=</span><span class="s2">&quot;Phi&quot;</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Create 3D Plot with matplotlib.</span>
+        <span class="sd">&quot;&quot;&quot;Create 3D Plot with matplotlib.</span>
 
-<span class="sd">        :param solution_data: Solution Data Input</span>
-<span class="sd">        :param nominal_sweep: Nominal Sweep Name</span>
-<span class="sd">        :param nominal_value: Nominal Sweep Value</span>
-<span class="sd">        :param primary_sweep: Primary Sweep. Default Theta</span>
-<span class="sd">        :param secondary_sweep: Secondary Sweep. Default Phi</span>
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        solution_data :</span>
+<span class="sd">            Solution Data Input</span>
+<span class="sd">        nominal_sweep :</span>
+<span class="sd">            Nominal Sweep Name (Default value = &quot;Freq&quot;)</span>
+<span class="sd">        nominal_value :</span>
+<span class="sd">            Nominal Sweep Value (Default value = 1)</span>
+<span class="sd">        primary_sweep :</span>
+<span class="sd">            Primary Sweep. Default Theta</span>
+<span class="sd">        secondary_sweep :</span>
+<span class="sd">            Secondary Sweep. Default Phi</span>
 
-<span class="sd">        :return:</span>
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">legend</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="n">Freq</span> <span class="o">=</span> <span class="n">nominal_value</span>

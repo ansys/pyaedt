@@ -281,6 +281,19 @@
 <dt class="field-even">Returns</dt>
 <dd class="field-even"><p>bool</p>
 </dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>type</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="pyaedt.modules.MaterialLib.Materials.check_thermal_modifier_OLD">
+<code class="sig-name descname"><span class="pre">check_thermal_modifier_OLD</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">mat</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pyaedt/modules/MaterialLib.html#Materials.check_thermal_modifier_OLD"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyaedt.modules.MaterialLib.Materials.check_thermal_modifier_OLD" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>mat</strong> -- </p>
+</dd>
 </dl>
 </dd></dl>
 
@@ -295,6 +308,9 @@
 <dt class="field-even">Returns</dt>
 <dd class="field-even"><p>True/False</p>
 </dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>type</p>
+</dd>
 </dl>
 </dd></dl>
 
@@ -308,6 +324,9 @@
 </dd>
 <dt class="field-even">Returns</dt>
 <dd class="field-even"><p>matprop</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>type</p>
 </dd>
 </dl>
 </dd></dl>
@@ -325,6 +344,9 @@ The function will not update the material in</p>
 <dt class="field-even">Returns</dt>
 <dd class="field-even"><p>Material Object</p>
 </dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>type</p>
+</dd>
 </dl>
 </dd></dl>
 
@@ -340,11 +362,14 @@ enableTM: Boolean enable Thermal modifier in material description. At moment unu
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>swargs</strong> -- list of materials to be merged into single sweep material</p></li>
 <li><p><strong>matname</strong> -- name of sweep material</p></li>
-<li><p><strong>enableTM</strong> -- bool</p></li>
+<li><p><strong>enableTM</strong> -- bool (Default value = True)</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>
 <dd class="field-even"><p>name of project variable index</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>type</p>
 </dd>
 </dl>
 </dd></dl>
@@ -360,6 +385,9 @@ material args properties are loaded from the XML file database amat.xml</p>
 </dd>
 <dt class="field-even">Returns</dt>
 <dd class="field-even"><p>Material emissivity</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>type</p>
 </dd>
 </dl>
 </dd></dl>
@@ -378,6 +406,9 @@ material args properties are loaded from the XML file database amat.xml</p>
 <dt class="field-even">Returns</dt>
 <dd class="field-even"><p>new material object</p>
 </dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>type</p>
+</dd>
 </dl>
 </dd></dl>
 
@@ -391,6 +422,9 @@ material args properties are loaded from the XML file database amat.xml</p>
 </dd>
 <dt class="field-even">Returns</dt>
 <dd class="field-even"><p>Material object if exists</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>type</p>
 </dd>
 </dl>
 </dd></dl>
@@ -420,6 +454,9 @@ material args properties are loaded from the XML file database amat.xml</p>
 <dt class="field-even">Returns</dt>
 <dd class="field-even"><p>Dictionary of all material properties</p>
 </dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>type</p>
+</dd>
 </dl>
 </dd></dl>
 
@@ -431,11 +468,14 @@ material args properties are loaded from the XML file database amat.xml</p>
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>filename</strong> -- full filename paht (xml)</p></li>
-<li><p><strong>project_as_precedence</strong> -- bool</p></li>
+<li><p><strong>project_as_precedence</strong> -- bool (Default value = True)</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>
 <dd class="field-even"><p>bool</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>type</p>
 </dd>
 </dl>
 </dd></dl>
@@ -446,13 +486,36 @@ material args properties are loaded from the XML file database amat.xml</p>
 <dd><p>New Function for loading materials from XML. Previous version didn't allow read/write on the same file.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>Filename</strong> -- Complete Filename</p>
+<dd class="field-odd"><p><strong>Filename</strong> -- Complete Filename (Default value = None)</p>
 </dd>
 <dt class="field-even">Returns</dt>
 <dd class="field-even"><p>material dictionary</p>
 </dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>type</p>
+</dd>
 </dl>
 </dd></dl>
+
+<dl class="py method">
+<dt id="pyaedt.modules.MaterialLib.Materials.messenger">
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">messenger</span></code><a class="headerlink" href="#pyaedt.modules.MaterialLib.Materials.messenger" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="pyaedt.modules.MaterialLib.Materials.odefinition_manager">
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">odefinition_manager</span></code><a class="headerlink" href="#pyaedt.modules.MaterialLib.Materials.odefinition_manager" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="pyaedt.modules.MaterialLib.Materials.omaterial_manager">
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">omaterial_manager</span></code><a class="headerlink" href="#pyaedt.modules.MaterialLib.Materials.omaterial_manager" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="pyaedt.modules.MaterialLib.Materials.oproject">
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">oproject</span></code><a class="headerlink" href="#pyaedt.modules.MaterialLib.Materials.oproject" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
 
 <dl class="py method">
 <dt id="pyaedt.modules.MaterialLib.Materials.py2xmlFull">
@@ -462,11 +525,7 @@ material args properties are loaded from the XML file database amat.xml</p>
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><p><strong>filename</strong> -- name of the file to save</p>
 </dd>
-<dt class="field-even">Returns</dt>
-<dd class="field-even"><p></p>
-</dd>
 </dl>
-<p>Creates an XML File starting from a Material Library. The input is the oMat Structure array</p>
 </dd></dl>
 
 <dl class="py method">
@@ -486,6 +545,14 @@ material args properties are loaded from the XML file database amat.xml</p>
 <dt id="pyaedt.modules.MaterialLib.indent">
 <code class="sig-prename descclassname"><span class="pre">pyaedt.modules.MaterialLib.</span></code><code class="sig-name descname"><span class="pre">indent</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">elem</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">level</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pyaedt/modules/MaterialLib.html#indent"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyaedt.modules.MaterialLib.indent" title="Permalink to this definition">¶</a></dt>
 <dd><p>Creates an Indented structure of the XML</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>elem</strong> -- </p></li>
+<li><p><strong>level</strong> -- (Default value = 0)</p></li>
+</ul>
+</dd>
+</dl>
 </dd></dl>
 
 </div>

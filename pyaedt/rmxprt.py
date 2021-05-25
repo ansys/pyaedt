@@ -41,12 +41,24 @@ from .generic.general_methods import aedt_exception_handler, generate_unique_nam
 
 
 class RMXprtModule(object):
+    """ """
 
     component = None
     prop_servers = None
 
     @aedt_exception_handler
     def get_prop_server(self, parameter_name):
+        """
+
+        Parameters
+        ----------
+        parameter_name :
+            
+
+        Returns
+        -------
+
+        """
         prop_server = None
         for key, parameter_list in self.prop_servers.items():
             if parameter_name in parameter_list:
@@ -66,6 +78,19 @@ class RMXprtModule(object):
 
     @aedt_exception_handler
     def set_rmxprt_parameter(self, parameter_name, value):
+        """
+
+        Parameters
+        ----------
+        parameter_name :
+            
+        value :
+            
+
+        Returns
+        -------
+
+        """
         prop_server = self.get_prop_server(parameter_name)
         separator = ":" if prop_server else ""
         self._oeditor.ChangeProperty(
@@ -90,6 +115,7 @@ class RMXprtModule(object):
 
 
 class Stator(RMXprtModule):
+    """ """
     component = "Stator"
     prop_servers = {"":        ["Outer Diameter", "Inner Diameter", "Length", "Stacking Factor"
                                 "Steel Type", "Number of Slots", "Slot Type", "Lamination Sectors",
@@ -99,6 +125,7 @@ class Stator(RMXprtModule):
 
 
 class Rotor(RMXprtModule):
+    """ """
     component = "Rotor"
     prop_servers = {"":        ["Outer Diameter"],
                     "Slot":    [],
@@ -106,14 +133,22 @@ class Rotor(RMXprtModule):
 
 
 class Rmxprt(FieldAnalysisRMxprt):
-    """
-    RMxprt Object
+    """RMxprt Object
 
+    Parameters
+    ----------
+    projectname :
+        name of the project to be selected or full path to the project to be opened  or to the AEDTZ  archive. if None try to get active project and, if nothing present to create an empy one
+    designname :
+        name of the design to be selected. if None, try to get active design and, if nothing present to create an empy one
+    solution_type :
+        solution type to be applied to design. if None default is taken
+    setup_name :
+        setup_name to be used as nominal. if none active setup is taken or nothing
 
-    :param projectname: name of the project to be selected or full path to the project to be opened  or to the AEDTZ  archive. if None try to get active project and, if nothing present to create an empy one
-    :param designname: name of the design to be selected. if None, try to get active design and, if nothing present to create an empy one
-    :param solution_type: solution type to be applied to design. if None default is taken
-    :param setup_name: setup_name to be used as nominal. if none active setup is taken or nothing
+    Returns
+    -------
+
     """
 
     def __init__(self, projectname=None, designname=None, solution_type=None, model_units=None, setup_name=None):

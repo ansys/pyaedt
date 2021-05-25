@@ -6,16 +6,16 @@ from .PrimitivesCircuit import CircuitComponents
 
 
 class SimplorerComponents(CircuitComponents):
-    """
-    Class for management of all CircuitComponents for Simplorer
-    """
+    """Class for management of all CircuitComponents for Simplorer"""
 
     @property
     def design_libray(self):
+        """ """
         return "Simplorer Elements"
 
     @property
     def tab_name(self):
+        """ """
         return "Quantities"
 
     @aedt_exception_handler
@@ -42,17 +42,28 @@ class SimplorerComponents(CircuitComponents):
 
     @aedt_exception_handler
     def create_resistor(self, compname=None, value=50, xpos=0, ypos=0,angle=0, use_instance_id_netlist=False):
-        """
-        Create a new Resistor
+        """Create a new Resistor
 
+        Parameters
+        ----------
+        compname :
+            name (Default value = None)
+        value :
+            value (Default value = 50)
+        xpos :
+            x pos (Default value = 0)
+        ypos :
+            y pos (Default value = 0)
+        angle :
+            angle (Default value = 0)
+        use_instance_id_netlist :
+            bool (Default value = False)
 
-        :param compname: name
-        :param value: value
-        :param xpos: x pos
-        :param ypos: y pos
-        :param angle:  angle
-        :param use_instance_id_netlist: bool
-        :return: id, name
+        Returns
+        -------
+        type
+            id, name
+
         """
         id, name = self.create_component(compname, component_library="Basic Elements\\Circuit\\Passive Elements",
                                          component_name="R", xpos=xpos, ypos=ypos, angle=angle,
@@ -64,17 +75,28 @@ class SimplorerComponents(CircuitComponents):
 
     @aedt_exception_handler
     def create_inductor(self, compname=None,value=50, xpos=0, ypos=0,angle=0, use_instance_id_netlist=False):
-        """
-        Create a new Inductor
+        """Create a new Inductor
 
+        Parameters
+        ----------
+        compname :
+            name (Default value = None)
+        value :
+            value (Default value = 50)
+        xpos :
+            x pos (Default value = 0)
+        ypos :
+            y pos (Default value = 0)
+        angle :
+            angle (Default value = 0)
+        use_instance_id_netlist :
+            bool (Default value = False)
 
-        :param compname: name
-        :param value: value
-        :param xpos: x pos
-        :param ypos: y pos
-        :param angle:  angle
-        :param use_instance_id_netlist: bool
-        :return: id, name
+        Returns
+        -------
+        type
+            id, name
+
         """
         id, name = self.create_component(compname, component_library="Basic Elements\\Circuit\\Passive Elements",
                                          component_name="L", xpos=xpos, ypos=ypos, angle=angle,
@@ -85,17 +107,28 @@ class SimplorerComponents(CircuitComponents):
 
     @aedt_exception_handler
     def create_capacitor(self, compname=None,value=50, xpos=0, ypos=0, angle=0, use_instance_id_netlist=False):
-        """
-        Create a new Capacitor
+        """Create a new Capacitor
 
+        Parameters
+        ----------
+        compname :
+            name (Default value = None)
+        value :
+            value (Default value = 50)
+        xpos :
+            x pos (Default value = 0)
+        ypos :
+            y pos (Default value = 0)
+        angle :
+            angle (Default value = 0)
+        use_instance_id_netlist :
+            bool (Default value = False)
 
-        :param compname: name
-        :param value: value
-        :param xpos: x pos
-        :param ypos: y pos
-        :param angle:  angle
-        :param use_instance_id_netlist: bool
-        :return: id, name
+        Returns
+        -------
+        type
+            id, name
+
         """
         id, name = self.create_component(compname, component_library="Basic Elements\\Circuit\\Passive Elements",
                                          component_name="C", xpos=xpos, ypos=ypos, angle=angle,
@@ -107,17 +140,30 @@ class SimplorerComponents(CircuitComponents):
 
     @aedt_exception_handler
     def create_diode(self, compname=None,model_name="required", xpos=0, ypos=0, angle=0, use_instance_id_netlist=False):
-        """
-        Create a new Diode
+        """Create a new Diode
 
+        Parameters
+        ----------
+        compname :
+            name (Default value = None)
+        value :
+            value
+        xpos :
+            x pos (Default value = 0)
+        ypos :
+            y pos (Default value = 0)
+        angle :
+            angle (Default value = 0)
+        use_instance_id_netlist :
+            bool (Default value = False)
+        model_name :
+             (Default value = "required")
 
-        :param compname: name
-        :param value: value
-        :param xpos: x pos
-        :param ypos: y pos
-        :param angle:  angle
-        :param use_instance_id_netlist: bool
-        :return: id, name
+        Returns
+        -------
+        type
+            id, name
+
         """
         id, name = self.create_component(compname,
                                          component_library="Basic Elements\\Circuit\\Semiconductors System Level",
@@ -127,17 +173,28 @@ class SimplorerComponents(CircuitComponents):
 
     @aedt_exception_handler
     def create_npn(self, compname=None, value=None, xpos=0, ypos=0, angle=0, use_instance_id_netlist=False):
-        """
-        Create a new Transistor NPN
+        """Create a new Transistor NPN
 
+        Parameters
+        ----------
+        compname :
+            name (Default value = None)
+        value :
+            value (Default value = None)
+        xpos :
+            x pos (Default value = 0)
+        ypos :
+            y pos (Default value = 0)
+        angle :
+            angle (Default value = 0)
+        use_instance_id_netlist :
+            bool (Default value = False)
 
-        :param compname: name
-        :param value: value
-        :param xpos: x pos
-        :param ypos: y pos
-        :param angle:  angle
-        :param use_instance_id_netlist: bool
-        :return: id, name
+        Returns
+        -------
+        type
+            id, name
+
         """
         id, name = self.create_component(compname,
                                          component_library="Basic Elements\\Circuit\\Semiconductors System Level",
@@ -147,17 +204,28 @@ class SimplorerComponents(CircuitComponents):
 
     @aedt_exception_handler
     def create_pnp(self, compname=None,value=50, xpos=0, ypos=0, angle=0, use_instance_id_netlist=False):
-        """
-        Create a new Transistor PNP
+        """Create a new Transistor PNP
 
+        Parameters
+        ----------
+        compname :
+            name (Default value = None)
+        value :
+            value (Default value = 50)
+        xpos :
+            x pos (Default value = 0)
+        ypos :
+            y pos (Default value = 0)
+        angle :
+            angle (Default value = 0)
+        use_instance_id_netlist :
+            bool (Default value = False)
 
-        :param compname: name
-        :param value: value
-        :param xpos: x pos
-        :param ypos: y pos
-        :param angle:  angle
-        :param use_instance_id_netlist: bool
-        :return: id, name
+        Returns
+        -------
+        type
+            id, name
+
         """
         id, name = self.create_component(compname,
                                          component_library="Basic Elements\\Circuit\\Semiconductors System Level",

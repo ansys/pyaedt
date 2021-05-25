@@ -245,13 +245,16 @@ It is automatically initialized by Application call (like HFSS, Q3D...). Refer t
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>setupname</strong> -- optional, name of the new setup</p></li>
+<li><p><strong>setupname</strong> -- optional, name of the new setup (Default value = &quot;MySetupAuto&quot;)</p></li>
 <li><p><strong>setuptype</strong> -- optional, setup type. if None, default type will be applied</p></li>
-<li><p><strong>props</strong> -- optional dictionary of properties with values</p></li>
+<li><p><strong>props</strong> -- optional dictionary of properties with values (Default value = {})</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>
 <dd class="field-even"><p>setup object</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>type</p>
 </dd>
 </dl>
 </dd></dl>
@@ -259,8 +262,7 @@ It is automatically initialized by Application call (like HFSS, Q3D...). Refer t
 <dl class="py method">
 <dt id="pyaedt.application.AnalysisNexxim.FieldAnalysisCircuit.existing_analysis_setups">
 <em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">existing_analysis_setups</span></code><a class="headerlink" href="#pyaedt.application.AnalysisNexxim.FieldAnalysisCircuit.existing_analysis_setups" title="Permalink to this definition">¶</a></dt>
-<dd><p>Return a list of all defined analysis setup names in the maxwell design.</p>
-</dd></dl>
+<dd></dd></dl>
 
 <dl class="py method">
 <dt id="pyaedt.application.AnalysisNexxim.FieldAnalysisCircuit.get_all_insertion_loss_list">
@@ -271,14 +273,17 @@ Example: excitation_names [&quot;1&quot;] [&quot;2&quot;] output [&quot;S(1,2)&q
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>trlist</strong> -- list of Drivers to include</p></li>
-<li><p><strong>reclist</strong> -- list of Receiver to include. Number of Driver = Number of Receiver an</p></li>
-<li><p><strong>tx_prefix</strong> -- prefix for TX (eg. &quot;DIE&quot;)</p></li>
-<li><p><strong>rx_prefix</strong> -- prefix for RX (eg. &quot;BGA&quot;)</p></li>
+<li><p><strong>trlist</strong> -- list of Drivers to include (Default value = [])</p></li>
+<li><p><strong>reclist</strong> -- list of Receiver to include. Number of Driver = Number of Receiver an (Default value = [])</p></li>
+<li><p><strong>tx_prefix</strong> -- prefix for TX (eg. &quot;DIE&quot;) (Default value = '')</p></li>
+<li><p><strong>rx_prefix</strong> -- prefix for RX (eg. &quot;BGA&quot;) (Default value = '')</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>
 <dd class="field-even"><p>list of string representing Insertion Losses of excitations</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>type</p>
 </dd>
 </dl>
 </dd></dl>
@@ -290,10 +295,16 @@ Example: excitation_names [&quot;1&quot;] [&quot;2&quot;] output [&quot;S(1,2)&q
 Example: excitation_names [&quot;1&quot;,&quot;2&quot;] output [&quot;S(1,1)&quot;,, S(2,2)]</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>excitation_names</strong> -- list of excitation to include</p>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>excitation_names</strong> -- list of excitation to include (Default value = [])</p></li>
+<li><p><strong>excitation_name_prefix</strong> -- (Default value = '')</p></li>
+</ul>
 </dd>
 <dt class="field-even">Returns</dt>
 <dd class="field-even"><p>list of string representing Return Losses of excitations</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>type</p>
 </dd>
 </dl>
 </dd></dl>
@@ -305,10 +316,13 @@ Example: excitation_names [&quot;1&quot;,&quot;2&quot;] output [&quot;S(1,1)&quo
 Example: excitation_names [&quot;1&quot;,&quot;2&quot;] output [&quot;S(1,1)&quot;, &quot;S(1,2)&quot;, S(2,2)]</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>excitation_names</strong> -- list of excitation to include</p>
+<dd class="field-odd"><p><strong>excitation_names</strong> -- list of excitation to include (Default value = [])</p>
 </dd>
 <dt class="field-even">Returns</dt>
 <dd class="field-even"><p>list of strin representing Sparameters of excitations</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>type</p>
 </dd>
 </dl>
 </dd></dl>
@@ -334,15 +348,18 @@ Example: excitation_names [&quot;1&quot;, &quot;2&quot;] [&quot;3&quot;,&quot;4&
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>trlist</strong> -- list of Drivers to include</p></li>
-<li><p><strong>tx_prefix</strong> -- prefix for TX (eg. &quot;DIE&quot;)</p></li>
-<li><p><strong>reclist</strong> -- list of Receiver to include</p></li>
-<li><p><strong>rx_prefix</strong> -- prefix for RX (eg. &quot;BGA&quot;)</p></li>
-<li><p><strong>skip_same_index_couples</strong> -- Boolean ignore TX and RX couple with same index</p></li>
+<li><p><strong>trlist</strong> -- list of Drivers to include (Default value = [])</p></li>
+<li><p><strong>tx_prefix</strong> -- prefix for TX (eg. &quot;DIE&quot;) (Default value = '')</p></li>
+<li><p><strong>reclist</strong> -- list of Receiver to include (Default value = [])</p></li>
+<li><p><strong>rx_prefix</strong> -- prefix for RX (eg. &quot;BGA&quot;) (Default value = '')</p></li>
+<li><p><strong>skip_same_index_couples</strong> -- Boolean ignore TX and RX couple with same index (Default value = True)</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>
 <dd class="field-even"><p>list of string representing Far End XTalks</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>type</p>
 </dd>
 </dl>
 </dd></dl>
@@ -356,12 +373,15 @@ Example: excitation_names [&quot;1&quot;, &quot;2&quot;, &quot;3&quot;] output [
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>trlist</strong> -- list of Drivers to include</p></li>
-<li><p><strong>tx_prefix</strong> -- prefix for TX (eg. &quot;DIE&quot;)</p></li>
+<li><p><strong>trlist</strong> -- list of Drivers to include (Default value = [])</p></li>
+<li><p><strong>tx_prefix</strong> -- prefix for TX (eg. &quot;DIE&quot;) (Default value = &quot;&quot;)</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>
 <dd class="field-even"><p>list of string representing Near End XTalks</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>type</p>
 </dd>
 </dl>
 </dd></dl>
@@ -377,47 +397,36 @@ Example: excitation_names [&quot;1&quot;, &quot;2&quot;, &quot;3&quot;] output [
 <dt class="field-even">Returns</dt>
 <dd class="field-even"><p>setup object</p>
 </dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>type</p>
+</dd>
 </dl>
 </dd></dl>
 
 <dl class="py method">
 <dt id="pyaedt.application.AnalysisNexxim.FieldAnalysisCircuit.modeler">
 <em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">modeler</span></code><a class="headerlink" href="#pyaedt.application.AnalysisNexxim.FieldAnalysisCircuit.modeler" title="Permalink to this definition">¶</a></dt>
-<dd><p>modeler object</p>
-<dl class="field-list simple">
-<dt class="field-odd">Type</dt>
-<dd class="field-odd"><p>return</p>
-</dd>
-</dl>
-</dd></dl>
+<dd></dd></dl>
 
 <dl class="py method">
 <dt id="pyaedt.application.AnalysisNexxim.FieldAnalysisCircuit.nominal_sweep">
 <em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">nominal_sweep</span></code><a class="headerlink" href="#pyaedt.application.AnalysisNexxim.FieldAnalysisCircuit.nominal_sweep" title="Permalink to this definition">¶</a></dt>
-<dd><p>Return a list of all defined analysis setup names in the maxwell design.</p>
-</dd></dl>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="pyaedt.application.AnalysisNexxim.FieldAnalysisCircuit.oanalysis">
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">oanalysis</span></code><a class="headerlink" href="#pyaedt.application.AnalysisNexxim.FieldAnalysisCircuit.oanalysis" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
 
 <dl class="py method">
 <dt id="pyaedt.application.AnalysisNexxim.FieldAnalysisCircuit.setup_names">
 <em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">setup_names</span></code><a class="headerlink" href="#pyaedt.application.AnalysisNexxim.FieldAnalysisCircuit.setup_names" title="Permalink to this definition">¶</a></dt>
-<dd><p>Setup Lists</p>
-<dl class="field-list simple">
-<dt class="field-odd">Returns</dt>
-<dd class="field-odd"><p>list of all defined analysis setup names in the design</p>
-</dd>
-</dl>
-</dd></dl>
+<dd></dd></dl>
 
 <dl class="py method">
 <dt id="pyaedt.application.AnalysisNexxim.FieldAnalysisCircuit.solution_type">
 <em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">solution_type</span></code><a class="headerlink" href="#pyaedt.application.AnalysisNexxim.FieldAnalysisCircuit.solution_type" title="Permalink to this definition">¶</a></dt>
-<dd><p>Property</p>
-<dl class="field-list simple">
-<dt class="field-odd">Returns</dt>
-<dd class="field-odd"><p>Solution Type</p>
-</dd>
-</dl>
-</dd></dl>
+<dd></dd></dl>
 
 </dd></dl>
 

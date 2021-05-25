@@ -5,9 +5,7 @@ from .GeometryOperators import GeometryOperators
 import os
 
 class Primitives3D(Primitives, object):
-    """
-    Class for management of all Primitives of 3D Tools
-    """
+    """Class for management of all Primitives of 3D Tools"""
 
     def __init__(self, parent, modeler):
         Primitives.__init__(self, parent, modeler)
@@ -15,21 +13,32 @@ class Primitives3D(Primitives, object):
     @aedt_exception_handler
     def create_box(self, position, dimensions_list, name=None, matname=None):
         """Create a Box
+        
 
-        :example:
+        Parameters
+        ----------
+        position :
+            ApplicationName.modeler.Position(x,y,z) object
+        dimensions_list :
+            list of dimensions of X, Y, Z
+        name :
+            box name. Optional, if nothing default name will be assigned
+        matname :
+            material name. Optional, if nothing default material will be assigned
 
+        Returns
+        -------
+        int
+            Box ID
+
+        Examples
+        _________
         >>> from pyaedt import HFSS
         >>> hfss = HFSS()
         >>> origin = [0,0,0]
         >>> dimensions = [10,5,20]
         >>> #Material and name are not mandatory fields
         >>> object_id = hfss.modeler.primivites.create_box(origin, dimensions, name="mybox", matname="copper")
-
-        :param position: ApplicationName.modeler.Position(x,y,z) object
-        :param dimensions_list: list of dimensions of X, Y, Z
-        :param name: box name. Optional, if nothing default name will be assigned
-        :param matname: material name. Optional, if nothing default material will be assigned
-        :return: Box ID
         """
         id = self._new_id()
         o = self.objects[id]
@@ -60,13 +69,26 @@ class Primitives3D(Primitives, object):
     def create_circle(self, cs_plane, position, radius, numSides=0, name=None, matname=None):
         """Create a circle
 
-        :param cs_plane: ApplicationName.CoordinateSystemPlane object
-        :param position: ApplicationName.modeler.Position(x,y,z) object
-        :param radius: radius float
-        :param numSides: Number of sides. 0 for circle
-        :param name: Object Name
-        :param matname: material name. Optional, if nothing default material will be assigned
-        :return: id
+        Parameters
+        ----------
+        cs_plane :
+            ApplicationName.CoordinateSystemPlane object
+        position :
+            ApplicationName.modeler.Position(x,y,z) object
+        radius :
+            radius float
+        numSides :
+            Number of sides. 0 for circle (Default value = 0)
+        name :
+            Object Name (Default value = None)
+        matname :
+            material name. Optional, if nothing default material will be assigned
+
+        Returns
+        -------
+        type
+            id
+
         """
         id = self._new_id()
 
@@ -93,16 +115,22 @@ class Primitives3D(Primitives, object):
 
     @aedt_exception_handler
     def create_sphere(self, position, radius, name=None, matname=None):
-        """
-        Create a sphere
+        """Create a sphere
 
+        Parameters
+        ----------
+        position :
+            ApplicationName.modeler.Position(x,y,z) object
+        radius :
+            radius float
+        name :
+            Object Name (Default value = None)
+        matname :
+            material name. Optional, if nothing default material will be assigned
 
-        :param position: ApplicationName.modeler.Position(x,y,z) object
-        :param radius: radius float
-        :param name: Object Name
-        :param matname: material name. Optional, if nothing default material will be assigned
+        Returns
+        -------
 
-        :return:
         """
         id = self._new_id()
 
@@ -126,19 +154,28 @@ class Primitives3D(Primitives, object):
 
     @aedt_exception_handler
     def create_cylinder(self, cs_axis, position, radius, height, numSides=0, name=None, matname=None):
-        """
-        Create a cylinder
+        """Create a cylinder
 
+        Parameters
+        ----------
+        cs_axis :
+            ApplicationName.CoordinateSystemAxis object
+        position :
+            ApplicationName.modeler.Position(x,y,z) object
+        radius :
+            radius float
+        height :
+            height float
+        numSides :
+            Number of sides. 0 for circle (Default value = 0)
+        name :
+            Object Name (Default value = None)
+        matname :
+            material name. Optional, if nothing default material will be assigned
 
-        :param cs_axis: ApplicationName.CoordinateSystemAxis object
-        :param position: ApplicationName.modeler.Position(x,y,z) object
-        :param radius: radius float
-        :param height: height float
-        :param numSides: Number of sides. 0 for circle
-        :param name: Object Name
-        :param matname: material name. Optional, if nothing default material will be assigned
+        Returns
+        -------
 
-        :return:
         """
         id = self._new_id()
 
@@ -169,19 +206,28 @@ class Primitives3D(Primitives, object):
 
     @aedt_exception_handler
     def create_ellipse(self, cs_plane, position, major_raidus, ratio, bIsCovered=True, name=None, matname=None):
-        """
-        Create a ellipse
+        """Create a ellipse
 
+        Parameters
+        ----------
+        cs_plane :
+            ApplicationName.CoordinateSystemPlane object
+        position :
+            ApplicationName.modeler.Position(x,y,z) object
+        major_raidus :
+            radius float
+        ratio :
+            Ratio float
+        bIsCovered :
+            Boolean (Default value = True)
+        name :
+            Object Name (Default value = None)
+        matname :
+            material name. Optional, if nothing default material will be assigned
 
-        :param cs_plane: ApplicationName.CoordinateSystemPlane object
-        :param position: ApplicationName.modeler.Position(x,y,z) object
-        :param major_raidus: radius float
-        :param ratio: Ratio float
-        :param bIsCovered: Boolean
-        :param name: Object Name
-        :param matname: material name. Optional, if nothing default material will be assigned
+        Returns
+        -------
 
-        :return:
         """
         id = self._new_id()
 
@@ -215,6 +261,21 @@ class Primitives3D(Primitives, object):
 
     @aedt_exception_handler
     def create_equationbased_curve(self, udpequationbasedcurveddefinition, name=None, matname=None):
+        """
+
+        Parameters
+        ----------
+        udpequationbasedcurveddefinition :
+            
+        name :
+             (Default value = None)
+        matname :
+             (Default value = None)
+
+        Returns
+        -------
+
+        """
         # TODO Test
         id = self._new_id()
 
@@ -230,6 +291,17 @@ class Primitives3D(Primitives, object):
 
     @aedt_exception_handler
     def create_helix(self, udphelixdefinition):
+        """
+
+        Parameters
+        ----------
+        udphelixdefinition :
+            
+
+        Returns
+        -------
+
+        """
         # TODO Test
         id = udphelixdefinition.ProfileID
 
@@ -248,17 +320,28 @@ class Primitives3D(Primitives, object):
     @aedt_exception_handler
     def create_polyline_with_crosssection(self, polylinename, crosssectiontype="Rectangle", width=1, height=1,
                                           bendtype="Corner", orientation="Auto"):
-        """
-        Create a 3D object from polyline and sheet
+        """Create a 3D object from polyline and sheet
 
+        Parameters
+        ----------
+        polylinename :
+            name of polyline
+        crosssectiontype :
+            type of crossection. "Rectangle", "Circle"... (Default value = "Rectangle")
+        width :
+            width of crossection (Default value = 1)
+        height :
+            height of crosssection if Rectangle. Number of Segments if Circle (Default value = 1)
+        bendtype :
+            bend type. Default "Corner".
+        orientation :
+            orientation. Default "Auto"
 
-        :param polylinename: name of polyline
-        :param crosssectiontype: type of crossection. "Rectangle", "Circle"...
-        :param width: width of crossection
-        :param height: height of crosssection if Rectangle. Number of Segments if Circle
-        :param bendtype: bend type. Default "Corner".
-        :param orientation: orientation. Default "Auto"
-        :return: Bool
+        Returns
+        -------
+        type
+            Bool
+
         """
         arg1 = ["NAME:AllTabs"]
         arg2 = ["NAME:Geometry3DCmdTab", ["NAME:PropServers", polylinename + ":CreatePolyline:1"]]
@@ -284,11 +367,18 @@ class Primitives3D(Primitives, object):
 
     @aedt_exception_handler
     def convert_segments_to_line(self, object_name):
-        """
-        Convert a CreatePolyline list of segment into lines. it applies to splines and 3 points args
+        """Convert a CreatePolyline list of segment into lines. it applies to splines and 3 points args
 
-        :param object_name: object id or object name
-        :return: Bool
+        Parameters
+        ----------
+        object_name :
+            object id or object name
+
+        Returns
+        -------
+        type
+            Bool
+
         """
         if type(object_name) is int:
             object_name = self.objects[object_name].name
@@ -316,12 +406,20 @@ class Primitives3D(Primitives, object):
 
     @aedt_exception_handler
     def delete_edges_from_polilyne(self, objectname, edge_to_delete):
-        """
-        Delete edges in a polilyne
+        """Delete edges in a polilyne
 
-        :param objectname:name of the polyline
-        :param edge_to_delete: list of ids of edge in polynes. it is an integer from 0 to (num_edges of the polyline-1)
-        :return: Bool
+        Parameters
+        ----------
+        objectname :
+            name of the polyline
+        edge_to_delete :
+            list of ids of edge in polynes. it is an integer from 0 to (num_edges of the polyline-1)
+
+        Returns
+        -------
+        type
+            Bool
+
         """
         if type(objectname) is int:
             objectname = self.objects[objectname].name
@@ -336,17 +434,26 @@ class Primitives3D(Primitives, object):
 
     @aedt_exception_handler
     def create_rectangle(self, cs_plane, position, dimension_list, name=None, matname=None):
-        """
-        Create a rectangle
+        """Create a rectangle
 
+        Parameters
+        ----------
+        cs_plane : CoordinateSystemPlane
+            CoordinateSystem Plane
+        position :
+            ApplicationName.modeler.Position(x,y,z) object
+        dimension_list :
+            dimension list
+        name :
+            Object Name (Default value = None)
+        matname :
+            material name. Optional, if nothing default material will be assigned
 
-        :param cs_plane: CoordinateSystem Plane
-        :type cs_plane: CoordinateSystemPlane
-        :param position: ApplicationName.modeler.Position(x,y,z) object
-        :param dimension_list: dimension list
-        :param name: Object Name
-        :param matname: material name. Optional, if nothing default material will be assigned
-        :return: id
+        Returns
+        -------
+        type
+            id
+
         """
         id = self._new_id()
 
@@ -376,12 +483,24 @@ class Primitives3D(Primitives, object):
     def create_udp(self, udp_dll_name, udp_parameters_list, upd_library='syslib', name=None, udptye="Solid"):
         """Create User Defined Primitive
 
-        :param udp_dll_name: dll name
-        :param udp_parameters_list: udp pairs object
-        :param upd_library: udp library
-        :param name: component name
-        :param udptye: udpy type
-        :return: object ID
+        Parameters
+        ----------
+        udp_dll_name :
+            dll name
+        udp_parameters_list :
+            udp pairs object
+        upd_library :
+            udp library (Default value = 'syslib')
+        name :
+            component name (Default value = None)
+        udptye :
+            udpy type (Default value = "Solid")
+
+        Returns
+        -------
+        type
+            object ID
+
         """
         id = self._new_id()
 
@@ -412,10 +531,20 @@ class Primitives3D(Primitives, object):
     def create_udm(self, udmfullname, udm_params_list, udm_library='syslib'):
         """Create User Defined Model
 
-        :param udmfullname: udm full name including folder
-        :param udm_params_list: udpm pairs object
-        :param udm_library: udp library
-        :return: object ID
+        Parameters
+        ----------
+        udmfullname :
+            udm full name including folder
+        udm_params_list :
+            udpm pairs object
+        udm_library :
+            udp library (Default value = 'syslib')
+
+        Returns
+        -------
+        type
+            object ID
+
         """
         #id = self._new_id()
 
@@ -472,19 +601,30 @@ class Primitives3D(Primitives, object):
 
     @aedt_exception_handler
     def create_cone(self, cs_axis, position, bottom_radius, top_radius, height, name=None, matname=None):
-        """
-        Create a cone
+        """Create a cone
 
+        Parameters
+        ----------
+        cs_axis : CoordinateSystemAxis
+            CoordinateSystem Axis
+        position :
+            ApplicationName.modeler.Position(x,y,z) object
+        bottom_radius :
+            bottom radius
+        top_radius :
+            topradius radius
+        height :
+            height
+        name :
+            Object Name (Default value = None)
+        matname :
+            material name. Optional, if nothing default material will be assigned
 
-        :param cs_axis: CoordinateSystem Axis
-        :type cs_axis: CoordinateSystemAxis
-        :param position: ApplicationName.modeler.Position(x,y,z) object
-        :param bottom_radius: bottom radius
-        :param top_radius: topradius radius
-        :param height: height
-        :param name: Object Name
-        :param matname: material name. Optional, if nothing default material will be assigned
-        :return: id
+        Returns
+        -------
+        type
+            id
+
         """
         id = self._new_id()
 
@@ -514,15 +654,24 @@ class Primitives3D(Primitives, object):
 
     @aedt_exception_handler
     def insert_3d_component(self, compFile, geoParams, szMatParams='', szDesignParams='', targetCS='Global'):
-        """
-        Insert a new 3d Compoent object
+        """Insert a new 3d Compoent object
 
-        :param compFile:Compoent file
-        :param geoParams: Geometrical Parameters
-        :param szMatParams: Material Parameters
-        :param szDesignParams: Design Parameters
-        :param targetCS: Target Coordinate System
-        :return:
+        Parameters
+        ----------
+        compFile :
+            Compoent file
+        geoParams :
+            Geometrical Parameters
+        szMatParams :
+            Material Parameters (Default value = '')
+        szDesignParams :
+            Design Parameters (Default value = '')
+        targetCS :
+            Target Coordinate System (Default value = 'Global')
+
+        Returns
+        -------
+
         """
         id = self._new_id()
 
@@ -559,12 +708,18 @@ class Primitives3D(Primitives, object):
 
     @aedt_exception_handler
     def get_3d_component_object_list(self, componentname):
-        """
-        Given a 3DComponent it returns the list of all objects belonging to it
+        """Given a 3DComponent it returns the list of all objects belonging to it
 
+        Parameters
+        ----------
+        componentname :
+            3DComponent Name
 
-        :param componentname: 3DComponent Name
-        :return: List of objects
+        Returns
+        -------
+        type
+            List of objects
+
         """
         compobj = self.oeditor.GetChildObject(componentname)
         if compobj:
@@ -574,19 +729,24 @@ class Primitives3D(Primitives, object):
 
     @aedt_exception_handler
     def get_all_solids_names(self, refresh_list=False):
-        """
-        get all solids names in the design
+        """get all solids names in the design
 
+        Parameters
+        ----------
+        refresh_list :
+            bool, force the refresh of objects (Default value = False)
 
-        :param refresh_list: bool, force the refresh of objects
-        :return: list of the solids names
+        Returns
+        -------
+        type
+            list of the solids names
+
         """
         return self.get_all_objects_names(refresh_list=refresh_list, get_solids=True, get_sheets=False, get_lines=False)
 
     @aedt_exception_handler
     def get_face_normal(self, faceId, bounding_box=None):
-        """
-        Get the face normal.
+        """Get the face normal.
         Limitations:
         - the face must be planar.
         - Currently it works only if the face has at least two vertices. Notable excluded items are circles and
@@ -595,10 +755,18 @@ class Primitives3D(Primitives, object):
         Usually the bounding box refers to a volume where the face lies.
         If no bounding box is specified, the normal can be inward or outward the volume.
 
+        Parameters
+        ----------
+        faceId :
+            part ID (integer).
+        bounding_box :
+            optional, bounding box in the form [x_min, y_min, z_min, x_Max, y_Max, z_Max] (Default value = None)
 
-        :param faceId: part ID (integer).
-        :param bounding_box: optional, bounding box in the form [x_min, y_min, z_min, x_Max, y_Max, z_Max]
-        :return: normal versor (normalized [x, y, z]) or None.
+        Returns
+        -------
+        type
+            normal versor (normalized [x, y, z]) or None.
+
         """
         vertices_ids = self.get_face_vertices(faceId)
         if len(vertices_ids) < 2:

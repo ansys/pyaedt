@@ -257,6 +257,19 @@
 <em class="property"><span class="pre">class</span> </em><code class="sig-prename descclassname"><span class="pre">pyaedt.modules.LayerStackup.</span></code><code class="sig-name descname"><span class="pre">Layer</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">editor</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">type</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'signal'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">layerunits</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'mm'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">roughunit</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'um'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pyaedt/modules/LayerStackup.html#Layer"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyaedt.modules.LayerStackup.Layer" title="Permalink to this definition">¶</a></dt>
 <dd><p>description of class</p>
 <dl class="py method">
+<dt id="pyaedt.modules.LayerStackup.Layer.arg_with_dim">
+<code class="sig-name descname"><span class="pre">arg_with_dim</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">Value</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sUnits</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pyaedt/modules/LayerStackup.html#Layer.arg_with_dim"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyaedt.modules.LayerStackup.Layer.arg_with_dim" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>Value</strong> -- </p></li>
+<li><p><strong>sUnits</strong> -- (Default value = None)</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
 <dt id="pyaedt.modules.LayerStackup.Layer.create_stackup_layer">
 <code class="sig-name descname"><span class="pre">create_stackup_layer</span></code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pyaedt/modules/LayerStackup.html#Layer.create_stackup_layer"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyaedt.modules.LayerStackup.Layer.create_stackup_layer" title="Permalink to this definition">¶</a></dt>
 <dd><p>Create a new stackup layer</p>
@@ -268,12 +281,161 @@
 </dd></dl>
 
 <dl class="py method">
+<dt id="pyaedt.modules.LayerStackup.Layer.remove_stackup_layer">
+<code class="sig-name descname"><span class="pre">remove_stackup_layer</span></code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pyaedt/modules/LayerStackup.html#Layer.remove_stackup_layer"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyaedt.modules.LayerStackup.Layer.remove_stackup_layer" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="pyaedt.modules.LayerStackup.Layer.set_layer_color">
+<code class="sig-name descname"><span class="pre">set_layer_color</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">r</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">g</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">b</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pyaedt/modules/LayerStackup.html#Layer.set_layer_color"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyaedt.modules.LayerStackup.Layer.set_layer_color" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>r</strong> -- </p></li>
+<li><p><strong>g</strong> -- </p></li>
+<li><p><strong>b</strong> -- </p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
 <dt id="pyaedt.modules.LayerStackup.Layer.update_stackup_layer">
 <code class="sig-name descname"><span class="pre">update_stackup_layer</span></code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pyaedt/modules/LayerStackup.html#Layer.update_stackup_layer"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyaedt.modules.LayerStackup.Layer.update_stackup_layer" title="Permalink to this definition">¶</a></dt>
 <dd><p>Works from 2021R1
 :return:</p>
 </dd></dl>
 
+<dl class="py method">
+<dt id="pyaedt.modules.LayerStackup.Layer.visflag">
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">visflag</span></code><a class="headerlink" href="#pyaedt.modules.LayerStackup.Layer.visflag" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt id="pyaedt.modules.LayerStackup.Layers">
+<em class="property"><span class="pre">class</span> </em><code class="sig-prename descclassname"><span class="pre">pyaedt.modules.LayerStackup.</span></code><code class="sig-name descname"><span class="pre">Layers</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">parent</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">modeler</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">roughnessunits</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'um'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pyaedt/modules/LayerStackup.html#Layers"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyaedt.modules.LayerStackup.Layers" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="py method">
+<dt id="pyaedt.modules.LayerStackup.Layers.LengthUnit">
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">LengthUnit</span></code><a class="headerlink" href="#pyaedt.modules.LayerStackup.Layers.LengthUnit" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="pyaedt.modules.LayerStackup.Layers.add_layer">
+<code class="sig-name descname"><span class="pre">add_layer</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">layername</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">layertype</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'signal'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">thickness</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'0mm'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">elevation</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'0mm'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">material</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'copper'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pyaedt/modules/LayerStackup.html#Layers.add_layer"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyaedt.modules.LayerStackup.Layers.add_layer" title="Permalink to this definition">¶</a></dt>
+<dd><p>Add a new layer</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>layername</strong> -- name of the layer</p></li>
+<li><p><strong>layertype</strong> -- tyep of the layer (Default value = &quot;signal&quot;)</p></li>
+<li><p><strong>thickness</strong> -- thickness with units (Default value = &quot;0mm&quot;)</p></li>
+<li><p><strong>elevation</strong> -- elevation with units (Default value = &quot;0mm&quot;)</p></li>
+<li><p><strong>material</strong> -- material (Default value = &quot;copper&quot;)</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>layer object</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>type</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="pyaedt.modules.LayerStackup.Layers.all_diel_layers">
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">all_diel_layers</span></code><a class="headerlink" href="#pyaedt.modules.LayerStackup.Layers.all_diel_layers" title="Permalink to this definition">¶</a></dt>
+<dd><p>All dielectric Layers</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>return</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="pyaedt.modules.LayerStackup.Layers.all_layers">
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">all_layers</span></code><a class="headerlink" href="#pyaedt.modules.LayerStackup.Layers.all_layers" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="pyaedt.modules.LayerStackup.Layers.all_signal_layers">
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">all_signal_layers</span></code><a class="headerlink" href="#pyaedt.modules.LayerStackup.Layers.all_signal_layers" title="Permalink to this definition">¶</a></dt>
+<dd><p>All signal Layers</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>return</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="pyaedt.modules.LayerStackup.Layers.layer_id">
+<code class="sig-name descname"><span class="pre">layer_id</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pyaedt/modules/LayerStackup.html#Layers.layer_id"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyaedt.modules.LayerStackup.Layers.layer_id" title="Permalink to this definition">¶</a></dt>
+<dd><p>:return:Layer ID if name exists</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>name</strong> -- </p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="pyaedt.modules.LayerStackup.Layers.messenger">
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">messenger</span></code><a class="headerlink" href="#pyaedt.modules.LayerStackup.Layers.messenger" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="pyaedt.modules.LayerStackup.Layers.modeler">
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">modeler</span></code><a class="headerlink" href="#pyaedt.modules.LayerStackup.Layers.modeler" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="pyaedt.modules.LayerStackup.Layers.oeditor">
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">oeditor</span></code><a class="headerlink" href="#pyaedt.modules.LayerStackup.Layers.oeditor" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="pyaedt.modules.LayerStackup.Layers.refresh_all_layers">
+<code class="sig-name descname"><span class="pre">refresh_all_layers</span></code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pyaedt/modules/LayerStackup.html#Layers.refresh_all_layers"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyaedt.modules.LayerStackup.Layers.refresh_all_layers" title="Permalink to this definition">¶</a></dt>
+<dd><p>:return:Refresh all layers in current stackup</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py function">
+<dt id="pyaedt.modules.LayerStackup.conv_number">
+<code class="sig-prename descclassname"><span class="pre">pyaedt.modules.LayerStackup.</span></code><code class="sig-name descname"><span class="pre">conv_number</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="pre">number</span></em>, <em class="sig-param"><span class="pre">typen=&lt;class</span> <span class="pre">'float'&gt;</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pyaedt/modules/LayerStackup.html#conv_number"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyaedt.modules.LayerStackup.conv_number" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>number</strong> -- </p></li>
+<li><p><strong>typen</strong> -- (Default value = float)</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="pyaedt.modules.LayerStackup.getIfromRGB">
+<code class="sig-prename descclassname"><span class="pre">pyaedt.modules.LayerStackup.</span></code><code class="sig-name descname"><span class="pre">getIfromRGB</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">rgb</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pyaedt/modules/LayerStackup.html#getIfromRGB"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyaedt.modules.LayerStackup.getIfromRGB" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>rgb</strong> -- </p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="pyaedt.modules.LayerStackup.str2bool">
+<code class="sig-prename descclassname"><span class="pre">pyaedt.modules.LayerStackup.</span></code><code class="sig-name descname"><span class="pre">str2bool</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">str0</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pyaedt/modules/LayerStackup.html#str2bool"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyaedt.modules.LayerStackup.str2bool" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>str0</strong> -- </p>
+</dd>
+</dl>
 </dd></dl>
 
 </div>

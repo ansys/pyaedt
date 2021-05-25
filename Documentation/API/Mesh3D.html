@@ -229,7 +229,8 @@
 <em class="property"><span class="pre">class</span> </em><code class="sig-prename descclassname"><span class="pre">pyaedt.modules.Mesh.</span></code><code class="sig-name descname"><span class="pre">Mesh</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">parent</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pyaedt/modules/Mesh.html#Mesh"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyaedt.modules.Mesh.Mesh" title="Permalink to this definition">¶</a></dt>
 <dd><p>&quot;&quot;
 Manage Main AEDT Mesh Functions
-AEDTConfig Class Inherited contains all the _desktop Hierarchical calls needed to the class</p>
+AEDTConfig Class Inherited contains all the _desktop Hierarchical calls needed to the class
+&quot;&quot;</p>
 <dl class="py method">
 <dt id="pyaedt.modules.Mesh.Mesh.appy_curvature_extraction">
 <code class="sig-name descname"><span class="pre">appy_curvature_extraction</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">names</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">disable_for_faceted_surf</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">meshop_name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pyaedt/modules/Mesh.html#Mesh.appy_curvature_extraction"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyaedt.modules.Mesh.Mesh.appy_curvature_extraction" title="Permalink to this definition">¶</a></dt>
@@ -237,12 +238,15 @@ AEDTConfig Class Inherited contains all the _desktop Hierarchical calls needed t
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>names</strong> -- object lists. it can be a list of objects or faces</p></li>
-<li><p><strong>disable_for_faceted_surf</strong> -- True if enabled</p></li>
-<li><p><strong>meshop_name</strong> -- optional mesh operation name</p></li>
+<li><p><strong>disable_for_faceted_surf</strong> -- True if enabled (Default value = True)</p></li>
+<li><p><strong>meshop_name</strong> -- optional mesh operation name (Default value = None)</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>
 <dd class="field-even"><p>meshoperation object</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>type</p>
 </dd>
 </dl>
 </dd></dl>
@@ -254,12 +258,15 @@ AEDTConfig Class Inherited contains all the _desktop Hierarchical calls needed t
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>names</strong> -- object lists. it can be a list of objects or faces</p></li>
-<li><p><strong>enable</strong> -- True if enabled</p></li>
-<li><p><strong>meshop_name</strong> -- optional mesh operation name</p></li>
+<li><p><strong>enable</strong> -- True if enabled (Default value = True)</p></li>
+<li><p><strong>meshop_name</strong> -- optional mesh operation name (Default value = None)</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>
 <dd class="field-even"><p>meshoperation object</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>type</p>
 </dd>
 </dl>
 </dd></dl>
@@ -271,14 +278,17 @@ AEDTConfig Class Inherited contains all the _desktop Hierarchical calls needed t
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>names</strong> -- object lists.</p></li>
-<li><p><strong>refine_inside</strong> -- Boolean</p></li>
-<li><p><strong>maxelementlength</strong> -- dim wih units. None to disable</p></li>
-<li><p><strong>layerNum</strong> -- Number. None to disable</p></li>
-<li><p><strong>meshop_name</strong> -- optional mesh operation name</p></li>
+<li><p><strong>refine_inside</strong> -- Boolean (Default value = True)</p></li>
+<li><p><strong>maxelementlength</strong> -- dim wih units. None to disable (Default value = None)</p></li>
+<li><p><strong>layerNum</strong> -- Number. None to disable (Default value = None)</p></li>
+<li><p><strong>meshop_name</strong> -- optional mesh operation name (Default value = None)</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>
 <dd class="field-even"><p>meshoperation object</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>type</p>
 </dd>
 </dl>
 </dd></dl>
@@ -290,12 +300,15 @@ AEDTConfig Class Inherited contains all the _desktop Hierarchical calls needed t
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>names</strong> -- object lists.</p></li>
-<li><p><strong>layer_thickness</strong> -- thickness with units</p></li>
-<li><p><strong>meshop_name</strong> -- optional mesh operation name</p></li>
+<li><p><strong>layer_thickness</strong> -- thickness with units (Default value = &quot;1mm&quot;)</p></li>
+<li><p><strong>meshop_name</strong> -- optional mesh operation name (Default value = None)</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>
 <dd class="field-even"><p>meshoperation object</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>type</p>
 </dd>
 </dl>
 </dd></dl>
@@ -307,17 +320,22 @@ AEDTConfig Class Inherited contains all the _desktop Hierarchical calls needed t
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>level</strong> -- level of surface mesh (integer 1 - 10)</p></li>
-<li><p><strong>method</strong> -- mesher setting &quot;Auto&quot;, &quot;AnsoftTAU&quot;, &quot;AnsoftClassic&quot;</p></li>
-<li><p><strong>usedynamicsurface</strong> -- Boolean</p></li>
-<li><p><strong>useflexmesh</strong> -- Boolean</p></li>
-<li><p><strong>applycurvilinear</strong> -- Boolean</p></li>
-<li><p><strong>usefallback</strong> -- Boolean</p></li>
-<li><p><strong>usephi</strong> -- Boolean</p></li>
+<li><p><strong>level</strong> -- level of surface mesh (integer 1 - 10) (Default value = 5)</p></li>
+<li><p><strong>method</strong> -- mesher setting &quot;Auto&quot;, &quot;AnsoftTAU&quot;, &quot;AnsoftClassic&quot; (Default value = 'Auto')</p></li>
+<li><p><strong>usedynamicsurface</strong> -- Boolean (Default value = True)</p></li>
+<li><p><strong>useflexmesh</strong> -- Boolean (Default value = False)</p></li>
+<li><p><strong>applycurvilinear</strong> -- Boolean (Default value = False)</p></li>
+<li><p><strong>usefallback</strong> -- Boolean (Default value = True)</p></li>
+<li><p><strong>usephi</strong> -- Boolean (Default value = True)</p></li>
+<li><p><strong>automodelresolution</strong> -- (Default value = True)</p></li>
+<li><p><strong>modelresolutionlength</strong> -- (Default value = &quot;0.0001mm&quot;)</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>
 <dd class="field-even"><p>Boolean</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>type</p>
 </dd>
 </dl>
 </dd></dl>
@@ -329,14 +347,17 @@ AEDTConfig Class Inherited contains all the _desktop Hierarchical calls needed t
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>names</strong> -- object lists. it can be a list of objects names or faces ids</p></li>
-<li><p><strong>isinside</strong> -- True if length mesh is inside selection, False if outside</p></li>
-<li><p><strong>maxlength</strong> -- maxlength maximum element length. None to disable</p></li>
-<li><p><strong>maxel</strong> -- max number of element. None to disable</p></li>
-<li><p><strong>meshop_name</strong> -- optional mesh operation name</p></li>
+<li><p><strong>isinside</strong> -- True if length mesh is inside selection, False if outside (Default value = True)</p></li>
+<li><p><strong>maxlength</strong> -- maxlength maximum element length. None to disable (Default value = 1)</p></li>
+<li><p><strong>maxel</strong> -- max number of element. None to disable (Default value = 1000)</p></li>
+<li><p><strong>meshop_name</strong> -- optional mesh operation name (Default value = None)</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>
 <dd class="field-even"><p>meshoperation object</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>type</p>
 </dd>
 </dl>
 </dd></dl>
@@ -349,12 +370,15 @@ AEDTConfig Class Inherited contains all the _desktop Hierarchical calls needed t
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>names</strong> -- list of objects to defeature</p></li>
-<li><p><strong>defeature_length</strong> -- defeaturing length in mm. None for automatic defeature</p></li>
-<li><p><strong>meshop_name</strong> -- optional name of meshoperation</p></li>
+<li><p><strong>defeature_length</strong> -- defeaturing length in mm. None for automatic defeature (Default value = None)</p></li>
+<li><p><strong>meshop_name</strong> -- optional name of meshoperation (Default value = None)</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>
 <dd class="field-even"><p>meshoperation object</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>type</p>
 </dd>
 </dl>
 </dd></dl>
@@ -366,13 +390,16 @@ AEDTConfig Class Inherited contains all the _desktop Hierarchical calls needed t
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>names</strong> -- object lists.</p></li>
-<li><p><strong>num_layers</strong> -- str or int</p></li>
-<li><p><strong>total_thickness</strong> -- thickness with units</p></li>
-<li><p><strong>meshop_name</strong> -- optional mesh operation name</p></li>
+<li><p><strong>num_layers</strong> -- str or int (Default value = 3)</p></li>
+<li><p><strong>total_thickness</strong> -- thickness with units (Default value = &quot;1mm&quot;)</p></li>
+<li><p><strong>meshop_name</strong> -- optional mesh operation name (Default value = None)</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>
 <dd class="field-even"><p>meshoperation object</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>type</p>
 </dd>
 </dl>
 </dd></dl>
@@ -385,13 +412,17 @@ AEDTConfig Class Inherited contains all the _desktop Hierarchical calls needed t
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>names</strong> -- object lists. it can be a list of objects names or faces ids</p></li>
 <li><p><strong>skindepth</strong> -- True if length mesh is inside selection, False if outside</p></li>
-<li><p><strong>maxelements</strong> -- maxlength maximum element length. None to disable</p></li>
-<li><p><strong>triangulation_max_length</strong> -- maximum surface triangulation length</p></li>
-<li><p><strong>numlayers</strong> -- number of layers</p></li>
+<li><p><strong>maxelements</strong> -- maxlength maximum element length. None to disable (Default value = None)</p></li>
+<li><p><strong>triangulation_max_length</strong> -- maximum surface triangulation length (Default value = &quot;0.1mm&quot;)</p></li>
+<li><p><strong>numlayers</strong> -- number of layers (Default value = &quot;2&quot;)</p></li>
+<li><p><strong>meshop_name</strong> -- (Default value = None)</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>
 <dd class="field-even"><p>meshoperation object</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>type</p>
 </dd>
 </dl>
 </dd></dl>
@@ -410,6 +441,9 @@ AEDTConfig Class Inherited contains all the _desktop Hierarchical calls needed t
 <dt class="field-even">Returns</dt>
 <dd class="field-even"><p>meshoperation object</p>
 </dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>type</p>
+</dd>
 </dl>
 </dd></dl>
 
@@ -422,11 +456,14 @@ AEDTConfig Class Inherited contains all the _desktop Hierarchical calls needed t
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>names</strong> -- name of the objects</p></li>
 <li><p><strong>level</strong> -- level of surface mesh</p></li>
-<li><p><strong>meshop_name</strong> -- optional name</p></li>
+<li><p><strong>meshop_name</strong> -- optional name (Default value = None)</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>
 <dd class="field-even"><p>meshoperation object</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>type</p>
 </dd>
 </dl>
 </dd></dl>
@@ -439,14 +476,17 @@ AEDTConfig Class Inherited contains all the _desktop Hierarchical calls needed t
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>names</strong> -- list of objects to apply surface mesh</p></li>
-<li><p><strong>surf_dev</strong> -- float surface deviation</p></li>
-<li><p><strong>normal_dev</strong> -- float normal deviation</p></li>
-<li><p><strong>aspect_ratio</strong> -- int aspoect ration</p></li>
-<li><p><strong>meshop_name</strong> -- label to apply to boundary</p></li>
+<li><p><strong>surf_dev</strong> -- float surface deviation (Default value = None)</p></li>
+<li><p><strong>normal_dev</strong> -- float normal deviation (Default value = None)</p></li>
+<li><p><strong>aspect_ratio</strong> -- int aspoect ration (Default value = None)</p></li>
+<li><p><strong>meshop_name</strong> -- label to apply to boundary (Default value = None)</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>
 <dd class="field-even"><p>meshoperation object</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>type</p>
 </dd>
 </dl>
 </dd></dl>
@@ -457,10 +497,13 @@ AEDTConfig Class Inherited contains all the _desktop Hierarchical calls needed t
 <dd><p>Remove mesh operations from a design. If type is None, remove all mesh operations</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>mesh_type</strong> -- mesh operation type</p>
+<dd class="field-odd"><p><strong>mesh_type</strong> -- mesh operation type (Default value = None)</p>
 </dd>
 <dt class="field-even">Returns</dt>
 <dd class="field-even"><p>Boolean</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>type</p>
 </dd>
 </dl>
 </dd></dl>
@@ -468,10 +511,34 @@ AEDTConfig Class Inherited contains all the _desktop Hierarchical calls needed t
 <dl class="py method">
 <dt id="pyaedt.modules.Mesh.Mesh.generate_mesh">
 <code class="sig-name descname"><span class="pre">generate_mesh</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pyaedt/modules/Mesh.html#Mesh.generate_mesh"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyaedt.modules.Mesh.Mesh.generate_mesh" title="Permalink to this definition">¶</a></dt>
-<dd><p>Generate Mesh for Setup name. Return 0 if mesh failed or 1 if passed
-:param name:  name of design to be meshed
-:return: Bool</p>
+<dd><p>Generate Mesh for Setup name. Return 0 if mesh failed or 1 if passed</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>name</strong> -- name of design to be meshed</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Bool</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>type</p>
+</dd>
+</dl>
 </dd></dl>
+
+<dl class="py method">
+<dt id="pyaedt.modules.Mesh.Mesh.messenger">
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">messenger</span></code><a class="headerlink" href="#pyaedt.modules.Mesh.Mesh.messenger" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="pyaedt.modules.Mesh.Mesh.modeler">
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">modeler</span></code><a class="headerlink" href="#pyaedt.modules.Mesh.Mesh.modeler" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="pyaedt.modules.Mesh.Mesh.odesign">
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">odesign</span></code><a class="headerlink" href="#pyaedt.modules.Mesh.Mesh.odesign" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
 
 <dl class="py method">
 <dt id="pyaedt.modules.Mesh.Mesh.omeshmodule">

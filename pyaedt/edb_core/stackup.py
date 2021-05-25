@@ -23,10 +23,7 @@ from .EDB_Data import EDBLayers, EDBLayer
 
 
 class EdbStackup(object):
-    """Stackup object
-
-
-    """
+    """Stackup object"""
 
     def __init__(self, parent):
         self.parent = parent
@@ -34,34 +31,46 @@ class EdbStackup(object):
 
     @property
     def builder(self):
+        """ """
         return self.parent.builder
 
     @property
     def edb(self):
+        """ """
         return self.parent.edb
 
     @property
     def active_layout(self):
+        """ """
         return self.parent.active_layout
 
     @property
     def cell(self):
+        """ """
         return self.parent.cell
 
     @property
     def db(self):
+        """ """
         return self.parent.db
 
     @property
     def stackup_methods(self):
+        """ """
         return self.parent.edblib.Layout.StackupMethods
 
     @property
     def stackup_layers(self):
-        """
-        Get all stackup layers
-
+        """Get all stackup layers
+        
         :return: list of all stackup layers
+
+        Parameters
+        ----------
+
+        Returns
+        -------
+
         """
         if not self._layer_dict:
             self._layer_dict = EDBLayers(self)
@@ -71,10 +80,14 @@ class EdbStackup(object):
     @property
     def signal_layers(self):
         """
-        Return only the list of signal layers
 
+        Parameters
+        ----------
 
-        :return:list of signal layers
+        Returns
+        -------
+        type
+            :return:list of signal layers
 
         """
 
@@ -84,10 +97,7 @@ class EdbStackup(object):
 
     @property
     def materials(self):
-        """
-
-        :return: Dictionary of Materials
-        """
+        """:return: Dictionary of Materials"""
         mats = {}
         for el in self.parent.edbutils.MaterialSetupInfo.GetFromLayout(self.parent.active_layout):
             mats[el.Name] = el
@@ -95,6 +105,17 @@ class EdbStackup(object):
 
     @aedt_exception_handler
     def stackup_limits(self, only_metals=False):
+        """
+
+        Parameters
+        ----------
+        only_metals :
+             (Default value = False)
+
+        Returns
+        -------
+
+        """
         stackup = self.builder.EdbHandler.layout.GetLayerCollection()
         if only_metals:
             input_layers = self.parent.edb.Cell.LayerTypeSet.SignalLayerSet

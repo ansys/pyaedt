@@ -302,8 +302,16 @@ and Maxwell3D</p>
 <dt class="field-even">Returns</dt>
 <dd class="field-even"><p>Bool</p>
 </dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>type</p>
+</dd>
 </dl>
 </dd></dl>
+
+<dl class="py method">
+<dt id="pyaedt.maxwell.Maxwell.analyse_from_zero">
+<code class="sig-name descname"><span class="pre">analyse_from_zero</span></code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pyaedt/maxwell.html#Maxwell.analyse_from_zero"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyaedt.maxwell.Maxwell.analyse_from_zero" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
 
 <dl class="py method">
 <dt id="pyaedt.maxwell.Maxwell.assign_coil">
@@ -313,12 +321,17 @@ and Maxwell3D</p>
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>input_list</strong> -- inputs list of objects or face IDs</p></li>
-<li><p><strong>conductor_number</strong> -- conductors number</p></li>
-<li><p><strong>polarity</strong> -- polarity</p></li>
+<li><p><strong>conductor_number</strong> -- conductors number (Default value = 1)</p></li>
+<li><p><strong>polarity</strong> -- polarity (Default value = &quot;Positive&quot;)</p></li>
+<li><p><strong>input_object</strong> -- </p></li>
+<li><p><strong>name</strong> -- (Default value = None)</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>
 <dd class="field-even"><p>Coil Object</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>type</p>
 </dd>
 </dl>
 </dd></dl>
@@ -326,19 +339,22 @@ and Maxwell3D</p>
 <dl class="py method">
 <dt id="pyaedt.maxwell.Maxwell.assign_current">
 <code class="sig-name descname"><span class="pre">assign_current</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">object_list</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">amplitude</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">phase</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'0deg'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">solid</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">swap_direction</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pyaedt/maxwell.html#Maxwell.assign_current"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyaedt.maxwell.Maxwell.assign_current" title="Permalink to this definition">¶</a></dt>
-<dd><p>Assign current source to face list</p>
-<dl class="field-list simple">
+<dd><dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>object_list</strong> -- list of objects or list of faces</p></li>
-<li><p><strong>amplitude</strong> -- float current amplitude in A</p></li>
-<li><p><strong>solid</strong> -- bool</p></li>
-<li><p><strong>swap_direction</strong> -- bool</p></li>
-<li><p><strong>name</strong> -- boundary name</p></li>
+<li><p><strong>object_list</strong> -- </p></li>
+<li><p><strong>amplitude</strong> -- (Default value = 1)</p></li>
+<li><p><strong>phase</strong> -- (Default value = &quot;0deg&quot;)</p></li>
+<li><p><strong>solid</strong> -- (Default value = True)</p></li>
+<li><p><strong>swap_direction</strong> -- (Default value = False)</p></li>
+<li><p><strong>name</strong> -- (Default value = None):  # Assign the current Source</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>
 <dd class="field-even"><p>Boundary Object</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>class: BoundaryObject</p>
 </dd>
 </dl>
 </dd></dl>
@@ -351,12 +367,15 @@ and Maxwell3D</p>
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>face_list</strong> -- list of objects</p></li>
-<li><p><strong>amplitude</strong> -- float voltage amplitude in mV</p></li>
-<li><p><strong>name</strong> -- boundary name</p></li>
+<li><p><strong>amplitude</strong> -- float voltage amplitude in mV (Default value = 1)</p></li>
+<li><p><strong>name</strong> -- boundary name (Default value = None)</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>
 <dd class="field-even"><p>Boundary Object</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>type</p>
 </dd>
 </dl>
 </dd></dl>
@@ -369,13 +388,16 @@ and Maxwell3D</p>
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>face_list</strong> -- list of objects</p></li>
-<li><p><strong>amplitude</strong> -- float voltage amplitude in mV</p></li>
-<li><p><strong>swap_direction</strong> -- bool</p></li>
-<li><p><strong>name</strong> -- boundary name</p></li>
+<li><p><strong>amplitude</strong> -- float voltage amplitude in mV (Default value = 1)</p></li>
+<li><p><strong>swap_direction</strong> -- bool (Default value = False)</p></li>
+<li><p><strong>name</strong> -- boundary name (Default value = None)</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>
 <dd class="field-even"><p>Boundary Object</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>type</p>
 </dd>
 </dl>
 </dd></dl>
@@ -387,21 +409,52 @@ and Maxwell3D</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>coil_terminals</strong> -- list of faces to which create coil terminal.</p></li>
-<li><p><strong>winding_type</strong> -- str &quot;Current&quot;, &quot;Voltage&quot;, &quot;External&quot;</p></li>
-<li><p><strong>current_value</strong> -- float ampere</p></li>
-<li><p><strong>res</strong> -- float ohm</p></li>
-<li><p><strong>ind</strong> -- float Henry</p></li>
-<li><p><strong>voltage</strong> -- float Volt</p></li>
-<li><p><strong>parallel_branches</strong> -- int</p></li>
-<li><p><strong>name</strong> -- str name</p></li>
+<li><p><strong>coil_terminals</strong> -- list of faces to which create coil terminal. (Default value = None)</p></li>
+<li><p><strong>winding_type</strong> -- str &quot;Current&quot;, &quot;Voltage&quot;, &quot;External&quot; (Default value = &quot;Current&quot;)</p></li>
+<li><p><strong>current_value</strong> -- float ampere (Default value = 1)</p></li>
+<li><p><strong>res</strong> -- float ohm (Default value = 0)</p></li>
+<li><p><strong>ind</strong> -- float Henry (Default value = 0)</p></li>
+<li><p><strong>voltage</strong> -- float Volt (Default value = 0)</p></li>
+<li><p><strong>parallel_branches</strong> -- int (Default value = 1)</p></li>
+<li><p><strong>name</strong> -- str name (Default value = None)</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>
 <dd class="field-even"><p>bounding object for winding otherwise only bounding object</p>
 </dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>type</p>
+</dd>
 </dl>
 </dd></dl>
+
+<dl class="py method">
+<dt id="pyaedt.maxwell.Maxwell.design_file">
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">design_file</span></code><a class="headerlink" href="#pyaedt.maxwell.Maxwell.design_file" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="pyaedt.maxwell.Maxwell.eddy_effects_on">
+<code class="sig-name descname"><span class="pre">eddy_effects_on</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">object_list</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">activate</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pyaedt/maxwell.html#Maxwell.eddy_effects_on"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyaedt.maxwell.Maxwell.eddy_effects_on" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>object_list</strong> -- </p></li>
+<li><p><strong>activate</strong> -- (Default value = True)</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="pyaedt.maxwell.Maxwell.odefinition_manager">
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">odefinition_manager</span></code><a class="headerlink" href="#pyaedt.maxwell.Maxwell.odefinition_manager" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="pyaedt.maxwell.Maxwell.omaterial_manager">
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">omaterial_manager</span></code><a class="headerlink" href="#pyaedt.maxwell.Maxwell.omaterial_manager" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
 
 <dl class="py method">
 <dt id="pyaedt.maxwell.Maxwell.set_initial_angle">
@@ -409,12 +462,22 @@ and Maxwell3D</p>
 <dd><dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>motion_setup</strong> -- </p></li>
+<li><p><strong>motion_setup</strong> -- param val:</p></li>
 <li><p><strong>val</strong> -- </p></li>
 </ul>
 </dd>
-<dt class="field-even">Returns</dt>
-<dd class="field-even"><p></p>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="pyaedt.maxwell.Maxwell.solve_inside">
+<code class="sig-name descname"><span class="pre">solve_inside</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">activate</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pyaedt/maxwell.html#Maxwell.solve_inside"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyaedt.maxwell.Maxwell.solve_inside" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>name</strong> -- </p></li>
+<li><p><strong>activate</strong> -- (Default value = True)</p></li>
+</ul>
 </dd>
 </dl>
 </dd></dl>
@@ -422,14 +485,12 @@ and Maxwell3D</p>
 <dl class="py method">
 <dt id="pyaedt.maxwell.Maxwell.symmetry_multiplier">
 <em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">symmetry_multiplier</span></code><a class="headerlink" href="#pyaedt.maxwell.Maxwell.symmetry_multiplier" title="Permalink to this definition">¶</a></dt>
-<dd><p>Return the symmetry multiplier</p>
-</dd></dl>
+<dd></dd></dl>
 
 <dl class="py method">
 <dt id="pyaedt.maxwell.Maxwell.windings">
 <em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">windings</span></code><a class="headerlink" href="#pyaedt.maxwell.Maxwell.windings" title="Permalink to this definition">¶</a></dt>
-<dd><p>Return a list of all defined winding names in the Maxwell design.</p>
-</dd></dl>
+<dd></dd></dl>
 
 </dd></dl>
 
@@ -456,27 +517,47 @@ archive. if None try to get active project and, if nothing present to create an 
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>input_edge</strong> -- inputs list of edges or edgeIDs</p></li>
-<li><p><strong>vectorvalue</strong> -- float</p></li>
-<li><p><strong>bound_name</strong> -- str optional</p></li>
+<li><p><strong>vectorvalue</strong> -- float (Default value = 0)</p></li>
+<li><p><strong>bound_name</strong> -- str optional (Default value = None)</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>
 <dd class="field-even"><p>Vector Potential Object</p>
 </dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>type</p>
+</dd>
 </dl>
 </dd></dl>
+
+<dl class="py method">
+<dt id="pyaedt.maxwell.Maxwell2d.dim">
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">dim</span></code><a class="headerlink" href="#pyaedt.maxwell.Maxwell2d.dim" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
 
 <dl class="py method">
 <dt id="pyaedt.maxwell.Maxwell2d.generate_design_data">
 <code class="sig-name descname"><span class="pre">generate_design_data</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">linefilter</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">objectfilter</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pyaedt/maxwell.html#Maxwell2d.generate_design_data"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyaedt.maxwell.Maxwell2d.generate_design_data" title="Permalink to this definition">¶</a></dt>
 <dd><p>Generate a generic set of design data and store in the extension directory as design_data.json.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>linefilter</strong> -- (Default value = None)</p></li>
+<li><p><strong>objectfilter</strong> -- (Default value = None)</p></li>
+</ul>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py method">
 <dt id="pyaedt.maxwell.Maxwell2d.geometry_mode">
 <em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">geometry_mode</span></code><a class="headerlink" href="#pyaedt.maxwell.Maxwell2d.geometry_mode" title="Permalink to this definition">¶</a></dt>
-<dd><p>Return the geometry mode of a 2D design as &quot;XY&quot; or &quot;RZ&quot;</p>
-</dd></dl>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="pyaedt.maxwell.Maxwell2d.get_model_depth">
+<code class="sig-name descname"><span class="pre">get_model_depth</span></code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pyaedt/maxwell.html#Maxwell2d.get_model_depth"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyaedt.maxwell.Maxwell2d.get_model_depth" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
 
 <dl class="py method">
 <dt id="pyaedt.maxwell.Maxwell2d.read_design_data">
@@ -494,6 +575,18 @@ archive. if None try to get active project and, if nothing present to create an 
 is called 'Setup1', then the resulting file in the temp-directory is Setup1.ctrlprog. For this reason
 it is important to instruct the operating system to use a python interpreter to run any file with extension
 '.ctrlprog'.</p>
+</dd>
+</dl>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>file_str</strong> -- (Default value = None)</p></li>
+<li><p><strong>keep_modifications</strong> -- (Default value = False)</p></li>
+<li><p><strong>python_interpreter</strong> -- (Default value = None)</p></li>
+<li><p><strong>pymxwl_module_location</strong> -- (Default value = None)</p></li>
+<li><p><strong>working_directory</strong> -- (Default value = None)</p></li>
+<li><p><strong>aedt_lib_dir</strong> -- (Default value = None)</p></li>
+</ul>
 </dd>
 </dl>
 </dd></dl>
@@ -516,6 +609,11 @@ archive. if None try to get active project and, if nothing present to create an 
 </dd>
 </dl>
 <dl class="py method">
+<dt id="pyaedt.maxwell.Maxwell3d.dim">
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">dim</span></code><a class="headerlink" href="#pyaedt.maxwell.Maxwell3d.dim" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
 <dt id="pyaedt.maxwell.Maxwell3d.setup_ctrlprog">
 <code class="sig-name descname"><span class="pre">setup_ctrlprog</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">setup</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">py_file</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">file_str</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pyaedt/maxwell.html#Maxwell3d.setup_ctrlprog"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyaedt.maxwell.Maxwell3d.setup_ctrlprog" title="Permalink to this definition">¶</a></dt>
 <dd><p>Configure the transient design setup to run a specific vontrol program.</p>
@@ -529,8 +627,30 @@ it is important to instruct the operating system to use a python interpreter to 
 '.ctrlprog'.</p>
 </dd>
 </dl>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>setup</strong> -- </p></li>
+<li><p><strong>py_file</strong> -- </p></li>
+<li><p><strong>file_str</strong> -- (Default value = None)</p></li>
+</ul>
+</dd>
+</dl>
 </dd></dl>
 
+</dd></dl>
+
+<dl class="py function">
+<dt id="pyaedt.maxwell.float_units">
+<code class="sig-prename descclassname"><span class="pre">pyaedt.maxwell.</span></code><code class="sig-name descname"><span class="pre">float_units</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">val_str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">units</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pyaedt/maxwell.html#float_units"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyaedt.maxwell.float_units" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>val_str</strong> -- </p></li>
+<li><p><strong>units</strong> -- (Default value = &quot;&quot;)</p></li>
+</ul>
+</dd>
+</dl>
 </dd></dl>
 
 </div>

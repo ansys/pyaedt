@@ -238,16 +238,13 @@
 <dd><dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>compName</strong> -- </p></li>
+<li><p><strong>compName</strong> -- param pin_names:</p></li>
+<li><p><strong>source_project_path</strong> -- param source_project_name:</p></li>
+<li><p><strong>source_design_name</strong> -- param solution_name:</p></li>
 <li><p><strong>pin_names</strong> -- </p></li>
-<li><p><strong>source_project_path</strong> -- </p></li>
 <li><p><strong>source_project_name</strong> -- </p></li>
-<li><p><strong>source_design_name</strong> -- </p></li>
-<li><p><strong>solution_name</strong> -- </p></li>
+<li><p><strong>solution_name</strong> -- (Default value = &quot;Setup1 : Sweep&quot;)</p></li>
 </ul>
-</dd>
-<dt class="field-even">Returns</dt>
-<dd class="field-even"><p></p>
 </dd>
 </dl>
 </dd></dl>
@@ -260,16 +257,16 @@
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>ports</strong> -- List of circuit ports for excitation assignation</p></li>
 <li><p><strong>settings</strong> -- List of parameters values used in voltage sinusoidal excitation creation:</p></li>
-<li><p><strong>settings</strong><strong>[</strong><strong>0</strong><strong>]</strong> -- AC magnitude for small-signal analysis</p></li>
-<li><p><strong>settings</strong><strong>[</strong><strong>1</strong><strong>]</strong> -- AC phase for small-signal analysis</p></li>
-<li><p><strong>settings</strong><strong>[</strong><strong>2</strong><strong>]</strong> -- DC voltage</p></li>
-<li><p><strong>settings</strong><strong>[</strong><strong>3</strong><strong>]</strong> -- Voltage offset from zero</p></li>
-<li><p><strong>settings</strong><strong>[</strong><strong>4</strong><strong>]</strong> -- Voltage amplitude</p></li>
-<li><p><strong>settings</strong><strong>[</strong><strong>5</strong><strong>]</strong> -- Frequency</p></li>
-<li><p><strong>settings</strong><strong>[</strong><strong>6</strong><strong>]</strong> -- Delay to start of sine wave</p></li>
-<li><p><strong>settings</strong><strong>[</strong><strong>7</strong><strong>]</strong> -- Damping factor</p></li>
-<li><p><strong>settings</strong><strong>[</strong><strong>8</strong><strong>]</strong> -- Phase Delay</p></li>
-<li><p><strong>settings</strong><strong>[</strong><strong>9</strong><strong>]</strong> -- Frequency to use for harmonic balance analysis</p></li>
+<li><p><strong>settings</strong> -- 0]: AC magnitude for small-signal analysis</p></li>
+<li><p><strong>settings</strong> -- 1]: AC phase for small-signal analysis</p></li>
+<li><p><strong>settings</strong> -- 2]: DC voltage</p></li>
+<li><p><strong>settings</strong> -- 3]: Voltage offset from zero</p></li>
+<li><p><strong>settings</strong> -- 4]: Voltage amplitude</p></li>
+<li><p><strong>settings</strong> -- 5]: Frequency</p></li>
+<li><p><strong>settings</strong> -- 6]: Delay to start of sine wave</p></li>
+<li><p><strong>settings</strong> -- 7]: Damping factor</p></li>
+<li><p><strong>settings</strong> -- 8]: Phase Delay</p></li>
+<li><p><strong>settings</strong> -- 9]: Frequency to use for harmonic balance analysis</p></li>
 </ul>
 </dd>
 </dl>
@@ -286,6 +283,9 @@
 <dt class="field-even">Returns</dt>
 <dd class="field-even"><p>el, composed_name if succeeded or False</p>
 </dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>type</p>
+</dd>
 </dl>
 </dd></dl>
 
@@ -296,16 +296,19 @@
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>compname</strong> -- name</p></li>
-<li><p><strong>value</strong> -- value</p></li>
-<li><p><strong>xpos</strong> -- x pos</p></li>
-<li><p><strong>ypos</strong> -- y pos</p></li>
-<li><p><strong>angle</strong> -- angle</p></li>
-<li><p><strong>use_instance_id_netlist</strong> -- bool</p></li>
+<li><p><strong>compname</strong> -- name (Default value = None)</p></li>
+<li><p><strong>value</strong> -- value (Default value = 50)</p></li>
+<li><p><strong>xpos</strong> -- x pos (Default value = 0)</p></li>
+<li><p><strong>ypos</strong> -- y pos (Default value = 0)</p></li>
+<li><p><strong>angle</strong> -- angle (Default value = 0)</p></li>
+<li><p><strong>use_instance_id_netlist</strong> -- bool (Default value = False)</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>
 <dd class="field-even"><p>id, name</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>type</p>
 </dd>
 </dl>
 </dd></dl>
@@ -318,15 +321,20 @@
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>compname</strong> -- name</p></li>
-<li><p><strong>value</strong> -- value</p></li>
-<li><p><strong>xpos</strong> -- x pos</p></li>
-<li><p><strong>ypos</strong> -- y pos</p></li>
-<li><p><strong>angle</strong> -- angle</p></li>
-<li><p><strong>use_instance_id_netlist</strong> -- bool</p></li>
+<li><p><strong>value</strong> -- value (Default value = 1)</p></li>
+<li><p><strong>xpos</strong> -- x pos (Default value = 0)</p></li>
+<li><p><strong>ypos</strong> -- y pos (Default value = 0)</p></li>
+<li><p><strong>angle</strong> -- angle (Default value = 0)</p></li>
+<li><p><strong>use_instance_id_netlist</strong> -- bool (Default value = False)</p></li>
+<li><p><strong>l1</strong> -- </p></li>
+<li><p><strong>l2</strong> -- </p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>
 <dd class="field-even"><p>id, name</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>type</p>
 </dd>
 </dl>
 </dd></dl>
@@ -338,16 +346,19 @@
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>compname</strong> -- name</p></li>
-<li><p><strong>value</strong> -- value</p></li>
-<li><p><strong>xpos</strong> -- x pos</p></li>
-<li><p><strong>ypos</strong> -- y pos</p></li>
-<li><p><strong>angle</strong> -- angle</p></li>
-<li><p><strong>use_instance_id_netlist</strong> -- bool</p></li>
+<li><p><strong>compname</strong> -- name (Default value = None)</p></li>
+<li><p><strong>value</strong> -- value (Default value = 1)</p></li>
+<li><p><strong>xpos</strong> -- x pos (Default value = 0)</p></li>
+<li><p><strong>ypos</strong> -- y pos (Default value = 0)</p></li>
+<li><p><strong>angle</strong> -- angle (Default value = 0)</p></li>
+<li><p><strong>use_instance_id_netlist</strong> -- bool (Default value = False)</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>
 <dd class="field-even"><p>id, name</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>type</p>
 </dd>
 </dl>
 </dd></dl>
@@ -359,16 +370,20 @@
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>compname</strong> -- name</p></li>
+<li><p><strong>compname</strong> -- name (Default value = None)</p></li>
 <li><p><strong>value</strong> -- value</p></li>
-<li><p><strong>xpos</strong> -- x pos</p></li>
-<li><p><strong>ypos</strong> -- y pos</p></li>
-<li><p><strong>angle</strong> -- angle</p></li>
-<li><p><strong>use_instance_id_netlist</strong> -- bool</p></li>
+<li><p><strong>xpos</strong> -- x pos (Default value = 0)</p></li>
+<li><p><strong>ypos</strong> -- y pos (Default value = 0)</p></li>
+<li><p><strong>angle</strong> -- angle (Default value = 0)</p></li>
+<li><p><strong>use_instance_id_netlist</strong> -- bool (Default value = False)</p></li>
+<li><p><strong>value_lists</strong> -- (Default value = [])</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>
 <dd class="field-even"><p>id, name</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>type</p>
 </dd>
 </dl>
 </dd></dl>
@@ -380,16 +395,20 @@
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>compname</strong> -- name</p></li>
+<li><p><strong>compname</strong> -- name (Default value = None)</p></li>
 <li><p><strong>value</strong> -- value</p></li>
-<li><p><strong>xpos</strong> -- x pos</p></li>
-<li><p><strong>ypos</strong> -- y pos</p></li>
-<li><p><strong>angle</strong> -- angle</p></li>
-<li><p><strong>use_instance_id_netlist</strong> -- bool</p></li>
+<li><p><strong>xpos</strong> -- x pos (Default value = 0)</p></li>
+<li><p><strong>ypos</strong> -- y pos (Default value = 0)</p></li>
+<li><p><strong>angle</strong> -- angle (Default value = 0)</p></li>
+<li><p><strong>use_instance_id_netlist</strong> -- bool (Default value = False)</p></li>
+<li><p><strong>model_name</strong> -- (Default value = &quot;required&quot;)</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>
 <dd class="field-even"><p>id, name</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>type</p>
 </dd>
 </dl>
 </dd></dl>
@@ -401,16 +420,13 @@
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>design_name</strong> -- </p></li>
+<li><p><strong>design_name</strong> -- param solution_name:</p></li>
+<li><p><strong>pin_names</strong> -- param model_type:</p></li>
+<li><p><strong>posx</strong> -- param posy: (Default value = 0)</p></li>
 <li><p><strong>solution_name</strong> -- </p></li>
-<li><p><strong>pin_names</strong> -- </p></li>
-<li><p><strong>model_type</strong> -- </p></li>
-<li><p><strong>posx</strong> -- </p></li>
-<li><p><strong>posy</strong> -- </p></li>
+<li><p><strong>model_type</strong> -- (Default value = &quot;hfss&quot;)</p></li>
+<li><p><strong>posy</strong> -- (Default value = 1)</p></li>
 </ul>
-</dd>
-<dt class="field-even">Returns</dt>
-<dd class="field-even"><p></p>
 </dd>
 </dl>
 </dd></dl>
@@ -422,16 +438,19 @@
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>compname</strong> -- name</p></li>
-<li><p><strong>value</strong> -- value</p></li>
-<li><p><strong>xpos</strong> -- x pos</p></li>
-<li><p><strong>ypos</strong> -- y pos</p></li>
-<li><p><strong>angle</strong> -- angle</p></li>
-<li><p><strong>use_instance_id_netlist</strong> -- bool</p></li>
+<li><p><strong>compname</strong> -- name (Default value = None)</p></li>
+<li><p><strong>value</strong> -- value (Default value = 50)</p></li>
+<li><p><strong>xpos</strong> -- x pos (Default value = 0)</p></li>
+<li><p><strong>ypos</strong> -- y pos (Default value = 0)</p></li>
+<li><p><strong>angle</strong> -- angle (Default value = 0)</p></li>
+<li><p><strong>use_instance_id_netlist</strong> -- bool (Default value = False)</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>
 <dd class="field-even"><p>id, name</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>type</p>
 </dd>
 </dl>
 </dd></dl>
@@ -445,13 +464,16 @@
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>symbol_name</strong> -- symbol name</p></li>
 <li><p><strong>pin_lists</strong> -- list of pins name</p></li>
-<li><p><strong>Refbase</strong> -- reference base</p></li>
-<li><p><strong>parameter_list</strong> -- list of parameters</p></li>
-<li><p><strong>parameter_value</strong> -- list of parameters values</p></li>
+<li><p><strong>Refbase</strong> -- reference base (Default value = &quot;U&quot;)</p></li>
+<li><p><strong>parameter_list</strong> -- list of parameters (Default value = [])</p></li>
+<li><p><strong>parameter_value</strong> -- list of parameters values (Default value = [])</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>
 <dd class="field-even"><p>true</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>type</p>
 </dd>
 </dl>
 </dd></dl>
@@ -463,16 +485,19 @@
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>compname</strong> -- name</p></li>
-<li><p><strong>value</strong> -- value</p></li>
-<li><p><strong>xpos</strong> -- x pos</p></li>
-<li><p><strong>ypos</strong> -- y pos</p></li>
-<li><p><strong>angle</strong> -- angle</p></li>
-<li><p><strong>use_instance_id_netlist</strong> -- bool</p></li>
+<li><p><strong>compname</strong> -- name (Default value = None)</p></li>
+<li><p><strong>value</strong> -- value (Default value = None)</p></li>
+<li><p><strong>xpos</strong> -- x pos (Default value = 0)</p></li>
+<li><p><strong>ypos</strong> -- y pos (Default value = 0)</p></li>
+<li><p><strong>angle</strong> -- angle (Default value = 0)</p></li>
+<li><p><strong>use_instance_id_netlist</strong> -- bool (Default value = False)</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>
 <dd class="field-even"><p>id, name</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>type</p>
 </dd>
 </dl>
 </dd></dl>
@@ -484,16 +509,19 @@
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>compname</strong> -- name</p></li>
-<li><p><strong>value</strong> -- value</p></li>
-<li><p><strong>xpos</strong> -- x pos</p></li>
-<li><p><strong>ypos</strong> -- y pos</p></li>
-<li><p><strong>angle</strong> -- angle</p></li>
-<li><p><strong>use_instance_id_netlist</strong> -- bool</p></li>
+<li><p><strong>compname</strong> -- name (Default value = None)</p></li>
+<li><p><strong>value</strong> -- value (Default value = 50)</p></li>
+<li><p><strong>xpos</strong> -- x pos (Default value = 0)</p></li>
+<li><p><strong>ypos</strong> -- y pos (Default value = 0)</p></li>
+<li><p><strong>angle</strong> -- angle (Default value = 0)</p></li>
+<li><p><strong>use_instance_id_netlist</strong> -- bool (Default value = False)</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>
 <dd class="field-even"><p>id, name</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>type</p>
 </dd>
 </dl>
 </dd></dl>
@@ -505,16 +533,19 @@
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>compname</strong> -- name</p></li>
-<li><p><strong>value</strong> -- value</p></li>
-<li><p><strong>xpos</strong> -- x pos</p></li>
-<li><p><strong>ypos</strong> -- y pos</p></li>
-<li><p><strong>angle</strong> -- angle</p></li>
-<li><p><strong>use_instance_id_netlist</strong> -- bool</p></li>
+<li><p><strong>compname</strong> -- name (Default value = None)</p></li>
+<li><p><strong>value</strong> -- value (Default value = 50)</p></li>
+<li><p><strong>xpos</strong> -- x pos (Default value = 0)</p></li>
+<li><p><strong>ypos</strong> -- y pos (Default value = 0)</p></li>
+<li><p><strong>angle</strong> -- angle (Default value = 0)</p></li>
+<li><p><strong>use_instance_id_netlist</strong> -- bool (Default value = False)</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>
 <dd class="field-even"><p>id, name</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>type</p>
 </dd>
 </dl>
 </dd></dl>
@@ -526,16 +557,19 @@
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>compname</strong> -- name</p></li>
-<li><p><strong>value</strong> -- value</p></li>
-<li><p><strong>xpos</strong> -- x pos</p></li>
-<li><p><strong>ypos</strong> -- y pos</p></li>
-<li><p><strong>angle</strong> -- angle</p></li>
-<li><p><strong>use_instance_id_netlist</strong> -- bool</p></li>
+<li><p><strong>compname</strong> -- name (Default value = None)</p></li>
+<li><p><strong>value</strong> -- value (Default value = 1)</p></li>
+<li><p><strong>xpos</strong> -- x pos (Default value = 0)</p></li>
+<li><p><strong>ypos</strong> -- y pos (Default value = 0)</p></li>
+<li><p><strong>angle</strong> -- angle (Default value = 0)</p></li>
+<li><p><strong>use_instance_id_netlist</strong> -- bool (Default value = False)</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>
 <dd class="field-even"><p>id, name</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>type</p>
 </dd>
 </dl>
 </dd></dl>
@@ -547,16 +581,20 @@
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>compname</strong> -- name</p></li>
+<li><p><strong>compname</strong> -- name (Default value = None)</p></li>
 <li><p><strong>value</strong> -- value</p></li>
-<li><p><strong>xpos</strong> -- x pos</p></li>
-<li><p><strong>ypos</strong> -- y pos</p></li>
-<li><p><strong>angle</strong> -- angle</p></li>
-<li><p><strong>use_instance_id_netlist</strong> -- bool</p></li>
+<li><p><strong>xpos</strong> -- x pos (Default value = 0)</p></li>
+<li><p><strong>ypos</strong> -- y pos (Default value = 0)</p></li>
+<li><p><strong>angle</strong> -- angle (Default value = 0)</p></li>
+<li><p><strong>use_instance_id_netlist</strong> -- bool (Default value = False)</p></li>
+<li><p><strong>value_lists</strong> -- (Default value = [])</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>
 <dd class="field-even"><p>id, name</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>type</p>
 </dd>
 </dl>
 </dd></dl>
@@ -567,19 +605,39 @@
 <dd><dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>toolNum</strong> -- </p></li>
-<li><p><strong>dc</strong> -- </p></li>
-<li><p><strong>interp</strong> -- </p></li>
-<li><p><strong>extrap</strong> -- </p></li>
-<li><p><strong>conv</strong> -- </p></li>
-<li><p><strong>passivity</strong> -- </p></li>
-<li><p><strong>reciprocal</strong> -- </p></li>
-<li><p><strong>opt</strong> -- </p></li>
-<li><p><strong>data_type</strong> -- </p></li>
+<li><p><strong>toolNum</strong> -- param dc:</p></li>
+<li><p><strong>interp</strong> -- param extrap: (Default value = 0)</p></li>
+<li><p><strong>conv</strong> -- param passivity: (Default value = 0)</p></li>
+<li><p><strong>reciprocal</strong> -- param opt: (Default value = &quot;False&quot;)</p></li>
+<li><p><strong>data_type</strong> -- return: (Default value = 1)</p></li>
+<li><p><strong>dc</strong> -- (Default value = 0)</p></li>
+<li><p><strong>extrap</strong> -- (Default value = 1)</p></li>
+<li><p><strong>passivity</strong> -- (Default value = 0)</p></li>
+<li><p><strong>opt</strong> -- (Default value = &quot;&quot;)</p></li>
 </ul>
 </dd>
-<dt class="field-even">Returns</dt>
-<dd class="field-even"><p></p>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="pyaedt.modeler.PrimitivesNexxim.NexximComponents.push_excitations">
+<code class="sig-name descname"><span class="pre">push_excitations</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">instance_name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">thevenin_calculation</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pyaedt/modeler/PrimitivesNexxim.html#NexximComponents.push_excitations"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyaedt.modeler.PrimitivesNexxim.NexximComponents.push_excitations" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>instance_name</strong> -- </p></li>
+<li><p><strong>thevenin_calculation</strong> -- (Default value = False)</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="pyaedt.modeler.PrimitivesNexxim.NexximComponents.refresh_dynamic_link">
+<code class="sig-name descname"><span class="pre">refresh_dynamic_link</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">component_name</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pyaedt/modeler/PrimitivesNexxim.html#NexximComponents.refresh_dynamic_link"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyaedt.modeler.PrimitivesNexxim.NexximComponents.refresh_dynamic_link" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>component_name</strong> -- </p>
 </dd>
 </dl>
 </dd></dl>
@@ -604,6 +662,9 @@
 <dt class="field-even">Returns</dt>
 <dd class="field-even"><p>object with properties</p>
 </dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>type</p>
+</dd>
 </dl>
 </dd></dl>
 
@@ -620,16 +681,19 @@
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>compname</strong> -- name</p></li>
-<li><p><strong>value</strong> -- value</p></li>
-<li><p><strong>xpos</strong> -- x pos</p></li>
-<li><p><strong>ypos</strong> -- y pos</p></li>
-<li><p><strong>angle</strong> -- angle</p></li>
-<li><p><strong>use_instance_id_netlist</strong> -- bool</p></li>
+<li><p><strong>compname</strong> -- name (Default value = None)</p></li>
+<li><p><strong>value</strong> -- value (Default value = 50)</p></li>
+<li><p><strong>xpos</strong> -- x pos (Default value = 0)</p></li>
+<li><p><strong>ypos</strong> -- y pos (Default value = 0)</p></li>
+<li><p><strong>angle</strong> -- angle (Default value = 0)</p></li>
+<li><p><strong>use_instance_id_netlist</strong> -- bool (Default value = False)</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>
 <dd class="field-even"><p>id, name</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>type</p>
 </dd>
 </dl>
 </dd></dl>
@@ -641,16 +705,20 @@
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>compname</strong> -- name</p></li>
+<li><p><strong>compname</strong> -- name (Default value = None)</p></li>
 <li><p><strong>value</strong> -- value</p></li>
-<li><p><strong>xpos</strong> -- x pos</p></li>
-<li><p><strong>ypos</strong> -- y pos</p></li>
-<li><p><strong>angle</strong> -- angle</p></li>
-<li><p><strong>use_instance_id_netlist</strong> -- bool</p></li>
+<li><p><strong>xpos</strong> -- x pos (Default value = 0)</p></li>
+<li><p><strong>ypos</strong> -- y pos (Default value = 0)</p></li>
+<li><p><strong>angle</strong> -- angle (Default value = 0)</p></li>
+<li><p><strong>use_instance_id_netlist</strong> -- bool (Default value = False)</p></li>
+<li><p><strong>model_name</strong> -- (Default value = &quot;required&quot;)</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>
 <dd class="field-even"><p>id, name</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>type</p>
 </dd>
 </dl>
 </dd></dl>
@@ -662,16 +730,19 @@
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>compname</strong> -- name</p></li>
-<li><p><strong>value</strong> -- value</p></li>
-<li><p><strong>xpos</strong> -- x pos</p></li>
-<li><p><strong>ypos</strong> -- y pos</p></li>
-<li><p><strong>angle</strong> -- angle</p></li>
-<li><p><strong>use_instance_id_netlist</strong> -- bool</p></li>
+<li><p><strong>compname</strong> -- name (Default value = None)</p></li>
+<li><p><strong>value</strong> -- value (Default value = 50)</p></li>
+<li><p><strong>xpos</strong> -- x pos (Default value = 0)</p></li>
+<li><p><strong>ypos</strong> -- y pos (Default value = 0)</p></li>
+<li><p><strong>angle</strong> -- angle (Default value = 0)</p></li>
+<li><p><strong>use_instance_id_netlist</strong> -- bool (Default value = False)</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>
 <dd class="field-even"><p>id, name</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>type</p>
 </dd>
 </dl>
 </dd></dl>
@@ -683,16 +754,19 @@
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>compname</strong> -- name</p></li>
-<li><p><strong>value</strong> -- value</p></li>
-<li><p><strong>xpos</strong> -- x pos</p></li>
-<li><p><strong>ypos</strong> -- y pos</p></li>
-<li><p><strong>angle</strong> -- angle</p></li>
-<li><p><strong>use_instance_id_netlist</strong> -- bool</p></li>
+<li><p><strong>compname</strong> -- name (Default value = None)</p></li>
+<li><p><strong>value</strong> -- value (Default value = None)</p></li>
+<li><p><strong>xpos</strong> -- x pos (Default value = 0)</p></li>
+<li><p><strong>ypos</strong> -- y pos (Default value = 0)</p></li>
+<li><p><strong>angle</strong> -- angle (Default value = 0)</p></li>
+<li><p><strong>use_instance_id_netlist</strong> -- bool (Default value = False)</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>
 <dd class="field-even"><p>id, name</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>type</p>
 </dd>
 </dl>
 </dd></dl>
@@ -704,16 +778,19 @@
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>compname</strong> -- name</p></li>
-<li><p><strong>value</strong> -- value</p></li>
-<li><p><strong>xpos</strong> -- x pos</p></li>
-<li><p><strong>ypos</strong> -- y pos</p></li>
-<li><p><strong>angle</strong> -- angle</p></li>
-<li><p><strong>use_instance_id_netlist</strong> -- bool</p></li>
+<li><p><strong>compname</strong> -- name (Default value = None)</p></li>
+<li><p><strong>value</strong> -- value (Default value = 50)</p></li>
+<li><p><strong>xpos</strong> -- x pos (Default value = 0)</p></li>
+<li><p><strong>ypos</strong> -- y pos (Default value = 0)</p></li>
+<li><p><strong>angle</strong> -- angle (Default value = 0)</p></li>
+<li><p><strong>use_instance_id_netlist</strong> -- bool (Default value = False)</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>
 <dd class="field-even"><p>id, name</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>type</p>
 </dd>
 </dl>
 </dd></dl>
@@ -725,19 +802,32 @@
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>compname</strong> -- name</p></li>
-<li><p><strong>value</strong> -- value</p></li>
-<li><p><strong>xpos</strong> -- x pos</p></li>
-<li><p><strong>ypos</strong> -- y pos</p></li>
-<li><p><strong>angle</strong> -- angle</p></li>
-<li><p><strong>use_instance_id_netlist</strong> -- bool</p></li>
+<li><p><strong>compname</strong> -- name (Default value = None)</p></li>
+<li><p><strong>value</strong> -- value (Default value = 50)</p></li>
+<li><p><strong>xpos</strong> -- x pos (Default value = 0)</p></li>
+<li><p><strong>ypos</strong> -- y pos (Default value = 0)</p></li>
+<li><p><strong>angle</strong> -- angle (Default value = 0)</p></li>
+<li><p><strong>use_instance_id_netlist</strong> -- bool (Default value = False)</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>
 <dd class="field-even"><p>id, name</p>
 </dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>type</p>
+</dd>
 </dl>
 </dd></dl>
+
+<dl class="py method">
+<dt id="pyaedt.modeler.PrimitivesSimplorer.SimplorerComponents.design_libray">
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">design_libray</span></code><a class="headerlink" href="#pyaedt.modeler.PrimitivesSimplorer.SimplorerComponents.design_libray" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="pyaedt.modeler.PrimitivesSimplorer.SimplorerComponents.tab_name">
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">tab_name</span></code><a class="headerlink" href="#pyaedt.modeler.PrimitivesSimplorer.SimplorerComponents.tab_name" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
 
 </dd></dl>
 
@@ -750,10 +840,20 @@
 <code class="sig-name descname"><span class="pre">add_id_to_component</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">id</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pyaedt/modeler/PrimitivesCircuit.html#CircuitComponents.add_id_to_component"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyaedt.modeler.PrimitivesCircuit.CircuitComponents.add_id_to_component" title="Permalink to this definition">¶</a></dt>
 <dd><dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>id</strong> -- </p>
+<dd class="field-odd"><p><strong>id</strong> -- return:</p>
 </dd>
-<dt class="field-even">Returns</dt>
-<dd class="field-even"><p></p>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="pyaedt.modeler.PrimitivesCircuit.CircuitComponents.arg_with_dim">
+<code class="sig-name descname"><span class="pre">arg_with_dim</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">Value</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sUnits</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pyaedt/modeler/PrimitivesCircuit.html#CircuitComponents.arg_with_dim"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyaedt.modeler.PrimitivesCircuit.CircuitComponents.arg_with_dim" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>Value</strong> -- </p></li>
+<li><p><strong>sUnits</strong> -- (Default value = None)</p></li>
+</ul>
 </dd>
 </dl>
 </dd></dl>
@@ -765,17 +865,36 @@
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>inst_name</strong> -- Instance Name</p></li>
+<li><p><strong>inst_name</strong> -- Instance Name (Default value = None)</p></li>
 <li><p><strong>component_library</strong> -- Component Library (Default Resistors)</p></li>
 <li><p><strong>component_name</strong> -- Component name in library Default RES</p></li>
-<li><p><strong>xpos</strong> -- x position</p></li>
-<li><p><strong>ypos</strong> -- y position</p></li>
-<li><p><strong>angle</strong> -- component angle</p></li>
-<li><p><strong>use_instance_id_netlist</strong> -- bool to enable instance id in netlist</p></li>
+<li><p><strong>xpos</strong> -- x position (Default value = 0.1)</p></li>
+<li><p><strong>ypos</strong> -- y position (Default value = 0.1)</p></li>
+<li><p><strong>angle</strong> -- component angle (Default value = 0)</p></li>
+<li><p><strong>use_instance_id_netlist</strong> -- bool to enable instance id in netlist (Default value = False)</p></li>
+<li><p><strong>global_netlist_list</strong> -- (Default value = [])</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>
 <dd class="field-even"><p>id , composed_name</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>type</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="pyaedt.modeler.PrimitivesCircuit.CircuitComponents.create_component_from_touchstonmodel">
+<code class="sig-name descname"><span class="pre">create_component_from_touchstonmodel</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">modelname</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">xpos</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ypos</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">angle</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pyaedt/modeler/PrimitivesCircuit.html#CircuitComponents.create_component_from_touchstonmodel"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyaedt.modeler.PrimitivesCircuit.CircuitComponents.create_component_from_touchstonmodel" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>modelname</strong> -- </p></li>
+<li><p><strong>xpos</strong> -- (Default value = 0.1)</p></li>
+<li><p><strong>ypos</strong> -- (Default value = 0.1)</p></li>
+<li><p><strong>angle</strong> -- (Default value = 0)</p></li>
+</ul>
 </dd>
 </dl>
 </dd></dl>
@@ -794,6 +913,9 @@
 <dt class="field-even">Returns</dt>
 <dd class="field-even"><p>gnd object,  gnd name</p>
 </dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>type</p>
+</dd>
 </dl>
 </dd></dl>
 
@@ -805,13 +927,29 @@
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>name</strong> -- port name</p></li>
-<li><p><strong>posx</strong> -- x position</p></li>
-<li><p><strong>posy</strong> -- y position</p></li>
-<li><p><strong>angle</strong> -- angle rotation</p></li>
+<li><p><strong>posx</strong> -- x position (Default value = 0.1)</p></li>
+<li><p><strong>posy</strong> -- y position (Default value = 0.1)</p></li>
+<li><p><strong>angle</strong> -- angle rotation (Default value = 0)</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>
 <dd class="field-even"><p>port object,  port_name</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>type</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="pyaedt.modeler.PrimitivesCircuit.CircuitComponents.create_model_from_touchstone">
+<code class="sig-name descname"><span class="pre">create_model_from_touchstone</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">touchstone_full_path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">model_name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pyaedt/modeler/PrimitivesCircuit.html#CircuitComponents.create_model_from_touchstone"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyaedt.modeler.PrimitivesCircuit.CircuitComponents.create_model_from_touchstone" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>touchstone_full_path</strong> -- </p></li>
+<li><p><strong>model_name</strong> -- (Default value = None)</p></li>
+</ul>
 </dd>
 </dl>
 </dd></dl>
@@ -825,13 +963,10 @@
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>symbol_name</strong> -- Symbol Name</p></li>
 <li><p><strong>pin_lists</strong> -- Pin Lists</p></li>
-<li><p><strong>Refbase</strong> -- Reference Base</p></li>
-<li><p><strong>parameter_list</strong> -- Parameter Lists</p></li>
-<li><p><strong>parameter_value</strong> -- Parameter Value Lists</p></li>
+<li><p><strong>Refbase</strong> -- Reference Base (Default value = &quot;U&quot;)</p></li>
+<li><p><strong>parameter_list</strong> -- Parameter Lists (Default value = [])</p></li>
+<li><p><strong>parameter_value</strong> -- Parameter Value Lists (Default value = [])</p></li>
 </ul>
-</dd>
-<dt class="field-even">Returns</dt>
-<dd class="field-even"><p></p>
 </dd>
 </dl>
 </dd></dl>
@@ -844,13 +979,16 @@
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>name</strong> -- port name</p></li>
-<li><p><strong>posx</strong> -- x position</p></li>
-<li><p><strong>posy</strong> -- y position</p></li>
-<li><p><strong>angle</strong> -- angle rotation</p></li>
+<li><p><strong>posx</strong> -- x position (Default value = 0.1)</p></li>
+<li><p><strong>posy</strong> -- y position (Default value = 0.1)</p></li>
+<li><p><strong>angle</strong> -- angle rotation (Default value = 0)</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>
 <dd class="field-even"><p>port id,  port_name</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>type</p>
 </dd>
 </dl>
 </dd></dl>
@@ -869,8 +1007,16 @@
 <dt class="field-even">Returns</dt>
 <dd class="field-even"><p>Bool</p>
 </dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>type</p>
+</dd>
 </dl>
 </dd></dl>
+
+<dl class="py method">
+<dt id="pyaedt.modeler.PrimitivesCircuit.CircuitComponents.create_unique_id">
+<code class="sig-name descname"><span class="pre">create_unique_id</span></code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pyaedt/modeler/PrimitivesCircuit.html#CircuitComponents.create_unique_id"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyaedt.modeler.PrimitivesCircuit.CircuitComponents.create_unique_id" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
 
 <dl class="py method">
 <dt id="pyaedt.modeler.PrimitivesCircuit.CircuitComponents.create_wire">
@@ -879,11 +1025,18 @@
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><p><strong>points_array</strong> -- list of list of points coordinate [[x1,y1], [x2,y2]....]</p>
 </dd>
-<dt class="field-even">Returns</dt>
-<dd class="field-even"><p></p>
-</dd>
 </dl>
 </dd></dl>
+
+<dl class="py method">
+<dt id="pyaedt.modeler.PrimitivesCircuit.CircuitComponents.design_type">
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">design_type</span></code><a class="headerlink" href="#pyaedt.modeler.PrimitivesCircuit.CircuitComponents.design_type" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="pyaedt.modeler.PrimitivesCircuit.CircuitComponents.design_types">
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">design_types</span></code><a class="headerlink" href="#pyaedt.modeler.PrimitivesCircuit.CircuitComponents.design_types" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
 
 <dl class="py method">
 <dt id="pyaedt.modeler.PrimitivesCircuit.CircuitComponents.disable_data_netlist">
@@ -896,6 +1049,9 @@
 <dt class="field-even">Returns</dt>
 <dd class="field-even"><p>Bool</p>
 </dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>type</p>
+</dd>
 </dl>
 </dd></dl>
 
@@ -907,11 +1063,37 @@
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>component_name</strong> -- Name of Component</p></li>
-<li><p><strong>global_netlist_list</strong> -- List of line to be included</p></li>
+<li><p><strong>global_netlist_list</strong> -- List of line to be included (Default value = [])</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>
 <dd class="field-even"><p>Bool</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>type</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="pyaedt.modeler.PrimitivesCircuit.CircuitComponents.enable_use_instance_name">
+<code class="sig-name descname"><span class="pre">enable_use_instance_name</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">component_library</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'Resistors'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">component_name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'RES_'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pyaedt/modeler/PrimitivesCircuit.html#CircuitComponents.enable_use_instance_name"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyaedt.modeler.PrimitivesCircuit.CircuitComponents.enable_use_instance_name" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>component_library</strong> -- (Default value = &quot;Resistors&quot;)</p></li>
+<li><p><strong>component_name</strong> -- (Default value = &quot;<a href="#id1"><span class="problematic" id="id2">RES_</span></a>&quot;)</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="pyaedt.modeler.PrimitivesCircuit.CircuitComponents.get_obj_id">
+<code class="sig-name descname"><span class="pre">get_obj_id</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">objname</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pyaedt/modeler/PrimitivesCircuit.html#CircuitComponents.get_obj_id"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyaedt.modeler.PrimitivesCircuit.CircuitComponents.get_obj_id" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>objname</strong> -- </p>
 </dd>
 </dl>
 </dd></dl>
@@ -927,7 +1109,10 @@
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>
-<dd class="field-even"><p>[x, y] list</p>
+<dd class="field-even"><p>x, y] list</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>type</p>
 </dd>
 </dl>
 </dd></dl>
@@ -942,8 +1127,46 @@
 <dt class="field-even">Returns</dt>
 <dd class="field-even"><p>object with properties</p>
 </dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>type</p>
+</dd>
 </dl>
 </dd></dl>
+
+<dl class="py method">
+<dt id="pyaedt.modeler.PrimitivesCircuit.CircuitComponents.messenger">
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">messenger</span></code><a class="headerlink" href="#pyaedt.modeler.PrimitivesCircuit.CircuitComponents.messenger" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="pyaedt.modeler.PrimitivesCircuit.CircuitComponents.model_units">
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">model_units</span></code><a class="headerlink" href="#pyaedt.modeler.PrimitivesCircuit.CircuitComponents.model_units" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="pyaedt.modeler.PrimitivesCircuit.CircuitComponents.o_component_manager">
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">o_component_manager</span></code><a class="headerlink" href="#pyaedt.modeler.PrimitivesCircuit.CircuitComponents.o_component_manager" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="pyaedt.modeler.PrimitivesCircuit.CircuitComponents.o_definition_manager">
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">o_definition_manager</span></code><a class="headerlink" href="#pyaedt.modeler.PrimitivesCircuit.CircuitComponents.o_definition_manager" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="pyaedt.modeler.PrimitivesCircuit.CircuitComponents.o_model_manager">
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">o_model_manager</span></code><a class="headerlink" href="#pyaedt.modeler.PrimitivesCircuit.CircuitComponents.o_model_manager" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="pyaedt.modeler.PrimitivesCircuit.CircuitComponents.o_symbol_manager">
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">o_symbol_manager</span></code><a class="headerlink" href="#pyaedt.modeler.PrimitivesCircuit.CircuitComponents.o_symbol_manager" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="pyaedt.modeler.PrimitivesCircuit.CircuitComponents.oeditor">
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">oeditor</span></code><a class="headerlink" href="#pyaedt.modeler.PrimitivesCircuit.CircuitComponents.oeditor" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
 
 <dl class="py method">
 <dt id="pyaedt.modeler.PrimitivesCircuit.CircuitComponents.refresh_all_ids">
@@ -965,8 +1188,16 @@
 <dt class="field-even">Returns</dt>
 <dd class="field-even"><p>object with properties</p>
 </dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>type</p>
+</dd>
 </dl>
 </dd></dl>
+
+<dl class="py method">
+<dt id="pyaedt.modeler.PrimitivesCircuit.CircuitComponents.version">
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">version</span></code><a class="headerlink" href="#pyaedt.modeler.PrimitivesCircuit.CircuitComponents.version" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
 
 </dd></dl>
 

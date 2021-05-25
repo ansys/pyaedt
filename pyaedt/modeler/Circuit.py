@@ -13,6 +13,7 @@ from ..modules.LayerStackup import Layers
 
 
 class ModelerCircuit(Modeler):
+    """ """
 
     def __init__(self, parent):
         self._parent = parent
@@ -20,26 +21,48 @@ class ModelerCircuit(Modeler):
 
     @property
     def oeditor(self):
+        """ """
         return self.odesign.SetActiveEditor("SchematicEditor")
 
     @property
     def obounding_box(self):
+        """ """
         return self.oeditor.GetModelBoundingBox()
 
     @property
     def o_def_manager(self):
+        """ """
         return self._parent.oproject.GetDefinitionManager()
 
     @property
     def o_component_manager(self):
+        """ """
         return self.o_def_manager.GetManager("Component")
 
     @property
     def o_model_manager(self):
+        """ """
         return self.o_def_manager.GetManager("Model")
 
     @aedt_exception_handler
     def connect_schematic_components(self, firstcomponent, secondcomponent, pinnum_first=2, pinnum_second=1):
+        """
+
+        Parameters
+        ----------
+        firstcomponent :
+            
+        secondcomponent :
+            
+        pinnum_first :
+             (Default value = 2)
+        pinnum_second :
+             (Default value = 1)
+
+        Returns
+        -------
+
+        """
         obj1 = self.components[firstcomponent]
         if "Port" in obj1.composed_name:
             pos1 = self.oeditor.GetPropertyValue("BaseElementTab", obj1.composed_name, "Component Location").split(", ")
@@ -64,6 +87,7 @@ class ModelerCircuit(Modeler):
 
 
 class ModelerNexxim(ModelerCircuit):
+    """ """
 
     def __init__(self, parent):
         self._parent = parent
@@ -87,10 +111,7 @@ class ModelerNexxim(ModelerCircuit):
 
     @property
     def edb(self):
-        """
-
-        :return:edb_core object if exists
-        """
+        """:return:edb_core object if exists"""
         if self._parent.design_type == "Twin Builder":
             return
         edb_folder = os.path.join(self._parent.project_path, self._parent.project_name + ".aedb")
@@ -104,17 +125,19 @@ class ModelerNexxim(ModelerCircuit):
 
     @property
     def layouteditor(self):
+        """ """
         if self._parent.design_type == "Twin Builder":
             return
         return self.odesign.SetActiveEditor("Layout")
 
     @property
     def model_units(self):
-        ''' Return the model units as a string e.g. "mm" '''
+        """ """
         return retry_ntimes(10, self.layouteditor.GetActiveUnits)
 
     @property
     def primitives(self):
+        """ """
         if self._parent.design_type == "Twin Builder":
             return
         if self._primitivesDes != self._parent.project_name + self._parent.design_name:
@@ -124,6 +147,17 @@ class ModelerNexxim(ModelerCircuit):
 
     @model_units.setter
     def model_units(self, units):
+        """
+
+        Parameters
+        ----------
+        units :
+            
+
+        Returns
+        -------
+
+        """
         assert units in AEDT_units["Length"], "Invalid units string {0}".format(units)
         ''' Set the model units as a string e.g. "mm" '''
         self.oeditor.SetActivelUnits(
@@ -135,14 +169,22 @@ class ModelerNexxim(ModelerCircuit):
 
     @aedt_exception_handler
     def move(self, selections, posx, posy):
-        """
-        Move selection by x, y
+        """Move selection by x, y
 
+        Parameters
+        ----------
+        selections :
+            list of selection
+        posx :
+            x offset
+        posy :
+            yoffset
 
-        :param selections: list of selection
-        :param posx: x offset
-        :param posy: yoffset
-        :return: True if succeded
+        Returns
+        -------
+        type
+            True if succeded
+
         """
         self.oeditor.Move(
             [
@@ -160,13 +202,20 @@ class ModelerNexxim(ModelerCircuit):
 
     @aedt_exception_handler
     def rotate(self, selections, degrees=90):
-        """
-        Rotate selection by degrees
+        """Rotate selection by degrees
 
+        Parameters
+        ----------
+        selections :
+            list of selection
+        degrees :
+            rotation angle (Default value = 90)
 
-        :param selections: list of selection
-        :param degrees: rotation angle
-        :return: True if succeded
+        Returns
+        -------
+        type
+            True if succeded
+
         """
         self.oeditor.Rotate(
             [
@@ -183,12 +232,18 @@ class ModelerNexxim(ModelerCircuit):
 
     @aedt_exception_handler
     def subtract(self, blank, tool):
-        """
-        Subract objects from names
+        """Subract objects from names
 
+        Parameters
+        ----------
+        blank :
+            name of geometry from which subtract
+        tool :
+            name of geometry that will be subracted. it can be a list
 
-        :param blank. name of geometry from which subtract
-        :param tool, name of geometry that will be subracted. it can be a list
+        Returns
+        -------
+
         """
 
         vArg1 = ['NAME:primitives', blank]
@@ -208,11 +263,16 @@ class ModelerNexxim(ModelerCircuit):
 
     @aedt_exception_handler
     def unite(self, objectlists):
-        """
-        Unite objects from names
+        """Unite objects from names
 
+        Parameters
+        ----------
+        objectlists :
+            list of objects to unite
 
-        :param objectlists. list of objects to unite
+        Returns
+        -------
+
         """
 
         vArg1 = ['NAME:primitives']
@@ -226,11 +286,16 @@ class ModelerNexxim(ModelerCircuit):
 
     @aedt_exception_handler
     def intersect(self, objectlists):
-        """
-        Intersect objects from names
+        """Intersect objects from names
 
+        Parameters
+        ----------
+        objectlists :
+            list of objects to unite
 
-        :param objectlists. list of objects to unite
+        Returns
+        -------
+
         """
 
         vArg1 = ['NAME:primitives']
@@ -244,6 +309,7 @@ class ModelerNexxim(ModelerCircuit):
 
 
 class ModelerSimplorer(ModelerCircuit):
+    """ """
 
     def __init__(self, parent):
         self._parent = parent

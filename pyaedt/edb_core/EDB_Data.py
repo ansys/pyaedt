@@ -131,12 +131,15 @@ except ImportError:
 
 
 class EDBLayer(object):
+    """ """
     @property
     def stackup_methods(self):
+        """ """
         return self._parent.stackup_methods
 
     @property
     def builder(self):
+        """ """
         return self._parent.builder
 
     def __init__(self, edblayer, parent):
@@ -157,6 +160,7 @@ class EDBLayer(object):
 
 
     def init_vals(self):
+        """ """
         self._name = self._layer.GetName()
         self._layer_type = self._layer.GetLayerType()
         self._thickness = self._layer.GetThicknessValue().ToString()
@@ -168,33 +172,49 @@ class EDBLayer(object):
 
     @property
     def messenger(self):
+        """ """
         return self._parent._messenger
 
     @property
     def name(self):
+        """ """
         if not self._name:
             self._name = self._layer.GetName()
         return self._name
 
     @property
     def id(self):
+        """ """
         if not self._id:
             self._id = self._layer.GetLayerId()
         return self._id
 
     @property
     def layer_type(self):
+        """ """
         if not self._layer_type:
             self._layer_type = self._layer.GetLayerType()
         return self._layer_type
 
     @layer_type.setter
     def layer_type(self, value):
+        """
+
+        Parameters
+        ----------
+        value :
+            
+
+        Returns
+        -------
+
+        """
         self._layer_type = value
         self.update_layers()
 
     @property
     def material_name(self):
+        """ """
         try:
             self._material_name = self._layer.GetMaterial()
         except:
@@ -203,12 +223,24 @@ class EDBLayer(object):
 
     @material_name.setter
     def material_name(self, value):
+        """
+
+        Parameters
+        ----------
+        value :
+            
+
+        Returns
+        -------
+
+        """
         #self.stackup_methods.EditLayerName(self.builder, self._name, value)
         self._material_name = value
         self.update_layers()
 
     @property
     def thickness_value(self):
+        """ """
         try:
             self._thickness = self._layer.GetThicknessValue().ToString()
         except:
@@ -217,12 +249,24 @@ class EDBLayer(object):
 
     @thickness_value.setter
     def thickness_value(self, value):
+        """
+
+        Parameters
+        ----------
+        value :
+            
+
+        Returns
+        -------
+
+        """
         #self.stackup_methods.SetLayerThickness(self.builder, self.name, value)
         self._thickness = value
         self.update_layers()
 
     @property
     def filling_material_name(self):
+        """ """
         try:
             self._filling_material_name = self._layer.GetFillMaterial()
         except:
@@ -231,11 +275,23 @@ class EDBLayer(object):
 
     @filling_material_name.setter
     def filling_material_name(self, value):
+        """
+
+        Parameters
+        ----------
+        value :
+            
+
+        Returns
+        -------
+
+        """
         self._filling_material_name = value
         self.update_layers()
 
     @property
     def lower_elevation(self):
+        """ """
         try:
             self._lower_elevation = self._layer.GetLowerElevation()
         except:
@@ -244,11 +300,23 @@ class EDBLayer(object):
 
     @lower_elevation.setter
     def lower_elevation(self, value):
+        """
+
+        Parameters
+        ----------
+        value :
+            
+
+        Returns
+        -------
+
+        """
         self._lower_elevation = value
         self.update_layers()
 
     @property
     def upper_elevation(self):
+        """ """
         try:
             self._upper_elevation = self._layer.GetUpperElevation()
         except:
@@ -257,6 +325,7 @@ class EDBLayer(object):
 
     @property
     def etch_factor(self):
+        """ """
         try:
             self._etch_factor = self._layer.GetEtchFactor().ToString()
         except:
@@ -265,10 +334,44 @@ class EDBLayer(object):
 
     @etch_factor.setter
     def etch_factor(self, value):
+        """
+
+        Parameters
+        ----------
+        value :
+            
+
+        Returns
+        -------
+
+        """
         self._etch_factor = value
         self.update_layers()
 
     def update_layer_vals(self, layerName, newLayer, etchMap, materialMap, fillMaterialMap, thicknessMap, layerTypeMap):
+        """
+
+        Parameters
+        ----------
+        layerName :
+            
+        newLayer :
+            
+        etchMap :
+            
+        materialMap :
+            
+        fillMaterialMap :
+            
+        thicknessMap :
+            
+        layerTypeMap :
+            
+
+        Returns
+        -------
+
+        """
         newLayer.SetName(layerName)
 
         if layerTypeMap == 0 or layerTypeMap == self.edb.Cell.LayerType.SignalLayer:
@@ -293,21 +396,35 @@ class EDBLayer(object):
         return newLayer
 
     def set_elevation(self, layer, elev):
-        """
-        Set layer Elevation
+        """Set layer Elevation
 
-        :param layer: layer object
-        :param elev: float Elevation
-        :return: layer
+        Parameters
+        ----------
+        layer :
+            layer object
+        elev :
+            float Elevation
+
+        Returns
+        -------
+        type
+            layer
+
         """
         layer.SetLowerElevation(self.edb.Utility.Value(elev))
         return layer
 
     def update_layers(self):
-        """
-        update all layers
-
+        """update all layers
+        
         :return: bool
+
+        Parameters
+        ----------
+
+        Returns
+        -------
+
         """
         thisLC = self.edb.Cell.LayerCollection(self.active_layout.GetLayerCollection())
         layers = list(list(thisLC.Layers(self.edb.Cell.LayerTypeSet.AllLayerSet)))
@@ -342,9 +459,7 @@ class EDBLayer(object):
 
 
 class EDBLayers(object):
-    """
-    Class for management of all Primitives.
-    """
+    """Class for management of all Primitives."""
 
 
     def __init__(self, parent):
@@ -363,23 +478,28 @@ class EDBLayers(object):
 
     @property
     def edb(self):
+        """ """
         return self._parent.edb
 
     @property
     def builder(self):
+        """ """
         return self._parent.builder
 
     @property
     def active_layout(self):
+        """ """
         return self._parent.active_layout
 
     @property
     def layers(self):
+        """ """
         self._update_edb_objects()
         return self._edb_object
 
     @property
     def edb_layers(self):
+        """ """
         allLayers = list(list(self.layer_collection.Layers(self.edb.Cell.LayerTypeSet.AllLayerSet)))
         allStckuplayers = filter(lambda lyr: (lyr.GetLayerType() == self.edb.Cell.LayerType.DielectricLayer) or (
                 lyr.GetLayerType() == self.edb.Cell.LayerType.SignalLayer), allLayers)
@@ -387,27 +507,43 @@ class EDBLayers(object):
 
     @property
     def layer_collection(self):
+        """ """
         return self._parent.edb.Cell.LayerCollection(self._parent.active_layout.GetLayerCollection())
 
     @property
     def layer_collection_mode(self):
+        """ """
         return self._parent.edb.Cell.LayerCollectionMode
 
     @property
     def layer_types(self):
+        """ """
         return self._parent.edb.Cell.LayerType
 
     @property
     def stackup_mode(self):
+        """ """
         self._stackup_mode = self.layer_collection.GetMode()
         return self._stackup_mode
 
     @property
     def messenger(self):
+        """ """
         return self._parent._messenger
 
     @stackup_mode.setter
     def stackup_mode(self, value):
+        """
+
+        Parameters
+        ----------
+        value :
+            
+
+        Returns
+        -------
+
+        """
         if value == 0 or value == self.layer_collection_mode.Laminate:
             self.layer_collection.SetMode(self.layer_collection_mode.Laminate)
         elif value == 1 or value == self.layer_collection_mode.Overlapping:
@@ -416,6 +552,7 @@ class EDBLayers(object):
             self.layer_collection.SetMode(self.layer_collection_mode.MultiZone)
 
     def _update_edb_objects(self):
+        """ """
         self._edb_object = OrderedDict(defaultdict(EDBLayer))
         layers = self.edb_layers
         for i in range(len(layers)):
@@ -424,18 +561,30 @@ class EDBLayers(object):
 
     def add_layer(self, layerName, start_layer, material="copper", fillMaterial="", thickness="35um", layerType=0,
                   etchMap=None):
-        """
-        Add an additional layer after a specific layer
+        """Add an additional layer after a specific layer
 
-        :param layerName:name of new layer
-        :param start_layer:name of layer after which the new layer will be placed
+        Parameters
+        ----------
+        layerName :
+            name of new layer
+        start_layer :
+            name of layer after which the new layer will be placed
+        material :
+            name of material (Default value = "copper")
+        fillMaterial :
+            name of fillmaterial (Default value = "")
+        thickness :
+            thickness value (Default value = "35um")
+        layerType :
+            layer type default signal layer
+        etchMap :
+            etch value if any (Default value = None)
 
-        :param material: name of material
-        :param fillMaterial: name of fillmaterial
-        :param thickness: thickness value
-        :param layerType: layer type default signal layer
-        :param etchMap: etch value if any
-        :return: True if successful
+        Returns
+        -------
+        type
+            True if successful
+
         """
         thisLC = self._parent.edb.Cell.LayerCollection(self._parent.active_layout.GetLayerCollection())
         layers = list(list(thisLC.Layers(self._parent.edb.Cell.LayerTypeSet.AllLayerSet)))
@@ -472,11 +621,17 @@ class EDBLayers(object):
         return True
 
     def remove_layer(self, layername):
-        """
-        Remove a specific layer "layername"
+        """Remove a specific layer "layername"
 
-        :param layername: name of the layer to remove
-        :return: True if operation succesfully complete
+        Parameters
+        ----------
+        layername :
+            name of the layer to remove
+
+        Returns
+        -------
+        type
+            True if operation succesfully complete
 
         """
         thisLC = self._parent.edb.Cell.LayerCollection(self._parent.active_layout.GetLayerCollection())
@@ -502,13 +657,16 @@ class EDBLayers(object):
         return True
 
 class EDBComponent(object):
+    """ """
 
     @property
     def component_methods(self):
+        """ """
         return self._parent.component_methods
 
     @property
     def builder(self):
+        """ """
         return self._parent.builder
 
     def __init__(self, edb_component, parent):
@@ -525,36 +683,53 @@ class EDBComponent(object):
         self.init_vals()
 
     def init_vals(self):
+        """ """
         self._refdes = self.component.GetName()
         self._type = self.component.GetComponentType()
 
     @property
     def messenger(self):
+        """ """
         return self._parent._messenger
 
     @property
     def name(self):
+        """ """
         if not self._name:
             self._name = self.layer.GetName()
         return self._name
 
     @property
     def placement_layer(self):
+        """ """
         self._placementlayer = self.component.GetPlacementLayer()
         return self._placementlayer
 
     @property
     def pin_number(self):
+        """ """
         self._pin_number = self.component.GetNumberOfPins()
         return self._pin_number
 
     @placement_layer.setter
     def placement_layer(self, value):
+        """
+
+        Parameters
+        ----------
+        value :
+            
+
+        Returns
+        -------
+
+        """
         self._placementlayer = value
         return self._placementlayer
 
     @property
     def pins(self):
+        """ """
         pinlist = list(list(self.component.LayoutObjs).Where(lambda obj: obj.GetObjType() == self._parent.edb.Cell.LayoutObjType.PadstackInstance))
         for pin in pinlist:
             self._pins[pin.GetName()] = pin
@@ -562,6 +737,7 @@ class EDBComponent(object):
 
     @property
     def nets(self):
+        """ """
         pins = self .get_pins()
         for pin in pins:
             pin_name = pin.GetNet().GetName()

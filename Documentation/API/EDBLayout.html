@@ -273,23 +273,57 @@
 <em class="property"><span class="pre">class</span> </em><code class="sig-prename descclassname"><span class="pre">pyaedt.edb_core.layout.</span></code><code class="sig-name descname"><span class="pre">EdbLayout</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">parent</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pyaedt/edb_core/layout.html#EdbLayout"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyaedt.edb_core.layout.EdbLayout" title="Permalink to this definition">¶</a></dt>
 <dd><p>HFSS 3DLayout object</p>
 <dl class="py method">
+<dt id="pyaedt.edb_core.layout.EdbLayout.active_layout">
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">active_layout</span></code><a class="headerlink" href="#pyaedt.edb_core.layout.EdbLayout.active_layout" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="pyaedt.edb_core.layout.EdbLayout.builder">
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">builder</span></code><a class="headerlink" href="#pyaedt.edb_core.layout.EdbLayout.builder" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="pyaedt.edb_core.layout.EdbLayout.cell">
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">cell</span></code><a class="headerlink" href="#pyaedt.edb_core.layout.EdbLayout.cell" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="pyaedt.edb_core.layout.EdbLayout.db">
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">db</span></code><a class="headerlink" href="#pyaedt.edb_core.layout.EdbLayout.db" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="pyaedt.edb_core.layout.EdbLayout.edb">
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">edb</span></code><a class="headerlink" href="#pyaedt.edb_core.layout.EdbLayout.edb" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="pyaedt.edb_core.layout.EdbLayout.edb_value">
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">edb_value</span></code><a class="headerlink" href="#pyaedt.edb_core.layout.EdbLayout.edb_value" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="pyaedt.edb_core.layout.EdbLayout.edbutils">
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">edbutils</span></code><a class="headerlink" href="#pyaedt.edb_core.layout.EdbLayout.edbutils" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
 <dt id="pyaedt.edb_core.layout.EdbLayout.get_polygon_bounding_box">
 <code class="sig-name descname"><span class="pre">get_polygon_bounding_box</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">polygon</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pyaedt/edb_core/layout.html#EdbLayout.get_polygon_bounding_box"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyaedt.edb_core.layout.EdbLayout.get_polygon_bounding_box" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return the polygon bounding box</p>
 <dl class="field-list simple">
 <dt class="field-odd">Example</dt>
 <dd class="field-odd"><p></p></dd>
-</dl>
-<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">poly</span> <span class="o">=</span> <span class="n">edb_core</span><span class="o">.</span><span class="n">core_primitives</span><span class="o">.</span><span class="n">get_polygons_by_layer</span><span class="p">(</span><span class="s2">&quot;GND&quot;</span><span class="p">)</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">bounding</span> <span class="o">=</span> <span class="n">edb_core</span><span class="o">.</span><span class="n">core_primitives</span><span class="o">.</span><span class="n">get_polygon_bounding_box</span><span class="p">(</span><span class="n">poly</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
-</pre></div>
-</div>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>polygon</strong> -- edb_core polygon</p>
+<dt class="field-even">Parameters</dt>
+<dd class="field-even"><p><strong>polygon</strong> -- edb_core polygon</p>
 </dd>
-<dt class="field-even">Returns</dt>
-<dd class="field-even"><p>bouding box [-x,-y,+x,+y]</p>
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p><ul class="simple">
+<li><p><em>type</em> -- bouding box [-x,-y,+x,+y]</p></li>
+<li><p><em>&gt;&gt;&gt; poly = edb_core.core_primitives.get_polygons_by_layer(&quot;GND&quot;)</em></p></li>
+<li><p><em>&gt;&gt;&gt; bounding = edb_core.core_primitives.get_polygon_bounding_box(poly[0])</em></p></li>
+</ul>
+</p>
 </dd>
 </dl>
 </dd></dl>
@@ -301,17 +335,16 @@
 <dl class="field-list simple">
 <dt class="field-odd">Example</dt>
 <dd class="field-odd"><p></p></dd>
-</dl>
-<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">poly</span> <span class="o">=</span> <span class="n">edb_core</span><span class="o">.</span><span class="n">core_primitives</span><span class="o">.</span><span class="n">get_polygons_by_layer</span><span class="p">(</span><span class="s2">&quot;GND&quot;</span><span class="p">)</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">points</span>  <span class="o">=</span> <span class="n">edb_core</span><span class="o">.</span><span class="n">core_primitives</span><span class="o">.</span><span class="n">get_polygon_points</span><span class="p">(</span><span class="n">poly</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
-</pre></div>
-</div>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>polygon</strong> -- edb_core polygon</p>
+<dt class="field-even">Parameters</dt>
+<dd class="field-even"><p><strong>polygon</strong> -- edb_core polygon</p>
 </dd>
-<dt class="field-even">Returns</dt>
-<dd class="field-even"><p>list of list of double</p>
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p><ul class="simple">
+<li><p><em>type</em> -- list of list of double</p></li>
+<li><p><em>&gt;&gt;&gt; poly = edb_core.core_primitives.get_polygons_by_layer(&quot;GND&quot;)</em></p></li>
+<li><p><em>&gt;&gt;&gt; points  = edb_core.core_primitives.get_polygon_points(poly[0])</em></p></li>
+</ul>
+</p>
 </dd>
 </dl>
 </dd></dl>
@@ -323,19 +356,28 @@
 <dl class="field-list simple">
 <dt class="field-odd">Example</dt>
 <dd class="field-odd"><p></p></dd>
-</dl>
-<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">poly</span> <span class="o">=</span> <span class="n">edb_core</span><span class="o">.</span><span class="n">core_primitives</span><span class="o">.</span><span class="n">get_polygons_by_layer</span><span class="p">(</span><span class="s2">&quot;GND&quot;</span><span class="p">)</span>
-</pre></div>
-</div>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>layer_name</strong> -- str layer name</p>
+<dt class="field-even">Parameters</dt>
+<dd class="field-even"><p><strong>layer_name</strong> -- str layer name</p>
 </dd>
-<dt class="field-even">Returns</dt>
-<dd class="field-even"><p>list of polygons</p>
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p><ul class="simple">
+<li><p><em>type</em> -- list of polygons</p></li>
+<li><p><em>&gt;&gt;&gt; poly = edb_core.core_primitives.get_polygons_by_layer(&quot;GND&quot;)</em></p></li>
+</ul>
+</p>
 </dd>
 </dl>
 </dd></dl>
+
+<dl class="py method">
+<dt id="pyaedt.edb_core.layout.EdbLayout.layers">
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">layers</span></code><a class="headerlink" href="#pyaedt.edb_core.layout.EdbLayout.layers" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="pyaedt.edb_core.layout.EdbLayout.messenger">
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">messenger</span></code><a class="headerlink" href="#pyaedt.edb_core.layout.EdbLayout.messenger" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
 
 <dl class="py method">
 <dt id="pyaedt.edb_core.layout.EdbLayout.polygons">

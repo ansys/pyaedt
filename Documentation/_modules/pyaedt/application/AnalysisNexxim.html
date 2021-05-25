@@ -164,13 +164,20 @@
 
 
 <div class="viewcode-block" id="FieldAnalysisCircuit"><a class="viewcode-back" href="../../../API/AnalysisNexxim.html#pyaedt.application.AnalysisNexxim.FieldAnalysisCircuit">[docs]</a><span class="k">class</span> <span class="nc">FieldAnalysisCircuit</span><span class="p">(</span><span class="n">Analysis</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot; **AEDT_CircuitAnalysis**</span>
+    <span class="sd">&quot;&quot;&quot;**AEDT_CircuitAnalysis**</span>
 <span class="sd">    Class for Circuit Analysis Setup (Nexxim,)</span>
 <span class="sd">    It is automatically initialized by Application call (like HFSS, Q3D...). Refer to Application function for inputs definition</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
 
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">solution_type</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_solution_type</span>
 
 
@@ -178,9 +185,14 @@
     <span class="k">def</span> <span class="nf">solution_type</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">soltype</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Solution Type</span>
 
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        soltype :</span>
+<span class="sd">            SolutionType object</span>
 
-<span class="sd">        :param soltype: SolutionType object</span>
-<span class="sd">        :return:</span>
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="n">soltype</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_solution_type</span> <span class="o">=</span> <span class="n">solutions_settings</span><span class="p">[</span><span class="n">soltype</span><span class="p">]</span>
@@ -189,16 +201,14 @@
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">existing_analysis_setups</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot; Return a list of all defined analysis setup names in the maxwell design.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="sd">&quot;&quot;&quot; &quot;&quot;&quot;</span>
         <span class="n">oModule</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">odesign</span><span class="o">.</span><span class="n">GetModule</span><span class="p">(</span><span class="s2">&quot;SimSetup&quot;</span><span class="p">)</span>
         <span class="n">setups</span> <span class="o">=</span> <span class="n">oModule</span><span class="o">.</span><span class="n">GetAllSolutionSetups</span><span class="p">()</span>
         <span class="k">return</span> <span class="n">setups</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">nominal_sweep</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot; Return a list of all defined analysis setup names in the maxwell design.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="sd">&quot;&quot;&quot; &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">existing_analysis_setups</span><span class="p">:</span>
             <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">existing_analysis_setups</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
         <span class="k">else</span><span class="p">:</span>
@@ -213,35 +223,50 @@
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">modeler</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_modeler</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">oanalysis</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">odesign</span><span class="o">.</span><span class="n">GetModule</span><span class="p">(</span><span class="s2">&quot;SimSetup&quot;</span><span class="p">)</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">setup_names</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">oanalysis</span><span class="o">.</span><span class="n">GetAllSolutionSetups</span><span class="p">()</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">get_excitations_name</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Property</span>
-
+        <span class="sd">&quot;&quot;&quot;Property</span>
+<span class="sd">        </span>
 <span class="sd">        :return: BoundarySetup Module object</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">ports</span> <span class="o">=</span> <span class="p">[</span><span class="n">p</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s1">&#39;IPort@&#39;</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;;&#39;</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">modeler</span><span class="o">.</span><span class="n">oeditor</span><span class="o">.</span><span class="n">GetAllPorts</span><span class="p">()]</span>
         <span class="k">return</span> <span class="n">ports</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">get_all_sparameter_list</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">excitation_names</span><span class="o">=</span><span class="p">[]):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Get the list of all the SParameter from a list of exitations. If no exitation is provided it will provide a full list of sparameters</span>
+        <span class="sd">&quot;&quot;&quot;Get the list of all the SParameter from a list of exitations. If no exitation is provided it will provide a full list of sparameters</span>
 <span class="sd">        Example: excitation_names [&quot;1&quot;,&quot;2&quot;] output [&quot;S(1,1)&quot;, &quot;S(1,2)&quot;, S(2,2)]</span>
 
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        excitation_names :</span>
+<span class="sd">            list of excitation to include (Default value = [])</span>
 
-<span class="sd">        :param excitation_names: list of excitation to include</span>
-<span class="sd">        :return: list of strin representing Sparameters of excitations</span>
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        type</span>
+<span class="sd">            list of strin representing Sparameters of excitations</span>
+
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="n">excitation_names</span><span class="p">:</span>
             <span class="n">excitation_names</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_excitations_name</span>
@@ -256,13 +281,21 @@
 
 <div class="viewcode-block" id="FieldAnalysisCircuit.get_all_return_loss_list"><a class="viewcode-back" href="../../../API/AnalysisNexxim.html#pyaedt.application.AnalysisNexxim.FieldAnalysisCircuit.get_all_return_loss_list">[docs]</a>    <span class="nd">@aedt_exception_handler</span>
     <span class="k">def</span> <span class="nf">get_all_return_loss_list</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">excitation_names</span><span class="o">=</span><span class="p">[],</span> <span class="n">excitation_name_prefix</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Get the list of all the Returnloss from a list of exitations. If no exitation is provided it will provide a full list of return Losses</span>
+        <span class="sd">&quot;&quot;&quot;Get the list of all the Returnloss from a list of exitations. If no exitation is provided it will provide a full list of return Losses</span>
 <span class="sd">        Example: excitation_names [&quot;1&quot;,&quot;2&quot;] output [&quot;S(1,1)&quot;,, S(2,2)]</span>
 
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        excitation_names :</span>
+<span class="sd">            list of excitation to include (Default value = [])</span>
+<span class="sd">        excitation_name_prefix :</span>
+<span class="sd">             (Default value = &#39;&#39;)</span>
 
-<span class="sd">        :param excitation_names: list of excitation to include</span>
-<span class="sd">        :return: list of string representing Return Losses of excitations</span>
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        type</span>
+<span class="sd">            list of string representing Return Losses of excitations</span>
+
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="n">excitation_names</span><span class="p">:</span>
             <span class="n">excitation_names</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_excitations_name</span>
@@ -275,17 +308,26 @@
 
 <div class="viewcode-block" id="FieldAnalysisCircuit.get_all_insertion_loss_list"><a class="viewcode-back" href="../../../API/AnalysisNexxim.html#pyaedt.application.AnalysisNexxim.FieldAnalysisCircuit.get_all_insertion_loss_list">[docs]</a>    <span class="nd">@aedt_exception_handler</span>
     <span class="k">def</span> <span class="nf">get_all_insertion_loss_list</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">trlist</span><span class="o">=</span><span class="p">[],</span> <span class="n">reclist</span><span class="o">=</span><span class="p">[],</span> <span class="n">tx_prefix</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="n">rx_prefix</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Get the list of all the Insertion Losses from two list of exitations (driver and receiver). Optionally prefix can</span>
+        <span class="sd">&quot;&quot;&quot;Get the list of all the Insertion Losses from two list of exitations (driver and receiver). Optionally prefix can</span>
 <span class="sd">        be used to retrive driver and receiver names.</span>
 <span class="sd">        Example: excitation_names [&quot;1&quot;] [&quot;2&quot;] output [&quot;S(1,2)&quot;]</span>
 
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        trlist :</span>
+<span class="sd">            list of Drivers to include (Default value = [])</span>
+<span class="sd">        reclist :</span>
+<span class="sd">            list of Receiver to include. Number of Driver = Number of Receiver an (Default value = [])</span>
+<span class="sd">        tx_prefix :</span>
+<span class="sd">            prefix for TX (eg. &quot;DIE&quot;) (Default value = &#39;&#39;)</span>
+<span class="sd">        rx_prefix :</span>
+<span class="sd">            prefix for RX (eg. &quot;BGA&quot;) (Default value = &#39;&#39;)</span>
 
-<span class="sd">        :param trlist: list of Drivers to include</span>
-<span class="sd">        :param reclist: list of Receiver to include. Number of Driver = Number of Receiver an</span>
-<span class="sd">        :param tx_prefix: prefix for TX (eg. &quot;DIE&quot;)</span>
-<span class="sd">        :param rx_prefix: prefix for RX (eg. &quot;BGA&quot;)</span>
-<span class="sd">        :return: list of string representing Insertion Losses of excitations</span>
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        type</span>
+<span class="sd">            list of string representing Insertion Losses of excitations</span>
+
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">spar</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="n">trlist</span><span class="p">:</span>
@@ -301,15 +343,22 @@
 
 <div class="viewcode-block" id="FieldAnalysisCircuit.get_next_xtalk_list"><a class="viewcode-back" href="../../../API/AnalysisNexxim.html#pyaedt.application.AnalysisNexxim.FieldAnalysisCircuit.get_next_xtalk_list">[docs]</a>    <span class="nd">@aedt_exception_handler</span>
     <span class="k">def</span> <span class="nf">get_next_xtalk_list</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">trlist</span><span class="o">=</span><span class="p">[],</span> <span class="n">tx_prefix</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Get the list of all the Near End XTalk a list of exitation. Optionally prefix can</span>
+        <span class="sd">&quot;&quot;&quot;Get the list of all the Near End XTalk a list of exitation. Optionally prefix can</span>
 <span class="sd">        be used to retrive driver names.</span>
 <span class="sd">        Example: excitation_names [&quot;1&quot;, &quot;2&quot;, &quot;3&quot;] output [&quot;S(1,2)&quot;, &quot;S(1,3)&quot;, &quot;S(2,3)&quot;]</span>
 
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        trlist :</span>
+<span class="sd">            list of Drivers to include (Default value = [])</span>
+<span class="sd">        tx_prefix :</span>
+<span class="sd">            prefix for TX (eg. &quot;DIE&quot;) (Default value = &quot;&quot;)</span>
 
-<span class="sd">        :param trlist: list of Drivers to include</span>
-<span class="sd">        :param tx_prefix: prefix for TX (eg. &quot;DIE&quot;)</span>
-<span class="sd">        :return: list of string representing Near End XTalks</span>
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        type</span>
+<span class="sd">            list of string representing Near End XTalks</span>
+
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="nb">next</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="n">trlist</span><span class="p">:</span>
@@ -323,20 +372,29 @@
 
 <div class="viewcode-block" id="FieldAnalysisCircuit.get_fext_xtalk_list"><a class="viewcode-back" href="../../../API/AnalysisNexxim.html#pyaedt.application.AnalysisNexxim.FieldAnalysisCircuit.get_fext_xtalk_list">[docs]</a>    <span class="nd">@aedt_exception_handler</span>
     <span class="k">def</span> <span class="nf">get_fext_xtalk_list</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">trlist</span><span class="o">=</span><span class="p">[],</span> <span class="n">reclist</span><span class="o">=</span><span class="p">[],</span> <span class="n">tx_prefix</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="n">rx_prefix</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="n">skip_same_index_couples</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Get the list of all the Far End XTalk from 2 lists of exitations. Optionally prefix can</span>
+        <span class="sd">&quot;&quot;&quot;Get the list of all the Far End XTalk from 2 lists of exitations. Optionally prefix can</span>
 <span class="sd">        be used to retrive driver and receivers names. If skip_same_index_couples is true, the tx and rx with same index</span>
 <span class="sd">        position will be considered insertion losses and excluded from the list</span>
 <span class="sd">        Example: excitation_names [&quot;1&quot;, &quot;2&quot;] [&quot;3&quot;,&quot;4&quot;] output [&quot;S(1,4)&quot;, &quot;S(2,3)&quot;]</span>
 
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        trlist :</span>
+<span class="sd">            list of Drivers to include (Default value = [])</span>
+<span class="sd">        tx_prefix :</span>
+<span class="sd">            prefix for TX (eg. &quot;DIE&quot;) (Default value = &#39;&#39;)</span>
+<span class="sd">        reclist :</span>
+<span class="sd">            list of Receiver to include (Default value = [])</span>
+<span class="sd">        rx_prefix :</span>
+<span class="sd">            prefix for RX (eg. &quot;BGA&quot;) (Default value = &#39;&#39;)</span>
+<span class="sd">        skip_same_index_couples :</span>
+<span class="sd">            Boolean ignore TX and RX couple with same index (Default value = True)</span>
 
-<span class="sd">        :param trlist: list of Drivers to include</span>
-<span class="sd">        :param tx_prefix: prefix for TX (eg. &quot;DIE&quot;)</span>
-<span class="sd">        :param reclist: list of Receiver to include</span>
-<span class="sd">        :param rx_prefix: prefix for RX (eg. &quot;BGA&quot;)</span>
-<span class="sd">        :param skip_same_index_couples: Boolean ignore TX and RX couple with same index</span>
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        type</span>
+<span class="sd">            list of string representing Far End XTalks</span>
 
-<span class="sd">        :return: list of string representing Far End XTalks</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">fext</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="n">trlist</span><span class="p">:</span>
@@ -351,13 +409,18 @@
 
 <div class="viewcode-block" id="FieldAnalysisCircuit.get_setup"><a class="viewcode-back" href="../../../API/AnalysisNexxim.html#pyaedt.application.AnalysisNexxim.FieldAnalysisCircuit.get_setup">[docs]</a>    <span class="nd">@aedt_exception_handler</span>
     <span class="k">def</span> <span class="nf">get_setup</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">setupname</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;  Get Setup from current design.</span>
+        <span class="sd">&quot;&quot;&quot;Get Setup from current design.</span>
 
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        setupname : str</span>
+<span class="sd">            name of the setup</span>
 
-<span class="sd">        :param setupname: name of the setup</span>
-<span class="sd">        :type setupname: str</span>
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        type</span>
+<span class="sd">            setup object</span>
 
-<span class="sd">        :return: setup object</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">setuptype</span> <span class="o">=</span> <span class="n">SetupKeys</span><span class="o">.</span><span class="n">defaultSetups</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">solution_type</span><span class="p">]</span>
         <span class="n">setup</span> <span class="o">=</span> <span class="n">SetupCircuit</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">setuptype</span><span class="p">,</span> <span class="n">setupname</span><span class="p">,</span> <span class="n">isnewsetup</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
@@ -367,13 +430,22 @@
 
 <div class="viewcode-block" id="FieldAnalysisCircuit.create_setup"><a class="viewcode-back" href="../../../API/AnalysisNexxim.html#pyaedt.application.AnalysisNexxim.FieldAnalysisCircuit.create_setup">[docs]</a>    <span class="nd">@aedt_exception_handler</span>
     <span class="k">def</span> <span class="nf">create_setup</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">setupname</span><span class="o">=</span><span class="s2">&quot;MySetupAuto&quot;</span><span class="p">,</span> <span class="n">setuptype</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">props</span><span class="o">=</span><span class="p">{}):</span>
-        <span class="sd">&quot;&quot;&quot; Create a new Setup.</span>
+        <span class="sd">&quot;&quot;&quot;Create a new Setup.</span>
 
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        setupname :</span>
+<span class="sd">            optional, name of the new setup (Default value = &quot;MySetupAuto&quot;)</span>
+<span class="sd">        setuptype :</span>
+<span class="sd">            optional, setup type. if None, default type will be applied</span>
+<span class="sd">        props :</span>
+<span class="sd">            optional dictionary of properties with values (Default value = {})</span>
 
-<span class="sd">        :param setupname: optional, name of the new setup</span>
-<span class="sd">        :param setuptype: optional, setup type. if None, default type will be applied</span>
-<span class="sd">        :param props: optional dictionary of properties with values</span>
-<span class="sd">        :return: setup object</span>
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        type</span>
+<span class="sd">            setup object</span>
+
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="n">setuptype</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">setuptype</span> <span class="o">=</span> <span class="n">SetupKeys</span><span class="o">.</span><span class="n">defaultSetups</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">solution_type</span><span class="p">]</span>

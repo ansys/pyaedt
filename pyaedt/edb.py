@@ -60,15 +60,26 @@ from .generic.general_methods import get_filename_without_extension, generate_un
 class Edb(object):
     """EDB Object
 
+    Parameters
+    ----------
+    edbpath :
+        full path to aedb folder
+    cellname :
+        name of the cell to be selected.
+    isreadonly :
+        True in case edb_core is opened in read-only mode (when owned by 3DLayout)
+    edbversion :
+        version of edb_core to use. Default "2020.1"
+    isaedtowned :
+        True if edb_core is launched from 3dLayout
 
-    :param edbpath: full path to aedb folder
-    :param cellname: name of the cell to be selected.
-    :param isreadonly: True in case edb_core is opened in read-only mode (when owned by 3DLayout)
-    :param edbversion: version of edb_core to use. Default "2020.1"
-    :param isaedtowned: True if edb_core is launched from 3dLayout
+    Returns
+    -------
+
     """
     @aedt_exception_handler
     def _init_dlls(self):
+        """ """
         sys.path.append(os.path.join(os.path.dirname(__file__), "dlls", "EDBLib"))
         if os.name == 'posix':
             if env_path( self.edbversion) in os.environ:
@@ -106,6 +117,17 @@ class Edb(object):
 
     @aedt_exception_handler
     def open_edb(self, init_dlls=False):
+        """
+
+        Parameters
+        ----------
+        init_dlls :
+             (Default value = False)
+
+        Returns
+        -------
+
+        """
         if init_dlls:
             self._init_dlls()
         if not self.isreadonly:
@@ -118,6 +140,17 @@ class Edb(object):
 
     @aedt_exception_handler
     def open_edb_inside_aedt(self, init_dlls=False):
+        """
+
+        Parameters
+        ----------
+        init_dlls :
+             (Default value = False)
+
+        Returns
+        -------
+
+        """
         if init_dlls:
             self._init_dlls()
         self._messenger.add_info_message("Opening EDB from HDL")
@@ -135,13 +168,22 @@ class Edb(object):
 
     @aedt_exception_handler
     def import_layout_pcb(self, input_file, working_dir, init_dlls=False):
-        """
-        this function import a brd file and generate a edb.def file in working dir
+        """this function import a brd file and generate a edb.def file in working dir
 
+        Parameters
+        ----------
+        input_file :
+            full path to brd file
+        working_dir :
+            working dir where the aedb folder will be created. aedb name will be the same as brd name
+        init_dlls :
+             (Default value = False)
 
-        :param input_file: full path to brd file
-        :param working_dir: working dir where the aedb folder will be created. aedb name will be the same as brd name
-        :return: aedbfile full path
+        Returns
+        -------
+        type
+            aedbfile full path
+
         """
         if init_dlls:
             self._init_dlls()
@@ -208,8 +250,18 @@ class Edb(object):
             self.edb_exception(ex_value, ex_traceback)
 
     def edb_exception(self, ex_value, tb_data):
-        """
-        writes the trace stack to the desktop when a python error occurs
+        """writes the trace stack to the desktop when a python error occurs
+
+        Parameters
+        ----------
+        ex_value :
+            
+        tb_data :
+            
+
+        Returns
+        -------
+
         """
         tb_trace = traceback.format_tb(tb_data)
         tblist = tb_trace[0].split('\n')
@@ -219,10 +271,12 @@ class Edb(object):
 
     @property
     def messenger(self):
+        """ """
         return self._messenger
 
     @property
     def db(self):
+        """ """
         # if self.builder:
         #     self._db = self.builder.EdbHandler.dB
         #     return self._db
@@ -271,53 +325,62 @@ class Edb(object):
 
     @property
     def active_cell(self):
+        """ """
         return self._active_cell
 
 
     @property
     def core_components(self):
+        """ """
         if not self._components:
             self._components = Components(self)
         return self._components
 
     @property
     def core_stackup(self):
+        """ """
         if not self._stackup:
             self._stackup = EdbStackup(self)
         return self._stackup
 
     @property
     def core_padstack(self):
+        """ """
         if not self._padstack:
             self._padstack = EdbPadstacks(self)
         return self._padstack
 
     @property
     def core_siwave(self):
+        """ """
         if not self._siwave:
             self._siwave = EdBSiwave(self)
         return self._siwave
 
     @property
     def core_hfss(self):
+        """ """
         if not self._hfss:
             self._hfss = Edb3DLayout(self)
         return self._hfss
 
     @property
     def core_nets(self):
+        """ """
         if not self._nets:
             self._nets = EdbNets(self)
         return self._nets
 
     @property
     def core_primitives(self):
+        """ """
         if not self._primitives:
             self._primitives = EdbLayout(self)
         return self._primitives
 
     @property
     def active_layout(self):
+        """ """
         return self.active_cell.GetLayout()
 
     # @property
@@ -326,10 +389,7 @@ class Edb(object):
 
     @property
     def pins(self):
-        """
-
-        :return:List of All Pins
-        """
+        """:return:List of All Pins"""
         pins=[]
         for el in self.core_components.components:
             comp = self.edb.Cell.Hierarchy.Component.FindByName(self.active_layout, el)
@@ -341,37 +401,69 @@ class Edb(object):
 
 
     class Boundaries:
+        """ """
         (Port, Pec, RLC, CurrentSource, VoltageSource, NexximGround, NexximPort, DcTerminal, VoltageProbe) = range(0, 9)
 
     @aedt_exception_handler
     def edb_value(self, val):
+        """
+
+        Parameters
+        ----------
+        val :
+            
+
+        Returns
+        -------
+
+        """
         return self.edb.Utility.Value(val)
 
     @aedt_exception_handler
     def close_edb(self):
+        """ """
         self._db.Close()
         return True
 
     @aedt_exception_handler
     def save_edb(self):
+        """ """
         self._db.Save()
         return True
 
     @aedt_exception_handler
     def execute(self, func):
+        """
+
+        Parameters
+        ----------
+        func :
+            
+
+        Returns
+        -------
+
+        """
         return self.edb.Utility.Command.Execute(func)
 
 
 
     @aedt_exception_handler
     def import_cadence_file(self, inputBrd, WorkDir=None):
-        """
-        this function import a brd file and generate a edb.def file in working dir
+        """this function import a brd file and generate a edb.def file in working dir
 
+        Parameters
+        ----------
+        inputBrd :
+            full path to brd file
+        WorkDir :
+            working dir where the aedb folder will be created. aedb name will be the same as brd name (Default value = None)
 
-        :param inputBrd: full path to brd file
-        :param WorkDir: working dir where the aedb folder will be created. aedb name will be the same as brd name
-        :return: Bool
+        Returns
+        -------
+        type
+            Bool
+
         """
         if self.import_layout_pcb(inputBrd, working_dir=WorkDir):
             return True
@@ -380,13 +472,20 @@ class Edb(object):
 
     @aedt_exception_handler
     def import_gds_file(self, inputGDS, WorkDir=None):
-        """
-        this function import a brd file and generate a edb.def file in working dir
+        """this function import a brd file and generate a edb.def file in working dir
 
+        Parameters
+        ----------
+        inputGDS :
+            full path to brd file
+        WorkDir :
+            working dir where the aedb folder will be created. aedb name will be the same as brd name (Default value = None)
 
-        :param inputGDS: full path to brd file
-        :param WorkDir: working dir where the aedb folder will be created. aedb name will be the same as brd name
-        :return: aedbfile full path
+        Returns
+        -------
+        type
+            aedbfile full path
+
         """
         if self.import_layout_pcb(inputBrd, working_dir=WorkDir):
             return True
@@ -435,12 +534,18 @@ class Edb(object):
 
     @aedt_exception_handler
     def get_rlc_from_signal_nets(self, CmpDict=None):
-        """
-        Get RLC from signal Nets
+        """Get RLC from signal Nets
 
+        Parameters
+        ----------
+        CmpDict :
+            dictionary of components (Default value = None)
 
-        :param CmpDict: dictionary of components
-        :return: list of components that belongs to signal nets
+        Returns
+        -------
+        type
+            list of components that belongs to signal nets
+
         """
         # CmpInf = self.GetCmpInf(layout)
         RlcFromSignalNets = {}
@@ -453,12 +558,18 @@ class Edb(object):
 
     @aedt_exception_handler
     def is_power_gound_net(self, NetNameList):
-        """
-        Return a True if one of the net in the list is power or ground
+        """Return a True if one of the net in the list is power or ground
 
+        Parameters
+        ----------
+        NetNameList :
+            list of net names
 
-        :param NetNameList: list of net names
-        :return: True if one of net name is power or ground
+        Returns
+        -------
+        type
+            True if one of net name is power or ground
+
         """
         for nn in range(len(NetNameList)):
             net = self.edb.Cell.Net.FindByName(self.active_layout, NetNameList[nn])
@@ -468,12 +579,18 @@ class Edb(object):
 
     @aedt_exception_handler
     def get_rl_from_nets(self, CmpDict):
-        """
-        Return an array of components with RL based on a Component Dictionary
+        """Return an array of components with RL based on a Component Dictionary
 
+        Parameters
+        ----------
+        CmpDict :
+            Imput Component Dictionary
 
-        :param CmpDict: Imput Component Dictionary
-        :return: Componenet nets for component dictionary
+        Returns
+        -------
+        type
+            Componenet nets for component dictionary
+
         """
         RlFromNets = {}
         for cmp in CmpDict.keys():
@@ -484,13 +601,20 @@ class Edb(object):
 
     @aedt_exception_handler
     def get_rl_for_DC_path(self, CmpDict, ResMaxValue=10):
-        """
-        Return the Rl DC Path of a specific dictionary list
+        """Return the Rl DC Path of a specific dictionary list
 
+        Parameters
+        ----------
+        CmpDict :
+            dictionary of components
+        ResMaxValue :
+            max value of Resistance to be considered in DC Path (Default value = 10)
 
-        :param CmpDict: dictionary of components
-        :param ResMaxValue: max value of Resistance to be considered in DC Path
-        :return: Dictionary of components with nets
+        Returns
+        -------
+        type
+            Dictionary of components with nets
+
         """
         RlDCPath = {}
         for cmp in CmpDict.keys():
@@ -519,6 +643,27 @@ class Edb(object):
 
     @aedt_exception_handler
     def create_multipin_rlc(self, componentType, baseComponent, positiveNetName, negativeNetName, value=None, s2pPath=None):
+        """
+
+        Parameters
+        ----------
+        componentType :
+            
+        baseComponent :
+            
+        positiveNetName :
+            
+        negativeNetName :
+            
+        value :
+             (Default value = None)
+        s2pPath :
+             (Default value = None)
+
+        Returns
+        -------
+
+        """
         returnOnError = None
 
         baseComponentName = baseComponent.GetName()
@@ -555,6 +700,21 @@ class Edb(object):
 
     @aedt_exception_handler
     def dissolve_component(self, component, positiveNetName, negativeNetName):
+        """
+
+        Parameters
+        ----------
+        component :
+            
+        positiveNetName :
+            
+        negativeNetName :
+            
+
+        Returns
+        -------
+
+        """
         returnOnError = (None, None)
 
         positivePins = self.get_pin_from_component(component, positiveNetName)
@@ -584,6 +744,25 @@ class Edb(object):
 
     @aedt_exception_handler
     def create_divided_componenets(self, positivePins, negativePins, componentTransform, baseComponentName, layout):
+        """
+
+        Parameters
+        ----------
+        positivePins :
+            
+        negativePins :
+            
+        componentTransform :
+            
+        baseComponentName :
+            
+        layout :
+            
+
+        Returns
+        -------
+
+        """
         returnOnError = (None, None)
 
         if positivePins is None or len(positivePins) < 1:

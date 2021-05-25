@@ -5,10 +5,7 @@ from .Mesh import meshers, MeshOperation
 
 
 class IcepakMesh(object):
-    """
-    Manage Main Icepak Mesh Functions
-
-    """
+    """Manage Main Icepak Mesh Functions"""
 
     def __init__(self, parent):
         self._parent = parent
@@ -21,9 +18,7 @@ class IcepakMesh(object):
         self._priorities_args = []
 
     class MeshRegion(object):
-        """
-        Class that manage the Mesh Region Settings of Icepak
-        """
+        """Class that manage the Mesh Region Settings of Icepak"""
 
         def __init__(self, meshmodule, dimension, units):
             self.name = "Settings"
@@ -54,6 +49,7 @@ class IcepakMesh(object):
 
         @property
         def autosettings(self):
+            """ """
             arg = ["MeshMethod:=", "MesherHD", "UserSpecifiedSettings:=", self.UserSpecifiedSettings, "ComputeGap:=",
                    self.ComputeGap, "MeshRegionResolution:=", self.Level, "MinGapX:=",
                    str(self.MinGapX) + self.model_units, "MinGapY:=",
@@ -63,6 +59,7 @@ class IcepakMesh(object):
 
         @property
         def manualsettings(self):
+            """ """
             arg = ["MeshMethod:=", "MesherHD", "UserSpecifiedSettings:=", self.UserSpecifiedSettings, "ComputeGap:=",
                    self.ComputeGap, "MaxElementSizeX:=", str(self.MaxElementSizeX) + self.model_units,
                    "MaxElementSizeY:=",
@@ -80,14 +77,21 @@ class IcepakMesh(object):
 
         @property
         def odesign(self):
+            """ """
             return self._parent._odesign
 
         @aedt_exception_handler
         def update(self):
-            """
-            Update the Mesh Region Settings with the ones in the object variable
-
+            """Update the Mesh Region Settings with the ones in the object variable
+            
             :return: None
+
+            Parameters
+            ----------
+
+            Returns
+            -------
+
             """
             if self.name == "Settings":
                 args = ["NAME:Settings"]
@@ -106,9 +110,16 @@ class IcepakMesh(object):
         @aedt_exception_handler
         def create(self):
             """Create a new mesh region
-
-
+            
+            
             :return: Bool
+
+            Parameters
+            ----------
+
+            Returns
+            -------
+
             """
             assert self.name != "Settings", "Cannot create a new mesh region with this Name"
             args = ["NAME:" + self.name, "Enable:=", self.Enable]
@@ -122,24 +133,29 @@ class IcepakMesh(object):
 
     @property
     def omeshmodule(self):
+        """ """
         design_type = self.odesign.GetDesignType()
         assert design_type in meshers, "Invalid design type {}".format(design_type)
         return self.odesign.GetModule(meshers[design_type])
 
     @property
     def boundingdimension(self):
+        """ """
         return self.modeler.get_bounding_dimension()
 
     @property
     def odesign(self):
+        """ """
         return self._parent._odesign
 
     @property
     def modeler(self):
+        """ """
         return self._parent._modeler
 
     @aedt_exception_handler
     def _get_design_mesh_operations(self):
+        """ """
         meshops = []
         try:
             for ds in self._parent.design_properties['MeshRegion']['MeshSetup']['MeshOperations']:
@@ -152,6 +168,7 @@ class IcepakMesh(object):
 
     @aedt_exception_handler
     def _get_design_mesh_regions(self):
+        """ """
         meshops = []
         try:
             for ds in self._parent.design_properties['MeshRegion']['MeshSetup']['MeshRegions']:
@@ -169,12 +186,20 @@ class IcepakMesh(object):
 
     @aedt_exception_handler
     def assign_mesh_level(self, mesh_order, meshop_name=None):
-        """
-        Assign a specific mesh level to objects
+        """Assign a specific mesh level to objects
 
+        Parameters
+        ----------
+        mesh_order :
+            Dictionary. Key is object name, value is Mesh Level
+        meshop_name :
+             (Default value = None)
 
-        :param mesh_order: Dictionary. Key is object name, value is Mesh Level
-        :return: Boolean
+        Returns
+        -------
+        type
+            Boolean
+
         """
 
         level_order = {}
@@ -197,12 +222,18 @@ class IcepakMesh(object):
 
     @aedt_exception_handler
     def automatic_mesh_pcb(self, accuracy=2):
-        """
-        create custom Mesh tailored on PCB Design
+        """create custom Mesh tailored on PCB Design
 
+        Parameters
+        ----------
+        accuracy :
+            1 coarse, 2 standard, 3 very accurate (Default value = 2)
 
-        :param accuracy: 1 coarse, 2 standard, 3 very accurate
-        :return: Boolean
+        Returns
+        -------
+        type
+            Boolean
+
         """
         xsize = self.boundingdimension[0] / (15 * accuracy * accuracy)
         ysize = self.boundingdimension[1] / (15 * accuracy * accuracy)
@@ -224,13 +255,20 @@ class IcepakMesh(object):
 
     @aedt_exception_handler
     def automatic_mesh_3D(self, accuracy2, stairStep=True):
-        """
-        create custom Mesh generic for custom 3D object
+        """create custom Mesh generic for custom 3D object
 
+        Parameters
+        ----------
+        accuracy2 :
+            1 standard, 2 accurate, 3 very accurate
+        stairStep :
+            bool to enable stair step (Default value = True)
 
-        :param accuracy2: 1 standard, 2 accurate, 3 very accurate
-        :param stairStep: bool to enable stair step
-        :return: Boolean
+        Returns
+        -------
+        type
+            Boolean
+
         """
         xsize = self.boundingdimension[0] / (10 * accuracy2 * accuracy2)
         ysize = self.boundingdimension[1] / (10 * accuracy2 * accuracy2)
@@ -250,11 +288,22 @@ class IcepakMesh(object):
     def add_priority(self, entity_type, obj_list, comp_name=None, priority=3):
         """Add Priority to objects:
 
-        :param entity_type: 1 : Object  2 : Component
-        :param obj_list: list of object (it could be a list of conductors and dielctrics)
-        :param comp_name: name of component
-        :param priority: Prioririty level. Default value 3
-        :return: Boolean
+        Parameters
+        ----------
+        entity_type :
+            1 : Object  2 : Component
+        obj_list :
+            list of object (it could be a list of conductors and dielctrics)
+        comp_name :
+            name of component (Default value = None)
+        priority :
+            Prioririty level. Default value 3
+
+        Returns
+        -------
+        type
+            Boolean
+
         """
         i = priority
         objects = ", ".join(obj_list)
@@ -284,14 +333,21 @@ class IcepakMesh(object):
 
     @aedt_exception_handler
     def assign_mesh_region(self, objectlist=[], level=5, name="MeshRegion1"):
-        """
-        Assign a predefined surface mesh level to an object
+        """Assign a predefined surface mesh level to an object
 
+        Parameters
+        ----------
+        level :
+            level of surface mesh (integer 1 - 5) (Default value = 5)
+        objectlist :
+            list of object where apply the mesh region (Default value = [])
+        name :
+            mesh region name (Default value = "MeshRegion1")
 
-        :param level: level of surface mesh (integer 1 - 5)
-        :param objectlist: list of object where apply the mesh region
-        :param name: mesh region name
-        :return: meshregion object
+        Returns
+        -------
+        type
+            meshregion object
 
         """
         meshregion = self.MeshRegion(self.omeshmodule, self.boundingdimension, self.modeler.model_units)
@@ -310,27 +366,43 @@ class IcepakMesh(object):
 
     @aedt_exception_handler
     def generate_mesh(self, name):
-        """
-        Generate Mesh for Setup name. Return 0 if mesh failed or 1 if passed
+        """Generate Mesh for Setup name. Return 0 if mesh failed or 1 if passed
 
+        Parameters
+        ----------
+        name :
+            name of design to be meshed
 
-        :param name:  name of design to be meshed
-        :return: Boolean
+        Returns
+        -------
+        type
+            Boolean
+
         """
         return self.odesign.GenerateMesh(name)
 
     @aedt_exception_handler
     def assign_mesh_level_to_group(self, mesh_level, groupName, localMeshParamEn=False,
                                    localMeshParameters="No Local Mesh Parameters", meshop_name=None):
-        """
-        Assign Mesh Level to group
+        """Assign Mesh Level to group
 
+        Parameters
+        ----------
+        mesh_level :
+            level of mesh to apply (int)
+        groupName :
+            name of the group
+        localMeshParamEn :
+            Bool (Default value = False)
+        localMeshParameters :
+            return: meshoperation object (Default value = "No Local Mesh Parameters")
+        meshop_name :
+             (Default value = None)
 
-        :param mesh_level: level of mesh to apply (int)
-        :param groupName: name of the group
-        :param localMeshParamEn: Bool
-        :param localMeshParameters:
-        :return: meshoperation object
+        Returns
+        -------
+        type
+            meshoperation object
 
         """
         if meshop_name:

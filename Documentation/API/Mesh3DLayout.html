@@ -229,7 +229,8 @@
 <em class="property"><span class="pre">class</span> </em><code class="sig-prename descclassname"><span class="pre">pyaedt.modules.Mesh3DLayout.</span></code><code class="sig-name descname"><span class="pre">Mesh</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">parent</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pyaedt/modules/Mesh3DLayout.html#Mesh"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyaedt.modules.Mesh3DLayout.Mesh" title="Permalink to this definition">¶</a></dt>
 <dd><p>&quot;&quot;
 Manage Main AEDT Mesh Functions
-AEDTConfig Class Inherited contains all the _desktop Hierarchical calls needed to the class</p>
+AEDTConfig Class Inherited contains all the _desktop Hierarchical calls needed to the class
+&quot;&quot;</p>
 <dl class="py method">
 <dt id="pyaedt.modules.Mesh3DLayout.Mesh.assign_length_mesh">
 <code class="sig-name descname"><span class="pre">assign_length_mesh</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">setupname</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">layer_name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">net_name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">isinside</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">maxlength</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">maxel</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1000</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">meshop_name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pyaedt/modules/Mesh3DLayout.html#Mesh.assign_length_mesh"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyaedt.modules.Mesh3DLayout.Mesh.assign_length_mesh" title="Permalink to this definition">¶</a></dt>
@@ -238,14 +239,19 @@ AEDTConfig Class Inherited contains all the _desktop Hierarchical calls needed t
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>setupname</strong> -- name of HFSS setup to be applied</p></li>
 <li><p><strong>names</strong> -- net lists.</p></li>
-<li><p><strong>isinside</strong> -- True if length mesh is inside selection, False if outside</p></li>
-<li><p><strong>maxlength</strong> -- maxlength maximum element length. None to disable</p></li>
-<li><p><strong>maxel</strong> -- max number of element. None to disable</p></li>
-<li><p><strong>meshop_name</strong> -- optional mesh operation name</p></li>
+<li><p><strong>isinside</strong> -- True if length mesh is inside selection, False if outside (Default value = True)</p></li>
+<li><p><strong>maxlength</strong> -- maxlength maximum element length. None to disable (Default value = 1)</p></li>
+<li><p><strong>maxel</strong> -- max number of element. None to disable (Default value = 1000)</p></li>
+<li><p><strong>meshop_name</strong> -- optional mesh operation name (Default value = None)</p></li>
+<li><p><strong>layer_name</strong> -- </p></li>
+<li><p><strong>net_name</strong> -- </p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>
 <dd class="field-even"><p>meshoperation object</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>type</p>
 </dd>
 </dl>
 </dd></dl>
@@ -258,14 +264,19 @@ AEDTConfig Class Inherited contains all the _desktop Hierarchical calls needed t
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>layer_name</strong> -- name of the layer</p></li>
 <li><p><strong>net_name</strong> -- name of the net</p></li>
-<li><p><strong>skindepth</strong> -- Skin Depth length</p></li>
-<li><p><strong>maxelements</strong> -- maxlength maximum element length. None to disable</p></li>
-<li><p><strong>triangulation_max_length</strong> -- maximum surface triangulation length</p></li>
-<li><p><strong>numlayers</strong> -- number of layers</p></li>
+<li><p><strong>skindepth</strong> -- Skin Depth length (Default value = 1)</p></li>
+<li><p><strong>maxelements</strong> -- maxlength maximum element length. None to disable (Default value = None)</p></li>
+<li><p><strong>triangulation_max_length</strong> -- maximum surface triangulation length (Default value = 0.1)</p></li>
+<li><p><strong>numlayers</strong> -- number of layers (Default value = &quot;2&quot;)</p></li>
+<li><p><strong>setupname</strong> -- </p></li>
+<li><p><strong>meshop_name</strong> -- (Default value = None)</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>
 <dd class="field-even"><p>meshoperation object</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>type</p>
 </dd>
 </dl>
 </dd></dl>
@@ -278,8 +289,29 @@ AEDTConfig Class Inherited contains all the _desktop Hierarchical calls needed t
 <dt class="field-odd">Returns</dt>
 <dd class="field-odd"><p>Boolean</p>
 </dd>
+<dt class="field-even">Parameters</dt>
+<dd class="field-even"><ul class="simple">
+<li><p><strong>setup_name</strong> -- </p></li>
+<li><p><strong>mesh_name</strong> -- </p></li>
+</ul>
+</dd>
 </dl>
 </dd></dl>
+
+<dl class="py method">
+<dt id="pyaedt.modules.Mesh3DLayout.Mesh.messenger">
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">messenger</span></code><a class="headerlink" href="#pyaedt.modules.Mesh3DLayout.Mesh.messenger" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="pyaedt.modules.Mesh3DLayout.Mesh.modeler">
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">modeler</span></code><a class="headerlink" href="#pyaedt.modules.Mesh3DLayout.Mesh.modeler" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="pyaedt.modules.Mesh3DLayout.Mesh.odesign">
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">odesign</span></code><a class="headerlink" href="#pyaedt.modules.Mesh3DLayout.Mesh.odesign" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
 
 <dl class="py method">
 <dt id="pyaedt.modules.Mesh3DLayout.Mesh.omeshmodule">

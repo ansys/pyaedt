@@ -40,12 +40,10 @@ message_levels = {'Global': 0,
 
 
 class AEDTMessageManager(object):
-    """
-    Class that manage AEDT Messaging to the logger file and to the AEDT Message UI
-
-    """
+    """Class that manage AEDT Messaging to the logger file and to the AEDT Message UI"""
     @property
     def oproject(self):
+        """ """
         if not self._parent:
             return self._desktop.GetActiveProject()
         else:
@@ -53,6 +51,7 @@ class AEDTMessageManager(object):
 
     @property
     def odesign(self):
+        """ """
         if not self._parent:
             return self.oproject.GetActiveDesign()
         else:
@@ -74,6 +73,17 @@ class AEDTMessageManager(object):
 
     @aedt_exception_handler
     def design_name(self, level=None):
+        """
+
+        Parameters
+        ----------
+        level :
+             (Default value = None)
+
+        Returns
+        -------
+
+        """
         if not level:
             level = 'Design'
         if message_levels[level] > 1:
@@ -86,6 +96,17 @@ class AEDTMessageManager(object):
 
     @aedt_exception_handler
     def project_name(self, level=None):
+        """
+
+        Parameters
+        ----------
+        level :
+             (Default value = None)
+
+        Returns
+        -------
+
+        """
         if not level:
             level = 'Design'
         if message_levels[level] > 0:
@@ -98,12 +119,19 @@ class AEDTMessageManager(object):
 
     @aedt_exception_handler
     def add_error_message(self, message_text, level='Design'):
-        """ Add a type 2 "Error" message to the active design level of the message manager tree
+        """Add a type 2 "Error" message to the active design level of the message manager tree
             Add an error message to the logger if the handler is present
 
+        Parameters
+        ----------
+        message_text :
+            message to show
+        level :
+            message level. Default message level is 'Design'
 
-        :param message_text: message to show
-        :param level: message level. Default message level is 'Design'
+        Returns
+        -------
+
         """
 
         self.add_message(2, message_text, level)
@@ -112,12 +140,19 @@ class AEDTMessageManager(object):
 
     @aedt_exception_handler
     def add_warning_message(self, message_text, level='Design'):
-        """ Add a type 1 "Warning" message to the active design level of the message manager tree
+        """Add a type 1 "Warning" message to the active design level of the message manager tree
             Add a warning message to the logger if the handler is present
 
+        Parameters
+        ----------
+        message_text :
+            message to show
+        level :
+            message level. Default message level is 'Design'
 
-        :param message_text: message to show
-        :param level: message level. Default message level is 'Design'
+        Returns
+        -------
+
         """
         self.add_message(1, message_text, level)
         if self.logger:
@@ -125,12 +160,19 @@ class AEDTMessageManager(object):
 
     @aedt_exception_handler
     def add_info_message(self, message_text, level='Design'):
-        """ Add a type 0 "Info" message to the active design level of the message manager tree
+        """Add a type 0 "Info" message to the active design level of the message manager tree
             Add an info message to the logger if the handler is present
 
+        Parameters
+        ----------
+        message_text :
+            message to show
+        level :
+            message level. Default message level is 'Design'
 
-        :param message_text: message to show
-        :param level: message level. Default message level is 'Design'
+        Returns
+        -------
+
         """
         self.add_message(0, message_text, level)
         if self.logger:
@@ -138,12 +180,19 @@ class AEDTMessageManager(object):
 
     @aedt_exception_handler
     def add_debug_message(self, message_text, level='Design'):
-        """ Add a type 0 "Info" message to the active design level of the message manager tree
+        """Add a type 0 "Info" message to the active design level of the message manager tree
             Add a debug message to the logger if the handler is present
 
+        Parameters
+        ----------
+        message_text :
+            message to show
+        level :
+            message level. Default message level is 'Design'
 
-        :param message_text: message to show
-        :param level: message level. Default message level is 'Design'
+        Returns
+        -------
+
         """
         self.add_message(0, message_text, level)
         if self.logger:
@@ -151,15 +200,24 @@ class AEDTMessageManager(object):
 
     @aedt_exception_handler
     def add_message(self, type, message_text, level=None, proj_name=None, des_name=None):
-        """ Passes a parametrizable message to the AEDT messag manger allowing specification of type and project/design level
+        """Passes a parametrizable message to the AEDT messag manger allowing specification of type and project/design level
 
+        Parameters
+        ----------
+        type :
+            Types: 0: info, 1: Warning, 2: Error
+        message_text :
+            message to show
+        level :
+            message level. Default message level is 'Design'
+        proj_name :
+            project name (Default value = None)
+        des_name :
+            design name (Default value = None)
 
-        :param type: Types: 0: info, 1: Warning, 2: Error
-        :param message_text: message to show
-        :param level: message level. Default message level is 'Design'
-        :param proj_name: project name
-        :param des_name: design name
-        :return:
+        Returns
+        -------
+
         """
         if self.loadondesktop:
             if not proj_name:
@@ -180,17 +238,24 @@ class AEDTMessageManager(object):
 
     @aedt_exception_handler
     def clear_messages(self, proj_name=None, des_name=None, level=2):
-        """
-        Optional Severity Levels
+        """Optional Severity Levels
         0 -- clear all info messages;
         1 -- clear all info and warning messages;
         2 -- clear all info, warning and error messages;
         3 -- clear all messages included info, warning, error, and fatal-error.
 
+        Parameters
+        ----------
+        proj_name :
+            name of project (or blank string for all projects) (Default value = None)
+        des_name :
+            name of design (or blank string for all design) (Default value = None)
+        level :
+            severity level (Default value = 2)
 
-        :param proj_name: name of project (or blank string for all projects)
-        :param des_name: name of design (or blank string for all design)
-        :param level: severity level
+        Returns
+        -------
+
         """
         if proj_name is None:
             proj_name = self.oproject.GetName()
@@ -202,10 +267,7 @@ class AEDTMessageManager(object):
 
 
 class EDBMessageManager(object):
-    """
-    Class that manage EDB Messaging to the logger file
-
-    """
+    """Class that manage EDB Messaging to the logger file"""
     def __init__(self, project_dir="C:\\Temp"):
         self.logger = logging.getLogger(__name__)
         if not self.logger.handlers:
@@ -217,27 +279,45 @@ class EDBMessageManager(object):
             self.logger = logging.getLogger(__name__)
 
     def add_error_message(self, message_text):
-        """ Add a type 2 "Error" message to the logger
+        """Add a type 2 "Error" message to the logger
 
+        Parameters
+        ----------
+        message_text :
+            message to show
 
-        :param message_text: message to show
+        Returns
+        -------
+
         """
 
         self.logger.error(message_text)
 
     def add_warning_message(self, message_text):
-        """ Add a "Warning" message to the logger
+        """Add a "Warning" message to the logger
 
+        Parameters
+        ----------
+        message_text :
+            message to show
 
-        :param message_text: message to show
+        Returns
+        -------
+
         """
         self.logger.warning(message_text)
 
     def add_info_message(self, message_text):
-        """ Add an "Info" message to the logger
+        """Add an "Info" message to the logger
 
+        Parameters
+        ----------
+        message_text :
+            message to show
 
-        :param message_text: message to show
+        Returns
+        -------
+
         """
         self.logger.info(message_text)
 

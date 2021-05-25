@@ -179,10 +179,16 @@
 <span class="kn">from</span> <span class="nn">..generic.general_methods</span> <span class="kn">import</span> <span class="n">aedt_exception_handler</span>
 
 <div class="viewcode-block" id="MatProperties"><a class="viewcode-back" href="../../../API/Material.html#pyaedt.modules.Material.MatProperties">[docs]</a><span class="k">class</span> <span class="nc">MatProperties</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    list of constants of all possible materials constant names and how they are mapped to XML</span>
+    <span class="sd">&quot;&quot;&quot;list of constants of all possible materials constant names and how they are mapped to XML</span>
 <span class="sd">    internalame=named used in script</span>
 <span class="sd">    xmlname=named used in XML syntax</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">aedtname</span> <span class="o">=</span>     <span class="p">[</span><span class="s1">&#39;permittivity&#39;</span><span class="p">,</span> <span class="s1">&#39;permeability&#39;</span><span class="p">,</span> <span class="s1">&#39;conductivity&#39;</span><span class="p">,</span> <span class="s1">&#39;dielectric_loss_tangent&#39;</span><span class="p">,</span> <span class="s1">&#39;magnetic_loss_tangent&#39;</span><span class="p">,</span> <span class="s1">&#39;thermal_conductivity&#39;</span><span class="p">,</span> <span class="s1">&#39;mass_density&#39;</span><span class="p">,</span> <span class="s1">&#39;specific_heat&#39;</span><span class="p">,</span> <span class="s1">&#39;thermal_expansion_coefficient&#39;</span><span class="p">,</span> <span class="s1">&#39;youngs_modulus&#39;</span><span class="p">,</span>   <span class="s1">&#39;poissons_ratio&#39;</span><span class="p">,</span>   <span class="s1">&#39;emissivity&#39;</span><span class="p">,</span> <span class="s1">&#39;diffusivity&#39;</span><span class="p">,</span> <span class="s1">&#39;molecular_mass&#39;</span><span class="p">,</span> <span class="s1">&#39;viscosity&#39;</span><span class="p">,</span> <span class="s1">&#39;core_loss_kh&#39;</span><span class="p">,</span> <span class="s1">&#39;core_loss_kc&#39;</span><span class="p">,</span> <span class="s1">&#39;core_loss_ke&#39;</span><span class="p">]</span>
     <span class="n">fullname</span> <span class="o">=</span>     <span class="p">[</span><span class="s1">&#39;Permittivity&#39;</span><span class="p">,</span> <span class="s1">&#39;Permeability&#39;</span><span class="p">,</span> <span class="s1">&#39;Conductivity&#39;</span><span class="p">,</span> <span class="s1">&#39;Dielectric Loss Tangent&#39;</span><span class="p">,</span> <span class="s1">&#39;Magnetic Loss Tangent&#39;</span><span class="p">,</span> <span class="s1">&#39;Thermal Conductivity&#39;</span><span class="p">,</span> <span class="s1">&#39;Mass Density&#39;</span><span class="p">,</span> <span class="s1">&#39;Specific Heat&#39;</span><span class="p">,</span> <span class="s1">&#39;Thermal Expansion Coefficient&#39;</span><span class="p">,</span> <span class="s1">&#39;Young</span><span class="se">\&#39;</span><span class="s1">s Modulus&#39;</span><span class="p">,</span> <span class="s1">&#39;Poisson</span><span class="se">\&#39;</span><span class="s1">s Ratio&#39;</span><span class="p">,</span> <span class="s1">&#39;Emissivity&#39;</span><span class="p">,</span> <span class="s1">&#39;Diffusivity&#39;</span><span class="p">,</span> <span class="s1">&#39;Molecular Mmass&#39;</span><span class="p">,</span> <span class="s1">&#39;Viscosity&#39;</span><span class="p">,</span> <span class="s1">&#39;Hysteresis application Loss&#39;</span><span class="p">,</span> <span class="s1">&#39;Eddy-Current application Loss&#39;</span><span class="p">,</span> <span class="s1">&#39;Excess application Loss&#39;</span><span class="p">]</span>
@@ -194,14 +200,22 @@
 
 <div class="viewcode-block" id="MatProperties.get_defaultunit"><a class="viewcode-back" href="../../../API/Material.html#pyaedt.modules.Material.MatProperties.get_defaultunit">[docs]</a>    <span class="nd">@classmethod</span>
     <span class="k">def</span> <span class="nf">get_defaultunit</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">fullname</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">catname</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">aedtname</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Get the defaultunit for a given fullname or catname</span>
+        <span class="sd">&quot;&quot;&quot;Get the defaultunit for a given fullname or catname</span>
 
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        fullname :</span>
+<span class="sd">            optiona full name of the property (Default value = None)</span>
+<span class="sd">        catname :</span>
+<span class="sd">            optional Category name (Default value = None)</span>
+<span class="sd">        aedtname :</span>
+<span class="sd">            optional aedtname (Default value = None)</span>
 
-<span class="sd">        :param fullname:optiona full name of the property</span>
-<span class="sd">        :param catname: optional Category name</span>
-<span class="sd">        :param aedtname: optional aedtname</span>
-<span class="sd">        :return: defaultunit if exists</span>
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        type</span>
+<span class="sd">            defaultunit if exists</span>
+
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="n">fullname</span><span class="p">:</span>
             <span class="k">return</span> <span class="bp">cls</span><span class="o">.</span><span class="n">defaultunit</span><span class="p">[</span><span class="bp">cls</span><span class="o">.</span><span class="n">fullname</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="n">fullname</span><span class="p">)]</span>
@@ -214,13 +228,20 @@
 
 <div class="viewcode-block" id="MatProperties.get_aedtname"><a class="viewcode-back" href="../../../API/Material.html#pyaedt.modules.Material.MatProperties.get_aedtname">[docs]</a>    <span class="nd">@classmethod</span>
     <span class="k">def</span> <span class="nf">get_aedtname</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">fullname</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">catname</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Get the defaultunit for a given fullname or catname</span>
+        <span class="sd">&quot;&quot;&quot;Get the defaultunit for a given fullname or catname</span>
 
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        fullname :</span>
+<span class="sd">            optiona full name of the property (Default value = None)</span>
+<span class="sd">        catname :</span>
+<span class="sd">            optional Category name (Default value = None)</span>
 
-<span class="sd">        :param fullname:optiona full name of the property</span>
-<span class="sd">        :param catname: optional Category name</span>
-<span class="sd">        :return: aedtname</span>
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        type</span>
+<span class="sd">            aedtname</span>
+
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="n">fullname</span><span class="p">:</span>
             <span class="k">return</span> <span class="bp">cls</span><span class="o">.</span><span class="n">aedtname</span><span class="p">[</span><span class="bp">cls</span><span class="o">.</span><span class="n">fullname</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="n">fullname</span><span class="p">)]</span>
@@ -231,13 +252,20 @@
 
 <div class="viewcode-block" id="MatProperties.get_catname"><a class="viewcode-back" href="../../../API/Material.html#pyaedt.modules.Material.MatProperties.get_catname">[docs]</a>    <span class="nd">@classmethod</span>
     <span class="k">def</span> <span class="nf">get_catname</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">fullname</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">aedtname</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Get the defaultunit for a given fullname or catname</span>
+        <span class="sd">&quot;&quot;&quot;Get the defaultunit for a given fullname or catname</span>
 
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        fullname :</span>
+<span class="sd">            optiona full name of the property (Default value = None)</span>
+<span class="sd">        aedtname :</span>
+<span class="sd">            optional aedtname (Default value = None)</span>
 
-<span class="sd">        :param fullname:optiona full name of the property</span>
-<span class="sd">        :param aedtname: optional aedtname</span>
-<span class="sd">        :return: catname</span>
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        type</span>
+<span class="sd">            catname</span>
+
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="n">fullname</span><span class="p">:</span>
             <span class="k">return</span> <span class="bp">cls</span><span class="o">.</span><span class="n">catname</span><span class="p">[</span><span class="bp">cls</span><span class="o">.</span><span class="n">fullname</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="n">fullname</span><span class="p">)]</span>
@@ -248,13 +276,20 @@
 
 <div class="viewcode-block" id="MatProperties.get_fullname"><a class="viewcode-back" href="../../../API/Material.html#pyaedt.modules.Material.MatProperties.get_fullname">[docs]</a>    <span class="nd">@classmethod</span>
     <span class="k">def</span> <span class="nf">get_fullname</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">catname</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">aedtname</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Get the defaultunit for a given fullname or catname</span>
+        <span class="sd">&quot;&quot;&quot;Get the defaultunit for a given fullname or catname</span>
 
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        catname :</span>
+<span class="sd">            optional Category name (Default value = None)</span>
+<span class="sd">        aedtname :</span>
+<span class="sd">            optional aedtname (Default value = None)</span>
 
-<span class="sd">        :param catname: optional Category name</span>
-<span class="sd">        :param aedtname: optional aedtname</span>
-<span class="sd">        :return: catname</span>
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        type</span>
+<span class="sd">            catname</span>
+
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="n">catname</span><span class="p">:</span>
             <span class="k">return</span> <span class="bp">cls</span><span class="o">.</span><span class="n">fullname</span><span class="p">[</span><span class="bp">cls</span><span class="o">.</span><span class="n">catname</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="n">catname</span><span class="p">)]</span>
@@ -266,14 +301,22 @@
 
 <div class="viewcode-block" id="MatProperties.get_defaultvalue"><a class="viewcode-back" href="../../../API/Material.html#pyaedt.modules.Material.MatProperties.get_defaultvalue">[docs]</a>    <span class="nd">@classmethod</span>
     <span class="k">def</span> <span class="nf">get_defaultvalue</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">fullname</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">catname</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">aedtname</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Get the defaultunit for a given fullname or catname</span>
+        <span class="sd">&quot;&quot;&quot;Get the defaultunit for a given fullname or catname</span>
 
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        fullname :</span>
+<span class="sd">            optiona full name of the property (Default value = None)</span>
+<span class="sd">        catname :</span>
+<span class="sd">            optional Category name (Default value = None)</span>
+<span class="sd">        aedtname :</span>
+<span class="sd">            optional aedtname (Default value = None)</span>
 
-<span class="sd">        :param fullname:optiona full name of the property</span>
-<span class="sd">        :param catname: optional Category name</span>
-<span class="sd">        :param aedtname: optional aedtname</span>
-<span class="sd">        :return: defaultunit</span>
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        type</span>
+<span class="sd">            defaultunit</span>
+
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="n">fullname</span><span class="p">:</span>
             <span class="k">return</span> <span class="bp">cls</span><span class="o">.</span><span class="n">defaultvalue</span><span class="p">[</span><span class="bp">cls</span><span class="o">.</span><span class="n">fullname</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="n">fullname</span><span class="p">)]</span>
@@ -285,9 +328,7 @@
             <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s2">&quot;get_defaultunit: either fullname or catname MUST be defined&quot;</span><span class="p">)</span></div></div>
 
 <div class="viewcode-block" id="ClosedFormTM"><a class="viewcode-back" href="../../../API/Material.html#pyaedt.modules.Material.ClosedFormTM">[docs]</a><span class="k">class</span> <span class="nc">ClosedFormTM</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Class to manage Closed Form Terhmal Modifier.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="sd">&quot;&quot;&quot;Class to manage Closed Form Terhmal Modifier.&quot;&quot;&quot;</span>
     <span class="n">Tref</span> <span class="o">=</span> <span class="s1">&#39;22cel&#39;</span>
     <span class="n">C1</span> <span class="o">=</span> <span class="mi">0</span>
     <span class="n">C2</span> <span class="o">=</span> <span class="mi">0</span>
@@ -298,9 +339,7 @@
     <span class="n">TMU</span> <span class="o">=</span> <span class="mi">1000</span></div>
 
 <div class="viewcode-block" id="Dataset"><a class="viewcode-back" href="../../../API/Material.html#pyaedt.modules.Material.Dataset">[docs]</a><span class="k">class</span> <span class="nc">Dataset</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Data Class for DataSet Management</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="sd">&quot;&quot;&quot;Data Class for DataSet Management&quot;&quot;&quot;</span>
     <span class="n">ds</span> <span class="o">=</span> <span class="p">[]</span>
     <span class="n">unitx</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
     <span class="n">unity</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
@@ -310,16 +349,15 @@
     <span class="n">namey</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
     <span class="n">namez</span> <span class="o">=</span> <span class="kc">None</span></div>
 
-<span class="k">class</span> <span class="nc">BasicValue</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+<div class="viewcode-block" id="BasicValue"><a class="viewcode-back" href="../../../API/Material.html#pyaedt.modules.Material.BasicValue">[docs]</a><span class="k">class</span> <span class="nc">BasicValue</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot; &quot;&quot;&quot;</span>
     <span class="n">value</span> <span class="o">=</span> <span class="kc">None</span>
     <span class="n">dataset</span> <span class="o">=</span> <span class="kc">None</span>
-    <span class="n">thermalmodifier</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">thermalmodifier</span> <span class="o">=</span> <span class="kc">None</span></div>
 
 
 <div class="viewcode-block" id="MatProperty"><a class="viewcode-back" href="../../../API/Material.html#pyaedt.modules.Material.MatProperty">[docs]</a><span class="k">class</span> <span class="nc">MatProperty</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    type: &quot;simple&quot;, &quot;anisotropic&quot;, &quot;tensor&quot;</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="sd">&quot;&quot;&quot;type: simple, anisotropic, tensor&quot;&quot;&quot;</span>
 
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">type</span> <span class="o">=</span> <span class="s2">&quot;simple&quot;</span>
@@ -328,12 +366,16 @@
 
 <div class="viewcode-block" id="MatProperty.set_type"><a class="viewcode-back" href="../../../API/Material.html#pyaedt.modules.Material.MatProperty.set_type">[docs]</a>    <span class="nd">@aedt_exception_handler</span>
     <span class="k">def</span> <span class="nf">set_type</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="nb">type</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Set Material Property Type</span>
+        <span class="sd">&quot;&quot;&quot;Set Material Property Type</span>
 
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        type :</span>
+<span class="sd">            simple&quot;, &quot;nonlinear&quot;, &quot;anisotropic&quot;, &quot;tensor&quot;</span>
 
-<span class="sd">        :param type: &quot;simple&quot;, &quot;nonlinear&quot;, &quot;anisotropic&quot;, &quot;tensor&quot;</span>
-<span class="sd">        :return:</span>
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">type</span> <span class="o">=</span> <span class="nb">type</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">type</span> <span class="o">==</span> <span class="s2">&quot;simple&quot;</span><span class="p">:</span>
@@ -348,15 +390,19 @@
 
 
 <div class="viewcode-block" id="Material"><a class="viewcode-back" href="../../../API/Material.html#pyaedt.modules.Material.Material">[docs]</a><span class="k">class</span> <span class="nc">Material</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Class for Frequency Dependence Datasets</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="sd">&quot;&quot;&quot;Class for Frequency Dependence Datasets&quot;&quot;&quot;</span>
 
 <div class="viewcode-block" id="Material.PropName"><a class="viewcode-back" href="../../../API/Material.html#pyaedt.modules.Material.Material.PropName">[docs]</a>    <span class="k">class</span> <span class="nc">PropName</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        list of constants of all possible materials constant names and how they are mapped to XML</span>
+        <span class="sd">&quot;&quot;&quot;list of constants of all possible materials constant names and how they are mapped to XML</span>
 <span class="sd">        internalame=named used in script</span>
 <span class="sd">        xmlname=named used in XML syntax</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="p">(</span><span class="n">Permittivity</span><span class="p">,</span> <span class="n">Permeability</span><span class="p">,</span> <span class="n">Conductivity</span><span class="p">,</span> <span class="n">DielectricLossTangent</span><span class="p">,</span> <span class="n">MagneticLossTangent</span><span class="p">,</span>
          <span class="n">ThermalConductivity</span><span class="p">,</span> <span class="n">MassDensity</span><span class="p">,</span> <span class="n">SpecificHeat</span><span class="p">,</span> <span class="n">ThermalExpCoeff</span><span class="p">,</span>
@@ -367,30 +413,27 @@
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">odefinition_manager</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
-
-<span class="sd">        :return: Definition Manager</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="sd">&quot;&quot;&quot;:return: Definition Manager&quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_parent</span><span class="o">.</span><span class="n">_oproject</span><span class="o">.</span><span class="n">GetDefinitionManager</span><span class="p">()</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">_omaterial_manager</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
-
-<span class="sd">        :return:Material Manager</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="sd">&quot;&quot;&quot;:return:Material Manager&quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">odefinition_manager</span><span class="o">.</span><span class="n">GetManager</span><span class="p">(</span><span class="s2">&quot;Material&quot;</span><span class="p">)</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">messenger</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_parent</span><span class="o">.</span><span class="n">_messenger</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">oproject</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_parent</span><span class="o">.</span><span class="n">_oproject</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">desktop</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_parent</span><span class="o">.</span><span class="n">_desktop</span>
 
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">parent</span><span class="p">):</span>
@@ -405,7 +448,18 @@
             <span class="bp">self</span><span class="o">.</span><span class="n">property</span><span class="p">[</span><span class="n">el</span><span class="p">]</span><span class="o">.</span><span class="n">type</span> <span class="o">=</span> <span class="s2">&quot;simple&quot;</span>
 
 
-    <span class="k">def</span> <span class="nf">get_number</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">fullname</span><span class="p">):</span>
+<div class="viewcode-block" id="Material.get_number"><a class="viewcode-back" href="../../../API/Material.html#pyaedt.modules.Material.Material.get_number">[docs]</a>    <span class="k">def</span> <span class="nf">get_number</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">fullname</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        fullname :</span>
+<span class="sd">            </span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="n">fullname</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">property</span><span class="p">:</span>
             <span class="k">try</span><span class="p">:</span>
                 <span class="k">return</span> <span class="nb">float</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">property</span><span class="p">[</span><span class="n">fullname</span><span class="p">]</span><span class="o">.</span><span class="n">property_value</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">value</span><span class="p">)</span>
@@ -416,18 +470,26 @@
                         <span class="k">return</span> <span class="nb">float</span><span class="p">(</span><span class="n">ds</span><span class="o">.</span><span class="n">ds</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">1</span><span class="p">])</span>
                     <span class="k">except</span><span class="p">:</span>
                         <span class="k">return</span> <span class="mi">0</span>
-                <span class="k">return</span> <span class="mi">0</span>
+                <span class="k">return</span> <span class="mi">0</span></div>
 
-    <span class="nd">@aedt_exception_handler</span>
+<div class="viewcode-block" id="Material.get_data"><a class="viewcode-back" href="../../../API/Material.html#pyaedt.modules.Material.Material.get_data">[docs]</a>    <span class="nd">@aedt_exception_handler</span>
     <span class="k">def</span> <span class="nf">get_data</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">fullname</span><span class="p">):</span>
-        <span class="k">if</span> <span class="n">fullname</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">property</span><span class="p">:</span>
-            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">property</span><span class="p">[</span><span class="n">fullname</span><span class="p">]</span><span class="o">.</span><span class="n">type</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">property</span><span class="p">[</span><span class="n">fullname</span><span class="p">]</span><span class="o">.</span><span class="n">property_value</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">value</span>
-
-<div class="viewcode-block" id="Material.is_conductor"><a class="viewcode-back" href="../../../API/Material.html#pyaedt.modules.Material.Material.is_conductor">[docs]</a>    <span class="k">def</span> <span class="nf">is_conductor</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 
-<span class="sd">        :return: Bool if material is conductor. Material is defined as conductor if cond&gt;=100000</span>
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        fullname :</span>
+<span class="sd">            </span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+
 <span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">fullname</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">property</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">property</span><span class="p">[</span><span class="n">fullname</span><span class="p">]</span><span class="o">.</span><span class="n">type</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">property</span><span class="p">[</span><span class="n">fullname</span><span class="p">]</span><span class="o">.</span><span class="n">property_value</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">value</span></div>
+
+<div class="viewcode-block" id="Material.is_conductor"><a class="viewcode-back" href="../../../API/Material.html#pyaedt.modules.Material.Material.is_conductor">[docs]</a>    <span class="k">def</span> <span class="nf">is_conductor</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;:return: Bool if material is conductor. Material is defined as conductor if cond&gt;=100000&quot;&quot;&quot;</span>
         <span class="n">cond</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_number</span><span class="p">(</span><span class="s1">&#39;conductivity&#39;</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">cond</span> <span class="o">&gt;=</span> <span class="mi">100000</span><span class="p">:</span>
             <span class="k">return</span> <span class="kc">True</span>
@@ -442,18 +504,23 @@
 
 <div class="viewcode-block" id="Material.is_dielectric"><a class="viewcode-back" href="../../../API/Material.html#pyaedt.modules.Material.Material.is_dielectric">[docs]</a>    <span class="nd">@aedt_exception_handler</span>
     <span class="k">def</span> <span class="nf">is_dielectric</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
-
-<span class="sd">        :return: Bool if material is dielectric. Material is defined as conductor if cond&lt;100000</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="sd">&quot;&quot;&quot;:return: Bool if material is dielectric. Material is defined as conductor if cond&lt;100000&quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_conductor</span><span class="p">()</span></div>
 
 <div class="viewcode-block" id="Material.get_unit"><a class="viewcode-back" href="../../../API/Material.html#pyaedt.modules.Material.Material.get_unit">[docs]</a>    <span class="nd">@aedt_exception_handler</span>
     <span class="k">def</span> <span class="nf">get_unit</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">propertyname</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 
-<span class="sd">        :param propertyname: str property</span>
-<span class="sd">        :return: property unit</span>
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        propertyname :</span>
+<span class="sd">            str property</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        type</span>
+<span class="sd">            property unit</span>
+
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="n">propertyname</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">property</span><span class="p">:</span>
             <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">property</span><span class="p">[</span><span class="n">propertyname</span><span class="p">]</span><span class="o">.</span><span class="n">unit</span>
@@ -463,11 +530,20 @@
     <span class="k">def</span> <span class="nf">set_property_value</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">PropName</span><span class="p">,</span> <span class="n">propvalue</span><span class="p">,</span> <span class="n">idx</span><span class="o">=</span><span class="mi">0</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Set Material Property Value</span>
 
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        PropName :</span>
+<span class="sd">            property</span>
+<span class="sd">        propvalue :</span>
+<span class="sd">            value</span>
+<span class="sd">        idx :</span>
+<span class="sd">            index. in case of tensor or anysotropic (0 by default)</span>
 
-<span class="sd">        :param PropName: property</span>
-<span class="sd">        :param propvalue: value</span>
-<span class="sd">        :param idx: index. in case of tensor or anysotropic (0 by default)</span>
-<span class="sd">        :return: True</span>
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        type</span>
+<span class="sd">            True</span>
+
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">prop_conv</span> <span class="o">=</span> <span class="n">PropName</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot; &quot;</span><span class="p">,</span><span class="s2">&quot;_&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;&#39;&quot;</span><span class="p">,</span><span class="s2">&quot;&quot;</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">property</span><span class="p">[</span><span class="n">prop_conv</span><span class="p">]</span><span class="o">.</span><span class="n">property_value</span><span class="p">[</span><span class="n">idx</span><span class="p">]</span><span class="o">.</span><span class="n">value</span> <span class="o">=</span> <span class="n">propvalue</span>
@@ -477,10 +553,18 @@
     <span class="k">def</span> <span class="nf">get_property_value</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">PropertyConstant</span><span class="p">,</span> <span class="n">idx</span><span class="o">=</span><span class="mi">0</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Get Material Property Value</span>
 
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        PropertyConstant :</span>
+<span class="sd">            property</span>
+<span class="sd">        idx :</span>
+<span class="sd">            index. in case of tensor or anysotropic (0 by default)</span>
 
-<span class="sd">        :param PropertyConstant: property</span>
-<span class="sd">        :param idx: index. in case of tensor or anysotropic (0 by default)</span>
-<span class="sd">        :return: poperty value</span>
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        type</span>
+<span class="sd">            poperty value</span>
+
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">property</span><span class="p">[</span><span class="n">PropertyConstant</span><span class="p">]</span><span class="o">.</span><span class="n">property_value</span><span class="p">[</span><span class="n">idx</span><span class="p">]</span><span class="o">.</span><span class="n">value</span></div>
 
@@ -488,10 +572,18 @@
     <span class="k">def</span> <span class="nf">set_property_dataset</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">PropName</span><span class="p">,</span> <span class="n">dataset</span><span class="p">,</span> <span class="n">idx</span><span class="o">=</span><span class="mi">0</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Set Material Dataset Value</span>
 
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        PropName :</span>
+<span class="sd">            property</span>
+<span class="sd">        dataset :</span>
+<span class="sd">            dataset object</span>
+<span class="sd">        idx :</span>
+<span class="sd">            index. in case of tensor or anysotropic (0 by default)</span>
 
-<span class="sd">        :param PropName: property</span>
-<span class="sd">        :param dataset: dataset object</span>
-<span class="sd">        :param idx: index. in case of tensor or anysotropic (0 by default)</span>
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">property</span><span class="p">[</span><span class="n">PropName</span><span class="p">]</span><span class="o">.</span><span class="n">property_value</span><span class="p">[</span><span class="n">idx</span><span class="p">]</span><span class="o">.</span><span class="n">dataset</span> <span class="o">=</span> <span class="n">dataset</span>
         <span class="k">return</span> <span class="kc">True</span></div>
@@ -500,9 +592,18 @@
     <span class="k">def</span> <span class="nf">get_property_dataset</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">PropertyConstant</span><span class="p">,</span> <span class="n">idx</span><span class="o">=</span><span class="mi">0</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Get Material Property Dataset</span>
 
-<span class="sd">        :param PropertyConstant: property</span>
-<span class="sd">        :param idx: index. in case of tensor or anysotropic (0 by default)</span>
-<span class="sd">        :return: dataset object</span>
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        PropertyConstant :</span>
+<span class="sd">            property</span>
+<span class="sd">        idx :</span>
+<span class="sd">            index. in case of tensor or anysotropic (0 by default)</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        type</span>
+<span class="sd">            dataset object</span>
+
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">property</span><span class="p">[</span><span class="n">PropertyConstant</span><span class="p">]</span><span class="o">.</span><span class="n">property_value</span><span class="p">[</span><span class="n">idx</span><span class="p">]</span><span class="o">.</span><span class="n">dataset</span></div>
 
@@ -510,10 +611,18 @@
     <span class="k">def</span> <span class="nf">set_property_therm_modifier</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">PropName</span><span class="p">,</span> <span class="n">dataset</span><span class="p">,</span> <span class="n">idx</span><span class="o">=</span><span class="mi">0</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Set Material Property Thermal Modifier</span>
 
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        PropName :</span>
+<span class="sd">            property</span>
+<span class="sd">        dataset :</span>
+<span class="sd">            dataset object or list of values. in case list of values is provided, the dataset will be automatically created</span>
+<span class="sd">        idx :</span>
+<span class="sd">            index. in case of tensor or anysotropic (0 by default)</span>
 
-<span class="sd">        :param PropName: property</span>
-<span class="sd">        :param dataset: dataset object or list of values. in case list of values is provided, the dataset will be automatically created</span>
-<span class="sd">        :param idx: index. in case of tensor or anysotropic (0 by default)</span>
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="n">dataset</span><span class="p">)</span> <span class="ow">is</span> <span class="nb">list</span><span class="p">:</span>
             <span class="n">ds</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">create_thermal_modifier</span><span class="p">(</span><span class="n">dataset</span><span class="p">)</span>
@@ -525,10 +634,18 @@
     <span class="k">def</span> <span class="nf">get_property_therm_modifier</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">PropertyConstant</span><span class="p">,</span> <span class="n">idx</span><span class="o">=</span><span class="mi">0</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Get Material Property Thermal Modifier Dataset</span>
 
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        PropertyConstant :</span>
+<span class="sd">            property</span>
+<span class="sd">        idx :</span>
+<span class="sd">            index. in case of tensor or anysotropic (0 by default)</span>
 
-<span class="sd">        :param PropertyConstant: property</span>
-<span class="sd">        :param idx: index. in case of tensor or anysotropic (0 by default)</span>
-<span class="sd">        :return: thermal modifier object</span>
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        type</span>
+<span class="sd">            thermal modifier object</span>
+
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">property</span><span class="p">[</span><span class="n">PropertyConstant</span><span class="p">]</span><span class="o">.</span><span class="n">property_value</span><span class="p">[</span><span class="n">idx</span><span class="p">]</span><span class="o">.</span><span class="n">thermalmodifier</span></div>
 
@@ -536,9 +653,16 @@
     <span class="k">def</span> <span class="nf">create_thermal_modifier</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">listtemp_val</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Create a new thermal modifier object based on a list of values</span>
 
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        listtemp_val :</span>
+<span class="sd">            list of thermal modifiers. Example [[22, 1], [80, 0.8], [100,0.7]]</span>
 
-<span class="sd">        :param listtemp_val: list of thermal modifiers. Example [[22, 1], [80, 0.8], [100,0.7]]</span>
-<span class="sd">        :return: tm object</span>
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        type</span>
+<span class="sd">            tm object</span>
+
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">tm</span> <span class="o">=</span> <span class="n">Dataset</span><span class="p">()</span>
         <span class="n">tm</span><span class="o">.</span><span class="n">type</span> <span class="o">=</span> <span class="s2">&quot;Relative&quot;</span>
@@ -550,10 +674,20 @@
     <span class="k">def</span> <span class="nf">create_frequency_dataset</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">listtemp_val</span><span class="p">,</span> <span class="n">unitx</span><span class="o">=</span><span class="s2">&quot;Hz&quot;</span><span class="p">,</span> <span class="n">unity</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Create a new frequency data set based on a list of values</span>
 
-<span class="sd">        :param listtemp_val: list of frequency modifiers. Example [[1e9, 58e6], [1.1e9, 57e6], [1.2e9,55e6]]</span>
-<span class="sd">        :param unitx: unit type. Default Hertz</span>
-<span class="sd">        :param unity: unit type. Default &quot;&quot;</span>
-<span class="sd">        :return: tm obhect</span>
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        listtemp_val :</span>
+<span class="sd">            list of frequency modifiers. Example [[1e9, 58e6], [1.1e9, 57e6], [1.2e9,55e6]]</span>
+<span class="sd">        unitx :</span>
+<span class="sd">            unit type. Default Hertz</span>
+<span class="sd">        unity :</span>
+<span class="sd">            unit type. Default &quot;&quot;</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        type</span>
+<span class="sd">            tm obhect</span>
+
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">tm</span> <span class="o">=</span> <span class="n">Dataset</span><span class="p">()</span>
         <span class="n">tm</span><span class="o">.</span><span class="n">type</span> <span class="o">=</span> <span class="s2">&quot;Absolute&quot;</span>
@@ -567,10 +701,22 @@
     <span class="k">def</span> <span class="nf">set_nonlinear_dataset</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">propertyname</span><span class="p">,</span> <span class="n">listtemp_val</span><span class="p">,</span> <span class="n">unitx</span><span class="o">=</span><span class="s2">&quot;A_per_meter&quot;</span><span class="p">,</span> <span class="n">unity</span><span class="o">=</span><span class="s2">&quot;tesla&quot;</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Create a new nonlinear data set based on a list of values</span>
 
-<span class="sd">        :param listtemp_val: list of frequency modifiers. Example [[1e9, 58e6], [1.1e9, 57e6], [1.2e9,55e6]]</span>
-<span class="sd">        :param unitx: unit type. Default A_per_meter</span>
-<span class="sd">        :param unity: unit type. Default tesla</span>
-<span class="sd">        :return: Bool</span>
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        listtemp_val :</span>
+<span class="sd">            list of frequency modifiers. Example [[1e9, 58e6], [1.1e9, 57e6], [1.2e9,55e6]]</span>
+<span class="sd">        unitx :</span>
+<span class="sd">            unit type. Default A_per_meter</span>
+<span class="sd">        unity :</span>
+<span class="sd">            unit type. Default tesla</span>
+<span class="sd">        propertyname :</span>
+<span class="sd">            </span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        type</span>
+<span class="sd">            Bool</span>
+
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">listtemp_val</span><span class="p">)</span><span class="o">&lt;</span><span class="mi">3</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">messenger</span><span class="o">.</span><span class="n">add_error_message</span><span class="p">(</span><span class="s2">&quot;Dataset has to start from 0 or negative and has to contain at least 3 points&quot;</span><span class="p">)</span>
@@ -587,13 +733,20 @@
 
 <div class="viewcode-block" id="Material.update"><a class="viewcode-back" href="../../../API/Material.html#pyaedt.modules.Material.Material.update">[docs]</a>    <span class="nd">@aedt_exception_handler</span>
     <span class="k">def</span> <span class="nf">update</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">enableTM</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">enableFM</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Update material in AEDT</span>
+        <span class="sd">&quot;&quot;&quot;Update material in AEDT</span>
 
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        enableTM :</span>
+<span class="sd">            Boolean, to include Thermal Modifier in AEDT (Default value = True)</span>
+<span class="sd">        enableFM :</span>
+<span class="sd">            Booolean, to include Frequency Modifier in AEDT (Default value = True)</span>
 
-<span class="sd">        :param enableTM: Boolean, to include Thermal Modifier in AEDT</span>
-<span class="sd">        :param enableFM: Booolean, to include Frequency Modifier in AEDT</span>
-<span class="sd">        :return: Bool</span>
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        type</span>
+<span class="sd">            Bool</span>
+
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">args</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span>
         <span class="n">arg</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;Name:&quot;</span> <span class="o">+</span> <span class="n">args</span><span class="p">]</span>
@@ -680,6 +833,17 @@
 
     <span class="nd">@aedt_exception_handler</span>
     <span class="k">def</span> <span class="nf">_createTM</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">tms</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        tms :</span>
+<span class="sd">            </span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">arg2</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;NAME:ModifierData&quot;</span><span class="p">]</span>
         <span class="n">arg3</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;NAME:ThermalModifierData&quot;</span><span class="p">,</span> <span class="s2">&quot;modifier_data:=&quot;</span><span class="p">,</span> <span class="s2">&quot;thermal_modifier_data&quot;</span><span class="p">]</span>
         <span class="n">arg4</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;NAME:all_thermal_modifiers&quot;</span><span class="p">]</span>
@@ -716,11 +880,37 @@
 
     <span class="nd">@aedt_exception_handler</span>
     <span class="k">def</span> <span class="nf">_createnonlinear</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">sKey</span><span class="p">,</span> <span class="n">dataset</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        sKey :</span>
+<span class="sd">            </span>
+<span class="sd">        dataset :</span>
+<span class="sd">            </span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="c1">#TODO Support nonlinear</span>
         <span class="k">return</span> <span class="p">[]</span>
 
     <span class="nd">@aedt_exception_handler</span>
     <span class="k">def</span> <span class="nf">_creatematrix</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">sKey</span><span class="p">,</span> <span class="n">mat</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        sKey :</span>
+<span class="sd">            </span>
+<span class="sd">        mat :</span>
+<span class="sd">            </span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">arg2</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;NAME:&quot;</span> <span class="o">+</span> <span class="n">sKey</span><span class="p">]</span>
         <span class="k">if</span> <span class="n">mat</span><span class="o">.</span><span class="n">property</span><span class="p">[</span><span class="n">sKey</span><span class="p">]</span><span class="o">.</span><span class="n">type</span> <span class="o">==</span> <span class="s2">&quot;anisotropic&quot;</span><span class="p">:</span>
             <span class="n">arg2</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;property_type:=&quot;</span><span class="p">)</span>
@@ -753,10 +943,20 @@
         <span class="sd">&quot;&quot;&quot;createdataset(material name, property name, dataset)</span>
 <span class="sd">        createDataset for material matname with property name</span>
 
-<span class="sd">        :param name: name of datase to create in aedt</span>
-<span class="sd">        :param tm: dataset object</span>
-<span class="sd">        :param suffix: suffix to apply to name</span>
-<span class="sd">        :return: Bool</span>
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        name :</span>
+<span class="sd">            name of datase to create in aedt</span>
+<span class="sd">        tm :</span>
+<span class="sd">            dataset object</span>
+<span class="sd">        suffix :</span>
+<span class="sd">            suffix to apply to name (Default value = &quot;&quot;)</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        type</span>
+<span class="sd">            Bool</span>
+
 <span class="sd">        &quot;&quot;&quot;</span>
 
         <span class="c1">#arg = []</span>
@@ -795,9 +995,16 @@
     <span class="k">def</span> <span class="nf">does_material_exists</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">szMat</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Check if a material is already defined in the Project</span>
 
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        szMat :</span>
+<span class="sd">            material name</span>
 
-<span class="sd">        :param szMat: material name</span>
-<span class="sd">        :return: Bool</span>
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        type</span>
+<span class="sd">            Bool</span>
+
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">listmatprj</span> <span class="o">=</span> <span class="p">[</span><span class="n">i</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">odefinition_manager</span><span class="o">.</span><span class="n">GetProjectMaterialNames</span><span class="p">())]</span>
         <span class="k">if</span> <span class="n">szMat</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="ow">in</span> <span class="n">listmatprj</span><span class="p">:</span>

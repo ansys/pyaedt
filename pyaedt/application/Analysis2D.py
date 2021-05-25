@@ -5,11 +5,17 @@ from ..generic.general_methods import aedt_exception_handler, generate_unique_na
 
 
 class FieldAnalysis2D(Analysis):
-    """ **AEDT_2D_FieldAnalysis**
-
+    """**AEDT_2D_FieldAnalysis**
+    
     Class for 2D Field Analysis Setup (Maxwell2D, Q2D)
-
+    
     It is automatically initialized by Application call. Refer to Application function for inputs definition
+
+    Parameters
+    ----------
+
+    Returns
+    -------
 
     """
     def __init__(self, application, projectname, designname, solution_type, setup_name=None):
@@ -22,10 +28,12 @@ class FieldAnalysis2D(Analysis):
 
     @property
     def modeler(self):
+        """ """
         return self._modeler
 
     @property
     def mesh(self):
+        """ """
         return self._mesh
 
     # @property
@@ -34,14 +42,20 @@ class FieldAnalysis2D(Analysis):
 
     @aedt_exception_handler
     def assignmaterial(self, obj, mat):
-        """ The function assigns Material mat to object obj. If material mat is not present it will be created
+        """The function assigns Material mat to object obj. If material mat is not present it will be created
 
+        Parameters
+        ----------
+        obj : str, list
+            list of objects to which assign materials
+        mat : str
+            material to assign
 
-        :param obj: list of objects to which assign materials
-        :type obj: str, list
-        :param mat: material to assign
-        :type mat: str
-        :return: True if succeded | False if failed
+        Returns
+        -------
+        type
+            True if succeded | False if failed
+
         """
         mat = mat.lower()
         selections = self.modeler.convert_to_selections(obj)

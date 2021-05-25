@@ -163,16 +163,19 @@
 
 
 <span class="k">class</span> <span class="nc">ModelerRMxprt</span><span class="p">(</span><span class="n">Modeler</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot; &quot;&quot;&quot;</span>
 
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">parent</span><span class="p">):</span>
         <span class="n">Modeler</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">parent</span><span class="p">)</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">oeditor</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">odesign</span><span class="o">.</span><span class="n">SetActiveEditor</span><span class="p">(</span><span class="s2">&quot;Machine&quot;</span><span class="p">)</span>
 
 
 <div class="viewcode-block" id="Modeler2D"><a class="viewcode-back" href="../../../API/Modeler2D.html#pyaedt.modeler.Model2D.Modeler2D">[docs]</a><span class="k">class</span> <span class="nc">Modeler2D</span><span class="p">(</span><span class="n">GeometryModeler</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot; &quot;&quot;&quot;</span>
 
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">application</span><span class="p">):</span>
         <span class="n">GeometryModeler</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">application</span><span class="p">,</span> <span class="n">is3d</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
@@ -185,6 +188,7 @@
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">primitives</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_primitivesDes</span> <span class="o">!=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_parent</span><span class="o">.</span><span class="n">project_name</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">_parent</span><span class="o">.</span><span class="n">design_name</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_primitives</span> <span class="o">=</span> <span class="n">Primitives2D</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_parent</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_primitivesDes</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_parent</span><span class="o">.</span><span class="n">project_name</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">_parent</span><span class="o">.</span><span class="n">design_name</span>
@@ -192,13 +196,21 @@
 
 <div class="viewcode-block" id="Modeler2D.calculate_radius_2D"><a class="viewcode-back" href="../../../API/Modeler2D.html#pyaedt.modeler.Model2D.Modeler2D.calculate_radius_2D">[docs]</a>    <span class="nd">@aedt_exception_handler</span>
     <span class="k">def</span> <span class="nf">calculate_radius_2D</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">object_name</span><span class="p">,</span> <span class="n">inner</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot; Calculate the extremity of an object in radial direction. If inner is True, then return</span>
+        <span class="sd">&quot;&quot;&quot;Calculate the extremity of an object in radial direction. If inner is True, then return</span>
 <span class="sd">            the maximum, else return the minimum)</span>
 
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        object_name :</span>
+<span class="sd">            object from which calcuate radius</span>
+<span class="sd">        inner :</span>
+<span class="sd">             (Default value = False)</span>
 
-<span class="sd">        :param object_name: object from which calcuate radius</span>
-<span class="sd">        :type inner: bool</span>
-<span class="sd">        :return: radius</span>
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        type</span>
+<span class="sd">            radius</span>
+
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">oVertexIDs</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">oeditor</span><span class="o">.</span><span class="n">GetVertexIDsFromObject</span><span class="p">(</span><span class="n">object_name</span><span class="p">)</span>
         <span class="n">vert_id_int</span> <span class="o">=</span> <span class="p">[</span><span class="nb">int</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">oVertexIDs</span><span class="p">]</span>
@@ -221,7 +233,19 @@
 
 <div class="viewcode-block" id="Modeler2D.radial_split_2D"><a class="viewcode-back" href="../../../API/Modeler2D.html#pyaedt.modeler.Model2D.Modeler2D.radial_split_2D">[docs]</a>    <span class="nd">@aedt_exception_handler</span>
     <span class="k">def</span> <span class="nf">radial_split_2D</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">radius</span><span class="p">,</span> <span class="n">name</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Split Stator and rotor for Mesh Refinement&quot;&quot;&quot;</span>
+        <span class="sd">&quot;&quot;&quot;Split Stator and rotor for Mesh Refinement</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        radius :</span>
+<span class="sd">            </span>
+<span class="sd">        name :</span>
+<span class="sd">            </span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">oeditor</span><span class="o">.</span><span class="n">CreateCircle</span><span class="p">(</span>
             <span class="p">[</span>
                 <span class="s2">&quot;NAME:CircleParameters&quot;</span><span class="p">,</span>

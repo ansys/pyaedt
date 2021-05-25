@@ -280,12 +280,15 @@
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>entity_type</strong> -- 1 : Object  2 : Component</p></li>
 <li><p><strong>obj_list</strong> -- list of object (it could be a list of conductors and dielctrics)</p></li>
-<li><p><strong>comp_name</strong> -- name of component</p></li>
+<li><p><strong>comp_name</strong> -- name of component (Default value = None)</p></li>
 <li><p><strong>priority</strong> -- Prioririty level. Default value 3</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>
 <dd class="field-even"><p>Boolean</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>type</p>
 </dd>
 </dl>
 </dd></dl>
@@ -296,10 +299,16 @@
 <dd><p>Assign a specific mesh level to objects</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>mesh_order</strong> -- Dictionary. Key is object name, value is Mesh Level</p>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>mesh_order</strong> -- Dictionary. Key is object name, value is Mesh Level</p></li>
+<li><p><strong>meshop_name</strong> -- (Default value = None)</p></li>
+</ul>
 </dd>
 <dt class="field-even">Returns</dt>
 <dd class="field-even"><p>Boolean</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>type</p>
 </dd>
 </dl>
 </dd></dl>
@@ -313,12 +322,16 @@
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>mesh_level</strong> -- level of mesh to apply (int)</p></li>
 <li><p><strong>groupName</strong> -- name of the group</p></li>
-<li><p><strong>localMeshParamEn</strong> -- Bool</p></li>
-<li><p><strong>localMeshParameters</strong> -- </p></li>
+<li><p><strong>localMeshParamEn</strong> -- Bool (Default value = False)</p></li>
+<li><p><strong>localMeshParameters</strong> -- return: meshoperation object (Default value = &quot;No Local Mesh Parameters&quot;)</p></li>
+<li><p><strong>meshop_name</strong> -- (Default value = None)</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>
 <dd class="field-even"><p>meshoperation object</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>type</p>
 </dd>
 </dl>
 </dd></dl>
@@ -330,13 +343,16 @@
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>level</strong> -- level of surface mesh (integer 1 - 5)</p></li>
-<li><p><strong>objectlist</strong> -- list of object where apply the mesh region</p></li>
-<li><p><strong>name</strong> -- mesh region name</p></li>
+<li><p><strong>level</strong> -- level of surface mesh (integer 1 - 5) (Default value = 5)</p></li>
+<li><p><strong>objectlist</strong> -- list of object where apply the mesh region (Default value = [])</p></li>
+<li><p><strong>name</strong> -- mesh region name (Default value = &quot;MeshRegion1&quot;)</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>
 <dd class="field-even"><p>meshregion object</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>type</p>
 </dd>
 </dl>
 </dd></dl>
@@ -349,11 +365,14 @@
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>accuracy2</strong> -- 1 standard, 2 accurate, 3 very accurate</p></li>
-<li><p><strong>stairStep</strong> -- bool to enable stair step</p></li>
+<li><p><strong>stairStep</strong> -- bool to enable stair step (Default value = True)</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>
 <dd class="field-even"><p>Boolean</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>type</p>
 </dd>
 </dl>
 </dd></dl>
@@ -364,13 +383,21 @@
 <dd><p>create custom Mesh tailored on PCB Design</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>accuracy</strong> -- 1 coarse, 2 standard, 3 very accurate</p>
+<dd class="field-odd"><p><strong>accuracy</strong> -- 1 coarse, 2 standard, 3 very accurate (Default value = 2)</p>
 </dd>
 <dt class="field-even">Returns</dt>
 <dd class="field-even"><p>Boolean</p>
 </dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>type</p>
+</dd>
 </dl>
 </dd></dl>
+
+<dl class="py method">
+<dt id="pyaedt.modules.MeshIcepak.IcepakMesh.boundingdimension">
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">boundingdimension</span></code><a class="headerlink" href="#pyaedt.modules.MeshIcepak.IcepakMesh.boundingdimension" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
 
 <dl class="py method">
 <dt id="pyaedt.modules.MeshIcepak.IcepakMesh.generate_mesh">
@@ -383,8 +410,26 @@
 <dt class="field-even">Returns</dt>
 <dd class="field-even"><p>Boolean</p>
 </dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>type</p>
+</dd>
 </dl>
 </dd></dl>
+
+<dl class="py method">
+<dt id="pyaedt.modules.MeshIcepak.IcepakMesh.modeler">
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">modeler</span></code><a class="headerlink" href="#pyaedt.modules.MeshIcepak.IcepakMesh.modeler" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="pyaedt.modules.MeshIcepak.IcepakMesh.odesign">
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">odesign</span></code><a class="headerlink" href="#pyaedt.modules.MeshIcepak.IcepakMesh.odesign" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="pyaedt.modules.MeshIcepak.IcepakMesh.omeshmodule">
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">omeshmodule</span></code><a class="headerlink" href="#pyaedt.modules.MeshIcepak.IcepakMesh.omeshmodule" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
 
 </dd></dl>
 

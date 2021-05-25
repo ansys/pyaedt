@@ -6,16 +6,19 @@ from .Primitives2D import Primitives2D
 
 
 class ModelerRMxprt(Modeler):
+    """ """
 
     def __init__(self, parent):
         Modeler.__init__(self, parent)
 
     @property
     def oeditor(self):
+        """ """
         return self.odesign.SetActiveEditor("Machine")
 
 
 class Modeler2D(GeometryModeler):
+    """ """
 
     def __init__(self, application):
         GeometryModeler.__init__(self, application, is3d=False)
@@ -28,6 +31,7 @@ class Modeler2D(GeometryModeler):
 
     @property
     def primitives(self):
+        """ """
         if self._primitivesDes != self._parent.project_name + self._parent.design_name:
             self._primitives = Primitives2D(self._parent, self)
             self._primitivesDes = self._parent.project_name + self._parent.design_name
@@ -35,13 +39,21 @@ class Modeler2D(GeometryModeler):
 
     @aedt_exception_handler
     def calculate_radius_2D(self, object_name, inner=False):
-        """ Calculate the extremity of an object in radial direction. If inner is True, then return
+        """Calculate the extremity of an object in radial direction. If inner is True, then return
             the maximum, else return the minimum)
 
+        Parameters
+        ----------
+        object_name :
+            object from which calcuate radius
+        inner :
+             (Default value = False)
 
-        :param object_name: object from which calcuate radius
-        :type inner: bool
-        :return: radius
+        Returns
+        -------
+        type
+            radius
+
         """
         oVertexIDs = self.oeditor.GetVertexIDsFromObject(object_name)
         vert_id_int = [int(x) for x in oVertexIDs]
@@ -64,7 +76,19 @@ class Modeler2D(GeometryModeler):
 
     @aedt_exception_handler
     def radial_split_2D(self, radius, name):
-        """Split Stator and rotor for Mesh Refinement"""
+        """Split Stator and rotor for Mesh Refinement
+
+        Parameters
+        ----------
+        radius :
+            
+        name :
+            
+
+        Returns
+        -------
+
+        """
         self.oeditor.CreateCircle(
             [
                 "NAME:CircleParameters",

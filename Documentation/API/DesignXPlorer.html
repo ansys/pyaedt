@@ -248,15 +248,23 @@
 </dd></dl>
 
 <dl class="py method">
+<dt id="pyaedt.modules.DesignXPloration.CommonOptimetrics.omodule">
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">omodule</span></code><a class="headerlink" href="#pyaedt.modules.DesignXPloration.CommonOptimetrics.omodule" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
 <dt id="pyaedt.modules.DesignXPloration.CommonOptimetrics.update">
 <code class="sig-name descname"><span class="pre">update</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">update_dictionary</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pyaedt/modules/DesignXPloration.html#CommonOptimetrics.update"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyaedt.modules.DesignXPloration.CommonOptimetrics.update" title="Permalink to this definition">¶</a></dt>
 <dd><p>update a Setup based on stored properties. a dictionary can be provided as argument</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>update_dictionary</strong> -- optional dictionary argument</p>
+<dd class="field-odd"><p><strong>update_dictionary</strong> -- optional dictionary argument (Default value = None)</p>
 </dd>
 <dt class="field-even">Returns</dt>
 <dd class="field-even"><p>Bool</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>type</p>
 </dd>
 </dl>
 </dd></dl>
@@ -278,15 +286,19 @@
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>reporttype</strong> -- Name of the Report to take the Calculation</p></li>
+<li><p><strong>reporttype</strong> -- Name of the Report to take the Calculation (Default value = &quot;Modal Solution Data&quot;)</p></li>
 <li><p><strong>solution</strong> -- solution type. if none, default solution will be taken</p></li>
-<li><p><strong>domain</strong> -- domain type. if none sweep will be taken</p></li>
-<li><p><strong>calculation</strong> -- calculation value eg. dB(S(1,1,))</p></li>
-<li><p><strong>calculation_value</strong> -- calculation value. eg. if sweep &quot;1GHz)</p></li>
+<li><p><strong>domain</strong> -- domain type. if none sweep will be taken (Default value = &quot;Sweep&quot;)</p></li>
+<li><p><strong>calculation</strong> -- calculation value eg. dB(S(1,1,)) (Default value = &quot;&quot;)</p></li>
+<li><p><strong>calculation_value</strong> -- calculation value. eg. if sweep &quot;1GHz) (Default value = &quot;&quot;)</p></li>
+<li><p><strong>calculation_name</strong> -- (Default value = None)</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>
 <dd class="field-even"><p>bool</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>type</p>
 </dd>
 </dl>
 </dd></dl>
@@ -298,17 +310,24 @@
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>reporttype</strong> -- Name of the Report to take the Calculation</p></li>
+<li><p><strong>reporttype</strong> -- Name of the Report to take the Calculation (Default value = &quot;Modal Solution Data&quot;)</p></li>
 <li><p><strong>solution</strong> -- solution type. if none, default solution will be taken</p></li>
-<li><p><strong>domain</strong> -- domain type. if none sweep will be taken</p></li>
-<li><p><strong>calculation</strong> -- calculation value eg. dB(S(1,1,))</p></li>
-<li><p><strong>calculation_type</strong> -- discrete or range</p></li>
-<li><p><strong>calculation_value</strong> -- calculation value. eg. if sweep &quot;1GHz). if discrete, it is discrete value or list, if range, it is start value</p></li>
-<li><p><strong>calculation_stop</strong> -- calculation value. eg. if sweep &quot;1GHz). if range it is the stop value</p></li>
+<li><p><strong>domain</strong> -- domain type. if none sweep will be taken (Default value = &quot;Sweep&quot;)</p></li>
+<li><p><strong>calculation</strong> -- calculation value eg. dB(S(1,1,)) (Default value = &quot;&quot;)</p></li>
+<li><p><strong>calculation_type</strong> -- discrete or range (Default value = &quot;discrete&quot;)</p></li>
+<li><p><strong>calculation_value</strong> -- calculation value. eg. if sweep &quot;1GHz). if discrete, it is discrete value or list, if range, it is start value (Default value = &quot;&quot;)</p></li>
+<li><p><strong>calculation_stop</strong> -- calculation value. eg. if sweep &quot;1GHz). if range it is the stop value (Default value = &quot;&quot;)</p></li>
+<li><p><strong>goal_name</strong> -- (Default value = None)</p></li>
+<li><p><strong>goal_value</strong> -- (Default value = 1)</p></li>
+<li><p><strong>goal_weight</strong> -- (Default value = 1)</p></li>
+<li><p><strong>condition</strong> -- (Default value = &quot;==&quot;)</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>
 <dd class="field-even"><p>bool</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>type</p>
 </dd>
 </dl>
 </dd></dl>
@@ -330,15 +349,28 @@
 <li><p><strong>condition</strong> -- goal condition. Default &quot;&lt;=&quot;</p></li>
 <li><p><strong>goal_value</strong> -- goal value to meet condition. Default 1</p></li>
 <li><p><strong>goal_weight</strong> -- goal weight. Default 1</p></li>
-<li><p><strong>solution</strong> -- Solution name. If nothing, nominal sweep will be used</p></li>
+<li><p><strong>solution</strong> -- Solution name. If nothing, nominal sweep will be used (Default value = None)</p></li>
 <li><p><strong>parametricname</strong> -- Name of the sensititivy analsysis. if nothing, a default name will be given</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>
 <dd class="field-even"><p>DOE object</p>
 </dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>type</p>
+</dd>
 </dl>
 </dd></dl>
+
+<dl class="py method">
+<dt id="pyaedt.modules.DesignXPloration.DOESetups.optimodule">
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">optimodule</span></code><a class="headerlink" href="#pyaedt.modules.DesignXPloration.DOESetups.optimodule" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="pyaedt.modules.DesignXPloration.DOESetups.parent">
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">parent</span></code><a class="headerlink" href="#pyaedt.modules.DesignXPloration.DOESetups.parent" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
 
 </dd></dl>
 
@@ -357,15 +389,19 @@
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>reporttype</strong> -- Name of the Report to take the Calculation</p></li>
+<li><p><strong>reporttype</strong> -- Name of the Report to take the Calculation (Default value = &quot;Modal Solution Data&quot;)</p></li>
 <li><p><strong>solution</strong> -- solution type. if none, default solution will be taken</p></li>
-<li><p><strong>domain</strong> -- domain type. if none sweep will be taken</p></li>
-<li><p><strong>calculation</strong> -- calculation value eg. dB(S(1,1,))</p></li>
-<li><p><strong>calculation_value</strong> -- calculation value. eg. if sweep &quot;1GHz)</p></li>
+<li><p><strong>domain</strong> -- domain type. if none sweep will be taken (Default value = &quot;Sweep&quot;)</p></li>
+<li><p><strong>calculation</strong> -- calculation value eg. dB(S(1,1,)) (Default value = &quot;&quot;)</p></li>
+<li><p><strong>calculation_value</strong> -- calculation value. eg. if sweep &quot;1GHz) (Default value = &quot;&quot;)</p></li>
+<li><p><strong>calculation_name</strong> -- (Default value = None)</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>
 <dd class="field-even"><p>bool</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>type</p>
 </dd>
 </dl>
 </dd></dl>
@@ -377,17 +413,24 @@
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>reporttype</strong> -- Name of the Report to take the Calculation</p></li>
+<li><p><strong>reporttype</strong> -- Name of the Report to take the Calculation (Default value = &quot;Modal Solution Data&quot;)</p></li>
 <li><p><strong>solution</strong> -- solution type. if none, default solution will be taken</p></li>
-<li><p><strong>domain</strong> -- domain type. if none sweep will be taken</p></li>
-<li><p><strong>calculation</strong> -- calculation value eg. dB(S(1,1,))</p></li>
-<li><p><strong>calculation_type</strong> -- discrete or range</p></li>
-<li><p><strong>calculation_value</strong> -- calculation value. eg. if sweep &quot;1GHz). if discrete, it is discrete value or list, if range, it is start value</p></li>
-<li><p><strong>calculation_stop</strong> -- calculation value. eg. if sweep &quot;1GHz). if range it is the stop value</p></li>
+<li><p><strong>domain</strong> -- domain type. if none sweep will be taken (Default value = &quot;Sweep&quot;)</p></li>
+<li><p><strong>calculation</strong> -- calculation value eg. dB(S(1,1,)) (Default value = &quot;&quot;)</p></li>
+<li><p><strong>calculation_type</strong> -- discrete or range (Default value = &quot;discrete&quot;)</p></li>
+<li><p><strong>calculation_value</strong> -- calculation value. eg. if sweep &quot;1GHz). if discrete, it is discrete value or list, if range, it is start value (Default value = &quot;&quot;)</p></li>
+<li><p><strong>calculation_stop</strong> -- calculation value. eg. if sweep &quot;1GHz). if range it is the stop value (Default value = &quot;&quot;)</p></li>
+<li><p><strong>goal_name</strong> -- (Default value = None)</p></li>
+<li><p><strong>goal_value</strong> -- (Default value = 1)</p></li>
+<li><p><strong>goal_weight</strong> -- (Default value = 1)</p></li>
+<li><p><strong>condition</strong> -- (Default value = &quot;==&quot;)</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>
 <dd class="field-even"><p>bool</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>type</p>
 </dd>
 </dl>
 </dd></dl>
@@ -404,14 +447,27 @@
 <li><p><strong>variables_to_include</strong> -- list of variables to include in DesignXplorer</p></li>
 <li><p><strong>defaults_var_values</strong> -- list of default variable values</p></li>
 <li><p><strong>setupname</strong> -- Optional Setup name. if none, the default analysis setup will be used</p></li>
-<li><p><strong>parametricname</strong> -- optional Parametric Name</p></li>
+<li><p><strong>parametricname</strong> -- optional Parametric Name (Default value = None)</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>
 <dd class="field-even"><p>Optimetrics Object Class</p>
 </dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>type</p>
+</dd>
 </dl>
 </dd></dl>
+
+<dl class="py method">
+<dt id="pyaedt.modules.DesignXPloration.DXSetups.optimodule">
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">optimodule</span></code><a class="headerlink" href="#pyaedt.modules.DesignXPloration.DXSetups.optimodule" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="pyaedt.modules.DesignXPloration.DXSetups.parent">
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">parent</span></code><a class="headerlink" href="#pyaedt.modules.DesignXPloration.DXSetups.parent" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
 
 </dd></dl>
 
@@ -430,20 +486,24 @@
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>reporttype</strong> -- Name of the Report to take the Calculation</p></li>
+<li><p><strong>reporttype</strong> -- Name of the Report to take the Calculation (Default value = &quot;Modal Solution Data&quot;)</p></li>
 <li><p><strong>solution</strong> -- solution type. if none, default solution will be taken</p></li>
-<li><p><strong>domain</strong> -- domain type. if none sweep will be taken</p></li>
-<li><p><strong>calculation</strong> -- calculation value eg. dB(S(1,1,))</p></li>
-<li><p><strong>calculation_type</strong> -- discrete or range</p></li>
-<li><p><strong>calculation_value</strong> -- calculation value. eg. if sweep &quot;1GHz). if discrete, it is discrete value or list, if range, it is start value</p></li>
-<li><p><strong>calculation_stop</strong> -- calculation value. eg. if sweep &quot;1GHz). if range it is the stop value</p></li>
+<li><p><strong>domain</strong> -- domain type. if none sweep will be taken (Default value = &quot;Sweep&quot;)</p></li>
+<li><p><strong>calculation</strong> -- calculation value eg. dB(S(1,1,)) (Default value = &quot;&quot;)</p></li>
+<li><p><strong>calculation_type</strong> -- discrete or range (Default value = &quot;discrete&quot;)</p></li>
+<li><p><strong>calculation_value</strong> -- calculation value. eg. if sweep &quot;1GHz). if discrete, it is discrete value or list, if range, it is start value (Default value = &quot;&quot;)</p></li>
+<li><p><strong>calculation_stop</strong> -- calculation value. eg. if sweep &quot;1GHz). if range it is the stop value (Default value = &quot;&quot;)</p></li>
 <li><p><strong>goal_value</strong> -- goal Value. Default 1</p></li>
 <li><p><strong>goal_weight</strong> -- Goal Weight. Default 1</p></li>
 <li><p><strong>condition</strong> -- Condition. Default &quot;==&quot;</p></li>
+<li><p><strong>goal_name</strong> -- (Default value = None)</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>
 <dd class="field-even"><p>bool</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>type</p>
 </dd>
 </dl>
 </dd></dl>
@@ -465,15 +525,28 @@
 <li><p><strong>condition</strong> -- goal condition. Default &quot;&lt;=&quot;</p></li>
 <li><p><strong>goal_value</strong> -- goal value to meet condition. Default 1</p></li>
 <li><p><strong>goal_weight</strong> -- goal weight. Default 1</p></li>
-<li><p><strong>solution</strong> -- Solution name. If nothing, nominal sweep will be used</p></li>
+<li><p><strong>solution</strong> -- Solution name. If nothing, nominal sweep will be used (Default value = None)</p></li>
 <li><p><strong>parametricname</strong> -- Name of the sensititivy analsysis. if nothing, a default name will be given</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>
 <dd class="field-even"><p>Optimization object</p>
 </dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>type</p>
+</dd>
 </dl>
 </dd></dl>
+
+<dl class="py method">
+<dt id="pyaedt.modules.DesignXPloration.OptimizationSetups.optimodule">
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">optimodule</span></code><a class="headerlink" href="#pyaedt.modules.DesignXPloration.OptimizationSetups.optimodule" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="pyaedt.modules.DesignXPloration.OptimizationSetups.parent">
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">parent</span></code><a class="headerlink" href="#pyaedt.modules.DesignXPloration.OptimizationSetups.parent" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
 
 </dd></dl>
 
@@ -492,15 +565,19 @@
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>reporttype</strong> -- Name of the Report to take the Calculation</p></li>
+<li><p><strong>reporttype</strong> -- Name of the Report to take the Calculation (Default value = &quot;Modal Solution Data&quot;)</p></li>
 <li><p><strong>solution</strong> -- solution type. if none, default solution will be taken</p></li>
-<li><p><strong>domain</strong> -- domain type. if none sweep will be taken</p></li>
-<li><p><strong>calculation</strong> -- calculation value eg. dB(S(1,1,))</p></li>
-<li><p><strong>calculation_value</strong> -- calculation value. eg. if sweep &quot;1GHz)</p></li>
+<li><p><strong>domain</strong> -- domain type. if none sweep will be taken (Default value = &quot;Sweep&quot;)</p></li>
+<li><p><strong>calculation</strong> -- calculation value eg. dB(S(1,1,)) (Default value = &quot;&quot;)</p></li>
+<li><p><strong>calculation_value</strong> -- calculation value. eg. if sweep &quot;1GHz) (Default value = &quot;&quot;)</p></li>
+<li><p><strong>calculation_name</strong> -- (Default value = None)</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>
 <dd class="field-even"><p>bool</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>type</p>
 </dd>
 </dl>
 </dd></dl>
@@ -519,6 +596,9 @@
 <dt class="field-even">Returns</dt>
 <dd class="field-even"><p>Bool</p>
 </dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>type</p>
+</dd>
 </dl>
 </dd></dl>
 
@@ -534,14 +614,27 @@
 <li><p><strong>sweep_var</strong> -- Variable name</p></li>
 <li><p><strong>datarange</strong> -- Data Range</p></li>
 <li><p><strong>setupname</strong> -- Optional Setup name. if none, the default analysis setup will be used</p></li>
-<li><p><strong>parametricname</strong> -- optional Parametric Name</p></li>
+<li><p><strong>parametricname</strong> -- optional Parametric Name (Default value = None)</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>
 <dd class="field-even"><p>Optimetrics Object Class</p>
 </dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>type</p>
+</dd>
 </dl>
 </dd></dl>
+
+<dl class="py method">
+<dt id="pyaedt.modules.DesignXPloration.ParametericsSetups.optimodule">
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">optimodule</span></code><a class="headerlink" href="#pyaedt.modules.DesignXPloration.ParametericsSetups.optimodule" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="pyaedt.modules.DesignXPloration.ParametericsSetups.parent">
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">parent</span></code><a class="headerlink" href="#pyaedt.modules.DesignXPloration.ParametericsSetups.parent" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
 
 </dd></dl>
 
@@ -560,15 +653,19 @@
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>reporttype</strong> -- Name of the Report to take the Calculation</p></li>
+<li><p><strong>reporttype</strong> -- Name of the Report to take the Calculation (Default value = &quot;Modal Solution Data&quot;)</p></li>
 <li><p><strong>solution</strong> -- solution type. if none, default solution will be taken</p></li>
-<li><p><strong>domain</strong> -- domain type. if none sweep will be taken</p></li>
-<li><p><strong>calculation</strong> -- calculation value eg. dB(S(1,1,))</p></li>
-<li><p><strong>calculation_value</strong> -- calculation value. eg. if sweep &quot;1GHz)</p></li>
+<li><p><strong>domain</strong> -- domain type. if none sweep will be taken (Default value = &quot;Sweep&quot;)</p></li>
+<li><p><strong>calculation</strong> -- calculation value eg. dB(S(1,1,)) (Default value = &quot;&quot;)</p></li>
+<li><p><strong>calculation_value</strong> -- calculation value. eg. if sweep &quot;1GHz) (Default value = &quot;&quot;)</p></li>
+<li><p><strong>calculation_name</strong> -- (Default value = None)</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>
 <dd class="field-even"><p>bool</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>type</p>
 </dd>
 </dl>
 </dd></dl>
@@ -587,15 +684,28 @@
 <li><p><strong>calculation_type</strong> -- Variation type. Default Freq</p></li>
 <li><p><strong>reporttype</strong> -- Report Type. Default &quot;Modal Solution Data&quot;</p></li>
 <li><p><strong>domain</strong> -- Default &quot;Sweep&quot;</p></li>
-<li><p><strong>solution</strong> -- Solution name. If nothing, nominal sweep will be used</p></li>
+<li><p><strong>solution</strong> -- Solution name. If nothing, nominal sweep will be used (Default value = None)</p></li>
 <li><p><strong>parametricname</strong> -- Name of the sensititivy analsysis. if nothing, a default name will be given</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>
 <dd class="field-even"><p>Sensitivity object</p>
 </dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>type</p>
+</dd>
 </dl>
 </dd></dl>
+
+<dl class="py method">
+<dt id="pyaedt.modules.DesignXPloration.SensitivitySetups.optimodule">
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">optimodule</span></code><a class="headerlink" href="#pyaedt.modules.DesignXPloration.SensitivitySetups.optimodule" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="pyaedt.modules.DesignXPloration.SensitivitySetups.parent">
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">parent</span></code><a class="headerlink" href="#pyaedt.modules.DesignXPloration.SensitivitySetups.parent" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
 
 </dd></dl>
 
@@ -614,15 +724,19 @@
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>reporttype</strong> -- Name of the Report to take the Calculation</p></li>
+<li><p><strong>reporttype</strong> -- Name of the Report to take the Calculation (Default value = &quot;Modal Solution Data&quot;)</p></li>
 <li><p><strong>solution</strong> -- solution type. if none, default solution will be taken</p></li>
-<li><p><strong>domain</strong> -- domain type. if none sweep will be taken</p></li>
-<li><p><strong>calculation</strong> -- calculation value eg. dB(S(1,1,))</p></li>
-<li><p><strong>calculation_value</strong> -- calculation value. eg. if sweep &quot;1GHz)</p></li>
+<li><p><strong>domain</strong> -- domain type. if none sweep will be taken (Default value = &quot;Sweep&quot;)</p></li>
+<li><p><strong>calculation</strong> -- calculation value eg. dB(S(1,1,)) (Default value = &quot;&quot;)</p></li>
+<li><p><strong>calculation_value</strong> -- calculation value. eg. if sweep &quot;1GHz) (Default value = &quot;&quot;)</p></li>
+<li><p><strong>calculation_name</strong> -- (Default value = None)</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>
 <dd class="field-even"><p>bool</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>type</p>
 </dd>
 </dl>
 </dd></dl>
@@ -641,15 +755,28 @@
 <li><p><strong>calculation_type</strong> -- Variation type. Default Freq</p></li>
 <li><p><strong>reporttype</strong> -- Report Type. Default &quot;Modal Solution Data&quot;</p></li>
 <li><p><strong>domain</strong> -- Default &quot;Sweep&quot;</p></li>
-<li><p><strong>solution</strong> -- Solution name. If nothing, nominal sweep will be used</p></li>
+<li><p><strong>solution</strong> -- Solution name. If nothing, nominal sweep will be used (Default value = None)</p></li>
 <li><p><strong>parametricname</strong> -- Name of the sensititivy analsysis. if nothing, a default name will be given</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>
 <dd class="field-even"><p>Statistical object</p>
 </dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>type</p>
+</dd>
 </dl>
 </dd></dl>
+
+<dl class="py method">
+<dt id="pyaedt.modules.DesignXPloration.StatisticalSetups.optimodule">
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">optimodule</span></code><a class="headerlink" href="#pyaedt.modules.DesignXPloration.StatisticalSetups.optimodule" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="pyaedt.modules.DesignXPloration.StatisticalSetups.parent">
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">parent</span></code><a class="headerlink" href="#pyaedt.modules.DesignXPloration.StatisticalSetups.parent" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
 
 </dd></dl>
 

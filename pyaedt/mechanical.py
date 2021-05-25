@@ -32,11 +32,20 @@ from collections import OrderedDict
 class Mechanical(FieldAnalysis3D, object):
     """Mechanical Object
 
+    Parameters
+    ----------
+    projectname :
+        name of the project to be selected or full path to the project to be opened  or to the AEDTZ archive. if None try to get active project and, if nothing present to create an empy one
+    designname :
+        name of the design to be selected. if None, try to get active design and, if nothing present to create an empy one
+    solution_type :
+        solution type to be applied to design. if None default is taken
+    setup_name :
+        setup_name to be used as nominal. if none active setup is taken or nothing
 
-    :param projectname: name of the project to be selected or full path to the project to be opened  or to the AEDTZ archive. if None try to get active project and, if nothing present to create an empy one
-    :param designname: name of the design to be selected. if None, try to get active design and, if nothing present to create an empy one
-    :param solution_type: solution type to be applied to design. if None default is taken
-    :param setup_name: setup_name to be used as nominal. if none active setup is taken or nothing
+    Returns
+    -------
+
     """
 
     def __init__(self, projectname=None, designname=None, solution_type=None, setup_name=None):
@@ -55,14 +64,28 @@ class Mechanical(FieldAnalysis3D, object):
                          surface_objects=[], source_project_name=None, paramlist=[], object_list=[]):
         """Map EM losses to Mechanical Design
 
+        Parameters
+        ----------
+        designname :
+            name of design of the source mapping (Default value = "HFSSDesign1")
+        map_frequency :
+            string containing Frequency to be mapped. It must be None for eigen mode analysis (Default value = None)
+        setupname :
+            Name of EM Setup (Default value = "Setup1")
+        sweepname :
+            Name of EM Sweep to be used for mapping. Default no sweep and LastAdaptive to be used
+        surface_objects :
+            list of objects in the source that are metals (Default value = [])
+        source_project_name :
+            Name of the source project: None to use source from the same project (Default value = None)
+        paramlist :
+            list of all params in EM to be mapped (Default value = [])
+        object_list :
+             (Default value = [])
 
-        :param designname: name of design of the source mapping
-        :param map_frequency: string containing Frequency to be mapped. It must be None for eigen mode analysis
-        :param setupname: Name of EM Setup
-        :param sweepname: Name of EM Sweep to be used for mapping. Default no sweep and LastAdaptive to be used
-        :param surface_objects: list of objects in the source that are metals
-        :param source_project_name: Name of the source project: None to use source from the same project
-        :param paramlist: list of all params in EM to be mapped
+        Returns
+        -------
+
         """
         assert self.solution_type == "Thermal", "This Method works only in Mechanical Structural Solution"
 
@@ -113,12 +136,24 @@ class Mechanical(FieldAnalysis3D, object):
                            source_project_name=None, paramlist=[]):
         """Map Thermal losses to Mechanical Design. It works only coupled with Icepak in 2021r2
 
+        Parameters
+        ----------
+        designname :
+            name of design of the source mapping (Default value = "IcepakDesign1")
+        setupname :
+            Name of EM Setup (Default value = "Setup1")
+        sweepname :
+            Name of EM Sweep to be used for mapping. Default no sweep and LastAdaptive to be used
+        source_project_name :
+            Name of the source project: None to use source from the same project (Default value = None)
+        paramlist :
+            list of all params in EM to be mapped (Default value = [])
+        object_list :
+            
 
-        :param designname: name of design of the source mapping
-        :param setupname: Name of EM Setup
-        :param sweepname: Name of EM Sweep to be used for mapping. Default no sweep and LastAdaptive to be used
-        :param source_project_name: Name of the source project: None to use source from the same project
-        :param paramlist: list of all params in EM to be mapped
+        Returns
+        -------
+
         """
 
         assert self.solution_type == "Structural", "This Method works only in Mechanical Structural Solution"
@@ -160,15 +195,26 @@ class Mechanical(FieldAnalysis3D, object):
     @aedt_exception_handler
     def assign_uniform_convection(self, objects_list, convection_value, convection_unit="w_per_m2kel",
                                   temperature="AmbientTemp", boundary_name=""):
-        """
-        Assign uniform convection to face list
+        """Assign uniform convection to face list
 
-        :param objects_list: list of objects/faces
-        :param convection_value: convection value
-        :param convection_unit: str optional convection units
-        :param temperature: optional Temperature
-        :param boundary_name: optional boundary object name
-        :return: Boundary Object
+        Parameters
+        ----------
+        objects_list :
+            list of objects/faces
+        convection_value :
+            convection value
+        convection_unit :
+            str optional convection units (Default value = "w_per_m2kel")
+        temperature :
+            optional Temperature (Default value = "AmbientTemp")
+        boundary_name :
+            optional boundary object name (Default value = "")
+
+        Returns
+        -------
+        type
+            Boundary Object
+
         """
         assert self.solution_type == "Thermal", "This Method works only in Mechanical Structural Solution"
 
@@ -195,13 +241,22 @@ class Mechanical(FieldAnalysis3D, object):
 
     @aedt_exception_handler
     def assign_uniform_temperature(self, objects_list, temperature="AmbientTemp", boundary_name=""):
-        """
-        Assign Uniform Temperature Boundary. Works only in Thermal module
+        """Assign Uniform Temperature Boundary. Works only in Thermal module
 
-        :param objects_list: list of objects/faces
-        :param temperature: Temperature Value
-        :param boundary_name: str optional boundary name
-        :return: Boundary Object
+        Parameters
+        ----------
+        objects_list :
+            list of objects/faces
+        temperature :
+            Temperature Value (Default value = "AmbientTemp")
+        boundary_name :
+            str optional boundary name (Default value = "")
+
+        Returns
+        -------
+        type
+            Boundary Object
+
         """
         assert self.solution_type == "Thermal", "This Method works only in Mechanical Structural Solution"
 
@@ -227,12 +282,20 @@ class Mechanical(FieldAnalysis3D, object):
 
     @aedt_exception_handler
     def assign_frictionless_support(self, objects_list,  boundary_name=""):
-        """
-        Assign Mechanical Frictionless Support. Works only in Structural Analysis
+        """Assign Mechanical Frictionless Support. Works only in Structural Analysis
 
-        :param objects_list: list of faces to apply Frictionless support
-        :param boundary_name: optional name of boundary
-        :return: boundary object
+        Parameters
+        ----------
+        objects_list :
+            list of faces to apply Frictionless support
+        boundary_name :
+            optional name of boundary (Default value = "")
+
+        Returns
+        -------
+        type
+            boundary object
+
         """
 
         assert self.solution_type == "Structural", "This Method works only in Mechanical Structural Solution"
@@ -256,12 +319,20 @@ class Mechanical(FieldAnalysis3D, object):
         return False
     @aedt_exception_handler
     def assign_fixed_support(self, objects_list,  boundary_name=""):
-        """
-        Assign Mechanical Fixed Support. Works only in Structural Analysis
+        """Assign Mechanical Fixed Support. Works only in Structural Analysis
 
-        :param objects_list: list of faces to apply Fixed support
-        :param boundary_name: optional name of boundary
-        :return: boundary object
+        Parameters
+        ----------
+        objects_list :
+            list of faces to apply Fixed support
+        boundary_name :
+            optional name of boundary (Default value = "")
+
+        Returns
+        -------
+        type
+            boundary object
+
         """
         assert self.solution_type =="Structural", "This Method works only in Mechanical Structural Solution"
         props = {}
@@ -281,10 +352,16 @@ class Mechanical(FieldAnalysis3D, object):
 
     @property
     def existing_analysis_sweeps(self):
-        """ Existing Analysis Setup List
-
-
+        """Existing Analysis Setup List
+        
+        
         :return: Return a list of all defined analysis setup names in the maxwell design.
+
+        Parameters
+        ----------
+
+        Returns
+        -------
 
         """
         setup_list = self.existing_analysis_setups

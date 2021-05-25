@@ -26,16 +26,15 @@ import random
 
 
 class EdbLayout(object):
-    """HFSS 3DLayout object
-
-
-    """
+    """HFSS 3DLayout object"""
     @property
     def edb(self):
+        """ """
         return self.parent.edb
 
     @property
     def messenger(self):
+        """ """
         return self.parent.messenger
 
     def __init__(self, parent):
@@ -44,57 +43,68 @@ class EdbLayout(object):
 
     @property
     def builder(self):
+        """ """
         return self.parent.builder
 
     @property
     def edb(self):
+        """ """
         return self.parent.edb
 
     @property
     def edb_value(self):
+        """ """
         return self.parent.edb_value
 
     @property
     def edbutils(self):
+        """ """
         return self.parent.edbutils
 
     @property
     def active_layout(self):
+        """ """
         return self.parent.active_layout
 
     @property
     def cell(self):
+        """ """
         return self.parent.cell
 
     @property
     def db(self):
+        """ """
         return self.parent.db
 
     @property
     def layers(self):
+        """ """
         return self.parent.core_stackup.stackup_layers.layers
 
     @property
     def polygons(self):
-        """
-
-        :return: list of polygons
-        """
+        """:return: list of polygons"""
         layoutInstance = self.active_layout.GetLayoutInstance()
         layoutObjectInstances = layoutInstance.GetAllLayoutObjInstances()
         objs = [el.GetLayoutObj() for el in layoutObjectInstances.Items if el.GetLayoutObj().GetType().Name == "Path"]
         return objs
 
     def get_polygons_by_layer(self, layer_name):
-        """
-        Return the polygons beloning to a specific layer
-
+        """Return the polygons beloning to a specific layer
+        
         :example:
 
-        >>> poly = edb_core.core_primitives.get_polygons_by_layer("GND")
+        Parameters
+        ----------
+        layer_name :
+            str layer name
 
-        :param layer_name: str layer name
-        :return: list of polygons
+        Returns
+        -------
+        type
+            list of polygons
+
+        >>> poly = edb_core.core_primitives.get_polygons_by_layer("GND")
         """
         objinst=[]
         for el in self.polygons:
@@ -103,16 +113,22 @@ class EdbLayout(object):
         return objinst
 
     def get_polygon_bounding_box(self, polygon):
-        """
-        Return the polygon bounding box
-
+        """Return the polygon bounding box
+        
         :example:
+
+        Parameters
+        ----------
+        polygon :
+            edb_core polygon
+
+        Returns
+        -------
+        type
+            bouding box [-x,-y,+x,+y]
 
         >>> poly = edb_core.core_primitives.get_polygons_by_layer("GND")
         >>> bounding = edb_core.core_primitives.get_polygon_bounding_box(poly[0])
-
-        :param polygon: edb_core polygon
-        :return: bouding box [-x,-y,+x,+y]
         """
         bounding = []
         try:
@@ -123,15 +139,22 @@ class EdbLayout(object):
         return bounding
 
     def get_polygon_points(self, polygon):
-        """
-        Return Polygon Points list. for Arcs, 1 point will be returned
-
+        """Return Polygon Points list. for Arcs, 1 point will be returned
+        
         :example:
+
+        Parameters
+        ----------
+        polygon :
+            edb_core polygon
+
+        Returns
+        -------
+        type
+            list of list of double
+
         >>> poly = edb_core.core_primitives.get_polygons_by_layer("GND")
         >>> points  = edb_core.core_primitives.get_polygon_points(poly[0])
-
-        :param polygon: edb_core polygon
-        :return: list of list of double
         """
         points = []
         i=0

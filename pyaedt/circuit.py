@@ -73,10 +73,16 @@ AEDT_MAPS = {
 
 
 def from_rkm(code):
-    """
-    Convert a RKM code string to a string with decimal point.
+    """Convert a RKM code string to a string with decimal point.
     examples: R47 = 0.47,  4R7 = 4.7,  470R = 470,  4K7 = 4.7k,  47K = 47k, 47K3 = 47.3k,  470K = 470k,  4M7 = 4.7MΩ
 
+    Parameters
+    ----------
+    code :
+        
+
+    Returns
+    -------
 
     """
 
@@ -105,6 +111,17 @@ def from_rkm(code):
 
 
 def to_aedt(code):
+    """
+
+    Parameters
+    ----------
+    code :
+        
+
+    Returns
+    -------
+
+    """
     pattern = r'([{}]{})'.format(''.join(AEDT_MAPS.keys()), '{1}')
     regex = re.compile(pattern, re.I)
     return_code = regex.sub(lambda m: AEDT_MAPS.get(m.group(), m.group()), code)
@@ -112,17 +129,37 @@ def to_aedt(code):
 
 
 def from_rkm_to_aedt(code):
+    """
+
+    Parameters
+    ----------
+    code :
+        
+
+    Returns
+    -------
+
+    """
     return to_aedt(from_rkm(code))
 
 
 class Circuit(FieldAnalysisCircuit, object):
     """Circuit Object
 
+    Parameters
+    ----------
+    projectname :
+        name of the project to be selected or full path to the project to be opened  or to the AEDTZ archive. if None try to get active project and, if nothing present to create an empy one
+    designname :
+        name of the design to be selected. if None, try to get active design and, if nothing present to create an empy one
+    solution_type :
+        solution type to be applied to design. if None default is taken
+    setup_name :
+        setup_name to be used as nominal. if none active setup is taken or nothing
 
-    :param projectname: name of the project to be selected or full path to the project to be opened  or to the AEDTZ archive. if None try to get active project and, if nothing present to create an empy one
-    :param designname: name of the design to be selected. if None, try to get active design and, if nothing present to create an empy one
-    :param solution_type: solution type to be applied to design. if None default is taken
-    :param setup_name: setup_name to be used as nominal. if none active setup is taken or nothing
+    Returns
+    -------
+
     """
 
     def __init__(self, projectname=None, designname=None, solution_type=None, setup_name=None):
@@ -138,21 +175,38 @@ class Circuit(FieldAnalysisCircuit, object):
 
     @aedt_exception_handler
     def _get_number_from_string(self, stringval):
+        """
+
+        Parameters
+        ----------
+        stringval :
+            
+
+        Returns
+        -------
+
+        """
         value = stringval[stringval.find("=") + 1:].strip().replace("{", "").replace("}", "").replace(",",".")
         return from_rkm_to_aedt(value)
 
 
     @aedt_exception_handler
     def create_schematic_from_netlist(self, file_to_import):
-        """
-        Create a Circuit Schematic from a spice netlist.
+        """Create a Circuit Schematic from a spice netlist.
         Supported in this moment:
         -R, L, C, Diodes, Bjts
         -Discrete components with syntax Uxxx net1 net2 ... netn modname
 
+        Parameters
+        ----------
+        file_to_import :
+            full path to spice file
 
-        :param file_to_import: full path to spice file
-        :return: True if completed
+        Returns
+        -------
+        type
+            True if completed
+
         """
         xpos = 0
         ypos = 0
@@ -339,15 +393,21 @@ class Circuit(FieldAnalysisCircuit, object):
 
     @aedt_exception_handler
     def create_schematic_from_mentor_netlist(self, file_to_import):
-        """
-        Create a Circuit Schematic from a Mentor netlist.
+        """Create a Circuit Schematic from a Mentor netlist.
         Supported in this moment:
         -R, L, C, Diodes, Bjts
         -Discrete components with syntax Uxxx net1 net2 ... netn modname
 
+        Parameters
+        ----------
+        file_to_import :
+            full path to spice file
 
-        :param file_to_import: full path to spice file
-        :return: True if completed
+        Returns
+        -------
+        type
+            True if completed
+
         """
 
         xpos = 0
@@ -460,11 +520,18 @@ class Circuit(FieldAnalysisCircuit, object):
 
     @aedt_exception_handler
     def retrieve_mentor_comp(self, refid):
-        """
-        Identifies from the reference ID which type of component is (from Mentor Netlist)
+        """Identifies from the reference ID which type of component is (from Mentor Netlist)
 
-        :param refid:string
-        :return:  refid Nexxim Type
+        Parameters
+        ----------
+        refid :
+            string
+
+        Returns
+        -------
+        type
+            refid Nexxim Type
+
         """
         if refid[1] == "R":
             return "resistor:RES."
@@ -481,11 +548,25 @@ class Circuit(FieldAnalysisCircuit, object):
 
     @aedt_exception_handler
     def get_source_pin_names(self, source_project_path, source_project_name, source_design_name, port_selector=3):
-        """
-        port_selector:
+        """port_selector:
         - 1 Wave Port
         - 2 Terminal
         - 3 Circuit Port
+
+        Parameters
+        ----------
+        source_project_path :
+            
+        source_project_name :
+            
+        source_design_name :
+            
+        port_selector :
+             (Default value = 3)
+
+        Returns
+        -------
+
         """
 
         oName = self.project_name
@@ -512,12 +593,20 @@ class Circuit(FieldAnalysisCircuit, object):
 
     @aedt_exception_handler
     def import_touchsthone_solution(self, filename, solution_name="Imported_Data"):
-        """
-        Import Touchstone file as solution
+        """Import Touchstone file as solution
 
-        :param filename: sNp filename
-        :param solution_name: solution name
-        :return: list of ports
+        Parameters
+        ----------
+        filename :
+            sNp filename
+        solution_name :
+            solution name (Default value = "Imported_Data")
+
+        Returns
+        -------
+        type
+            list of ports
+
         """
         re_filename = re.compile(r"\.s(?P<ports>\d+)+p", re.I)
         m = re_filename.search(filename)
@@ -550,14 +639,24 @@ class Circuit(FieldAnalysisCircuit, object):
 
     @aedt_exception_handler
     def create_touchstone_report(self,plot_name, curvenames, solution_name=None, variation_dict=None):
-        """
-        Create a touchstone plot
+        """Create a touchstone plot
 
-        :param plot_name: name of the plot
-        :param curvenames: list of curves to plot
-        :param solution_name: name of solution
-        :param variation_dict: name of variations
-        :return: Boolean
+        Parameters
+        ----------
+        plot_name :
+            name of the plot
+        curvenames :
+            list of curves to plot
+        solution_name :
+            name of solution (Default value = None)
+        variation_dict :
+            name of variations (Default value = None)
+
+        Returns
+        -------
+        type
+            Boolean
+
         """
         if not solution_name:
             solution_name = self.nominal_sweep

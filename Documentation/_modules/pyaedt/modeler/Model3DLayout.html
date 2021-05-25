@@ -166,6 +166,7 @@
 <span class="kn">import</span> <span class="nn">sys</span>
 
 <div class="viewcode-block" id="Modeler3DLayout"><a class="viewcode-back" href="../../../API/Modeler3DLayout.html#pyaedt.modeler.Model3DLayout.Modeler3DLayout">[docs]</a><span class="k">class</span> <span class="nc">Modeler3DLayout</span><span class="p">(</span><span class="n">Modeler</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot; &quot;&quot;&quot;</span>
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">parent</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_parent</span> <span class="o">=</span> <span class="n">parent</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">messenger</span><span class="o">.</span><span class="n">add_info_message</span><span class="p">(</span><span class="s2">&quot;Loading Modeler&quot;</span><span class="p">)</span>
@@ -192,6 +193,7 @@
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">edb</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; &quot;&quot;&quot;</span>
         <span class="n">edb_folder</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_parent</span><span class="o">.</span><span class="n">project_path</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_parent</span><span class="o">.</span><span class="n">project_name</span> <span class="o">+</span> <span class="s2">&quot;.aedb&quot;</span><span class="p">)</span>
         <span class="n">edb_file</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">edb_folder</span><span class="p">,</span> <span class="s2">&quot;edb.def&quot;</span><span class="p">)</span>
         <span class="n">_mttime</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">getmtime</span><span class="p">(</span><span class="n">edb_file</span><span class="p">)</span>
@@ -205,23 +207,37 @@
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">messenger</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_parent</span><span class="o">.</span><span class="n">_messenger</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">oeditor</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_parent</span><span class="o">.</span><span class="n">odesign</span><span class="o">.</span><span class="n">SetActiveEditor</span><span class="p">(</span><span class="s2">&quot;Layout&quot;</span><span class="p">)</span>
 
-    <span class="nd">@aedt_exception_handler</span>
+<div class="viewcode-block" id="Modeler3DLayout.fit_all"><a class="viewcode-back" href="../../../API/Modeler3DLayout.html#pyaedt.modeler.Model3DLayout.Modeler3DLayout.fit_all">[docs]</a>    <span class="nd">@aedt_exception_handler</span>
     <span class="k">def</span> <span class="nf">fit_all</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">oeditor</span><span class="o">.</span><span class="n">ZoomToFit</span><span class="p">()</span>
+        <span class="sd">&quot;&quot;&quot; &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">oeditor</span><span class="o">.</span><span class="n">ZoomToFit</span><span class="p">()</span></div>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">model_units</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&#39;&#39;&#39; Return the model units as a string e.g. &quot;mm&quot; &#39;&#39;&#39;</span>
+        <span class="sd">&quot;&quot;&quot; &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="n">retry_ntimes</span><span class="p">(</span><span class="mi">10</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">oeditor</span><span class="o">.</span><span class="n">GetActiveUnits</span><span class="p">)</span>
 
     <span class="nd">@model_units</span><span class="o">.</span><span class="n">setter</span>
     <span class="k">def</span> <span class="nf">model_units</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">units</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        units :</span>
+<span class="sd">            </span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">assert</span> <span class="n">units</span> <span class="ow">in</span> <span class="n">AEDT_units</span><span class="p">[</span><span class="s2">&quot;Length&quot;</span><span class="p">],</span> <span class="s2">&quot;Invalid units string </span><span class="si">{0}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">units</span><span class="p">)</span>
         <span class="sd">&#39;&#39;&#39; Set the model units as a string e.g. &quot;mm&quot; &#39;&#39;&#39;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">oeditor</span><span class="o">.</span><span class="n">SetActivelUnits</span><span class="p">(</span>
@@ -233,6 +249,7 @@
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">primitives</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_primitivesDes</span> <span class="o">!=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_parent</span><span class="o">.</span><span class="n">project_name</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">_parent</span><span class="o">.</span><span class="n">design_name</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_primitives</span> <span class="o">=</span> <span class="n">Primitives3DLayout</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_parent</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_primitivesDes</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_parent</span><span class="o">.</span><span class="n">project_name</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">_parent</span><span class="o">.</span><span class="n">design_name</span>
@@ -240,16 +257,25 @@
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">obounding_box</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">oeditor</span><span class="o">.</span><span class="n">GetModelBoundingBox</span><span class="p">()</span>
 
 <div class="viewcode-block" id="Modeler3DLayout.import_cadence_brd"><a class="viewcode-back" href="../../../API/Modeler3DLayout.html#pyaedt.modeler.Model3DLayout.Modeler3DLayout.import_cadence_brd">[docs]</a>    <span class="nd">@aedt_exception_handler</span>
     <span class="k">def</span> <span class="nf">import_cadence_brd</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">brd_filename</span><span class="p">,</span> <span class="n">edb_path</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">edb_name</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 
-<span class="sd">        :param brd_filename: BRD Full File name</span>
-<span class="sd">        :param edb_path:  Path where EDB shall be created. if no path is provided, project dir will be used</span>
-<span class="sd">        :param edb_name: name of EDB. If no name is provided, brd name will be used</span>
-<span class="sd">        :return:</span>
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        brd_filename :</span>
+<span class="sd">            BRD Full File name</span>
+<span class="sd">        edb_path :</span>
+<span class="sd">            Path where EDB shall be created. if no path is provided, project dir will be used (Default value = None)</span>
+<span class="sd">        edb_name :</span>
+<span class="sd">            name of EDB. If no name is provided, brd name will be used (Default value = None)</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="n">edb_path</span><span class="p">:</span>
             <span class="n">edb_path</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">projdir</span>
@@ -270,21 +296,40 @@
 
         <span class="k">return</span> <span class="kc">True</span></div>
 
-    <span class="nd">@aedt_exception_handler</span>
+<div class="viewcode-block" id="Modeler3DLayout.modeler_variable"><a class="viewcode-back" href="../../../API/Modeler3DLayout.html#pyaedt.modeler.Model3DLayout.Modeler3DLayout.modeler_variable">[docs]</a>    <span class="nd">@aedt_exception_handler</span>
     <span class="k">def</span> <span class="nf">modeler_variable</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        value :</span>
+<span class="sd">            </span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="nb">str</span> <span class="k">if</span> <span class="nb">int</span><span class="p">(</span><span class="n">sys</span><span class="o">.</span><span class="n">version_info</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span> <span class="o">&gt;=</span> <span class="mi">3</span> <span class="k">else</span> <span class="n">basestring</span><span class="p">):</span>
             <span class="k">return</span> <span class="n">value</span>
         <span class="k">else</span><span class="p">:</span>
-            <span class="k">return</span> <span class="nb">str</span><span class="p">(</span><span class="n">value</span><span class="p">)</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">model_units</span>
+            <span class="k">return</span> <span class="nb">str</span><span class="p">(</span><span class="n">value</span><span class="p">)</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">model_units</span></div>
 
 <div class="viewcode-block" id="Modeler3DLayout.import_ipc2581"><a class="viewcode-back" href="../../../API/Modeler3DLayout.html#pyaedt.modeler.Model3DLayout.Modeler3DLayout.import_ipc2581">[docs]</a>    <span class="nd">@aedt_exception_handler</span>
     <span class="k">def</span> <span class="nf">import_ipc2581</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ipc_filename</span><span class="p">,</span> <span class="n">edb_path</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">edb_name</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 
-<span class="sd">        :param ipc_filename: IPC Full File name</span>
-<span class="sd">        :param edb_path:  Path where EDB shall be created. if no path is provided, project dir will be used</span>
-<span class="sd">        :param edb_name: name of EDB. If no name is provided, brd name will be used</span>
-<span class="sd">        :return:</span>
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        ipc_filename :</span>
+<span class="sd">            IPC Full File name</span>
+<span class="sd">        edb_path :</span>
+<span class="sd">            Path where EDB shall be created. if no path is provided, project dir will be used (Default value = None)</span>
+<span class="sd">        edb_name :</span>
+<span class="sd">            name of EDB. If no name is provided, brd name will be used (Default value = None)</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="n">edb_path</span><span class="p">:</span>
             <span class="n">edb_path</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">projdir</span>
@@ -300,12 +345,18 @@
 
 <div class="viewcode-block" id="Modeler3DLayout.subtract"><a class="viewcode-back" href="../../../API/Modeler3DLayout.html#pyaedt.modeler.Model3DLayout.Modeler3DLayout.subtract">[docs]</a>    <span class="nd">@aedt_exception_handler</span>
     <span class="k">def</span> <span class="nf">subtract</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">blank</span><span class="p">,</span> <span class="n">tool</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Subract objects from names</span>
+        <span class="sd">&quot;&quot;&quot;Subract objects from names</span>
 
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        blank :</span>
+<span class="sd">            name of geometry from which subtract</span>
+<span class="sd">        tool :</span>
+<span class="sd">            name of geometry that will be subracted. it can be a list</span>
 
-<span class="sd">        :param blank. name of geometry from which subtract</span>
-<span class="sd">        :param tool, name of geometry that will be subracted. it can be a list</span>
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+
 <span class="sd">        &quot;&quot;&quot;</span>
 
         <span class="n">vArg1</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;NAME:primitives&#39;</span><span class="p">,</span> <span class="n">blank</span><span class="p">]</span>
@@ -327,11 +378,16 @@
 
 <div class="viewcode-block" id="Modeler3DLayout.unite"><a class="viewcode-back" href="../../../API/Modeler3DLayout.html#pyaedt.modeler.Model3DLayout.Modeler3DLayout.unite">[docs]</a>    <span class="nd">@aedt_exception_handler</span>
     <span class="k">def</span> <span class="nf">unite</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">objectlists</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Unite objects from names</span>
+        <span class="sd">&quot;&quot;&quot;Unite objects from names</span>
 
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        objectlists :</span>
+<span class="sd">            list of objects to unite</span>
 
-<span class="sd">        :param objectlists. list of objects to unite</span>
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+
 <span class="sd">        &quot;&quot;&quot;</span>
 
         <span class="n">vArg1</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;NAME:primitives&#39;</span><span class="p">]</span>
@@ -350,11 +406,16 @@
 
 <div class="viewcode-block" id="Modeler3DLayout.intersect"><a class="viewcode-back" href="../../../API/Modeler3DLayout.html#pyaedt.modeler.Model3DLayout.Modeler3DLayout.intersect">[docs]</a>    <span class="nd">@aedt_exception_handler</span>
     <span class="k">def</span> <span class="nf">intersect</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">objectlists</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Intersect objects from names</span>
+        <span class="sd">&quot;&quot;&quot;Intersect objects from names</span>
 
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        objectlists :</span>
+<span class="sd">            list of objects to unite</span>
 
-<span class="sd">        :param objectlists. list of objects to unite</span>
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+
 <span class="sd">        &quot;&quot;&quot;</span>
 
         <span class="n">vArg1</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;NAME:primitives&#39;</span><span class="p">]</span>

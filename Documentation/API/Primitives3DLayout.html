@@ -233,12 +233,41 @@
 <em class="property"><span class="pre">class</span> </em><code class="sig-prename descclassname"><span class="pre">pyaedt.modeler.Primitives3DLayout.</span></code><code class="sig-name descname"><span class="pre">Primitives3DLayout</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">parent</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">modeler</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pyaedt/modeler/Primitives3DLayout.html#Primitives3DLayout"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyaedt.modeler.Primitives3DLayout.Primitives3DLayout" title="Permalink to this definition">¶</a></dt>
 <dd><p>Class for management of all Primitives of HFSS3DLayout</p>
 <dl class="py method">
+<dt id="pyaedt.modeler.Primitives3DLayout.Primitives3DLayout.Padstack">
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">Padstack</span></code><a class="headerlink" href="#pyaedt.modeler.Primitives3DLayout.Primitives3DLayout.Padstack" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="pyaedt.modeler.Primitives3DLayout.Primitives3DLayout.arg_with_dim">
+<code class="sig-name descname"><span class="pre">arg_with_dim</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">Value</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sUnits</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pyaedt/modeler/Primitives3DLayout.html#Primitives3DLayout.arg_with_dim"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyaedt.modeler.Primitives3DLayout.Primitives3DLayout.arg_with_dim" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>Value</strong> -- </p></li>
+<li><p><strong>sUnits</strong> -- (Default value = None)</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
 <dt id="pyaedt.modeler.Primitives3DLayout.Primitives3DLayout.change_net_visibility">
 <code class="sig-name descname"><span class="pre">change_net_visibility</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">netlist</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">visible</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pyaedt/modeler/Primitives3DLayout.html#Primitives3DLayout.change_net_visibility"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyaedt.modeler.Primitives3DLayout.Primitives3DLayout.change_net_visibility" title="Permalink to this definition">¶</a></dt>
-<dd><p>Change the visibility of a net or net list
-:param netlist: single net or netlist to visualize
-:param visible: Boolean
-:return: Boolean</p>
+<dd><p>Change the visibility of a net or net list</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>netlist</strong> -- single net or netlist to visualize (Default value = None)</p></li>
+<li><p><strong>visible</strong> -- Boolean (Default value = False)</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Boolean</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>type</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py method">
@@ -263,12 +292,15 @@
 <li><p><strong>x</strong> -- x position float</p></li>
 <li><p><strong>y</strong> -- y position float</p></li>
 <li><p><strong>radius</strong> -- radius float</p></li>
-<li><p><strong>name</strong> -- Object Name</p></li>
-<li><p><strong>netname</strong> -- optional Netname</p></li>
+<li><p><strong>name</strong> -- Object Name (Default value = None)</p></li>
+<li><p><strong>netname</strong> -- optional Netname (Default value = None)</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>
 <dd class="field-even"><p>Name of the created object, if successful</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>type</p>
 </dd>
 </dl>
 </dd></dl>
@@ -281,17 +313,20 @@
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>layername</strong> -- layer name on which create the object</p></li>
-<li><p><strong>lw</strong> -- line width</p></li>
-<li><p><strong>x</strong> -- array of float containing x point of each point of the line</p></li>
-<li><p><strong>y</strong> -- array of float containing y point of each point of the line</p></li>
-<li><p><strong>start_style</strong> -- start style of the line. 0 Flat, 1 Extended, 2 Round</p></li>
-<li><p><strong>end_style</strong> -- end style of the line. 0 Same as start, 1 Flat, 2 Extended, 3 Round</p></li>
-<li><p><strong>name</strong> -- Object Name</p></li>
-<li><p><strong>netname</strong> -- optional Netname</p></li>
+<li><p><strong>lw</strong> -- line width (Default value = 1)</p></li>
+<li><p><strong>x</strong> -- array of float containing x point of each point of the line (Default value = [])</p></li>
+<li><p><strong>y</strong> -- array of float containing y point of each point of the line (Default value = [])</p></li>
+<li><p><strong>start_style</strong> -- start style of the line. 0 Flat, 1 Extended, 2 Round (Default value = 0)</p></li>
+<li><p><strong>end_style</strong> -- end style of the line. 0 Same as start, 1 Flat, 2 Extended, 3 Round (Default value = 0)</p></li>
+<li><p><strong>name</strong> -- Object Name (Default value = None)</p></li>
+<li><p><strong>netname</strong> -- optional Netname (Default value = None)</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>
 <dd class="field-even"><p>Name of the created object, if successful</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>type</p>
 </dd>
 </dl>
 </dd></dl>
@@ -307,12 +342,21 @@
 <li><p><strong>x</strong> -- x position float</p></li>
 <li><p><strong>y</strong> -- y position float</p></li>
 <li><p><strong>radius</strong> -- radius float</p></li>
-<li><p><strong>name</strong> -- Object Name</p></li>
-<li><p><strong>netname</strong> -- optional Netname</p></li>
+<li><p><strong>name</strong> -- Object Name (Default value = None)</p></li>
+<li><p><strong>netname</strong> -- optional Netname (Default value = None)</p></li>
+<li><p><strong>ax</strong> -- </p></li>
+<li><p><strong>ay</strong> -- </p></li>
+<li><p><strong>bx</strong> -- </p></li>
+<li><p><strong>by</strong> -- </p></li>
+<li><p><strong>cr</strong> -- (Default value = 0)</p></li>
+<li><p><strong>ang</strong> -- (Default value = 0)</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>
 <dd class="field-even"><p>Name of the created object, if successful</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>type</p>
 </dd>
 </dl>
 </dd></dl>
@@ -324,19 +368,22 @@
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>padstack</strong> -- String containing the Padstack Name</p></li>
-<li><p><strong>x</strong> -- x position</p></li>
-<li><p><strong>y</strong> -- y position</p></li>
-<li><p><strong>rotation</strong> -- angle rotation in deg</p></li>
-<li><p><strong>hole_diam</strong> -- hole diameter. If None Override is disabled</p></li>
-<li><p><strong>top_layer</strong> -- top layer</p></li>
-<li><p><strong>bot_layer</strong> -- bottom layer</p></li>
-<li><p><strong>name</strong> -- Via Name</p></li>
-<li><p><strong>netname</strong> -- optional Netname</p></li>
+<li><p><strong>padstack</strong> -- String containing the Padstack Name (Default value = &quot;PlanarEMVia&quot;)</p></li>
+<li><p><strong>x</strong> -- x position (Default value = 0)</p></li>
+<li><p><strong>y</strong> -- y position (Default value = 0)</p></li>
+<li><p><strong>rotation</strong> -- angle rotation in deg (Default value = 0)</p></li>
+<li><p><strong>hole_diam</strong> -- hole diameter. If None Override is disabled (Default value = None)</p></li>
+<li><p><strong>top_layer</strong> -- top layer (Default value = None)</p></li>
+<li><p><strong>bot_layer</strong> -- bottom layer (Default value = None)</p></li>
+<li><p><strong>name</strong> -- Via Name (Default value = None)</p></li>
+<li><p><strong>netname</strong> -- optional Netname (Default value = None)</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>
 <dd class="field-even"><p>Name of the created object, if successful</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>type</p>
 </dd>
 </dl>
 </dd></dl>
@@ -344,8 +391,7 @@
 <dl class="py method">
 <dt id="pyaedt.modeler.Primitives3DLayout.Primitives3DLayout.defaultmaterial">
 <em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">defaultmaterial</span></code><a class="headerlink" href="#pyaedt.modeler.Primitives3DLayout.Primitives3DLayout.defaultmaterial" title="Permalink to this definition">¶</a></dt>
-<dd><p>Return the model default material as a string e.g. vacuum</p>
-</dd></dl>
+<dd></dd></dl>
 
 <dl class="py method">
 <dt id="pyaedt.modeler.Primitives3DLayout.Primitives3DLayout.geometries">
@@ -370,6 +416,21 @@
 </dd></dl>
 
 <dl class="py method">
+<dt id="pyaedt.modeler.Primitives3DLayout.Primitives3DLayout.messenger">
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">messenger</span></code><a class="headerlink" href="#pyaedt.modeler.Primitives3DLayout.Primitives3DLayout.messenger" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="pyaedt.modeler.Primitives3DLayout.Primitives3DLayout.model_units">
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">model_units</span></code><a class="headerlink" href="#pyaedt.modeler.Primitives3DLayout.Primitives3DLayout.model_units" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="pyaedt.modeler.Primitives3DLayout.Primitives3DLayout.modeler">
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">modeler</span></code><a class="headerlink" href="#pyaedt.modeler.Primitives3DLayout.Primitives3DLayout.modeler" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
 <dt id="pyaedt.modeler.Primitives3DLayout.Primitives3DLayout.nets">
 <em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">nets</span></code><a class="headerlink" href="#pyaedt.modeler.Primitives3DLayout.Primitives3DLayout.nets" title="Permalink to this definition">¶</a></dt>
 <dd><p>Nets List from EDB. If no EDB is present none is returned</p>
@@ -386,13 +447,26 @@
 <dd><p>Return a new Padstack object that can be used in HFSS 3D Layout to create a new Padstack</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>name</strong> -- Padstack Name</p>
+<dd class="field-odd"><p><strong>name</strong> -- Padstack Name (Default value = &quot;Padstack&quot;)</p>
 </dd>
 <dt class="field-even">Returns</dt>
 <dd class="field-even"><p>Padstack Object if name is doesn't already exists</p>
 </dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>type</p>
+</dd>
 </dl>
 </dd></dl>
+
+<dl class="py method">
+<dt id="pyaedt.modeler.Primitives3DLayout.Primitives3DLayout.oeditor">
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">oeditor</span></code><a class="headerlink" href="#pyaedt.modeler.Primitives3DLayout.Primitives3DLayout.oeditor" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="pyaedt.modeler.Primitives3DLayout.Primitives3DLayout.opadstackmanager">
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">opadstackmanager</span></code><a class="headerlink" href="#pyaedt.modeler.Primitives3DLayout.Primitives3DLayout.opadstackmanager" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
 
 <dl class="py method">
 <dt id="pyaedt.modeler.Primitives3DLayout.Primitives3DLayout.pins">
@@ -404,6 +478,11 @@
 </dd>
 </dl>
 </dd></dl>
+
+<dl class="py method">
+<dt id="pyaedt.modeler.Primitives3DLayout.Primitives3DLayout.version">
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">version</span></code><a class="headerlink" href="#pyaedt.modeler.Primitives3DLayout.Primitives3DLayout.version" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
 
 </dd></dl>
 

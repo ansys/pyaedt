@@ -8,40 +8,45 @@ from System.Collections.Generic import List
 
 
 class EdbNets(object):
-    """Edb Net object
-
-
-    """
+    """Edb Net object"""
     @property
     def builder(self):
+        """ """
         return self.parent.builder
 
     @property
     def edb(self):
+        """ """
         return self.parent.edb
 
     @property
     def edb_value(self):
+        """ """
         return self.parent.edb_value
 
     @property
     def active_layout(self):
+        """ """
         return self.parent.active_layout
 
     @property
     def cell(self):
+        """ """
         return self.parent.cell
 
     @property
     def db(self):
+        """ """
         return self.parent.db
 
     @property
     def padstack_methods(self):
+        """ """
         return self.parent.edblib.Layout.PadStackMethods
 
     @property
     def messenger(self):
+        """ """
         return self.parent.messenger
 
     def __init__(self, parent):
@@ -49,42 +54,41 @@ class EdbNets(object):
 
     @property
     def nets_methods(self):
+        """ """
         return self.parent.edblib.Layout.NetsMethods
 
     @property
     def nets(self):
-        """
-
-        :return: Dictionary of Nets
-        """
+        """:return: Dictionary of Nets"""
         if self.builder:
             return convert_netdict_to_pydict(self.nets_methods.GetNetDict(self.builder))
 
     @property
     def signal_nets(self):
-        """
-
-        :return:Dictionary of Signal Nets
-        """
+        """:return:Dictionary of Signal Nets"""
         if self.builder:
             return convert_netdict_to_pydict(self.nets_methods.GetSignalNetDict(self.builder))
 
     @property
     def power_nets(self):
-        """
-        :return:Dictionary of Power Nets
-        """
+        """:return:Dictionary of Power Nets"""
         if self.builder:
             return convert_netdict_to_pydict(self.nets_methods.GetPowerNetDict(self.builder))
 
     @aedt_exception_handler
     def is_power_gound_net(self, netname_list):
-        """
-        Return a True if one of the net in the list is power or ground
+        """Return a True if one of the net in the list is power or ground
 
+        Parameters
+        ----------
+        netname_list :
+            list of net names
 
-        :param netname_list: list of net names
-        :return: True if one of net name is power or ground
+        Returns
+        -------
+        type
+            True if one of net name is power or ground
+
         """
         if self.builder:
             return self.nets_methods.IsPowerGroundNetInList(self.builder, netname_list)
@@ -93,8 +97,15 @@ class EdbNets(object):
         """Get the Netlist of Nets connected to DC Through Inductors
         only inductors are considered
 
-        :param ground_nets: list of ground nets
-        return: list of dcconnected nets
+        Parameters
+        ----------
+        ground_nets :
+            list of ground nets
+            return: list of dcconnected nets (Default value = ["GND"])
+
+        Returns
+        -------
+
         """
         temp_list = []
         for refdes, comp_obj in self.parent.core_components.inductors.items():
@@ -124,6 +135,19 @@ class EdbNets(object):
         return dcconnected_net_list
 
     def get_powertree(self, power_net_name, ground_nets):
+        """
+
+        Parameters
+        ----------
+        power_net_name :
+            
+        ground_nets :
+            
+
+        Returns
+        -------
+
+        """
         flag_in_ng = False
         net_group = []
         for ng in self.get_dcconnected_net_list(ground_nets):
@@ -158,15 +182,21 @@ class EdbNets(object):
 
     @aedt_exception_handler
     def delete_nets(self, netlist):
-        """
-        Delete Nets from Edb
-
+        """Delete Nets from Edb
+        
         :example:
 
-        >>> deleted_nets = edb_core.core_nets.delete_nets(["Net1","Net2"])
+        Parameters
+        ----------
+        netlist :
+            str or list of net to be deleted
 
-        :param netlist: str or list of net to be deleted
-        :return: list of nets effectively deleted
+        Returns
+        -------
+        type
+            list of nets effectively deleted
+
+        >>> deleted_nets = edb_core.core_nets.delete_nets(["Net1","Net2"])
         """
         if type(netlist) is str:
             netlist=[netlist]

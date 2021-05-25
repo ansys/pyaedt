@@ -88,6 +88,19 @@ with Desktop() as d:
 
 
 def float_units(val_str, units=""):
+    """
+
+    Parameters
+    ----------
+    val_str :
+        
+    units :
+         (Default value = "")
+
+    Returns
+    -------
+
+    """
     if not units in unit_val:
         raise Exception("Specified unit string " + units + " not known!")
 
@@ -104,9 +117,14 @@ def float_units(val_str, units=""):
 
 
 class Maxwell(object):
-    """
-    Class of Common Functionalities of Maxwell. This class contains all the methods that are common between Maxwell2D
+    """Class of Common Functionalities of Maxwell. This class contains all the methods that are common between Maxwell2D
     and Maxwell3D
+
+    Parameters
+    ----------
+
+    Returns
+    -------
 
     """
 
@@ -115,39 +133,56 @@ class Maxwell(object):
 
     @property
     def odefinition_manager(self):
+        """ """
         return self.oproject.GetDefinitionManager()
 
     @property
     def omaterial_manager(self):
+        """ """
         return self.odefinition_manager.GetManager("Material")
 
     '''
     @property
     def oeditor(self):
+        """ """
         return self.odesign.SetActiveEditor("3D Modeler")
     '''
 
     @property
     def symmetry_multiplier(self):
-        """ Return the symmetry multiplier  """
+        """ """
         omodule = self._odesign.GetModule("ModelSetup")
         return int(omodule.GetSymmetryMultiplier())
 
     @property
     def windings(self):
-        """ Return a list of all defined winding names in the Maxwell design. """
+        """ """
         oModule = self.odesign.GetModule("BoundarySetup")
         windings = oModule.GetExcitationsOfType('Winding Group')
         return list(windings)
 
     @property
     def design_file(self):
+        """ """
         design_file = os.path.join(self.working_directory, "design_data.json")
         return design_file
 
     # Set eddy effects
     @aedt_exception_handler
     def eddy_effects_on(self, object_list, activate=True):
+        """
+
+        Parameters
+        ----------
+        object_list :
+            
+        activate :
+             (Default value = True)
+
+        Returns
+        -------
+
+        """
         EddyVector = ["NAME:EddyEffectVector"]
         for obj in object_list:
             EddyVector.append([
@@ -164,20 +199,33 @@ class Maxwell(object):
     def assign_current(self, object_list, amplitude=1, phase="0deg", solid=True, swap_direction=False,
                        name=None):  # Assign the current Source
         """
-        Assign current source to face list
 
-        :param object_list: list of objects or list of faces
-        :param amplitude: float current amplitude in A
-        :param solid: bool
-        :param swap_direction: bool
-        :param name: boundary name
-        :return: Boundary Object
+        Parameters
+        ----------
+        object_list :
+
+        amplitude :
+             (Default value = 1)
+        phase :
+             (Default value = "0deg")
+        solid :
+             (Default value = True)
+        swap_direction :
+             (Default value = False)
+        name :
+             (Default value = None):  # Assign the current Source
+
+        Returns
+        -------
+        :class: BoundaryObject
+            Boundary Object
         """
 
         amplitude = str(amplitude) + "A"
 
         if not name:
             name = generate_unique_name("Current")
+        
         object_list = self.modeler._convert_list_to_ids(object_list)
         if type(object_list[0]) is int:
             props = OrderedDict(
@@ -193,13 +241,22 @@ class Maxwell(object):
 
     @aedt_exception_handler
     def assign_voltage(self, face_list, amplitude=1, name=None):  # Assign the current Source
-        """
-        Assign voltage source to face list
+        """Assign voltage source to face list
 
-        :param face_list: list of objects
-        :param amplitude: float voltage amplitude in mV
-        :param name: boundary name
-        :return: Boundary Object
+        Parameters
+        ----------
+        face_list :
+            list of objects
+        amplitude :
+            float voltage amplitude in mV (Default value = 1)
+        name :
+            boundary name (Default value = None)
+
+        Returns
+        -------
+        type
+            Boundary Object
+
         """
 
         amplitude = str(amplitude) + "mV"
@@ -219,14 +276,24 @@ class Maxwell(object):
 
     @aedt_exception_handler
     def assign_voltage_drop(self, face_list, amplitude=1, swap_direction=False, name=None):  # Assign the current Source
-        """
-        Assign voltage source to face list
+        """Assign voltage source to face list
 
-        :param face_list: list of objects
-        :param amplitude: float voltage amplitude in mV
-        :param swap_direction: bool
-        :param name: boundary name
-        :return: Boundary Object
+        Parameters
+        ----------
+        face_list :
+            list of objects
+        amplitude :
+            float voltage amplitude in mV (Default value = 1)
+        swap_direction :
+            bool (Default value = False)
+        name :
+            boundary name (Default value = None)
+
+        Returns
+        -------
+        type
+            Boundary Object
+
         """
 
         amplitude = str(amplitude) + "mV"
@@ -245,18 +312,32 @@ class Maxwell(object):
     @aedt_exception_handler
     def assign_winding(self, coil_terminals = None, winding_type="Current", current_value=1, res=0, ind=0, voltage=0,
                        parallel_branches=1, name=None):
-        """
-        Assign winding to Maxwell Design
+        """Assign winding to Maxwell Design
 
-        :param coil_terminals: list of faces to which create coil terminal.
-        :param winding_type: str "Current", "Voltage", "External"
-        :param current_value: float ampere
-        :param res: float ohm
-        :param ind: float Henry
-        :param voltage: float Volt
-        :param parallel_branches: int
-        :param name: str name
-        :return: bounding object for winding otherwise only bounding object
+        Parameters
+        ----------
+        coil_terminals :
+            list of faces to which create coil terminal. (Default value = None)
+        winding_type :
+            str "Current", "Voltage", "External" (Default value = "Current")
+        current_value :
+            float ampere (Default value = 1)
+        res :
+            float ohm (Default value = 0)
+        ind :
+            float Henry (Default value = 0)
+        voltage :
+            float Volt (Default value = 0)
+        parallel_branches :
+            int (Default value = 1)
+        name :
+            str name (Default value = None)
+
+        Returns
+        -------
+        type
+            bounding object for winding otherwise only bounding object
+
         """
 
         if not name:
@@ -282,12 +363,20 @@ class Maxwell(object):
 
     @aedt_exception_handler
     def add_winding_coils(self, windingname, coil_names):
-        """
-        Add Coils to Winding
+        """Add Coils to Winding
 
-        :param windingname: Winding Name
-        :param coil_names: Coils Names. Can be a list of 1 or more element
-        :return: Bool
+        Parameters
+        ----------
+        windingname :
+            Winding Name
+        coil_names :
+            Coils Names. Can be a list of 1 or more element
+
+        Returns
+        -------
+        type
+            Bool
+
         """
         if self.modeler._is3d:
             self.oboundary.AddWindingTerminals(windingname, coil_names)
@@ -297,13 +386,26 @@ class Maxwell(object):
 
     @aedt_exception_handler
     def assign_coil(self, input_object, conductor_number=1, polarity="Positive", name=None):
-        """
-        Assign Coils to list of objects or faceID
+        """Assign Coils to list of objects or faceID
 
-        :param input_list: inputs list of objects or face IDs
-        :param conductor_number: conductors number
-        :param polarity:  polarity
-        :return: Coil Object
+        Parameters
+        ----------
+        input_list :
+            inputs list of objects or face IDs
+        conductor_number :
+            conductors number (Default value = 1)
+        polarity :
+            polarity (Default value = "Positive")
+        input_object :
+            
+        name :
+             (Default value = None)
+
+        Returns
+        -------
+        type
+            Coil Object
+
         """
         if polarity == "Positive":
             point = False
@@ -340,6 +442,19 @@ class Maxwell(object):
 
     @aedt_exception_handler
     def solve_inside(self, name, activate=True):
+        """
+
+        Parameters
+        ----------
+        name :
+            
+        activate :
+             (Default value = True)
+
+        Returns
+        -------
+
+        """
         self.modeler.oeditor.ChangeProperty(
             [
                 "NAME:AllTabs",
@@ -362,6 +477,7 @@ class Maxwell(object):
 
     @aedt_exception_handler
     def analyse_from_zero(self):
+        """ """
         self.oanalysis.ResetSetupToTimeZero(self._setup)
         self.analyse_nominal()
         return True
@@ -370,9 +486,16 @@ class Maxwell(object):
     def set_initial_angle(self, motion_setup, val):
         """
 
-        :param motion_setup:
-        :param val:
-        :return:
+        Parameters
+        ----------
+        motion_setup :
+            param val:
+        val :
+            
+
+        Returns
+        -------
+
         """
         self.odesign.ChangeProperty(
             [
@@ -404,19 +527,28 @@ class Maxwell(object):
 
 
 class Maxwell3d(Maxwell, FieldAnalysis3D, object):
-    """
-    Maxwell 3D Object
+    """Maxwell 3D Object
 
+    Parameters
+    ----------
+    projectname :
+        name of the project to be selected or full path to the project to be opened  or to the AEDTZ
+        archive. if None try to get active project and, if nothing present to create an empy one
+    designname :
+        name of the design to be selected. if None, try to get active design and, if nothing present to create an empy one
+    solution_type :
+        solution type to be applied to design. if None default is taken
+    setup_name :
+        setup_name to be used as nominal. if none active setup is taken or nothing
 
-    :param projectname: name of the project to be selected or full path to the project to be opened  or to the AEDTZ
-     archive. if None try to get active project and, if nothing present to create an empy one
-    :param designname: name of the design to be selected. if None, try to get active design and, if nothing present to create an empy one
-    :param solution_type: solution type to be applied to design. if None default is taken
-    :param setup_name: setup_name to be used as nominal. if none active setup is taken or nothing
+    Returns
+    -------
+
     """
 
     @property  # for legacy purposes
     def dim(self):
+        """ """
         return '3D'
 
     def __init__(self, projectname=None, designname=None, solution_type=None, setup_name=None):
@@ -434,17 +566,30 @@ class Maxwell3d(Maxwell, FieldAnalysis3D, object):
 
     @aedt_exception_handler
     def setup_ctrlprog(self, setup, py_file, file_str=None):
-        """ Configure the transient design setup to run a specific vontrol program.
-
+        """Configure the transient design setup to run a specific vontrol program.
+        
         Input arguments:
         setup: Name of the solution setup of the maxwell design (e.g. 'Setup1')
         py_file: Name of the python file to be run at each timestep
-
+        
         Note: the file py_file will be copied by the Maxwell solver process to the temp directory and will be
               re-named to setup+'.ctrlprog'   e.g if py_file is defined as "my_script.py' and the solver setup
               is called 'Setup1', then the resulting file in the temp-directory is Setup1.ctrlprog. For this reason
               it is important to instruct the operating system to use a python interpreter to run any file with extension
               '.ctrlprog'.
+
+        Parameters
+        ----------
+        setup :
+            
+        py_file :
+            
+        file_str :
+             (Default value = None)
+
+        Returns
+        -------
+
         """
         py_file = os.path.join(self.working_directory, py_file).replace('\\', '\\\\')
         exe_file = r'C:\data\userlib\Toolkits\Maxwell3D\lib\PythonLauncher.exe'
@@ -468,24 +613,33 @@ class Maxwell3d(Maxwell, FieldAnalysis3D, object):
 
 
 class Maxwell2d(Maxwell, FieldAnalysis2D, object):
-    """
-    Maxwell 2D Object
+    """Maxwell 2D Object
 
+    Parameters
+    ----------
+    projectname :
+        name of the project to be selected or full path to the project to be opened  or to the AEDTZ
+        archive. if None try to get active project and, if nothing present to create an empy one
+    designname :
+        name of the design to be selected. if None, try to get active design and, if nothing present to create an empy one
+    solution_type :
+        solution type to be applied to design. if None default is taken
+    setup_name :
+        setup_name to be used as nominal. if none active setup is taken or nothing
 
-    :param projectname: name of the project to be selected or full path to the project to be opened  or to the AEDTZ
-     archive. if None try to get active project and, if nothing present to create an empy one
-    :param designname: name of the design to be selected. if None, try to get active design and, if nothing present to create an empy one
-    :param solution_type: solution type to be applied to design. if None default is taken
-    :param setup_name: setup_name to be used as nominal. if none active setup is taken or nothing
+    Returns
+    -------
+
     """
 
     @property  # for legacy purposes
     def dim(self):
+        """ """
         return self.modeler.dimension
 
     @property
     def geometry_mode(self):
-        """ Return the geometry mode of a 2D design as "XY" or "RZ" """
+        """ """
         return self.odesign.GetGeometryMode()
 
     def __init__(self, projectname=None, designname=None, solution_type=None, setup_name=None):
@@ -493,6 +647,7 @@ class Maxwell2d(Maxwell, FieldAnalysis2D, object):
         Maxwell.__init__(self)
 
     def get_model_depth(self):
+        """ """
         if self.modeler.dimension == '2D':
             with open(self.project_file, 'r') as fi:
                 design_str = "\t$begin 'Maxwell2DModel'"
@@ -527,7 +682,19 @@ class Maxwell2d(Maxwell, FieldAnalysis2D, object):
 
     @aedt_exception_handler
     def generate_design_data(self, linefilter=None, objectfilter=None):
-        """ Generate a generic set of design data and store in the extension directory as design_data.json."""
+        """Generate a generic set of design data and store in the extension directory as design_data.json.
+
+        Parameters
+        ----------
+        linefilter :
+             (Default value = None)
+        objectfilter :
+             (Default value = None)
+
+        Returns
+        -------
+
+        """
         solid_bodies = self.modeler.solid_bodies
         solid_ids = self.modeler.solid_ids(objectfilter)
         model_depth = self.get_model_depth()
@@ -563,15 +730,34 @@ class Maxwell2d(Maxwell, FieldAnalysis2D, object):
     @aedt_exception_handler
     def setup_ctrlprog(self, file_str=None, keep_modifications=False, python_interpreter=None,
                        pymxwl_module_location=None, working_directory=None, aedt_lib_dir=None):
-        """ Configure the transient design setup to run a specific control program.
-
+        """Configure the transient design setup to run a specific control program.
+        
         Input arguments:
-
+        
         Note: the file py_file will be copied by the Maxwell solver process to the temp directory and will be
               re-named to setup+'.ctrlprog'   e.g if py_file is defined as "Setup1.py' and the solver setup
               is called 'Setup1', then the resulting file in the temp-directory is Setup1.ctrlprog. For this reason
               it is important to instruct the operating system to use a python interpreter to run any file with extension
               '.ctrlprog'.
+
+        Parameters
+        ----------
+        file_str :
+             (Default value = None)
+        keep_modifications :
+             (Default value = False)
+        python_interpreter :
+             (Default value = None)
+        pymxwl_module_location :
+             (Default value = None)
+        working_directory :
+             (Default value = None)
+        aedt_lib_dir :
+             (Default value = None)
+
+        Returns
+        -------
+
         """
         setup = self.analysis_setup
         self._py_file = setup + ".py"
@@ -628,13 +814,22 @@ class Maxwell2d(Maxwell, FieldAnalysis2D, object):
 
     @aedt_exception_handler
     def assign_vector_potential(self, input_edge, vectorvalue=0, bound_name=None):
-        """
-        Assign Coils to list of objects or faceID
+        """Assign Coils to list of objects or faceID
 
-        :param input_edge: inputs list of edges or edgeIDs
-        :param vectorvalue: float
-        :param bound_name:  str optional
-        :return: Vector Potential Object
+        Parameters
+        ----------
+        input_edge :
+            inputs list of edges or edgeIDs
+        vectorvalue :
+            float (Default value = 0)
+        bound_name :
+            str optional (Default value = None)
+
+        Returns
+        -------
+        type
+            Vector Potential Object
+
         """
         input_edge= self.modeler._convert_list_to_ids(input_edge)
 

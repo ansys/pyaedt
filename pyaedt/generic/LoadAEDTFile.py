@@ -7,20 +7,37 @@ from collections import OrderedDict
 
 
 def load_entire_aedt_file(filename):
-    """
-    Load the entire AEDT file and return the dictionary
-    :param filename: AEDT filename with path
-    :return: dictionary containing the decoded AEDT file
+    """Load the entire AEDT file and return the dictionary
+
+    Parameters
+    ----------
+    filename :
+        AEDT filename with path
+
+    Returns
+    -------
+    type
+        dictionary containing the decoded AEDT file
+
     """
     return _load_entire_aedt_file(filename)
 
 
 def load_keyword_in_aedt_file(filename, keyword):
-    """
-    Load s specific keyword in the AEDT file and return the dictionary
-    :param filename: AEDT filename with path
-    :param keyword: keyword to search and load
-    :return: dictionary containing the decoded AEDT file
+    """Load s specific keyword in the AEDT file and return the dictionary
+
+    Parameters
+    ----------
+    filename :
+        AEDT filename with path
+    keyword :
+        keyword to search and load
+
+    Returns
+    -------
+    type
+        dictionary containing the decoded AEDT file
+
     """
     return _load_keyword_in_aedt_file(filename, keyword)
 
@@ -45,6 +62,17 @@ _count = 0
 
 
 def _parse_value(v):
+    """
+
+    Parameters
+    ----------
+    v :
+        
+
+    Returns
+    -------
+
+    """
     #  parse the value 'v'
     if v is None:
         pv = v
@@ -68,6 +96,17 @@ def _parse_value(v):
 
 
 def _separate_list_elements(v):
+    """
+
+    Parameters
+    ----------
+    v :
+        
+
+    Returns
+    -------
+
+    """
     if "(" in v or '=' in v:
         l1 = _split_list_elements.split(v)
     else:
@@ -77,6 +116,21 @@ def _separate_list_elements(v):
 
 
 def _decode_value_and_save(k, v, d):
+    """
+
+    Parameters
+    ----------
+    k :
+        
+    v :
+        
+    d :
+        
+
+    Returns
+    -------
+
+    """
     # save key 'k', value 'v' in dict 'd'
     # create a list for key(l1, l2, l3)
     # create a list for key[n: 1, 2, ...n]
@@ -105,6 +159,19 @@ def _decode_value_and_save(k, v, d):
 
 
 def _decode_key(l, d):
+    """
+
+    Parameters
+    ----------
+    l :
+        
+    d :
+        
+
+    Returns
+    -------
+
+    """
     m = _key_parse.search(l)
     if m and m.group('KEY1'):  # key btw ''
         value = m.group('VAL1')
@@ -139,6 +206,19 @@ def _decode_key(l, d):
 
 
 def _walk_through_structure(keyword, save_dict):
+    """
+
+    Parameters
+    ----------
+    keyword :
+        
+    save_dict :
+        
+
+    Returns
+    -------
+
+    """
     global _count
     begin_key = '$begin \'{}\''.format(keyword)
     end_key = '$end \'{}\''.format(keyword)
@@ -174,9 +254,16 @@ def _walk_through_structure(keyword, save_dict):
 
 
 def _reaf_aedt_file(filename):
-    """
-    Read the entire AEDT file discard binary and put ascii line in a list
-    :param filename: AEDT filename with path
+    """Read the entire AEDT file discard binary and put ascii line in a list
+
+    Parameters
+    ----------
+    filename :
+        AEDT filename with path
+
+    Returns
+    -------
+
     """
     global _all_lines
     global _len_all_lines
@@ -194,10 +281,18 @@ def _reaf_aedt_file(filename):
 
 
 def _load_entire_aedt_file(filename):
-    """
-    Load the entire AEDT file and return the dictionary
-    :param filename: AEDT filename with path
-    :return: dictionary containing the decoded AEDT file
+    """Load the entire AEDT file and return the dictionary
+
+    Parameters
+    ----------
+    filename :
+        AEDT filename with path
+
+    Returns
+    -------
+    type
+        dictionary containing the decoded AEDT file
+
     """
     _reaf_aedt_file(filename)
     # load the aedt file
@@ -214,11 +309,20 @@ def _load_entire_aedt_file(filename):
 
 
 def _load_keyword_in_aedt_file(filename, keyword):
-    """
-    Load a specific keyword in the AEDT file and return the dictionary
-    :param filename: AEDT filename with path
-    :param keyword: keyword to search and load
-    :return: dictionary containing the decoded AEDT file
+    """Load a specific keyword in the AEDT file and return the dictionary
+
+    Parameters
+    ----------
+    filename :
+        AEDT filename with path
+    keyword :
+        keyword to search and load
+
+    Returns
+    -------
+    type
+        dictionary containing the decoded AEDT file
+
     """
     _reaf_aedt_file(filename)
     # load the aedt file

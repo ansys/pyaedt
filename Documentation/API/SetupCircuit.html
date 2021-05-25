@@ -243,8 +243,31 @@
 <dt id="pyaedt.modules.SolveSetup.SetupCircuit.add_derivatives">
 <code class="sig-name descname"><span class="pre">add_derivatives</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">derivative_list</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pyaedt/modules/SolveSetup.html#SetupCircuit.add_derivatives"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyaedt.modules.SolveSetup.SetupCircuit.add_derivatives" title="Permalink to this definition">¶</a></dt>
 <dd><p>Add Derivatives to Setup</p>
-<p>:param derivative_list:derivative lists
-:return: Bool</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>derivative_list</strong> -- derivative lists</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Bool</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>type</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="pyaedt.modules.SolveSetup.SetupCircuit.check_dict">
+<code class="sig-name descname"><span class="pre">check_dict</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">listin</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">out</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pyaedt/modules/SolveSetup.html#SetupCircuit.check_dict"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyaedt.modules.SolveSetup.SetupCircuit.check_dict" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>listin</strong> -- </p></li>
+<li><p><strong>name</strong> -- </p></li>
+<li><p><strong>out</strong> -- </p></li>
+</ul>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py method">
@@ -264,10 +287,13 @@
 <dd><p>Disable specific Setup</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>setup_name</strong> -- optional setup name</p>
+<dd class="field-odd"><p><strong>setup_name</strong> -- optional setup name (Default value = None)</p>
 </dd>
 <dt class="field-even">Returns</dt>
 <dd class="field-even"><p>none</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>type</p>
 </dd>
 </dl>
 </dd></dl>
@@ -278,10 +304,13 @@
 <dd><p>Enable specific Setup</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>setup_name</strong> -- optional setup name</p>
+<dd class="field-odd"><p><strong>setup_name</strong> -- optional setup name (Default value = None)</p>
 </dd>
 <dt class="field-even">Returns</dt>
 <dd class="field-even"><p>none</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>type</p>
 </dd>
 </dl>
 </dd></dl>
@@ -292,19 +321,42 @@
 <dd><dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>conv_criteria</strong> -- </p></li>
-<li><p><strong>isrelativeconvergence</strong> -- </p></li>
+<li><p><strong>conv_criteria</strong> -- param isrelativeconvergence: (Default value = 1)</p></li>
 <li><p><strong>expressions</strong> -- Formula to be added to the expression cache. It can be a list or a string</p></li>
-<li><p><strong>report_type</strong> -- Report type of expression cache (eg. Fields). It can be a list or a string (same length of expression_list)</p></li>
-<li><p><strong>isconvergence</strong> -- Boolean if expression is in convergence criteria. It can be a list or a string (same length of expression_list)</p></li>
-<li><p><strong>intrinsics</strong> -- List of Intrinsics of expression (if any). It can be a list or a string (same length of expression_list)</p></li>
+<li><p><strong>report_type</strong> -- Report type of expression cache (eg. Fields). It can be a list or a string (same length of expression_list) (Default value = &quot;Fields&quot;)</p></li>
+<li><p><strong>isconvergence</strong> -- Boolean if expression is in convergence criteria. It can be a list or a string (same length of expression_list) (Default value = True)</p></li>
+<li><p><strong>intrinsics</strong> -- List of Intrinsics of expression (if any). It can be a list or a string (same length of expression_list) (Default value = '')</p></li>
+<li><p><strong>isrelativeconvergence</strong> -- (Default value = True)</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>
 <dd class="field-even"><p>none</p>
 </dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>type</p>
+</dd>
 </dl>
 </dd></dl>
+
+<dl class="py method">
+<dt id="pyaedt.modules.SolveSetup.SetupCircuit.name">
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">name</span></code><a class="headerlink" href="#pyaedt.modules.SolveSetup.SetupCircuit.name" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="pyaedt.modules.SolveSetup.SetupCircuit.odesign">
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">odesign</span></code><a class="headerlink" href="#pyaedt.modules.SolveSetup.SetupCircuit.odesign" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="pyaedt.modules.SolveSetup.SetupCircuit.omodule">
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">omodule</span></code><a class="headerlink" href="#pyaedt.modules.SolveSetup.SetupCircuit.omodule" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="pyaedt.modules.SolveSetup.SetupCircuit.parent">
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">parent</span></code><a class="headerlink" href="#pyaedt.modules.SolveSetup.SetupCircuit.parent" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
 
 <dl class="py method">
 <dt id="pyaedt.modules.SolveSetup.SetupCircuit.update">
@@ -312,10 +364,13 @@
 <dd><p>update the setup based on the class argument or to the updated dictionary passed as arcument</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>update_dictionary</strong> -- optional dictionary of settings to apply</p>
+<dd class="field-odd"><p><strong>update_dictionary</strong> -- optional dictionary of settings to apply (Default value = None)</p>
 </dd>
 <dt class="field-even">Returns</dt>
 <dd class="field-even"><p>bool</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>type</p>
 </dd>
 </dl>
 </dd></dl>

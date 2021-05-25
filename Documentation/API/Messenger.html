@@ -321,12 +321,9 @@
 <li><p><strong>type</strong> -- Types: 0: info, 1: Warning, 2: Error</p></li>
 <li><p><strong>message_text</strong> -- message to show</p></li>
 <li><p><strong>level</strong> -- message level. Default message level is 'Design'</p></li>
-<li><p><strong>proj_name</strong> -- project name</p></li>
-<li><p><strong>des_name</strong> -- design name</p></li>
+<li><p><strong>proj_name</strong> -- project name (Default value = None)</p></li>
+<li><p><strong>des_name</strong> -- design name (Default value = None)</p></li>
 </ul>
-</dd>
-<dt class="field-even">Returns</dt>
-<dd class="field-even"><p></p>
 </dd>
 </dl>
 </dd></dl>
@@ -359,10 +356,40 @@
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>proj_name</strong> -- name of project (or blank string for all projects)</p></li>
-<li><p><strong>des_name</strong> -- name of design (or blank string for all design)</p></li>
-<li><p><strong>level</strong> -- severity level</p></li>
+<li><p><strong>proj_name</strong> -- name of project (or blank string for all projects) (Default value = None)</p></li>
+<li><p><strong>des_name</strong> -- name of design (or blank string for all design) (Default value = None)</p></li>
+<li><p><strong>level</strong> -- severity level (Default value = 2)</p></li>
 </ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="pyaedt.application.MessageManager.AEDTMessageManager.design_name">
+<code class="sig-name descname"><span class="pre">design_name</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">level</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pyaedt/application/MessageManager.html#AEDTMessageManager.design_name"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyaedt.application.MessageManager.AEDTMessageManager.design_name" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>level</strong> -- (Default value = None)</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="pyaedt.application.MessageManager.AEDTMessageManager.odesign">
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">odesign</span></code><a class="headerlink" href="#pyaedt.application.MessageManager.AEDTMessageManager.odesign" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="pyaedt.application.MessageManager.AEDTMessageManager.oproject">
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">oproject</span></code><a class="headerlink" href="#pyaedt.application.MessageManager.AEDTMessageManager.oproject" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="pyaedt.application.MessageManager.AEDTMessageManager.project_name">
+<code class="sig-name descname"><span class="pre">project_name</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">level</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pyaedt/application/MessageManager.html#AEDTMessageManager.project_name"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyaedt.application.MessageManager.AEDTMessageManager.project_name" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>level</strong> -- (Default value = None)</p>
 </dd>
 </dl>
 </dd></dl>

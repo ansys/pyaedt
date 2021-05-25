@@ -93,11 +93,19 @@ logger = logging.getLogger(__name__)
 
 
 def exception_to_desktop(self, ex_value, tb_data):
-    """
-
-    Writes the trace stack to the desktop when a python error occurs
-
+    """Writes the trace stack to the desktop when a python error occurs
+    
     It adds the message to AEDT Global message manager and to the log file (if present)
+
+    Parameters
+    ----------
+    ex_value :
+        
+    tb_data :
+        
+
+    Returns
+    -------
 
     """
     desktop = sys.modules['__main__'].oDesktop
@@ -121,22 +129,31 @@ def exception_to_desktop(self, ex_value, tb_data):
 
 
 def update_aedt_registry(key, value, desktop_version="193"):
-    """
-
-    Windows Only
-
+    """Windows Only
+    
     Update aedt options registry keys. value includes "" if needed
-
+    
     :Example:
-
+    
     updateAEDTRegistry("HFSS/HPCLicenseType",'"'12'"')
-
+    
     updateAEDTRegistry("Icepak/HPCLicenseType",'"'8'"')
-
+    
     updateAEDTRegistry("HFSS/UseLegacyElectronicsHPC","0")
-
+    
     updateAEDTRegistry("HFSS/MPIVendor",'"'+"Intel"+'"')
 
+    Parameters
+    ----------
+    key :
+        
+    value :
+        
+    desktop_version :
+         (Default value = "193")
+
+    Returns
+    -------
 
     """
     import subprocess
@@ -154,12 +171,20 @@ def update_aedt_registry(key, value, desktop_version="193"):
 
 
 def release_desktop(close_projects=True, close_desktop=True):
-    """
-    Release the Desktop API
+    """Release the Desktop API
 
-    :param close_projects: Boolean, Close the projects opened in the session
-    :param close_desktop: Boolean, Close the active Desktop Session
-    :return: None
+    Parameters
+    ----------
+    close_projects :
+        Boolean, Close the projects opened in the session (Default value = True)
+    close_desktop :
+        Boolean, Close the active Desktop Session (Default value = True)
+
+    Returns
+    -------
+    type
+        None
+
     """
     if _com == "pythonnet":
         Module = sys.modules['__main__']
@@ -218,11 +243,16 @@ def release_desktop(close_projects=True, close_desktop=True):
 
 
 def force_close_desktop():
-    """
-
-    Close all the projects and kill oDesktop
-
+    """Close all the projects and kill oDesktop
+    
     :return: True (Closed) | False (Failed to Close)
+
+    Parameters
+    ----------
+
+    Returns
+    -------
+
     """
     Module = sys.modules['__main__']
     pid = Module.oDesktop.GetProcessID()
@@ -255,17 +285,10 @@ def force_close_desktop():
 
 
 class Desktop:
-    """
-
-    The core module that initialize Ansys Electronics Desktop tool based on inputs provided:
-    """
+    """The core module that initialize Ansys Electronics Desktop tool based on inputs provided:"""
     @property
     def version_keys(self):
-        """
-
-        Return the list of available version keys (e.g. 2019.3)
-
-        """
+        """ """
 
         self._version_keys = []
         self._version_ids = {}
@@ -286,6 +309,7 @@ class Desktop:
 
     @property
     def current_version(self):
+        """ """
         return self.version_keys[0]
 
     def __init__(self, specified_version=None, NG=False, AlwaysNew=True, release_on_exit=True):
@@ -451,6 +475,7 @@ class Desktop:
 
     @property
     def install_path(self):
+        """ """
         version_key = self._main.AEDTVersion
         root = self._version_ids[version_key]
         return os.environ[root]
@@ -466,9 +491,18 @@ class Desktop:
             self.release_desktop(close_projects=self._main.close_on_exit, close_on_exit=self._main.close_on_exit)
 
     def _exception(self, ex_value, tb_data):
-        """
+        """Writes the trace stack to the desktop when a python error occurs
 
-        Writes the trace stack to the desktop when a python error occurs
+        Parameters
+        ----------
+        ex_value :
+            
+        tb_data :
+            
+
+        Returns
+        -------
+
         """
         try:
             oproject = self._main.oDesktop.GetActiveProject()
@@ -493,22 +527,50 @@ class Desktop:
         return str(ex_value)
 
     def release_desktop(self, close_projects=True, close_on_exit=True):
+        """
+
+        Parameters
+        ----------
+        close_projects :
+             (Default value = True)
+        close_on_exit :
+             (Default value = True)
+
+        Returns
+        -------
+
+        """
         release_desktop(close_projects, close_on_exit)
 
     def force_close_desktop(self):
+        """ """
         force_close_desktop()
 
     def close_desktop(self):
+        """ """
         force_close_desktop()
 
     def enable_autosave(self):
+        """ """
         self._main.oDesktop.EnableAutoSave(True)
 
     def disable_autosave(self):
+        """ """
         self._main.oDesktop.EnableAutoSave(False)
 
 
 def get_version_env_variable(version_id):
+    """
+
+    Parameters
+    ----------
+    version_id :
+        
+
+    Returns
+    -------
+
+    """
     version_env_var = "ANSYSEM_ROOT"
     values = version_id.split('.')
     version = int(values[0][2:])
@@ -523,6 +585,17 @@ def get_version_env_variable(version_id):
 
 
 def get_version_key(version_id):
+    """
+
+    Parameters
+    ----------
+    version_id :
+        
+
+    Returns
+    -------
+
+    """
     values = version_id.split('.')
     version = int(values[0][2:])
     release = int(values[1])

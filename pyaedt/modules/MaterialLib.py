@@ -28,9 +28,19 @@ from ..generic.general_methods import aedt_exception_handler
 
 @aedt_exception_handler
 def indent(elem, level=0):
-    '''
-    Creates an Indented structure of the XML
-    '''
+    """Creates an Indented structure of the XML
+
+    Parameters
+    ----------
+    elem :
+        
+    level :
+         (Default value = 0)
+
+    Returns
+    -------
+
+    """
     i = "\n" + level * "  "
     if len(elem):
         if not elem.text or not elem.text.strip():
@@ -46,24 +56,25 @@ def indent(elem, level=0):
             elem.tail = i
 
 class Materials(object):
-    """
-    Material Management
-
-    """
+    """Material Management"""
     @property
     def odefinition_manager(self):
+        """ """
         return self._parent._oproject.GetDefinitionManager()
 
     @property
     def omaterial_manager(self):
+        """ """
         return self.odefinition_manager.GetManager("Material")
 
     @property
     def messenger(self):
+        """ """
         return self._parent._messenger
 
     @property
     def oproject(self):
+        """ """
         return self._parent._oproject
 
     def __init__(self, parent):
@@ -81,12 +92,20 @@ class Materials(object):
 
     @aedt_exception_handler
     def load_from_file(self, filename, project_as_precedence=True):
-        """
-        Load materials from file
+        """Load materials from file
 
-        :param filename: full filename paht (xml)
-        :param project_as_precedence: bool
-        :return:  bool
+        Parameters
+        ----------
+        filename :
+            full filename paht (xml)
+        project_as_precedence :
+            bool (Default value = True)
+
+        Returns
+        -------
+        type
+            bool
+
         """
         mats = self.load_from_xml_full(filename)
         for mat in mats:
@@ -103,10 +122,7 @@ class Materials(object):
         return True
 
     def _load_from_project(self):
-        """
-        Load materials from project
-
-        """
+        """Load materials from project"""
         mats = self.odefinition_manager.GetProjectMaterialNames()
         for el in mats:
             try:
@@ -116,6 +132,17 @@ class Materials(object):
 
     @aedt_exception_handler
     def _aedmattolibrary(self, matname):
+        """
+
+        Parameters
+        ----------
+        matname :
+            
+
+        Returns
+        -------
+
+        """
         matname = matname.lower()
         matprop = list(self.omaterial_manager.GetData(matname))
         newmat = Material(self._parent)
@@ -214,6 +241,17 @@ class Materials(object):
 
     @aedt_exception_handler
     def _read_dataset(self, prop):
+        """
+
+        Parameters
+        ----------
+        prop :
+            
+
+        Returns
+        -------
+
+        """
         start = prop.find("$")
         stop = prop.find(",")
         dsname = prop[start:stop - len(prop)]
@@ -237,9 +275,16 @@ class Materials(object):
     def checkifmaterialexists(self, mat):
         """Check if Material Exists
 
+        Parameters
+        ----------
+        mat :
+            material name
 
-        :param mat: material name
-        :return: True/False
+        Returns
+        -------
+        type
+            True/False
+
         """
         mat = mat.lower()
         lista = [i.lower() for i in list(self.odefinition_manager.GetProjectMaterialNames())]
@@ -257,9 +302,15 @@ class Materials(object):
     def check_thermal_modifier(self, mat):
         """Check the termal modifier of predefined material
 
+        Parameters
+        ----------
+        mat :
+            material name
 
-        :param mat: material name
-        :return: bool
+        Returns
+        -------
+        type
+            bool
 
         """
         mat = mat.lower()
@@ -278,6 +329,17 @@ class Materials(object):
 
     @aedt_exception_handler
     def check_thermal_modifier_OLD(self, mat):
+        """
+
+        Parameters
+        ----------
+        mat :
+            
+
+        Returns
+        -------
+
+        """
         mat = mat.lower()
         exists = True
         if mat not in self.material_keys:
@@ -295,9 +357,16 @@ class Materials(object):
         that allows user to customize the material
         The function will not update the material in
 
+        Parameters
+        ----------
+        materialname :
+            material name
 
-        :param materialname: material name
-        :return: Material Object
+        Returns
+        -------
+        type
+            Material Object
+
         """
         materialname = materialname.lower()
         self.messenger.add_info_message('Adding New Material material to Project Library: ' + materialname)
@@ -314,12 +383,20 @@ class Materials(object):
 
     @aedt_exception_handler
     def creatematerialsurface(self, material_name):
-        '''The function create a new material surface named args
+        """The function create a new material surface named args
         material args properties are loaded from the XML file database amat.xml
 
-        :param material_name: material name
-        :return: Material emissivity
-        '''
+        Parameters
+        ----------
+        material_name :
+            material name
+
+        Returns
+        -------
+        type
+            Material emissivity
+
+        """
         material_name = material_name.lower()
         self.messenger.add_info_message('Adding New Material Surface to Icepak Project Library: ' + material_name)
         materials = self.material_keys
@@ -351,8 +428,16 @@ class Materials(object):
     def create_mat_project_vars(self, matlist):
         """Create Material Properties variables based on a material list
 
-        :param matlist: list of material properties
-        :return: matprop
+        Parameters
+        ----------
+        matlist :
+            list of material properties
+
+        Returns
+        -------
+        type
+            matprop
+
         """
         matprop={}
         for prop in MatProperties.aedtname:
@@ -372,10 +457,20 @@ class Materials(object):
         material args properties are loaded from the XML file database amat.xml
         enableTM: Boolean enable Thermal modifier in material description. At moment unused
 
-        :param swargs: list of materials to be merged into single sweep material
-        :param matname: name of sweep material
-        :param enableTM: bool
-        :return: name of project variable index
+        Parameters
+        ----------
+        swargs :
+            list of materials to be merged into single sweep material
+        matname :
+            name of sweep material
+        enableTM :
+            bool (Default value = True)
+
+        Returns
+        -------
+        type
+            name of project variable index
+
         """
         matsweep = []
         matname = matname.lower()
@@ -399,13 +494,20 @@ class Materials(object):
 
     @aedt_exception_handler
     def duplicate_material(self, material, new_name):
-        """
-        Duplicate Material
+        """Duplicate Material
 
+        Parameters
+        ----------
+        material :
+            material original name
+        new_name :
+            target name
 
-        :param material: material original name
-        :param new_name: target name
-        :return: new material object
+        Returns
+        -------
+        type
+            new material object
+
         """
         newMat = material
         newMat.name = new_name.lower()
@@ -414,10 +516,16 @@ class Materials(object):
 
     @aedt_exception_handler
     def GetConductors(self):
-        """
-        Get List of conductors in material database
-
+        """Get List of conductors in material database
+        
         :return:list of string
+
+        Parameters
+        ----------
+
+        Returns
+        -------
+
         """
         data = []
         for key, mat in self.material_keys.items():
@@ -427,10 +535,16 @@ class Materials(object):
 
     @aedt_exception_handler
     def GetDielectrics(self):
-        """
-        Get List of dielectrics in material database
-
+        """Get List of dielectrics in material database
+        
         :return:list of string
+
+        Parameters
+        ----------
+
+        Returns
+        -------
+
         """
         data = []
         for key, mat in self.material_keys.items():
@@ -440,31 +554,49 @@ class Materials(object):
 
     @aedt_exception_handler
     def get_material_list(self):
-        """
-        Get List of material database
-
+        """Get List of material database
+        
         :return:list of string
+
+        Parameters
+        ----------
+
+        Returns
+        -------
+
         """
         data = list(self.material_keys.keys())
         return data
 
     @aedt_exception_handler
     def get_material_count(self):
-        """
-        Get number of materials
-
+        """Get number of materials
+        
         :return:number of materials
+
+        Parameters
+        ----------
+
+        Returns
+        -------
+
         """
         return len(self.material_keys)
 
     @aedt_exception_handler
     def get_material(self, szMat):
-        """
-        Get material object
+        """Get material object
 
+        Parameters
+        ----------
+        szMat :
+            material name
 
-        :param szMat: material name
-        :return: Material object if exists
+        Returns
+        -------
+        type
+            Material object if exists
+
         """
         szMat = szMat.lower()
         if szMat in self.material_keys:
@@ -476,9 +608,16 @@ class Materials(object):
     def get_material_properties(self, szMat):
         """Get material dictionary properties
 
+        Parameters
+        ----------
+        szMat :
+            material
 
-        :param szMat: material
-        :return: Dictionary of all material properties
+        Returns
+        -------
+        type
+            Dictionary of all material properties
+
         """
         szMat = szMat.lower()
         props = {}
@@ -492,8 +631,15 @@ class Materials(object):
     @aedt_exception_handler
     def setup_air_properties(self):
         """Setup Air properties
-
+        
         :return:
+
+        Parameters
+        ----------
+
+        Returns
+        -------
+
         """
         self.omaterial_manager.EditMaterial("AIR",
                                                 ["NAME:AIR", "CoordinateSystemType:=", "Cartesian",
@@ -519,12 +665,18 @@ class Materials(object):
 
     @aedt_exception_handler
     def load_from_xml_full(self, Filename=None):
-        """
-        New Function for loading materials from XML. Previous version didn't allow read/write on the same file.
+        """New Function for loading materials from XML. Previous version didn't allow read/write on the same file.
 
+        Parameters
+        ----------
+        Filename :
+            Complete Filename (Default value = None)
 
-        :param Filename: Complete Filename
-        :return: material dictionary
+        Returns
+        -------
+        type
+            material dictionary
+
         """
         self.messenger.add_info_message('InitFromXml: Enter')
         o_mat_xml = {}
@@ -649,14 +801,17 @@ class Materials(object):
 
     @aedt_exception_handler
     def py2xmlFull(self, filename):
-        ''' convert material object to xml
-        
-        
-        :param filename: name of the file to save
-        :return: 
-        ''''''
-        Creates an XML File starting from a Material Library. The input is the oMat Structure array
-        '''
+        """convert material object to xml
+
+        Parameters
+        ----------
+        filename :
+            name of the file to save
+
+        Returns
+        -------
+
+        """
         header = ET.Element('c:Control')
         header.set("schemaVersion", "2.0")
         header.set("xmlns:c", "http://www.ansys.com/control")

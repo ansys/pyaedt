@@ -160,16 +160,14 @@
 
 
 <div class="viewcode-block" id="NexximComponents"><a class="viewcode-back" href="../../../API/CircuitComponents.html#pyaedt.modeler.PrimitivesNexxim.NexximComponents">[docs]</a><span class="k">class</span> <span class="nc">NexximComponents</span><span class="p">(</span><span class="n">CircuitComponents</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Class for management of all CircuitComponents for Nexxim</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="sd">&quot;&quot;&quot;Class for management of all CircuitComponents for Nexxim&quot;&quot;&quot;</span>
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">design_libray</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-            <span class="k">return</span> <span class="s2">&quot;Nexxim Circuit Elements&quot;</span>
+        <span class="k">return</span> <span class="s2">&quot;Nexxim Circuit Elements&quot;</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">tab_name</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-            <span class="k">return</span> <span class="s2">&quot;PassedParameterTab&quot;</span>
+        <span class="k">return</span> <span class="s2">&quot;PassedParameterTab&quot;</span>
 
     <span class="nd">@aedt_exception_handler</span>
     <span class="k">def</span> <span class="fm">__getitem__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">partname</span><span class="p">):</span>
@@ -194,12 +192,18 @@
 
 <div class="viewcode-block" id="NexximComponents.create_3dlayout_subcircuit"><a class="viewcode-back" href="../../../API/CircuitComponents.html#pyaedt.modeler.PrimitivesNexxim.NexximComponents.create_3dlayout_subcircuit">[docs]</a>    <span class="nd">@aedt_exception_handler</span>
     <span class="k">def</span> <span class="nf">create_3dlayout_subcircuit</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">sourcename</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Create a new subcircuit</span>
+        <span class="sd">&quot;&quot;&quot;Create a new subcircuit</span>
 
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        sourcename :</span>
+<span class="sd">            name of the source design</span>
 
-<span class="sd">        :param sourcename: name of the source design</span>
-<span class="sd">        :return: el, composed_name if succeeded or False</span>
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        type</span>
+<span class="sd">            el, composed_name if succeeded or False</span>
+
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_parent</span><span class="o">.</span><span class="n">_oproject</span><span class="o">.</span><span class="n">CopyDesign</span><span class="p">(</span><span class="n">sourcename</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">oeditor</span><span class="o">.</span><span class="n">PasteDesign</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="p">[</span><span class="s2">&quot;NAME:Attributes&quot;</span><span class="p">,</span> <span class="s2">&quot;Page:=&quot;</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="s2">&quot;X:=&quot;</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="s2">&quot;Y:=&quot;</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="s2">&quot;Angle:=&quot;</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="s2">&quot;Flip:=&quot;</span><span class="p">,</span> <span class="kc">False</span><span class="p">])</span>
@@ -211,17 +215,26 @@
 
 <div class="viewcode-block" id="NexximComponents.create_field_model"><a class="viewcode-back" href="../../../API/CircuitComponents.html#pyaedt.modeler.PrimitivesNexxim.NexximComponents.create_field_model">[docs]</a>    <span class="nd">@aedt_exception_handler</span>
     <span class="k">def</span> <span class="nf">create_field_model</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">design_name</span><span class="p">,</span> <span class="n">solution_name</span><span class="p">,</span> <span class="n">pin_names</span><span class="p">,</span> <span class="n">model_type</span><span class="o">=</span><span class="s2">&quot;hfss&quot;</span><span class="p">,</span> <span class="n">posx</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">posy</span><span class="o">=</span><span class="mi">1</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Create Field Model</span>
+        <span class="sd">&quot;&quot;&quot;Create Field Model</span>
 
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        design_name :</span>
+<span class="sd">            param solution_name:</span>
+<span class="sd">        pin_names :</span>
+<span class="sd">            param model_type:</span>
+<span class="sd">        posx :</span>
+<span class="sd">            param posy: (Default value = 0)</span>
+<span class="sd">        solution_name :</span>
+<span class="sd">            </span>
+<span class="sd">        model_type :</span>
+<span class="sd">             (Default value = &quot;hfss&quot;)</span>
+<span class="sd">        posy :</span>
+<span class="sd">             (Default value = 1)</span>
 
-<span class="sd">        :param design_name:</span>
-<span class="sd">        :param solution_name:</span>
-<span class="sd">        :param pin_names:</span>
-<span class="sd">        :param model_type:</span>
-<span class="sd">        :param posx:</span>
-<span class="sd">        :param posy:</span>
-<span class="sd">        :return:</span>
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="nb">id</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">create_unique_id</span><span class="p">()</span>
         <span class="n">component_name</span> <span class="o">=</span> <span class="n">design_name</span> <span class="o">+</span> <span class="s2">&quot;_&quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="nb">id</span><span class="p">)</span>
@@ -331,17 +344,28 @@
 
 <div class="viewcode-block" id="NexximComponents.create_resistor"><a class="viewcode-back" href="../../../API/CircuitComponents.html#pyaedt.modeler.PrimitivesNexxim.NexximComponents.create_resistor">[docs]</a>    <span class="nd">@aedt_exception_handler</span>
     <span class="k">def</span> <span class="nf">create_resistor</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">compname</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">value</span><span class="o">=</span><span class="mi">50</span><span class="p">,</span> <span class="n">xpos</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">ypos</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span><span class="n">angle</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">use_instance_id_netlist</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Create a new Resistor</span>
+        <span class="sd">&quot;&quot;&quot;Create a new Resistor</span>
 
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        compname :</span>
+<span class="sd">            name (Default value = None)</span>
+<span class="sd">        value :</span>
+<span class="sd">            value (Default value = 50)</span>
+<span class="sd">        xpos :</span>
+<span class="sd">            x pos (Default value = 0)</span>
+<span class="sd">        ypos :</span>
+<span class="sd">            y pos (Default value = 0)</span>
+<span class="sd">        angle :</span>
+<span class="sd">            angle (Default value = 0)</span>
+<span class="sd">        use_instance_id_netlist :</span>
+<span class="sd">            bool (Default value = False)</span>
 
-<span class="sd">        :param compname: name</span>
-<span class="sd">        :param value: value</span>
-<span class="sd">        :param xpos: x pos</span>
-<span class="sd">        :param ypos: y pos</span>
-<span class="sd">        :param angle:  angle</span>
-<span class="sd">        :param use_instance_id_netlist: bool</span>
-<span class="sd">        :return: id, name</span>
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        type</span>
+<span class="sd">            id, name</span>
+
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">cmpid</span><span class="p">,</span> <span class="n">cmpname</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">create_component</span><span class="p">(</span><span class="n">compname</span><span class="p">,</span> <span class="n">xpos</span><span class="o">=</span><span class="n">xpos</span><span class="p">,</span> <span class="n">ypos</span><span class="o">=</span><span class="n">ypos</span><span class="p">,</span> <span class="n">angle</span><span class="o">=</span><span class="n">angle</span><span class="p">,</span> <span class="n">use_instance_id_netlist</span><span class="o">=</span><span class="n">use_instance_id_netlist</span><span class="p">)</span>
 
@@ -350,17 +374,28 @@
 
 <div class="viewcode-block" id="NexximComponents.create_inductor"><a class="viewcode-back" href="../../../API/CircuitComponents.html#pyaedt.modeler.PrimitivesNexxim.NexximComponents.create_inductor">[docs]</a>    <span class="nd">@aedt_exception_handler</span>
     <span class="k">def</span> <span class="nf">create_inductor</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">compname</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span><span class="n">value</span><span class="o">=</span><span class="mi">50</span><span class="p">,</span> <span class="n">xpos</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">ypos</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span><span class="n">angle</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">use_instance_id_netlist</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Create a new Inductor</span>
+        <span class="sd">&quot;&quot;&quot;Create a new Inductor</span>
 
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        compname :</span>
+<span class="sd">            name (Default value = None)</span>
+<span class="sd">        value :</span>
+<span class="sd">            value (Default value = 50)</span>
+<span class="sd">        xpos :</span>
+<span class="sd">            x pos (Default value = 0)</span>
+<span class="sd">        ypos :</span>
+<span class="sd">            y pos (Default value = 0)</span>
+<span class="sd">        angle :</span>
+<span class="sd">            angle (Default value = 0)</span>
+<span class="sd">        use_instance_id_netlist :</span>
+<span class="sd">            bool (Default value = False)</span>
 
-<span class="sd">        :param compname: name</span>
-<span class="sd">        :param value: value</span>
-<span class="sd">        :param xpos: x pos</span>
-<span class="sd">        :param ypos: y pos</span>
-<span class="sd">        :param angle:  angle</span>
-<span class="sd">        :param use_instance_id_netlist: bool</span>
-<span class="sd">        :return: id, name</span>
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        type</span>
+<span class="sd">            id, name</span>
+
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">cmpid</span><span class="p">,</span> <span class="n">cmpname</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">create_component</span><span class="p">(</span><span class="n">compname</span><span class="p">,</span> <span class="n">component_library</span><span class="o">=</span><span class="s2">&quot;Inductors&quot;</span><span class="p">,</span> <span class="n">component_name</span><span class="o">=</span><span class="s2">&quot;IND_&quot;</span><span class="p">,</span> <span class="n">xpos</span><span class="o">=</span><span class="n">xpos</span><span class="p">,</span> <span class="n">ypos</span><span class="o">=</span><span class="n">ypos</span><span class="p">,</span>
                                          <span class="n">angle</span><span class="o">=</span><span class="n">angle</span><span class="p">,</span> <span class="n">use_instance_id_netlist</span><span class="o">=</span><span class="n">use_instance_id_netlist</span><span class="p">)</span>
@@ -371,17 +406,28 @@
 
 <div class="viewcode-block" id="NexximComponents.create_capacitor"><a class="viewcode-back" href="../../../API/CircuitComponents.html#pyaedt.modeler.PrimitivesNexxim.NexximComponents.create_capacitor">[docs]</a>    <span class="nd">@aedt_exception_handler</span>
     <span class="k">def</span> <span class="nf">create_capacitor</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">compname</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span><span class="n">value</span><span class="o">=</span><span class="mi">50</span><span class="p">,</span> <span class="n">xpos</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">ypos</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">angle</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">use_instance_id_netlist</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Create a new Capacitor</span>
+        <span class="sd">&quot;&quot;&quot;Create a new Capacitor</span>
 
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        compname :</span>
+<span class="sd">            name (Default value = None)</span>
+<span class="sd">        value :</span>
+<span class="sd">            value (Default value = 50)</span>
+<span class="sd">        xpos :</span>
+<span class="sd">            x pos (Default value = 0)</span>
+<span class="sd">        ypos :</span>
+<span class="sd">            y pos (Default value = 0)</span>
+<span class="sd">        angle :</span>
+<span class="sd">            angle (Default value = 0)</span>
+<span class="sd">        use_instance_id_netlist :</span>
+<span class="sd">            bool (Default value = False)</span>
 
-<span class="sd">        :param compname: name</span>
-<span class="sd">        :param value: value</span>
-<span class="sd">        :param xpos: x pos</span>
-<span class="sd">        :param ypos: y pos</span>
-<span class="sd">        :param angle:  angle</span>
-<span class="sd">        :param use_instance_id_netlist: bool</span>
-<span class="sd">        :return: id, name</span>
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        type</span>
+<span class="sd">            id, name</span>
+
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">cmpid</span><span class="p">,</span> <span class="n">cmpname</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">create_component</span><span class="p">(</span><span class="n">compname</span><span class="p">,</span><span class="n">component_library</span><span class="o">=</span><span class="s2">&quot;Capacitors&quot;</span><span class="p">,</span> <span class="n">component_name</span><span class="o">=</span><span class="s2">&quot;CAP_&quot;</span><span class="p">,</span> <span class="n">xpos</span><span class="o">=</span><span class="n">xpos</span><span class="p">,</span> <span class="n">ypos</span><span class="o">=</span><span class="n">ypos</span><span class="p">,</span>
                                          <span class="n">angle</span><span class="o">=</span><span class="n">angle</span><span class="p">,</span> <span class="n">use_instance_id_netlist</span><span class="o">=</span><span class="n">use_instance_id_netlist</span><span class="p">)</span>
@@ -391,17 +437,28 @@
 
 <div class="viewcode-block" id="NexximComponents.create_voltage_dc"><a class="viewcode-back" href="../../../API/CircuitComponents.html#pyaedt.modeler.PrimitivesNexxim.NexximComponents.create_voltage_dc">[docs]</a>    <span class="nd">@aedt_exception_handler</span>
     <span class="k">def</span> <span class="nf">create_voltage_dc</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">compname</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">value</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">xpos</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">ypos</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">angle</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">use_instance_id_netlist</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Create a new Voltage DC Source</span>
+        <span class="sd">&quot;&quot;&quot;Create a new Voltage DC Source</span>
 
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        compname :</span>
+<span class="sd">            name (Default value = None)</span>
+<span class="sd">        value :</span>
+<span class="sd">            value (Default value = 1)</span>
+<span class="sd">        xpos :</span>
+<span class="sd">            x pos (Default value = 0)</span>
+<span class="sd">        ypos :</span>
+<span class="sd">            y pos (Default value = 0)</span>
+<span class="sd">        angle :</span>
+<span class="sd">            angle (Default value = 0)</span>
+<span class="sd">        use_instance_id_netlist :</span>
+<span class="sd">            bool (Default value = False)</span>
 
-<span class="sd">        :param compname: name</span>
-<span class="sd">        :param value: value</span>
-<span class="sd">        :param xpos: x pos</span>
-<span class="sd">        :param ypos: y pos</span>
-<span class="sd">        :param angle:  angle</span>
-<span class="sd">        :param use_instance_id_netlist: bool</span>
-<span class="sd">        :return: id, name</span>
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        type</span>
+<span class="sd">            id, name</span>
+
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">cmpid</span><span class="p">,</span> <span class="n">cmpname</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">create_component</span><span class="p">(</span><span class="n">compname</span><span class="p">,</span><span class="n">component_library</span><span class="o">=</span><span class="s2">&quot;Independent Sources&quot;</span><span class="p">,</span> <span class="n">component_name</span><span class="o">=</span><span class="s2">&quot;V_DC&quot;</span><span class="p">,</span> <span class="n">xpos</span><span class="o">=</span><span class="n">xpos</span><span class="p">,</span> <span class="n">ypos</span><span class="o">=</span><span class="n">ypos</span><span class="p">,</span>
                                          <span class="n">angle</span><span class="o">=</span><span class="n">angle</span><span class="p">,</span> <span class="n">use_instance_id_netlist</span><span class="o">=</span><span class="n">use_instance_id_netlist</span><span class="p">)</span>
@@ -411,17 +468,30 @@
 
 <div class="viewcode-block" id="NexximComponents.create_current_pulse"><a class="viewcode-back" href="../../../API/CircuitComponents.html#pyaedt.modeler.PrimitivesNexxim.NexximComponents.create_current_pulse">[docs]</a>    <span class="nd">@aedt_exception_handler</span>
     <span class="k">def</span> <span class="nf">create_current_pulse</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">compname</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">value_lists</span><span class="o">=</span><span class="p">[],</span> <span class="n">xpos</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">ypos</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">angle</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">use_instance_id_netlist</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Create a new Current Pulse</span>
+        <span class="sd">&quot;&quot;&quot;Create a new Current Pulse</span>
 
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        compname :</span>
+<span class="sd">            name (Default value = None)</span>
+<span class="sd">        value :</span>
+<span class="sd">            value</span>
+<span class="sd">        xpos :</span>
+<span class="sd">            x pos (Default value = 0)</span>
+<span class="sd">        ypos :</span>
+<span class="sd">            y pos (Default value = 0)</span>
+<span class="sd">        angle :</span>
+<span class="sd">            angle (Default value = 0)</span>
+<span class="sd">        use_instance_id_netlist :</span>
+<span class="sd">            bool (Default value = False)</span>
+<span class="sd">        value_lists :</span>
+<span class="sd">             (Default value = [])</span>
 
-<span class="sd">        :param compname: name</span>
-<span class="sd">        :param value: value</span>
-<span class="sd">        :param xpos: x pos</span>
-<span class="sd">        :param ypos: y pos</span>
-<span class="sd">        :param angle:  angle</span>
-<span class="sd">        :param use_instance_id_netlist: bool</span>
-<span class="sd">        :return: id, name</span>
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        type</span>
+<span class="sd">            id, name</span>
+
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">cmpid</span><span class="p">,</span> <span class="n">cmpname</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">create_component</span><span class="p">(</span><span class="n">compname</span><span class="p">,</span><span class="n">component_library</span><span class="o">=</span><span class="s2">&quot;Independent Sources&quot;</span><span class="p">,</span> <span class="n">component_name</span><span class="o">=</span><span class="s2">&quot;I_PULSE&quot;</span><span class="p">,</span> <span class="n">xpos</span><span class="o">=</span><span class="n">xpos</span><span class="p">,</span> <span class="n">ypos</span><span class="o">=</span><span class="n">ypos</span><span class="p">,</span>
                                          <span class="n">angle</span><span class="o">=</span><span class="n">angle</span><span class="p">,</span> <span class="n">use_instance_id_netlist</span><span class="o">=</span><span class="n">use_instance_id_netlist</span><span class="p">)</span>
@@ -446,17 +516,30 @@
 
 <div class="viewcode-block" id="NexximComponents.create_voltage_pulse"><a class="viewcode-back" href="../../../API/CircuitComponents.html#pyaedt.modeler.PrimitivesNexxim.NexximComponents.create_voltage_pulse">[docs]</a>    <span class="nd">@aedt_exception_handler</span>
     <span class="k">def</span> <span class="nf">create_voltage_pulse</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">compname</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">value_lists</span><span class="o">=</span><span class="p">[],</span> <span class="n">xpos</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">ypos</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">angle</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">use_instance_id_netlist</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Create a new Voltage Pulse</span>
+        <span class="sd">&quot;&quot;&quot;Create a new Voltage Pulse</span>
 
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        compname :</span>
+<span class="sd">            name (Default value = None)</span>
+<span class="sd">        value :</span>
+<span class="sd">            value</span>
+<span class="sd">        xpos :</span>
+<span class="sd">            x pos (Default value = 0)</span>
+<span class="sd">        ypos :</span>
+<span class="sd">            y pos (Default value = 0)</span>
+<span class="sd">        angle :</span>
+<span class="sd">            angle (Default value = 0)</span>
+<span class="sd">        use_instance_id_netlist :</span>
+<span class="sd">            bool (Default value = False)</span>
+<span class="sd">        value_lists :</span>
+<span class="sd">             (Default value = [])</span>
 
-<span class="sd">        :param compname: name</span>
-<span class="sd">        :param value: value</span>
-<span class="sd">        :param xpos: x pos</span>
-<span class="sd">        :param ypos: y pos</span>
-<span class="sd">        :param angle:  angle</span>
-<span class="sd">        :param use_instance_id_netlist: bool</span>
-<span class="sd">        :return: id, name</span>
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        type</span>
+<span class="sd">            id, name</span>
+
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">cmpid</span><span class="p">,</span> <span class="n">cmpname</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">create_component</span><span class="p">(</span><span class="n">compname</span><span class="p">,</span><span class="n">component_library</span><span class="o">=</span><span class="s2">&quot;Independent Sources&quot;</span><span class="p">,</span> <span class="n">component_name</span><span class="o">=</span><span class="s2">&quot;V_PULSE&quot;</span><span class="p">,</span> <span class="n">xpos</span><span class="o">=</span><span class="n">xpos</span><span class="p">,</span> <span class="n">ypos</span><span class="o">=</span><span class="n">ypos</span><span class="p">,</span>
                                          <span class="n">angle</span><span class="o">=</span><span class="n">angle</span><span class="p">,</span> <span class="n">use_instance_id_netlist</span><span class="o">=</span><span class="n">use_instance_id_netlist</span><span class="p">)</span>
@@ -482,17 +565,28 @@
 
 <div class="viewcode-block" id="NexximComponents.create_current_dc"><a class="viewcode-back" href="../../../API/CircuitComponents.html#pyaedt.modeler.PrimitivesNexxim.NexximComponents.create_current_dc">[docs]</a>    <span class="nd">@aedt_exception_handler</span>
     <span class="k">def</span> <span class="nf">create_current_dc</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">compname</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">value</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">xpos</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">ypos</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">angle</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">use_instance_id_netlist</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Create a new Current DC Source</span>
+        <span class="sd">&quot;&quot;&quot;Create a new Current DC Source</span>
 
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        compname :</span>
+<span class="sd">            name (Default value = None)</span>
+<span class="sd">        value :</span>
+<span class="sd">            value (Default value = 1)</span>
+<span class="sd">        xpos :</span>
+<span class="sd">            x pos (Default value = 0)</span>
+<span class="sd">        ypos :</span>
+<span class="sd">            y pos (Default value = 0)</span>
+<span class="sd">        angle :</span>
+<span class="sd">            angle (Default value = 0)</span>
+<span class="sd">        use_instance_id_netlist :</span>
+<span class="sd">            bool (Default value = False)</span>
 
-<span class="sd">        :param compname: name</span>
-<span class="sd">        :param value: value</span>
-<span class="sd">        :param xpos: x pos</span>
-<span class="sd">        :param ypos: y pos</span>
-<span class="sd">        :param angle:  angle</span>
-<span class="sd">        :param use_instance_id_netlist: bool</span>
-<span class="sd">        :return: id, name</span>
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        type</span>
+<span class="sd">            id, name</span>
+
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">cmpid</span><span class="p">,</span> <span class="n">cmpname</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">create_component</span><span class="p">(</span><span class="n">compname</span><span class="p">,</span><span class="n">component_library</span><span class="o">=</span><span class="s2">&quot;Independent Sources&quot;</span><span class="p">,</span> <span class="n">component_name</span><span class="o">=</span><span class="s2">&quot;I_DC&quot;</span><span class="p">,</span> <span class="n">xpos</span><span class="o">=</span><span class="n">xpos</span><span class="p">,</span> <span class="n">ypos</span><span class="o">=</span><span class="n">ypos</span><span class="p">,</span>
                                          <span class="n">angle</span><span class="o">=</span><span class="n">angle</span><span class="p">,</span> <span class="n">use_instance_id_netlist</span><span class="o">=</span><span class="n">use_instance_id_netlist</span><span class="p">)</span>
@@ -501,17 +595,32 @@
         <span class="k">return</span> <span class="n">cmpid</span><span class="p">,</span> <span class="n">cmpname</span></div>
 
 <div class="viewcode-block" id="NexximComponents.create_coupling_inductors"><a class="viewcode-back" href="../../../API/CircuitComponents.html#pyaedt.modeler.PrimitivesNexxim.NexximComponents.create_coupling_inductors">[docs]</a>    <span class="k">def</span> <span class="nf">create_coupling_inductors</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">compname</span><span class="p">,</span> <span class="n">l1</span><span class="p">,</span> <span class="n">l2</span><span class="p">,</span> <span class="n">value</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">xpos</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">ypos</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">angle</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">use_instance_id_netlist</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Create a new Coupling Inductor</span>
+        <span class="sd">&quot;&quot;&quot;Create a new Coupling Inductor</span>
 
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        compname :</span>
+<span class="sd">            name</span>
+<span class="sd">        value :</span>
+<span class="sd">            value (Default value = 1)</span>
+<span class="sd">        xpos :</span>
+<span class="sd">            x pos (Default value = 0)</span>
+<span class="sd">        ypos :</span>
+<span class="sd">            y pos (Default value = 0)</span>
+<span class="sd">        angle :</span>
+<span class="sd">            angle (Default value = 0)</span>
+<span class="sd">        use_instance_id_netlist :</span>
+<span class="sd">            bool (Default value = False)</span>
+<span class="sd">        l1 :</span>
+<span class="sd">            </span>
+<span class="sd">        l2 :</span>
+<span class="sd">            </span>
 
-<span class="sd">        :param compname: name</span>
-<span class="sd">        :param value: value</span>
-<span class="sd">        :param xpos: x pos</span>
-<span class="sd">        :param ypos: y pos</span>
-<span class="sd">        :param angle:  angle</span>
-<span class="sd">        :param use_instance_id_netlist: bool</span>
-<span class="sd">        :return: id, name</span>
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        type</span>
+<span class="sd">            id, name</span>
+
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">cmpid</span><span class="p">,</span> <span class="n">cmpname</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">create_component</span><span class="p">(</span><span class="n">compname</span><span class="p">,</span><span class="n">component_library</span><span class="o">=</span><span class="s2">&quot;Inductors&quot;</span><span class="p">,</span> <span class="n">component_name</span><span class="o">=</span><span class="s2">&quot;K_IND&quot;</span><span class="p">,</span> <span class="n">xpos</span><span class="o">=</span><span class="n">xpos</span><span class="p">,</span> <span class="n">ypos</span><span class="o">=</span><span class="n">ypos</span><span class="p">,</span>
                                          <span class="n">angle</span><span class="o">=</span><span class="n">angle</span><span class="p">,</span> <span class="n">use_instance_id_netlist</span><span class="o">=</span><span class="n">use_instance_id_netlist</span><span class="p">)</span>
@@ -523,17 +632,30 @@
 
 <div class="viewcode-block" id="NexximComponents.create_diode"><a class="viewcode-back" href="../../../API/CircuitComponents.html#pyaedt.modeler.PrimitivesNexxim.NexximComponents.create_diode">[docs]</a>    <span class="nd">@aedt_exception_handler</span>
     <span class="k">def</span> <span class="nf">create_diode</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">compname</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span><span class="n">model_name</span><span class="o">=</span><span class="s2">&quot;required&quot;</span><span class="p">,</span> <span class="n">xpos</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">ypos</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">angle</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">use_instance_id_netlist</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Create a new Diode</span>
+        <span class="sd">&quot;&quot;&quot;Create a new Diode</span>
 
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        compname :</span>
+<span class="sd">            name (Default value = None)</span>
+<span class="sd">        value :</span>
+<span class="sd">            value</span>
+<span class="sd">        xpos :</span>
+<span class="sd">            x pos (Default value = 0)</span>
+<span class="sd">        ypos :</span>
+<span class="sd">            y pos (Default value = 0)</span>
+<span class="sd">        angle :</span>
+<span class="sd">            angle (Default value = 0)</span>
+<span class="sd">        use_instance_id_netlist :</span>
+<span class="sd">            bool (Default value = False)</span>
+<span class="sd">        model_name :</span>
+<span class="sd">             (Default value = &quot;required&quot;)</span>
 
-<span class="sd">        :param compname: name</span>
-<span class="sd">        :param value: value</span>
-<span class="sd">        :param xpos: x pos</span>
-<span class="sd">        :param ypos: y pos</span>
-<span class="sd">        :param angle:  angle</span>
-<span class="sd">        :param use_instance_id_netlist: bool</span>
-<span class="sd">        :return: id, name</span>
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        type</span>
+<span class="sd">            id, name</span>
+
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">cmpid</span><span class="p">,</span> <span class="n">cmpname</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">create_component</span><span class="p">(</span><span class="n">compname</span><span class="p">,</span><span class="n">component_library</span><span class="o">=</span><span class="s2">&quot;Diodes&quot;</span><span class="p">,</span> <span class="n">component_name</span><span class="o">=</span><span class="s2">&quot;DIODE_Level1&quot;</span><span class="p">,</span> <span class="n">xpos</span><span class="o">=</span><span class="n">xpos</span><span class="p">,</span> <span class="n">ypos</span><span class="o">=</span><span class="n">ypos</span><span class="p">,</span>
                                          <span class="n">angle</span><span class="o">=</span><span class="n">angle</span><span class="p">,</span> <span class="n">use_instance_id_netlist</span><span class="o">=</span><span class="n">use_instance_id_netlist</span><span class="p">)</span>
@@ -543,17 +665,28 @@
 
 <div class="viewcode-block" id="NexximComponents.create_npn"><a class="viewcode-back" href="../../../API/CircuitComponents.html#pyaedt.modeler.PrimitivesNexxim.NexximComponents.create_npn">[docs]</a>    <span class="nd">@aedt_exception_handler</span>
     <span class="k">def</span> <span class="nf">create_npn</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">compname</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">value</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">xpos</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">ypos</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">angle</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">use_instance_id_netlist</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Create a new Transistor NPN</span>
+        <span class="sd">&quot;&quot;&quot;Create a new Transistor NPN</span>
 
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        compname :</span>
+<span class="sd">            name (Default value = None)</span>
+<span class="sd">        value :</span>
+<span class="sd">            value (Default value = None)</span>
+<span class="sd">        xpos :</span>
+<span class="sd">            x pos (Default value = 0)</span>
+<span class="sd">        ypos :</span>
+<span class="sd">            y pos (Default value = 0)</span>
+<span class="sd">        angle :</span>
+<span class="sd">            angle (Default value = 0)</span>
+<span class="sd">        use_instance_id_netlist :</span>
+<span class="sd">            bool (Default value = False)</span>
 
-<span class="sd">        :param compname: name</span>
-<span class="sd">        :param value: value</span>
-<span class="sd">        :param xpos: x pos</span>
-<span class="sd">        :param ypos: y pos</span>
-<span class="sd">        :param angle:  angle</span>
-<span class="sd">        :param use_instance_id_netlist: bool</span>
-<span class="sd">        :return: id, name</span>
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        type</span>
+<span class="sd">            id, name</span>
+
 <span class="sd">        &quot;&quot;&quot;</span>
 
         <span class="nb">id</span><span class="p">,</span> <span class="n">name</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">create_component</span><span class="p">(</span><span class="n">compname</span><span class="p">,</span><span class="n">component_library</span><span class="o">=</span><span class="s2">&quot;BJTs&quot;</span><span class="p">,</span> <span class="n">component_name</span><span class="o">=</span><span class="s2">&quot;Level01_NPN&quot;</span><span class="p">,</span> <span class="n">xpos</span><span class="o">=</span><span class="n">xpos</span><span class="p">,</span> <span class="n">ypos</span><span class="o">=</span><span class="n">ypos</span><span class="p">,</span>
@@ -564,17 +697,28 @@
 
 <div class="viewcode-block" id="NexximComponents.create_pnp"><a class="viewcode-back" href="../../../API/CircuitComponents.html#pyaedt.modeler.PrimitivesNexxim.NexximComponents.create_pnp">[docs]</a>    <span class="nd">@aedt_exception_handler</span>
     <span class="k">def</span> <span class="nf">create_pnp</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">compname</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span><span class="n">value</span><span class="o">=</span><span class="mi">50</span><span class="p">,</span> <span class="n">xpos</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">ypos</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">angle</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">use_instance_id_netlist</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Create a new Transistor PNP</span>
+        <span class="sd">&quot;&quot;&quot;Create a new Transistor PNP</span>
 
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        compname :</span>
+<span class="sd">            name (Default value = None)</span>
+<span class="sd">        value :</span>
+<span class="sd">            value (Default value = 50)</span>
+<span class="sd">        xpos :</span>
+<span class="sd">            x pos (Default value = 0)</span>
+<span class="sd">        ypos :</span>
+<span class="sd">            y pos (Default value = 0)</span>
+<span class="sd">        angle :</span>
+<span class="sd">            angle (Default value = 0)</span>
+<span class="sd">        use_instance_id_netlist :</span>
+<span class="sd">            bool (Default value = False)</span>
 
-<span class="sd">        :param compname: name</span>
-<span class="sd">        :param value: value</span>
-<span class="sd">        :param xpos: x pos</span>
-<span class="sd">        :param ypos: y pos</span>
-<span class="sd">        :param angle:  angle</span>
-<span class="sd">        :param use_instance_id_netlist: bool</span>
-<span class="sd">        :return: id, name</span>
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        type</span>
+<span class="sd">            id, name</span>
+
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="nb">id</span><span class="p">,</span> <span class="n">name</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">create_component</span><span class="p">(</span><span class="n">compname</span><span class="p">,</span> <span class="n">component_library</span><span class="o">=</span><span class="s2">&quot;BJTs&quot;</span><span class="p">,</span> <span class="n">component_name</span><span class="o">=</span><span class="s2">&quot;Level01_PNP&quot;</span><span class="p">,</span> <span class="n">xpos</span><span class="o">=</span><span class="n">xpos</span><span class="p">,</span> <span class="n">ypos</span><span class="o">=</span><span class="n">ypos</span><span class="p">,</span>
                                          <span class="n">angle</span><span class="o">=</span><span class="n">angle</span><span class="p">,</span> <span class="n">use_instance_id_netlist</span><span class="o">=</span><span class="n">use_instance_id_netlist</span><span class="p">)</span>
@@ -585,16 +729,26 @@
 
 <div class="viewcode-block" id="NexximComponents.create_new_component_from_symbol"><a class="viewcode-back" href="../../../API/CircuitComponents.html#pyaedt.modeler.PrimitivesNexxim.NexximComponents.create_new_component_from_symbol">[docs]</a>    <span class="nd">@aedt_exception_handler</span>
     <span class="k">def</span> <span class="nf">create_new_component_from_symbol</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">symbol_name</span><span class="p">,</span> <span class="n">pin_lists</span><span class="p">,</span> <span class="n">Refbase</span> <span class="o">=</span> <span class="s2">&quot;U&quot;</span><span class="p">,</span> <span class="n">parameter_list</span><span class="o">=</span><span class="p">[],</span> <span class="n">parameter_value</span><span class="o">=</span><span class="p">[]):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Create a new Component from symbol</span>
+        <span class="sd">&quot;&quot;&quot;Create a new Component from symbol</span>
 
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        symbol_name :</span>
+<span class="sd">            symbol name</span>
+<span class="sd">        pin_lists :</span>
+<span class="sd">            list of pins name</span>
+<span class="sd">        Refbase :</span>
+<span class="sd">            reference base (Default value = &quot;U&quot;)</span>
+<span class="sd">        parameter_list :</span>
+<span class="sd">            list of parameters (Default value = [])</span>
+<span class="sd">        parameter_value :</span>
+<span class="sd">            list of parameters values (Default value = [])</span>
 
-<span class="sd">        :param symbol_name: symbol name</span>
-<span class="sd">        :param pin_lists: list of pins name</span>
-<span class="sd">        :param Refbase: reference base</span>
-<span class="sd">        :param parameter_list: list of parameters</span>
-<span class="sd">        :param parameter_value:  list of parameters values</span>
-<span class="sd">        :return: true</span>
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        type</span>
+<span class="sd">            true</span>
+
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">arg</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;NAME:&quot;</span> <span class="o">+</span> <span class="n">symbol_name</span><span class="p">,</span> <span class="s2">&quot;Info:=&quot;</span><span class="p">,</span>
                <span class="p">[</span><span class="s2">&quot;Type:=&quot;</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="s2">&quot;NumTerminals:=&quot;</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">pin_lists</span><span class="p">),</span> <span class="s2">&quot;DataSource:=&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="s2">&quot;ModifiedOn:=&quot;</span><span class="p">,</span> <span class="mi">1591858313</span><span class="p">,</span> <span class="s2">&quot;Manufacturer:=&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">,</span>
@@ -655,8 +809,16 @@
     <span class="k">def</span> <span class="nf">update_object_properties</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">o</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 
-<span class="sd">        :param o: object</span>
-<span class="sd">        :return: object with properties</span>
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        o :</span>
+<span class="sd">            object</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        type</span>
+<span class="sd">            object with properties</span>
+
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">name</span> <span class="o">=</span> <span class="n">o</span><span class="o">.</span><span class="n">composed_name</span>
         <span class="n">proparray</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">oeditor</span><span class="o">.</span><span class="n">GetProperties</span><span class="p">(</span><span class="s2">&quot;PassedParameterTab&quot;</span><span class="p">,</span> <span class="n">name</span><span class="p">)</span>
@@ -669,16 +831,30 @@
     <span class="k">def</span> <span class="nf">get_comp_custom_settings</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">toolNum</span> <span class="p">,</span><span class="n">dc</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span> <span class="n">interp</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">extrap</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">conv</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">passivity</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">reciprocal</span><span class="o">=</span><span class="s2">&quot;False&quot;</span><span class="p">,</span> <span class="n">opt</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="n">data_type</span><span class="o">=</span><span class="mi">1</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 
-<span class="sd">        :param toolNum:</span>
-<span class="sd">        :param dc:</span>
-<span class="sd">        :param interp:</span>
-<span class="sd">        :param extrap:</span>
-<span class="sd">        :param conv:</span>
-<span class="sd">        :param passivity:</span>
-<span class="sd">        :param reciprocal:</span>
-<span class="sd">        :param opt:</span>
-<span class="sd">        :param data_type:</span>
-<span class="sd">        :return:</span>
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        toolNum :</span>
+<span class="sd">            param dc:</span>
+<span class="sd">        interp :</span>
+<span class="sd">            param extrap: (Default value = 0)</span>
+<span class="sd">        conv :</span>
+<span class="sd">            param passivity: (Default value = 0)</span>
+<span class="sd">        reciprocal :</span>
+<span class="sd">            param opt: (Default value = &quot;False&quot;)</span>
+<span class="sd">        data_type :</span>
+<span class="sd">            return: (Default value = 1)</span>
+<span class="sd">        dc :</span>
+<span class="sd">             (Default value = 0)</span>
+<span class="sd">        extrap :</span>
+<span class="sd">             (Default value = 1)</span>
+<span class="sd">        passivity :</span>
+<span class="sd">             (Default value = 0)</span>
+<span class="sd">        opt :</span>
+<span class="sd">             (Default value = &quot;&quot;)</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="n">toolNum</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
             <span class="n">custom</span> <span class="o">=</span> <span class="s2">&quot;NAME:DesignerCustomization&quot;</span>
@@ -703,13 +879,24 @@
     <span class="k">def</span> <span class="nf">add_subcircuit_hfss_link</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">compName</span><span class="p">,</span> <span class="n">pin_names</span><span class="p">,</span> <span class="n">source_project_path</span><span class="p">,</span> <span class="n">source_project_name</span><span class="p">,</span> <span class="n">source_design_name</span><span class="p">,</span> <span class="n">solution_name</span> <span class="o">=</span> <span class="s2">&quot;Setup1 : Sweep&quot;</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 
-<span class="sd">        :param compName:</span>
-<span class="sd">        :param pin_names:</span>
-<span class="sd">        :param source_project_path:</span>
-<span class="sd">        :param source_project_name:</span>
-<span class="sd">        :param source_design_name:</span>
-<span class="sd">        :param solution_name:</span>
-<span class="sd">        :return:</span>
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        compName :</span>
+<span class="sd">            param pin_names:</span>
+<span class="sd">        source_project_path :</span>
+<span class="sd">            param source_project_name:</span>
+<span class="sd">        source_design_name :</span>
+<span class="sd">            param solution_name:</span>
+<span class="sd">        pin_names :</span>
+<span class="sd">            </span>
+<span class="sd">        source_project_name :</span>
+<span class="sd">            </span>
+<span class="sd">        solution_name :</span>
+<span class="sd">             (Default value = &quot;Setup1 : Sweep&quot;)</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">designer_customization</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_comp_custom_settings</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="s2">&quot;False&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
         <span class="n">nexxim_customization</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_comp_custom_settings</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="s2">&quot;False&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span>
@@ -802,7 +989,15 @@
 <div class="viewcode-block" id="NexximComponents.set_sim_option_on_hfss_subcircuit"><a class="viewcode-back" href="../../../API/CircuitComponents.html#pyaedt.modeler.PrimitivesNexxim.NexximComponents.set_sim_option_on_hfss_subcircuit">[docs]</a>    <span class="nd">@aedt_exception_handler</span>
     <span class="k">def</span> <span class="nf">set_sim_option_on_hfss_subcircuit</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">component</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        :param component: CompInst@Galileo_cutout3;87;1</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        component :</span>
+<span class="sd">            CompInst@Galileo_cutout3;87;1</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">complist</span> <span class="o">=</span> <span class="n">component</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;;&quot;</span><span class="p">)</span>
         <span class="n">complist2</span> <span class="o">=</span> <span class="n">complist</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;@&quot;</span><span class="p">)</span>
@@ -823,34 +1018,77 @@
 
         <span class="k">pass</span></div>
 
-    <span class="nd">@aedt_exception_handler</span>
+<div class="viewcode-block" id="NexximComponents.refresh_dynamic_link"><a class="viewcode-back" href="../../../API/CircuitComponents.html#pyaedt.modeler.PrimitivesNexxim.NexximComponents.refresh_dynamic_link">[docs]</a>    <span class="nd">@aedt_exception_handler</span>
     <span class="k">def</span> <span class="nf">refresh_dynamic_link</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">component_name</span><span class="p">):</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">o_component_manager</span><span class="o">.</span><span class="n">UpdateDynamicLink</span><span class="p">(</span><span class="n">component_name</span><span class="p">)</span>
+        <span class="sd">&quot;&quot;&quot;</span>
 
-    <span class="nd">@aedt_exception_handler</span>
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        component_name :</span>
+<span class="sd">            </span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">o_component_manager</span><span class="o">.</span><span class="n">UpdateDynamicLink</span><span class="p">(</span><span class="n">component_name</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="NexximComponents.push_excitations"><a class="viewcode-back" href="../../../API/CircuitComponents.html#pyaedt.modeler.PrimitivesNexxim.NexximComponents.push_excitations">[docs]</a>    <span class="nd">@aedt_exception_handler</span>
     <span class="k">def</span> <span class="nf">push_excitations</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">instance_name</span><span class="p">,</span><span class="n">thevenin_calculation</span> <span class="o">=</span> <span class="kc">False</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        instance_name :</span>
+<span class="sd">            </span>
+<span class="sd">        thevenin_calculation :</span>
+<span class="sd">             (Default value = False)</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">arg</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;NAME:options&quot;</span><span class="p">,</span>
                <span class="s2">&quot;CalcThevenin:=&quot;</span><span class="p">,</span> <span class="n">thevenin_calculation</span><span class="p">,</span>
                <span class="s2">&quot;Sol:=&quot;</span><span class="p">,</span> <span class="s2">&quot;LinearFrequency&quot;</span><span class="p">]</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">oeditor</span><span class="o">.</span><span class="n">PushExcitation</span><span class="p">(</span><span class="n">instance_name</span><span class="p">,</span> <span class="n">arg</span><span class="p">)</span>
-        <span class="k">pass</span>
+        <span class="k">pass</span></div>
 
 <div class="viewcode-block" id="NexximComponents.assign_sin_excitation2ports"><a class="viewcode-back" href="../../../API/CircuitComponents.html#pyaedt.modeler.PrimitivesNexxim.NexximComponents.assign_sin_excitation2ports">[docs]</a>    <span class="nd">@aedt_exception_handler</span>
     <span class="k">def</span> <span class="nf">assign_sin_excitation2ports</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ports</span><span class="p">,</span> <span class="n">settings</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        :param ports: List of circuit ports for excitation assignation</span>
-<span class="sd">        :param settings: List of parameters values used in voltage sinusoidal excitation creation:</span>
-<span class="sd">        :param settings[0]: AC magnitude for small-signal analysis</span>
-<span class="sd">        :param settings[1]: AC phase for small-signal analysis</span>
-<span class="sd">        :param settings[2]: DC voltage</span>
-<span class="sd">        :param settings[3]: Voltage offset from zero</span>
-<span class="sd">        :param settings[4]: Voltage amplitude</span>
-<span class="sd">        :param settings[5]: Frequency</span>
-<span class="sd">        :param settings[6]: Delay to start of sine wave</span>
-<span class="sd">        :param settings[7]: Damping factor</span>
-<span class="sd">        :param settings[8]: Phase Delay</span>
-<span class="sd">        :param settings[9]: Frequency to use for harmonic balance analysis</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        ports :</span>
+<span class="sd">            List of circuit ports for excitation assignation</span>
+<span class="sd">        settings :</span>
+<span class="sd">            List of parameters values used in voltage sinusoidal excitation creation:</span>
+<span class="sd">        settings :</span>
+<span class="sd">            0]: AC magnitude for small-signal analysis</span>
+<span class="sd">        settings :</span>
+<span class="sd">            1]: AC phase for small-signal analysis</span>
+<span class="sd">        settings :</span>
+<span class="sd">            2]: DC voltage</span>
+<span class="sd">        settings :</span>
+<span class="sd">            3]: Voltage offset from zero</span>
+<span class="sd">        settings :</span>
+<span class="sd">            4]: Voltage amplitude</span>
+<span class="sd">        settings :</span>
+<span class="sd">            5]: Frequency</span>
+<span class="sd">        settings :</span>
+<span class="sd">            6]: Delay to start of sine wave</span>
+<span class="sd">        settings :</span>
+<span class="sd">            7]: Damping factor</span>
+<span class="sd">        settings :</span>
+<span class="sd">            8]: Phase Delay</span>
+<span class="sd">        settings :</span>
+<span class="sd">            9]: Frequency to use for harmonic balance analysis</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="nb">id</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">create_unique_id</span><span class="p">()</span>
 

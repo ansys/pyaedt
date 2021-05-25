@@ -244,7 +244,20 @@
 <span class="s1">&#39;&#39;&#39;</span>
 
 
-<span class="k">def</span> <span class="nf">float_units</span><span class="p">(</span><span class="n">val_str</span><span class="p">,</span> <span class="n">units</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">):</span>
+<div class="viewcode-block" id="float_units"><a class="viewcode-back" href="../../API/Maxwell.html#pyaedt.maxwell.float_units">[docs]</a><span class="k">def</span> <span class="nf">float_units</span><span class="p">(</span><span class="n">val_str</span><span class="p">,</span> <span class="n">units</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    val_str :</span>
+<span class="sd">        </span>
+<span class="sd">    units :</span>
+<span class="sd">         (Default value = &quot;&quot;)</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">if</span> <span class="ow">not</span> <span class="n">units</span> <span class="ow">in</span> <span class="n">unit_val</span><span class="p">:</span>
         <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">&quot;Specified unit string &quot;</span> <span class="o">+</span> <span class="n">units</span> <span class="o">+</span> <span class="s2">&quot; not known!&quot;</span><span class="p">)</span>
 
@@ -257,13 +270,18 @@
         <span class="n">val</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">val_str</span><span class="p">)</span>
 
     <span class="n">val</span> <span class="o">=</span> <span class="n">val</span> <span class="o">/</span> <span class="n">unit_val</span><span class="p">[</span><span class="n">units</span><span class="p">]</span>
-    <span class="k">return</span> <span class="n">val</span>
+    <span class="k">return</span> <span class="n">val</span></div>
 
 
 <div class="viewcode-block" id="Maxwell"><a class="viewcode-back" href="../../API/Maxwell.html#pyaedt.maxwell.Maxwell">[docs]</a><span class="k">class</span> <span class="nc">Maxwell</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Class of Common Functionalities of Maxwell. This class contains all the methods that are common between Maxwell2D</span>
+    <span class="sd">&quot;&quot;&quot;Class of Common Functionalities of Maxwell. This class contains all the methods that are common between Maxwell2D</span>
 <span class="sd">    and Maxwell3D</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
 
 <span class="sd">    &quot;&quot;&quot;</span>
 
@@ -272,39 +290,56 @@
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">odefinition_manager</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">oproject</span><span class="o">.</span><span class="n">GetDefinitionManager</span><span class="p">()</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">omaterial_manager</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">odefinition_manager</span><span class="o">.</span><span class="n">GetManager</span><span class="p">(</span><span class="s2">&quot;Material&quot;</span><span class="p">)</span>
 
     <span class="sd">&#39;&#39;&#39;</span>
 <span class="sd">    @property</span>
 <span class="sd">    def oeditor(self):</span>
+<span class="sd">        &quot;&quot;&quot; &quot;&quot;&quot;</span>
 <span class="sd">        return self.odesign.SetActiveEditor(&quot;3D Modeler&quot;)</span>
 <span class="sd">    &#39;&#39;&#39;</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">symmetry_multiplier</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot; Return the symmetry multiplier  &quot;&quot;&quot;</span>
+        <span class="sd">&quot;&quot;&quot; &quot;&quot;&quot;</span>
         <span class="n">omodule</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_odesign</span><span class="o">.</span><span class="n">GetModule</span><span class="p">(</span><span class="s2">&quot;ModelSetup&quot;</span><span class="p">)</span>
         <span class="k">return</span> <span class="nb">int</span><span class="p">(</span><span class="n">omodule</span><span class="o">.</span><span class="n">GetSymmetryMultiplier</span><span class="p">())</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">windings</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot; Return a list of all defined winding names in the Maxwell design. &quot;&quot;&quot;</span>
+        <span class="sd">&quot;&quot;&quot; &quot;&quot;&quot;</span>
         <span class="n">oModule</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">odesign</span><span class="o">.</span><span class="n">GetModule</span><span class="p">(</span><span class="s2">&quot;BoundarySetup&quot;</span><span class="p">)</span>
         <span class="n">windings</span> <span class="o">=</span> <span class="n">oModule</span><span class="o">.</span><span class="n">GetExcitationsOfType</span><span class="p">(</span><span class="s1">&#39;Winding Group&#39;</span><span class="p">)</span>
         <span class="k">return</span> <span class="nb">list</span><span class="p">(</span><span class="n">windings</span><span class="p">)</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">design_file</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; &quot;&quot;&quot;</span>
         <span class="n">design_file</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">working_directory</span><span class="p">,</span> <span class="s2">&quot;design_data.json&quot;</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">design_file</span>
 
     <span class="c1"># Set eddy effects</span>
-    <span class="nd">@aedt_exception_handler</span>
+<div class="viewcode-block" id="Maxwell.eddy_effects_on"><a class="viewcode-back" href="../../API/Maxwell.html#pyaedt.maxwell.Maxwell.eddy_effects_on">[docs]</a>    <span class="nd">@aedt_exception_handler</span>
     <span class="k">def</span> <span class="nf">eddy_effects_on</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">object_list</span><span class="p">,</span> <span class="n">activate</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        object_list :</span>
+<span class="sd">            </span>
+<span class="sd">        activate :</span>
+<span class="sd">             (Default value = True)</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">EddyVector</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;NAME:EddyEffectVector&quot;</span><span class="p">]</span>
         <span class="k">for</span> <span class="n">obj</span> <span class="ow">in</span> <span class="n">object_list</span><span class="p">:</span>
             <span class="n">EddyVector</span><span class="o">.</span><span class="n">append</span><span class="p">([</span>
@@ -315,26 +350,39 @@
 
         <span class="n">oModule</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">odesign</span><span class="o">.</span><span class="n">GetModule</span><span class="p">(</span><span class="s2">&quot;BoundarySetup&quot;</span><span class="p">)</span>
         <span class="n">oModule</span><span class="o">.</span><span class="n">SetEddyEffect</span><span class="p">([</span><span class="s2">&quot;NAME:Eddy Effect Setting&quot;</span><span class="p">,</span> <span class="n">EddyVector</span><span class="p">])</span>
-        <span class="k">return</span> <span class="kc">True</span>
+        <span class="k">return</span> <span class="kc">True</span></div>
 
 <div class="viewcode-block" id="Maxwell.assign_current"><a class="viewcode-back" href="../../API/Maxwell.html#pyaedt.maxwell.Maxwell.assign_current">[docs]</a>    <span class="nd">@aedt_exception_handler</span>
     <span class="k">def</span> <span class="nf">assign_current</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">object_list</span><span class="p">,</span> <span class="n">amplitude</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">phase</span><span class="o">=</span><span class="s2">&quot;0deg&quot;</span><span class="p">,</span> <span class="n">solid</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">swap_direction</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
                        <span class="n">name</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>  <span class="c1"># Assign the current Source</span>
         <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Assign current source to face list</span>
 
-<span class="sd">        :param object_list: list of objects or list of faces</span>
-<span class="sd">        :param amplitude: float current amplitude in A</span>
-<span class="sd">        :param solid: bool</span>
-<span class="sd">        :param swap_direction: bool</span>
-<span class="sd">        :param name: boundary name</span>
-<span class="sd">        :return: Boundary Object</span>
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        object_list :</span>
+
+<span class="sd">        amplitude :</span>
+<span class="sd">             (Default value = 1)</span>
+<span class="sd">        phase :</span>
+<span class="sd">             (Default value = &quot;0deg&quot;)</span>
+<span class="sd">        solid :</span>
+<span class="sd">             (Default value = True)</span>
+<span class="sd">        swap_direction :</span>
+<span class="sd">             (Default value = False)</span>
+<span class="sd">        name :</span>
+<span class="sd">             (Default value = None):  # Assign the current Source</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        :class: BoundaryObject</span>
+<span class="sd">            Boundary Object</span>
 <span class="sd">        &quot;&quot;&quot;</span>
 
         <span class="n">amplitude</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">amplitude</span><span class="p">)</span> <span class="o">+</span> <span class="s2">&quot;A&quot;</span>
 
         <span class="k">if</span> <span class="ow">not</span> <span class="n">name</span><span class="p">:</span>
             <span class="n">name</span> <span class="o">=</span> <span class="n">generate_unique_name</span><span class="p">(</span><span class="s2">&quot;Current&quot;</span><span class="p">)</span>
+        
         <span class="n">object_list</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">modeler</span><span class="o">.</span><span class="n">_convert_list_to_ids</span><span class="p">(</span><span class="n">object_list</span><span class="p">)</span>
         <span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="n">object_list</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span> <span class="ow">is</span> <span class="nb">int</span><span class="p">:</span>
             <span class="n">props</span> <span class="o">=</span> <span class="n">OrderedDict</span><span class="p">(</span>
@@ -350,13 +398,22 @@
 
 <div class="viewcode-block" id="Maxwell.assign_voltage"><a class="viewcode-back" href="../../API/Maxwell.html#pyaedt.maxwell.Maxwell.assign_voltage">[docs]</a>    <span class="nd">@aedt_exception_handler</span>
     <span class="k">def</span> <span class="nf">assign_voltage</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">face_list</span><span class="p">,</span> <span class="n">amplitude</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>  <span class="c1"># Assign the current Source</span>
-        <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Assign voltage source to face list</span>
+        <span class="sd">&quot;&quot;&quot;Assign voltage source to face list</span>
 
-<span class="sd">        :param face_list: list of objects</span>
-<span class="sd">        :param amplitude: float voltage amplitude in mV</span>
-<span class="sd">        :param name: boundary name</span>
-<span class="sd">        :return: Boundary Object</span>
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        face_list :</span>
+<span class="sd">            list of objects</span>
+<span class="sd">        amplitude :</span>
+<span class="sd">            float voltage amplitude in mV (Default value = 1)</span>
+<span class="sd">        name :</span>
+<span class="sd">            boundary name (Default value = None)</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        type</span>
+<span class="sd">            Boundary Object</span>
+
 <span class="sd">        &quot;&quot;&quot;</span>
 
         <span class="n">amplitude</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">amplitude</span><span class="p">)</span> <span class="o">+</span> <span class="s2">&quot;mV&quot;</span>
@@ -376,14 +433,24 @@
 
 <div class="viewcode-block" id="Maxwell.assign_voltage_drop"><a class="viewcode-back" href="../../API/Maxwell.html#pyaedt.maxwell.Maxwell.assign_voltage_drop">[docs]</a>    <span class="nd">@aedt_exception_handler</span>
     <span class="k">def</span> <span class="nf">assign_voltage_drop</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">face_list</span><span class="p">,</span> <span class="n">amplitude</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">swap_direction</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>  <span class="c1"># Assign the current Source</span>
-        <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Assign voltage source to face list</span>
+        <span class="sd">&quot;&quot;&quot;Assign voltage source to face list</span>
 
-<span class="sd">        :param face_list: list of objects</span>
-<span class="sd">        :param amplitude: float voltage amplitude in mV</span>
-<span class="sd">        :param swap_direction: bool</span>
-<span class="sd">        :param name: boundary name</span>
-<span class="sd">        :return: Boundary Object</span>
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        face_list :</span>
+<span class="sd">            list of objects</span>
+<span class="sd">        amplitude :</span>
+<span class="sd">            float voltage amplitude in mV (Default value = 1)</span>
+<span class="sd">        swap_direction :</span>
+<span class="sd">            bool (Default value = False)</span>
+<span class="sd">        name :</span>
+<span class="sd">            boundary name (Default value = None)</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        type</span>
+<span class="sd">            Boundary Object</span>
+
 <span class="sd">        &quot;&quot;&quot;</span>
 
         <span class="n">amplitude</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">amplitude</span><span class="p">)</span> <span class="o">+</span> <span class="s2">&quot;mV&quot;</span>
@@ -402,18 +469,32 @@
 <div class="viewcode-block" id="Maxwell.assign_winding"><a class="viewcode-back" href="../../API/Maxwell.html#pyaedt.maxwell.Maxwell.assign_winding">[docs]</a>    <span class="nd">@aedt_exception_handler</span>
     <span class="k">def</span> <span class="nf">assign_winding</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">coil_terminals</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">winding_type</span><span class="o">=</span><span class="s2">&quot;Current&quot;</span><span class="p">,</span> <span class="n">current_value</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">res</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">ind</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">voltage</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
                        <span class="n">parallel_branches</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Assign winding to Maxwell Design</span>
+        <span class="sd">&quot;&quot;&quot;Assign winding to Maxwell Design</span>
 
-<span class="sd">        :param coil_terminals: list of faces to which create coil terminal.</span>
-<span class="sd">        :param winding_type: str &quot;Current&quot;, &quot;Voltage&quot;, &quot;External&quot;</span>
-<span class="sd">        :param current_value: float ampere</span>
-<span class="sd">        :param res: float ohm</span>
-<span class="sd">        :param ind: float Henry</span>
-<span class="sd">        :param voltage: float Volt</span>
-<span class="sd">        :param parallel_branches: int</span>
-<span class="sd">        :param name: str name</span>
-<span class="sd">        :return: bounding object for winding otherwise only bounding object</span>
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        coil_terminals :</span>
+<span class="sd">            list of faces to which create coil terminal. (Default value = None)</span>
+<span class="sd">        winding_type :</span>
+<span class="sd">            str &quot;Current&quot;, &quot;Voltage&quot;, &quot;External&quot; (Default value = &quot;Current&quot;)</span>
+<span class="sd">        current_value :</span>
+<span class="sd">            float ampere (Default value = 1)</span>
+<span class="sd">        res :</span>
+<span class="sd">            float ohm (Default value = 0)</span>
+<span class="sd">        ind :</span>
+<span class="sd">            float Henry (Default value = 0)</span>
+<span class="sd">        voltage :</span>
+<span class="sd">            float Volt (Default value = 0)</span>
+<span class="sd">        parallel_branches :</span>
+<span class="sd">            int (Default value = 1)</span>
+<span class="sd">        name :</span>
+<span class="sd">            str name (Default value = None)</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        type</span>
+<span class="sd">            bounding object for winding otherwise only bounding object</span>
+
 <span class="sd">        &quot;&quot;&quot;</span>
 
         <span class="k">if</span> <span class="ow">not</span> <span class="n">name</span><span class="p">:</span>
@@ -439,12 +520,20 @@
 
 <div class="viewcode-block" id="Maxwell.add_winding_coils"><a class="viewcode-back" href="../../API/Maxwell.html#pyaedt.maxwell.Maxwell.add_winding_coils">[docs]</a>    <span class="nd">@aedt_exception_handler</span>
     <span class="k">def</span> <span class="nf">add_winding_coils</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">windingname</span><span class="p">,</span> <span class="n">coil_names</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Add Coils to Winding</span>
+        <span class="sd">&quot;&quot;&quot;Add Coils to Winding</span>
 
-<span class="sd">        :param windingname: Winding Name</span>
-<span class="sd">        :param coil_names: Coils Names. Can be a list of 1 or more element</span>
-<span class="sd">        :return: Bool</span>
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        windingname :</span>
+<span class="sd">            Winding Name</span>
+<span class="sd">        coil_names :</span>
+<span class="sd">            Coils Names. Can be a list of 1 or more element</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        type</span>
+<span class="sd">            Bool</span>
+
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">modeler</span><span class="o">.</span><span class="n">_is3d</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">oboundary</span><span class="o">.</span><span class="n">AddWindingTerminals</span><span class="p">(</span><span class="n">windingname</span><span class="p">,</span> <span class="n">coil_names</span><span class="p">)</span>
@@ -454,13 +543,26 @@
 
 <div class="viewcode-block" id="Maxwell.assign_coil"><a class="viewcode-back" href="../../API/Maxwell.html#pyaedt.maxwell.Maxwell.assign_coil">[docs]</a>    <span class="nd">@aedt_exception_handler</span>
     <span class="k">def</span> <span class="nf">assign_coil</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">input_object</span><span class="p">,</span> <span class="n">conductor_number</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">polarity</span><span class="o">=</span><span class="s2">&quot;Positive&quot;</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Assign Coils to list of objects or faceID</span>
+        <span class="sd">&quot;&quot;&quot;Assign Coils to list of objects or faceID</span>
 
-<span class="sd">        :param input_list: inputs list of objects or face IDs</span>
-<span class="sd">        :param conductor_number: conductors number</span>
-<span class="sd">        :param polarity:  polarity</span>
-<span class="sd">        :return: Coil Object</span>
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        input_list :</span>
+<span class="sd">            inputs list of objects or face IDs</span>
+<span class="sd">        conductor_number :</span>
+<span class="sd">            conductors number (Default value = 1)</span>
+<span class="sd">        polarity :</span>
+<span class="sd">            polarity (Default value = &quot;Positive&quot;)</span>
+<span class="sd">        input_object :</span>
+<span class="sd">            </span>
+<span class="sd">        name :</span>
+<span class="sd">             (Default value = None)</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        type</span>
+<span class="sd">            Coil Object</span>
+
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="n">polarity</span> <span class="o">==</span> <span class="s2">&quot;Positive&quot;</span><span class="p">:</span>
             <span class="n">point</span> <span class="o">=</span> <span class="kc">False</span>
@@ -495,8 +597,21 @@
             <span class="k">return</span> <span class="n">bound</span>
         <span class="k">return</span> <span class="kc">False</span></div>
 
-    <span class="nd">@aedt_exception_handler</span>
+<div class="viewcode-block" id="Maxwell.solve_inside"><a class="viewcode-back" href="../../API/Maxwell.html#pyaedt.maxwell.Maxwell.solve_inside">[docs]</a>    <span class="nd">@aedt_exception_handler</span>
     <span class="k">def</span> <span class="nf">solve_inside</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">activate</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        name :</span>
+<span class="sd">            </span>
+<span class="sd">        activate :</span>
+<span class="sd">             (Default value = True)</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">modeler</span><span class="o">.</span><span class="n">oeditor</span><span class="o">.</span><span class="n">ChangeProperty</span><span class="p">(</span>
             <span class="p">[</span>
                 <span class="s2">&quot;NAME:AllTabs&quot;</span><span class="p">,</span>
@@ -515,21 +630,29 @@
                     <span class="p">]</span>
                 <span class="p">]</span>
             <span class="p">])</span>
-        <span class="k">return</span> <span class="kc">True</span>
+        <span class="k">return</span> <span class="kc">True</span></div>
 
-    <span class="nd">@aedt_exception_handler</span>
+<div class="viewcode-block" id="Maxwell.analyse_from_zero"><a class="viewcode-back" href="../../API/Maxwell.html#pyaedt.maxwell.Maxwell.analyse_from_zero">[docs]</a>    <span class="nd">@aedt_exception_handler</span>
     <span class="k">def</span> <span class="nf">analyse_from_zero</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">oanalysis</span><span class="o">.</span><span class="n">ResetSetupToTimeZero</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_setup</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">analyse_nominal</span><span class="p">()</span>
-        <span class="k">return</span> <span class="kc">True</span>
+        <span class="k">return</span> <span class="kc">True</span></div>
 
 <div class="viewcode-block" id="Maxwell.set_initial_angle"><a class="viewcode-back" href="../../API/Maxwell.html#pyaedt.maxwell.Maxwell.set_initial_angle">[docs]</a>    <span class="nd">@aedt_exception_handler</span>
     <span class="k">def</span> <span class="nf">set_initial_angle</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">motion_setup</span><span class="p">,</span> <span class="n">val</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 
-<span class="sd">        :param motion_setup:</span>
-<span class="sd">        :param val:</span>
-<span class="sd">        :return:</span>
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        motion_setup :</span>
+<span class="sd">            param val:</span>
+<span class="sd">        val :</span>
+<span class="sd">            </span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">odesign</span><span class="o">.</span><span class="n">ChangeProperty</span><span class="p">(</span>
             <span class="p">[</span>
@@ -561,19 +684,28 @@
 
 
 <div class="viewcode-block" id="Maxwell3d"><a class="viewcode-back" href="../../API/Maxwell.html#pyaedt.maxwell.Maxwell3d">[docs]</a><span class="k">class</span> <span class="nc">Maxwell3d</span><span class="p">(</span><span class="n">Maxwell</span><span class="p">,</span> <span class="n">FieldAnalysis3D</span><span class="p">,</span> <span class="nb">object</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Maxwell 3D Object</span>
+    <span class="sd">&quot;&quot;&quot;Maxwell 3D Object</span>
 
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    projectname :</span>
+<span class="sd">        name of the project to be selected or full path to the project to be opened  or to the AEDTZ</span>
+<span class="sd">        archive. if None try to get active project and, if nothing present to create an empy one</span>
+<span class="sd">    designname :</span>
+<span class="sd">        name of the design to be selected. if None, try to get active design and, if nothing present to create an empy one</span>
+<span class="sd">    solution_type :</span>
+<span class="sd">        solution type to be applied to design. if None default is taken</span>
+<span class="sd">    setup_name :</span>
+<span class="sd">        setup_name to be used as nominal. if none active setup is taken or nothing</span>
 
-<span class="sd">    :param projectname: name of the project to be selected or full path to the project to be opened  or to the AEDTZ</span>
-<span class="sd">     archive. if None try to get active project and, if nothing present to create an empy one</span>
-<span class="sd">    :param designname: name of the design to be selected. if None, try to get active design and, if nothing present to create an empy one</span>
-<span class="sd">    :param solution_type: solution type to be applied to design. if None default is taken</span>
-<span class="sd">    :param setup_name: setup_name to be used as nominal. if none active setup is taken or nothing</span>
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="nd">@property</span>  <span class="c1"># for legacy purposes</span>
     <span class="k">def</span> <span class="nf">dim</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="s1">&#39;3D&#39;</span>
 
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">projectname</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">designname</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">solution_type</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">setup_name</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
@@ -591,17 +723,30 @@
 
 <div class="viewcode-block" id="Maxwell3d.setup_ctrlprog"><a class="viewcode-back" href="../../API/Maxwell.html#pyaedt.maxwell.Maxwell3d.setup_ctrlprog">[docs]</a>    <span class="nd">@aedt_exception_handler</span>
     <span class="k">def</span> <span class="nf">setup_ctrlprog</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">setup</span><span class="p">,</span> <span class="n">py_file</span><span class="p">,</span> <span class="n">file_str</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot; Configure the transient design setup to run a specific vontrol program.</span>
-
+        <span class="sd">&quot;&quot;&quot;Configure the transient design setup to run a specific vontrol program.</span>
+<span class="sd">        </span>
 <span class="sd">        Input arguments:</span>
 <span class="sd">        setup: Name of the solution setup of the maxwell design (e.g. &#39;Setup1&#39;)</span>
 <span class="sd">        py_file: Name of the python file to be run at each timestep</span>
-
+<span class="sd">        </span>
 <span class="sd">        Note: the file py_file will be copied by the Maxwell solver process to the temp directory and will be</span>
 <span class="sd">              re-named to setup+&#39;.ctrlprog&#39;   e.g if py_file is defined as &quot;my_script.py&#39; and the solver setup</span>
 <span class="sd">              is called &#39;Setup1&#39;, then the resulting file in the temp-directory is Setup1.ctrlprog. For this reason</span>
 <span class="sd">              it is important to instruct the operating system to use a python interpreter to run any file with extension</span>
 <span class="sd">              &#39;.ctrlprog&#39;.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        setup :</span>
+<span class="sd">            </span>
+<span class="sd">        py_file :</span>
+<span class="sd">            </span>
+<span class="sd">        file_str :</span>
+<span class="sd">             (Default value = None)</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">py_file</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">working_directory</span><span class="p">,</span> <span class="n">py_file</span><span class="p">)</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\\</span><span class="s1">&#39;</span><span class="p">,</span> <span class="s1">&#39;</span><span class="se">\\\\</span><span class="s1">&#39;</span><span class="p">)</span>
         <span class="n">exe_file</span> <span class="o">=</span> <span class="sa">r</span><span class="s1">&#39;C:\data\userlib\Toolkits\Maxwell3D\lib\PythonLauncher.exe&#39;</span>
@@ -625,31 +770,41 @@
 
 
 <div class="viewcode-block" id="Maxwell2d"><a class="viewcode-back" href="../../API/Maxwell.html#pyaedt.maxwell.Maxwell2d">[docs]</a><span class="k">class</span> <span class="nc">Maxwell2d</span><span class="p">(</span><span class="n">Maxwell</span><span class="p">,</span> <span class="n">FieldAnalysis2D</span><span class="p">,</span> <span class="nb">object</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Maxwell 2D Object</span>
+    <span class="sd">&quot;&quot;&quot;Maxwell 2D Object</span>
 
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    projectname :</span>
+<span class="sd">        name of the project to be selected or full path to the project to be opened  or to the AEDTZ</span>
+<span class="sd">        archive. if None try to get active project and, if nothing present to create an empy one</span>
+<span class="sd">    designname :</span>
+<span class="sd">        name of the design to be selected. if None, try to get active design and, if nothing present to create an empy one</span>
+<span class="sd">    solution_type :</span>
+<span class="sd">        solution type to be applied to design. if None default is taken</span>
+<span class="sd">    setup_name :</span>
+<span class="sd">        setup_name to be used as nominal. if none active setup is taken or nothing</span>
 
-<span class="sd">    :param projectname: name of the project to be selected or full path to the project to be opened  or to the AEDTZ</span>
-<span class="sd">     archive. if None try to get active project and, if nothing present to create an empy one</span>
-<span class="sd">    :param designname: name of the design to be selected. if None, try to get active design and, if nothing present to create an empy one</span>
-<span class="sd">    :param solution_type: solution type to be applied to design. if None default is taken</span>
-<span class="sd">    :param setup_name: setup_name to be used as nominal. if none active setup is taken or nothing</span>
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="nd">@property</span>  <span class="c1"># for legacy purposes</span>
     <span class="k">def</span> <span class="nf">dim</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">modeler</span><span class="o">.</span><span class="n">dimension</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">geometry_mode</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot; Return the geometry mode of a 2D design as &quot;XY&quot; or &quot;RZ&quot; &quot;&quot;&quot;</span>
+        <span class="sd">&quot;&quot;&quot; &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">odesign</span><span class="o">.</span><span class="n">GetGeometryMode</span><span class="p">()</span>
 
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">projectname</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">designname</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">solution_type</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">setup_name</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
         <span class="n">FieldAnalysis2D</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;Maxwell 2D&quot;</span><span class="p">,</span> <span class="n">projectname</span><span class="p">,</span> <span class="n">designname</span><span class="p">,</span> <span class="n">solution_type</span><span class="p">,</span> <span class="n">setup_name</span><span class="p">)</span>
         <span class="n">Maxwell</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
 
-    <span class="k">def</span> <span class="nf">get_model_depth</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="Maxwell2d.get_model_depth"><a class="viewcode-back" href="../../API/Maxwell.html#pyaedt.maxwell.Maxwell2d.get_model_depth">[docs]</a>    <span class="k">def</span> <span class="nf">get_model_depth</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">modeler</span><span class="o">.</span><span class="n">dimension</span> <span class="o">==</span> <span class="s1">&#39;2D&#39;</span><span class="p">:</span>
             <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">project_file</span><span class="p">,</span> <span class="s1">&#39;r&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">fi</span><span class="p">:</span>
                 <span class="n">design_str</span> <span class="o">=</span> <span class="s2">&quot;</span><span class="se">\t</span><span class="s2">$begin &#39;Maxwell2DModel&#39;&quot;</span>
@@ -680,11 +835,23 @@
                 <span class="k">else</span><span class="p">:</span>
                     <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s1">&#39;Design data not found by get_model_depth function - inconsistency !!!&#39;</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
-            <span class="k">return</span> <span class="kc">None</span>
+            <span class="k">return</span> <span class="kc">None</span></div>
 
 <div class="viewcode-block" id="Maxwell2d.generate_design_data"><a class="viewcode-back" href="../../API/Maxwell.html#pyaedt.maxwell.Maxwell2d.generate_design_data">[docs]</a>    <span class="nd">@aedt_exception_handler</span>
     <span class="k">def</span> <span class="nf">generate_design_data</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">linefilter</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">objectfilter</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot; Generate a generic set of design data and store in the extension directory as design_data.json.&quot;&quot;&quot;</span>
+        <span class="sd">&quot;&quot;&quot;Generate a generic set of design data and store in the extension directory as design_data.json.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        linefilter :</span>
+<span class="sd">             (Default value = None)</span>
+<span class="sd">        objectfilter :</span>
+<span class="sd">             (Default value = None)</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">solid_bodies</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">modeler</span><span class="o">.</span><span class="n">solid_bodies</span>
         <span class="n">solid_ids</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">modeler</span><span class="o">.</span><span class="n">solid_ids</span><span class="p">(</span><span class="n">objectfilter</span><span class="p">)</span>
         <span class="n">model_depth</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_model_depth</span><span class="p">()</span>
@@ -720,15 +887,34 @@
 <div class="viewcode-block" id="Maxwell2d.setup_ctrlprog"><a class="viewcode-back" href="../../API/Maxwell.html#pyaedt.maxwell.Maxwell2d.setup_ctrlprog">[docs]</a>    <span class="nd">@aedt_exception_handler</span>
     <span class="k">def</span> <span class="nf">setup_ctrlprog</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">file_str</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">keep_modifications</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">python_interpreter</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
                        <span class="n">pymxwl_module_location</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">working_directory</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">aedt_lib_dir</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot; Configure the transient design setup to run a specific control program.</span>
-
+        <span class="sd">&quot;&quot;&quot;Configure the transient design setup to run a specific control program.</span>
+<span class="sd">        </span>
 <span class="sd">        Input arguments:</span>
-
+<span class="sd">        </span>
 <span class="sd">        Note: the file py_file will be copied by the Maxwell solver process to the temp directory and will be</span>
 <span class="sd">              re-named to setup+&#39;.ctrlprog&#39;   e.g if py_file is defined as &quot;Setup1.py&#39; and the solver setup</span>
 <span class="sd">              is called &#39;Setup1&#39;, then the resulting file in the temp-directory is Setup1.ctrlprog. For this reason</span>
 <span class="sd">              it is important to instruct the operating system to use a python interpreter to run any file with extension</span>
 <span class="sd">              &#39;.ctrlprog&#39;.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        file_str :</span>
+<span class="sd">             (Default value = None)</span>
+<span class="sd">        keep_modifications :</span>
+<span class="sd">             (Default value = False)</span>
+<span class="sd">        python_interpreter :</span>
+<span class="sd">             (Default value = None)</span>
+<span class="sd">        pymxwl_module_location :</span>
+<span class="sd">             (Default value = None)</span>
+<span class="sd">        working_directory :</span>
+<span class="sd">             (Default value = None)</span>
+<span class="sd">        aedt_lib_dir :</span>
+<span class="sd">             (Default value = None)</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">setup</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">analysis_setup</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_py_file</span> <span class="o">=</span> <span class="n">setup</span> <span class="o">+</span> <span class="s2">&quot;.py&quot;</span>
@@ -785,13 +971,22 @@
 
 <div class="viewcode-block" id="Maxwell2d.assign_vector_potential"><a class="viewcode-back" href="../../API/Maxwell.html#pyaedt.maxwell.Maxwell2d.assign_vector_potential">[docs]</a>    <span class="nd">@aedt_exception_handler</span>
     <span class="k">def</span> <span class="nf">assign_vector_potential</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">input_edge</span><span class="p">,</span> <span class="n">vectorvalue</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">bound_name</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Assign Coils to list of objects or faceID</span>
+        <span class="sd">&quot;&quot;&quot;Assign Coils to list of objects or faceID</span>
 
-<span class="sd">        :param input_edge: inputs list of edges or edgeIDs</span>
-<span class="sd">        :param vectorvalue: float</span>
-<span class="sd">        :param bound_name:  str optional</span>
-<span class="sd">        :return: Vector Potential Object</span>
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        input_edge :</span>
+<span class="sd">            inputs list of edges or edgeIDs</span>
+<span class="sd">        vectorvalue :</span>
+<span class="sd">            float (Default value = 0)</span>
+<span class="sd">        bound_name :</span>
+<span class="sd">            str optional (Default value = None)</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        type</span>
+<span class="sd">            Vector Potential Object</span>
+
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">input_edge</span><span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">modeler</span><span class="o">.</span><span class="n">_convert_list_to_ids</span><span class="p">(</span><span class="n">input_edge</span><span class="p">)</span>
 

@@ -4,37 +4,45 @@
 
 
 class BLNDChamferRangeLaw(object):
+    """ """
     (BLNDConstantRange,
      BLNDVariableRange) = range(0, 2)
 
 
 class BLNDFilletRadiusLaw(object):
+    """ """
     (BLNDConstantRadius,
      BLNDVariableRadius) = range(0, 2)
 
 
 class BLNDFilletType(object):
+    """ """
     (BLNDRound,
      BLNDMitered) = range(0, 2)
 
 
 class CoordinateSystemAxis(object):
+    """ """
     (XAxis, YAxis, ZAxis) = range(0, 3)
 
 
 class CoordinateSystemPlane(object):
+    """ """
     (XYPlane, YZPlane, ZXPlane) = range(0, 3)
 
 
 class Plane(object):
+    """ """
     (XYPlane, YZPlane, ZXPlane, ISO) = ("XY", "YZ", "ZX", "iso")
 
 
 class GravityDirection(object):
+    """ """
     (XNeg, YNeg, ZNeg, XPos, YPos, ZPos) = range(0, 6)
 
 
 class MessageSeverity(object):
+    """ """
     (InfoMessage,
      WarningMessage,
      ErrorMessage,
@@ -43,6 +51,7 @@ class MessageSeverity(object):
 
 
 class ParamDataType(object):
+    """ """
     (Unknown,
      Int,
      Double,
@@ -52,6 +61,7 @@ class ParamDataType(object):
 
 
 class ParamPropFlag(object):
+    """ """
     (Unknown,
      NoFlag,
      ReadOnly,
@@ -61,6 +71,7 @@ class ParamPropFlag(object):
 
 
 class ParamPropType(object):
+    """ """
     (Unknown,
      Text,
      Menu,
@@ -72,6 +83,7 @@ class ParamPropType(object):
 
 
 class PartPropertyFlags(object):
+    """ """
     PropNonModel = 1
     PropDisplayWireFrame = 2
     PropReadOnly = 4
@@ -82,6 +94,7 @@ class PartPropertyFlags(object):
 
 
 class PolylineSegmentType(object):
+    """ """
     (LineSegment,
      ArcSegment,
      SplineSegment,
@@ -89,6 +102,7 @@ class PolylineSegmentType(object):
 
 
 class PolylineXSegmentType(object):
+    """ """
     (NONE,
      Line,
      Circle,
@@ -97,12 +111,14 @@ class PolylineXSegmentType(object):
 
 
 class SplitWhichSideToKeep(object):
+    """ """
     (SplitKeepBoth,
      SplitKeepPositiveOnly,
      SplitKeepNegativeOnly) = range(0, 3)
 
 
 class SweepDraftType(object):
+    """ """
     (ExtendedDraft,
      RoundDraft,
      NaturalDraft,
@@ -110,6 +126,7 @@ class SweepDraftType(object):
 
 
 class UnitType(object):
+    """ """
     (NoUnit,
      LengthUnit,
      AngleUnit) = range(0, 3)

@@ -14,13 +14,28 @@ logger = logging.getLogger(__name__)
 
 
 class MethodNotSupportedError(Exception):
-    """Raised when the a method is not supported in actual design"""
+    """ """
     pass
 
 def _exception(ex_info, func, args, kwargs, message="Type Error"):
-    """
+    """Writes the trace stack to the desktop when a python error occurs
 
-    Writes the trace stack to the desktop when a python error occurs
+    Parameters
+    ----------
+    ex_info :
+        
+    func :
+        
+    args :
+        
+    kwargs :
+        
+    message :
+         (Default value = "Type Error")
+
+    Returns
+    -------
+
     """
     print("**************************************************************")
     print("pyaedt Error on Method {}:  {}. Please Check again".format(func.__name__, message))
@@ -69,14 +84,34 @@ def _exception(ex_info, func, args, kwargs, message="Type Error"):
 
 
 def aedt_exception_handler(func):
-    """
-    Decorator for pyaedt Exception Management
+    """Decorator for pyaedt Exception Management
 
-    :param func: method to be decorated
-    :return: function return if correctly executed otherwise it will return False and errors will be plotted
+    Parameters
+    ----------
+    func :
+        method to be decorated
+
+    Returns
+    -------
+    type
+        function return if correctly executed otherwise it will return False and errors will be plotted
+
     """
     @wraps(func)
     def inner_function(*args, **kwargs):
+        """
+
+        Parameters
+        ----------
+        *args :
+            
+        **kwargs :
+            
+
+        Returns
+        -------
+
+        """
         try:
             return func(*args, **kwargs)
         except TypeError:
@@ -119,6 +154,17 @@ def aedt_exception_handler(func):
 
 @aedt_exception_handler
 def env_path(input_version):
+    """
+
+    Parameters
+    ----------
+    input_version :
+        
+
+    Returns
+    -------
+
+    """
     version = int(input_version[2:4])
     release = int(input_version[5])
     if version < 20:
@@ -132,18 +178,36 @@ def env_path(input_version):
 
 @aedt_exception_handler
 def get_filename_without_extension(path):
+    """
+
+    Parameters
+    ----------
+    path :
+        
+
+    Returns
+    -------
+
+    """
     return os.path.splitext(os.path.split(path)[1])[0]
 
 
 @aedt_exception_handler
 def generate_unique_name(rootname, suffix='', n=6):
-    """
-    Generate a new Random name given a rootname and, optionally a suffix
+    """Generate a new Random name given a rootname and, optionally a suffix
 
-    :param rootname: Root name to which add 6 Random chars
-    :param suffix: Suffix to be added
-    :param n: Number of random charachters in the name, defaults to 6
-    :return:
+    Parameters
+    ----------
+    rootname :
+        Root name to which add 6 Random chars
+    suffix :
+        Suffix to be added (Default value = '')
+    n :
+        Number of random charachters in the name, defaults to 6
+
+    Returns
+    -------
+
     """
     char_set = string.ascii_uppercase + string.digits
     uName = ''.join(random.choice(char_set) for _ in range(n))
@@ -154,6 +218,23 @@ def generate_unique_name(rootname, suffix='', n=6):
 
 
 def retry_ntimes(n, function, *args, **kwargs):
+    """
+
+    Parameters
+    ----------
+    n :
+        
+    function :
+        
+    *args :
+        
+    **kwargs :
+        
+
+    Returns
+    -------
+
+    """
     retry = 0
     ret_val = None
     while retry < n:

@@ -43,29 +43,34 @@ from .modules.Boundary import BoundaryObject
 import os
 
 class QExtractor(FieldAnalysis3D, FieldAnalysis2D, object):
+    """ """
     @property
     def odefinition_manager(self):
+        """ """
         return self.oproject.GetDefinitionManager()
 
     @property
     def omaterial_manager(self):
+        """ """
         return self.odefinition_manager.GetManager("Material")
 
     '''
     @property
     def oeditor(self):
+        """ """
         return self.odesign.SetActiveEditor("3D Modeler")
     '''
 
     @property
     def symmetry_multiplier(self):
-        """ Return the symmetry multiplier  """
+        """ """
         omodule = self._odesign.GetModule("ModelSetup")
         return int(omodule.GetSymmetryMultiplier())
 
 
     @property
     def design_file(self):
+        """ """
         design_file = os.path.join(self.working_directory, "design_data.json")
         return design_file
 
@@ -85,40 +90,63 @@ class QExtractor(FieldAnalysis3D, FieldAnalysis2D, object):
 
 
 class Q3d(QExtractor, object):
-    """
-    Q3D Object
+    """Q3D Object
 
+    Parameters
+    ----------
+    projectname :
+        name of the project to be selected or full path to the project to be opened  or to the AEDTZ
+        archive. if None try to get active project and, if nothing present to create an empy one
+    designname :
+        name of the design to be selected. if None, try to get active design and, if nothing present to create an empy one
+    solution_type :
+        solution type to be applied to design. if None default is taken
+    setup_name :
+        setup_name to be used as nominal. if none active setup is taken or nothing
 
-    :param projectname: name of the project to be selected or full path to the project to be opened  or to the AEDTZ
-     archive. if None try to get active project and, if nothing present to create an empy one
-    :param designname: name of the design to be selected. if None, try to get active design and, if nothing present to create an empy one
-    :param solution_type: solution type to be applied to design. if None default is taken
-    :param setup_name: setup_name to be used as nominal. if none active setup is taken or nothing
+    Returns
+    -------
+
     """
     def __init__(self, projectname=None, designname=None, solution_type=None, setup_name=None):
         QExtractor.__init__(self, "Q3D Extractor", projectname, designname, solution_type, setup_name)
 
     @aedt_exception_handler
     def auto_identify_nets(self):
-        """
-        Automatically Iddentify Nets
+        """Automatically Iddentify Nets
         :return:
+
+        Parameters
+        ----------
+
+        Returns
+        -------
+
         """
         self.oboundary.AutoIdentifyNets()
         return True
 
     @aedt_exception_handler
     def assign_source_to_objectface(self, object_name, axisdir=0, source_name=None, net_name=None):
-        """
-        Generate a source on a face id of an object. Face ID is selected based on axisdir. It will be the face that
+        """Generate a source on a face id of an object. Face ID is selected based on axisdir. It will be the face that
         has the maximum/minimum in that axis dir
 
+        Parameters
+        ----------
+        object_name :
+            name of the object
+        axisdir :
+            int axis direction. 0-5 (Default value = 0)
+        source_name :
+            name of the source (optional) (Default value = None)
+        net_name :
+            optional net name. in None, object_name will be considered (Default value = None)
 
-        :param object_name: name of the object
-        :param axisdir: int axis direction. 0-5
-        :param source_name: name of the source (optional)
-        :param net_name: optional net name. in None, object_name will be considered
-        :return: source object
+        Returns
+        -------
+        type
+            source object
+
         """
         a = self.modeler._get_faceid_on_axis(object_name, axisdir)
 
@@ -138,16 +166,25 @@ class Q3d(QExtractor, object):
 
     @aedt_exception_handler
     def assign_source_to_object(self, sheetname, obj_name, netname=None, source_name=None):
-        """
-        Generate a source on a face id of an object. Face ID is selected based on axisdir. It will be the face that
+        """Generate a source on a face id of an object. Face ID is selected based on axisdir. It will be the face that
         has the maximum/minimum in that axis dir
 
+        Parameters
+        ----------
+        sheetname :
+            name of the sheet/object on which create a source
+        obj_name :
+            name of the parent object
+        netname :
+            name of the net (optional) (Default value = None)
+        source_name :
+            name of the source (optional) (Default value = None)
 
-        :param sheetname: name of the sheet/object on which create a source
-        :param obj_name: name of the parent object
-        :param netname: name of the net (optional)
-        :param source_name: name of the source (optional)
-        :return: source object
+        Returns
+        -------
+        type
+            source object
+
         """
         if not netname:
             netname = obj_name
@@ -165,17 +202,27 @@ class Q3d(QExtractor, object):
 
     @aedt_exception_handler
     def assign_sink_to_objectface(self, object_name, axisdir=0, sink_name=None, net_name=None):
-        """
-        Generate a sink on a face id of an object. Face ID is selected based on axisdir. It will be the face that
+        """Generate a sink on a face id of an object. Face ID is selected based on axisdir. It will be the face that
         has the maximum/minimum in that axis dir
 
+        Parameters
+        ----------
+        object_name :
+            name of the object
+        axisdir :
+            int axis direction. 0-5 (Default value = 0)
+        netname :
+            name of the net (optional)
+        sink_name :
+            name of the sink (optional) (Default value = None)
+        net_name :
+            optional net name. in None, object_name will be considered (Default value = None)
 
-        :param object_name: name of the object
-        :param axisdir: int axis direction. 0-5
-        :param netname: name of the net (optional)
-        :param sink_name: name of the sink (optional)
-        :param net_name: optional net name. in None, object_name will be considered
-        :return: sink object
+        Returns
+        -------
+        type
+            sink object
+
         """
         a = self.modeler._get_faceid_on_axis(object_name, axisdir)
 
@@ -194,16 +241,25 @@ class Q3d(QExtractor, object):
 
     @aedt_exception_handler
     def assign_sink_to_sheet(self, sheetname, obj_name, netname=None, sink_name=None):
-        """
-        Generate a sink on a face id of an object. Face ID is selected based on axisdir. It will be the face that
+        """Generate a sink on a face id of an object. Face ID is selected based on axisdir. It will be the face that
         has the maximum/minimum in that axis dir
 
+        Parameters
+        ----------
+        sheetname :
+            name of the sheet/object on which create a sink
+        obj_name :
+            name of the parent object
+        netname :
+            name of the net (optional) (Default value = None)
+        sink_name :
+            name of the source (optional) (Default value = None)
 
-        :param sheetname: name of the sheet/object on which create a sink
-        :param obj_name: name of the parent object
-        :param netname: name of the net (optional)
-        :param sink_name: name of the source (optional)
-        :return: sink object
+        Returns
+        -------
+        type
+            sink object
+
         """
         if not netname:
             netname = obj_name
@@ -220,12 +276,23 @@ class Q3d(QExtractor, object):
     @aedt_exception_handler
     def create_frequency_sweep(self, setupname, unit, freqstart, freqstop, fastsweep=False):
         """
-        :param setupname: name of the setup to which is attached the sweep
-        :param unit: Units ("MHz", "GHz"....)
-        :param freqstart: Starting Frequency of sweep
-        :param freqstop:  Stop Frequency of Sweep
-        :param fastsweep: boolean =False for Fast sweep, True for interpolating
-        :return:
+
+        Parameters
+        ----------
+        setupname :
+            name of the setup to which is attached the sweep
+        unit :
+            Units ("MHz", "GHz"....)
+        freqstart :
+            Starting Frequency of sweep
+        freqstop :
+            Stop Frequency of Sweep
+        fastsweep :
+            boolean =False for Fast sweep, True for interpolating (Default value = False)
+
+        Returns
+        -------
+
         """
 
         arg = ["Name:Sweep", "IsEnabled:=", True, "RangeType:=", "LinearCount", "RangeStart:=",
@@ -253,11 +320,23 @@ class Q3d(QExtractor, object):
 
     @aedt_exception_handler
     def create_discrete_sweep(self, setup_name, sweep_name, freq):
-        """
-        Create a Discrete Sweep with a single frequency value
+        """Create a Discrete Sweep with a single frequency value
         name: Setup name
         freq: sweep freq (including Units) as string
         sweepname: name of the sweep
+
+        Parameters
+        ----------
+        setup_name :
+            
+        sweep_name :
+            
+        freq :
+            
+
+        Returns
+        -------
+
         """
         self.oanalysis.InsertFrequencySweep(setup_name,
                                                   [
@@ -276,24 +355,33 @@ class Q3d(QExtractor, object):
 
 
 class Q2d(QExtractor, object):
-    """
-    Q2D Object
+    """Q2D Object
 
+    Parameters
+    ----------
+    projectname :
+        name of the project to be selected or full path to the project to be opened  or to the AEDTZ
+        archive. if None try to get active project and, if nothing present to create an empy one
+    designname :
+        name of the design to be selected. if None, try to get active design and, if nothing present to create an empy one
+    solution_type :
+        solution type to be applied to design. if None default is taken
+    setup_name :
+        setup_name to be used as nominal. if none active setup is taken or nothing
 
-    :param projectname: name of the project to be selected or full path to the project to be opened  or to the AEDTZ
-     archive. if None try to get active project and, if nothing present to create an empy one
-    :param designname: name of the design to be selected. if None, try to get active design and, if nothing present to create an empy one
-    :param solution_type: solution type to be applied to design. if None default is taken
-    :param setup_name: setup_name to be used as nominal. if none active setup is taken or nothing
+    Returns
+    -------
+
     """
 
     @property   # for legacy purposes
     def dim(self):
+        """ """
         return self.modeler.dimension
 
     @property
     def geometry_mode(self):
-        """ Return the geometry mode of a 2D design as "XY" or "RZ" """
+        """ """
         return self.odesign.GetGeometryMode()
 
     def __init__(self, projectname=None, designname=None, solution_type=None, setup_name=None):

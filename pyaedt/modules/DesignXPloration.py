@@ -75,12 +75,10 @@ defaultdoeSetup = OrderedDict({"IsEnabled": True, "ProdOptiSetupDataV2":
 
 
 class CommonOptimetrics(object):
-    """
-    Common Optimetrics Methods Class
-
-    """
+    """Common Optimetrics Methods Class"""
     @property
     def omodule(self):
+        """ """
         return self._parent.odesign.GetModule("Optimetrics")
 
     def __init__(self, parent, name, dictinputs, optimtype):
@@ -134,11 +132,18 @@ class CommonOptimetrics(object):
 
     @aedt_exception_handler
     def update(self, update_dictionary=None):
-        """
-        update a Setup based on stored properties. a dictionary can be provided as argument
+        """update a Setup based on stored properties. a dictionary can be provided as argument
 
-        :param update_dictionary: optional dictionary argument
-        :return: Bool
+        Parameters
+        ----------
+        update_dictionary :
+            optional dictionary argument (Default value = None)
+
+        Returns
+        -------
+        type
+            Bool
+
         """
         if update_dictionary:
             for el in update_dictionary:
@@ -152,10 +157,16 @@ class CommonOptimetrics(object):
 
     @aedt_exception_handler
     def create(self):
-        """
-        update a Setup based on stored properties.
-
+        """update a Setup based on stored properties.
+        
         :return: Bool
+
+        Parameters
+        ----------
+
+        Returns
+        -------
+
         """
         arg = ["NAME:" + self.name]
         dict2arg(self.props, arg)
@@ -165,6 +176,29 @@ class CommonOptimetrics(object):
     @aedt_exception_handler
     def _add_calculation(self, reporttype, solution=None, domain="Sweep", calculation="", calculation_type="d",
                          calculation_value="", calculation_name=None):
+        """
+
+        Parameters
+        ----------
+        reporttype :
+            
+        solution :
+             (Default value = None)
+        domain :
+             (Default value = "Sweep")
+        calculation :
+             (Default value = "")
+        calculation_type :
+             (Default value = "d")
+        calculation_value :
+             (Default value = "")
+        calculation_name :
+             (Default value = None)
+
+        Returns
+        -------
+
+        """
         sweepdefinition = OrderedDict()
         sweepdefinition["ReportType"] = reporttype
         if not solution:
@@ -196,6 +230,39 @@ class CommonOptimetrics(object):
     @aedt_exception_handler
     def _add_goal(self, optigoalname,reporttype, solution=None, domain="Sweep", calculation="", calculation_type="discrete",
                   calc_val1="", calc_val2="", condition="==", goal_value=1, goal_weight=1, goal_name=None):
+        """
+
+        Parameters
+        ----------
+        optigoalname :
+            
+        reporttype :
+            
+        solution :
+             (Default value = None)
+        domain :
+             (Default value = "Sweep")
+        calculation :
+             (Default value = "")
+        calculation_type :
+             (Default value = "discrete")
+        calc_val1 :
+             (Default value = "")
+        calc_val2 :
+             (Default value = "")
+        condition :
+             (Default value = "==")
+        goal_value :
+             (Default value = 1)
+        goal_weight :
+             (Default value = 1)
+        goal_name :
+             (Default value = None)
+
+        Returns
+        -------
+
+        """
         sweepdefinition = OrderedDict()
         sweepdefinition["ReportType"] = reporttype
         if not solution:
@@ -237,29 +304,38 @@ class CommonOptimetrics(object):
 
 
 class DXSetups(object):
-    """
-    Design XPlorer Setups Class
-    """
+    """Design XPlorer Setups Class"""
 
     class Setup(CommonOptimetrics, object):
-        """
-        Setup Class
-        """
+        """Setup Class"""
         def __init__(self, parent, name, dictinputs=None):
             CommonOptimetrics.__init__(self, parent, name, dictinputs=dictinputs, optimtype="OptiDesignExplorer")
             pass
 
         @aedt_exception_handler
         def add_calculation(self, calculation="", calculation_value="", reporttype="Modal Solution Data", solution=None, domain="Sweep",  calculation_name=None):
-            """
-            Add Calculation to DX Setup
+            """Add Calculation to DX Setup
 
-            :param reporttype: Name of the Report to take the Calculation
-            :param solution: solution type. if none, default solution will be taken
-            :param domain: domain type. if none sweep will be taken
-            :param calculation: calculation value eg. dB(S(1,1,))
-            :param calculation_value: calculation value. eg. if sweep "1GHz)
-            :return: bool
+            Parameters
+            ----------
+            reporttype :
+                Name of the Report to take the Calculation (Default value = "Modal Solution Data")
+            solution :
+                solution type. if none, default solution will be taken
+            domain :
+                domain type. if none sweep will be taken (Default value = "Sweep")
+            calculation :
+                calculation value eg. dB(S(1,1,)) (Default value = "")
+            calculation_value :
+                calculation value. eg. if sweep "1GHz) (Default value = "")
+            calculation_name :
+                 (Default value = None)
+
+            Returns
+            -------
+            type
+                bool
+
             """
             return self._add_calculation(reporttype=reporttype, solution=solution, domain=domain, calculation_type="d",
                                          calculation=calculation, calculation_value=calculation_value, calculation_name=calculation_name)
@@ -267,17 +343,38 @@ class DXSetups(object):
         @aedt_exception_handler
         def add_goal(self, calculation="", calculation_value="", calculation_type="discrete", calculation_stop="",
                      reporttype="Modal Solution Data", solution=None, domain="Sweep", goal_name=None, goal_value=1, goal_weight=1, condition="=="):
-            """
-            Add Goald to DX Setup
+            """Add Goald to DX Setup
 
-            :param reporttype: Name of the Report to take the Calculation
-            :param solution: solution type. if none, default solution will be taken
-            :param domain: domain type. if none sweep will be taken
-            :param calculation: calculation value eg. dB(S(1,1,))
-            :param calculation_type: discrete or range
-            :param calculation_value: calculation value. eg. if sweep "1GHz). if discrete, it is discrete value or list, if range, it is start value
-            :param calculation_stop: calculation value. eg. if sweep "1GHz). if range it is the stop value
-            :return: bool
+            Parameters
+            ----------
+            reporttype :
+                Name of the Report to take the Calculation (Default value = "Modal Solution Data")
+            solution :
+                solution type. if none, default solution will be taken
+            domain :
+                domain type. if none sweep will be taken (Default value = "Sweep")
+            calculation :
+                calculation value eg. dB(S(1,1,)) (Default value = "")
+            calculation_type :
+                discrete or range (Default value = "discrete")
+            calculation_value :
+                calculation value. eg. if sweep "1GHz). if discrete, it is discrete value or list, if range, it is start value (Default value = "")
+            calculation_stop :
+                calculation value. eg. if sweep "1GHz). if range it is the stop value (Default value = "")
+            goal_name :
+                 (Default value = None)
+            goal_value :
+                 (Default value = 1)
+            goal_weight :
+                 (Default value = 1)
+            condition :
+                 (Default value = "==")
+
+            Returns
+            -------
+            type
+                bool
+
             """
             return self._add_goal(optigoalname="CostFunctionGoals", reporttype=reporttype, solution=solution,
                                   domain=domain, calculation_type=calculation_type, calculation=calculation,
@@ -285,9 +382,11 @@ class DXSetups(object):
                                   goal_weight=goal_weight, goal_value=goal_value, condition=condition)
     @property
     def parent(self):
+        """ """
         return self._parent
     @property
     def optimodule(self):
+        """ """
         return self.parent.odesign.GetModule("Optimetrics")
 
     def __init__(self, parent):
@@ -304,15 +403,24 @@ class DXSetups(object):
 
     @aedt_exception_handler
     def add_dx_setup(self,variables_to_include, defaults_var_values=None, setupname=None, parametricname=None):
-        """
-        Add a DesignXplorer Basic Setup. User can customize all DX Options after the creation
+        """Add a DesignXplorer Basic Setup. User can customize all DX Options after the creation
 
+        Parameters
+        ----------
+        variables_to_include :
+            list of variables to include in DesignXplorer
+        defaults_var_values :
+            list of default variable values
+        setupname :
+            Optional Setup name. if none, the default analysis setup will be used
+        parametricname :
+            optional Parametric Name (Default value = None)
 
-        :param variables_to_include: list of variables to include in DesignXplorer
-        :param defaults_var_values: list of default variable values
-        :param setupname: Optional Setup name. if none, the default analysis setup will be used
-        :param parametricname: optional Parametric Name
-        :return: Optimetrics Object Class
+        Returns
+        -------
+        type
+            Optimetrics Object Class
+
         """
         if not setupname:
             setupname = [self._parent.analysis_setup]
@@ -348,26 +456,29 @@ class DXSetups(object):
 
 
 class ParametericsSetups(object):
-    """
-    Parametric Setup Class
-    """
+    """Parametric Setup Class"""
     class Setup(CommonOptimetrics, object):
-        """
-        Setup Class
-        """
+        """Setup Class"""
         def __init__(self, parent, name, dictinputs=None):
             CommonOptimetrics.__init__(self, parent, name, dictinputs=dictinputs, optimtype="OptiParametric")
             pass
 
         @aedt_exception_handler
         def add_variation(self, sweep_var, datarange):
-            """
-            Add a Variation to an existing Parametric Setup
+            """Add a Variation to an existing Parametric Setup
 
+            Parameters
+            ----------
+            sweep_var :
+                Variable name
+            datarange :
+                Data Range
 
-            :param sweep_var: Variable name
-            :param datarange: Data Range
-            :return: Bool
+            Returns
+            -------
+            type
+                Bool
+
             """
             if type(self.props["Sweeps"]["SweepDefinition"]) is not list:
                 self.props["Sweeps"]["SweepDefinition"] = [self.props["Sweeps"]["SweepDefinition"]]
@@ -383,15 +494,28 @@ class ParametericsSetups(object):
         @aedt_exception_handler
         def add_calculation(self, calculation="", calculation_value="", reporttype="Modal Solution Data", solution=None,
                             domain="Sweep", calculation_name=None):
-            """
-            Add Calculation to Parametric Setup
+            """Add Calculation to Parametric Setup
 
-            :param reporttype: Name of the Report to take the Calculation
-            :param solution: solution type. if none, default solution will be taken
-            :param domain: domain type. if none sweep will be taken
-            :param calculation: calculation value eg. dB(S(1,1,))
-            :param calculation_value: calculation value. eg. if sweep "1GHz)
-            :return: bool
+            Parameters
+            ----------
+            reporttype :
+                Name of the Report to take the Calculation (Default value = "Modal Solution Data")
+            solution :
+                solution type. if none, default solution will be taken
+            domain :
+                domain type. if none sweep will be taken (Default value = "Sweep")
+            calculation :
+                calculation value eg. dB(S(1,1,)) (Default value = "")
+            calculation_value :
+                calculation value. eg. if sweep "1GHz) (Default value = "")
+            calculation_name :
+                 (Default value = None)
+
+            Returns
+            -------
+            type
+                bool
+
             """
             return self._add_calculation(reporttype=reporttype, solution=solution, domain=domain, calculation_type="d",
                                          calculation=calculation, calculation_value=calculation_value, calculation_name=calculation_name)
@@ -400,10 +524,12 @@ class ParametericsSetups(object):
 
     @property
     def parent(self):
+        """ """
         return self._parent
 
     @property
     def optimodule(self):
+        """ """
         return self.parent.odesign.GetModule("Optimetrics")
 
     def __init__(self, parent):
@@ -421,15 +547,24 @@ class ParametericsSetups(object):
 
     @aedt_exception_handler
     def add_parametric_setup(self, sweep_var, datarange, setupname=None, parametricname=None):
-        """
-        Add a Parametric Basic Setup. User can customize all Options after the creation
+        """Add a Parametric Basic Setup. User can customize all Options after the creation
 
+        Parameters
+        ----------
+        sweep_var :
+            Variable name
+        datarange :
+            Data Range
+        setupname :
+            Optional Setup name. if none, the default analysis setup will be used
+        parametricname :
+            optional Parametric Name (Default value = None)
 
-        :param sweep_var: Variable name
-        :param datarange: Data Range
-        :param setupname: Optional Setup name. if none, the default analysis setup will be used
-        :param parametricname: optional Parametric Name
-        :return: Optimetrics Object Class
+        Returns
+        -------
+        type
+            Optimetrics Object Class
+
         """
         if not setupname:
             setupname = [self._parent.analysis_setup]
@@ -451,13 +586,9 @@ class ParametericsSetups(object):
 
 
 class SensitivitySetups(object):
-    """
-    Sensitivity Class
-    """
+    """Sensitivity Class"""
     class Setup(CommonOptimetrics, object):
-        """
-        Setup Class
-        """
+        """Setup Class"""
         def __init__(self, parent, name, dictinputs=None):
             CommonOptimetrics.__init__(self, parent, name, dictinputs=dictinputs, optimtype="OptiSensitivity")
             pass
@@ -465,24 +596,39 @@ class SensitivitySetups(object):
         @aedt_exception_handler
         def add_calculation(self, calculation="", calculation_value="", reporttype="Modal Solution Data", solution=None,
                             domain="Sweep", calculation_name=None):
-            """
-            Add Calculation to Sensitivity Setup
+            """Add Calculation to Sensitivity Setup
 
-            :param reporttype: Name of the Report to take the Calculation
-            :param solution: solution type. if none, default solution will be taken
-            :param domain: domain type. if none sweep will be taken
-            :param calculation: calculation value eg. dB(S(1,1,))
-            :param calculation_value: calculation value. eg. if sweep "1GHz)
-            :return: bool
+            Parameters
+            ----------
+            reporttype :
+                Name of the Report to take the Calculation (Default value = "Modal Solution Data")
+            solution :
+                solution type. if none, default solution will be taken
+            domain :
+                domain type. if none sweep will be taken (Default value = "Sweep")
+            calculation :
+                calculation value eg. dB(S(1,1,)) (Default value = "")
+            calculation_value :
+                calculation value. eg. if sweep "1GHz) (Default value = "")
+            calculation_name :
+                 (Default value = None)
+
+            Returns
+            -------
+            type
+                bool
+
             """
             return self._add_calculation(reporttype=reporttype, solution=solution, domain=domain, calculation_type="d",
                                          calculation=calculation, calculation_value=calculation_value, calculation_name=calculation_name)
 
     @property
     def parent(self):
+        """ """
         return self._parent
     @property
     def optimodule(self):
+        """ """
         return self.parent.odesign.GetModule("Optimetrics")
 
     def __init__(self, parent):
@@ -500,18 +646,30 @@ class SensitivitySetups(object):
     @aedt_exception_handler
     def add_sensitivity(self, calculation, calculation_value, calculation_type="Freq",
                         reporttype="Modal Solution Data", domain="Sweep", solution=None, parametricname=None):
-        """
-        Add a Sensitivity Basic Setup. User can customize all Options after the creation
+        """Add a Sensitivity Basic Setup. User can customize all Options after the creation
 
+        Parameters
+        ----------
+        calculation :
+            name of the Calculation
+        calculation_value :
+            Variation Value (eg. "1GHz")
+        calculation_type :
+            Variation type. Default Freq
+        reporttype :
+            Report Type. Default "Modal Solution Data"
+        domain :
+            Default "Sweep"
+        solution :
+            Solution name. If nothing, nominal sweep will be used (Default value = None)
+        parametricname :
+            Name of the sensititivy analsysis. if nothing, a default name will be given
 
-        :param calculation: name of the Calculation
-        :param calculation_value: Variation Value (eg. "1GHz")
-        :param calculation_type: Variation type. Default Freq
-        :param reporttype: Report Type. Default "Modal Solution Data"
-        :param domain: Default "Sweep"
-        :param solution: Solution name. If nothing, nominal sweep will be used
-        :param parametricname: Name of the sensititivy analsysis. if nothing, a default name will be given
-        :return: Sensitivity object
+        Returns
+        -------
+        type
+            Sensitivity object
+
         """
         if not parametricname:
             parametricname = generate_unique_name("Sensitivity")
@@ -533,37 +691,48 @@ class SensitivitySetups(object):
 
 
 class StatisticalSetups(object):
-    """
-    Statistical Class
-    """
+    """Statistical Class"""
     class Setup(CommonOptimetrics, object):
-        """
-        Setup Class
-        """
+        """Setup Class"""
         def __init__(self, parent, name, dictinputs=None):
             CommonOptimetrics.__init__(self, parent, name, dictinputs=dictinputs, optimtype="OptiStatistical")
             pass
 
         @aedt_exception_handler
         def add_calculation(self, calculation="", calculation_value="", reporttype="Modal Solution Data", solution=None, domain="Sweep",  calculation_name=None):
-            """
-            Add Calculation to Statistical Setup
+            """Add Calculation to Statistical Setup
 
-            :param reporttype: Name of the Report to take the Calculation
-            :param solution: solution type. if none, default solution will be taken
-            :param domain: domain type. if none sweep will be taken
-            :param calculation: calculation value eg. dB(S(1,1,))
-            :param calculation_value: calculation value. eg. if sweep "1GHz)
-            :return: bool
+            Parameters
+            ----------
+            reporttype :
+                Name of the Report to take the Calculation (Default value = "Modal Solution Data")
+            solution :
+                solution type. if none, default solution will be taken
+            domain :
+                domain type. if none sweep will be taken (Default value = "Sweep")
+            calculation :
+                calculation value eg. dB(S(1,1,)) (Default value = "")
+            calculation_value :
+                calculation value. eg. if sweep "1GHz) (Default value = "")
+            calculation_name :
+                 (Default value = None)
+
+            Returns
+            -------
+            type
+                bool
+
             """
             return self._add_calculation(reporttype=reporttype, solution=solution, domain=domain, calculation_type="d",
                                          calculation=calculation, calculation_value=calculation_value, calculation_name=calculation_name)
 
     @property
     def parent(self):
+        """ """
         return self._parent
     @property
     def optimodule(self):
+        """ """
         return self.parent.odesign.GetModule("Optimetrics")
 
     def __init__(self, parent):
@@ -581,18 +750,30 @@ class StatisticalSetups(object):
     @aedt_exception_handler
     def add_statistical(self, calculation_name, calc_variation_value, calculation_type="Freq",
                         reporttype="Modal Solution Data", domain="Sweep", solution=None, parametricname=None):
-        """
-        Add a Sensitivity Basic Setup. User can customize all Options after the creation
+        """Add a Sensitivity Basic Setup. User can customize all Options after the creation
 
+        Parameters
+        ----------
+        calculation_name :
+            name of the Calculation
+        calc_variation_value :
+            Variation Value (eg. "1GHz")
+        calculation_type :
+            Variation type. Default Freq
+        reporttype :
+            Report Type. Default "Modal Solution Data"
+        domain :
+            Default "Sweep"
+        solution :
+            Solution name. If nothing, nominal sweep will be used (Default value = None)
+        parametricname :
+            Name of the sensititivy analsysis. if nothing, a default name will be given
 
-        :param calculation_name: name of the Calculation
-        :param calc_variation_value: Variation Value (eg. "1GHz")
-        :param calculation_type: Variation type. Default Freq
-        :param reporttype: Report Type. Default "Modal Solution Data"
-        :param domain: Default "Sweep"
-        :param solution: Solution name. If nothing, nominal sweep will be used
-        :param parametricname: Name of the sensititivy analsysis. if nothing, a default name will be given
-        :return: Statistical object
+        Returns
+        -------
+        type
+            Statistical object
+
         """
         if not parametricname:
             parametricname = generate_unique_name("Statistical")
@@ -614,28 +795,37 @@ class StatisticalSetups(object):
 
 
 class DOESetups(object):
-    """
-    DOE Class
-    """
+    """DOE Class"""
     class Setup(CommonOptimetrics, object):
-        """
-        Setup Class
-        """
+        """Setup Class"""
         def __init__(self, parent, name, dictinputs=None):
             CommonOptimetrics.__init__(self, parent, name, dictinputs=dictinputs, optimtype="OptiDXDOE")
             pass
         @aedt_exception_handler
         def add_calculation(self, calculation="", calculation_value="", reporttype="Modal Solution Data", solution=None,
                             domain="Sweep", calculation_name=None):
-            """
-            Add Calculation to DOE Setup
+            """Add Calculation to DOE Setup
 
-            :param reporttype: Name of the Report to take the Calculation
-            :param solution: solution type. if none, default solution will be taken
-            :param domain: domain type. if none sweep will be taken
-            :param calculation: calculation value eg. dB(S(1,1,))
-            :param calculation_value: calculation value. eg. if sweep "1GHz)
-            :return: bool
+            Parameters
+            ----------
+            reporttype :
+                Name of the Report to take the Calculation (Default value = "Modal Solution Data")
+            solution :
+                solution type. if none, default solution will be taken
+            domain :
+                domain type. if none sweep will be taken (Default value = "Sweep")
+            calculation :
+                calculation value eg. dB(S(1,1,)) (Default value = "")
+            calculation_value :
+                calculation value. eg. if sweep "1GHz) (Default value = "")
+            calculation_name :
+                 (Default value = None)
+
+            Returns
+            -------
+            type
+                bool
+
             """
             return self._add_calculation(reporttype=reporttype, solution=solution, domain=domain, calculation_type="d",
                                          calculation=calculation, calculation_value=calculation_value, calculation_name=calculation_name)
@@ -643,17 +833,38 @@ class DOESetups(object):
         @aedt_exception_handler
         def add_goal(self, calculation="", calculation_value="", calculation_type="discrete",
                      calculation_stop="", reporttype="Modal Solution Data", solution=None, domain="Sweep", goal_name=None, goal_value=1, goal_weight=1, condition="=="):
-            """
-            Add Goald to DOE Setup
+            """Add Goald to DOE Setup
 
-            :param reporttype: Name of the Report to take the Calculation
-            :param solution: solution type. if none, default solution will be taken
-            :param domain: domain type. if none sweep will be taken
-            :param calculation: calculation value eg. dB(S(1,1,))
-            :param calculation_type: discrete or range
-            :param calculation_value: calculation value. eg. if sweep "1GHz). if discrete, it is discrete value or list, if range, it is start value
-            :param calculation_stop: calculation value. eg. if sweep "1GHz). if range it is the stop value
-            :return: bool
+            Parameters
+            ----------
+            reporttype :
+                Name of the Report to take the Calculation (Default value = "Modal Solution Data")
+            solution :
+                solution type. if none, default solution will be taken
+            domain :
+                domain type. if none sweep will be taken (Default value = "Sweep")
+            calculation :
+                calculation value eg. dB(S(1,1,)) (Default value = "")
+            calculation_type :
+                discrete or range (Default value = "discrete")
+            calculation_value :
+                calculation value. eg. if sweep "1GHz). if discrete, it is discrete value or list, if range, it is start value (Default value = "")
+            calculation_stop :
+                calculation value. eg. if sweep "1GHz). if range it is the stop value (Default value = "")
+            goal_name :
+                 (Default value = None)
+            goal_value :
+                 (Default value = 1)
+            goal_weight :
+                 (Default value = 1)
+            condition :
+                 (Default value = "==")
+
+            Returns
+            -------
+            type
+                bool
+
             """
             return self._add_goal(optigoalname="CostFunctionGoals", reporttype=reporttype, solution=solution,
                                   domain=domain, calculation_type=calculation_type, calculation=calculation,
@@ -663,9 +874,11 @@ class DOESetups(object):
 
     @property
     def parent(self):
+        """ """
         return self._parent
     @property
     def optimodule(self):
+        """ """
         return self.parent.odesign.GetModule("Optimetrics")
 
     def __init__(self, parent):
@@ -683,21 +896,36 @@ class DOESetups(object):
     @aedt_exception_handler
     def add_doe(self, calculation, calculation_value, calculation_type="Freq", reporttype="Modal Solution Data",
                 domain="Sweep", condition="<=", goal_value=1, goal_weight=1, solution=None, parametricname=None):
-        """
-        Add a DOE Basic Setup. User can customize all Options after the creation
+        """Add a DOE Basic Setup. User can customize all Options after the creation
 
+        Parameters
+        ----------
+        calculation :
+            name of the Calculation
+        calculation_value :
+            Variation Value (eg. "1GHz")
+        calculation_type :
+            Variation type. Default Freq
+        reporttype :
+            Report Type. Default "Modal Solution Data"
+        domain :
+            Default "Sweep"
+        condition :
+            goal condition. Default "<="
+        goal_value :
+            goal value to meet condition. Default 1
+        goal_weight :
+            goal weight. Default 1
+        solution :
+            Solution name. If nothing, nominal sweep will be used (Default value = None)
+        parametricname :
+            Name of the sensititivy analsysis. if nothing, a default name will be given
 
-        :param calculation: name of the Calculation
-        :param calculation_value: Variation Value (eg. "1GHz")
-        :param calculation_type: Variation type. Default Freq
-        :param reporttype: Report Type. Default "Modal Solution Data"
-        :param domain: Default "Sweep"
-        :param condition: goal condition. Default "<="
-        :param goal_value: goal value to meet condition. Default 1
-        :param goal_weight: goal weight. Default 1
-        :param solution: Solution name. If nothing, nominal sweep will be used
-        :param parametricname: Name of the sensititivy analsysis. if nothing, a default name will be given
-        :return: DOE object
+        Returns
+        -------
+        type
+            DOE object
+
         """
         if not solution:
             solution = self._parent.nominal_sweep
@@ -726,13 +954,9 @@ class DOESetups(object):
 
 
 class OptimizationSetups(object):
-    """
-    Optimization Class
-    """
+    """Optimization Class"""
     class Setup(CommonOptimetrics, object):
-        """
-        Setup Class
-        """
+        """Setup Class"""
         def __init__(self, parent, name, dictinputs=None):
             CommonOptimetrics.__init__(self, parent, name, dictinputs=dictinputs, optimtype="OptiOptimization")
             pass
@@ -741,21 +965,38 @@ class OptimizationSetups(object):
         def add_goal(self, calculation="", calculation_value="", calculation_type="discrete", calculation_stop="",
                      reporttype="Modal Solution Data", solution=None, domain="Sweep", goal_name=None, goal_value=1,
                      goal_weight=1, condition="=="):
-            """
-            Add Calculation to Optimetrics Setup
+            """Add Calculation to Optimetrics Setup
 
-            :param reporttype: Name of the Report to take the Calculation
-            :param solution: solution type. if none, default solution will be taken
-            :param domain: domain type. if none sweep will be taken
-            :param calculation: calculation value eg. dB(S(1,1,))
-            :param calculation_type: discrete or range
-            :param calculation_value: calculation value. eg. if sweep "1GHz). if discrete, it is discrete value or list, if range, it is start value
-            :param calculation_stop: calculation value. eg. if sweep "1GHz). if range it is the stop value
-            :param goal_value: goal Value. Default 1
-            :param goal_weight: Goal Weight. Default 1
-            :param condition: Condition. Default "=="
+            Parameters
+            ----------
+            reporttype :
+                Name of the Report to take the Calculation (Default value = "Modal Solution Data")
+            solution :
+                solution type. if none, default solution will be taken
+            domain :
+                domain type. if none sweep will be taken (Default value = "Sweep")
+            calculation :
+                calculation value eg. dB(S(1,1,)) (Default value = "")
+            calculation_type :
+                discrete or range (Default value = "discrete")
+            calculation_value :
+                calculation value. eg. if sweep "1GHz). if discrete, it is discrete value or list, if range, it is start value (Default value = "")
+            calculation_stop :
+                calculation value. eg. if sweep "1GHz). if range it is the stop value (Default value = "")
+            goal_value :
+                goal Value. Default 1
+            goal_weight :
+                Goal Weight. Default 1
+            condition :
+                Condition. Default "=="
+            goal_name :
+                 (Default value = None)
 
-            :return: bool
+            Returns
+            -------
+            type
+                bool
+
             """
             return self._add_goal(optigoalname="Goals", reporttype=reporttype, solution=solution, domain=domain,
                                   calculation_type=calculation_type, calculation=calculation,
@@ -763,9 +1004,11 @@ class OptimizationSetups(object):
 
     @property
     def parent(self):
+        """ """
         return self._parent
     @property
     def optimodule(self):
+        """ """
         return self.parent.odesign.GetModule("Optimetrics")
 
     def __init__(self, parent):
@@ -786,21 +1029,36 @@ class OptimizationSetups(object):
     def add_optimization(self, calculation, calculation_value, calculation_type="Freq",
                          reporttype="Modal Solution Data", domain="Sweep", condition="<=", goal_value=1, goal_weight=1,
                          solution=None, parametricname=None):
-        """
-        Add a Optimization Basic Setup. User can customize all Options after the creation
+        """Add a Optimization Basic Setup. User can customize all Options after the creation
 
+        Parameters
+        ----------
+        calculation :
+            name of the Calculation
+        calculation_value :
+            Variation Value (eg. "1GHz")
+        calculation_type :
+            Variation type. Default Freq
+        reporttype :
+            Report Type. Default "Modal Solution Data"
+        domain :
+            Default "Sweep"
+        condition :
+            goal condition. Default "<="
+        goal_value :
+            goal value to meet condition. Default 1
+        goal_weight :
+            goal weight. Default 1
+        solution :
+            Solution name. If nothing, nominal sweep will be used (Default value = None)
+        parametricname :
+            Name of the sensititivy analsysis. if nothing, a default name will be given
 
-        :param calculation: name of the Calculation
-        :param calculation_value: Variation Value (eg. "1GHz")
-        :param calculation_type: Variation type. Default Freq
-        :param reporttype: Report Type. Default "Modal Solution Data"
-        :param domain: Default "Sweep"
-        :param condition: goal condition. Default "<="
-        :param goal_value: goal value to meet condition. Default 1
-        :param goal_weight: goal weight. Default 1
-        :param solution: Solution name. If nothing, nominal sweep will be used
-        :param parametricname: Name of the sensititivy analsysis. if nothing, a default name will be given
-        :return: Optimization object
+        Returns
+        -------
+        type
+            Optimization object
+
         """
         if not parametricname:
             parametricname = generate_unique_name("Optimization")

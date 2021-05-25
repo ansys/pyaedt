@@ -161,9 +161,7 @@
 <span class="kn">from</span>  <span class="nn">.Primitives3D</span> <span class="kn">import</span> <span class="n">Primitives3D</span>
 
 <div class="viewcode-block" id="Modeler3D"><a class="viewcode-back" href="../../../API/Modeler3D.html#pyaedt.modeler.Model3D.Modeler3D">[docs]</a><span class="k">class</span> <span class="nc">Modeler3D</span><span class="p">(</span><span class="n">GeometryModeler</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    AEDT 3D Modeler</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="sd">&quot;&quot;&quot;AEDT 3D Modeler&quot;&quot;&quot;</span>
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">application</span><span class="p">):</span>
         <span class="n">GeometryModeler</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">application</span><span class="p">,</span> <span class="n">is3d</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_primitives</span> <span class="o">=</span> <span class="n">Primitives3D</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_parent</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span>
@@ -175,6 +173,7 @@
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">primitives</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_primitivesDes</span> <span class="o">!=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_parent</span><span class="o">.</span><span class="n">project_name</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">_parent</span><span class="o">.</span><span class="n">design_name</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_primitives</span> <span class="o">=</span> <span class="n">Primitives3D</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_parent</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_primitivesDes</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_parent</span><span class="o">.</span><span class="n">project_name</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">_parent</span><span class="o">.</span><span class="n">design_name</span>
@@ -182,12 +181,24 @@
 
 <div class="viewcode-block" id="Modeler3D.create_3dcomponent"><a class="viewcode-back" href="../../../API/Modeler3D.html#pyaedt.modeler.Model3D.Modeler3D.create_3dcomponent">[docs]</a>    <span class="nd">@aedt_exception_handler</span>
     <span class="k">def</span> <span class="nf">create_3dcomponent</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">component_file</span><span class="p">,</span> <span class="n">component_name</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">variables_to_include</span><span class="o">=</span><span class="p">[],</span> <span class="n">exclude_region</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Create 3D Component file</span>
+        <span class="sd">&quot;&quot;&quot;Create 3D Component file</span>
 
-<span class="sd">        :param component_file: full path to the a3dcomp file</span>
-<span class="sd">        :param component_name: Component name</span>
-<span class="sd">        :return: Bool</span>
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        component_file :</span>
+<span class="sd">            full path to the a3dcomp file</span>
+<span class="sd">        component_name :</span>
+<span class="sd">            Component name (Default value = None)</span>
+<span class="sd">        variables_to_include :</span>
+<span class="sd">             (Default value = [])</span>
+<span class="sd">        exclude_region :</span>
+<span class="sd">             (Default value = False)</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        type</span>
+<span class="sd">            Bool</span>
+
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_parent</span><span class="o">.</span><span class="n">design_type</span> <span class="o">==</span> <span class="s2">&quot;Icepak&quot;</span><span class="p">:</span>
             <span class="n">exclude_region</span> <span class="o">=</span><span class="kc">True</span>

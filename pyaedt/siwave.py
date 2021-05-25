@@ -58,20 +58,19 @@ else:
 
 
 class Siwave:
-    """
-    ====================================
+    """====================================
     The core module that initialize Ansys Siwave based on inputs provided:
 
-    :param: specified_version: Siwave version e.g. "2020.1"
+    Parameters
+    ----------
+
+    Returns
+    -------
 
     """
     @property
     def version_keys(self):
-        """
-
-        Return the list of available version keys (e.g. 2019.3)
-
-        """
+        """ """
 
         self._version_keys = []
         self._version_ids = {}
@@ -92,6 +91,7 @@ class Siwave:
 
     @property
     def current_version(self):
+        """ """
         return self.version_keys[0]
 
     def __init__(self, specified_version=None):
@@ -160,43 +160,60 @@ class Siwave:
 
     @property
     def project_name(self):
-        """ Return the name of the parent Siwave project """
+        """ """
         return self._oproject.GetName()
 
 
     @property
     def project_path(self):
+        """ """
         return os.path.normpath(self.oSiwave.GetProjectDirectory())
 
     @property
     def project_file(self):
+        """ """
         return os.path.join(self.project_path, self.project_name + '.siw')
 
     @property
     def lock_file(self):
+        """ """
         return os.path.join(self.project_path, self.project_name + '.siw.lock')
 
     @property
     def results_directory(self):
-        """ Return the absolute path of the aedtresults directory """
+        """ """
         return os.path.join(self.project_path, self.project_name + '.siwresults')
 
 
     @property
     def src_dir(self):
+        """ """
         return os.path.dirname(os.path.realpath(__file__))
 
     @property
     def pyaedt_dir(self):
+        """ """
         return os.path.realpath(os.path.join(self.src_dir, '..'))
 
 
     @property
     def oproject(self):
+        """ """
         return self._oproject
 
     @aedt_exception_handler
     def open_project(self, proj_path=None):
+        """
+
+        Parameters
+        ----------
+        proj_path :
+             (Default value = None)
+
+        Returns
+        -------
+
+        """
 
         if os.path.exists(proj_path):
             self.oSiwave.OpenProject(proj_path)
@@ -205,6 +222,19 @@ class Siwave:
 
     @aedt_exception_handler
     def save_project(self, projectpath=None, projectName=None):
+        """
+
+        Parameters
+        ----------
+        projectpath :
+             (Default value = None)
+        projectName :
+             (Default value = None)
+
+        Returns
+        -------
+
+        """
         if projectName and projectpath:
             self.oproject.ScrSaveProjectAs(os.path.join(projectpath, projectName+".siw"))
         else:
@@ -214,6 +244,7 @@ class Siwave:
 
     @aedt_exception_handler
     def quit_application(self):
+        """ """
 
         self._main.oSiwave.Quit()
         return True

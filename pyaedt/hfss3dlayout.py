@@ -45,9 +45,7 @@ from .generic.general_methods import generate_unique_name, aedt_exception_handle
 
 
 class SweepString(object):
-    """
-    generate a sweep string like for example "LIN 10GHz 20GHz 0.05GHz LINC 20GHz 30GHz 10 DEC 30GHz 40GHz 10 40GHz"
-    """
+    """generate a sweep string like for example "LIN 10GHz 20GHz 0.05GHz LINC 20GHz 30GHz 10 DEC 30GHz 40GHz 10 40GHz"""
     def __init__(self, unit='GHz'):
         """
 
@@ -58,17 +56,24 @@ class SweepString(object):
 
     @aedt_exception_handler
     def add_sweep(self, sweep, line_type, unit=None):
-        """
-        Add a sweep line to the string
+        """Add a sweep line to the string
 
-        :param sweep: list of frequencies,
-                        if linear_step [start, stop, step]
-                        if linear_count [start, stop, number of steps]
-                        if log_scale [start, stop, samples]
-                        if single [f1, f2,... fn]
-        :param line_type: "linear_step", "linear_count", "log_scale", "single"
-        :param unit: "MHz", "GHz",...
-        :return:
+        Parameters
+        ----------
+        sweep :
+            list of frequencies,
+            if linear_step [start, stop, step]
+            if linear_count [start, stop, number of steps]
+            if log_scale [start, stop, samples]
+            if single [f1, f2,... fn]
+        line_type :
+            linear_step", "linear_count", "log_scale", "single"
+        unit :
+            MHz", "GHz",... (Default value = None)
+
+        Returns
+        -------
+
         """
         if not unit:
             unit = self.unit
@@ -91,6 +96,7 @@ class SweepString(object):
 
     @aedt_exception_handler
     def get_string(self):
+        """ """
         if self.sweep_string:
             return self.sweep_string
         else:
@@ -100,10 +106,20 @@ class SweepString(object):
 class Hfss3dLayout(FieldAnalysis3DLayout, object):
     """HFSS 3D Layout Object
 
-    :param projectname: name of the project to be selected or full path to the project to be opened  or to the AEDTZ archive. if None try to get active project and, if nothing present to create an empy one
-    :param designname: name of the design to be selected. if None, try to get active design and, if nothing present to create an empy one
-    :param solution_type: solution type to be applied to design. if None default is taken
-    :param setup_name: setup_name to be used as nominal. if none active setup is taken or nothing
+    Parameters
+    ----------
+    projectname :
+        name of the project to be selected or full path to the project to be opened  or to the AEDTZ archive. if None try to get active project and, if nothing present to create an empy one
+    designname :
+        name of the design to be selected. if None, try to get active design and, if nothing present to create an empy one
+    solution_type :
+        solution type to be applied to design. if None default is taken
+    setup_name :
+        setup_name to be used as nominal. if none active setup is taken or nothing
+
+    Returns
+    -------
+
     """
 
     def __init__(self, projectname=None, designname=None, solution_type=None, setup_name=None):
@@ -120,14 +136,22 @@ class Hfss3dLayout(FieldAnalysis3DLayout, object):
 
     @aedt_exception_handler
     def create_edge_port(self, primivitivename, edgenumber, iscircuit=True):
-        """
-        Create a new edge port
+        """Create a new edge port
 
+        Parameters
+        ----------
+        primivitivename :
+            name of the primitive
+        edgenumber :
+            edge number on which create a port
+        iscircuit :
+            True (Circuit Port) | False (Default value = True)
 
-        :param primivitivename: name of the primitive
-        :param edgenumber: edge number on which create a port
-        :param iscircuit: True (Circuit Port) | False
-        :return: Name of the port
+        Returns
+        -------
+        type
+            Name of the port
+
         """
         listp = self.port_list
         self.modeler.oeditor.CreateEdgePort(
@@ -144,17 +168,32 @@ class Hfss3dLayout(FieldAnalysis3DLayout, object):
     def create_coax_port(self, vianame, layer, xstart, xend,ystart, yend, archeight=0, arcrad=0, isexternal=True):
         """Create a new Coax Port
 
+        Parameters
+        ----------
+        vianame :
+            Name of the Via on which create a new Port
+        layer :
+            layer name
+        xstart :
+            x position of pin
+        ystart :
+            y position of pin
+        xend :
+            x end position of pin
+        yend :
+            y end position of pin
+        archeight :
+            arc height (Default value = 0)
+        arcrad :
+            rotation of pin in rad (Default value = 0)
+        isexternal :
+            True (is external pin) | False is internal Pin (Default value = True)
 
-        :param vianame: Name of the Via on which create a new Port
-        :param layer: layer name
-        :param xstart: x position of pin
-        :param ystart: y position of pin
-        :param xend: x end position of pin
-        :param yend: y end position of pin
-        :param archeight: arc height
-        :param arcrad: rotation of pin in rad
-        :param isexternal: True (is external pin) | False is internal Pin
-        :return: name of the port | False error
+        Returns
+        -------
+        type
+            name of the port | False error
+
         """
         listp = self.port_list
         if type(layer) is str:
@@ -174,17 +213,28 @@ class Hfss3dLayout(FieldAnalysis3DLayout, object):
 
     @aedt_exception_handler
     def create_pin_port(self,name,xpos=0, ypos=0, rotation=0, top_layer=None, bot_layer=None):
-        """
-        Create a new Pin Port
+        """Create a new Pin Port
 
+        Parameters
+        ----------
+        name :
+            Name of the Pin Port
+        xpos :
+            x position of pin (Default value = 0)
+        ypos :
+            y position of pin (Default value = 0)
+        rotation :
+            rotation of pin in deg (Default value = 0)
+        top_layer :
+            top layer of pin. if None, it will be automatically assigned to the top (Default value = None)
+        bot_layer :
+            bottom layer of pin. if None, it will be automatically assigned to the bottom (Default value = None)
 
-        :param name: Name of the Pin Port
-        :param xpos: x position of pin
-        :param ypos: y position of pin
-        :param rotation: rotation of pin in deg
-        :param top_layer: top layer of pin. if None, it will be automatically assigned to the top
-        :param bot_layer: bottom layer of pin. if None, it will be automatically assigned to the bottom
-        :return: True
+        Returns
+        -------
+        type
+            True
+
         """
         self.modeler.layers.refresh_all_layers()
         layers = self.modeler.layers.all_signal_layers
@@ -213,11 +263,33 @@ class Hfss3dLayout(FieldAnalysis3DLayout, object):
 
     @aedt_exception_handler
     def delete_port(self, portname):
+        """
+
+        Parameters
+        ----------
+        portname :
+            
+
+        Returns
+        -------
+
+        """
         self.oexcitation.Delete(portname)
         return True
 
     @aedt_exception_handler
     def import_edb(self, edb_full_path):
+        """
+
+        Parameters
+        ----------
+        edb_full_path :
+            
+
+        Returns
+        -------
+
+        """
         oTool = self.odesktop.GetTool("ImportExport")
         oTool.ImportEDB(edb_full_path)
         self.oproject = self.odesktop.GetActiveProject().GetName()
@@ -226,14 +298,22 @@ class Hfss3dLayout(FieldAnalysis3DLayout, object):
 
     @aedt_exception_handler
     def validate_full_design(self, name=None, outputdir=None, ports=None):
-        """
-        Validate the design based on expected value and save infos on log file
+        """Validate the design based on expected value and save infos on log file
 
+        Parameters
+        ----------
+        name :
+            name of design to validate (Default value = None)
+        outputdir :
+            output dir where to save the log file (Default value = None)
+        ports :
+            number of excitations expected (Default value = None)
 
-        :param name: name of design to validate
-        :param outputdir: output dir where to save the log file
-        :param ports: number of excitations expected
-        :return: all the info in a list for use later
+        Returns
+        -------
+        type
+            all the info in a list for use later
+
         """
         if name is None:
             name= self.design_name
@@ -314,14 +394,30 @@ class Hfss3dLayout(FieldAnalysis3DLayout, object):
 
     @aedt_exception_handler
     def create_scattering(self, PlotName="S Parameter Plot Nominal", sweep_name=None, PortNames=None, PortExcited=None, variations=None ):
-        """
-        Create Scattering Report
-
-
+        """Create Scattering Report
+        
+        
         sweeps = design eXploration variations (list of str)
         PortNames = (list of str)
         PortExcited = (str)
         :return:
+
+        Parameters
+        ----------
+        PlotName :
+             (Default value = "S Parameter Plot Nominal")
+        sweep_name :
+             (Default value = None)
+        PortNames :
+             (Default value = None)
+        PortExcited :
+             (Default value = None)
+        variations :
+             (Default value = None)
+
+        Returns
+        -------
+
         """
         # set plot name
         # Setup arguments list for CreateReport function
@@ -361,15 +457,31 @@ class Hfss3dLayout(FieldAnalysis3DLayout, object):
 
     @aedt_exception_handler
     def export_touchstone(self, solutionname, sweepname, filename, variation, variations_value):
-        """
-        Export the touchstone file
-
-
+        """Export the touchstone file
+        
+        
         solutionname = name of the solution solved
         sweepname = name of the sweep solved
         FileName = full path of output file
         Variations = list (list of all parameters variations e.g. ["$AmbientTemp", "$PowerIn"] )
         VariationsValue = list (list of all parameters variations value) e.g. ["22cel", "100"] )
+
+        Parameters
+        ----------
+        solutionname :
+            
+        sweepname :
+            
+        filename :
+            
+        variation :
+            
+        variations_value :
+            
+
+        Returns
+        -------
+
         """
 
         # normalize the save path
@@ -409,13 +521,18 @@ class Hfss3dLayout(FieldAnalysis3DLayout, object):
 
     @aedt_exception_handler
     def set_export_touchstone(self, activate):
-        """
-        Set Automatic export of touchstone after simulation to True
+        """Set Automatic export of touchstone after simulation to True
 
+        Parameters
+        ----------
+        activate : bool
+            Export after simulation
 
-        :param activate: Export after simulation
-        :type activate: bool
-        :return: True if operation succeeded
+        Returns
+        -------
+        type
+            True if operation succeeded
+
         """
 
         settings = []
@@ -438,22 +555,40 @@ class Hfss3dLayout(FieldAnalysis3DLayout, object):
                                interpolation_tol_percent=0.5, interpolation_max_solutions=250,
                                save_fields=True, save_rad_fields_only=False,
                                use_q3d_for_dc=False):
-        """ Create a Frequency Sweep
+        """Create a Frequency Sweep
 
+        Parameters
+        ----------
+        setupname :
+            name of the setup to which is attached the sweep
+        unit :
+            Units ("MHz", "GHz"....)
+        freqstart :
+            Starting Frequency of sweep
+        freqstop :
+            Stop Frequency of Sweep
+        sweepname :
+            name of the Sweep (Default value = None)
+        num_of_freq_points :
+            Number of frequency point in the range
+        sweeptype :
+            discrete"|"interpolating" (default)
+        interpolation_max_solutions :
+            max number of solutions evaluated for the interpolation process (Default value = 250)
+        interpolation_tol_percent :
+            error tolerance threshold for the interpolation process (Default value = 0.5)
+        save_fields :
+            save the fields (only for discrete sweep) (Default value = True)
+        save_rad_fields_only :
+            save only the radiated fields (only if save_fields = True) (Default value = False)
+        use_q3d_for_dc :
+            Use Q3D to solve DC point (Default value = False)
 
-        :param setupname: name of the setup to which is attached the sweep
-        :param unit: Units ("MHz", "GHz"....)
-        :param freqstart: Starting Frequency of sweep
-        :param freqstop:  Stop Frequency of Sweep
-        :param sweepname: name of the Sweep
-        :param num_of_freq_points: Number of frequency point in the range
-        :param sweeptype: "discrete"|"interpolating" (default)
-        :param interpolation_max_solutions: max number of solutions evaluated for the interpolation process
-        :param interpolation_tol_percent: error tolerance threshold for the interpolation process
-        :param save_fields: save the fields (only for discrete sweep)
-        :param save_rad_fields_only: save only the radiated fields (only if save_fields = True)
-        :param use_q3d_for_dc: Use Q3D to solve DC point
-        :return: Setup Name if operation succeeded
+        Returns
+        -------
+        type
+            Setup Name if operation succeeded
+
         """
         if sweepname is None:
             sweepname = generate_unique_name("Sweep")

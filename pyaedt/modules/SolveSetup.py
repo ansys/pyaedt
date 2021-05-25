@@ -30,21 +30,32 @@ from ..application.DataHandlers import tuple2dict, dict2arg
 
 
 class Setup(object):
-    """
-    This Class defines the functions to initialize, create and update a Setup in Electronic Desktop
-    """
+    """This Class defines the functions to initialize, create and update a Setup in Electronic Desktop"""
 
     @property
     def parent(self):
+        """ """
         return self._parent
 
     @parent.setter
     def parent(self, value):
+        """
+
+        Parameters
+        ----------
+        value :
+            
+
+        Returns
+        -------
+
+        """
         self._parent = value
         pass
 
     @property
     def omodule(self):
+        """ """
         return self._parent.oanalysis
 
     def __repr__(self):
@@ -95,6 +106,21 @@ class Setup(object):
 
     @aedt_exception_handler
     def check_dict(self, listin, name, out):
+        """
+
+        Parameters
+        ----------
+        listin :
+            
+        name :
+            
+        out :
+            
+
+        Returns
+        -------
+
+        """
         arg = ["Name:" + name.replace("__", " ")]
         for a in listin:
             if type(a) is tuple:
@@ -110,10 +136,16 @@ class Setup(object):
 
     @aedt_exception_handler
     def create(self):
-        """
-        Insert a new Setup based on Class settings into the AEDT Application
-
+        """Insert a new Setup based on Class settings into the AEDT Application
+        
         :return: the argument list
+
+        Parameters
+        ----------
+
+        Returns
+        -------
+
         """
         soltype = SetupKeys.SetupNames[self.setuptype]
         arg = ["NAME:" + self.name]
@@ -123,11 +155,18 @@ class Setup(object):
 
     @aedt_exception_handler
     def update(self, update_dictionary=None):
-        """
-        update the setup based on the class argument or to the updated dictionary passed as arcument
+        """update the setup based on the class argument or to the updated dictionary passed as arcument
 
-        :param update_dictionary: optional dictionary of settings to apply
-        :return: bool
+        Parameters
+        ----------
+        update_dictionary :
+            optional dictionary of settings to apply (Default value = None)
+
+        Returns
+        -------
+        type
+            bool
+
         """
         if update_dictionary:
             for el in update_dictionary:
@@ -141,6 +180,27 @@ class Setup(object):
     @aedt_exception_handler
     def _expression_cache(self, expression_list, report_type_list,intrinsics_list, isconvergence_list,
                           isrelativeconvergence, conv_criteria):
+        """
+
+        Parameters
+        ----------
+        expression_list :
+            
+        report_type_list :
+            
+        intrinsics_list :
+            
+        isconvergence_list :
+            
+        isrelativeconvergence :
+            
+        conv_criteria :
+            
+
+        Returns
+        -------
+
+        """
         if isrelativeconvergence:
             userelative = 1
         else:
@@ -207,16 +267,28 @@ class Setup(object):
     @aedt_exception_handler
     def enable_expression_cache(self, expressions, report_type="Fields", intrinsics='', isconvergence=True,
                                 isrelativeconvergence=True, conv_criteria=1):
-        """
-        Enable Setup Expression Cache
+        """Enable Setup Expression Cache
 
-        :param conv_criteria:
-        :param isrelativeconvergence:
-        :param expressions: Formula to be added to the expression cache. It can be a list or a string
-        :param report_type: Report type of expression cache (eg. Fields). It can be a list or a string (same length of expression_list)
-        :param isconvergence: Boolean if expression is in convergence criteria. It can be a list or a string (same length of expression_list)
-        :param intrinsics: List of Intrinsics of expression (if any). It can be a list or a string (same length of expression_list)
-        :return: none
+        Parameters
+        ----------
+        conv_criteria :
+            param isrelativeconvergence: (Default value = 1)
+        expressions :
+            Formula to be added to the expression cache. It can be a list or a string
+        report_type :
+            Report type of expression cache (eg. Fields). It can be a list or a string (same length of expression_list) (Default value = "Fields")
+        isconvergence :
+            Boolean if expression is in convergence criteria. It can be a list or a string (same length of expression_list) (Default value = True)
+        intrinsics :
+            List of Intrinsics of expression (if any). It can be a list or a string (same length of expression_list) (Default value = '')
+        isrelativeconvergence :
+             (Default value = True)
+
+        Returns
+        -------
+        type
+            none
+
         """
         arg = ["NAME:" + self.name]
         dict2arg(self.props, arg)
@@ -228,12 +300,18 @@ class Setup(object):
 
     @aedt_exception_handler
     def add_derivatives(self, derivative_list):
-        """
-        Add Derivatives to setup
+        """Add Derivatives to setup
 
+        Parameters
+        ----------
+        derivative_list :
+            derivative list
 
-        :param derivative_list: derivative list
-        :return: Bool
+        Returns
+        -------
+        type
+            Bool
+
         """
         arg = ["NAME:" + self.name]
         dict2arg(self.props, arg)
@@ -244,11 +322,18 @@ class Setup(object):
 
     @aedt_exception_handler
     def enable(self, setup_name=None):
-        """
-        Enable specific Setup
+        """Enable specific Setup
 
-        :param setup_name: optional setup name
-        :return: none
+        Parameters
+        ----------
+        setup_name :
+            optional setup name (Default value = None)
+
+        Returns
+        -------
+        type
+            none
+
         """
         if not setup_name:
             self.omodule.EditSetup(self.name,
@@ -264,11 +349,18 @@ class Setup(object):
 
     @aedt_exception_handler
     def disable(self, setup_name=None):
-        """
-        Disable specific Setup
+        """Disable specific Setup
 
-        :param setup_name: optional setup name
-        :return: none
+        Parameters
+        ----------
+        setup_name :
+            optional setup name (Default value = None)
+
+        Returns
+        -------
+        type
+            none
+
         """
         if not setup_name:
             self.omodule.EditSetup(self.name,
@@ -287,9 +379,18 @@ class Setup(object):
     def add_sweep(self, sweepname=None, sweeptype= "Interpolating"):
         """Add a Sweep to the Project
 
-        :param sweepname: str Sweep Name
-        :param sweeptype: sweep type
-        :return: sweep object
+        Parameters
+        ----------
+        sweepname :
+            str Sweep Name (Default value = None)
+        sweeptype :
+            sweep type (Default value = "Interpolating")
+
+        Returns
+        -------
+        type
+            sweep object
+
         """
         if not sweepname:
             sweepname = generate_unique_name("Sweep")
@@ -303,15 +404,24 @@ class Setup(object):
 
     @aedt_exception_handler
     def add_mesh_link(self, design_name, solution_name, parameters_dict, project_name="This Project*"):
-        """
-        Add Mesh Link to another design. Design can be in the same project (default) or external project
+        """Add Mesh Link to another design. Design can be in the same project (default) or external project
 
+        Parameters
+        ----------
+        project_name :
+            name of project "This Project*" by default
+        design_name :
+            str name of the design
+        solution_name :
+            str, name of solution in the format "setupname : solutionname". Optionally use appname.nominal_adaptive to get nominal adaptive or appname.nominal_sweep
+        parameters_dict :
+            dictionary of parameters. Optionally use appname.available_variations.nominal_w_values_dict property to get nominal values
 
-        :param project_name: name of project "This Project*" by default
-        :param design_name: str name of the design
-        :param solution_name: str, name of solution in the format "setupname : solutionname". Optionally use appname.nominal_adaptive to get nominal adaptive or appname.nominal_sweep
-        :param parameters_dict: dictionary of parameters. Optionally use appname.available_variations.nominal_w_values_dict property to get nominal values
-        :return: Bool
+        Returns
+        -------
+        type
+            Bool
+
         """
         meshlinks = self.props["MeshLink"]
         meshlinks["ImportMesh"] = True
@@ -333,38 +443,74 @@ class Setup(object):
         return True
 
 class SetupCircuit(object):
-    """
-    This Class defines the functions to initialize, create and update a Setup in Electronic Desktop
+    """This Class defines the functions to initialize, create and update a Setup in Electronic Desktop
 
-    :param design: AEDT oDesign module
-    :param setupmodule: AEDT Module for Analysis Setup
-    :param setupname: Setup Name
-    :param solutiontype: Setup Type of Apllication.SolutionType
-    :param isnewsetup: Boolean. True if is a new setup to be created from template. False to access existing Setup
+    Parameters
+    ----------
+    design :
+        AEDT oDesign module
+    setupmodule :
+        AEDT Module for Analysis Setup
+    setupname :
+        Setup Name
+    solutiontype :
+        Setup Type of Apllication.SolutionType
+    isnewsetup :
+        Boolean. True if is a new setup to be created from template. False to access existing Setup
+
+    Returns
+    -------
+
     """
     @property
     def name(self):
+        """ """
         return self._Name
 
     @name.setter
     def name(self, name):
+        """
+
+        Parameters
+        ----------
+        name :
+            
+
+        Returns
+        -------
+
+        """
         self._Name = name
         self.props["Name"] = name
 
     @property
     def parent(self):
+        """ """
         return self._parent
 
     @parent.setter
     def parent(self, name):
+        """
+
+        Parameters
+        ----------
+        name :
+            
+
+        Returns
+        -------
+
+        """
         self._parent = name
 
     @property
     def odesign(self):
+        """ """
         return self._parent.odesign
 
     @property
     def omodule(self):
+        """ """
         return self._parent.oanalysis
 
     def __init__(self, parent,  solutiontype, setupname="MySetupAuto", isnewsetup=True):
@@ -393,6 +539,21 @@ class SetupCircuit(object):
 
     @aedt_exception_handler
     def check_dict(self, listin, name, out):
+        """
+
+        Parameters
+        ----------
+        listin :
+            
+        name :
+            
+        out :
+            
+
+        Returns
+        -------
+
+        """
         arg = ["Name:" + name.replace("__", " ")]
         for a in listin:
             if type(a) is tuple:
@@ -413,10 +574,16 @@ class SetupCircuit(object):
 
     @aedt_exception_handler
     def create(self):
-        """
-        Insert a new Setup based on Class settings into the AEDT Application
-
+        """Insert a new Setup based on Class settings into the AEDT Application
+        
         :return: the argument list
+
+        Parameters
+        ----------
+
+        Returns
+        -------
+
         """
         soltype = SetupKeys.SetupNames[self.setuptype]
         arg = ["NAME:SimSetup"]
@@ -426,6 +593,21 @@ class SetupCircuit(object):
 
     @aedt_exception_handler
     def _setup(self, soltype, arg, newsetup=True):
+        """
+
+        Parameters
+        ----------
+        soltype :
+            
+        arg :
+            
+        newsetup :
+             (Default value = True)
+
+        Returns
+        -------
+
+        """
         if newsetup:
             if soltype == "NexximLNA":
                 self.omodule.AddLinearNetworkAnalysis(arg)
@@ -448,11 +630,18 @@ class SetupCircuit(object):
 
     @aedt_exception_handler
     def update(self, update_dictionary=None):
-        """
-        update the setup based on the class argument or to the updated dictionary passed as arcument
+        """update the setup based on the class argument or to the updated dictionary passed as arcument
 
-        :param update_dictionary: optional dictionary of settings to apply
-        :return: bool
+        Parameters
+        ----------
+        update_dictionary :
+            optional dictionary of settings to apply (Default value = None)
+
+        Returns
+        -------
+        type
+            bool
+
         """
         if update_dictionary:
             for el in update_dictionary:
@@ -466,6 +655,27 @@ class SetupCircuit(object):
     @aedt_exception_handler
     def _expression_cache(self, expression_list, report_type_list, intrinsics_list, isconvergence_list,
                           isrelativeconvergence, conv_criteria):
+        """
+
+        Parameters
+        ----------
+        expression_list :
+            
+        report_type_list :
+            
+        intrinsics_list :
+            
+        isconvergence_list :
+            
+        isrelativeconvergence :
+            
+        conv_criteria :
+            
+
+        Returns
+        -------
+
+        """
 
         if isrelativeconvergence:
             userelative = 1
@@ -535,13 +745,26 @@ class SetupCircuit(object):
                                 isrelativeconvergence=True, conv_criteria=1):
         """
 
-        :param conv_criteria:
-        :param isrelativeconvergence:
-        :param expressions: Formula to be added to the expression cache. It can be a list or a string
-        :param report_type: Report type of expression cache (eg. Fields). It can be a list or a string (same length of expression_list)
-        :param isconvergence: Boolean if expression is in convergence criteria. It can be a list or a string (same length of expression_list)
-        :param intrinsics: List of Intrinsics of expression (if any). It can be a list or a string (same length of expression_list)
-        :return: none
+        Parameters
+        ----------
+        conv_criteria :
+            param isrelativeconvergence: (Default value = 1)
+        expressions :
+            Formula to be added to the expression cache. It can be a list or a string
+        report_type :
+            Report type of expression cache (eg. Fields). It can be a list or a string (same length of expression_list) (Default value = "Fields")
+        isconvergence :
+            Boolean if expression is in convergence criteria. It can be a list or a string (same length of expression_list) (Default value = True)
+        intrinsics :
+            List of Intrinsics of expression (if any). It can be a list or a string (same length of expression_list) (Default value = '')
+        isrelativeconvergence :
+             (Default value = True)
+
+        Returns
+        -------
+        type
+            none
+
         """
         arg = ["Name:SimSetup"]
         dict2arg(self.props, arg)
@@ -553,11 +776,18 @@ class SetupCircuit(object):
 
     @aedt_exception_handler
     def add_derivatives(self, derivative_list):
-        """
-        Add Derivatives to Setup
+        """Add Derivatives to Setup
 
-        :param derivative_list:derivative lists
-        :return: Bool
+        Parameters
+        ----------
+        derivative_list :
+            derivative lists
+
+        Returns
+        -------
+        type
+            Bool
+
         """
         arg = ["Name:SimSetup"]
         dict2arg(self.props, arg)
@@ -568,11 +798,18 @@ class SetupCircuit(object):
 
     @aedt_exception_handler
     def enable(self, setup_name=None):
-        """
-        Enable specific Setup
+        """Enable specific Setup
 
-        :param setup_name: optional setup name
-        :return: none
+        Parameters
+        ----------
+        setup_name :
+            optional setup name (Default value = None)
+
+        Returns
+        -------
+        type
+            none
+
         """
         if not setup_name:
             self.odesign.EnableSolutionSetup(self.name, True)
@@ -582,11 +819,18 @@ class SetupCircuit(object):
 
     @aedt_exception_handler
     def disable(self, setup_name=None):
-        """
-        Disable specific Setup
+        """Disable specific Setup
 
-        :param setup_name: optional setup name
-        :return: none
+        Parameters
+        ----------
+        setup_name :
+            optional setup name (Default value = None)
+
+        Returns
+        -------
+        type
+            none
+
         """
         if not setup_name:
             self.odesign.EnableSolutionSetup(self.name, False)
@@ -596,18 +840,27 @@ class SetupCircuit(object):
 
 
 class Setup3DLayout(object):
-    """
-    This Class defines the functions to initialize, create and update a Setup in Electronic Desktop
+    """This Class defines the functions to initialize, create and update a Setup in Electronic Desktop
 
+    Parameters
+    ----------
+    setupmodule :
+        AEDT Module for Analysis Setup
+    setupname :
+        Setup Name
+    solutiontype :
+        Setup Type of Application.SolutionType
+    isnewsetup :
+        Boolean. True if is a new setup to be created from template. False to access existing Setup
 
-    :param setupmodule: AEDT Module for Analysis Setup
-    :param setupname: Setup Name
-    :param solutiontype: Setup Type of Application.SolutionType
-    :param isnewsetup: Boolean. True if is a new setup to be created from template. False to access existing Setup
+    Returns
+    -------
+
     """
 
     @property
     def omodule(self):
+        """ """
         return self.parent.oanalysis
 
     def __init__(self, parent, solutiontype, setupname="MySetupAuto", isnewsetup=True):
@@ -642,10 +895,7 @@ class Setup3DLayout(object):
 
     @property
     def setup_type(self):
-        """
-
-        :return: setup type
-        """
+        """:return: setup type"""
         if 'SolveSetupType' in self.props:
             return self.props['SolveSetupType']
         else:
@@ -653,10 +903,16 @@ class Setup3DLayout(object):
 
     @aedt_exception_handler
     def create(self):
-        """
-        Insert a new Setup based on Class settings into the AEDT Application
-
+        """Insert a new Setup based on Class settings into the AEDT Application
+        
         :return: the argument list
+
+        Parameters
+        ----------
+
+        Returns
+        -------
+
         """
         arg = ["NAME:" + self.name]
         dict2arg(self.props, arg)
@@ -665,11 +921,18 @@ class Setup3DLayout(object):
 
     @aedt_exception_handler
     def update(self):
-        """
-        update the setup based on the class argument or to the updated dictionary passed as arcument
+        """update the setup based on the class argument or to the updated dictionary passed as arcument
 
-        :param update_dictionary: optional dictionary of settings to apply
-        :return: Bool
+        Parameters
+        ----------
+        update_dictionary :
+            optional dictionary of settings to apply
+
+        Returns
+        -------
+        type
+            Bool
+
         """
         arg = ["NAME:" + self.name]
         dict2arg(self.props, arg)
@@ -678,11 +941,18 @@ class Setup3DLayout(object):
 
     @aedt_exception_handler
     def enable(self):
-        """
-        Enable specific Setup
+        """Enable specific Setup
 
-        :param setup_name: optional setup name
-        :return: Bool
+        Parameters
+        ----------
+        setup_name :
+            optional setup name
+
+        Returns
+        -------
+        type
+            Bool
+
         """
         self.props['Properties']['Enable'] = "true"
         self.update()
@@ -690,11 +960,18 @@ class Setup3DLayout(object):
 
     @aedt_exception_handler
     def disable(self):
-        """
-        Disable specific Setup
+        """Disable specific Setup
 
-        :param setup_name: optional setup name
-        :return: Bool
+        Parameters
+        ----------
+        setup_name :
+            optional setup name
+
+        Returns
+        -------
+        type
+            Bool
+
         """
         self.props['Properties']['Enable'] = "false"
         self.update()
@@ -702,11 +979,18 @@ class Setup3DLayout(object):
 
     @aedt_exception_handler
     def export_to_hfss(self, file_fullname):
-        """
-        Export Project to
+        """Export Project to
 
-        :param file_fullname: fullname of desgintation
-        :return: Bool
+        Parameters
+        ----------
+        file_fullname :
+            fullname of desgintation
+
+        Returns
+        -------
+        type
+            Bool
+
         """
 
         file_fullname = os.path.normpath(file_fullname)
@@ -721,9 +1005,18 @@ class Setup3DLayout(object):
     def add_sweep(self, sweepname=None, sweeptype="Interpolating"):
         """Add Frequency Sweep
 
-        :param sweepname: str sweep name
-        :param sweeptype: str sweep type
-        :return: sweep object
+        Parameters
+        ----------
+        sweepname :
+            str sweep name (Default value = None)
+        sweeptype :
+            str sweep type (Default value = "Interpolating")
+
+        Returns
+        -------
+        type
+            sweep object
+
         """
         if not sweepname:
             sweepname = generate_unique_name("Sweep")

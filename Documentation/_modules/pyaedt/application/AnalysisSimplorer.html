@@ -165,13 +165,20 @@
 
 
 <div class="viewcode-block" id="FieldAnalysisSimplorer"><a class="viewcode-back" href="../../../API/AnalysisSimplorer.html#pyaedt.application.AnalysisSimplorer.FieldAnalysisSimplorer">[docs]</a><span class="k">class</span> <span class="nc">FieldAnalysisSimplorer</span><span class="p">(</span><span class="n">Analysis</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot; **AEDT_CircuitAnalysis**</span>
+    <span class="sd">&quot;&quot;&quot;**AEDT_CircuitAnalysis**</span>
 <span class="sd">    Class for Simplorer Analysis Setup (Simplorer)</span>
 <span class="sd">    It is automatically initialized by Application call (like HFSS, Q3D...). Refer to Application function for inputs definition</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
 
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">solution_type</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_solution_type</span>
 
 
@@ -179,9 +186,14 @@
     <span class="k">def</span> <span class="nf">solution_type</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">soltype</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Solution Type</span>
 
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        soltype :</span>
+<span class="sd">            SolutionType object</span>
 
-<span class="sd">        :param soltype: SolutionType object</span>
-<span class="sd">        :return:</span>
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="n">soltype</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_solution_type</span> <span class="o">=</span> <span class="n">solutions_settings</span><span class="p">[</span><span class="n">soltype</span><span class="p">]</span>
@@ -190,13 +202,13 @@
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">existing_analysis_setups</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot; Return a list of all defined analysis setup names in the Simplorer design.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="sd">&quot;&quot;&quot; &quot;&quot;&quot;</span>
         <span class="n">setups</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">oanalysis</span><span class="o">.</span><span class="n">GetAllSolutionSetups</span><span class="p">()</span>
         <span class="k">return</span> <span class="n">setups</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">setup_names</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">oanalysis</span><span class="o">.</span><span class="n">GetAllSolutionSetups</span><span class="p">())</span>
 
 
@@ -208,29 +220,33 @@
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">modeler</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
-
-<span class="sd">        :return: Design oModeler</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="sd">&quot;&quot;&quot;:return: Design oModeler&quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_modeler</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">oanalysis</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
-
-<span class="sd">        :return: Design Module &quot;SimSetup&quot;</span>
+        <span class="sd">&quot;&quot;&quot;:return: Design Module &quot;SimSetup&quot;</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">odesign</span><span class="o">.</span><span class="n">GetModule</span><span class="p">(</span><span class="s2">&quot;SimSetup&quot;</span><span class="p">)</span>
 
 <div class="viewcode-block" id="FieldAnalysisSimplorer.create_setup"><a class="viewcode-back" href="../../../API/AnalysisSimplorer.html#pyaedt.application.AnalysisSimplorer.FieldAnalysisSimplorer.create_setup">[docs]</a>    <span class="nd">@aedt_exception_handler</span>
     <span class="k">def</span> <span class="nf">create_setup</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">setupname</span><span class="o">=</span><span class="s2">&quot;MySetupAuto&quot;</span><span class="p">,</span> <span class="n">setuptype</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">props</span><span class="o">=</span><span class="p">{}):</span>
-        <span class="sd">&quot;&quot;&quot; Create a new Setup.</span>
+        <span class="sd">&quot;&quot;&quot;Create a new Setup.</span>
 
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        setupname :</span>
+<span class="sd">            optional, name of the new setup (Default value = &quot;MySetupAuto&quot;)</span>
+<span class="sd">        setuptype :</span>
+<span class="sd">            optional, setup type. if None, default type will be applied</span>
+<span class="sd">        props :</span>
+<span class="sd">            optional dictionary of properties with values (Default value = {})</span>
 
-<span class="sd">        :param setupname: optional, name of the new setup</span>
-<span class="sd">        :param setuptype: optional, setup type. if None, default type will be applied</span>
-<span class="sd">        :param props: optional dictionary of properties with values</span>
-<span class="sd">        :return: setup object</span>
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        type</span>
+<span class="sd">            setup object</span>
+
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="n">setuptype</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">setuptype</span> <span class="o">=</span> <span class="n">SetupKeys</span><span class="o">.</span><span class="n">defaultSetups</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">solution_type</span><span class="p">]</span>

@@ -185,9 +185,19 @@
 
 <div class="viewcode-block" id="indent"><a class="viewcode-back" href="../../../API/MaterialLib.html#pyaedt.modules.MaterialLib.indent">[docs]</a><span class="nd">@aedt_exception_handler</span>
 <span class="k">def</span> <span class="nf">indent</span><span class="p">(</span><span class="n">elem</span><span class="p">,</span> <span class="n">level</span><span class="o">=</span><span class="mi">0</span><span class="p">):</span>
-    <span class="sd">&#39;&#39;&#39;</span>
-<span class="sd">    Creates an Indented structure of the XML</span>
-<span class="sd">    &#39;&#39;&#39;</span>
+    <span class="sd">&quot;&quot;&quot;Creates an Indented structure of the XML</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    elem :</span>
+<span class="sd">        </span>
+<span class="sd">    level :</span>
+<span class="sd">         (Default value = 0)</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">i</span> <span class="o">=</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span> <span class="o">+</span> <span class="n">level</span> <span class="o">*</span> <span class="s2">&quot;  &quot;</span>
     <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">elem</span><span class="p">):</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="n">elem</span><span class="o">.</span><span class="n">text</span> <span class="ow">or</span> <span class="ow">not</span> <span class="n">elem</span><span class="o">.</span><span class="n">text</span><span class="o">.</span><span class="n">strip</span><span class="p">():</span>
@@ -203,24 +213,25 @@
             <span class="n">elem</span><span class="o">.</span><span class="n">tail</span> <span class="o">=</span> <span class="n">i</span></div>
 
 <div class="viewcode-block" id="Materials"><a class="viewcode-back" href="../../../API/MaterialLib.html#pyaedt.modules.MaterialLib.Materials">[docs]</a><span class="k">class</span> <span class="nc">Materials</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Material Management</span>
-
-<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="sd">&quot;&quot;&quot;Material Management&quot;&quot;&quot;</span>
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">odefinition_manager</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_parent</span><span class="o">.</span><span class="n">_oproject</span><span class="o">.</span><span class="n">GetDefinitionManager</span><span class="p">()</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">omaterial_manager</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">odefinition_manager</span><span class="o">.</span><span class="n">GetManager</span><span class="p">(</span><span class="s2">&quot;Material&quot;</span><span class="p">)</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">messenger</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_parent</span><span class="o">.</span><span class="n">_messenger</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">oproject</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_parent</span><span class="o">.</span><span class="n">_oproject</span>
 
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">parent</span><span class="p">):</span>
@@ -238,12 +249,20 @@
 
 <div class="viewcode-block" id="Materials.load_from_file"><a class="viewcode-back" href="../../../API/MaterialLib.html#pyaedt.modules.MaterialLib.Materials.load_from_file">[docs]</a>    <span class="nd">@aedt_exception_handler</span>
     <span class="k">def</span> <span class="nf">load_from_file</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filename</span><span class="p">,</span> <span class="n">project_as_precedence</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Load materials from file</span>
+        <span class="sd">&quot;&quot;&quot;Load materials from file</span>
 
-<span class="sd">        :param filename: full filename paht (xml)</span>
-<span class="sd">        :param project_as_precedence: bool</span>
-<span class="sd">        :return:  bool</span>
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        filename :</span>
+<span class="sd">            full filename paht (xml)</span>
+<span class="sd">        project_as_precedence :</span>
+<span class="sd">            bool (Default value = True)</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        type</span>
+<span class="sd">            bool</span>
+
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">mats</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">load_from_xml_full</span><span class="p">(</span><span class="n">filename</span><span class="p">)</span>
         <span class="k">for</span> <span class="n">mat</span> <span class="ow">in</span> <span class="n">mats</span><span class="p">:</span>
@@ -260,10 +279,7 @@
         <span class="k">return</span> <span class="kc">True</span></div>
 
     <span class="k">def</span> <span class="nf">_load_from_project</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Load materials from project</span>
-
-<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="sd">&quot;&quot;&quot;Load materials from project&quot;&quot;&quot;</span>
         <span class="n">mats</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">odefinition_manager</span><span class="o">.</span><span class="n">GetProjectMaterialNames</span><span class="p">()</span>
         <span class="k">for</span> <span class="n">el</span> <span class="ow">in</span> <span class="n">mats</span><span class="p">:</span>
             <span class="k">try</span><span class="p">:</span>
@@ -273,6 +289,17 @@
 
     <span class="nd">@aedt_exception_handler</span>
     <span class="k">def</span> <span class="nf">_aedmattolibrary</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">matname</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        matname :</span>
+<span class="sd">            </span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">matname</span> <span class="o">=</span> <span class="n">matname</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span>
         <span class="n">matprop</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">omaterial_manager</span><span class="o">.</span><span class="n">GetData</span><span class="p">(</span><span class="n">matname</span><span class="p">))</span>
         <span class="n">newmat</span> <span class="o">=</span> <span class="n">Material</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_parent</span><span class="p">)</span>
@@ -371,6 +398,17 @@
 
     <span class="nd">@aedt_exception_handler</span>
     <span class="k">def</span> <span class="nf">_read_dataset</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">prop</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        prop :</span>
+<span class="sd">            </span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">start</span> <span class="o">=</span> <span class="n">prop</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="s2">&quot;$&quot;</span><span class="p">)</span>
         <span class="n">stop</span> <span class="o">=</span> <span class="n">prop</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="s2">&quot;,&quot;</span><span class="p">)</span>
         <span class="n">dsname</span> <span class="o">=</span> <span class="n">prop</span><span class="p">[</span><span class="n">start</span><span class="p">:</span><span class="n">stop</span> <span class="o">-</span> <span class="nb">len</span><span class="p">(</span><span class="n">prop</span><span class="p">)]</span>
@@ -394,9 +432,16 @@
     <span class="k">def</span> <span class="nf">checkifmaterialexists</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">mat</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Check if Material Exists</span>
 
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        mat :</span>
+<span class="sd">            material name</span>
 
-<span class="sd">        :param mat: material name</span>
-<span class="sd">        :return: True/False</span>
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        type</span>
+<span class="sd">            True/False</span>
+
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">mat</span> <span class="o">=</span> <span class="n">mat</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span>
         <span class="n">lista</span> <span class="o">=</span> <span class="p">[</span><span class="n">i</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">odefinition_manager</span><span class="o">.</span><span class="n">GetProjectMaterialNames</span><span class="p">())]</span>
@@ -414,9 +459,15 @@
     <span class="k">def</span> <span class="nf">check_thermal_modifier</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">mat</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Check the termal modifier of predefined material</span>
 
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        mat :</span>
+<span class="sd">            material name</span>
 
-<span class="sd">        :param mat: material name</span>
-<span class="sd">        :return: bool</span>
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        type</span>
+<span class="sd">            bool</span>
 
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">mat</span> <span class="o">=</span> <span class="n">mat</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span>
@@ -433,8 +484,19 @@
                     <span class="k">return</span> <span class="kc">True</span>
         <span class="k">return</span> <span class="kc">False</span></div>
 
-    <span class="nd">@aedt_exception_handler</span>
+<div class="viewcode-block" id="Materials.check_thermal_modifier_OLD"><a class="viewcode-back" href="../../../API/MaterialLib.html#pyaedt.modules.MaterialLib.Materials.check_thermal_modifier_OLD">[docs]</a>    <span class="nd">@aedt_exception_handler</span>
     <span class="k">def</span> <span class="nf">check_thermal_modifier_OLD</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">mat</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        mat :</span>
+<span class="sd">            </span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">mat</span> <span class="o">=</span> <span class="n">mat</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span>
         <span class="n">exists</span> <span class="o">=</span> <span class="kc">True</span>
         <span class="k">if</span> <span class="n">mat</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">material_keys</span><span class="p">:</span>
@@ -444,7 +506,7 @@
             <span class="k">for</span> <span class="n">el</span> <span class="ow">in</span> <span class="n">omat</span><span class="o">.</span><span class="n">property</span><span class="p">:</span>
                 <span class="k">if</span> <span class="n">omat</span><span class="o">.</span><span class="n">property</span><span class="p">[</span><span class="n">el</span><span class="p">]</span><span class="o">.</span><span class="n">property_value</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">thermalmodifier</span><span class="p">:</span>
                     <span class="k">return</span> <span class="kc">True</span>
-        <span class="k">return</span> <span class="kc">False</span>
+        <span class="k">return</span> <span class="kc">False</span></div>
 
 <div class="viewcode-block" id="Materials.creatematerial"><a class="viewcode-back" href="../../../API/MaterialLib.html#pyaedt.modules.MaterialLib.Materials.creatematerial">[docs]</a>    <span class="nd">@aedt_exception_handler</span>
     <span class="k">def</span> <span class="nf">creatematerial</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">materialname</span><span class="p">):</span>
@@ -452,9 +514,16 @@
 <span class="sd">        that allows user to customize the material</span>
 <span class="sd">        The function will not update the material in</span>
 
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        materialname :</span>
+<span class="sd">            material name</span>
 
-<span class="sd">        :param materialname: material name</span>
-<span class="sd">        :return: Material Object</span>
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        type</span>
+<span class="sd">            Material Object</span>
+
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">materialname</span> <span class="o">=</span> <span class="n">materialname</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">messenger</span><span class="o">.</span><span class="n">add_info_message</span><span class="p">(</span><span class="s1">&#39;Adding New Material material to Project Library: &#39;</span> <span class="o">+</span> <span class="n">materialname</span><span class="p">)</span>
@@ -471,12 +540,20 @@
 
 <div class="viewcode-block" id="Materials.creatematerialsurface"><a class="viewcode-back" href="../../../API/MaterialLib.html#pyaedt.modules.MaterialLib.Materials.creatematerialsurface">[docs]</a>    <span class="nd">@aedt_exception_handler</span>
     <span class="k">def</span> <span class="nf">creatematerialsurface</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">material_name</span><span class="p">):</span>
-        <span class="sd">&#39;&#39;&#39;The function create a new material surface named args</span>
+        <span class="sd">&quot;&quot;&quot;The function create a new material surface named args</span>
 <span class="sd">        material args properties are loaded from the XML file database amat.xml</span>
 
-<span class="sd">        :param material_name: material name</span>
-<span class="sd">        :return: Material emissivity</span>
-<span class="sd">        &#39;&#39;&#39;</span>
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        material_name :</span>
+<span class="sd">            material name</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        type</span>
+<span class="sd">            Material emissivity</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">material_name</span> <span class="o">=</span> <span class="n">material_name</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">messenger</span><span class="o">.</span><span class="n">add_info_message</span><span class="p">(</span><span class="s1">&#39;Adding New Material Surface to Icepak Project Library: &#39;</span> <span class="o">+</span> <span class="n">material_name</span><span class="p">)</span>
         <span class="n">materials</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">material_keys</span>
@@ -508,8 +585,16 @@
 <div class="viewcode-block" id="Materials.create_mat_project_vars"><a class="viewcode-back" href="../../../API/MaterialLib.html#pyaedt.modules.MaterialLib.Materials.create_mat_project_vars">[docs]</a>    <span class="k">def</span> <span class="nf">create_mat_project_vars</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">matlist</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Create Material Properties variables based on a material list</span>
 
-<span class="sd">        :param matlist: list of material properties</span>
-<span class="sd">        :return: matprop</span>
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        matlist :</span>
+<span class="sd">            list of material properties</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        type</span>
+<span class="sd">            matprop</span>
+
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">matprop</span><span class="o">=</span><span class="p">{}</span>
         <span class="k">for</span> <span class="n">prop</span> <span class="ow">in</span> <span class="n">MatProperties</span><span class="o">.</span><span class="n">aedtname</span><span class="p">:</span>
@@ -529,10 +614,20 @@
 <span class="sd">        material args properties are loaded from the XML file database amat.xml</span>
 <span class="sd">        enableTM: Boolean enable Thermal modifier in material description. At moment unused</span>
 
-<span class="sd">        :param swargs: list of materials to be merged into single sweep material</span>
-<span class="sd">        :param matname: name of sweep material</span>
-<span class="sd">        :param enableTM: bool</span>
-<span class="sd">        :return: name of project variable index</span>
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        swargs :</span>
+<span class="sd">            list of materials to be merged into single sweep material</span>
+<span class="sd">        matname :</span>
+<span class="sd">            name of sweep material</span>
+<span class="sd">        enableTM :</span>
+<span class="sd">            bool (Default value = True)</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        type</span>
+<span class="sd">            name of project variable index</span>
+
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">matsweep</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="n">matname</span> <span class="o">=</span> <span class="n">matname</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span>
@@ -556,13 +651,20 @@
 
 <div class="viewcode-block" id="Materials.duplicate_material"><a class="viewcode-back" href="../../../API/MaterialLib.html#pyaedt.modules.MaterialLib.Materials.duplicate_material">[docs]</a>    <span class="nd">@aedt_exception_handler</span>
     <span class="k">def</span> <span class="nf">duplicate_material</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">material</span><span class="p">,</span> <span class="n">new_name</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Duplicate Material</span>
+        <span class="sd">&quot;&quot;&quot;Duplicate Material</span>
 
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        material :</span>
+<span class="sd">            material original name</span>
+<span class="sd">        new_name :</span>
+<span class="sd">            target name</span>
 
-<span class="sd">        :param material: material original name</span>
-<span class="sd">        :param new_name: target name</span>
-<span class="sd">        :return: new material object</span>
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        type</span>
+<span class="sd">            new material object</span>
+
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">newMat</span> <span class="o">=</span> <span class="n">material</span>
         <span class="n">newMat</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="n">new_name</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span>
@@ -571,10 +673,16 @@
 
 <div class="viewcode-block" id="Materials.GetConductors"><a class="viewcode-back" href="../../../API/MaterialLib.html#pyaedt.modules.MaterialLib.Materials.GetConductors">[docs]</a>    <span class="nd">@aedt_exception_handler</span>
     <span class="k">def</span> <span class="nf">GetConductors</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Get List of conductors in material database</span>
-
+        <span class="sd">&quot;&quot;&quot;Get List of conductors in material database</span>
+<span class="sd">        </span>
 <span class="sd">        :return:list of string</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">data</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">mat</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">material_keys</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
@@ -584,10 +692,16 @@
 
 <div class="viewcode-block" id="Materials.GetDielectrics"><a class="viewcode-back" href="../../../API/MaterialLib.html#pyaedt.modules.MaterialLib.Materials.GetDielectrics">[docs]</a>    <span class="nd">@aedt_exception_handler</span>
     <span class="k">def</span> <span class="nf">GetDielectrics</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Get List of dielectrics in material database</span>
-
+        <span class="sd">&quot;&quot;&quot;Get List of dielectrics in material database</span>
+<span class="sd">        </span>
 <span class="sd">        :return:list of string</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">data</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">mat</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">material_keys</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
@@ -597,31 +711,49 @@
 
 <div class="viewcode-block" id="Materials.get_material_list"><a class="viewcode-back" href="../../../API/MaterialLib.html#pyaedt.modules.MaterialLib.Materials.get_material_list">[docs]</a>    <span class="nd">@aedt_exception_handler</span>
     <span class="k">def</span> <span class="nf">get_material_list</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Get List of material database</span>
-
+        <span class="sd">&quot;&quot;&quot;Get List of material database</span>
+<span class="sd">        </span>
 <span class="sd">        :return:list of string</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">data</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">material_keys</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span>
         <span class="k">return</span> <span class="n">data</span></div>
 
 <div class="viewcode-block" id="Materials.get_material_count"><a class="viewcode-back" href="../../../API/MaterialLib.html#pyaedt.modules.MaterialLib.Materials.get_material_count">[docs]</a>    <span class="nd">@aedt_exception_handler</span>
     <span class="k">def</span> <span class="nf">get_material_count</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Get number of materials</span>
-
+        <span class="sd">&quot;&quot;&quot;Get number of materials</span>
+<span class="sd">        </span>
 <span class="sd">        :return:number of materials</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">material_keys</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="Materials.get_material"><a class="viewcode-back" href="../../../API/MaterialLib.html#pyaedt.modules.MaterialLib.Materials.get_material">[docs]</a>    <span class="nd">@aedt_exception_handler</span>
     <span class="k">def</span> <span class="nf">get_material</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">szMat</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Get material object</span>
+        <span class="sd">&quot;&quot;&quot;Get material object</span>
 
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        szMat :</span>
+<span class="sd">            material name</span>
 
-<span class="sd">        :param szMat: material name</span>
-<span class="sd">        :return: Material object if exists</span>
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        type</span>
+<span class="sd">            Material object if exists</span>
+
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">szMat</span> <span class="o">=</span> <span class="n">szMat</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span>
         <span class="k">if</span> <span class="n">szMat</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">material_keys</span><span class="p">:</span>
@@ -633,9 +765,16 @@
     <span class="k">def</span> <span class="nf">get_material_properties</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">szMat</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Get material dictionary properties</span>
 
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        szMat :</span>
+<span class="sd">            material</span>
 
-<span class="sd">        :param szMat: material</span>
-<span class="sd">        :return: Dictionary of all material properties</span>
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        type</span>
+<span class="sd">            Dictionary of all material properties</span>
+
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">szMat</span> <span class="o">=</span> <span class="n">szMat</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span>
         <span class="n">props</span> <span class="o">=</span> <span class="p">{}</span>
@@ -649,8 +788,15 @@
 <div class="viewcode-block" id="Materials.setup_air_properties"><a class="viewcode-back" href="../../../API/MaterialLib.html#pyaedt.modules.MaterialLib.Materials.setup_air_properties">[docs]</a>    <span class="nd">@aedt_exception_handler</span>
     <span class="k">def</span> <span class="nf">setup_air_properties</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Setup Air properties</span>
-
+<span class="sd">        </span>
 <span class="sd">        :return:</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">omaterial_manager</span><span class="o">.</span><span class="n">EditMaterial</span><span class="p">(</span><span class="s2">&quot;AIR&quot;</span><span class="p">,</span>
                                                 <span class="p">[</span><span class="s2">&quot;NAME:AIR&quot;</span><span class="p">,</span> <span class="s2">&quot;CoordinateSystemType:=&quot;</span><span class="p">,</span> <span class="s2">&quot;Cartesian&quot;</span><span class="p">,</span>
@@ -676,12 +822,18 @@
 
 <div class="viewcode-block" id="Materials.load_from_xml_full"><a class="viewcode-back" href="../../../API/MaterialLib.html#pyaedt.modules.MaterialLib.Materials.load_from_xml_full">[docs]</a>    <span class="nd">@aedt_exception_handler</span>
     <span class="k">def</span> <span class="nf">load_from_xml_full</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">Filename</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        New Function for loading materials from XML. Previous version didn&#39;t allow read/write on the same file.</span>
+        <span class="sd">&quot;&quot;&quot;New Function for loading materials from XML. Previous version didn&#39;t allow read/write on the same file.</span>
 
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        Filename :</span>
+<span class="sd">            Complete Filename (Default value = None)</span>
 
-<span class="sd">        :param Filename: Complete Filename</span>
-<span class="sd">        :return: material dictionary</span>
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        type</span>
+<span class="sd">            material dictionary</span>
+
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">messenger</span><span class="o">.</span><span class="n">add_info_message</span><span class="p">(</span><span class="s1">&#39;InitFromXml: Enter&#39;</span><span class="p">)</span>
         <span class="n">o_mat_xml</span> <span class="o">=</span> <span class="p">{}</span>
@@ -806,14 +958,17 @@
 
 <div class="viewcode-block" id="Materials.py2xmlFull"><a class="viewcode-back" href="../../../API/MaterialLib.html#pyaedt.modules.MaterialLib.Materials.py2xmlFull">[docs]</a>    <span class="nd">@aedt_exception_handler</span>
     <span class="k">def</span> <span class="nf">py2xmlFull</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filename</span><span class="p">):</span>
-        <span class="sd">&#39;&#39;&#39; convert material object to xml</span>
-<span class="sd">        </span>
-<span class="sd">        </span>
-<span class="sd">        :param filename: name of the file to save</span>
-<span class="sd">        :return: </span>
-<span class="sd">        &#39;&#39;&#39;</span><span class="s1">&#39;&#39;&#39;</span>
-<span class="s1">        Creates an XML File starting from a Material Library. The input is the oMat Structure array</span>
-<span class="s1">        &#39;&#39;&#39;</span>
+        <span class="sd">&quot;&quot;&quot;convert material object to xml</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        filename :</span>
+<span class="sd">            name of the file to save</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">header</span> <span class="o">=</span> <span class="n">ET</span><span class="o">.</span><span class="n">Element</span><span class="p">(</span><span class="s1">&#39;c:Control&#39;</span><span class="p">)</span>
         <span class="n">header</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="s2">&quot;schemaVersion&quot;</span><span class="p">,</span> <span class="s2">&quot;2.0&quot;</span><span class="p">)</span>
         <span class="n">header</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="s2">&quot;xmlns:c&quot;</span><span class="p">,</span> <span class="s2">&quot;http://www.ansys.com/control&quot;</span><span class="p">)</span>

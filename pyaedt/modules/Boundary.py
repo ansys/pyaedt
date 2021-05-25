@@ -25,8 +25,20 @@ from ..generic.general_methods import aedt_exception_handler
 from ..application.DataHandlers import dict2arg
 from ..modeler.Object3d import EdgePrimitive, FacePrimitive, VertexPrimitive
 class BoundaryCommon(object):
+    """ """
     @aedt_exception_handler
     def _get_args(self, props=None):
+        """
+
+        Parameters
+        ----------
+        props :
+             (Default value = None)
+
+        Returns
+        -------
+
+        """
         if not props:
             props = self.props
         arg = ["NAME:" + self.name]
@@ -35,6 +47,7 @@ class BoundaryCommon(object):
 
     @aedt_exception_handler
     def delete(self):
+        """ """
         self._parent.oboundary.DeleteBoundaries([self.name])
         for el in self._parent.boundaries:
             if el.name == self.name:
@@ -43,9 +56,7 @@ class BoundaryCommon(object):
 
 
 class BoundaryObject(BoundaryCommon, object):
-    """
-    Boundary Data and execution class
-    """
+    """Boundary Data and execution class"""
     def __init__(self, parent, name, props, boundarytype):
         self._parent = parent
         self.name = name
@@ -54,6 +65,17 @@ class BoundaryObject(BoundaryCommon, object):
 
     @aedt_exception_handler
     def _get_args(self, props=None):
+        """
+
+        Parameters
+        ----------
+        props :
+             (Default value = None)
+
+        Returns
+        -------
+
+        """
         if props is None:
             props = self.props
         arg = ["NAME:" + self.name]
@@ -62,10 +84,16 @@ class BoundaryObject(BoundaryCommon, object):
 
     @aedt_exception_handler
     def create(self):
-        """
-        Create Boundary
-
+        """Create Boundary
+        
         :return:Bool
+
+        Parameters
+        ----------
+
+        Returns
+        -------
+
         """
         if self.type == "PerfectE":
             self._parent.oboundary.AssignPerfectE(self._get_args())
@@ -179,11 +207,17 @@ class BoundaryObject(BoundaryCommon, object):
 
     @aedt_exception_handler
     def update(self):
-        """
-        Update current boundary
-
-
+        """Update current boundary
+        
+        
         :return: Bool
+
+        Parameters
+        ----------
+
+        Returns
+        -------
+
         """
         if self.type == "PerfectE":
             self._parent.oboundary.EditPerfectE(self.name, self._get_args())
@@ -281,6 +315,7 @@ class BoundaryObject(BoundaryCommon, object):
 
     @aedt_exception_handler
     def update_assignment(self):
+        """ """
         if "Faces" in self.props:
             faces = self.props["Faces"]
             faces_out = []

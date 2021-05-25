@@ -236,18 +236,25 @@
 <dt id="pyaedt.modeler.Model3DLayout.Modeler3DLayout">
 <em class="property"><span class="pre">class</span> </em><code class="sig-prename descclassname"><span class="pre">pyaedt.modeler.Model3DLayout.</span></code><code class="sig-name descname"><span class="pre">Modeler3DLayout</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">parent</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pyaedt/modeler/Model3DLayout.html#Modeler3DLayout"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyaedt.modeler.Model3DLayout.Modeler3DLayout" title="Permalink to this definition">¶</a></dt>
 <dd><dl class="py method">
+<dt id="pyaedt.modeler.Model3DLayout.Modeler3DLayout.edb">
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">edb</span></code><a class="headerlink" href="#pyaedt.modeler.Model3DLayout.Modeler3DLayout.edb" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="pyaedt.modeler.Model3DLayout.Modeler3DLayout.fit_all">
+<code class="sig-name descname"><span class="pre">fit_all</span></code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pyaedt/modeler/Model3DLayout.html#Modeler3DLayout.fit_all"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyaedt.modeler.Model3DLayout.Modeler3DLayout.fit_all" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
 <dt id="pyaedt.modeler.Model3DLayout.Modeler3DLayout.import_cadence_brd">
 <code class="sig-name descname"><span class="pre">import_cadence_brd</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">brd_filename</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">edb_path</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">edb_name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pyaedt/modeler/Model3DLayout.html#Modeler3DLayout.import_cadence_brd"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyaedt.modeler.Model3DLayout.Modeler3DLayout.import_cadence_brd" title="Permalink to this definition">¶</a></dt>
 <dd><dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>brd_filename</strong> -- BRD Full File name</p></li>
-<li><p><strong>edb_path</strong> -- Path where EDB shall be created. if no path is provided, project dir will be used</p></li>
-<li><p><strong>edb_name</strong> -- name of EDB. If no name is provided, brd name will be used</p></li>
+<li><p><strong>edb_path</strong> -- Path where EDB shall be created. if no path is provided, project dir will be used (Default value = None)</p></li>
+<li><p><strong>edb_name</strong> -- name of EDB. If no name is provided, brd name will be used (Default value = None)</p></li>
 </ul>
-</dd>
-<dt class="field-even">Returns</dt>
-<dd class="field-even"><p></p>
 </dd>
 </dl>
 </dd></dl>
@@ -259,12 +266,9 @@
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>ipc_filename</strong> -- IPC Full File name</p></li>
-<li><p><strong>edb_path</strong> -- Path where EDB shall be created. if no path is provided, project dir will be used</p></li>
-<li><p><strong>edb_name</strong> -- name of EDB. If no name is provided, brd name will be used</p></li>
+<li><p><strong>edb_path</strong> -- Path where EDB shall be created. if no path is provided, project dir will be used (Default value = None)</p></li>
+<li><p><strong>edb_name</strong> -- name of EDB. If no name is provided, brd name will be used (Default value = None)</p></li>
 </ul>
-</dd>
-<dt class="field-even">Returns</dt>
-<dd class="field-even"><p></p>
 </dd>
 </dl>
 </dd></dl>
@@ -273,28 +277,71 @@
 <dt id="pyaedt.modeler.Model3DLayout.Modeler3DLayout.intersect">
 <code class="sig-name descname"><span class="pre">intersect</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">objectlists</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pyaedt/modeler/Model3DLayout.html#Modeler3DLayout.intersect"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyaedt.modeler.Model3DLayout.Modeler3DLayout.intersect" title="Permalink to this definition">¶</a></dt>
 <dd><p>Intersect objects from names</p>
-<p>:param objectlists. list of objects to unite</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>objectlists</strong> -- list of objects to unite</p>
+</dd>
+</dl>
 </dd></dl>
+
+<dl class="py method">
+<dt id="pyaedt.modeler.Model3DLayout.Modeler3DLayout.messenger">
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">messenger</span></code><a class="headerlink" href="#pyaedt.modeler.Model3DLayout.Modeler3DLayout.messenger" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
 
 <dl class="py method">
 <dt id="pyaedt.modeler.Model3DLayout.Modeler3DLayout.model_units">
 <em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">model_units</span></code><a class="headerlink" href="#pyaedt.modeler.Model3DLayout.Modeler3DLayout.model_units" title="Permalink to this definition">¶</a></dt>
-<dd><p>Return the model units as a string e.g. &quot;mm&quot;</p>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="pyaedt.modeler.Model3DLayout.Modeler3DLayout.modeler_variable">
+<code class="sig-name descname"><span class="pre">modeler_variable</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">value</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pyaedt/modeler/Model3DLayout.html#Modeler3DLayout.modeler_variable"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyaedt.modeler.Model3DLayout.Modeler3DLayout.modeler_variable" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>value</strong> -- </p>
+</dd>
+</dl>
 </dd></dl>
+
+<dl class="py method">
+<dt id="pyaedt.modeler.Model3DLayout.Modeler3DLayout.obounding_box">
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">obounding_box</span></code><a class="headerlink" href="#pyaedt.modeler.Model3DLayout.Modeler3DLayout.obounding_box" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="pyaedt.modeler.Model3DLayout.Modeler3DLayout.oeditor">
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">oeditor</span></code><a class="headerlink" href="#pyaedt.modeler.Model3DLayout.Modeler3DLayout.oeditor" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="pyaedt.modeler.Model3DLayout.Modeler3DLayout.primitives">
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">primitives</span></code><a class="headerlink" href="#pyaedt.modeler.Model3DLayout.Modeler3DLayout.primitives" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
 
 <dl class="py method">
 <dt id="pyaedt.modeler.Model3DLayout.Modeler3DLayout.subtract">
 <code class="sig-name descname"><span class="pre">subtract</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">blank</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tool</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pyaedt/modeler/Model3DLayout.html#Modeler3DLayout.subtract"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyaedt.modeler.Model3DLayout.Modeler3DLayout.subtract" title="Permalink to this definition">¶</a></dt>
 <dd><p>Subract objects from names</p>
-<p>:param blank. name of geometry from which subtract
-:param tool, name of geometry that will be subracted. it can be a list</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>blank</strong> -- name of geometry from which subtract</p></li>
+<li><p><strong>tool</strong> -- name of geometry that will be subracted. it can be a list</p></li>
+</ul>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py method">
 <dt id="pyaedt.modeler.Model3DLayout.Modeler3DLayout.unite">
 <code class="sig-name descname"><span class="pre">unite</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">objectlists</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pyaedt/modeler/Model3DLayout.html#Modeler3DLayout.unite"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyaedt.modeler.Model3DLayout.Modeler3DLayout.unite" title="Permalink to this definition">¶</a></dt>
 <dd><p>Unite objects from names</p>
-<p>:param objectlists. list of objects to unite</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>objectlists</strong> -- list of objects to unite</p>
+</dd>
+</dl>
 </dd></dl>
 
 </dd></dl>

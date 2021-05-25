@@ -22,49 +22,56 @@ from System import Double, Array
 from System.Collections.Generic import List
 
 class Edb3DLayout(object):
-    """HFSS 3DLayout object
-
-
-    """
+    """HFSS 3DLayout object"""
     @property
     def hfss_terminals(self):
+        """ """
         return self.parent.edblib.HFSS3DLayout.HFSSTerminalMethods
 
     @property
     def hfss_ic_methods(self):
+        """ """
         return self.parent.edblib.HFSS3DLayout.ICMethods
 
     @property
     def hfss_setup(self):
+        """ """
         return self.parent.edblib.HFSS3DLayout.HFSSSetup
 
     @property
     def hfss_mesh_setup(self):
+        """ """
         return self.parent.edblib.HFSS3DLayout.Meshing
 
     @property
     def sweep_methods(self):
+        """ """
         return self.parent.edblib.SimulationSetup.SweepMethods
 
     @property
     def edb(self):
+        """ """
         return self.parent.edb
 
     @property
     def active_layout(self):
+        """ """
         return self.parent.active_layout
 
     @property
     def cell(self):
+        """ """
         return self.parent.cell
 
     @property
     def db(self):
+        """ """
         return self.parent.db
 
 
     @property
     def builder(self):
+        """ """
         return self.parent.builder
 
     def __init__(self, parent):
@@ -73,9 +80,15 @@ class Edb3DLayout(object):
     @aedt_exception_handler
     def get_trace_width_for_traces_with_ports(self):
         """
-        Return a Dictionary of Traces grouped by their width (minimum) of all traces with ports on it
 
-        :return: dictionary of data
+        Parameters
+        ----------
+
+        Returns
+        -------
+        type
+            :return: dictionary of data
+
         """
         mesh =  self.hfss_mesh_setup.GetMeshOperation(self.builder)
         if mesh.Item1:
@@ -85,6 +98,17 @@ class Edb3DLayout(object):
 
     @aedt_exception_handler
     def create_circuit_port(self, pin_list):
+        """
+
+        Parameters
+        ----------
+        pin_list :
+            
+
+        Returns
+        -------
+
+        """
         #TODO Return list of names of created Ports
         """
 
@@ -97,6 +121,19 @@ class Edb3DLayout(object):
 
     @aedt_exception_handler
     def create_coax_port_on_component(self, ref_des_list, net_list):
+        """
+
+        Parameters
+        ----------
+        ref_des_list :
+            
+        net_list :
+            
+
+        Returns
+        -------
+
+        """
         #TODO Return list of names of created Ports
         """Create Coaxial Port on a component or component list on specific net or netlist. Name is automatically created
 
@@ -111,6 +148,19 @@ class Edb3DLayout(object):
 
     @aedt_exception_handler
     def create_hfss_ports_on_padstack(self, pinpos, portname=None):
+        """
+
+        Parameters
+        ----------
+        pinpos :
+            
+        portname :
+             (Default value = None)
+
+        Returns
+        -------
+
+        """
         if "IronPython" in sys.version or ".NETFramework" in sys.version:
             res, fromLayer_pos, toLayer_pos = pinpos.GetLayerRange()
         else:

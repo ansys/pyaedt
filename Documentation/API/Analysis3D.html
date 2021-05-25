@@ -252,18 +252,17 @@
 <dt class="field-even">Returns</dt>
 <dd class="field-even"><p>True if succeded | False if failed</p>
 </dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>type</p>
+</dd>
 </dl>
 </dd></dl>
 
 <dl class="py method">
 <dt id="pyaedt.application.Analysis3D.FieldAnalysis3D.components3d">
 <em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">components3d</span></code><a class="headerlink" href="#pyaedt.application.Analysis3D.FieldAnalysis3D.components3d" title="Permalink to this definition">¶</a></dt>
-<dd><p>Return the list of 3dcomponents of specific design_type stored in userlib and syslib</p>
-<dl class="field-list simple">
-<dt class="field-odd">Returns</dt>
-<dd class="field-odd"><p>Ditcionary of components with their absolute path</p>
-</dd>
-</dl>
+<dd><p>returns: :return: Ditcionary of components with their absolute path
+:rtype: type</p>
 </dd></dl>
 
 <dl class="py method">
@@ -274,14 +273,17 @@
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>design</strong> -- starting application object (example hfss1= HFSS3DLayout)</p></li>
-<li><p><strong>object_list</strong> -- List of object to copy</p></li>
-<li><p><strong>no_vacuum</strong> (<em>bool</em>) -- define if vacuum objects have to be copied</p></li>
-<li><p><strong>no_pec</strong> (<em>bool</em>) -- define if pec objects have to be copied</p></li>
-<li><p><strong>include_sheets</strong> -- include sheets in the objects that have to be copied</p></li>
+<li><p><strong>object_list</strong> -- List of object to copy (Default value = None)</p></li>
+<li><p><strong>no_vacuum</strong> (<em>bool</em>) -- define if vacuum objects have to be copied (Default value = True)</p></li>
+<li><p><strong>no_pec</strong> -- define if pec objects have to be copied (Default value = True)</p></li>
+<li><p><strong>include_sheets</strong> -- include sheets in the objects that have to be copied (Default value = False)</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>
 <dd class="field-even"><p>True if succeeded</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>type</p>
 </dd>
 </dl>
 </dd></dl>
@@ -325,6 +327,9 @@
 <dt class="field-even">Returns</dt>
 <dd class="field-even"><p>vars dictionary</p>
 </dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>type</p>
+</dd>
 </dl>
 </dd></dl>
 
@@ -334,13 +339,16 @@
 <dd><dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>type</strong> -- type of the property. &quot;Boundary&quot;, &quot;Excitation&quot;, &quot;Setup&quot;, &quot;Mesh&quot;</p></li>
-<li><p><strong>objectname</strong> -- </p></li>
+<li><p><strong>type</strong> -- type of the property. &quot;Boundary&quot;, &quot;Excitation&quot;, &quot;Setup&quot;, &quot;Mesh&quot; (Default value = None)</p></li>
+<li><p><strong>objectname</strong> -- param property:</p></li>
 <li><p><strong>property</strong> -- </p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>
 <dd class="field-even"><p>property value</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>type</p>
 </dd>
 </dl>
 </dd></dl>
@@ -348,21 +356,22 @@
 <dl class="py method">
 <dt id="pyaedt.application.Analysis3D.FieldAnalysis3D.mesh">
 <em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">mesh</span></code><a class="headerlink" href="#pyaedt.application.Analysis3D.FieldAnalysis3D.mesh" title="Permalink to this definition">¶</a></dt>
-<dd><p>Mesh Obect</p>
-<dl class="field-list simple">
-<dt class="field-odd">Returns</dt>
-<dd class="field-odd"><p>mesh object</p>
-</dd>
-</dl>
-</dd></dl>
+<dd></dd></dl>
 
 <dl class="py method">
 <dt id="pyaedt.application.Analysis3D.FieldAnalysis3D.modeler">
 <em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">modeler</span></code><a class="headerlink" href="#pyaedt.application.Analysis3D.FieldAnalysis3D.modeler" title="Permalink to this definition">¶</a></dt>
-<dd><p>modeler object</p>
-<dl class="field-list simple">
-<dt class="field-odd">Type</dt>
-<dd class="field-odd"><p>return</p>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="pyaedt.application.Analysis3D.FieldAnalysis3D.set_source_context">
+<code class="sig-name descname"><span class="pre">set_source_context</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">listofsources</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nummodes</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pyaedt/application/Analysis3D.html#FieldAnalysis3D.set_source_context"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyaedt.application.Analysis3D.FieldAnalysis3D.set_source_context" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>listofsources</strong> -- </p></li>
+<li><p><strong>nummodes</strong> -- (Default value = 1)</p></li>
+</ul>
 </dd>
 </dl>
 </dd></dl>

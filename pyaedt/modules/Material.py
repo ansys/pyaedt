@@ -22,10 +22,16 @@ from collections import defaultdict
 from ..generic.general_methods import aedt_exception_handler
 
 class MatProperties(object):
-    """
-    list of constants of all possible materials constant names and how they are mapped to XML
+    """list of constants of all possible materials constant names and how they are mapped to XML
     internalame=named used in script
     xmlname=named used in XML syntax
+
+    Parameters
+    ----------
+
+    Returns
+    -------
+
     """
     aedtname =     ['permittivity', 'permeability', 'conductivity', 'dielectric_loss_tangent', 'magnetic_loss_tangent', 'thermal_conductivity', 'mass_density', 'specific_heat', 'thermal_expansion_coefficient', 'youngs_modulus',   'poissons_ratio',   'emissivity', 'diffusivity', 'molecular_mass', 'viscosity', 'core_loss_kh', 'core_loss_kc', 'core_loss_ke']
     fullname =     ['Permittivity', 'Permeability', 'Conductivity', 'Dielectric Loss Tangent', 'Magnetic Loss Tangent', 'Thermal Conductivity', 'Mass Density', 'Specific Heat', 'Thermal Expansion Coefficient', 'Young\'s Modulus', 'Poisson\'s Ratio', 'Emissivity', 'Diffusivity', 'Molecular Mmass', 'Viscosity', 'Hysteresis application Loss', 'Eddy-Current application Loss', 'Excess application Loss']
@@ -37,14 +43,22 @@ class MatProperties(object):
 
     @classmethod
     def get_defaultunit(cls, fullname=None, catname=None, aedtname=None):
-        """
-        Get the defaultunit for a given fullname or catname
+        """Get the defaultunit for a given fullname or catname
 
+        Parameters
+        ----------
+        fullname :
+            optiona full name of the property (Default value = None)
+        catname :
+            optional Category name (Default value = None)
+        aedtname :
+            optional aedtname (Default value = None)
 
-        :param fullname:optiona full name of the property
-        :param catname: optional Category name
-        :param aedtname: optional aedtname
-        :return: defaultunit if exists
+        Returns
+        -------
+        type
+            defaultunit if exists
+
         """
         if fullname:
             return cls.defaultunit[cls.fullname.index(fullname)]
@@ -57,13 +71,20 @@ class MatProperties(object):
 
     @classmethod
     def get_aedtname(cls, fullname=None, catname=None):
-        """
-        Get the defaultunit for a given fullname or catname
+        """Get the defaultunit for a given fullname or catname
 
+        Parameters
+        ----------
+        fullname :
+            optiona full name of the property (Default value = None)
+        catname :
+            optional Category name (Default value = None)
 
-        :param fullname:optiona full name of the property
-        :param catname: optional Category name
-        :return: aedtname
+        Returns
+        -------
+        type
+            aedtname
+
         """
         if fullname:
             return cls.aedtname[cls.fullname.index(fullname)]
@@ -74,13 +95,20 @@ class MatProperties(object):
 
     @classmethod
     def get_catname(cls, fullname=None, aedtname=None):
-        """
-        Get the defaultunit for a given fullname or catname
+        """Get the defaultunit for a given fullname or catname
 
+        Parameters
+        ----------
+        fullname :
+            optiona full name of the property (Default value = None)
+        aedtname :
+            optional aedtname (Default value = None)
 
-        :param fullname:optiona full name of the property
-        :param aedtname: optional aedtname
-        :return: catname
+        Returns
+        -------
+        type
+            catname
+
         """
         if fullname:
             return cls.catname[cls.fullname.index(fullname)]
@@ -91,13 +119,20 @@ class MatProperties(object):
 
     @classmethod
     def get_fullname(cls, catname=None, aedtname=None):
-        """
-        Get the defaultunit for a given fullname or catname
+        """Get the defaultunit for a given fullname or catname
 
+        Parameters
+        ----------
+        catname :
+            optional Category name (Default value = None)
+        aedtname :
+            optional aedtname (Default value = None)
 
-        :param catname: optional Category name
-        :param aedtname: optional aedtname
-        :return: catname
+        Returns
+        -------
+        type
+            catname
+
         """
         if catname:
             return cls.fullname[cls.catname.index(catname)]
@@ -109,14 +144,22 @@ class MatProperties(object):
 
     @classmethod
     def get_defaultvalue(cls, fullname=None, catname=None, aedtname=None):
-        """
-        Get the defaultunit for a given fullname or catname
+        """Get the defaultunit for a given fullname or catname
 
+        Parameters
+        ----------
+        fullname :
+            optiona full name of the property (Default value = None)
+        catname :
+            optional Category name (Default value = None)
+        aedtname :
+            optional aedtname (Default value = None)
 
-        :param fullname:optiona full name of the property
-        :param catname: optional Category name
-        :param aedtname: optional aedtname
-        :return: defaultunit
+        Returns
+        -------
+        type
+            defaultunit
+
         """
         if fullname:
             return cls.defaultvalue[cls.fullname.index(fullname)]
@@ -128,9 +171,7 @@ class MatProperties(object):
             raise TypeError("get_defaultunit: either fullname or catname MUST be defined")
 
 class ClosedFormTM(object):
-    """
-    Class to manage Closed Form Terhmal Modifier.
-    """
+    """Class to manage Closed Form Terhmal Modifier."""
     Tref = '22cel'
     C1 = 0
     C2 = 0
@@ -141,9 +182,7 @@ class ClosedFormTM(object):
     TMU = 1000
 
 class Dataset(object):
-    """
-    Data Class for DataSet Management
-    """
+    """Data Class for DataSet Management"""
     ds = []
     unitx = ""
     unity = ""
@@ -154,15 +193,14 @@ class Dataset(object):
     namez = None
 
 class BasicValue(object):
+    """ """
     value = None
     dataset = None
     thermalmodifier = None
 
 
 class MatProperty(object):
-    """
-    type: "simple", "anisotropic", "tensor"
-    """
+    """type: simple, anisotropic, tensor"""
 
     def __init__(self):
         self.type = "simple"
@@ -171,12 +209,16 @@ class MatProperty(object):
 
     @aedt_exception_handler
     def set_type(self, type):
-        """
-        Set Material Property Type
+        """Set Material Property Type
 
+        Parameters
+        ----------
+        type :
+            simple", "nonlinear", "anisotropic", "tensor"
 
-        :param type: "simple", "nonlinear", "anisotropic", "tensor"
-        :return:
+        Returns
+        -------
+
         """
         self.type = type
         if self.type == "simple":
@@ -191,15 +233,19 @@ class MatProperty(object):
 
 
 class Material(object):
-    """
-    Class for Frequency Dependence Datasets
-    """
+    """Class for Frequency Dependence Datasets"""
 
     class PropName(object):
-        """
-        list of constants of all possible materials constant names and how they are mapped to XML
+        """list of constants of all possible materials constant names and how they are mapped to XML
         internalame=named used in script
         xmlname=named used in XML syntax
+
+        Parameters
+        ----------
+
+        Returns
+        -------
+
         """
         (Permittivity, Permeability, Conductivity, DielectricLossTangent, MagneticLossTangent,
          ThermalConductivity, MassDensity, SpecificHeat, ThermalExpCoeff,
@@ -210,30 +256,27 @@ class Material(object):
 
     @property
     def odefinition_manager(self):
-        """
-
-        :return: Definition Manager
-        """
+        """:return: Definition Manager"""
         return self._parent._oproject.GetDefinitionManager()
 
     @property
     def _omaterial_manager(self):
-        """
-
-        :return:Material Manager
-        """
+        """:return:Material Manager"""
         return self.odefinition_manager.GetManager("Material")
 
     @property
     def messenger(self):
+        """ """
         return self._parent._messenger
 
     @property
     def oproject(self):
+        """ """
         return self._parent._oproject
 
     @property
     def desktop(self):
+        """ """
         return self._parent._desktop
 
     def __init__(self, parent):
@@ -249,6 +292,17 @@ class Material(object):
 
 
     def get_number(self, fullname):
+        """
+
+        Parameters
+        ----------
+        fullname :
+            
+
+        Returns
+        -------
+
+        """
         if fullname in self.property:
             try:
                 return float(self.property[fullname].property_value[0].value)
@@ -263,14 +317,22 @@ class Material(object):
 
     @aedt_exception_handler
     def get_data(self, fullname):
+        """
+
+        Parameters
+        ----------
+        fullname :
+            
+
+        Returns
+        -------
+
+        """
         if fullname in self.property:
             return self.property[fullname].type, self.property[fullname].property_value[0].value
 
     def is_conductor(self):
-        """
-
-        :return: Bool if material is conductor. Material is defined as conductor if cond>=100000
-        """
+        """:return: Bool if material is conductor. Material is defined as conductor if cond>=100000"""
         cond = self.get_number('conductivity')
         if cond >= 100000:
             return True
@@ -285,18 +347,23 @@ class Material(object):
 
     @aedt_exception_handler
     def is_dielectric(self):
-        """
-
-        :return: Bool if material is dielectric. Material is defined as conductor if cond<100000
-        """
+        """:return: Bool if material is dielectric. Material is defined as conductor if cond<100000"""
         return not self.is_conductor()
 
     @aedt_exception_handler
     def get_unit(self, propertyname):
         """
 
-        :param propertyname: str property
-        :return: property unit
+        Parameters
+        ----------
+        propertyname :
+            str property
+
+        Returns
+        -------
+        type
+            property unit
+
         """
         if propertyname in self.property:
             return self.property[propertyname].unit
@@ -306,11 +373,20 @@ class Material(object):
     def set_property_value(self, PropName, propvalue, idx=0):
         """Set Material Property Value
 
+        Parameters
+        ----------
+        PropName :
+            property
+        propvalue :
+            value
+        idx :
+            index. in case of tensor or anysotropic (0 by default)
 
-        :param PropName: property
-        :param propvalue: value
-        :param idx: index. in case of tensor or anysotropic (0 by default)
-        :return: True
+        Returns
+        -------
+        type
+            True
+
         """
         prop_conv = PropName.lower().replace(" ","_").replace("'","")
         self.property[prop_conv].property_value[idx].value = propvalue
@@ -320,10 +396,18 @@ class Material(object):
     def get_property_value(self, PropertyConstant, idx=0):
         """Get Material Property Value
 
+        Parameters
+        ----------
+        PropertyConstant :
+            property
+        idx :
+            index. in case of tensor or anysotropic (0 by default)
 
-        :param PropertyConstant: property
-        :param idx: index. in case of tensor or anysotropic (0 by default)
-        :return: poperty value
+        Returns
+        -------
+        type
+            poperty value
+
         """
         return self.property[PropertyConstant].property_value[idx].value
 
@@ -331,10 +415,18 @@ class Material(object):
     def set_property_dataset(self, PropName, dataset, idx=0):
         """Set Material Dataset Value
 
+        Parameters
+        ----------
+        PropName :
+            property
+        dataset :
+            dataset object
+        idx :
+            index. in case of tensor or anysotropic (0 by default)
 
-        :param PropName: property
-        :param dataset: dataset object
-        :param idx: index. in case of tensor or anysotropic (0 by default)
+        Returns
+        -------
+
         """
         self.property[PropName].property_value[idx].dataset = dataset
         return True
@@ -343,9 +435,18 @@ class Material(object):
     def get_property_dataset(self, PropertyConstant, idx=0):
         """Get Material Property Dataset
 
-        :param PropertyConstant: property
-        :param idx: index. in case of tensor or anysotropic (0 by default)
-        :return: dataset object
+        Parameters
+        ----------
+        PropertyConstant :
+            property
+        idx :
+            index. in case of tensor or anysotropic (0 by default)
+
+        Returns
+        -------
+        type
+            dataset object
+
         """
         return self.property[PropertyConstant].property_value[idx].dataset
 
@@ -353,10 +454,18 @@ class Material(object):
     def set_property_therm_modifier(self, PropName, dataset, idx=0):
         """Set Material Property Thermal Modifier
 
+        Parameters
+        ----------
+        PropName :
+            property
+        dataset :
+            dataset object or list of values. in case list of values is provided, the dataset will be automatically created
+        idx :
+            index. in case of tensor or anysotropic (0 by default)
 
-        :param PropName: property
-        :param dataset: dataset object or list of values. in case list of values is provided, the dataset will be automatically created
-        :param idx: index. in case of tensor or anysotropic (0 by default)
+        Returns
+        -------
+
         """
         if type(dataset) is list:
             ds = self.create_thermal_modifier(dataset)
@@ -368,10 +477,18 @@ class Material(object):
     def get_property_therm_modifier(self, PropertyConstant, idx=0):
         """Get Material Property Thermal Modifier Dataset
 
+        Parameters
+        ----------
+        PropertyConstant :
+            property
+        idx :
+            index. in case of tensor or anysotropic (0 by default)
 
-        :param PropertyConstant: property
-        :param idx: index. in case of tensor or anysotropic (0 by default)
-        :return: thermal modifier object
+        Returns
+        -------
+        type
+            thermal modifier object
+
         """
         return self.property[PropertyConstant].property_value[idx].thermalmodifier
 
@@ -379,9 +496,16 @@ class Material(object):
     def create_thermal_modifier(self, listtemp_val):
         """Create a new thermal modifier object based on a list of values
 
+        Parameters
+        ----------
+        listtemp_val :
+            list of thermal modifiers. Example [[22, 1], [80, 0.8], [100,0.7]]
 
-        :param listtemp_val: list of thermal modifiers. Example [[22, 1], [80, 0.8], [100,0.7]]
-        :return: tm object
+        Returns
+        -------
+        type
+            tm object
+
         """
         tm = Dataset()
         tm.type = "Relative"
@@ -393,10 +517,20 @@ class Material(object):
     def create_frequency_dataset(self, listtemp_val, unitx="Hz", unity=""):
         """Create a new frequency data set based on a list of values
 
-        :param listtemp_val: list of frequency modifiers. Example [[1e9, 58e6], [1.1e9, 57e6], [1.2e9,55e6]]
-        :param unitx: unit type. Default Hertz
-        :param unity: unit type. Default ""
-        :return: tm obhect
+        Parameters
+        ----------
+        listtemp_val :
+            list of frequency modifiers. Example [[1e9, 58e6], [1.1e9, 57e6], [1.2e9,55e6]]
+        unitx :
+            unit type. Default Hertz
+        unity :
+            unit type. Default ""
+
+        Returns
+        -------
+        type
+            tm obhect
+
         """
         tm = Dataset()
         tm.type = "Absolute"
@@ -410,10 +544,22 @@ class Material(object):
     def set_nonlinear_dataset(self, propertyname, listtemp_val, unitx="A_per_meter", unity="tesla"):
         """Create a new nonlinear data set based on a list of values
 
-        :param listtemp_val: list of frequency modifiers. Example [[1e9, 58e6], [1.1e9, 57e6], [1.2e9,55e6]]
-        :param unitx: unit type. Default A_per_meter
-        :param unity: unit type. Default tesla
-        :return: Bool
+        Parameters
+        ----------
+        listtemp_val :
+            list of frequency modifiers. Example [[1e9, 58e6], [1.1e9, 57e6], [1.2e9,55e6]]
+        unitx :
+            unit type. Default A_per_meter
+        unity :
+            unit type. Default tesla
+        propertyname :
+            
+
+        Returns
+        -------
+        type
+            Bool
+
         """
         if len(listtemp_val)<3:
             self.messenger.add_error_message("Dataset has to start from 0 or negative and has to contain at least 3 points")
@@ -430,13 +576,20 @@ class Material(object):
 
     @aedt_exception_handler
     def update(self, enableTM=True, enableFM=True):
-        """
-        Update material in AEDT
+        """Update material in AEDT
 
+        Parameters
+        ----------
+        enableTM :
+            Boolean, to include Thermal Modifier in AEDT (Default value = True)
+        enableFM :
+            Booolean, to include Frequency Modifier in AEDT (Default value = True)
 
-        :param enableTM: Boolean, to include Thermal Modifier in AEDT
-        :param enableFM: Booolean, to include Frequency Modifier in AEDT
-        :return: Bool
+        Returns
+        -------
+        type
+            Bool
+
         """
         args = self.name
         arg = ["Name:" + args]
@@ -523,6 +676,17 @@ class Material(object):
 
     @aedt_exception_handler
     def _createTM(self, tms):
+        """
+
+        Parameters
+        ----------
+        tms :
+            
+
+        Returns
+        -------
+
+        """
         arg2 = ["NAME:ModifierData"]
         arg3 = ["NAME:ThermalModifierData", "modifier_data:=", "thermal_modifier_data"]
         arg4 = ["NAME:all_thermal_modifiers"]
@@ -559,11 +723,37 @@ class Material(object):
 
     @aedt_exception_handler
     def _createnonlinear(self,sKey, dataset):
+        """
+
+        Parameters
+        ----------
+        sKey :
+            
+        dataset :
+            
+
+        Returns
+        -------
+
+        """
         #TODO Support nonlinear
         return []
 
     @aedt_exception_handler
     def _creatematrix(self, sKey, mat):
+        """
+
+        Parameters
+        ----------
+        sKey :
+            
+        mat :
+            
+
+        Returns
+        -------
+
+        """
         arg2 = ["NAME:" + sKey]
         if mat.property[sKey].type == "anisotropic":
             arg2.append("property_type:=")
@@ -596,10 +786,20 @@ class Material(object):
         """createdataset(material name, property name, dataset)
         createDataset for material matname with property name
 
-        :param name: name of datase to create in aedt
-        :param tm: dataset object
-        :param suffix: suffix to apply to name
-        :return: Bool
+        Parameters
+        ----------
+        name :
+            name of datase to create in aedt
+        tm :
+            dataset object
+        suffix :
+            suffix to apply to name (Default value = "")
+
+        Returns
+        -------
+        type
+            Bool
+
         """
 
         #arg = []
@@ -638,9 +838,16 @@ class Material(object):
     def does_material_exists(self, szMat):
         """Check if a material is already defined in the Project
 
+        Parameters
+        ----------
+        szMat :
+            material name
 
-        :param szMat: material name
-        :return: Bool
+        Returns
+        -------
+        type
+            Bool
+
         """
         listmatprj = [i.lower() for i in list(self.odefinition_manager.GetProjectMaterialNames())]
         if szMat.lower() in listmatprj:

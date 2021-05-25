@@ -270,6 +270,11 @@
 <p><strong>Copyright (c) 1986-2021, ANSYS Inc. unauthorised use, distribution or duplication is prohibited</strong></p>
 <p><strong>This tool release is unofficial and not covered by standard Ansys Support license.</strong></p>
 <dl class="py class">
+<dt id="pyaedt.edb_core.components.Component">
+<em class="property"><span class="pre">class</span> </em><code class="sig-prename descclassname"><span class="pre">pyaedt.edb_core.components.</span></code><code class="sig-name descname"><span class="pre">Component</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">parent</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">component</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">name</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pyaedt/edb_core/components.html#Component"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyaedt.edb_core.components.Component" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py class">
 <dt id="pyaedt.edb_core.components.Components">
 <em class="property"><span class="pre">class</span> </em><code class="sig-prename descclassname"><span class="pre">pyaedt.edb_core.components.</span></code><code class="sig-name descname"><span class="pre">Components</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">parent</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pyaedt/edb_core/components.html#Components"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyaedt.edb_core.components.Components" title="Permalink to this definition">¶</a></dt>
 <dd><p>HFSS 3DLayout object</p>
@@ -277,14 +282,17 @@
 <dt id="pyaedt.edb_core.components.Components.ICs">
 <em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">ICs</span></code><a class="headerlink" href="#pyaedt.edb_core.components.Components.ICs" title="Permalink to this definition">¶</a></dt>
 <dd><p>example:</p>
-<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">pyaedt</span> <span class="kn">import</span> <span class="n">EDB</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">edbapp</span> <span class="o">=</span> <span class="n">EDB</span><span class="p">(</span><span class="s2">&quot;myaedbfolder&quot;</span><span class="p">)</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">edbapp</span><span class="o">.</span><span class="n">core_components</span><span class="o">.</span><span class="n">ICs</span>
-</pre></div>
-</div>
 <dl class="field-list simple">
 <dt class="field-odd">Returns</dt>
 <dd class="field-odd"><p>Dictionary of capacitors</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><ul class="simple">
+<li><p><em>&gt;&gt;&gt; from pyaedt import EDB</em></p></li>
+<li><p><em>&gt;&gt;&gt; edbapp = EDB(&quot;myaedbfolder&quot;)</em></p></li>
+<li><p><em>&gt;&gt;&gt; edbapp.core_components.ICs</em></p></li>
+</ul>
+</p>
 </dd>
 </dl>
 </dd></dl>
@@ -293,14 +301,17 @@
 <dt id="pyaedt.edb_core.components.Components.IOs">
 <em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">IOs</span></code><a class="headerlink" href="#pyaedt.edb_core.components.Components.IOs" title="Permalink to this definition">¶</a></dt>
 <dd><p>example:</p>
-<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">pyaedt</span> <span class="kn">import</span> <span class="n">EDB</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">edbapp</span> <span class="o">=</span> <span class="n">EDB</span><span class="p">(</span><span class="s2">&quot;myaedbfolder&quot;</span><span class="p">)</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">edbapp</span><span class="o">.</span><span class="n">core_components</span><span class="o">.</span><span class="n">IOs</span>
-</pre></div>
-</div>
 <dl class="field-list simple">
 <dt class="field-odd">Returns</dt>
 <dd class="field-odd"><p>Dictionary of capacitors</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><ul class="simple">
+<li><p><em>&gt;&gt;&gt; from pyaedt import EDB</em></p></li>
+<li><p><em>&gt;&gt;&gt; edbapp = EDB(&quot;myaedbfolder&quot;)</em></p></li>
+<li><p><em>&gt;&gt;&gt; edbapp.core_components.IOs</em></p></li>
+</ul>
+</p>
 </dd>
 </dl>
 </dd></dl>
@@ -309,61 +320,95 @@
 <dt id="pyaedt.edb_core.components.Components.Others">
 <em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">Others</span></code><a class="headerlink" href="#pyaedt.edb_core.components.Components.Others" title="Permalink to this definition">¶</a></dt>
 <dd><p>example:</p>
-<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">pyaedt</span> <span class="kn">import</span> <span class="n">EDB</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">edbapp</span> <span class="o">=</span> <span class="n">EDB</span><span class="p">(</span><span class="s2">&quot;myaedbfolder&quot;</span><span class="p">)</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">edbapp</span><span class="o">.</span><span class="n">core_components</span><span class="o">.</span><span class="n">others</span>
-</pre></div>
-</div>
 <dl class="field-list simple">
 <dt class="field-odd">Returns</dt>
 <dd class="field-odd"><p>Dictionary of capacitors</p>
 </dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><ul class="simple">
+<li><p><em>&gt;&gt;&gt; from pyaedt import EDB</em></p></li>
+<li><p><em>&gt;&gt;&gt; edbapp = EDB(&quot;myaedbfolder&quot;)</em></p></li>
+<li><p><em>&gt;&gt;&gt; edbapp.core_components.others</em></p></li>
+</ul>
+</p>
+</dd>
 </dl>
 </dd></dl>
+
+<dl class="py method">
+<dt id="pyaedt.edb_core.components.Components.active_layout">
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">active_layout</span></code><a class="headerlink" href="#pyaedt.edb_core.components.Components.active_layout" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="pyaedt.edb_core.components.Components.builder">
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">builder</span></code><a class="headerlink" href="#pyaedt.edb_core.components.Components.builder" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
 
 <dl class="py method">
 <dt id="pyaedt.edb_core.components.Components.capacitors">
 <em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">capacitors</span></code><a class="headerlink" href="#pyaedt.edb_core.components.Components.capacitors" title="Permalink to this definition">¶</a></dt>
 <dd><p>example:</p>
-<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">pyaedt</span> <span class="kn">import</span> <span class="n">EDB</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">edbapp</span> <span class="o">=</span> <span class="n">EDB</span><span class="p">(</span><span class="s2">&quot;myaedbfolder&quot;</span><span class="p">)</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">edbapp</span><span class="o">.</span><span class="n">core_components</span><span class="o">.</span><span class="n">capacitors</span>
-</pre></div>
-</div>
 <dl class="field-list simple">
 <dt class="field-odd">Returns</dt>
 <dd class="field-odd"><p>Dictionary of capacitors</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><ul class="simple">
+<li><p><em>&gt;&gt;&gt; from pyaedt import EDB</em></p></li>
+<li><p><em>&gt;&gt;&gt; edbapp = EDB(&quot;myaedbfolder&quot;)</em></p></li>
+<li><p><em>&gt;&gt;&gt; edbapp.core_components.capacitors</em></p></li>
+</ul>
+</p>
 </dd>
 </dl>
 </dd></dl>
 
 <dl class="py method">
+<dt id="pyaedt.edb_core.components.Components.cell">
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">cell</span></code><a class="headerlink" href="#pyaedt.edb_core.components.Components.cell" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
 <dt id="pyaedt.edb_core.components.Components.components">
 <em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">components</span></code><a class="headerlink" href="#pyaedt.edb_core.components.Components.components" title="Permalink to this definition">¶</a></dt>
 <dd><p>example:</p>
-<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">pyaedt</span> <span class="kn">import</span> <span class="n">EDB</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">edbapp</span> <span class="o">=</span> <span class="n">EDB</span><span class="p">(</span><span class="s2">&quot;myaedbfolder&quot;</span><span class="p">)</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">edbapp</span><span class="o">.</span><span class="n">core_components</span><span class="o">.</span><span class="n">components</span>
-</pre></div>
-</div>
 <p>:return:Dictionary of EDB ComponentSetupInfo</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p><ul class="simple">
+<li><p><em>&gt;&gt;&gt; from pyaedt import EDB</em></p></li>
+<li><p><em>&gt;&gt;&gt; edbapp = EDB(&quot;myaedbfolder&quot;)</em></p></li>
+<li><p><em>&gt;&gt;&gt; edbapp.core_components.components</em></p></li>
+</ul>
+</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py method">
 <dt id="pyaedt.edb_core.components.Components.components_by_partname">
 <em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">components_by_partname</span></code><a class="headerlink" href="#pyaedt.edb_core.components.Components.components_by_partname" title="Permalink to this definition">¶</a></dt>
 <dd><p>example:</p>
-<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">pyaedt</span> <span class="kn">import</span> <span class="n">EDB</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">edbapp</span> <span class="o">=</span> <span class="n">EDB</span><span class="p">(</span><span class="s2">&quot;myaedbfolder&quot;</span><span class="p">)</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">edbapp</span><span class="o">.</span><span class="n">core_components</span><span class="o">.</span><span class="n">components_by_partname</span>
-</pre></div>
-</div>
 <dl class="field-list simple">
 <dt class="field-odd">Returns</dt>
 <dd class="field-odd"><p>Components Dictionary grouped by PartName</p>
 </dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><ul class="simple">
+<li><p><em>&gt;&gt;&gt; from pyaedt import EDB</em></p></li>
+<li><p><em>&gt;&gt;&gt; edbapp = EDB(&quot;myaedbfolder&quot;)</em></p></li>
+<li><p><em>&gt;&gt;&gt; edbapp.core_components.components_by_partname</em></p></li>
+</ul>
+</p>
+</dd>
 </dl>
 </dd></dl>
+
+<dl class="py method">
+<dt id="pyaedt.edb_core.components.Components.components_methods">
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">components_methods</span></code><a class="headerlink" href="#pyaedt.edb_core.components.Components.components_methods" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
 
 <dl class="py method">
 <dt id="pyaedt.edb_core.components.Components.create_component_from_pins">
@@ -371,22 +416,21 @@
 <dd><dl class="field-list simple">
 <dt class="field-odd">Example</dt>
 <dd class="field-odd"><p></p></dd>
-</dl>
-<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">pyaedt</span> <span class="kn">import</span> <span class="n">EDB</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">edbapp</span> <span class="o">=</span> <span class="n">EDB</span><span class="p">(</span><span class="s2">&quot;myaedbfolder&quot;</span><span class="p">)</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">pins</span> <span class="o">=</span> <span class="n">edbapp</span><span class="o">.</span><span class="n">core_components</span><span class="o">.</span><span class="n">get_pin_from_component</span><span class="p">(</span><span class="s2">&quot;A1&quot;</span><span class="p">)</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">edbapp</span><span class="o">.</span><span class="n">core_components</span><span class="o">.</span><span class="n">create_component_from_pins</span><span class="p">(</span><span class="n">pins</span><span class="p">,</span> <span class="s2">&quot;A1New&quot;</span><span class="p">)</span>
-</pre></div>
-</div>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><ul class="simple">
+<dt class="field-even">Parameters</dt>
+<dd class="field-even"><ul class="simple">
 <li><p><strong>pins</strong> -- list of edb_core pins</p></li>
 <li><p><strong>component_name</strong> -- the component RefDes name</p></li>
 </ul>
 </dd>
-<dt class="field-even">Returns</dt>
-<dd class="field-even"><p>python tuple&lt;bool,the Edb.Cell.Hierarchy.Component&gt; With Item1 = True when component has successfully been created and False if not</p>
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p><ul class="simple">
+<li><p><em>type</em> -- python tuple&lt;bool,the Edb.Cell.Hierarchy.Component&gt; With Item1 = True when component has successfully been created and False if not</p></li>
+<li><p><em>&gt;&gt;&gt; from pyaedt import EDB</em></p></li>
+<li><p><em>&gt;&gt;&gt; edbapp = EDB(&quot;myaedbfolder&quot;)</em></p></li>
+<li><p><em>&gt;&gt;&gt; pins = edbapp.core_components.get_pin_from_component(&quot;A1&quot;)</em></p></li>
+<li><p><em>&gt;&gt;&gt; edbapp.core_components.create_component_from_pins(pins, &quot;A1New&quot;)</em></p></li>
+</ul>
+</p>
 </dd>
 </dl>
 </dd></dl>
@@ -401,11 +445,6 @@
 <dd class="field-odd"><p></p></dd>
 </dl>
 </div></blockquote>
-<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">pyaedt</span> <span class="kn">import</span> <span class="n">EDB</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">edbapp</span> <span class="o">=</span> <span class="n">EDB</span><span class="p">(</span><span class="s2">&quot;myaedbfolder&quot;</span><span class="p">)</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">edbapp</span><span class="o">.</span><span class="n">core_components</span><span class="o">.</span><span class="n">create_pingroup_from_pins</span><span class="p">(</span><span class="n">gndpinlist</span><span class="p">,</span> <span class="s2">&quot;MyGNDPingroup&quot;</span><span class="p">)</span>
-</pre></div>
-</div>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
@@ -413,8 +452,21 @@
 <li><p><strong>group_name</strong> -- Optional the name for the group. If None a default name will be applied with [component Name] [NetName]</p></li>
 </ul>
 </dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><ul class="simple">
+<li><p><em>&gt;&gt;&gt; from pyaedt import EDB</em></p></li>
+<li><p><em>&gt;&gt;&gt; edbapp = EDB(&quot;myaedbfolder&quot;)</em></p></li>
+<li><p><em>&gt;&gt;&gt; edbapp.core_components.create_pingroup_from_pins(gndpinlist, &quot;MyGNDPingroup&quot;)</em></p></li>
+</ul>
+</p>
+</dd>
 </dl>
 </dd></dl>
+
+<dl class="py method">
+<dt id="pyaedt.edb_core.components.Components.db">
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">db</span></code><a class="headerlink" href="#pyaedt.edb_core.components.Components.db" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
 
 <dl class="py method">
 <dt id="pyaedt.edb_core.components.Components.delete_component">
@@ -423,18 +475,17 @@
 <dl class="field-list simple">
 <dt class="field-odd">Example</dt>
 <dd class="field-odd"><p></p></dd>
-</dl>
-<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">pyaedt</span> <span class="kn">import</span> <span class="n">EDB</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">edbapp</span> <span class="o">=</span> <span class="n">EDB</span><span class="p">(</span><span class="s2">&quot;myaedbfolder&quot;</span><span class="p">)</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">edbapp</span><span class="o">.</span><span class="n">core_components</span><span class="o">.</span><span class="n">delete_component</span><span class="p">(</span><span class="s2">&quot;A1&quot;</span><span class="p">)</span>
-</pre></div>
-</div>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>component_name</strong> -- str name of component to delete</p>
+<dt class="field-even">Parameters</dt>
+<dd class="field-even"><p><strong>component_name</strong> -- str name of component to delete</p>
 </dd>
-<dt class="field-even">Returns</dt>
-<dd class="field-even"><p>Bool</p>
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p><ul class="simple">
+<li><p><em>type</em> -- Bool</p></li>
+<li><p><em>&gt;&gt;&gt; from pyaedt import EDB</em></p></li>
+<li><p><em>&gt;&gt;&gt; edbapp = EDB(&quot;myaedbfolder&quot;)</em></p></li>
+<li><p><em>&gt;&gt;&gt; edbapp.core_components.delete_component(&quot;A1&quot;)</em></p></li>
+</ul>
+</p>
 </dd>
 </dl>
 </dd></dl>
@@ -446,16 +497,17 @@
 <dl class="field-list simple">
 <dt class="field-odd">Example</dt>
 <dd class="field-odd"><p></p></dd>
-</dl>
-<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">pyaedt</span> <span class="kn">import</span> <span class="n">EDB</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">edbapp</span> <span class="o">=</span> <span class="n">EDB</span><span class="p">(</span><span class="s2">&quot;myaedbfolder&quot;</span><span class="p">)</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">list_of_deleted_rlcs</span> <span class="o">=</span> <span class="n">edbapp</span><span class="o">.</span><span class="n">core_components</span><span class="o">.</span><span class="n">delete_single_pin_rlc</span><span class="p">()</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">list_of_deleted_rlcs</span><span class="p">)</span>
-</pre></div>
-</div>
-<dl class="field-list simple">
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>list of deleted components</p>
+</dd>
 <dt class="field-odd">Returns</dt>
-<dd class="field-odd"><p>list of deleted components</p>
+<dd class="field-odd"><p><ul class="simple">
+<li><p><em>&gt;&gt;&gt; from pyaedt import EDB</em></p></li>
+<li><p><em>&gt;&gt;&gt; edbapp = EDB(&quot;myaedbfolder&quot;)</em></p></li>
+<li><p><em>&gt;&gt;&gt; list_of_deleted_rlcs = edbapp.core_components.delete_single_pin_rlc()</em></p></li>
+<li><p><em>&gt;&gt;&gt; print(list_of_deleted_rlcs)</em></p></li>
+</ul>
+</p>
 </dd>
 </dl>
 </dd></dl>
@@ -467,29 +519,52 @@
 <dl class="field-list simple">
 <dt class="field-odd">Example</dt>
 <dd class="field-odd"><p></p></dd>
-</dl>
-<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">pyaedt</span> <span class="kn">import</span> <span class="n">EDB</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">edbapp</span> <span class="o">=</span> <span class="n">EDB</span><span class="p">(</span><span class="s2">&quot;myaedbfolder&quot;</span><span class="p">)</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">edbapp</span><span class="o">.</span><span class="n">core_components</span><span class="o">.</span><span class="n">disable_rlc_component</span><span class="p">(</span><span class="s2">&quot;A1&quot;</span><span class="p">)</span>
-</pre></div>
-</div>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>component_name</strong> -- str component name</p>
+<dt class="field-even">Parameters</dt>
+<dd class="field-even"><p><strong>component_name</strong> -- str component name</p>
 </dd>
-<dt class="field-even">Returns</dt>
-<dd class="field-even"><p>Bool</p>
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p><ul class="simple">
+<li><p><em>type</em> -- Bool</p></li>
+<li><p><em>&gt;&gt;&gt; from pyaedt import EDB</em></p></li>
+<li><p><em>&gt;&gt;&gt; edbapp = EDB(&quot;myaedbfolder&quot;)</em></p></li>
+<li><p><em>&gt;&gt;&gt; edbapp.core_components.disable_rlc_component(&quot;A1&quot;)</em></p></li>
+</ul>
+</p>
 </dd>
 </dl>
 </dd></dl>
 
 <dl class="py method">
+<dt id="pyaedt.edb_core.components.Components.edb">
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">edb</span></code><a class="headerlink" href="#pyaedt.edb_core.components.Components.edb" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="pyaedt.edb_core.components.Components.edb_value">
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">edb_value</span></code><a class="headerlink" href="#pyaedt.edb_core.components.Components.edb_value" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="pyaedt.edb_core.components.Components.edbutils">
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">edbutils</span></code><a class="headerlink" href="#pyaedt.edb_core.components.Components.edbutils" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
 <dt id="pyaedt.edb_core.components.Components.get_aedt_pin_name">
 <code class="sig-name descname"><span class="pre">get_aedt_pin_name</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">pin</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pyaedt/edb_core/components.html#Components.get_aedt_pin_name"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyaedt.edb_core.components.Components.get_aedt_pin_name" title="Permalink to this definition">¶</a></dt>
 <dd><p>get the pin name as shown in aedt
-Note: to obtain the edb_core pin name simply use pin.GetName()
-:param pin: the pin
-:return: name as string</p>
+Note: to obtain the edb_core pin name simply use pin.GetName()</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>pin</strong> -- the pin</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>name as string</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>type</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py method">
@@ -503,16 +578,26 @@ Note: to obtain the edb_core pin name simply use pin.GetName()
 <dt class="field-even">Returns</dt>
 <dd class="field-even"><p>Edb component (Edb.Cell.Hierarchy.Component) object if exists</p>
 </dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>type</p>
+</dd>
 </dl>
 </dd></dl>
 
 <dl class="py method">
 <dt id="pyaedt.edb_core.components.Components.get_component_list">
 <code class="sig-name descname"><span class="pre">get_component_list</span></code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pyaedt/edb_core/components.html#Components.get_component_list"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyaedt.edb_core.components.Components.get_component_list" title="Permalink to this definition">¶</a></dt>
-<dd><p>Return the list of all components</p>
-<dl class="field-list simple">
+<dd><dl class="field-list simple">
 <dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p><dl class="field-list simple">
+<dt class="field-odd">return</dt>
 <dd class="field-odd"><p>List of component Setup Info</p>
+</dd>
+</dl>
+</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>type</p>
 </dd>
 </dl>
 </dd></dl>
@@ -520,9 +605,18 @@ Note: to obtain the edb_core pin name simply use pin.GetName()
 <dl class="py method">
 <dt id="pyaedt.edb_core.components.Components.get_component_net_connection_info">
 <code class="sig-name descname"><span class="pre">get_component_net_connection_info</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">refdes</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pyaedt/edb_core/components.html#Components.get_component_net_connection_info"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyaedt.edb_core.components.Components.get_component_net_connection_info" title="Permalink to this definition">¶</a></dt>
-<dd><p>return dictionary of RefDes, PinNames and NetNames for specified ref des
-:param refdes: reference designator
-:return: dicti</p>
+<dd><p>return dictionary of RefDes, PinNames and NetNames for specified ref des</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>refdes</strong> -- reference designator</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>dicti</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>type</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py method">
@@ -531,10 +625,13 @@ Note: to obtain the edb_core pin name simply use pin.GetName()
 <dd><p>Get Components from Net List</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>netlist</strong> -- netlist string.</p>
+<dd class="field-odd"><p><strong>netlist</strong> -- netlist string. (Default value = None)</p>
 </dd>
 <dt class="field-even">Returns</dt>
 <dd class="field-even"><p>list of component names that belongs to signal nets</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>type</p>
 </dd>
 </dl>
 </dd></dl>
@@ -550,6 +647,9 @@ Note: to obtain the edb_core pin name simply use pin.GetName()
 <dt class="field-even">Returns</dt>
 <dd class="field-even"><p>list of nets</p>
 </dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>type</p>
+</dd>
 </dl>
 </dd></dl>
 
@@ -561,12 +661,15 @@ Note: to obtain the edb_core pin name simply use pin.GetName()
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>cmpName</strong> -- component name</p></li>
-<li><p><strong>netName</strong> -- filter on net name, optional and alternative to pinName</p></li>
-<li><p><strong>pinName</strong> -- filter on pin name, optional and alternative to netName</p></li>
+<li><p><strong>netName</strong> -- filter on net name, optional and alternative to pinName (Default value = None)</p></li>
+<li><p><strong>pinName</strong> -- filter on pin name, optional and alternative to netName (Default value = None)</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>
 <dd class="field-even"><p>the list of pin. [] if component not found</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>type</p>
 </dd>
 </dl>
 </dd></dl>
@@ -574,9 +677,18 @@ Note: to obtain the edb_core pin name simply use pin.GetName()
 <dl class="py method">
 <dt id="pyaedt.edb_core.components.Components.get_pin_position">
 <code class="sig-name descname"><span class="pre">get_pin_position</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">pin</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pyaedt/edb_core/components.html#Components.get_pin_position"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyaedt.edb_core.components.Components.get_pin_position" title="Permalink to this definition">¶</a></dt>
-<dd><p>get the pin position x, y in meter
-:param pin: the pin
-:return: [x, y] as list of float</p>
+<dd><p>get the pin position x, y in meter</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>pin</strong> -- the pin</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>x, y] as list of float</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>type</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py method">
@@ -592,6 +704,9 @@ Note: to obtain the edb_core pin name simply use pin.GetName()
 </dd>
 <dt class="field-even">Returns</dt>
 <dd class="field-even"><p>pinlist</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>type</p>
 </dd>
 </dl>
 </dd></dl>
@@ -611,10 +726,7 @@ Note: to obtain the edb_core pin name simply use pin.GetName()
 <code class="sig-name descname"><span class="pre">get_through_resistor_list</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">threshold</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pyaedt/edb_core/components.html#Components.get_through_resistor_list"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyaedt.edb_core.components.Components.get_through_resistor_list" title="Permalink to this definition">¶</a></dt>
 <dd><dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>threshold</strong> -- </p>
-</dd>
-<dt class="field-even">Returns</dt>
-<dd class="field-even"><p></p>
+<dd class="field-odd"><p><strong>threshold</strong> -- return: (Default value = 1)</p>
 </dd>
 </dl>
 </dd></dl>
@@ -623,30 +735,46 @@ Note: to obtain the edb_core pin name simply use pin.GetName()
 <dt id="pyaedt.edb_core.components.Components.inductors">
 <em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">inductors</span></code><a class="headerlink" href="#pyaedt.edb_core.components.Components.inductors" title="Permalink to this definition">¶</a></dt>
 <dd><p>example:</p>
-<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">pyaedt</span> <span class="kn">import</span> <span class="n">EDB</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">edbapp</span> <span class="o">=</span> <span class="n">EDB</span><span class="p">(</span><span class="s2">&quot;myaedbfolder&quot;</span><span class="p">)</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">edbapp</span><span class="o">.</span><span class="n">core_components</span><span class="o">.</span><span class="n">inductors</span>
-</pre></div>
-</div>
 <dl class="field-list simple">
 <dt class="field-odd">Returns</dt>
 <dd class="field-odd"><p>Dictionary of inductors</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><ul class="simple">
+<li><p><em>&gt;&gt;&gt; from pyaedt import EDB</em></p></li>
+<li><p><em>&gt;&gt;&gt; edbapp = EDB(&quot;myaedbfolder&quot;)</em></p></li>
+<li><p><em>&gt;&gt;&gt; edbapp.core_components.inductors</em></p></li>
+</ul>
+</p>
 </dd>
 </dl>
 </dd></dl>
 
 <dl class="py method">
+<dt id="pyaedt.edb_core.components.Components.init_parts">
+<code class="sig-name descname"><span class="pre">init_parts</span></code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pyaedt/edb_core/components.html#Components.init_parts"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyaedt.edb_core.components.Components.init_parts" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="pyaedt.edb_core.components.Components.messenger">
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">messenger</span></code><a class="headerlink" href="#pyaedt.edb_core.components.Components.messenger" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
 <dt id="pyaedt.edb_core.components.Components.resistors">
 <em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">resistors</span></code><a class="headerlink" href="#pyaedt.edb_core.components.Components.resistors" title="Permalink to this definition">¶</a></dt>
 <dd><p>example:</p>
-<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">pyaedt</span> <span class="kn">import</span> <span class="n">EDB</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">edbapp</span> <span class="o">=</span> <span class="n">EDB</span><span class="p">(</span><span class="s2">&quot;myaedbfolder&quot;</span><span class="p">)</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">edbapp</span><span class="o">.</span><span class="n">core_components</span><span class="o">.</span><span class="n">resistors</span>
-</pre></div>
-</div>
 <dl class="field-list simple">
 <dt class="field-odd">Returns</dt>
 <dd class="field-odd"><p>Dictionary of Resistors</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><ul class="simple">
+<li><p><em>&gt;&gt;&gt; from pyaedt import EDB</em></p></li>
+<li><p><em>&gt;&gt;&gt; edbapp = EDB(&quot;myaedbfolder&quot;)</em></p></li>
+<li><p><em>&gt;&gt;&gt; edbapp.core_components.resistors</em></p></li>
+</ul>
+</p>
 </dd>
 </dl>
 </dd></dl>
@@ -658,23 +786,22 @@ Note: to obtain the edb_core pin name simply use pin.GetName()
 <dl class="field-list simple">
 <dt class="field-odd">Example</dt>
 <dd class="field-odd"><p></p></dd>
-</dl>
-<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">pyaedt</span> <span class="kn">import</span> <span class="n">EDB</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">edbapp</span> <span class="o">=</span> <span class="n">EDB</span><span class="p">(</span><span class="s2">&quot;myaedbfolder&quot;</span><span class="p">)</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">edbapp</span><span class="o">.</span><span class="n">core_components</span><span class="o">.</span><span class="n">set_component_model</span><span class="p">(</span><span class="s2">&quot;A1&quot;</span><span class="p">,</span> <span class="n">model_type</span><span class="o">=</span><span class="s2">&quot;Spice&quot;</span><span class="p">,</span> <span class="n">modelpath</span><span class="o">=</span><span class="s2">&quot;pathtospfile&quot;</span><span class="p">,</span> <span class="n">modelname</span><span class="o">=</span><span class="s2">&quot;spicemodelname&quot;</span><span class="p">)</span>
-</pre></div>
-</div>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><ul class="simple">
+<dt class="field-even">Parameters</dt>
+<dd class="field-even"><ul class="simple">
 <li><p><strong>componentname</strong> -- Name of the component to update</p></li>
 <li><p><strong>model_type</strong> -- Type of the model. Spice (default) | Touchstone</p></li>
-<li><p><strong>modelpath</strong> -- full path to the model file</p></li>
-<li><p><strong>modelname</strong> -- name of the model. None -&gt;filename</p></li>
+<li><p><strong>modelpath</strong> -- full path to the model file (Default value = None)</p></li>
+<li><p><strong>modelname</strong> -- name of the model. None -&gt;filename (Default value = None)</p></li>
 </ul>
 </dd>
-<dt class="field-even">Returns</dt>
-<dd class="field-even"><p>True if succeded | False if failed</p>
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p><ul class="simple">
+<li><p><em>type</em> -- True if succeded | False if failed</p></li>
+<li><p><em>&gt;&gt;&gt; from pyaedt import EDB</em></p></li>
+<li><p><em>&gt;&gt;&gt; edbapp = EDB(&quot;myaedbfolder&quot;)</em></p></li>
+<li><p><em>&gt;&gt;&gt; edbapp.core_components.set_component_model(&quot;A1&quot;, model_type=&quot;Spice&quot;, modelpath=&quot;pathtospfile&quot;, modelname=&quot;spicemodelname&quot;)</em></p></li>
+</ul>
+</p>
 </dd>
 </dl>
 </dd></dl>
@@ -686,24 +813,23 @@ Note: to obtain the edb_core pin name simply use pin.GetName()
 <dl class="field-list simple">
 <dt class="field-odd">Example</dt>
 <dd class="field-odd"><p></p></dd>
-</dl>
-<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">pyaedt</span> <span class="kn">import</span> <span class="n">EDB</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">edbapp</span> <span class="o">=</span> <span class="n">EDB</span><span class="p">(</span><span class="s2">&quot;myaedbfolder&quot;</span><span class="p">)</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">edbapp</span><span class="o">.</span><span class="n">core_components</span><span class="o">.</span><span class="n">set_component_rlc</span><span class="p">(</span><span class="s2">&quot;R1&quot;</span><span class="p">,</span> <span class="n">res_value</span><span class="o">=</span><span class="mi">50</span><span class="p">,</span> <span class="n">ind_value</span><span class="o">=</span><span class="mf">1e-9</span><span class="p">,</span> <span class="n">cap_value</span><span class="o">=</span><span class="mf">1e-12</span><span class="p">,</span> <span class="n">isparallel</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
-</pre></div>
-</div>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><ul class="simple">
+<dt class="field-even">Parameters</dt>
+<dd class="field-even"><ul class="simple">
 <li><p><strong>componentname</strong> -- name of component to update</p></li>
-<li><p><strong>res_value</strong> -- Resistance value</p></li>
-<li><p><strong>ind_value</strong> -- Inductor value</p></li>
-<li><p><strong>cap_value</strong> -- Capacitor Value</p></li>
-<li><p><strong>isparallel</strong> -- boolean</p></li>
+<li><p><strong>res_value</strong> -- Resistance value (Default value = None)</p></li>
+<li><p><strong>ind_value</strong> -- Inductor value (Default value = None)</p></li>
+<li><p><strong>cap_value</strong> -- Capacitor Value (Default value = None)</p></li>
+<li><p><strong>isparallel</strong> -- boolean (Default value = False)</p></li>
 </ul>
 </dd>
-<dt class="field-even">Returns</dt>
-<dd class="field-even"><p>bool</p>
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p><ul class="simple">
+<li><p><em>type</em> -- bool</p></li>
+<li><p><em>&gt;&gt;&gt; from pyaedt import EDB</em></p></li>
+<li><p><em>&gt;&gt;&gt; edbapp = EDB(&quot;myaedbfolder&quot;)</em></p></li>
+<li><p><em>&gt;&gt;&gt; edbapp.core_components.set_component_rlc(&quot;R1&quot;, res_value=50, ind_value=1e-9, cap_value=1e-12, isparallel=False)</em></p></li>
+</ul>
+</p>
 </dd>
 </dl>
 </dd></dl>
@@ -719,17 +845,30 @@ valuefield has to contain the value of the Component (eg. 22pF) at beginning of 
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>bom_file</strong> -- full path to the bom file</p></li>
 <li><p><strong>delimiter</strong> -- delimiter default value ;</p></li>
-<li><p><strong>valuefield</strong> -- Field Header containing the value of component</p></li>
-<li><p><strong>comptype</strong> -- Field Header containing the type of component.eg &quot;Inductor&quot;</p></li>
-<li><p><strong>refdes</strong> -- Field Header containing the RefDes of Component. eg &quot;C100&quot;</p></li>
+<li><p><strong>valuefield</strong> -- Field Header containing the value of component (Default value = &quot;Func des&quot;)</p></li>
+<li><p><strong>comptype</strong> -- Field Header containing the type of component.eg &quot;Inductor&quot; (Default value = &quot;Prod name&quot;)</p></li>
+<li><p><strong>refdes</strong> -- Field Header containing the RefDes of Component. eg &quot;C100&quot; (Default value = &quot;Pos / Place&quot;)</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>
 <dd class="field-even"><p>True if the file contains the header and it is correctly parsed. the function returns True even if no values are assigned</p>
 </dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>type</p>
+</dd>
 </dl>
 </dd></dl>
 
+</dd></dl>
+
+<dl class="py function">
+<dt id="pyaedt.edb_core.components.resistor_value_parser">
+<code class="sig-prename descclassname"><span class="pre">pyaedt.edb_core.components.</span></code><code class="sig-name descname"><span class="pre">resistor_value_parser</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">RValue</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pyaedt/edb_core/components.html#resistor_value_parser"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyaedt.edb_core.components.resistor_value_parser" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>RValue</strong> -- </p>
+</dd>
+</dl>
 </dd></dl>
 
 </div>

@@ -162,9 +162,7 @@
 <span class="kn">import</span> <span class="nn">os</span>
 
 <div class="viewcode-block" id="Primitives3D"><a class="viewcode-back" href="../../../API/Primitives3D.html#pyaedt.modeler.Primitives3D.Primitives3D">[docs]</a><span class="k">class</span> <span class="nc">Primitives3D</span><span class="p">(</span><span class="n">Primitives</span><span class="p">,</span> <span class="nb">object</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Class for management of all Primitives of 3D Tools</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="sd">&quot;&quot;&quot;Class for management of all Primitives of 3D Tools&quot;&quot;&quot;</span>
 
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">parent</span><span class="p">,</span> <span class="n">modeler</span><span class="p">):</span>
         <span class="n">Primitives</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">parent</span><span class="p">,</span> <span class="n">modeler</span><span class="p">)</span>
@@ -172,21 +170,32 @@
 <div class="viewcode-block" id="Primitives3D.create_box"><a class="viewcode-back" href="../../../API/Primitives3D.html#pyaedt.modeler.Primitives3D.Primitives3D.create_box">[docs]</a>    <span class="nd">@aedt_exception_handler</span>
     <span class="k">def</span> <span class="nf">create_box</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">position</span><span class="p">,</span> <span class="n">dimensions_list</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">matname</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Create a Box</span>
+<span class="sd">        </span>
 
-<span class="sd">        :example:</span>
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        position :</span>
+<span class="sd">            ApplicationName.modeler.Position(x,y,z) object</span>
+<span class="sd">        dimensions_list :</span>
+<span class="sd">            list of dimensions of X, Y, Z</span>
+<span class="sd">        name :</span>
+<span class="sd">            box name. Optional, if nothing default name will be assigned</span>
+<span class="sd">        matname :</span>
+<span class="sd">            material name. Optional, if nothing default material will be assigned</span>
 
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        int</span>
+<span class="sd">            Box ID</span>
+
+<span class="sd">        Examples</span>
+<span class="sd">        _________</span>
 <span class="sd">        &gt;&gt;&gt; from pyaedt import HFSS</span>
 <span class="sd">        &gt;&gt;&gt; hfss = HFSS()</span>
 <span class="sd">        &gt;&gt;&gt; origin = [0,0,0]</span>
 <span class="sd">        &gt;&gt;&gt; dimensions = [10,5,20]</span>
 <span class="sd">        &gt;&gt;&gt; #Material and name are not mandatory fields</span>
 <span class="sd">        &gt;&gt;&gt; object_id = hfss.modeler.primivites.create_box(origin, dimensions, name=&quot;mybox&quot;, matname=&quot;copper&quot;)</span>
-
-<span class="sd">        :param position: ApplicationName.modeler.Position(x,y,z) object</span>
-<span class="sd">        :param dimensions_list: list of dimensions of X, Y, Z</span>
-<span class="sd">        :param name: box name. Optional, if nothing default name will be assigned</span>
-<span class="sd">        :param matname: material name. Optional, if nothing default material will be assigned</span>
-<span class="sd">        :return: Box ID</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="nb">id</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_new_id</span><span class="p">()</span>
         <span class="n">o</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">objects</span><span class="p">[</span><span class="nb">id</span><span class="p">]</span>
@@ -217,13 +226,26 @@
     <span class="k">def</span> <span class="nf">create_circle</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">cs_plane</span><span class="p">,</span> <span class="n">position</span><span class="p">,</span> <span class="n">radius</span><span class="p">,</span> <span class="n">numSides</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">matname</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Create a circle</span>
 
-<span class="sd">        :param cs_plane: ApplicationName.CoordinateSystemPlane object</span>
-<span class="sd">        :param position: ApplicationName.modeler.Position(x,y,z) object</span>
-<span class="sd">        :param radius: radius float</span>
-<span class="sd">        :param numSides: Number of sides. 0 for circle</span>
-<span class="sd">        :param name: Object Name</span>
-<span class="sd">        :param matname: material name. Optional, if nothing default material will be assigned</span>
-<span class="sd">        :return: id</span>
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        cs_plane :</span>
+<span class="sd">            ApplicationName.CoordinateSystemPlane object</span>
+<span class="sd">        position :</span>
+<span class="sd">            ApplicationName.modeler.Position(x,y,z) object</span>
+<span class="sd">        radius :</span>
+<span class="sd">            radius float</span>
+<span class="sd">        numSides :</span>
+<span class="sd">            Number of sides. 0 for circle (Default value = 0)</span>
+<span class="sd">        name :</span>
+<span class="sd">            Object Name (Default value = None)</span>
+<span class="sd">        matname :</span>
+<span class="sd">            material name. Optional, if nothing default material will be assigned</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        type</span>
+<span class="sd">            id</span>
+
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="nb">id</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_new_id</span><span class="p">()</span>
 
@@ -250,16 +272,22 @@
 
 <div class="viewcode-block" id="Primitives3D.create_sphere"><a class="viewcode-back" href="../../../API/Primitives3D.html#pyaedt.modeler.Primitives3D.Primitives3D.create_sphere">[docs]</a>    <span class="nd">@aedt_exception_handler</span>
     <span class="k">def</span> <span class="nf">create_sphere</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">position</span><span class="p">,</span> <span class="n">radius</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">matname</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Create a sphere</span>
+        <span class="sd">&quot;&quot;&quot;Create a sphere</span>
 
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        position :</span>
+<span class="sd">            ApplicationName.modeler.Position(x,y,z) object</span>
+<span class="sd">        radius :</span>
+<span class="sd">            radius float</span>
+<span class="sd">        name :</span>
+<span class="sd">            Object Name (Default value = None)</span>
+<span class="sd">        matname :</span>
+<span class="sd">            material name. Optional, if nothing default material will be assigned</span>
 
-<span class="sd">        :param position: ApplicationName.modeler.Position(x,y,z) object</span>
-<span class="sd">        :param radius: radius float</span>
-<span class="sd">        :param name: Object Name</span>
-<span class="sd">        :param matname: material name. Optional, if nothing default material will be assigned</span>
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
 
-<span class="sd">        :return:</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="nb">id</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_new_id</span><span class="p">()</span>
 
@@ -283,19 +311,28 @@
 
 <div class="viewcode-block" id="Primitives3D.create_cylinder"><a class="viewcode-back" href="../../../API/Primitives3D.html#pyaedt.modeler.Primitives3D.Primitives3D.create_cylinder">[docs]</a>    <span class="nd">@aedt_exception_handler</span>
     <span class="k">def</span> <span class="nf">create_cylinder</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">cs_axis</span><span class="p">,</span> <span class="n">position</span><span class="p">,</span> <span class="n">radius</span><span class="p">,</span> <span class="n">height</span><span class="p">,</span> <span class="n">numSides</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">matname</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Create a cylinder</span>
+        <span class="sd">&quot;&quot;&quot;Create a cylinder</span>
 
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        cs_axis :</span>
+<span class="sd">            ApplicationName.CoordinateSystemAxis object</span>
+<span class="sd">        position :</span>
+<span class="sd">            ApplicationName.modeler.Position(x,y,z) object</span>
+<span class="sd">        radius :</span>
+<span class="sd">            radius float</span>
+<span class="sd">        height :</span>
+<span class="sd">            height float</span>
+<span class="sd">        numSides :</span>
+<span class="sd">            Number of sides. 0 for circle (Default value = 0)</span>
+<span class="sd">        name :</span>
+<span class="sd">            Object Name (Default value = None)</span>
+<span class="sd">        matname :</span>
+<span class="sd">            material name. Optional, if nothing default material will be assigned</span>
 
-<span class="sd">        :param cs_axis: ApplicationName.CoordinateSystemAxis object</span>
-<span class="sd">        :param position: ApplicationName.modeler.Position(x,y,z) object</span>
-<span class="sd">        :param radius: radius float</span>
-<span class="sd">        :param height: height float</span>
-<span class="sd">        :param numSides: Number of sides. 0 for circle</span>
-<span class="sd">        :param name: Object Name</span>
-<span class="sd">        :param matname: material name. Optional, if nothing default material will be assigned</span>
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
 
-<span class="sd">        :return:</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="nb">id</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_new_id</span><span class="p">()</span>
 
@@ -326,19 +363,28 @@
 
 <div class="viewcode-block" id="Primitives3D.create_ellipse"><a class="viewcode-back" href="../../../API/Primitives3D.html#pyaedt.modeler.Primitives3D.Primitives3D.create_ellipse">[docs]</a>    <span class="nd">@aedt_exception_handler</span>
     <span class="k">def</span> <span class="nf">create_ellipse</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">cs_plane</span><span class="p">,</span> <span class="n">position</span><span class="p">,</span> <span class="n">major_raidus</span><span class="p">,</span> <span class="n">ratio</span><span class="p">,</span> <span class="n">bIsCovered</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">matname</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Create a ellipse</span>
+        <span class="sd">&quot;&quot;&quot;Create a ellipse</span>
 
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        cs_plane :</span>
+<span class="sd">            ApplicationName.CoordinateSystemPlane object</span>
+<span class="sd">        position :</span>
+<span class="sd">            ApplicationName.modeler.Position(x,y,z) object</span>
+<span class="sd">        major_raidus :</span>
+<span class="sd">            radius float</span>
+<span class="sd">        ratio :</span>
+<span class="sd">            Ratio float</span>
+<span class="sd">        bIsCovered :</span>
+<span class="sd">            Boolean (Default value = True)</span>
+<span class="sd">        name :</span>
+<span class="sd">            Object Name (Default value = None)</span>
+<span class="sd">        matname :</span>
+<span class="sd">            material name. Optional, if nothing default material will be assigned</span>
 
-<span class="sd">        :param cs_plane: ApplicationName.CoordinateSystemPlane object</span>
-<span class="sd">        :param position: ApplicationName.modeler.Position(x,y,z) object</span>
-<span class="sd">        :param major_raidus: radius float</span>
-<span class="sd">        :param ratio: Ratio float</span>
-<span class="sd">        :param bIsCovered: Boolean</span>
-<span class="sd">        :param name: Object Name</span>
-<span class="sd">        :param matname: material name. Optional, if nothing default material will be assigned</span>
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
 
-<span class="sd">        :return:</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="nb">id</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_new_id</span><span class="p">()</span>
 
@@ -370,8 +416,23 @@
 
         <span class="k">return</span> <span class="nb">id</span></div>
 
-    <span class="nd">@aedt_exception_handler</span>
+<div class="viewcode-block" id="Primitives3D.create_equationbased_curve"><a class="viewcode-back" href="../../../API/Primitives3D.html#pyaedt.modeler.Primitives3D.Primitives3D.create_equationbased_curve">[docs]</a>    <span class="nd">@aedt_exception_handler</span>
     <span class="k">def</span> <span class="nf">create_equationbased_curve</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">udpequationbasedcurveddefinition</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">matname</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        udpequationbasedcurveddefinition :</span>
+<span class="sd">            </span>
+<span class="sd">        name :</span>
+<span class="sd">             (Default value = None)</span>
+<span class="sd">        matname :</span>
+<span class="sd">             (Default value = None)</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="c1"># TODO Test</span>
         <span class="nb">id</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_new_id</span><span class="p">()</span>
 
@@ -383,10 +444,21 @@
 
         <span class="n">o</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">oeditor</span><span class="o">.</span><span class="n">CreateEquationCurve</span><span class="p">(</span><span class="n">vArg1</span><span class="p">,</span> <span class="n">vArg2</span><span class="p">)</span>
         <span class="nb">id</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_update_object</span><span class="p">(</span><span class="n">o</span><span class="p">,</span> <span class="s2">&quot;Line&quot;</span><span class="p">)</span>
-        <span class="k">return</span> <span class="nb">id</span>
+        <span class="k">return</span> <span class="nb">id</span></div>
 
-    <span class="nd">@aedt_exception_handler</span>
+<div class="viewcode-block" id="Primitives3D.create_helix"><a class="viewcode-back" href="../../../API/Primitives3D.html#pyaedt.modeler.Primitives3D.Primitives3D.create_helix">[docs]</a>    <span class="nd">@aedt_exception_handler</span>
     <span class="k">def</span> <span class="nf">create_helix</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">udphelixdefinition</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        udphelixdefinition :</span>
+<span class="sd">            </span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="c1"># TODO Test</span>
         <span class="nb">id</span> <span class="o">=</span> <span class="n">udphelixdefinition</span><span class="o">.</span><span class="n">ProfileID</span>
 
@@ -400,22 +472,33 @@
 
         <span class="bp">self</span><span class="o">.</span><span class="n">oeditor</span><span class="o">.</span><span class="n">CreateHelix</span><span class="p">(</span><span class="n">vArg1</span><span class="p">,</span> <span class="n">vArg2</span><span class="p">)</span>
         <span class="nb">id</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_update_object</span><span class="p">(</span><span class="n">o</span><span class="p">)</span>
-        <span class="k">return</span> <span class="nb">id</span>
+        <span class="k">return</span> <span class="nb">id</span></div>
 
 <div class="viewcode-block" id="Primitives3D.create_polyline_with_crosssection"><a class="viewcode-back" href="../../../API/Primitives3D.html#pyaedt.modeler.Primitives3D.Primitives3D.create_polyline_with_crosssection">[docs]</a>    <span class="nd">@aedt_exception_handler</span>
     <span class="k">def</span> <span class="nf">create_polyline_with_crosssection</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">polylinename</span><span class="p">,</span> <span class="n">crosssectiontype</span><span class="o">=</span><span class="s2">&quot;Rectangle&quot;</span><span class="p">,</span> <span class="n">width</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">height</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
                                           <span class="n">bendtype</span><span class="o">=</span><span class="s2">&quot;Corner&quot;</span><span class="p">,</span> <span class="n">orientation</span><span class="o">=</span><span class="s2">&quot;Auto&quot;</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Create a 3D object from polyline and sheet</span>
+        <span class="sd">&quot;&quot;&quot;Create a 3D object from polyline and sheet</span>
 
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        polylinename :</span>
+<span class="sd">            name of polyline</span>
+<span class="sd">        crosssectiontype :</span>
+<span class="sd">            type of crossection. &quot;Rectangle&quot;, &quot;Circle&quot;... (Default value = &quot;Rectangle&quot;)</span>
+<span class="sd">        width :</span>
+<span class="sd">            width of crossection (Default value = 1)</span>
+<span class="sd">        height :</span>
+<span class="sd">            height of crosssection if Rectangle. Number of Segments if Circle (Default value = 1)</span>
+<span class="sd">        bendtype :</span>
+<span class="sd">            bend type. Default &quot;Corner&quot;.</span>
+<span class="sd">        orientation :</span>
+<span class="sd">            orientation. Default &quot;Auto&quot;</span>
 
-<span class="sd">        :param polylinename: name of polyline</span>
-<span class="sd">        :param crosssectiontype: type of crossection. &quot;Rectangle&quot;, &quot;Circle&quot;...</span>
-<span class="sd">        :param width: width of crossection</span>
-<span class="sd">        :param height: height of crosssection if Rectangle. Number of Segments if Circle</span>
-<span class="sd">        :param bendtype: bend type. Default &quot;Corner&quot;.</span>
-<span class="sd">        :param orientation: orientation. Default &quot;Auto&quot;</span>
-<span class="sd">        :return: Bool</span>
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        type</span>
+<span class="sd">            Bool</span>
+
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">arg1</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;NAME:AllTabs&quot;</span><span class="p">]</span>
         <span class="n">arg2</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;NAME:Geometry3DCmdTab&quot;</span><span class="p">,</span> <span class="p">[</span><span class="s2">&quot;NAME:PropServers&quot;</span><span class="p">,</span> <span class="n">polylinename</span> <span class="o">+</span> <span class="s2">&quot;:CreatePolyline:1&quot;</span><span class="p">]]</span>
@@ -441,11 +524,18 @@
 
 <div class="viewcode-block" id="Primitives3D.convert_segments_to_line"><a class="viewcode-back" href="../../../API/Primitives3D.html#pyaedt.modeler.Primitives3D.Primitives3D.convert_segments_to_line">[docs]</a>    <span class="nd">@aedt_exception_handler</span>
     <span class="k">def</span> <span class="nf">convert_segments_to_line</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">object_name</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Convert a CreatePolyline list of segment into lines. it applies to splines and 3 points args</span>
+        <span class="sd">&quot;&quot;&quot;Convert a CreatePolyline list of segment into lines. it applies to splines and 3 points args</span>
 
-<span class="sd">        :param object_name: object id or object name</span>
-<span class="sd">        :return: Bool</span>
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        object_name :</span>
+<span class="sd">            object id or object name</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        type</span>
+<span class="sd">            Bool</span>
+
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="n">object_name</span><span class="p">)</span> <span class="ow">is</span> <span class="nb">int</span><span class="p">:</span>
             <span class="n">object_name</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">objects</span><span class="p">[</span><span class="n">object_name</span><span class="p">]</span><span class="o">.</span><span class="n">name</span>
@@ -473,12 +563,20 @@
 
 <div class="viewcode-block" id="Primitives3D.delete_edges_from_polilyne"><a class="viewcode-back" href="../../../API/Primitives3D.html#pyaedt.modeler.Primitives3D.Primitives3D.delete_edges_from_polilyne">[docs]</a>    <span class="nd">@aedt_exception_handler</span>
     <span class="k">def</span> <span class="nf">delete_edges_from_polilyne</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">objectname</span><span class="p">,</span> <span class="n">edge_to_delete</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Delete edges in a polilyne</span>
+        <span class="sd">&quot;&quot;&quot;Delete edges in a polilyne</span>
 
-<span class="sd">        :param objectname:name of the polyline</span>
-<span class="sd">        :param edge_to_delete: list of ids of edge in polynes. it is an integer from 0 to (num_edges of the polyline-1)</span>
-<span class="sd">        :return: Bool</span>
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        objectname :</span>
+<span class="sd">            name of the polyline</span>
+<span class="sd">        edge_to_delete :</span>
+<span class="sd">            list of ids of edge in polynes. it is an integer from 0 to (num_edges of the polyline-1)</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        type</span>
+<span class="sd">            Bool</span>
+
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="n">objectname</span><span class="p">)</span> <span class="ow">is</span> <span class="nb">int</span><span class="p">:</span>
             <span class="n">objectname</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">objects</span><span class="p">[</span><span class="n">objectname</span><span class="p">]</span><span class="o">.</span><span class="n">name</span>
@@ -493,17 +591,26 @@
 
 <div class="viewcode-block" id="Primitives3D.create_rectangle"><a class="viewcode-back" href="../../../API/Primitives3D.html#pyaedt.modeler.Primitives3D.Primitives3D.create_rectangle">[docs]</a>    <span class="nd">@aedt_exception_handler</span>
     <span class="k">def</span> <span class="nf">create_rectangle</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">cs_plane</span><span class="p">,</span> <span class="n">position</span><span class="p">,</span> <span class="n">dimension_list</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">matname</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Create a rectangle</span>
+        <span class="sd">&quot;&quot;&quot;Create a rectangle</span>
 
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        cs_plane : CoordinateSystemPlane</span>
+<span class="sd">            CoordinateSystem Plane</span>
+<span class="sd">        position :</span>
+<span class="sd">            ApplicationName.modeler.Position(x,y,z) object</span>
+<span class="sd">        dimension_list :</span>
+<span class="sd">            dimension list</span>
+<span class="sd">        name :</span>
+<span class="sd">            Object Name (Default value = None)</span>
+<span class="sd">        matname :</span>
+<span class="sd">            material name. Optional, if nothing default material will be assigned</span>
 
-<span class="sd">        :param cs_plane: CoordinateSystem Plane</span>
-<span class="sd">        :type cs_plane: CoordinateSystemPlane</span>
-<span class="sd">        :param position: ApplicationName.modeler.Position(x,y,z) object</span>
-<span class="sd">        :param dimension_list: dimension list</span>
-<span class="sd">        :param name: Object Name</span>
-<span class="sd">        :param matname: material name. Optional, if nothing default material will be assigned</span>
-<span class="sd">        :return: id</span>
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        type</span>
+<span class="sd">            id</span>
+
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="nb">id</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_new_id</span><span class="p">()</span>
 
@@ -533,12 +640,24 @@
     <span class="k">def</span> <span class="nf">create_udp</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">udp_dll_name</span><span class="p">,</span> <span class="n">udp_parameters_list</span><span class="p">,</span> <span class="n">upd_library</span><span class="o">=</span><span class="s1">&#39;syslib&#39;</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">udptye</span><span class="o">=</span><span class="s2">&quot;Solid&quot;</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Create User Defined Primitive</span>
 
-<span class="sd">        :param udp_dll_name: dll name</span>
-<span class="sd">        :param udp_parameters_list: udp pairs object</span>
-<span class="sd">        :param upd_library: udp library</span>
-<span class="sd">        :param name: component name</span>
-<span class="sd">        :param udptye: udpy type</span>
-<span class="sd">        :return: object ID</span>
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        udp_dll_name :</span>
+<span class="sd">            dll name</span>
+<span class="sd">        udp_parameters_list :</span>
+<span class="sd">            udp pairs object</span>
+<span class="sd">        upd_library :</span>
+<span class="sd">            udp library (Default value = &#39;syslib&#39;)</span>
+<span class="sd">        name :</span>
+<span class="sd">            component name (Default value = None)</span>
+<span class="sd">        udptye :</span>
+<span class="sd">            udpy type (Default value = &quot;Solid&quot;)</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        type</span>
+<span class="sd">            object ID</span>
+
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="nb">id</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_new_id</span><span class="p">()</span>
 
@@ -569,10 +688,20 @@
     <span class="k">def</span> <span class="nf">create_udm</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">udmfullname</span><span class="p">,</span> <span class="n">udm_params_list</span><span class="p">,</span> <span class="n">udm_library</span><span class="o">=</span><span class="s1">&#39;syslib&#39;</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Create User Defined Model</span>
 
-<span class="sd">        :param udmfullname: udm full name including folder</span>
-<span class="sd">        :param udm_params_list: udpm pairs object</span>
-<span class="sd">        :param udm_library: udp library</span>
-<span class="sd">        :return: object ID</span>
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        udmfullname :</span>
+<span class="sd">            udm full name including folder</span>
+<span class="sd">        udm_params_list :</span>
+<span class="sd">            udpm pairs object</span>
+<span class="sd">        udm_library :</span>
+<span class="sd">            udp library (Default value = &#39;syslib&#39;)</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        type</span>
+<span class="sd">            object ID</span>
+
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="c1">#id = self._new_id()</span>
 
@@ -629,19 +758,30 @@
 
 <div class="viewcode-block" id="Primitives3D.create_cone"><a class="viewcode-back" href="../../../API/Primitives3D.html#pyaedt.modeler.Primitives3D.Primitives3D.create_cone">[docs]</a>    <span class="nd">@aedt_exception_handler</span>
     <span class="k">def</span> <span class="nf">create_cone</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">cs_axis</span><span class="p">,</span> <span class="n">position</span><span class="p">,</span> <span class="n">bottom_radius</span><span class="p">,</span> <span class="n">top_radius</span><span class="p">,</span> <span class="n">height</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">matname</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Create a cone</span>
+        <span class="sd">&quot;&quot;&quot;Create a cone</span>
 
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        cs_axis : CoordinateSystemAxis</span>
+<span class="sd">            CoordinateSystem Axis</span>
+<span class="sd">        position :</span>
+<span class="sd">            ApplicationName.modeler.Position(x,y,z) object</span>
+<span class="sd">        bottom_radius :</span>
+<span class="sd">            bottom radius</span>
+<span class="sd">        top_radius :</span>
+<span class="sd">            topradius radius</span>
+<span class="sd">        height :</span>
+<span class="sd">            height</span>
+<span class="sd">        name :</span>
+<span class="sd">            Object Name (Default value = None)</span>
+<span class="sd">        matname :</span>
+<span class="sd">            material name. Optional, if nothing default material will be assigned</span>
 
-<span class="sd">        :param cs_axis: CoordinateSystem Axis</span>
-<span class="sd">        :type cs_axis: CoordinateSystemAxis</span>
-<span class="sd">        :param position: ApplicationName.modeler.Position(x,y,z) object</span>
-<span class="sd">        :param bottom_radius: bottom radius</span>
-<span class="sd">        :param top_radius: topradius radius</span>
-<span class="sd">        :param height: height</span>
-<span class="sd">        :param name: Object Name</span>
-<span class="sd">        :param matname: material name. Optional, if nothing default material will be assigned</span>
-<span class="sd">        :return: id</span>
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        type</span>
+<span class="sd">            id</span>
+
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="nb">id</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_new_id</span><span class="p">()</span>
 
@@ -671,15 +811,24 @@
 
 <div class="viewcode-block" id="Primitives3D.insert_3d_component"><a class="viewcode-back" href="../../../API/Primitives3D.html#pyaedt.modeler.Primitives3D.Primitives3D.insert_3d_component">[docs]</a>    <span class="nd">@aedt_exception_handler</span>
     <span class="k">def</span> <span class="nf">insert_3d_component</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">compFile</span><span class="p">,</span> <span class="n">geoParams</span><span class="p">,</span> <span class="n">szMatParams</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="n">szDesignParams</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="n">targetCS</span><span class="o">=</span><span class="s1">&#39;Global&#39;</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Insert a new 3d Compoent object</span>
+        <span class="sd">&quot;&quot;&quot;Insert a new 3d Compoent object</span>
 
-<span class="sd">        :param compFile:Compoent file</span>
-<span class="sd">        :param geoParams: Geometrical Parameters</span>
-<span class="sd">        :param szMatParams: Material Parameters</span>
-<span class="sd">        :param szDesignParams: Design Parameters</span>
-<span class="sd">        :param targetCS: Target Coordinate System</span>
-<span class="sd">        :return:</span>
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        compFile :</span>
+<span class="sd">            Compoent file</span>
+<span class="sd">        geoParams :</span>
+<span class="sd">            Geometrical Parameters</span>
+<span class="sd">        szMatParams :</span>
+<span class="sd">            Material Parameters (Default value = &#39;&#39;)</span>
+<span class="sd">        szDesignParams :</span>
+<span class="sd">            Design Parameters (Default value = &#39;&#39;)</span>
+<span class="sd">        targetCS :</span>
+<span class="sd">            Target Coordinate System (Default value = &#39;Global&#39;)</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="nb">id</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_new_id</span><span class="p">()</span>
 
@@ -716,12 +865,18 @@
 
 <div class="viewcode-block" id="Primitives3D.get_3d_component_object_list"><a class="viewcode-back" href="../../../API/Primitives3D.html#pyaedt.modeler.Primitives3D.Primitives3D.get_3d_component_object_list">[docs]</a>    <span class="nd">@aedt_exception_handler</span>
     <span class="k">def</span> <span class="nf">get_3d_component_object_list</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">componentname</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Given a 3DComponent it returns the list of all objects belonging to it</span>
+        <span class="sd">&quot;&quot;&quot;Given a 3DComponent it returns the list of all objects belonging to it</span>
 
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        componentname :</span>
+<span class="sd">            3DComponent Name</span>
 
-<span class="sd">        :param componentname: 3DComponent Name</span>
-<span class="sd">        :return: List of objects</span>
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        type</span>
+<span class="sd">            List of objects</span>
+
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">compobj</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">oeditor</span><span class="o">.</span><span class="n">GetChildObject</span><span class="p">(</span><span class="n">componentname</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">compobj</span><span class="p">:</span>
@@ -731,19 +886,24 @@
 
 <div class="viewcode-block" id="Primitives3D.get_all_solids_names"><a class="viewcode-back" href="../../../API/Primitives3D.html#pyaedt.modeler.Primitives3D.Primitives3D.get_all_solids_names">[docs]</a>    <span class="nd">@aedt_exception_handler</span>
     <span class="k">def</span> <span class="nf">get_all_solids_names</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">refresh_list</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        get all solids names in the design</span>
+        <span class="sd">&quot;&quot;&quot;get all solids names in the design</span>
 
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        refresh_list :</span>
+<span class="sd">            bool, force the refresh of objects (Default value = False)</span>
 
-<span class="sd">        :param refresh_list: bool, force the refresh of objects</span>
-<span class="sd">        :return: list of the solids names</span>
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        type</span>
+<span class="sd">            list of the solids names</span>
+
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_all_objects_names</span><span class="p">(</span><span class="n">refresh_list</span><span class="o">=</span><span class="n">refresh_list</span><span class="p">,</span> <span class="n">get_solids</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">get_sheets</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">get_lines</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="Primitives3D.get_face_normal"><a class="viewcode-back" href="../../../API/Primitives3D.html#pyaedt.modeler.Primitives3D.Primitives3D.get_face_normal">[docs]</a>    <span class="nd">@aedt_exception_handler</span>
     <span class="k">def</span> <span class="nf">get_face_normal</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">faceId</span><span class="p">,</span> <span class="n">bounding_box</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Get the face normal.</span>
+        <span class="sd">&quot;&quot;&quot;Get the face normal.</span>
 <span class="sd">        Limitations:</span>
 <span class="sd">        - the face must be planar.</span>
 <span class="sd">        - Currently it works only if the face has at least two vertices. Notable excluded items are circles and</span>
@@ -752,10 +912,18 @@
 <span class="sd">        Usually the bounding box refers to a volume where the face lies.</span>
 <span class="sd">        If no bounding box is specified, the normal can be inward or outward the volume.</span>
 
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        faceId :</span>
+<span class="sd">            part ID (integer).</span>
+<span class="sd">        bounding_box :</span>
+<span class="sd">            optional, bounding box in the form [x_min, y_min, z_min, x_Max, y_Max, z_Max] (Default value = None)</span>
 
-<span class="sd">        :param faceId: part ID (integer).</span>
-<span class="sd">        :param bounding_box: optional, bounding box in the form [x_min, y_min, z_min, x_Max, y_Max, z_Max]</span>
-<span class="sd">        :return: normal versor (normalized [x, y, z]) or None.</span>
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        type</span>
+<span class="sd">            normal versor (normalized [x, y, z]) or None.</span>
+
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">vertices_ids</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_face_vertices</span><span class="p">(</span><span class="n">faceId</span><span class="p">)</span>
         <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">vertices_ids</span><span class="p">)</span> <span class="o">&lt;</span> <span class="mi">2</span><span class="p">:</span>

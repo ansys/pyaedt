@@ -245,16 +245,22 @@
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>plotname</strong> -- name of the plot to use or name o</p></li>
-<li><p><strong>plot_folder</strong> -- optional name of the plot_folder</p></li>
-<li><p><strong>setup_name</strong> -- name of the setup - sweep to use for the export</p></li>
-<li><p><strong>intrinsic_dict</strong> -- intrinsic dictionary needed for export</p></li>
+<li><p><strong>plot_folder</strong> -- optional name of the plot_folder (Default value = None)</p></li>
+<li><p><strong>setup_name</strong> -- name of the setup - sweep to use for the export (Default value = None)</p></li>
+<li><p><strong>intrinsic_dict</strong> -- intrinsic dictionary needed for export (Default value = {})</p></li>
 <li><p><strong>variation_variable</strong> -- variation variable. Default &quot;Phi&quot;</p></li>
-<li><p><strong>variation_list</strong> -- list of variation values</p></li>
-<li><p><strong>project_path</strong> -- path for the export</p></li>
+<li><p><strong>variation_list</strong> -- list of variation values (Default value = ['0deg'])</p></li>
+<li><p><strong>project_path</strong> -- path for the export (Default value = &quot;&quot;)</p></li>
+<li><p><strong>meshplot</strong> -- (Default value = False)</p></li>
+<li><p><strong>export_gif</strong> -- (Default value = False)</p></li>
+<li><p><strong>off_screen</strong> -- (Default value = False)</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>
 <dd class="field-even"><p>Boolean</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>type</p>
 </dd>
 </dl>
 </dd></dl>
@@ -270,15 +276,21 @@ This method creates the plot and export it. is alternative to animate_fields_fro
 <li><p><strong>quantityname</strong> -- name of the plot to use or name o</p></li>
 <li><p><strong>object_list</strong> -- optional name of the plot_folder</p></li>
 <li><p><strong>plottype</strong> -- Plot Type. &quot;Surface&quot;, &quot;Volume&quot; or &quot;CutPlane&quot;</p></li>
-<li><p><strong>setup_name</strong> -- name of the setup - sweep to use for the export</p></li>
-<li><p><strong>intrinsic_dict</strong> -- intrinsic dictionary needed for export</p></li>
+<li><p><strong>setup_name</strong> -- name of the setup - sweep to use for the export (Default value = None)</p></li>
+<li><p><strong>intrinsic_dict</strong> -- intrinsic dictionary needed for export (Default value = {})</p></li>
 <li><p><strong>variation_variable</strong> -- variation variable. Default &quot;Phi&quot;</p></li>
-<li><p><strong>variation_list</strong> -- list of variation values</p></li>
-<li><p><strong>project_path</strong> -- path for the export</p></li>
+<li><p><strong>variation_list</strong> -- list of variation values (Default value = ['0deg'])</p></li>
+<li><p><strong>project_path</strong> -- path for the export (Default value = &quot;&quot;)</p></li>
+<li><p><strong>meshplot</strong> -- (Default value = False)</p></li>
+<li><p><strong>export_gif</strong> -- (Default value = False)</p></li>
+<li><p><strong>off_screen</strong> -- (Default value = False)</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>
 <dd class="field-even"><p>Boolean</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>type</p>
 </dd>
 </dl>
 </dd></dl>
@@ -291,14 +303,61 @@ This method creates the plot and export it. is alternative to animate_fields_fro
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>solution_data</strong> -- Solution Data Input</p></li>
-<li><p><strong>nominal_sweep</strong> -- Nominal Sweep Name</p></li>
-<li><p><strong>nominal_value</strong> -- Nominal Sweep Value</p></li>
+<li><p><strong>nominal_sweep</strong> -- Nominal Sweep Name (Default value = &quot;Freq&quot;)</p></li>
+<li><p><strong>nominal_value</strong> -- Nominal Sweep Value (Default value = 1)</p></li>
 <li><p><strong>primary_sweep</strong> -- Primary Sweep. Default Theta</p></li>
 <li><p><strong>secondary_sweep</strong> -- Secondary Sweep. Default Phi</p></li>
 </ul>
 </dd>
-<dt class="field-even">Returns</dt>
-<dd class="field-even"><p></p>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="pyaedt.modules.AdvancedPostProcessing.PostProcessor.export_mesh_obj">
+<code class="sig-name descname"><span class="pre">export_mesh_obj</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">setup_name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">intrinsic_dict</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">{}</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pyaedt/modules/AdvancedPostProcessing.html#PostProcessor.export_mesh_obj"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyaedt.modules.AdvancedPostProcessing.PostProcessor.export_mesh_obj" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>setup_name</strong> -- (Default value = None)</p></li>
+<li><p><strong>intrinsic_dict</strong> -- (Default value = {})</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="pyaedt.modules.AdvancedPostProcessing.PostProcessor.export_model_obj">
+<code class="sig-name descname"><span class="pre">export_model_obj</span></code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pyaedt/modules/AdvancedPostProcessing.html#PostProcessor.export_model_obj"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyaedt.modules.AdvancedPostProcessing.PostProcessor.export_model_obj" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="pyaedt.modules.AdvancedPostProcessing.PostProcessor.far_field_plot">
+<code class="sig-name descname"><span class="pre">far_field_plot</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ff_data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">x</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">qty</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'rETotal'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dB</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">array_size</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">[4,</span> <span class="pre">4]</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pyaedt/modules/AdvancedPostProcessing.html#PostProcessor.far_field_plot"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyaedt.modules.AdvancedPostProcessing.PostProcessor.far_field_plot" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>ff_data</strong> -- </p></li>
+<li><p><strong>x</strong> -- (Default value = 0)</p></li>
+<li><p><strong>y</strong> -- (Default value = 0)</p></li>
+<li><p><strong>qty</strong> -- (Default value = 'rETotal')</p></li>
+<li><p><strong>dB</strong> -- (Default value = True)</p></li>
+<li><p><strong>array_size</strong> -- (Default value = [4)</p></li>
+<li><p><strong>4</strong><strong>]</strong> -- </p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="pyaedt.modules.AdvancedPostProcessing.PostProcessor.ff_sum_with_delta_phase">
+<code class="sig-name descname"><span class="pre">ff_sum_with_delta_phase</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ff_data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">xphase</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">yphase</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pyaedt/modules/AdvancedPostProcessing.html#PostProcessor.ff_sum_with_delta_phase"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyaedt.modules.AdvancedPostProcessing.PostProcessor.ff_sum_with_delta_phase" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>ff_data</strong> -- </p></li>
+<li><p><strong>xphase</strong> -- (Default value = 0)</p></li>
+<li><p><strong>yphase</strong> -- (Default value = 0)</p></li>
+</ul>
 </dd>
 </dl>
 </dd></dl>
@@ -311,13 +370,26 @@ this function compute Etheta and EPhi and return and returns an array of [theta_
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>setup_sweep_name</strong> -- Name of setup to compute report. if None, nominal adaptive will be applied</p></li>
-<li><p><strong>ff_setup</strong> -- Far Field Setup</p></li>
-<li><p><strong>freq</strong> -- </p></li>
+<li><p><strong>setup_sweep_name</strong> -- Name of setup to compute report. if None, nominal adaptive will be applied (Default value = '')</p></li>
+<li><p><strong>ff_setup</strong> -- Far Field Setup (Default value = &quot;Infinite Sphere1&quot;)</p></li>
+<li><p><strong>freq</strong> -- return: [theta_range, phi_range, Etheta, Ephi] (Default value = 'All')</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>
-<dd class="field-even"><p>[theta_range, phi_range, Etheta, Ephi]</p>
+<dd class="field-even"><p>theta_range, phi_range, Etheta, Ephi]</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>type</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="pyaedt.modules.AdvancedPostProcessing.PostProcessor.is_float">
+<em class="property"><span class="pre">static</span> </em><code class="sig-name descname"><span class="pre">is_float</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">istring</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pyaedt/modules/AdvancedPostProcessing.html#PostProcessor.is_float"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyaedt.modules.AdvancedPostProcessing.PostProcessor.is_float" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>istring</strong> -- </p>
 </dd>
 </dl>
 </dd></dl>
@@ -330,18 +402,34 @@ this function compute Etheta and EPhi and return and returns an array of [theta_
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>plotname</strong> -- name of the plot to export</p></li>
-<li><p><strong>project_path</strong> -- path where to save the image</p></li>
-<li><p><strong>meshplot</strong> -- create and plot the mesh over the fields</p></li>
-<li><p><strong>setup_name</strong> -- name of the setup - sweep to use for the export</p></li>
-<li><p><strong>intrinsic_dict</strong> -- intrinsic dictionary needed for export of the mesh. Valid only if meshplot is True</p></li>
-<li><p><strong>imageformat</strong> -- image format. Defalult jpg</p></li>
+<li><p><strong>project_path</strong> -- path where to save the image (Default value = &quot;&quot;)</p></li>
+<li><p><strong>meshplot</strong> -- create and plot the mesh over the fields (Default value = False)</p></li>
+<li><p><strong>setup_name</strong> -- name of the setup - sweep to use for the export (Default value = None)</p></li>
+<li><p><strong>intrinsic_dict</strong> -- intrinsic dictionary needed for export of the mesh. Valid only if meshplot is True (Default value = {})</p></li>
+<li><p><strong>imageformat</strong> -- image format. Defalult jpg (Default value = &quot;jpg&quot;)</p></li>
 <li><p><strong>view</strong> -- image view. Default iso</p></li>
 <li><p><strong>plot_label</strong> -- Plot Type. Default Temperature</p></li>
-<li><p><strong>plot_folder</strong> -- Plot Folder to force update before export the field. If none all the plots will be updated</p></li>
+<li><p><strong>plot_folder</strong> -- Plot Folder to force update before export the field. If none all the plots will be updated (Default value = None)</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>
 <dd class="field-even"><p>list of the files exported</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>type</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="pyaedt.modules.AdvancedPostProcessing.PostProcessor.plot_model_obj">
+<code class="sig-name descname"><span class="pre">plot_model_obj</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">export_afterplot</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">jupyter</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pyaedt/modules/AdvancedPostProcessing.html#PostProcessor.plot_model_obj"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyaedt.modules.AdvancedPostProcessing.PostProcessor.plot_model_obj" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>export_afterplot</strong> -- (Default value = True)</p></li>
+<li><p><strong>jupyter</strong> -- (Default value = False)</p></li>
+</ul>
 </dd>
 </dl>
 </dd></dl>

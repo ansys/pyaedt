@@ -169,9 +169,7 @@
 
 
 <div class="viewcode-block" id="Primitives3DLayout"><a class="viewcode-back" href="../../../API/Primitives3DLayout.html#pyaedt.modeler.Primitives3DLayout.Primitives3DLayout">[docs]</a><span class="k">class</span> <span class="nc">Primitives3DLayout</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Class for management of all Primitives of HFSS3DLayout</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="sd">&quot;&quot;&quot;Class for management of all Primitives of HFSS3DLayout&quot;&quot;&quot;</span>
     <span class="nd">@aedt_exception_handler</span>
     <span class="k">def</span> <span class="fm">__getitem__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">partname</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
@@ -198,10 +196,7 @@
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">components</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
-
-<span class="sd">        :return: Component List from EDB. If no EDB is present none is returned</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="sd">&quot;&quot;&quot;:return: Component List from EDB. If no EDB is present none is returned&quot;&quot;&quot;</span>
         <span class="k">try</span><span class="p">:</span>
             <span class="n">comps</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">modeler</span><span class="o">.</span><span class="n">edb</span><span class="o">.</span><span class="n">core_components</span><span class="o">.</span><span class="n">components</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span>
         <span class="k">except</span><span class="p">:</span>
@@ -212,10 +207,7 @@
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">geometries</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
-
-<span class="sd">        :return: Geometries List from EDB. If no EDB is present none is returned</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="sd">&quot;&quot;&quot;:return: Geometries List from EDB. If no EDB is present none is returned&quot;&quot;&quot;</span>
         <span class="k">try</span><span class="p">:</span>
             <span class="n">prims</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">modeler</span><span class="o">.</span><span class="n">edb</span><span class="o">.</span><span class="n">active_layout</span><span class="o">.</span><span class="n">Primitives</span>
         <span class="k">except</span><span class="p">:</span>
@@ -248,10 +240,7 @@
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">pins</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
-
-<span class="sd">        :return: Pins List from EDB. If no EDB is present none is returned</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="sd">&quot;&quot;&quot;:return: Pins List from EDB. If no EDB is present none is returned&quot;&quot;&quot;</span>
         <span class="k">try</span><span class="p">:</span>
             <span class="n">pins_objs</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">modeler</span><span class="o">.</span><span class="n">edb</span><span class="o">.</span><span class="n">pins</span><span class="p">)</span>
         <span class="k">except</span><span class="p">:</span>
@@ -265,10 +254,7 @@
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">nets</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
-
-<span class="sd">        :return: Nets List from EDB. If no EDB is present none is returned</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="sd">&quot;&quot;&quot;:return: Nets List from EDB. If no EDB is present none is returned&quot;&quot;&quot;</span>
         <span class="k">try</span><span class="p">:</span>
             <span class="n">nets_objs</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">modeler</span><span class="o">.</span><span class="n">edb</span><span class="o">.</span><span class="n">core_nets</span><span class="o">.</span><span class="n">nets</span><span class="p">)</span>
         <span class="k">except</span><span class="p">:</span>
@@ -279,44 +265,58 @@
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">defaultmaterial</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&#39;&#39;&#39; Return the model default material as a string e.g. vacuum&#39;&#39;&#39;</span>
+        <span class="sd">&quot;&quot;&quot; &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="n">default_materials</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">_parent</span><span class="o">.</span><span class="n">_design_type</span><span class="p">]</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">messenger</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_parent</span><span class="o">.</span><span class="n">_messenger</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">version</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_parent</span><span class="o">.</span><span class="n">_aedt_version</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">modeler</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_modeler</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">oeditor</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">modeler</span><span class="o">.</span><span class="n">oeditor</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">opadstackmanager</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_parent</span><span class="o">.</span><span class="n">_oproject</span><span class="o">.</span><span class="n">GetDefinitionManager</span><span class="p">()</span><span class="o">.</span><span class="n">GetManager</span><span class="p">(</span><span class="s2">&quot;Padstack&quot;</span><span class="p">)</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">model_units</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">modeler</span><span class="o">.</span><span class="n">model_units</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">Padstack</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="n">Padstack</span><span class="p">()</span>
 
 <div class="viewcode-block" id="Primitives3DLayout.new_padstack"><a class="viewcode-back" href="../../../API/Primitives3DLayout.html#pyaedt.modeler.Primitives3DLayout.Primitives3DLayout.new_padstack">[docs]</a>    <span class="nd">@aedt_exception_handler</span>
     <span class="k">def</span> <span class="nf">new_padstack</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s2">&quot;Padstack&quot;</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Return a new Padstack object that can be used in HFSS 3D Layout to create a new Padstack</span>
 
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        name :</span>
+<span class="sd">            Padstack Name (Default value = &quot;Padstack&quot;)</span>
 
-<span class="sd">        :param name: Padstack Name</span>
-<span class="sd">        :return: Padstack Object if name is doesn&#39;t already exists</span>
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        type</span>
+<span class="sd">            Padstack Object if name is doesn&#39;t already exists</span>
+
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="n">name</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">padstacks</span><span class="p">:</span>
             <span class="k">return</span> <span class="kc">None</span>
@@ -327,8 +327,15 @@
 <div class="viewcode-block" id="Primitives3DLayout.init_padstacks"><a class="viewcode-back" href="../../../API/Primitives3DLayout.html#pyaedt.modeler.Primitives3DLayout.Primitives3DLayout.init_padstacks">[docs]</a>    <span class="nd">@aedt_exception_handler</span>
     <span class="k">def</span> <span class="nf">init_padstacks</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Read all Padstack from HFSS 3D Layout</span>
-
+<span class="sd">        </span>
 <span class="sd">        :return: True</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">names</span> <span class="o">=</span> <span class="n">GeometryOperators</span><span class="o">.</span><span class="n">List2list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">opadstackmanager</span><span class="o">.</span><span class="n">GetNames</span><span class="p">())</span>
 
@@ -394,11 +401,20 @@
 
 <div class="viewcode-block" id="Primitives3DLayout.change_net_visibility"><a class="viewcode-back" href="../../../API/Primitives3DLayout.html#pyaedt.modeler.Primitives3DLayout.Primitives3DLayout.change_net_visibility">[docs]</a>    <span class="nd">@aedt_exception_handler</span>
     <span class="k">def</span> <span class="nf">change_net_visibility</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">netlist</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">visible</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Change the visibility of a net or net list</span>
-<span class="sd">        :param netlist: single net or netlist to visualize</span>
-<span class="sd">        :param visible: Boolean</span>
-<span class="sd">        :return: Boolean</span>
+        <span class="sd">&quot;&quot;&quot;Change the visibility of a net or net list</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        netlist :</span>
+<span class="sd">            single net or netlist to visualize (Default value = None)</span>
+<span class="sd">        visible :</span>
+<span class="sd">            Boolean (Default value = False)</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        type</span>
+<span class="sd">            Boolean</span>
+
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="n">netlist</span><span class="p">:</span>
             <span class="n">netlist</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">nets</span>
@@ -419,17 +435,32 @@
                    <span class="n">name</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">netname</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Create a Via based on existing padstack</span>
 
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        padstack :</span>
+<span class="sd">            String containing the Padstack Name (Default value = &quot;PlanarEMVia&quot;)</span>
+<span class="sd">        x :</span>
+<span class="sd">            x position (Default value = 0)</span>
+<span class="sd">        y :</span>
+<span class="sd">            y position (Default value = 0)</span>
+<span class="sd">        rotation :</span>
+<span class="sd">            angle rotation in deg (Default value = 0)</span>
+<span class="sd">        hole_diam :</span>
+<span class="sd">            hole diameter. If None Override is disabled (Default value = None)</span>
+<span class="sd">        top_layer :</span>
+<span class="sd">            top layer (Default value = None)</span>
+<span class="sd">        bot_layer :</span>
+<span class="sd">            bottom layer (Default value = None)</span>
+<span class="sd">        name :</span>
+<span class="sd">            Via Name (Default value = None)</span>
+<span class="sd">        netname :</span>
+<span class="sd">            optional Netname (Default value = None)</span>
 
-<span class="sd">        :param padstack: String containing the Padstack Name</span>
-<span class="sd">        :param x: x position</span>
-<span class="sd">        :param y: y position</span>
-<span class="sd">        :param rotation: angle rotation in deg</span>
-<span class="sd">        :param hole_diam: hole diameter. If None Override is disabled</span>
-<span class="sd">        :param top_layer: top layer</span>
-<span class="sd">        :param bot_layer: bottom layer</span>
-<span class="sd">        :param name: Via Name</span>
-<span class="sd">        :param netname: optional Netname</span>
-<span class="sd">        :return: Name of the created object, if successful</span>
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        type</span>
+<span class="sd">            Name of the created object, if successful</span>
+
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">layers</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">modeler</span><span class="o">.</span><span class="n">layers</span><span class="o">.</span><span class="n">all_signal_layers</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="n">top_layer</span><span class="p">:</span>
@@ -470,14 +501,26 @@
     <span class="k">def</span> <span class="nf">create_circle</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">layername</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">radius</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">netname</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Create Circle on specific layer</span>
 
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        layername :</span>
+<span class="sd">            layername</span>
+<span class="sd">        x :</span>
+<span class="sd">            x position float</span>
+<span class="sd">        y :</span>
+<span class="sd">            y position float</span>
+<span class="sd">        radius :</span>
+<span class="sd">            radius float</span>
+<span class="sd">        name :</span>
+<span class="sd">            Object Name (Default value = None)</span>
+<span class="sd">        netname :</span>
+<span class="sd">            optional Netname (Default value = None)</span>
 
-<span class="sd">        :param layername: layername</span>
-<span class="sd">        :param x: x position float</span>
-<span class="sd">        :param y: y position float</span>
-<span class="sd">        :param radius: radius float</span>
-<span class="sd">        :param name: Object Name</span>
-<span class="sd">        :param netname: optional Netname</span>
-<span class="sd">        :return: Name of the created object, if successful</span>
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        type</span>
+<span class="sd">            Name of the created object, if successful</span>
+
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="n">name</span><span class="p">:</span>
             <span class="n">name</span> <span class="o">=</span> <span class="n">_uname</span><span class="p">()</span>
@@ -506,14 +549,38 @@
     <span class="k">def</span> <span class="nf">create_rectangle</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">layername</span><span class="p">,</span> <span class="n">ax</span><span class="p">,</span> <span class="n">ay</span><span class="p">,</span> <span class="n">bx</span><span class="p">,</span> <span class="n">by</span><span class="p">,</span> <span class="n">cr</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">ang</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">netname</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Create a Rectangle on specific layer</span>
 
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        layername :</span>
+<span class="sd">            layername</span>
+<span class="sd">        x :</span>
+<span class="sd">            x position float</span>
+<span class="sd">        y :</span>
+<span class="sd">            y position float</span>
+<span class="sd">        radius :</span>
+<span class="sd">            radius float</span>
+<span class="sd">        name :</span>
+<span class="sd">            Object Name (Default value = None)</span>
+<span class="sd">        netname :</span>
+<span class="sd">            optional Netname (Default value = None)</span>
+<span class="sd">        ax :</span>
+<span class="sd">            </span>
+<span class="sd">        ay :</span>
+<span class="sd">            </span>
+<span class="sd">        bx :</span>
+<span class="sd">            </span>
+<span class="sd">        by :</span>
+<span class="sd">            </span>
+<span class="sd">        cr :</span>
+<span class="sd">             (Default value = 0)</span>
+<span class="sd">        ang :</span>
+<span class="sd">             (Default value = 0)</span>
 
-<span class="sd">        :param layername: layername</span>
-<span class="sd">        :param x: x position float</span>
-<span class="sd">        :param y: y position float</span>
-<span class="sd">        :param radius: radius float</span>
-<span class="sd">        :param name: Object Name</span>
-<span class="sd">        :param netname: optional Netname</span>
-<span class="sd">        :return: Name of the created object, if successful</span>
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        type</span>
+<span class="sd">            Name of the created object, if successful</span>
+
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="n">name</span><span class="p">:</span>
             <span class="n">name</span> <span class="o">=</span> <span class="n">_uname</span><span class="p">()</span>
@@ -545,16 +612,30 @@
     <span class="k">def</span> <span class="nf">create_line</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">layername</span><span class="p">,</span> <span class="n">lw</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">x</span><span class="o">=</span><span class="p">[],</span> <span class="n">y</span><span class="o">=</span><span class="p">[],</span> <span class="n">start_style</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">end_style</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">netname</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Create Line based on specific list of point</span>
 
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        layername :</span>
+<span class="sd">            layer name on which create the object</span>
+<span class="sd">        lw :</span>
+<span class="sd">            line width (Default value = 1)</span>
+<span class="sd">        x :</span>
+<span class="sd">            array of float containing x point of each point of the line (Default value = [])</span>
+<span class="sd">        y :</span>
+<span class="sd">            array of float containing y point of each point of the line (Default value = [])</span>
+<span class="sd">        start_style :</span>
+<span class="sd">            start style of the line. 0 Flat, 1 Extended, 2 Round (Default value = 0)</span>
+<span class="sd">        end_style :</span>
+<span class="sd">            end style of the line. 0 Same as start, 1 Flat, 2 Extended, 3 Round (Default value = 0)</span>
+<span class="sd">        name :</span>
+<span class="sd">            Object Name (Default value = None)</span>
+<span class="sd">        netname :</span>
+<span class="sd">            optional Netname (Default value = None)</span>
 
-<span class="sd">        :param layername: layer name on which create the object</span>
-<span class="sd">        :param lw: line width</span>
-<span class="sd">        :param x: array of float containing x point of each point of the line</span>
-<span class="sd">        :param y: array of float containing y point of each point of the line</span>
-<span class="sd">        :param start_style: start style of the line. 0 Flat, 1 Extended, 2 Round</span>
-<span class="sd">        :param end_style: end style of the line. 0 Same as start, 1 Flat, 2 Extended, 3 Round</span>
-<span class="sd">        :param name: Object Name</span>
-<span class="sd">        :param netname: optional Netname</span>
-<span class="sd">        :return: Name of the created object, if successful</span>
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        type</span>
+<span class="sd">            Name of the created object, if successful</span>
+
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="n">name</span><span class="p">:</span>
             <span class="n">name</span> <span class="o">=</span> <span class="n">_uname</span><span class="p">()</span>
@@ -579,8 +660,21 @@
         <span class="k">return</span> <span class="n">name</span></div>
 
 
-    <span class="nd">@aedt_exception_handler</span>
+<div class="viewcode-block" id="Primitives3DLayout.arg_with_dim"><a class="viewcode-back" href="../../../API/Primitives3DLayout.html#pyaedt.modeler.Primitives3DLayout.Primitives3DLayout.arg_with_dim">[docs]</a>    <span class="nd">@aedt_exception_handler</span>
     <span class="k">def</span> <span class="nf">arg_with_dim</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">Value</span><span class="p">,</span> <span class="n">sUnits</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        Value :</span>
+<span class="sd">            </span>
+<span class="sd">        sUnits :</span>
+<span class="sd">             (Default value = None)</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="n">Value</span><span class="p">)</span> <span class="ow">is</span> <span class="nb">str</span><span class="p">:</span>
             <span class="n">val</span> <span class="o">=</span> <span class="n">Value</span>
         <span class="k">else</span><span class="p">:</span>
@@ -588,7 +682,7 @@
                 <span class="n">sUnits</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">model_units</span>
             <span class="n">val</span> <span class="o">=</span> <span class="s2">&quot;</span><span class="si">{0}{1}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">Value</span><span class="p">,</span> <span class="n">sUnits</span><span class="p">)</span>
 
-        <span class="k">return</span> <span class="n">val</span></div>
+        <span class="k">return</span> <span class="n">val</span></div></div>
 </pre></div>
 
               </div>

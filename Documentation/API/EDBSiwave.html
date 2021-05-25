@@ -273,23 +273,25 @@
 <em class="property"><span class="pre">class</span> </em><code class="sig-prename descclassname"><span class="pre">pyaedt.edb_core.siwave.</span></code><code class="sig-name descname"><span class="pre">EdBSiwave</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">parent</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pyaedt/edb_core/siwave.html#EdBSiwave"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyaedt.edb_core.siwave.EdBSiwave" title="Permalink to this definition">¶</a></dt>
 <dd><p>EdbSiwave Object</p>
 <dl class="py method">
+<dt id="pyaedt.edb_core.siwave.EdBSiwave.active_layout">
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">active_layout</span></code><a class="headerlink" href="#pyaedt.edb_core.siwave.EdBSiwave.active_layout" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
 <dt id="pyaedt.edb_core.siwave.EdBSiwave.add_siwave_ac_analysis">
 <code class="sig-name descname"><span class="pre">add_siwave_ac_analysis</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">accuracy_level</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">decade_count</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">10</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sweeptype</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">start_freq</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">stop_freq</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1000000000.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">step_freq</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1000000.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">discre_sweep</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pyaedt/edb_core/siwave.html#EdBSiwave.add_siwave_ac_analysis"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyaedt.edb_core.siwave.EdBSiwave.add_siwave_ac_analysis" title="Permalink to this definition">¶</a></dt>
 <dd><p>Add Siwave AC Analysis</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>accuracy_level</strong> -- </p></li>
-<li><p><strong>decade_count</strong> -- </p></li>
-<li><p><strong>sweeptype</strong> -- </p></li>
-<li><p><strong>start_freq</strong> -- </p></li>
-<li><p><strong>stop_freq</strong> -- </p></li>
-<li><p><strong>step_freq</strong> -- </p></li>
-<li><p><strong>discre_sweep</strong> -- </p></li>
+<li><p><strong>accuracy_level</strong> -- param decade_count: (Default value = 1)</p></li>
+<li><p><strong>sweeptype</strong> -- param start_freq: (Default value = 1)</p></li>
+<li><p><strong>stop_freq</strong> -- param step_freq: (Default value = 1e9)</p></li>
+<li><p><strong>discre_sweep</strong> -- return: (Default value = False)</p></li>
+<li><p><strong>decade_count</strong> -- (Default value = 10)</p></li>
+<li><p><strong>start_freq</strong> -- (Default value = 1)</p></li>
+<li><p><strong>step_freq</strong> -- (Default value = 1e6)</p></li>
 </ul>
-</dd>
-<dt class="field-even">Returns</dt>
-<dd class="field-even"><p></p>
 </dd>
 </dl>
 </dd></dl>
@@ -300,13 +302,26 @@
 <dd><p>Add Siwave DC Analysis</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>accuracy_level</strong> -- Accuracy Level</p>
+<dd class="field-odd"><p><strong>accuracy_level</strong> -- Accuracy Level (Default value = 1)</p>
 </dd>
 <dt class="field-even">Returns</dt>
 <dd class="field-even"><p>Bool</p>
 </dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>type</p>
+</dd>
 </dl>
 </dd></dl>
+
+<dl class="py method">
+<dt id="pyaedt.edb_core.siwave.EdBSiwave.builder">
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">builder</span></code><a class="headerlink" href="#pyaedt.edb_core.siwave.EdBSiwave.builder" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="pyaedt.edb_core.siwave.EdBSiwave.cell">
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">cell</span></code><a class="headerlink" href="#pyaedt.edb_core.siwave.EdBSiwave.cell" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
 
 <dl class="py method">
 <dt id="pyaedt.edb_core.siwave.EdBSiwave.create_circuit_port">
@@ -317,14 +332,17 @@
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>positive_component_name</strong> -- Name of the positive component</p></li>
 <li><p><strong>positive_net_name</strong> -- Name of positive net name</p></li>
-<li><p><strong>negative_component_name</strong> -- Name of the negative component. if None, it will be the positive name</p></li>
-<li><p><strong>negative_net_name</strong> -- Name of negative net name</p></li>
-<li><p><strong>impedance_value</strong> -- port impedance value</p></li>
-<li><p><strong>port_name</strong> -- optional port name</p></li>
+<li><p><strong>negative_component_name</strong> -- Name of the negative component. if None, it will be the positive name (Default value = None)</p></li>
+<li><p><strong>negative_net_name</strong> -- Name of negative net name (Default value = &quot;GND&quot;)</p></li>
+<li><p><strong>impedance_value</strong> -- port impedance value (Default value = 50)</p></li>
+<li><p><strong>port_name</strong> -- optional port name (Default value = &quot;&quot;)</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>
 <dd class="field-even"><p>Bool</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>type</p>
 </dd>
 </dl>
 </dd></dl>
@@ -338,18 +356,41 @@
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>positive_component_name</strong> -- Name of the positive component</p></li>
 <li><p><strong>positive_net_name</strong> -- Name of positive net name</p></li>
-<li><p><strong>negative_component_name</strong> -- Name of the negative component. if None, it will be the positive name</p></li>
-<li><p><strong>negative_net_name</strong> -- Name of negative net name</p></li>
-<li><p><strong>current_value</strong> -- Voltage Value</p></li>
-<li><p><strong>phase_value</strong> -- Optional Phase Value</p></li>
-<li><p><strong>source_name</strong> -- optional port name</p></li>
+<li><p><strong>negative_component_name</strong> -- Name of the negative component. if None, it will be the positive name (Default value = None)</p></li>
+<li><p><strong>negative_net_name</strong> -- Name of negative net name (Default value = &quot;GND&quot;)</p></li>
+<li><p><strong>current_value</strong> -- Voltage Value (Default value = 3.3)</p></li>
+<li><p><strong>phase_value</strong> -- Optional Phase Value (Default value = 0)</p></li>
+<li><p><strong>source_name</strong> -- optional port name (Default value = &quot;&quot;)</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>
 <dd class="field-even"><p>Bool</p>
 </dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>type</p>
+</dd>
 </dl>
 </dd></dl>
+
+<dl class="py method">
+<dt id="pyaedt.edb_core.siwave.EdBSiwave.db">
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">db</span></code><a class="headerlink" href="#pyaedt.edb_core.siwave.EdBSiwave.db" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="pyaedt.edb_core.siwave.EdBSiwave.edb">
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">edb</span></code><a class="headerlink" href="#pyaedt.edb_core.siwave.EdBSiwave.edb" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="pyaedt.edb_core.siwave.EdBSiwave.siwave_setup">
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">siwave_setup</span></code><a class="headerlink" href="#pyaedt.edb_core.siwave.EdBSiwave.siwave_setup" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="pyaedt.edb_core.siwave.EdBSiwave.siwave_source">
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">siwave_source</span></code><a class="headerlink" href="#pyaedt.edb_core.siwave.EdBSiwave.siwave_source" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
 
 </dd></dl>
 

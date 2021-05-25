@@ -160,11 +160,10 @@
 
 
 <div class="viewcode-block" id="Primitives2D"><a class="viewcode-back" href="../../../API/Primitives2D.html#pyaedt.modeler.Primitives2D.Primitives2D">[docs]</a><span class="k">class</span> <span class="nc">Primitives2D</span><span class="p">(</span><span class="n">Primitives</span><span class="p">,</span> <span class="nb">object</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Class for management of all Primitives of 2D Tools</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="sd">&quot;&quot;&quot;Class for management of all Primitives of 2D Tools&quot;&quot;&quot;</span>
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">plane2d</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; &quot;&quot;&quot;</span>
         <span class="n">plane</span> <span class="o">=</span> <span class="s2">&quot;Z&quot;</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_parent</span><span class="o">.</span><span class="n">design_type</span> <span class="o">==</span> <span class="s2">&quot;Maxwell 2D&quot;</span><span class="p">:</span>
             <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_parent</span><span class="o">.</span><span class="n">odesign</span><span class="o">.</span><span class="n">GetGeometryMode</span><span class="p">()</span><span class="o">==</span><span class="s2">&quot;about Z&quot;</span><span class="p">:</span>
@@ -178,12 +177,24 @@
     <span class="k">def</span> <span class="nf">create_circle</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">position</span><span class="p">,</span> <span class="n">radius</span><span class="p">,</span> <span class="n">numSides</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">matname</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Create a circle</span>
 
-<span class="sd">        :param position: ApplicationName.modeler.Position(x,y,z) object</span>
-<span class="sd">        :param radius: radius float</span>
-<span class="sd">        :param numSides: Number of sides. 0 for circle</span>
-<span class="sd">        :param name: Object Name</span>
-<span class="sd">        :param matname: material name. Optional, if nothing default material will be assigned</span>
-<span class="sd">        :return: id</span>
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        position :</span>
+<span class="sd">            ApplicationName.modeler.Position(x,y,z) object</span>
+<span class="sd">        radius :</span>
+<span class="sd">            radius float</span>
+<span class="sd">        numSides :</span>
+<span class="sd">            Number of sides. 0 for circle (Default value = 0)</span>
+<span class="sd">        name :</span>
+<span class="sd">            Object Name (Default value = None)</span>
+<span class="sd">        matname :</span>
+<span class="sd">            material name. Optional, if nothing default material will be assigned</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        type</span>
+<span class="sd">            id</span>
+
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="nb">id</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_new_id</span><span class="p">()</span>
 
@@ -210,18 +221,26 @@
 
 <div class="viewcode-block" id="Primitives2D.create_ellipse"><a class="viewcode-back" href="../../../API/Primitives2D.html#pyaedt.modeler.Primitives2D.Primitives2D.create_ellipse">[docs]</a>    <span class="nd">@aedt_exception_handler</span>
     <span class="k">def</span> <span class="nf">create_ellipse</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">position</span><span class="p">,</span> <span class="n">major_raidus</span><span class="p">,</span> <span class="n">ratio</span><span class="p">,</span> <span class="n">bIsCovered</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">matname</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Create a ellipse</span>
+        <span class="sd">&quot;&quot;&quot;Create a ellipse</span>
 
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        position :</span>
+<span class="sd">            ApplicationName.modeler.Position(x,y,z) object</span>
+<span class="sd">        major_raidus :</span>
+<span class="sd">            radius float</span>
+<span class="sd">        ratio :</span>
+<span class="sd">            Ratio float</span>
+<span class="sd">        bIsCovered :</span>
+<span class="sd">            Boolean (Default value = True)</span>
+<span class="sd">        name :</span>
+<span class="sd">            Object Name (Default value = None)</span>
+<span class="sd">        matname :</span>
+<span class="sd">            material name. Optional, if nothing default material will be assigned</span>
 
-<span class="sd">        :param position: ApplicationName.modeler.Position(x,y,z) object</span>
-<span class="sd">        :param major_raidus: radius float</span>
-<span class="sd">        :param ratio: Ratio float</span>
-<span class="sd">        :param bIsCovered: Boolean</span>
-<span class="sd">        :param name: Object Name</span>
-<span class="sd">        :param matname: material name. Optional, if nothing default material will be assigned</span>
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
 
-<span class="sd">        :return:</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="nb">id</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_new_id</span><span class="p">()</span>
 
@@ -255,16 +274,24 @@
 
 <div class="viewcode-block" id="Primitives2D.create_rectangle"><a class="viewcode-back" href="../../../API/Primitives2D.html#pyaedt.modeler.Primitives2D.Primitives2D.create_rectangle">[docs]</a>    <span class="nd">@aedt_exception_handler</span>
     <span class="k">def</span> <span class="nf">create_rectangle</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">position</span><span class="p">,</span> <span class="n">dimension_list</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">matname</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Create a rectangle</span>
+        <span class="sd">&quot;&quot;&quot;Create a rectangle</span>
 
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        position :</span>
+<span class="sd">            ApplicationName.modeler.Position(x,y,z) object</span>
+<span class="sd">        dimension_list :</span>
+<span class="sd">            dimension list</span>
+<span class="sd">        name :</span>
+<span class="sd">            Object Name (Default value = None)</span>
+<span class="sd">        matname :</span>
+<span class="sd">            material name. Optional, if nothing default material will be assigned</span>
 
-<span class="sd">        :type cs_plane: CoordinateSystemPlane</span>
-<span class="sd">        :param position: ApplicationName.modeler.Position(x,y,z) object</span>
-<span class="sd">        :param dimension_list: dimension list</span>
-<span class="sd">        :param name: Object Name</span>
-<span class="sd">        :param matname: material name. Optional, if nothing default material will be assigned</span>
-<span class="sd">        :return: id</span>
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        type</span>
+<span class="sd">            id</span>
+
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="nb">id</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_new_id</span><span class="p">()</span>
 

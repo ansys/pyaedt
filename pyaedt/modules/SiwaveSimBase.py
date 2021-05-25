@@ -2,6 +2,7 @@
 # ////////////////////////////////////////////////////////////////
 
 class kSIwaveProperties(object):
+    """ """
     # General attributes ----------------------------------------
     PIN_GROUP = 1
     PART_NAME = 2
@@ -170,6 +171,7 @@ class kSIwaveProperties(object):
 # ////////////////////////////////////////////////////////////////
 
 class kAttribIndex(object):
+    """ """
     FROM_GROUP_NAME = 0
     FROM_NET_NAME = 1
     FROM_PIN_NAME = 2
@@ -198,6 +200,7 @@ class kAttribIndex(object):
 
 
 class CSIwaveDCIRConfig(object):
+    """ """
 
     def __init__(self, \
                  simName, \
@@ -279,6 +282,19 @@ class CSIwaveDCIRConfig(object):
     # ----------------------------------------------------------------
 
     def SetNodeToGround(self, sourceName, groundNeg=True):
+        """
+
+        Parameters
+        ----------
+        sourceName :
+            
+        groundNeg :
+             (Default value = True)
+
+        Returns
+        -------
+
+        """
         if self.m_nodesToGround is None:
             self.m_nodesToGround = dict()
         if groundNeg is True:
@@ -290,12 +306,28 @@ class CSIwaveDCIRConfig(object):
 
     def GetInitMeshMaxEdgeLen(self):
         """Returns a real number in meters representing the
-        maximum value of the initial mesh edge length"""
+        maximum value of the initial mesh edge length
+
+        Parameters
+        ----------
+
+        Returns
+        -------
+
+        """
         return edb.Utility.Value(self.m_initMeshMaxEdgeLen)
 
     # ----------------------------------------------------------------
 
     def GetCktElemContactRadius(self):
         """Returns a real number in meters representing the circuit
-        element contact radius"""
+        element contact radius
+
+        Parameters
+        ----------
+
+        Returns
+        -------
+
+        """
         return edb.Utility.Value(self.m_cktElemContactR)

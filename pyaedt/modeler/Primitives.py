@@ -39,9 +39,7 @@ default_materials = {"Icepak": "air", "HFSS": "vacuum", "Maxwell 3D": "vacuum", 
 
 
 class Primitives(object):
-    """
-    Class for management of all Common Primitives
-    """
+    """Class for management of all Common Primitives"""
     def __init__(self, parent, modeler):
         self._modeler = modeler
         self._parent = parent
@@ -69,49 +67,63 @@ class Primitives(object):
 
     @property
     def oproject(self):
+        """ """
         return self._parent.oproject
 
     @property
     def odesign(self):
+        """ """
         return self._parent.odesign
 
     @property
     def defaultmaterial(self):
-        """
-        Return the model default material as a string e.g. vacuum
-        """
+        """ """
         return default_materials[self._parent._design_type]
 
     @property
     def messenger(self):
+        """ """
         return self._parent._messenger
 
     @property
     def version(self):
+        """ """
         return self._parent._aedt_version
 
     @property
     def modeler(self):
+        """ """
         return self._modeler
 
     @property
     def design_types(self):
+        """ """
         return self._parent._modeler
 
     @property
     def oeditor(self):
+        """ """
         return self.modeler.oeditor
 
     @property
     def model_units(self):
+        """ """
         return self.modeler.model_units
 
     @aedt_exception_handler
     def _delete_object_from_dict(self, objname):
-        """
-        Delete object from dictionaries
-        :param objname: int (object id) or str (object name)
-        :return: Bool
+        """Delete object from dictionaries
+
+        Parameters
+        ----------
+        objname :
+            int (object id) or str (object name)
+
+        Returns
+        -------
+        type
+            Bool
+
         """
         if type(objname) is str and objname in self.objects_names:
             id1 = self.objects_names[objname]
@@ -130,6 +142,19 @@ class Primitives(object):
 
     @aedt_exception_handler
     def _update_object(self, o, objtype="Solid"):
+        """
+
+        Parameters
+        ----------
+        o :
+            
+        objtype :
+             (Default value = "Solid")
+
+        Returns
+        -------
+
+        """
         o.object_type = objtype
         if objtype != "Solid":
             o.is3d = False
@@ -142,12 +167,20 @@ class Primitives(object):
 
     @aedt_exception_handler
     def _check_material(self, matname, defaultmatname):
-        """
-        If matname exists it assigns it.otherwise it assigns the default value
+        """If matname exists it assigns it.otherwise it assigns the default value
 
+        Parameters
+        ----------
+        matname :
+            string material name
+        defaultmatname :
+            
 
-        :param matname: string material name
-        :return: material name, Boolean if material is a dielectric
+        Returns
+        -------
+        type
+            material name, Boolean if material is a dielectric
+
         """
 
         if matname:
@@ -171,9 +204,16 @@ class Primitives(object):
         """"
         Return True if object exists
 
+        Parameters
+        ----------
+        object :
+            OBject name or object id
 
-        :param object: OBject name or object id
-        :return: True
+        Returns
+        -------
+        type
+            True
+
         """
         if type(object) is int:
             if object in self.objects:
@@ -189,11 +229,18 @@ class Primitives(object):
 
     @aedt_exception_handler
     def create_region(self, pad_percent):
-        """
-        Create Air Region
+        """Create Air Region
 
-        :param pad_percent: Pad Percent List
-        :return: object Id
+        Parameters
+        ----------
+        pad_percent :
+            Pad Percent List
+
+        Returns
+        -------
+        type
+            object Id
+
         """
         if "Region" in self.get_all_objects_names():
             return None
@@ -227,9 +274,14 @@ class Primitives(object):
     def create_object_from_edge(self, edgeID):
         """Create object from Edge
 
+        Parameters
+        ----------
+        edgeID :
+            edge ID (int)
 
-        :param edgeID: edge ID (int)
-        :return:
+        Returns
+        -------
+
         """
 
         id = self._new_id()
@@ -257,9 +309,14 @@ class Primitives(object):
     def create_object_from_face(self, faceId):
         """Create object from face
 
+        Parameters
+        ----------
+        faceId :
+            face ID (int)
 
-        :param faceId: face ID (int)
-        :return:
+        Returns
+        -------
+
         """
         id = self._new_id()
 
@@ -283,13 +340,22 @@ class Primitives(object):
     def create_polyline(self, PositionArray, coversurface=False, name=None, matname=None):
         """Create polilyne
 
+        Parameters
+        ----------
+        PositionArray :
+            Positions array of each point of polilyne
+        coversurface :
+            Bool True/False (Default value = False)
+        name :
+            optional polyline name (Default value = None)
+        matname :
+            material name. Optional, if nothing default material will be assigned
 
-        :param PositionArray: Positions array of each point of polilyne
-        :param coversurface: Bool True/False
-        :param name: optional polyline name
-        :param matname: material name. Optional, if nothing default material will be assigned
+        Returns
+        -------
+        type
+            object id
 
-        :return: object id
         """
         id = self._new_id()
 
@@ -312,12 +378,26 @@ class Primitives(object):
     def insert_polyline_segment(self, PositionArray, segment_type, at_start, name, index, numpoints):
         """Adds a segment to an existing polyline
 
+        Parameters
+        ----------
+        PositionArray :
+            Positions array of each point of polilyne
+        segment_type :
+            
+        at_start :
+            
+        name :
+            
+        index :
+            
+        numpoints :
+            
 
-        :param PositionArray: Positions array of each point of polilyne
-        :type: segment, (spline), 3PointArc, (center point arc)
-        :at_start: add before or after current segment
-        :name: polyline to be selected and continued
-        :return: object id
+        Returns
+        -------
+        type
+            object id
+
         """
         id = self._new_id()
         o = self.objects[id]
@@ -373,13 +453,26 @@ class Primitives(object):
     def create_3pointArc(self, PointList, WP, cw_label, coversurface=False, name=None, matname=None):
         """Create a 3-point arc from center + 2 points
 
-        :param PointList: Positions array of each point of arc: center + 2 points
-        :param WP: working plane, string
-        :param cw_label: cw or ccw: clockwise or counterclockwise
-        :param coversurface: Bool True/False
-        :param matname: material name. Optional, if nothing default material will be assigned
+        Parameters
+        ----------
+        PointList :
+            Positions array of each point of arc: center + 2 points
+        WP :
+            working plane, string
+        cw_label :
+            cw or ccw: clockwise or counterclockwise
+        coversurface :
+            Bool True/False (Default value = False)
+        matname :
+            material name. Optional, if nothing default material will be assigned
+        name :
+             (Default value = None)
 
-        :return: object id
+        Returns
+        -------
+        type
+            object id
+
         """
         id = self._new_id()
         o = self.objects[id]
@@ -463,18 +556,33 @@ class Primitives(object):
     def get_obj_name(self, partId):
         """Return object name from ID
 
+        Parameters
+        ----------
+        partId :
+            object id
 
-        :param partId: object id
-        :return:
+        Returns
+        -------
+
         """
         return self.objects[partId].name
 
     @aedt_exception_handler
     def convert_to_selections(self, objtosplit, return_list=False):
         """
-        :param objtosplit: list of objects to convert to selection. it can be a string, int or list of mixed.
-        :param return_list: Bool. if False it returns a string of the selections. if True it return the list
-        :return: objectname in a form of list of string
+
+        Parameters
+        ----------
+        objtosplit :
+            list of objects to convert to selection. it can be a string, int or list of mixed.
+        return_list :
+            Bool. if False it returns a string of the selections. if True it return the list (Default value = False)
+
+        Returns
+        -------
+        type
+            objectname in a form of list of string
+
         """
         if type(objtosplit) is not list:
             objtosplit = [objtosplit]
@@ -491,11 +599,18 @@ class Primitives(object):
 
     @aedt_exception_handler
     def delete(self, objects):
-        """
-        deletes objects or groups
+        """deletes objects or groups
 
-        :param objects: list of objects or group names
-        :return: True if succeded, False otherwise
+        Parameters
+        ----------
+        objects :
+            list of objects or group names
+
+        Returns
+        -------
+        type
+            True if succeded, False otherwise
+
         """
         if type(objects) is not list:
             objects = [objects]
@@ -526,12 +641,20 @@ class Primitives(object):
 
     @aedt_exception_handler
     def delete_objects_containing(self, contained_string, case_sensitive=True):
-        """
-        Delete all objects with predefined prefix
+        """Delete all objects with predefined prefix
 
-        :param contained_string: string
-        :param case_sensitive:  Boolean
-        :return: Boolean
+        Parameters
+        ----------
+        contained_string :
+            string
+        case_sensitive :
+            Boolean (Default value = True)
+
+        Returns
+        -------
+        type
+            Boolean
+
         """
         objnames = self.get_all_objects_names()
         num_del = 0
@@ -549,10 +672,7 @@ class Primitives(object):
 
     @aedt_exception_handler
     def get_model_bounding_box(self):
-        """
-        GetModelBoundingbox and return it
-
-        """
+        """GetModelBoundingbox and return it"""
         bound = []
         if self.oeditor is not None:
             bound = self.oeditor.GetModelBoundingBox()
@@ -560,12 +680,20 @@ class Primitives(object):
 
     @aedt_exception_handler
     def get_obj_id(self, objname):
-        """
-        Return object ID from name
+        """Return object ID from name
 
+        Parameters
+        ----------
+        partId :
+            object name
+        objname :
+            
 
-        :param partId: object name
-        :return: object id
+        Returns
+        -------
+        type
+            object id
+
         """
         if objname in self.objects_names:
             if self.objects_names[objname] in self.objects:
@@ -574,12 +702,20 @@ class Primitives(object):
 
     @aedt_exception_handler
     def get_objects_w_string(self, stringname, case_sensitive=True):
-        """
-        Return all objects name of objects containing stringname
+        """Return all objects name of objects containing stringname
 
-        :param stringname: object string to be searched in object names
-        :param case_sensitive: Boolean
-        :return: objects lists of strings
+        Parameters
+        ----------
+        stringname :
+            object string to be searched in object names
+        case_sensitive :
+            Boolean (Default value = True)
+
+        Returns
+        -------
+        type
+            objects lists of strings
+
         """
         list_objs=[]
         for el in self.objects:
@@ -594,10 +730,18 @@ class Primitives(object):
 
     @aedt_exception_handler
     def get_model_objects(self, model=True):
-        """
-        Return all objects name of Model objects
-        :param model: bool True to return model objects. False to return Non-Model objects
-        :return: objects lists
+        """Return all objects name of Model objects
+
+        Parameters
+        ----------
+        model :
+            bool True to return model objects. False to return Non-Model objects (Default value = True)
+
+        Returns
+        -------
+        type
+            objects lists
+
         """
         list_objs = []
         for el in self.objects:
@@ -607,18 +751,14 @@ class Primitives(object):
 
     @aedt_exception_handler
     def refresh(self):
-        """
-        Refresh all ids
-        """
+        """Refresh all ids"""
         self.refresh_all_ids_from_aedt_file()
         if not self.objects:
             self.refresh_all_ids()
 
     @aedt_exception_handler
     def refresh_all_ids(self):
-        """
-        Refresh all ids
-        """
+        """Refresh all ids"""
         n = 10
         #self.objects = defaultdict(Object3d)
         all_object_names = self.get_all_objects_names()
@@ -667,11 +807,17 @@ class Primitives(object):
 
     @aedt_exception_handler
     def refresh_all_ids_from_aedt_file(self):
-        """
-        Refresh all ids from aedt_file properties. This method is much faster than the original refresh_all_ids method
-
-
+        """Refresh all ids from aedt_file properties. This method is much faster than the original refresh_all_ids method
+        
+        
         :return: length of imported objects
+
+        Parameters
+        ----------
+
+        Returns
+        -------
+
         """
         if not self._parent.design_properties or "ModelSetup" not in self._parent.design_properties:
             return 0
@@ -736,8 +882,14 @@ class Primitives(object):
     def update_object_properties(self, o):
         """
 
-        :param o:
-        :return:
+        Parameters
+        ----------
+        o :
+            return:
+
+        Returns
+        -------
+
         """
         n = 10
         name = o.name
@@ -790,14 +942,24 @@ class Primitives(object):
 
     @aedt_exception_handler
     def get_all_objects_names(self, refresh_list=False, get_solids=True, get_sheets=True, get_lines=True):
-        """ Get all objects names in the design
+        """Get all objects names in the design
 
+        Parameters
+        ----------
+        refresh_list :
+            bool, force the refresh of objects (Default value = False)
+        get_solids :
+            bool, include the solids in the return list (Default value = True)
+        get_sheets :
+            bool, include the sheets in the return list (Default value = True)
+        get_lines :
+            bool, include the lines in the return list (Default value = True)
 
-        :param refresh_list: bool, force the refresh of objects
-        :param get_solids: bool, include the solids in the return list
-        :param get_sheets: bool, include the sheets in the return list
-        :param get_lines: bool, include the lines in the return list
-        :return: list of the objects names
+        Returns
+        -------
+        type
+            list of the objects names
+
         """
         if refresh_list:
             l = self.refresh_all_ids()
@@ -815,30 +977,50 @@ class Primitives(object):
 
     @aedt_exception_handler
     def get_all_sheets_names(self, refresh_list=False):
-        """
-        get all sheets names in the design
-        :param refresh_list: bool, force the refresh of objects
-        :return: list of the sheets names
+        """get all sheets names in the design
+
+        Parameters
+        ----------
+        refresh_list :
+            bool, force the refresh of objects (Default value = False)
+
+        Returns
+        -------
+        type
+            list of the sheets names
+
         """
         return self.get_all_objects_names(refresh_list=refresh_list, get_solids=False, get_sheets=True, get_lines=False)
 
     @aedt_exception_handler
     def get_all_lines_names(self, refresh_list=False):
-        """
-        get all lines names in the design
-        :param refresh_list: bool, force the refresh of objects
-        :return: list of the lines names
+        """get all lines names in the design
+
+        Parameters
+        ----------
+        refresh_list :
+            bool, force the refresh of objects (Default value = False)
+
+        Returns
+        -------
+        type
+            list of the lines names
+
         """
         return self.get_all_objects_names(refresh_list=refresh_list, get_solids=False, get_sheets=False, get_lines=True)
 
     @aedt_exception_handler
     def get_objects_by_material(self, materialname):
-        """
-        Get objects ID list of specified material
+        """Get objects ID list of specified material
 
+        Parameters
+        ----------
+        materialname :
+            str material name
 
-        :param materialname: str material name
-        :return:
+        Returns
+        -------
+
         """
         obj_lst = []
         for el in self.objects:
@@ -848,11 +1030,17 @@ class Primitives(object):
 
     @aedt_exception_handler
     def get_all_objects_ids(self):
-        """
-        Get all object ids
-
-
+        """Get all object ids
+        
+        
         :return: obj id list
+
+        Parameters
+        ----------
+
+        Returns
+        -------
+
         """
         objs = []
         for el in self.objects:
@@ -861,6 +1049,7 @@ class Primitives(object):
 
     @aedt_exception_handler
     def _new_id(self):
+        """ """
         # self._currentId = self._currentId + 1
         o = Object3d(self)
         o.material_name = self.defaultmaterial
@@ -870,12 +1059,18 @@ class Primitives(object):
 
     @aedt_exception_handler
     def set_part_name(self, partName, partId):
-        """
-        Set Part name value
+        """Set Part name value
 
+        Parameters
+        ----------
+        partName :
+            part name
+        partId :
+            part id
 
-        :param partName: part name
-        :param partId: part id
+        Returns
+        -------
+
         """
         o = self.objects[partId]
         o.set_name(partName)
@@ -883,35 +1078,54 @@ class Primitives(object):
 
     @aedt_exception_handler
     def get_part_name(self, partId):
-        """
-        Get Part name
-
-
+        """Get Part name
+        
+        
         :return: part name
+
+        Parameters
+        ----------
+        partId :
+            
+
+        Returns
+        -------
+
         """
         o = self.objects[partId]
         return o.name
 
     @aedt_exception_handler
     def set_material_name(self, matName, partId):
-        """
-        Set Material name
+        """Set Material name
 
+        Parameters
+        ----------
+        matName :
+            material name
+        partId :
+            part id
 
-        :param matName: material name
-        :param partId: part id
+        Returns
+        -------
+
         """
         o = self.objects[partId]
         o.assign_material(matName)
 
     @aedt_exception_handler
     def set_part_color(self, partId, color):
-        """
-        Set Part Color
+        """Set Part Color
 
+        Parameters
+        ----------
+        partId :
+            part id
+        color :
+            part color as hex number
 
-        :param partId: part id
-        :param color: part color as hex number
+        Returns
+        -------
 
         """
         # Convert long color to RGB
@@ -920,14 +1134,21 @@ class Primitives(object):
 
     @aedt_exception_handler
     def set_color(self, r, g, b, partId):
-        """
-        Set Part Color from r g b
+        """Set Part Color from r g b
 
+        Parameters
+        ----------
+        partId :
+            part id
+        r :
+            part color red
+        g :
+            part color green
+        b :
+            part color blue
 
-        :param partId: part id
-        :param r: part color red
-        :param g: part color green
-        :param b: part color blue
+        Returns
+        -------
 
         """
         o = self.objects[partId]
@@ -935,12 +1156,17 @@ class Primitives(object):
 
     @aedt_exception_handler
     def set_wireframe(self, partId, fWire):
-        """
-        Set Part wireframe
+        """Set Part wireframe
 
+        Parameters
+        ----------
+        partId :
+            part id
+        fWire :
+            boolean
 
-        :param partId: part id
-        :param fWire: boolean
+        Returns
+        -------
 
         """
         o = self.objects[partId]
@@ -948,6 +1174,19 @@ class Primitives(object):
 
     @aedt_exception_handler
     def set_part_refid(self, partId, refId):
+        """
+
+        Parameters
+        ----------
+        partId :
+            
+        refId :
+            
+
+        Returns
+        -------
+
+        """
         o = self.objects[partId]
         o.m_refId = refId
 
@@ -969,16 +1208,24 @@ class Primitives(object):
 
     @aedt_exception_handler
     def find_closest_edges(self, start_obj, end_obj, port_direction=0):
-        """
-        Given two objects the tool will check and provide the two closest edges that are not perpendicular.
+        """Given two objects the tool will check and provide the two closest edges that are not perpendicular.
         PortDirection is used in case more than 2 couple are on the same distance (eg. coax or microstrip). in that case
         it will give the precedence to the edges that are on that axis direction (eg XNeg)
 
+        Parameters
+        ----------
+        start_obj :
+            Start objectName
+        end_obj :
+            End Object Name
+        port_direction :
+            AxisDir.XNeg,AxisDir.XPos, AxisDir.YNeg,AxisDir.YPos, AxisDir.ZNeg,AxisDir.ZPos, (Default value = 0)
 
-        :param start_obj: Start objectName
-        :param end_obj: End Object Name
-        :param port_direction: AxisDir.XNeg,AxisDir.XPos, AxisDir.YNeg,AxisDir.YPos, AxisDir.ZNeg,AxisDir.ZPos,
-        :return: list with 2 edges if present
+        Returns
+        -------
+        type
+            list with 2 edges if present
+
         """
         if not self.does_object_exists(start_obj):
             self.messenger.add_error_message("Error. Object {} does not exists".format(str(start_obj)))
@@ -1076,14 +1323,26 @@ class Primitives(object):
 
     @aedt_exception_handler
     def get_equivalent_parallel_edges(self, edgelist, portonplane=True, axisdir=0, startobj="", endobject=""):
-        """
-        Given a parallel couple of edges it creates 2 new edges that are pallel and are equal to the smallest edge
+        """Given a parallel couple of edges it creates 2 new edges that are pallel and are equal to the smallest edge
 
+        Parameters
+        ----------
+        edgelist :
+            List with 2 parallel edge
+        portonplane :
+            Boolean, if True, Edges will be on plane ortogonal to axisdir (Default value = True)
+        axisdir :
+            Axis Direction (Default value = 0)
+        startobj :
+             (Default value = "")
+        endobject :
+             (Default value = "")
 
-        :param edgelist: List with 2 parallel edge
-        :param portonplane: Boolean, if True, Edges will be on plane ortogonal to axisdir
-        :param axisdir: Axis Direction
-        :return: list of the two new created edges
+        Returns
+        -------
+        type
+            list of the two new created edges
+
         """
         try:
             l1 = self.get_edge_length(edgelist[0])
@@ -1132,12 +1391,18 @@ class Primitives(object):
 
     @aedt_exception_handler
     def get_object_faces(self, partId):
-        """
-        Get the face IDs of given an object name
+        """Get the face IDs of given an object name
 
+        Parameters
+        ----------
+        partId :
+            part ID (integer) or objectName (string)
 
-        :param partId: part ID (integer) or objectName (string)
-        :return: Faces ID List
+        Returns
+        -------
+        type
+            Faces ID List
+
         """
         oFaceIDs = []
         if type(partId) is str and partId in self.objects_names:
@@ -1152,12 +1417,18 @@ class Primitives(object):
 
     @aedt_exception_handler
     def get_object_edges(self, partId):
-        """
-        Get the edge IDs of given an object name or object ID
+        """Get the edge IDs of given an object name or object ID
 
+        Parameters
+        ----------
+        partId :
+            part ID (integer) or objectName (string)
 
-        :param partId: part ID (integer) or objectName (string)
-        :return: Edge ID List
+        Returns
+        -------
+        type
+            Edge ID List
+
         """
         oEdgeIDs = []
         if type(partId) is str and partId in self.objects_names:
@@ -1173,9 +1444,16 @@ class Primitives(object):
     def get_face_edges(self, partId):
         """Get the edge IDs of given an face name or object ID
 
+        Parameters
+        ----------
+        partId :
+            part ID (integer) or objectName (string)
 
-        :param partId: part ID (integer) or objectName (string)
-        :return: Edge ID List
+        Returns
+        -------
+        type
+            Edge ID List
+
         """
         oEdgeIDs = self.oeditor.GetEdgeIDsFromFace(partId)
         oEdgeIDs = [int(i) for i in oEdgeIDs]
@@ -1183,12 +1461,18 @@ class Primitives(object):
 
     @aedt_exception_handler
     def get_object_vertices(self, partID):
-        """
-        Get the vertex IDs of given an object name or object ID.
+        """Get the vertex IDs of given an object name or object ID.
 
+        Parameters
+        ----------
+        partID :
+            part ID (integer) or objectName (string)
 
-        :param partID: part ID (integer) or objectName (string)
-        :return: Vertex ID List
+        Returns
+        -------
+        type
+            Vertex ID List
+
         """
         oVertexIDs = []
         if type(partID) is str and partID in self.objects_names:
@@ -1202,12 +1486,18 @@ class Primitives(object):
 
     @aedt_exception_handler
     def get_face_vertices(self, face_id):
-        """
-        Get the vertex IDs of given a face ID.
+        """Get the vertex IDs of given a face ID.
 
+        Parameters
+        ----------
+        face_id :
+            part ID (integer). If objectName (string) is available then use get_object_vertices
 
-        :param face_id: part ID (integer). If objectName (string) is available then use get_object_vertices
-        :return: Vertex ID List
+        Returns
+        -------
+        type
+            Vertex ID List
+
         """
         try:
             oVertexIDs = self.oeditor.GetVertexIDsFromFace(face_id)
@@ -1221,8 +1511,16 @@ class Primitives(object):
     def get_edge_length(self, edgeID):
         """
 
-        :param edgeID: Edge id
-        :return: Edge length
+        Parameters
+        ----------
+        edgeID :
+            Edge id
+
+        Returns
+        -------
+        type
+            Edge length
+
         """
         vertexID = self.get_edge_vertices(edgeID)
         pos1 = self.get_vertex_position(vertexID[0])
@@ -1234,12 +1532,18 @@ class Primitives(object):
 
     @aedt_exception_handler
     def get_edge_vertices(self, edgeID):
-        """
-        Get the vertex IDs of given a edge ID.
+        """Get the vertex IDs of given a edge ID.
 
+        Parameters
+        ----------
+        edgeID :
+            part ID (integer). If objectName (string) is available then use get_object_vertices
 
-        :param edgeID: part ID (integer). If objectName (string) is available then use get_object_vertices
-        :return: Vertex ID List
+        Returns
+        -------
+        type
+            Vertex ID List
+
         """
         try:
             oVertexIDs = self.oeditor.GetVertexIDsFromEdge(edgeID)
@@ -1251,12 +1555,18 @@ class Primitives(object):
 
     @aedt_exception_handler
     def get_vertex_position(self, vertex_id):
-        """
-        Returns a vector of vertex coordinates.
+        """Returns a vector of vertex coordinates.
 
+        Parameters
+        ----------
+        vertex_id :
+            vertex ID (integer or str)
 
-        :param vertex_id: vertex ID (integer or str)
-        :return: position as list of float [x, y, z]
+        Returns
+        -------
+        type
+            position as list of float [x, y, z]
+
         """
         try:
             pos = self.oeditor.GetVertexPosition(vertex_id)
@@ -1268,12 +1578,18 @@ class Primitives(object):
 
     @aedt_exception_handler
     def get_face_area(self, face_id):
-        """
-        Get area of given face ID.
+        """Get area of given face ID.
 
+        Parameters
+        ----------
+        face_id :
+            Face ID
 
-        :param face_id: Face ID
-        :return: float value for face area
+        Returns
+        -------
+        type
+            float value for face area
+
         """
 
         area = self.oeditor.GetFaceArea(face_id)
@@ -1281,12 +1597,18 @@ class Primitives(object):
 
     @aedt_exception_handler
     def get_face_center(self, face_id):
-        """
-        Given a planar face ID, return the center position.
+        """Given a planar face ID, return the center position.
 
+        Parameters
+        ----------
+        face_id :
+            Face ID
 
-        :param face_id: Face ID
-        :return: An array as list of float [x, y, z] containing planar face center position
+        Returns
+        -------
+        type
+            An array as list of float [x, y, z] containing planar face center position
+
         """
         if not self.objects:
             self.refresh_all_ids()
@@ -1301,6 +1623,19 @@ class Primitives(object):
 
     @aedt_exception_handler
     def get_mid_points_on_dir(self, sheet, axisdir):
+        """
+
+        Parameters
+        ----------
+        sheet :
+            
+        axisdir :
+            
+
+        Returns
+        -------
+
+        """
         edgesid = self.get_object_edges(sheet)
         id =divmod(axisdir,3)[1]
         midpoint_array = []
@@ -1320,13 +1655,21 @@ class Primitives(object):
 
     @aedt_exception_handler
     def get_edge_midpoint(self, partID):
-        """
-        Get the midpoint coordinates of given edge name or edge ID
-
-
+        """Get the midpoint coordinates of given edge name or edge ID
+        
+        
         If the edge is not a segment with two vertices return an empty list.
-        :param partID: part ID (integer) or objectName (string)
-        :return: midpoint coordinates
+
+        Parameters
+        ----------
+        partID :
+            part ID (integer) or objectName (string)
+
+        Returns
+        -------
+        type
+            midpoint coordinates
+
         """
 
         if type(partID) is str and partID in self.objects_names:
@@ -1351,13 +1694,20 @@ class Primitives(object):
 
     @aedt_exception_handler
     def get_bodynames_from_position(self, position, units=None):
-        """
-        Gets the object names that contact the given point
+        """Gets the object names that contact the given point
 
+        Parameters
+        ----------
+        position :
+            ApplicationName.modeler.Position(x,y,z) object
+        units :
+            units (e.g. 'm'), if None model units is used (Default value = None)
 
-        :param position: ApplicationName.modeler.Position(x,y,z) object
-        :param units: units (e.g. 'm'), if None model units is used
-        :return: The list of object names
+        Returns
+        -------
+        type
+            The list of object names
+
         """
         XCenter, YCenter, ZCenter = self.pos_with_arg(position, units)
         vArg1 = ['NAME:Parameters']
@@ -1371,10 +1721,21 @@ class Primitives(object):
     @aedt_exception_handler
     def get_edgeid_from_position(self, position, obj_name=None, units=None):
         """
-        :param position: ApplicationName.modeler.Position(x,y,z) object
-        :param obj_name: optional object name. Otherwise it will search in all objects
-        :param units: units (e.g. 'm'), if None model units is used
-        :return: Edge ID of first object touching that position
+
+        Parameters
+        ----------
+        position :
+            ApplicationName.modeler.Position(x,y,z) object
+        obj_name :
+            optional object name. Otherwise it will search in all objects (Default value = None)
+        units :
+            units (e.g. 'm'), if None model units is used (Default value = None)
+
+        Returns
+        -------
+        type
+            Edge ID of first object touching that position
+
         """
         edgeID = -1
         XCenter, YCenter, ZCenter = self.pos_with_arg(position, units)
@@ -1406,9 +1767,19 @@ class Primitives(object):
     @aedt_exception_handler
     def get_edgeids_from_vertexid(self, vertexid, obj_name):
         """
-        :param vertexid: Vertex ID to search
-        :param obj_name:  object name.
-        :return: Edge ID array
+
+        Parameters
+        ----------
+        vertexid :
+            Vertex ID to search
+        obj_name :
+            object name.
+
+        Returns
+        -------
+        type
+            Edge ID array
+
         """
         edgeID = []
         edges = self.get_object_edges(obj_name)
@@ -1422,10 +1793,21 @@ class Primitives(object):
     @aedt_exception_handler
     def get_faceid_from_position(self, position, obj_name=None, units=None):
         """
-        :param position: ApplicationName.modeler.Position(x,y,z) object
-        :param obj_name: optional object name. Otherwise it will search in all objects
-        :param units: units (e.g. 'm'), if None model units is used
-        :return: Face ID of first object touching that position
+
+        Parameters
+        ----------
+        position :
+            ApplicationName.modeler.Position(x,y,z) object
+        obj_name :
+            optional object name. Otherwise it will search in all objects (Default value = None)
+        units :
+            units (e.g. 'm'), if None model units is used (Default value = None)
+
+        Returns
+        -------
+        type
+            Face ID of first object touching that position
+
         """
         face_id = -1
         XCenter, YCenter, ZCenter = self.pos_with_arg(position, units)
@@ -1456,6 +1838,19 @@ class Primitives(object):
 
     @aedt_exception_handler
     def arg_with_dim(self, Value, units=None):
+        """
+
+        Parameters
+        ----------
+        Value :
+            
+        units :
+             (Default value = None)
+
+        Returns
+        -------
+
+        """
         if type(Value) is str:
             val = Value
         else:
@@ -1467,6 +1862,19 @@ class Primitives(object):
 
     @aedt_exception_handler
     def pos_with_arg(self, pos, units=None):
+        """
+
+        Parameters
+        ----------
+        pos :
+            
+        units :
+             (Default value = None)
+
+        Returns
+        -------
+
+        """
         try:
             posx = self.arg_with_dim(pos[0], units)
         except:
@@ -1483,6 +1891,17 @@ class Primitives(object):
 
     @aedt_exception_handler
     def _str_list(self, theList):
+        """
+
+        Parameters
+        ----------
+        theList :
+            
+
+        Returns
+        -------
+
+        """
         szList = ''
         for id in theList:
             o = self.objects[id]
@@ -1494,6 +1913,17 @@ class Primitives(object):
 
     @aedt_exception_handler
     def _find_object_from_edge_id(self, lval):
+        """
+
+        Parameters
+        ----------
+        lval :
+            
+
+        Returns
+        -------
+
+        """
 
         objList = []
         objListSheets = list(self.oeditor.GetObjectsInGroup("Sheets"))
@@ -1511,6 +1941,17 @@ class Primitives(object):
 
     @aedt_exception_handler
     def _find_object_from_face_id(self, lval):
+        """
+
+        Parameters
+        ----------
+        lval :
+            
+
+        Returns
+        -------
+
+        """
 
         if self.oeditor is not None:
             objList = []
@@ -1529,16 +1970,24 @@ class Primitives(object):
 
     @aedt_exception_handler
     def get_edges_on_bunding_box(self, sheets, return_colinear=True, tol=1e-6):
-        """
-        Get the edges of the sheets passed in input that are laying on the bounding box.
+        """Get the edges of the sheets passed in input that are laying on the bounding box.
         Create new lines for the detected edges and returns the Id of those new lines.
         If required return only the colinear edges.
 
+        Parameters
+        ----------
+        sheets :
+            sheets as Id or name, list or single object.
+        return_colinear :
+            True to return only the colinear edges, False to return all edges on boundingbox. (Default value = True)
+        tol :
+            set the geometric tolerance (Default value = 1e-6)
 
-        :param sheets: sheets as Id or name, list or single object.
-        :param return_colinear: True to return only the colinear edges, False to return all edges on boundingbox.
-        :param tol: set the geometric tolerance
-        :return: list of edges Id
+        Returns
+        -------
+        type
+            list of edges Id
+
         """
 
         port_sheets = self.convert_to_selections(sheets, return_list=True)
@@ -1607,22 +2056,33 @@ class Primitives(object):
     @aedt_exception_handler
     def get_edges_for_circuit_port_fromsheet(self, sheet, XY_plane=True, YZ_plane=True, XZ_plane=True,
                                              allow_perpendicular=False, tol=1e-6):
-        """
-        Returns two edges ID suitable for the circuit port.
+        """Returns two edges ID suitable for the circuit port.
         One is belonging to the sheet passed in and the second one is the closest
         edges coplanar to first edge (aligned to XY, YZ, or XZ plane)
         Create new lines for the detected edges and returns the Id of those new lines.
         get_edges_for_circuit_port_fromsheet accepts a separated sheet object in input.
         get_edges_for_circuit_port accepts a faceId.
 
+        Parameters
+        ----------
+        sheet :
+            sheets as Id or name, list or single object.
+        XY_plane :
+            allows edges pair to be on XY plane (Default value = True)
+        YZ_plane :
+            allows edges pair to be on YZ plane (Default value = True)
+        XZ_plane :
+            allows edges pair to be on XZ plane (Default value = True)
+        allow_perpendicular :
+            allows edges pair to be perpendicular (Default value = False)
+        tol :
+            set the geometric tolerance (Default value = 1e-6)
 
-        :param sheet: sheets as Id or name, list or single object.
-        :param XY_plane: allows edges pair to be on XY plane
-        :param YZ_plane: allows edges pair to be on YZ plane
-        :param XZ_plane: allows edges pair to be on XZ plane
-        :param allow_perpendicular: allows edges pair to be perpendicular
-        :param tol: set the geometric tolerance
-        :return: list of edges Id
+        Returns
+        -------
+        type
+            list of edges Id
+
         """
         tol2 = tol**2
         port_sheet = self.convert_to_selections(sheet, return_list=True)
@@ -1726,27 +2186,39 @@ class Primitives(object):
 
     @aedt_exception_handler
     def get_all_solids_names(self):
+        """ """
         return []
 
     @aedt_exception_handler
     def get_edges_for_circuit_port(self, face_id, XY_plane=True, YZ_plane=True, XZ_plane=True,
                                    allow_perpendicular=False, tol=1e-6):
-        """
-        Returns two edges ID suitable for the circuit port.
+        """Returns two edges ID suitable for the circuit port.
         One is belonging to the faceId passed in input and the second one is the closest
         edges coplanar to first edge (aligned to XY, YZ, or XZ plane)
         Create new lines for the detected edges and returns the Id of those new lines.
         get_edges_for_circuit_port_fromsheet accepts a separated sheet object in input.
         get_edges_for_circuit_port accepts a faceId.
 
+        Parameters
+        ----------
+        face_id :
+            faceId of the input face.
+        XY_plane :
+            allows edges pair to be on XY plane (Default value = True)
+        YZ_plane :
+            allows edges pair to be on YZ plane (Default value = True)
+        XZ_plane :
+            allows edges pair to be on XZ plane (Default value = True)
+        allow_perpendicular :
+            allows edges pair to be perpendicular (Default value = False)
+        tol :
+            set the geometric tolerance (Default value = 1e-6)
 
-        :param face_id: faceId of the input face.
-        :param XY_plane: allows edges pair to be on XY plane
-        :param YZ_plane: allows edges pair to be on YZ plane
-        :param XZ_plane: allows edges pair to be on XZ plane
-        :param allow_perpendicular: allows edges pair to be perpendicular
-        :param tol: set the geometric tolerance
-        :return: list of edges Id
+        Returns
+        -------
+        type
+            list of edges Id
+
         """
         tol2 = tol**2
 
@@ -1847,9 +2319,19 @@ class Primitives(object):
     @aedt_exception_handler
     def get_closest_edgeid_to_position(self, position, units=None):
         """
-        :param position: [x,y,z], list of float OR ApplicationName.modeler.Position(x,y,z) object
-        :param units: units for position (e.g. 'm'), if None model unit is used
-        :return: Edge ID of the closes edge to that position
+
+        Parameters
+        ----------
+        position :
+            x,y,z], list of float OR ApplicationName.modeler.Position(x,y,z) object
+        units :
+            units for position (e.g. 'm'), if None model unit is used (Default value = None)
+
+        Returns
+        -------
+        type
+            Edge ID of the closes edge to that position
+
         """
         if type(position) is list:
             position = self.modeler.Position(position)

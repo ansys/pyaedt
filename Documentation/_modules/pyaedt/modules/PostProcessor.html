@@ -202,23 +202,17 @@
 
 
 <div class="viewcode-block" id="SolutionData"><a class="viewcode-back" href="../../../API/PostProcessor.html#pyaedt.modules.PostProcessor.SolutionData">[docs]</a><span class="k">class</span> <span class="nc">SolutionData</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Data Class containing information from GetSolutionfromVariation call</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="sd">&quot;&quot;&quot;Data Class containing information from GetSolutionfromVariation call&quot;&quot;&quot;</span>
 
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">sweeps</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Return the sweeps dictionary p</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="sd">&quot;&quot;&quot; &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_sweeps</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">sweeps_siunits</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Return the sweeps dictionary in Si Units if available</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="sd">&quot;&quot;&quot; &quot;&quot;&quot;</span>
         <span class="n">data</span> <span class="o">=</span> <span class="p">{}</span>
         <span class="k">for</span> <span class="n">el</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_sweeps</span><span class="p">:</span>
             <span class="n">data</span><span class="p">[</span><span class="n">el</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_convert_list_to_SI</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_sweeps</span><span class="p">[</span><span class="n">el</span><span class="p">],</span> <span class="bp">self</span><span class="o">.</span><span class="n">_quantity</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">units_sweeps</span><span class="p">[</span><span class="n">el</span><span class="p">]),</span> <span class="bp">self</span><span class="o">.</span><span class="n">units_sweeps</span><span class="p">[</span><span class="n">el</span><span class="p">])</span>
@@ -226,9 +220,7 @@
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">variations_value</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Return the Variations dictionary  if available</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="sd">&quot;&quot;&quot; &quot;&quot;&quot;</span>
         <span class="nb">vars</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">nominal_variation</span><span class="o">.</span><span class="n">GetDesignVariableNames</span><span class="p">()</span>
         <span class="n">variationvals</span> <span class="o">=</span> <span class="p">{}</span>
         <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="nb">vars</span><span class="p">:</span>
@@ -237,13 +229,22 @@
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">nominal_variation</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Return the Nominal Variation object</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="sd">&quot;&quot;&quot; &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_nominal_variation</span>
 
     <span class="nd">@nominal_variation</span><span class="o">.</span><span class="n">setter</span>
     <span class="k">def</span> <span class="nf">nominal_variation</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">val</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        val :</span>
+<span class="sd">            </span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="mi">0</span> <span class="o">&lt;=</span> <span class="n">val</span> <span class="o">&lt;=</span> <span class="bp">self</span><span class="o">.</span><span class="n">number_of_variations</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_nominal_variation</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_original_data</span><span class="p">[</span><span class="n">val</span><span class="p">]</span>
         <span class="k">else</span><span class="p">:</span>
@@ -251,21 +252,28 @@
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">primary_sweep</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_primary_sweep</span>
 
     <span class="nd">@primary_sweep</span><span class="o">.</span><span class="n">setter</span>
     <span class="k">def</span> <span class="nf">primary_sweep</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ps</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Set the primary Sweep to ps</span>
+        <span class="sd">&quot;&quot;&quot;Set the primary Sweep to ps</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        ps :</span>
+<span class="sd">            </span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="n">ps</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">sweeps</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_primary_sweep</span> <span class="o">=</span> <span class="n">ps</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">expressions</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Return the List of all expressions</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="sd">&quot;&quot;&quot; &quot;&quot;&quot;</span>
         <span class="n">mydata</span> <span class="o">=</span> <span class="p">[</span><span class="n">i</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_nominal_variation</span><span class="o">.</span><span class="n">GetDataExpressions</span><span class="p">()]</span>
         <span class="k">return</span> <span class="nb">list</span><span class="p">(</span><span class="nb">dict</span><span class="o">.</span><span class="n">fromkeys</span><span class="p">(</span><span class="n">mydata</span><span class="p">))</span>
 
@@ -300,10 +308,7 @@
 
 <div class="viewcode-block" id="SolutionData.update_sweeps"><a class="viewcode-back" href="../../../API/PostProcessor.html#pyaedt.modules.PostProcessor.SolutionData.update_sweeps">[docs]</a>    <span class="nd">@aedt_exception_handler</span>
     <span class="k">def</span> <span class="nf">update_sweeps</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
-
-<span class="sd">        :return:</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="sd">&quot;&quot;&quot;:return:&quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_sweeps</span> <span class="o">=</span> <span class="n">OrderedDict</span><span class="p">({})</span>
         <span class="k">for</span> <span class="n">el</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_sweeps_names</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_sweeps</span><span class="p">[</span><span class="n">el</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="n">i</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">nominal_variation</span><span class="o">.</span><span class="n">GetSweepValues</span><span class="p">(</span><span class="n">el</span><span class="p">,</span> <span class="kc">False</span><span class="p">)]</span>
@@ -312,6 +317,17 @@
 
     <span class="nd">@aedt_exception_handler</span>
     <span class="k">def</span> <span class="nf">_quantity</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">unit</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        unit :</span>
+<span class="sd">            </span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">for</span> <span class="n">el</span> <span class="ow">in</span> <span class="n">AEDT_units</span><span class="p">:</span>
             <span class="n">keys_units</span> <span class="o">=</span> <span class="p">[</span><span class="n">i</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">list</span><span class="p">(</span><span class="n">AEDT_units</span><span class="p">[</span><span class="n">el</span><span class="p">]</span><span class="o">.</span><span class="n">keys</span><span class="p">())]</span>
             <span class="k">if</span> <span class="n">unit</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="ow">in</span> <span class="n">keys_units</span><span class="p">:</span>
@@ -320,6 +336,7 @@
 
     <span class="nd">@aedt_exception_handler</span>
     <span class="k">def</span> <span class="nf">_solution_data_real</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; &quot;&quot;&quot;</span>
         <span class="n">sols_data</span> <span class="o">=</span> <span class="p">{}</span>
         <span class="k">for</span> <span class="n">expression</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">expressions</span><span class="p">:</span>
             <span class="n">solution</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">nominal_variation</span><span class="o">.</span><span class="n">GetRealDataValues</span><span class="p">(</span><span class="n">expression</span><span class="p">,</span><span class="kc">False</span><span class="p">))</span>
@@ -335,6 +352,7 @@
         <span class="k">return</span> <span class="n">sols_data</span>
 
     <span class="k">def</span> <span class="nf">_solution_data_imag</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; &quot;&quot;&quot;</span>
         <span class="n">sols_data</span> <span class="o">=</span> <span class="p">{}</span>
         <span class="k">for</span> <span class="n">expression</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">expressions</span><span class="p">:</span>
             <span class="k">try</span><span class="p">:</span>
@@ -354,31 +372,53 @@
 
 <div class="viewcode-block" id="SolutionData.to_degrees"><a class="viewcode-back" href="../../../API/PostProcessor.html#pyaedt.modules.PostProcessor.SolutionData.to_degrees">[docs]</a>    <span class="nd">@aedt_exception_handler</span>
     <span class="k">def</span> <span class="nf">to_degrees</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">input_list</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Convert input list to degrees from radians</span>
+        <span class="sd">&quot;&quot;&quot;Convert input list to degrees from radians</span>
 
-<span class="sd">        :param input_list: list of input radians</span>
-<span class="sd">        :return: output list of degrees</span>
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        input_list :</span>
+<span class="sd">            list of input radians</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        type</span>
+<span class="sd">            output list of degrees</span>
+
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="p">[</span><span class="n">i</span><span class="o">*</span><span class="mi">2</span><span class="o">*</span><span class="n">math</span><span class="o">.</span><span class="n">pi</span><span class="o">/</span><span class="mi">360</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">input_list</span><span class="p">]</span></div>
 
 <div class="viewcode-block" id="SolutionData.to_radians"><a class="viewcode-back" href="../../../API/PostProcessor.html#pyaedt.modules.PostProcessor.SolutionData.to_radians">[docs]</a>    <span class="nd">@aedt_exception_handler</span>
     <span class="k">def</span> <span class="nf">to_radians</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">input_list</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Convert input list to radians from degrees</span>
+        <span class="sd">&quot;&quot;&quot;Convert input list to radians from degrees</span>
 
-<span class="sd">        :param input_list: list of input degrees</span>
-<span class="sd">        :return: output list of radians</span>
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        input_list :</span>
+<span class="sd">            list of input degrees</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        type</span>
+<span class="sd">            output list of radians</span>
+
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="p">[</span><span class="n">i</span><span class="o">*</span><span class="mi">360</span><span class="o">/</span><span class="p">(</span><span class="mi">2</span><span class="o">*</span><span class="n">math</span><span class="o">.</span><span class="n">pi</span><span class="p">)</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">input_list</span><span class="p">]</span></div>
 
 <div class="viewcode-block" id="SolutionData.data_magnitude"><a class="viewcode-back" href="../../../API/PostProcessor.html#pyaedt.modules.PostProcessor.SolutionData.data_magnitude">[docs]</a>    <span class="k">def</span> <span class="nf">data_magnitude</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">expression</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">convert_to_SI</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Return the data magnitude of the given expression. if no expression is provided, first expression is provided</span>
+        <span class="sd">&quot;&quot;&quot;Return the data magnitude of the given expression. if no expression is provided, first expression is provided</span>
 
-<span class="sd">        :param expression: string expression name</span>
-<span class="sd">        :param convert_to_SI: Boolean, if True it converts data to SI System</span>
-<span class="sd">        :return: List of data</span>
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        expression :</span>
+<span class="sd">            string expression name (Default value = None)</span>
+<span class="sd">        convert_to_SI :</span>
+<span class="sd">            Boolean, if True it converts data to SI System (Default value = False)</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        type</span>
+<span class="sd">            List of data</span>
+
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="n">expression</span><span class="p">:</span>
             <span class="n">expression</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">expressions</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
@@ -405,6 +445,21 @@
 
     <span class="nd">@aedt_exception_handler</span>
     <span class="k">def</span> <span class="nf">_convert_list_to_SI</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">datalist</span><span class="p">,</span> <span class="n">dataunits</span><span class="p">,</span> <span class="n">units</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        datalist :</span>
+<span class="sd">            </span>
+<span class="sd">        dataunits :</span>
+<span class="sd">            </span>
+<span class="sd">        units :</span>
+<span class="sd">            </span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">sol</span> <span class="o">=</span> <span class="n">datalist</span>
         <span class="k">if</span> <span class="n">dataunits</span> <span class="ow">in</span> <span class="n">AEDT_units</span> <span class="ow">and</span> <span class="n">units</span> <span class="ow">in</span> <span class="n">AEDT_units</span><span class="p">[</span><span class="n">dataunits</span><span class="p">]:</span>
             <span class="n">sol</span> <span class="o">=</span> <span class="p">[</span><span class="n">i</span> <span class="o">*</span> <span class="n">AEDT_units</span><span class="p">[</span><span class="n">dataunits</span><span class="p">][</span><span class="n">units</span><span class="p">]</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">datalist</span><span class="p">]</span>
@@ -412,12 +467,20 @@
 
 <div class="viewcode-block" id="SolutionData.data_db"><a class="viewcode-back" href="../../../API/PostProcessor.html#pyaedt.modules.PostProcessor.SolutionData.data_db">[docs]</a>    <span class="nd">@aedt_exception_handler</span>
     <span class="k">def</span> <span class="nf">data_db</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">expression</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">convert_to_SI</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Return the data in db of the given expression. if no expression is provided, first expression is provided</span>
+        <span class="sd">&quot;&quot;&quot;Return the data in db of the given expression. if no expression is provided, first expression is provided</span>
 
-<span class="sd">        :param expression: string expression name</span>
-<span class="sd">        :param convert_to_SI: Boolean, if True it converts data to SI System</span>
-<span class="sd">        :return: List of data</span>
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        expression :</span>
+<span class="sd">            string expression name (Default value = None)</span>
+<span class="sd">        convert_to_SI :</span>
+<span class="sd">            Boolean, if True it converts data to SI System (Default value = False)</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        type</span>
+<span class="sd">            List of data</span>
+
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="n">expression</span><span class="p">:</span>
             <span class="n">expression</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">expressions</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
@@ -426,12 +489,20 @@
 
 
 <div class="viewcode-block" id="SolutionData.data_real"><a class="viewcode-back" href="../../../API/PostProcessor.html#pyaedt.modules.PostProcessor.SolutionData.data_real">[docs]</a>    <span class="k">def</span> <span class="nf">data_real</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">expression</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">convert_to_SI</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Return the real part of data  of the given expression. if no expression is provided, first expression is provided</span>
+        <span class="sd">&quot;&quot;&quot;Return the real part of data  of the given expression. if no expression is provided, first expression is provided</span>
 
-<span class="sd">        :param expression: string expression name</span>
-<span class="sd">        :param convert_to_SI: Boolean, if True it converts data to SI System</span>
-<span class="sd">        :return: List of data</span>
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        expression :</span>
+<span class="sd">            string expression name (Default value = None)</span>
+<span class="sd">        convert_to_SI :</span>
+<span class="sd">            Boolean, if True it converts data to SI System (Default value = False)</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        type</span>
+<span class="sd">            List of data</span>
+
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="n">expression</span><span class="p">:</span>
             <span class="n">expression</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">expressions</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
@@ -457,12 +528,20 @@
         <span class="k">return</span> <span class="n">sol</span></div>
 
 <div class="viewcode-block" id="SolutionData.data_imag"><a class="viewcode-back" href="../../../API/PostProcessor.html#pyaedt.modules.PostProcessor.SolutionData.data_imag">[docs]</a>    <span class="k">def</span> <span class="nf">data_imag</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">expression</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">convert_to_SI</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Return the imaginary part of data  of the given expression. if no expression is provided, first expression is provided</span>
+        <span class="sd">&quot;&quot;&quot;Return the imaginary part of data  of the given expression. if no expression is provided, first expression is provided</span>
 
-<span class="sd">        :param expression: string expression name</span>
-<span class="sd">        :param convert_to_SI: Boolean, if True it converts data to SI System</span>
-<span class="sd">        :return: List of data</span>
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        expression :</span>
+<span class="sd">            string expression name (Default value = None)</span>
+<span class="sd">        convert_to_SI :</span>
+<span class="sd">            Boolean, if True it converts data to SI System (Default value = False)</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        type</span>
+<span class="sd">            List of data</span>
+
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="n">expression</span><span class="p">:</span>
             <span class="n">expression</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">expressions</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
@@ -489,7 +568,8 @@
 
 
 
-<span class="k">class</span> <span class="nc">FieldPlot</span><span class="p">:</span>
+<div class="viewcode-block" id="FieldPlot"><a class="viewcode-back" href="../../../API/PostProcessor.html#pyaedt.modules.PostProcessor.FieldPlot">[docs]</a><span class="k">class</span> <span class="nc">FieldPlot</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot; &quot;&quot;&quot;</span>
 
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">oField</span><span class="p">,</span> <span class="n">objlist</span><span class="p">,</span> <span class="n">solutionName</span><span class="p">,</span> <span class="n">quantityName</span><span class="p">,</span> <span class="n">intrinsincList</span><span class="o">=</span><span class="p">{}):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">oField</span> <span class="o">=</span> <span class="n">oField</span>
@@ -519,37 +599,43 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">CloudMinSpacing</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">CloudMaxSpacing</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span>
 
-    <span class="nd">@aedt_exception_handler</span>
+<div class="viewcode-block" id="FieldPlot.create"><a class="viewcode-back" href="../../../API/PostProcessor.html#pyaedt.modules.PostProcessor.FieldPlot.create">[docs]</a>    <span class="nd">@aedt_exception_handler</span>
     <span class="k">def</span> <span class="nf">create</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; &quot;&quot;&quot;</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">oField</span><span class="o">.</span><span class="n">CreateFieldPlot</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">surfacePlotInstruction</span><span class="p">,</span> <span class="s2">&quot;Field&quot;</span><span class="p">)</span>
-        <span class="k">return</span> <span class="kc">True</span>
+        <span class="k">return</span> <span class="kc">True</span></div>
 
 
-    <span class="nd">@aedt_exception_handler</span>
+<div class="viewcode-block" id="FieldPlot.update"><a class="viewcode-back" href="../../../API/PostProcessor.html#pyaedt.modules.PostProcessor.FieldPlot.update">[docs]</a>    <span class="nd">@aedt_exception_handler</span>
     <span class="k">def</span> <span class="nf">update</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">oField</span><span class="o">.</span><span class="n">ModifyFieldPlot</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">surfacePlotInstruction</span><span class="p">)</span>
+        <span class="sd">&quot;&quot;&quot; &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">oField</span><span class="o">.</span><span class="n">ModifyFieldPlot</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">surfacePlotInstruction</span><span class="p">)</span></div>
 
 
 
-    <span class="nd">@aedt_exception_handler</span>
+<div class="viewcode-block" id="FieldPlot.modify_folder"><a class="viewcode-back" href="../../../API/PostProcessor.html#pyaedt.modules.PostProcessor.FieldPlot.modify_folder">[docs]</a>    <span class="nd">@aedt_exception_handler</span>
     <span class="k">def</span> <span class="nf">modify_folder</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">oField</span><span class="o">.</span><span class="n">SetFieldPlotSettings</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">plotFolder</span><span class="p">,</span>
                                          <span class="p">[</span>
                                              <span class="s2">&quot;NAME:FieldsPlotItemSettings&quot;</span><span class="p">,</span>
                                              <span class="bp">self</span><span class="o">.</span><span class="n">plotsettings</span><span class="p">])</span>
-        <span class="k">return</span> <span class="kc">True</span>
+        <span class="k">return</span> <span class="kc">True</span></div>
 
-    <span class="nd">@aedt_exception_handler</span>
+<div class="viewcode-block" id="FieldPlot.delete"><a class="viewcode-back" href="../../../API/PostProcessor.html#pyaedt.modules.PostProcessor.FieldPlot.delete">[docs]</a>    <span class="nd">@aedt_exception_handler</span>
     <span class="k">def</span> <span class="nf">delete</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">oField</span><span class="o">.</span><span class="n">DeleteFieldPlot</span><span class="p">([</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">])</span>
+        <span class="sd">&quot;&quot;&quot; &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">oField</span><span class="o">.</span><span class="n">DeleteFieldPlot</span><span class="p">([</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">])</span></div>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">plotFolder</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">plotGeomInfo</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; &quot;&quot;&quot;</span>
         <span class="n">info</span> <span class="o">=</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">objtype</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">listtype</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span>
         <span class="k">for</span> <span class="n">index</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">faceIndexes</span><span class="p">:</span>
             <span class="n">info</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">index</span><span class="p">))</span>
@@ -558,9 +644,15 @@
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">intrinsicVar</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Support for both list or dictionaries</span>
+        <span class="sd">&quot;&quot;&quot;Support for both list or dictionaries</span>
 <span class="sd">        :return:var list for field plot</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">var</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
         <span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">intrinsincList</span><span class="p">)</span> <span class="ow">is</span> <span class="nb">list</span><span class="p">:</span>
@@ -579,6 +671,7 @@
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">plotsettings</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">objtype</span> <span class="o">==</span> <span class="s2">&quot;Surface&quot;</span><span class="p">:</span>
             <span class="n">arg</span> <span class="o">=</span> <span class="p">[</span>
                 <span class="s2">&quot;NAME:PlotOnSurfaceSettings&quot;</span><span class="p">,</span>
@@ -620,6 +713,7 @@
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">surfacePlotInstruction</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="p">[</span>
             <span class="s2">&quot;NAME:&quot;</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">,</span>
             <span class="s2">&quot;SolutionName:=&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">solutionName</span><span class="p">,</span>
@@ -633,14 +727,20 @@
             <span class="s2">&quot;IntrinsicVar:=&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">intrinsicVar</span><span class="p">,</span>
             <span class="s2">&quot;PlotGeomInfo:=&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">plotGeomInfo</span><span class="p">,</span>
             <span class="s2">&quot;FilterBoxes:=&quot;</span><span class="p">,</span> <span class="p">[</span><span class="mi">0</span><span class="p">],</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">plotsettings</span><span class="p">,</span> <span class="s2">&quot;EnableGaussianSmoothing:=&quot;</span><span class="p">,</span> <span class="kc">False</span><span class="p">]</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">plotsettings</span><span class="p">,</span> <span class="s2">&quot;EnableGaussianSmoothing:=&quot;</span><span class="p">,</span> <span class="kc">False</span><span class="p">]</span></div>
 
 
 <div class="viewcode-block" id="PostProcessor"><a class="viewcode-back" href="../../../API/PostProcessor.html#pyaedt.modules.PostProcessor.PostProcessor">[docs]</a><span class="k">class</span> <span class="nc">PostProcessor</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Manage Main AEDT PostProcess Functions</span>
+    <span class="sd">&quot;&quot;&quot;Manage Main AEDT PostProcess Functions</span>
 <span class="sd">    AEDTConfig Class Inherited contains all the _desktop Hierarchical calls needed to the class</span>
 <span class="sd">    init data: _desktop and Design Type  &quot;HFSS&quot;,&quot;Icepak&quot;, &quot;HFSS3DLayout&quot;</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">parent</span><span class="p">):</span>
@@ -653,44 +753,34 @@
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">_primitives</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        :return: eturn the model units as a string e.g. &quot;mm&quot;</span>
+        <span class="sd">&quot;&quot;&quot;:return: eturn the model units as a string e.g. &quot;mm&quot;</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_parent</span><span class="o">.</span><span class="n">_modeler</span><span class="o">.</span><span class="n">primitives</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">model_units</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        :return: eturn the model units as a string e.g. &quot;mm&quot;</span>
+        <span class="sd">&quot;&quot;&quot;:return: eturn the model units as a string e.g. &quot;mm&quot;</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="n">retry_ntimes</span><span class="p">(</span><span class="mi">10</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">oeditor</span><span class="o">.</span><span class="n">GetModelUnits</span><span class="p">)</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">post_osolution</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        :return: Solutions module</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="sd">&quot;&quot;&quot;:return: Solutions module&quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">odesign</span><span class="o">.</span><span class="n">GetModule</span><span class="p">(</span><span class="s2">&quot;Solutions&quot;</span><span class="p">)</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">ofieldsreporter</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        :return: Fields Reporter module</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="sd">&quot;&quot;&quot;:return: Fields Reporter module&quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">odesign</span><span class="o">.</span><span class="n">GetModule</span><span class="p">(</span><span class="s2">&quot;FieldsReporter&quot;</span><span class="p">)</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">oreportsetup</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        :return: Report Setup module</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="sd">&quot;&quot;&quot;:return: Report Setup module&quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">odesign</span><span class="o">.</span><span class="n">GetModule</span><span class="p">(</span><span class="s2">&quot;ReportSetup&quot;</span><span class="p">)</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">post_solution_type</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        :return: Design Solution Typee</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="sd">&quot;&quot;&quot;:return: Design Solution Typee&quot;&quot;&quot;</span>
         <span class="k">try</span><span class="p">:</span>
             <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">odesign</span><span class="o">.</span><span class="n">GetSolutionType</span><span class="p">()</span>
         <span class="k">except</span><span class="p">:</span>
@@ -699,43 +789,69 @@
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">messenger</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_parent</span><span class="o">.</span><span class="n">_messenger</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">desktop</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_parent</span><span class="o">.</span><span class="n">_desktop</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">odesign</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_parent</span><span class="o">.</span><span class="n">_odesign</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">oproject</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_parent</span><span class="o">.</span><span class="n">_oproject</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">modeler</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_parent</span><span class="o">.</span><span class="n">_modeler</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">oeditor</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">modeler</span><span class="o">.</span><span class="n">oeditor</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">report_types</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">oreportsetup</span><span class="o">.</span><span class="n">GetAvailableReportTypes</span><span class="p">())</span>
 
-    <span class="nd">@aedt_exception_handler</span>
+<div class="viewcode-block" id="PostProcessor.display_types"><a class="viewcode-back" href="../../../API/PostProcessor.html#pyaedt.modules.PostProcessor.PostProcessor.display_types">[docs]</a>    <span class="nd">@aedt_exception_handler</span>
     <span class="k">def</span> <span class="nf">display_types</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">report_type</span><span class="p">):</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">oreportsetup</span><span class="o">.</span><span class="n">GetAvailableDisplayTypes</span><span class="p">(</span><span class="n">report_type</span><span class="p">)</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        report_type :</span>
+<span class="sd">            </span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">oreportsetup</span><span class="o">.</span><span class="n">GetAvailableDisplayTypes</span><span class="p">(</span><span class="n">report_type</span><span class="p">)</span></div>
 
     <span class="c1"># TODO: define a fields calculator module and make robust !!</span>
 <div class="viewcode-block" id="PostProcessor.volumetric_loss"><a class="viewcode-back" href="../../../API/PostProcessor.html#pyaedt.modules.PostProcessor.PostProcessor.volumetric_loss">[docs]</a>    <span class="nd">@aedt_exception_handler</span>
     <span class="k">def</span> <span class="nf">volumetric_loss</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">object_name</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        This function creates a new variable in field calculator for volumetric losses</span>
-<span class="sd">        :param object_name: object name on which compute Field Calculator losses</span>
-<span class="sd">        :return: name of the variable created</span>
+        <span class="sd">&quot;&quot;&quot;This function creates a new variable in field calculator for volumetric losses</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        object_name :</span>
+<span class="sd">            object name on which compute Field Calculator losses</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        type</span>
+<span class="sd">            name of the variable created</span>
+
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">oModule</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">ofieldsreporter</span>
         <span class="n">oModule</span><span class="o">.</span><span class="n">EnterQty</span><span class="p">(</span><span class="s2">&quot;OhmicLoss&quot;</span><span class="p">)</span>
@@ -745,8 +861,23 @@
         <span class="n">oModule</span><span class="o">.</span><span class="n">AddNamedExpression</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="s2">&quot;Fields&quot;</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">name</span></div>
 
-    <span class="nd">@aedt_exception_handler</span>
+<div class="viewcode-block" id="PostProcessor.change_field_property"><a class="viewcode-back" href="../../../API/PostProcessor.html#pyaedt.modules.PostProcessor.PostProcessor.change_field_property">[docs]</a>    <span class="nd">@aedt_exception_handler</span>
     <span class="k">def</span> <span class="nf">change_field_property</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">plotname</span><span class="p">,</span> <span class="n">propertyname</span><span class="p">,</span> <span class="n">propertyval</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        plotname :</span>
+<span class="sd">            </span>
+<span class="sd">        propertyname :</span>
+<span class="sd">            </span>
+<span class="sd">        propertyval :</span>
+<span class="sd">            </span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">odesign</span><span class="o">.</span><span class="n">ChangeProperty</span><span class="p">(</span>
         <span class="p">[</span>
             <span class="s2">&quot;NAME:AllTabs&quot;</span><span class="p">,</span>
@@ -764,27 +895,52 @@
                     <span class="p">]</span>
                 <span class="p">]</span>
             <span class="p">]</span>
-        <span class="p">])</span>
+        <span class="p">])</span></div>
 
 <div class="viewcode-block" id="PostProcessor.export_field_file_on_grid"><a class="viewcode-back" href="../../../API/PostProcessor.html#pyaedt.modules.PostProcessor.PostProcessor.export_field_file_on_grid">[docs]</a>    <span class="nd">@aedt_exception_handler</span>
     <span class="k">def</span> <span class="nf">export_field_file_on_grid</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">quantity_name</span><span class="p">,</span> <span class="n">solution</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">variation_dict</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">filename</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
                                   <span class="n">gridtype</span><span class="o">=</span><span class="s2">&quot;Cartesian&quot;</span><span class="p">,</span> <span class="n">grid_center</span><span class="o">=</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span>
                                   <span class="n">grid_start</span><span class="o">=</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span> <span class="n">grid_stop</span><span class="o">=</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span> <span class="n">grid_step</span><span class="o">=</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span> <span class="n">isvector</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span> <span class="n">intrinsics</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">phase</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        This function creates a new field file based on a specific solution and variation available. using Field Calculator</span>
+        <span class="sd">&quot;&quot;&quot;This function creates a new field file based on a specific solution and variation available. using Field Calculator</span>
 
-<span class="sd">        :param quantity_name: name of quantity to export (eg. Temp)</span>
-<span class="sd">        :param solution: name of solution : sweep</span>
-<span class="sd">        :param variations_dict: list of all variations variables with values</span>
-<span class="sd">        :param filename: output full path filename</span>
-<span class="sd">        :param gridtype: type of grid to export. Default Cartesian</span>
-<span class="sd">        :param grid_center: Center of the grid. Disabled for Cartesian</span>
-<span class="sd">        :param grid_start: Start of the grid. Float list of 3 elements</span>
-<span class="sd">        :param grid_stop: Stop of the grid. Float list of 3 elements</span>
-<span class="sd">        :param grid_step: Step of the grid. Float list of 3 elements</span>
-<span class="sd">        :param intrinsics: str mandatory for Frequency domain field calculation</span>
-<span class="sd">        :param phase: str field phase</span>
-<span class="sd">        :return: True (fld exported) | False</span>
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        quantity_name :</span>
+<span class="sd">            name of quantity to export (eg. Temp)</span>
+<span class="sd">        solution :</span>
+<span class="sd">            name of solution : sweep (Default value = None)</span>
+<span class="sd">        variations_dict :</span>
+<span class="sd">            list of all variations variables with values</span>
+<span class="sd">        filename :</span>
+<span class="sd">            output full path filename (Default value = None)</span>
+<span class="sd">        gridtype :</span>
+<span class="sd">            type of grid to export. Default Cartesian</span>
+<span class="sd">        grid_center :</span>
+<span class="sd">            Center of the grid. Disabled for Cartesian (Default value = [0)</span>
+<span class="sd">        grid_start :</span>
+<span class="sd">            Start of the grid. Float list of 3 elements (Default value = [0)</span>
+<span class="sd">        grid_stop :</span>
+<span class="sd">            Stop of the grid. Float list of 3 elements (Default value = [0)</span>
+<span class="sd">        grid_step :</span>
+<span class="sd">            Step of the grid. Float list of 3 elements (Default value = [0)</span>
+<span class="sd">        intrinsics :</span>
+<span class="sd">            str mandatory for Frequency domain field calculation (Default value = None)</span>
+<span class="sd">        phase :</span>
+<span class="sd">            str field phase (Default value = None)</span>
+<span class="sd">        variation_dict :</span>
+<span class="sd">             (Default value = None)</span>
+<span class="sd">        0 :</span>
+<span class="sd">            </span>
+<span class="sd">        0] :</span>
+<span class="sd">            </span>
+<span class="sd">        isvector :</span>
+<span class="sd">             (Default value = False)</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        type</span>
+<span class="sd">            True (fld exported) | False</span>
+
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">messenger</span><span class="o">.</span><span class="n">add_info_message</span><span class="p">(</span><span class="s2">&quot;Exporting </span><span class="si">{}</span><span class="s2"> Field. Be Patient&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">quantity_name</span><span class="p">))</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="n">solution</span><span class="p">:</span>
@@ -855,15 +1011,34 @@
                           <span class="n">obj_list</span><span class="o">=</span><span class="s2">&quot;AllObjects&quot;</span><span class="p">,</span> <span class="n">obj_type</span><span class="o">=</span><span class="s2">&quot;Vol&quot;</span><span class="p">,</span> <span class="n">intrinsics</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">phase</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">sample_points_file</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">sample_points_lists</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;This function creates a new field file based on a specific solution and variation available. using Field Calculator</span>
 
-<span class="sd">        :param quantity_name: name of quantity to export (eg. Temp)</span>
-<span class="sd">        :param solution: name of solution : sweep</span>
-<span class="sd">        :param variation_dict: list of all variations variables with values</span>
-<span class="sd">        :param filename: output full path filename</span>
-<span class="sd">        :param obj_list: list of objects to export. Default &quot;AllObjects</span>
-<span class="sd">        :param obj_type: type of objects to export. Default &quot;Vol&quot; (Volume). Can be &quot;Surf&quot;</span>
-<span class="sd">        :param intrinsics: str mandatory for Frequency or Transient field calculation</span>
-<span class="sd">        :param phase: str field phase</span>
-<span class="sd">        :return: True (fld exported) | False</span>
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        quantity_name :</span>
+<span class="sd">            name of quantity to export (eg. Temp)</span>
+<span class="sd">        solution :</span>
+<span class="sd">            name of solution : sweep (Default value = None)</span>
+<span class="sd">        variation_dict :</span>
+<span class="sd">            list of all variations variables with values (Default value = None)</span>
+<span class="sd">        filename :</span>
+<span class="sd">            output full path filename (Default value = None)</span>
+<span class="sd">        obj_list :</span>
+<span class="sd">            list of objects to export. Default &quot;AllObjects</span>
+<span class="sd">        obj_type :</span>
+<span class="sd">            type of objects to export. Default &quot;Vol&quot; (Volume). Can be &quot;Surf&quot;</span>
+<span class="sd">        intrinsics :</span>
+<span class="sd">            str mandatory for Frequency or Transient field calculation (Default value = None)</span>
+<span class="sd">        phase :</span>
+<span class="sd">            str field phase (Default value = None)</span>
+<span class="sd">        sample_points_file :</span>
+<span class="sd">             (Default value = None)</span>
+<span class="sd">        sample_points_lists :</span>
+<span class="sd">             (Default value = None)</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        type</span>
+<span class="sd">            True (fld exported) | False</span>
+
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">messenger</span><span class="o">.</span><span class="n">add_info_message</span><span class="p">(</span><span class="s2">&quot;Exporting </span><span class="si">{}</span><span class="s2"> Field. Be Patient&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">quantity_name</span><span class="p">))</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="n">solution</span><span class="p">:</span>
@@ -923,18 +1098,51 @@
         <span class="k">return</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">filename</span><span class="p">)</span></div>
 
 
-    <span class="nd">@aedt_exception_handler</span>
+<div class="viewcode-block" id="PostProcessor.export_field_plot"><a class="viewcode-back" href="../../../API/PostProcessor.html#pyaedt.modules.PostProcessor.PostProcessor.export_field_plot">[docs]</a>    <span class="nd">@aedt_exception_handler</span>
     <span class="k">def</span> <span class="nf">export_field_plot</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">plotname</span><span class="p">,</span> <span class="n">filepath</span><span class="p">,</span> <span class="n">filename</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        plotname :</span>
+<span class="sd">            </span>
+<span class="sd">        filepath :</span>
+<span class="sd">            </span>
+<span class="sd">        filename :</span>
+<span class="sd">             (Default value = &quot;&quot;)</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
 
         <span class="k">if</span> <span class="ow">not</span> <span class="n">filename</span><span class="p">:</span>
             <span class="n">filename</span> <span class="o">=</span> <span class="n">plotname</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">ofieldsreporter</span><span class="o">.</span><span class="n">ExportFieldPlot</span><span class="p">(</span><span class="n">plotname</span><span class="p">,</span> <span class="kc">False</span><span class="p">,</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">filepath</span><span class="p">,</span> <span class="n">filename</span> <span class="o">+</span> <span class="s2">&quot;.aedtplt&quot;</span><span class="p">))</span>
-        <span class="k">return</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">filepath</span><span class="p">,</span> <span class="n">filename</span><span class="o">+</span><span class="s2">&quot;.aedtplt&quot;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">filepath</span><span class="p">,</span> <span class="n">filename</span><span class="o">+</span><span class="s2">&quot;.aedtplt&quot;</span><span class="p">)</span></div>
 
     <span class="nd">@aedt_exception_handler</span>
     <span class="k">def</span> <span class="nf">_create_fieldplot</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">objlist</span><span class="p">,</span> <span class="n">quantityName</span><span class="p">,</span> <span class="n">setup_name</span><span class="p">,</span> <span class="n">intrinsincList</span><span class="p">,</span> <span class="n">objtype</span><span class="p">,</span> <span class="n">listtype</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Internal function</span>
+        <span class="sd">&quot;&quot;&quot;Internal function</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        objlist :</span>
+<span class="sd">            </span>
+<span class="sd">        quantityName :</span>
+<span class="sd">            </span>
+<span class="sd">        setup_name :</span>
+<span class="sd">            </span>
+<span class="sd">        intrinsincList :</span>
+<span class="sd">            </span>
+<span class="sd">        objtype :</span>
+<span class="sd">            </span>
+<span class="sd">        listtype :</span>
+<span class="sd">            </span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="n">setup_name</span><span class="p">:</span>
             <span class="n">setup_name</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_parent</span><span class="o">.</span><span class="n">existing_analysis_sweeps</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
@@ -957,11 +1165,23 @@
 <div class="viewcode-block" id="PostProcessor.create_fieldplot_surface"><a class="viewcode-back" href="../../../API/PostProcessor.html#pyaedt.modules.PostProcessor.PostProcessor.create_fieldplot_surface">[docs]</a>    <span class="nd">@aedt_exception_handler</span>
     <span class="k">def</span> <span class="nf">create_fieldplot_surface</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">objlist</span><span class="p">,</span> <span class="n">quantityName</span><span class="p">,</span> <span class="n">setup_name</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">intrinsincDict</span><span class="o">=</span><span class="p">{}):</span>
         <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        :param objlist: list of surfaces to be included in the plot</span>
-<span class="sd">        :param quantityName: Quantity to be plotted</span>
-<span class="sd">        :param setup_name: Name of the setup in the format &quot;setupName : sweepName&quot;</span>
-<span class="sd">        :param intrinsincDict: Dictionary containing all intrinsic  variables</span>
-<span class="sd">        :return: plot object</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        objlist :</span>
+<span class="sd">            list of surfaces to be included in the plot</span>
+<span class="sd">        quantityName :</span>
+<span class="sd">            Quantity to be plotted</span>
+<span class="sd">        setup_name :</span>
+<span class="sd">            Name of the setup in the format &quot;setupName : sweepName&quot; (Default value = None)</span>
+<span class="sd">        intrinsincDict :</span>
+<span class="sd">            Dictionary containing all intrinsic  variables (Default value = {})</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        type</span>
+<span class="sd">            plot object</span>
+
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">plot</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_create_fieldplot</span><span class="p">(</span><span class="n">objlist</span><span class="p">,</span> <span class="n">quantityName</span><span class="p">,</span> <span class="n">setup_name</span><span class="p">,</span> <span class="n">intrinsincDict</span><span class="p">,</span> <span class="s2">&quot;Surface&quot;</span><span class="p">,</span> <span class="s2">&quot;FacesList&quot;</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">plot</span></div>
@@ -969,11 +1189,23 @@
 <div class="viewcode-block" id="PostProcessor.create_fieldplot_cutplane"><a class="viewcode-back" href="../../../API/PostProcessor.html#pyaedt.modules.PostProcessor.PostProcessor.create_fieldplot_cutplane">[docs]</a>    <span class="nd">@aedt_exception_handler</span>
     <span class="k">def</span> <span class="nf">create_fieldplot_cutplane</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">objlist</span><span class="p">,</span> <span class="n">quantityName</span><span class="p">,</span> <span class="n">setup_name</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">intrinsincDict</span><span class="o">=</span><span class="p">{}):</span>
         <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        :param objlist: list of cut planes to be included in the plot</span>
-<span class="sd">        :param quantityName: Quantity to be plotted</span>
-<span class="sd">        :param setup_name: Name of the setup in the format &quot;setupName : sweepName&quot;. If none, nominal, lastadaptive will be Applied</span>
-<span class="sd">        :param intrinsincDict: Dictionary containing all intrinsic  variables</span>
-<span class="sd">        :return: plot object</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        objlist :</span>
+<span class="sd">            list of cut planes to be included in the plot</span>
+<span class="sd">        quantityName :</span>
+<span class="sd">            Quantity to be plotted</span>
+<span class="sd">        setup_name :</span>
+<span class="sd">            Name of the setup in the format &quot;setupName : sweepName&quot;. If none, nominal, lastadaptive will be Applied (Default value = None)</span>
+<span class="sd">        intrinsincDict :</span>
+<span class="sd">            Dictionary containing all intrinsic  variables (Default value = {})</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        type</span>
+<span class="sd">            plot object</span>
+
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">plot</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_create_fieldplot</span><span class="p">(</span><span class="n">objlist</span><span class="p">,</span> <span class="n">quantityName</span><span class="p">,</span> <span class="n">setup_name</span><span class="p">,</span> <span class="n">intrinsincDict</span><span class="p">,</span> <span class="s2">&quot;Surface&quot;</span><span class="p">,</span> <span class="s2">&quot;CutPlane&quot;</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">plot</span></div>
@@ -981,11 +1213,23 @@
 <div class="viewcode-block" id="PostProcessor.create_fieldplot_volume"><a class="viewcode-back" href="../../../API/PostProcessor.html#pyaedt.modules.PostProcessor.PostProcessor.create_fieldplot_volume">[docs]</a>    <span class="nd">@aedt_exception_handler</span>
     <span class="k">def</span> <span class="nf">create_fieldplot_volume</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">objlist</span><span class="p">,</span> <span class="n">quantityName</span><span class="p">,</span> <span class="n">setup_name</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">intrinsincDict</span><span class="o">=</span><span class="p">{}):</span>
         <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        :param objlist: list of objects to be included in the plot</span>
-<span class="sd">        :param quantityName: Quantity to be plotted</span>
-<span class="sd">        :param setup_name: Name of the setup in the format &quot;setupName : sweepName&quot;. If none, nominal, lastadaptive will be Applied</span>
-<span class="sd">        :param intrinsincDict: Dictionary containing all intrinsic  variables</span>
-<span class="sd">        :return: plot object</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        objlist :</span>
+<span class="sd">            list of objects to be included in the plot</span>
+<span class="sd">        quantityName :</span>
+<span class="sd">            Quantity to be plotted</span>
+<span class="sd">        setup_name :</span>
+<span class="sd">            Name of the setup in the format &quot;setupName : sweepName&quot;. If none, nominal, lastadaptive will be Applied (Default value = None)</span>
+<span class="sd">        intrinsincDict :</span>
+<span class="sd">            Dictionary containing all intrinsic  variables (Default value = {})</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        type</span>
+<span class="sd">            plot object</span>
+
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">plot</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_create_fieldplot</span><span class="p">(</span><span class="n">objlist</span><span class="p">,</span> <span class="n">quantityName</span><span class="p">,</span> <span class="n">setup_name</span><span class="p">,</span> <span class="n">intrinsincDict</span><span class="p">,</span> <span class="s2">&quot;Volume&quot;</span><span class="p">,</span> <span class="s2">&quot;ObjList&quot;</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">plot</span></div>
@@ -993,10 +1237,21 @@
 <div class="viewcode-block" id="PostProcessor.createRelativeCoordinateSystemForExport"><a class="viewcode-back" href="../../../API/PostProcessor.html#pyaedt.modules.PostProcessor.PostProcessor.createRelativeCoordinateSystemForExport">[docs]</a>    <span class="nd">@aedt_exception_handler</span>
     <span class="k">def</span> <span class="nf">createRelativeCoordinateSystemForExport</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">coordinateSystem</span><span class="p">,</span> <span class="n">origin</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">view</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        :param coordinateSystem: input coordinate system object</span>
-<span class="sd">        :param origin: origin of the coordinate system</span>
-<span class="sd">        :param view: view type (&quot;iso&quot;, &quot;XY&quot;, &quot;XZ&quot;, &quot;YZ&quot;)</span>
-<span class="sd">        :return: True</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        coordinateSystem :</span>
+<span class="sd">            input coordinate system object</span>
+<span class="sd">        origin :</span>
+<span class="sd">            origin of the coordinate system (Default value = None)</span>
+<span class="sd">        view :</span>
+<span class="sd">            view type (&quot;iso&quot;, &quot;XY&quot;, &quot;XZ&quot;, &quot;YZ&quot;) (Default value = None)</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        type</span>
+<span class="sd">            True</span>
+
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">coordinateSystem</span><span class="o">.</span><span class="n">create</span><span class="p">(</span><span class="n">origin</span><span class="o">=</span><span class="n">origin</span><span class="p">,</span> <span class="n">view</span><span class="o">=</span><span class="n">view</span><span class="p">)</span>
         <span class="n">coordinateSystem</span><span class="o">.</span><span class="n">setWorkingCoordinateSystem</span><span class="p">()</span>
@@ -1004,12 +1259,22 @@
 
 <div class="viewcode-block" id="PostProcessor.export_field_jpg"><a class="viewcode-back" href="../../../API/PostProcessor.html#pyaedt.modules.PostProcessor.PostProcessor.export_field_jpg">[docs]</a>    <span class="nd">@aedt_exception_handler</span>
     <span class="k">def</span> <span class="nf">export_field_jpg</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">fileName</span><span class="p">,</span> <span class="n">plotName</span><span class="p">,</span> <span class="n">coordinateSystemName</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Given a specific plotname and coordinate system name it export the plot to jpg</span>
-<span class="sd">        :param fileName: full path file name</span>
-<span class="sd">        :param plotName: plot name</span>
-<span class="sd">        :param coordinateSystemName: coordinate system name</span>
-<span class="sd">        :return: True</span>
+        <span class="sd">&quot;&quot;&quot;Given a specific plotname and coordinate system name it export the plot to jpg</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        fileName :</span>
+<span class="sd">            full path file name</span>
+<span class="sd">        plotName :</span>
+<span class="sd">            plot name</span>
+<span class="sd">        coordinateSystemName :</span>
+<span class="sd">            coordinate system name</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        type</span>
+<span class="sd">            True</span>
+
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">time</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
 
@@ -1019,13 +1284,24 @@
 
 <div class="viewcode-block" id="PostProcessor.export_field_image_with_View"><a class="viewcode-back" href="../../../API/PostProcessor.html#pyaedt.modules.PostProcessor.PostProcessor.export_field_image_with_View">[docs]</a>    <span class="nd">@aedt_exception_handler</span>
     <span class="k">def</span> <span class="nf">export_field_image_with_View</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">plotName</span><span class="p">,</span> <span class="n">exportFilePath</span><span class="p">,</span> <span class="n">view</span><span class="o">=</span><span class="s2">&quot;iso&quot;</span><span class="p">,</span> <span class="n">wireframe</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        NOTE: on AEDT 2019.3 it works only on ISO view due to a bug in API. It woks fine from 2020R1</span>
-<span class="sd">        :param plotName: name of the plot to be exported</span>
-<span class="sd">        :param exportFilePath: file path</span>
-<span class="sd">        :param view: string &quot;iso&quot;, &quot;XZ&quot;, &quot;XY&quot;, &quot;YZ&quot;</span>
-<span class="sd">        :param wireframe: Boolean if objects has to be put in wireframe mode</span>
-<span class="sd">        :return: True</span>
+        <span class="sd">&quot;&quot;&quot;NOTE: on AEDT 2019.3 it works only on ISO view due to a bug in API. It woks fine from 2020R1</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        plotName :</span>
+<span class="sd">            name of the plot to be exported</span>
+<span class="sd">        exportFilePath :</span>
+<span class="sd">            file path</span>
+<span class="sd">        view :</span>
+<span class="sd">            string &quot;iso&quot;, &quot;XZ&quot;, &quot;XY&quot;, &quot;YZ&quot; (Default value = &quot;iso&quot;)</span>
+<span class="sd">        wireframe :</span>
+<span class="sd">            Boolean if objects has to be put in wireframe mode (Default value = True)</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        type</span>
+<span class="sd">            True</span>
+
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">coordinateSystemForExportPlot</span> <span class="o">=</span> <span class="n">CoordinateSystem</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">modeler</span><span class="p">)</span>
         <span class="n">bound</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">modeler</span><span class="o">.</span><span class="n">get_model_bounding_box</span><span class="p">()</span>
@@ -1048,9 +1324,16 @@
 
 <div class="viewcode-block" id="PostProcessor.delete_field_plot"><a class="viewcode-back" href="../../../API/PostProcessor.html#pyaedt.modules.PostProcessor.PostProcessor.delete_field_plot">[docs]</a>    <span class="nd">@aedt_exception_handler</span>
     <span class="k">def</span> <span class="nf">delete_field_plot</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Delete Field Plots</span>
-<span class="sd">        :param name: Field Plot to delete</span>
+        <span class="sd">&quot;&quot;&quot;Delete Field Plots</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        name :</span>
+<span class="sd">            Field Plot to delete</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">oreportsetup</span><span class="o">.</span><span class="n">DeleteFieldPlot</span><span class="p">([</span><span class="n">name</span><span class="p">])</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">FieldsPlot</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
@@ -1058,14 +1341,26 @@
 
 <div class="viewcode-block" id="PostProcessor.export_convergence_to_jpg"><a class="viewcode-back" href="../../../API/PostProcessor.html#pyaedt.modules.PostProcessor.PostProcessor.export_convergence_to_jpg">[docs]</a>    <span class="nd">@aedt_exception_handler</span>
     <span class="k">def</span> <span class="nf">export_convergence_to_jpg</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">output_dir</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">Xaxis</span><span class="p">,</span> <span class="n">outputlist</span><span class="p">,</span> <span class="n">setupname</span><span class="o">=</span><span class="s2">&quot;Setup1 : LastAdaptive&quot;</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        function that export JPG of Convergence Plot</span>
-<span class="sd">        :param output_dir Output dir</span>
-<span class="sd">        :param name: Project Name</span>
-<span class="sd">        :param Xaxis: Indipendent Variable</span>
-<span class="sd">        :param outputlist: List of Parameter to export</span>
-<span class="sd">        :param setupname: Name of Setupt</span>
-<span class="sd">        :return:  Boolean success of command</span>
+        <span class="sd">&quot;&quot;&quot;function that export JPG of Convergence Plot</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        output_dir :</span>
+<span class="sd">            Output dir</span>
+<span class="sd">        name :</span>
+<span class="sd">            Project Name</span>
+<span class="sd">        Xaxis :</span>
+<span class="sd">            Indipendent Variable</span>
+<span class="sd">        outputlist :</span>
+<span class="sd">            List of Parameter to export</span>
+<span class="sd">        setupname :</span>
+<span class="sd">            Name of Setupt (Default value = &quot;Setup1 : LastAdaptive&quot;)</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        type</span>
+<span class="sd">            Boolean success of command</span>
+
 <span class="sd">        &quot;&quot;&quot;</span>
 
         <span class="c1"># Setup arguments list for createReport function</span>
@@ -1089,14 +1384,26 @@
 
 <div class="viewcode-block" id="PostProcessor.export_convergence_to_csv"><a class="viewcode-back" href="../../../API/PostProcessor.html#pyaedt.modules.PostProcessor.PostProcessor.export_convergence_to_csv">[docs]</a>    <span class="nd">@aedt_exception_handler</span>
     <span class="k">def</span> <span class="nf">export_convergence_to_csv</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">output_dir</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">Xaxis</span><span class="p">,</span> <span class="n">outputlist</span><span class="p">,</span> <span class="n">setupname</span><span class="o">=</span><span class="s2">&quot;Setup1 : LastAdaptive&quot;</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        function that export CSV of Convergence Plot</span>
-<span class="sd">        :param output_dir Output dir</span>
-<span class="sd">        :param name: Project Name</span>
-<span class="sd">        :param Xaxis: Indipendent Variable</span>
-<span class="sd">        :param outputlist: List of Parameter to export</span>
-<span class="sd">        :param setupname: Name of Setupt</span>
-<span class="sd">        :return:  Boolean success of command</span>
+        <span class="sd">&quot;&quot;&quot;function that export CSV of Convergence Plot</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        output_dir :</span>
+<span class="sd">            Output dir</span>
+<span class="sd">        name :</span>
+<span class="sd">            Project Name</span>
+<span class="sd">        Xaxis :</span>
+<span class="sd">            Indipendent Variable</span>
+<span class="sd">        outputlist :</span>
+<span class="sd">            List of Parameter to export</span>
+<span class="sd">        setupname :</span>
+<span class="sd">            Name of Setupt (Default value = &quot;Setup1 : LastAdaptive&quot;)</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        type</span>
+<span class="sd">            Boolean success of command</span>
+
 <span class="sd">        &quot;&quot;&quot;</span>
 
         <span class="c1"># Setup arguments list for createReport function</span>
@@ -1119,14 +1426,30 @@
 
 <div class="viewcode-block" id="PostProcessor.export_eigen_plot"><a class="viewcode-back" href="../../../API/PostProcessor.html#pyaedt.modules.PostProcessor.PostProcessor.export_eigen_plot">[docs]</a>    <span class="nd">@aedt_exception_handler</span>
     <span class="k">def</span> <span class="nf">export_eigen_plot</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">projectdir</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">Xaxis</span><span class="p">,</span> <span class="n">outputlist</span><span class="p">,</span> <span class="n">setupname</span><span class="o">=</span><span class="s2">&quot;Setup1 :  LastAdaptive&quot;</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        TO BE REFACTORED</span>
+        <span class="sd">&quot;&quot;&quot;TO BE REFACTORED</span>
 <span class="sd">        function that export CSV of eigenmode Plot</span>
 <span class="sd">        dir: Output dir</span>
 <span class="sd">        name: project name</span>
 <span class="sd">        Xaxis=</span>
 <span class="sd">        outputlist= output quantity, in this case, egienmode</span>
 <span class="sd">        :return:</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        projectdir :</span>
+<span class="sd">            </span>
+<span class="sd">        name :</span>
+<span class="sd">            </span>
+<span class="sd">        Xaxis :</span>
+<span class="sd">            </span>
+<span class="sd">        outputlist :</span>
+<span class="sd">            </span>
+<span class="sd">        setupname :</span>
+<span class="sd">             (Default value = &quot;Setup1 :  LastAdaptive&quot;)</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+
 <span class="sd">        &quot;&quot;&quot;</span>
 
         <span class="c1"># Setup arguments list for createReport function</span>
@@ -1153,13 +1476,43 @@
 <div class="viewcode-block" id="PostProcessor.export_mechanical_script"><a class="viewcode-back" href="../../../API/PostProcessor.html#pyaedt.modules.PostProcessor.PostProcessor.export_mechanical_script">[docs]</a>    <span class="nd">@aedt_exception_handler</span>
     <span class="k">def</span> <span class="nf">export_mechanical_script</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">workingDir</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">aMats</span><span class="p">,</span> <span class="n">aInside</span><span class="p">,</span> <span class="n">aSurf</span><span class="p">,</span> <span class="n">emissivity</span><span class="p">,</span> <span class="n">convection</span><span class="p">,</span> <span class="n">gravity</span><span class="p">,</span>
                                  <span class="n">ambienttemp</span><span class="o">=</span><span class="s2">&quot;22&quot;</span><span class="p">,</span> <span class="n">MechNumCores</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">discretesweep</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">WBSuppressSolids</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        export_mechanical_script Function write a PY function for Mechanical API.</span>
+        <span class="sd">&quot;&quot;&quot;export_mechanical_script Function write a PY function for Mechanical API.</span>
 <span class="sd">        It start from createMech.py file and integrates it with variables and lanuchers.</span>
-
+<span class="sd">        </span>
 <span class="sd">        - Added WBSuppressSolids option:</span>
 <span class="sd">            1. the objects names specified in the list are suppessed in Workbench</span>
 <span class="sd">            2. the list defaults to empty list</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        workingDir :</span>
+<span class="sd">            </span>
+<span class="sd">        name :</span>
+<span class="sd">            </span>
+<span class="sd">        aMats :</span>
+<span class="sd">            </span>
+<span class="sd">        aInside :</span>
+<span class="sd">            </span>
+<span class="sd">        aSurf :</span>
+<span class="sd">            </span>
+<span class="sd">        emissivity :</span>
+<span class="sd">            </span>
+<span class="sd">        convection :</span>
+<span class="sd">            </span>
+<span class="sd">        gravity :</span>
+<span class="sd">            </span>
+<span class="sd">        ambienttemp :</span>
+<span class="sd">             (Default value = &quot;22&quot;)</span>
+<span class="sd">        MechNumCores :</span>
+<span class="sd">             (Default value = 2)</span>
+<span class="sd">        discretesweep :</span>
+<span class="sd">             (Default value = False)</span>
+<span class="sd">        WBSuppressSolids :</span>
+<span class="sd">             (Default value = None)</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+
 <span class="sd">        &quot;&quot;&quot;</span>
 
         <span class="c1"># USE this</span>
@@ -1232,17 +1585,30 @@
 
 <div class="viewcode-block" id="PostProcessor.export_model_picture"><a class="viewcode-back" href="../../../API/PostProcessor.html#pyaedt.modules.PostProcessor.PostProcessor.export_model_picture">[docs]</a>    <span class="nd">@aedt_exception_handler</span>
     <span class="k">def</span> <span class="nf">export_model_picture</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="nb">dir</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">picturename</span><span class="o">=</span><span class="s2">&quot;Model&quot;</span><span class="p">,</span> <span class="n">ShowAxis</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">ShowGrid</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">ShowRuler</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Synopsis:</span>
+        <span class="sd">&quot;&quot;&quot;Synopsis:</span>
 <span class="sd">        function that export Model Snapshot. It works only in Graphical Mode</span>
 <span class="sd">        Arguments:</span>
-<span class="sd">        :param dir: &quot;Output dir&quot;</span>
-<span class="sd">        :param name: &quot;project name&quot; (use to compose the path)</span>
-<span class="sd">        :param picturename: &quot;image name&quot; (default=&quot;Model&quot;; extension &quot;.jpg&quot; is automatically added)</span>
-<span class="sd">        :param ShowAxis: True (default) | False</span>
-<span class="sd">        :param ShowGrid: True (default) | False</span>
-<span class="sd">        :param ShowRuler: True (default) | False</span>
-<span class="sd">        :return:  True (executed) | False</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        dir :</span>
+<span class="sd">            Output dir&quot;</span>
+<span class="sd">        name :</span>
+<span class="sd">            project name&quot; (use to compose the path)</span>
+<span class="sd">        picturename :</span>
+<span class="sd">            image name&quot; (default=&quot;Model&quot;; extension &quot;.jpg&quot; is automatically added)</span>
+<span class="sd">        ShowAxis :</span>
+<span class="sd">            True (default) | False</span>
+<span class="sd">        ShowGrid :</span>
+<span class="sd">            True (default) | False</span>
+<span class="sd">        ShowRuler :</span>
+<span class="sd">            True (default) | False</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        type</span>
+<span class="sd">            True (executed) | False</span>
+
 <span class="sd">        &quot;&quot;&quot;</span>
 
         <span class="c1"># Setup arguments list for createReport function</span>
@@ -1262,10 +1628,18 @@
 
 <div class="viewcode-block" id="PostProcessor.copy_report_data"><a class="viewcode-back" href="../../../API/PostProcessor.html#pyaedt.modules.PostProcessor.PostProcessor.copy_report_data">[docs]</a>    <span class="nd">@aedt_exception_handler</span>
     <span class="k">def</span> <span class="nf">copy_report_data</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">PlotName</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Copy Report Data as static data in the report</span>
-<span class="sd">        :param PlotName Name of the Report</span>
-<span class="sd">        :return:  True (executed)</span>
+        <span class="sd">&quot;&quot;&quot;Copy Report Data as static data in the report</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        PlotName :</span>
+<span class="sd">            Name of the Report</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        type</span>
+<span class="sd">            True (executed)</span>
+
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="c1"># Copy the plot curves as data</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">oreportsetup</span><span class="o">.</span><span class="n">CopyReportsData</span><span class="p">([</span><span class="n">PlotName</span><span class="p">])</span>
@@ -1274,14 +1648,24 @@
 
 <div class="viewcode-block" id="PostProcessor.create_field_exptression"><a class="viewcode-back" href="../../../API/PostProcessor.html#pyaedt.modules.PostProcessor.PostProcessor.create_field_exptression">[docs]</a>    <span class="nd">@aedt_exception_handler</span>
     <span class="k">def</span> <span class="nf">create_field_exptression</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">expression_name</span><span class="p">,</span> <span class="n">Quantity</span><span class="p">,</span> <span class="n">obj_name</span><span class="p">,</span> <span class="n">obj_type</span><span class="o">=</span><span class="s2">&quot;Volume&quot;</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        It create a new expression using Field Calculator given specified input</span>
+        <span class="sd">&quot;&quot;&quot;It create a new expression using Field Calculator given specified input</span>
 
-<span class="sd">        :param expression_name: Name of the output expression</span>
-<span class="sd">        :param Quantity: Field Quantity to use in expression (eg. E)</span>
-<span class="sd">        :param obj_name: name of objects on which compute the expression</span>
-<span class="sd">        :param obj_type:Type of objects: Volume, Surface, Line, Point</span>
-<span class="sd">        :return: True if succeeedd</span>
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        expression_name :</span>
+<span class="sd">            Name of the output expression</span>
+<span class="sd">        Quantity :</span>
+<span class="sd">            Field Quantity to use in expression (eg. E)</span>
+<span class="sd">        obj_name :</span>
+<span class="sd">            name of objects on which compute the expression</span>
+<span class="sd">        obj_type :</span>
+<span class="sd">            Type of objects: Volume, Surface, Line, Point (Default value = &quot;Volume&quot;)</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        type</span>
+<span class="sd">            True if succeeedd</span>
+
 <span class="sd">        &quot;&quot;&quot;</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">ofieldsreporter</span><span class="o">.</span><span class="n">EnterQty</span><span class="p">(</span><span class="n">Quantity</span><span class="p">)</span>
@@ -1301,10 +1685,18 @@
 
 <div class="viewcode-block" id="PostProcessor.delete_report"><a class="viewcode-back" href="../../../API/PostProcessor.html#pyaedt.modules.PostProcessor.PostProcessor.delete_report">[docs]</a>    <span class="nd">@aedt_exception_handler</span>
     <span class="k">def</span> <span class="nf">delete_report</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">PlotName</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Delete Report Data</span>
-<span class="sd">        :param PlotName Name of the Report</span>
-<span class="sd">        :return:  True (executed) | False</span>
+        <span class="sd">&quot;&quot;&quot;Delete Report Data</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        PlotName :</span>
+<span class="sd">            Name of the Report</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        type</span>
+<span class="sd">            True (executed) | False</span>
+
 <span class="sd">        &quot;&quot;&quot;</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">oreportsetup</span><span class="o">.</span><span class="n">DeleteReports</span><span class="p">([</span><span class="n">PlotName</span><span class="p">])</span>
@@ -1312,10 +1704,20 @@
 
 <div class="viewcode-block" id="PostProcessor.rename_report"><a class="viewcode-back" href="../../../API/PostProcessor.html#pyaedt.modules.PostProcessor.PostProcessor.rename_report">[docs]</a>    <span class="nd">@aedt_exception_handler</span>
     <span class="k">def</span> <span class="nf">rename_report</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">PlotName</span><span class="p">,</span> <span class="n">newname</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Delete Report Data</span>
-<span class="sd">        :param PlotName Name of the Report</span>
-<span class="sd">        :return: True (executed)</span>
+        <span class="sd">&quot;&quot;&quot;Delete Report Data</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        PlotName :</span>
+<span class="sd">            Name of the Report</span>
+<span class="sd">        newname :</span>
+<span class="sd">            </span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        type</span>
+<span class="sd">            True (executed)</span>
+
 <span class="sd">        &quot;&quot;&quot;</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">oreportsetup</span><span class="o">.</span><span class="n">RenameReport</span><span class="p">(</span><span class="n">PlotName</span><span class="p">,</span> <span class="n">newname</span><span class="p">)</span>
@@ -1324,12 +1726,21 @@
 
 <div class="viewcode-block" id="PostProcessor.export_report_to_csv"><a class="viewcode-back" href="../../../API/PostProcessor.html#pyaedt.modules.PostProcessor.PostProcessor.export_report_to_csv">[docs]</a>    <span class="nd">@aedt_exception_handler</span>
     <span class="k">def</span> <span class="nf">export_report_to_csv</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ProjectDir</span><span class="p">,</span> <span class="n">PlotName</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Export SParameter  as CSV</span>
+        <span class="sd">&quot;&quot;&quot;Export SParameter  as CSV</span>
 <span class="sd">        It leaves the data in the plot (as DATA) as reference for the Sparameters plot after the loops</span>
-<span class="sd">        :param ProjectDir: Project Dir (str)</span>
-<span class="sd">        :param PlotName: name of the plot to export</span>
-<span class="sd">        :return: True (executed)</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        ProjectDir :</span>
+<span class="sd">            Project Dir (str)</span>
+<span class="sd">        PlotName :</span>
+<span class="sd">            name of the plot to export</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        type</span>
+<span class="sd">            True (executed)</span>
+
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="c1"># path</span>
         <span class="n">npath</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">normpath</span><span class="p">(</span><span class="n">ProjectDir</span><span class="p">)</span>
@@ -1342,10 +1753,17 @@
 
 <div class="viewcode-block" id="PostProcessor.export_report_to_jpg"><a class="viewcode-back" href="../../../API/PostProcessor.html#pyaedt.modules.PostProcessor.PostProcessor.export_report_to_jpg">[docs]</a>    <span class="nd">@aedt_exception_handler</span>
     <span class="k">def</span> <span class="nf">export_report_to_jpg</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ProjectDir</span><span class="p">,</span> <span class="n">PlotName</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Export SParameter as image</span>
-<span class="sd">        Arguments:</span>
-<span class="sd">        ProjectDir = Project Dir (str)</span>
+        <span class="sd">&quot;&quot;&quot;Export SParameter as image</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        ProjectDir :</span>
+<span class="sd">            Project Dir</span>
+<span class="sd">        PlotName :</span>
+<span class="sd">            </span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
 
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="c1"># path</span>
@@ -1358,14 +1776,24 @@
 
 <div class="viewcode-block" id="PostProcessor.get_far_field_data"><a class="viewcode-back" href="../../../API/PostProcessor.html#pyaedt.modules.PostProcessor.PostProcessor.get_far_field_data">[docs]</a>    <span class="nd">@aedt_exception_handler</span>
     <span class="k">def</span> <span class="nf">get_far_field_data</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">expression</span><span class="o">=</span><span class="s2">&quot;GainTotal&quot;</span><span class="p">,</span> <span class="n">setup_sweep_name</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="n">domain</span><span class="o">=</span><span class="s2">&quot;Infinite Sphere1&quot;</span><span class="p">,</span> <span class="n">families_dict</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Generate Far Field Data using GetSolutionDataPerVariation function. it returns the Data, solData, ThetaVals, PhiVals, ScanPhiVals, ScanThetaVals, FreqVals</span>
+        <span class="sd">&quot;&quot;&quot;Generate Far Field Data using GetSolutionDataPerVariation function. it returns the Data, solData, ThetaVals, PhiVals, ScanPhiVals, ScanThetaVals, FreqVals</span>
 
-<span class="sd">        :param setup_sweep_name: Name of setup to compute report. if None, nominal sweep will be applied</span>
-<span class="sd">        :param domain: Context Type (Sweep or Time)</span>
-<span class="sd">        :param families_dict: Dictionary of variables and values. Default {&quot;Freq&quot;: [&quot;All&quot;]}</span>
-<span class="sd">        :param expression: string or list of traces to include</span>
-<span class="sd">        :return: SolutionData object if successful</span>
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        setup_sweep_name :</span>
+<span class="sd">            Name of setup to compute report. if None, nominal sweep will be applied (Default value = &#39;&#39;)</span>
+<span class="sd">        domain :</span>
+<span class="sd">            Context Type (Sweep or Time) (Default value = &quot;Infinite Sphere1&quot;)</span>
+<span class="sd">        families_dict :</span>
+<span class="sd">            Dictionary of variables and values. Default {&quot;Freq&quot;: [&quot;All&quot;]}</span>
+<span class="sd">        expression :</span>
+<span class="sd">            string or list of traces to include (Default value = &quot;GainTotal&quot;)</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        type</span>
+<span class="sd">            SolutionData object if successful</span>
+
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="n">expression</span><span class="p">)</span> <span class="ow">is</span> <span class="ow">not</span> <span class="nb">list</span><span class="p">:</span>
             <span class="n">expression</span> <span class="o">=</span> <span class="p">[</span><span class="n">expression</span><span class="p">]</span>
@@ -1381,27 +1809,37 @@
 
 <div class="viewcode-block" id="PostProcessor.get_report_data"><a class="viewcode-back" href="../../../API/PostProcessor.html#pyaedt.modules.PostProcessor.PostProcessor.get_report_data">[docs]</a>    <span class="nd">@aedt_exception_handler</span>
     <span class="k">def</span> <span class="nf">get_report_data</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">expression</span><span class="o">=</span><span class="s2">&quot;dB(S(1,1))&quot;</span><span class="p">,</span> <span class="n">setup_sweep_name</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="n">domain</span><span class="o">=</span><span class="s1">&#39;Sweep&#39;</span><span class="p">,</span> <span class="n">families_dict</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Generate Report Data using GetSolutionDataPerVariation function. it returns the data object, the solDataArray</span>
+        <span class="sd">&quot;&quot;&quot;Generate Report Data using GetSolutionDataPerVariation function. it returns the data object, the solDataArray</span>
 <span class="sd">        and the FreqVals Array.</span>
-
-
+<span class="sd">        </span>
+<span class="sd">        </span>
 <span class="sd">        :Example:</span>
 <span class="sd">            hfss Sparameters</span>
 <span class="sd">            hfss = HFSS()</span>
 <span class="sd">            hfss.post.get_report_data(&quot;S(1,1)&quot;)   # it will take default sweep and default variation</span>
-
-
+<span class="sd">        </span>
+<span class="sd">        </span>
 <span class="sd">            m3d = Maxwell3D()</span>
 <span class="sd">            m3d.post.get_report_data(&quot;SurfaceLoss&quot;)   #Eddy Current example</span>
 <span class="sd">            m3d.post.get_report_data(&quot;Wind(LoadA,LaodA)&quot;)    #TransientAnalsysis</span>
 
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        setup_sweep_name :</span>
+<span class="sd">            Name of setup to compute report. if None, nominal sweep will be applied (Default value = &#39;&#39;)</span>
+<span class="sd">        domain :</span>
+<span class="sd">            Context Type (Sweep or Time) (Default value = &#39;Sweep&#39;)</span>
+<span class="sd">        families_dict :</span>
+<span class="sd">            Dictionary of variables and values. Default {&quot;Freq&quot;: [&quot;All&quot;]}</span>
+<span class="sd">        expression :</span>
+<span class="sd">            string or list of traces to include (Default value = &quot;dB(S(1)</span>
+<span class="sd">        1))&quot; :</span>
+<span class="sd">            </span>
 
-<span class="sd">        :param setup_sweep_name: Name of setup to compute report. if None, nominal sweep will be applied</span>
-<span class="sd">        :param domain: Context Type (Sweep or Time)</span>
-<span class="sd">        :param families_dict: Dictionary of variables and values. Default {&quot;Freq&quot;: [&quot;All&quot;]}</span>
-<span class="sd">        :param expression: string or list of traces to include</span>
-<span class="sd">        :return: SolutionData object if successful</span>
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        type</span>
+<span class="sd">            SolutionData object if successful</span>
 
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">post_solution_type</span> <span class="o">==</span> <span class="s2">&quot;3DLayout&quot;</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">post_solution_type</span> <span class="o">==</span> <span class="s2">&quot;NexximLNA&quot;</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">post_solution_type</span> <span class="o">==</span> <span class="s2">&quot;NexximTransient&quot;</span><span class="p">:</span>
@@ -1435,16 +1873,30 @@
 <div class="viewcode-block" id="PostProcessor.create_rectangular_plot"><a class="viewcode-back" href="../../../API/PostProcessor.html#pyaedt.modules.PostProcessor.PostProcessor.create_rectangular_plot">[docs]</a>    <span class="nd">@aedt_exception_handler</span>
     <span class="k">def</span> <span class="nf">create_rectangular_plot</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">expression</span><span class="o">=</span><span class="s2">&quot;dB(S(1,1))&quot;</span><span class="p">,</span> <span class="n">setup_sweep_name</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="n">families_dict</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;Freq&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;All&quot;</span><span class="p">]},</span>
                                 <span class="n">primary_sweep_variable</span><span class="o">=</span><span class="s2">&quot;Freq&quot;</span><span class="p">,</span> <span class="n">context</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">plotname</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Create a 2D Rectangular plot in AEDT</span>
+        <span class="sd">&quot;&quot;&quot;Create a 2D Rectangular plot in AEDT</span>
 
-<span class="sd">        :param expression: Expression Value or Expressions list</span>
-<span class="sd">        :param setup_sweep_name: setup name with sweep</span>
-<span class="sd">        :param families_dict: dictionary of all families including Primary Sweep</span>
-<span class="sd">        :param primary_sweep_variable: primary sweep name</span>
-<span class="sd">        :param context: str if present</span>
-<span class="sd">        :param plotname: str optional</span>
-<span class="sd">        :return: bool</span>
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        expression :</span>
+<span class="sd">            Expression Value or Expressions list (Default value = &quot;dB(S(1)</span>
+<span class="sd">        setup_sweep_name :</span>
+<span class="sd">            setup name with sweep (Default value = &#39;&#39;)</span>
+<span class="sd">        families_dict :</span>
+<span class="sd">            dictionary of all families including Primary Sweep (Default value = {&quot;Freq&quot;: [&quot;All&quot;]})</span>
+<span class="sd">        primary_sweep_variable :</span>
+<span class="sd">            primary sweep name (Default value = &quot;Freq&quot;)</span>
+<span class="sd">        context :</span>
+<span class="sd">            str if present (Default value = None)</span>
+<span class="sd">        plotname :</span>
+<span class="sd">            str optional (Default value = None)</span>
+<span class="sd">        1))&quot; :</span>
+<span class="sd">            </span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        type</span>
+<span class="sd">            bool</span>
+
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">ctxt</span><span class="o">=</span><span class="p">[]</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="n">setup_sweep_name</span><span class="p">:</span>
@@ -1483,12 +1935,25 @@
     <span class="k">def</span> <span class="nf">get_solution_data_per_variation</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">soltype</span><span class="o">=</span><span class="s1">&#39;Far Fields&#39;</span><span class="p">,</span> <span class="n">setup_sweep_name</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="n">ctxt</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
                                         <span class="n">sweeps</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">expression</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        :param soltype: string: Solution Type. eg. &quot;Far Fields&quot; &quot;Modal Solution Data&quot;...</span>
-<span class="sd">        :param setup_sweep_name: Name of setup to compute report. if None, nominal adaptive will be applied</span>
-<span class="sd">        :param ctxt: List of Context variable</span>
-<span class="sd">        :param sweeps: Dictionary of variables and values. Default {&#39;Theta&#39;: &#39;All&#39;, &#39;Phi&#39;: &#39;All&#39;, &#39;Freq&#39;: &#39;All&#39;}</span>
-<span class="sd">        :param expression: string or list of traces to include</span>
-<span class="sd">        :return: solution data</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        soltype :</span>
+<span class="sd">            string: Solution Type. eg. &quot;Far Fields&quot; &quot;Modal Solution Data&quot;... (Default value = &#39;Far Fields&#39;)</span>
+<span class="sd">        setup_sweep_name :</span>
+<span class="sd">            Name of setup to compute report. if None, nominal adaptive will be applied (Default value = &#39;&#39;)</span>
+<span class="sd">        ctxt :</span>
+<span class="sd">            List of Context variable (Default value = None)</span>
+<span class="sd">        sweeps :</span>
+<span class="sd">            Dictionary of variables and values. Default {&#39;Theta&#39;: &#39;All&#39;, &#39;Phi&#39;: &#39;All&#39;, &#39;Freq&#39;: &#39;All&#39;}</span>
+<span class="sd">        expression :</span>
+<span class="sd">            string or list of traces to include (Default value = &#39;&#39;)</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        type</span>
+<span class="sd">            solution data</span>
+
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="n">sweeps</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">sweeps</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;Theta&#39;</span><span class="p">:</span> <span class="s1">&#39;All&#39;</span><span class="p">,</span> <span class="s1">&#39;Phi&#39;</span><span class="p">:</span> <span class="s1">&#39;All&#39;</span><span class="p">,</span> <span class="s1">&#39;Freq&#39;</span><span class="p">:</span> <span class="s1">&#39;All&#39;</span><span class="p">}</span>
@@ -1513,9 +1978,15 @@
 
 <div class="viewcode-block" id="PostProcessor.steal_focus_oneditor"><a class="viewcode-back" href="../../../API/PostProcessor.html#pyaedt.modules.PostProcessor.PostProcessor.steal_focus_oneditor">[docs]</a>    <span class="nd">@aedt_exception_handler</span>
     <span class="k">def</span> <span class="nf">steal_focus_oneditor</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        It can be used to remove the selection to an object</span>
+        <span class="sd">&quot;&quot;&quot;It can be used to remove the selection to an object</span>
 <span class="sd">        that would prevent the correct image export</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">desktop</span><span class="o">.</span><span class="n">RestoreWindow</span><span class="p">()</span>
         <span class="n">param</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;NAME:SphereParameters&quot;</span><span class="p">,</span> <span class="s2">&quot;XCenter:=&quot;</span><span class="p">,</span> <span class="s2">&quot;0mm&quot;</span><span class="p">,</span> <span class="s2">&quot;YCenter:=&quot;</span><span class="p">,</span> <span class="s2">&quot;0mm&quot;</span><span class="p">,</span> <span class="s2">&quot;ZCenter:=&quot;</span><span class="p">,</span> <span class="s2">&quot;0mm&quot;</span><span class="p">,</span> <span class="s2">&quot;Radius:=&quot;</span><span class="p">,</span> <span class="s2">&quot;1mm&quot;</span><span class="p">]</span>

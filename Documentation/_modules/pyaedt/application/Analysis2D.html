@@ -162,11 +162,17 @@
 
 
 <div class="viewcode-block" id="FieldAnalysis2D"><a class="viewcode-back" href="../../../API/Analysis2D.html#pyaedt.application.Analysis2D.FieldAnalysis2D">[docs]</a><span class="k">class</span> <span class="nc">FieldAnalysis2D</span><span class="p">(</span><span class="n">Analysis</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot; **AEDT_2D_FieldAnalysis**</span>
-
+    <span class="sd">&quot;&quot;&quot;**AEDT_2D_FieldAnalysis**</span>
+<span class="sd">    </span>
 <span class="sd">    Class for 2D Field Analysis Setup (Maxwell2D, Q2D)</span>
-
+<span class="sd">    </span>
 <span class="sd">    It is automatically initialized by Application call. Refer to Application function for inputs definition</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
 
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">application</span><span class="p">,</span> <span class="n">projectname</span><span class="p">,</span> <span class="n">designname</span><span class="p">,</span> <span class="n">solution_type</span><span class="p">,</span> <span class="n">setup_name</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
@@ -179,10 +185,12 @@
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">modeler</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_modeler</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">mesh</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_mesh</span>
 
     <span class="c1"># @property</span>
@@ -191,14 +199,20 @@
 
 <div class="viewcode-block" id="FieldAnalysis2D.assignmaterial"><a class="viewcode-back" href="../../../API/Analysis2D.html#pyaedt.application.Analysis2D.FieldAnalysis2D.assignmaterial">[docs]</a>    <span class="nd">@aedt_exception_handler</span>
     <span class="k">def</span> <span class="nf">assignmaterial</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">obj</span><span class="p">,</span> <span class="n">mat</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot; The function assigns Material mat to object obj. If material mat is not present it will be created</span>
+        <span class="sd">&quot;&quot;&quot;The function assigns Material mat to object obj. If material mat is not present it will be created</span>
 
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        obj : str, list</span>
+<span class="sd">            list of objects to which assign materials</span>
+<span class="sd">        mat : str</span>
+<span class="sd">            material to assign</span>
 
-<span class="sd">        :param obj: list of objects to which assign materials</span>
-<span class="sd">        :type obj: str, list</span>
-<span class="sd">        :param mat: material to assign</span>
-<span class="sd">        :type mat: str</span>
-<span class="sd">        :return: True if succeded | False if failed</span>
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        type</span>
+<span class="sd">            True if succeded | False if failed</span>
+
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">mat</span> <span class="o">=</span> <span class="n">mat</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span>
         <span class="n">selections</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">modeler</span><span class="o">.</span><span class="n">convert_to_selections</span><span class="p">(</span><span class="n">obj</span><span class="p">)</span>

@@ -273,16 +273,42 @@
 <em class="property"><span class="pre">class</span> </em><code class="sig-prename descclassname"><span class="pre">pyaedt.edb_core.padstack.</span></code><code class="sig-name descname"><span class="pre">EdbPadstacks</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">parent</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pyaedt/edb_core/padstack.html#EdbPadstacks"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyaedt.edb_core.padstack.EdbPadstacks" title="Permalink to this definition">¶</a></dt>
 <dd><p>HFSS 3DLayout object</p>
 <dl class="py method">
+<dt id="pyaedt.edb_core.padstack.EdbPadstacks.active_layout">
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">active_layout</span></code><a class="headerlink" href="#pyaedt.edb_core.padstack.EdbPadstacks.active_layout" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="pyaedt.edb_core.padstack.EdbPadstacks.builder">
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">builder</span></code><a class="headerlink" href="#pyaedt.edb_core.padstack.EdbPadstacks.builder" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="pyaedt.edb_core.padstack.EdbPadstacks.cell">
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">cell</span></code><a class="headerlink" href="#pyaedt.edb_core.padstack.EdbPadstacks.cell" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
 <dt id="pyaedt.edb_core.padstack.EdbPadstacks.create_circular_padstack">
 <code class="sig-name descname"><span class="pre">create_circular_padstack</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">padstackname</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">holediam</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'300um'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">paddiam</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'400um'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">antipaddiam</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'600um'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">startlayer</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">endlayer</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pyaedt/edb_core/padstack.html#EdbPadstacks.create_circular_padstack"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyaedt.edb_core.padstack.EdbPadstacks.create_circular_padstack" title="Permalink to this definition">¶</a></dt>
-<dd><p>Create a new Padskack
-:param endlayer: End Layer. If none is entered, default is bottom
-:param startlayer: Start Layer. If none is entered, default is top
-:param padstackname: name of the padstack
-:param holediam: hole diameter with units
-:param paddiam: pad diameter with units
-:param antipaddiam: antipad diameter with units
-:return: padstackname if operation is completed</p>
+<dd><p>Create a new Padskack</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>endlayer</strong> -- End Layer. If none is entered, default is bottom</p></li>
+<li><p><strong>startlayer</strong> -- Start Layer. If none is entered, default is top</p></li>
+<li><p><strong>padstackname</strong> -- name of the padstack (Default value = None)</p></li>
+<li><p><strong>holediam</strong> -- hole diameter with units (Default value = '300um')</p></li>
+<li><p><strong>paddiam</strong> -- pad diameter with units (Default value = '400um')</p></li>
+<li><p><strong>antipaddiam</strong> -- antipad diameter with units (Default value = '600um')</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>padstackname if operation is completed</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>type</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py method">
@@ -294,17 +320,35 @@
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>endlayer</strong> -- End Layer. If none is entered, default is bottom</p></li>
 <li><p><strong>startlayer</strong> -- Start Layer. If none is entered, default is top</p></li>
-<li><p><strong>padstackname</strong> -- name of the padstack</p></li>
-<li><p><strong>holediam</strong> -- hole diameter with units</p></li>
-<li><p><strong>paddiam</strong> -- pad diameter with units</p></li>
-<li><p><strong>antipaddiam</strong> -- antipad diameter with units</p></li>
+<li><p><strong>padstackname</strong> -- name of the padstack (Default value = None)</p></li>
+<li><p><strong>holediam</strong> -- hole diameter with units (Default value = '300um')</p></li>
+<li><p><strong>paddiam</strong> -- pad diameter with units (Default value = '400um')</p></li>
+<li><p><strong>antipaddiam</strong> -- antipad diameter with units (Default value = '600um')</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>
 <dd class="field-even"><p>padstackname if operation is completed</p>
 </dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>type</p>
+</dd>
 </dl>
 </dd></dl>
+
+<dl class="py method">
+<dt id="pyaedt.edb_core.padstack.EdbPadstacks.db">
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">db</span></code><a class="headerlink" href="#pyaedt.edb_core.padstack.EdbPadstacks.db" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="pyaedt.edb_core.padstack.EdbPadstacks.edb">
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">edb</span></code><a class="headerlink" href="#pyaedt.edb_core.padstack.EdbPadstacks.edb" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="pyaedt.edb_core.padstack.EdbPadstacks.edb_value">
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">edb_value</span></code><a class="headerlink" href="#pyaedt.edb_core.padstack.EdbPadstacks.edb_value" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
 
 <dl class="py method">
 <dt id="pyaedt.edb_core.padstack.EdbPadstacks.get_padstack_info">
@@ -317,6 +361,9 @@
 <dt class="field-even">Returns</dt>
 <dd class="field-even"><p>dictionary of vias</p>
 </dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>type</p>
+</dd>
 </dl>
 </dd></dl>
 
@@ -327,15 +374,29 @@
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>refdes</strong> (<em>Component</em>) -- Component name</p></li>
-<li><p><strong>netname</strong> -- the name of the nets to search for. Will return False if the net does not belong to the component</p></li>
+<li><p><strong>Component</strong> -- refdes: Component name</p></li>
+<li><p><strong>netname</strong> -- the name of the nets to search for. Will return False if the net does not belong to the component (Default value = None)</p></li>
+<li><p><strong>refdes</strong> -- (Default value = None)</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>
 <dd class="field-even"><p>dictionary of vias</p>
 </dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>type</p>
+</dd>
 </dl>
 </dd></dl>
+
+<dl class="py method">
+<dt id="pyaedt.edb_core.padstack.EdbPadstacks.messenger">
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">messenger</span></code><a class="headerlink" href="#pyaedt.edb_core.padstack.EdbPadstacks.messenger" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="pyaedt.edb_core.padstack.EdbPadstacks.padstack_methods">
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">padstack_methods</span></code><a class="headerlink" href="#pyaedt.edb_core.padstack.EdbPadstacks.padstack_methods" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
 
 <dl class="py method">
 <dt id="pyaedt.edb_core.padstack.EdbPadstacks.padstacks">

@@ -1,5 +1,17 @@
 def unique_string_list(element_list, only_string=True):
-    ''' '''
+    """
+
+    Parameters
+    ----------
+    element_list :
+        
+    only_string :
+         (Default value = True)
+
+    Returns
+    -------
+
+    """
     if element_list:
         if isinstance(element_list, list):
             element_list = set(element_list)
@@ -20,7 +32,17 @@ def unique_string_list(element_list, only_string=True):
     return element_list
 
 def string_list(element_list):
-    ''' '''
+    """
+
+    Parameters
+    ----------
+    element_list :
+        
+
+    Returns
+    -------
+
+    """
     if isinstance(element_list, str):
         element_list = [element_list]
     else:
@@ -28,7 +50,17 @@ def string_list(element_list):
     return element_list
 
 def ensure_list(element_list):
-    ''' '''
+    """
+
+    Parameters
+    ----------
+    element_list :
+        
+
+    Returns
+    -------
+
+    """
     if not isinstance(element_list, list):
         element_list = [element_list]
     return element_list

@@ -253,6 +253,11 @@
 <p>This class contains the data class to create a material library. internal use only</p>
 <hr class="docutils" />
 <dl class="py class">
+<dt id="pyaedt.modules.Material.BasicValue">
+<em class="property"><span class="pre">class</span> </em><code class="sig-prename descclassname"><span class="pre">pyaedt.modules.Material.</span></code><code class="sig-name descname"><span class="pre">BasicValue</span></code><a class="reference internal" href="../_modules/pyaedt/modules/Material.html#BasicValue"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyaedt.modules.Material.BasicValue" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py class">
 <dt id="pyaedt.modules.Material.ClosedFormTM">
 <em class="property"><span class="pre">class</span> </em><code class="sig-prename descclassname"><span class="pre">pyaedt.modules.Material.</span></code><code class="sig-name descname"><span class="pre">ClosedFormTM</span></code><a class="reference internal" href="../_modules/pyaedt/modules/Material.html#ClosedFormTM"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyaedt.modules.Material.ClosedFormTM" title="Permalink to this definition">¶</a></dt>
 <dd><p>Class to manage Closed Form Terhmal Modifier.</p>
@@ -274,38 +279,82 @@ xmlname=named used in XML syntax</p>
 <dt id="pyaedt.modules.Material.MatProperties.get_aedtname">
 <em class="property"><span class="pre">classmethod</span> </em><code class="sig-name descname"><span class="pre">get_aedtname</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">fullname</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">catname</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pyaedt/modules/Material.html#MatProperties.get_aedtname"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyaedt.modules.Material.MatProperties.get_aedtname" title="Permalink to this definition">¶</a></dt>
 <dd><p>Get the defaultunit for a given fullname or catname</p>
-<p>:param fullname:optiona full name of the property
-:param catname: optional Category name
-:return: aedtname</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>fullname</strong> -- optiona full name of the property (Default value = None)</p></li>
+<li><p><strong>catname</strong> -- optional Category name (Default value = None)</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>aedtname</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>type</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py method">
 <dt id="pyaedt.modules.Material.MatProperties.get_catname">
 <em class="property"><span class="pre">classmethod</span> </em><code class="sig-name descname"><span class="pre">get_catname</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">fullname</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">aedtname</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pyaedt/modules/Material.html#MatProperties.get_catname"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyaedt.modules.Material.MatProperties.get_catname" title="Permalink to this definition">¶</a></dt>
 <dd><p>Get the defaultunit for a given fullname or catname</p>
-<p>:param fullname:optiona full name of the property
-:param aedtname: optional aedtname
-:return: catname</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>fullname</strong> -- optiona full name of the property (Default value = None)</p></li>
+<li><p><strong>aedtname</strong> -- optional aedtname (Default value = None)</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>catname</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>type</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py method">
 <dt id="pyaedt.modules.Material.MatProperties.get_defaultunit">
 <em class="property"><span class="pre">classmethod</span> </em><code class="sig-name descname"><span class="pre">get_defaultunit</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">fullname</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">catname</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">aedtname</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pyaedt/modules/Material.html#MatProperties.get_defaultunit"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyaedt.modules.Material.MatProperties.get_defaultunit" title="Permalink to this definition">¶</a></dt>
 <dd><p>Get the defaultunit for a given fullname or catname</p>
-<p>:param fullname:optiona full name of the property
-:param catname: optional Category name
-:param aedtname: optional aedtname
-:return: defaultunit if exists</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>fullname</strong> -- optiona full name of the property (Default value = None)</p></li>
+<li><p><strong>catname</strong> -- optional Category name (Default value = None)</p></li>
+<li><p><strong>aedtname</strong> -- optional aedtname (Default value = None)</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>defaultunit if exists</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>type</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py method">
 <dt id="pyaedt.modules.Material.MatProperties.get_defaultvalue">
 <em class="property"><span class="pre">classmethod</span> </em><code class="sig-name descname"><span class="pre">get_defaultvalue</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">fullname</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">catname</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">aedtname</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pyaedt/modules/Material.html#MatProperties.get_defaultvalue"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyaedt.modules.Material.MatProperties.get_defaultvalue" title="Permalink to this definition">¶</a></dt>
 <dd><p>Get the defaultunit for a given fullname or catname</p>
-<p>:param fullname:optiona full name of the property
-:param catname: optional Category name
-:param aedtname: optional aedtname
-:return: defaultunit</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>fullname</strong> -- optiona full name of the property (Default value = None)</p></li>
+<li><p><strong>catname</strong> -- optional Category name (Default value = None)</p></li>
+<li><p><strong>aedtname</strong> -- optional aedtname (Default value = None)</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>defaultunit</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>type</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py method">
@@ -315,12 +364,15 @@ xmlname=named used in XML syntax</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>catname</strong> -- optional Category name</p></li>
-<li><p><strong>aedtname</strong> -- optional aedtname</p></li>
+<li><p><strong>catname</strong> -- optional Category name (Default value = None)</p></li>
+<li><p><strong>aedtname</strong> -- optional aedtname (Default value = None)</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>
 <dd class="field-even"><p>catname</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>type</p>
 </dd>
 </dl>
 </dd></dl>
@@ -330,17 +382,14 @@ xmlname=named used in XML syntax</p>
 <dl class="py class">
 <dt id="pyaedt.modules.Material.MatProperty">
 <em class="property"><span class="pre">class</span> </em><code class="sig-prename descclassname"><span class="pre">pyaedt.modules.Material.</span></code><code class="sig-name descname"><span class="pre">MatProperty</span></code><a class="reference internal" href="../_modules/pyaedt/modules/Material.html#MatProperty"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyaedt.modules.Material.MatProperty" title="Permalink to this definition">¶</a></dt>
-<dd><p>type: &quot;simple&quot;, &quot;anisotropic&quot;, &quot;tensor&quot;</p>
+<dd><p>type: simple, anisotropic, tensor</p>
 <dl class="py method">
 <dt id="pyaedt.modules.Material.MatProperty.set_type">
 <code class="sig-name descname"><span class="pre">set_type</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">type</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pyaedt/modules/Material.html#MatProperty.set_type"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyaedt.modules.Material.MatProperty.set_type" title="Permalink to this definition">¶</a></dt>
 <dd><p>Set Material Property Type</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>type</strong> -- &quot;simple&quot;, &quot;nonlinear&quot;, &quot;anisotropic&quot;, &quot;tensor&quot;</p>
-</dd>
-<dt class="field-even">Returns</dt>
-<dd class="field-even"><p></p>
+<dd class="field-odd"><p><strong>type</strong> -- simple&quot;, &quot;nonlinear&quot;, &quot;anisotropic&quot;, &quot;tensor&quot;</p>
 </dd>
 </dl>
 </dd></dl>
@@ -374,6 +423,9 @@ xmlname=named used in XML syntax</p>
 <dt class="field-even">Returns</dt>
 <dd class="field-even"><p>tm obhect</p>
 </dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>type</p>
+</dd>
 </dl>
 </dd></dl>
 
@@ -388,6 +440,9 @@ xmlname=named used in XML syntax</p>
 <dt class="field-even">Returns</dt>
 <dd class="field-even"><p>tm object</p>
 </dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>type</p>
+</dd>
 </dl>
 </dd></dl>
 
@@ -401,14 +456,22 @@ createDataset for material matname with property name</p>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>name</strong> -- name of datase to create in aedt</p></li>
 <li><p><strong>tm</strong> -- dataset object</p></li>
-<li><p><strong>suffix</strong> -- suffix to apply to name</p></li>
+<li><p><strong>suffix</strong> -- suffix to apply to name (Default value = &quot;&quot;)</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>
 <dd class="field-even"><p>Bool</p>
 </dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>type</p>
+</dd>
 </dl>
 </dd></dl>
+
+<dl class="py method">
+<dt id="pyaedt.modules.Material.Material.desktop">
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">desktop</span></code><a class="headerlink" href="#pyaedt.modules.Material.Material.desktop" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
 
 <dl class="py method">
 <dt id="pyaedt.modules.Material.Material.does_material_exists">
@@ -420,6 +483,29 @@ createDataset for material matname with property name</p>
 </dd>
 <dt class="field-even">Returns</dt>
 <dd class="field-even"><p>Bool</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>type</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="pyaedt.modules.Material.Material.get_data">
+<code class="sig-name descname"><span class="pre">get_data</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">fullname</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pyaedt/modules/Material.html#Material.get_data"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyaedt.modules.Material.Material.get_data" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>fullname</strong> -- </p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="pyaedt.modules.Material.Material.get_number">
+<code class="sig-name descname"><span class="pre">get_number</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">fullname</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pyaedt/modules/Material.html#Material.get_number"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyaedt.modules.Material.Material.get_number" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>fullname</strong> -- </p>
 </dd>
 </dl>
 </dd></dl>
@@ -438,6 +524,9 @@ createDataset for material matname with property name</p>
 <dt class="field-even">Returns</dt>
 <dd class="field-even"><p>dataset object</p>
 </dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>type</p>
+</dd>
 </dl>
 </dd></dl>
 
@@ -454,6 +543,9 @@ createDataset for material matname with property name</p>
 </dd>
 <dt class="field-even">Returns</dt>
 <dd class="field-even"><p>thermal modifier object</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>type</p>
 </dd>
 </dl>
 </dd></dl>
@@ -472,6 +564,9 @@ createDataset for material matname with property name</p>
 <dt class="field-even">Returns</dt>
 <dd class="field-even"><p>poperty value</p>
 </dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>type</p>
+</dd>
 </dl>
 </dd></dl>
 
@@ -484,6 +579,9 @@ createDataset for material matname with property name</p>
 </dd>
 <dt class="field-even">Returns</dt>
 <dd class="field-even"><p>property unit</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>type</p>
 </dd>
 </dl>
 </dd></dl>
@@ -509,6 +607,11 @@ createDataset for material matname with property name</p>
 </dd></dl>
 
 <dl class="py method">
+<dt id="pyaedt.modules.Material.Material.messenger">
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">messenger</span></code><a class="headerlink" href="#pyaedt.modules.Material.Material.messenger" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
 <dt id="pyaedt.modules.Material.Material.odefinition_manager">
 <em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">odefinition_manager</span></code><a class="headerlink" href="#pyaedt.modules.Material.Material.odefinition_manager" title="Permalink to this definition">¶</a></dt>
 <dd><p>Definition Manager</p>
@@ -520,6 +623,11 @@ createDataset for material matname with property name</p>
 </dd></dl>
 
 <dl class="py method">
+<dt id="pyaedt.modules.Material.Material.oproject">
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">oproject</span></code><a class="headerlink" href="#pyaedt.modules.Material.Material.oproject" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
 <dt id="pyaedt.modules.Material.Material.set_nonlinear_dataset">
 <code class="sig-name descname"><span class="pre">set_nonlinear_dataset</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">propertyname</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">listtemp_val</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">unitx</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'A_per_meter'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">unity</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'tesla'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pyaedt/modules/Material.html#Material.set_nonlinear_dataset"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyaedt.modules.Material.Material.set_nonlinear_dataset" title="Permalink to this definition">¶</a></dt>
 <dd><p>Create a new nonlinear data set based on a list of values</p>
@@ -529,10 +637,14 @@ createDataset for material matname with property name</p>
 <li><p><strong>listtemp_val</strong> -- list of frequency modifiers. Example [[1e9, 58e6], [1.1e9, 57e6], [1.2e9,55e6]]</p></li>
 <li><p><strong>unitx</strong> -- unit type. Default A_per_meter</p></li>
 <li><p><strong>unity</strong> -- unit type. Default tesla</p></li>
+<li><p><strong>propertyname</strong> -- </p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>
 <dd class="field-even"><p>Bool</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>type</p>
 </dd>
 </dl>
 </dd></dl>
@@ -582,6 +694,9 @@ createDataset for material matname with property name</p>
 <dt class="field-even">Returns</dt>
 <dd class="field-even"><p>True</p>
 </dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>type</p>
+</dd>
 </dl>
 </dd></dl>
 
@@ -592,12 +707,15 @@ createDataset for material matname with property name</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>enableTM</strong> -- Boolean, to include Thermal Modifier in AEDT</p></li>
-<li><p><strong>enableFM</strong> -- Booolean, to include Frequency Modifier in AEDT</p></li>
+<li><p><strong>enableTM</strong> -- Boolean, to include Thermal Modifier in AEDT (Default value = True)</p></li>
+<li><p><strong>enableFM</strong> -- Booolean, to include Frequency Modifier in AEDT (Default value = True)</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>
 <dd class="field-even"><p>Bool</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>type</p>
 </dd>
 </dl>
 </dd></dl>

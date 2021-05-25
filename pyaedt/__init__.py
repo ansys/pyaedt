@@ -16,13 +16,20 @@ from .desktop import Desktop
 
 @aedt_exception_handler
 def pyaedt_help(modulename="index", browser="chrome"):
-    """
-    Launch Online help. Works on Windows Only (for linux manually launch it from Documentation folder)
+    """Launch Online help. Works on Windows Only (for linux manually launch it from Documentation folder)
 
+    Parameters
+    ----------
+    modulename :
+        name of the module or search string (Default value = "index")
+    browser :
+        string name of the browser. it can be chrome, iexplore, msedge, firefox (Default value = "chrome")
 
-    :param modulename: name of the module or search string
-    :param browser: string name of the browser. it can be chrome, iexplore, msedge, firefox
-    :return: open pyaedt on browser
+    Returns
+    -------
+    type
+        open pyaedt on browser
+
     """
 
     if modulename.lower() == "index":

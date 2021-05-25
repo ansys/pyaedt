@@ -46,15 +46,23 @@ from .modules.Boundary import BoundaryObject
 from  collections import OrderedDict
 
 class Icepak(FieldAnalysisIcepak):
-    """
-    Icepak Object
+    """Icepak Object
 
+    Parameters
+    ----------
+    projectname :
+        name of the project to be selected or full path to the project to be opened  or to the AEDTZ
+        archive. if None try to get active project and, if nothing present to create an empy one
+    designname :
+        name of the design to be selected. if None, try to get active design and, if nothing present to create an empy one
+    solution_type :
+        solution type to be applied to design. if None default is taken
+    setup_name :
+        setup_name to be used as nominal. if none active setup is taken or nothing
 
-    :param projectname: name of the project to be selected or full path to the project to be opened  or to the AEDTZ
-     archive. if None try to get active project and, if nothing present to create an empy one
-    :param designname: name of the design to be selected. if None, try to get active design and, if nothing present to create an empy one
-    :param solution_type: solution type to be applied to design. if None default is taken
-    :param setup_name: setup_name to be used as nominal. if none active setup is taken or nothing
+    Returns
+    -------
+
     """
     def __init__(self, projectname=None, designname=None, solution_type=None, setup_name=None):
         FieldAnalysisIcepak.__init__(self, "Icepak", projectname, designname, solution_type, setup_name)
@@ -69,10 +77,16 @@ class Icepak(FieldAnalysisIcepak):
 
     @property
     def existing_analysis_sweeps(self):
-        """ Existing Analysis Setup List
-
-
+        """Existing Analysis Setup List
+        
+        
         :return: Return a list of all defined analysis setup names in the maxwell design.
+
+        Parameters
+        ----------
+
+        Returns
+        -------
 
         """
         setup_list = self.existing_analysis_setups
@@ -83,12 +97,18 @@ class Icepak(FieldAnalysisIcepak):
 
     @aedt_exception_handler
     def assign_openings(self, air_faces):
-        """
-        Assign Opening to a list of faces
+        """Assign Opening to a list of faces
 
+        Parameters
+        ----------
+        air_faces :
+            list of face name
 
-        :param air_faces: list of face name
-        :return: bound object or None
+        Returns
+        -------
+        type
+            bound object or None
+
         """
 
         boundary_name = generate_unique_name("Opening")
@@ -110,15 +130,24 @@ class Icepak(FieldAnalysisIcepak):
 
     @aedt_exception_handler
     def assign_2way_coupling(self,setup_name=None, number_of_iterations=2, continue_ipk_iterations=True, ipk_iterations_per_coupling=20):
-        """
-        Assign 2Way Coupling to a specific setup
+        """Assign 2Way Coupling to a specific setup
 
+        Parameters
+        ----------
+        setup_name :
+            str optional setup name (Default value = None)
+        number_of_iterations :
+            int optional number of iterations (Default value = 2)
+        continue_ipk_iterations :
+            bool, optional continue Icepak Iteration (Default value = True)
+        ipk_iterations_per_coupling :
+            int, optional additional iterations per coupling (Default value = 20)
 
-        :param setup_name: str optional setup name
-        :param number_of_iterations: int optional number of iterations
-        :param continue_ipk_iterations: bool, optional continue Icepak Iteration
-        :param ipk_iterations_per_coupling:  int, optional additional iterations per coupling
-        :return: Bool
+        Returns
+        -------
+        type
+            Bool
+
         """
 
         if not setup_name:
@@ -135,14 +164,22 @@ class Icepak(FieldAnalysisIcepak):
 
     @aedt_exception_handler
     def create_source_blocks_from_list(self, list_powers, assign_material=True, default_material="Ceramic_material"):
-        """
-        Assign to Box in Icepak Sources coming from CSV file. assignement is made by name
+        """Assign to Box in Icepak Sources coming from CSV file. assignement is made by name
 
-        :param list_powers: list of input powers. its a list of list like in the example [["Obj1", 1], ["Obj2", 3]]. it can contain multiple column for power inputs
-        :param assign_material: bool
-        :param default_material: default material
+        Parameters
+        ----------
+        list_powers :
+            list of input powers. its a list of list like in the example [["Obj1", 1], ["Obj2", 3]]. it can contain multiple column for power inputs
+        assign_material :
+            bool (Default value = True)
+        default_material :
+            default material
 
-        :return: list of boundaries inserted
+        Returns
+        -------
+        type
+            list of boundaries inserted
+
         """
         oObjects = self.modeler.primitives.get_all_solids_names()
         listmcad = []
@@ -168,11 +205,24 @@ class Icepak(FieldAnalysisIcepak):
     def create_source_block(self, object_name, input_power, assign_material=True, material_name="Ceramic_material", use_object_for_name=True):
         """Create Source Block for an object
 
-        :param object_name: name of the object
-        :param input_power: input power. can be a string or a variable
-        :param assign_material: bool
-        :param material_name: material name to assign in case assign_material is True
-        :return: bound object or None
+        Parameters
+        ----------
+        object_name :
+            name of the object
+        input_power :
+            input power. can be a string or a variable
+        assign_material :
+            bool (Default value = True)
+        material_name :
+            material name to assign in case assign_material is True (Default value = "Ceramic_material")
+        use_object_for_name :
+             (Default value = True)
+
+        Returns
+        -------
+        type
+            bound object or None
+
         """
         if assign_material:
             self.assignmaterial(object_name, material_name)
@@ -195,18 +245,34 @@ class Icepak(FieldAnalysisIcepak):
     @aedt_exception_handler
     def create_network_block(self, object_name, power, rjc, rjb, gravity_dir, top, assign_material=True,
                              default_material="Ceramic_material", use_object_for_name=True):
-        """
-        Create Network Block
+        """Create Network Block
 
-        :param object_name: name of the object for which block has to be created
-        :param power: input power, can be a value or variable
-        :param rjc: rjc value
-        :param rjb: rjb value
-        :param gravity_dir:  0...5 gravity direction from -X to +Z
-        :param top: is the board bounding value in mm of the top face
-        :param assign_material: bool
-        :param default_material: default material
-        :return: bounding object if created
+        Parameters
+        ----------
+        object_name :
+            name of the object for which block has to be created
+        power :
+            input power, can be a value or variable
+        rjc :
+            rjc value
+        rjb :
+            rjb value
+        gravity_dir :
+            0...5 gravity direction from -X to +Z
+        top :
+            is the board bounding value in mm of the top face
+        assign_material :
+            bool (Default value = True)
+        default_material :
+            default material
+        use_object_for_name :
+             (Default value = True)
+
+        Returns
+        -------
+        type
+            bounding object if created
+
         """
         if object_name in self.modeler.primitives.get_all_objects_names():
             faces = self.modeler.primitives.get_object_faces(object_name)
@@ -257,14 +323,24 @@ class Icepak(FieldAnalysisIcepak):
                              default_material="Ceramic_material"):
         """createNetworkBlocs(listfromCsv,gravityDir,top) create network objects form csv files
 
+        Parameters
+        ----------
+        assign_material :
+            param default_material:
+        input_list :
+            list of sources with input  rjc,  rjb, power. [[Objname1, rjc, rjb, power1,power2....],[Objname2, rjc2, rbj2, power1, power2...]]
+        gravity_dir :
+            0...5 gravity direction from -X to +Z
+        top :
+            is the board bounding value in mm of the top face
+        default_material :
+             (Default value = "Ceramic_material")
 
-        :param assign_material:
-        :param default_material:
-        :param input_list: list of sources with input  rjc,  rjb, power. [[Objname1, rjc, rjb, power1,power2....],[Objname2, rjc2, rbj2, power1, power2...]]
-        :param gravity_dir:  0...5 gravity direction from -X to +Z
-        :param top: is the board bounding value in mm of the top face
+        Returns
+        -------
+        type
+            networks boundary objects
 
-        :return: networks boundary objects
         """
         objs = self.modeler.primitives.get_all_solids_names()
         countpow = len(input_list[0])-3
@@ -290,11 +366,18 @@ class Icepak(FieldAnalysisIcepak):
 
     @aedt_exception_handler
     def assign_block_from_sherlock_file(self, csv_name):
-        """
-        Assign block power to components based on sherlock file
+        """Assign block power to components based on sherlock file
 
-        :param csv_name: csf file from sherlock
-        :return: total power applied
+        Parameters
+        ----------
+        csv_name :
+            csf file from sherlock
+
+        Returns
+        -------
+        type
+            total power applied
+
         """
         with open(csv_name) as csvfile:
             csv_input = csv.reader(csvfile)
@@ -335,11 +418,18 @@ class Icepak(FieldAnalysisIcepak):
 
     @aedt_exception_handler
     def assign_priority_on_intersections(self, component_prefix="COMP_"):
-        """
-        This methods validate an icepak design and, in case of intersections automatically apply priorities to overcome simulation issue
+        """This methods validate an icepak design and, in case of intersections automatically apply priorities to overcome simulation issue
 
-        :param component_prefix: compnents prefix on which to serach
-        :return: Bool
+        Parameters
+        ----------
+        component_prefix :
+            compnents prefix on which to serach (Default value = "COMP_")
+
+        Returns
+        -------
+        type
+            Bool
+
         """
         temp_log = os.path.join(self.project_path, "validation.log")
         validate = self.odesign.ValidateDesign(temp_log)
@@ -364,12 +454,17 @@ class Icepak(FieldAnalysisIcepak):
 
     @aedt_exception_handler
     def find_top(self, gravityDir):
-        """
-        TO BE CHECKED. Find the top location of the layout given the gravity
+        """TO BE CHECKED. Find the top location of the layout given the gravity
 
-        :param gravityDir: 0...5 gravity direction from -X to +Z
+        Parameters
+        ----------
+        gravityDir :
+            0...5 gravity direction from -X to +Z
 
-        :return: top position  (float)
+        Returns
+        -------
+        type
+            top position  (float)
 
         """
         dirs = ["-X", "+X", "-Y", "+Y", "-Z", "+Z"]
@@ -391,26 +486,54 @@ class Icepak(FieldAnalysisIcepak):
                                         plane_enum=0, rotation=0, tolerance=1e-3):
         """Create a Heat Sink fully parametric.
 
-        :param hs_height:
-        :param hs_width:
-        :param hs_basethick:
-        :param pitch:
-        :param thick:
-        :param length:
-        :param height:
-        :param draftangle:
-        :param patternangle:
-        :param separation:
-        :param symmetric:
-        :param symmetric_separation:
-        :param numcolumn_perside:
-        :param vertical_separation:
-        :param matname:
-        :param center:
-        :param plane_enum:
-        :param rotation:
-        :param tolerance:
-        :return:
+        Parameters
+        ----------
+        hs_height :
+            param hs_width: (Default value = 100)
+        hs_basethick :
+            param pitch: (Default value = 10)
+        thick :
+            param length: (Default value = 10)
+        height :
+            param draftangle: (Default value = 40)
+        patternangle :
+            param separation: (Default value = 10)
+        symmetric :
+            param symmetric_separation: (Default value = True)
+        numcolumn_perside :
+            param vertical_separation: (Default value = 2)
+        matname :
+            param center: (Default value = "Al-Extruded")
+        plane_enum :
+            param rotation: (Default value = 0)
+        tolerance :
+            return: (Default value = 1e-3)
+        hs_width :
+             (Default value = 100)
+        pitch :
+             (Default value = 20)
+        length :
+             (Default value = 40)
+        draftangle :
+             (Default value = 0)
+        separation :
+             (Default value = 5)
+        symmetric_separation :
+             (Default value = 20)
+        vertical_separation :
+             (Default value = 10)
+        center :
+             (Default value = [0)
+        0 :
+            
+        0] :
+            
+        rotation :
+             (Default value = 0)
+
+        Returns
+        -------
+
         """
         all_objs = self.modeler.primitives.get_all_objects_names()
         self['FinPitch'] = self.modeler.primitives.arg_with_dim(pitch)
@@ -521,15 +644,24 @@ class Icepak(FieldAnalysisIcepak):
                              defaultfluid="air", defaultsolid="Al-Extruded"):
         """Edit Design Main settings
 
+        Parameters
+        ----------
+        gravityDir :
+            0...5 gravity direction from -X to +Z (Default value = 0)
+        ambtemp :
+            Ambient Temperature (Default value = 22)
+        performvalidation : bool
+            Enable validation (Default value = False)
+        CheckLevel :
+            Level of check in validation. Default "None"
+        defaultfluid :
+            default fluid material. "air"
+        defaultsolid :
+            default soldi material. "Al-Extruded"
 
-        :param gravityDir: 0...5 gravity direction from -X to +Z
-        :param ambtemp: Ambient Temperature
-        :param performvalidation: Enable validation
-        :type performvalidation: bool
-        :param CheckLevel: Level of check in validation. Default "None"
-        :param defaultfluid: default fluid material. "air"
-        :param defaultsolid: default soldi material. "Al-Extruded"
-        :return:
+        Returns
+        -------
+
         """
         AmbientTemp = str(ambtemp)+"cel"
         #
@@ -555,14 +687,28 @@ class Icepak(FieldAnalysisIcepak):
                          surface_objects=[], source_project_name=None, paramlist=[], object_list=[]):
         """Map EM losses to Icepak Design
 
+        Parameters
+        ----------
+        designname :
+            name of design of the source mapping (Default value = "HFSSDesign1")
+        map_frequency :
+            string containing Frequency to be mapped. It must be None for eigen mode analysis (Default value = None)
+        setupname :
+            Name of EM Setup (Default value = "Setup1")
+        sweepname :
+            Name of EM Sweep to be used for mapping. Default no sweep and LastAdaptive to be used
+        surface_objects :
+            list of objects in the source that are metals (Default value = [])
+        source_project_name :
+            Name of the source project: None to use source from the same project (Default value = None)
+        paramlist :
+            list of all params in EM to be mapped (Default value = [])
+        object_list :
+             (Default value = [])
 
-        :param designname: name of design of the source mapping
-        :param map_frequency: string containing Frequency to be mapped. It must be None for eigen mode analysis
-        :param setupname: Name of EM Setup
-        :param sweepname: Name of EM Sweep to be used for mapping. Default no sweep and LastAdaptive to be used
-        :param surface_objects: list of objects in the source that are metals
-        :param source_project_name: Name of the source project: None to use source from the same project
-        :param paramlist: list of all params in EM to be mapped
+        Returns
+        -------
+
         """
         self._messenger.add_info_message("Mapping HFSS EM Lossess")
         oName = self.project_name
@@ -613,16 +759,28 @@ class Icepak(FieldAnalysisIcepak):
     @aedt_exception_handler
     def eval_surface_quantity_from_field_summary(self, faces_list, quantity_name="HeatTransCoeff", savedir=None,
                                                  filename=None, sweep_name=None, parameter_dict_with_values={}):
-        """
-        Creates the export of the Field Surface ouptut. It will export 1 csv file for the specified variation variation
+        """Creates the export of the Field Surface ouptut. It will export 1 csv file for the specified variation variation
 
-        :param faces_list: list of faces to apply
-        :param quantity_name: quantity to export
-        :param savedir: directory where to save htc file
-        :param filename: name of htc file
-        :param sweep_name: name of the setup + sweep "IcepakSetup1 : SteatyState"
-        :param parameter_dict_with_values: dictionary of parameters defined for the specific setup with value
-        :return: str filename
+        Parameters
+        ----------
+        faces_list :
+            list of faces to apply
+        quantity_name :
+            quantity to export (Default value = "HeatTransCoeff")
+        savedir :
+            directory where to save htc file (Default value = None)
+        filename :
+            name of htc file (Default value = None)
+        sweep_name :
+            name of the setup + sweep "IcepakSetup1 : SteatyState" (Default value = None)
+        parameter_dict_with_values :
+            dictionary of parameters defined for the specific setup with value (Default value = {})
+
+        Returns
+        -------
+        type
+            str filename
+
         """
         name=generate_unique_name(quantity_name)
         self.modeler.create_face_list(faces_list,name )
@@ -651,16 +809,28 @@ class Icepak(FieldAnalysisIcepak):
 
     def eval_volume_quantity_from_field_summary(self, object_list, quantity_name="HeatTransCoeff",  savedir=None,
                                                  filename=None, sweep_name=None, parameter_dict_with_values={}):
-        """
-        Creates the export of the Field Volume ouptut. It will export 1 csv file for the specified variation variation
+        """Creates the export of the Field Volume ouptut. It will export 1 csv file for the specified variation variation
 
-        :param object_list: list of faces to apply
-        :param quantity_name: quantity to export
-        :param savedir: directory where to save htc file
-        :param filename: name of htc file
-        :param sweep_name: name of the setup + sweep "IcepakSetup1 : SteatyState"
-        :param parameter_dict_with_values: dictionary of parameters defined for the specific setup with value
-        :return: str filename
+        Parameters
+        ----------
+        object_list :
+            list of faces to apply
+        quantity_name :
+            quantity to export (Default value = "HeatTransCoeff")
+        savedir :
+            directory where to save htc file (Default value = None)
+        filename :
+            name of htc file (Default value = None)
+        sweep_name :
+            name of the setup + sweep "IcepakSetup1 : SteatyState" (Default value = None)
+        parameter_dict_with_values :
+            dictionary of parameters defined for the specific setup with value (Default value = {})
+
+        Returns
+        -------
+        type
+            str filename
+
         """
 
         if not savedir:
@@ -688,8 +858,18 @@ class Icepak(FieldAnalysisIcepak):
 
     @aedt_exception_handler
     def UniteFieldsSummaryReports(self, savedir, proj_icepak):
-        """
-        Unite the files created by Fields Summary for the varius variations
+        """Unite the files created by Fields Summary for the varius variations
+
+        Parameters
+        ----------
+        savedir :
+            
+        proj_icepak :
+            
+
+        Returns
+        -------
+
         """
         newfilename = os.path.join(savedir, proj_icepak + "_HTCAndTemp.csv")
         newfilelines = []
@@ -733,8 +913,28 @@ class Icepak(FieldAnalysisIcepak):
 
     def export_summary(self, output_dir=None, solution_name=None, type="Object", geometryType="Volume", quantity="Temperature",
                        variation="", variationlist=[]):
-        """
-        New method for exporting field summary of all the objercts
+        """New method for exporting field summary of all the objercts
+
+        Parameters
+        ----------
+        output_dir :
+             (Default value = None)
+        solution_name :
+             (Default value = None)
+        type :
+             (Default value = "Object")
+        geometryType :
+             (Default value = "Volume")
+        quantity :
+             (Default value = "Temperature")
+        variation :
+             (Default value = "")
+        variationlist :
+             (Default value = [])
+
+        Returns
+        -------
+
         """
         all_objs = list(self.modeler.oeditor.GetObjectsInGroup("Solids"))
         all_objs_NonModeled = list(self.modeler.oeditor.GetObjectsInGroup("Non Model"))
@@ -774,6 +974,17 @@ class Icepak(FieldAnalysisIcepak):
 
     @aedt_exception_handler
     def get_radiation_settings(self, radiation):
+        """
+
+        Parameters
+        ----------
+        radiation :
+            
+
+        Returns
+        -------
+
+        """
         if radiation == "Nothing":
             lowSideRad = False
             highSideRad = False
@@ -791,15 +1002,20 @@ class Icepak(FieldAnalysisIcepak):
     @aedt_exception_handler
     def get_link_data(self, linkData):
         """linkData list format
-
+        
         * Project Name, if None => Use Active Project
         * Design Name
         * HFSS Solution Name, e.g. "HFSS Setup 1 : Last Adaptive"
         * Force Source Design Simulation, True or False
         * Preserve Source Design Solution, True or False
 
+        Parameters
+        ----------
+        linkData :
+            list containing data in the link description
 
-        :param linkData: list containing data in the link description
+        Returns
+        -------
 
         """
 
@@ -828,20 +1044,34 @@ class Icepak(FieldAnalysisIcepak):
     @aedt_exception_handler
     def create_ipk_3dcomponent_pcb(self, compName, setupLinkInfo, solutionFreq, resolution, PCB_CS="Global",
                                    rad="Nothing", extenttype="Bounding Box", outlinepolygon="", powerin="0W"):
-        """
-        Create a PCB Component in Icepak linked to HFSS3DLayout object
+        """Create a PCB Component in Icepak linked to HFSS3DLayout object
 
+        Parameters
+        ----------
+        compName :
+            name of the new component
+        setupLinkInfo :
+            array of 5 elements [projectname, designname, solution name, forcesimulation (bool), preserve results (bool)
+        solutionFreq :
+            Freq of solution if cosimulation is requested
+        resolution :
+            resolution of the mapping (int)
+        PCB_CS :
+            coordinate System (Default value = "Global")
+        rad :
+            radiating faces (Default value = "Nothing")
+        extenttype :
+            extend type. Bounding Box or Polygon (Default value = "Bounding Box")
+        outlinepolygon :
+            in case of extentype is Polygon the name of the poligon (Default value = "")
+        powerin :
+            in case cosim is disabled, the power to dissipate (default 0W)
 
-        :param compName:name of the new component
-        :param setupLinkInfo: array of 5 elements [projectname, designname, solution name, forcesimulation (bool), preserve results (bool)
-        :param solutionFreq: Freq of solution if cosimulation is requested
-        :param resolution: resolution of the mapping (int)
-        :param PCB_CS: coordinate System
-        :param rad: radiating faces
-        :param extenttype: extend type. Bounding Box or Polygon
-        :param outlinepolygon: in case of extentype is Polygon the name of the poligon
-        :param powerin: in case cosim is disabled, the power to dissipate (default 0W)
-        :return: Bool
+        Returns
+        -------
+        type
+            Bool
+
         """
         lowRad, highRad = self.get_radiation_settings(rad)
         hfssLinkInfo = self.get_link_data(setupLinkInfo)
@@ -910,18 +1140,30 @@ class Icepak(FieldAnalysisIcepak):
     @aedt_exception_handler
     def create_pcb_from_3dlayout(self, component_name, project_name, design_name, resolution=2,
                                  extenttype="Bounding Box", outlinepolygon="", close_linked_project_after_import=True):
-        """
-        Create a PCB Component in Icepak linked to HFSS3DLayout object linking only the geometry file (no solution linked)
+        """Create a PCB Component in Icepak linked to HFSS3DLayout object linking only the geometry file (no solution linked)
 
+        Parameters
+        ----------
+        component_name :
+            Name of the new component created in Icepak
+        project_name :
+            Project name or project full path
+        design_name :
+            design name
+        resolution :
+            resolution of the mapping. Default2
+        extenttype :
+            extent type. Polygon or Bounding Box (Default value = "Bounding Box")
+        outlinepolygon :
+            outline polygon in case Polygon extentyype is chosen (Default value = "")
+        close_linked_project_after_import :
+            close the aedb project after the import (Default value = True)
 
-        :param component_name: Name of the new component created in Icepak
-        :param project_name: Project name or project full path
-        :param design_name: design name
-        :param resolution: resolution of the mapping. Default2
-        :param extenttype: extent type. Polygon or Bounding Box
-        :param outlinepolygon: outline polygon in case Polygon extentyype is chosen
-        :param close_linked_project_after_import: close the aedb project after the import
-        :return: Bool
+        Returns
+        -------
+        type
+            Bool
+
         """
         link_data = [project_name, design_name,  "<--EDB Layout Data-->", False, False]
         status = self.create_ipk_3dcomponent_pcb(component_name, link_data, "", resolution, extenttype=extenttype,
@@ -935,6 +1177,23 @@ class Icepak(FieldAnalysisIcepak):
 
     @aedt_exception_handler
     def copyGroupFrom(self, groupName, sourceDesign, sourceProject = None, sourceProjectPath = None):
+        """
+
+        Parameters
+        ----------
+        groupName :
+            
+        sourceDesign :
+            
+        sourceProject :
+             (Default value = None)
+        sourceProjectPath :
+             (Default value = None)
+
+        Returns
+        -------
+
+        """
 
         oName = self.project_name
         if sourceProject == oName or sourceProject is None:
@@ -954,6 +1213,25 @@ class Icepak(FieldAnalysisIcepak):
 
     @aedt_exception_handler
     def export3DModel(self, fileName, filePath, fileFormat = ".step", object_list = [], removed_objects = []):
+        """
+
+        Parameters
+        ----------
+        fileName :
+            
+        filePath :
+            
+        fileFormat :
+             (Default value = ".step")
+        object_list :
+             (Default value = [])
+        removed_objects :
+             (Default value = [])
+
+        Returns
+        -------
+
+        """
 
         if not object_list:
             allObjects = self.modeler.primitives.get_all_objects_names(refresh_list=True)
@@ -986,16 +1264,28 @@ class Icepak(FieldAnalysisIcepak):
                            stairStep_en=False, edge_min_elements="1", object="Region"):
         """Create custom Mesh tailored on PCB Design
 
+        Parameters
+        ----------
+        meshtype :
+            1 coarse, 2 standard, 3 very accurate
+        gap_min_elements :
+            param noOgrids: (Default value = "1")
+        MLM_en :
+            param MLM_Type: (Default value = True)
+        stairStep_en :
+            param edge_min_elements: (Default value = False)
+        object :
+            return: (Default value = "Region")
+        noOgrids :
+             (Default value = False)
+        MLM_Type :
+             (Default value = "3D")
+        edge_min_elements :
+             (Default value = "1")
 
-        :param meshtype: 1 coarse, 2 standard, 3 very accurate
-        :param gap_min_elements:
-        :param noOgrids:
-        :param MLM_en:
-        :param MLM_Type:
-        :param stairStep_en:
-        :param edge_min_elements:
-        :param object:
-        :return:
+        Returns
+        -------
+
         """
 
         oModule = self.odesign.GetModule("MeshRegion")
@@ -1034,6 +1324,23 @@ class Icepak(FieldAnalysisIcepak):
 
     @aedt_exception_handler
     def create_assign_region2PCBComponent(self, scale_factor = 1.0, restore_padding_values = [50,50,50,50,50,50]):
+        """
+
+        Parameters
+        ----------
+        scale_factor :
+             (Default value = 1.0)
+        restore_padding_values :
+             (Default value = [50)
+        50 :
+            
+        50] :
+            
+
+        Returns
+        -------
+
+        """
         self.modeler.edit_region_dimensions([0,0,0,0,0,0])
 
         verticesID = self.modeler.oeditor.GetVertexIDsFromObject("Region")
@@ -1072,12 +1379,24 @@ class Icepak(FieldAnalysisIcepak):
 
     @aedt_exception_handler
     def create_temp_point_monitor(self, point_name, point_coord = [0,0,0]):
-        """
-        Create a Temperature Monitor for simulation
+        """Create a Temperature Monitor for simulation
 
-        :param point_name: Name of the temperature monitor
-        :param point_coord: Coordinate of the point monitor
-        :return: Boolean
+        Parameters
+        ----------
+        point_name :
+            Name of the temperature monitor
+        point_coord :
+            Coordinate of the point monitor (Default value = [0)
+        0 :
+            
+        0] :
+            
+
+        Returns
+        -------
+        type
+            Boolean
+
         """
         arg1 = ["NAME:PointParameters",
                "PointX:="		, point_coord[0],
@@ -1102,9 +1421,16 @@ class Icepak(FieldAnalysisIcepak):
     def delete_em_losses(self, bound_name):
         """Delete EM Losses Boundaries
 
+        Parameters
+        ----------
+        bound_name :
+            Name of boundary to delete
 
-        :param bound_name: Name of boundary to delete
-        :return: Boolean
+        Returns
+        -------
+        type
+            Boolean
+
         """
 
         self.oboundary.DeleteBoundaries([bound_name])
@@ -1112,12 +1438,18 @@ class Icepak(FieldAnalysisIcepak):
 
     @aedt_exception_handler
     def delete_pcb_component(self, comp_name):
-        """
-        Delete PCB Component
+        """Delete PCB Component
 
+        Parameters
+        ----------
+        comp_name :
+            PCB Name
 
-        :param comp_name: PCB Name
-        :return: Boolean
+        Returns
+        -------
+        type
+            Boolean
+
         """
         arg = ["NAME:Selections",
                "Selections:="		, comp_name]

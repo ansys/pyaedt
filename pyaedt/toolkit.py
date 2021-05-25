@@ -30,8 +30,10 @@ from pyaedt.Maxwell import Maxwell2D
 from pyaedt.Toolkit import AEDTToolkit, launch, select_directory
 
 class ApplicationWindow(AEDTToolkit):
+    """ """
 
     def custom_callback(self):
+        """ """
         pass
 
     def __init__(self):
@@ -95,15 +97,20 @@ from System import Uri, UriKind, Environment
 
 
 def select_file(initial_dir=None, filter=None):
-    '''
-
-    from pyaedt.Toolkit import select_file
+    """from pyaedt.Toolkit import select_file
     load_profile = select_file(filter="csv files (*.csv)|*.csv")
 
-    :param initial_dir:
-    :param filter:
-    :return:
-    '''
+    Parameters
+    ----------
+    initial_dir :
+        param filter: (Default value = None)
+    filter :
+         (Default value = None)
+
+    Returns
+    -------
+
+    """
     browser = OpenFileDialog()
     browser.Title = "Select a file with optional filter and directory"
     if initial_dir:
@@ -117,6 +124,19 @@ def select_file(initial_dir=None, filter=None):
         return None
 
 def select_directory(initial_dir=None, description=None):
+    """
+
+    Parameters
+    ----------
+    initial_dir :
+         (Default value = None)
+    description :
+         (Default value = None)
+
+    Returns
+    -------
+
+    """
         browser = FolderBrowserDialog()
 
         if initial_dir:
@@ -134,6 +154,19 @@ def select_directory(initial_dir=None, description=None):
             return None
 
 def copy_files_mkdir(root, files_in_subdir):
+    """
+
+    Parameters
+    ----------
+    root :
+        
+    files_in_subdir :
+        
+
+    Returns
+    -------
+
+    """
     if not os.path.exists(root):
         os.mkdir(root)
     for src_file, dest_file in files_in_subdir.items():
@@ -141,18 +174,44 @@ def copy_files_mkdir(root, files_in_subdir):
 
 
 def print_timelog(str):
+    """
+
+    Parameters
+    ----------
+    str :
+        
+
+    Returns
+    -------
+
+    """
     time_value = datetime.now().time()
     print("{0}: {1}".format(time_value, str))
 
 
 #def launch(workflow_module, version=None, autosave=False, close_desktop_on_exit=False):
 def launch(workflow_module, version=None, autosave=False, close_desktop_on_exit=False):
-    ''' Launches the ApplicationWindow class for the given module name which must lie within the path scope of
+    """Launches the ApplicationWindow class for the given module name which must lie within the path scope of
         the calling toolkit. Optionally the version can be specified in the form 20xx.y, e.g. 2019.3
-
+    
         IronPython calls the run_application function of the ApplicationThread class. For CPython, a Thread with
         Apartment State is generated to adhere to requirements of System.Windows
-    '''
+
+    Parameters
+    ----------
+    workflow_module :
+        
+    version :
+         (Default value = None)
+    autosave :
+         (Default value = False)
+    close_desktop_on_exit :
+         (Default value = False)
+
+    Returns
+    -------
+
+    """
     app = ApplicationThread(workflow_module, version, autosave, close_desktop_on_exit)
 
     if sys.implementation.name != 'ironpython':
@@ -187,14 +246,23 @@ launch('{}', version="2019.3")
 '''
 
 def message_box(text, caption=None, buttons=None, icon=None):
-    '''
-    :param text:        Main text of the message
-    :param caption:     Caption of the window
-    :param buttons:     Button type string (OK, OKCancel, YesNoCancel, YesNo)
-    :param icon:        Valid icon type string (see below)
-    :return:
+    """
 
-    Valid types for the icon argument are :
+    Parameters
+    ----------
+    text :
+        Main text of the message
+    caption :
+        Caption of the window (Default value = None)
+    buttons :
+        Button type string (OK, OKCancel, YesNoCancel, YesNo) (Default value = None)
+    icon :
+        Valid icon type string (see below) (Default value = None)
+
+    Returns
+    -------
+    type
+        Valid types for the icon argument are :
         Asterisk
         Error
         Exclamation
@@ -204,7 +272,8 @@ def message_box(text, caption=None, buttons=None, icon=None):
         Question
         Stop
         Warning
-    '''
+
+    """
 
     if not icon:
         icon_object = getattr(MessageBoxIcon, 'Information')
@@ -224,18 +293,23 @@ def message_box(text, caption=None, buttons=None, icon=None):
 
 
 class ToolkitBuilder():
-    """
-    **Class ToolkitBuilder**
-
+    """**Class ToolkitBuilder**
+    
     Class to help create a deployable zip file of the application and any dependencies that are not available via pip.
-
+    
     Example: Build file placed in the Toolkit directory
-
+    
         from pyaedt.Toolkit import ToolkitBuilder
         bld = ToolkitBuilder(__file__)
         bld.copy_from_local(extension=['py', 'xaml'])
         bld.copy_from_repo(sub_dir='pyaedt')
         bld.zip_archive()
+
+    Parameters
+    ----------
+
+    Returns
+    -------
 
     """
 
@@ -297,22 +371,40 @@ class ToolkitBuilder():
             f.write(launch_script.format(self.py_name))
 
     def copy_from_local(self, extension=None, ignore_dir=None):
-        """ copy recursively all files in the local directory and all subdirectories of a given list of
+        """copy recursively all files in the local directory and all subdirectories of a given list of
             extensions
 
-        :param extension: list of extensions to be copied, e.g. ['py', 'xaml']
-        :param ignore_dir: boolean: ignore directories starting with "." or "_"
+        Parameters
+        ----------
+        extension :
+            list of extensions to be copied, e.g. ['py', 'xaml'] (Default value = None)
+        ignore_dir :
+            boolean: ignore directories starting with "." or "_" (Default value = None)
+
+        Returns
+        -------
+
         """
         self.copy_from_repo(self.local_path, extension=extension, ignore_dir=ignore_dir)
 
     def copy_from_repo(self, root_dir=None, sub_dir=None, extension=None, ignore_dir=None):
-        """ copy recursively all files from a specfied root directory and all subdirectories of a given list of
+        """copy recursively all files from a specfied root directory and all subdirectories of a given list of
             extensions
 
-        :param root_dir: optional root directory to copy from, default is the AnsysAutomation repository
-        :param sub_dir: optional specific sub-directory within the root directory
-        :param extension: list of extensions to be copied, e.g. ['py', 'xaml']
-        :param ignore_dir: boolean: ignore directories starting with "." or "_"
+        Parameters
+        ----------
+        root_dir :
+            optional root directory to copy from, default is the AnsysAutomation repository
+        sub_dir :
+            optional specific sub-directory within the root directory (Default value = None)
+        extension :
+            list of extensions to be copied, e.g. ['py', 'xaml'] (Default value = None)
+        ignore_dir :
+            boolean: ignore directories starting with "." or "_" (Default value = None)
+
+        Returns
+        -------
+
         """
         if not extension:
             extension = ['py']
@@ -362,7 +454,7 @@ class ToolkitBuilder():
                 copy_files_mkdir(dest_dir, files_in_subdir)
 
     def zip_archive(self):
-        """ Zip the collected data in the buld path """
+        """Zip the collected data in the buld path"""
 
         zip_archive = os.path.join(self.build_path, self.build_name + '.zip')
         with ZipFile(zip_archive, 'w', ZIP_DEFLATED) as myzip:
@@ -377,12 +469,18 @@ class ToolkitBuilder():
 
 
 class ApplicationThread(object):
-    """
-    **Class ApplicationThread**
-
+    """**Class ApplicationThread**
+    
     Class to allow data to be passed to the run_application member function in a new thread.
         The run_application function connects to Desktop and instantiates an ApplicationWindow object of
         the calling module
+
+    Parameters
+    ----------
+
+    Returns
+    -------
+
     """
     def __init__(self, workflow_module, version, autosave=False, close_desktop_on_exit=False):
     #def __init__(self, workflow_module, version, autosave=False):
@@ -392,6 +490,7 @@ class ApplicationThread(object):
         self.close_desktop_on_exit = close_desktop_on_exit
 
     def run_application(self):
+        """ """
         with Desktop(self.version, AlwaysNew=False) as d:
             if self.autosave:
                 d.enable_autosave()
@@ -405,6 +504,7 @@ class ApplicationThread(object):
                     force_close_desktop()
 
     def open_form(self):
+        """ """
         form_object = __import__(self.workflow_module)
         with form_object.ApplicationWindow() as form:
             form.display()
@@ -412,34 +512,45 @@ class ApplicationThread(object):
 
 # Manages the settings data for the toolkit
 class AEDTToolkitSettings:
-    """ **AEDTToolkitSettings**
-
+    """**AEDTToolkitSettings**
+    
         This class provides a minimal implementation of the Toolkit providing assess to the settings file and
         allowing to call the toolkit_functionality without the GUI to speed up debugging (or potentially to
         deploy the function in batch mode. Typical usage looks like this:
-
+    
                with Desktop(version="2019.3") as d:
                     app = AEDTToolkitTester(toolkit_file=__file__, aedt_app=Maxwell2D())
                     # if the settings file (app.settings_file) is present, the data is read automatically, otherwise
                     # GUI data can be generated by hand, e.g.
                     app.settings_data = {'param 1': 3, 'param 2': 'house' }
                     toolkit_function(app)
+
+    Parameters
+    ----------
+
+    Returns
+    -------
+
     """
 
     @property
     def settings_file(self):
+        """ """
         return os.path.join(self.settings_path, self.toolkit_name + "_Settings.json")
 
     @property
     def results_path(self):
+        """ """
         return os.path.join(self._parent.working_directory, "_results")
 
     @property
     def data_path(self):
+        """ """
         return os.path.join(self._working, "_data")
 
     @property
     def local_path(self):
+        """ """
         if self._working:
             return self._working
         else:
@@ -447,10 +558,16 @@ class AEDTToolkitSettings:
 
     @property
     def settings_path(self):
-        '''
-            Returns the working directory of the parent design - checks the current design settings
+        """Returns the working directory of the parent design - checks the current design settings
             file for the key "parent" to find teh name of the parent design
-        '''
+
+        Parameters
+        ----------
+
+        Returns
+        -------
+
+        """
         my_path = self.local_path
         my_settings_file = os.path.join(self.local_path, self.toolkit_name + "_Settings.json")
         if os.path.exists(my_settings_file):
@@ -462,6 +579,17 @@ class AEDTToolkitSettings:
         return my_path
 
     def read_settings_file(self, filename):
+        """
+
+        Parameters
+        ----------
+        filename :
+            
+
+        Returns
+        -------
+
+        """
         with open(filename, 'r') as f:
             try:
                 settings_data = json.load(f)
@@ -474,6 +602,7 @@ class AEDTToolkitSettings:
 
     @property
     def settings_data(self):
+        """ """
         settings_file = self.settings_file
         if os.path.exists(settings_file):
             return self.read_settings_file(self.settings_file)
@@ -495,6 +624,7 @@ class AEDTToolkitSettings:
         self.toolkit_name = toolkit_name
 
     def append_toolkit_dir(self):
+        """ """
         assert os.path.exists(self.settings_file), "Settings File not defined!"
         try:
             toolkit_dir = self.settings_data["_toolkit_dir"]
@@ -504,9 +634,11 @@ class AEDTToolkitSettings:
 
 
 class ListBoxForm(Form):
+    """ """
 
     @property
     def ResultOK(self):
+        """ """
         if self.DialogResult == DialogResult.OK:
             return True
         else:
@@ -559,19 +691,39 @@ class ListBoxForm(Form):
                 self.lb.SelectedIndex = index_of_default_item
 
     def OnChanged(self, sender, event):
+        """
+
+        Parameters
+        ----------
+        sender :
+            
+        event :
+            
+
+        Returns
+        -------
+
+        """
         self.sb.Text = ";".join(sender.SelectedItems)
 
 
 class UIObjectGetter:
-    ''' Child class of a parent supplying a get_ui_object function returning a WPF GUI object.
+    """Child class of a parent supplying a get_ui_object function returning a WPF GUI object.
         The class implementa a __getitem__ method to allow for accessing the GUI objects from the parent class
         through the syntax:
         parent.UIObjectGetter[ui_object_name]
-
+    
         Additionally methods are provided to extraxt specific data types from the GUI object:
         float_value
         text_value
-        '''
+
+    Parameters
+    ----------
+
+    Returns
+    -------
+
+    """
     def __init__(self, parent):
         self.parent = parent
 
@@ -579,7 +731,17 @@ class UIObjectGetter:
         return self.parent.get_ui_object(ui_object_name)
 
     def float_value(self, ui_object_name):
-        ''' Convert the text entry toa float and return teh value. If teh string is empty, return 0'''
+        """Convert the text entry toa float and return teh value. If teh string is empty, return 0
+
+        Parameters
+        ----------
+        ui_object_name :
+            
+
+        Returns
+        -------
+
+        """
         text_value = self[ui_object_name].Text
         if not text_value:
             return 0
@@ -587,58 +749,98 @@ class UIObjectGetter:
             return float(text_value)
 
     def text_value(self, ui_object_name):
+        """
+
+        Parameters
+        ----------
+        ui_object_name :
+            
+
+        Returns
+        -------
+
+        """
         return self[ui_object_name].Text
 
 class AEDTToolkit(Window):
-    """ **Class AEDTToolkit**
-
+    """**Class AEDTToolkit**
+    
         This class provides a base class allowing the creation of a WPF-GUI-Based toolkit for AEDT. This class provides
         functionality for launching the GUI, reading and writing to settings files, path handling and error handling.
         Data validation functions are also provided as callbacks from the WPF GUI
 
+    Parameters
+    ----------
+
+    Returns
+    -------
+
     """
     @property
     def aedt_version_id(self):
+        """ """
         return self.aedtdesign.aedt_version_id
 
     @property
     def aedt_version_key(self):
+        """ """
         version = self.aedtdesign.odesktop.GetVersion()
         return get_version_key(version)
 
     @property
     def results_path(self):
+        """ """
         return os.path.join(self.aedtdesign.working_directory, '_results')
 
     @property
     def data_path(self):
+        """ """
         return os.path.join(self.aedtdesign.working_directory, '_data')
 
     @property
     def local_path(self):
+        """ """
         return self.settings_manager.local_path
 
     @property
     def settings_file(self):
+        """ """
         return self.settings_manager.settings_file
 
     @property
     def settings_data(self):
+        """ """
         return self.settings_manager.settings_data
 
     @property
     def local_settings_file(self):
+        """ """
         return self.settings_manager.settings_file
 
     @property
     def settings_path(self):
+        """ """
         return self.settings_manager.settings_path
 
     @property
     def xaml_file(self):
+        """ """
         return os.path.join(self.toolkit_directory, self.toolkit_name + '.xaml')
 
     def validate_object_name_prefix(self, sender, e):
+        """
+
+        Parameters
+        ----------
+        sender :
+            
+        e :
+            
+
+        Returns
+        -------
+
+        """
         valid = False
         try:
             object_list = self.aedtdesign.modeler.get_matched_object_name(sender.Text + "*")
@@ -649,6 +851,19 @@ class AEDTToolkit(Window):
         self.update_textbox_status(sender, valid)
 
     def validate_string_no_spaces(self, sender, e):
+        """
+
+        Parameters
+        ----------
+        sender :
+            
+        e :
+            
+
+        Returns
+        -------
+
+        """
         valid = False
         if sender.Text.find(" ") < 0:
             valid = True
@@ -656,6 +871,19 @@ class AEDTToolkit(Window):
 
 
     def validate_integer(self, sender, e):
+        """
+
+        Parameters
+        ----------
+        sender :
+            
+        e :
+            
+
+        Returns
+        -------
+
+        """
         valid = False
         try:
             value = int(sender.Text)
@@ -668,6 +896,19 @@ class AEDTToolkit(Window):
         return value
 
     def validate_positive_odd_integer(self, sender, e):
+        """
+
+        Parameters
+        ----------
+        sender :
+            
+        e :
+            
+
+        Returns
+        -------
+
+        """
         valid = False
         try:
             value = int(sender.Text)
@@ -682,6 +923,19 @@ class AEDTToolkit(Window):
         return value
 
     def validate_positive_integer(self, sender, e):
+        """
+
+        Parameters
+        ----------
+        sender :
+            
+        e :
+            
+
+        Returns
+        -------
+
+        """
         valid = False
         try:
             value = int(sender.Text)
@@ -696,6 +950,19 @@ class AEDTToolkit(Window):
         return value
 
     def validate_non_negative_integer(self, sender, e):
+        """
+
+        Parameters
+        ----------
+        sender :
+            
+        e :
+            
+
+        Returns
+        -------
+
+        """
         valid = False
         try:
             value = int(sender.Text)
@@ -710,6 +977,19 @@ class AEDTToolkit(Window):
         return value
 
     def validate_negative_integer(self, sender, e):
+        """
+
+        Parameters
+        ----------
+        sender :
+            
+        e :
+            
+
+        Returns
+        -------
+
+        """
         valid = False
         try:
             value = int(sender.Text)
@@ -723,6 +1003,19 @@ class AEDTToolkit(Window):
         return value
 
     def validate_float(self, sender, e):
+        """
+
+        Parameters
+        ----------
+        sender :
+            
+        e :
+            
+
+        Returns
+        -------
+
+        """
         valid = False
         try:
             value = float(sender.Text)
@@ -734,6 +1027,19 @@ class AEDTToolkit(Window):
         return value
 
     def validate_float_variable(self, sender, e):
+        """
+
+        Parameters
+        ----------
+        sender :
+            
+        e :
+            
+
+        Returns
+        -------
+
+        """
         proj_and_des_variables = self.aedtdesign.variable_manager.variable_names
         if sender.Text in proj_and_des_variables:
             self.update_textbox_status(sender, True)
@@ -741,6 +1047,19 @@ class AEDTToolkit(Window):
             self.validate_float(sender, e)
 
     def validate_positive_float_variable(self, sender, e):
+        """
+
+        Parameters
+        ----------
+        sender :
+            
+        e :
+            
+
+        Returns
+        -------
+
+        """
         proj_and_des_variables = self.aedtdesign.variable_manager.variable_names
         if sender.Text in proj_and_des_variables:
             self.update_textbox_status(sender, True)
@@ -748,6 +1067,19 @@ class AEDTToolkit(Window):
             self.validate_positive_float(sender, e)
 
     def validate_positive_integer_variable(self, sender, e):
+        """
+
+        Parameters
+        ----------
+        sender :
+            
+        e :
+            
+
+        Returns
+        -------
+
+        """
         proj_and_des_variables = self.aedtdesign.variable_manager.variable_names
         if sender.Text in proj_and_des_variables:
             self.update_textbox_status(sender, True)
@@ -755,6 +1087,19 @@ class AEDTToolkit(Window):
             self.validate_positive_integer(sender, e)
 
     def validate_positive_integer_global(self, sender, e):
+        """
+
+        Parameters
+        ----------
+        sender :
+            
+        e :
+            
+
+        Returns
+        -------
+
+        """
         proj_variables = self.aedtdesign.variable_manager.project_variable_names
         if sender.Text in proj_variables:
             self.update_textbox_status(sender, True)
@@ -762,6 +1107,19 @@ class AEDTToolkit(Window):
             self.validate_positive_integer(sender, e)
 
     def validate_positive_float_global(self, sender, e):
+        """
+
+        Parameters
+        ----------
+        sender :
+            
+        e :
+            
+
+        Returns
+        -------
+
+        """
         proj_variables = self.aedtdesign.variable_manager.project_variable_names
         if sender.Text in proj_variables:
             self.update_textbox_status(sender, True)
@@ -769,6 +1127,19 @@ class AEDTToolkit(Window):
             self.validate_positive_float(sender, e)
 
     def validate_positive_float(self, sender, e):
+        """
+
+        Parameters
+        ----------
+        sender :
+            
+        e :
+            
+
+        Returns
+        -------
+
+        """
         valid = False
         try:
             value = float(sender.Text)
@@ -782,6 +1153,19 @@ class AEDTToolkit(Window):
         return value
 
     def validate_non_negative_float(self, sender, e):
+        """
+
+        Parameters
+        ----------
+        sender :
+            
+        e :
+            
+
+        Returns
+        -------
+
+        """
         valid = False
         try:
             value = float(sender.Text)
@@ -795,6 +1179,21 @@ class AEDTToolkit(Window):
         return value
 
     def update_textbox_status_with_default_text(self, sender, valid, default_text):
+        """
+
+        Parameters
+        ----------
+        sender :
+            
+        valid :
+            
+        default_text :
+            
+
+        Returns
+        -------
+
+        """
         if not valid:
             sender.Text = default_text
             sender.BorderBrush = Brushes.Red
@@ -802,6 +1201,19 @@ class AEDTToolkit(Window):
             sender.BorderBrush = Brushes.Green
 
     def update_textbox_status(self, sender, valid):
+        """
+
+        Parameters
+        ----------
+        sender :
+            
+        valid :
+            
+
+        Returns
+        -------
+
+        """
         if not valid:
             sender.Text = ""
             sender.BorderBrush = Brushes.Red
@@ -871,13 +1283,31 @@ class AEDTToolkit(Window):
             self.read_settings()
 
     def create_child_design(self, design_name):
-        ''' Duplicates a design and makes a link to the parent design in teh settings file '''
+        """Duplicates a design and makes a link to the parent design in teh settings file
+
+        Parameters
+        ----------
+        design_name :
+            
+
+        Returns
+        -------
+
+        """
         self.aedtdesign.duplicate_design(design_name)
         self._write_parent_link()
 
     def _read_and_synch_settings_file(self):
-        ''' reads in existing settings data and updates the path of the library directory in case the project was
-            moved to a new location, file system or operating system '''
+        """reads in existing settings data and updates the path of the library directory in case the project was
+            moved to a new location, file system or operating system
+
+        Parameters
+        ----------
+
+        Returns
+        -------
+
+        """
         settings_file = self.settings_file
         if os.path.exists(settings_file):
             settings_data = self.settings_data
@@ -887,27 +1317,50 @@ class AEDTToolkit(Window):
                 json.dump(settings_data, f, indent=4)
 
     def _write_parent_link(self):
+        """ """
         with open(self.local_settings_file, 'w') as f:
             settings_data = {"parent": self.parent_design_name}
             json.dump(settings_data, f, indent=4)
 
     def dummy_callback(self, sender, e):
+        """
+
+        Parameters
+        ----------
+        sender :
+            
+        e :
+            
+
+        Returns
+        -------
+
+        """
         pass
 
     def display(self):
-        ''' Display the wpf application as a Dialoq (IronPython) or an Application (CPython)'''
+        """Display the wpf application as a Dialoq (IronPython) or an Application (CPython)"""
         if sys.implementation.name == 'ironpython':
             Window.ShowDialog(self)
         else:
             Application().Run(self.window)
 
     def open_explorer(self, sender, e):
-        """
-        Open a windows explorer window pointing to the selected path in the sender control
+        """Open a windows explorer window pointing to the selected path in the sender control
 
-        :param      sender: sender object from the wpf GUI
-                    e: error object from teh wpf GUI
-        :return:    None
+        Parameters
+        ----------
+        sender :
+            sender object from the wpf GUI
+            e: error object from teh wpf GUI
+        e :
+            
+
+        Returns
+        -------
+        type
+            None
+
         """
         from platform import system
 
@@ -921,20 +1374,39 @@ class AEDTToolkit(Window):
 
 
     def set_callback(self, control, callback, function):
-        '''
-        Sets up the callback functions from the xaml GUI
-        :param control: name of the control (Button, TextBox, etc) as a string
-        :param callback: Name of teh callback function, e.g. "Click", "LostFocus", etc
-        :param function: reference to the callback function (requires 2 arguments: sender, e)
-        '''
+        """Sets up the callback functions from the xaml GUI
+
+        Parameters
+        ----------
+        control :
+            name of the control (Button, TextBox, etc) as a string
+        callback :
+            Name of teh callback function, e.g. "Click", "LostFocus", etc
+        function :
+            reference to the callback function (requires 2 arguments: sender, e)
+
+        Returns
+        -------
+
+        """
         test_control = LogicalTreeHelper.FindLogicalNode(self.window, control)
         a = getattr(test_control, callback)
         a += function
 
     def set_margin(self, object_name, margin):
-        ''' Sets the outer dimensions of the GUI window.
-        :param margin: vector of floats [left, top, bottom, right]
-        '''
+        """Sets the outer dimensions of the GUI window.
+
+        Parameters
+        ----------
+        margin :
+            vector of floats [left, top, bottom, right]
+        object_name :
+            
+
+        Returns
+        -------
+
+        """
         myThickness = Thickness()
         myThickness.Bottom = margin[2]
         myThickness.Left = margin[0]
@@ -943,6 +1415,19 @@ class AEDTToolkit(Window):
         self.get_ui_object(object_name).Margin = myThickness
 
     def assign_image(self, ui_object_name, image_file):
+        """
+
+        Parameters
+        ----------
+        ui_object_name :
+            
+        image_file :
+            
+
+        Returns
+        -------
+
+        """
         print_timelog("Assign image {}".format(image_file))
         bi = BitmapImage()
         bi.BeginInit()
@@ -953,29 +1438,60 @@ class AEDTToolkit(Window):
         self.ui[ui_object_name].Source = bi
 
     def set_visible(self, object_list):
-        ''' Defines one or more GUI objects to be visible'''
+        """Defines one or more GUI objects to be visible
+
+        Parameters
+        ----------
+        object_list :
+            
+
+        Returns
+        -------
+
+        """
         if isinstance(object_list, str):
             object_list = [ object_list ]
         for object_name in object_list:
             self.get_ui_object(object_name).Visibility = Visibility.Visible
 
     def set_hidden(self, object_list):
-        ''' Defines one or more GUI objects to be hidden'''
+        """Defines one or more GUI objects to be hidden
+
+        Parameters
+        ----------
+        object_list :
+            
+
+        Returns
+        -------
+
+        """
         if isinstance(object_list, str):
             object_list = [ object_list ]
         for object_name in object_list:
             self.get_ui_object(object_name).Visibility = Visibility.Hidden
 
     def wait_cursor(self):
-        ''' Turns on the "Wait" cursor and stores the current cursor'''
+        """Turns on the "Wait" cursor and stores the current cursor"""
         self.previous_cursor = self.Cursor
         self.Cursor = Input.Cursors.Wait
 
     def standard_cursor(self):
-        ''' Restores the current cursor'''
+        """Restores the current cursor"""
         self.Cursor = self.previous_cursor
 
     def _get_objects_from_xaml_of_type(self, type_list):
+        """
+
+        Parameters
+        ----------
+        type_list :
+            
+
+        Returns
+        -------
+
+        """
         if isinstance(type_list, str):
             type_list = [type_list]
         text_list = []
@@ -991,9 +1507,41 @@ class AEDTToolkit(Window):
         return text_list
 
     def message_box(self, text, caption=None, buttons=None, icon=None):
+        """
+
+        Parameters
+        ----------
+        text :
+            
+        caption :
+             (Default value = None)
+        buttons :
+             (Default value = None)
+        icon :
+             (Default value = None)
+
+        Returns
+        -------
+
+        """
         return message_box(text, caption, buttons, icon)
 
     def ok_cancel_message_box(self, text, caption=None, icon=None):
+        """
+
+        Parameters
+        ----------
+        text :
+            
+        caption :
+             (Default value = None)
+        icon :
+             (Default value = None)
+
+        Returns
+        -------
+
+        """
         response = message_box(text, caption, "OKCancel", icon)
         if response == DialogResult.OK:
             return True
@@ -1001,12 +1549,23 @@ class AEDTToolkit(Window):
             return False
 
     def add_combo_items(self, combo_box_name, options, default=None):
-        ''' Fills a combo box with a list of options and sets the selected value if nothing is present already
-        :param combo_box_name: name of the combo box object in xaml
-        :param options: list of entries to be set to the combobox
-        :param default: default value to be used if there is no selected value present
-        :return: None
-        '''
+        """Fills a combo box with a list of options and sets the selected value if nothing is present already
+
+        Parameters
+        ----------
+        combo_box_name :
+            name of the combo box object in xaml
+        options :
+            list of entries to be set to the combobox
+        default :
+            default value to be used if there is no selected value present
+
+        Returns
+        -------
+        type
+            None
+
+        """
         if not isinstance(options, list):
             options = [ options ]
         control = self.get_ui_object(combo_box_name)
@@ -1016,14 +1575,32 @@ class AEDTToolkit(Window):
             control.SelectedValue = default
 
     def get_ui_object(self, control_name):
+        """
+
+        Parameters
+        ----------
+        control_name :
+            
+
+        Returns
+        -------
+
+        """
         wpf_control = LogicalTreeHelper.FindLogicalNode(self.window, control_name)
         assert wpf_control, "WPF GUI object name {0} dies not exist !".format(control_name)
         return wpf_control
 
     def read_settings(self):
-        """ Reads the setting data from the toolkit settings file in the parent design
-
+        """Reads the setting data from the toolkit settings file in the parent design
+        
         :return: Dictionary of settings data
+
+        Parameters
+        ----------
+
+        Returns
+        -------
+
         """
         settings_data = self.settings_data
 
@@ -1067,11 +1644,19 @@ class AEDTToolkit(Window):
         return settings_data
 
     def write_settings(self, user_defined_data=None):
-        """ Write UI settings Textbox, Checkbox, Combobox only at present
+        """Write UI settings Textbox, Checkbox, Combobox only at present
             also write any user defined data from a json-serializable dictionary
 
-        :param user_defined_data: dictionary with arbitrary user data (needs to be json serializable)
-        :return: None
+        Parameters
+        ----------
+        user_defined_data :
+            dictionary with arbitrary user data (needs to be json serializable) (Default value = None)
+
+        Returns
+        -------
+        type
+            None
+
         """
         settings_data = self.settings_data
         with open(self.settings_file, 'w') as f:

@@ -3,16 +3,14 @@ from .PrimitivesCircuit import CircuitComponents
 
 
 class NexximComponents(CircuitComponents):
-    """
-    Class for management of all CircuitComponents for Nexxim
-    """
+    """Class for management of all CircuitComponents for Nexxim"""
     @property
     def design_libray(self):
-            return "Nexxim Circuit Elements"
+        return "Nexxim Circuit Elements"
 
     @property
     def tab_name(self):
-            return "PassedParameterTab"
+        return "PassedParameterTab"
 
     @aedt_exception_handler
     def __getitem__(self, partname):
@@ -37,12 +35,18 @@ class NexximComponents(CircuitComponents):
 
     @aedt_exception_handler
     def create_3dlayout_subcircuit(self, sourcename):
-        """
-        Create a new subcircuit
+        """Create a new subcircuit
 
+        Parameters
+        ----------
+        sourcename :
+            name of the source design
 
-        :param sourcename: name of the source design
-        :return: el, composed_name if succeeded or False
+        Returns
+        -------
+        type
+            el, composed_name if succeeded or False
+
         """
         self._parent._oproject.CopyDesign(sourcename)
         self.oeditor.PasteDesign(0, ["NAME:Attributes", "Page:=", 1, "X:=", 0, "Y:=", 0, "Angle:=", 0, "Flip:=", False])
@@ -54,17 +58,26 @@ class NexximComponents(CircuitComponents):
 
     @aedt_exception_handler
     def create_field_model(self, design_name, solution_name, pin_names, model_type="hfss", posx=0, posy=1):
-        """
-        Create Field Model
+        """Create Field Model
 
+        Parameters
+        ----------
+        design_name :
+            param solution_name:
+        pin_names :
+            param model_type:
+        posx :
+            param posy: (Default value = 0)
+        solution_name :
+            
+        model_type :
+             (Default value = "hfss")
+        posy :
+             (Default value = 1)
 
-        :param design_name:
-        :param solution_name:
-        :param pin_names:
-        :param model_type:
-        :param posx:
-        :param posy:
-        :return:
+        Returns
+        -------
+
         """
         id = self.create_unique_id()
         component_name = design_name + "_" + str(id)
@@ -174,17 +187,28 @@ class NexximComponents(CircuitComponents):
 
     @aedt_exception_handler
     def create_resistor(self, compname=None, value=50, xpos=0, ypos=0,angle=0, use_instance_id_netlist=False):
-        """
-        Create a new Resistor
+        """Create a new Resistor
 
+        Parameters
+        ----------
+        compname :
+            name (Default value = None)
+        value :
+            value (Default value = 50)
+        xpos :
+            x pos (Default value = 0)
+        ypos :
+            y pos (Default value = 0)
+        angle :
+            angle (Default value = 0)
+        use_instance_id_netlist :
+            bool (Default value = False)
 
-        :param compname: name
-        :param value: value
-        :param xpos: x pos
-        :param ypos: y pos
-        :param angle:  angle
-        :param use_instance_id_netlist: bool
-        :return: id, name
+        Returns
+        -------
+        type
+            id, name
+
         """
         cmpid, cmpname = self.create_component(compname, xpos=xpos, ypos=ypos, angle=angle, use_instance_id_netlist=use_instance_id_netlist)
 
@@ -193,17 +217,28 @@ class NexximComponents(CircuitComponents):
 
     @aedt_exception_handler
     def create_inductor(self, compname=None,value=50, xpos=0, ypos=0,angle=0, use_instance_id_netlist=False):
-        """
-        Create a new Inductor
+        """Create a new Inductor
 
+        Parameters
+        ----------
+        compname :
+            name (Default value = None)
+        value :
+            value (Default value = 50)
+        xpos :
+            x pos (Default value = 0)
+        ypos :
+            y pos (Default value = 0)
+        angle :
+            angle (Default value = 0)
+        use_instance_id_netlist :
+            bool (Default value = False)
 
-        :param compname: name
-        :param value: value
-        :param xpos: x pos
-        :param ypos: y pos
-        :param angle:  angle
-        :param use_instance_id_netlist: bool
-        :return: id, name
+        Returns
+        -------
+        type
+            id, name
+
         """
         cmpid, cmpname = self.create_component(compname, component_library="Inductors", component_name="IND_", xpos=xpos, ypos=ypos,
                                          angle=angle, use_instance_id_netlist=use_instance_id_netlist)
@@ -214,17 +249,28 @@ class NexximComponents(CircuitComponents):
 
     @aedt_exception_handler
     def create_capacitor(self, compname=None,value=50, xpos=0, ypos=0, angle=0, use_instance_id_netlist=False):
-        """
-        Create a new Capacitor
+        """Create a new Capacitor
 
+        Parameters
+        ----------
+        compname :
+            name (Default value = None)
+        value :
+            value (Default value = 50)
+        xpos :
+            x pos (Default value = 0)
+        ypos :
+            y pos (Default value = 0)
+        angle :
+            angle (Default value = 0)
+        use_instance_id_netlist :
+            bool (Default value = False)
 
-        :param compname: name
-        :param value: value
-        :param xpos: x pos
-        :param ypos: y pos
-        :param angle:  angle
-        :param use_instance_id_netlist: bool
-        :return: id, name
+        Returns
+        -------
+        type
+            id, name
+
         """
         cmpid, cmpname = self.create_component(compname,component_library="Capacitors", component_name="CAP_", xpos=xpos, ypos=ypos,
                                          angle=angle, use_instance_id_netlist=use_instance_id_netlist)
@@ -234,17 +280,28 @@ class NexximComponents(CircuitComponents):
 
     @aedt_exception_handler
     def create_voltage_dc(self, compname=None, value=1, xpos=0, ypos=0, angle=0, use_instance_id_netlist=False):
-        """
-        Create a new Voltage DC Source
+        """Create a new Voltage DC Source
 
+        Parameters
+        ----------
+        compname :
+            name (Default value = None)
+        value :
+            value (Default value = 1)
+        xpos :
+            x pos (Default value = 0)
+        ypos :
+            y pos (Default value = 0)
+        angle :
+            angle (Default value = 0)
+        use_instance_id_netlist :
+            bool (Default value = False)
 
-        :param compname: name
-        :param value: value
-        :param xpos: x pos
-        :param ypos: y pos
-        :param angle:  angle
-        :param use_instance_id_netlist: bool
-        :return: id, name
+        Returns
+        -------
+        type
+            id, name
+
         """
         cmpid, cmpname = self.create_component(compname,component_library="Independent Sources", component_name="V_DC", xpos=xpos, ypos=ypos,
                                          angle=angle, use_instance_id_netlist=use_instance_id_netlist)
@@ -254,17 +311,30 @@ class NexximComponents(CircuitComponents):
 
     @aedt_exception_handler
     def create_current_pulse(self, compname=None, value_lists=[], xpos=0, ypos=0, angle=0, use_instance_id_netlist=False):
-        """
-        Create a new Current Pulse
+        """Create a new Current Pulse
 
+        Parameters
+        ----------
+        compname :
+            name (Default value = None)
+        value :
+            value
+        xpos :
+            x pos (Default value = 0)
+        ypos :
+            y pos (Default value = 0)
+        angle :
+            angle (Default value = 0)
+        use_instance_id_netlist :
+            bool (Default value = False)
+        value_lists :
+             (Default value = [])
 
-        :param compname: name
-        :param value: value
-        :param xpos: x pos
-        :param ypos: y pos
-        :param angle:  angle
-        :param use_instance_id_netlist: bool
-        :return: id, name
+        Returns
+        -------
+        type
+            id, name
+
         """
         cmpid, cmpname = self.create_component(compname,component_library="Independent Sources", component_name="I_PULSE", xpos=xpos, ypos=ypos,
                                          angle=angle, use_instance_id_netlist=use_instance_id_netlist)
@@ -289,17 +359,30 @@ class NexximComponents(CircuitComponents):
 
     @aedt_exception_handler
     def create_voltage_pulse(self, compname=None, value_lists=[], xpos=0, ypos=0, angle=0, use_instance_id_netlist=False):
-        """
-        Create a new Voltage Pulse
+        """Create a new Voltage Pulse
 
+        Parameters
+        ----------
+        compname :
+            name (Default value = None)
+        value :
+            value
+        xpos :
+            x pos (Default value = 0)
+        ypos :
+            y pos (Default value = 0)
+        angle :
+            angle (Default value = 0)
+        use_instance_id_netlist :
+            bool (Default value = False)
+        value_lists :
+             (Default value = [])
 
-        :param compname: name
-        :param value: value
-        :param xpos: x pos
-        :param ypos: y pos
-        :param angle:  angle
-        :param use_instance_id_netlist: bool
-        :return: id, name
+        Returns
+        -------
+        type
+            id, name
+
         """
         cmpid, cmpname = self.create_component(compname,component_library="Independent Sources", component_name="V_PULSE", xpos=xpos, ypos=ypos,
                                          angle=angle, use_instance_id_netlist=use_instance_id_netlist)
@@ -325,17 +408,28 @@ class NexximComponents(CircuitComponents):
 
     @aedt_exception_handler
     def create_current_dc(self, compname=None, value=1, xpos=0, ypos=0, angle=0, use_instance_id_netlist=False):
-        """
-        Create a new Current DC Source
+        """Create a new Current DC Source
 
+        Parameters
+        ----------
+        compname :
+            name (Default value = None)
+        value :
+            value (Default value = 1)
+        xpos :
+            x pos (Default value = 0)
+        ypos :
+            y pos (Default value = 0)
+        angle :
+            angle (Default value = 0)
+        use_instance_id_netlist :
+            bool (Default value = False)
 
-        :param compname: name
-        :param value: value
-        :param xpos: x pos
-        :param ypos: y pos
-        :param angle:  angle
-        :param use_instance_id_netlist: bool
-        :return: id, name
+        Returns
+        -------
+        type
+            id, name
+
         """
         cmpid, cmpname = self.create_component(compname,component_library="Independent Sources", component_name="I_DC", xpos=xpos, ypos=ypos,
                                          angle=angle, use_instance_id_netlist=use_instance_id_netlist)
@@ -344,17 +438,32 @@ class NexximComponents(CircuitComponents):
         return cmpid, cmpname
 
     def create_coupling_inductors(self, compname, l1, l2, value=1, xpos=0, ypos=0, angle=0, use_instance_id_netlist=False):
-        """
-        Create a new Coupling Inductor
+        """Create a new Coupling Inductor
 
+        Parameters
+        ----------
+        compname :
+            name
+        value :
+            value (Default value = 1)
+        xpos :
+            x pos (Default value = 0)
+        ypos :
+            y pos (Default value = 0)
+        angle :
+            angle (Default value = 0)
+        use_instance_id_netlist :
+            bool (Default value = False)
+        l1 :
+            
+        l2 :
+            
 
-        :param compname: name
-        :param value: value
-        :param xpos: x pos
-        :param ypos: y pos
-        :param angle:  angle
-        :param use_instance_id_netlist: bool
-        :return: id, name
+        Returns
+        -------
+        type
+            id, name
+
         """
         cmpid, cmpname = self.create_component(compname,component_library="Inductors", component_name="K_IND", xpos=xpos, ypos=ypos,
                                          angle=angle, use_instance_id_netlist=use_instance_id_netlist)
@@ -366,17 +475,30 @@ class NexximComponents(CircuitComponents):
 
     @aedt_exception_handler
     def create_diode(self, compname=None,model_name="required", xpos=0, ypos=0, angle=0, use_instance_id_netlist=False):
-        """
-        Create a new Diode
+        """Create a new Diode
 
+        Parameters
+        ----------
+        compname :
+            name (Default value = None)
+        value :
+            value
+        xpos :
+            x pos (Default value = 0)
+        ypos :
+            y pos (Default value = 0)
+        angle :
+            angle (Default value = 0)
+        use_instance_id_netlist :
+            bool (Default value = False)
+        model_name :
+             (Default value = "required")
 
-        :param compname: name
-        :param value: value
-        :param xpos: x pos
-        :param ypos: y pos
-        :param angle:  angle
-        :param use_instance_id_netlist: bool
-        :return: id, name
+        Returns
+        -------
+        type
+            id, name
+
         """
         cmpid, cmpname = self.create_component(compname,component_library="Diodes", component_name="DIODE_Level1", xpos=xpos, ypos=ypos,
                                          angle=angle, use_instance_id_netlist=use_instance_id_netlist)
@@ -386,17 +508,28 @@ class NexximComponents(CircuitComponents):
 
     @aedt_exception_handler
     def create_npn(self, compname=None, value=None, xpos=0, ypos=0, angle=0, use_instance_id_netlist=False):
-        """
-        Create a new Transistor NPN
+        """Create a new Transistor NPN
 
+        Parameters
+        ----------
+        compname :
+            name (Default value = None)
+        value :
+            value (Default value = None)
+        xpos :
+            x pos (Default value = 0)
+        ypos :
+            y pos (Default value = 0)
+        angle :
+            angle (Default value = 0)
+        use_instance_id_netlist :
+            bool (Default value = False)
 
-        :param compname: name
-        :param value: value
-        :param xpos: x pos
-        :param ypos: y pos
-        :param angle:  angle
-        :param use_instance_id_netlist: bool
-        :return: id, name
+        Returns
+        -------
+        type
+            id, name
+
         """
 
         id, name = self.create_component(compname,component_library="BJTs", component_name="Level01_NPN", xpos=xpos, ypos=ypos,
@@ -407,17 +540,28 @@ class NexximComponents(CircuitComponents):
 
     @aedt_exception_handler
     def create_pnp(self, compname=None,value=50, xpos=0, ypos=0, angle=0, use_instance_id_netlist=False):
-        """
-        Create a new Transistor PNP
+        """Create a new Transistor PNP
 
+        Parameters
+        ----------
+        compname :
+            name (Default value = None)
+        value :
+            value (Default value = 50)
+        xpos :
+            x pos (Default value = 0)
+        ypos :
+            y pos (Default value = 0)
+        angle :
+            angle (Default value = 0)
+        use_instance_id_netlist :
+            bool (Default value = False)
 
-        :param compname: name
-        :param value: value
-        :param xpos: x pos
-        :param ypos: y pos
-        :param angle:  angle
-        :param use_instance_id_netlist: bool
-        :return: id, name
+        Returns
+        -------
+        type
+            id, name
+
         """
         id, name = self.create_component(compname, component_library="BJTs", component_name="Level01_PNP", xpos=xpos, ypos=ypos,
                                          angle=angle, use_instance_id_netlist=use_instance_id_netlist)
@@ -428,16 +572,26 @@ class NexximComponents(CircuitComponents):
 
     @aedt_exception_handler
     def create_new_component_from_symbol(self,symbol_name, pin_lists, Refbase = "U", parameter_list=[], parameter_value=[]):
-        """
-        Create a new Component from symbol
+        """Create a new Component from symbol
 
+        Parameters
+        ----------
+        symbol_name :
+            symbol name
+        pin_lists :
+            list of pins name
+        Refbase :
+            reference base (Default value = "U")
+        parameter_list :
+            list of parameters (Default value = [])
+        parameter_value :
+            list of parameters values (Default value = [])
 
-        :param symbol_name: symbol name
-        :param pin_lists: list of pins name
-        :param Refbase: reference base
-        :param parameter_list: list of parameters
-        :param parameter_value:  list of parameters values
-        :return: true
+        Returns
+        -------
+        type
+            true
+
         """
         arg = ["NAME:" + symbol_name, "Info:=",
                ["Type:=", 0, "NumTerminals:=", len(pin_lists), "DataSource:=", "", "ModifiedOn:=", 1591858313, "Manufacturer:=", "",
@@ -498,8 +652,16 @@ class NexximComponents(CircuitComponents):
     def update_object_properties(self, o):
         """
 
-        :param o: object
-        :return: object with properties
+        Parameters
+        ----------
+        o :
+            object
+
+        Returns
+        -------
+        type
+            object with properties
+
         """
         name = o.composed_name
         proparray = self.oeditor.GetProperties("PassedParameterTab", name)
@@ -512,16 +674,30 @@ class NexximComponents(CircuitComponents):
     def get_comp_custom_settings(self, toolNum ,dc = 0, interp=0, extrap=1, conv=0, passivity=0, reciprocal="False", opt="", data_type=1):
         """
 
-        :param toolNum:
-        :param dc:
-        :param interp:
-        :param extrap:
-        :param conv:
-        :param passivity:
-        :param reciprocal:
-        :param opt:
-        :param data_type:
-        :return:
+        Parameters
+        ----------
+        toolNum :
+            param dc:
+        interp :
+            param extrap: (Default value = 0)
+        conv :
+            param passivity: (Default value = 0)
+        reciprocal :
+            param opt: (Default value = "False")
+        data_type :
+            return: (Default value = 1)
+        dc :
+             (Default value = 0)
+        extrap :
+             (Default value = 1)
+        passivity :
+             (Default value = 0)
+        opt :
+             (Default value = "")
+
+        Returns
+        -------
+
         """
         if toolNum == 1:
             custom = "NAME:DesignerCustomization"
@@ -546,13 +722,24 @@ class NexximComponents(CircuitComponents):
     def add_subcircuit_hfss_link(self, compName, pin_names, source_project_path, source_project_name, source_design_name, solution_name = "Setup1 : Sweep"):
         """
 
-        :param compName:
-        :param pin_names:
-        :param source_project_path:
-        :param source_project_name:
-        :param source_design_name:
-        :param solution_name:
-        :return:
+        Parameters
+        ----------
+        compName :
+            param pin_names:
+        source_project_path :
+            param source_project_name:
+        source_design_name :
+            param solution_name:
+        pin_names :
+            
+        source_project_name :
+            
+        solution_name :
+             (Default value = "Setup1 : Sweep")
+
+        Returns
+        -------
+
         """
         designer_customization = self.get_comp_custom_settings(1, 0, 0, 1, 0, 0, "False", "", 1)
         nexxim_customization = self.get_comp_custom_settings(2, 3, 1, 3, 0, 0, "False", "", 2)
@@ -645,7 +832,15 @@ class NexximComponents(CircuitComponents):
     @aedt_exception_handler
     def set_sim_option_on_hfss_subcircuit(self, component):
         """
-        :param component: CompInst@Galileo_cutout3;87;1
+
+        Parameters
+        ----------
+        component :
+            CompInst@Galileo_cutout3;87;1
+
+        Returns
+        -------
+
         """
         complist = component.split(";")
         complist2 = complist[0].split("@")
@@ -668,10 +863,34 @@ class NexximComponents(CircuitComponents):
 
     @aedt_exception_handler
     def refresh_dynamic_link(self, component_name):
+        """
+
+        Parameters
+        ----------
+        component_name :
+            
+
+        Returns
+        -------
+
+        """
         self.o_component_manager.UpdateDynamicLink(component_name)
 
     @aedt_exception_handler
     def push_excitations(self, instance_name,thevenin_calculation = False):
+        """
+
+        Parameters
+        ----------
+        instance_name :
+            
+        thevenin_calculation :
+             (Default value = False)
+
+        Returns
+        -------
+
+        """
         arg = ["NAME:options",
                "CalcThevenin:=", thevenin_calculation,
                "Sol:=", "LinearFrequency"]
@@ -682,18 +901,37 @@ class NexximComponents(CircuitComponents):
     @aedt_exception_handler
     def assign_sin_excitation2ports(self, ports, settings):
         """
-        :param ports: List of circuit ports for excitation assignation
-        :param settings: List of parameters values used in voltage sinusoidal excitation creation:
-        :param settings[0]: AC magnitude for small-signal analysis
-        :param settings[1]: AC phase for small-signal analysis
-        :param settings[2]: DC voltage
-        :param settings[3]: Voltage offset from zero
-        :param settings[4]: Voltage amplitude
-        :param settings[5]: Frequency
-        :param settings[6]: Delay to start of sine wave
-        :param settings[7]: Damping factor
-        :param settings[8]: Phase Delay
-        :param settings[9]: Frequency to use for harmonic balance analysis
+
+        Parameters
+        ----------
+        ports :
+            List of circuit ports for excitation assignation
+        settings :
+            List of parameters values used in voltage sinusoidal excitation creation:
+        settings :
+            0]: AC magnitude for small-signal analysis
+        settings :
+            1]: AC phase for small-signal analysis
+        settings :
+            2]: DC voltage
+        settings :
+            3]: Voltage offset from zero
+        settings :
+            4]: Voltage amplitude
+        settings :
+            5]: Frequency
+        settings :
+            6]: Delay to start of sine wave
+        settings :
+            7]: Damping factor
+        settings :
+            8]: Phase Delay
+        settings :
+            9]: Frequency to use for harmonic balance analysis
+
+        Returns
+        -------
+
         """
         id = self.create_unique_id()
 

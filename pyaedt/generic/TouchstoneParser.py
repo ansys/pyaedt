@@ -20,6 +20,27 @@ def parameter(real=None, imag=None, mag=None, db10=None, db20=None, deg=None,
     Specify:
     * real and (optionally) imag, or
     * mag/db and deg/rad
+
+    Parameters
+    ----------
+    real :
+         (Default value = None)
+    imag :
+         (Default value = None)
+    mag :
+         (Default value = None)
+    db10 :
+         (Default value = None)
+    db20 :
+         (Default value = None)
+    deg :
+         (Default value = None)
+    rad :
+         (Default value = None)
+
+    Returns
+    -------
+
     """
     if real is not None:
         if (mag or db10 or db20 or deg or rad) is not None:
@@ -46,37 +67,121 @@ def parameter(real=None, imag=None, mag=None, db10=None, db20=None, deg=None,
 
 
 def real(arg):
-    """Return the real part of the elements of the array"""
+    """
+
+    Parameters
+    ----------
+    arg :
+        
+
+    Returns
+    -------
+    type
+        
+
+    """
     return arg.real
 
 
 def imag(arg):
-    """Return the imaginary part of the elements of the array"""
+    """
+
+    Parameters
+    ----------
+    arg :
+        
+
+    Returns
+    -------
+    type
+        
+
+    """
     return arg.imag
 
 
 def mag(arg):
-    """Return the magnitude of the elements of the array"""
+    """
+
+    Parameters
+    ----------
+    arg :
+        
+
+    Returns
+    -------
+    type
+        
+
+    """
     return abs(arg)
 
 
 def db10(arg):
-    """Return the magnitude in decibels (power) of the elements of the array"""
+    """
+
+    Parameters
+    ----------
+    arg :
+        
+
+    Returns
+    -------
+    type
+        
+
+    """
     return 10.0 * math.log10(mag(arg))
 
 
 def db20(arg):
-    """Return the magnitude in decibels (V or I) of the elements of the array"""
+    """
+
+    Parameters
+    ----------
+    arg :
+        
+
+    Returns
+    -------
+    type
+        
+
+    """
     return 20.0 * math.log10(mag(arg))
 
 
 def rad(arg):
-    """Return the phase in radians of the elements of the array"""
+    """
+
+    Parameters
+    ----------
+    arg :
+        
+
+    Returns
+    -------
+    type
+        
+
+    """
     return arg*math.pi/180
 
 
 def deg(arg):
-    """Return the phase in degrees of the elements of the array"""
+    """
+
+    Parameters
+    ----------
+    arg :
+        
+
+    Returns
+    -------
+    type
+        
+
+    """
     return arg*180/math.pi
 
 
@@ -88,6 +193,7 @@ formats = {
 
 
 class ParseError(Exception):
+    """ """
     def __init__(self, message):
         self.message = message
 
@@ -96,9 +202,7 @@ class ParseError(Exception):
 
 
 class TouchstoneData(object):
-    """
-    Data Class containing information from Touchstone Read call
-    """
+    """Data Class containing information from Touchstone Read call"""
 
     def __init__(self, freqs, matrix, portnames):
         self._sweeps_names = ["Freq"]
@@ -119,6 +223,17 @@ class TouchstoneData(object):
                 range(len(self.solutions_data_real[expr]))]
 
     def _solutions_data(self, matrix):
+        """
+
+        Parameters
+        ----------
+        matrix :
+            
+
+        Returns
+        -------
+
+        """
         sols_data_real = {}
         sols_data_imag = {}
         i=0
@@ -142,22 +257,36 @@ class TouchstoneData(object):
         return sols_data_real, sols_data_imag
 
     def data_magnitude(self, expression=None):
-        """
-        Return the data magnitude of the given expression. if no expression is provided, first expression is provided
+        """Return the data magnitude of the given expression. if no expression is provided, first expression is provided
 
-        :param expression: string expression name
-        :return: List of data
+        Parameters
+        ----------
+        expression :
+            string expression name (Default value = None)
+
+        Returns
+        -------
+        type
+            List of data
+
         """
         if not expression:
             expression = self.expressions[0]
         return list(self.solutions_data_mag[expression])
 
     def data_db(self, expression=None):
-        """
-        Return the data in db of the given expression. if no expression is provided, first expression is provided
+        """Return the data in db of the given expression. if no expression is provided, first expression is provided
 
-        :param expression: string expression name
-        :return: List of data
+        Parameters
+        ----------
+        expression :
+            string expression name (Default value = None)
+
+        Returns
+        -------
+        type
+            List of data
+
         """
         if not expression:
             expression = self.expressions[0]
@@ -168,11 +297,18 @@ class TouchstoneData(object):
             return None
 
     def data_real(self, expression=None):
-        """
-        Return the real part of data  of the given expression. if no expression is provided, first expression is provided
+        """Return the real part of data  of the given expression. if no expression is provided, first expression is provided
 
-        :param expression: string expression name
-        :return: List of data
+        Parameters
+        ----------
+        expression :
+            string expression name (Default value = None)
+
+        Returns
+        -------
+        type
+            List of data
+
         """
 
         if not expression:
@@ -180,11 +316,18 @@ class TouchstoneData(object):
         return list(self.solutions_data_real[expression])
 
     def data_imag(self, expression=None):
-        """
-        Return the imaginary part of data  of the given expression. if no expression is provided, first expression is provided
+        """Return the imaginary part of data  of the given expression. if no expression is provided, first expression is provided
 
-        :param expression: string expression name
-        :return: List of data
+        Parameters
+        ----------
+        expression :
+            string expression name (Default value = None)
+
+        Returns
+        -------
+        type
+            List of data
+
         """
         if not expression:
             expression = self.expressions[0]
@@ -193,13 +336,22 @@ class TouchstoneData(object):
 
 @aedt_exception_handler
 def get_return_losses(excitation_names, excitation_name_prefix=''):
-    """
-    Get the list of all the Returnloss from a list of exitations. If no exitation is provided it will provide a full list of return Losses
+    """Get the list of all the Returnloss from a list of exitations. If no exitation is provided it will provide a full list of return Losses
     Example: excitation_names ["1","2"] is_touchstone_expression=False output ["S(1,1)",, S(2,2)]
     Example: excitation_names ["S(1,1)","S(1,2)", S(2,2)] is_touchstone_expression=True output ["S(1,1)",, S(2,2)]
 
-    :param excitation_names: list of excitation to include
-    :return: list of string representing Return Losses of excitations
+    Parameters
+    ----------
+    excitation_names :
+        list of excitation to include
+    excitation_name_prefix :
+         (Default value = '')
+
+    Returns
+    -------
+    type
+        list of string representing Return Losses of excitations
+
     """
     spar = []
     if excitation_name_prefix:
@@ -210,15 +362,24 @@ def get_return_losses(excitation_names, excitation_name_prefix=''):
 
 @aedt_exception_handler
 def get_insertion_losses_from_prefix(expressions, tx_prefix, rx_prefix):
-    """
-    Get the list of all the Insertion Losses from prefix.
+    """Get the list of all the Insertion Losses from prefix.
 
+    Parameters
+    ----------
+    expressions :
+        list of Drivers to include or all nets
+    reclist :
+        list of Receiver to include. Number of Driver = Number of Receiver an
+    tx_prefix :
+        prefix for TX (eg. "DIE")
+    rx_prefix :
+        prefix for RX (eg. "BGA")
 
-    :param expressions: list of Drivers to include or all nets
-    :param reclist: list of Receiver to include. Number of Driver = Number of Receiver an
-    :param tx_prefix: prefix for TX (eg. "DIE")
-    :param rx_prefix: prefix for RX (eg. "BGA")
-    :return: list of string representing Insertion Losses of excitations
+    Returns
+    -------
+    type
+        list of string representing Insertion Losses of excitations
+
     """
     spar = []
     left_list=[]
@@ -234,15 +395,22 @@ def get_insertion_losses_from_prefix(expressions, tx_prefix, rx_prefix):
 
 @aedt_exception_handler
 def get_insertion_losses_from_lists(txlist, reclist):
-    """
-    Get the list of all the Insertion Losses from two list of exitations (driver and receiver). Optionally prefix can
+    """Get the list of all the Insertion Losses from two list of exitations (driver and receiver). Optionally prefix can
     be used to retrive driver and receiver names.
     Example: excitation_names ["1"] ["2"] output ["S(1,2)"]
 
-    :param txlist: list of Drivers to include or all nets
-    :param reclist: list of Receiver to include. Number of Driver = Number of Receiver an
+    Parameters
+    ----------
+    txlist :
+        list of Drivers to include or all nets
+    reclist :
+        list of Receiver to include. Number of Driver = Number of Receiver an
 
-    :return: list of string representing Insertion Losses of excitations
+    Returns
+    -------
+    type
+        list of string representing Insertion Losses of excitations
+
     """
     spar = []
     if len(txlist)!= len(reclist):
@@ -254,15 +422,22 @@ def get_insertion_losses_from_lists(txlist, reclist):
 
 @aedt_exception_handler
 def get_next_xtalk(expressions, tx_prefix=""):
-    """
-    Get the list of all the Near End XTalk a list of exitation. Optionally prefix can
+    """Get the list of all the Near End XTalk a list of exitation. Optionally prefix can
     be used to retrive driver names.
     Example: excitation_names ["1", "2", "3"] output ["S(1,2)", "S(1,3)", "S(2,3)"]
 
+    Parameters
+    ----------
+    expressions :
+        list of Drivers to include
+    tx_prefix :
+        prefix for TX (eg. "DIE") (Default value = "")
 
-    :param expressions: list of Drivers to include
-    :param tx_prefix: prefix for TX (eg. "DIE")
-    :return: list of string representing Near End XTalks
+    Returns
+    -------
+    type
+        list of string representing Near End XTalks
+
     """
     next = []
     if tx_prefix:
@@ -278,17 +453,24 @@ def get_next_xtalk(expressions, tx_prefix=""):
 
 @aedt_exception_handler
 def get_fext_xtalk_from_list(trlist, reclist,  skip_same_index_couples=True):
-    """
-    Get the list of all the Far End XTalk from 2 lists of exitations.  If skip_same_index_couples is true, the tx and rx with same index
+    """Get the list of all the Far End XTalk from 2 lists of exitations.  If skip_same_index_couples is true, the tx and rx with same index
     position will be considered insertion losses and excluded from the list
     Example: excitation_names ["1", "2"] ["3","4"] output ["S(1,4)", "S(2,3)"]
 
+    Parameters
+    ----------
+    trlist :
+        list of Drivers to include
+    reclist :
+        list of Receiver to include
+    skip_same_index_couples :
+        Boolean ignore TX and RX couple with same index (Default value = True)
 
-    :param trlist: list of Drivers to include
-    :param reclist: list of Receiver to include
-    :param skip_same_index_couples: Boolean ignore TX and RX couple with same index
+    Returns
+    -------
+    type
+        list of string representing Far End XTalks
 
-    :return: list of string representing Far End XTalks
     """
     fext = []
     for i in trlist:
@@ -299,18 +481,28 @@ def get_fext_xtalk_from_list(trlist, reclist,  skip_same_index_couples=True):
 
 @aedt_exception_handler
 def get_fext_xtalk_from_prefix(expressions, tx_prefix, rx_prefix, skip_same_index_couples=True):
-    """
-    Get the list of all the Far End XTalk from a list of exitations and a prefix that will
+    """Get the list of all the Far End XTalk from a list of exitations and a prefix that will
     be used to retrive driver and receivers names. If skip_same_index_couples is true, the tx and rx with same index
     position will be considered insertion losses and excluded from the list
 
-    :param expressions: list of Receiver to include
-    :param tx_prefix: prefix for TX (eg. "DIE")
-    :param reclist: list of Receiver to include
-    :param rx_prefix: prefix for RX (eg. "BGA")
-    :param skip_same_index_couples: Boolean ignore TX and RX couple with same index
+    Parameters
+    ----------
+    expressions :
+        list of Receiver to include
+    tx_prefix :
+        prefix for TX (eg. "DIE")
+    reclist :
+        list of Receiver to include
+    rx_prefix :
+        prefix for RX (eg. "BGA")
+    skip_same_index_couples :
+        Boolean ignore TX and RX couple with same index (Default value = True)
 
-    :return: list of string representing Far End XTalks
+    Returns
+    -------
+    type
+        list of string representing Far End XTalks
+
     """
     fext = []
     trlist = [i for i in expressions if tx_prefix in i]
@@ -324,17 +516,28 @@ def get_fext_xtalk_from_prefix(expressions, tx_prefix, rx_prefix, skip_same_inde
 @aedt_exception_handler
 def get_worst_curve_from_solution_data(solution_data, freq_min=None, freq_max=None, worst_is_higher=True,
                                        curve_list=None):
-    """
-    This method analyze a solution data object with multiple curves and find the worst curve returning its name and
+    """This method analyze a solution data object with multiple curves and find the worst curve returning its name and
      a ordered dictionary with each curve mean. Actual algorithm simply takes the mean of the magnitued over the
      frequency range
 
-    :param solution_data: SolutionData or TouchstoneData object
-    :param freq_min: minimum frequency to analyze (None to 0)
-    :param freq_max: maximum frequency to analyze (None to max freq)
-    :param worst_is_higher: boolean. if True, the worst curve is the one with higher mean value
-    :param curve_list: list of curves on which to search. None to search on all curves
-    :return: worst element str, dictionary of ordered expression and their mean
+    Parameters
+    ----------
+    solution_data :
+        SolutionData or TouchstoneData object
+    freq_min :
+        minimum frequency to analyze (None to 0) (Default value = None)
+    freq_max :
+        maximum frequency to analyze (None to max freq) (Default value = None)
+    worst_is_higher :
+        boolean. if True, the worst curve is the one with higher mean value (Default value = True)
+    curve_list :
+        list of curves on which to search. None to search on all curves (Default value = None)
+
+    Returns
+    -------
+    type
+        worst element str, dictionary of ordered expression and their mean
+
     """
     if not curve_list:
         curve_list = solution_data.expressions
@@ -362,11 +565,19 @@ def get_worst_curve_from_solution_data(solution_data, freq_min=None, freq_max=No
 
 
 def read_touchstone(file_path, verbose=False):
-    """
-    Load the contents of a Touchstone file into an NPort
+    """Load the contents of a Touchstone file into an NPort
 
-    :returns: NPort holding data contained in the Touchstone file
-    :rtype: :class:`nport.NPort`
+    Parameters
+    ----------
+    file_path :
+        
+    verbose :
+         (Default value = False)
+
+    Returns
+    -------
+    class:`nport.NPort`
+        NPort holding data contained in the Touchstone file
 
     """
     re_filename = re.compile(r"\.s(?P<ports>\d+)+p", re.I)
@@ -403,7 +614,17 @@ _re_empty = re.compile(r"^\s*$")
 
 
 def _parse_ports_name(file):
-    """Parse and interpret the option line in the touchstone file"""
+    """Parse and interpret the option line in the touchstone file
+
+    Parameters
+    ----------
+    file :
+        
+
+    Returns
+    -------
+
+    """
     portnames=[]
     line = file.readline()
     while not line.startswith('! Port'):
@@ -415,7 +636,19 @@ def _parse_ports_name(file):
 
 
 def _parse_option_line(file, verbose=False):
-    """Parse and interpret the option line in the touchstone file"""
+    """Parse and interpret the option line in the touchstone file
+
+    Parameters
+    ----------
+    file :
+        
+    verbose :
+         (Default value = False)
+
+    Returns
+    -------
+
+    """
     prefix = {
         '': 1,
         'K': 1e3,
@@ -463,9 +696,16 @@ def _parse_option_line(file, verbose=False):
 
 
 def _get_next_line_data(file):
-    """
-    Returns the data on the next line of the input file as an array
+    """Returns the data on the next line of the input file as an array
     of floats, skipping comment, option and empty lines.
+
+    Parameters
+    ----------
+    file :
+        
+
+    Returns
+    -------
 
     """
     line = '!'
@@ -483,7 +723,21 @@ def _get_next_line_data(file):
 
 
 def _parse_next_sample(file, ports, format):
-    """Parse the parameters for the next frequency point"""
+    """Parse the parameters for the next frequency point
+
+    Parameters
+    ----------
+    file :
+        
+    ports :
+        
+    format :
+        
+
+    Returns
+    -------
+
+    """
     data = _get_next_line_data(file)
     # data lines always contain an even number of values (2 values
     #  per parameter), *unless* a frequency value is included in

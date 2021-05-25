@@ -193,6 +193,7 @@
 
 
 <span class="k">class</span> <span class="nc">MeshOperation</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot; &quot;&quot;&quot;</span>
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">parent</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">props</span><span class="p">,</span> <span class="n">meshoptype</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_parent</span> <span class="o">=</span> <span class="n">parent</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="n">name</span>
@@ -201,6 +202,7 @@
 
     <span class="nd">@aedt_exception_handler</span>
     <span class="k">def</span> <span class="nf">_get_args</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; &quot;&quot;&quot;</span>
         <span class="n">props</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">props</span>
         <span class="n">arg</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;NAME:&quot;</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">]</span>
         <span class="n">dict2arg</span><span class="p">(</span><span class="n">props</span><span class="p">,</span> <span class="n">arg</span><span class="p">)</span>
@@ -208,6 +210,7 @@
 
     <span class="nd">@aedt_exception_handler</span>
     <span class="k">def</span> <span class="nf">create</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">type</span> <span class="o">==</span> <span class="s2">&quot;SurfApproxBased&quot;</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_parent</span><span class="o">.</span><span class="n">omeshmodule</span><span class="o">.</span><span class="n">AssignTrueSurfOp</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_get_args</span><span class="p">())</span>
         <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">type</span> <span class="o">==</span> <span class="s2">&quot;DefeatureBased&quot;</span><span class="p">:</span>
@@ -234,6 +237,7 @@
 
     <span class="nd">@aedt_exception_handler</span>
     <span class="k">def</span> <span class="nf">update</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">type</span> <span class="o">==</span> <span class="s2">&quot;SurfApproxBased&quot;</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_parent</span><span class="o">.</span><span class="n">omeshmodule</span><span class="o">.</span><span class="n">EditTrueSurfOp</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_args</span><span class="p">())</span>
         <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">type</span> <span class="o">==</span> <span class="s2">&quot;DefeatureBased&quot;</span><span class="p">:</span>
@@ -260,6 +264,7 @@
 
     <span class="nd">@aedt_exception_handler</span>
     <span class="k">def</span> <span class="nf">delete</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_parent</span><span class="o">.</span><span class="n">omeshmodule</span><span class="o">.</span><span class="n">DeleteOp</span><span class="p">([</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">])</span>
         <span class="k">for</span> <span class="n">el</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_parent</span><span class="o">.</span><span class="n">meshoperations</span><span class="p">:</span>
             <span class="k">if</span> <span class="n">el</span><span class="o">.</span><span class="n">name</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">:</span>
@@ -271,7 +276,15 @@
     <span class="sd">&quot;&quot;&quot;&quot;&quot;</span>
 <span class="sd">    Manage Main AEDT Mesh Functions</span>
 <span class="sd">    AEDTConfig Class Inherited contains all the _desktop Hierarchical calls needed to the class</span>
-<span class="sd">    &quot;&quot;&quot;</span><span class="s2">&quot;&quot;</span>
+<span class="sd">    &quot;&quot;</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">parent</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_parent</span> <span class="o">=</span> <span class="n">parent</span>
@@ -282,28 +295,29 @@
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">omeshmodule</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
-
-<span class="sd">        :return: Mesh Module</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="sd">&quot;&quot;&quot;:return: Mesh Module&quot;&quot;&quot;</span>
         <span class="n">design_type</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">odesign</span><span class="o">.</span><span class="n">GetDesignType</span><span class="p">()</span>
         <span class="k">assert</span> <span class="n">design_type</span> <span class="ow">in</span> <span class="n">meshers</span><span class="p">,</span> <span class="s2">&quot;Invalid design type </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">design_type</span><span class="p">)</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">odesign</span><span class="o">.</span><span class="n">GetModule</span><span class="p">(</span><span class="n">meshers</span><span class="p">[</span><span class="n">design_type</span><span class="p">])</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">messenger</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_parent</span><span class="o">.</span><span class="n">_messenger</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">odesign</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_parent</span><span class="o">.</span><span class="n">_odesign</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">modeler</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_parent</span><span class="o">.</span><span class="n">_modeler</span>
 
     <span class="nd">@aedt_exception_handler</span>
     <span class="k">def</span> <span class="nf">_get_design_global_mesh</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; &quot;&quot;&quot;</span>
         <span class="k">try</span><span class="p">:</span>
             <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_parent</span><span class="o">.</span><span class="n">design_properties</span><span class="p">[</span><span class="s1">&#39;MeshSetup&#39;</span><span class="p">][</span><span class="s1">&#39;MeshSettings&#39;</span><span class="p">]</span>
         <span class="k">except</span><span class="p">:</span>
@@ -311,6 +325,7 @@
 
     <span class="nd">@aedt_exception_handler</span>
     <span class="k">def</span> <span class="nf">_get_design_mesh_operations</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; &quot;&quot;&quot;</span>
         <span class="n">meshops</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="k">try</span><span class="p">:</span>
             <span class="k">for</span> <span class="n">ds</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_parent</span><span class="o">.</span><span class="n">design_properties</span><span class="p">[</span><span class="s1">&#39;MeshSetup&#39;</span><span class="p">][</span><span class="s1">&#39;MeshOperations&#39;</span><span class="p">]:</span>
@@ -325,14 +340,22 @@
 
 <div class="viewcode-block" id="Mesh.assign_surface_mesh"><a class="viewcode-back" href="../../../API/Mesh3D.html#pyaedt.modules.Mesh.Mesh.assign_surface_mesh">[docs]</a>    <span class="nd">@aedt_exception_handler</span>
     <span class="k">def</span> <span class="nf">assign_surface_mesh</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">names</span><span class="p">,</span> <span class="n">level</span><span class="p">,</span> <span class="n">meshop_name</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Assign a predefined surface mesh level to an object</span>
+        <span class="sd">&quot;&quot;&quot;Assign a predefined surface mesh level to an object</span>
 
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        names :</span>
+<span class="sd">            name of the objects</span>
+<span class="sd">        level :</span>
+<span class="sd">            level of surface mesh</span>
+<span class="sd">        meshop_name :</span>
+<span class="sd">            optional name (Default value = None)</span>
 
-<span class="sd">        :param names: name of the objects</span>
-<span class="sd">        :param level: level of surface mesh</span>
-<span class="sd">        :param meshop_name: optional name</span>
-<span class="sd">        :return: meshoperation object</span>
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        type</span>
+<span class="sd">            meshoperation object</span>
+
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="n">meshop_name</span><span class="p">:</span>
             <span class="k">for</span> <span class="n">m</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">meshoperations</span><span class="p">:</span>
@@ -356,16 +379,26 @@
 
 <div class="viewcode-block" id="Mesh.assign_surface_mesh_manual"><a class="viewcode-back" href="../../../API/Mesh3D.html#pyaedt.modules.Mesh.Mesh.assign_surface_mesh_manual">[docs]</a>    <span class="nd">@aedt_exception_handler</span>
     <span class="k">def</span> <span class="nf">assign_surface_mesh_manual</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">names</span><span class="p">,</span> <span class="n">surf_dev</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">normal_dev</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">aspect_ratio</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">meshop_name</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Assign Surface mesh to list of faces</span>
+        <span class="sd">&quot;&quot;&quot;Assign Surface mesh to list of faces</span>
 
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        names :</span>
+<span class="sd">            list of objects to apply surface mesh</span>
+<span class="sd">        surf_dev :</span>
+<span class="sd">            float surface deviation (Default value = None)</span>
+<span class="sd">        normal_dev :</span>
+<span class="sd">            float normal deviation (Default value = None)</span>
+<span class="sd">        aspect_ratio :</span>
+<span class="sd">            int aspoect ration (Default value = None)</span>
+<span class="sd">        meshop_name :</span>
+<span class="sd">            label to apply to boundary (Default value = None)</span>
 
-<span class="sd">        :param names: list of objects to apply surface mesh</span>
-<span class="sd">        :param surf_dev: float surface deviation</span>
-<span class="sd">        :param normal_dev: float normal deviation</span>
-<span class="sd">        :param aspect_ratio: int aspoect ration</span>
-<span class="sd">        :param meshop_name: label to apply to boundary</span>
-<span class="sd">        :return: meshoperation object</span>
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        type</span>
+<span class="sd">            meshoperation object</span>
+
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="n">meshop_name</span><span class="p">:</span>
             <span class="k">for</span> <span class="n">m</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">meshoperations</span><span class="p">:</span>
@@ -405,11 +438,20 @@
     <span class="k">def</span> <span class="nf">assign_model_resolution</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">names</span><span class="p">,</span> <span class="n">defeature_length</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">meshop_name</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Assign Model Resolution</span>
 
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        names :</span>
+<span class="sd">            list of objects to defeature</span>
+<span class="sd">        defeature_length :</span>
+<span class="sd">            defeaturing length in mm. None for automatic defeature (Default value = None)</span>
+<span class="sd">        meshop_name :</span>
+<span class="sd">            optional name of meshoperation (Default value = None)</span>
 
-<span class="sd">        :param names: list of objects to defeature</span>
-<span class="sd">        :param defeature_length: defeaturing length in mm. None for automatic defeature</span>
-<span class="sd">        :param meshop_name: optional name of meshoperation</span>
-<span class="sd">        :return: meshoperation object</span>
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        type</span>
+<span class="sd">            meshoperation object</span>
+
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="n">meshop_name</span><span class="p">:</span>
             <span class="k">for</span> <span class="n">m</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">meshoperations</span><span class="p">:</span>
@@ -435,14 +477,32 @@
                                         <span class="n">applycurvilinear</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">usefallback</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">usephi</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">automodelresolution</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">modelresolutionlength</span><span class="o">=</span><span class="s2">&quot;0.0001mm&quot;</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Assign a predefined surface mesh level to an object</span>
 
-<span class="sd">        :param level: level of surface mesh (integer 1 - 10)</span>
-<span class="sd">        :param method: mesher setting &quot;Auto&quot;, &quot;AnsoftTAU&quot;, &quot;AnsoftClassic&quot;</span>
-<span class="sd">        :param usedynamicsurface: Boolean</span>
-<span class="sd">        :param useflexmesh: Boolean</span>
-<span class="sd">        :param applycurvilinear: Boolean</span>
-<span class="sd">        :param usefallback: Boolean</span>
-<span class="sd">        :param usephi: Boolean</span>
-<span class="sd">        :return: Boolean</span>
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        level :</span>
+<span class="sd">            level of surface mesh (integer 1 - 10) (Default value = 5)</span>
+<span class="sd">        method :</span>
+<span class="sd">            mesher setting &quot;Auto&quot;, &quot;AnsoftTAU&quot;, &quot;AnsoftClassic&quot; (Default value = &#39;Auto&#39;)</span>
+<span class="sd">        usedynamicsurface :</span>
+<span class="sd">            Boolean (Default value = True)</span>
+<span class="sd">        useflexmesh :</span>
+<span class="sd">            Boolean (Default value = False)</span>
+<span class="sd">        applycurvilinear :</span>
+<span class="sd">            Boolean (Default value = False)</span>
+<span class="sd">        usefallback :</span>
+<span class="sd">            Boolean (Default value = True)</span>
+<span class="sd">        usephi :</span>
+<span class="sd">            Boolean (Default value = True)</span>
+<span class="sd">        automodelresolution :</span>
+<span class="sd">             (Default value = True)</span>
+<span class="sd">        modelresolutionlength :</span>
+<span class="sd">             (Default value = &quot;0.0001mm&quot;)</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        type</span>
+<span class="sd">            Boolean</span>
+
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_parent</span><span class="o">.</span><span class="n">design_type</span> <span class="o">==</span> <span class="s2">&quot;2D Extractor&quot;</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">_parent</span><span class="o">.</span><span class="n">design_type</span> <span class="o">==</span> <span class="s2">&quot;Maxwell 2D&quot;</span><span class="p">:</span>
             <span class="n">mesh_methods</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;Auto&quot;</span><span class="p">,</span> <span class="s2">&quot;AnsoftClassic&quot;</span><span class="p">]</span>
@@ -474,10 +534,18 @@
     <span class="k">def</span> <span class="nf">assign_surf_priority_for_tau</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">object_lists</span><span class="p">,</span> <span class="n">surfpriority</span><span class="o">=</span><span class="mi">0</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Assign Surface Priority for Tau Mesheron object lists</span>
 
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        object_lists :</span>
+<span class="sd">            list of objects to apply it</span>
+<span class="sd">        surfpriority :</span>
+<span class="sd">            int Surface Priority. Default 0</span>
 
-<span class="sd">        :param object_lists: list of objects to apply it</span>
-<span class="sd">        :param surfpriority: int Surface Priority. Default 0</span>
-<span class="sd">        :return: meshoperation object</span>
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        type</span>
+<span class="sd">            meshoperation object</span>
+
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">meshop_name</span> <span class="o">=</span> <span class="n">generate_unique_name</span><span class="p">(</span><span class="s2">&quot;SurfaceRepPriority&quot;</span><span class="p">)</span>
         <span class="n">props</span> <span class="o">=</span> <span class="n">OrderedDict</span><span class="p">({</span><span class="s2">&quot;Type&quot;</span><span class="p">:</span> <span class="s2">&quot;SurfaceRepPriority&quot;</span><span class="p">,</span> <span class="s2">&quot;Objects&quot;</span><span class="p">:</span> <span class="n">object_lists</span><span class="p">,</span> <span class="s2">&quot;SurfaceRepPriority&quot;</span><span class="p">:</span> <span class="n">surfpriority</span><span class="p">})</span>
@@ -490,8 +558,17 @@
 <div class="viewcode-block" id="Mesh.generate_mesh"><a class="viewcode-back" href="../../../API/Mesh3D.html#pyaedt.modules.Mesh.Mesh.generate_mesh">[docs]</a>    <span class="nd">@aedt_exception_handler</span>
     <span class="k">def</span> <span class="nf">generate_mesh</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Generate Mesh for Setup name. Return 0 if mesh failed or 1 if passed</span>
-<span class="sd">        :param name:  name of design to be meshed</span>
-<span class="sd">        :return: Bool</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        name :</span>
+<span class="sd">            name of design to be meshed</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        type</span>
+<span class="sd">            Bool</span>
+
 <span class="sd">        &quot;&quot;&quot;</span>
 
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">odesign</span><span class="o">.</span><span class="n">GenerateMesh</span><span class="p">(</span><span class="n">name</span><span class="p">)</span></div>
@@ -501,8 +578,16 @@
     <span class="k">def</span> <span class="nf">delete_mesh_operations</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">mesh_type</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Remove mesh operations from a design. If type is None, remove all mesh operations</span>
 
-<span class="sd">        :param mesh_type: mesh operation type</span>
-<span class="sd">        :return: Boolean</span>
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        mesh_type :</span>
+<span class="sd">            mesh operation type (Default value = None)</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        type</span>
+<span class="sd">            Boolean</span>
+
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="c1"># Type &quot;Area Based&quot; not included since the delete command causes</span>
         <span class="c1"># desktop to crash</span>
@@ -528,12 +613,25 @@
 <div class="viewcode-block" id="Mesh.assign_length_mesh"><a class="viewcode-back" href="../../../API/Mesh3D.html#pyaedt.modules.Mesh.Mesh.assign_length_mesh">[docs]</a>    <span class="nd">@aedt_exception_handler</span>
     <span class="k">def</span> <span class="nf">assign_length_mesh</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">names</span><span class="p">,</span> <span class="n">isinside</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">maxlength</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">maxel</span><span class="o">=</span><span class="mi">1000</span><span class="p">,</span> <span class="n">meshop_name</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        :param names: object lists. it can be a list of objects names or faces ids</span>
-<span class="sd">        :param isinside: True if length mesh is inside selection, False if outside</span>
-<span class="sd">        :param maxlength: maxlength maximum element length. None to disable</span>
-<span class="sd">        :param maxel: max number of element. None to disable</span>
-<span class="sd">        :param meshop_name: optional mesh operation name</span>
-<span class="sd">        :return: meshoperation object</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        names :</span>
+<span class="sd">            object lists. it can be a list of objects names or faces ids</span>
+<span class="sd">        isinside :</span>
+<span class="sd">            True if length mesh is inside selection, False if outside (Default value = True)</span>
+<span class="sd">        maxlength :</span>
+<span class="sd">            maxlength maximum element length. None to disable (Default value = 1)</span>
+<span class="sd">        maxel :</span>
+<span class="sd">            max number of element. None to disable (Default value = 1000)</span>
+<span class="sd">        meshop_name :</span>
+<span class="sd">            optional mesh operation name (Default value = None)</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        type</span>
+<span class="sd">            meshoperation object</span>
+
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="n">meshop_name</span><span class="p">:</span>
             <span class="k">for</span> <span class="n">m</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">meshoperations</span><span class="p">:</span>
@@ -582,12 +680,26 @@
     <span class="k">def</span> <span class="nf">assign_skin_depth</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">names</span><span class="p">,</span> <span class="n">skindepth</span><span class="p">,</span> <span class="n">maxelements</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">triangulation_max_length</span><span class="o">=</span><span class="s2">&quot;0.1mm&quot;</span><span class="p">,</span> <span class="n">numlayers</span><span class="o">=</span><span class="s2">&quot;2&quot;</span><span class="p">,</span>
                           <span class="n">meshop_name</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        :param names: object lists. it can be a list of objects names or faces ids</span>
-<span class="sd">        :param skindepth: True if length mesh is inside selection, False if outside</span>
-<span class="sd">        :param maxelements: maxlength maximum element length. None to disable</span>
-<span class="sd">        :param triangulation_max_length: maximum surface triangulation length</span>
-<span class="sd">        :param numlayers: number of layers</span>
-<span class="sd">        :return: meshoperation object</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        names :</span>
+<span class="sd">            object lists. it can be a list of objects names or faces ids</span>
+<span class="sd">        skindepth :</span>
+<span class="sd">            True if length mesh is inside selection, False if outside</span>
+<span class="sd">        maxelements :</span>
+<span class="sd">            maxlength maximum element length. None to disable (Default value = None)</span>
+<span class="sd">        triangulation_max_length :</span>
+<span class="sd">            maximum surface triangulation length (Default value = &quot;0.1mm&quot;)</span>
+<span class="sd">        numlayers :</span>
+<span class="sd">            number of layers (Default value = &quot;2&quot;)</span>
+<span class="sd">        meshop_name :</span>
+<span class="sd">             (Default value = None)</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        type</span>
+<span class="sd">            meshoperation object</span>
 
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_parent</span><span class="o">.</span><span class="n">design_type</span> <span class="o">!=</span> <span class="s2">&quot;HFSS&quot;</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">_parent</span><span class="o">.</span><span class="n">design_type</span> <span class="o">!=</span> <span class="s2">&quot;Maxwell 3D&quot;</span><span class="p">:</span>
@@ -629,11 +741,20 @@
 <div class="viewcode-block" id="Mesh.appy_curvilinear_elements"><a class="viewcode-back" href="../../../API/Mesh3D.html#pyaedt.modules.Mesh.Mesh.appy_curvilinear_elements">[docs]</a>    <span class="nd">@aedt_exception_handler</span>
     <span class="k">def</span> <span class="nf">appy_curvilinear_elements</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">names</span><span class="p">,</span> <span class="n">enable</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">meshop_name</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        :param names: object lists. it can be a list of objects or faces</span>
-<span class="sd">        :param enable: True if enabled</span>
-<span class="sd">        :param meshop_name: optional mesh operation name</span>
 
-<span class="sd">        :return: meshoperation object</span>
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        names :</span>
+<span class="sd">            object lists. it can be a list of objects or faces</span>
+<span class="sd">        enable :</span>
+<span class="sd">            True if enabled (Default value = True)</span>
+<span class="sd">        meshop_name :</span>
+<span class="sd">            optional mesh operation name (Default value = None)</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        type</span>
+<span class="sd">            meshoperation object</span>
 
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_parent</span><span class="o">.</span><span class="n">design_type</span> <span class="o">!=</span> <span class="s2">&quot;HFSS&quot;</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">_parent</span><span class="o">.</span><span class="n">design_type</span> <span class="o">!=</span> <span class="s2">&quot;Maxwell 3D&quot;</span><span class="p">:</span>
@@ -665,11 +786,20 @@
 <div class="viewcode-block" id="Mesh.appy_curvature_extraction"><a class="viewcode-back" href="../../../API/Mesh3D.html#pyaedt.modules.Mesh.Mesh.appy_curvature_extraction">[docs]</a>    <span class="nd">@aedt_exception_handler</span>
     <span class="k">def</span> <span class="nf">appy_curvature_extraction</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">names</span><span class="p">,</span> <span class="n">disable_for_faceted_surf</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">meshop_name</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        :param names: object lists. it can be a list of objects or faces</span>
-<span class="sd">        :param disable_for_faceted_surf: True if enabled</span>
-<span class="sd">        :param meshop_name: optional mesh operation name</span>
 
-<span class="sd">        :return: meshoperation object</span>
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        names :</span>
+<span class="sd">            object lists. it can be a list of objects or faces</span>
+<span class="sd">        disable_for_faceted_surf :</span>
+<span class="sd">            True if enabled (Default value = True)</span>
+<span class="sd">        meshop_name :</span>
+<span class="sd">            optional mesh operation name (Default value = None)</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        type</span>
+<span class="sd">            meshoperation object</span>
 
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_parent</span><span class="o">.</span><span class="n">solution_type</span> <span class="o">!=</span> <span class="s2">&quot;SBR+&quot;</span><span class="p">:</span>
@@ -701,13 +831,22 @@
 <div class="viewcode-block" id="Mesh.assign_rotational_layer"><a class="viewcode-back" href="../../../API/Mesh3D.html#pyaedt.modules.Mesh.Mesh.assign_rotational_layer">[docs]</a>    <span class="nd">@aedt_exception_handler</span>
     <span class="k">def</span> <span class="nf">assign_rotational_layer</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">names</span><span class="p">,</span> <span class="n">num_layers</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span> <span class="n">total_thickness</span><span class="o">=</span><span class="s2">&quot;1mm&quot;</span><span class="p">,</span> <span class="n">meshop_name</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        :param names: object lists.</span>
-<span class="sd">        :param num_layers: str or int</span>
-<span class="sd">        :param total_thickness: thickness with units</span>
 
-<span class="sd">        :param meshop_name: optional mesh operation name</span>
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        names :</span>
+<span class="sd">            object lists.</span>
+<span class="sd">        num_layers :</span>
+<span class="sd">            str or int (Default value = 3)</span>
+<span class="sd">        total_thickness :</span>
+<span class="sd">            thickness with units (Default value = &quot;1mm&quot;)</span>
+<span class="sd">        meshop_name :</span>
+<span class="sd">            optional mesh operation name (Default value = None)</span>
 
-<span class="sd">        :return: meshoperation object</span>
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        type</span>
+<span class="sd">            meshoperation object</span>
 
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_parent</span><span class="o">.</span><span class="n">design_type</span> <span class="o">!=</span> <span class="s2">&quot;Maxwell 3D&quot;</span><span class="p">:</span>
@@ -731,10 +870,20 @@
 <div class="viewcode-block" id="Mesh.assign_edge_cut"><a class="viewcode-back" href="../../../API/Mesh3D.html#pyaedt.modules.Mesh.Mesh.assign_edge_cut">[docs]</a>    <span class="nd">@aedt_exception_handler</span>
     <span class="k">def</span> <span class="nf">assign_edge_cut</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">names</span><span class="p">,</span> <span class="n">layer_thickness</span><span class="o">=</span><span class="s2">&quot;1mm&quot;</span><span class="p">,</span> <span class="n">meshop_name</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        :param names: object lists.</span>
-<span class="sd">        :param layer_thickness: thickness with units</span>
-<span class="sd">        :param meshop_name: optional mesh operation name</span>
-<span class="sd">        :return: meshoperation object</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        names :</span>
+<span class="sd">            object lists.</span>
+<span class="sd">        layer_thickness :</span>
+<span class="sd">            thickness with units (Default value = &quot;1mm&quot;)</span>
+<span class="sd">        meshop_name :</span>
+<span class="sd">            optional mesh operation name (Default value = None)</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        type</span>
+<span class="sd">            meshoperation object</span>
 
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_parent</span><span class="o">.</span><span class="n">design_type</span> <span class="o">!=</span> <span class="s2">&quot;Maxwell 3D&quot;</span><span class="p">:</span>
@@ -757,12 +906,24 @@
 <div class="viewcode-block" id="Mesh.assign_density_control"><a class="viewcode-back" href="../../../API/Mesh3D.html#pyaedt.modules.Mesh.Mesh.assign_density_control">[docs]</a>    <span class="nd">@aedt_exception_handler</span>
     <span class="k">def</span> <span class="nf">assign_density_control</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">names</span><span class="p">,</span> <span class="n">refine_inside</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">maxelementlength</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">layerNum</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">meshop_name</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        :param names: object lists.</span>
-<span class="sd">        :param refine_inside: Boolean</span>
-<span class="sd">        :param maxelementlength: dim wih units. None to disable</span>
-<span class="sd">        :param layerNum: Number. None to disable</span>
-<span class="sd">        :param meshop_name: optional mesh operation name</span>
-<span class="sd">        :return: meshoperation object</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        names :</span>
+<span class="sd">            object lists.</span>
+<span class="sd">        refine_inside :</span>
+<span class="sd">            Boolean (Default value = True)</span>
+<span class="sd">        maxelementlength :</span>
+<span class="sd">            dim wih units. None to disable (Default value = None)</span>
+<span class="sd">        layerNum :</span>
+<span class="sd">            Number. None to disable (Default value = None)</span>
+<span class="sd">        meshop_name :</span>
+<span class="sd">            optional mesh operation name (Default value = None)</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        type</span>
+<span class="sd">            meshoperation object</span>
 
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_parent</span><span class="o">.</span><span class="n">design_type</span> <span class="o">!=</span> <span class="s2">&quot;Maxwell 3D&quot;</span><span class="p">:</span>

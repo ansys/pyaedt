@@ -166,13 +166,18 @@
 
 
 <div class="viewcode-block" id="FieldAnalysis3D"><a class="viewcode-back" href="../../../API/Analysis3D.html#pyaedt.application.Analysis3D.FieldAnalysis3D">[docs]</a><span class="k">class</span> <span class="nc">FieldAnalysis3D</span><span class="p">(</span><span class="n">Analysis</span><span class="p">,</span> <span class="nb">object</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot; AEDT_3D_FieldAnalysis</span>
-
-
+    <span class="sd">&quot;&quot;&quot;AEDT_3D_FieldAnalysis</span>
+<span class="sd">    </span>
+<span class="sd">    </span>
 <span class="sd">    Class for 3D Field Analysis Setup (HFSS, Maxwell3D, Q3D)</span>
-
+<span class="sd">    </span>
 <span class="sd">    It is automatically initialized by Application call (like HFSS, Q3D...). Refer to Application function for inputs definition</span>
 
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
 
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">application</span><span class="p">,</span> <span class="n">projectname</span><span class="p">,</span> <span class="n">designname</span><span class="p">,</span> <span class="n">solutiontype</span><span class="p">,</span> <span class="n">setup_name</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
@@ -184,18 +189,26 @@
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">modeler</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_modeler</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">mesh</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_mesh</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">components3d</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Return the list of 3dcomponents of specific design_type stored in userlib and syslib</span>
 
-<span class="sd">        :return: Ditcionary of components with their absolute path</span>
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        type</span>
+<span class="sd">            :return: Ditcionary of components with their absolute path</span>
+
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">components_dict</span><span class="o">=</span><span class="p">{}</span>
         <span class="n">syspath</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">syslib</span><span class="p">,</span> <span class="s2">&quot;3DComponents&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_design_type</span><span class="p">)</span>
@@ -214,12 +227,18 @@
 
 <div class="viewcode-block" id="FieldAnalysis3D.get_components3d_vars"><a class="viewcode-back" href="../../../API/Analysis3D.html#pyaedt.application.Analysis3D.FieldAnalysis3D.get_components3d_vars">[docs]</a>    <span class="nd">@aedt_exception_handler</span>
     <span class="k">def</span> <span class="nf">get_components3d_vars</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">component3dname</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Read the a3dComp file and check for variables. It polulates a dictionary with default value</span>
+        <span class="sd">&quot;&quot;&quot;Read the a3dComp file and check for variables. It polulates a dictionary with default value</span>
 
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        component3dname :</span>
+<span class="sd">            name of 3dcomponent (it has to be in syslib or userlib) or full absolute path to a3dcomp file (with extension)</span>
 
-<span class="sd">        :param component3dname: name of 3dcomponent (it has to be in syslib or userlib) or full absolute path to a3dcomp file (with extension)</span>
-<span class="sd">        :return: vars dictionary</span>
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        type</span>
+<span class="sd">            vars dictionary</span>
+
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="nb">vars</span> <span class="o">=</span> <span class="p">{}</span>
         <span class="k">if</span> <span class="n">component3dname</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">components3d</span><span class="p">:</span>
@@ -243,10 +262,21 @@
 <div class="viewcode-block" id="FieldAnalysis3D.get_property_value"><a class="viewcode-back" href="../../../API/Analysis3D.html#pyaedt.application.Analysis3D.FieldAnalysis3D.get_property_value">[docs]</a>    <span class="nd">@aedt_exception_handler</span>
     <span class="k">def</span> <span class="nf">get_property_value</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">objectname</span><span class="p">,</span> <span class="nb">property</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        :param type: type of the property. &quot;Boundary&quot;, &quot;Excitation&quot;, &quot;Setup&quot;, &quot;Mesh&quot;</span>
-<span class="sd">        :param objectname:</span>
-<span class="sd">        :param property:</span>
-<span class="sd">        :return: property value</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        type :</span>
+<span class="sd">            type of the property. &quot;Boundary&quot;, &quot;Excitation&quot;, &quot;Setup&quot;, &quot;Mesh&quot; (Default value = None)</span>
+<span class="sd">        objectname :</span>
+<span class="sd">            param property:</span>
+<span class="sd">        property :</span>
+<span class="sd">            </span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        type</span>
+<span class="sd">            property value</span>
+
 <span class="sd">        &quot;&quot;&quot;</span>
 
         <span class="n">boundary</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;HFSS&quot;</span><span class="p">:</span> <span class="s2">&quot;HfssTab&quot;</span><span class="p">,</span> <span class="s2">&quot;Icepak&quot;</span><span class="p">:</span> <span class="s2">&quot;Icepak&quot;</span><span class="p">,</span> <span class="s2">&quot;Q3D&quot;</span><span class="p">:</span> <span class="s2">&quot;Q3D&quot;</span><span class="p">,</span> <span class="s2">&quot;Maxwell3D&quot;</span><span class="p">:</span> <span class="s2">&quot;Maxwell3D&quot;</span><span class="p">}</span>
@@ -284,17 +314,26 @@
 
 <div class="viewcode-block" id="FieldAnalysis3D.copy_solid_bodies_from"><a class="viewcode-back" href="../../../API/Analysis3D.html#pyaedt.application.Analysis3D.FieldAnalysis3D.copy_solid_bodies_from">[docs]</a>    <span class="nd">@aedt_exception_handler</span>
     <span class="k">def</span> <span class="nf">copy_solid_bodies_from</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">design</span><span class="p">,</span> <span class="n">object_list</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">no_vacuum</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">no_pec</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">include_sheets</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot; Copy all the list of object from one design to active one</span>
+        <span class="sd">&quot;&quot;&quot;Copy all the list of object from one design to active one</span>
 
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        design :</span>
+<span class="sd">            starting application object (example hfss1= HFSS3DLayout)</span>
+<span class="sd">        object_list :</span>
+<span class="sd">            List of object to copy (Default value = None)</span>
+<span class="sd">        no_vacuum : bool</span>
+<span class="sd">            define if vacuum objects have to be copied (Default value = True)</span>
+<span class="sd">        no_pec :</span>
+<span class="sd">            define if pec objects have to be copied (Default value = True)</span>
+<span class="sd">        include_sheets :</span>
+<span class="sd">            include sheets in the objects that have to be copied (Default value = False)</span>
 
-<span class="sd">        :param design: starting application object (example hfss1= HFSS3DLayout)</span>
-<span class="sd">        :param object_list: List of object to copy</span>
-<span class="sd">        :param no_vacuum: define if vacuum objects have to be copied</span>
-<span class="sd">        :type no_vacuum: bool</span>
-<span class="sd">        :param no_pec: define if pec objects have to be copied</span>
-<span class="sd">        :param include_sheets: include sheets in the objects that have to be copied</span>
-<span class="sd">        :type no_pec: bool</span>
-<span class="sd">        :return: True if succeeded</span>
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        type</span>
+<span class="sd">            True if succeeded</span>
+
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">body_list</span> <span class="o">=</span> <span class="n">design</span><span class="o">.</span><span class="n">modeler</span><span class="o">.</span><span class="n">solid_bodies</span>
         <span class="k">if</span> <span class="n">include_sheets</span><span class="p">:</span>
@@ -322,31 +361,47 @@
 
 <div class="viewcode-block" id="FieldAnalysis3D.get_all_sources"><a class="viewcode-back" href="../../../API/Analysis3D.html#pyaedt.application.Analysis3D.FieldAnalysis3D.get_all_sources">[docs]</a>    <span class="nd">@aedt_exception_handler</span>
     <span class="k">def</span> <span class="nf">get_all_sources</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
-
-<span class="sd">        :return:List of all Setup Sources</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="sd">&quot;&quot;&quot;:return:List of all Setup Sources&quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">osolution</span><span class="o">.</span><span class="n">GetAllSources</span><span class="p">())</span></div>
 
-    <span class="nd">@aedt_exception_handler</span>
+<div class="viewcode-block" id="FieldAnalysis3D.set_source_context"><a class="viewcode-back" href="../../../API/Analysis3D.html#pyaedt.application.Analysis3D.FieldAnalysis3D.set_source_context">[docs]</a>    <span class="nd">@aedt_exception_handler</span>
     <span class="k">def</span> <span class="nf">set_source_context</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">listofsources</span><span class="p">,</span> <span class="n">nummodes</span><span class="o">=</span><span class="mi">1</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        listofsources :</span>
+<span class="sd">            </span>
+<span class="sd">        nummodes :</span>
+<span class="sd">             (Default value = 1)</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">listforcontext</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="n">i</span> <span class="o">=</span> <span class="mi">1</span>
         <span class="k">while</span> <span class="n">i</span> <span class="o">&lt;=</span> <span class="n">nummodes</span><span class="p">:</span>
             <span class="n">listforcontext</span><span class="o">.</span><span class="n">append</span><span class="p">([</span><span class="n">s</span><span class="o">+</span><span class="s1">&#39;:&#39;</span><span class="o">+</span><span class="nb">str</span><span class="p">(</span><span class="n">i</span><span class="p">)</span> <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="n">listofsources</span><span class="p">])</span>
             <span class="n">i</span> <span class="o">+=</span> <span class="mi">1</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">osolution</span><span class="o">.</span><span class="n">SetSourceContexts</span><span class="p">(</span><span class="n">listforcontext</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">osolution</span><span class="o">.</span><span class="n">SetSourceContexts</span><span class="p">(</span><span class="n">listforcontext</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="FieldAnalysis3D.assignmaterial"><a class="viewcode-back" href="../../../API/Analysis3D.html#pyaedt.application.Analysis3D.FieldAnalysis3D.assignmaterial">[docs]</a>    <span class="nd">@aedt_exception_handler</span>
     <span class="k">def</span> <span class="nf">assignmaterial</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">obj</span><span class="p">,</span> <span class="n">mat</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot; The function assigns Material mat to object obj. If material mat is not present it will be created</span>
+        <span class="sd">&quot;&quot;&quot;The function assigns Material mat to object obj. If material mat is not present it will be created</span>
 
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        obj : str, list</span>
+<span class="sd">            list of objects to which assign materials</span>
+<span class="sd">        mat : str</span>
+<span class="sd">            material to assign</span>
 
-<span class="sd">        :param obj: list of objects to which assign materials</span>
-<span class="sd">        :type obj: str, list</span>
-<span class="sd">        :param mat: material to assign</span>
-<span class="sd">        :type mat: str</span>
-<span class="sd">        :return: True if succeded | False if failed</span>
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        type</span>
+<span class="sd">            True if succeded | False if failed</span>
+
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">mat</span> <span class="o">=</span> <span class="n">mat</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span>
         <span class="n">selections</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">modeler</span><span class="o">.</span><span class="n">convert_to_selections</span><span class="p">(</span><span class="n">obj</span><span class="p">)</span>
@@ -391,10 +446,17 @@
 
 <div class="viewcode-block" id="FieldAnalysis3D.get_all_conductors_names"><a class="viewcode-back" href="../../../API/Analysis3D.html#pyaedt.application.Analysis3D.FieldAnalysis3D.get_all_conductors_names">[docs]</a>    <span class="nd">@aedt_exception_handler</span>
     <span class="k">def</span> <span class="nf">get_all_conductors_names</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot; Get all conductors in active design</span>
-
-
+        <span class="sd">&quot;&quot;&quot;Get all conductors in active design</span>
+<span class="sd">        </span>
+<span class="sd">        </span>
 <span class="sd">        :return: objname list</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">cond</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">materials</span><span class="o">.</span><span class="n">GetConductors</span><span class="p">()</span>
         <span class="n">cond</span> <span class="o">=</span> <span class="p">[</span><span class="n">i</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">cond</span><span class="p">]</span>
@@ -406,10 +468,17 @@
 
 <div class="viewcode-block" id="FieldAnalysis3D.get_all_dielectrics_names"><a class="viewcode-back" href="../../../API/Analysis3D.html#pyaedt.application.Analysis3D.FieldAnalysis3D.get_all_dielectrics_names">[docs]</a>    <span class="nd">@aedt_exception_handler</span>
     <span class="k">def</span> <span class="nf">get_all_dielectrics_names</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot; Get all dielectrics in active design</span>
-
-
+        <span class="sd">&quot;&quot;&quot;Get all dielectrics in active design</span>
+<span class="sd">        </span>
+<span class="sd">        </span>
 <span class="sd">        :return: objname list</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">diel</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">materials</span><span class="o">.</span><span class="n">GetDielectrics</span><span class="p">()</span>
         <span class="n">diel</span> <span class="o">=</span> <span class="p">[</span><span class="n">i</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">diel</span><span class="p">]</span>

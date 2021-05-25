@@ -9,6 +9,7 @@ from ..modules.LayerStackup import Layers
 import sys
 
 class Modeler3DLayout(Modeler):
+    """ """
     def __init__(self, parent):
         self._parent = parent
         self.messenger.add_info_message("Loading Modeler")
@@ -35,6 +36,7 @@ class Modeler3DLayout(Modeler):
 
     @property
     def edb(self):
+        """ """
         edb_folder = os.path.join(self._parent.project_path, self._parent.project_name + ".aedb")
         edb_file = os.path.join(edb_folder, "edb.def")
         _mttime = os.path.getmtime(edb_file)
@@ -48,23 +50,37 @@ class Modeler3DLayout(Modeler):
 
     @property
     def messenger(self):
+        """ """
         return self._parent._messenger
 
     @property
     def oeditor(self):
+        """ """
         return self._parent.odesign.SetActiveEditor("Layout")
 
     @aedt_exception_handler
     def fit_all(self):
+        """ """
         self.oeditor.ZoomToFit()
 
     @property
     def model_units(self):
-        ''' Return the model units as a string e.g. "mm" '''
+        """ """
         return retry_ntimes(10, self.oeditor.GetActiveUnits)
 
     @model_units.setter
     def model_units(self, units):
+        """
+
+        Parameters
+        ----------
+        units :
+            
+
+        Returns
+        -------
+
+        """
         assert units in AEDT_units["Length"], "Invalid units string {0}".format(units)
         ''' Set the model units as a string e.g. "mm" '''
         self.oeditor.SetActivelUnits(
@@ -76,6 +92,7 @@ class Modeler3DLayout(Modeler):
 
     @property
     def primitives(self):
+        """ """
         if self._primitivesDes != self._parent.project_name + self._parent.design_name:
             self._primitives = Primitives3DLayout(self._parent, self)
             self._primitivesDes = self._parent.project_name + self._parent.design_name
@@ -83,16 +100,25 @@ class Modeler3DLayout(Modeler):
 
     @property
     def obounding_box(self):
+        """ """
         return self.oeditor.GetModelBoundingBox()
 
     @aedt_exception_handler
     def import_cadence_brd(self, brd_filename, edb_path=None, edb_name=None):
         """
 
-        :param brd_filename: BRD Full File name
-        :param edb_path:  Path where EDB shall be created. if no path is provided, project dir will be used
-        :param edb_name: name of EDB. If no name is provided, brd name will be used
-        :return:
+        Parameters
+        ----------
+        brd_filename :
+            BRD Full File name
+        edb_path :
+            Path where EDB shall be created. if no path is provided, project dir will be used (Default value = None)
+        edb_name :
+            name of EDB. If no name is provided, brd name will be used (Default value = None)
+
+        Returns
+        -------
+
         """
         if not edb_path:
             edb_path = self.projdir
@@ -115,6 +141,17 @@ class Modeler3DLayout(Modeler):
 
     @aedt_exception_handler
     def modeler_variable(self, value):
+        """
+
+        Parameters
+        ----------
+        value :
+            
+
+        Returns
+        -------
+
+        """
         if isinstance(value, str if int(sys.version_info[0]) >= 3 else basestring):
             return value
         else:
@@ -124,10 +161,18 @@ class Modeler3DLayout(Modeler):
     def import_ipc2581(self, ipc_filename, edb_path=None, edb_name=None):
         """
 
-        :param ipc_filename: IPC Full File name
-        :param edb_path:  Path where EDB shall be created. if no path is provided, project dir will be used
-        :param edb_name: name of EDB. If no name is provided, brd name will be used
-        :return:
+        Parameters
+        ----------
+        ipc_filename :
+            IPC Full File name
+        edb_path :
+            Path where EDB shall be created. if no path is provided, project dir will be used (Default value = None)
+        edb_name :
+            name of EDB. If no name is provided, brd name will be used (Default value = None)
+
+        Returns
+        -------
+
         """
         if not edb_path:
             edb_path = self.projdir
@@ -143,12 +188,18 @@ class Modeler3DLayout(Modeler):
 
     @aedt_exception_handler
     def subtract(self, blank, tool):
-        """
-        Subract objects from names
+        """Subract objects from names
 
+        Parameters
+        ----------
+        blank :
+            name of geometry from which subtract
+        tool :
+            name of geometry that will be subracted. it can be a list
 
-        :param blank. name of geometry from which subtract
-        :param tool, name of geometry that will be subracted. it can be a list
+        Returns
+        -------
+
         """
 
         vArg1 = ['NAME:primitives', blank]
@@ -170,11 +221,16 @@ class Modeler3DLayout(Modeler):
 
     @aedt_exception_handler
     def unite(self, objectlists):
-        """
-        Unite objects from names
+        """Unite objects from names
 
+        Parameters
+        ----------
+        objectlists :
+            list of objects to unite
 
-        :param objectlists. list of objects to unite
+        Returns
+        -------
+
         """
 
         vArg1 = ['NAME:primitives']
@@ -193,11 +249,16 @@ class Modeler3DLayout(Modeler):
 
     @aedt_exception_handler
     def intersect(self, objectlists):
-        """
-        Intersect objects from names
+        """Intersect objects from names
 
+        Parameters
+        ----------
+        objectlists :
+            list of objects to unite
 
-        :param objectlists. list of objects to unite
+        Returns
+        -------
+
         """
 
         vArg1 = ['NAME:primitives']

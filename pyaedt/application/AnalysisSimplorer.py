@@ -8,13 +8,20 @@ from ..modules.SolveSetup import SetupCircuit
 
 
 class FieldAnalysisSimplorer(Analysis):
-    """ **AEDT_CircuitAnalysis**
+    """**AEDT_CircuitAnalysis**
     Class for Simplorer Analysis Setup (Simplorer)
     It is automatically initialized by Application call (like HFSS, Q3D...). Refer to Application function for inputs definition
+
+    Parameters
+    ----------
+
+    Returns
+    -------
 
     """
     @property
     def solution_type(self):
+        """ """
         return self._solution_type
 
 
@@ -22,9 +29,14 @@ class FieldAnalysisSimplorer(Analysis):
     def solution_type(self, soltype):
         """Solution Type
 
+        Parameters
+        ----------
+        soltype :
+            SolutionType object
 
-        :param soltype: SolutionType object
-        :return:
+        Returns
+        -------
+
         """
         if soltype:
             self._solution_type = solutions_settings[soltype]
@@ -33,13 +45,13 @@ class FieldAnalysisSimplorer(Analysis):
 
     @property
     def existing_analysis_setups(self):
-        """ Return a list of all defined analysis setup names in the Simplorer design.
-        """
+        """ """
         setups = self.oanalysis.GetAllSolutionSetups()
         return setups
 
     @property
     def setup_names(self):
+        """ """
         return list(self.oanalysis.GetAllSolutionSetups())
 
 
@@ -51,29 +63,33 @@ class FieldAnalysisSimplorer(Analysis):
 
     @property
     def modeler(self):
-        """
-
-        :return: Design oModeler
-        """
+        """:return: Design oModeler"""
         return self._modeler
 
     @property
     def oanalysis(self):
-        """
-
-        :return: Design Module "SimSetup"
+        """:return: Design Module "SimSetup"
         """
         return self.odesign.GetModule("SimSetup")
 
     @aedt_exception_handler
     def create_setup(self, setupname="MySetupAuto", setuptype=None, props={}):
-        """ Create a new Setup.
+        """Create a new Setup.
 
+        Parameters
+        ----------
+        setupname :
+            optional, name of the new setup (Default value = "MySetupAuto")
+        setuptype :
+            optional, setup type. if None, default type will be applied
+        props :
+            optional dictionary of properties with values (Default value = {})
 
-        :param setupname: optional, name of the new setup
-        :param setuptype: optional, setup type. if None, default type will be applied
-        :param props: optional dictionary of properties with values
-        :return: setup object
+        Returns
+        -------
+        type
+            setup object
+
         """
         if setuptype is None:
             setuptype = SetupKeys.defaultSetups[self.solution_type]

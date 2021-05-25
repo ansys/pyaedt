@@ -1,0 +1,8 @@
+<map id="inheritancec5677059e5" name="inheritancec5677059e5">
+<area shape="poly" id="node1" href="Analysis.html#pyaedt.application.Analysis.Analysis" target="_top" title="**Class Analysis**" alt="" coords="557,89,554,78,547,68,536,60,522,55,506,53,490,55,476,60,465,68,458,78,455,89,458,100,465,110,476,118,490,124,506,125,522,124,536,118,547,110,554,100"/>
+<area shape="poly" id="node4" title="**AEDT_CircuitAnalysis**" alt="" coords="391,41,386,30,371,20,348,12,320,7,288,5,256,7,227,12,204,20,190,30,184,41,190,52,204,62,227,70,256,76,288,77,320,76,348,70,371,62,386,52"/>
+<area shape="poly" id="node5" title="**AEDT_CircuitAnalysis**" alt="" coords="407,137,401,126,384,116,358,108,325,103,288,101,251,103,217,108,191,116,174,126,168,137,174,148,191,158,217,166,251,172,288,173,325,172,358,166,384,158,401,148"/>
+<area shape="poly" id="node2" href="Design.html#pyaedt.application.Design.Design" target="_top" title="Class Design. Contains all functions and objects connected to the active Project and Design" alt="" coords="696,89,694,78,687,68,677,60,665,55,650,53,636,55,624,60,613,68,607,78,605,89,607,100,613,110,624,118,636,124,650,125,665,124,677,118,687,110,694,100"/>
+<area shape="poly" id="node3" title="Circuit Object" alt="" coords="104,41,102,30,96,20,87,12,76,7,63,5,50,7,39,12,29,20,24,30,22,41,24,52,29,62,39,70,50,76,63,77,76,76,87,70,96,62,102,52"/>
+<area shape="poly" id="node6" title="Simplorer Object" alt="" coords="120,137,117,126,109,116,97,108,81,103,63,101,45,103,29,108,16,116,8,126,5,137,8,148,16,158,29,166,45,172,63,173,81,172,97,166,109,158,117,148"/>
+</map>

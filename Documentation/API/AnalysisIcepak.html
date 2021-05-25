@@ -245,9 +245,9 @@ It is automatically initialized by Application call (like HFSS, Q3D...). Refer t
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>ambienttemp</strong> -- Ambient Temperature. It can be an integer or a parameter already created in AEDT</p></li>
-<li><p><strong>gravityDir</strong> -- Gravity direction index [0, 5]</p></li>
-<li><p><strong>perform_minimal_val</strong> -- True Perform Minimal validation. False perform Full Validation</p></li>
+<li><p><strong>ambienttemp</strong> -- Ambient Temperature. It can be an integer or a parameter already created in AEDT (Default value = 20)</p></li>
+<li><p><strong>gravityDir</strong> -- Gravity direction index [0, 5] (Default value = 5)</p></li>
+<li><p><strong>perform_minimal_val</strong> -- True Perform Minimal validation. False perform Full Validation (Default value = True)</p></li>
 <li><p><strong>default_fluid</strong> -- default Fluid .&quot;Air&quot;</p></li>
 <li><p><strong>default_solid</strong> -- default Solid .&quot;Al-Extruded&quot;</p></li>
 <li><p><strong>default_surface</strong> -- default Surface .&quot;Steel-oxidised-surface&quot;</p></li>
@@ -255,6 +255,9 @@ It is automatically initialized by Application call (like HFSS, Q3D...). Refer t
 </dd>
 <dt class="field-even">Returns</dt>
 <dd class="field-even"><p>True</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>type</p>
 </dd>
 </dl>
 </dd></dl>
@@ -273,6 +276,9 @@ It is automatically initialized by Application call (like HFSS, Q3D...). Refer t
 <dt class="field-even">Returns</dt>
 <dd class="field-even"><p>True if succeded | False if failed</p>
 </dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>type</p>
+</dd>
 </dl>
 </dd></dl>
 
@@ -290,6 +296,9 @@ It is automatically initialized by Application call (like HFSS, Q3D...). Refer t
 <dt class="field-even">Returns</dt>
 <dd class="field-even"><p>Bool</p>
 </dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>type</p>
+</dd>
 </dl>
 </dd></dl>
 
@@ -301,13 +310,16 @@ It is automatically initialized by Application call (like HFSS, Q3D...). Refer t
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>design</strong> -- starting application object (example hfss1= HFSS3DLayout)</p></li>
-<li><p><strong>object_list</strong> -- List of object to copy</p></li>
-<li><p><strong>no_vacuum</strong> (<em>bool</em>) -- define if vacuum objects have to be copied</p></li>
-<li><p><strong>no_pec</strong> (<em>bool</em>) -- define if pec objects have to be copied</p></li>
+<li><p><strong>object_list</strong> -- List of object to copy (Default value = None)</p></li>
+<li><p><strong>no_vacuum</strong> (<em>bool</em>) -- define if vacuum objects have to be copied (Default value = True)</p></li>
+<li><p><strong>no_pec</strong> (<em>bool</em>) -- define if pec objects have to be copied (Default value = True)</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>
 <dd class="field-even"><p>True if succeeded</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>type</p>
 </dd>
 </dl>
 </dd></dl>
@@ -341,41 +353,35 @@ It is automatically initialized by Application call (like HFSS, Q3D...). Refer t
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>type</strong> -- type of the property. &quot;Boundary&quot;, &quot;Excitation&quot;, &quot;Setup&quot;, &quot;Mesh&quot;</p></li>
-<li><p><strong>objectname</strong> -- </p></li>
+<li><p><strong>type</strong> -- type of the property. &quot;Boundary&quot;, &quot;Excitation&quot;, &quot;Setup&quot;, &quot;Mesh&quot; (Default value = None)</p></li>
+<li><p><strong>objectname</strong> -- param property:</p></li>
 <li><p><strong>property</strong> -- </p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>
 <dd class="field-even"><p>property value</p>
 </dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><p>type</p>
+<dl class="field-list simple">
 <dt class="field-odd">Example</dt>
 <dd class="field-odd"><p></p></dd>
 </dl>
 <p>val = ipk.get_property_value('BoundarySetup:Source1', 'Total Power')</p>
+</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py method">
 <dt id="pyaedt.application.AnalysisIcepak.FieldAnalysisIcepak.mesh">
 <em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">mesh</span></code><a class="headerlink" href="#pyaedt.application.AnalysisIcepak.FieldAnalysisIcepak.mesh" title="Permalink to this definition">¶</a></dt>
-<dd><p>Mesh Obect</p>
-<dl class="field-list simple">
-<dt class="field-odd">Returns</dt>
-<dd class="field-odd"><p>mesh object</p>
-</dd>
-</dl>
-</dd></dl>
+<dd></dd></dl>
 
 <dl class="py method">
 <dt id="pyaedt.application.AnalysisIcepak.FieldAnalysisIcepak.modeler">
 <em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">modeler</span></code><a class="headerlink" href="#pyaedt.application.AnalysisIcepak.FieldAnalysisIcepak.modeler" title="Permalink to this definition">¶</a></dt>
-<dd><p>modeler object</p>
-<dl class="field-list simple">
-<dt class="field-odd">Type</dt>
-<dd class="field-odd"><p>return</p>
-</dd>
-</dl>
-</dd></dl>
+<dd></dd></dl>
 
 </dd></dl>
 

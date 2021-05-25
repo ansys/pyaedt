@@ -407,6 +407,12 @@
 </dd></dl>
 
 <dl class="py attribute">
+<dt id="pyaedt.Hfss3dLayout.design_properties">
+<code class="sig-prename descclassname"><span class="pre">pyaedt.Hfss3dLayout.</span></code><code class="sig-name descname"><span class="pre">design_properties</span></code><a class="headerlink" href="#pyaedt.Hfss3dLayout.design_properties" title="Permalink to this definition">¶</a></dt>
+<dd><p>param design_name: (Default value = None)</p>
+</dd></dl>
+
+<dl class="py attribute">
 <dt id="pyaedt.Hfss3dLayout.design_type">
 <code class="sig-prename descclassname"><span class="pre">pyaedt.Hfss3dLayout.</span></code><code class="sig-name descname"><span class="pre">design_type</span></code><a class="headerlink" href="#pyaedt.Hfss3dLayout.design_type" title="Permalink to this definition">¶</a></dt>
 <dd><p>Property</p>
@@ -432,7 +438,6 @@
 <dt id="pyaedt.Hfss3dLayout.existing_analysis_setups">
 <code class="sig-prename descclassname"><span class="pre">pyaedt.Hfss3dLayout.</span></code><code class="sig-name descname"><span class="pre">existing_analysis_setups</span></code><a class="headerlink" href="#pyaedt.Hfss3dLayout.existing_analysis_setups" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return a list of all defined analysis setup names in the maxwell design.</p>
-<p>return: list of setup</p>
 </dd></dl>
 
 <dl class="py attribute">
@@ -453,10 +458,13 @@
 Example: excitation_names [&quot;1&quot;,&quot;2&quot;] output [&quot;S(1,1)&quot;, &quot;S(1,2)&quot;, S(2,2)]</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>excitation_names</strong> -- list of excitation to include</p>
+<dd class="field-odd"><p><strong>excitation_names</strong> -- list of excitation to include (Default value = [])</p>
 </dd>
 <dt class="field-even">Returns</dt>
 <dd class="field-even"><p>list of strin representing Sparameters of excitations</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>type</p>
 </dd>
 </dl>
 </dd></dl>
@@ -529,33 +537,32 @@ Example: excitation_names [&quot;1&quot;,&quot;2&quot;] output [&quot;S(1,1)&quo
 <dl class="py attribute">
 <dt id="pyaedt.Hfss3dLayout.nominal_adaptive">
 <code class="sig-prename descclassname"><span class="pre">pyaedt.Hfss3dLayout.</span></code><code class="sig-name descname"><span class="pre">nominal_adaptive</span></code><a class="headerlink" href="#pyaedt.Hfss3dLayout.nominal_adaptive" title="Permalink to this definition">¶</a></dt>
-<dd><p>SweepName&quot;</p>
-<dl class="field-list simple">
-<dt class="field-odd">Returns</dt>
-<dd class="field-odd"><p>str nominal adaptive setup</p>
-</dd>
-<dt class="field-even">Type</dt>
-<dd class="field-even"><p>Return The nominal setup last adaptive in the format needed by postprocessing &quot;Setupname</p>
-</dd>
-</dl>
+<dd><p>returns: :return: str nominal adaptive setup
+:rtype: type</p>
 </dd></dl>
 
 <dl class="py attribute">
 <dt id="pyaedt.Hfss3dLayout.nominal_sweep">
 <code class="sig-prename descclassname"><span class="pre">pyaedt.Hfss3dLayout.</span></code><code class="sig-name descname"><span class="pre">nominal_sweep</span></code><a class="headerlink" href="#pyaedt.Hfss3dLayout.nominal_sweep" title="Permalink to this definition">¶</a></dt>
-<dd><dl class="simple">
-<dt>SweepName&quot;.if no</dt><dd><p>sweep is available it will return the lastadaptive</p>
-</dd>
-</dl>
-<dl class="field-list simple">
-<dt class="field-odd">Returns</dt>
+<dd><p>returns: sweep is available it will return the lastadaptive</p>
+<blockquote>
+<div><dl class="field-list simple">
+<dt class="field-odd">return</dt>
 <dd class="field-odd"><p>str nominal setup sweep if present</p>
 </dd>
-<dt class="field-even">Type</dt>
-<dd class="field-even"><p>Return The nominal setup last adaptive in the format needed by postprocessing &quot;Setupname</p>
+</dl>
+</div></blockquote>
+<dl class="field-list simple">
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>type</p>
 </dd>
 </dl>
 </dd></dl>
+
+<dl class="py attribute">
+<dt id="pyaedt.Hfss3dLayout.oanalysis">
+<code class="sig-prename descclassname"><span class="pre">pyaedt.Hfss3dLayout.</span></code><code class="sig-name descname"><span class="pre">oanalysis</span></code><a class="headerlink" href="#pyaedt.Hfss3dLayout.oanalysis" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
 
 <dl class="py attribute">
 <dt id="pyaedt.Hfss3dLayout.oanalysis_setup">
@@ -600,6 +607,11 @@ Example: excitation_names [&quot;1&quot;,&quot;2&quot;] output [&quot;S(1,1)&quo
 </dd>
 </dl>
 </dd></dl>
+
+<dl class="py attribute">
+<dt id="pyaedt.Hfss3dLayout.oexcitation">
+<code class="sig-prename descclassname"><span class="pre">pyaedt.Hfss3dLayout.</span></code><code class="sig-name descname"><span class="pre">oexcitation</span></code><a class="headerlink" href="#pyaedt.Hfss3dLayout.oexcitation" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
 
 <dl class="py attribute">
 <dt id="pyaedt.Hfss3dLayout.oimportexport">
@@ -684,6 +696,11 @@ Example: excitation_names [&quot;1&quot;,&quot;2&quot;] output [&quot;S(1,1)&quo
 </dd></dl>
 
 <dl class="py attribute">
+<dt id="pyaedt.Hfss3dLayout.port_list">
+<code class="sig-prename descclassname"><span class="pre">pyaedt.Hfss3dLayout.</span></code><code class="sig-name descname"><span class="pre">port_list</span></code><a class="headerlink" href="#pyaedt.Hfss3dLayout.port_list" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
 <dt id="pyaedt.Hfss3dLayout.post">
 <code class="sig-prename descclassname"><span class="pre">pyaedt.Hfss3dLayout.</span></code><code class="sig-name descname"><span class="pre">post</span></code><a class="headerlink" href="#pyaedt.Hfss3dLayout.post" title="Permalink to this definition">¶</a></dt>
 <dd><p>Post Processor Obect</p>
@@ -737,6 +754,11 @@ Example: excitation_names [&quot;1&quot;,&quot;2&quot;] output [&quot;S(1,1)&quo
 </dd>
 </dl>
 </dd></dl>
+
+<dl class="py attribute">
+<dt id="pyaedt.Hfss3dLayout.project_properies">
+<code class="sig-prename descclassname"><span class="pre">pyaedt.Hfss3dLayout.</span></code><code class="sig-name descname"><span class="pre">project_properies</span></code><a class="headerlink" href="#pyaedt.Hfss3dLayout.project_properies" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
 
 <dl class="py attribute">
 <dt id="pyaedt.Hfss3dLayout.pyaedt_dir">

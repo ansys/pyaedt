@@ -279,12 +279,15 @@
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>variable_name</strong> -- name of the variable</p></li>
-<li><p><strong>min_val</strong> -- Minimum value for variable. Optional</p></li>
-<li><p><strong>max_val</strong> -- Maximum value for variable. Optional</p></li>
+<li><p><strong>min_val</strong> -- Minimum value for variable. Optional (Default value = None)</p></li>
+<li><p><strong>max_val</strong> -- Maximum value for variable. Optional (Default value = None)</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>
 <dd class="field-even"><p>Bool</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>type</p>
 </dd>
 </dl>
 </dd></dl>
@@ -297,12 +300,15 @@
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>variable_name</strong> -- name of the variable</p></li>
-<li><p><strong>min_val</strong> -- Minimum value for variable. Optional</p></li>
-<li><p><strong>max_val</strong> -- Maximum value for variable. Optional</p></li>
+<li><p><strong>min_val</strong> -- Minimum value for variable. Optional (Default value = None)</p></li>
+<li><p><strong>max_val</strong> -- Maximum value for variable. Optional (Default value = None)</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>
 <dd class="field-even"><p>Bool</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>type</p>
 </dd>
 </dl>
 </dd></dl>
@@ -315,15 +321,18 @@
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>variable_name</strong> -- name of the variable</p></li>
-<li><p><strong>min_val</strong> -- Minimum value for variable. Optional</p></li>
-<li><p><strong>max_val</strong> -- Maximum value for variable. Optional</p></li>
-<li><p><strong>tolerance</strong> -- Tolerance value for variable. Optional</p></li>
-<li><p><strong>probability</strong> -- Probability value for variable. Optional</p></li>
-<li><p><strong>mean</strong> -- Mean value for variable. Optional</p></li>
+<li><p><strong>min_val</strong> -- Minimum value for variable. Optional (Default value = None)</p></li>
+<li><p><strong>max_val</strong> -- Maximum value for variable. Optional (Default value = None)</p></li>
+<li><p><strong>tolerance</strong> -- Tolerance value for variable. Optional (Default value = None)</p></li>
+<li><p><strong>probability</strong> -- Probability value for variable. Optional (Default value = None)</p></li>
+<li><p><strong>mean</strong> -- Mean value for variable. Optional (Default value = None)</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>
 <dd class="field-even"><p>Bool</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>type</p>
 </dd>
 </dl>
 </dd></dl>
@@ -336,12 +345,15 @@
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>variable_name</strong> -- name of the variable</p></li>
-<li><p><strong>min_val</strong> -- Minimum value for variable. Optional</p></li>
-<li><p><strong>max_val</strong> -- Maximum value for variable. Optional</p></li>
+<li><p><strong>min_val</strong> -- Minimum value for variable. Optional (Default value = None)</p></li>
+<li><p><strong>max_val</strong> -- Maximum value for variable. Optional (Default value = None)</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>
 <dd class="field-even"><p>Bool</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>type</p>
 </dd>
 </dl>
 </dd></dl>
@@ -363,7 +375,7 @@
 <dd><p>Enable or disable the automatic use of causal material for lossy dielectrics</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>lossy_dielectric</strong> (<em>bool</em>) -- enable or disable causal materials</p>
+<dd class="field-odd"><p><strong>lossy_dielectric</strong> (<em>bool</em>) -- enable or disable causal materials (Default value = True)</p>
 </dd>
 </dl>
 </dd></dl>
@@ -374,13 +386,18 @@
 <dd><p>Enable the material override in the given Project</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>material_override</strong> (<em>bool</em>) -- enable or disable material override</p>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>___________</strong> -- </p></li>
+<li><p><strong>material_override</strong> -- bool (Default value = True)</p></li>
+<li><p><strong>enable</strong> -- or disable material override</p></li>
+</ul>
 </dd>
 <dt class="field-even">Returns</dt>
-<dd class="field-even"><p></p>
+<dd class="field-even"><p><p>bool</p>
+</p>
 </dd>
 <dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p>bool</p>
+<dd class="field-odd"><p>type</p>
 </dd>
 </dl>
 </dd></dl>
@@ -388,15 +405,19 @@
 <dl class="py method">
 <dt id="pyaedt.application.Design.Design.change_validation_settings">
 <code class="sig-name descname"><span class="pre">change_validation_settings</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">entity_check_level</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'Strict'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ignore_unclassified</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">skip_intersections</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pyaedt/application/Design.html#Design.change_validation_settings"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyaedt.application.Design.Design.change_validation_settings" title="Permalink to this definition">¶</a></dt>
-<dd><p>change the validation design settings
-:param entity_check_level: Entity Level, default &quot;Strict&quot;
-:type entity_check_level: str
-:param ignore_unclassified: Ignore unclassified elements
-:type ignore_unclassified: bool
-:param skip_intersections: Skip Intersections
-:type skip_intersections: bool</p>
+<dd><p>change the validation design settings</p>
 <dl class="field-list simple">
-<dt class="field-odd">Returns</dt>
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>entity_check_level</strong> (<em>str</em>) -- Entity Level, default &quot;Strict&quot;</p></li>
+<li><p><strong>ignore_unclassified</strong> (<em>bool</em>) -- Ignore unclassified elements (Default value = False)</p></li>
+<li><p><strong>skip_intersections</strong> (<em>bool</em>) -- Skip Intersections (Default value = False)</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p></p>
+</dd>
+<dt class="field-odd">Return type</dt>
 <dd class="field-odd"><p>bool</p>
 </dd>
 </dl>
@@ -409,8 +430,8 @@
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>directory</strong> -- project directory</p></li>
-<li><p><strong>name</strong> -- project name</p></li>
+<li><p><strong>directory</strong> -- project directory (Default value = None)</p></li>
+<li><p><strong>name</strong> -- project name (Default value = None)</p></li>
 </ul>
 </dd>
 </dl>
@@ -433,8 +454,8 @@
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>name</strong> -- name of the project (if none take active provect)</p></li>
-<li><p><strong>saveproject</strong> (<em>bool</em>) -- Save Project before close</p></li>
+<li><p><strong>name</strong> -- name of the project (if none take active provect) (Default value = None)</p></li>
+<li><p><strong>saveproject</strong> (<em>bool</em>) -- Save Project before close (Default value = True)</p></li>
 </ul>
 </dd>
 </dl>
@@ -453,6 +474,9 @@
 </dd>
 <dt class="field-even">Returns</dt>
 <dd class="field-even"><p>the copied design name or None if not copied (e.g. design_name does not exists in project_fullname)</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>type</p>
 </dd>
 </dl>
 </dd></dl>
@@ -475,58 +499,102 @@ Save the project before copying it</p>
 <dl class="py method">
 <dt id="pyaedt.application.Design.Design.create_dataset">
 <code class="sig-name descname"><span class="pre">create_dataset</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dsname</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">xlist</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ylist</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">zlist</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">vlist</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">is_project_dataset</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">xunit</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">yunit</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">zunit</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">vunit</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pyaedt/application/Design.html#Design.create_dataset"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyaedt.application.Design.Design.create_dataset" title="Permalink to this definition">¶</a></dt>
-<dd><p>Create a Dataset
-:param dsname: name of dataset (without prefix for project datasets)
-:param xlist: list of x values of dataset
-:param ylist: list of y values of dataset
-:param zlist: list of z values of dataset (for 3D Datasets only)
-:param vlist: list of v values of dataset (for 3D Datasets only)
-:param is_project_dataset: bool True if is a project dataset, False if it is a design dataset
-:param xunit: optional x unit
-:param yunit: optional y unit
-:param zunit: optional z unit (for 3D Datasets only)
-:param vunit: optional v unit (for 3D Datasets only)
-:return: Dataset object if dataset is created. False if not</p>
+<dd><p>Create a Dataset</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>dsname</strong> -- name of dataset (without prefix for project datasets)</p></li>
+<li><p><strong>xlist</strong> -- list of x values of dataset</p></li>
+<li><p><strong>ylist</strong> -- list of y values of dataset</p></li>
+<li><p><strong>zlist</strong> -- list of z values of dataset (for 3D Datasets only) (Default value = None)</p></li>
+<li><p><strong>vlist</strong> -- list of v values of dataset (for 3D Datasets only) (Default value = None)</p></li>
+<li><p><strong>is_project_dataset</strong> -- bool True if is a project dataset, False if it is a design dataset (Default value = True)</p></li>
+<li><p><strong>xunit</strong> -- optional x unit (Default value = &quot;&quot;)</p></li>
+<li><p><strong>yunit</strong> -- optional y unit (Default value = &quot;&quot;)</p></li>
+<li><p><strong>zunit</strong> -- optional z unit (for 3D Datasets only) (Default value = &quot;&quot;)</p></li>
+<li><p><strong>vunit</strong> -- optional v unit (for 3D Datasets only) (Default value = &quot;&quot;)</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Dataset object if dataset is created. False if not</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>type</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py method">
 <dt id="pyaedt.application.Design.Design.create_dataset1d_design">
 <code class="sig-name descname"><span class="pre">create_dataset1d_design</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dsname</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">xlist</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ylist</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">xunit</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">yunit</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pyaedt/application/Design.html#Design.create_dataset1d_design"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyaedt.application.Design.Design.create_dataset1d_design" title="Permalink to this definition">¶</a></dt>
-<dd><p>Create a Design dataset
-:param dsname: name of dataset (without prefix for project datasets)
-:param xlist: list of x values of dataset
-:param ylist: list of y values of dataset
-:param xunit: optional x unit
-:param yunit: optional y unit
-:return: Dataset object if dataset is created. False if not</p>
+<dd><p>Create a Design dataset</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>dsname</strong> -- name of dataset (without prefix for project datasets)</p></li>
+<li><p><strong>xlist</strong> -- list of x values of dataset</p></li>
+<li><p><strong>ylist</strong> -- list of y values of dataset</p></li>
+<li><p><strong>xunit</strong> -- optional x unit (Default value = &quot;&quot;)</p></li>
+<li><p><strong>yunit</strong> -- optional y unit (Default value = &quot;&quot;)</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Dataset object if dataset is created. False if not</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>type</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py method">
 <dt id="pyaedt.application.Design.Design.create_dataset1d_project">
 <code class="sig-name descname"><span class="pre">create_dataset1d_project</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dsname</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">xlist</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ylist</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">xunit</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">yunit</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pyaedt/application/Design.html#Design.create_dataset1d_project"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyaedt.application.Design.Design.create_dataset1d_project" title="Permalink to this definition">¶</a></dt>
-<dd><p>Create a Project dataset
-:param dsname: name of dataset (without prefix for project datasets)
-:param xlist: list of x values of dataset
-:param ylist: list of y values of dataset
-:param xunit: optional x unit
-:param yunit: optional y unit
-:return: Dataset object if dataset is created. False if not</p>
+<dd><p>Create a Project dataset</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>dsname</strong> -- name of dataset (without prefix for project datasets)</p></li>
+<li><p><strong>xlist</strong> -- list of x values of dataset</p></li>
+<li><p><strong>ylist</strong> -- list of y values of dataset</p></li>
+<li><p><strong>xunit</strong> -- optional x unit (Default value = &quot;&quot;)</p></li>
+<li><p><strong>yunit</strong> -- optional y unit (Default value = &quot;&quot;)</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Dataset object if dataset is created. False if not</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>type</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py method">
 <dt id="pyaedt.application.Design.Design.create_dataset3d">
 <code class="sig-name descname"><span class="pre">create_dataset3d</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dsname</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">xlist</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ylist</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">zlist</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">vlist</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">xunit</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">yunit</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">zunit</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">vunit</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pyaedt/application/Design.html#Design.create_dataset3d"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyaedt.application.Design.Design.create_dataset3d" title="Permalink to this definition">¶</a></dt>
-<dd><p>Create a Dataset
-:param dsname: name of dataset (without prefix for project datasets)
-:param xlist: list of x values of dataset
-:param ylist: list of y values of dataset
-:param zlist: list of z values of dataset (for 3D Datasets only)
-:param vlist: list of v values of dataset (for 3D Datasets only)
-:param xunit: optional x unit
-:param yunit: optional y unit
-:param zunit: optional z unit (for 3D Datasets only)
-:param vunit: optional v unit (for 3D Datasets only)
-:return: Dataset object if dataset is created. False if not</p>
+<dd><p>Create a Dataset</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>dsname</strong> -- name of dataset (without prefix for project datasets)</p></li>
+<li><p><strong>xlist</strong> -- list of x values of dataset</p></li>
+<li><p><strong>ylist</strong> -- list of y values of dataset</p></li>
+<li><p><strong>zlist</strong> -- list of z values of dataset (for 3D Datasets only) (Default value = None)</p></li>
+<li><p><strong>vlist</strong> -- list of v values of dataset (for 3D Datasets only) (Default value = None)</p></li>
+<li><p><strong>xunit</strong> -- optional x unit (Default value = &quot;&quot;)</p></li>
+<li><p><strong>yunit</strong> -- optional y unit (Default value = &quot;&quot;)</p></li>
+<li><p><strong>zunit</strong> -- optional z unit (for 3D Datasets only) (Default value = &quot;&quot;)</p></li>
+<li><p><strong>vunit</strong> -- optional v unit (for 3D Datasets only) (Default value = &quot;&quot;)</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Dataset object if dataset is created. False if not</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>type</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py method">
@@ -548,11 +616,14 @@ Save the project before copying it</p>
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>name</strong> -- Name of dataset to check  (without prefix for project datasets)</p></li>
-<li><p><strong>is_project_dataset</strong> -- bool</p></li>
+<li><p><strong>is_project_dataset</strong> -- bool (Default value = True)</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>
 <dd class="field-even"><p>True if dataset exists</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>type</p>
 </dd>
 </dl>
 </dd></dl>
@@ -568,6 +639,9 @@ Save the project before copying it</p>
 <dt class="field-even">Returns</dt>
 <dd class="field-even"><p>Bool</p>
 </dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>type</p>
+</dd>
 </dl>
 </dd></dl>
 
@@ -581,6 +655,9 @@ Save the project before copying it</p>
 </dd>
 <dt class="field-even">Returns</dt>
 <dd class="field-even"><p>Bool</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>type</p>
 </dd>
 </dl>
 </dd></dl>
@@ -596,6 +673,9 @@ Save the project before copying it</p>
 <dt class="field-even">Returns</dt>
 <dd class="field-even"><p>Bool</p>
 </dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>type</p>
+</dd>
 </dl>
 </dd></dl>
 
@@ -609,6 +689,9 @@ Save the project before copying it</p>
 </dd>
 <dt class="field-even">Returns</dt>
 <dd class="field-even"><p>Bool</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>type</p>
 </dd>
 </dl>
 </dd></dl>
@@ -630,7 +713,7 @@ Save the project before copying it</p>
 <dd><p>Delete name Design from the current project (will not work from toolkit)</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>name</strong> -- name of design to remove</p>
+<dd class="field-odd"><p><strong>name</strong> -- </p>
 </dd>
 <dt class="field-even">Returns</dt>
 <dd class="field-even"><p>succeed status</p>
@@ -652,6 +735,9 @@ Save the project before copying it</p>
 <dt class="field-even">Returns</dt>
 <dd class="field-even"><p>nothing</p>
 </dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>type</p>
+</dd>
 </dl>
 </dd></dl>
 
@@ -661,7 +747,7 @@ Save the project before copying it</p>
 <dd><p>Deletes a separator from either the active project or design</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>separator_name</strong> -- name of separator to delete</p>
+<dd class="field-odd"><p><strong>separator_name</strong> -- </p>
 </dd>
 <dt class="field-even">Returns</dt>
 <dd class="field-even"><p>True if the separator exists and can be deleted, False otherwise</p>
@@ -682,6 +768,9 @@ Save the project before copying it</p>
 </dd>
 <dt class="field-even">Returns</dt>
 <dd class="field-even"><p>none</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>type</p>
 </dd>
 </dl>
 </dd></dl>
@@ -709,6 +798,12 @@ Save the project before copying it</p>
 </dd></dl>
 
 <dl class="py method">
+<dt id="pyaedt.application.Design.Design.design_properties">
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">design_properties</span></code><a class="headerlink" href="#pyaedt.application.Design.Design.design_properties" title="Permalink to this definition">¶</a></dt>
+<dd><p>param design_name: (Default value = None)</p>
+</dd></dl>
+
+<dl class="py method">
 <dt id="pyaedt.application.Design.Design.design_type">
 <em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">design_type</span></code><a class="headerlink" href="#pyaedt.application.Design.Design.design_type" title="Permalink to this definition">¶</a></dt>
 <dd><p>Property</p>
@@ -733,18 +828,36 @@ Save the project before copying it</p>
 <dl class="py method">
 <dt id="pyaedt.application.Design.Design.duplicate_design">
 <code class="sig-name descname"><span class="pre">duplicate_design</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">label</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pyaedt/application/Design.html#Design.duplicate_design"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyaedt.application.Design.Design.duplicate_design" title="Permalink to this definition">¶</a></dt>
-<dd><p>Copy the selected design with a new name consisting of the original design name, plus
-a defined extension MMode, plus a running index as necessary to allow for multiple calls</p>
+<dd><dl class="simple">
+<dt>Copy the selected design with a new name consisting of the original design name, plus</dt><dd><p>a defined extension MMode, plus a running index as necessary to allow for multiple calls</p>
+</dd>
+</dl>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>label</strong> -- </p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py method">
 <dt id="pyaedt.application.Design.Design.export_variables_to_csv">
 <code class="sig-name descname"><span class="pre">export_variables_to_csv</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filename</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">export_project</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">export_design</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pyaedt/application/Design.html#Design.export_variables_to_csv"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyaedt.application.Design.Design.export_variables_to_csv" title="Permalink to this definition">¶</a></dt>
-<dd><p>Export Project and design variables variables to filename
-:param filename: full path to csv file to export data
-:param export_design: True (Export Design Variables) | False
-:param export_project: True (Export Project Variables) | False
-:return: True</p>
+<dd><p>Export Project and design variables variables to filename</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>filename</strong> -- full path to csv file to export data</p></li>
+<li><p><strong>export_design</strong> -- True (Export Design Variables) | False (Default value = True)</p></li>
+<li><p><strong>export_project</strong> -- True (Export Project Variables) | False (Default value = True)</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>True</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>type</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py method">
@@ -755,8 +868,8 @@ a defined extension MMode, plus a running index as necessary to allow for multip
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>design_type</strong> -- Type of design to insert (eg. HFSS)</p></li>
-<li><p><strong>design_name</strong> -- optional design name</p></li>
-<li><p><strong>solution_type</strong> -- optional solution_type. it can be a SolutionType object</p></li>
+<li><p><strong>design_name</strong> -- optional design name (Default value = None)</p></li>
+<li><p><strong>solution_type</strong> -- optional solution_type. it can be a SolutionType object (Default value = None)</p></li>
 </ul>
 </dd>
 </dl>
@@ -781,12 +894,15 @@ a defined extension MMode, plus a running index as necessary to allow for multip
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>project_file</strong> -- full path project file name</p></li>
-<li><p><strong>design_name</strong> -- optional design name</p></li>
-<li><p><strong>close_active_proj</strong> -- bool</p></li>
+<li><p><strong>design_name</strong> -- optional design name (Default value = None)</p></li>
+<li><p><strong>close_active_proj</strong> -- bool (Default value = False)</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>
 <dd class="field-even"><p>bool</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>type</p>
 </dd>
 </dl>
 </dd></dl>
@@ -946,6 +1062,11 @@ a defined extension MMode, plus a running index as necessary to allow for multip
 </dd></dl>
 
 <dl class="py method">
+<dt id="pyaedt.application.Design.Design.project_properies">
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">project_properies</span></code><a class="headerlink" href="#pyaedt.application.Design.Design.project_properies" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
 <dt id="pyaedt.application.Design.Design.pyaedt_dir">
 <em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">pyaedt_dir</span></code><a class="headerlink" href="#pyaedt.application.Design.Design.pyaedt_dir" title="Permalink to this definition">¶</a></dt>
 <dd><p>Property</p>
@@ -976,8 +1097,11 @@ a defined extension MMode, plus a running index as necessary to allow for multip
 <dt id="pyaedt.application.Design.Design.rename_design">
 <code class="sig-name descname"><span class="pre">rename_design</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">new_name</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pyaedt/application/Design.html#Design.rename_design"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyaedt.application.Design.Design.rename_design" title="Permalink to this definition">¶</a></dt>
 <dd><p>Rename the active Design</p>
-<p>:param new_name:new name of the design
-:return:</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>new_name</strong> -- new name of the design</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py method">
@@ -998,13 +1122,16 @@ a defined extension MMode, plus a running index as necessary to allow for multip
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>project_file</strong> -- Optional. Project Full path</p></li>
-<li><p><strong>overwrite</strong> -- overwrite existing project</p></li>
-<li><p><strong>refresh_obj_ids_after_save</strong> -- Bool</p></li>
+<li><p><strong>project_file</strong> -- Optional. Project Full path (Default value = None)</p></li>
+<li><p><strong>overwrite</strong> -- overwrite existing project (Default value = True)</p></li>
+<li><p><strong>refresh_obj_ids_after_save</strong> -- Bool (Default value = False)</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>
 <dd class="field-even"><p>True</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>type</p>
 </dd>
 </dl>
 </dd></dl>
@@ -1019,6 +1146,9 @@ a defined extension MMode, plus a running index as necessary to allow for multip
 </dd>
 <dt class="field-even">Returns</dt>
 <dd class="field-even"><p>nothing</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>type</p>
 </dd>
 </dl>
 </dd></dl>
@@ -1089,6 +1219,9 @@ a defined extension MMode, plus a running index as necessary to allow for multip
 <dt class="field-even">Returns</dt>
 <dd class="field-even"><p>nothing</p>
 </dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>type</p>
+</dd>
 </dl>
 </dd></dl>
 
@@ -1120,7 +1253,7 @@ a defined extension MMode, plus a running index as necessary to allow for multip
 <dd><p>Validate Design. Return 0 if validation failed or 1 if passed</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>logfile</strong> -- Optional, save validation to logfile</p>
+<dd class="field-odd"><p><strong>logfile</strong> -- Optional, save validation to logfile (Default value = None)</p>
 </dd>
 </dl>
 </dd></dl>

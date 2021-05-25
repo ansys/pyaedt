@@ -28,6 +28,7 @@ from ..application.DataHandlers import dict2arg
 from collections import OrderedDict, defaultdict
 
 class Mesh3DOperation(object):
+    """ """
     def __init__(self, parent, hfss_setup_name, name, props):
         self._parent = parent
         self.name = name
@@ -36,6 +37,17 @@ class Mesh3DOperation(object):
 
     @aedt_exception_handler
     def _get_args(self, props=None):
+        """
+
+        Parameters
+        ----------
+        props :
+             (Default value = None)
+
+        Returns
+        -------
+
+        """
         if not props:
             props = self.props
         arg = ["NAME:" + self.name]
@@ -44,16 +56,19 @@ class Mesh3DOperation(object):
 
     @aedt_exception_handler
     def create(self):
+        """ """
         self._parent.omeshmodule.AddMeshOperation(self.hfss_setup_name, self._get_args())
         return True
 
     @aedt_exception_handler
     def update(self):
+        """ """
         self._parent.omeshmodule.EditMeshOperation(self.hfss_setup_name, self.name, self._get_args())
         return True
 
     @aedt_exception_handler
     def delete(self):
+        """ """
         self._parent.omeshmodule.DeleteMeshOperation(self.hfss_setup_name, self.name,)
 
         return True
@@ -64,7 +79,15 @@ class Mesh(object):
     """""
     Manage Main AEDT Mesh Functions
     AEDTConfig Class Inherited contains all the _desktop Hierarchical calls needed to the class
-    """""
+    ""
+
+    Parameters
+    ----------
+
+    Returns
+    -------
+
+    """
 
     def __init__(self, parent):
         self._parent = parent
@@ -76,29 +99,40 @@ class Mesh(object):
 
     @property
     def omeshmodule(self):
-        """
-
-        :return: Mesh Module
-        """
+        """:return: Mesh Module"""
         return self.odesign.GetModule("SolveSetups")
 
     @property
     def messenger(self):
+        """ """
         return self._parent._messenger
 
     @property
     def odesign(self):
+        """ """
         return self._parent._odesign
 
     @property
     def modeler(self):
+        """ """
         return self._parent._modeler
 
     @aedt_exception_handler
     def delete_mesh_operations(self, setup_name, mesh_name):
         """Remove mesh operations from a setup.
-
+        
         :return: Boolean
+
+        Parameters
+        ----------
+        setup_name :
+            
+        mesh_name :
+            
+
+        Returns
+        -------
+
         """
         for el in self.meshoperations:
             if el.hfss_setup_name == setup_name and el.name == mesh_name:
@@ -109,6 +143,7 @@ class Mesh(object):
 
     @aedt_exception_handler
     def _get_design_mesh_operations(self):
+        """ """
         meshops = []
         try:
             for ds in self._parent.design_properties['Setup']['Data']:
@@ -124,13 +159,30 @@ class Mesh(object):
     def assign_length_mesh(self, setupname, layer_name, net_name, isinside=True, maxlength=1, maxel=1000, meshop_name=None):
         """
 
-        :param setupname: name of HFSS setup to be applied
-        :param names: net lists.
-        :param isinside: True if length mesh is inside selection, False if outside
-        :param maxlength: maxlength maximum element length. None to disable
-        :param maxel: max number of element. None to disable
-        :param meshop_name: optional mesh operation name
-        :return: meshoperation object
+        Parameters
+        ----------
+        setupname :
+            name of HFSS setup to be applied
+        names :
+            net lists.
+        isinside :
+            True if length mesh is inside selection, False if outside (Default value = True)
+        maxlength :
+            maxlength maximum element length. None to disable (Default value = 1)
+        maxel :
+            max number of element. None to disable (Default value = 1000)
+        meshop_name :
+            optional mesh operation name (Default value = None)
+        layer_name :
+            
+        net_name :
+            
+
+        Returns
+        -------
+        type
+            meshoperation object
+
         """
         if meshop_name:
             for el in self.meshoperations:
@@ -178,13 +230,29 @@ class Mesh(object):
                           meshop_name=None):
         """
 
-        :param layer_name: name of the layer
-        :param net_name: name of the net
-        :param skindepth: Skin Depth length
-        :param maxelements: maxlength maximum element length. None to disable
-        :param triangulation_max_length: maximum surface triangulation length
-        :param numlayers: number of layers
-        :return: meshoperation object
+        Parameters
+        ----------
+        layer_name :
+            name of the layer
+        net_name :
+            name of the net
+        skindepth :
+            Skin Depth length (Default value = 1)
+        maxelements :
+            maxlength maximum element length. None to disable (Default value = None)
+        triangulation_max_length :
+            maximum surface triangulation length (Default value = 0.1)
+        numlayers :
+            number of layers (Default value = "2")
+        setupname :
+            
+        meshop_name :
+             (Default value = None)
+
+        Returns
+        -------
+        type
+            meshoperation object
 
         """
         if meshop_name:

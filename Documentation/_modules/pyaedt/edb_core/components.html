@@ -182,7 +182,18 @@
 <span class="kn">from</span> <span class="nn">System.Collections.Generic</span> <span class="kn">import</span> <span class="n">List</span>
 <span class="kn">import</span> <span class="nn">random</span>
 
-<span class="k">def</span> <span class="nf">resistor_value_parser</span><span class="p">(</span><span class="n">RValue</span><span class="p">):</span>
+<div class="viewcode-block" id="resistor_value_parser"><a class="viewcode-back" href="../../../API/EDBComponents.html#pyaedt.edb_core.components.resistor_value_parser">[docs]</a><span class="k">def</span> <span class="nf">resistor_value_parser</span><span class="p">(</span><span class="n">RValue</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    RValue :</span>
+<span class="sd">        </span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="n">RValue</span><span class="p">)</span> <span class="ow">is</span> <span class="nb">str</span><span class="p">:</span>
         <span class="n">RValue</span> <span class="o">=</span> <span class="n">RValue</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot; &quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)</span>
         <span class="n">RValue</span> <span class="o">=</span> <span class="n">RValue</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;meg&quot;</span><span class="p">,</span> <span class="s2">&quot;m&quot;</span><span class="p">)</span>
@@ -192,11 +203,12 @@
         <span class="n">RValue</span> <span class="o">=</span> <span class="n">RValue</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;m&quot;</span><span class="p">,</span> <span class="s2">&quot;e-3&quot;</span><span class="p">)</span>
         <span class="n">RValue</span> <span class="o">=</span> <span class="n">RValue</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;M&quot;</span><span class="p">,</span> <span class="s2">&quot;e6&quot;</span><span class="p">)</span>
     <span class="n">RValue</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">RValue</span><span class="p">)</span>
-    <span class="k">return</span> <span class="n">RValue</span>
+    <span class="k">return</span> <span class="n">RValue</span></div>
 
 
 
-<span class="k">class</span> <span class="nc">Component</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+<div class="viewcode-block" id="Component"><a class="viewcode-back" href="../../../API/EDBComponents.html#pyaedt.edb_core.components.Component">[docs]</a><span class="k">class</span> <span class="nc">Component</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot; &quot;&quot;&quot;</span>
 
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">parent</span><span class="p">,</span> <span class="n">component</span><span class="p">,</span> <span class="n">name</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">parent</span> <span class="o">=</span> <span class="n">parent</span>
@@ -220,20 +232,19 @@
         <span class="k">try</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">ind_value</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">parent</span><span class="o">.</span><span class="n">edb_value</span><span class="p">(</span><span class="n">component</span><span class="o">.</span><span class="n">Model</span><span class="o">.</span><span class="n">LValue</span><span class="p">)</span><span class="o">.</span><span class="n">ToDouble</span><span class="p">()</span>
         <span class="k">except</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">ind_value</span> <span class="o">=</span> <span class="kc">None</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">ind_value</span> <span class="o">=</span> <span class="kc">None</span></div>
 
 
 <div class="viewcode-block" id="Components"><a class="viewcode-back" href="../../../API/EDBComponents.html#pyaedt.edb_core.components.Components">[docs]</a><span class="k">class</span> <span class="nc">Components</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;HFSS 3DLayout object</span>
-
-
-<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="sd">&quot;&quot;&quot;HFSS 3DLayout object&quot;&quot;&quot;</span>
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">edb</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">parent</span><span class="o">.</span><span class="n">edb</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">messenger</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">parent</span><span class="o">.</span><span class="n">messenger</span>
 
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">parent</span><span class="p">):</span>
@@ -250,8 +261,9 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">init_parts</span><span class="p">()</span>
 
 
-    <span class="nd">@aedt_exception_handler</span>
+<div class="viewcode-block" id="Components.init_parts"><a class="viewcode-back" href="../../../API/EDBComponents.html#pyaedt.edb_core.components.Components.init_parts">[docs]</a>    <span class="nd">@aedt_exception_handler</span>
     <span class="k">def</span> <span class="nf">init_parts</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; &quot;&quot;&quot;</span>
         <span class="n">a</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">components</span>
         <span class="n">a</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">resistors</span>
         <span class="n">a</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">ICs</span>
@@ -259,50 +271,64 @@
         <span class="n">a</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">inductors</span>
         <span class="n">a</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">IOs</span>
         <span class="n">a</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">components_by_partname</span>
-        <span class="k">return</span> <span class="kc">True</span>
+        <span class="k">return</span> <span class="kc">True</span></div>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">builder</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">parent</span><span class="o">.</span><span class="n">builder</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">edb</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">parent</span><span class="o">.</span><span class="n">edb</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">edb_value</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">parent</span><span class="o">.</span><span class="n">edb_value</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">edbutils</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">parent</span><span class="o">.</span><span class="n">edbutils</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">active_layout</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">parent</span><span class="o">.</span><span class="n">active_layout</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">cell</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">parent</span><span class="o">.</span><span class="n">cell</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">db</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">parent</span><span class="o">.</span><span class="n">db</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">components_methods</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">parent</span><span class="o">.</span><span class="n">edblib</span><span class="o">.</span><span class="n">Layout</span><span class="o">.</span><span class="n">ComponentsMethods</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">components</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        :example:</span>
+        <span class="sd">&quot;&quot;&quot;:example:</span>
+<span class="sd">        </span>
+<span class="sd">        </span>
+<span class="sd">        :return:Dictionary of EDB ComponentSetupInfo</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
 
 <span class="sd">        &gt;&gt;&gt; from pyaedt import EDB</span>
 <span class="sd">        &gt;&gt;&gt; edbapp = EDB(&quot;myaedbfolder&quot;)</span>
 <span class="sd">        &gt;&gt;&gt; edbapp.core_components.components</span>
-
-<span class="sd">        :return:Dictionary of EDB ComponentSetupInfo</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">try</span><span class="p">:</span>
             <span class="n">cmplist</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_component_list</span><span class="p">()</span>
@@ -315,14 +341,20 @@
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">resistors</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        :example:</span>
+        <span class="sd">&quot;&quot;&quot;:example:</span>
+<span class="sd">        </span>
+<span class="sd">        </span>
+<span class="sd">        :return: Dictionary of Resistors</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
 
 <span class="sd">        &gt;&gt;&gt; from pyaedt import EDB</span>
 <span class="sd">        &gt;&gt;&gt; edbapp = EDB(&quot;myaedbfolder&quot;)</span>
 <span class="sd">        &gt;&gt;&gt; edbapp.core_components.resistors</span>
-
-<span class="sd">        :return: Dictionary of Resistors</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">try</span><span class="p">:</span>
             <span class="n">comps</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">edbutils</span><span class="o">.</span><span class="n">ComponentSetupInfo</span><span class="o">.</span><span class="n">GetFromLayout</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">active_layout</span><span class="p">)</span>
@@ -337,14 +369,20 @@
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">capacitors</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        :example:</span>
+        <span class="sd">&quot;&quot;&quot;:example:</span>
+<span class="sd">        </span>
+<span class="sd">        </span>
+<span class="sd">        :return: Dictionary of capacitors</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
 
 <span class="sd">        &gt;&gt;&gt; from pyaedt import EDB</span>
 <span class="sd">        &gt;&gt;&gt; edbapp = EDB(&quot;myaedbfolder&quot;)</span>
 <span class="sd">        &gt;&gt;&gt; edbapp.core_components.capacitors</span>
-
-<span class="sd">        :return: Dictionary of capacitors</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">try</span><span class="p">:</span>
             <span class="n">comps</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">edbutils</span><span class="o">.</span><span class="n">ComponentSetupInfo</span><span class="o">.</span><span class="n">GetFromLayout</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">active_layout</span><span class="p">)</span>
@@ -359,15 +397,20 @@
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">inductors</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
+        <span class="sd">&quot;&quot;&quot;:example:</span>
+<span class="sd">        </span>
+<span class="sd">        </span>
+<span class="sd">        :return: Dictionary of inductors</span>
 
-<span class="sd">        :example:</span>
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
 
 <span class="sd">        &gt;&gt;&gt; from pyaedt import EDB</span>
 <span class="sd">        &gt;&gt;&gt; edbapp = EDB(&quot;myaedbfolder&quot;)</span>
 <span class="sd">        &gt;&gt;&gt; edbapp.core_components.inductors</span>
-
-<span class="sd">        :return: Dictionary of inductors</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">try</span><span class="p">:</span>
             <span class="n">comps</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">edbutils</span><span class="o">.</span><span class="n">ComponentSetupInfo</span><span class="o">.</span><span class="n">GetFromLayout</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">active_layout</span><span class="p">)</span>
@@ -381,15 +424,20 @@
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">ICs</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
+        <span class="sd">&quot;&quot;&quot;:example:</span>
+<span class="sd">        </span>
+<span class="sd">        </span>
+<span class="sd">        :return: Dictionary of capacitors</span>
 
-<span class="sd">        :example:</span>
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
 
 <span class="sd">        &gt;&gt;&gt; from pyaedt import EDB</span>
 <span class="sd">        &gt;&gt;&gt; edbapp = EDB(&quot;myaedbfolder&quot;)</span>
 <span class="sd">        &gt;&gt;&gt; edbapp.core_components.ICs</span>
-
-<span class="sd">        :return: Dictionary of capacitors</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">try</span><span class="p">:</span>
             <span class="n">comps</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">edbutils</span><span class="o">.</span><span class="n">ComponentSetupInfo</span><span class="o">.</span><span class="n">GetFromLayout</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">active_layout</span><span class="p">)</span>
@@ -403,14 +451,20 @@
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">IOs</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        :example:</span>
+        <span class="sd">&quot;&quot;&quot;:example:</span>
+<span class="sd">        </span>
+<span class="sd">        </span>
+<span class="sd">        :return: Dictionary of capacitors</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
 
 <span class="sd">        &gt;&gt;&gt; from pyaedt import EDB</span>
 <span class="sd">        &gt;&gt;&gt; edbapp = EDB(&quot;myaedbfolder&quot;)</span>
 <span class="sd">        &gt;&gt;&gt; edbapp.core_components.IOs</span>
-
-<span class="sd">        :return: Dictionary of capacitors</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">try</span><span class="p">:</span>
             <span class="n">comps</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">edbutils</span><span class="o">.</span><span class="n">ComponentSetupInfo</span><span class="o">.</span><span class="n">GetFromLayout</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">active_layout</span><span class="p">)</span>
@@ -425,15 +479,21 @@
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">Others</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        :example:</span>
+        <span class="sd">&quot;&quot;&quot;:example:</span>
+<span class="sd">        </span>
+<span class="sd">        </span>
+<span class="sd">        </span>
+<span class="sd">        :return: Dictionary of capacitors</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
 
 <span class="sd">        &gt;&gt;&gt; from pyaedt import EDB</span>
 <span class="sd">        &gt;&gt;&gt; edbapp = EDB(&quot;myaedbfolder&quot;)</span>
 <span class="sd">        &gt;&gt;&gt; edbapp.core_components.others</span>
-
-
-<span class="sd">        :return: Dictionary of capacitors</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">try</span><span class="p">:</span>
             <span class="n">comps</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">edbutils</span><span class="o">.</span><span class="n">ComponentSetupInfo</span><span class="o">.</span><span class="n">GetFromLayout</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">active_layout</span><span class="p">)</span>
@@ -447,15 +507,21 @@
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">components_by_partname</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        :example:</span>
+        <span class="sd">&quot;&quot;&quot;:example:</span>
+<span class="sd">        </span>
+<span class="sd">        </span>
+<span class="sd">        </span>
+<span class="sd">        :return: Components Dictionary grouped by PartName</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
 
 <span class="sd">        &gt;&gt;&gt; from pyaedt import EDB</span>
 <span class="sd">        &gt;&gt;&gt; edbapp = EDB(&quot;myaedbfolder&quot;)</span>
 <span class="sd">        &gt;&gt;&gt; edbapp.core_components.components_by_partname</span>
-
-
-<span class="sd">        :return: Components Dictionary grouped by PartName</span>
 <span class="sd">        &quot;&quot;&quot;</span>
 
         <span class="k">try</span><span class="p">:</span>
@@ -473,9 +539,15 @@
 <div class="viewcode-block" id="Components.get_component_list"><a class="viewcode-back" href="../../../API/EDBComponents.html#pyaedt.edb_core.components.Components.get_component_list">[docs]</a>    <span class="nd">@aedt_exception_handler</span>
     <span class="k">def</span> <span class="nf">get_component_list</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Return the list of all components</span>
 
-<span class="sd">        :return: List of component Setup Info</span>
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        type</span>
+<span class="sd">            :return: List of component Setup Info</span>
+
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">cmp_setup_info_list</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">parent</span><span class="o">.</span><span class="n">edbutils</span><span class="o">.</span><span class="n">ComponentSetupInfo</span><span class="o">.</span><span class="n">GetFromLayout</span><span class="p">(</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">parent</span><span class="o">.</span><span class="n">builder</span><span class="o">.</span><span class="n">EdbHandler</span><span class="o">.</span><span class="n">layout</span><span class="p">)</span>
@@ -486,11 +558,18 @@
 
 <div class="viewcode-block" id="Components.get_component_by_name"><a class="viewcode-back" href="../../../API/EDBComponents.html#pyaedt.edb_core.components.Components.get_component_by_name">[docs]</a>    <span class="nd">@aedt_exception_handler</span>
     <span class="k">def</span> <span class="nf">get_component_by_name</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        return the component object by name</span>
+        <span class="sd">&quot;&quot;&quot;return the component object by name</span>
 
-<span class="sd">        :param name: name of the component</span>
-<span class="sd">        :return: Edb component (Edb.Cell.Hierarchy.Component) object if exists</span>
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        name :</span>
+<span class="sd">            name of the component</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        type</span>
+<span class="sd">            Edb component (Edb.Cell.Hierarchy.Component) object if exists</span>
+
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">edbcmp</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">edb</span><span class="o">.</span><span class="n">Cell</span><span class="o">.</span><span class="n">Hierarchy</span><span class="o">.</span><span class="n">Component</span><span class="o">.</span><span class="n">FindByName</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">active_layout</span><span class="p">,</span> <span class="n">name</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">edbcmp</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
@@ -500,11 +579,18 @@
 
 <div class="viewcode-block" id="Components.get_components_from_nets"><a class="viewcode-back" href="../../../API/EDBComponents.html#pyaedt.edb_core.components.Components.get_components_from_nets">[docs]</a>    <span class="nd">@aedt_exception_handler</span>
     <span class="k">def</span> <span class="nf">get_components_from_nets</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">netlist</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Get Components from Net List</span>
+        <span class="sd">&quot;&quot;&quot;Get Components from Net List</span>
 
-<span class="sd">        :param netlist: netlist string.</span>
-<span class="sd">        :return: list of component names that belongs to signal nets</span>
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        netlist :</span>
+<span class="sd">            netlist string. (Default value = None)</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        type</span>
+<span class="sd">            list of component names that belongs to signal nets</span>
+
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">cmp_list</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="n">netlist</span><span class="p">)</span> <span class="ow">is</span> <span class="nb">str</span><span class="p">:</span>
@@ -519,18 +605,24 @@
 
 <div class="viewcode-block" id="Components.create_component_from_pins"><a class="viewcode-back" href="../../../API/EDBComponents.html#pyaedt.edb_core.components.Components.create_component_from_pins">[docs]</a>    <span class="nd">@aedt_exception_handler</span>
     <span class="k">def</span> <span class="nf">create_component_from_pins</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">pins</span><span class="p">,</span> <span class="n">component_name</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
+        <span class="sd">&quot;&quot;&quot;:example:</span>
 
-<span class="sd">        :example:</span>
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        pins :</span>
+<span class="sd">            list of edb_core pins</span>
+<span class="sd">        component_name :</span>
+<span class="sd">            the component RefDes name</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        type</span>
+<span class="sd">            python tuple&lt;bool,the Edb.Cell.Hierarchy.Component&gt; With Item1 = True when component has successfully been created and False if not</span>
 
 <span class="sd">        &gt;&gt;&gt; from pyaedt import EDB</span>
 <span class="sd">        &gt;&gt;&gt; edbapp = EDB(&quot;myaedbfolder&quot;)</span>
 <span class="sd">        &gt;&gt;&gt; pins = edbapp.core_components.get_pin_from_component(&quot;A1&quot;)</span>
 <span class="sd">        &gt;&gt;&gt; edbapp.core_components.create_component_from_pins(pins, &quot;A1New&quot;)</span>
-
-<span class="sd">        :param pins: list of edb_core pins</span>
-<span class="sd">        :param component_name: the component RefDes name</span>
-<span class="sd">        :return: python tuple&lt;bool,the Edb.Cell.Hierarchy.Component&gt; With Item1 = True when component has successfully been created and False if not</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">try</span><span class="p">:</span>
             <span class="n">new_cmp</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">parent</span><span class="o">.</span><span class="n">edb</span><span class="o">.</span><span class="n">Cell</span><span class="o">.</span><span class="n">Hierarchy</span><span class="o">.</span><span class="n">Component</span><span class="o">.</span><span class="n">Create</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">parent</span><span class="o">.</span><span class="n">builder</span><span class="o">.</span><span class="n">EdbHandler</span><span class="p">,</span> <span class="n">component_name</span><span class="p">)</span>
@@ -550,18 +642,28 @@
 <div class="viewcode-block" id="Components.set_component_model"><a class="viewcode-back" href="../../../API/EDBComponents.html#pyaedt.edb_core.components.Components.set_component_model">[docs]</a>    <span class="nd">@aedt_exception_handler</span>
     <span class="k">def</span> <span class="nf">set_component_model</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">componentname</span><span class="p">,</span> <span class="n">model_type</span><span class="o">=</span><span class="s2">&quot;Spice&quot;</span><span class="p">,</span> <span class="n">modelpath</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">modelname</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Assign a model (spice or Touchstone to a component)</span>
-
+<span class="sd">        </span>
 <span class="sd">        :example:</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        componentname :</span>
+<span class="sd">            Name of the component to update</span>
+<span class="sd">        model_type :</span>
+<span class="sd">            Type of the model. Spice (default) | Touchstone</span>
+<span class="sd">        modelpath :</span>
+<span class="sd">            full path to the model file (Default value = None)</span>
+<span class="sd">        modelname :</span>
+<span class="sd">            name of the model. None -&gt;filename (Default value = None)</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        type</span>
+<span class="sd">            True if succeded | False if failed</span>
 
 <span class="sd">        &gt;&gt;&gt; from pyaedt import EDB</span>
 <span class="sd">        &gt;&gt;&gt; edbapp = EDB(&quot;myaedbfolder&quot;)</span>
 <span class="sd">        &gt;&gt;&gt; edbapp.core_components.set_component_model(&quot;A1&quot;, model_type=&quot;Spice&quot;, modelpath=&quot;pathtospfile&quot;, modelname=&quot;spicemodelname&quot;)</span>
-
-<span class="sd">        :param componentname: Name of the component to update</span>
-<span class="sd">        :param model_type: Type of the model. Spice (default) | Touchstone</span>
-<span class="sd">        :param modelpath: full path to the model file</span>
-<span class="sd">        :param modelname: name of the model. None -&gt;filename</span>
-<span class="sd">        :return: True if succeded | False if failed</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="n">modelname</span><span class="p">:</span>
             <span class="n">modelname</span> <span class="o">=</span> <span class="n">get_filename_without_extension</span><span class="p">(</span><span class="n">modelpath</span><span class="p">)</span>
@@ -625,17 +727,23 @@
 
 <div class="viewcode-block" id="Components.create_pingroup_from_pins"><a class="viewcode-back" href="../../../API/EDBComponents.html#pyaedt.edb_core.components.Components.create_pingroup_from_pins">[docs]</a>    <span class="nd">@aedt_exception_handler</span>
     <span class="k">def</span> <span class="nf">create_pingroup_from_pins</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">pins</span><span class="p">,</span> <span class="n">group_name</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Create a pin group on a component</span>
-
+        <span class="sd">&quot;&quot;&quot;Create a pin group on a component</span>
+<span class="sd">        </span>
 <span class="sd">         :example:</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        pins :</span>
+<span class="sd">            python list of edb_core pins o</span>
+<span class="sd">        group_name :</span>
+<span class="sd">            Optional the name for the group. If None a default name will be applied with [component Name] [NetName]</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
 
 <span class="sd">        &gt;&gt;&gt; from pyaedt import EDB</span>
 <span class="sd">        &gt;&gt;&gt; edbapp = EDB(&quot;myaedbfolder&quot;)</span>
 <span class="sd">        &gt;&gt;&gt; edbapp.core_components.create_pingroup_from_pins(gndpinlist, &quot;MyGNDPingroup&quot;)</span>
-
-<span class="sd">        :param pins: python list of edb_core pins o</span>
-<span class="sd">        :param group_name: Optional the name for the group. If None a default name will be applied with [component Name] [NetName]</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">pins</span><span class="p">)</span> <span class="o">&lt;</span> <span class="mi">1</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">messenger</span><span class="o">.</span><span class="n">add_error_message</span><span class="p">(</span><span class="s1">&#39;No pins specified for pin group </span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">group_name</span><span class="p">))</span>
@@ -653,17 +761,23 @@
 
 <div class="viewcode-block" id="Components.delete_single_pin_rlc"><a class="viewcode-back" href="../../../API/EDBComponents.html#pyaedt.edb_core.components.Components.delete_single_pin_rlc">[docs]</a>    <span class="nd">@aedt_exception_handler</span>
     <span class="k">def</span> <span class="nf">delete_single_pin_rlc</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Delete all RLC Components with less than 2 Pins</span>
-
+        <span class="sd">&quot;&quot;&quot;Delete all RLC Components with less than 2 Pins</span>
+<span class="sd">        </span>
 <span class="sd">        :example:</span>
+<span class="sd">        </span>
+<span class="sd">        </span>
+<span class="sd">        :return: list of deleted components</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
 
 <span class="sd">        &gt;&gt;&gt; from pyaedt import EDB</span>
 <span class="sd">        &gt;&gt;&gt; edbapp = EDB(&quot;myaedbfolder&quot;)</span>
 <span class="sd">        &gt;&gt;&gt; list_of_deleted_rlcs = edbapp.core_components.delete_single_pin_rlc()</span>
 <span class="sd">        &gt;&gt;&gt; print(list_of_deleted_rlcs)</span>
-
-<span class="sd">        :return: list of deleted components</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">deleted_comps</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="k">for</span> <span class="n">comp</span><span class="p">,</span><span class="n">val</span>  <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">components</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
@@ -677,17 +791,23 @@
 
 <div class="viewcode-block" id="Components.delete_component"><a class="viewcode-back" href="../../../API/EDBComponents.html#pyaedt.edb_core.components.Components.delete_component">[docs]</a>    <span class="nd">@aedt_exception_handler</span>
     <span class="k">def</span> <span class="nf">delete_component</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">component_name</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Delete Component</span>
-
+        <span class="sd">&quot;&quot;&quot;Delete Component</span>
+<span class="sd">        </span>
 <span class="sd">        :example:</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        component_name :</span>
+<span class="sd">            str name of component to delete</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        type</span>
+<span class="sd">            Bool</span>
 
 <span class="sd">        &gt;&gt;&gt; from pyaedt import EDB</span>
 <span class="sd">        &gt;&gt;&gt; edbapp = EDB(&quot;myaedbfolder&quot;)</span>
 <span class="sd">        &gt;&gt;&gt; edbapp.core_components.delete_component(&quot;A1&quot;)</span>
-
-<span class="sd">        :param component_name: str name of component to delete</span>
-<span class="sd">        :return: Bool</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">edb_cmp</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_component_by_name</span><span class="p">(</span><span class="n">component_name</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">edb_cmp</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
@@ -698,17 +818,23 @@
 
 <div class="viewcode-block" id="Components.disable_rlc_component"><a class="viewcode-back" href="../../../API/EDBComponents.html#pyaedt.edb_core.components.Components.disable_rlc_component">[docs]</a>    <span class="nd">@aedt_exception_handler</span>
     <span class="k">def</span> <span class="nf">disable_rlc_component</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">component_name</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Disable Given Component</span>
-
+        <span class="sd">&quot;&quot;&quot;Disable Given Component</span>
+<span class="sd">        </span>
 <span class="sd">        :example:</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        component_name :</span>
+<span class="sd">            str component name</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        type</span>
+<span class="sd">            Bool</span>
 
 <span class="sd">        &gt;&gt;&gt; from pyaedt import EDB</span>
 <span class="sd">        &gt;&gt;&gt; edbapp = EDB(&quot;myaedbfolder&quot;)</span>
 <span class="sd">        &gt;&gt;&gt; edbapp.core_components.disable_rlc_component(&quot;A1&quot;)</span>
-
-<span class="sd">        :param component_name: str component name</span>
-<span class="sd">        :return: Bool</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">edb_cmp</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_component_by_name</span><span class="p">(</span><span class="n">component_name</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">edb_cmp</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
@@ -727,19 +853,30 @@
 <div class="viewcode-block" id="Components.set_component_rlc"><a class="viewcode-back" href="../../../API/EDBComponents.html#pyaedt.edb_core.components.Components.set_component_rlc">[docs]</a>    <span class="nd">@aedt_exception_handler</span>
     <span class="k">def</span> <span class="nf">set_component_rlc</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">componentname</span><span class="p">,</span> <span class="n">res_value</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">ind_value</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">cap_value</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">isparallel</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Set RLC Component Values</span>
-
+<span class="sd">        </span>
 <span class="sd">        :example:</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        componentname :</span>
+<span class="sd">            name of component to update</span>
+<span class="sd">        res_value :</span>
+<span class="sd">            Resistance value (Default value = None)</span>
+<span class="sd">        ind_value :</span>
+<span class="sd">            Inductor value (Default value = None)</span>
+<span class="sd">        cap_value :</span>
+<span class="sd">            Capacitor Value (Default value = None)</span>
+<span class="sd">        isparallel :</span>
+<span class="sd">            boolean (Default value = False)</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        type</span>
+<span class="sd">            bool</span>
 
 <span class="sd">        &gt;&gt;&gt; from pyaedt import EDB</span>
 <span class="sd">        &gt;&gt;&gt; edbapp = EDB(&quot;myaedbfolder&quot;)</span>
 <span class="sd">        &gt;&gt;&gt; edbapp.core_components.set_component_rlc(&quot;R1&quot;, res_value=50, ind_value=1e-9, cap_value=1e-12, isparallel=False)</span>
-
-<span class="sd">        :param componentname: name of component to update</span>
-<span class="sd">        :param res_value:  Resistance value</span>
-<span class="sd">        :param ind_value: Inductor value</span>
-<span class="sd">        :param cap_value: Capacitor Value</span>
-<span class="sd">        :param isparallel: boolean</span>
-<span class="sd">        :return: bool</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">edbComponent</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_component_by_name</span><span class="p">(</span><span class="n">componentname</span><span class="p">)</span>
         <span class="n">componentType</span> <span class="o">=</span> <span class="n">edbComponent</span><span class="o">.</span><span class="n">GetComponentType</span><span class="p">()</span>
@@ -780,17 +917,28 @@
 <div class="viewcode-block" id="Components.update_rlc_from_bom"><a class="viewcode-back" href="../../../API/EDBComponents.html#pyaedt.edb_core.components.Components.update_rlc_from_bom">[docs]</a>    <span class="nd">@aedt_exception_handler</span>
     <span class="k">def</span> <span class="nf">update_rlc_from_bom</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">bom_file</span><span class="p">,</span> <span class="n">delimiter</span><span class="o">=</span><span class="s2">&quot;;&quot;</span><span class="p">,</span> <span class="n">valuefield</span><span class="o">=</span><span class="s2">&quot;Func des&quot;</span><span class="p">,</span> <span class="n">comptype</span><span class="o">=</span><span class="s2">&quot;Prod name&quot;</span><span class="p">,</span>
                             <span class="n">refdes</span><span class="o">=</span><span class="s2">&quot;Pos / Place&quot;</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Function to update the edb_core components values (RLCs) with values coming from BOM.</span>
+        <span class="sd">&quot;&quot;&quot;Function to update the edb_core components values (RLCs) with values coming from BOM.</span>
 <span class="sd">        Files is a text file delimited and header values needed inside the bom reader have to be explicitily set if different from the defaults</span>
 <span class="sd">        valuefield has to contain the value of the Component (eg. 22pF) at beginning of the value followed by a space and then the rest of the value</span>
 
-<span class="sd">        :param bom_file: full path to the bom file</span>
-<span class="sd">        :param delimiter: delimiter default value ;</span>
-<span class="sd">        :param valuefield: Field Header containing the value of component</span>
-<span class="sd">        :param comptype: Field Header containing the type of component.eg &quot;Inductor&quot;</span>
-<span class="sd">        :param refdes: Field Header containing the RefDes of Component. eg &quot;C100&quot;</span>
-<span class="sd">        :return: True if the file contains the header and it is correctly parsed. the function returns True even if no values are assigned</span>
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        bom_file :</span>
+<span class="sd">            full path to the bom file</span>
+<span class="sd">        delimiter :</span>
+<span class="sd">            delimiter default value ;</span>
+<span class="sd">        valuefield :</span>
+<span class="sd">            Field Header containing the value of component (Default value = &quot;Func des&quot;)</span>
+<span class="sd">        comptype :</span>
+<span class="sd">            Field Header containing the type of component.eg &quot;Inductor&quot; (Default value = &quot;Prod name&quot;)</span>
+<span class="sd">        refdes :</span>
+<span class="sd">            Field Header containing the RefDes of Component. eg &quot;C100&quot; (Default value = &quot;Pos / Place&quot;)</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        type</span>
+<span class="sd">            True if the file contains the header and it is correctly parsed. the function returns True even if no values are assigned</span>
+
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">bom_file</span><span class="p">,</span> <span class="s1">&#39;r&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
             <span class="n">Lines</span> <span class="o">=</span> <span class="n">f</span><span class="o">.</span><span class="n">readlines</span><span class="p">()</span>
@@ -821,14 +969,22 @@
 
 <div class="viewcode-block" id="Components.get_pin_from_component"><a class="viewcode-back" href="../../../API/EDBComponents.html#pyaedt.edb_core.components.Components.get_pin_from_component">[docs]</a>    <span class="nd">@aedt_exception_handler</span>
     <span class="k">def</span> <span class="nf">get_pin_from_component</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">cmpName</span><span class="p">,</span> <span class="n">netName</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">pinName</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        get the pins of a specified component name</span>
+        <span class="sd">&quot;&quot;&quot;get the pins of a specified component name</span>
 
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        cmpName :</span>
+<span class="sd">            component name</span>
+<span class="sd">        netName :</span>
+<span class="sd">            filter on net name, optional and alternative to pinName (Default value = None)</span>
+<span class="sd">        pinName :</span>
+<span class="sd">            filter on pin name, optional and alternative to netName (Default value = None)</span>
 
-<span class="sd">        :param cmpName: component name</span>
-<span class="sd">        :param netName: filter on net name, optional and alternative to pinName</span>
-<span class="sd">        :param pinName: filter on pin name, optional and alternative to netName</span>
-<span class="sd">        :return: the list of pin. [] if component not found</span>
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        type</span>
+<span class="sd">            the list of pin. [] if component not found</span>
+
 <span class="sd">        &quot;&quot;&quot;</span>
 
         <span class="n">cmp</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">edb</span><span class="o">.</span><span class="n">Cell</span><span class="o">.</span><span class="n">Hierarchy</span><span class="o">.</span><span class="n">Component</span><span class="o">.</span><span class="n">FindByName</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">active_layout</span><span class="p">,</span> <span class="n">cmpName</span><span class="p">)</span>
@@ -851,11 +1007,19 @@
 
 <div class="viewcode-block" id="Components.get_aedt_pin_name"><a class="viewcode-back" href="../../../API/EDBComponents.html#pyaedt.edb_core.components.Components.get_aedt_pin_name">[docs]</a>    <span class="nd">@aedt_exception_handler</span>
     <span class="k">def</span> <span class="nf">get_aedt_pin_name</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">pin</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        get the pin name as shown in aedt</span>
+        <span class="sd">&quot;&quot;&quot;get the pin name as shown in aedt</span>
 <span class="sd">        Note: to obtain the edb_core pin name simply use pin.GetName()</span>
-<span class="sd">        :param pin: the pin</span>
-<span class="sd">        :return: name as string</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        pin :</span>
+<span class="sd">            the pin</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        type</span>
+<span class="sd">            name as string</span>
+
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="s2">&quot;IronPython&quot;</span> <span class="ow">in</span> <span class="n">sys</span><span class="o">.</span><span class="n">version</span> <span class="ow">or</span> <span class="s2">&quot;.NETFramework&quot;</span> <span class="ow">in</span> <span class="n">sys</span><span class="o">.</span><span class="n">version</span><span class="p">:</span>
                 <span class="n">name</span> <span class="o">=</span> <span class="n">clr</span><span class="o">.</span><span class="n">Reference</span><span class="p">[</span><span class="n">String</span><span class="p">]()</span>
@@ -867,10 +1031,18 @@
 
 <div class="viewcode-block" id="Components.get_pin_position"><a class="viewcode-back" href="../../../API/EDBComponents.html#pyaedt.edb_core.components.Components.get_pin_position">[docs]</a>    <span class="nd">@aedt_exception_handler</span>
     <span class="k">def</span> <span class="nf">get_pin_position</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">pin</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        get the pin position x, y in meter</span>
-<span class="sd">        :param pin: the pin</span>
-<span class="sd">        :return: [x, y] as list of float</span>
+        <span class="sd">&quot;&quot;&quot;get the pin position x, y in meter</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        pin :</span>
+<span class="sd">            the pin</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        type</span>
+<span class="sd">            x, y] as list of float</span>
+
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="n">is_ironpython</span><span class="p">:</span>
             <span class="n">res</span><span class="p">,</span> <span class="n">pt_pos</span><span class="p">,</span> <span class="n">rot_pos</span> <span class="o">=</span> <span class="n">pin</span><span class="o">.</span><span class="n">GetPositionAndRotation</span><span class="p">()</span>
@@ -887,12 +1059,20 @@
 
 <div class="viewcode-block" id="Components.get_pins_name_from_net"><a class="viewcode-back" href="../../../API/EDBComponents.html#pyaedt.edb_core.components.Components.get_pins_name_from_net">[docs]</a>    <span class="nd">@aedt_exception_handler</span>
     <span class="k">def</span> <span class="nf">get_pins_name_from_net</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">pin_list</span><span class="p">,</span> <span class="n">net_name</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Return the list of pins belonging to a specific net</span>
+        <span class="sd">&quot;&quot;&quot;Return the list of pins belonging to a specific net</span>
 
-<span class="sd">        :param net_name: string of netname</span>
-<span class="sd">        :param pin_list: list of pins to check</span>
-<span class="sd">        :return: pinlist</span>
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        net_name :</span>
+<span class="sd">            string of netname</span>
+<span class="sd">        pin_list :</span>
+<span class="sd">            list of pins to check</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        type</span>
+<span class="sd">            pinlist</span>
+
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">pinlist</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="k">for</span> <span class="n">pin</span> <span class="ow">in</span> <span class="n">pin_list</span><span class="p">:</span>
@@ -902,11 +1082,18 @@
 
 <div class="viewcode-block" id="Components.get_nets_from_pin_list"><a class="viewcode-back" href="../../../API/EDBComponents.html#pyaedt.edb_core.components.Components.get_nets_from_pin_list">[docs]</a>    <span class="nd">@aedt_exception_handler</span>
     <span class="k">def</span> <span class="nf">get_nets_from_pin_list</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">PinList</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        returns the list of nets of specified pin or pin list</span>
+        <span class="sd">&quot;&quot;&quot;returns the list of nets of specified pin or pin list</span>
 
-<span class="sd">        :param PinList: list of pins objects</span>
-<span class="sd">        :return: list of nets</span>
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        PinList :</span>
+<span class="sd">            list of pins objects</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        type</span>
+<span class="sd">            list of nets</span>
+
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">netlist</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="k">for</span> <span class="n">pin</span> <span class="ow">in</span> <span class="n">PinList</span><span class="p">:</span>
@@ -915,10 +1102,18 @@
 
 <div class="viewcode-block" id="Components.get_component_net_connection_info"><a class="viewcode-back" href="../../../API/EDBComponents.html#pyaedt.edb_core.components.Components.get_component_net_connection_info">[docs]</a>    <span class="nd">@aedt_exception_handler</span>
     <span class="k">def</span> <span class="nf">get_component_net_connection_info</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">refdes</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        return dictionary of RefDes, PinNames and NetNames for specified ref des</span>
-<span class="sd">        :param refdes: reference designator</span>
-<span class="sd">        :return: dicti</span>
+        <span class="sd">&quot;&quot;&quot;return dictionary of RefDes, PinNames and NetNames for specified ref des</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        refdes :</span>
+<span class="sd">            reference designator</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        type</span>
+<span class="sd">            dicti</span>
+
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">component_pins</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_pin_from_component</span><span class="p">(</span><span class="n">refdes</span><span class="p">)</span>
         <span class="n">data</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;refdes&quot;</span><span class="p">:[],</span> <span class="s2">&quot;pin_name&quot;</span><span class="p">:[],</span> <span class="s2">&quot;net_name&quot;</span><span class="p">:[]}</span>
@@ -932,10 +1127,7 @@
         <span class="k">return</span> <span class="n">data</span></div>
 
 <div class="viewcode-block" id="Components.get_rats"><a class="viewcode-back" href="../../../API/EDBComponents.html#pyaedt.edb_core.components.Components.get_rats">[docs]</a>    <span class="k">def</span> <span class="nf">get_rats</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
-
-<span class="sd">        :return:</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="sd">&quot;&quot;&quot;:return:&quot;&quot;&quot;</span>
         <span class="n">df_list</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="k">for</span> <span class="n">refdes</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">components</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
             <span class="n">df</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_component_net_connection_info</span><span class="p">(</span><span class="n">refdes</span><span class="p">)</span>
@@ -947,8 +1139,14 @@
 <div class="viewcode-block" id="Components.get_through_resistor_list"><a class="viewcode-back" href="../../../API/EDBComponents.html#pyaedt.edb_core.components.Components.get_through_resistor_list">[docs]</a>    <span class="k">def</span> <span class="nf">get_through_resistor_list</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">threshold</span><span class="o">=</span><span class="mi">1</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 
-<span class="sd">        :param threshold:</span>
-<span class="sd">        :return:</span>
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        threshold :</span>
+<span class="sd">            return: (Default value = 1)</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">through_comp_list</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="k">for</span> <span class="n">refdes</span><span class="p">,</span> <span class="n">comp_obj</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">resistors</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>

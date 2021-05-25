@@ -12,9 +12,7 @@ from System import String
 
 
 class Primitives3DLayout(object):
-    """
-    Class for management of all Primitives of HFSS3DLayout
-    """
+    """Class for management of all Primitives of HFSS3DLayout"""
     @aedt_exception_handler
     def __getitem__(self, partname):
         """
@@ -41,10 +39,7 @@ class Primitives3DLayout(object):
 
     @property
     def components(self):
-        """
-
-        :return: Component List from EDB. If no EDB is present none is returned
-        """
+        """:return: Component List from EDB. If no EDB is present none is returned"""
         try:
             comps = list(self.modeler.edb.core_components.components.keys())
         except:
@@ -55,10 +50,7 @@ class Primitives3DLayout(object):
 
     @property
     def geometries(self):
-        """
-
-        :return: Geometries List from EDB. If no EDB is present none is returned
-        """
+        """:return: Geometries List from EDB. If no EDB is present none is returned"""
         try:
             prims = self.modeler.edb.active_layout.Primitives
         except:
@@ -91,10 +83,7 @@ class Primitives3DLayout(object):
 
     @property
     def pins(self):
-        """
-
-        :return: Pins List from EDB. If no EDB is present none is returned
-        """
+        """:return: Pins List from EDB. If no EDB is present none is returned"""
         try:
             pins_objs = list(self.modeler.edb.pins)
         except:
@@ -108,10 +97,7 @@ class Primitives3DLayout(object):
 
     @property
     def nets(self):
-        """
-
-        :return: Nets List from EDB. If no EDB is present none is returned
-        """
+        """:return: Nets List from EDB. If no EDB is present none is returned"""
         try:
             nets_objs = list(self.modeler.edb.core_nets.nets)
         except:
@@ -122,44 +108,58 @@ class Primitives3DLayout(object):
 
     @property
     def defaultmaterial(self):
-        ''' Return the model default material as a string e.g. vacuum'''
+        """ """
         return default_materials[self._parent._design_type]
 
     @property
     def messenger(self):
+        """ """
         return self._parent._messenger
 
     @property
     def version(self):
+        """ """
         return self._parent._aedt_version
 
     @property
     def modeler(self):
+        """ """
         return self._modeler
 
     @property
     def oeditor(self):
+        """ """
         return self.modeler.oeditor
 
     @property
     def opadstackmanager(self):
+        """ """
         return self._parent._oproject.GetDefinitionManager().GetManager("Padstack")
 
     @property
     def model_units(self):
+        """ """
         return self.modeler.model_units
 
     @property
     def Padstack(self):
+        """ """
         return Padstack()
 
     @aedt_exception_handler
     def new_padstack(self, name="Padstack"):
         """Return a new Padstack object that can be used in HFSS 3D Layout to create a new Padstack
 
+        Parameters
+        ----------
+        name :
+            Padstack Name (Default value = "Padstack")
 
-        :param name: Padstack Name
-        :return: Padstack Object if name is doesn't already exists
+        Returns
+        -------
+        type
+            Padstack Object if name is doesn't already exists
+
         """
         if name in self.padstacks:
             return None
@@ -170,8 +170,15 @@ class Primitives3DLayout(object):
     @aedt_exception_handler
     def init_padstacks(self):
         """Read all Padstack from HFSS 3D Layout
-
+        
         :return: True
+
+        Parameters
+        ----------
+
+        Returns
+        -------
+
         """
         names = GeometryOperators.List2list(self.opadstackmanager.GetNames())
 
@@ -237,11 +244,20 @@ class Primitives3DLayout(object):
 
     @aedt_exception_handler
     def change_net_visibility(self, netlist=None, visible=False):
-        """
-        Change the visibility of a net or net list
-        :param netlist: single net or netlist to visualize
-        :param visible: Boolean
-        :return: Boolean
+        """Change the visibility of a net or net list
+
+        Parameters
+        ----------
+        netlist :
+            single net or netlist to visualize (Default value = None)
+        visible :
+            Boolean (Default value = False)
+
+        Returns
+        -------
+        type
+            Boolean
+
         """
         if not netlist:
             netlist = self.nets
@@ -262,17 +278,32 @@ class Primitives3DLayout(object):
                    name=None, netname=None):
         """Create a Via based on existing padstack
 
+        Parameters
+        ----------
+        padstack :
+            String containing the Padstack Name (Default value = "PlanarEMVia")
+        x :
+            x position (Default value = 0)
+        y :
+            y position (Default value = 0)
+        rotation :
+            angle rotation in deg (Default value = 0)
+        hole_diam :
+            hole diameter. If None Override is disabled (Default value = None)
+        top_layer :
+            top layer (Default value = None)
+        bot_layer :
+            bottom layer (Default value = None)
+        name :
+            Via Name (Default value = None)
+        netname :
+            optional Netname (Default value = None)
 
-        :param padstack: String containing the Padstack Name
-        :param x: x position
-        :param y: y position
-        :param rotation: angle rotation in deg
-        :param hole_diam: hole diameter. If None Override is disabled
-        :param top_layer: top layer
-        :param bot_layer: bottom layer
-        :param name: Via Name
-        :param netname: optional Netname
-        :return: Name of the created object, if successful
+        Returns
+        -------
+        type
+            Name of the created object, if successful
+
         """
         layers = self.modeler.layers.all_signal_layers
         if not top_layer:
@@ -313,14 +344,26 @@ class Primitives3DLayout(object):
     def create_circle(self, layername, x, y, radius, name=None, netname=None):
         """Create Circle on specific layer
 
+        Parameters
+        ----------
+        layername :
+            layername
+        x :
+            x position float
+        y :
+            y position float
+        radius :
+            radius float
+        name :
+            Object Name (Default value = None)
+        netname :
+            optional Netname (Default value = None)
 
-        :param layername: layername
-        :param x: x position float
-        :param y: y position float
-        :param radius: radius float
-        :param name: Object Name
-        :param netname: optional Netname
-        :return: Name of the created object, if successful
+        Returns
+        -------
+        type
+            Name of the created object, if successful
+
         """
         if not name:
             name = _uname()
@@ -349,14 +392,38 @@ class Primitives3DLayout(object):
     def create_rectangle(self, layername, ax, ay, bx, by, cr=0, ang=0, name=None, netname=None):
         """Create a Rectangle on specific layer
 
+        Parameters
+        ----------
+        layername :
+            layername
+        x :
+            x position float
+        y :
+            y position float
+        radius :
+            radius float
+        name :
+            Object Name (Default value = None)
+        netname :
+            optional Netname (Default value = None)
+        ax :
+            
+        ay :
+            
+        bx :
+            
+        by :
+            
+        cr :
+             (Default value = 0)
+        ang :
+             (Default value = 0)
 
-        :param layername: layername
-        :param x: x position float
-        :param y: y position float
-        :param radius: radius float
-        :param name: Object Name
-        :param netname: optional Netname
-        :return: Name of the created object, if successful
+        Returns
+        -------
+        type
+            Name of the created object, if successful
+
         """
         if not name:
             name = _uname()
@@ -388,16 +455,30 @@ class Primitives3DLayout(object):
     def create_line(self, layername, lw=1, x=[], y=[], start_style=0, end_style=0, name=None, netname=None):
         """Create Line based on specific list of point
 
+        Parameters
+        ----------
+        layername :
+            layer name on which create the object
+        lw :
+            line width (Default value = 1)
+        x :
+            array of float containing x point of each point of the line (Default value = [])
+        y :
+            array of float containing y point of each point of the line (Default value = [])
+        start_style :
+            start style of the line. 0 Flat, 1 Extended, 2 Round (Default value = 0)
+        end_style :
+            end style of the line. 0 Same as start, 1 Flat, 2 Extended, 3 Round (Default value = 0)
+        name :
+            Object Name (Default value = None)
+        netname :
+            optional Netname (Default value = None)
 
-        :param layername: layer name on which create the object
-        :param lw: line width
-        :param x: array of float containing x point of each point of the line
-        :param y: array of float containing y point of each point of the line
-        :param start_style: start style of the line. 0 Flat, 1 Extended, 2 Round
-        :param end_style: end style of the line. 0 Same as start, 1 Flat, 2 Extended, 3 Round
-        :param name: Object Name
-        :param netname: optional Netname
-        :return: Name of the created object, if successful
+        Returns
+        -------
+        type
+            Name of the created object, if successful
+
         """
         if not name:
             name = _uname()
@@ -424,6 +505,19 @@ class Primitives3DLayout(object):
 
     @aedt_exception_handler
     def arg_with_dim(self, Value, sUnits=None):
+        """
+
+        Parameters
+        ----------
+        Value :
+            
+        sUnits :
+             (Default value = None)
+
+        Returns
+        -------
+
+        """
         if type(Value) is str:
             val = Value
         else:

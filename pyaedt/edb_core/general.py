@@ -37,6 +37,17 @@ else:
 
 @aedt_exception_handler
 def convert_netdict_to_pydict(dict):
+    """
+
+    Parameters
+    ----------
+    dict :
+        
+
+    Returns
+    -------
+
+    """
     pydict = {}
     for key in dict.Keys:
         pydict[key] = dict[key]
@@ -44,11 +55,33 @@ def convert_netdict_to_pydict(dict):
 
 @aedt_exception_handler
 def convert_pydict_to_netdict(dict):
+    """
+
+    Parameters
+    ----------
+    dict :
+        
+
+    Returns
+    -------
+
+    """
     type = dict[dict.Keys[0]]
     # to be completed
 
 @aedt_exception_handler
 def convert_py_list_to_net_list(pylist):
+    """
+
+    Parameters
+    ----------
+    pylist :
+        
+
+    Returns
+    -------
+
+    """
     if type(pylist) is not list and type(pylist) is not tuple:
         pylist = [pylist]
     ls = list([type(item) for item in pylist])
@@ -60,6 +93,17 @@ def convert_py_list_to_net_list(pylist):
 
 @aedt_exception_handler
 def convert_net_list_to_py_list(self, netlist):
+    """
+
+    Parameters
+    ----------
+    netlist :
+        
+
+    Returns
+    -------
+
+    """
     pylist = []
     for el in netlist:
         pylist.__add__(el)

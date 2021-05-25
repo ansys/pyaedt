@@ -274,14 +274,26 @@
 <em class="property"><span class="pre">class</span> </em><code class="sig-prename descclassname"><span class="pre">pyaedt.edb_core.hfss.</span></code><code class="sig-name descname"><span class="pre">Edb3DLayout</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">parent</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pyaedt/edb_core/hfss.html#Edb3DLayout"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyaedt.edb_core.hfss.Edb3DLayout" title="Permalink to this definition">¶</a></dt>
 <dd><p>HFSS 3DLayout object</p>
 <dl class="py method">
+<dt id="pyaedt.edb_core.hfss.Edb3DLayout.active_layout">
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">active_layout</span></code><a class="headerlink" href="#pyaedt.edb_core.hfss.Edb3DLayout.active_layout" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="pyaedt.edb_core.hfss.Edb3DLayout.builder">
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">builder</span></code><a class="headerlink" href="#pyaedt.edb_core.hfss.Edb3DLayout.builder" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="pyaedt.edb_core.hfss.Edb3DLayout.cell">
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">cell</span></code><a class="headerlink" href="#pyaedt.edb_core.hfss.Edb3DLayout.cell" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
 <dt id="pyaedt.edb_core.hfss.Edb3DLayout.create_circuit_port">
 <code class="sig-name descname"><span class="pre">create_circuit_port</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">pin_list</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pyaedt/edb_core/hfss.html#Edb3DLayout.create_circuit_port"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyaedt.edb_core.hfss.Edb3DLayout.create_circuit_port" title="Permalink to this definition">¶</a></dt>
 <dd><dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>pin_list</strong> -- a pin object or a pin list object</p>
-</dd>
-<dt class="field-even">Returns</dt>
-<dd class="field-even"><p></p>
+<dd class="field-odd"><p><strong>pin_list</strong> -- </p>
 </dd>
 </dl>
 </dd></dl>
@@ -289,30 +301,81 @@
 <dl class="py method">
 <dt id="pyaedt.edb_core.hfss.Edb3DLayout.create_coax_port_on_component">
 <code class="sig-name descname"><span class="pre">create_coax_port_on_component</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ref_des_list</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">net_list</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pyaedt/edb_core/hfss.html#Edb3DLayout.create_coax_port_on_component"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyaedt.edb_core.hfss.Edb3DLayout.create_coax_port_on_component" title="Permalink to this definition">¶</a></dt>
-<dd><p>Create Coaxial Port on a component or component list on specific net or netlist. Name is automatically created</p>
-<dl class="field-list simple">
+<dd><dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>ref_des_list</strong> -- list of RefDef. it can be a single value or a list of RefDes</p></li>
-<li><p><strong>net_list</strong> -- Net name(s). it can be a single value or a list of RefDes</p></li>
+<li><p><strong>ref_des_list</strong> -- </p></li>
+<li><p><strong>net_list</strong> -- </p></li>
 </ul>
-</dd>
-<dt class="field-even">Returns</dt>
-<dd class="field-even"><p>Bool</p>
 </dd>
 </dl>
 </dd></dl>
 
 <dl class="py method">
-<dt id="pyaedt.edb_core.hfss.Edb3DLayout.get_trace_width_for_traces_with_ports">
-<code class="sig-name descname"><span class="pre">get_trace_width_for_traces_with_ports</span></code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pyaedt/edb_core/hfss.html#Edb3DLayout.get_trace_width_for_traces_with_ports"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyaedt.edb_core.hfss.Edb3DLayout.get_trace_width_for_traces_with_ports" title="Permalink to this definition">¶</a></dt>
-<dd><p>Return a Dictionary of Traces grouped by their width (minimum) of all traces with ports on it</p>
-<dl class="field-list simple">
-<dt class="field-odd">Returns</dt>
-<dd class="field-odd"><p>dictionary of data</p>
+<dt id="pyaedt.edb_core.hfss.Edb3DLayout.create_hfss_ports_on_padstack">
+<code class="sig-name descname"><span class="pre">create_hfss_ports_on_padstack</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">pinpos</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">portname</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pyaedt/edb_core/hfss.html#Edb3DLayout.create_hfss_ports_on_padstack"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyaedt.edb_core.hfss.Edb3DLayout.create_hfss_ports_on_padstack" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>pinpos</strong> -- </p></li>
+<li><p><strong>portname</strong> -- (Default value = None)</p></li>
+</ul>
 </dd>
 </dl>
 </dd></dl>
+
+<dl class="py method">
+<dt id="pyaedt.edb_core.hfss.Edb3DLayout.db">
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">db</span></code><a class="headerlink" href="#pyaedt.edb_core.hfss.Edb3DLayout.db" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="pyaedt.edb_core.hfss.Edb3DLayout.edb">
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">edb</span></code><a class="headerlink" href="#pyaedt.edb_core.hfss.Edb3DLayout.edb" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="pyaedt.edb_core.hfss.Edb3DLayout.get_trace_width_for_traces_with_ports">
+<code class="sig-name descname"><span class="pre">get_trace_width_for_traces_with_ports</span></code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pyaedt/edb_core/hfss.html#Edb3DLayout.get_trace_width_for_traces_with_ports"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyaedt.edb_core.hfss.Edb3DLayout.get_trace_width_for_traces_with_ports" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p><dl class="field-list simple">
+<dt class="field-odd">return</dt>
+<dd class="field-odd"><p>dictionary of data</p>
+</dd>
+</dl>
+</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>type</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="pyaedt.edb_core.hfss.Edb3DLayout.hfss_ic_methods">
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">hfss_ic_methods</span></code><a class="headerlink" href="#pyaedt.edb_core.hfss.Edb3DLayout.hfss_ic_methods" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="pyaedt.edb_core.hfss.Edb3DLayout.hfss_mesh_setup">
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">hfss_mesh_setup</span></code><a class="headerlink" href="#pyaedt.edb_core.hfss.Edb3DLayout.hfss_mesh_setup" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="pyaedt.edb_core.hfss.Edb3DLayout.hfss_setup">
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">hfss_setup</span></code><a class="headerlink" href="#pyaedt.edb_core.hfss.Edb3DLayout.hfss_setup" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="pyaedt.edb_core.hfss.Edb3DLayout.hfss_terminals">
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">hfss_terminals</span></code><a class="headerlink" href="#pyaedt.edb_core.hfss.Edb3DLayout.hfss_terminals" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="pyaedt.edb_core.hfss.Edb3DLayout.sweep_methods">
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">sweep_methods</span></code><a class="headerlink" href="#pyaedt.edb_core.hfss.Edb3DLayout.sweep_methods" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
 
 </dd></dl>
 

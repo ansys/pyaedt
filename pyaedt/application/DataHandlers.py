@@ -15,6 +15,19 @@ except ImportError:
 
 @aedt_exception_handler
 def tuple2dict(t, d):
+    """
+
+    Parameters
+    ----------
+    t :
+        
+    d :
+        
+
+    Returns
+    -------
+
+    """
     k = t[0]
     v = t[1]
     if type(v) is list and len(t) > 2:
@@ -32,6 +45,19 @@ def tuple2dict(t, d):
 
 @aedt_exception_handler
 def dict2arg(d, arg_out):
+    """
+
+    Parameters
+    ----------
+    d :
+        
+    arg_out :
+        
+
+    Returns
+    -------
+
+    """
     for k, v in d.items():
         if isinstance(v, OrderedDict):
             arg = ["NAME:" + k]
@@ -55,6 +81,19 @@ def dict2arg(d, arg_out):
 
 @aedt_exception_handler
 def arg2dict(arg, dict_out):
+    """
+
+    Parameters
+    ----------
+    arg :
+        
+    dict_out :
+        
+
+    Returns
+    -------
+
+    """
     if arg[0][:5] == 'NAME:':
         top_key = arg[0][5:]
         dict_in = OrderedDict()
@@ -76,6 +115,19 @@ def arg2dict(arg, dict_out):
 
 @aedt_exception_handler
 def create_list_for_csharp(input_list, return_strings=False):
+    """
+
+    Parameters
+    ----------
+    input_list :
+        
+    return_strings :
+         (Default value = False)
+
+    Returns
+    -------
+
+    """
     if return_strings:
         col=List[str]()
     else:
@@ -91,6 +143,19 @@ def create_list_for_csharp(input_list, return_strings=False):
 
 @aedt_exception_handler
 def create_table_for_csharp(input_list_of_list, return_strings=True):
+    """
+
+    Parameters
+    ----------
+    input_list_of_list :
+        
+    return_strings :
+         (Default value = True)
+
+    Returns
+    -------
+
+    """
     new_table = List[List[str]]()
     for col in input_list_of_list:
         newcol=create_list_for_csharp(col, return_strings)
@@ -100,6 +165,17 @@ def create_table_for_csharp(input_list_of_list, return_strings=True):
 
 @aedt_exception_handler
 def format_decimals(el):
+    """
+
+    Parameters
+    ----------
+    el :
+        
+
+    Returns
+    -------
+
+    """
     if float(el) > 1000:
         num = "{:,.0f}".format(Decimal(el))
     elif float(el) > 1:
@@ -111,10 +187,18 @@ def format_decimals(el):
 
 @aedt_exception_handler
 def random_string(length=6):
-    """  Generate a random string
+    """Generate a random string
 
-    :param length: length of the random string
-    :return: random string
+    Parameters
+    ----------
+    length :
+        length of the random string (Default value = 6)
+
+    Returns
+    -------
+    type
+        random string
+
     """
     char_set = string.ascii_uppercase + string.digits
     random_str = ''.join(random.sample(char_set, int(length)))

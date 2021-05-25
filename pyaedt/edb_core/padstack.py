@@ -24,10 +24,7 @@ from System.Collections.Generic import List
 
 
 class EdbPadstacks(object):
-    """HFSS 3DLayout object
-
-
-    """
+    """HFSS 3DLayout object"""
 
 
     def __init__(self, parent):
@@ -35,43 +32,57 @@ class EdbPadstacks(object):
 
     @property
     def builder(self):
+        """ """
         return self.parent.builder
 
     @property
     def edb(self):
+        """ """
         return self.parent.edb
 
     @property
     def edb_value(self):
+        """ """
         return self.parent.edb_value
 
     @property
     def active_layout(self):
+        """ """
         return self.parent.active_layout
 
     @property
     def cell(self):
+        """ """
         return self.parent.cell
 
     @property
     def db(self):
+        """ """
         return self.parent.db
 
     @property
     def padstack_methods(self):
+        """ """
         return self.parent.edblib.Layout.PadStackMethods
 
     @property
     def messenger(self):
+        """ """
         return self.parent.messenger
 
     @property
     def padstacks(self):
-        """
-        Get all via padstack definitions
-
-
+        """Get all via padstack definitions
+        
+        
         :return: List of padstack definitions
+
+        Parameters
+        ----------
+
+        Returns
+        -------
+
         """
         viadefList = {}
         for padstackdef in self.db.PadstackDefs:
@@ -82,11 +93,18 @@ class EdbPadstacks(object):
 
     @aedt_exception_handler
     def get_padstack_info(self):
-        """
-        Get All Via padstack definition
+        """Get All Via padstack definition
 
-        :param vianame: optional via name
-        :return: dictionary of vias
+        Parameters
+        ----------
+        vianame :
+            optional via name
+
+        Returns
+        -------
+        type
+            dictionary of vias
+
         """
         # Via padstack definition
         ViaDefinition = self.padstacks
@@ -125,15 +143,28 @@ class EdbPadstacks(object):
     @aedt_exception_handler
     def create_circular_padstack(self, padstackname=None, holediam='300um', paddiam='400um', antipaddiam='600um',
                         startlayer=None, endlayer=None):
-        """
-        Create a new Padskack
-        :param endlayer: End Layer. If none is entered, default is bottom
-        :param startlayer: Start Layer. If none is entered, default is top
-        :param padstackname: name of the padstack
-        :param holediam: hole diameter with units
-        :param paddiam: pad diameter with units
-        :param antipaddiam: antipad diameter with units
-        :return: padstackname if operation is completed
+        """Create a new Padskack
+
+        Parameters
+        ----------
+        endlayer :
+            End Layer. If none is entered, default is bottom
+        startlayer :
+            Start Layer. If none is entered, default is top
+        padstackname :
+            name of the padstack (Default value = None)
+        holediam :
+            hole diameter with units (Default value = '300um')
+        paddiam :
+            pad diameter with units (Default value = '400um')
+        antipaddiam :
+            antipad diameter with units (Default value = '600um')
+
+        Returns
+        -------
+        type
+            padstackname if operation is completed
+
         """
         if self.builder:
             return self.padstack_methods.CreateCircularPadStackDef(self.builder, padstackname, holediam, paddiam,
@@ -141,12 +172,22 @@ class EdbPadstacks(object):
 
     @aedt_exception_handler
     def get_pinlist_from_component_and_net(self, refdes = None, netname = None):
-        """
-        Get Pins from given component refdes and net name
+        """Get Pins from given component refdes and net name
 
-        :param Component refdes: Component name
-        :param netname: the name of the nets to search for. Will return False if the net does not belong to the component
-        :return: dictionary of vias
+        Parameters
+        ----------
+        Component :
+            refdes: Component name
+        netname :
+            the name of the nets to search for. Will return False if the net does not belong to the component (Default value = None)
+        refdes :
+             (Default value = None)
+
+        Returns
+        -------
+        type
+            dictionary of vias
+
         """
         if self.builder:
             pinlist = self.padstack_methods.GetPinsFromComponentAndNets(self.builder, refdes, netname)
@@ -156,17 +197,28 @@ class EdbPadstacks(object):
     @aedt_exception_handler
     def create_padstack(self, padstackname=None, holediam='300um', paddiam='400um', antipaddiam='600um',
                         startlayer=None, endlayer=None):
-        """
-        Create a new Padskack
+        """Create a new Padskack
 
+        Parameters
+        ----------
+        endlayer :
+            End Layer. If none is entered, default is bottom
+        startlayer :
+            Start Layer. If none is entered, default is top
+        padstackname :
+            name of the padstack (Default value = None)
+        holediam :
+            hole diameter with units (Default value = '300um')
+        paddiam :
+            pad diameter with units (Default value = '400um')
+        antipaddiam :
+            antipad diameter with units (Default value = '600um')
 
-        :param endlayer: End Layer. If none is entered, default is bottom
-        :param startlayer: Start Layer. If none is entered, default is top
-        :param padstackname: name of the padstack
-        :param holediam: hole diameter with units
-        :param paddiam: pad diameter with units
-        :param antipaddiam: antipad diameter with units
-        :return: padstackname if operation is completed
+        Returns
+        -------
+        type
+            padstackname if operation is completed
+
         """
         if not padstackname:
             padstackname = generate_unique_name("VIA")

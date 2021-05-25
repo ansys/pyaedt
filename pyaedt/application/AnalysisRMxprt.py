@@ -5,25 +5,39 @@ from ..modeler.Model2D import ModelerRMxprt
 
 
 class FieldAnalysisRMxprt(Analysis):
-    """ **AEDT_RMxprtAnalysis**
-
-
+    """**AEDT_RMxprtAnalysis**
+    
+    
     To BE Implemented
     Class for RMXpert Field Analysis Setup
-
+    
     It is automatically initialized by Application call (like HFSS, Q3D...). Refer to Application function for inputs definition
+
+    Parameters
+    ----------
+
+    Returns
+    -------
 
     """
 
     @property
     def solution_type(self):
+        """ """
         return self._solution_type
 
     @solution_type.setter
     def solution_type(self, soltype):
         """
-        :param soltype: SolutionType object
-        :return:
+
+        Parameters
+        ----------
+        soltype :
+            SolutionType object
+
+        Returns
+        -------
+
         """
 
         sol = design_solutions[self._design_type]
@@ -44,16 +58,23 @@ class FieldAnalysisRMxprt(Analysis):
 
     @property
     def modeler(self):
+        """ """
         return self._modeler
 
     @aedt_exception_handler
     def disable_modelcreation(self, solution_type=None):
-        """
-        It Enables RMxprtSolution
+        """It Enables RMxprtSolution
 
+        Parameters
+        ----------
+        solution_type :
+            solutionType (Default value = None)
 
-        :param solution_type: solutionType
-        :return: Bool
+        Returns
+        -------
+        type
+            Bool
+
         """
         self._design_type = "RMxprtSolution"
         self.solution_type = solution_type
@@ -62,12 +83,18 @@ class FieldAnalysisRMxprt(Analysis):
 
     @aedt_exception_handler
     def enable_modelcreation(self, solution_type = None):
-        """
-        It Enables ModelCreation  for Maxwell Model Wizard
+        """It Enables ModelCreation  for Maxwell Model Wizard
 
+        Parameters
+        ----------
+        solution_type :
+            solutionType (Default value = None)
 
-        :param solution_type: solutionType
-        :return: Bool
+        Returns
+        -------
+        type
+            Bool
+
         """
         self._design_type = "ModelCreation"
         self.solution_type = solution_type
@@ -82,6 +109,7 @@ class FieldAnalysisRMxprt(Analysis):
 
     @aedt_exception_handler
     def _check_solution_consistency(self):
+        """ """
         if self._solution_type:
             return self._odesign.GetSolutionType() == self._solution_type
         else:
@@ -89,6 +117,7 @@ class FieldAnalysisRMxprt(Analysis):
 
     @aedt_exception_handler
     def _check_design_consistency(self):
+        """ """
         consistent = False
         destype = self._odesign.GetDesignType()
         if destype == "RMxprt":

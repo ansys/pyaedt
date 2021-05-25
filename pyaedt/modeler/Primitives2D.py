@@ -3,11 +3,10 @@ from .Primitives import Primitives
 
 
 class Primitives2D(Primitives, object):
-    """
-    Class for management of all Primitives of 2D Tools
-    """
+    """Class for management of all Primitives of 2D Tools"""
     @property
     def plane2d(self):
+        """ """
         plane = "Z"
         if self._parent.design_type == "Maxwell 2D":
             if self._parent.odesign.GetGeometryMode()=="about Z":
@@ -21,12 +20,24 @@ class Primitives2D(Primitives, object):
     def create_circle(self, position, radius, numSides=0, name=None, matname=None):
         """Create a circle
 
-        :param position: ApplicationName.modeler.Position(x,y,z) object
-        :param radius: radius float
-        :param numSides: Number of sides. 0 for circle
-        :param name: Object Name
-        :param matname: material name. Optional, if nothing default material will be assigned
-        :return: id
+        Parameters
+        ----------
+        position :
+            ApplicationName.modeler.Position(x,y,z) object
+        radius :
+            radius float
+        numSides :
+            Number of sides. 0 for circle (Default value = 0)
+        name :
+            Object Name (Default value = None)
+        matname :
+            material name. Optional, if nothing default material will be assigned
+
+        Returns
+        -------
+        type
+            id
+
         """
         id = self._new_id()
 
@@ -53,18 +64,26 @@ class Primitives2D(Primitives, object):
 
     @aedt_exception_handler
     def create_ellipse(self,position, major_raidus, ratio, bIsCovered=True, name=None, matname=None):
-        """
-        Create a ellipse
+        """Create a ellipse
 
+        Parameters
+        ----------
+        position :
+            ApplicationName.modeler.Position(x,y,z) object
+        major_raidus :
+            radius float
+        ratio :
+            Ratio float
+        bIsCovered :
+            Boolean (Default value = True)
+        name :
+            Object Name (Default value = None)
+        matname :
+            material name. Optional, if nothing default material will be assigned
 
-        :param position: ApplicationName.modeler.Position(x,y,z) object
-        :param major_raidus: radius float
-        :param ratio: Ratio float
-        :param bIsCovered: Boolean
-        :param name: Object Name
-        :param matname: material name. Optional, if nothing default material will be assigned
+        Returns
+        -------
 
-        :return:
         """
         id = self._new_id()
 
@@ -98,16 +117,24 @@ class Primitives2D(Primitives, object):
 
     @aedt_exception_handler
     def create_rectangle(self, position, dimension_list, name=None, matname=None):
-        """
-        Create a rectangle
+        """Create a rectangle
 
+        Parameters
+        ----------
+        position :
+            ApplicationName.modeler.Position(x,y,z) object
+        dimension_list :
+            dimension list
+        name :
+            Object Name (Default value = None)
+        matname :
+            material name. Optional, if nothing default material will be assigned
 
-        :type cs_plane: CoordinateSystemPlane
-        :param position: ApplicationName.modeler.Position(x,y,z) object
-        :param dimension_list: dimension list
-        :param name: Object Name
-        :param matname: material name. Optional, if nothing default material will be assigned
-        :return: id
+        Returns
+        -------
+        type
+            id
+
         """
         id = self._new_id()
 

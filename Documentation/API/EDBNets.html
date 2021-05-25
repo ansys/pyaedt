@@ -254,25 +254,54 @@
 <em class="property"><span class="pre">class</span> </em><code class="sig-prename descclassname"><span class="pre">pyaedt.edb_core.nets.</span></code><code class="sig-name descname"><span class="pre">EdbNets</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">parent</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pyaedt/edb_core/nets.html#EdbNets"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyaedt.edb_core.nets.EdbNets" title="Permalink to this definition">¶</a></dt>
 <dd><p>Edb Net object</p>
 <dl class="py method">
+<dt id="pyaedt.edb_core.nets.EdbNets.active_layout">
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">active_layout</span></code><a class="headerlink" href="#pyaedt.edb_core.nets.EdbNets.active_layout" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="pyaedt.edb_core.nets.EdbNets.builder">
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">builder</span></code><a class="headerlink" href="#pyaedt.edb_core.nets.EdbNets.builder" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="pyaedt.edb_core.nets.EdbNets.cell">
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">cell</span></code><a class="headerlink" href="#pyaedt.edb_core.nets.EdbNets.cell" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="pyaedt.edb_core.nets.EdbNets.db">
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">db</span></code><a class="headerlink" href="#pyaedt.edb_core.nets.EdbNets.db" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
 <dt id="pyaedt.edb_core.nets.EdbNets.delete_nets">
 <code class="sig-name descname"><span class="pre">delete_nets</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">netlist</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pyaedt/edb_core/nets.html#EdbNets.delete_nets"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyaedt.edb_core.nets.EdbNets.delete_nets" title="Permalink to this definition">¶</a></dt>
 <dd><p>Delete Nets from Edb</p>
 <dl class="field-list simple">
 <dt class="field-odd">Example</dt>
 <dd class="field-odd"><p></p></dd>
-</dl>
-<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">deleted_nets</span> <span class="o">=</span> <span class="n">edb_core</span><span class="o">.</span><span class="n">core_nets</span><span class="o">.</span><span class="n">delete_nets</span><span class="p">([</span><span class="s2">&quot;Net1&quot;</span><span class="p">,</span><span class="s2">&quot;Net2&quot;</span><span class="p">])</span>
-</pre></div>
-</div>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>netlist</strong> -- str or list of net to be deleted</p>
+<dt class="field-even">Parameters</dt>
+<dd class="field-even"><p><strong>netlist</strong> -- str or list of net to be deleted</p>
 </dd>
-<dt class="field-even">Returns</dt>
-<dd class="field-even"><p>list of nets effectively deleted</p>
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p><ul class="simple">
+<li><p><em>type</em> -- list of nets effectively deleted</p></li>
+<li><p><em>&gt;&gt;&gt; deleted_nets = edb_core.core_nets.delete_nets([&quot;Net1&quot;,&quot;Net2&quot;])</em></p></li>
+</ul>
+</p>
 </dd>
 </dl>
 </dd></dl>
+
+<dl class="py method">
+<dt id="pyaedt.edb_core.nets.EdbNets.edb">
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">edb</span></code><a class="headerlink" href="#pyaedt.edb_core.nets.EdbNets.edb" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="pyaedt.edb_core.nets.EdbNets.edb_value">
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">edb_value</span></code><a class="headerlink" href="#pyaedt.edb_core.nets.EdbNets.edb_value" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
 
 <dl class="py method">
 <dt id="pyaedt.edb_core.nets.EdbNets.get_dcconnected_net_list">
@@ -281,10 +310,23 @@
 only inductors are considered</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>ground_nets</strong> -- list of ground nets</p>
+<dd class="field-odd"><p><strong>ground_nets</strong> -- list of ground nets
+return: list of dcconnected nets (Default value = [&quot;GND&quot;])</p>
 </dd>
 </dl>
-<p>return: list of dcconnected nets</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="pyaedt.edb_core.nets.EdbNets.get_powertree">
+<code class="sig-name descname"><span class="pre">get_powertree</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">power_net_name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ground_nets</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pyaedt/edb_core/nets.html#EdbNets.get_powertree"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyaedt.edb_core.nets.EdbNets.get_powertree" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>power_net_name</strong> -- </p></li>
+<li><p><strong>ground_nets</strong> -- </p></li>
+</ul>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py method">
@@ -298,8 +340,16 @@ only inductors are considered</p>
 <dt class="field-even">Returns</dt>
 <dd class="field-even"><p>True if one of net name is power or ground</p>
 </dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>type</p>
+</dd>
 </dl>
 </dd></dl>
+
+<dl class="py method">
+<dt id="pyaedt.edb_core.nets.EdbNets.messenger">
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">messenger</span></code><a class="headerlink" href="#pyaedt.edb_core.nets.EdbNets.messenger" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
 
 <dl class="py method">
 <dt id="pyaedt.edb_core.nets.EdbNets.nets">
@@ -311,6 +361,16 @@ only inductors are considered</p>
 </dd>
 </dl>
 </dd></dl>
+
+<dl class="py method">
+<dt id="pyaedt.edb_core.nets.EdbNets.nets_methods">
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">nets_methods</span></code><a class="headerlink" href="#pyaedt.edb_core.nets.EdbNets.nets_methods" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="pyaedt.edb_core.nets.EdbNets.padstack_methods">
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">padstack_methods</span></code><a class="headerlink" href="#pyaedt.edb_core.nets.EdbNets.padstack_methods" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
 
 <dl class="py method">
 <dt id="pyaedt.edb_core.nets.EdbNets.power_nets">
