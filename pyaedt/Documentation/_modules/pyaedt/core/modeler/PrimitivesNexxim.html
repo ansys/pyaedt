@@ -1,0 +1,928 @@
+
+<!DOCTYPE html>
+
+<html lang="Python">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>pyaedt.core.modeler.PrimitivesNexxim &#8212; pyaedt 0.5.0 documentation</title>
+    
+  <link rel="stylesheet" href="../../../../_static/css/index.f658d18f9b420779cfdf24aa0a7e2d77.css">
+
+    
+  <link rel="stylesheet"
+    href="../../../../_static/vendor/fontawesome/5.13.0/css/all.min.css">
+  <link rel="preload" as="font" type="font/woff2" crossorigin
+    href="../../../../_static/vendor/fontawesome/5.13.0/webfonts/fa-solid-900.woff2">
+  <link rel="preload" as="font" type="font/woff2" crossorigin
+    href="../../../../_static/vendor/fontawesome/5.13.0/webfonts/fa-brands-400.woff2">
+
+    
+      
+  <link rel="stylesheet"
+    href="../../../../_static/vendor/open-sans_all/1.44.1/index.css">
+  <link rel="stylesheet"
+    href="../../../../_static/vendor/lato_latin-ext/1.44.1/index.css">
+
+    
+    <link rel="stylesheet" href="../../../../_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" href="../../../../_static/basic.css" type="text/css" />
+    <link rel="stylesheet" type="text/css" href="../../../../_static/copybutton.css" />
+    <link rel="stylesheet" type="text/css" href="../../../../_static/graphviz.css" />
+    <link rel="stylesheet" type="text/css" href="../../../../_static/css/ansys.css" />
+    
+  <link rel="preload" as="script" href="../../../../_static/js/index.d3f166471bb80abb5163.js">
+
+    <script id="documentation_options" data-url_root="../../../../" src="../../../../_static/documentation_options.js"></script>
+    <script src="../../../../_static/jquery.js"></script>
+    <script src="../../../../_static/underscore.js"></script>
+    <script src="../../../../_static/doctools.js"></script>
+    <script src="../../../../_static/clipboard.min.js"></script>
+    <script src="../../../../_static/copybutton.js"></script>
+    <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <link rel="index" title="Index" href="../../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../../search.html" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="docsearch:language" content="en" />
+  </head>
+  <body data-spy="scroll" data-target="#bd-toc-nav" data-offset="80">
+    
+    <nav class="navbar navbar-light navbar-expand-lg bg-light fixed-top bd-navbar" id="navbar-main">
+<div class="container-xl">
+
+    <a class="navbar-brand" href="../../../../index.html">
+    
+      <img src="../../../../_static/logo-ansys.png" class="logo" alt="logo" />
+    
+    </a>
+    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbar-menu" aria-controls="navbar-menu" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+    </button>
+
+    <div id="navbar-menu" class="col-lg-9 collapse navbar-collapse">
+      <ul id="navbar-main-elements" class="navbar-nav mr-auto">
+        
+        
+        <li class="nav-item ">
+            <a class="nav-link" href="../../../../LICENSE.html">License Agreeement</a>
+        </li>
+        
+        <li class="nav-item ">
+            <a class="nav-link" href="../../../../Resources/Installation.html">Installation</a>
+        </li>
+        
+        <li class="nav-item ">
+            <a class="nav-link" href="../../../../API/API.html">API documentation</a>
+        </li>
+        
+        <li class="nav-item ">
+            <a class="nav-link" href="../../../../API/Examples.html">Examples</a>
+        </li>
+        
+        <li class="nav-item ">
+            <a class="nav-link" href="../../../../Resources/Code_Guidelines.html">Code Guidelines</a>
+        </li>
+        
+        <li class="nav-item ">
+            <a class="nav-link" href=""></a>
+        </li>
+        
+        
+      </ul>
+
+
+      
+
+      <ul class="navbar-nav">
+        
+        
+      </ul>
+    </div>
+</div>
+    </nav>
+    
+
+    <div class="container-xl">
+      <div class="row">
+          
+          <div class="col-12 col-md-3 bd-sidebar"><form class="bd-search d-flex align-items-center" action="../../../../search.html" method="get">
+  <i class="icon fas fa-search"></i>
+  <input type="search" class="form-control" name="q" id="search-input" placeholder="Search the docs ..." aria-label="Search the docs ..." autocomplete="off" >
+</form>
+<nav class="bd-links" id="bd-docs-nav" aria-label="Main navigation">
+
+    <div class="bd-toc-item active">
+    
+  
+    <ul class="nav bd-sidenav">
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+      </ul>
+  
+  </nav>
+          </div>
+          
+
+          
+          <div class="d-none d-xl-block col-xl-2 bd-toc">
+              
+
+<nav id="bd-toc-nav">
+    <ul class="nav section-nav flex-column">
+    
+    </ul>
+</nav>
+
+
+              
+          </div>
+          
+
+          
+          <main class="col-12 col-md-9 col-xl-7 py-md-5 pl-md-5 pr-md-4 bd-content" role="main">
+              
+              <div>
+                
+  <h1>Source code for pyaedt.core.modeler.PrimitivesNexxim</h1><div class="highlight"><pre>
+<span></span><span class="kn">from</span> <span class="nn">..generic.general_methods</span> <span class="kn">import</span> <span class="n">aedt_exception_handler</span>
+<span class="kn">from</span> <span class="nn">.PrimitivesCircuit</span> <span class="kn">import</span> <span class="n">CircuitComponents</span>
+
+
+<div class="viewcode-block" id="NexximComponents"><a class="viewcode-back" href="../../../../API/CircuitComponents.html#pyaedt.core.modeler.PrimitivesNexxim.NexximComponents">[docs]</a><span class="k">class</span> <span class="nc">NexximComponents</span><span class="p">(</span><span class="n">CircuitComponents</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Class for management of all CircuitComponents for Nexxim</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">design_libray</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+            <span class="k">return</span> <span class="s2">&quot;Nexxim Circuit Elements&quot;</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">tab_name</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+            <span class="k">return</span> <span class="s2">&quot;PassedParameterTab&quot;</span>
+
+    <span class="nd">@aedt_exception_handler</span>
+    <span class="k">def</span> <span class="fm">__getitem__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">partname</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        :param partname: if integer try to get the object id. if string, trying to get object Name</span>
+<span class="sd">        :return: part object details</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="n">partname</span><span class="p">)</span> <span class="ow">is</span> <span class="nb">int</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">components</span><span class="p">[</span><span class="n">partname</span><span class="p">]</span>
+        <span class="k">for</span> <span class="n">el</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">components</span><span class="p">:</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">components</span><span class="p">[</span><span class="n">el</span><span class="p">]</span><span class="o">.</span><span class="n">name</span> <span class="o">==</span> <span class="n">partname</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">components</span><span class="p">[</span><span class="n">el</span><span class="p">]</span><span class="o">.</span><span class="n">composed_name</span> <span class="o">==</span> <span class="n">partname</span> <span class="ow">or</span> <span class="n">el</span> <span class="o">==</span> <span class="n">partname</span><span class="p">:</span>
+                <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">components</span><span class="p">[</span><span class="n">el</span><span class="p">]</span>
+
+        <span class="k">return</span> <span class="kc">None</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">parent</span><span class="p">,</span> <span class="n">modeler</span><span class="p">):</span>
+        <span class="n">CircuitComponents</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">parent</span><span class="p">,</span> <span class="n">modeler</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_parent</span> <span class="o">=</span> <span class="n">parent</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">modeler</span> <span class="o">=</span> <span class="n">modeler</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_currentId</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="k">pass</span>
+
+<div class="viewcode-block" id="NexximComponents.create_3dlayout_subcircuit"><a class="viewcode-back" href="../../../../API/CircuitComponents.html#pyaedt.core.modeler.PrimitivesNexxim.NexximComponents.create_3dlayout_subcircuit">[docs]</a>    <span class="nd">@aedt_exception_handler</span>
+    <span class="k">def</span> <span class="nf">create_3dlayout_subcircuit</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">sourcename</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Create a new subcircuit</span>
+
+
+<span class="sd">        :param sourcename: name of the source design</span>
+<span class="sd">        :return: el, composed_name if succeeded or False</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_parent</span><span class="o">.</span><span class="n">_oproject</span><span class="o">.</span><span class="n">CopyDesign</span><span class="p">(</span><span class="n">sourcename</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">oeditor</span><span class="o">.</span><span class="n">PasteDesign</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="p">[</span><span class="s2">&quot;NAME:Attributes&quot;</span><span class="p">,</span> <span class="s2">&quot;Page:=&quot;</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="s2">&quot;X:=&quot;</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="s2">&quot;Y:=&quot;</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="s2">&quot;Angle:=&quot;</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="s2">&quot;Flip:=&quot;</span><span class="p">,</span> <span class="kc">False</span><span class="p">])</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">refresh_all_ids</span><span class="p">()</span>
+        <span class="k">for</span> <span class="n">el</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">components</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">sourcename</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">components</span><span class="p">[</span><span class="n">el</span><span class="p">]</span><span class="o">.</span><span class="n">composed_name</span><span class="p">:</span>
+                <span class="k">return</span> <span class="n">el</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">components</span><span class="p">[</span><span class="n">el</span><span class="p">]</span><span class="o">.</span><span class="n">composed_name</span>
+        <span class="k">return</span> <span class="kc">False</span></div>
+
+<div class="viewcode-block" id="NexximComponents.create_field_model"><a class="viewcode-back" href="../../../../API/CircuitComponents.html#pyaedt.core.modeler.PrimitivesNexxim.NexximComponents.create_field_model">[docs]</a>    <span class="nd">@aedt_exception_handler</span>
+    <span class="k">def</span> <span class="nf">create_field_model</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">design_name</span><span class="p">,</span> <span class="n">solution_name</span><span class="p">,</span> <span class="n">pin_names</span><span class="p">,</span> <span class="n">model_type</span><span class="o">=</span><span class="s2">&quot;hfss&quot;</span><span class="p">,</span> <span class="n">posx</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">posy</span><span class="o">=</span><span class="mi">1</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Create Field Model</span>
+
+
+<span class="sd">        :param design_name:</span>
+<span class="sd">        :param solution_name:</span>
+<span class="sd">        :param pin_names:</span>
+<span class="sd">        :param model_type:</span>
+<span class="sd">        :param posx:</span>
+<span class="sd">        :param posy:</span>
+<span class="sd">        :return:</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="nb">id</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">create_unique_id</span><span class="p">()</span>
+        <span class="n">component_name</span> <span class="o">=</span> <span class="n">design_name</span> <span class="o">+</span> <span class="s2">&quot;_&quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="nb">id</span><span class="p">)</span>
+        <span class="n">arg</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;NAME: &quot;</span> <span class="o">+</span><span class="n">component_name</span> <span class="p">,</span><span class="s2">&quot;Name:=&quot;</span>	<span class="p">,</span> <span class="n">component_name</span><span class="p">,</span>
+               <span class="s2">&quot;ModTime:=&quot;</span>		<span class="p">,</span> <span class="mi">1589868932</span><span class="p">,</span>
+               <span class="s2">&quot;Library:=&quot;</span>		<span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">,</span>
+               <span class="s2">&quot;LibLocation:=&quot;</span>		<span class="p">,</span> <span class="s2">&quot;Project&quot;</span><span class="p">,</span>
+               <span class="s2">&quot;ModelType:=&quot;</span>		<span class="p">,</span> <span class="n">model_type</span><span class="p">,</span>
+               <span class="s2">&quot;Description:=&quot;</span>		<span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">,</span>
+               <span class="s2">&quot;ImageFile:=&quot;</span>		<span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">,</span>
+               <span class="s2">&quot;SymbolPinConfiguration:=&quot;</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span>
+               <span class="p">[</span>
+                   <span class="s2">&quot;NAME:PortInfoBlk&quot;</span>
+               <span class="p">],</span>
+               <span class="p">[</span>
+                   <span class="s2">&quot;NAME:PortOrderBlk&quot;</span>
+               <span class="p">],</span>
+               <span class="s2">&quot;DesignName:=&quot;</span>		<span class="p">,</span> <span class="n">design_name</span><span class="p">,</span>
+               <span class="s2">&quot;SolutionName:=&quot;</span>	<span class="p">,</span> <span class="n">solution_name</span><span class="p">,</span>
+               <span class="s2">&quot;NewToOldMap:=&quot;</span>		<span class="p">,</span> <span class="p">[],</span>
+               <span class="s2">&quot;OldToNewMap:=&quot;</span>		<span class="p">,</span> <span class="p">[],</span>
+               <span class="s2">&quot;PinNames:=&quot;</span>		<span class="p">,</span> <span class="n">pin_names</span><span class="p">,</span>
+               <span class="p">[</span>
+                   <span class="s2">&quot;NAME:DesignerCustomization&quot;</span><span class="p">,</span>
+                   <span class="s2">&quot;DCOption:=&quot;</span>		<span class="p">,</span> <span class="mi">0</span><span class="p">,</span>
+                   <span class="s2">&quot;InterpOption:=&quot;</span>	<span class="p">,</span> <span class="mi">0</span><span class="p">,</span>
+                   <span class="s2">&quot;ExtrapOption:=&quot;</span>	<span class="p">,</span> <span class="mi">1</span><span class="p">,</span>
+                   <span class="s2">&quot;Convolution:=&quot;</span>		<span class="p">,</span> <span class="mi">0</span><span class="p">,</span>
+                   <span class="s2">&quot;Passivity:=&quot;</span>		<span class="p">,</span> <span class="mi">0</span><span class="p">,</span>
+                   <span class="s2">&quot;Reciprocal:=&quot;</span>		<span class="p">,</span> <span class="kc">False</span><span class="p">,</span>
+                   <span class="s2">&quot;ModelOption:=&quot;</span>		<span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">,</span>
+                   <span class="s2">&quot;DataType:=&quot;</span>		<span class="p">,</span> <span class="mi">1</span>
+               <span class="p">],</span>
+               <span class="p">[</span>
+                   <span class="s2">&quot;NAME:NexximCustomization&quot;</span><span class="p">,</span>
+                   <span class="s2">&quot;DCOption:=&quot;</span>		<span class="p">,</span> <span class="mi">3</span><span class="p">,</span>
+                   <span class="s2">&quot;InterpOption:=&quot;</span>	<span class="p">,</span> <span class="mi">1</span><span class="p">,</span>
+                   <span class="s2">&quot;ExtrapOption:=&quot;</span>	<span class="p">,</span> <span class="mi">3</span><span class="p">,</span>
+                   <span class="s2">&quot;Convolution:=&quot;</span>		<span class="p">,</span> <span class="mi">0</span><span class="p">,</span>
+                   <span class="s2">&quot;Passivity:=&quot;</span>		<span class="p">,</span> <span class="mi">0</span><span class="p">,</span>
+                   <span class="s2">&quot;Reciprocal:=&quot;</span>		<span class="p">,</span> <span class="kc">False</span><span class="p">,</span>
+                   <span class="s2">&quot;ModelOption:=&quot;</span>		<span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">,</span>
+                   <span class="s2">&quot;DataType:=&quot;</span>		<span class="p">,</span> <span class="mi">2</span>
+               <span class="p">],</span>
+               <span class="p">[</span>
+                   <span class="s2">&quot;NAME:HSpiceCustomization&quot;</span><span class="p">,</span>
+                   <span class="s2">&quot;DCOption:=&quot;</span>		<span class="p">,</span> <span class="mi">1</span><span class="p">,</span>
+                   <span class="s2">&quot;InterpOption:=&quot;</span>	<span class="p">,</span> <span class="mi">2</span><span class="p">,</span>
+                   <span class="s2">&quot;ExtrapOption:=&quot;</span>	<span class="p">,</span> <span class="mi">3</span><span class="p">,</span>
+                   <span class="s2">&quot;Convolution:=&quot;</span>		<span class="p">,</span> <span class="mi">0</span><span class="p">,</span>
+                   <span class="s2">&quot;Passivity:=&quot;</span>		<span class="p">,</span> <span class="mi">0</span><span class="p">,</span>
+                   <span class="s2">&quot;Reciprocal:=&quot;</span>		<span class="p">,</span> <span class="kc">False</span><span class="p">,</span>
+                   <span class="s2">&quot;ModelOption:=&quot;</span>		<span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">,</span>
+                   <span class="s2">&quot;DataType:=&quot;</span>		<span class="p">,</span> <span class="mi">3</span>
+               <span class="p">],</span>
+               <span class="s2">&quot;NoiseModelOption:=&quot;</span>	<span class="p">,</span> <span class="s2">&quot;External&quot;</span><span class="p">,</span>
+               <span class="s2">&quot;WB_SystemID:=&quot;</span>		<span class="p">,</span> <span class="n">design_name</span><span class="p">,</span>
+               <span class="s2">&quot;IsWBModel:=&quot;</span>		<span class="p">,</span> <span class="kc">False</span><span class="p">,</span>
+               <span class="s2">&quot;filename:=&quot;</span>		<span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">,</span>
+               <span class="s2">&quot;numberofports:=&quot;</span>	<span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">pin_names</span><span class="p">),</span>
+               <span class="s2">&quot;Simulate:=&quot;</span>		<span class="p">,</span> <span class="kc">False</span><span class="p">,</span>
+               <span class="s2">&quot;CloseProject:=&quot;</span>	<span class="p">,</span> <span class="kc">False</span><span class="p">,</span>
+               <span class="s2">&quot;SaveProject:=&quot;</span>		<span class="p">,</span> <span class="kc">True</span><span class="p">,</span>
+               <span class="s2">&quot;InterpY:=&quot;</span>		<span class="p">,</span> <span class="kc">True</span><span class="p">,</span>
+               <span class="s2">&quot;InterpAlg:=&quot;</span>		<span class="p">,</span> <span class="s2">&quot;auto&quot;</span><span class="p">,</span>
+               <span class="s2">&quot;IgnoreDepVars:=&quot;</span>	<span class="p">,</span> <span class="kc">False</span><span class="p">,</span>
+               <span class="s2">&quot;Renormalize:=&quot;</span>		<span class="p">,</span> <span class="kc">False</span><span class="p">,</span>
+               <span class="s2">&quot;RenormImpedance:=&quot;</span>	<span class="p">,</span> <span class="mi">50</span>
+               <span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">o_model_manager</span><span class="o">.</span><span class="n">Add</span><span class="p">(</span><span class="n">arg</span><span class="p">)</span>
+        <span class="n">arg</span> <span class="o">=</span> <span class="p">[</span>
+            <span class="s2">&quot;NAME:&quot;</span> <span class="o">+</span> <span class="n">component_name</span><span class="p">,</span>
+            <span class="s2">&quot;Info:=&quot;</span><span class="p">,</span>
+            <span class="p">[</span><span class="s2">&quot;Type:=&quot;</span><span class="p">,</span> <span class="mi">8</span><span class="p">,</span> <span class="s2">&quot;NumTerminals:=&quot;</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">pin_names</span><span class="p">),</span> <span class="s2">&quot;DataSource:=&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="s2">&quot;ModifiedOn:=&quot;</span><span class="p">,</span> <span class="mi">1589868933</span><span class="p">,</span>
+             <span class="s2">&quot;Manufacturer:=&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">,</span>
+             <span class="s2">&quot;Symbol:=&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="s2">&quot;ModelNames:=&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="s2">&quot;Footprint:=&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="s2">&quot;Description:=&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="s2">&quot;InfoTopic:=&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">,</span>
+             <span class="s2">&quot;InfoHelpFile:=&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="s2">&quot;IconFile:=&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="s2">&quot;Library:=&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="s2">&quot;OriginalLocation:=&quot;</span><span class="p">,</span> <span class="s2">&quot;Project&quot;</span><span class="p">,</span>
+             <span class="s2">&quot;IEEE:=&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="s2">&quot;Author:=&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="s2">&quot;OriginalAuthor:=&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="s2">&quot;CreationDate:=&quot;</span><span class="p">,</span> <span class="mi">1589868933</span><span class="p">,</span> <span class="s2">&quot;ExampleFile:=&quot;</span><span class="p">,</span>
+             <span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="s2">&quot;HiddenComponent:=&quot;</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="s2">&quot;CircuitEnv:=&quot;</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="s2">&quot;GroupID:=&quot;</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span>
+            <span class="s2">&quot;CircuitEnv:=&quot;</span>	<span class="p">,</span> <span class="mi">0</span><span class="p">,</span>
+            <span class="s2">&quot;Refbase:=&quot;</span>		<span class="p">,</span> <span class="s2">&quot;S&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;NumParts:=&quot;</span>		<span class="p">,</span> <span class="mi">1</span><span class="p">,</span>
+            <span class="s2">&quot;ModSinceLib:=&quot;</span>		<span class="p">,</span> <span class="kc">False</span><span class="p">]</span>
+        <span class="nb">id</span> <span class="o">=</span> <span class="mi">2</span>
+        <span class="k">for</span> <span class="n">pn</span> <span class="ow">in</span> <span class="n">pin_names</span><span class="p">:</span>
+            <span class="n">arg</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;Terminal:=&quot;</span><span class="p">)</span>
+            <span class="n">arg</span><span class="o">.</span><span class="n">append</span><span class="p">([</span><span class="n">pn</span> <span class="p">,</span><span class="n">pn</span><span class="p">,</span> <span class="s2">&quot;A&quot;</span><span class="p">,</span> <span class="kc">False</span><span class="p">,</span> <span class="nb">id</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="s2">&quot;Electrical&quot;</span><span class="p">,</span> <span class="s2">&quot;0&quot;</span><span class="p">])</span>
+            <span class="nb">id</span> <span class="o">+=</span> <span class="mi">1</span>
+        <span class="n">arg</span><span class="o">.</span><span class="n">append</span><span class="p">([</span><span class="s2">&quot;NAME:Properties&quot;</span><span class="p">,</span> <span class="s2">&quot;TextProp:=&quot;</span><span class="p">,</span> <span class="p">[</span><span class="s2">&quot;Owner&quot;</span><span class="p">,</span> <span class="s2">&quot;RD&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="n">model_type</span><span class="o">.</span><span class="n">upper</span><span class="p">()]])</span>
+        <span class="n">arg</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;CompExtID:=&quot;</span><span class="p">),</span> <span class="n">arg</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="mi">5</span><span class="p">)</span>
+        <span class="n">arg</span><span class="o">.</span><span class="n">append</span><span class="p">([</span><span class="s2">&quot;NAME:Parameters&quot;</span><span class="p">,</span> <span class="s2">&quot;TextProp:=&quot;</span>	<span class="p">,</span> <span class="p">[</span><span class="s2">&quot;ModelName&quot;</span> <span class="p">,</span><span class="s2">&quot;RD&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="s2">&quot;FieldSolver&quot;</span><span class="p">],</span>
+                    <span class="s2">&quot;MenuProp:=&quot;</span><span class="p">,</span> <span class="p">[</span><span class="s2">&quot;CoSimulator&quot;</span><span class="p">,</span> <span class="s2">&quot;SD&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="s2">&quot;Default&quot;</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span>
+                    <span class="s2">&quot;ButtonProp:=&quot;</span><span class="p">,</span> <span class="p">[</span><span class="s2">&quot;CosimDefinition&quot;</span><span class="p">,</span> <span class="s2">&quot;SD&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="s2">&quot;Edit&quot;</span><span class="p">,</span> <span class="s2">&quot;Edit&quot;</span><span class="p">,</span> <span class="mi">40501</span><span class="p">,</span> <span class="s2">&quot;ButtonPropClientData:=&quot;</span><span class="p">,</span> <span class="p">[]]])</span>
+        <span class="n">arg</span><span class="o">.</span><span class="n">append</span><span class="p">([</span><span class="s2">&quot;NAME:CosimDefinitions&quot;</span><span class="p">,</span>
+                    <span class="p">[</span><span class="s2">&quot;NAME:CosimDefinition&quot;</span><span class="p">,</span> <span class="s2">&quot;CosimulatorType:=&quot;</span><span class="p">,</span> <span class="mi">103</span><span class="p">,</span> <span class="s2">&quot;CosimDefName:=&quot;</span><span class="p">,</span> <span class="s2">&quot;Default&quot;</span><span class="p">,</span> <span class="s2">&quot;IsDefinition:=&quot;</span><span class="p">,</span>
+                     <span class="kc">True</span><span class="p">,</span> <span class="s2">&quot;Connect:=&quot;</span><span class="p">,</span> <span class="kc">True</span><span class="p">,</span>
+                     <span class="s2">&quot;ModelDefinitionName:=&quot;</span><span class="p">,</span> <span class="n">component_name</span><span class="p">,</span> <span class="s2">&quot;ShowRefPin2:=&quot;</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="s2">&quot;LenPropName:=&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">],</span>
+                    <span class="s2">&quot;DefaultCosim:=&quot;</span><span class="p">,</span> <span class="s2">&quot;Default&quot;</span><span class="p">])</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">o_component_manager</span><span class="o">.</span><span class="n">Add</span><span class="p">(</span><span class="n">arg</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_parent</span><span class="o">.</span><span class="n">odesign</span><span class="o">.</span><span class="n">AddCompInstance</span><span class="p">(</span><span class="n">component_name</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">refresh_all_ids</span><span class="p">()</span>
+        <span class="k">for</span> <span class="n">el</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">components</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">component_name</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">components</span><span class="p">[</span><span class="n">el</span><span class="p">]</span><span class="o">.</span><span class="n">composed_name</span><span class="p">:</span>
+                <span class="k">return</span> <span class="n">el</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">components</span><span class="p">[</span><span class="n">el</span><span class="p">]</span><span class="o">.</span><span class="n">composed_name</span>
+        <span class="k">return</span> <span class="kc">False</span></div>
+
+<div class="viewcode-block" id="NexximComponents.create_resistor"><a class="viewcode-back" href="../../../../API/CircuitComponents.html#pyaedt.core.modeler.PrimitivesNexxim.NexximComponents.create_resistor">[docs]</a>    <span class="nd">@aedt_exception_handler</span>
+    <span class="k">def</span> <span class="nf">create_resistor</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">compname</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">value</span><span class="o">=</span><span class="mi">50</span><span class="p">,</span> <span class="n">xpos</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">ypos</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span><span class="n">angle</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">use_instance_id_netlist</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Create a new Resistor</span>
+
+
+<span class="sd">        :param compname: name</span>
+<span class="sd">        :param value: value</span>
+<span class="sd">        :param xpos: x pos</span>
+<span class="sd">        :param ypos: y pos</span>
+<span class="sd">        :param angle:  angle</span>
+<span class="sd">        :param use_instance_id_netlist: bool</span>
+<span class="sd">        :return: id, name</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">cmpid</span><span class="p">,</span> <span class="n">cmpname</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">create_component</span><span class="p">(</span><span class="n">compname</span><span class="p">,</span> <span class="n">xpos</span><span class="o">=</span><span class="n">xpos</span><span class="p">,</span> <span class="n">ypos</span><span class="o">=</span><span class="n">ypos</span><span class="p">,</span> <span class="n">angle</span><span class="o">=</span><span class="n">angle</span><span class="p">,</span> <span class="n">use_instance_id_netlist</span><span class="o">=</span><span class="n">use_instance_id_netlist</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">components</span><span class="p">[</span><span class="n">cmpid</span><span class="p">]</span><span class="o">.</span><span class="n">set_property</span><span class="p">(</span><span class="s2">&quot;R&quot;</span><span class="p">,</span> <span class="n">value</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">cmpid</span><span class="p">,</span> <span class="n">cmpname</span></div>
+
+<div class="viewcode-block" id="NexximComponents.create_inductor"><a class="viewcode-back" href="../../../../API/CircuitComponents.html#pyaedt.core.modeler.PrimitivesNexxim.NexximComponents.create_inductor">[docs]</a>    <span class="nd">@aedt_exception_handler</span>
+    <span class="k">def</span> <span class="nf">create_inductor</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">compname</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span><span class="n">value</span><span class="o">=</span><span class="mi">50</span><span class="p">,</span> <span class="n">xpos</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">ypos</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span><span class="n">angle</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">use_instance_id_netlist</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Create a new Inductor</span>
+
+
+<span class="sd">        :param compname: name</span>
+<span class="sd">        :param value: value</span>
+<span class="sd">        :param xpos: x pos</span>
+<span class="sd">        :param ypos: y pos</span>
+<span class="sd">        :param angle:  angle</span>
+<span class="sd">        :param use_instance_id_netlist: bool</span>
+<span class="sd">        :return: id, name</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">cmpid</span><span class="p">,</span> <span class="n">cmpname</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">create_component</span><span class="p">(</span><span class="n">compname</span><span class="p">,</span> <span class="n">component_library</span><span class="o">=</span><span class="s2">&quot;Inductors&quot;</span><span class="p">,</span> <span class="n">component_name</span><span class="o">=</span><span class="s2">&quot;IND_&quot;</span><span class="p">,</span> <span class="n">xpos</span><span class="o">=</span><span class="n">xpos</span><span class="p">,</span> <span class="n">ypos</span><span class="o">=</span><span class="n">ypos</span><span class="p">,</span>
+                                         <span class="n">angle</span><span class="o">=</span><span class="n">angle</span><span class="p">,</span> <span class="n">use_instance_id_netlist</span><span class="o">=</span><span class="n">use_instance_id_netlist</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">components</span><span class="p">[</span><span class="n">cmpid</span><span class="p">]</span><span class="o">.</span><span class="n">set_property</span><span class="p">(</span><span class="s2">&quot;L&quot;</span><span class="p">,</span> <span class="n">value</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">cmpid</span><span class="p">,</span> <span class="n">cmpname</span></div>
+
+<div class="viewcode-block" id="NexximComponents.create_capacitor"><a class="viewcode-back" href="../../../../API/CircuitComponents.html#pyaedt.core.modeler.PrimitivesNexxim.NexximComponents.create_capacitor">[docs]</a>    <span class="nd">@aedt_exception_handler</span>
+    <span class="k">def</span> <span class="nf">create_capacitor</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">compname</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span><span class="n">value</span><span class="o">=</span><span class="mi">50</span><span class="p">,</span> <span class="n">xpos</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">ypos</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">angle</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">use_instance_id_netlist</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Create a new Capacitor</span>
+
+
+<span class="sd">        :param compname: name</span>
+<span class="sd">        :param value: value</span>
+<span class="sd">        :param xpos: x pos</span>
+<span class="sd">        :param ypos: y pos</span>
+<span class="sd">        :param angle:  angle</span>
+<span class="sd">        :param use_instance_id_netlist: bool</span>
+<span class="sd">        :return: id, name</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">cmpid</span><span class="p">,</span> <span class="n">cmpname</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">create_component</span><span class="p">(</span><span class="n">compname</span><span class="p">,</span><span class="n">component_library</span><span class="o">=</span><span class="s2">&quot;Capacitors&quot;</span><span class="p">,</span> <span class="n">component_name</span><span class="o">=</span><span class="s2">&quot;CAP_&quot;</span><span class="p">,</span> <span class="n">xpos</span><span class="o">=</span><span class="n">xpos</span><span class="p">,</span> <span class="n">ypos</span><span class="o">=</span><span class="n">ypos</span><span class="p">,</span>
+                                         <span class="n">angle</span><span class="o">=</span><span class="n">angle</span><span class="p">,</span> <span class="n">use_instance_id_netlist</span><span class="o">=</span><span class="n">use_instance_id_netlist</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">components</span><span class="p">[</span><span class="n">cmpid</span><span class="p">]</span><span class="o">.</span><span class="n">set_property</span><span class="p">(</span><span class="s2">&quot;C&quot;</span><span class="p">,</span> <span class="n">value</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">cmpid</span><span class="p">,</span> <span class="n">cmpname</span></div>
+
+<div class="viewcode-block" id="NexximComponents.create_voltage_dc"><a class="viewcode-back" href="../../../../API/CircuitComponents.html#pyaedt.core.modeler.PrimitivesNexxim.NexximComponents.create_voltage_dc">[docs]</a>    <span class="nd">@aedt_exception_handler</span>
+    <span class="k">def</span> <span class="nf">create_voltage_dc</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">compname</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">value</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">xpos</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">ypos</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">angle</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">use_instance_id_netlist</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Create a new Voltage DC Source</span>
+
+
+<span class="sd">        :param compname: name</span>
+<span class="sd">        :param value: value</span>
+<span class="sd">        :param xpos: x pos</span>
+<span class="sd">        :param ypos: y pos</span>
+<span class="sd">        :param angle:  angle</span>
+<span class="sd">        :param use_instance_id_netlist: bool</span>
+<span class="sd">        :return: id, name</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">cmpid</span><span class="p">,</span> <span class="n">cmpname</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">create_component</span><span class="p">(</span><span class="n">compname</span><span class="p">,</span><span class="n">component_library</span><span class="o">=</span><span class="s2">&quot;Independent Sources&quot;</span><span class="p">,</span> <span class="n">component_name</span><span class="o">=</span><span class="s2">&quot;V_DC&quot;</span><span class="p">,</span> <span class="n">xpos</span><span class="o">=</span><span class="n">xpos</span><span class="p">,</span> <span class="n">ypos</span><span class="o">=</span><span class="n">ypos</span><span class="p">,</span>
+                                         <span class="n">angle</span><span class="o">=</span><span class="n">angle</span><span class="p">,</span> <span class="n">use_instance_id_netlist</span><span class="o">=</span><span class="n">use_instance_id_netlist</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">components</span><span class="p">[</span><span class="n">cmpid</span><span class="p">]</span><span class="o">.</span><span class="n">set_property</span><span class="p">(</span><span class="s2">&quot;DC&quot;</span><span class="p">,</span> <span class="n">value</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">cmpid</span><span class="p">,</span> <span class="n">cmpname</span></div>
+
+<div class="viewcode-block" id="NexximComponents.create_current_pulse"><a class="viewcode-back" href="../../../../API/CircuitComponents.html#pyaedt.core.modeler.PrimitivesNexxim.NexximComponents.create_current_pulse">[docs]</a>    <span class="nd">@aedt_exception_handler</span>
+    <span class="k">def</span> <span class="nf">create_current_pulse</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">compname</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">value_lists</span><span class="o">=</span><span class="p">[],</span> <span class="n">xpos</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">ypos</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">angle</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">use_instance_id_netlist</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Create a new Current Pulse</span>
+
+
+<span class="sd">        :param compname: name</span>
+<span class="sd">        :param value: value</span>
+<span class="sd">        :param xpos: x pos</span>
+<span class="sd">        :param ypos: y pos</span>
+<span class="sd">        :param angle:  angle</span>
+<span class="sd">        :param use_instance_id_netlist: bool</span>
+<span class="sd">        :return: id, name</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">cmpid</span><span class="p">,</span> <span class="n">cmpname</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">create_component</span><span class="p">(</span><span class="n">compname</span><span class="p">,</span><span class="n">component_library</span><span class="o">=</span><span class="s2">&quot;Independent Sources&quot;</span><span class="p">,</span> <span class="n">component_name</span><span class="o">=</span><span class="s2">&quot;I_PULSE&quot;</span><span class="p">,</span> <span class="n">xpos</span><span class="o">=</span><span class="n">xpos</span><span class="p">,</span> <span class="n">ypos</span><span class="o">=</span><span class="n">ypos</span><span class="p">,</span>
+                                         <span class="n">angle</span><span class="o">=</span><span class="n">angle</span><span class="p">,</span> <span class="n">use_instance_id_netlist</span><span class="o">=</span><span class="n">use_instance_id_netlist</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">value_lists</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">components</span><span class="p">[</span><span class="n">cmpid</span><span class="p">]</span><span class="o">.</span><span class="n">set_property</span><span class="p">(</span><span class="s2">&quot;I1&quot;</span><span class="p">,</span> <span class="n">value_lists</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">value_lists</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">components</span><span class="p">[</span><span class="n">cmpid</span><span class="p">]</span><span class="o">.</span><span class="n">set_property</span><span class="p">(</span><span class="s2">&quot;I2&quot;</span><span class="p">,</span> <span class="n">value_lists</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">value_lists</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">2</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">components</span><span class="p">[</span><span class="n">cmpid</span><span class="p">]</span><span class="o">.</span><span class="n">set_property</span><span class="p">(</span><span class="s2">&quot;TD&quot;</span><span class="p">,</span> <span class="n">value_lists</span><span class="p">[</span><span class="mi">2</span><span class="p">])</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">value_lists</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">3</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">components</span><span class="p">[</span><span class="n">cmpid</span><span class="p">]</span><span class="o">.</span><span class="n">set_property</span><span class="p">(</span><span class="s2">&quot;TR&quot;</span><span class="p">,</span> <span class="n">value_lists</span><span class="p">[</span><span class="mi">3</span><span class="p">])</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">value_lists</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">4</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">components</span><span class="p">[</span><span class="n">cmpid</span><span class="p">]</span><span class="o">.</span><span class="n">set_property</span><span class="p">(</span><span class="s2">&quot;TF&quot;</span><span class="p">,</span> <span class="n">value_lists</span><span class="p">[</span><span class="mi">4</span><span class="p">])</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">value_lists</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">5</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">components</span><span class="p">[</span><span class="n">cmpid</span><span class="p">]</span><span class="o">.</span><span class="n">set_property</span><span class="p">(</span><span class="s2">&quot;PW&quot;</span><span class="p">,</span> <span class="n">value_lists</span><span class="p">[</span><span class="mi">5</span><span class="p">])</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">value_lists</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">6</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">components</span><span class="p">[</span><span class="n">cmpid</span><span class="p">]</span><span class="o">.</span><span class="n">set_property</span><span class="p">(</span><span class="s2">&quot;PER&quot;</span><span class="p">,</span> <span class="n">value_lists</span><span class="p">[</span><span class="mi">6</span><span class="p">])</span>
+
+
+        <span class="k">return</span> <span class="n">cmpid</span><span class="p">,</span> <span class="n">cmpname</span></div>
+
+<div class="viewcode-block" id="NexximComponents.create_voltage_pulse"><a class="viewcode-back" href="../../../../API/CircuitComponents.html#pyaedt.core.modeler.PrimitivesNexxim.NexximComponents.create_voltage_pulse">[docs]</a>    <span class="nd">@aedt_exception_handler</span>
+    <span class="k">def</span> <span class="nf">create_voltage_pulse</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">compname</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">value_lists</span><span class="o">=</span><span class="p">[],</span> <span class="n">xpos</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">ypos</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">angle</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">use_instance_id_netlist</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Create a new Voltage Pulse</span>
+
+
+<span class="sd">        :param compname: name</span>
+<span class="sd">        :param value: value</span>
+<span class="sd">        :param xpos: x pos</span>
+<span class="sd">        :param ypos: y pos</span>
+<span class="sd">        :param angle:  angle</span>
+<span class="sd">        :param use_instance_id_netlist: bool</span>
+<span class="sd">        :return: id, name</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">cmpid</span><span class="p">,</span> <span class="n">cmpname</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">create_component</span><span class="p">(</span><span class="n">compname</span><span class="p">,</span><span class="n">component_library</span><span class="o">=</span><span class="s2">&quot;Independent Sources&quot;</span><span class="p">,</span> <span class="n">component_name</span><span class="o">=</span><span class="s2">&quot;V_PULSE&quot;</span><span class="p">,</span> <span class="n">xpos</span><span class="o">=</span><span class="n">xpos</span><span class="p">,</span> <span class="n">ypos</span><span class="o">=</span><span class="n">ypos</span><span class="p">,</span>
+                                         <span class="n">angle</span><span class="o">=</span><span class="n">angle</span><span class="p">,</span> <span class="n">use_instance_id_netlist</span><span class="o">=</span><span class="n">use_instance_id_netlist</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">value_lists</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">components</span><span class="p">[</span><span class="n">cmpid</span><span class="p">]</span><span class="o">.</span><span class="n">set_property</span><span class="p">(</span><span class="s2">&quot;V1&quot;</span><span class="p">,</span> <span class="n">value_lists</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">value_lists</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">components</span><span class="p">[</span><span class="n">cmpid</span><span class="p">]</span><span class="o">.</span><span class="n">set_property</span><span class="p">(</span><span class="s2">&quot;V2&quot;</span><span class="p">,</span> <span class="n">value_lists</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">value_lists</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">2</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">components</span><span class="p">[</span><span class="n">cmpid</span><span class="p">]</span><span class="o">.</span><span class="n">set_property</span><span class="p">(</span><span class="s2">&quot;TD&quot;</span><span class="p">,</span> <span class="n">value_lists</span><span class="p">[</span><span class="mi">2</span><span class="p">])</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">value_lists</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">3</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">components</span><span class="p">[</span><span class="n">cmpid</span><span class="p">]</span><span class="o">.</span><span class="n">set_property</span><span class="p">(</span><span class="s2">&quot;TR&quot;</span><span class="p">,</span> <span class="n">value_lists</span><span class="p">[</span><span class="mi">3</span><span class="p">])</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">value_lists</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">4</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">components</span><span class="p">[</span><span class="n">cmpid</span><span class="p">]</span><span class="o">.</span><span class="n">set_property</span><span class="p">(</span><span class="s2">&quot;TF&quot;</span><span class="p">,</span> <span class="n">value_lists</span><span class="p">[</span><span class="mi">4</span><span class="p">])</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">value_lists</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">5</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">components</span><span class="p">[</span><span class="n">cmpid</span><span class="p">]</span><span class="o">.</span><span class="n">set_property</span><span class="p">(</span><span class="s2">&quot;PW&quot;</span><span class="p">,</span> <span class="n">value_lists</span><span class="p">[</span><span class="mi">5</span><span class="p">])</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">value_lists</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">6</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">components</span><span class="p">[</span><span class="n">cmpid</span><span class="p">]</span><span class="o">.</span><span class="n">set_property</span><span class="p">(</span><span class="s2">&quot;PER&quot;</span><span class="p">,</span> <span class="n">value_lists</span><span class="p">[</span><span class="mi">6</span><span class="p">])</span>
+
+
+        <span class="k">return</span> <span class="n">cmpid</span><span class="p">,</span> <span class="n">cmpname</span></div>
+
+
+<div class="viewcode-block" id="NexximComponents.create_current_dc"><a class="viewcode-back" href="../../../../API/CircuitComponents.html#pyaedt.core.modeler.PrimitivesNexxim.NexximComponents.create_current_dc">[docs]</a>    <span class="nd">@aedt_exception_handler</span>
+    <span class="k">def</span> <span class="nf">create_current_dc</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">compname</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">value</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">xpos</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">ypos</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">angle</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">use_instance_id_netlist</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Create a new Current DC Source</span>
+
+
+<span class="sd">        :param compname: name</span>
+<span class="sd">        :param value: value</span>
+<span class="sd">        :param xpos: x pos</span>
+<span class="sd">        :param ypos: y pos</span>
+<span class="sd">        :param angle:  angle</span>
+<span class="sd">        :param use_instance_id_netlist: bool</span>
+<span class="sd">        :return: id, name</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">cmpid</span><span class="p">,</span> <span class="n">cmpname</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">create_component</span><span class="p">(</span><span class="n">compname</span><span class="p">,</span><span class="n">component_library</span><span class="o">=</span><span class="s2">&quot;Independent Sources&quot;</span><span class="p">,</span> <span class="n">component_name</span><span class="o">=</span><span class="s2">&quot;I_DC&quot;</span><span class="p">,</span> <span class="n">xpos</span><span class="o">=</span><span class="n">xpos</span><span class="p">,</span> <span class="n">ypos</span><span class="o">=</span><span class="n">ypos</span><span class="p">,</span>
+                                         <span class="n">angle</span><span class="o">=</span><span class="n">angle</span><span class="p">,</span> <span class="n">use_instance_id_netlist</span><span class="o">=</span><span class="n">use_instance_id_netlist</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">components</span><span class="p">[</span><span class="n">cmpid</span><span class="p">]</span><span class="o">.</span><span class="n">set_property</span><span class="p">(</span><span class="s2">&quot;DC&quot;</span><span class="p">,</span> <span class="n">value</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">cmpid</span><span class="p">,</span> <span class="n">cmpname</span></div>
+
+<div class="viewcode-block" id="NexximComponents.create_coupling_inductors"><a class="viewcode-back" href="../../../../API/CircuitComponents.html#pyaedt.core.modeler.PrimitivesNexxim.NexximComponents.create_coupling_inductors">[docs]</a>    <span class="k">def</span> <span class="nf">create_coupling_inductors</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">compname</span><span class="p">,</span> <span class="n">l1</span><span class="p">,</span> <span class="n">l2</span><span class="p">,</span> <span class="n">value</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">xpos</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">ypos</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">angle</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">use_instance_id_netlist</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Create a new Coupling Inductor</span>
+
+
+<span class="sd">        :param compname: name</span>
+<span class="sd">        :param value: value</span>
+<span class="sd">        :param xpos: x pos</span>
+<span class="sd">        :param ypos: y pos</span>
+<span class="sd">        :param angle:  angle</span>
+<span class="sd">        :param use_instance_id_netlist: bool</span>
+<span class="sd">        :return: id, name</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">cmpid</span><span class="p">,</span> <span class="n">cmpname</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">create_component</span><span class="p">(</span><span class="n">compname</span><span class="p">,</span><span class="n">component_library</span><span class="o">=</span><span class="s2">&quot;Inductors&quot;</span><span class="p">,</span> <span class="n">component_name</span><span class="o">=</span><span class="s2">&quot;K_IND&quot;</span><span class="p">,</span> <span class="n">xpos</span><span class="o">=</span><span class="n">xpos</span><span class="p">,</span> <span class="n">ypos</span><span class="o">=</span><span class="n">ypos</span><span class="p">,</span>
+                                         <span class="n">angle</span><span class="o">=</span><span class="n">angle</span><span class="p">,</span> <span class="n">use_instance_id_netlist</span><span class="o">=</span><span class="n">use_instance_id_netlist</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">components</span><span class="p">[</span><span class="n">cmpid</span><span class="p">]</span><span class="o">.</span><span class="n">set_property</span><span class="p">(</span><span class="s2">&quot;Inductor1&quot;</span><span class="p">,</span> <span class="n">l1</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">components</span><span class="p">[</span><span class="n">cmpid</span><span class="p">]</span><span class="o">.</span><span class="n">set_property</span><span class="p">(</span><span class="s2">&quot;Inductor2&quot;</span><span class="p">,</span> <span class="n">l2</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">components</span><span class="p">[</span><span class="n">cmpid</span><span class="p">]</span><span class="o">.</span><span class="n">set_property</span><span class="p">(</span><span class="s2">&quot;CouplingFactor&quot;</span><span class="p">,</span> <span class="n">value</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">cmpid</span><span class="p">,</span> <span class="n">cmpname</span></div>
+
+<div class="viewcode-block" id="NexximComponents.create_diode"><a class="viewcode-back" href="../../../../API/CircuitComponents.html#pyaedt.core.modeler.PrimitivesNexxim.NexximComponents.create_diode">[docs]</a>    <span class="nd">@aedt_exception_handler</span>
+    <span class="k">def</span> <span class="nf">create_diode</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">compname</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span><span class="n">model_name</span><span class="o">=</span><span class="s2">&quot;required&quot;</span><span class="p">,</span> <span class="n">xpos</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">ypos</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">angle</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">use_instance_id_netlist</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Create a new Diode</span>
+
+
+<span class="sd">        :param compname: name</span>
+<span class="sd">        :param value: value</span>
+<span class="sd">        :param xpos: x pos</span>
+<span class="sd">        :param ypos: y pos</span>
+<span class="sd">        :param angle:  angle</span>
+<span class="sd">        :param use_instance_id_netlist: bool</span>
+<span class="sd">        :return: id, name</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">cmpid</span><span class="p">,</span> <span class="n">cmpname</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">create_component</span><span class="p">(</span><span class="n">compname</span><span class="p">,</span><span class="n">component_library</span><span class="o">=</span><span class="s2">&quot;Diodes&quot;</span><span class="p">,</span> <span class="n">component_name</span><span class="o">=</span><span class="s2">&quot;DIODE_Level1&quot;</span><span class="p">,</span> <span class="n">xpos</span><span class="o">=</span><span class="n">xpos</span><span class="p">,</span> <span class="n">ypos</span><span class="o">=</span><span class="n">ypos</span><span class="p">,</span>
+                                         <span class="n">angle</span><span class="o">=</span><span class="n">angle</span><span class="p">,</span> <span class="n">use_instance_id_netlist</span><span class="o">=</span><span class="n">use_instance_id_netlist</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">components</span><span class="p">[</span><span class="n">cmpid</span><span class="p">]</span><span class="o">.</span><span class="n">set_property</span><span class="p">(</span><span class="s2">&quot;MOD&quot;</span><span class="p">,</span> <span class="n">model_name</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">cmpid</span><span class="p">,</span> <span class="n">cmpname</span></div>
+
+<div class="viewcode-block" id="NexximComponents.create_npn"><a class="viewcode-back" href="../../../../API/CircuitComponents.html#pyaedt.core.modeler.PrimitivesNexxim.NexximComponents.create_npn">[docs]</a>    <span class="nd">@aedt_exception_handler</span>
+    <span class="k">def</span> <span class="nf">create_npn</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">compname</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">value</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">xpos</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">ypos</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">angle</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">use_instance_id_netlist</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Create a new Transistor NPN</span>
+
+
+<span class="sd">        :param compname: name</span>
+<span class="sd">        :param value: value</span>
+<span class="sd">        :param xpos: x pos</span>
+<span class="sd">        :param ypos: y pos</span>
+<span class="sd">        :param angle:  angle</span>
+<span class="sd">        :param use_instance_id_netlist: bool</span>
+<span class="sd">        :return: id, name</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="nb">id</span><span class="p">,</span> <span class="n">name</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">create_component</span><span class="p">(</span><span class="n">compname</span><span class="p">,</span><span class="n">component_library</span><span class="o">=</span><span class="s2">&quot;BJTs&quot;</span><span class="p">,</span> <span class="n">component_name</span><span class="o">=</span><span class="s2">&quot;Level01_NPN&quot;</span><span class="p">,</span> <span class="n">xpos</span><span class="o">=</span><span class="n">xpos</span><span class="p">,</span> <span class="n">ypos</span><span class="o">=</span><span class="n">ypos</span><span class="p">,</span>
+                                         <span class="n">angle</span><span class="o">=</span><span class="n">angle</span><span class="p">,</span> <span class="n">use_instance_id_netlist</span><span class="o">=</span><span class="n">use_instance_id_netlist</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">value</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">components</span><span class="p">[</span><span class="nb">id</span><span class="p">]</span><span class="o">.</span><span class="n">set_property</span><span class="p">(</span><span class="s2">&quot;MOD&quot;</span><span class="p">,</span> <span class="n">value</span><span class="p">)</span>
+        <span class="k">return</span> <span class="nb">id</span><span class="p">,</span> <span class="n">name</span></div>
+
+<div class="viewcode-block" id="NexximComponents.create_pnp"><a class="viewcode-back" href="../../../../API/CircuitComponents.html#pyaedt.core.modeler.PrimitivesNexxim.NexximComponents.create_pnp">[docs]</a>    <span class="nd">@aedt_exception_handler</span>
+    <span class="k">def</span> <span class="nf">create_pnp</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">compname</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span><span class="n">value</span><span class="o">=</span><span class="mi">50</span><span class="p">,</span> <span class="n">xpos</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">ypos</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">angle</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">use_instance_id_netlist</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Create a new Transistor PNP</span>
+
+
+<span class="sd">        :param compname: name</span>
+<span class="sd">        :param value: value</span>
+<span class="sd">        :param xpos: x pos</span>
+<span class="sd">        :param ypos: y pos</span>
+<span class="sd">        :param angle:  angle</span>
+<span class="sd">        :param use_instance_id_netlist: bool</span>
+<span class="sd">        :return: id, name</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="nb">id</span><span class="p">,</span> <span class="n">name</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">create_component</span><span class="p">(</span><span class="n">compname</span><span class="p">,</span> <span class="n">component_library</span><span class="o">=</span><span class="s2">&quot;BJTs&quot;</span><span class="p">,</span> <span class="n">component_name</span><span class="o">=</span><span class="s2">&quot;Level01_PNP&quot;</span><span class="p">,</span> <span class="n">xpos</span><span class="o">=</span><span class="n">xpos</span><span class="p">,</span> <span class="n">ypos</span><span class="o">=</span><span class="n">ypos</span><span class="p">,</span>
+                                         <span class="n">angle</span><span class="o">=</span><span class="n">angle</span><span class="p">,</span> <span class="n">use_instance_id_netlist</span><span class="o">=</span><span class="n">use_instance_id_netlist</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">value</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">components</span><span class="p">[</span><span class="nb">id</span><span class="p">]</span><span class="o">.</span><span class="n">set_property</span><span class="p">(</span> <span class="s2">&quot;MOD&quot;</span><span class="p">,</span> <span class="n">value</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="nb">id</span><span class="p">,</span> <span class="n">name</span></div>
+
+<div class="viewcode-block" id="NexximComponents.create_new_component_from_symbol"><a class="viewcode-back" href="../../../../API/CircuitComponents.html#pyaedt.core.modeler.PrimitivesNexxim.NexximComponents.create_new_component_from_symbol">[docs]</a>    <span class="nd">@aedt_exception_handler</span>
+    <span class="k">def</span> <span class="nf">create_new_component_from_symbol</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">symbol_name</span><span class="p">,</span> <span class="n">pin_lists</span><span class="p">,</span> <span class="n">Refbase</span> <span class="o">=</span> <span class="s2">&quot;U&quot;</span><span class="p">,</span> <span class="n">parameter_list</span><span class="o">=</span><span class="p">[],</span> <span class="n">parameter_value</span><span class="o">=</span><span class="p">[]):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Create a new Component from symbol</span>
+
+
+<span class="sd">        :param symbol_name: symbol name</span>
+<span class="sd">        :param pin_lists: list of pins name</span>
+<span class="sd">        :param Refbase: reference base</span>
+<span class="sd">        :param parameter_list: list of parameters</span>
+<span class="sd">        :param parameter_value:  list of parameters values</span>
+<span class="sd">        :return: true</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">arg</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;NAME:&quot;</span> <span class="o">+</span> <span class="n">symbol_name</span><span class="p">,</span> <span class="s2">&quot;Info:=&quot;</span><span class="p">,</span>
+               <span class="p">[</span><span class="s2">&quot;Type:=&quot;</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="s2">&quot;NumTerminals:=&quot;</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">pin_lists</span><span class="p">),</span> <span class="s2">&quot;DataSource:=&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="s2">&quot;ModifiedOn:=&quot;</span><span class="p">,</span> <span class="mi">1591858313</span><span class="p">,</span> <span class="s2">&quot;Manufacturer:=&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;Symbol:=&quot;</span><span class="p">,</span> <span class="n">symbol_name</span><span class="p">,</span> <span class="s2">&quot;ModelNames:=&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="s2">&quot;Footprint:=&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;Description:=&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="s2">&quot;InfoTopic:=&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="s2">&quot;InfoHelpFile:=&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="s2">&quot;IconFile:=&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="s2">&quot;Library:=&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;OriginalLocation:=&quot;</span><span class="p">,</span> <span class="s2">&quot;Project&quot;</span><span class="p">,</span> <span class="s2">&quot;IEEE:=&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="s2">&quot;Author:=&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="s2">&quot;OriginalAuthor:=&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;CreationDate:=&quot;</span><span class="p">,</span> <span class="mi">1591858278</span><span class="p">,</span> <span class="s2">&quot;ExampleFile:=&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="s2">&quot;HiddenComponent:=&quot;</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="s2">&quot;CircuitEnv:=&quot;</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span>
+                <span class="s2">&quot;GroupID:=&quot;</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span> <span class="s2">&quot;CircuitEnv:=&quot;</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="s2">&quot;Refbase:=&quot;</span><span class="p">,</span> <span class="n">Refbase</span><span class="p">,</span> <span class="s2">&quot;NumParts:=&quot;</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="s2">&quot;ModSinceLib:=&quot;</span><span class="p">,</span> <span class="kc">True</span><span class="p">]</span>
+
+        <span class="k">for</span> <span class="n">pin</span> <span class="ow">in</span> <span class="n">pin_lists</span><span class="p">:</span>
+            <span class="n">arg</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;Terminal:=&quot;</span><span class="p">)</span>
+            <span class="n">arg</span><span class="o">.</span><span class="n">append</span><span class="p">([</span><span class="n">pin</span><span class="p">,</span> <span class="n">pin</span><span class="p">,</span> <span class="s2">&quot;A&quot;</span><span class="p">,</span> <span class="kc">False</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="s2">&quot;Electrical&quot;</span><span class="p">,</span> <span class="s2">&quot;0&quot;</span><span class="p">])</span>
+        <span class="n">arg</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;CompExtID:=&quot;</span><span class="p">)</span>
+        <span class="n">arg</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+        <span class="n">arg2</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;NAME:Parameters&quot;</span><span class="p">]</span>
+        <span class="k">for</span> <span class="n">el</span><span class="p">,</span> <span class="n">val</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">parameter_list</span><span class="p">,</span> <span class="n">parameter_value</span><span class="p">):</span>
+            <span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="n">val</span><span class="p">)</span> <span class="ow">is</span> <span class="nb">str</span><span class="p">:</span>
+                <span class="n">arg2</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;TextValueProp:=&quot;</span><span class="p">)</span>
+                <span class="n">arg2</span><span class="o">.</span><span class="n">append</span><span class="p">([</span><span class="n">el</span><span class="p">,</span> <span class="s2">&quot;D&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="n">val</span><span class="p">])</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">arg2</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;ValueProp:=&quot;</span><span class="p">)</span>
+                <span class="n">arg2</span><span class="o">.</span><span class="n">append</span><span class="p">([</span><span class="n">el</span><span class="p">,</span> <span class="s2">&quot;D&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="n">val</span><span class="p">,</span> <span class="kc">False</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">])</span>
+        <span class="n">arg2</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;ButtonProp:=&quot;</span><span class="p">)</span>
+        <span class="n">arg2</span><span class="o">.</span><span class="n">append</span><span class="p">([</span><span class="s2">&quot;CosimDefinition&quot;</span><span class="p">,</span> <span class="s2">&quot;D&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="s2">&quot;Edit&quot;</span><span class="p">,</span> <span class="s2">&quot;Edit&quot;</span><span class="p">,</span> <span class="mi">40501</span><span class="p">,</span> <span class="s2">&quot;ButtonPropClientData:=&quot;</span><span class="p">,</span> <span class="p">[]])</span>
+        <span class="n">arg2</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;MenuProp:=&quot;</span><span class="p">)</span>
+        <span class="n">arg2</span><span class="o">.</span><span class="n">append</span><span class="p">([</span><span class="s2">&quot;CoSimulator&quot;</span><span class="p">,</span> <span class="s2">&quot;D&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="s2">&quot;DefaultNetlist&quot;</span><span class="p">,</span> <span class="mi">0</span><span class="p">])</span>
+
+        <span class="n">arg</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">arg2</span><span class="p">)</span>
+        <span class="n">spicesintax</span> <span class="o">=</span> <span class="n">Refbase</span> <span class="o">+</span> <span class="s2">&quot;@ID &quot;</span>
+        <span class="nb">id</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="k">while</span> <span class="nb">id</span> <span class="o">&lt;</span> <span class="nb">len</span><span class="p">(</span><span class="n">pin_lists</span><span class="p">):</span>
+            <span class="n">spicesintax</span> <span class="o">+=</span> <span class="s2">&quot;%&quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="nb">id</span><span class="p">)</span> <span class="o">+</span> <span class="s2">&quot; &quot;</span>
+            <span class="nb">id</span> <span class="o">+=</span> <span class="mi">1</span>
+        <span class="k">for</span> <span class="n">el</span><span class="p">,</span> <span class="n">val</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">parameter_list</span><span class="p">,</span> <span class="n">parameter_value</span><span class="p">):</span>
+            <span class="k">if</span> <span class="s2">&quot;MOD&quot;</span> <span class="ow">in</span> <span class="n">el</span><span class="p">:</span>
+                <span class="n">spicesintax</span> <span class="o">+=</span> <span class="s2">&quot;@</span><span class="si">{}</span><span class="s2"> &quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">el</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">spicesintax</span> <span class="o">+=</span> <span class="s2">&quot;</span><span class="si">{}</span><span class="s2">=@</span><span class="si">{}</span><span class="s2"> &quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">el</span><span class="p">,</span><span class="n">val</span><span class="p">)</span>
+
+        <span class="n">arg3</span> <span class="o">=</span> <span class="p">[</span>
+            <span class="s2">&quot;NAME:CosimDefinitions&quot;</span><span class="p">,</span>
+            <span class="p">[</span>
+                <span class="s2">&quot;NAME:CosimDefinition&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;CosimulatorType:=&quot;</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span>
+                <span class="s2">&quot;CosimDefName:=&quot;</span><span class="p">,</span> <span class="s2">&quot;DefaultNetlist&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;IsDefinition:=&quot;</span><span class="p">,</span> <span class="kc">True</span><span class="p">,</span>
+                <span class="s2">&quot;Connect:=&quot;</span>	<span class="p">,</span> <span class="kc">True</span><span class="p">,</span>
+                <span class="s2">&quot;Data:=&quot;</span>		<span class="p">,</span> <span class="p">[</span>					<span class="s2">&quot;Nexxim Circuit:=&quot;</span>	<span class="p">,</span> <span class="n">spicesintax</span><span class="p">],</span>
+                <span class="s2">&quot;GRef:=&quot;</span>		<span class="p">,</span> <span class="p">[</span>					<span class="s2">&quot;Nexxim Circuit:=&quot;</span>	<span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">]</span>
+            <span class="p">],</span>
+            <span class="s2">&quot;DefaultCosim:=&quot;</span>	<span class="p">,</span> <span class="s2">&quot;DefaultNetlist&quot;</span>
+        <span class="p">]</span>
+        <span class="n">arg</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">arg3</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">o_component_manager</span><span class="o">.</span><span class="n">Add</span><span class="p">(</span><span class="n">arg</span><span class="p">)</span>
+        <span class="k">return</span> <span class="kc">True</span></div>
+
+<div class="viewcode-block" id="NexximComponents.update_object_properties"><a class="viewcode-back" href="../../../../API/CircuitComponents.html#pyaedt.core.modeler.PrimitivesNexxim.NexximComponents.update_object_properties">[docs]</a>    <span class="nd">@aedt_exception_handler</span>
+    <span class="k">def</span> <span class="nf">update_object_properties</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">o</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+
+<span class="sd">        :param o: object</span>
+<span class="sd">        :return: object with properties</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">name</span> <span class="o">=</span> <span class="n">o</span><span class="o">.</span><span class="n">composed_name</span>
+        <span class="n">proparray</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">oeditor</span><span class="o">.</span><span class="n">GetProperties</span><span class="p">(</span><span class="s2">&quot;PassedParameterTab&quot;</span><span class="p">,</span> <span class="n">name</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="n">proparray</span><span class="p">:</span>
+            <span class="n">propval</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">oeditor</span><span class="o">.</span><span class="n">GetPropertyValue</span><span class="p">(</span><span class="s2">&quot;PassedParameterTab&quot;</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">j</span><span class="p">)</span>
+            <span class="n">o</span><span class="o">.</span><span class="n">_add_property</span><span class="p">(</span><span class="n">j</span><span class="p">,</span> <span class="n">propval</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">o</span></div>
+
+<div class="viewcode-block" id="NexximComponents.get_comp_custom_settings"><a class="viewcode-back" href="../../../../API/CircuitComponents.html#pyaedt.core.modeler.PrimitivesNexxim.NexximComponents.get_comp_custom_settings">[docs]</a>    <span class="nd">@aedt_exception_handler</span>
+    <span class="k">def</span> <span class="nf">get_comp_custom_settings</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">toolNum</span> <span class="p">,</span><span class="n">dc</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span> <span class="n">interp</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">extrap</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">conv</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">passivity</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">reciprocal</span><span class="o">=</span><span class="s2">&quot;False&quot;</span><span class="p">,</span> <span class="n">opt</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="n">data_type</span><span class="o">=</span><span class="mi">1</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+
+<span class="sd">        :param toolNum:</span>
+<span class="sd">        :param dc:</span>
+<span class="sd">        :param interp:</span>
+<span class="sd">        :param extrap:</span>
+<span class="sd">        :param conv:</span>
+<span class="sd">        :param passivity:</span>
+<span class="sd">        :param reciprocal:</span>
+<span class="sd">        :param opt:</span>
+<span class="sd">        :param data_type:</span>
+<span class="sd">        :return:</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">toolNum</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="n">custom</span> <span class="o">=</span> <span class="s2">&quot;NAME:DesignerCustomization&quot;</span>
+        <span class="k">elif</span> <span class="n">toolNum</span> <span class="o">==</span> <span class="mi">2</span><span class="p">:</span>
+            <span class="n">custom</span> <span class="o">=</span> <span class="s2">&quot;NAME:NexximCustomization&quot;</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">custom</span> <span class="o">=</span> <span class="s2">&quot;NAME:HSpiceCustomization&quot;</span>
+
+        <span class="n">res</span> <span class="o">=</span> <span class="p">[</span><span class="n">custom</span><span class="p">,</span>
+               <span class="s2">&quot;DCOption:=&quot;</span>		<span class="p">,</span> <span class="n">dc</span><span class="p">,</span>
+               <span class="s2">&quot;InterpOption:=&quot;</span>	<span class="p">,</span> <span class="n">interp</span><span class="p">,</span>
+               <span class="s2">&quot;ExtrapOption:=&quot;</span>	<span class="p">,</span> <span class="n">extrap</span><span class="p">,</span>
+               <span class="s2">&quot;Convolution:=&quot;</span>		<span class="p">,</span> <span class="n">conv</span><span class="p">,</span>
+               <span class="s2">&quot;Passivity:=&quot;</span>		<span class="p">,</span> <span class="n">passivity</span><span class="p">,</span>
+               <span class="s2">&quot;Reciprocal:=&quot;</span>		<span class="p">,</span> <span class="n">reciprocal</span><span class="p">,</span>
+               <span class="s2">&quot;ModelOption:=&quot;</span>		<span class="p">,</span> <span class="n">opt</span><span class="p">,</span>
+               <span class="s2">&quot;DataType:=&quot;</span>		<span class="p">,</span> <span class="n">data_type</span><span class="p">]</span>
+
+        <span class="k">return</span> <span class="n">res</span></div>
+
+<div class="viewcode-block" id="NexximComponents.add_subcircuit_hfss_link"><a class="viewcode-back" href="../../../../API/CircuitComponents.html#pyaedt.core.modeler.PrimitivesNexxim.NexximComponents.add_subcircuit_hfss_link">[docs]</a>    <span class="nd">@aedt_exception_handler</span>
+    <span class="k">def</span> <span class="nf">add_subcircuit_hfss_link</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">compName</span><span class="p">,</span> <span class="n">pin_names</span><span class="p">,</span> <span class="n">source_project_path</span><span class="p">,</span> <span class="n">source_project_name</span><span class="p">,</span> <span class="n">source_design_name</span><span class="p">,</span> <span class="n">solution_name</span> <span class="o">=</span> <span class="s2">&quot;Setup1 : Sweep&quot;</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+
+<span class="sd">        :param compName:</span>
+<span class="sd">        :param pin_names:</span>
+<span class="sd">        :param source_project_path:</span>
+<span class="sd">        :param source_project_name:</span>
+<span class="sd">        :param source_design_name:</span>
+<span class="sd">        :param solution_name:</span>
+<span class="sd">        :return:</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">designer_customization</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_comp_custom_settings</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="s2">&quot;False&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+        <span class="n">nexxim_customization</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_comp_custom_settings</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="s2">&quot;False&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span>
+        <span class="n">hspice_customization</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_comp_custom_settings</span><span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="s2">&quot;False&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="mi">3</span><span class="p">)</span>
+
+        <span class="n">compInfo</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;NAME:&quot;</span><span class="o">+</span><span class="nb">str</span><span class="p">(</span><span class="n">compName</span><span class="p">),</span>
+                    <span class="s2">&quot;Name:=&quot;</span><span class="p">,</span> <span class="n">compName</span><span class="p">,</span>
+                    <span class="s2">&quot;ModTime:=&quot;</span><span class="p">,</span> <span class="mi">1591855779</span><span class="p">,</span>
+                    <span class="s2">&quot;Library:=&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;LibLocation:=&quot;</span><span class="p">,</span> <span class="s2">&quot;Project&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;ModelType:=&quot;</span><span class="p">,</span> <span class="s2">&quot;hfss&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;Description:=&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;ImageFile:=&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;SymbolPinConfiguration:=&quot;</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span>
+                    <span class="p">[</span><span class="s2">&quot;NAME:PortInfoBlk&quot;</span><span class="p">],</span>
+                    <span class="p">[</span><span class="s2">&quot;NAME:PortOrderBlk&quot;</span><span class="p">],</span>
+                    <span class="s2">&quot;DesignName:=&quot;</span><span class="p">,</span> <span class="n">source_design_name</span><span class="p">,</span>
+                    <span class="s2">&quot;SolutionName:=&quot;</span><span class="p">,</span> <span class="n">solution_name</span><span class="p">,</span>
+                    <span class="s2">&quot;NewToOldMap:=&quot;</span><span class="p">,</span> <span class="p">[],</span>
+                    <span class="s2">&quot;OldToNewMap:=&quot;</span><span class="p">,</span> <span class="p">[],</span>
+                    <span class="s2">&quot;PinNames:=&quot;</span><span class="p">,</span> <span class="n">pin_names</span><span class="p">,</span>
+                    <span class="n">designer_customization</span><span class="p">,</span>
+                    <span class="n">nexxim_customization</span><span class="p">,</span>
+                    <span class="n">hspice_customization</span><span class="p">,</span>
+                    <span class="s2">&quot;NoiseModelOption:=&quot;</span><span class="p">,</span> <span class="s2">&quot;External&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;WB_SystemID:=&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;IsWBModel:=&quot;</span><span class="p">,</span> <span class="kc">False</span><span class="p">,</span>
+                    <span class="s2">&quot;filename:=&quot;</span><span class="p">,</span> <span class="n">source_project_path</span><span class="p">,</span>
+                    <span class="s2">&quot;numberofports:=&quot;</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">pin_names</span><span class="p">),</span>
+                    <span class="s2">&quot;Simulate:=&quot;</span><span class="p">,</span> <span class="kc">False</span><span class="p">,</span>
+                    <span class="s2">&quot;CloseProject:=&quot;</span><span class="p">,</span> <span class="kc">False</span><span class="p">,</span>
+                    <span class="s2">&quot;SaveProject:=&quot;</span><span class="p">,</span> <span class="kc">True</span><span class="p">,</span>
+                    <span class="s2">&quot;InterpY:=&quot;</span><span class="p">,</span> <span class="kc">True</span><span class="p">,</span>
+                    <span class="s2">&quot;InterpAlg:=&quot;</span><span class="p">,</span> <span class="s2">&quot;auto&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;IgnoreDepVars:=&quot;</span><span class="p">,</span> <span class="kc">False</span><span class="p">,</span>
+                    <span class="s2">&quot;Renormalize:=&quot;</span><span class="p">,</span> <span class="kc">False</span><span class="p">,</span>
+                    <span class="s2">&quot;RenormImpedance:=&quot;</span><span class="p">,</span> <span class="mi">50</span><span class="p">]</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">o_model_manager</span><span class="o">.</span><span class="n">Add</span><span class="p">(</span><span class="n">compInfo</span><span class="p">)</span>
+
+        <span class="n">info</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;Type:=&quot;</span><span class="p">,</span> <span class="mi">8</span><span class="p">,</span> <span class="s2">&quot;NumTerminals:=&quot;</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">pin_names</span><span class="p">),</span> <span class="s2">&quot;DataSource:=&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="s2">&quot;ModifiedOn:=&quot;</span><span class="p">,</span> <span class="mi">1591855894</span><span class="p">,</span> <span class="s2">&quot;Manufacturer:=&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;Symbol:=&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="s2">&quot;ModelNames:=&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="s2">&quot;Footprint:=&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="s2">&quot;Description:=&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="s2">&quot;InfoTopic:=&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;InfoHelpFile:=&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">,</span>	<span class="s2">&quot;IconFile:=&quot;</span><span class="p">,</span> <span class="s2">&quot;hfss.bmp&quot;</span><span class="p">,</span> <span class="s2">&quot;Library:=&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">,</span>	<span class="s2">&quot;OriginalLocation:=&quot;</span><span class="p">,</span> <span class="s2">&quot;Project&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;IEEE:=&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="s2">&quot;Author:=&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="s2">&quot;OriginalAuthor:=&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">,</span>	<span class="s2">&quot;CreationDate:=&quot;</span><span class="p">,</span> <span class="mi">1591855894</span><span class="p">,</span> <span class="s2">&quot;ExampleFile:=&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;HiddenComponent:=&quot;</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="s2">&quot;CircuitEnv:=&quot;</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="s2">&quot;GroupID:=&quot;</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span>
+
+
+
+        <span class="n">compInfo2</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;NAME:&quot;</span><span class="o">+</span><span class="nb">str</span><span class="p">(</span><span class="n">compName</span><span class="p">),</span>
+                     <span class="s2">&quot;Info:=&quot;</span><span class="p">,</span> <span class="n">info</span><span class="p">,</span>
+                     <span class="s2">&quot;CircuitEnv:=&quot;</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span>
+                     <span class="s2">&quot;Refbase:=&quot;</span><span class="p">,</span> <span class="s2">&quot;S&quot;</span><span class="p">,</span>
+                     <span class="s2">&quot;NumParts:=&quot;</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span>
+                     <span class="s2">&quot;ModSinceLib:=&quot;</span><span class="p">,</span> <span class="kc">False</span><span class="p">]</span>
+
+        <span class="nb">id</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="k">for</span> <span class="n">pin</span> <span class="ow">in</span> <span class="n">pin_names</span><span class="p">:</span>
+            <span class="n">compInfo2</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;Terminal:=&quot;</span><span class="p">)</span>
+            <span class="n">compInfo2</span><span class="o">.</span><span class="n">append</span><span class="p">([</span><span class="n">pin</span> <span class="p">,</span><span class="n">pin</span><span class="p">,</span> <span class="s2">&quot;A&quot;</span><span class="p">,</span> <span class="kc">False</span><span class="p">,</span> <span class="nb">id</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="s2">&quot;Electrical&quot;</span><span class="p">,</span> <span class="s2">&quot;0&quot;</span><span class="p">])</span>
+            <span class="nb">id</span> <span class="o">+=</span> <span class="mi">1</span>
+
+        <span class="n">compInfo2</span><span class="o">.</span><span class="n">append</span><span class="p">([</span><span class="s2">&quot;NAME:Properties&quot;</span><span class="p">,</span><span class="s2">&quot;TextProp:=&quot;</span><span class="p">,</span> <span class="p">[</span><span class="s2">&quot;Owner&quot;</span> <span class="p">,</span><span class="s2">&quot;RD&quot;</span> <span class="p">,</span><span class="s2">&quot;&quot;</span> <span class="p">,</span><span class="s2">&quot;HFSS&quot;</span><span class="p">]])</span>
+        <span class="n">compInfo2</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;CompExtID:=&quot;</span><span class="p">)</span>
+        <span class="n">compInfo2</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="mi">5</span><span class="p">)</span>
+        <span class="n">compInfo2</span><span class="o">.</span><span class="n">append</span><span class="p">([</span><span class="s2">&quot;NAME:Parameters&quot;</span><span class="p">,</span>
+                          <span class="s2">&quot;TextProp:=&quot;</span><span class="p">,</span> <span class="p">[</span><span class="s2">&quot;ModelName&quot;</span> <span class="p">,</span><span class="s2">&quot;RD&quot;</span> <span class="p">,</span><span class="s2">&quot;&quot;</span> <span class="p">,</span><span class="s2">&quot;FieldSolver&quot;</span><span class="p">],</span>
+                          <span class="s2">&quot;MenuProp:=&quot;</span><span class="p">,</span> <span class="p">[</span><span class="s2">&quot;CoSimulator&quot;</span> <span class="p">,</span><span class="s2">&quot;SD&quot;</span> <span class="p">,</span><span class="s2">&quot;&quot;</span> <span class="p">,</span><span class="s2">&quot;Default&quot;</span> <span class="p">,</span><span class="mi">0</span><span class="p">],</span>
+                          <span class="s2">&quot;ButtonProp:=&quot;</span><span class="p">,</span> <span class="p">[</span><span class="s2">&quot;CosimDefinition&quot;</span> <span class="p">,</span><span class="s2">&quot;SD&quot;</span> <span class="p">,</span><span class="s2">&quot;&quot;</span> <span class="p">,</span><span class="s2">&quot;Edit&quot;</span> <span class="p">,</span><span class="s2">&quot;Edit&quot;</span> <span class="p">,</span><span class="mi">40501</span><span class="p">,</span> <span class="s2">&quot;ButtonPropClientData:=&quot;</span><span class="p">,</span> <span class="p">[]]])</span>
+        <span class="n">compInfo2</span><span class="o">.</span><span class="n">append</span><span class="p">([</span><span class="s2">&quot;NAME:CosimDefinitions&quot;</span><span class="p">,</span>
+                          <span class="p">[</span><span class="s2">&quot;NAME:CosimDefinition&quot;</span><span class="p">,</span>
+                           <span class="s2">&quot;CosimulatorType:=&quot;</span><span class="p">,</span> <span class="mi">103</span><span class="p">,</span>
+                           <span class="s2">&quot;CosimDefName:=&quot;</span><span class="p">,</span> <span class="s2">&quot;Default&quot;</span><span class="p">,</span>
+                           <span class="s2">&quot;IsDefinition:=&quot;</span><span class="p">,</span> <span class="kc">True</span><span class="p">,</span>
+                           <span class="s2">&quot;Connect:=&quot;</span><span class="p">,</span> <span class="kc">True</span><span class="p">,</span>
+                           <span class="s2">&quot;ModelDefinitionName:=&quot;</span><span class="p">,</span> <span class="n">compName</span><span class="p">,</span>
+                           <span class="s2">&quot;ShowRefPin2:=&quot;</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span>
+                           <span class="s2">&quot;LenPropName:=&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">],</span>
+                          <span class="s2">&quot;DefaultCosim:=&quot;</span><span class="p">,</span> <span class="s2">&quot;Default&quot;</span><span class="p">])</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">o_component_manager</span><span class="o">.</span><span class="n">Add</span><span class="p">(</span><span class="n">compInfo2</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_parent</span><span class="o">.</span><span class="n">odesign</span><span class="o">.</span><span class="n">AddCompInstance</span><span class="p">(</span><span class="n">compName</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">refresh_all_ids</span><span class="p">()</span>
+        <span class="k">for</span> <span class="n">el</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">components</span><span class="p">:</span>
+            <span class="n">item</span> <span class="o">=</span> <span class="n">compName</span>
+            <span class="n">item2</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">components</span><span class="p">[</span><span class="n">el</span><span class="p">]</span><span class="o">.</span><span class="n">composed_name</span>
+            <span class="k">if</span> <span class="n">compName</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">components</span><span class="p">[</span><span class="n">el</span><span class="p">]</span><span class="o">.</span><span class="n">composed_name</span><span class="p">:</span>
+                <span class="k">return</span> <span class="n">el</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">components</span><span class="p">[</span><span class="n">el</span><span class="p">]</span><span class="o">.</span><span class="n">composed_name</span>
+        <span class="k">return</span> <span class="kc">False</span></div>
+
+<div class="viewcode-block" id="NexximComponents.set_sim_option_on_hfss_subcircuit"><a class="viewcode-back" href="../../../../API/CircuitComponents.html#pyaedt.core.modeler.PrimitivesNexxim.NexximComponents.set_sim_option_on_hfss_subcircuit">[docs]</a>    <span class="nd">@aedt_exception_handler</span>
+    <span class="k">def</span> <span class="nf">set_sim_option_on_hfss_subcircuit</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">component</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        :param component: CompInst@Galileo_cutout3;87;1</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">complist</span> <span class="o">=</span> <span class="n">component</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;;&quot;</span><span class="p">)</span>
+        <span class="n">complist2</span> <span class="o">=</span> <span class="n">complist</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;@&quot;</span><span class="p">)</span>
+        <span class="n">arg</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;NAME:AllTabs&quot;</span><span class="p">]</span>
+        <span class="n">arg1</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;NAME:Model&quot;</span><span class="p">]</span>
+        <span class="n">arg2</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;NAME:PropServers&quot;</span><span class="p">,</span> <span class="s2">&quot;Component@&quot;</span><span class="o">+</span><span class="nb">str</span><span class="p">(</span><span class="n">complist2</span><span class="p">[</span><span class="mi">1</span><span class="p">])]</span>
+        <span class="n">arg3</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;NAME:ChangedProps&quot;</span><span class="p">,[</span><span class="s2">&quot;NAME:Simulation option&quot;</span><span class="p">,</span> <span class="s2">&quot;Value:=&quot;</span><span class="p">,</span> <span class="s2">&quot;Simulate missing solutions&quot;</span><span class="p">]]</span>
+
+        <span class="n">arg1</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">arg2</span><span class="p">)</span>
+        <span class="n">arg1</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">arg3</span><span class="p">)</span>
+        <span class="n">arg</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">arg1</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_parent</span><span class="o">.</span><span class="n">_oproject</span><span class="o">.</span><span class="n">ChangeProperty</span><span class="p">(</span><span class="n">arg</span><span class="p">)</span>
+
+        <span class="n">argo</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;NAME:AllTabs&quot;</span><span class="p">,</span> <span class="p">[</span><span class="s2">&quot;NAME:Component&quot;</span><span class="p">,</span> <span class="p">[</span><span class="s2">&quot;NAME:PropServers&quot;</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">component</span><span class="p">)]]]</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">oeditor</span><span class="o">.</span><span class="n">ChangeProperty</span><span class="p">(</span><span class="n">argo</span><span class="p">)</span>
+
+        <span class="k">pass</span></div>
+
+    <span class="nd">@aedt_exception_handler</span>
+    <span class="k">def</span> <span class="nf">refresh_dynamic_link</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">component_name</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">o_component_manager</span><span class="o">.</span><span class="n">UpdateDynamicLink</span><span class="p">(</span><span class="n">component_name</span><span class="p">)</span>
+
+    <span class="nd">@aedt_exception_handler</span>
+    <span class="k">def</span> <span class="nf">push_excitations</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">instance_name</span><span class="p">,</span><span class="n">thevenin_calculation</span> <span class="o">=</span> <span class="kc">False</span><span class="p">):</span>
+        <span class="n">arg</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;NAME:options&quot;</span><span class="p">,</span>
+               <span class="s2">&quot;CalcThevenin:=&quot;</span><span class="p">,</span> <span class="n">thevenin_calculation</span><span class="p">,</span>
+               <span class="s2">&quot;Sol:=&quot;</span><span class="p">,</span> <span class="s2">&quot;LinearFrequency&quot;</span><span class="p">]</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">oeditor</span><span class="o">.</span><span class="n">PushExcitation</span><span class="p">(</span><span class="n">instance_name</span><span class="p">,</span> <span class="n">arg</span><span class="p">)</span>
+        <span class="k">pass</span>
+
+<div class="viewcode-block" id="NexximComponents.assign_sin_excitation2ports"><a class="viewcode-back" href="../../../../API/CircuitComponents.html#pyaedt.core.modeler.PrimitivesNexxim.NexximComponents.assign_sin_excitation2ports">[docs]</a>    <span class="nd">@aedt_exception_handler</span>
+    <span class="k">def</span> <span class="nf">assign_sin_excitation2ports</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ports</span><span class="p">,</span> <span class="n">settings</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        :param ports: List of circuit ports for excitation assignation</span>
+<span class="sd">        :param settings: List of parameters values used in voltage sinusoidal excitation creation:</span>
+<span class="sd">        :param settings[0]: AC magnitude for small-signal analysis</span>
+<span class="sd">        :param settings[1]: AC phase for small-signal analysis</span>
+<span class="sd">        :param settings[2]: DC voltage</span>
+<span class="sd">        :param settings[3]: Voltage offset from zero</span>
+<span class="sd">        :param settings[4]: Voltage amplitude</span>
+<span class="sd">        :param settings[5]: Frequency</span>
+<span class="sd">        :param settings[6]: Delay to start of sine wave</span>
+<span class="sd">        :param settings[7]: Damping factor</span>
+<span class="sd">        :param settings[8]: Phase Delay</span>
+<span class="sd">        :param settings[9]: Frequency to use for harmonic balance analysis</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="nb">id</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">create_unique_id</span><span class="p">()</span>
+
+        <span class="n">arg1</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;NAME:NexximSources&quot;</span><span class="p">,</span>
+                <span class="p">[</span><span class="s2">&quot;NAME:NexximSources&quot;</span><span class="p">,</span>
+                 <span class="p">[</span><span class="s2">&quot;NAME:Data&quot;</span><span class="p">,</span>
+                  <span class="p">[</span><span class="s2">&quot;NAME:VoltageSinusoidal&quot;</span><span class="o">+</span><span class="nb">str</span><span class="p">(</span><span class="nb">id</span><span class="p">),</span>
+                   <span class="s2">&quot;DataId:=&quot;</span><span class="p">,</span> <span class="s2">&quot;Source&quot;</span><span class="o">+</span><span class="nb">str</span><span class="p">(</span><span class="nb">id</span><span class="p">),</span>
+                   <span class="s2">&quot;Type:=&quot;</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span>
+                   <span class="s2">&quot;Output:=&quot;</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span>
+                   <span class="s2">&quot;NumPins:=&quot;</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span>
+                   <span class="s2">&quot;Netlist:=&quot;</span><span class="p">,</span> <span class="s2">&quot;V@ID </span><span class="si">%0 %</span><span class="s2">1 *DC(DC=@DC) SIN(?VO(@VO) ?VA(@VA) ?FREQ(@FREQ) ?TD(@TD) ?ALPHA(@ALPHA) ?THETA(@THETA)) *TONE(TONE=@TONE) *ACMAG(AC @ACMAG @ACPHASE)&quot;</span><span class="p">,</span>
+                   <span class="s2">&quot;CompName:=&quot;</span><span class="p">,</span> <span class="s2">&quot;Nexxim Circuit Elements</span><span class="se">\\</span><span class="s2">Independent Sources:V_SIN&quot;</span><span class="p">,</span>
+                   <span class="s2">&quot;FDSFileName:=&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">,</span>
+                   <span class="p">[</span><span class="s2">&quot;NAME:Properties&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;TextProp:=&quot;</span><span class="p">,</span> <span class="p">[</span><span class="s2">&quot;LabelID&quot;</span><span class="p">,</span><span class="s2">&quot;HD&quot;</span><span class="p">,</span><span class="s2">&quot;Property string for netlist ID&quot;</span><span class="p">,</span><span class="s2">&quot;V@ID&quot;</span><span class="p">],</span>
+                    <span class="s2">&quot;ValueProp:=&quot;</span><span class="p">,</span> <span class="p">[</span><span class="s2">&quot;ACMAG&quot;</span><span class="p">,</span><span class="s2">&quot;D&quot;</span><span class="p">,</span><span class="s2">&quot;AC magnitude for small-signal analysis (Volts)&quot;</span><span class="p">,</span><span class="n">settings</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span><span class="mi">0</span><span class="p">],</span>
+                    <span class="s2">&quot;ValuePropNU:=&quot;</span><span class="p">,</span> <span class="p">[</span><span class="s2">&quot;ACPHASE&quot;</span><span class="p">,</span><span class="s2">&quot;D&quot;</span><span class="p">,</span><span class="s2">&quot;AC phase for small-signal analysis&quot;</span><span class="p">,</span><span class="n">settings</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span><span class="mi">0</span><span class="p">,</span><span class="s2">&quot;deg&quot;</span><span class="p">],</span>
+                    <span class="s2">&quot;ValueProp:=&quot;</span><span class="p">,</span> <span class="p">[</span><span class="s2">&quot;DC&quot;</span><span class="p">,</span><span class="s2">&quot;D&quot;</span><span class="p">,</span><span class="s2">&quot;DC voltage (Volts)&quot;</span><span class="p">,</span><span class="n">settings</span><span class="p">[</span><span class="mi">2</span><span class="p">],</span><span class="mi">0</span><span class="p">],</span>
+                    <span class="s2">&quot;ValueProp:=&quot;</span><span class="p">,</span> <span class="p">[</span><span class="s2">&quot;VO&quot;</span><span class="p">,</span><span class="s2">&quot;OD&quot;</span><span class="p">,</span><span class="s2">&quot;Voltage offset from zero (Volts)&quot;</span><span class="p">,</span><span class="n">settings</span><span class="p">[</span><span class="mi">3</span><span class="p">],</span><span class="mi">0</span><span class="p">],</span>
+                    <span class="s2">&quot;ValueProp:=&quot;</span><span class="p">,</span> <span class="p">[</span><span class="s2">&quot;VA&quot;</span><span class="p">,</span><span class="s2">&quot;OD&quot;</span><span class="p">,</span><span class="s2">&quot;Voltage amplitude (Volts)&quot;</span><span class="p">,</span><span class="n">settings</span><span class="p">[</span><span class="mi">4</span><span class="p">],</span><span class="mi">0</span><span class="p">],</span>
+                    <span class="s2">&quot;ValueProp:=&quot;</span><span class="p">,</span> <span class="p">[</span><span class="s2">&quot;FREQ&quot;</span><span class="p">,</span><span class="s2">&quot;OD&quot;</span><span class="p">,</span><span class="s2">&quot;Frequency (Hz)&quot;</span><span class="p">,</span><span class="n">settings</span><span class="p">[</span><span class="mi">5</span><span class="p">],</span><span class="mi">0</span><span class="p">],</span>
+                    <span class="s2">&quot;ValueProp:=&quot;</span><span class="p">,</span> <span class="p">[</span><span class="s2">&quot;TD&quot;</span><span class="p">,</span><span class="s2">&quot;D&quot;</span><span class="p">,</span><span class="s2">&quot;Delay to start of sine wave (seconds)&quot;</span><span class="p">,</span><span class="n">settings</span><span class="p">[</span><span class="mi">6</span><span class="p">],</span><span class="mi">0</span><span class="p">],</span>
+                    <span class="s2">&quot;ValueProp:=&quot;</span><span class="p">,</span> <span class="p">[</span><span class="s2">&quot;ALPHA&quot;</span><span class="p">,</span><span class="s2">&quot;D&quot;</span><span class="p">,</span><span class="s2">&quot;Damping factor (1/seconds)&quot;</span><span class="p">,</span><span class="n">settings</span><span class="p">[</span><span class="mi">7</span><span class="p">],</span><span class="mi">0</span><span class="p">],</span>
+                    <span class="s2">&quot;ValuePropNU:=&quot;</span><span class="p">,</span> <span class="p">[</span><span class="s2">&quot;THETA&quot;</span><span class="p">,</span><span class="s2">&quot;D&quot;</span><span class="p">,</span><span class="s2">&quot;Phase delay&quot;</span><span class="p">,</span><span class="n">settings</span><span class="p">[</span><span class="mi">8</span><span class="p">],</span><span class="mi">0</span><span class="p">,</span><span class="s2">&quot;deg&quot;</span><span class="p">],</span>
+                    <span class="s2">&quot;ValueProp:=&quot;</span><span class="p">,</span> <span class="p">[</span><span class="s2">&quot;TONE&quot;</span><span class="p">,</span><span class="s2">&quot;D&quot;</span><span class="p">,</span><span class="s2">&quot;Frequency (Hz) to use for harmonic balance analysis, should be a submultiple of (or equal to) the driving frequency and should also be included in the HB analysis setup&quot;</span><span class="p">,</span><span class="n">settings</span><span class="p">[</span><span class="mi">9</span><span class="p">],</span><span class="mi">0</span><span class="p">],</span>
+                    <span class="s2">&quot;TextProp:=&quot;</span><span class="p">,</span> <span class="p">[</span><span class="s2">&quot;ModelName&quot;</span><span class="p">,</span><span class="s2">&quot;SHD&quot;</span><span class="p">,</span><span class="s2">&quot;&quot;</span><span class="p">,</span><span class="s2">&quot;V_SIN&quot;</span><span class="p">],</span>
+                    <span class="s2">&quot;MenuProp:=&quot;</span><span class="p">,</span> <span class="p">[</span><span class="s2">&quot;CoSimulator&quot;</span><span class="p">,</span><span class="s2">&quot;D&quot;</span><span class="p">,</span><span class="s2">&quot;&quot;</span><span class="p">,</span><span class="s2">&quot;DefaultNetlist&quot;</span><span class="p">,</span><span class="mi">0</span><span class="p">],</span>
+                    <span class="s2">&quot;ButtonProp:=&quot;</span><span class="p">,</span> <span class="p">[</span><span class="s2">&quot;CosimDefinition&quot;</span><span class="p">,</span><span class="s2">&quot;D&quot;</span><span class="p">,</span><span class="s2">&quot;&quot;</span><span class="p">,</span><span class="s2">&quot;&quot;</span><span class="p">,</span><span class="s2">&quot;Edit&quot;</span><span class="p">,</span><span class="mi">40501</span><span class="p">,</span> <span class="s2">&quot;ButtonPropClientData:=&quot;</span><span class="p">,</span> <span class="p">[]</span> <span class="p">]</span> <span class="p">]</span> <span class="p">]</span> <span class="p">]</span> <span class="p">]</span> <span class="p">]</span>
+
+        <span class="n">arg2</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;NAME:ComponentConfigurationData&quot;</span><span class="p">]</span>
+
+        <span class="n">arg3</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;NAME:ComponentConfigurationData&quot;</span><span class="p">,</span> <span class="p">[</span><span class="s2">&quot;NAME:EnabledPorts&quot;</span><span class="p">,</span> <span class="s2">&quot;VoltageSinusoidal&quot;</span><span class="o">+</span><span class="nb">str</span><span class="p">(</span><span class="nb">id</span><span class="p">)</span><span class="o">+</span><span class="s2">&quot;:=&quot;</span><span class="p">,</span> <span class="n">ports</span><span class="p">],</span>
+                <span class="p">[</span><span class="s2">&quot;NAME:EnabledMultipleComponents&quot;</span><span class="p">,</span> <span class="s2">&quot;VoltageSinusoidal&quot;</span><span class="o">+</span><span class="nb">str</span><span class="p">(</span><span class="nb">id</span><span class="p">)</span><span class="o">+</span><span class="s2">&quot;:=&quot;</span><span class="p">,</span> <span class="p">[]</span> <span class="p">]</span> <span class="p">]</span>
+
+        <span class="k">for</span> <span class="n">prt</span> <span class="ow">in</span> <span class="n">ports</span><span class="p">:</span>
+            <span class="n">arg_temp</span> <span class="o">=</span> <span class="p">[]</span>
+            <span class="n">arg_temp</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;NAME:EnabledAnalyses&quot;</span><span class="p">,</span> <span class="p">[</span><span class="s2">&quot;NAME:&quot;</span><span class="o">+</span><span class="nb">str</span><span class="p">(</span><span class="n">prt</span><span class="p">),</span> <span class="nb">str</span><span class="p">(</span><span class="n">prt</span><span class="p">)</span><span class="o">+</span><span class="s2">&quot;:=&quot;</span><span class="p">,</span> <span class="p">[]</span> <span class="p">],</span> <span class="p">[</span><span class="s2">&quot;NAME:VoltageSinusoidal&quot;</span><span class="o">+</span><span class="nb">str</span><span class="p">(</span><span class="nb">id</span><span class="p">),</span> <span class="nb">str</span><span class="p">(</span><span class="n">prt</span><span class="p">)</span><span class="o">+</span><span class="s2">&quot;:=&quot;</span><span class="p">,</span> <span class="p">[]</span> <span class="p">]</span> <span class="p">]</span>
+            <span class="n">arg3</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">arg_temp</span><span class="p">)</span>
+
+        <span class="n">arg2</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">arg3</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_parent</span><span class="o">.</span><span class="n">odesign</span><span class="o">.</span><span class="n">UpdateSources</span><span class="p">(</span><span class="n">arg1</span><span class="p">,</span><span class="n">arg2</span><span class="p">)</span>
+
+        <span class="k">pass</span></div></div>
+</pre></div>
+
+              </div>
+              
+              
+              <div class='prev-next-bottom'>
+                
+
+              </div>
+              
+          </main>
+          
+
+      </div>
+    </div>
+
+    
+  <script src="../../../../_static/js/index.d3f166471bb80abb5163.js"></script>
+
+
+    <footer class="footer mt-5 mt-md-0">
+  <div class="container">
+    <p>
+          &copy; Copyright Copyright(c) 1986-2021, ANSYSInc. unauthorised use, distribution or duplication is prohibited. This tool release is unofficial and not covered by standard Ansys Support license..<br/>
+        Created using <a href="http://sphinx-doc.org/">Sphinx</a> 3.5.2.<br/>
+    </p>
+  </div>
+</footer>
+  </body>
+</html>

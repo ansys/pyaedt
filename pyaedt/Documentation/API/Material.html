@@ -1,0 +1,643 @@
+
+<!DOCTYPE html>
+
+<html lang="Python">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Material &#8212; pyaedt 0.5.0 documentation</title>
+    
+  <link rel="stylesheet" href="../_static/css/index.f658d18f9b420779cfdf24aa0a7e2d77.css">
+
+    
+  <link rel="stylesheet"
+    href="../_static/vendor/fontawesome/5.13.0/css/all.min.css">
+  <link rel="preload" as="font" type="font/woff2" crossorigin
+    href="../_static/vendor/fontawesome/5.13.0/webfonts/fa-solid-900.woff2">
+  <link rel="preload" as="font" type="font/woff2" crossorigin
+    href="../_static/vendor/fontawesome/5.13.0/webfonts/fa-brands-400.woff2">
+
+    
+      
+  <link rel="stylesheet"
+    href="../_static/vendor/open-sans_all/1.44.1/index.css">
+  <link rel="stylesheet"
+    href="../_static/vendor/lato_latin-ext/1.44.1/index.css">
+
+    
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/basic.css" type="text/css" />
+    <link rel="stylesheet" type="text/css" href="../_static/copybutton.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/graphviz.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/css/ansys.css" />
+    
+  <link rel="preload" as="script" href="../_static/js/index.d3f166471bb80abb5163.js">
+
+    <script id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+    <script src="../_static/jquery.js"></script>
+    <script src="../_static/underscore.js"></script>
+    <script src="../_static/doctools.js"></script>
+    <script src="../_static/clipboard.min.js"></script>
+    <script src="../_static/copybutton.js"></script>
+    <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Layer Stackup" href="LayersStackup.html" />
+    <link rel="prev" title="Materia Library" href="MaterialLib.html" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="docsearch:language" content="en" />
+  </head>
+  <body data-spy="scroll" data-target="#bd-toc-nav" data-offset="80">
+    
+    <nav class="navbar navbar-light navbar-expand-lg bg-light fixed-top bd-navbar" id="navbar-main">
+<div class="container-xl">
+
+    <a class="navbar-brand" href="../index.html">
+    
+      <img src="../_static/logo-ansys.png" class="logo" alt="logo" />
+    
+    </a>
+    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbar-menu" aria-controls="navbar-menu" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+    </button>
+
+    <div id="navbar-menu" class="col-lg-9 collapse navbar-collapse">
+      <ul id="navbar-main-elements" class="navbar-nav mr-auto">
+        
+        
+        <li class="nav-item ">
+            <a class="nav-link" href="../LICENSE.html">License Agreeement</a>
+        </li>
+        
+        <li class="nav-item ">
+            <a class="nav-link" href="../Resources/Installation.html">Installation</a>
+        </li>
+        
+        <li class="nav-item active">
+            <a class="nav-link" href="API.html">API documentation</a>
+        </li>
+        
+        <li class="nav-item ">
+            <a class="nav-link" href="Examples.html">Examples</a>
+        </li>
+        
+        <li class="nav-item ">
+            <a class="nav-link" href="../Resources/Code_Guidelines.html">Code Guidelines</a>
+        </li>
+        
+        <li class="nav-item ">
+            <a class="nav-link" href=""></a>
+        </li>
+        
+        
+      </ul>
+
+
+      
+
+      <ul class="navbar-nav">
+        
+        
+      </ul>
+    </div>
+</div>
+    </nav>
+    
+
+    <div class="container-xl">
+      <div class="row">
+          
+          <div class="col-12 col-md-3 bd-sidebar"><form class="bd-search d-flex align-items-center" action="../search.html" method="get">
+  <i class="icon fas fa-search"></i>
+  <input type="search" class="form-control" name="q" id="search-input" placeholder="Search the docs ..." aria-label="Search the docs ..." autocomplete="off" >
+</form>
+<nav class="bd-links" id="bd-docs-nav" aria-label="Main navigation">
+
+    <div class="bd-toc-item active">
+    
+  
+    <ul class="nav bd-sidenav">
+        
+        
+        
+        
+        
+        
+          
+            
+                <li class="">
+                    <a href="Application.html">Application Objects</a>
+                </li>
+            
+          
+            
+                <li class="">
+                    <a href="DesktopMessenger.html">Desktop & Messenger</a>
+                </li>
+            
+          
+            
+                <li class="">
+                    <a href="CoreModules.html">Core Modules</a>
+                </li>
+            
+          
+            
+                <li class="">
+                    <a href="Primitives.html">Primitives</a>
+                </li>
+            
+          
+            
+                <li class="">
+                    <a href="Mesh.html">Mesh</a>
+                </li>
+            
+          
+            
+  
+                <li class="active">
+                    <a href="MaterialManagement.html">Material & Stackup</a>
+                    <ul>
+                    
+                        <li class="">
+                            <a href="MaterialLib.html">Materia Library</a>
+                        </li>
+                    
+                        <li class="active">
+                            <a href="">Material</a>
+                        </li>
+                    
+                        <li class="">
+                            <a href="LayersStackup.html">Layer Stackup</a>
+                        </li>
+                    
+                    </ul>
+                </li>
+            
+          
+            
+                <li class="">
+                    <a href="Setup.html">Setup</a>
+                </li>
+            
+          
+            
+                <li class="">
+                    <a href="Post.html">PostProcessing</a>
+                </li>
+            
+          
+        
+        
+        
+        
+        
+        
+        
+        
+      </ul>
+  
+  </nav>
+          </div>
+          
+
+          
+          <div class="d-none d-xl-block col-xl-2 bd-toc">
+              
+<div class="tocsection onthispage pt-5 pb-3">
+    <i class="fas fa-list"></i> On this page
+</div>
+
+<nav id="bd-toc-nav">
+    <ul class="nav section-nav flex-column">
+    
+        <li class="nav-item toc-entry toc-h2">
+            <a href="#material-class" class="nav-link">Material Class</a><ul class="nav section-nav flex-column">
+                
+        <li class="nav-item toc-entry toc-h3">
+            <a href="#disclaimer" class="nav-link">Disclaimer</a>
+        </li>
+    
+        <li class="nav-item toc-entry toc-h3">
+            <a href="#description" class="nav-link">Description</a>
+        </li>
+    
+            </ul>
+        </li>
+    
+    </ul>
+</nav>
+
+
+              
+          </div>
+          
+
+          
+          <main class="col-12 col-md-9 col-xl-7 py-md-5 pl-md-5 pr-md-4 bd-content" role="main">
+              
+              <div>
+                
+  <div class="section" id="module-pyaedt.core.modules.Material">
+<span id="material"></span><h1>Material<a class="headerlink" href="#module-pyaedt.core.modules.Material" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="material-class">
+<h2>Material Class<a class="headerlink" href="#material-class" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="disclaimer">
+<h3>Disclaimer<a class="headerlink" href="#disclaimer" title="Permalink to this headline">¶</a></h3>
+<p><strong>Copyright (c) 1986-2021, ANSYS Inc. unauthorised use, distribution or duplication is prohibited</strong></p>
+<p><strong>This tool release is unofficial and not covered by standard Ansys Support license.</strong></p>
+</div>
+<div class="section" id="description">
+<h3>Description<a class="headerlink" href="#description" title="Permalink to this headline">¶</a></h3>
+<p>This class contains the data class to create a material library. internal use only</p>
+<hr class="docutils" />
+<dl class="py class">
+<dt id="pyaedt.core.modules.Material.ClosedFormTM">
+<em class="property"><span class="pre">class</span> </em><code class="sig-prename descclassname"><span class="pre">pyaedt.core.modules.Material.</span></code><code class="sig-name descname"><span class="pre">ClosedFormTM</span></code><a class="reference internal" href="../_modules/pyaedt/core/modules/Material.html#ClosedFormTM"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyaedt.core.modules.Material.ClosedFormTM" title="Permalink to this definition">¶</a></dt>
+<dd><p>Class to manage Closed Form Terhmal Modifier.</p>
+</dd></dl>
+
+<dl class="py class">
+<dt id="pyaedt.core.modules.Material.Dataset">
+<em class="property"><span class="pre">class</span> </em><code class="sig-prename descclassname"><span class="pre">pyaedt.core.modules.Material.</span></code><code class="sig-name descname"><span class="pre">Dataset</span></code><a class="reference internal" href="../_modules/pyaedt/core/modules/Material.html#Dataset"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyaedt.core.modules.Material.Dataset" title="Permalink to this definition">¶</a></dt>
+<dd><p>Data Class for DataSet Management</p>
+</dd></dl>
+
+<dl class="py class">
+<dt id="pyaedt.core.modules.Material.MatProperties">
+<em class="property"><span class="pre">class</span> </em><code class="sig-prename descclassname"><span class="pre">pyaedt.core.modules.Material.</span></code><code class="sig-name descname"><span class="pre">MatProperties</span></code><a class="reference internal" href="../_modules/pyaedt/core/modules/Material.html#MatProperties"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyaedt.core.modules.Material.MatProperties" title="Permalink to this definition">¶</a></dt>
+<dd><p>list of constants of all possible materials constant names and how they are mapped to XML
+internalame=named used in script
+xmlname=named used in XML syntax</p>
+<dl class="py method">
+<dt id="pyaedt.core.modules.Material.MatProperties.get_aedtname">
+<em class="property"><span class="pre">classmethod</span> </em><code class="sig-name descname"><span class="pre">get_aedtname</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">fullname</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">catname</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pyaedt/core/modules/Material.html#MatProperties.get_aedtname"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyaedt.core.modules.Material.MatProperties.get_aedtname" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get the defaultunit for a given fullname or catname</p>
+<p>:param fullname:optiona full name of the property
+:param catname: optional Category name
+:return: aedtname</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="pyaedt.core.modules.Material.MatProperties.get_catname">
+<em class="property"><span class="pre">classmethod</span> </em><code class="sig-name descname"><span class="pre">get_catname</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">fullname</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">aedtname</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pyaedt/core/modules/Material.html#MatProperties.get_catname"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyaedt.core.modules.Material.MatProperties.get_catname" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get the defaultunit for a given fullname or catname</p>
+<p>:param fullname:optiona full name of the property
+:param aedtname: optional aedtname
+:return: catname</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="pyaedt.core.modules.Material.MatProperties.get_defaultunit">
+<em class="property"><span class="pre">classmethod</span> </em><code class="sig-name descname"><span class="pre">get_defaultunit</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">fullname</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">catname</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">aedtname</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pyaedt/core/modules/Material.html#MatProperties.get_defaultunit"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyaedt.core.modules.Material.MatProperties.get_defaultunit" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get the defaultunit for a given fullname or catname</p>
+<p>:param fullname:optiona full name of the property
+:param catname: optional Category name
+:param aedtname: optional aedtname
+:return: defaultunit if exists</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="pyaedt.core.modules.Material.MatProperties.get_defaultvalue">
+<em class="property"><span class="pre">classmethod</span> </em><code class="sig-name descname"><span class="pre">get_defaultvalue</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">fullname</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">catname</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">aedtname</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pyaedt/core/modules/Material.html#MatProperties.get_defaultvalue"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyaedt.core.modules.Material.MatProperties.get_defaultvalue" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get the defaultunit for a given fullname or catname</p>
+<p>:param fullname:optiona full name of the property
+:param catname: optional Category name
+:param aedtname: optional aedtname
+:return: defaultunit</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="pyaedt.core.modules.Material.MatProperties.get_fullname">
+<em class="property"><span class="pre">classmethod</span> </em><code class="sig-name descname"><span class="pre">get_fullname</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">catname</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">aedtname</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pyaedt/core/modules/Material.html#MatProperties.get_fullname"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyaedt.core.modules.Material.MatProperties.get_fullname" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get the defaultunit for a given fullname or catname</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>catname</strong> -- optional Category name</p></li>
+<li><p><strong>aedtname</strong> -- optional aedtname</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>catname</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt id="pyaedt.core.modules.Material.MatProperty">
+<em class="property"><span class="pre">class</span> </em><code class="sig-prename descclassname"><span class="pre">pyaedt.core.modules.Material.</span></code><code class="sig-name descname"><span class="pre">MatProperty</span></code><a class="reference internal" href="../_modules/pyaedt/core/modules/Material.html#MatProperty"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyaedt.core.modules.Material.MatProperty" title="Permalink to this definition">¶</a></dt>
+<dd><p>type: &quot;simple&quot;, &quot;anisotropic&quot;, &quot;tensor&quot;</p>
+<dl class="py method">
+<dt id="pyaedt.core.modules.Material.MatProperty.set_type">
+<code class="sig-name descname"><span class="pre">set_type</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">type</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pyaedt/core/modules/Material.html#MatProperty.set_type"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyaedt.core.modules.Material.MatProperty.set_type" title="Permalink to this definition">¶</a></dt>
+<dd><p>Set Material Property Type</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>type</strong> -- &quot;simple&quot;, &quot;nonlinear&quot;, &quot;anisotropic&quot;, &quot;tensor&quot;</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p></p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt id="pyaedt.core.modules.Material.Material">
+<em class="property"><span class="pre">class</span> </em><code class="sig-prename descclassname"><span class="pre">pyaedt.core.modules.Material.</span></code><code class="sig-name descname"><span class="pre">Material</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">parent</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pyaedt/core/modules/Material.html#Material"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyaedt.core.modules.Material.Material" title="Permalink to this definition">¶</a></dt>
+<dd><p>Class for Frequency Dependence Datasets</p>
+<dl class="py class">
+<dt id="pyaedt.core.modules.Material.Material.PropName">
+<em class="property"><span class="pre">class</span> </em><code class="sig-name descname"><span class="pre">PropName</span></code><a class="reference internal" href="../_modules/pyaedt/core/modules/Material.html#Material.PropName"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyaedt.core.modules.Material.Material.PropName" title="Permalink to this definition">¶</a></dt>
+<dd><p>list of constants of all possible materials constant names and how they are mapped to XML
+internalame=named used in script
+xmlname=named used in XML syntax</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="pyaedt.core.modules.Material.Material.create_frequency_dataset">
+<code class="sig-name descname"><span class="pre">create_frequency_dataset</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">listtemp_val</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">unitx</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'Hz'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">unity</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pyaedt/core/modules/Material.html#Material.create_frequency_dataset"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyaedt.core.modules.Material.Material.create_frequency_dataset" title="Permalink to this definition">¶</a></dt>
+<dd><p>Create a new frequency data set based on a list of values</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>listtemp_val</strong> -- list of frequency modifiers. Example [[1e9, 58e6], [1.1e9, 57e6], [1.2e9,55e6]]</p></li>
+<li><p><strong>unitx</strong> -- unit type. Default Hertz</p></li>
+<li><p><strong>unity</strong> -- unit type. Default &quot;&quot;</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>tm obhect</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="pyaedt.core.modules.Material.Material.create_thermal_modifier">
+<code class="sig-name descname"><span class="pre">create_thermal_modifier</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">listtemp_val</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pyaedt/core/modules/Material.html#Material.create_thermal_modifier"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyaedt.core.modules.Material.Material.create_thermal_modifier" title="Permalink to this definition">¶</a></dt>
+<dd><p>Create a new thermal modifier object based on a list of values</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>listtemp_val</strong> -- list of thermal modifiers. Example [[22, 1], [80, 0.8], [100,0.7]]</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>tm object</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="pyaedt.core.modules.Material.Material.createdatasets">
+<code class="sig-name descname"><span class="pre">createdatasets</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tm</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">suffix</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pyaedt/core/modules/Material.html#Material.createdatasets"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyaedt.core.modules.Material.Material.createdatasets" title="Permalink to this definition">¶</a></dt>
+<dd><p>createdataset(material name, property name, dataset)
+createDataset for material matname with property name</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>name</strong> -- name of datase to create in aedt</p></li>
+<li><p><strong>tm</strong> -- dataset object</p></li>
+<li><p><strong>suffix</strong> -- suffix to apply to name</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Bool</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="pyaedt.core.modules.Material.Material.does_material_exists">
+<code class="sig-name descname"><span class="pre">does_material_exists</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">szMat</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pyaedt/core/modules/Material.html#Material.does_material_exists"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyaedt.core.modules.Material.Material.does_material_exists" title="Permalink to this definition">¶</a></dt>
+<dd><p>Check if a material is already defined in the Project</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>szMat</strong> -- material name</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Bool</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="pyaedt.core.modules.Material.Material.get_property_dataset">
+<code class="sig-name descname"><span class="pre">get_property_dataset</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">PropertyConstant</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">idx</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pyaedt/core/modules/Material.html#Material.get_property_dataset"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyaedt.core.modules.Material.Material.get_property_dataset" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get Material Property Dataset</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>PropertyConstant</strong> -- property</p></li>
+<li><p><strong>idx</strong> -- index. in case of tensor or anysotropic (0 by default)</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>dataset object</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="pyaedt.core.modules.Material.Material.get_property_therm_modifier">
+<code class="sig-name descname"><span class="pre">get_property_therm_modifier</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">PropertyConstant</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">idx</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pyaedt/core/modules/Material.html#Material.get_property_therm_modifier"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyaedt.core.modules.Material.Material.get_property_therm_modifier" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get Material Property Thermal Modifier Dataset</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>PropertyConstant</strong> -- property</p></li>
+<li><p><strong>idx</strong> -- index. in case of tensor or anysotropic (0 by default)</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>thermal modifier object</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="pyaedt.core.modules.Material.Material.get_property_value">
+<code class="sig-name descname"><span class="pre">get_property_value</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">PropertyConstant</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">idx</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pyaedt/core/modules/Material.html#Material.get_property_value"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyaedt.core.modules.Material.Material.get_property_value" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get Material Property Value</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>PropertyConstant</strong> -- property</p></li>
+<li><p><strong>idx</strong> -- index. in case of tensor or anysotropic (0 by default)</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>poperty value</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="pyaedt.core.modules.Material.Material.get_unit">
+<code class="sig-name descname"><span class="pre">get_unit</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">propertyname</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pyaedt/core/modules/Material.html#Material.get_unit"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyaedt.core.modules.Material.Material.get_unit" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>propertyname</strong> -- str property</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>property unit</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="pyaedt.core.modules.Material.Material.is_conductor">
+<code class="sig-name descname"><span class="pre">is_conductor</span></code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pyaedt/core/modules/Material.html#Material.is_conductor"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyaedt.core.modules.Material.Material.is_conductor" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>Bool if material is conductor. Material is defined as conductor if cond&gt;=100000</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="pyaedt.core.modules.Material.Material.is_dielectric">
+<code class="sig-name descname"><span class="pre">is_dielectric</span></code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pyaedt/core/modules/Material.html#Material.is_dielectric"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyaedt.core.modules.Material.Material.is_dielectric" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>Bool if material is dielectric. Material is defined as conductor if cond&lt;100000</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="pyaedt.core.modules.Material.Material.odefinition_manager">
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">odefinition_manager</span></code><a class="headerlink" href="#pyaedt.core.modules.Material.Material.odefinition_manager" title="Permalink to this definition">¶</a></dt>
+<dd><p>Definition Manager</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>return</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="pyaedt.core.modules.Material.Material.set_nonlinear_dataset">
+<code class="sig-name descname"><span class="pre">set_nonlinear_dataset</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">propertyname</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">listtemp_val</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">unitx</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'A_per_meter'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">unity</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'tesla'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pyaedt/core/modules/Material.html#Material.set_nonlinear_dataset"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyaedt.core.modules.Material.Material.set_nonlinear_dataset" title="Permalink to this definition">¶</a></dt>
+<dd><p>Create a new nonlinear data set based on a list of values</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>listtemp_val</strong> -- list of frequency modifiers. Example [[1e9, 58e6], [1.1e9, 57e6], [1.2e9,55e6]]</p></li>
+<li><p><strong>unitx</strong> -- unit type. Default A_per_meter</p></li>
+<li><p><strong>unity</strong> -- unit type. Default tesla</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Bool</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="pyaedt.core.modules.Material.Material.set_property_dataset">
+<code class="sig-name descname"><span class="pre">set_property_dataset</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">PropName</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dataset</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">idx</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pyaedt/core/modules/Material.html#Material.set_property_dataset"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyaedt.core.modules.Material.Material.set_property_dataset" title="Permalink to this definition">¶</a></dt>
+<dd><p>Set Material Dataset Value</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>PropName</strong> -- property</p></li>
+<li><p><strong>dataset</strong> -- dataset object</p></li>
+<li><p><strong>idx</strong> -- index. in case of tensor or anysotropic (0 by default)</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="pyaedt.core.modules.Material.Material.set_property_therm_modifier">
+<code class="sig-name descname"><span class="pre">set_property_therm_modifier</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">PropName</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dataset</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">idx</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pyaedt/core/modules/Material.html#Material.set_property_therm_modifier"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyaedt.core.modules.Material.Material.set_property_therm_modifier" title="Permalink to this definition">¶</a></dt>
+<dd><p>Set Material Property Thermal Modifier</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>PropName</strong> -- property</p></li>
+<li><p><strong>dataset</strong> -- dataset object or list of values. in case list of values is provided, the dataset will be automatically created</p></li>
+<li><p><strong>idx</strong> -- index. in case of tensor or anysotropic (0 by default)</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="pyaedt.core.modules.Material.Material.set_property_value">
+<code class="sig-name descname"><span class="pre">set_property_value</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">PropName</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">propvalue</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">idx</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pyaedt/core/modules/Material.html#Material.set_property_value"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyaedt.core.modules.Material.Material.set_property_value" title="Permalink to this definition">¶</a></dt>
+<dd><p>Set Material Property Value</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>PropName</strong> -- property</p></li>
+<li><p><strong>propvalue</strong> -- value</p></li>
+<li><p><strong>idx</strong> -- index. in case of tensor or anysotropic (0 by default)</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>True</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="pyaedt.core.modules.Material.Material.update">
+<code class="sig-name descname"><span class="pre">update</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">enableTM</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">enableFM</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pyaedt/core/modules/Material.html#Material.update"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyaedt.core.modules.Material.Material.update" title="Permalink to this definition">¶</a></dt>
+<dd><p>Update material in AEDT</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>enableTM</strong> -- Boolean, to include Thermal Modifier in AEDT</p></li>
+<li><p><strong>enableFM</strong> -- Booolean, to include Frequency Modifier in AEDT</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Bool</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+</div>
+<div class="toctree-wrapper compound">
+</div>
+</div>
+
+
+              </div>
+              
+              
+              <div class='prev-next-bottom'>
+                
+    <a class='left-prev' id="prev-link" href="MaterialLib.html" title="previous page">Materia Library</a>
+    <a class='right-next' id="next-link" href="LayersStackup.html" title="next page">Layer Stackup</a>
+
+              </div>
+              
+          </main>
+          
+
+      </div>
+    </div>
+
+    
+  <script src="../_static/js/index.d3f166471bb80abb5163.js"></script>
+
+
+    <footer class="footer mt-5 mt-md-0">
+  <div class="container">
+    <p>
+          &copy; Copyright Copyright(c) 1986-2021, ANSYSInc. unauthorised use, distribution or duplication is prohibited. This tool release is unofficial and not covered by standard Ansys Support license..<br/>
+        Created using <a href="http://sphinx-doc.org/">Sphinx</a> 3.5.2.<br/>
+    </p>
+  </div>
+</footer>
+  </body>
+</html>

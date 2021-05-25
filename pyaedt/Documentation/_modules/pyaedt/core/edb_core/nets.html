@@ -1,0 +1,374 @@
+
+<!DOCTYPE html>
+
+<html lang="Python">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>pyaedt.core.edb_core.nets &#8212; pyaedt 0.5.0 documentation</title>
+    
+  <link rel="stylesheet" href="../../../../_static/css/index.f658d18f9b420779cfdf24aa0a7e2d77.css">
+
+    
+  <link rel="stylesheet"
+    href="../../../../_static/vendor/fontawesome/5.13.0/css/all.min.css">
+  <link rel="preload" as="font" type="font/woff2" crossorigin
+    href="../../../../_static/vendor/fontawesome/5.13.0/webfonts/fa-solid-900.woff2">
+  <link rel="preload" as="font" type="font/woff2" crossorigin
+    href="../../../../_static/vendor/fontawesome/5.13.0/webfonts/fa-brands-400.woff2">
+
+    
+      
+  <link rel="stylesheet"
+    href="../../../../_static/vendor/open-sans_all/1.44.1/index.css">
+  <link rel="stylesheet"
+    href="../../../../_static/vendor/lato_latin-ext/1.44.1/index.css">
+
+    
+    <link rel="stylesheet" href="../../../../_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" href="../../../../_static/basic.css" type="text/css" />
+    <link rel="stylesheet" type="text/css" href="../../../../_static/copybutton.css" />
+    <link rel="stylesheet" type="text/css" href="../../../../_static/graphviz.css" />
+    <link rel="stylesheet" type="text/css" href="../../../../_static/css/ansys.css" />
+    
+  <link rel="preload" as="script" href="../../../../_static/js/index.d3f166471bb80abb5163.js">
+
+    <script id="documentation_options" data-url_root="../../../../" src="../../../../_static/documentation_options.js"></script>
+    <script src="../../../../_static/jquery.js"></script>
+    <script src="../../../../_static/underscore.js"></script>
+    <script src="../../../../_static/doctools.js"></script>
+    <script src="../../../../_static/clipboard.min.js"></script>
+    <script src="../../../../_static/copybutton.js"></script>
+    <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <link rel="index" title="Index" href="../../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../../search.html" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="docsearch:language" content="en" />
+  </head>
+  <body data-spy="scroll" data-target="#bd-toc-nav" data-offset="80">
+    
+    <nav class="navbar navbar-light navbar-expand-lg bg-light fixed-top bd-navbar" id="navbar-main">
+<div class="container-xl">
+
+    <a class="navbar-brand" href="../../../../index.html">
+    
+      <img src="../../../../_static/logo-ansys.png" class="logo" alt="logo" />
+    
+    </a>
+    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbar-menu" aria-controls="navbar-menu" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+    </button>
+
+    <div id="navbar-menu" class="col-lg-9 collapse navbar-collapse">
+      <ul id="navbar-main-elements" class="navbar-nav mr-auto">
+        
+        
+        <li class="nav-item ">
+            <a class="nav-link" href="../../../../LICENSE.html">License Agreeement</a>
+        </li>
+        
+        <li class="nav-item ">
+            <a class="nav-link" href="../../../../Resources/Installation.html">Installation</a>
+        </li>
+        
+        <li class="nav-item ">
+            <a class="nav-link" href="../../../../API/API.html">API documentation</a>
+        </li>
+        
+        <li class="nav-item ">
+            <a class="nav-link" href="../../../../API/Examples.html">Examples</a>
+        </li>
+        
+        <li class="nav-item ">
+            <a class="nav-link" href="../../../../Resources/Code_Guidelines.html">Code Guidelines</a>
+        </li>
+        
+        <li class="nav-item ">
+            <a class="nav-link" href=""></a>
+        </li>
+        
+        
+      </ul>
+
+
+      
+
+      <ul class="navbar-nav">
+        
+        
+      </ul>
+    </div>
+</div>
+    </nav>
+    
+
+    <div class="container-xl">
+      <div class="row">
+          
+          <div class="col-12 col-md-3 bd-sidebar"><form class="bd-search d-flex align-items-center" action="../../../../search.html" method="get">
+  <i class="icon fas fa-search"></i>
+  <input type="search" class="form-control" name="q" id="search-input" placeholder="Search the docs ..." aria-label="Search the docs ..." autocomplete="off" >
+</form>
+<nav class="bd-links" id="bd-docs-nav" aria-label="Main navigation">
+
+    <div class="bd-toc-item active">
+    
+  
+    <ul class="nav bd-sidenav">
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+      </ul>
+  
+  </nav>
+          </div>
+          
+
+          
+          <div class="d-none d-xl-block col-xl-2 bd-toc">
+              
+
+<nav id="bd-toc-nav">
+    <ul class="nav section-nav flex-column">
+    
+    </ul>
+</nav>
+
+
+              
+          </div>
+          
+
+          
+          <main class="col-12 col-md-9 col-xl-7 py-md-5 pl-md-5 pr-md-4 bd-content" role="main">
+              
+              <div>
+                
+  <h1>Source code for pyaedt.core.edb_core.nets</h1><div class="highlight"><pre>
+<span></span><span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="n">absolute_import</span>
+<span class="kn">import</span> <span class="nn">clr</span>
+<span class="kn">from</span> <span class="nn">.general</span> <span class="kn">import</span> <span class="o">*</span>
+<span class="kn">from</span> <span class="nn">..generic.general_methods</span> <span class="kn">import</span> <span class="n">get_filename_without_extension</span><span class="p">,</span> <span class="n">generate_unique_name</span>
+<span class="kn">from</span> <span class="nn">System</span> <span class="kn">import</span> <span class="n">Convert</span><span class="p">,</span> <span class="n">String</span>
+<span class="kn">from</span> <span class="nn">System</span> <span class="kn">import</span> <span class="n">Double</span><span class="p">,</span> <span class="n">Array</span>
+<span class="kn">from</span> <span class="nn">System.Collections.Generic</span> <span class="kn">import</span> <span class="n">List</span>
+
+
+<div class="viewcode-block" id="EdbNets"><a class="viewcode-back" href="../../../../API/EDBNets.html#pyaedt.core.edb_core.nets.EdbNets">[docs]</a><span class="k">class</span> <span class="nc">EdbNets</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Edb Net object</span>
+
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">builder</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">parent</span><span class="o">.</span><span class="n">builder</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">edb</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">parent</span><span class="o">.</span><span class="n">edb</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">edb_value</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">parent</span><span class="o">.</span><span class="n">edb_value</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">active_layout</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">parent</span><span class="o">.</span><span class="n">active_layout</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">cell</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">parent</span><span class="o">.</span><span class="n">cell</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">db</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">parent</span><span class="o">.</span><span class="n">db</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">padstack_methods</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">parent</span><span class="o">.</span><span class="n">edblib</span><span class="o">.</span><span class="n">Layout</span><span class="o">.</span><span class="n">PadStackMethods</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">messenger</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">parent</span><span class="o">.</span><span class="n">messenger</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">parent</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">parent</span> <span class="o">=</span> <span class="n">parent</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">nets_methods</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">parent</span><span class="o">.</span><span class="n">edblib</span><span class="o">.</span><span class="n">Layout</span><span class="o">.</span><span class="n">NetsMethods</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">nets</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+
+<span class="sd">        :return: Dictionary of Nets</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">builder</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">convert_netdict_to_pydict</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">nets_methods</span><span class="o">.</span><span class="n">GetNetDict</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">builder</span><span class="p">))</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">signal_nets</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+
+<span class="sd">        :return:Dictionary of Signal Nets</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">builder</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">convert_netdict_to_pydict</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">nets_methods</span><span class="o">.</span><span class="n">GetSignalNetDict</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">builder</span><span class="p">))</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">power_nets</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        :return:Dictionary of Power Nets</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">builder</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">convert_netdict_to_pydict</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">nets_methods</span><span class="o">.</span><span class="n">GetPowerNetDict</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">builder</span><span class="p">))</span>
+
+<div class="viewcode-block" id="EdbNets.is_power_gound_net"><a class="viewcode-back" href="../../../../API/EDBNets.html#pyaedt.core.edb_core.nets.EdbNets.is_power_gound_net">[docs]</a>    <span class="nd">@aedt_exception_handler</span>
+    <span class="k">def</span> <span class="nf">is_power_gound_net</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">netname_list</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Return a True if one of the net in the list is power or ground</span>
+
+
+<span class="sd">        :param netname_list: list of net names</span>
+<span class="sd">        :return: True if one of net name is power or ground</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">builder</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">nets_methods</span><span class="o">.</span><span class="n">IsPowerGroundNetInList</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">builder</span><span class="p">,</span> <span class="n">netname_list</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="EdbNets.get_dcconnected_net_list"><a class="viewcode-back" href="../../../../API/EDBNets.html#pyaedt.core.edb_core.nets.EdbNets.get_dcconnected_net_list">[docs]</a>    <span class="k">def</span> <span class="nf">get_dcconnected_net_list</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ground_nets</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;GND&quot;</span><span class="p">]):</span>
+        <span class="sd">&quot;&quot;&quot;Get the Netlist of Nets connected to DC Through Inductors</span>
+<span class="sd">        only inductors are considered</span>
+
+<span class="sd">        :param ground_nets: list of ground nets</span>
+<span class="sd">        return: list of dcconnected nets</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">temp_list</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">refdes</span><span class="p">,</span> <span class="n">comp_obj</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">parent</span><span class="o">.</span><span class="n">core_components</span><span class="o">.</span><span class="n">inductors</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+
+            <span class="n">numpins</span> <span class="o">=</span> <span class="n">comp_obj</span><span class="o">.</span><span class="n">numpins</span>
+
+            <span class="k">if</span> <span class="n">numpins</span> <span class="o">==</span> <span class="mi">2</span><span class="p">:</span>
+                <span class="n">nets</span> <span class="o">=</span> <span class="n">comp_obj</span><span class="o">.</span><span class="n">nets</span>
+                <span class="k">if</span> <span class="ow">not</span> <span class="nb">set</span><span class="p">(</span><span class="n">nets</span><span class="p">)</span><span class="o">.</span><span class="n">intersection</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="n">ground_nets</span><span class="p">)):</span>
+                    <span class="n">temp_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="n">nets</span><span class="p">))</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="k">pass</span>
+
+        <span class="n">dcconnected_net_list</span> <span class="o">=</span> <span class="p">[]</span>
+
+        <span class="k">while</span> <span class="ow">not</span> <span class="ow">not</span> <span class="n">temp_list</span><span class="p">:</span>
+            <span class="n">s</span> <span class="o">=</span> <span class="n">temp_list</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+            <span class="n">interseciton_flag</span> <span class="o">=</span> <span class="kc">False</span>
+            <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">temp_list</span><span class="p">:</span>
+                <span class="k">if</span> <span class="ow">not</span> <span class="ow">not</span> <span class="n">s</span><span class="o">.</span><span class="n">intersection</span><span class="p">(</span><span class="n">i</span><span class="p">):</span>
+                    <span class="n">i</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">s</span><span class="p">)</span>
+                    <span class="n">interseciton_flag</span> <span class="o">=</span> <span class="kc">True</span>
+
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">interseciton_flag</span><span class="p">:</span>
+                <span class="n">dcconnected_net_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">s</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">dcconnected_net_list</span></div>
+
+    <span class="k">def</span> <span class="nf">get_powertree</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">power_net_name</span><span class="p">,</span> <span class="n">ground_nets</span><span class="p">):</span>
+        <span class="n">flag_in_ng</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="n">net_group</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">ng</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_dcconnected_net_list</span><span class="p">(</span><span class="n">ground_nets</span><span class="p">):</span>
+            <span class="k">if</span> <span class="n">power_net_name</span> <span class="ow">in</span> <span class="n">ng</span><span class="p">:</span>
+                <span class="n">flag_in_ng</span> <span class="o">=</span> <span class="kc">True</span>
+                <span class="n">net_group</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">ng</span><span class="p">)</span>
+                <span class="k">break</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">flag_in_ng</span><span class="p">:</span>
+            <span class="n">net_group</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">power_net_name</span><span class="p">)</span>
+
+        <span class="n">df_list</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">rats</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">parent</span><span class="o">.</span><span class="n">core_components</span><span class="o">.</span><span class="n">get_rats</span><span class="p">()</span>
+        <span class="k">for</span> <span class="n">net</span> <span class="ow">in</span> <span class="n">net_group</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">el</span> <span class="ow">in</span> <span class="n">rats</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">net</span> <span class="ow">in</span> <span class="n">el</span><span class="p">[</span><span class="s1">&#39;net_name&#39;</span><span class="p">]:</span>
+                    <span class="n">i</span> <span class="o">=</span> <span class="mi">0</span>
+                    <span class="k">for</span> <span class="n">n</span> <span class="ow">in</span> <span class="n">el</span><span class="p">[</span><span class="s1">&#39;net_name&#39;</span><span class="p">]:</span>
+                        <span class="k">if</span> <span class="n">n</span> <span class="o">==</span> <span class="n">net</span><span class="p">:</span>
+                            <span class="n">df</span> <span class="o">=</span> <span class="p">[</span><span class="n">el</span><span class="p">[</span><span class="s1">&#39;refdes&#39;</span><span class="p">][</span><span class="n">i</span><span class="p">],</span> <span class="n">el</span><span class="p">[</span><span class="s1">&#39;pin_name&#39;</span><span class="p">][</span><span class="n">i</span><span class="p">],</span><span class="n">net</span> <span class="p">]</span>
+                            <span class="n">df_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">df</span><span class="p">)</span>
+                        <span class="n">i</span> <span class="o">+=</span> <span class="mi">1</span>
+
+        <span class="n">component_type</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">el</span> <span class="ow">in</span> <span class="n">df_list</span><span class="p">:</span>
+            <span class="n">refdes</span> <span class="o">=</span> <span class="n">el</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+            <span class="n">comp_type</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">parent</span><span class="o">.</span><span class="n">core_components</span><span class="o">.</span><span class="n">components</span><span class="p">[</span><span class="n">refdes</span><span class="p">]</span><span class="o">.</span><span class="n">type</span>
+            <span class="n">component_type</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">comp_type</span><span class="p">)</span>
+            <span class="n">el</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">comp_type</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">df_list</span><span class="p">,</span> <span class="n">net_group</span>
+
+
+<div class="viewcode-block" id="EdbNets.delete_nets"><a class="viewcode-back" href="../../../../API/EDBNets.html#pyaedt.core.edb_core.nets.EdbNets.delete_nets">[docs]</a>    <span class="nd">@aedt_exception_handler</span>
+    <span class="k">def</span> <span class="nf">delete_nets</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">netlist</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Delete Nets from Edb</span>
+
+<span class="sd">        :example:</span>
+
+<span class="sd">        &gt;&gt;&gt; deleted_nets = edb_core.core_nets.delete_nets([&quot;Net1&quot;,&quot;Net2&quot;])</span>
+
+<span class="sd">        :param netlist: str or list of net to be deleted</span>
+<span class="sd">        :return: list of nets effectively deleted</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="n">netlist</span><span class="p">)</span> <span class="ow">is</span> <span class="nb">str</span><span class="p">:</span>
+            <span class="n">netlist</span><span class="o">=</span><span class="p">[</span><span class="n">netlist</span><span class="p">]</span>
+        <span class="n">nets_deleted</span> <span class="o">=</span><span class="p">[]</span>
+        <span class="k">for</span> <span class="n">net</span> <span class="ow">in</span> <span class="n">netlist</span><span class="p">:</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">edb_net</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">edb</span><span class="o">.</span><span class="n">Cell</span><span class="o">.</span><span class="n">Net</span><span class="o">.</span><span class="n">FindByName</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">active_layout</span><span class="p">,</span> <span class="n">net</span><span class="p">)</span>
+                <span class="k">if</span> <span class="n">edb_net</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                    <span class="n">edb_net</span><span class="o">.</span><span class="n">Delete</span><span class="p">()</span>
+                    <span class="n">nets_deleted</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">net</span><span class="p">)</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">parent</span><span class="o">.</span><span class="n">messenger</span><span class="o">.</span><span class="n">add_info_message</span><span class="p">(</span><span class="s2">&quot;Net </span><span class="si">{}</span><span class="s2"> Deleted&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">net</span><span class="p">))</span>
+            <span class="k">except</span><span class="p">:</span>
+                <span class="k">pass</span>
+
+        <span class="k">return</span> <span class="n">nets_deleted</span></div></div>
+
+
+
+</pre></div>
+
+              </div>
+              
+              
+              <div class='prev-next-bottom'>
+                
+
+              </div>
+              
+          </main>
+          
+
+      </div>
+    </div>
+
+    
+  <script src="../../../../_static/js/index.d3f166471bb80abb5163.js"></script>
+
+
+    <footer class="footer mt-5 mt-md-0">
+  <div class="container">
+    <p>
+          &copy; Copyright Copyright(c) 1986-2021, ANSYSInc. unauthorised use, distribution or duplication is prohibited. This tool release is unofficial and not covered by standard Ansys Support license..<br/>
+        Created using <a href="http://sphinx-doc.org/">Sphinx</a> 3.5.2.<br/>
+    </p>
+  </div>
+</footer>
+  </body>
+</html>

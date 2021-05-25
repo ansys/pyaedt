@@ -1,0 +1,534 @@
+
+<!DOCTYPE html>
+
+<html lang="Python">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>pyaedt.core.modules.MeshIcepak &#8212; pyaedt 0.5.0 documentation</title>
+    
+  <link rel="stylesheet" href="../../../../_static/css/index.f658d18f9b420779cfdf24aa0a7e2d77.css">
+
+    
+  <link rel="stylesheet"
+    href="../../../../_static/vendor/fontawesome/5.13.0/css/all.min.css">
+  <link rel="preload" as="font" type="font/woff2" crossorigin
+    href="../../../../_static/vendor/fontawesome/5.13.0/webfonts/fa-solid-900.woff2">
+  <link rel="preload" as="font" type="font/woff2" crossorigin
+    href="../../../../_static/vendor/fontawesome/5.13.0/webfonts/fa-brands-400.woff2">
+
+    
+      
+  <link rel="stylesheet"
+    href="../../../../_static/vendor/open-sans_all/1.44.1/index.css">
+  <link rel="stylesheet"
+    href="../../../../_static/vendor/lato_latin-ext/1.44.1/index.css">
+
+    
+    <link rel="stylesheet" href="../../../../_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" href="../../../../_static/basic.css" type="text/css" />
+    <link rel="stylesheet" type="text/css" href="../../../../_static/copybutton.css" />
+    <link rel="stylesheet" type="text/css" href="../../../../_static/graphviz.css" />
+    <link rel="stylesheet" type="text/css" href="../../../../_static/css/ansys.css" />
+    
+  <link rel="preload" as="script" href="../../../../_static/js/index.d3f166471bb80abb5163.js">
+
+    <script id="documentation_options" data-url_root="../../../../" src="../../../../_static/documentation_options.js"></script>
+    <script src="../../../../_static/jquery.js"></script>
+    <script src="../../../../_static/underscore.js"></script>
+    <script src="../../../../_static/doctools.js"></script>
+    <script src="../../../../_static/clipboard.min.js"></script>
+    <script src="../../../../_static/copybutton.js"></script>
+    <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <link rel="index" title="Index" href="../../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../../search.html" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="docsearch:language" content="en" />
+  </head>
+  <body data-spy="scroll" data-target="#bd-toc-nav" data-offset="80">
+    
+    <nav class="navbar navbar-light navbar-expand-lg bg-light fixed-top bd-navbar" id="navbar-main">
+<div class="container-xl">
+
+    <a class="navbar-brand" href="../../../../index.html">
+    
+      <img src="../../../../_static/logo-ansys.png" class="logo" alt="logo" />
+    
+    </a>
+    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbar-menu" aria-controls="navbar-menu" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+    </button>
+
+    <div id="navbar-menu" class="col-lg-9 collapse navbar-collapse">
+      <ul id="navbar-main-elements" class="navbar-nav mr-auto">
+        
+        
+        <li class="nav-item ">
+            <a class="nav-link" href="../../../../LICENSE.html">License Agreeement</a>
+        </li>
+        
+        <li class="nav-item ">
+            <a class="nav-link" href="../../../../Resources/Installation.html">Installation</a>
+        </li>
+        
+        <li class="nav-item ">
+            <a class="nav-link" href="../../../../API/API.html">API documentation</a>
+        </li>
+        
+        <li class="nav-item ">
+            <a class="nav-link" href="../../../../API/Examples.html">Examples</a>
+        </li>
+        
+        <li class="nav-item ">
+            <a class="nav-link" href="../../../../Resources/Code_Guidelines.html">Code Guidelines</a>
+        </li>
+        
+        <li class="nav-item ">
+            <a class="nav-link" href=""></a>
+        </li>
+        
+        
+      </ul>
+
+
+      
+
+      <ul class="navbar-nav">
+        
+        
+      </ul>
+    </div>
+</div>
+    </nav>
+    
+
+    <div class="container-xl">
+      <div class="row">
+          
+          <div class="col-12 col-md-3 bd-sidebar"><form class="bd-search d-flex align-items-center" action="../../../../search.html" method="get">
+  <i class="icon fas fa-search"></i>
+  <input type="search" class="form-control" name="q" id="search-input" placeholder="Search the docs ..." aria-label="Search the docs ..." autocomplete="off" >
+</form>
+<nav class="bd-links" id="bd-docs-nav" aria-label="Main navigation">
+
+    <div class="bd-toc-item active">
+    
+  
+    <ul class="nav bd-sidenav">
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+      </ul>
+  
+  </nav>
+          </div>
+          
+
+          
+          <div class="d-none d-xl-block col-xl-2 bd-toc">
+              
+
+<nav id="bd-toc-nav">
+    <ul class="nav section-nav flex-column">
+    
+    </ul>
+</nav>
+
+
+              
+          </div>
+          
+
+          
+          <main class="col-12 col-md-9 col-xl-7 py-md-5 pl-md-5 pr-md-4 bd-content" role="main">
+              
+              <div>
+                
+  <h1>Source code for pyaedt.core.modules.MeshIcepak</h1><div class="highlight"><pre>
+<span></span><span class="kn">from</span> <span class="nn">collections</span> <span class="kn">import</span> <span class="n">OrderedDict</span>
+
+<span class="kn">from</span> <span class="nn">..generic.general_methods</span> <span class="kn">import</span> <span class="n">aedt_exception_handler</span><span class="p">,</span> <span class="n">generate_unique_name</span>
+<span class="kn">from</span> <span class="nn">.Mesh</span> <span class="kn">import</span> <span class="n">meshers</span><span class="p">,</span> <span class="n">MeshOperation</span>
+
+
+<div class="viewcode-block" id="IcepakMesh"><a class="viewcode-back" href="../../../../API/MeshIcepak.html#pyaedt.core.modules.MeshIcepak.IcepakMesh">[docs]</a><span class="k">class</span> <span class="nc">IcepakMesh</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Manage Main Icepak Mesh Functions</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">parent</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_parent</span> <span class="o">=</span> <span class="n">parent</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">id</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_oeditor</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">modeler</span><span class="o">.</span><span class="n">oeditor</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_model_units</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">modeler</span><span class="o">.</span><span class="n">model_units</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">global_mesh_region</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">MeshRegion</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">omeshmodule</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">boundingdimension</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_model_units</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">meshoperations</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_design_mesh_operations</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">meshregions</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_design_mesh_regions</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_priorities_args</span> <span class="o">=</span> <span class="p">[]</span>
+
+<div class="viewcode-block" id="IcepakMesh.MeshRegion"><a class="viewcode-back" href="../../../../API/MeshIcepak.html#pyaedt.core.modules.MeshIcepak.IcepakMesh.MeshRegion">[docs]</a>    <span class="k">class</span> <span class="nc">MeshRegion</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Class that manage the Mesh Region Settings of Icepak</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">meshmodule</span><span class="p">,</span> <span class="n">dimension</span><span class="p">,</span> <span class="n">units</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="s2">&quot;Settings&quot;</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">meshmodule</span> <span class="o">=</span> <span class="n">meshmodule</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">model_units</span> <span class="o">=</span> <span class="n">units</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">UserSpecifiedSettings</span> <span class="o">=</span> <span class="kc">False</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">ComputeGap</span> <span class="o">=</span> <span class="kc">True</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">Level</span> <span class="o">=</span> <span class="mi">3</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">MaxElementSizeX</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="n">dimension</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span> <span class="o">/</span> <span class="mi">20</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">MaxElementSizeY</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="n">dimension</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span> <span class="o">/</span> <span class="mi">20</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">MaxElementSizeZ</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="n">dimension</span><span class="p">[</span><span class="mi">2</span><span class="p">])</span> <span class="o">/</span> <span class="mi">20</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">MinElementsInGap</span> <span class="o">=</span> <span class="s2">&quot;3&quot;</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">MinElementsOnEdge</span> <span class="o">=</span> <span class="s2">&quot;2&quot;</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">MaxSizeRatio</span> <span class="o">=</span> <span class="s2">&quot;2&quot;</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">NoOGrids</span> <span class="o">=</span> <span class="kc">False</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">EnableMLM</span> <span class="o">=</span> <span class="kc">True</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">EnforeMLMType</span> <span class="o">=</span> <span class="s2">&quot;3D&quot;</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">MaxLevels</span> <span class="o">=</span> <span class="s2">&quot;0&quot;</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">BufferLayers</span> <span class="o">=</span> <span class="s2">&quot;0&quot;</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">UniformMeshParametersType</span> <span class="o">=</span> <span class="s2">&quot;Average&quot;</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">StairStepMeshing</span> <span class="o">=</span> <span class="kc">False</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">DMLMType</span> <span class="o">=</span> <span class="s2">&quot;2DMLM_None&quot;</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">MinGapX</span> <span class="o">=</span> <span class="s2">&quot;1&quot;</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">MinGapY</span> <span class="o">=</span> <span class="s2">&quot;1&quot;</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">MinGapZ</span> <span class="o">=</span> <span class="s2">&quot;1&quot;</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">Objects</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;Region&quot;</span><span class="p">]</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">Enable</span> <span class="o">=</span> <span class="kc">True</span>
+
+        <span class="nd">@property</span>
+        <span class="k">def</span> <span class="nf">autosettings</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+            <span class="n">arg</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;MeshMethod:=&quot;</span><span class="p">,</span> <span class="s2">&quot;MesherHD&quot;</span><span class="p">,</span> <span class="s2">&quot;UserSpecifiedSettings:=&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">UserSpecifiedSettings</span><span class="p">,</span> <span class="s2">&quot;ComputeGap:=&quot;</span><span class="p">,</span>
+                   <span class="bp">self</span><span class="o">.</span><span class="n">ComputeGap</span><span class="p">,</span> <span class="s2">&quot;MeshRegionResolution:=&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">Level</span><span class="p">,</span> <span class="s2">&quot;MinGapX:=&quot;</span><span class="p">,</span>
+                   <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">MinGapX</span><span class="p">)</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">model_units</span><span class="p">,</span> <span class="s2">&quot;MinGapY:=&quot;</span><span class="p">,</span>
+                   <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">MinGapY</span><span class="p">)</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">model_units</span><span class="p">,</span> <span class="s2">&quot;MinGapZ:=&quot;</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">MinGapZ</span><span class="p">)</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">model_units</span><span class="p">,</span> <span class="s2">&quot;Objects:=&quot;</span><span class="p">,</span>
+                   <span class="bp">self</span><span class="o">.</span><span class="n">Objects</span><span class="p">]</span>
+            <span class="k">return</span> <span class="n">arg</span>
+
+        <span class="nd">@property</span>
+        <span class="k">def</span> <span class="nf">manualsettings</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+            <span class="n">arg</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;MeshMethod:=&quot;</span><span class="p">,</span> <span class="s2">&quot;MesherHD&quot;</span><span class="p">,</span> <span class="s2">&quot;UserSpecifiedSettings:=&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">UserSpecifiedSettings</span><span class="p">,</span> <span class="s2">&quot;ComputeGap:=&quot;</span><span class="p">,</span>
+                   <span class="bp">self</span><span class="o">.</span><span class="n">ComputeGap</span><span class="p">,</span> <span class="s2">&quot;MaxElementSizeX:=&quot;</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">MaxElementSizeX</span><span class="p">)</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">model_units</span><span class="p">,</span>
+                   <span class="s2">&quot;MaxElementSizeY:=&quot;</span><span class="p">,</span>
+                   <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">MaxElementSizeY</span><span class="p">)</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">model_units</span><span class="p">,</span> <span class="s2">&quot;MaxElementSizeZ:=&quot;</span><span class="p">,</span>
+                   <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">MaxElementSizeZ</span><span class="p">)</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">model_units</span><span class="p">,</span> <span class="s2">&quot;MinElementsInGap:=&quot;</span><span class="p">,</span>
+                   <span class="bp">self</span><span class="o">.</span><span class="n">MinElementsInGap</span><span class="p">,</span>
+                   <span class="s2">&quot;MinElementsOnEdge:=&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">MinElementsOnEdge</span><span class="p">,</span> <span class="s2">&quot;MaxSizeRatio:=&quot;</span><span class="p">,</span>
+                   <span class="bp">self</span><span class="o">.</span><span class="n">MaxSizeRatio</span><span class="p">,</span> <span class="s2">&quot;NoOGrids:=&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">NoOGrids</span><span class="p">,</span> <span class="s2">&quot;EnableMLM:=&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">EnableMLM</span><span class="p">,</span> <span class="s2">&quot;EnforeMLMType:=&quot;</span><span class="p">,</span>
+                   <span class="bp">self</span><span class="o">.</span><span class="n">EnforeMLMType</span><span class="p">,</span> <span class="s2">&quot;MaxLevels:=&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">MaxLevels</span><span class="p">,</span> <span class="s2">&quot;BufferLayers:=&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">BufferLayers</span><span class="p">,</span>
+                   <span class="s2">&quot;UniformMeshParametersType:=&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">UniformMeshParametersType</span><span class="p">,</span> <span class="s2">&quot;StairStepMeshing:=&quot;</span><span class="p">,</span>
+                   <span class="bp">self</span><span class="o">.</span><span class="n">StairStepMeshing</span><span class="p">,</span> <span class="s2">&quot;MinGapX:=&quot;</span><span class="p">,</span>
+                   <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">MinGapX</span><span class="p">)</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">model_units</span><span class="p">,</span> <span class="s2">&quot;MinGapY:=&quot;</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">MinGapY</span><span class="p">)</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">model_units</span><span class="p">,</span>
+                   <span class="s2">&quot;MinGapZ:=&quot;</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">MinGapZ</span><span class="p">)</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">model_units</span><span class="p">,</span> <span class="s2">&quot;Objects:=&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">Objects</span><span class="p">]</span>
+            <span class="k">return</span> <span class="n">arg</span>
+
+        <span class="nd">@property</span>
+        <span class="k">def</span> <span class="nf">odesign</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_parent</span><span class="o">.</span><span class="n">_odesign</span>
+
+<div class="viewcode-block" id="IcepakMesh.MeshRegion.update"><a class="viewcode-back" href="../../../../API/MeshIcepak.html#pyaedt.core.modules.MeshIcepak.IcepakMesh.MeshRegion.update">[docs]</a>        <span class="nd">@aedt_exception_handler</span>
+        <span class="k">def</span> <span class="nf">update</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+            <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">            Update the Mesh Region Settings with the ones in the object variable</span>
+
+<span class="sd">            :return: None</span>
+<span class="sd">            &quot;&quot;&quot;</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="o">==</span> <span class="s2">&quot;Settings&quot;</span><span class="p">:</span>
+                <span class="n">args</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;NAME:Settings&quot;</span><span class="p">]</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">args</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;NAME:&quot;</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="s2">&quot;Enable:=&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">Enable</span><span class="p">]</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">UserSpecifiedSettings</span><span class="p">:</span>
+                <span class="n">args</span> <span class="o">+=</span> <span class="bp">self</span><span class="o">.</span><span class="n">manualsettings</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">args</span> <span class="o">+=</span> <span class="bp">self</span><span class="o">.</span><span class="n">autosettings</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="o">==</span> <span class="s2">&quot;Settings&quot;</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">meshmodule</span><span class="o">.</span><span class="n">EditGlobalMeshRegion</span><span class="p">(</span><span class="n">args</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">meshmodule</span><span class="o">.</span><span class="n">EditMeshRegion</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="n">args</span><span class="p">)</span>
+            <span class="k">return</span> <span class="kc">True</span></div>
+
+<div class="viewcode-block" id="IcepakMesh.MeshRegion.create"><a class="viewcode-back" href="../../../../API/MeshIcepak.html#pyaedt.core.modules.MeshIcepak.IcepakMesh.MeshRegion.create">[docs]</a>        <span class="nd">@aedt_exception_handler</span>
+        <span class="k">def</span> <span class="nf">create</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+            <span class="sd">&quot;&quot;&quot;Create a new mesh region</span>
+
+
+<span class="sd">            :return: Bool</span>
+<span class="sd">            &quot;&quot;&quot;</span>
+            <span class="k">assert</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="o">!=</span> <span class="s2">&quot;Settings&quot;</span><span class="p">,</span> <span class="s2">&quot;Cannot create a new mesh region with this Name&quot;</span>
+            <span class="n">args</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;NAME:&quot;</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="s2">&quot;Enable:=&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">Enable</span><span class="p">]</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">UserSpecifiedSettings</span><span class="p">:</span>
+                <span class="n">args</span> <span class="o">+=</span> <span class="bp">self</span><span class="o">.</span><span class="n">manualsettings</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">args</span> <span class="o">+=</span> <span class="bp">self</span><span class="o">.</span><span class="n">autosettings</span>
+
+            <span class="bp">self</span><span class="o">.</span><span class="n">meshmodule</span><span class="o">.</span><span class="n">AssignMeshRegion</span><span class="p">(</span><span class="n">args</span><span class="p">)</span>
+            <span class="k">return</span> <span class="kc">True</span></div></div>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">omeshmodule</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">design_type</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">odesign</span><span class="o">.</span><span class="n">GetDesignType</span><span class="p">()</span>
+        <span class="k">assert</span> <span class="n">design_type</span> <span class="ow">in</span> <span class="n">meshers</span><span class="p">,</span> <span class="s2">&quot;Invalid design type </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">design_type</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">odesign</span><span class="o">.</span><span class="n">GetModule</span><span class="p">(</span><span class="n">meshers</span><span class="p">[</span><span class="n">design_type</span><span class="p">])</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">boundingdimension</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">modeler</span><span class="o">.</span><span class="n">get_bounding_dimension</span><span class="p">()</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">odesign</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_parent</span><span class="o">.</span><span class="n">_odesign</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">modeler</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_parent</span><span class="o">.</span><span class="n">_modeler</span>
+
+    <span class="nd">@aedt_exception_handler</span>
+    <span class="k">def</span> <span class="nf">_get_design_mesh_operations</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">meshops</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">ds</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_parent</span><span class="o">.</span><span class="n">design_properties</span><span class="p">[</span><span class="s1">&#39;MeshRegion&#39;</span><span class="p">][</span><span class="s1">&#39;MeshSetup&#39;</span><span class="p">][</span><span class="s1">&#39;MeshOperations&#39;</span><span class="p">]:</span>
+                <span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_parent</span><span class="o">.</span><span class="n">design_properties</span><span class="p">[</span><span class="s1">&#39;MeshRegion&#39;</span><span class="p">][</span><span class="s1">&#39;MeshSetup&#39;</span><span class="p">][</span><span class="s1">&#39;MeshOperations&#39;</span><span class="p">][</span><span class="n">ds</span><span class="p">])</span> <span class="ow">is</span> <span class="n">OrderedDict</span><span class="p">:</span>
+                    <span class="n">meshops</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">MeshOperation</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ds</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_parent</span><span class="o">.</span><span class="n">design_properties</span><span class="p">[</span><span class="s1">&#39;MeshRegion&#39;</span><span class="p">][</span><span class="s1">&#39;MeshSetup&#39;</span><span class="p">][</span>
+                        <span class="s1">&#39;MeshOperations&#39;</span><span class="p">][</span><span class="n">ds</span><span class="p">],</span> <span class="s2">&quot;Icepak&quot;</span><span class="p">))</span>
+        <span class="k">except</span><span class="p">:</span>
+            <span class="k">pass</span>
+        <span class="k">return</span> <span class="n">meshops</span>
+
+    <span class="nd">@aedt_exception_handler</span>
+    <span class="k">def</span> <span class="nf">_get_design_mesh_regions</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">meshops</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">ds</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_parent</span><span class="o">.</span><span class="n">design_properties</span><span class="p">[</span><span class="s1">&#39;MeshRegion&#39;</span><span class="p">][</span><span class="s1">&#39;MeshSetup&#39;</span><span class="p">][</span><span class="s1">&#39;MeshRegions&#39;</span><span class="p">]:</span>
+                <span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_parent</span><span class="o">.</span><span class="n">design_properties</span><span class="p">[</span><span class="s1">&#39;MeshRegion&#39;</span><span class="p">][</span><span class="s1">&#39;MeshSetup&#39;</span><span class="p">][</span><span class="s1">&#39;MeshRegions&#39;</span><span class="p">][</span><span class="n">ds</span><span class="p">])</span> <span class="ow">is</span> <span class="n">OrderedDict</span><span class="p">:</span>
+                    <span class="n">meshop</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">MeshRegion</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">omeshmodule</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">boundingdimension</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">modeler</span><span class="o">.</span><span class="n">model_units</span><span class="p">)</span>
+                    <span class="n">dict_prop</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_parent</span><span class="o">.</span><span class="n">design_properties</span><span class="p">[</span><span class="s1">&#39;MeshRegion&#39;</span><span class="p">][</span><span class="s1">&#39;MeshSetup&#39;</span><span class="p">][</span><span class="s1">&#39;MeshRegions&#39;</span><span class="p">][</span><span class="n">ds</span><span class="p">]</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="n">ds</span>
+                    <span class="k">for</span> <span class="n">el</span> <span class="ow">in</span> <span class="n">dict_prop</span><span class="p">:</span>
+                        <span class="k">if</span> <span class="n">el</span> <span class="ow">in</span> <span class="n">meshop</span><span class="o">.</span><span class="vm">__dict__</span><span class="p">:</span>
+                            <span class="n">meshop</span><span class="o">.</span><span class="vm">__dict__</span><span class="p">[</span><span class="n">el</span><span class="p">]</span> <span class="o">=</span> <span class="n">dict_prop</span><span class="p">[</span><span class="n">el</span><span class="p">]</span>
+                    <span class="n">meshops</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">meshop</span><span class="p">)</span>
+        <span class="k">except</span><span class="p">:</span>
+            <span class="k">pass</span>
+        <span class="k">return</span> <span class="n">meshops</span>
+
+<div class="viewcode-block" id="IcepakMesh.assign_mesh_level"><a class="viewcode-back" href="../../../../API/MeshIcepak.html#pyaedt.core.modules.MeshIcepak.IcepakMesh.assign_mesh_level">[docs]</a>    <span class="nd">@aedt_exception_handler</span>
+    <span class="k">def</span> <span class="nf">assign_mesh_level</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">mesh_order</span><span class="p">,</span> <span class="n">meshop_name</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Assign a specific mesh level to objects</span>
+
+
+<span class="sd">        :param mesh_order: Dictionary. Key is object name, value is Mesh Level</span>
+<span class="sd">        :return: Boolean</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="n">level_order</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="k">for</span> <span class="n">obj</span> <span class="ow">in</span> <span class="n">mesh_order</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">mesh_order</span><span class="p">[</span><span class="n">obj</span><span class="p">]</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">level_order</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+                <span class="n">level_order</span><span class="p">[</span><span class="n">mesh_order</span><span class="p">[</span><span class="n">obj</span><span class="p">]]</span> <span class="o">=</span> <span class="p">[]</span>
+            <span class="n">level_order</span><span class="p">[</span><span class="n">mesh_order</span><span class="p">[</span><span class="n">obj</span><span class="p">]]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">obj</span><span class="p">)</span>
+        <span class="n">list_meshops</span><span class="o">=</span><span class="p">[]</span>
+        <span class="k">for</span> <span class="n">level</span> <span class="ow">in</span> <span class="n">level_order</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">meshop_name</span><span class="p">:</span>
+                <span class="n">meshop_name</span> <span class="o">=</span> <span class="n">generate_unique_name</span><span class="p">(</span><span class="n">meshop_name</span><span class="p">,</span> <span class="s2">&quot;L_&quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">level</span><span class="p">))</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">meshop_name</span> <span class="o">=</span> <span class="n">generate_unique_name</span><span class="p">(</span><span class="s2">&quot;Icepak&quot;</span><span class="p">,</span> <span class="s2">&quot;L_&quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">level</span><span class="p">))</span>
+            <span class="n">props</span> <span class="o">=</span> <span class="n">OrderedDict</span><span class="p">({</span><span class="s2">&quot;Enable&quot;</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span> <span class="s2">&quot;Level&quot;</span><span class="p">:</span> <span class="nb">str</span><span class="p">(</span><span class="n">level</span><span class="p">),</span> <span class="s2">&quot;Objects&quot;</span><span class="p">:</span> <span class="n">level_order</span><span class="p">[</span><span class="n">level</span><span class="p">]})</span>
+            <span class="n">mop</span> <span class="o">=</span> <span class="n">MeshOperation</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">meshop_name</span><span class="p">,</span> <span class="n">props</span><span class="p">,</span> <span class="s2">&quot;Icepak&quot;</span><span class="p">)</span>
+            <span class="n">mop</span><span class="o">.</span><span class="n">create</span><span class="p">()</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">meshoperations</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">mop</span><span class="p">)</span>
+            <span class="n">list_meshops</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">meshop_name</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">list_meshops</span></div>
+
+<div class="viewcode-block" id="IcepakMesh.automatic_mesh_pcb"><a class="viewcode-back" href="../../../../API/MeshIcepak.html#pyaedt.core.modules.MeshIcepak.IcepakMesh.automatic_mesh_pcb">[docs]</a>    <span class="nd">@aedt_exception_handler</span>
+    <span class="k">def</span> <span class="nf">automatic_mesh_pcb</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">accuracy</span><span class="o">=</span><span class="mi">2</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        create custom Mesh tailored on PCB Design</span>
+
+
+<span class="sd">        :param accuracy: 1 coarse, 2 standard, 3 very accurate</span>
+<span class="sd">        :return: Boolean</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">xsize</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">boundingdimension</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">/</span> <span class="p">(</span><span class="mi">15</span> <span class="o">*</span> <span class="n">accuracy</span> <span class="o">*</span> <span class="n">accuracy</span><span class="p">)</span>
+        <span class="n">ysize</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">boundingdimension</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">/</span> <span class="p">(</span><span class="mi">15</span> <span class="o">*</span> <span class="n">accuracy</span> <span class="o">*</span> <span class="n">accuracy</span><span class="p">)</span>
+        <span class="n">zsize</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">boundingdimension</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="o">/</span> <span class="p">(</span><span class="mi">10</span> <span class="o">*</span> <span class="n">accuracy</span><span class="p">)</span>
+        <span class="n">MaxSizeRatio</span> <span class="o">=</span> <span class="p">(</span><span class="mi">1</span> <span class="o">+</span> <span class="p">(</span><span class="n">accuracy</span> <span class="o">/</span> <span class="mi">2</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">global_mesh_region</span><span class="o">.</span><span class="n">MaxElementSizeX</span> <span class="o">=</span> <span class="n">xsize</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">global_mesh_region</span><span class="o">.</span><span class="n">MaxElementSizeY</span> <span class="o">=</span> <span class="n">ysize</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">global_mesh_region</span><span class="o">.</span><span class="n">MaxElementSizeZ</span> <span class="o">=</span> <span class="n">zsize</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">global_mesh_region</span><span class="o">.</span><span class="n">MaxSizeRatio</span> <span class="o">=</span> <span class="n">MaxSizeRatio</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">global_mesh_region</span><span class="o">.</span><span class="n">UserSpecifiedSettings</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">global_mesh_region</span><span class="o">.</span><span class="n">UniformMeshParametersType</span> <span class="o">=</span> <span class="s2">&quot;XYZ Max Sizes&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">global_mesh_region</span><span class="o">.</span><span class="n">MaxLevels</span> <span class="o">=</span> <span class="mi">2</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">global_mesh_region</span><span class="o">.</span><span class="n">BufferLayers</span> <span class="o">=</span> <span class="mi">1</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">global_mesh_region</span><span class="o">.</span><span class="n">MinGapX</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">xsize</span> <span class="o">/</span> <span class="mi">10</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">global_mesh_region</span><span class="o">.</span><span class="n">MinGapY</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">ysize</span> <span class="o">/</span> <span class="mi">10</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">global_mesh_region</span><span class="o">.</span><span class="n">MinGapZ</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">zsize</span> <span class="o">/</span> <span class="mi">10</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">global_mesh_region</span><span class="o">.</span><span class="n">update</span><span class="p">()</span>
+        <span class="k">return</span> <span class="kc">True</span></div>
+
+<div class="viewcode-block" id="IcepakMesh.automatic_mesh_3D"><a class="viewcode-back" href="../../../../API/MeshIcepak.html#pyaedt.core.modules.MeshIcepak.IcepakMesh.automatic_mesh_3D">[docs]</a>    <span class="nd">@aedt_exception_handler</span>
+    <span class="k">def</span> <span class="nf">automatic_mesh_3D</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">accuracy2</span><span class="p">,</span> <span class="n">stairStep</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        create custom Mesh generic for custom 3D object</span>
+
+
+<span class="sd">        :param accuracy2: 1 standard, 2 accurate, 3 very accurate</span>
+<span class="sd">        :param stairStep: bool to enable stair step</span>
+<span class="sd">        :return: Boolean</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">xsize</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">boundingdimension</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">/</span> <span class="p">(</span><span class="mi">10</span> <span class="o">*</span> <span class="n">accuracy2</span> <span class="o">*</span> <span class="n">accuracy2</span><span class="p">)</span>
+        <span class="n">ysize</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">boundingdimension</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">/</span> <span class="p">(</span><span class="mi">10</span> <span class="o">*</span> <span class="n">accuracy2</span> <span class="o">*</span> <span class="n">accuracy2</span><span class="p">)</span>
+        <span class="n">zsize</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">boundingdimension</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="o">/</span> <span class="p">(</span><span class="mi">10</span> <span class="o">*</span> <span class="n">accuracy2</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">global_mesh_region</span><span class="o">.</span><span class="n">MaxElementSizeX</span> <span class="o">=</span> <span class="n">xsize</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">global_mesh_region</span><span class="o">.</span><span class="n">MaxElementSizeY</span> <span class="o">=</span> <span class="n">ysize</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">global_mesh_region</span><span class="o">.</span><span class="n">MaxElementSizeZ</span> <span class="o">=</span> <span class="n">zsize</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">global_mesh_region</span><span class="o">.</span><span class="n">UserSpecifiedSettings</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">global_mesh_region</span><span class="o">.</span><span class="n">MinGapX</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">xsize</span> <span class="o">/</span> <span class="mi">100</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">global_mesh_region</span><span class="o">.</span><span class="n">MinGapY</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">ysize</span> <span class="o">/</span> <span class="mi">100</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">global_mesh_region</span><span class="o">.</span><span class="n">MinGapZ</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">zsize</span> <span class="o">/</span> <span class="mi">100</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">global_mesh_region</span><span class="o">.</span><span class="n">StairStepMeshing</span> <span class="o">=</span> <span class="n">stairStep</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">global_mesh_region</span><span class="o">.</span><span class="n">update</span><span class="p">()</span>
+        <span class="k">return</span> <span class="kc">True</span></div>
+
+<div class="viewcode-block" id="IcepakMesh.add_priority"><a class="viewcode-back" href="../../../../API/MeshIcepak.html#pyaedt.core.modules.MeshIcepak.IcepakMesh.add_priority">[docs]</a>    <span class="nd">@aedt_exception_handler</span>
+    <span class="k">def</span> <span class="nf">add_priority</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">entity_type</span><span class="p">,</span> <span class="n">obj_list</span><span class="p">,</span> <span class="n">comp_name</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">priority</span><span class="o">=</span><span class="mi">3</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Add Priority to objects:</span>
+
+<span class="sd">        :param entity_type: 1 : Object  2 : Component</span>
+<span class="sd">        :param obj_list: list of object (it could be a list of conductors and dielctrics)</span>
+<span class="sd">        :param comp_name: name of component</span>
+<span class="sd">        :param priority: Prioririty level. Default value 3</span>
+<span class="sd">        :return: Boolean</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">i</span> <span class="o">=</span> <span class="n">priority</span>
+        <span class="n">objects</span> <span class="o">=</span> <span class="s2">&quot;, &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">obj_list</span><span class="p">)</span>
+        <span class="n">args</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;NAME:UpdatePriorityListData&quot;</span><span class="p">]</span>
+        <span class="k">if</span> <span class="n">entity_type</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="n">prio</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;NAME:PriorityListParameters&quot;</span><span class="p">,</span>
+                         <span class="s2">&quot;EntityType:=&quot;</span><span class="p">,</span> <span class="s2">&quot;Object&quot;</span><span class="p">,</span>
+                         <span class="s2">&quot;EntityList:=&quot;</span><span class="p">,</span> <span class="n">objects</span><span class="p">,</span>
+                         <span class="s2">&quot;PriorityNumber:=&quot;</span><span class="p">,</span> <span class="n">i</span><span class="p">,</span>
+                         <span class="s2">&quot;PriorityListType:=&quot;</span><span class="p">,</span> <span class="s2">&quot;3D&quot;</span><span class="p">]</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_priorities_args</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">prio</span><span class="p">)</span>
+            <span class="n">args</span> <span class="o">+=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_priorities_args</span>
+        <span class="k">elif</span> <span class="n">entity_type</span> <span class="o">==</span> <span class="mi">2</span><span class="p">:</span>
+            <span class="n">pcblist</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">modeler</span><span class="o">.</span><span class="n">oeditor</span><span class="o">.</span><span class="n">Get3DComponentInstanceNames</span><span class="p">(</span><span class="n">comp_name</span><span class="p">)</span>
+            <span class="n">prio</span> <span class="o">=</span> <span class="p">[</span>
+                <span class="s2">&quot;NAME:PriorityListParameters&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;EntityType:=&quot;</span><span class="p">,</span> <span class="s2">&quot;Component&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;EntityList:=&quot;</span><span class="p">,</span> <span class="n">pcblist</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span>
+                <span class="s2">&quot;PriorityNumber:=&quot;</span><span class="p">,</span> <span class="n">i</span><span class="p">,</span>
+                <span class="s2">&quot;PriorityListType:=&quot;</span><span class="p">,</span> <span class="s2">&quot;3D&quot;</span>
+            <span class="p">]</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_priorities_args</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">prio</span><span class="p">)</span>
+            <span class="n">args</span> <span class="o">+=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_priorities_args</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">modeler</span><span class="o">.</span><span class="n">oeditor</span><span class="o">.</span><span class="n">UpdatePriorityList</span><span class="p">([</span><span class="s2">&quot;NAME:UpdatePriorityListData&quot;</span><span class="p">])</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">modeler</span><span class="o">.</span><span class="n">oeditor</span><span class="o">.</span><span class="n">UpdatePriorityList</span><span class="p">(</span><span class="n">args</span><span class="p">)</span>
+        <span class="k">return</span> <span class="kc">True</span></div>
+
+<div class="viewcode-block" id="IcepakMesh.assign_mesh_region"><a class="viewcode-back" href="../../../../API/MeshIcepak.html#pyaedt.core.modules.MeshIcepak.IcepakMesh.assign_mesh_region">[docs]</a>    <span class="nd">@aedt_exception_handler</span>
+    <span class="k">def</span> <span class="nf">assign_mesh_region</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">objectlist</span><span class="o">=</span><span class="p">[],</span> <span class="n">level</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s2">&quot;MeshRegion1&quot;</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Assign a predefined surface mesh level to an object</span>
+
+
+<span class="sd">        :param level: level of surface mesh (integer 1 - 5)</span>
+<span class="sd">        :param objectlist: list of object where apply the mesh region</span>
+<span class="sd">        :param name: mesh region name</span>
+<span class="sd">        :return: meshregion object</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">meshregion</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">MeshRegion</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">omeshmodule</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">boundingdimension</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">modeler</span><span class="o">.</span><span class="n">model_units</span><span class="p">)</span>
+        <span class="n">meshregion</span><span class="o">.</span><span class="n">UserSpecifiedSettings</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="n">meshregion</span><span class="o">.</span><span class="n">Level</span> <span class="o">=</span> <span class="n">level</span>
+        <span class="n">meshregion</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="n">name</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">objectlist</span><span class="p">:</span>
+            <span class="n">objectlist</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">modeler</span><span class="o">.</span><span class="n">primitives</span><span class="o">.</span><span class="n">get_all_objects_names</span><span class="p">()</span>
+        <span class="n">meshregion</span><span class="o">.</span><span class="n">create</span><span class="p">()</span>
+        <span class="n">objectlist2</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">modeler</span><span class="o">.</span><span class="n">primitives</span><span class="o">.</span><span class="n">get_all_objects_names</span><span class="p">()</span>
+        <span class="n">added_obj</span> <span class="o">=</span> <span class="p">[</span><span class="n">i</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">objectlist2</span> <span class="k">if</span> <span class="n">i</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">objectlist</span><span class="p">]</span>
+        <span class="n">meshregion</span><span class="o">.</span><span class="n">Objects</span> <span class="o">=</span> <span class="n">added_obj</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">meshregions</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">meshregion</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">meshregion</span></div>
+
+<div class="viewcode-block" id="IcepakMesh.generate_mesh"><a class="viewcode-back" href="../../../../API/MeshIcepak.html#pyaedt.core.modules.MeshIcepak.IcepakMesh.generate_mesh">[docs]</a>    <span class="nd">@aedt_exception_handler</span>
+    <span class="k">def</span> <span class="nf">generate_mesh</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Generate Mesh for Setup name. Return 0 if mesh failed or 1 if passed</span>
+
+
+<span class="sd">        :param name:  name of design to be meshed</span>
+<span class="sd">        :return: Boolean</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">odesign</span><span class="o">.</span><span class="n">GenerateMesh</span><span class="p">(</span><span class="n">name</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="IcepakMesh.assign_mesh_level_to_group"><a class="viewcode-back" href="../../../../API/MeshIcepak.html#pyaedt.core.modules.MeshIcepak.IcepakMesh.assign_mesh_level_to_group">[docs]</a>    <span class="nd">@aedt_exception_handler</span>
+    <span class="k">def</span> <span class="nf">assign_mesh_level_to_group</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">mesh_level</span><span class="p">,</span> <span class="n">groupName</span><span class="p">,</span> <span class="n">localMeshParamEn</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+                                   <span class="n">localMeshParameters</span><span class="o">=</span><span class="s2">&quot;No Local Mesh Parameters&quot;</span><span class="p">,</span> <span class="n">meshop_name</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Assign Mesh Level to group</span>
+
+
+<span class="sd">        :param mesh_level: level of mesh to apply (int)</span>
+<span class="sd">        :param groupName: name of the group</span>
+<span class="sd">        :param localMeshParamEn: Bool</span>
+<span class="sd">        :param localMeshParameters:</span>
+<span class="sd">        :return: meshoperation object</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">meshop_name</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">el</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">meshoperations</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">el</span><span class="o">.</span><span class="n">name</span> <span class="o">==</span> <span class="n">meshop_name</span><span class="p">:</span>
+                    <span class="n">meshop_name</span> <span class="o">=</span> <span class="n">generate_unique_name</span><span class="p">(</span><span class="n">meshop_name</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">meshop_name</span> <span class="o">=</span> <span class="n">generate_unique_name</span><span class="p">(</span><span class="s2">&quot;MeshLevel&quot;</span><span class="p">)</span>
+        <span class="n">props</span> <span class="o">=</span> <span class="n">OrderedDict</span><span class="p">({</span><span class="s2">&quot;Enable&quot;</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span> <span class="s2">&quot;Level&quot;</span><span class="p">:</span> <span class="n">mesh_level</span><span class="p">,</span> <span class="s2">&quot;Local Mesh Parameters Enabled&quot;</span><span class="p">:</span> <span class="n">localMeshParamEn</span><span class="p">,</span>
+                             <span class="s2">&quot;Groups&quot;</span><span class="p">:</span> <span class="p">[</span><span class="nb">str</span><span class="p">(</span><span class="n">groupName</span><span class="p">)],</span> <span class="s2">&quot;Local Mesh Parameters Type&quot;</span><span class="p">:</span> <span class="n">localMeshParameters</span><span class="p">})</span>
+        <span class="n">mop</span> <span class="o">=</span> <span class="n">MeshOperation</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">meshop_name</span><span class="p">,</span> <span class="n">props</span><span class="p">,</span> <span class="s2">&quot;Icepak&quot;</span><span class="p">)</span>
+        <span class="n">mop</span><span class="o">.</span><span class="n">create</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">meshoperations</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">mop</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">mop</span></div></div>
+</pre></div>
+
+              </div>
+              
+              
+              <div class='prev-next-bottom'>
+                
+
+              </div>
+              
+          </main>
+          
+
+      </div>
+    </div>
+
+    
+  <script src="../../../../_static/js/index.d3f166471bb80abb5163.js"></script>
+
+
+    <footer class="footer mt-5 mt-md-0">
+  <div class="container">
+    <p>
+          &copy; Copyright Copyright(c) 1986-2021, ANSYSInc. unauthorised use, distribution or duplication is prohibited. This tool release is unofficial and not covered by standard Ansys Support license..<br/>
+        Created using <a href="http://sphinx-doc.org/">Sphinx</a> 3.5.2.<br/>
+    </p>
+  </div>
+</footer>
+  </body>
+</html>

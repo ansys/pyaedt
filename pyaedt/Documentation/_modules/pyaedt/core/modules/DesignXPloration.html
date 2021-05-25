@@ -1,0 +1,1012 @@
+
+<!DOCTYPE html>
+
+<html lang="Python">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>pyaedt.core.modules.DesignXPloration &#8212; pyaedt 0.5.0 documentation</title>
+    
+  <link rel="stylesheet" href="../../../../_static/css/index.f658d18f9b420779cfdf24aa0a7e2d77.css">
+
+    
+  <link rel="stylesheet"
+    href="../../../../_static/vendor/fontawesome/5.13.0/css/all.min.css">
+  <link rel="preload" as="font" type="font/woff2" crossorigin
+    href="../../../../_static/vendor/fontawesome/5.13.0/webfonts/fa-solid-900.woff2">
+  <link rel="preload" as="font" type="font/woff2" crossorigin
+    href="../../../../_static/vendor/fontawesome/5.13.0/webfonts/fa-brands-400.woff2">
+
+    
+      
+  <link rel="stylesheet"
+    href="../../../../_static/vendor/open-sans_all/1.44.1/index.css">
+  <link rel="stylesheet"
+    href="../../../../_static/vendor/lato_latin-ext/1.44.1/index.css">
+
+    
+    <link rel="stylesheet" href="../../../../_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" href="../../../../_static/basic.css" type="text/css" />
+    <link rel="stylesheet" type="text/css" href="../../../../_static/copybutton.css" />
+    <link rel="stylesheet" type="text/css" href="../../../../_static/graphviz.css" />
+    <link rel="stylesheet" type="text/css" href="../../../../_static/css/ansys.css" />
+    
+  <link rel="preload" as="script" href="../../../../_static/js/index.d3f166471bb80abb5163.js">
+
+    <script id="documentation_options" data-url_root="../../../../" src="../../../../_static/documentation_options.js"></script>
+    <script src="../../../../_static/jquery.js"></script>
+    <script src="../../../../_static/underscore.js"></script>
+    <script src="../../../../_static/doctools.js"></script>
+    <script src="../../../../_static/clipboard.min.js"></script>
+    <script src="../../../../_static/copybutton.js"></script>
+    <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <link rel="index" title="Index" href="../../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../../search.html" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="docsearch:language" content="en" />
+  </head>
+  <body data-spy="scroll" data-target="#bd-toc-nav" data-offset="80">
+    
+    <nav class="navbar navbar-light navbar-expand-lg bg-light fixed-top bd-navbar" id="navbar-main">
+<div class="container-xl">
+
+    <a class="navbar-brand" href="../../../../index.html">
+    
+      <img src="../../../../_static/logo-ansys.png" class="logo" alt="logo" />
+    
+    </a>
+    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbar-menu" aria-controls="navbar-menu" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+    </button>
+
+    <div id="navbar-menu" class="col-lg-9 collapse navbar-collapse">
+      <ul id="navbar-main-elements" class="navbar-nav mr-auto">
+        
+        
+        <li class="nav-item ">
+            <a class="nav-link" href="../../../../LICENSE.html">License Agreeement</a>
+        </li>
+        
+        <li class="nav-item ">
+            <a class="nav-link" href="../../../../Resources/Installation.html">Installation</a>
+        </li>
+        
+        <li class="nav-item ">
+            <a class="nav-link" href="../../../../API/API.html">API documentation</a>
+        </li>
+        
+        <li class="nav-item ">
+            <a class="nav-link" href="../../../../API/Examples.html">Examples</a>
+        </li>
+        
+        <li class="nav-item ">
+            <a class="nav-link" href="../../../../Resources/Code_Guidelines.html">Code Guidelines</a>
+        </li>
+        
+        <li class="nav-item ">
+            <a class="nav-link" href=""></a>
+        </li>
+        
+        
+      </ul>
+
+
+      
+
+      <ul class="navbar-nav">
+        
+        
+      </ul>
+    </div>
+</div>
+    </nav>
+    
+
+    <div class="container-xl">
+      <div class="row">
+          
+          <div class="col-12 col-md-3 bd-sidebar"><form class="bd-search d-flex align-items-center" action="../../../../search.html" method="get">
+  <i class="icon fas fa-search"></i>
+  <input type="search" class="form-control" name="q" id="search-input" placeholder="Search the docs ..." aria-label="Search the docs ..." autocomplete="off" >
+</form>
+<nav class="bd-links" id="bd-docs-nav" aria-label="Main navigation">
+
+    <div class="bd-toc-item active">
+    
+  
+    <ul class="nav bd-sidenav">
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+      </ul>
+  
+  </nav>
+          </div>
+          
+
+          
+          <div class="d-none d-xl-block col-xl-2 bd-toc">
+              
+
+<nav id="bd-toc-nav">
+    <ul class="nav section-nav flex-column">
+    
+    </ul>
+</nav>
+
+
+              
+          </div>
+          
+
+          
+          <main class="col-12 col-md-9 col-xl-7 py-md-5 pl-md-5 pr-md-4 bd-content" role="main">
+              
+              <div>
+                
+  <h1>Source code for pyaedt.core.modules.DesignXPloration</h1><div class="highlight"><pre>
+<span></span><span class="kn">from</span> <span class="nn">collections</span> <span class="kn">import</span> <span class="n">OrderedDict</span>
+<span class="kn">from</span> <span class="nn">..generic.general_methods</span> <span class="kn">import</span> <span class="n">aedt_exception_handler</span><span class="p">,</span> <span class="n">generate_unique_name</span>
+<span class="kn">from</span> <span class="nn">..application.DataHandlers</span> <span class="kn">import</span> <span class="n">dict2arg</span><span class="p">,</span> <span class="n">arg2dict</span>
+<span class="kn">import</span> <span class="nn">copy</span>
+
+<span class="n">defaultparametricSetup</span> <span class="o">=</span> <span class="n">OrderedDict</span><span class="p">({</span><span class="s2">&quot;IsEnabled&quot;</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span> <span class="s2">&quot;ProdOptiSetupDataV2&quot;</span><span class="p">:</span>
+            <span class="n">OrderedDict</span><span class="p">({</span><span class="s2">&quot;SaveFields&quot;</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span> <span class="s2">&quot;CopyMesh&quot;</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span> <span class="s2">&quot;SolveWithCopiedMeshOnly&quot;</span><span class="p">:</span> <span class="kc">True</span><span class="p">}),</span>
+                                                <span class="s2">&quot;StartingPoint&quot;</span><span class="p">:</span> <span class="n">OrderedDict</span><span class="p">(),</span> <span class="s2">&quot;Sim. Setups&quot;</span><span class="p">:</span> <span class="p">[],</span>
+                                                <span class="s2">&quot;Sweeps&quot;</span><span class="p">:</span> <span class="n">OrderedDict</span><span class="p">({</span><span class="s2">&quot;SweepDefinition&quot;</span><span class="p">:</span>
+                                                                           <span class="n">OrderedDict</span><span class="p">({</span><span class="s2">&quot;Variable&quot;</span><span class="p">:</span> <span class="s2">&quot;&quot;</span><span class="p">,</span>
+                                                                                        <span class="s2">&quot;Data&quot;</span><span class="p">:</span> <span class="s2">&quot;&quot;</span><span class="p">,</span>
+                                                                                        <span class="s2">&quot;OffsetF1&quot;</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span>
+                                                                                        <span class="s2">&quot;Synchronize&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">})}),</span>
+                                                <span class="s2">&quot;Sweep Operations&quot;</span><span class="p">:</span> <span class="n">OrderedDict</span><span class="p">(),</span>
+                                                <span class="s2">&quot;Goals&quot;</span><span class="p">:</span> <span class="n">OrderedDict</span><span class="p">()})</span>
+
+
+<span class="n">defaultdxSetup</span> <span class="o">=</span> <span class="n">OrderedDict</span><span class="p">({</span><span class="s2">&quot;IsEnabled&quot;</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span> <span class="s2">&quot;ProdOptiSetupDataV2&quot;</span><span class="p">:</span>
+            <span class="n">OrderedDict</span><span class="p">({</span><span class="s2">&quot;SaveFields&quot;</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span> <span class="s2">&quot;CopyMesh&quot;</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span> <span class="s2">&quot;SolveWithCopiedMeshOnly&quot;</span><span class="p">:</span> <span class="kc">True</span><span class="p">}),</span>
+                                                <span class="s2">&quot;StartingPoint&quot;</span><span class="p">:</span> <span class="n">OrderedDict</span><span class="p">(),</span> <span class="s2">&quot;Sim. Setups&quot;</span><span class="p">:</span> <span class="p">[],</span>
+                                                <span class="s2">&quot;Sweeps&quot;</span><span class="p">:</span> <span class="n">OrderedDict</span><span class="p">({</span><span class="s2">&quot;SweepDefinition&quot;</span><span class="p">:</span>
+                                                                           <span class="n">OrderedDict</span><span class="p">({</span><span class="s2">&quot;Variable&quot;</span><span class="p">:</span> <span class="s2">&quot;&quot;</span><span class="p">,</span>
+                                                                                        <span class="s2">&quot;Data&quot;</span><span class="p">:</span> <span class="s2">&quot;&quot;</span><span class="p">,</span>
+                                                                                        <span class="s2">&quot;OffsetF1&quot;</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span>
+                                                                                        <span class="s2">&quot;Synchronize&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">})}),</span>
+                              <span class="s2">&quot;Sweep Operations&quot;</span><span class="p">:</span> <span class="n">OrderedDict</span><span class="p">(),</span> <span class="s2">&quot;CostFunctionName&quot;</span><span class="p">:</span> <span class="s2">&quot;Cost&quot;</span><span class="p">,</span> <span class="s2">&quot;CostFuncNormType&quot;</span><span class="p">:</span> <span class="s2">&quot;L2&quot;</span><span class="p">,</span>
+                               <span class="s2">&quot;CostFunctionGoals&quot;</span><span class="p">:</span> <span class="n">OrderedDict</span><span class="p">(),</span><span class="s2">&quot;EmbeddedParamSetup&quot;</span><span class="p">:</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="s2">&quot;Goals&quot;</span><span class="p">:</span> <span class="n">OrderedDict</span><span class="p">()})</span>
+
+<span class="n">defaultoptiSetup</span> <span class="o">=</span> <span class="n">OrderedDict</span><span class="p">({</span><span class="s2">&quot;IsEnabled&quot;</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span> <span class="s2">&quot;ProdOptiSetupDataV2&quot;</span><span class="p">:</span>
+    <span class="n">OrderedDict</span><span class="p">({</span><span class="s2">&quot;SaveFields&quot;</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span> <span class="s2">&quot;CopyMesh&quot;</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span> <span class="s2">&quot;SolveWithCopiedMeshOnly&quot;</span><span class="p">:</span> <span class="kc">True</span><span class="p">}),</span>
+                                <span class="s2">&quot;StartingPoint&quot;</span><span class="p">:</span> <span class="n">OrderedDict</span><span class="p">(),</span> <span class="s2">&quot;Optimizer&quot;</span><span class="p">:</span> <span class="s2">&quot;Quasi Newton&quot;</span><span class="p">,</span>
+                                <span class="s2">&quot;AnalysisStopOptions&quot;</span><span class="p">:</span> <span class="n">OrderedDict</span><span class="p">({</span><span class="s2">&quot;StopForNumIteration&quot;</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span>
+                                                                    <span class="s2">&quot;StopForElapsTime&quot;</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span>
+                                                                    <span class="s2">&quot;StopForSlowImprovement&quot;</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span>
+                                                                    <span class="s2">&quot;StopForGrdTolerance&quot;</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span>
+                                                                    <span class="s2">&quot;MaxNumIteration&quot;</span><span class="p">:</span> <span class="mi">1000</span><span class="p">,</span>
+                                                                    <span class="s2">&quot;MaxSolTimeInSec&quot;</span><span class="p">:</span> <span class="mi">3600</span><span class="p">,</span>
+                                                                    <span class="s2">&quot;RelGradientTolerance&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
+                                                                    <span class="s2">&quot;MinNumIteration&quot;</span><span class="p">:</span> <span class="mi">10</span>
+                                                                    <span class="p">}),</span>
+                                <span class="s2">&quot;CostFuncNormType&quot;</span><span class="p">:</span> <span class="s2">&quot;L2&quot;</span><span class="p">,</span> <span class="s2">&quot;PriorPSetup&quot;</span><span class="p">:</span> <span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="s2">&quot;PreSolvePSetup&quot;</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span>
+                                <span class="s2">&quot;Variables&quot;</span><span class="p">:</span> <span class="n">OrderedDict</span><span class="p">(),</span> <span class="s2">&quot;LCS&quot;</span><span class="p">:</span> <span class="n">OrderedDict</span><span class="p">(),</span> <span class="s2">&quot;Goals&quot;</span><span class="p">:</span> <span class="n">OrderedDict</span><span class="p">(),</span>
+                                <span class="s2">&quot;Acceptable_Cost&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span> <span class="s2">&quot;Noise&quot;</span><span class="p">:</span> <span class="mf">0.0001</span><span class="p">,</span> <span class="s2">&quot;UpdateDesign&quot;</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span> <span class="s2">&quot;UpdateIteration&quot;</span><span class="p">:</span> <span class="mi">5</span><span class="p">,</span>
+                                <span class="s2">&quot;KeepReportAxis&quot;</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span> <span class="s2">&quot;UpdateDesignWhenDone&quot;</span><span class="p">:</span> <span class="kc">True</span><span class="p">})</span>
+
+<span class="n">defaultsensitivitySetup</span> <span class="o">=</span> <span class="n">OrderedDict</span><span class="p">({</span><span class="s2">&quot;IsEnabled&quot;</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span> <span class="s2">&quot;ProdOptiSetupDataV2&quot;</span><span class="p">:</span>
+    <span class="n">OrderedDict</span><span class="p">({</span><span class="s2">&quot;SaveFields&quot;</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span> <span class="s2">&quot;CopyMesh&quot;</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span> <span class="s2">&quot;SolveWithCopiedMeshOnly&quot;</span><span class="p">:</span> <span class="kc">True</span><span class="p">}),</span>
+                                       <span class="s2">&quot;StartingPoint&quot;</span><span class="p">:</span> <span class="n">OrderedDict</span><span class="p">(),</span> <span class="s2">&quot;MaxIterations&quot;</span><span class="p">:</span> <span class="mi">10</span><span class="p">,</span>
+                                       <span class="s2">&quot;PriorPSetup&quot;</span><span class="p">:</span> <span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="s2">&quot;PreSolvePSetup&quot;</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span> <span class="s2">&quot;Variables&quot;</span><span class="p">:</span> <span class="n">OrderedDict</span><span class="p">(),</span>
+                                       <span class="s2">&quot;LCS&quot;</span><span class="p">:</span> <span class="n">OrderedDict</span><span class="p">(),</span> <span class="s2">&quot;Goals&quot;</span><span class="p">:</span> <span class="n">OrderedDict</span><span class="p">(),</span> <span class="s2">&quot;Primary Goal&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
+                                       <span class="s2">&quot;PrimaryError&quot;</span><span class="p">:</span> <span class="mf">0.0001</span><span class="p">,</span> <span class="s2">&quot;Perform Worst Case Analysis&quot;</span><span class="p">:</span> <span class="kc">False</span><span class="p">})</span>
+
+<span class="n">defaultstatisticalSetup</span> <span class="o">=</span> <span class="n">OrderedDict</span><span class="p">({</span><span class="s2">&quot;IsEnabled&quot;</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span> <span class="s2">&quot;ProdOptiSetupDataV2&quot;</span><span class="p">:</span>
+    <span class="n">OrderedDict</span><span class="p">({</span><span class="s2">&quot;SaveFields&quot;</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span> <span class="s2">&quot;CopyMesh&quot;</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span> <span class="s2">&quot;SolveWithCopiedMeshOnly&quot;</span><span class="p">:</span> <span class="kc">True</span><span class="p">}),</span>
+                                       <span class="s2">&quot;StartingPoint&quot;</span><span class="p">:</span> <span class="n">OrderedDict</span><span class="p">(),</span> <span class="s2">&quot;MaxIterations&quot;</span><span class="p">:</span> <span class="mi">50</span><span class="p">,</span>
+                                       <span class="s2">&quot;SeedValue&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span> <span class="s2">&quot;PriorPSetup&quot;</span><span class="p">:</span> <span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="s2">&quot;Variables&quot;</span><span class="p">:</span> <span class="n">OrderedDict</span><span class="p">(),</span>
+                                       <span class="s2">&quot;Goals&quot;</span><span class="p">:</span> <span class="n">OrderedDict</span><span class="p">()})</span>
+
+<span class="n">defaultdoeSetup</span> <span class="o">=</span> <span class="n">OrderedDict</span><span class="p">({</span><span class="s2">&quot;IsEnabled&quot;</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span> <span class="s2">&quot;ProdOptiSetupDataV2&quot;</span><span class="p">:</span>
+            <span class="n">OrderedDict</span><span class="p">({</span><span class="s2">&quot;SaveFields&quot;</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span> <span class="s2">&quot;CopyMesh&quot;</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span> <span class="s2">&quot;SolveWithCopiedMeshOnly&quot;</span><span class="p">:</span> <span class="kc">True</span><span class="p">}),</span>
+                                                <span class="s2">&quot;StartingPoint&quot;</span><span class="p">:</span> <span class="n">OrderedDict</span><span class="p">(),</span> <span class="s2">&quot;Sim. Setups&quot;</span><span class="p">:</span> <span class="p">[],</span>
+                                                <span class="s2">&quot;CostFunctionName&quot;</span><span class="p">:</span> <span class="s2">&quot;Cost&quot;</span><span class="p">,</span>
+                               <span class="s2">&quot;CostFuncNormType&quot;</span><span class="p">:</span> <span class="s2">&quot;L2&quot;</span><span class="p">,</span> <span class="s2">&quot;CostFunctionGoals&quot;</span><span class="p">:</span> <span class="n">OrderedDict</span><span class="p">(),</span> <span class="s2">&quot;Variables&quot;</span><span class="p">:</span> <span class="n">OrderedDict</span><span class="p">(),</span>
+                               <span class="s2">&quot;Goals&quot;</span><span class="p">:</span> <span class="n">OrderedDict</span><span class="p">(),</span>
+                               <span class="s2">&quot;DesignExprData&quot;</span><span class="p">:</span> <span class="n">OrderedDict</span><span class="p">({</span><span class="s2">&quot;Type&quot;</span><span class="p">:</span> <span class="s2">&quot;kOSF&quot;</span><span class="p">,</span> <span class="s2">&quot;CCDDeignType&quot;</span><span class="p">:</span> <span class="s2">&quot;kFaceCentered&quot;</span><span class="p">,</span>
+                                                              <span class="s2">&quot;CCDTemplateType&quot;</span><span class="p">:</span> <span class="s2">&quot;kStandard&quot;</span><span class="p">,</span>
+                                                              <span class="s2">&quot;LHSSampleType&quot;</span><span class="p">:</span> <span class="s2">&quot;kCCDSample&quot;</span><span class="p">,</span>
+                                                              <span class="s2">&quot;RamdomSeed&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span> <span class="s2">&quot;NumofSamples&quot;</span><span class="p">:</span> <span class="mi">10</span><span class="p">,</span>
+                                                              <span class="s2">&quot;OSFDeignType&quot;</span><span class="p">:</span> <span class="s2">&quot;kOSFD_MAXIMINDIST&quot;</span><span class="p">,</span>
+                                                              <span class="s2">&quot;MaxCydes&quot;</span><span class="p">:</span> <span class="mi">10</span><span class="p">}),</span>
+                               <span class="s2">&quot;RespSurfaceSetupData&quot;</span><span class="p">:</span> <span class="n">OrderedDict</span><span class="p">({</span><span class="s2">&quot;Type&quot;</span><span class="p">:</span> <span class="s2">&quot;kGenAggr&quot;</span><span class="p">,</span> <span class="s2">&quot;RefineType&quot;</span><span class="p">:</span> <span class="s2">&quot;kManual&quot;</span><span class="p">}),</span>
+                               <span class="s2">&quot;ResponsePoints&quot;</span><span class="p">:</span> <span class="n">OrderedDict</span><span class="p">({</span><span class="s2">&quot;NumOfStrs&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">}),</span>
+                               <span class="s2">&quot;ManualRefinePoints&quot;</span><span class="p">:</span> <span class="n">OrderedDict</span><span class="p">({</span><span class="s2">&quot;NumOfStrs&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">}),</span>
+                               <span class="s2">&quot;CustomVerifyPoints&quot;</span><span class="p">:</span> <span class="n">OrderedDict</span><span class="p">({</span><span class="s2">&quot;NumOfStrs&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">}),</span> <span class="s2">&quot;Tolerances&quot;</span><span class="p">:</span> <span class="p">[]})</span>
+
+
+<div class="viewcode-block" id="CommonOptimetrics"><a class="viewcode-back" href="../../../../API/DesignXPlorer.html#pyaedt.core.modules.DesignXPloration.CommonOptimetrics">[docs]</a><span class="k">class</span> <span class="nc">CommonOptimetrics</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Common Optimetrics Methods Class</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">omodule</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_parent</span><span class="o">.</span><span class="n">odesign</span><span class="o">.</span><span class="n">GetModule</span><span class="p">(</span><span class="s2">&quot;Optimetrics&quot;</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">parent</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">dictinputs</span><span class="p">,</span> <span class="n">optimtype</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_parent</span> <span class="o">=</span> <span class="n">parent</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="n">name</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">soltype</span> <span class="o">=</span> <span class="n">optimtype</span>
+
+        <span class="n">inputd</span> <span class="o">=</span> <span class="n">copy</span><span class="o">.</span><span class="n">deepcopy</span><span class="p">(</span><span class="n">dictinputs</span><span class="p">)</span>
+
+
+        <span class="k">if</span> <span class="n">optimtype</span> <span class="o">==</span> <span class="s2">&quot;OptiParametric&quot;</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">props</span> <span class="o">=</span> <span class="n">inputd</span> <span class="ow">or</span> <span class="n">defaultparametricSetup</span>
+        <span class="k">if</span> <span class="n">optimtype</span> <span class="o">==</span> <span class="s2">&quot;OptiDesignExplorer&quot;</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">props</span> <span class="o">=</span> <span class="n">inputd</span> <span class="ow">or</span> <span class="n">defaultdxSetup</span>
+        <span class="k">if</span> <span class="n">optimtype</span> <span class="o">==</span> <span class="s2">&quot;OptiOptimization&quot;</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">props</span> <span class="o">=</span> <span class="n">inputd</span> <span class="ow">or</span> <span class="n">defaultoptiSetup</span>
+        <span class="k">if</span> <span class="n">optimtype</span> <span class="o">==</span> <span class="s2">&quot;OptiSensitivity&quot;</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">props</span> <span class="o">=</span> <span class="n">inputd</span> <span class="ow">or</span> <span class="n">defaultsensitivitySetup</span>
+        <span class="k">if</span> <span class="n">optimtype</span> <span class="o">==</span> <span class="s2">&quot;OptiStatistical&quot;</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">props</span> <span class="o">=</span> <span class="n">inputd</span> <span class="ow">or</span> <span class="n">defaultstatisticalSetup</span>
+        <span class="k">if</span> <span class="n">optimtype</span> <span class="o">==</span> <span class="s2">&quot;OptiDXDOE&quot;</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">props</span> <span class="o">=</span> <span class="n">inputd</span> <span class="ow">or</span> <span class="n">defaultdoeSetup</span>
+
+        <span class="k">if</span> <span class="n">inputd</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">props</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s1">&#39;ID&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">props</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s1">&#39;NextUniqueID&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">props</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s1">&#39;MoveBackwards&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">props</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s1">&#39;GoalSetupVersion&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">props</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s1">&#39;Version&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">props</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s1">&#39;SetupType&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">inputd</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;Sim. Setups&quot;</span><span class="p">):</span>
+                <span class="n">setups</span> <span class="o">=</span> <span class="n">inputd</span><span class="p">[</span><span class="s2">&quot;Sim. Setups&quot;</span><span class="p">]</span>
+                <span class="k">for</span> <span class="n">el</span> <span class="ow">in</span> <span class="n">setups</span><span class="p">:</span>
+                    <span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_parent</span><span class="o">.</span><span class="n">design_properties</span><span class="p">[</span><span class="s2">&quot;SolutionManager&quot;</span><span class="p">][</span><span class="s1">&#39;ID Map&#39;</span><span class="p">][</span><span class="s1">&#39;Setup&#39;</span><span class="p">])</span> <span class="ow">is</span> <span class="nb">list</span><span class="p">:</span>
+                        <span class="k">for</span> <span class="n">setup</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_parent</span><span class="o">.</span><span class="n">design_properties</span><span class="p">[</span><span class="s2">&quot;SolutionManager&quot;</span><span class="p">][</span><span class="s1">&#39;ID Map&#39;</span><span class="p">][</span><span class="s1">&#39;Setup&#39;</span><span class="p">]:</span>
+                            <span class="k">if</span> <span class="n">setup</span><span class="p">[</span><span class="s1">&#39;I&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="n">el</span><span class="p">:</span>
+                                <span class="n">setups</span><span class="p">[</span><span class="n">setups</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="n">el</span><span class="p">)]</span><span class="o">=</span> <span class="n">setup</span><span class="p">[</span><span class="s1">&#39;I&#39;</span><span class="p">]</span>
+                                <span class="k">break</span>
+                    <span class="k">else</span><span class="p">:</span>
+                        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_parent</span><span class="o">.</span><span class="n">design_properties</span><span class="p">[</span><span class="s2">&quot;SolutionManager&quot;</span><span class="p">][</span><span class="s1">&#39;ID Map&#39;</span><span class="p">][</span><span class="s1">&#39;Setup&#39;</span><span class="p">][</span><span class="s1">&#39;I&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="n">el</span><span class="p">:</span>
+                            <span class="n">setups</span><span class="p">[</span><span class="n">setups</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="n">el</span><span class="p">)]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_parent</span><span class="o">.</span><span class="n">design_properties</span><span class="p">[</span><span class="s2">&quot;SolutionManager&quot;</span><span class="p">][</span><span class="s1">&#39;ID Map&#39;</span><span class="p">][</span><span class="s1">&#39;Setup&#39;</span><span class="p">][</span><span class="s1">&#39;N&#39;</span><span class="p">]</span>
+                            <span class="k">break</span>
+            <span class="k">if</span> <span class="n">inputd</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;Goals&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">):</span>
+                <span class="n">oparams</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">omodule</span><span class="o">.</span><span class="n">GetChildObject</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">)</span><span class="o">.</span><span class="n">GetCalculationInfo</span><span class="p">()</span>
+                <span class="n">oparam</span> <span class="o">=</span> <span class="p">[</span><span class="n">i</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">oparams</span><span class="p">[</span><span class="mi">0</span><span class="p">]]</span>
+                <span class="n">calculation</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;NAME:Goal&quot;</span><span class="p">]</span>
+                <span class="n">calculation</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">oparam</span><span class="p">)</span>
+                <span class="n">arg1</span> <span class="o">=</span> <span class="n">OrderedDict</span><span class="p">()</span>
+                <span class="n">arg2dict</span><span class="p">(</span><span class="n">calculation</span><span class="p">,</span> <span class="n">arg1</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">props</span><span class="p">[</span><span class="s1">&#39;Goals&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">arg1</span>
+
+<div class="viewcode-block" id="CommonOptimetrics.update"><a class="viewcode-back" href="../../../../API/DesignXPlorer.html#pyaedt.core.modules.DesignXPloration.CommonOptimetrics.update">[docs]</a>    <span class="nd">@aedt_exception_handler</span>
+    <span class="k">def</span> <span class="nf">update</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">update_dictionary</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        update a Setup based on stored properties. a dictionary can be provided as argument</span>
+
+<span class="sd">        :param update_dictionary: optional dictionary argument</span>
+<span class="sd">        :return: Bool</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">update_dictionary</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">el</span> <span class="ow">in</span> <span class="n">update_dictionary</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">props</span><span class="p">[</span><span class="n">el</span><span class="p">]</span><span class="o">=</span><span class="n">update_dictionary</span><span class="p">[</span><span class="n">el</span><span class="p">]</span>
+
+        <span class="n">arg</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;NAME:&quot;</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">]</span>
+        <span class="n">dict2arg</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">props</span><span class="p">,</span> <span class="n">arg</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">omodule</span><span class="o">.</span><span class="n">EditSetup</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="n">arg</span><span class="p">)</span>
+        <span class="k">return</span> <span class="kc">True</span></div>
+
+<div class="viewcode-block" id="CommonOptimetrics.create"><a class="viewcode-back" href="../../../../API/DesignXPlorer.html#pyaedt.core.modules.DesignXPloration.CommonOptimetrics.create">[docs]</a>    <span class="nd">@aedt_exception_handler</span>
+    <span class="k">def</span> <span class="nf">create</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        update a Setup based on stored properties.</span>
+
+<span class="sd">        :return: Bool</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">arg</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;NAME:&quot;</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">]</span>
+        <span class="n">dict2arg</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">props</span><span class="p">,</span> <span class="n">arg</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">omodule</span><span class="o">.</span><span class="n">InsertSetup</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">soltype</span><span class="p">,</span> <span class="n">arg</span><span class="p">)</span>
+        <span class="k">return</span> <span class="kc">True</span></div>
+
+    <span class="nd">@aedt_exception_handler</span>
+    <span class="k">def</span> <span class="nf">_add_calculation</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">reporttype</span><span class="p">,</span> <span class="n">solution</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">domain</span><span class="o">=</span><span class="s2">&quot;Sweep&quot;</span><span class="p">,</span> <span class="n">calculation</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="n">calculation_type</span><span class="o">=</span><span class="s2">&quot;d&quot;</span><span class="p">,</span>
+                         <span class="n">calculation_value</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="n">calculation_name</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="n">sweepdefinition</span> <span class="o">=</span> <span class="n">OrderedDict</span><span class="p">()</span>
+        <span class="n">sweepdefinition</span><span class="p">[</span><span class="s2">&quot;ReportType&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">reporttype</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">solution</span><span class="p">:</span>
+            <span class="n">solution</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_parent</span><span class="o">.</span><span class="n">nominal_sweep</span>
+
+        <span class="n">sweepdefinition</span><span class="p">[</span><span class="s2">&quot;Solution&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">solution</span>
+        <span class="n">sweepdefinition</span><span class="p">[</span><span class="s2">&quot;SimValueContext&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">OrderedDict</span><span class="p">({</span><span class="s2">&quot;Domain&quot;</span><span class="p">:</span> <span class="n">domain</span><span class="p">})</span>
+        <span class="n">sweepdefinition</span><span class="p">[</span><span class="s2">&quot;Calculation&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">calculation</span>
+        <span class="k">if</span> <span class="n">calculation_name</span><span class="p">:</span>
+            <span class="n">sweepdefinition</span><span class="p">[</span><span class="s2">&quot;Name&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">calculation_name</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">sweepdefinition</span><span class="p">[</span><span class="s2">&quot;Name&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">generate_unique_name</span><span class="p">(</span><span class="n">calculation</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">domain</span> <span class="o">==</span> <span class="s2">&quot;Sweep&quot;</span><span class="p">:</span>
+            <span class="n">var</span> <span class="o">=</span> <span class="s2">&quot;Freq&quot;</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">var</span> <span class="o">=</span><span class="s2">&quot;Time&quot;</span>
+        <span class="n">sweepdefinition</span><span class="p">[</span><span class="s2">&quot;Ranges&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">OrderedDict</span><span class="p">(</span>
+            <span class="p">{</span><span class="s2">&quot;Range&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;Var:=&quot;</span><span class="p">,</span> <span class="n">var</span><span class="p">,</span> <span class="s2">&quot;Type:=&quot;</span><span class="p">,</span> <span class="n">calculation_type</span><span class="p">,</span> <span class="s2">&quot;DiscreteValues:=&quot;</span><span class="p">,</span> <span class="n">calculation_value</span><span class="p">]})</span>
+        <span class="k">if</span> <span class="s2">&quot;Goal&quot;</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">props</span><span class="p">[</span><span class="s2">&quot;Goals&quot;</span><span class="p">]:</span>
+            <span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">props</span><span class="p">[</span><span class="s2">&quot;Goals&quot;</span><span class="p">][</span><span class="s2">&quot;Goal&quot;</span><span class="p">])</span> <span class="ow">is</span> <span class="ow">not</span> <span class="nb">list</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">props</span><span class="p">[</span><span class="s2">&quot;Goals&quot;</span><span class="p">][</span><span class="s2">&quot;Goal&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">props</span><span class="p">[</span><span class="s2">&quot;Goals&quot;</span><span class="p">][</span><span class="s2">&quot;Goal&quot;</span><span class="p">],</span> <span class="n">sweepdefinition</span><span class="p">]</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">props</span><span class="p">[</span><span class="s2">&quot;Goals&quot;</span><span class="p">][</span><span class="s2">&quot;Goal&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">sweepdefinition</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">props</span><span class="p">[</span><span class="s2">&quot;Goals&quot;</span><span class="p">][</span><span class="s2">&quot;Goal&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">sweepdefinition</span>
+
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">update</span><span class="p">()</span>
+
+    <span class="nd">@aedt_exception_handler</span>
+    <span class="k">def</span> <span class="nf">_add_goal</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">optigoalname</span><span class="p">,</span><span class="n">reporttype</span><span class="p">,</span> <span class="n">solution</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">domain</span><span class="o">=</span><span class="s2">&quot;Sweep&quot;</span><span class="p">,</span> <span class="n">calculation</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="n">calculation_type</span><span class="o">=</span><span class="s2">&quot;discrete&quot;</span><span class="p">,</span>
+                  <span class="n">calc_val1</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="n">calc_val2</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="n">condition</span><span class="o">=</span><span class="s2">&quot;==&quot;</span><span class="p">,</span> <span class="n">goal_value</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">goal_weight</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">goal_name</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="n">sweepdefinition</span> <span class="o">=</span> <span class="n">OrderedDict</span><span class="p">()</span>
+        <span class="n">sweepdefinition</span><span class="p">[</span><span class="s2">&quot;ReportType&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">reporttype</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">solution</span><span class="p">:</span>
+            <span class="n">solution</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_parent</span><span class="o">.</span><span class="n">nominal_sweep</span>
+        <span class="n">sweepdefinition</span><span class="p">[</span><span class="s2">&quot;Solution&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">solution</span>
+        <span class="n">sweepdefinition</span><span class="p">[</span><span class="s2">&quot;SimValueContext&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">OrderedDict</span><span class="p">({</span><span class="s2">&quot;Domain&quot;</span><span class="p">:</span> <span class="n">domain</span><span class="p">})</span>
+        <span class="n">sweepdefinition</span><span class="p">[</span><span class="s2">&quot;Calculation&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">calculation</span>
+        <span class="k">if</span> <span class="n">goal_name</span><span class="p">:</span>
+            <span class="n">sweepdefinition</span><span class="p">[</span><span class="s2">&quot;Name&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">goal_name</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">sweepdefinition</span><span class="p">[</span><span class="s2">&quot;Name&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">generate_unique_name</span><span class="p">(</span><span class="n">calculation</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">domain</span> <span class="o">==</span> <span class="s2">&quot;Sweep&quot;</span><span class="p">:</span>
+            <span class="n">var</span> <span class="o">=</span> <span class="s2">&quot;Freq&quot;</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">var</span> <span class="o">=</span><span class="s2">&quot;Time&quot;</span>
+        <span class="k">if</span> <span class="n">calculation_type</span> <span class="o">==</span><span class="s2">&quot;discrete&quot;</span><span class="p">:</span>
+            <span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="n">calc_val1</span><span class="p">)</span> <span class="ow">is</span> <span class="nb">list</span><span class="p">:</span>
+                <span class="n">dr</span> <span class="o">=</span> <span class="s2">&quot;,&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">calc_val1</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">dr</span> <span class="o">=</span> <span class="n">calc_val1</span>
+            <span class="n">sweepdefinition</span><span class="p">[</span><span class="s2">&quot;Ranges&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">OrderedDict</span><span class="p">(</span>
+                <span class="p">{</span><span class="s2">&quot;Range&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;Var:=&quot;</span><span class="p">,</span> <span class="n">var</span><span class="p">,</span> <span class="s2">&quot;Type:=&quot;</span><span class="p">,</span> <span class="s2">&quot;d&quot;</span><span class="p">,</span> <span class="s2">&quot;DiscreteValues:=&quot;</span><span class="p">,</span> <span class="n">dr</span><span class="p">]})</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">sweepdefinition</span><span class="p">[</span><span class="s2">&quot;Ranges&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">OrderedDict</span><span class="p">({</span><span class="s2">&quot;Range&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;Var:=&quot;</span><span class="p">,</span> <span class="n">var</span><span class="p">,</span> <span class="s2">&quot;Type:=&quot;</span><span class="p">,</span> <span class="n">calculation_type</span><span class="p">,</span>
+                                                               <span class="s2">&quot;Start:=&quot;</span><span class="p">,</span> <span class="n">calc_val1</span><span class="p">,</span> <span class="s2">&quot;Stop:=&quot;</span><span class="p">,</span> <span class="n">calc_val2</span><span class="p">,</span>
+                                                               <span class="s2">&quot;DiscreteValues:=&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">]})</span>
+        <span class="n">sweepdefinition</span><span class="p">[</span><span class="s2">&quot;Condition&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">condition</span>
+        <span class="n">sweepdefinition</span><span class="p">[</span><span class="s2">&quot;GoalValue&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">OrderedDict</span><span class="p">(</span>
+            <span class="p">{</span><span class="s2">&quot;GoalValueType&quot;</span><span class="p">:</span> <span class="s2">&quot;Independent&quot;</span><span class="p">,</span> <span class="s2">&quot;Format&quot;</span><span class="p">:</span> <span class="s2">&quot;Real/Imag&quot;</span><span class="p">,</span> <span class="s2">&quot;bG&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;v:=&quot;</span><span class="p">,</span> <span class="s2">&quot;[</span><span class="si">{}</span><span class="s2">;]&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">goal_value</span><span class="p">)]})</span>
+        <span class="n">sweepdefinition</span><span class="p">[</span><span class="s2">&quot;Weight&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;[</span><span class="si">{}</span><span class="s2">;]&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">goal_weight</span><span class="p">)</span>
+        <span class="k">if</span> <span class="s2">&quot;Goal&quot;</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">props</span><span class="p">[</span><span class="n">optigoalname</span><span class="p">]:</span>
+            <span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">props</span><span class="p">[</span><span class="n">optigoalname</span><span class="p">][</span><span class="s2">&quot;Goal&quot;</span><span class="p">])</span> <span class="ow">is</span> <span class="ow">not</span> <span class="nb">list</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">props</span><span class="p">[</span><span class="n">optigoalname</span><span class="p">][</span><span class="s2">&quot;Goal&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">props</span><span class="p">[</span><span class="n">optigoalname</span><span class="p">][</span><span class="s2">&quot;Goal&quot;</span><span class="p">],</span> <span class="n">sweepdefinition</span><span class="p">]</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">props</span><span class="p">[</span><span class="n">optigoalname</span><span class="p">][</span><span class="s2">&quot;Goal&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">sweepdefinition</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">props</span><span class="p">[</span><span class="n">optigoalname</span><span class="p">][</span><span class="s2">&quot;Goal&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">sweepdefinition</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">update</span><span class="p">()</span></div>
+
+
+<div class="viewcode-block" id="DXSetups"><a class="viewcode-back" href="../../../../API/DesignXPlorer.html#pyaedt.core.modules.DesignXPloration.DXSetups">[docs]</a><span class="k">class</span> <span class="nc">DXSetups</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Design XPlorer Setups Class</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+<div class="viewcode-block" id="DXSetups.Setup"><a class="viewcode-back" href="../../../../API/DesignXPlorer.html#pyaedt.core.modules.DesignXPloration.DXSetups.Setup">[docs]</a>    <span class="k">class</span> <span class="nc">Setup</span><span class="p">(</span><span class="n">CommonOptimetrics</span><span class="p">,</span> <span class="nb">object</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Setup Class</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">parent</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">dictinputs</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+            <span class="n">CommonOptimetrics</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">parent</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">dictinputs</span><span class="o">=</span><span class="n">dictinputs</span><span class="p">,</span> <span class="n">optimtype</span><span class="o">=</span><span class="s2">&quot;OptiDesignExplorer&quot;</span><span class="p">)</span>
+            <span class="k">pass</span>
+
+<div class="viewcode-block" id="DXSetups.Setup.add_calculation"><a class="viewcode-back" href="../../../../API/DesignXPlorer.html#pyaedt.core.modules.DesignXPloration.DXSetups.Setup.add_calculation">[docs]</a>        <span class="nd">@aedt_exception_handler</span>
+        <span class="k">def</span> <span class="nf">add_calculation</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">calculation</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="n">calculation_value</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="n">reporttype</span><span class="o">=</span><span class="s2">&quot;Modal Solution Data&quot;</span><span class="p">,</span> <span class="n">solution</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">domain</span><span class="o">=</span><span class="s2">&quot;Sweep&quot;</span><span class="p">,</span>  <span class="n">calculation_name</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+            <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">            Add Calculation to DX Setup</span>
+
+<span class="sd">            :param reporttype: Name of the Report to take the Calculation</span>
+<span class="sd">            :param solution: solution type. if none, default solution will be taken</span>
+<span class="sd">            :param domain: domain type. if none sweep will be taken</span>
+<span class="sd">            :param calculation: calculation value eg. dB(S(1,1,))</span>
+<span class="sd">            :param calculation_value: calculation value. eg. if sweep &quot;1GHz)</span>
+<span class="sd">            :return: bool</span>
+<span class="sd">            &quot;&quot;&quot;</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_add_calculation</span><span class="p">(</span><span class="n">reporttype</span><span class="o">=</span><span class="n">reporttype</span><span class="p">,</span> <span class="n">solution</span><span class="o">=</span><span class="n">solution</span><span class="p">,</span> <span class="n">domain</span><span class="o">=</span><span class="n">domain</span><span class="p">,</span> <span class="n">calculation_type</span><span class="o">=</span><span class="s2">&quot;d&quot;</span><span class="p">,</span>
+                                         <span class="n">calculation</span><span class="o">=</span><span class="n">calculation</span><span class="p">,</span> <span class="n">calculation_value</span><span class="o">=</span><span class="n">calculation_value</span><span class="p">,</span> <span class="n">calculation_name</span><span class="o">=</span><span class="n">calculation_name</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="DXSetups.Setup.add_goal"><a class="viewcode-back" href="../../../../API/DesignXPlorer.html#pyaedt.core.modules.DesignXPloration.DXSetups.Setup.add_goal">[docs]</a>        <span class="nd">@aedt_exception_handler</span>
+        <span class="k">def</span> <span class="nf">add_goal</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">calculation</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="n">calculation_value</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="n">calculation_type</span><span class="o">=</span><span class="s2">&quot;discrete&quot;</span><span class="p">,</span> <span class="n">calculation_stop</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">,</span>
+                     <span class="n">reporttype</span><span class="o">=</span><span class="s2">&quot;Modal Solution Data&quot;</span><span class="p">,</span> <span class="n">solution</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">domain</span><span class="o">=</span><span class="s2">&quot;Sweep&quot;</span><span class="p">,</span> <span class="n">goal_name</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">goal_value</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">goal_weight</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">condition</span><span class="o">=</span><span class="s2">&quot;==&quot;</span><span class="p">):</span>
+            <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">            Add Goald to DX Setup</span>
+
+<span class="sd">            :param reporttype: Name of the Report to take the Calculation</span>
+<span class="sd">            :param solution: solution type. if none, default solution will be taken</span>
+<span class="sd">            :param domain: domain type. if none sweep will be taken</span>
+<span class="sd">            :param calculation: calculation value eg. dB(S(1,1,))</span>
+<span class="sd">            :param calculation_type: discrete or range</span>
+<span class="sd">            :param calculation_value: calculation value. eg. if sweep &quot;1GHz). if discrete, it is discrete value or list, if range, it is start value</span>
+<span class="sd">            :param calculation_stop: calculation value. eg. if sweep &quot;1GHz). if range it is the stop value</span>
+<span class="sd">            :return: bool</span>
+<span class="sd">            &quot;&quot;&quot;</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_add_goal</span><span class="p">(</span><span class="n">optigoalname</span><span class="o">=</span><span class="s2">&quot;CostFunctionGoals&quot;</span><span class="p">,</span> <span class="n">reporttype</span><span class="o">=</span><span class="n">reporttype</span><span class="p">,</span> <span class="n">solution</span><span class="o">=</span><span class="n">solution</span><span class="p">,</span>
+                                  <span class="n">domain</span><span class="o">=</span><span class="n">domain</span><span class="p">,</span> <span class="n">calculation_type</span><span class="o">=</span><span class="n">calculation_type</span><span class="p">,</span> <span class="n">calculation</span><span class="o">=</span><span class="n">calculation</span><span class="p">,</span>
+                                  <span class="n">calc_val1</span><span class="o">=</span><span class="n">calculation_value</span><span class="p">,</span> <span class="n">calc_val2</span><span class="o">=</span><span class="n">calculation_stop</span><span class="p">,</span> <span class="n">goal_name</span><span class="o">=</span><span class="n">goal_name</span><span class="p">,</span>
+                                  <span class="n">goal_weight</span><span class="o">=</span><span class="n">goal_weight</span><span class="p">,</span> <span class="n">goal_value</span><span class="o">=</span><span class="n">goal_value</span><span class="p">,</span> <span class="n">condition</span><span class="o">=</span><span class="n">condition</span><span class="p">)</span></div></div>
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">parent</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_parent</span>
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">optimodule</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">parent</span><span class="o">.</span><span class="n">odesign</span><span class="o">.</span><span class="n">GetModule</span><span class="p">(</span><span class="s2">&quot;Optimetrics&quot;</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">parent</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_parent</span> <span class="o">=</span> <span class="n">parent</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">setups</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_parent</span><span class="o">.</span><span class="n">design_properties</span><span class="p">:</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">setups_data</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_parent</span><span class="o">.</span><span class="n">design_properties</span><span class="p">[</span><span class="s2">&quot;Optimetrics&quot;</span><span class="p">][</span><span class="s2">&quot;OptimetricsSetups&quot;</span><span class="p">]</span>
+                <span class="k">for</span> <span class="n">data</span> <span class="ow">in</span> <span class="n">setups_data</span><span class="p">:</span>
+                    <span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="n">setups_data</span><span class="p">[</span><span class="n">data</span><span class="p">])</span> <span class="ow">is</span> <span class="n">OrderedDict</span> <span class="ow">and</span> <span class="n">setups_data</span><span class="p">[</span><span class="n">data</span><span class="p">][</span><span class="s1">&#39;SetupType&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;OptiDesignExplorer&quot;</span><span class="p">:</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">setups</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">Setup</span><span class="p">(</span><span class="n">parent</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="n">setups_data</span><span class="p">[</span><span class="n">data</span><span class="p">]))</span>
+            <span class="k">except</span><span class="p">:</span>
+                <span class="k">pass</span>
+
+<div class="viewcode-block" id="DXSetups.add_dx_setup"><a class="viewcode-back" href="../../../../API/DesignXPlorer.html#pyaedt.core.modules.DesignXPloration.DXSetups.add_dx_setup">[docs]</a>    <span class="nd">@aedt_exception_handler</span>
+    <span class="k">def</span> <span class="nf">add_dx_setup</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">variables_to_include</span><span class="p">,</span> <span class="n">defaults_var_values</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">setupname</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">parametricname</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Add a DesignXplorer Basic Setup. User can customize all DX Options after the creation</span>
+
+
+<span class="sd">        :param variables_to_include: list of variables to include in DesignXplorer</span>
+<span class="sd">        :param defaults_var_values: list of default variable values</span>
+<span class="sd">        :param setupname: Optional Setup name. if none, the default analysis setup will be used</span>
+<span class="sd">        :param parametricname: optional Parametric Name</span>
+<span class="sd">        :return: Optimetrics Object Class</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">setupname</span><span class="p">:</span>
+            <span class="n">setupname</span> <span class="o">=</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">_parent</span><span class="o">.</span><span class="n">analysis_setup</span><span class="p">]</span>
+        <span class="k">elif</span> <span class="nb">type</span><span class="p">(</span><span class="n">setupname</span><span class="p">)</span> <span class="ow">is</span> <span class="ow">not</span> <span class="nb">list</span><span class="p">:</span>
+            <span class="n">setupname</span> <span class="o">=</span> <span class="p">[</span><span class="n">setupname</span><span class="p">]</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">parametricname</span><span class="p">:</span>
+            <span class="n">parametricname</span> <span class="o">=</span> <span class="n">generate_unique_name</span><span class="p">(</span><span class="s2">&quot;DesignXplorer&quot;</span><span class="p">)</span>
+        <span class="n">setup</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">Setup</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_parent</span><span class="p">,</span> <span class="n">parametricname</span><span class="p">)</span>
+        <span class="n">setup</span><span class="o">.</span><span class="n">props</span><span class="p">[</span><span class="s2">&quot;Sim. Setups&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">setupname</span>
+        <span class="n">setup</span><span class="o">.</span><span class="n">props</span><span class="p">[</span><span class="s1">&#39;Sweeps&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">defaults_var_values</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">variables_to_include</span><span class="p">:</span>
+                <span class="n">sweepdefinition</span> <span class="o">=</span> <span class="n">OrderedDict</span><span class="p">()</span>
+                <span class="n">sweepdefinition</span><span class="p">[</span><span class="s2">&quot;Variable&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">v</span>
+                <span class="k">if</span> <span class="s2">&quot;$&quot;</span> <span class="ow">in</span> <span class="n">v</span><span class="p">:</span>
+                    <span class="n">sweepdefinition</span><span class="p">[</span><span class="s2">&quot;Data&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_parent</span><span class="o">.</span><span class="n">oproject</span><span class="o">.</span><span class="n">GetVariableValue</span><span class="p">(</span><span class="n">v</span><span class="p">)</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">sweepdefinition</span><span class="p">[</span><span class="s2">&quot;Data&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_parent</span><span class="o">.</span><span class="n">odesign</span><span class="o">.</span><span class="n">GetVariableValue</span><span class="p">(</span><span class="n">v</span><span class="p">)</span>
+                <span class="n">sweepdefinition</span><span class="p">[</span><span class="s2">&quot;OffsetF1&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">False</span>
+                <span class="n">sweepdefinition</span><span class="p">[</span><span class="s2">&quot;Synchronize&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">v</span><span class="p">,</span><span class="n">vv</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">variables_to_include</span><span class="p">,</span> <span class="n">defaults_var_values</span><span class="p">):</span>
+                <span class="n">sweepdefinition</span> <span class="o">=</span> <span class="n">OrderedDict</span><span class="p">()</span>
+                <span class="n">sweepdefinition</span><span class="p">[</span><span class="s2">&quot;Variable&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">v</span>
+                <span class="n">sweepdefinition</span><span class="p">[</span><span class="s2">&quot;Data&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">vv</span>
+                <span class="n">sweepdefinition</span><span class="p">[</span><span class="s2">&quot;OffsetF1&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">False</span>
+                <span class="n">sweepdefinition</span><span class="p">[</span><span class="s2">&quot;Synchronize&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">0</span>
+                <span class="n">setup</span><span class="o">.</span><span class="n">props</span><span class="p">[</span><span class="s1">&#39;Sweeps&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">sweepdefinition</span><span class="p">)</span>
+                <span class="n">setup</span><span class="o">.</span><span class="n">props</span><span class="p">[</span><span class="s2">&quot;StartingPoint&quot;</span><span class="p">][</span><span class="n">v</span><span class="p">]</span> <span class="o">=</span> <span class="n">vv</span>
+        <span class="n">setup</span><span class="o">.</span><span class="n">create</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">setups</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">setup</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">setup</span></div></div>
+
+
+<div class="viewcode-block" id="ParametericsSetups"><a class="viewcode-back" href="../../../../API/DesignXPlorer.html#pyaedt.core.modules.DesignXPloration.ParametericsSetups">[docs]</a><span class="k">class</span> <span class="nc">ParametericsSetups</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Parametric Setup Class</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+<div class="viewcode-block" id="ParametericsSetups.Setup"><a class="viewcode-back" href="../../../../API/DesignXPlorer.html#pyaedt.core.modules.DesignXPloration.ParametericsSetups.Setup">[docs]</a>    <span class="k">class</span> <span class="nc">Setup</span><span class="p">(</span><span class="n">CommonOptimetrics</span><span class="p">,</span> <span class="nb">object</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Setup Class</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">parent</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">dictinputs</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+            <span class="n">CommonOptimetrics</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">parent</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">dictinputs</span><span class="o">=</span><span class="n">dictinputs</span><span class="p">,</span> <span class="n">optimtype</span><span class="o">=</span><span class="s2">&quot;OptiParametric&quot;</span><span class="p">)</span>
+            <span class="k">pass</span>
+
+<div class="viewcode-block" id="ParametericsSetups.Setup.add_variation"><a class="viewcode-back" href="../../../../API/DesignXPlorer.html#pyaedt.core.modules.DesignXPloration.ParametericsSetups.Setup.add_variation">[docs]</a>        <span class="nd">@aedt_exception_handler</span>
+        <span class="k">def</span> <span class="nf">add_variation</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">sweep_var</span><span class="p">,</span> <span class="n">datarange</span><span class="p">):</span>
+            <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">            Add a Variation to an existing Parametric Setup</span>
+
+
+<span class="sd">            :param sweep_var: Variable name</span>
+<span class="sd">            :param datarange: Data Range</span>
+<span class="sd">            :return: Bool</span>
+<span class="sd">            &quot;&quot;&quot;</span>
+            <span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">props</span><span class="p">[</span><span class="s2">&quot;Sweeps&quot;</span><span class="p">][</span><span class="s2">&quot;SweepDefinition&quot;</span><span class="p">])</span> <span class="ow">is</span> <span class="ow">not</span> <span class="nb">list</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">props</span><span class="p">[</span><span class="s2">&quot;Sweeps&quot;</span><span class="p">][</span><span class="s2">&quot;SweepDefinition&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">props</span><span class="p">[</span><span class="s2">&quot;Sweeps&quot;</span><span class="p">][</span><span class="s2">&quot;SweepDefinition&quot;</span><span class="p">]]</span>
+            <span class="n">sweepdefinition</span> <span class="o">=</span> <span class="n">OrderedDict</span><span class="p">()</span>
+            <span class="n">sweepdefinition</span><span class="p">[</span><span class="s2">&quot;Variable&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">sweep_var</span>
+            <span class="n">sweepdefinition</span><span class="p">[</span><span class="s2">&quot;Data&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">datarange</span>
+            <span class="n">sweepdefinition</span><span class="p">[</span><span class="s2">&quot;OffsetF1&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">False</span>
+            <span class="n">sweepdefinition</span><span class="p">[</span><span class="s2">&quot;Synchronize&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">0</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">props</span><span class="p">[</span><span class="s2">&quot;Sweeps&quot;</span><span class="p">][</span><span class="s2">&quot;SweepDefinition&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">sweepdefinition</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">update</span><span class="p">()</span>
+            <span class="k">return</span> <span class="kc">True</span></div>
+
+<div class="viewcode-block" id="ParametericsSetups.Setup.add_calculation"><a class="viewcode-back" href="../../../../API/DesignXPlorer.html#pyaedt.core.modules.DesignXPloration.ParametericsSetups.Setup.add_calculation">[docs]</a>        <span class="nd">@aedt_exception_handler</span>
+        <span class="k">def</span> <span class="nf">add_calculation</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">calculation</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="n">calculation_value</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="n">reporttype</span><span class="o">=</span><span class="s2">&quot;Modal Solution Data&quot;</span><span class="p">,</span> <span class="n">solution</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                            <span class="n">domain</span><span class="o">=</span><span class="s2">&quot;Sweep&quot;</span><span class="p">,</span> <span class="n">calculation_name</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+            <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">            Add Calculation to Parametric Setup</span>
+
+<span class="sd">            :param reporttype: Name of the Report to take the Calculation</span>
+<span class="sd">            :param solution: solution type. if none, default solution will be taken</span>
+<span class="sd">            :param domain: domain type. if none sweep will be taken</span>
+<span class="sd">            :param calculation: calculation value eg. dB(S(1,1,))</span>
+<span class="sd">            :param calculation_value: calculation value. eg. if sweep &quot;1GHz)</span>
+<span class="sd">            :return: bool</span>
+<span class="sd">            &quot;&quot;&quot;</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_add_calculation</span><span class="p">(</span><span class="n">reporttype</span><span class="o">=</span><span class="n">reporttype</span><span class="p">,</span> <span class="n">solution</span><span class="o">=</span><span class="n">solution</span><span class="p">,</span> <span class="n">domain</span><span class="o">=</span><span class="n">domain</span><span class="p">,</span> <span class="n">calculation_type</span><span class="o">=</span><span class="s2">&quot;d&quot;</span><span class="p">,</span>
+                                         <span class="n">calculation</span><span class="o">=</span><span class="n">calculation</span><span class="p">,</span> <span class="n">calculation_value</span><span class="o">=</span><span class="n">calculation_value</span><span class="p">,</span> <span class="n">calculation_name</span><span class="o">=</span><span class="n">calculation_name</span><span class="p">)</span></div></div>
+
+
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">parent</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_parent</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">optimodule</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">parent</span><span class="o">.</span><span class="n">odesign</span><span class="o">.</span><span class="n">GetModule</span><span class="p">(</span><span class="s2">&quot;Optimetrics&quot;</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">parent</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_parent</span> <span class="o">=</span> <span class="n">parent</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">setups</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_parent</span><span class="o">.</span><span class="n">design_properties</span><span class="p">:</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">setups_data</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_parent</span><span class="o">.</span><span class="n">design_properties</span><span class="p">[</span><span class="s2">&quot;Optimetrics&quot;</span><span class="p">][</span><span class="s2">&quot;OptimetricsSetups&quot;</span><span class="p">]</span>
+
+                <span class="k">for</span> <span class="n">data</span> <span class="ow">in</span> <span class="n">setups_data</span><span class="p">:</span>
+                    <span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="n">setups_data</span><span class="p">[</span><span class="n">data</span><span class="p">])</span> <span class="ow">is</span> <span class="n">OrderedDict</span> <span class="ow">and</span> <span class="n">setups_data</span><span class="p">[</span><span class="n">data</span><span class="p">][</span><span class="s1">&#39;SetupType&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;OptiParametric&quot;</span><span class="p">:</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">setups</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">Setup</span><span class="p">(</span><span class="n">parent</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="n">setups_data</span><span class="p">[</span><span class="n">data</span><span class="p">]))</span>
+            <span class="k">except</span><span class="p">:</span>
+                <span class="k">pass</span>
+
+<div class="viewcode-block" id="ParametericsSetups.add_parametric_setup"><a class="viewcode-back" href="../../../../API/DesignXPlorer.html#pyaedt.core.modules.DesignXPloration.ParametericsSetups.add_parametric_setup">[docs]</a>    <span class="nd">@aedt_exception_handler</span>
+    <span class="k">def</span> <span class="nf">add_parametric_setup</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">sweep_var</span><span class="p">,</span> <span class="n">datarange</span><span class="p">,</span> <span class="n">setupname</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">parametricname</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Add a Parametric Basic Setup. User can customize all Options after the creation</span>
+
+
+<span class="sd">        :param sweep_var: Variable name</span>
+<span class="sd">        :param datarange: Data Range</span>
+<span class="sd">        :param setupname: Optional Setup name. if none, the default analysis setup will be used</span>
+<span class="sd">        :param parametricname: optional Parametric Name</span>
+<span class="sd">        :return: Optimetrics Object Class</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">setupname</span><span class="p">:</span>
+            <span class="n">setupname</span> <span class="o">=</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">_parent</span><span class="o">.</span><span class="n">analysis_setup</span><span class="p">]</span>
+        <span class="k">elif</span> <span class="nb">type</span><span class="p">(</span><span class="n">setupname</span><span class="p">)</span> <span class="ow">is</span> <span class="ow">not</span> <span class="nb">list</span><span class="p">:</span>
+            <span class="n">setupname</span> <span class="o">=</span> <span class="p">[</span><span class="n">setupname</span><span class="p">]</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">parametricname</span><span class="p">:</span>
+            <span class="n">parametricname</span> <span class="o">=</span> <span class="n">generate_unique_name</span><span class="p">(</span><span class="s2">&quot;Parametric&quot;</span><span class="p">)</span>
+        <span class="n">setup</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">Setup</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_parent</span><span class="p">,</span> <span class="n">parametricname</span><span class="p">)</span>
+        <span class="n">setup</span><span class="o">.</span><span class="n">props</span><span class="p">[</span><span class="s2">&quot;Sim. Setups&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">setupname</span>
+        <span class="n">sweepdefinition</span> <span class="o">=</span> <span class="n">OrderedDict</span><span class="p">()</span>
+        <span class="n">sweepdefinition</span><span class="p">[</span><span class="s2">&quot;Variable&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">sweep_var</span>
+        <span class="n">sweepdefinition</span><span class="p">[</span><span class="s2">&quot;Data&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">datarange</span>
+        <span class="n">sweepdefinition</span><span class="p">[</span><span class="s2">&quot;OffsetF1&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="n">sweepdefinition</span><span class="p">[</span><span class="s2">&quot;Synchronize&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="n">setup</span><span class="o">.</span><span class="n">props</span><span class="p">[</span><span class="s2">&quot;Sweeps&quot;</span><span class="p">][</span><span class="s2">&quot;SweepDefinition&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">sweepdefinition</span>
+        <span class="n">setup</span><span class="o">.</span><span class="n">create</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">setups</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">setup</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">setup</span></div></div>
+
+
+<div class="viewcode-block" id="SensitivitySetups"><a class="viewcode-back" href="../../../../API/DesignXPlorer.html#pyaedt.core.modules.DesignXPloration.SensitivitySetups">[docs]</a><span class="k">class</span> <span class="nc">SensitivitySetups</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Sensitivity Class</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+<div class="viewcode-block" id="SensitivitySetups.Setup"><a class="viewcode-back" href="../../../../API/DesignXPlorer.html#pyaedt.core.modules.DesignXPloration.SensitivitySetups.Setup">[docs]</a>    <span class="k">class</span> <span class="nc">Setup</span><span class="p">(</span><span class="n">CommonOptimetrics</span><span class="p">,</span> <span class="nb">object</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Setup Class</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">parent</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">dictinputs</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+            <span class="n">CommonOptimetrics</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">parent</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">dictinputs</span><span class="o">=</span><span class="n">dictinputs</span><span class="p">,</span> <span class="n">optimtype</span><span class="o">=</span><span class="s2">&quot;OptiSensitivity&quot;</span><span class="p">)</span>
+            <span class="k">pass</span>
+
+<div class="viewcode-block" id="SensitivitySetups.Setup.add_calculation"><a class="viewcode-back" href="../../../../API/DesignXPlorer.html#pyaedt.core.modules.DesignXPloration.SensitivitySetups.Setup.add_calculation">[docs]</a>        <span class="nd">@aedt_exception_handler</span>
+        <span class="k">def</span> <span class="nf">add_calculation</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">calculation</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="n">calculation_value</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="n">reporttype</span><span class="o">=</span><span class="s2">&quot;Modal Solution Data&quot;</span><span class="p">,</span> <span class="n">solution</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                            <span class="n">domain</span><span class="o">=</span><span class="s2">&quot;Sweep&quot;</span><span class="p">,</span> <span class="n">calculation_name</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+            <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">            Add Calculation to Sensitivity Setup</span>
+
+<span class="sd">            :param reporttype: Name of the Report to take the Calculation</span>
+<span class="sd">            :param solution: solution type. if none, default solution will be taken</span>
+<span class="sd">            :param domain: domain type. if none sweep will be taken</span>
+<span class="sd">            :param calculation: calculation value eg. dB(S(1,1,))</span>
+<span class="sd">            :param calculation_value: calculation value. eg. if sweep &quot;1GHz)</span>
+<span class="sd">            :return: bool</span>
+<span class="sd">            &quot;&quot;&quot;</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_add_calculation</span><span class="p">(</span><span class="n">reporttype</span><span class="o">=</span><span class="n">reporttype</span><span class="p">,</span> <span class="n">solution</span><span class="o">=</span><span class="n">solution</span><span class="p">,</span> <span class="n">domain</span><span class="o">=</span><span class="n">domain</span><span class="p">,</span> <span class="n">calculation_type</span><span class="o">=</span><span class="s2">&quot;d&quot;</span><span class="p">,</span>
+                                         <span class="n">calculation</span><span class="o">=</span><span class="n">calculation</span><span class="p">,</span> <span class="n">calculation_value</span><span class="o">=</span><span class="n">calculation_value</span><span class="p">,</span> <span class="n">calculation_name</span><span class="o">=</span><span class="n">calculation_name</span><span class="p">)</span></div></div>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">parent</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_parent</span>
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">optimodule</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">parent</span><span class="o">.</span><span class="n">odesign</span><span class="o">.</span><span class="n">GetModule</span><span class="p">(</span><span class="s2">&quot;Optimetrics&quot;</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">parent</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_parent</span> <span class="o">=</span> <span class="n">parent</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">setups</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_parent</span><span class="o">.</span><span class="n">design_properties</span><span class="p">:</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">setups_data</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_parent</span><span class="o">.</span><span class="n">design_properties</span><span class="p">[</span><span class="s2">&quot;Optimetrics&quot;</span><span class="p">][</span><span class="s2">&quot;OptimetricsSetups&quot;</span><span class="p">]</span>
+                <span class="k">for</span> <span class="n">data</span> <span class="ow">in</span> <span class="n">setups_data</span><span class="p">:</span>
+                    <span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="n">setups_data</span><span class="p">[</span><span class="n">data</span><span class="p">])</span> <span class="ow">is</span> <span class="n">OrderedDict</span> <span class="ow">and</span> <span class="n">setups_data</span><span class="p">[</span><span class="n">data</span><span class="p">][</span><span class="s1">&#39;SetupType&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;OptiSensitivity&quot;</span><span class="p">:</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">setups</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">Setup</span><span class="p">(</span><span class="n">parent</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="n">setups_data</span><span class="p">[</span><span class="n">data</span><span class="p">]))</span>
+            <span class="k">except</span><span class="p">:</span>
+                <span class="k">pass</span>
+
+<div class="viewcode-block" id="SensitivitySetups.add_sensitivity"><a class="viewcode-back" href="../../../../API/DesignXPlorer.html#pyaedt.core.modules.DesignXPloration.SensitivitySetups.add_sensitivity">[docs]</a>    <span class="nd">@aedt_exception_handler</span>
+    <span class="k">def</span> <span class="nf">add_sensitivity</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">calculation</span><span class="p">,</span> <span class="n">calculation_value</span><span class="p">,</span> <span class="n">calculation_type</span><span class="o">=</span><span class="s2">&quot;Freq&quot;</span><span class="p">,</span>
+                        <span class="n">reporttype</span><span class="o">=</span><span class="s2">&quot;Modal Solution Data&quot;</span><span class="p">,</span> <span class="n">domain</span><span class="o">=</span><span class="s2">&quot;Sweep&quot;</span><span class="p">,</span> <span class="n">solution</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">parametricname</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Add a Sensitivity Basic Setup. User can customize all Options after the creation</span>
+
+
+<span class="sd">        :param calculation: name of the Calculation</span>
+<span class="sd">        :param calculation_value: Variation Value (eg. &quot;1GHz&quot;)</span>
+<span class="sd">        :param calculation_type: Variation type. Default Freq</span>
+<span class="sd">        :param reporttype: Report Type. Default &quot;Modal Solution Data&quot;</span>
+<span class="sd">        :param domain: Default &quot;Sweep&quot;</span>
+<span class="sd">        :param solution: Solution name. If nothing, nominal sweep will be used</span>
+<span class="sd">        :param parametricname: Name of the sensititivy analsysis. if nothing, a default name will be given</span>
+<span class="sd">        :return: Sensitivity object</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">parametricname</span><span class="p">:</span>
+            <span class="n">parametricname</span> <span class="o">=</span> <span class="n">generate_unique_name</span><span class="p">(</span><span class="s2">&quot;Sensitivity&quot;</span><span class="p">)</span>
+        <span class="n">setup</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">Setup</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_parent</span><span class="p">,</span> <span class="n">parametricname</span><span class="p">)</span>
+        <span class="n">sweepdefinition</span> <span class="o">=</span> <span class="n">OrderedDict</span><span class="p">()</span>
+        <span class="n">sweepdefinition</span><span class="p">[</span><span class="s2">&quot;ReportType&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">reporttype</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">solution</span><span class="p">:</span>
+            <span class="n">solution</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_parent</span><span class="o">.</span><span class="n">nominal_sweep</span>
+        <span class="n">sweepdefinition</span><span class="p">[</span><span class="s2">&quot;Solution&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">solution</span>
+        <span class="n">sweepdefinition</span><span class="p">[</span><span class="s2">&quot;SimValueContext&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">OrderedDict</span><span class="p">({</span><span class="s2">&quot;Domain&quot;</span><span class="p">:</span> <span class="n">domain</span><span class="p">})</span>
+        <span class="n">sweepdefinition</span><span class="p">[</span><span class="s2">&quot;Calculation&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">calculation</span>
+        <span class="n">sweepdefinition</span><span class="p">[</span><span class="s2">&quot;Name&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">calculation</span>
+        <span class="n">sweepdefinition</span><span class="p">[</span><span class="s2">&quot;Ranges&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">OrderedDict</span><span class="p">(</span>
+            <span class="p">{</span><span class="s2">&quot;Range&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;Var:=&quot;</span><span class="p">,</span> <span class="n">calculation_type</span><span class="p">,</span> <span class="s2">&quot;Type:=&quot;</span><span class="p">,</span> <span class="s2">&quot;d&quot;</span><span class="p">,</span> <span class="s2">&quot;DiscreteValues:=&quot;</span><span class="p">,</span> <span class="n">calculation_value</span><span class="p">]})</span>
+        <span class="n">setup</span><span class="o">.</span><span class="n">props</span><span class="p">[</span><span class="s2">&quot;Goals&quot;</span><span class="p">][</span><span class="s2">&quot;Goal&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">sweepdefinition</span>
+        <span class="n">setup</span><span class="o">.</span><span class="n">create</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">setups</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">setup</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">setup</span></div></div>
+
+
+<div class="viewcode-block" id="StatisticalSetups"><a class="viewcode-back" href="../../../../API/DesignXPlorer.html#pyaedt.core.modules.DesignXPloration.StatisticalSetups">[docs]</a><span class="k">class</span> <span class="nc">StatisticalSetups</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Statistical Class</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+<div class="viewcode-block" id="StatisticalSetups.Setup"><a class="viewcode-back" href="../../../../API/DesignXPlorer.html#pyaedt.core.modules.DesignXPloration.StatisticalSetups.Setup">[docs]</a>    <span class="k">class</span> <span class="nc">Setup</span><span class="p">(</span><span class="n">CommonOptimetrics</span><span class="p">,</span> <span class="nb">object</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Setup Class</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">parent</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">dictinputs</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+            <span class="n">CommonOptimetrics</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">parent</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">dictinputs</span><span class="o">=</span><span class="n">dictinputs</span><span class="p">,</span> <span class="n">optimtype</span><span class="o">=</span><span class="s2">&quot;OptiStatistical&quot;</span><span class="p">)</span>
+            <span class="k">pass</span>
+
+<div class="viewcode-block" id="StatisticalSetups.Setup.add_calculation"><a class="viewcode-back" href="../../../../API/DesignXPlorer.html#pyaedt.core.modules.DesignXPloration.StatisticalSetups.Setup.add_calculation">[docs]</a>        <span class="nd">@aedt_exception_handler</span>
+        <span class="k">def</span> <span class="nf">add_calculation</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">calculation</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="n">calculation_value</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="n">reporttype</span><span class="o">=</span><span class="s2">&quot;Modal Solution Data&quot;</span><span class="p">,</span> <span class="n">solution</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">domain</span><span class="o">=</span><span class="s2">&quot;Sweep&quot;</span><span class="p">,</span>  <span class="n">calculation_name</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+            <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">            Add Calculation to Statistical Setup</span>
+
+<span class="sd">            :param reporttype: Name of the Report to take the Calculation</span>
+<span class="sd">            :param solution: solution type. if none, default solution will be taken</span>
+<span class="sd">            :param domain: domain type. if none sweep will be taken</span>
+<span class="sd">            :param calculation: calculation value eg. dB(S(1,1,))</span>
+<span class="sd">            :param calculation_value: calculation value. eg. if sweep &quot;1GHz)</span>
+<span class="sd">            :return: bool</span>
+<span class="sd">            &quot;&quot;&quot;</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_add_calculation</span><span class="p">(</span><span class="n">reporttype</span><span class="o">=</span><span class="n">reporttype</span><span class="p">,</span> <span class="n">solution</span><span class="o">=</span><span class="n">solution</span><span class="p">,</span> <span class="n">domain</span><span class="o">=</span><span class="n">domain</span><span class="p">,</span> <span class="n">calculation_type</span><span class="o">=</span><span class="s2">&quot;d&quot;</span><span class="p">,</span>
+                                         <span class="n">calculation</span><span class="o">=</span><span class="n">calculation</span><span class="p">,</span> <span class="n">calculation_value</span><span class="o">=</span><span class="n">calculation_value</span><span class="p">,</span> <span class="n">calculation_name</span><span class="o">=</span><span class="n">calculation_name</span><span class="p">)</span></div></div>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">parent</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_parent</span>
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">optimodule</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">parent</span><span class="o">.</span><span class="n">odesign</span><span class="o">.</span><span class="n">GetModule</span><span class="p">(</span><span class="s2">&quot;Optimetrics&quot;</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">parent</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_parent</span> <span class="o">=</span> <span class="n">parent</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">setups</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_parent</span><span class="o">.</span><span class="n">design_properties</span><span class="p">:</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">setups_data</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_parent</span><span class="o">.</span><span class="n">design_properties</span><span class="p">[</span><span class="s2">&quot;Optimetrics&quot;</span><span class="p">][</span><span class="s2">&quot;OptimetricsSetups&quot;</span><span class="p">]</span>
+                <span class="k">for</span> <span class="n">data</span> <span class="ow">in</span> <span class="n">setups_data</span><span class="p">:</span>
+                    <span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="n">setups_data</span><span class="p">[</span><span class="n">data</span><span class="p">])</span> <span class="ow">is</span> <span class="n">OrderedDict</span> <span class="ow">and</span> <span class="n">setups_data</span><span class="p">[</span><span class="n">data</span><span class="p">][</span><span class="s1">&#39;SetupType&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;OptiStatistical&quot;</span><span class="p">:</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">setups</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">Setup</span><span class="p">(</span><span class="n">parent</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="n">setups_data</span><span class="p">[</span><span class="n">data</span><span class="p">]))</span>
+            <span class="k">except</span><span class="p">:</span>
+                <span class="k">pass</span>
+
+<div class="viewcode-block" id="StatisticalSetups.add_statistical"><a class="viewcode-back" href="../../../../API/DesignXPlorer.html#pyaedt.core.modules.DesignXPloration.StatisticalSetups.add_statistical">[docs]</a>    <span class="nd">@aedt_exception_handler</span>
+    <span class="k">def</span> <span class="nf">add_statistical</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">calculation_name</span><span class="p">,</span> <span class="n">calc_variation_value</span><span class="p">,</span> <span class="n">calculation_type</span><span class="o">=</span><span class="s2">&quot;Freq&quot;</span><span class="p">,</span>
+                        <span class="n">reporttype</span><span class="o">=</span><span class="s2">&quot;Modal Solution Data&quot;</span><span class="p">,</span> <span class="n">domain</span><span class="o">=</span><span class="s2">&quot;Sweep&quot;</span><span class="p">,</span> <span class="n">solution</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">parametricname</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Add a Sensitivity Basic Setup. User can customize all Options after the creation</span>
+
+
+<span class="sd">        :param calculation_name: name of the Calculation</span>
+<span class="sd">        :param calc_variation_value: Variation Value (eg. &quot;1GHz&quot;)</span>
+<span class="sd">        :param calculation_type: Variation type. Default Freq</span>
+<span class="sd">        :param reporttype: Report Type. Default &quot;Modal Solution Data&quot;</span>
+<span class="sd">        :param domain: Default &quot;Sweep&quot;</span>
+<span class="sd">        :param solution: Solution name. If nothing, nominal sweep will be used</span>
+<span class="sd">        :param parametricname: Name of the sensititivy analsysis. if nothing, a default name will be given</span>
+<span class="sd">        :return: Statistical object</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">parametricname</span><span class="p">:</span>
+            <span class="n">parametricname</span> <span class="o">=</span> <span class="n">generate_unique_name</span><span class="p">(</span><span class="s2">&quot;Statistical&quot;</span><span class="p">)</span>
+        <span class="n">setup</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">Setup</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_parent</span><span class="p">,</span> <span class="n">parametricname</span><span class="p">)</span>
+        <span class="n">sweepdefinition</span> <span class="o">=</span> <span class="n">OrderedDict</span><span class="p">()</span>
+        <span class="n">sweepdefinition</span><span class="p">[</span><span class="s2">&quot;ReportType&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">reporttype</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">solution</span><span class="p">:</span>
+            <span class="n">solution</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_parent</span><span class="o">.</span><span class="n">nominal_sweep</span>
+
+        <span class="n">sweepdefinition</span><span class="p">[</span><span class="s2">&quot;Solution&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">solution</span>
+        <span class="n">sweepdefinition</span><span class="p">[</span><span class="s2">&quot;SimValueContext&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">OrderedDict</span><span class="p">({</span><span class="s2">&quot;Domain&quot;</span><span class="p">:</span> <span class="n">domain</span><span class="p">})</span>
+        <span class="n">sweepdefinition</span><span class="p">[</span><span class="s2">&quot;Calculation&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">calculation_name</span>
+        <span class="n">sweepdefinition</span><span class="p">[</span><span class="s2">&quot;Name&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">calculation_name</span>
+        <span class="n">sweepdefinition</span><span class="p">[</span><span class="s2">&quot;Ranges&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">OrderedDict</span><span class="p">({</span><span class="s2">&quot;Range&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;Var:=&quot;</span><span class="p">,</span> <span class="n">calculation_type</span><span class="p">,</span>	<span class="s2">&quot;Type:=&quot;</span><span class="p">,</span> <span class="s2">&quot;d&quot;</span><span class="p">,</span> <span class="s2">&quot;DiscreteValues:=&quot;</span><span class="p">,</span> <span class="n">calc_variation_value</span><span class="p">]})</span>
+        <span class="n">setup</span><span class="o">.</span><span class="n">props</span><span class="p">[</span><span class="s2">&quot;Goals&quot;</span><span class="p">][</span><span class="s2">&quot;Goal&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">sweepdefinition</span>
+        <span class="n">setup</span><span class="o">.</span><span class="n">create</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">setups</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">setup</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">setup</span></div></div>
+
+
+<div class="viewcode-block" id="DOESetups"><a class="viewcode-back" href="../../../../API/DesignXPlorer.html#pyaedt.core.modules.DesignXPloration.DOESetups">[docs]</a><span class="k">class</span> <span class="nc">DOESetups</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    DOE Class</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+<div class="viewcode-block" id="DOESetups.Setup"><a class="viewcode-back" href="../../../../API/DesignXPlorer.html#pyaedt.core.modules.DesignXPloration.DOESetups.Setup">[docs]</a>    <span class="k">class</span> <span class="nc">Setup</span><span class="p">(</span><span class="n">CommonOptimetrics</span><span class="p">,</span> <span class="nb">object</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Setup Class</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">parent</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">dictinputs</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+            <span class="n">CommonOptimetrics</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">parent</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">dictinputs</span><span class="o">=</span><span class="n">dictinputs</span><span class="p">,</span> <span class="n">optimtype</span><span class="o">=</span><span class="s2">&quot;OptiDXDOE&quot;</span><span class="p">)</span>
+            <span class="k">pass</span>
+<div class="viewcode-block" id="DOESetups.Setup.add_calculation"><a class="viewcode-back" href="../../../../API/DesignXPlorer.html#pyaedt.core.modules.DesignXPloration.DOESetups.Setup.add_calculation">[docs]</a>        <span class="nd">@aedt_exception_handler</span>
+        <span class="k">def</span> <span class="nf">add_calculation</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">calculation</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="n">calculation_value</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="n">reporttype</span><span class="o">=</span><span class="s2">&quot;Modal Solution Data&quot;</span><span class="p">,</span> <span class="n">solution</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                            <span class="n">domain</span><span class="o">=</span><span class="s2">&quot;Sweep&quot;</span><span class="p">,</span> <span class="n">calculation_name</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+            <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">            Add Calculation to DOE Setup</span>
+
+<span class="sd">            :param reporttype: Name of the Report to take the Calculation</span>
+<span class="sd">            :param solution: solution type. if none, default solution will be taken</span>
+<span class="sd">            :param domain: domain type. if none sweep will be taken</span>
+<span class="sd">            :param calculation: calculation value eg. dB(S(1,1,))</span>
+<span class="sd">            :param calculation_value: calculation value. eg. if sweep &quot;1GHz)</span>
+<span class="sd">            :return: bool</span>
+<span class="sd">            &quot;&quot;&quot;</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_add_calculation</span><span class="p">(</span><span class="n">reporttype</span><span class="o">=</span><span class="n">reporttype</span><span class="p">,</span> <span class="n">solution</span><span class="o">=</span><span class="n">solution</span><span class="p">,</span> <span class="n">domain</span><span class="o">=</span><span class="n">domain</span><span class="p">,</span> <span class="n">calculation_type</span><span class="o">=</span><span class="s2">&quot;d&quot;</span><span class="p">,</span>
+                                         <span class="n">calculation</span><span class="o">=</span><span class="n">calculation</span><span class="p">,</span> <span class="n">calculation_value</span><span class="o">=</span><span class="n">calculation_value</span><span class="p">,</span> <span class="n">calculation_name</span><span class="o">=</span><span class="n">calculation_name</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="DOESetups.Setup.add_goal"><a class="viewcode-back" href="../../../../API/DesignXPlorer.html#pyaedt.core.modules.DesignXPloration.DOESetups.Setup.add_goal">[docs]</a>        <span class="nd">@aedt_exception_handler</span>
+        <span class="k">def</span> <span class="nf">add_goal</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">calculation</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="n">calculation_value</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="n">calculation_type</span><span class="o">=</span><span class="s2">&quot;discrete&quot;</span><span class="p">,</span>
+                     <span class="n">calculation_stop</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="n">reporttype</span><span class="o">=</span><span class="s2">&quot;Modal Solution Data&quot;</span><span class="p">,</span> <span class="n">solution</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">domain</span><span class="o">=</span><span class="s2">&quot;Sweep&quot;</span><span class="p">,</span> <span class="n">goal_name</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">goal_value</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">goal_weight</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">condition</span><span class="o">=</span><span class="s2">&quot;==&quot;</span><span class="p">):</span>
+            <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">            Add Goald to DOE Setup</span>
+
+<span class="sd">            :param reporttype: Name of the Report to take the Calculation</span>
+<span class="sd">            :param solution: solution type. if none, default solution will be taken</span>
+<span class="sd">            :param domain: domain type. if none sweep will be taken</span>
+<span class="sd">            :param calculation: calculation value eg. dB(S(1,1,))</span>
+<span class="sd">            :param calculation_type: discrete or range</span>
+<span class="sd">            :param calculation_value: calculation value. eg. if sweep &quot;1GHz). if discrete, it is discrete value or list, if range, it is start value</span>
+<span class="sd">            :param calculation_stop: calculation value. eg. if sweep &quot;1GHz). if range it is the stop value</span>
+<span class="sd">            :return: bool</span>
+<span class="sd">            &quot;&quot;&quot;</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_add_goal</span><span class="p">(</span><span class="n">optigoalname</span><span class="o">=</span><span class="s2">&quot;CostFunctionGoals&quot;</span><span class="p">,</span> <span class="n">reporttype</span><span class="o">=</span><span class="n">reporttype</span><span class="p">,</span> <span class="n">solution</span><span class="o">=</span><span class="n">solution</span><span class="p">,</span>
+                                  <span class="n">domain</span><span class="o">=</span><span class="n">domain</span><span class="p">,</span> <span class="n">calculation_type</span><span class="o">=</span><span class="n">calculation_type</span><span class="p">,</span> <span class="n">calculation</span><span class="o">=</span><span class="n">calculation</span><span class="p">,</span>
+                                  <span class="n">calc_val1</span><span class="o">=</span><span class="n">calculation_value</span><span class="p">,</span> <span class="n">calc_val2</span><span class="o">=</span><span class="n">calculation_stop</span><span class="p">,</span> <span class="n">goal_name</span><span class="o">=</span><span class="n">goal_name</span><span class="p">,</span>
+                                  <span class="n">goal_weight</span><span class="o">=</span><span class="n">goal_weight</span><span class="p">,</span>
+                                  <span class="n">goal_value</span><span class="o">=</span><span class="n">goal_value</span><span class="p">,</span> <span class="n">condition</span><span class="o">=</span><span class="n">condition</span><span class="p">)</span></div></div>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">parent</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_parent</span>
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">optimodule</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">parent</span><span class="o">.</span><span class="n">odesign</span><span class="o">.</span><span class="n">GetModule</span><span class="p">(</span><span class="s2">&quot;Optimetrics&quot;</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">parent</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_parent</span> <span class="o">=</span> <span class="n">parent</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">setups</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_parent</span><span class="o">.</span><span class="n">design_properties</span><span class="p">:</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">setups_data</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_parent</span><span class="o">.</span><span class="n">design_properties</span><span class="p">[</span><span class="s2">&quot;Optimetrics&quot;</span><span class="p">][</span><span class="s2">&quot;OptimetricsSetups&quot;</span><span class="p">]</span>
+                <span class="k">for</span> <span class="n">data</span> <span class="ow">in</span> <span class="n">setups_data</span><span class="p">:</span>
+                    <span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="n">setups_data</span><span class="p">[</span><span class="n">data</span><span class="p">])</span> <span class="ow">is</span> <span class="n">OrderedDict</span> <span class="ow">and</span> <span class="n">setups_data</span><span class="p">[</span><span class="n">data</span><span class="p">][</span><span class="s1">&#39;SetupType&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;OptiDXDOE&quot;</span><span class="p">:</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">setups</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">Setup</span><span class="p">(</span><span class="n">parent</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="n">setups_data</span><span class="p">[</span><span class="n">data</span><span class="p">]))</span>
+            <span class="k">except</span><span class="p">:</span>
+                <span class="k">pass</span>
+
+<div class="viewcode-block" id="DOESetups.add_doe"><a class="viewcode-back" href="../../../../API/DesignXPlorer.html#pyaedt.core.modules.DesignXPloration.DOESetups.add_doe">[docs]</a>    <span class="nd">@aedt_exception_handler</span>
+    <span class="k">def</span> <span class="nf">add_doe</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">calculation</span><span class="p">,</span> <span class="n">calculation_value</span><span class="p">,</span> <span class="n">calculation_type</span><span class="o">=</span><span class="s2">&quot;Freq&quot;</span><span class="p">,</span> <span class="n">reporttype</span><span class="o">=</span><span class="s2">&quot;Modal Solution Data&quot;</span><span class="p">,</span>
+                <span class="n">domain</span><span class="o">=</span><span class="s2">&quot;Sweep&quot;</span><span class="p">,</span> <span class="n">condition</span><span class="o">=</span><span class="s2">&quot;&lt;=&quot;</span><span class="p">,</span> <span class="n">goal_value</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">goal_weight</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">solution</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">parametricname</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Add a DOE Basic Setup. User can customize all Options after the creation</span>
+
+
+<span class="sd">        :param calculation: name of the Calculation</span>
+<span class="sd">        :param calculation_value: Variation Value (eg. &quot;1GHz&quot;)</span>
+<span class="sd">        :param calculation_type: Variation type. Default Freq</span>
+<span class="sd">        :param reporttype: Report Type. Default &quot;Modal Solution Data&quot;</span>
+<span class="sd">        :param domain: Default &quot;Sweep&quot;</span>
+<span class="sd">        :param condition: goal condition. Default &quot;&lt;=&quot;</span>
+<span class="sd">        :param goal_value: goal value to meet condition. Default 1</span>
+<span class="sd">        :param goal_weight: goal weight. Default 1</span>
+<span class="sd">        :param solution: Solution name. If nothing, nominal sweep will be used</span>
+<span class="sd">        :param parametricname: Name of the sensititivy analsysis. if nothing, a default name will be given</span>
+<span class="sd">        :return: DOE object</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">solution</span><span class="p">:</span>
+            <span class="n">solution</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_parent</span><span class="o">.</span><span class="n">nominal_sweep</span>
+        <span class="n">setupname</span> <span class="o">=</span> <span class="p">[</span><span class="n">solution</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot; &quot;</span><span class="p">)[</span><span class="mi">0</span><span class="p">]]</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">parametricname</span><span class="p">:</span>
+            <span class="n">parametricname</span> <span class="o">=</span> <span class="n">generate_unique_name</span><span class="p">(</span><span class="s2">&quot;DesignOfExp&quot;</span><span class="p">)</span>
+        <span class="n">setup</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">Setup</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_parent</span><span class="p">,</span> <span class="n">parametricname</span><span class="p">)</span>
+        <span class="n">setup</span><span class="o">.</span><span class="n">props</span><span class="p">[</span><span class="s2">&quot;Sim. Setups&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">setupname</span>
+        <span class="n">sweepdefinition</span> <span class="o">=</span> <span class="n">OrderedDict</span><span class="p">()</span>
+        <span class="n">sweepdefinition</span><span class="p">[</span><span class="s2">&quot;ReportType&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">reporttype</span>
+
+        <span class="n">sweepdefinition</span><span class="p">[</span><span class="s2">&quot;Solution&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">solution</span>
+        <span class="n">sweepdefinition</span><span class="p">[</span><span class="s2">&quot;SimValueContext&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">OrderedDict</span><span class="p">({</span><span class="s2">&quot;Domain&quot;</span><span class="p">:</span> <span class="n">domain</span><span class="p">})</span>
+        <span class="n">sweepdefinition</span><span class="p">[</span><span class="s2">&quot;Calculation&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">calculation</span>
+        <span class="n">sweepdefinition</span><span class="p">[</span><span class="s2">&quot;Name&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">calculation</span>
+        <span class="n">sweepdefinition</span><span class="p">[</span><span class="s2">&quot;Ranges&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">OrderedDict</span><span class="p">(</span>
+            <span class="p">{</span><span class="s2">&quot;Range&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;Var:=&quot;</span><span class="p">,</span> <span class="n">calculation_type</span><span class="p">,</span> <span class="s2">&quot;Type:=&quot;</span><span class="p">,</span> <span class="s2">&quot;d&quot;</span><span class="p">,</span> <span class="s2">&quot;DiscreteValues:=&quot;</span><span class="p">,</span> <span class="n">calculation_value</span><span class="p">]})</span>
+        <span class="n">sweepdefinition</span><span class="p">[</span><span class="s2">&quot;Condition&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">condition</span>
+        <span class="n">sweepdefinition</span><span class="p">[</span><span class="s2">&quot;GoalValue&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">OrderedDict</span><span class="p">(</span>
+            <span class="p">{</span><span class="s2">&quot;GoalValueType&quot;</span><span class="p">:</span> <span class="s2">&quot;Independent&quot;</span><span class="p">,</span> <span class="s2">&quot;Format&quot;</span><span class="p">:</span> <span class="s2">&quot;Real/Imag&quot;</span><span class="p">,</span> <span class="s2">&quot;bG&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;v:=&quot;</span><span class="p">,</span> <span class="s2">&quot;[</span><span class="si">{}</span><span class="s2">;]&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">goal_value</span><span class="p">)]})</span>
+        <span class="n">sweepdefinition</span><span class="p">[</span><span class="s2">&quot;Weight&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;[</span><span class="si">{}</span><span class="s2">;]&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">goal_weight</span><span class="p">)</span>
+        <span class="n">setup</span><span class="o">.</span><span class="n">props</span><span class="p">[</span><span class="s2">&quot;CostFunctionGoals&quot;</span><span class="p">][</span><span class="s2">&quot;Goal&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">sweepdefinition</span>
+        <span class="n">setup</span><span class="o">.</span><span class="n">create</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">setups</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">setup</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">setup</span></div></div>
+
+
+<div class="viewcode-block" id="OptimizationSetups"><a class="viewcode-back" href="../../../../API/DesignXPlorer.html#pyaedt.core.modules.DesignXPloration.OptimizationSetups">[docs]</a><span class="k">class</span> <span class="nc">OptimizationSetups</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Optimization Class</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+<div class="viewcode-block" id="OptimizationSetups.Setup"><a class="viewcode-back" href="../../../../API/DesignXPlorer.html#pyaedt.core.modules.DesignXPloration.OptimizationSetups.Setup">[docs]</a>    <span class="k">class</span> <span class="nc">Setup</span><span class="p">(</span><span class="n">CommonOptimetrics</span><span class="p">,</span> <span class="nb">object</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Setup Class</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">parent</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">dictinputs</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+            <span class="n">CommonOptimetrics</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">parent</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">dictinputs</span><span class="o">=</span><span class="n">dictinputs</span><span class="p">,</span> <span class="n">optimtype</span><span class="o">=</span><span class="s2">&quot;OptiOptimization&quot;</span><span class="p">)</span>
+            <span class="k">pass</span>
+
+<div class="viewcode-block" id="OptimizationSetups.Setup.add_goal"><a class="viewcode-back" href="../../../../API/DesignXPlorer.html#pyaedt.core.modules.DesignXPloration.OptimizationSetups.Setup.add_goal">[docs]</a>        <span class="nd">@aedt_exception_handler</span>
+        <span class="k">def</span> <span class="nf">add_goal</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">calculation</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="n">calculation_value</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="n">calculation_type</span><span class="o">=</span><span class="s2">&quot;discrete&quot;</span><span class="p">,</span> <span class="n">calculation_stop</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">,</span>
+                     <span class="n">reporttype</span><span class="o">=</span><span class="s2">&quot;Modal Solution Data&quot;</span><span class="p">,</span> <span class="n">solution</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">domain</span><span class="o">=</span><span class="s2">&quot;Sweep&quot;</span><span class="p">,</span> <span class="n">goal_name</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">goal_value</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
+                     <span class="n">goal_weight</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">condition</span><span class="o">=</span><span class="s2">&quot;==&quot;</span><span class="p">):</span>
+            <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">            Add Calculation to Optimetrics Setup</span>
+
+<span class="sd">            :param reporttype: Name of the Report to take the Calculation</span>
+<span class="sd">            :param solution: solution type. if none, default solution will be taken</span>
+<span class="sd">            :param domain: domain type. if none sweep will be taken</span>
+<span class="sd">            :param calculation: calculation value eg. dB(S(1,1,))</span>
+<span class="sd">            :param calculation_type: discrete or range</span>
+<span class="sd">            :param calculation_value: calculation value. eg. if sweep &quot;1GHz). if discrete, it is discrete value or list, if range, it is start value</span>
+<span class="sd">            :param calculation_stop: calculation value. eg. if sweep &quot;1GHz). if range it is the stop value</span>
+<span class="sd">            :param goal_value: goal Value. Default 1</span>
+<span class="sd">            :param goal_weight: Goal Weight. Default 1</span>
+<span class="sd">            :param condition: Condition. Default &quot;==&quot;</span>
+
+<span class="sd">            :return: bool</span>
+<span class="sd">            &quot;&quot;&quot;</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_add_goal</span><span class="p">(</span><span class="n">optigoalname</span><span class="o">=</span><span class="s2">&quot;Goals&quot;</span><span class="p">,</span> <span class="n">reporttype</span><span class="o">=</span><span class="n">reporttype</span><span class="p">,</span> <span class="n">solution</span><span class="o">=</span><span class="n">solution</span><span class="p">,</span> <span class="n">domain</span><span class="o">=</span><span class="n">domain</span><span class="p">,</span>
+                                  <span class="n">calculation_type</span><span class="o">=</span><span class="n">calculation_type</span><span class="p">,</span> <span class="n">calculation</span><span class="o">=</span><span class="n">calculation</span><span class="p">,</span>
+                                  <span class="n">calc_val1</span><span class="o">=</span><span class="n">calculation_value</span><span class="p">,</span> <span class="n">calc_val2</span><span class="o">=</span><span class="n">calculation_stop</span><span class="p">,</span> <span class="n">goal_name</span><span class="o">=</span><span class="n">goal_name</span><span class="p">,</span> <span class="n">goal_value</span><span class="o">=</span><span class="n">goal_value</span><span class="p">,</span> <span class="n">goal_weight</span><span class="o">=</span><span class="n">goal_weight</span><span class="p">,</span> <span class="n">condition</span><span class="o">=</span><span class="n">condition</span><span class="p">)</span></div></div>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">parent</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_parent</span>
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">optimodule</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">parent</span><span class="o">.</span><span class="n">odesign</span><span class="o">.</span><span class="n">GetModule</span><span class="p">(</span><span class="s2">&quot;Optimetrics&quot;</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">parent</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_parent</span> <span class="o">=</span> <span class="n">parent</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">setups</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_parent</span><span class="o">.</span><span class="n">design_properties</span><span class="p">:</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">setups_data</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_parent</span><span class="o">.</span><span class="n">design_properties</span><span class="p">[</span><span class="s2">&quot;Optimetrics&quot;</span><span class="p">][</span><span class="s2">&quot;OptimetricsSetups&quot;</span><span class="p">]</span>
+                <span class="k">for</span> <span class="n">data</span> <span class="ow">in</span> <span class="n">setups_data</span><span class="p">:</span>
+                    <span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="n">setups_data</span><span class="p">[</span><span class="n">data</span><span class="p">])</span> <span class="ow">is</span> <span class="n">OrderedDict</span> <span class="ow">and</span> <span class="n">setups_data</span><span class="p">[</span><span class="n">data</span><span class="p">][</span><span class="s1">&#39;SetupType&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;OptiOptimization&quot;</span><span class="p">:</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">setups</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">Setup</span><span class="p">(</span><span class="n">parent</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="n">setups_data</span><span class="p">[</span><span class="n">data</span><span class="p">]))</span>
+            <span class="k">except</span><span class="p">:</span>
+                <span class="k">pass</span>
+
+
+
+<div class="viewcode-block" id="OptimizationSetups.add_optimization"><a class="viewcode-back" href="../../../../API/DesignXPlorer.html#pyaedt.core.modules.DesignXPloration.OptimizationSetups.add_optimization">[docs]</a>    <span class="nd">@aedt_exception_handler</span>
+    <span class="k">def</span> <span class="nf">add_optimization</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">calculation</span><span class="p">,</span> <span class="n">calculation_value</span><span class="p">,</span> <span class="n">calculation_type</span><span class="o">=</span><span class="s2">&quot;Freq&quot;</span><span class="p">,</span>
+                         <span class="n">reporttype</span><span class="o">=</span><span class="s2">&quot;Modal Solution Data&quot;</span><span class="p">,</span> <span class="n">domain</span><span class="o">=</span><span class="s2">&quot;Sweep&quot;</span><span class="p">,</span> <span class="n">condition</span><span class="o">=</span><span class="s2">&quot;&lt;=&quot;</span><span class="p">,</span> <span class="n">goal_value</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">goal_weight</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
+                         <span class="n">solution</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">parametricname</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Add a Optimization Basic Setup. User can customize all Options after the creation</span>
+
+
+<span class="sd">        :param calculation: name of the Calculation</span>
+<span class="sd">        :param calculation_value: Variation Value (eg. &quot;1GHz&quot;)</span>
+<span class="sd">        :param calculation_type: Variation type. Default Freq</span>
+<span class="sd">        :param reporttype: Report Type. Default &quot;Modal Solution Data&quot;</span>
+<span class="sd">        :param domain: Default &quot;Sweep&quot;</span>
+<span class="sd">        :param condition: goal condition. Default &quot;&lt;=&quot;</span>
+<span class="sd">        :param goal_value: goal value to meet condition. Default 1</span>
+<span class="sd">        :param goal_weight: goal weight. Default 1</span>
+<span class="sd">        :param solution: Solution name. If nothing, nominal sweep will be used</span>
+<span class="sd">        :param parametricname: Name of the sensititivy analsysis. if nothing, a default name will be given</span>
+<span class="sd">        :return: Optimization object</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">parametricname</span><span class="p">:</span>
+            <span class="n">parametricname</span> <span class="o">=</span> <span class="n">generate_unique_name</span><span class="p">(</span><span class="s2">&quot;Optimization&quot;</span><span class="p">)</span>
+        <span class="n">setup</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">Setup</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_parent</span><span class="p">,</span> <span class="n">parametricname</span><span class="p">)</span>
+        <span class="n">sweepdefinition</span> <span class="o">=</span> <span class="n">OrderedDict</span><span class="p">()</span>
+        <span class="n">sweepdefinition</span><span class="p">[</span><span class="s2">&quot;ReportType&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">reporttype</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">solution</span><span class="p">:</span>
+            <span class="n">solution</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_parent</span><span class="o">.</span><span class="n">nominal_sweep</span>
+        <span class="n">sweepdefinition</span><span class="p">[</span><span class="s2">&quot;Solution&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">solution</span>
+        <span class="n">sweepdefinition</span><span class="p">[</span><span class="s2">&quot;SimValueContext&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">OrderedDict</span><span class="p">({</span><span class="s2">&quot;Domain&quot;</span><span class="p">:</span> <span class="n">domain</span><span class="p">})</span>
+        <span class="n">sweepdefinition</span><span class="p">[</span><span class="s2">&quot;Calculation&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">calculation</span>
+        <span class="n">sweepdefinition</span><span class="p">[</span><span class="s2">&quot;Name&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">calculation</span>
+        <span class="n">sweepdefinition</span><span class="p">[</span><span class="s2">&quot;Ranges&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">OrderedDict</span><span class="p">({</span><span class="s2">&quot;Range&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;Var:=&quot;</span><span class="p">,</span> <span class="n">calculation_type</span><span class="p">,</span>	<span class="s2">&quot;Type:=&quot;</span><span class="p">,</span> <span class="s2">&quot;d&quot;</span><span class="p">,</span> <span class="s2">&quot;DiscreteValues:=&quot;</span><span class="p">,</span> <span class="n">calculation_value</span><span class="p">]})</span>
+        <span class="n">sweepdefinition</span><span class="p">[</span><span class="s2">&quot;Condition&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">condition</span>
+        <span class="n">sweepdefinition</span><span class="p">[</span><span class="s2">&quot;GoalValue&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">OrderedDict</span><span class="p">(</span>
+            <span class="p">{</span><span class="s2">&quot;GoalValueType&quot;</span><span class="p">:</span> <span class="s2">&quot;Independent&quot;</span><span class="p">,</span> <span class="s2">&quot;Format&quot;</span><span class="p">:</span> <span class="s2">&quot;Real/Imag&quot;</span><span class="p">,</span> <span class="s2">&quot;bG&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;v:=&quot;</span><span class="p">,</span> <span class="s2">&quot;[</span><span class="si">{}</span><span class="s2">;]&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">goal_value</span><span class="p">)]})</span>
+        <span class="n">sweepdefinition</span><span class="p">[</span><span class="s2">&quot;Weight&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;[</span><span class="si">{}</span><span class="s2">;]&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">goal_weight</span><span class="p">)</span>
+
+        <span class="n">setup</span><span class="o">.</span><span class="n">props</span><span class="p">[</span><span class="s2">&quot;Goals&quot;</span><span class="p">][</span><span class="s2">&quot;Goal&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">sweepdefinition</span>
+        <span class="n">setup</span><span class="o">.</span><span class="n">create</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">setups</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">setup</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">setup</span></div></div>
+</pre></div>
+
+              </div>
+              
+              
+              <div class='prev-next-bottom'>
+                
+
+              </div>
+              
+          </main>
+          
+
+      </div>
+    </div>
+
+    
+  <script src="../../../../_static/js/index.d3f166471bb80abb5163.js"></script>
+
+
+    <footer class="footer mt-5 mt-md-0">
+  <div class="container">
+    <p>
+          &copy; Copyright Copyright(c) 1986-2021, ANSYSInc. unauthorised use, distribution or duplication is prohibited. This tool release is unofficial and not covered by standard Ansys Support license..<br/>
+        Created using <a href="http://sphinx-doc.org/">Sphinx</a> 3.5.2.<br/>
+    </p>
+  </div>
+</footer>
+  </body>
+</html>

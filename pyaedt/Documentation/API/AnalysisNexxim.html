@@ -1,0 +1,456 @@
+
+<!DOCTYPE html>
+
+<html lang="Python">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Analysis Nexxim &#8212; pyaedt 0.5.0 documentation</title>
+    
+  <link rel="stylesheet" href="../_static/css/index.f658d18f9b420779cfdf24aa0a7e2d77.css">
+
+    
+  <link rel="stylesheet"
+    href="../_static/vendor/fontawesome/5.13.0/css/all.min.css">
+  <link rel="preload" as="font" type="font/woff2" crossorigin
+    href="../_static/vendor/fontawesome/5.13.0/webfonts/fa-solid-900.woff2">
+  <link rel="preload" as="font" type="font/woff2" crossorigin
+    href="../_static/vendor/fontawesome/5.13.0/webfonts/fa-brands-400.woff2">
+
+    
+      
+  <link rel="stylesheet"
+    href="../_static/vendor/open-sans_all/1.44.1/index.css">
+  <link rel="stylesheet"
+    href="../_static/vendor/lato_latin-ext/1.44.1/index.css">
+
+    
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/basic.css" type="text/css" />
+    <link rel="stylesheet" type="text/css" href="../_static/copybutton.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/graphviz.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/css/ansys.css" />
+    
+  <link rel="preload" as="script" href="../_static/js/index.d3f166471bb80abb5163.js">
+
+    <script id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+    <script src="../_static/jquery.js"></script>
+    <script src="../_static/underscore.js"></script>
+    <script src="../_static/doctools.js"></script>
+    <script src="../_static/clipboard.min.js"></script>
+    <script src="../_static/copybutton.js"></script>
+    <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Analysis RMxprt" href="AnalysisRMxprt.html" />
+    <link rel="prev" title="Analysis Icepak" href="AnalysisIcepak.html" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="docsearch:language" content="en" />
+  </head>
+  <body data-spy="scroll" data-target="#bd-toc-nav" data-offset="80">
+    
+    <nav class="navbar navbar-light navbar-expand-lg bg-light fixed-top bd-navbar" id="navbar-main">
+<div class="container-xl">
+
+    <a class="navbar-brand" href="../index.html">
+    
+      <img src="../_static/logo-ansys.png" class="logo" alt="logo" />
+    
+    </a>
+    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbar-menu" aria-controls="navbar-menu" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+    </button>
+
+    <div id="navbar-menu" class="col-lg-9 collapse navbar-collapse">
+      <ul id="navbar-main-elements" class="navbar-nav mr-auto">
+        
+        
+        <li class="nav-item ">
+            <a class="nav-link" href="../LICENSE.html">License Agreeement</a>
+        </li>
+        
+        <li class="nav-item ">
+            <a class="nav-link" href="../Resources/Installation.html">Installation</a>
+        </li>
+        
+        <li class="nav-item active">
+            <a class="nav-link" href="API.html">API documentation</a>
+        </li>
+        
+        <li class="nav-item ">
+            <a class="nav-link" href="Examples.html">Examples</a>
+        </li>
+        
+        <li class="nav-item ">
+            <a class="nav-link" href="../Resources/Code_Guidelines.html">Code Guidelines</a>
+        </li>
+        
+        <li class="nav-item ">
+            <a class="nav-link" href=""></a>
+        </li>
+        
+        
+      </ul>
+
+
+      
+
+      <ul class="navbar-nav">
+        
+        
+      </ul>
+    </div>
+</div>
+    </nav>
+    
+
+    <div class="container-xl">
+      <div class="row">
+          
+          <div class="col-12 col-md-3 bd-sidebar"><form class="bd-search d-flex align-items-center" action="../search.html" method="get">
+  <i class="icon fas fa-search"></i>
+  <input type="search" class="form-control" name="q" id="search-input" placeholder="Search the docs ..." aria-label="Search the docs ..." autocomplete="off" >
+</form>
+<nav class="bd-links" id="bd-docs-nav" aria-label="Main navigation">
+
+    <div class="bd-toc-item active">
+    
+  
+    <ul class="nav bd-sidenav">
+        
+        
+        
+        
+        
+        
+          
+            
+                <li class="">
+                    <a href="Application.html">Application Objects</a>
+                </li>
+            
+          
+            
+                <li class="">
+                    <a href="DesktopMessenger.html">Desktop & Messenger</a>
+                </li>
+            
+          
+            
+  
+                <li class="active">
+                    <a href="CoreModules.html">Core Modules</a>
+                    <ul>
+                    
+                        <li class="active">
+                            <a href="AnalysisCore.html">Analysis Core Modules</a>
+                        </li>
+                    
+                        <li class="">
+                            <a href="ModelerCore.html">Modeler</a>
+                        </li>
+                    
+                        <li class="">
+                            <a href="Design.html">Design</a>
+                        </li>
+                    
+                        <li class="">
+                            <a href="Variables.html">Variables</a>
+                        </li>
+                    
+                        <li class="">
+                            <a href="DesignXPlorer.html">Design XPloration</a>
+                        </li>
+                    
+                    </ul>
+                </li>
+            
+          
+            
+                <li class="">
+                    <a href="Primitives.html">Primitives</a>
+                </li>
+            
+          
+            
+                <li class="">
+                    <a href="Mesh.html">Mesh</a>
+                </li>
+            
+          
+            
+                <li class="">
+                    <a href="MaterialManagement.html">Material & Stackup</a>
+                </li>
+            
+          
+            
+                <li class="">
+                    <a href="Setup.html">Setup</a>
+                </li>
+            
+          
+            
+                <li class="">
+                    <a href="Post.html">PostProcessing</a>
+                </li>
+            
+          
+        
+        
+        
+        
+        
+        
+        
+        
+      </ul>
+  
+  </nav>
+          </div>
+          
+
+          
+          <div class="d-none d-xl-block col-xl-2 bd-toc">
+              
+
+<nav id="bd-toc-nav">
+    <ul class="nav section-nav flex-column">
+    
+    </ul>
+</nav>
+
+
+              
+          </div>
+          
+
+          
+          <main class="col-12 col-md-9 col-xl-7 py-md-5 pl-md-5 pr-md-4 bd-content" role="main">
+              
+              <div>
+                
+  <div class="section" id="analysis-nexxim">
+<h1>Analysis Nexxim<a class="headerlink" href="#analysis-nexxim" title="Permalink to this headline">¶</a></h1>
+<dl class="py class">
+<dt id="pyaedt.core.application.AnalysisNexxim.FieldAnalysisCircuit">
+<em class="property"><span class="pre">class</span> </em><code class="sig-prename descclassname"><span class="pre">pyaedt.core.application.AnalysisNexxim.</span></code><code class="sig-name descname"><span class="pre">FieldAnalysisCircuit</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">application</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">projectname</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">designname</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">solution_type</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">setup_name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pyaedt/core/application/AnalysisNexxim.html#FieldAnalysisCircuit"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyaedt.core.application.AnalysisNexxim.FieldAnalysisCircuit" title="Permalink to this definition">¶</a></dt>
+<dd><p><strong>AEDT_CircuitAnalysis</strong>
+Class for Circuit Analysis Setup (Nexxim,)
+It is automatically initialized by Application call (like HFSS, Q3D...). Refer to Application function for inputs definition</p>
+<dl class="py method">
+<dt id="pyaedt.core.application.AnalysisNexxim.FieldAnalysisCircuit.create_setup">
+<code class="sig-name descname"><span class="pre">create_setup</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">setupname</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'MySetupAuto'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">setuptype</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">props</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">{}</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pyaedt/core/application/AnalysisNexxim.html#FieldAnalysisCircuit.create_setup"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyaedt.core.application.AnalysisNexxim.FieldAnalysisCircuit.create_setup" title="Permalink to this definition">¶</a></dt>
+<dd><p>Create a new Setup.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>setupname</strong> -- optional, name of the new setup</p></li>
+<li><p><strong>setuptype</strong> -- optional, setup type. if None, default type will be applied</p></li>
+<li><p><strong>props</strong> -- optional dictionary of properties with values</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>setup object</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="pyaedt.core.application.AnalysisNexxim.FieldAnalysisCircuit.existing_analysis_setups">
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">existing_analysis_setups</span></code><a class="headerlink" href="#pyaedt.core.application.AnalysisNexxim.FieldAnalysisCircuit.existing_analysis_setups" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return a list of all defined analysis setup names in the maxwell design.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="pyaedt.core.application.AnalysisNexxim.FieldAnalysisCircuit.get_all_insertion_loss_list">
+<code class="sig-name descname"><span class="pre">get_all_insertion_loss_list</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">trlist</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">[]</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">reclist</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">[]</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tx_prefix</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rx_prefix</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pyaedt/core/application/AnalysisNexxim.html#FieldAnalysisCircuit.get_all_insertion_loss_list"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyaedt.core.application.AnalysisNexxim.FieldAnalysisCircuit.get_all_insertion_loss_list" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get the list of all the Insertion Losses from two list of exitations (driver and receiver). Optionally prefix can
+be used to retrive driver and receiver names.
+Example: excitation_names [&quot;1&quot;] [&quot;2&quot;] output [&quot;S(1,2)&quot;]</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>trlist</strong> -- list of Drivers to include</p></li>
+<li><p><strong>reclist</strong> -- list of Receiver to include. Number of Driver = Number of Receiver an</p></li>
+<li><p><strong>tx_prefix</strong> -- prefix for TX (eg. &quot;DIE&quot;)</p></li>
+<li><p><strong>rx_prefix</strong> -- prefix for RX (eg. &quot;BGA&quot;)</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>list of string representing Insertion Losses of excitations</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="pyaedt.core.application.AnalysisNexxim.FieldAnalysisCircuit.get_all_return_loss_list">
+<code class="sig-name descname"><span class="pre">get_all_return_loss_list</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">excitation_names</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">[]</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">excitation_name_prefix</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pyaedt/core/application/AnalysisNexxim.html#FieldAnalysisCircuit.get_all_return_loss_list"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyaedt.core.application.AnalysisNexxim.FieldAnalysisCircuit.get_all_return_loss_list" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get the list of all the Returnloss from a list of exitations. If no exitation is provided it will provide a full list of return Losses
+Example: excitation_names [&quot;1&quot;,&quot;2&quot;] output [&quot;S(1,1)&quot;,, S(2,2)]</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>excitation_names</strong> -- list of excitation to include</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>list of string representing Return Losses of excitations</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="pyaedt.core.application.AnalysisNexxim.FieldAnalysisCircuit.get_all_sparameter_list">
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">get_all_sparameter_list</span></code><a class="headerlink" href="#pyaedt.core.application.AnalysisNexxim.FieldAnalysisCircuit.get_all_sparameter_list" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get the list of all the SParameter from a list of exitations. If no exitation is provided it will provide a full list of sparameters
+Example: excitation_names [&quot;1&quot;,&quot;2&quot;] output [&quot;S(1,1)&quot;, &quot;S(1,2)&quot;, S(2,2)]</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>excitation_names</strong> -- list of excitation to include</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>list of strin representing Sparameters of excitations</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="pyaedt.core.application.AnalysisNexxim.FieldAnalysisCircuit.get_excitations_name">
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">get_excitations_name</span></code><a class="headerlink" href="#pyaedt.core.application.AnalysisNexxim.FieldAnalysisCircuit.get_excitations_name" title="Permalink to this definition">¶</a></dt>
+<dd><p>Property</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>BoundarySetup Module object</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="pyaedt.core.application.AnalysisNexxim.FieldAnalysisCircuit.get_fext_xtalk_list">
+<code class="sig-name descname"><span class="pre">get_fext_xtalk_list</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">trlist</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">[]</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">reclist</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">[]</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tx_prefix</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rx_prefix</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">skip_same_index_couples</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pyaedt/core/application/AnalysisNexxim.html#FieldAnalysisCircuit.get_fext_xtalk_list"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyaedt.core.application.AnalysisNexxim.FieldAnalysisCircuit.get_fext_xtalk_list" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get the list of all the Far End XTalk from 2 lists of exitations. Optionally prefix can
+be used to retrive driver and receivers names. If skip_same_index_couples is true, the tx and rx with same index
+position will be considered insertion losses and excluded from the list
+Example: excitation_names [&quot;1&quot;, &quot;2&quot;] [&quot;3&quot;,&quot;4&quot;] output [&quot;S(1,4)&quot;, &quot;S(2,3)&quot;]</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>trlist</strong> -- list of Drivers to include</p></li>
+<li><p><strong>tx_prefix</strong> -- prefix for TX (eg. &quot;DIE&quot;)</p></li>
+<li><p><strong>reclist</strong> -- list of Receiver to include</p></li>
+<li><p><strong>rx_prefix</strong> -- prefix for RX (eg. &quot;BGA&quot;)</p></li>
+<li><p><strong>skip_same_index_couples</strong> -- Boolean ignore TX and RX couple with same index</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>list of string representing Far End XTalks</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="pyaedt.core.application.AnalysisNexxim.FieldAnalysisCircuit.get_next_xtalk_list">
+<code class="sig-name descname"><span class="pre">get_next_xtalk_list</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">trlist</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">[]</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tx_prefix</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pyaedt/core/application/AnalysisNexxim.html#FieldAnalysisCircuit.get_next_xtalk_list"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyaedt.core.application.AnalysisNexxim.FieldAnalysisCircuit.get_next_xtalk_list" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get the list of all the Near End XTalk a list of exitation. Optionally prefix can
+be used to retrive driver names.
+Example: excitation_names [&quot;1&quot;, &quot;2&quot;, &quot;3&quot;] output [&quot;S(1,2)&quot;, &quot;S(1,3)&quot;, &quot;S(2,3)&quot;]</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>trlist</strong> -- list of Drivers to include</p></li>
+<li><p><strong>tx_prefix</strong> -- prefix for TX (eg. &quot;DIE&quot;)</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>list of string representing Near End XTalks</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="pyaedt.core.application.AnalysisNexxim.FieldAnalysisCircuit.get_setup">
+<code class="sig-name descname"><span class="pre">get_setup</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">setupname</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pyaedt/core/application/AnalysisNexxim.html#FieldAnalysisCircuit.get_setup"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyaedt.core.application.AnalysisNexxim.FieldAnalysisCircuit.get_setup" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get Setup from current design.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>setupname</strong> (<em>str</em>) -- name of the setup</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>setup object</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="pyaedt.core.application.AnalysisNexxim.FieldAnalysisCircuit.modeler">
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">modeler</span></code><a class="headerlink" href="#pyaedt.core.application.AnalysisNexxim.FieldAnalysisCircuit.modeler" title="Permalink to this definition">¶</a></dt>
+<dd><p>modeler object</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>return</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="pyaedt.core.application.AnalysisNexxim.FieldAnalysisCircuit.nominal_sweep">
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">nominal_sweep</span></code><a class="headerlink" href="#pyaedt.core.application.AnalysisNexxim.FieldAnalysisCircuit.nominal_sweep" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return a list of all defined analysis setup names in the maxwell design.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="pyaedt.core.application.AnalysisNexxim.FieldAnalysisCircuit.setup_names">
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">setup_names</span></code><a class="headerlink" href="#pyaedt.core.application.AnalysisNexxim.FieldAnalysisCircuit.setup_names" title="Permalink to this definition">¶</a></dt>
+<dd><p>Setup Lists</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>list of all defined analysis setup names in the design</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="pyaedt.core.application.AnalysisNexxim.FieldAnalysisCircuit.solution_type">
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">solution_type</span></code><a class="headerlink" href="#pyaedt.core.application.AnalysisNexxim.FieldAnalysisCircuit.solution_type" title="Permalink to this definition">¶</a></dt>
+<dd><p>Property</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>Solution Type</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+
+
+              </div>
+              
+              
+              <div class='prev-next-bottom'>
+                
+    <a class='left-prev' id="prev-link" href="AnalysisIcepak.html" title="previous page">Analysis Icepak</a>
+    <a class='right-next' id="next-link" href="AnalysisRMxprt.html" title="next page">Analysis RMxprt</a>
+
+              </div>
+              
+          </main>
+          
+
+      </div>
+    </div>
+
+    
+  <script src="../_static/js/index.d3f166471bb80abb5163.js"></script>
+
+
+    <footer class="footer mt-5 mt-md-0">
+  <div class="container">
+    <p>
+          &copy; Copyright Copyright(c) 1986-2021, ANSYSInc. unauthorised use, distribution or duplication is prohibited. This tool release is unofficial and not covered by standard Ansys Support license..<br/>
+        Created using <a href="http://sphinx-doc.org/">Sphinx</a> 3.5.2.<br/>
+    </p>
+  </div>
+</footer>
+  </body>
+</html>

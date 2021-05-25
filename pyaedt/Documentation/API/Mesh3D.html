@@ -1,0 +1,523 @@
+
+<!DOCTYPE html>
+
+<html lang="Python">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Mesh 3D &#8212; pyaedt 0.5.0 documentation</title>
+    
+  <link rel="stylesheet" href="../_static/css/index.f658d18f9b420779cfdf24aa0a7e2d77.css">
+
+    
+  <link rel="stylesheet"
+    href="../_static/vendor/fontawesome/5.13.0/css/all.min.css">
+  <link rel="preload" as="font" type="font/woff2" crossorigin
+    href="../_static/vendor/fontawesome/5.13.0/webfonts/fa-solid-900.woff2">
+  <link rel="preload" as="font" type="font/woff2" crossorigin
+    href="../_static/vendor/fontawesome/5.13.0/webfonts/fa-brands-400.woff2">
+
+    
+      
+  <link rel="stylesheet"
+    href="../_static/vendor/open-sans_all/1.44.1/index.css">
+  <link rel="stylesheet"
+    href="../_static/vendor/lato_latin-ext/1.44.1/index.css">
+
+    
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/basic.css" type="text/css" />
+    <link rel="stylesheet" type="text/css" href="../_static/copybutton.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/graphviz.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/css/ansys.css" />
+    
+  <link rel="preload" as="script" href="../_static/js/index.d3f166471bb80abb5163.js">
+
+    <script id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+    <script src="../_static/jquery.js"></script>
+    <script src="../_static/underscore.js"></script>
+    <script src="../_static/doctools.js"></script>
+    <script src="../_static/clipboard.min.js"></script>
+    <script src="../_static/copybutton.js"></script>
+    <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Mesh Icepak" href="MeshIcepak.html" />
+    <link rel="prev" title="Mesh" href="Mesh.html" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="docsearch:language" content="en" />
+  </head>
+  <body data-spy="scroll" data-target="#bd-toc-nav" data-offset="80">
+    
+    <nav class="navbar navbar-light navbar-expand-lg bg-light fixed-top bd-navbar" id="navbar-main">
+<div class="container-xl">
+
+    <a class="navbar-brand" href="../index.html">
+    
+      <img src="../_static/logo-ansys.png" class="logo" alt="logo" />
+    
+    </a>
+    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbar-menu" aria-controls="navbar-menu" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+    </button>
+
+    <div id="navbar-menu" class="col-lg-9 collapse navbar-collapse">
+      <ul id="navbar-main-elements" class="navbar-nav mr-auto">
+        
+        
+        <li class="nav-item ">
+            <a class="nav-link" href="../LICENSE.html">License Agreeement</a>
+        </li>
+        
+        <li class="nav-item ">
+            <a class="nav-link" href="../Resources/Installation.html">Installation</a>
+        </li>
+        
+        <li class="nav-item active">
+            <a class="nav-link" href="API.html">API documentation</a>
+        </li>
+        
+        <li class="nav-item ">
+            <a class="nav-link" href="Examples.html">Examples</a>
+        </li>
+        
+        <li class="nav-item ">
+            <a class="nav-link" href="../Resources/Code_Guidelines.html">Code Guidelines</a>
+        </li>
+        
+        <li class="nav-item ">
+            <a class="nav-link" href=""></a>
+        </li>
+        
+        
+      </ul>
+
+
+      
+
+      <ul class="navbar-nav">
+        
+        
+      </ul>
+    </div>
+</div>
+    </nav>
+    
+
+    <div class="container-xl">
+      <div class="row">
+          
+          <div class="col-12 col-md-3 bd-sidebar"><form class="bd-search d-flex align-items-center" action="../search.html" method="get">
+  <i class="icon fas fa-search"></i>
+  <input type="search" class="form-control" name="q" id="search-input" placeholder="Search the docs ..." aria-label="Search the docs ..." autocomplete="off" >
+</form>
+<nav class="bd-links" id="bd-docs-nav" aria-label="Main navigation">
+
+    <div class="bd-toc-item active">
+    
+  
+    <ul class="nav bd-sidenav">
+        
+        
+        
+        
+        
+        
+          
+            
+                <li class="">
+                    <a href="Application.html">Application Objects</a>
+                </li>
+            
+          
+            
+                <li class="">
+                    <a href="DesktopMessenger.html">Desktop & Messenger</a>
+                </li>
+            
+          
+            
+                <li class="">
+                    <a href="CoreModules.html">Core Modules</a>
+                </li>
+            
+          
+            
+                <li class="">
+                    <a href="Primitives.html">Primitives</a>
+                </li>
+            
+          
+            
+  
+                <li class="active">
+                    <a href="Mesh.html">Mesh</a>
+                    <ul>
+                    
+                        <li class="active">
+                            <a href="">Mesh 3D</a>
+                        </li>
+                    
+                        <li class="">
+                            <a href="MeshIcepak.html">Mesh Icepak</a>
+                        </li>
+                    
+                        <li class="">
+                            <a href="Mesh3DLayout.html">Mesh 3D Layout</a>
+                        </li>
+                    
+                    </ul>
+                </li>
+            
+          
+            
+                <li class="">
+                    <a href="MaterialManagement.html">Material & Stackup</a>
+                </li>
+            
+          
+            
+                <li class="">
+                    <a href="Setup.html">Setup</a>
+                </li>
+            
+          
+            
+                <li class="">
+                    <a href="Post.html">PostProcessing</a>
+                </li>
+            
+          
+        
+        
+        
+        
+        
+        
+        
+        
+      </ul>
+  
+  </nav>
+          </div>
+          
+
+          
+          <div class="d-none d-xl-block col-xl-2 bd-toc">
+              
+
+<nav id="bd-toc-nav">
+    <ul class="nav section-nav flex-column">
+    
+    </ul>
+</nav>
+
+
+              
+          </div>
+          
+
+          
+          <main class="col-12 col-md-9 col-xl-7 py-md-5 pl-md-5 pr-md-4 bd-content" role="main">
+              
+              <div>
+                
+  <div class="section" id="mesh-3d">
+<h1>Mesh 3D<a class="headerlink" href="#mesh-3d" title="Permalink to this headline">¶</a></h1>
+<dl class="py class">
+<dt id="pyaedt.core.modules.Mesh.Mesh">
+<em class="property"><span class="pre">class</span> </em><code class="sig-prename descclassname"><span class="pre">pyaedt.core.modules.Mesh.</span></code><code class="sig-name descname"><span class="pre">Mesh</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">parent</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pyaedt/core/modules/Mesh.html#Mesh"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyaedt.core.modules.Mesh.Mesh" title="Permalink to this definition">¶</a></dt>
+<dd><p>&quot;&quot;
+Manage Main AEDT Mesh Functions
+AEDTConfig Class Inherited contains all the _desktop Hierarchical calls needed to the class</p>
+<dl class="py method">
+<dt id="pyaedt.core.modules.Mesh.Mesh.appy_curvature_extraction">
+<code class="sig-name descname"><span class="pre">appy_curvature_extraction</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">names</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">disable_for_faceted_surf</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">meshop_name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pyaedt/core/modules/Mesh.html#Mesh.appy_curvature_extraction"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyaedt.core.modules.Mesh.Mesh.appy_curvature_extraction" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>names</strong> -- object lists. it can be a list of objects or faces</p></li>
+<li><p><strong>disable_for_faceted_surf</strong> -- True if enabled</p></li>
+<li><p><strong>meshop_name</strong> -- optional mesh operation name</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>meshoperation object</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="pyaedt.core.modules.Mesh.Mesh.appy_curvilinear_elements">
+<code class="sig-name descname"><span class="pre">appy_curvilinear_elements</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">names</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">enable</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">meshop_name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pyaedt/core/modules/Mesh.html#Mesh.appy_curvilinear_elements"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyaedt.core.modules.Mesh.Mesh.appy_curvilinear_elements" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>names</strong> -- object lists. it can be a list of objects or faces</p></li>
+<li><p><strong>enable</strong> -- True if enabled</p></li>
+<li><p><strong>meshop_name</strong> -- optional mesh operation name</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>meshoperation object</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="pyaedt.core.modules.Mesh.Mesh.assign_density_control">
+<code class="sig-name descname"><span class="pre">assign_density_control</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">names</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">refine_inside</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">maxelementlength</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">layerNum</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">meshop_name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pyaedt/core/modules/Mesh.html#Mesh.assign_density_control"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyaedt.core.modules.Mesh.Mesh.assign_density_control" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>names</strong> -- object lists.</p></li>
+<li><p><strong>refine_inside</strong> -- Boolean</p></li>
+<li><p><strong>maxelementlength</strong> -- dim wih units. None to disable</p></li>
+<li><p><strong>layerNum</strong> -- Number. None to disable</p></li>
+<li><p><strong>meshop_name</strong> -- optional mesh operation name</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>meshoperation object</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="pyaedt.core.modules.Mesh.Mesh.assign_edge_cut">
+<code class="sig-name descname"><span class="pre">assign_edge_cut</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">names</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">layer_thickness</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'1mm'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">meshop_name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pyaedt/core/modules/Mesh.html#Mesh.assign_edge_cut"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyaedt.core.modules.Mesh.Mesh.assign_edge_cut" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>names</strong> -- object lists.</p></li>
+<li><p><strong>layer_thickness</strong> -- thickness with units</p></li>
+<li><p><strong>meshop_name</strong> -- optional mesh operation name</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>meshoperation object</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="pyaedt.core.modules.Mesh.Mesh.assign_initial_mesh_from_slider">
+<code class="sig-name descname"><span class="pre">assign_initial_mesh_from_slider</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">level</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">5</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">method</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'Auto'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">usedynamicsurface</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">useflexmesh</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">applycurvilinear</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">usefallback</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">usephi</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">automodelresolution</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">modelresolutionlength</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'0.0001mm'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pyaedt/core/modules/Mesh.html#Mesh.assign_initial_mesh_from_slider"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyaedt.core.modules.Mesh.Mesh.assign_initial_mesh_from_slider" title="Permalink to this definition">¶</a></dt>
+<dd><p>Assign a predefined surface mesh level to an object</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>level</strong> -- level of surface mesh (integer 1 - 10)</p></li>
+<li><p><strong>method</strong> -- mesher setting &quot;Auto&quot;, &quot;AnsoftTAU&quot;, &quot;AnsoftClassic&quot;</p></li>
+<li><p><strong>usedynamicsurface</strong> -- Boolean</p></li>
+<li><p><strong>useflexmesh</strong> -- Boolean</p></li>
+<li><p><strong>applycurvilinear</strong> -- Boolean</p></li>
+<li><p><strong>usefallback</strong> -- Boolean</p></li>
+<li><p><strong>usephi</strong> -- Boolean</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Boolean</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="pyaedt.core.modules.Mesh.Mesh.assign_length_mesh">
+<code class="sig-name descname"><span class="pre">assign_length_mesh</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">names</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">isinside</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">maxlength</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">maxel</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1000</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">meshop_name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pyaedt/core/modules/Mesh.html#Mesh.assign_length_mesh"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyaedt.core.modules.Mesh.Mesh.assign_length_mesh" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>names</strong> -- object lists. it can be a list of objects names or faces ids</p></li>
+<li><p><strong>isinside</strong> -- True if length mesh is inside selection, False if outside</p></li>
+<li><p><strong>maxlength</strong> -- maxlength maximum element length. None to disable</p></li>
+<li><p><strong>maxel</strong> -- max number of element. None to disable</p></li>
+<li><p><strong>meshop_name</strong> -- optional mesh operation name</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>meshoperation object</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="pyaedt.core.modules.Mesh.Mesh.assign_model_resolution">
+<code class="sig-name descname"><span class="pre">assign_model_resolution</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">names</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">defeature_length</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">meshop_name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pyaedt/core/modules/Mesh.html#Mesh.assign_model_resolution"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyaedt.core.modules.Mesh.Mesh.assign_model_resolution" title="Permalink to this definition">¶</a></dt>
+<dd><p>Assign Model Resolution</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>names</strong> -- list of objects to defeature</p></li>
+<li><p><strong>defeature_length</strong> -- defeaturing length in mm. None for automatic defeature</p></li>
+<li><p><strong>meshop_name</strong> -- optional name of meshoperation</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>meshoperation object</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="pyaedt.core.modules.Mesh.Mesh.assign_rotational_layer">
+<code class="sig-name descname"><span class="pre">assign_rotational_layer</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">names</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">num_layers</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">3</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">total_thickness</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'1mm'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">meshop_name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pyaedt/core/modules/Mesh.html#Mesh.assign_rotational_layer"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyaedt.core.modules.Mesh.Mesh.assign_rotational_layer" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>names</strong> -- object lists.</p></li>
+<li><p><strong>num_layers</strong> -- str or int</p></li>
+<li><p><strong>total_thickness</strong> -- thickness with units</p></li>
+<li><p><strong>meshop_name</strong> -- optional mesh operation name</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>meshoperation object</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="pyaedt.core.modules.Mesh.Mesh.assign_skin_depth">
+<code class="sig-name descname"><span class="pre">assign_skin_depth</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">names</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">skindepth</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">maxelements</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">triangulation_max_length</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'0.1mm'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">numlayers</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'2'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">meshop_name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pyaedt/core/modules/Mesh.html#Mesh.assign_skin_depth"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyaedt.core.modules.Mesh.Mesh.assign_skin_depth" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>names</strong> -- object lists. it can be a list of objects names or faces ids</p></li>
+<li><p><strong>skindepth</strong> -- True if length mesh is inside selection, False if outside</p></li>
+<li><p><strong>maxelements</strong> -- maxlength maximum element length. None to disable</p></li>
+<li><p><strong>triangulation_max_length</strong> -- maximum surface triangulation length</p></li>
+<li><p><strong>numlayers</strong> -- number of layers</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>meshoperation object</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="pyaedt.core.modules.Mesh.Mesh.assign_surf_priority_for_tau">
+<code class="sig-name descname"><span class="pre">assign_surf_priority_for_tau</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">object_lists</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">surfpriority</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pyaedt/core/modules/Mesh.html#Mesh.assign_surf_priority_for_tau"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyaedt.core.modules.Mesh.Mesh.assign_surf_priority_for_tau" title="Permalink to this definition">¶</a></dt>
+<dd><p>Assign Surface Priority for Tau Mesheron object lists</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>object_lists</strong> -- list of objects to apply it</p></li>
+<li><p><strong>surfpriority</strong> -- int Surface Priority. Default 0</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>meshoperation object</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="pyaedt.core.modules.Mesh.Mesh.assign_surface_mesh">
+<code class="sig-name descname"><span class="pre">assign_surface_mesh</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">names</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">level</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">meshop_name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pyaedt/core/modules/Mesh.html#Mesh.assign_surface_mesh"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyaedt.core.modules.Mesh.Mesh.assign_surface_mesh" title="Permalink to this definition">¶</a></dt>
+<dd><p>Assign a predefined surface mesh level to an object</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>names</strong> -- name of the objects</p></li>
+<li><p><strong>level</strong> -- level of surface mesh</p></li>
+<li><p><strong>meshop_name</strong> -- optional name</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>meshoperation object</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="pyaedt.core.modules.Mesh.Mesh.assign_surface_mesh_manual">
+<code class="sig-name descname"><span class="pre">assign_surface_mesh_manual</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">names</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">surf_dev</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">normal_dev</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">aspect_ratio</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">meshop_name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pyaedt/core/modules/Mesh.html#Mesh.assign_surface_mesh_manual"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyaedt.core.modules.Mesh.Mesh.assign_surface_mesh_manual" title="Permalink to this definition">¶</a></dt>
+<dd><p>Assign Surface mesh to list of faces</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>names</strong> -- list of objects to apply surface mesh</p></li>
+<li><p><strong>surf_dev</strong> -- float surface deviation</p></li>
+<li><p><strong>normal_dev</strong> -- float normal deviation</p></li>
+<li><p><strong>aspect_ratio</strong> -- int aspoect ration</p></li>
+<li><p><strong>meshop_name</strong> -- label to apply to boundary</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>meshoperation object</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="pyaedt.core.modules.Mesh.Mesh.delete_mesh_operations">
+<code class="sig-name descname"><span class="pre">delete_mesh_operations</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">mesh_type</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pyaedt/core/modules/Mesh.html#Mesh.delete_mesh_operations"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyaedt.core.modules.Mesh.Mesh.delete_mesh_operations" title="Permalink to this definition">¶</a></dt>
+<dd><p>Remove mesh operations from a design. If type is None, remove all mesh operations</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>mesh_type</strong> -- mesh operation type</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Boolean</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="pyaedt.core.modules.Mesh.Mesh.generate_mesh">
+<code class="sig-name descname"><span class="pre">generate_mesh</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pyaedt/core/modules/Mesh.html#Mesh.generate_mesh"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyaedt.core.modules.Mesh.Mesh.generate_mesh" title="Permalink to this definition">¶</a></dt>
+<dd><p>Generate Mesh for Setup name. Return 0 if mesh failed or 1 if passed
+:param name:  name of design to be meshed
+:return: Bool</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="pyaedt.core.modules.Mesh.Mesh.omeshmodule">
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">omeshmodule</span></code><a class="headerlink" href="#pyaedt.core.modules.Mesh.Mesh.omeshmodule" title="Permalink to this definition">¶</a></dt>
+<dd><p>Mesh Module</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>return</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<div class="toctree-wrapper compound">
+</div>
+</div>
+
+
+              </div>
+              
+              
+              <div class='prev-next-bottom'>
+                
+    <a class='left-prev' id="prev-link" href="Mesh.html" title="previous page">Mesh</a>
+    <a class='right-next' id="next-link" href="MeshIcepak.html" title="next page">Mesh Icepak</a>
+
+              </div>
+              
+          </main>
+          
+
+      </div>
+    </div>
+
+    
+  <script src="../_static/js/index.d3f166471bb80abb5163.js"></script>
+
+
+    <footer class="footer mt-5 mt-md-0">
+  <div class="container">
+    <p>
+          &copy; Copyright Copyright(c) 1986-2021, ANSYSInc. unauthorised use, distribution or duplication is prohibited. This tool release is unofficial and not covered by standard Ansys Support license..<br/>
+        Created using <a href="http://sphinx-doc.org/">Sphinx</a> 3.5.2.<br/>
+    </p>
+  </div>
+</footer>
+  </body>
+</html>

@@ -1,0 +1,5 @@
+<map id="inheritance8e68d6c8b1" name="inheritance8e68d6c8b1">
+<area shape="poly" id="node1" href="Messenger.html#pyaedt.core.application.MessageManager.AEDTMessageManager" target="_top" title="Class that manage AEDT Messaging to the logger file and to the AEDT Message UI" alt="" coords="254,485,248,474,231,464,203,456,168,451,130,449,91,451,57,456,29,464,11,474,5,485,11,496,29,506,57,514,91,520,130,521,168,520,203,514,231,506,248,496"/>
+<area shape="poly" id="node2" title="The core module that initialize Ansys Electronics Desktop tool based on inputs provided:" alt="" coords="181,221,179,210,172,200,160,192,146,187,130,185,114,187,100,192,88,200,81,210,78,221,81,232,88,242,100,250,114,256,130,257,146,256,160,250,172,242,179,232"/>
+<area shape="poly" id="node3" href="Messenger.html#pyaedt.core.application.MessageManager.EDBMessageManager" target="_top" title="Class that manage EDB Messaging to the logger file" alt="" coords="248,41,242,30,225,20,199,12,166,7,130,5,93,7,61,12,34,20,18,30,12,41,18,52,34,62,61,70,93,76,130,77,166,76,199,70,225,62,242,52"/>
+</map>

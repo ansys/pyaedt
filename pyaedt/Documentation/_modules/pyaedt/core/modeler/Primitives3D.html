@@ -1,0 +1,817 @@
+
+<!DOCTYPE html>
+
+<html lang="Python">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>pyaedt.core.modeler.Primitives3D &#8212; pyaedt 0.5.0 documentation</title>
+    
+  <link rel="stylesheet" href="../../../../_static/css/index.f658d18f9b420779cfdf24aa0a7e2d77.css">
+
+    
+  <link rel="stylesheet"
+    href="../../../../_static/vendor/fontawesome/5.13.0/css/all.min.css">
+  <link rel="preload" as="font" type="font/woff2" crossorigin
+    href="../../../../_static/vendor/fontawesome/5.13.0/webfonts/fa-solid-900.woff2">
+  <link rel="preload" as="font" type="font/woff2" crossorigin
+    href="../../../../_static/vendor/fontawesome/5.13.0/webfonts/fa-brands-400.woff2">
+
+    
+      
+  <link rel="stylesheet"
+    href="../../../../_static/vendor/open-sans_all/1.44.1/index.css">
+  <link rel="stylesheet"
+    href="../../../../_static/vendor/lato_latin-ext/1.44.1/index.css">
+
+    
+    <link rel="stylesheet" href="../../../../_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" href="../../../../_static/basic.css" type="text/css" />
+    <link rel="stylesheet" type="text/css" href="../../../../_static/copybutton.css" />
+    <link rel="stylesheet" type="text/css" href="../../../../_static/graphviz.css" />
+    <link rel="stylesheet" type="text/css" href="../../../../_static/css/ansys.css" />
+    
+  <link rel="preload" as="script" href="../../../../_static/js/index.d3f166471bb80abb5163.js">
+
+    <script id="documentation_options" data-url_root="../../../../" src="../../../../_static/documentation_options.js"></script>
+    <script src="../../../../_static/jquery.js"></script>
+    <script src="../../../../_static/underscore.js"></script>
+    <script src="../../../../_static/doctools.js"></script>
+    <script src="../../../../_static/clipboard.min.js"></script>
+    <script src="../../../../_static/copybutton.js"></script>
+    <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <link rel="index" title="Index" href="../../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../../search.html" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="docsearch:language" content="en" />
+  </head>
+  <body data-spy="scroll" data-target="#bd-toc-nav" data-offset="80">
+    
+    <nav class="navbar navbar-light navbar-expand-lg bg-light fixed-top bd-navbar" id="navbar-main">
+<div class="container-xl">
+
+    <a class="navbar-brand" href="../../../../index.html">
+    
+      <img src="../../../../_static/logo-ansys.png" class="logo" alt="logo" />
+    
+    </a>
+    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbar-menu" aria-controls="navbar-menu" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+    </button>
+
+    <div id="navbar-menu" class="col-lg-9 collapse navbar-collapse">
+      <ul id="navbar-main-elements" class="navbar-nav mr-auto">
+        
+        
+        <li class="nav-item ">
+            <a class="nav-link" href="../../../../LICENSE.html">License Agreeement</a>
+        </li>
+        
+        <li class="nav-item ">
+            <a class="nav-link" href="../../../../Resources/Installation.html">Installation</a>
+        </li>
+        
+        <li class="nav-item ">
+            <a class="nav-link" href="../../../../API/API.html">API documentation</a>
+        </li>
+        
+        <li class="nav-item ">
+            <a class="nav-link" href="../../../../API/Examples.html">Examples</a>
+        </li>
+        
+        <li class="nav-item ">
+            <a class="nav-link" href="../../../../Resources/Code_Guidelines.html">Code Guidelines</a>
+        </li>
+        
+        <li class="nav-item ">
+            <a class="nav-link" href=""></a>
+        </li>
+        
+        
+      </ul>
+
+
+      
+
+      <ul class="navbar-nav">
+        
+        
+      </ul>
+    </div>
+</div>
+    </nav>
+    
+
+    <div class="container-xl">
+      <div class="row">
+          
+          <div class="col-12 col-md-3 bd-sidebar"><form class="bd-search d-flex align-items-center" action="../../../../search.html" method="get">
+  <i class="icon fas fa-search"></i>
+  <input type="search" class="form-control" name="q" id="search-input" placeholder="Search the docs ..." aria-label="Search the docs ..." autocomplete="off" >
+</form>
+<nav class="bd-links" id="bd-docs-nav" aria-label="Main navigation">
+
+    <div class="bd-toc-item active">
+    
+  
+    <ul class="nav bd-sidenav">
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+      </ul>
+  
+  </nav>
+          </div>
+          
+
+          
+          <div class="d-none d-xl-block col-xl-2 bd-toc">
+              
+
+<nav id="bd-toc-nav">
+    <ul class="nav section-nav flex-column">
+    
+    </ul>
+</nav>
+
+
+              
+          </div>
+          
+
+          
+          <main class="col-12 col-md-9 col-xl-7 py-md-5 pl-md-5 pr-md-4 bd-content" role="main">
+              
+              <div>
+                
+  <h1>Source code for pyaedt.core.modeler.Primitives3D</h1><div class="highlight"><pre>
+<span></span><span class="kn">from</span> <span class="nn">..generic.general_methods</span> <span class="kn">import</span> <span class="n">aedt_exception_handler</span>
+<span class="kn">from</span> <span class="nn">.Object3d</span> <span class="kn">import</span> <span class="n">Object3d</span>
+<span class="kn">from</span> <span class="nn">.Primitives</span> <span class="kn">import</span> <span class="n">Primitives</span>
+<span class="kn">from</span> <span class="nn">.GeometryOperators</span> <span class="kn">import</span> <span class="n">GeometryOperators</span>
+<span class="kn">import</span> <span class="nn">os</span>
+
+<div class="viewcode-block" id="Primitives3D"><a class="viewcode-back" href="../../../../API/Primitives3D.html#pyaedt.core.modeler.Primitives3D.Primitives3D">[docs]</a><span class="k">class</span> <span class="nc">Primitives3D</span><span class="p">(</span><span class="n">Primitives</span><span class="p">,</span> <span class="nb">object</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Class for management of all Primitives of 3D Tools</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">parent</span><span class="p">,</span> <span class="n">modeler</span><span class="p">):</span>
+        <span class="n">Primitives</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">parent</span><span class="p">,</span> <span class="n">modeler</span><span class="p">)</span>
+
+<div class="viewcode-block" id="Primitives3D.create_box"><a class="viewcode-back" href="../../../../API/Primitives3D.html#pyaedt.core.modeler.Primitives3D.Primitives3D.create_box">[docs]</a>    <span class="nd">@aedt_exception_handler</span>
+    <span class="k">def</span> <span class="nf">create_box</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">position</span><span class="p">,</span> <span class="n">dimensions_list</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">matname</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Create a Box</span>
+
+<span class="sd">        :example:</span>
+
+<span class="sd">        &gt;&gt;&gt; from pyaedt import HFSS</span>
+<span class="sd">        &gt;&gt;&gt; hfss = HFSS()</span>
+<span class="sd">        &gt;&gt;&gt; origin = [0,0,0]</span>
+<span class="sd">        &gt;&gt;&gt; dimensions = [10,5,20]</span>
+<span class="sd">        &gt;&gt;&gt; #Material and name are not mandatory fields</span>
+<span class="sd">        &gt;&gt;&gt; object_id = hfss.modeler.primivites.create_box(origin, dimensions, name=&quot;mybox&quot;, matname=&quot;copper&quot;)</span>
+
+<span class="sd">        :param position: ApplicationName.modeler.Position(x,y,z) object</span>
+<span class="sd">        :param dimensions_list: list of dimensions of X, Y, Z</span>
+<span class="sd">        :param name: box name. Optional, if nothing default name will be assigned</span>
+<span class="sd">        :param matname: material name. Optional, if nothing default material will be assigned</span>
+<span class="sd">        :return: Box ID</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="nb">id</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_new_id</span><span class="p">()</span>
+        <span class="n">o</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">objects</span><span class="p">[</span><span class="nb">id</span><span class="p">]</span>
+        <span class="n">XPosition</span><span class="p">,</span> <span class="n">YPosition</span><span class="p">,</span> <span class="n">ZPosition</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">pos_with_arg</span><span class="p">(</span><span class="n">position</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">XPosition</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="n">YPosition</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="n">ZPosition</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">AttributeError</span><span class="p">(</span><span class="s2">&quot;Position Argument must be a valid 3 Element List&quot;</span><span class="p">)</span>
+        <span class="n">XSize</span><span class="p">,</span> <span class="n">YSize</span><span class="p">,</span> <span class="n">ZSize</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">pos_with_arg</span><span class="p">(</span><span class="n">dimensions_list</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">XSize</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="n">YSize</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="n">YSize</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">AttributeError</span><span class="p">(</span><span class="s2">&quot;Dimension Argument must be a valid 3 Element List&quot;</span><span class="p">)</span>
+        <span class="n">o</span><span class="o">.</span><span class="n">material_name</span><span class="p">,</span> <span class="n">o</span><span class="o">.</span><span class="n">solve_inside</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_check_material</span><span class="p">(</span><span class="n">matname</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">defaultmaterial</span><span class="p">)</span>
+        <span class="n">vArg1</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;NAME:BoxParameters&quot;</span><span class="p">]</span>
+        <span class="n">vArg1</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;XPosition:=&quot;</span><span class="p">),</span> <span class="n">vArg1</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">XPosition</span><span class="p">)</span>
+        <span class="n">vArg1</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;YPosition:=&quot;</span><span class="p">),</span> <span class="n">vArg1</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">YPosition</span><span class="p">)</span>
+        <span class="n">vArg1</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;ZPosition:=&quot;</span><span class="p">),</span> <span class="n">vArg1</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">ZPosition</span><span class="p">)</span>
+        <span class="n">vArg1</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;XSize:=&quot;</span><span class="p">),</span> <span class="n">vArg1</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">XSize</span><span class="p">)</span>
+        <span class="n">vArg1</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;YSize:=&quot;</span><span class="p">),</span> <span class="n">vArg1</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">YSize</span><span class="p">)</span>
+        <span class="n">vArg1</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;ZSize:=&quot;</span><span class="p">),</span> <span class="n">vArg1</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">ZSize</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">version</span> <span class="o">&gt;=</span> <span class="s2">&quot;2019.3&quot;</span><span class="p">:</span>
+            <span class="n">vArg2</span> <span class="o">=</span> <span class="n">o</span><span class="o">.</span><span class="n">export_attributes</span><span class="p">(</span><span class="n">name</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">vArg2</span> <span class="o">=</span> <span class="n">o</span><span class="o">.</span><span class="n">export_attributes_legacy</span><span class="p">(</span><span class="n">name</span><span class="p">)</span>
+        <span class="n">o</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">oeditor</span><span class="o">.</span><span class="n">CreateBox</span><span class="p">(</span><span class="n">vArg1</span><span class="p">,</span> <span class="n">vArg2</span><span class="p">)</span>
+        <span class="nb">id</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_update_object</span><span class="p">(</span><span class="n">o</span><span class="p">)</span>
+        <span class="k">return</span> <span class="nb">id</span></div>
+
+<div class="viewcode-block" id="Primitives3D.create_circle"><a class="viewcode-back" href="../../../../API/Primitives3D.html#pyaedt.core.modeler.Primitives3D.Primitives3D.create_circle">[docs]</a>    <span class="nd">@aedt_exception_handler</span>
+    <span class="k">def</span> <span class="nf">create_circle</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">cs_plane</span><span class="p">,</span> <span class="n">position</span><span class="p">,</span> <span class="n">radius</span><span class="p">,</span> <span class="n">numSides</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">matname</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Create a circle</span>
+
+<span class="sd">        :param cs_plane: ApplicationName.CoordinateSystemPlane object</span>
+<span class="sd">        :param position: ApplicationName.modeler.Position(x,y,z) object</span>
+<span class="sd">        :param radius: radius float</span>
+<span class="sd">        :param numSides: Number of sides. 0 for circle</span>
+<span class="sd">        :param name: Object Name</span>
+<span class="sd">        :param matname: material name. Optional, if nothing default material will be assigned</span>
+<span class="sd">        :return: id</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="nb">id</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_new_id</span><span class="p">()</span>
+
+        <span class="n">o</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">objects</span><span class="p">[</span><span class="nb">id</span><span class="p">]</span>
+
+        <span class="n">szAxis</span> <span class="o">=</span> <span class="n">GeometryOperators</span><span class="o">.</span><span class="n">cs_plane_str</span><span class="p">(</span><span class="n">cs_plane</span><span class="p">)</span>
+        <span class="n">XCenter</span><span class="p">,</span> <span class="n">YCenter</span><span class="p">,</span> <span class="n">ZCenter</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">pos_with_arg</span><span class="p">(</span><span class="n">position</span><span class="p">)</span>
+        <span class="n">Radius</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">arg_with_dim</span><span class="p">(</span><span class="n">radius</span><span class="p">)</span>
+        <span class="n">o</span><span class="o">.</span><span class="n">material_name</span><span class="p">,</span> <span class="n">o</span><span class="o">.</span><span class="n">solve_inside</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_check_material</span><span class="p">(</span><span class="n">matname</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">defaultmaterial</span><span class="p">)</span>
+
+        <span class="n">vArg1</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;NAME:CircleParameters&quot;</span><span class="p">]</span>
+        <span class="n">vArg1</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;XCenter:=&quot;</span><span class="p">),</span> <span class="n">vArg1</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">XCenter</span><span class="p">)</span>
+        <span class="n">vArg1</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;YCenter:=&quot;</span><span class="p">),</span> <span class="n">vArg1</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">YCenter</span><span class="p">)</span>
+        <span class="n">vArg1</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;ZCenter:=&quot;</span><span class="p">),</span> <span class="n">vArg1</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">ZCenter</span><span class="p">)</span>
+        <span class="n">vArg1</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;Radius:=&quot;</span><span class="p">),</span> <span class="n">vArg1</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">Radius</span><span class="p">)</span>
+        <span class="n">vArg1</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;WhichAxis:=&quot;</span><span class="p">),</span> <span class="n">vArg1</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">szAxis</span><span class="p">)</span>
+        <span class="n">vArg1</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;NumSegments:=&quot;</span><span class="p">),</span> <span class="n">vArg1</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">&#39;</span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">numSides</span><span class="p">))</span>
+
+        <span class="n">vArg2</span> <span class="o">=</span> <span class="n">o</span><span class="o">.</span><span class="n">export_attributes</span><span class="p">(</span><span class="n">name</span><span class="p">)</span>
+
+        <span class="n">o</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">oeditor</span><span class="o">.</span><span class="n">CreateCircle</span><span class="p">(</span><span class="n">vArg1</span><span class="p">,</span> <span class="n">vArg2</span><span class="p">)</span>
+        <span class="nb">id</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_update_object</span><span class="p">(</span><span class="n">o</span><span class="p">,</span> <span class="s2">&quot;Sheet&quot;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="nb">id</span></div>
+
+<div class="viewcode-block" id="Primitives3D.create_sphere"><a class="viewcode-back" href="../../../../API/Primitives3D.html#pyaedt.core.modeler.Primitives3D.Primitives3D.create_sphere">[docs]</a>    <span class="nd">@aedt_exception_handler</span>
+    <span class="k">def</span> <span class="nf">create_sphere</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">position</span><span class="p">,</span> <span class="n">radius</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">matname</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Create a sphere</span>
+
+
+<span class="sd">        :param position: ApplicationName.modeler.Position(x,y,z) object</span>
+<span class="sd">        :param radius: radius float</span>
+<span class="sd">        :param name: Object Name</span>
+<span class="sd">        :param matname: material name. Optional, if nothing default material will be assigned</span>
+
+<span class="sd">        :return:</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="nb">id</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_new_id</span><span class="p">()</span>
+
+        <span class="n">o</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">objects</span><span class="p">[</span><span class="nb">id</span><span class="p">]</span>
+        <span class="n">XCenter</span><span class="p">,</span> <span class="n">YCenter</span><span class="p">,</span> <span class="n">ZCenter</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">pos_with_arg</span><span class="p">(</span><span class="n">position</span><span class="p">)</span>
+        <span class="n">o</span><span class="o">.</span><span class="n">material_name</span><span class="p">,</span> <span class="n">o</span><span class="o">.</span><span class="n">solve_inside</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_check_material</span><span class="p">(</span><span class="n">matname</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">defaultmaterial</span><span class="p">)</span>
+
+        <span class="n">Radius</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">arg_with_dim</span><span class="p">(</span><span class="n">radius</span><span class="p">)</span>
+
+        <span class="n">vArg1</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;NAME:SphereParameters&quot;</span><span class="p">]</span>
+        <span class="n">vArg1</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;XCenter:=&quot;</span><span class="p">),</span> <span class="n">vArg1</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">XCenter</span><span class="p">)</span>
+        <span class="n">vArg1</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;YCenter:=&quot;</span><span class="p">),</span> <span class="n">vArg1</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">YCenter</span><span class="p">)</span>
+        <span class="n">vArg1</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;ZCenter:=&quot;</span><span class="p">),</span> <span class="n">vArg1</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">ZCenter</span><span class="p">)</span>
+        <span class="n">vArg1</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;Radius:=&quot;</span><span class="p">),</span> <span class="n">vArg1</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">Radius</span><span class="p">)</span>
+
+        <span class="n">vArg2</span> <span class="o">=</span> <span class="n">o</span><span class="o">.</span><span class="n">export_attributes</span><span class="p">(</span><span class="n">name</span><span class="p">)</span>
+
+        <span class="n">o</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">oeditor</span><span class="o">.</span><span class="n">CreateSphere</span><span class="p">(</span><span class="n">vArg1</span><span class="p">,</span> <span class="n">vArg2</span><span class="p">)</span>
+        <span class="nb">id</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_update_object</span><span class="p">(</span><span class="n">o</span><span class="p">)</span>
+        <span class="k">return</span> <span class="nb">id</span></div>
+
+<div class="viewcode-block" id="Primitives3D.create_cylinder"><a class="viewcode-back" href="../../../../API/Primitives3D.html#pyaedt.core.modeler.Primitives3D.Primitives3D.create_cylinder">[docs]</a>    <span class="nd">@aedt_exception_handler</span>
+    <span class="k">def</span> <span class="nf">create_cylinder</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">cs_axis</span><span class="p">,</span> <span class="n">position</span><span class="p">,</span> <span class="n">radius</span><span class="p">,</span> <span class="n">height</span><span class="p">,</span> <span class="n">numSides</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">matname</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Create a cylinder</span>
+
+
+<span class="sd">        :param cs_axis: ApplicationName.CoordinateSystemAxis object</span>
+<span class="sd">        :param position: ApplicationName.modeler.Position(x,y,z) object</span>
+<span class="sd">        :param radius: radius float</span>
+<span class="sd">        :param height: height float</span>
+<span class="sd">        :param numSides: Number of sides. 0 for circle</span>
+<span class="sd">        :param name: Object Name</span>
+<span class="sd">        :param matname: material name. Optional, if nothing default material will be assigned</span>
+
+<span class="sd">        :return:</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="nb">id</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_new_id</span><span class="p">()</span>
+
+        <span class="n">o</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">objects</span><span class="p">[</span><span class="nb">id</span><span class="p">]</span>
+        <span class="n">o</span> <span class="o">=</span> <span class="n">Object3d</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+        <span class="n">o</span><span class="o">.</span><span class="n">material_name</span><span class="p">,</span> <span class="n">o</span><span class="o">.</span><span class="n">solve_inside</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_check_material</span><span class="p">(</span><span class="n">matname</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">defaultmaterial</span><span class="p">)</span>
+
+        <span class="n">szAxis</span> <span class="o">=</span> <span class="n">GeometryOperators</span><span class="o">.</span><span class="n">cs_axis_str</span><span class="p">(</span><span class="n">cs_axis</span><span class="p">)</span>
+        <span class="n">XCenter</span><span class="p">,</span> <span class="n">YCenter</span><span class="p">,</span> <span class="n">ZCenter</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">pos_with_arg</span><span class="p">(</span><span class="n">position</span><span class="p">)</span>
+
+        <span class="n">Radius</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">arg_with_dim</span><span class="p">(</span><span class="n">radius</span><span class="p">)</span>
+        <span class="n">Height</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">arg_with_dim</span><span class="p">(</span><span class="n">height</span><span class="p">)</span>
+
+        <span class="n">vArg1</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;NAME:CylinderParameters&quot;</span><span class="p">]</span>
+        <span class="n">vArg1</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;XCenter:=&quot;</span><span class="p">),</span> <span class="n">vArg1</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">XCenter</span><span class="p">)</span>
+        <span class="n">vArg1</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;YCenter:=&quot;</span><span class="p">),</span> <span class="n">vArg1</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">YCenter</span><span class="p">)</span>
+        <span class="n">vArg1</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;ZCenter:=&quot;</span><span class="p">),</span> <span class="n">vArg1</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">ZCenter</span><span class="p">)</span>
+        <span class="n">vArg1</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;Radius:=&quot;</span><span class="p">),</span> <span class="n">vArg1</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">Radius</span><span class="p">)</span>
+        <span class="n">vArg1</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;Height:=&quot;</span><span class="p">),</span> <span class="n">vArg1</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">Height</span><span class="p">)</span>
+        <span class="n">vArg1</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;WhichAxis:=&quot;</span><span class="p">),</span> <span class="n">vArg1</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">szAxis</span><span class="p">)</span>
+        <span class="n">vArg1</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;NumSides:=&quot;</span><span class="p">),</span> <span class="n">vArg1</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">&#39;</span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">numSides</span><span class="p">))</span>
+
+        <span class="n">vArg2</span> <span class="o">=</span> <span class="n">o</span><span class="o">.</span><span class="n">export_attributes</span><span class="p">(</span><span class="n">name</span><span class="p">)</span>
+
+        <span class="n">o</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">oeditor</span><span class="o">.</span><span class="n">CreateCylinder</span><span class="p">(</span><span class="n">vArg1</span><span class="p">,</span> <span class="n">vArg2</span><span class="p">)</span>
+        <span class="nb">id</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_update_object</span><span class="p">(</span><span class="n">o</span><span class="p">)</span>
+        <span class="k">return</span> <span class="nb">id</span></div>
+
+<div class="viewcode-block" id="Primitives3D.create_ellipse"><a class="viewcode-back" href="../../../../API/Primitives3D.html#pyaedt.core.modeler.Primitives3D.Primitives3D.create_ellipse">[docs]</a>    <span class="nd">@aedt_exception_handler</span>
+    <span class="k">def</span> <span class="nf">create_ellipse</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">cs_plane</span><span class="p">,</span> <span class="n">position</span><span class="p">,</span> <span class="n">major_raidus</span><span class="p">,</span> <span class="n">ratio</span><span class="p">,</span> <span class="n">bIsCovered</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">matname</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Create a ellipse</span>
+
+
+<span class="sd">        :param cs_plane: ApplicationName.CoordinateSystemPlane object</span>
+<span class="sd">        :param position: ApplicationName.modeler.Position(x,y,z) object</span>
+<span class="sd">        :param major_raidus: radius float</span>
+<span class="sd">        :param ratio: Ratio float</span>
+<span class="sd">        :param bIsCovered: Boolean</span>
+<span class="sd">        :param name: Object Name</span>
+<span class="sd">        :param matname: material name. Optional, if nothing default material will be assigned</span>
+
+<span class="sd">        :return:</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="nb">id</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_new_id</span><span class="p">()</span>
+
+        <span class="n">o</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">objects</span><span class="p">[</span><span class="nb">id</span><span class="p">]</span>
+
+        <span class="n">szAxis</span> <span class="o">=</span> <span class="n">GeometryOperators</span><span class="o">.</span><span class="n">cs_plane_str</span><span class="p">(</span><span class="n">cs_plane</span><span class="p">)</span>
+        <span class="n">XStart</span><span class="p">,</span> <span class="n">YStart</span><span class="p">,</span> <span class="n">ZStart</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">pos_with_arg</span><span class="p">(</span><span class="n">position</span><span class="p">)</span>
+
+        <span class="n">MajorRadius</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">arg_with_dim</span><span class="p">(</span><span class="n">major_raidus</span><span class="p">)</span>
+        <span class="c1"># Ratio = self.arg_with_dim(ratio)</span>
+        <span class="n">Ratio</span> <span class="o">=</span> <span class="n">ratio</span>
+        <span class="n">o</span><span class="o">.</span><span class="n">material_name</span><span class="p">,</span> <span class="n">o</span><span class="o">.</span><span class="n">solve_inside</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_check_material</span><span class="p">(</span><span class="n">matname</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">defaultmaterial</span><span class="p">)</span>
+
+        <span class="n">vArg1</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;NAME:EllipseParameters&quot;</span><span class="p">]</span>
+        <span class="n">vArg1</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;IsCovered:=&quot;</span><span class="p">),</span> <span class="n">vArg1</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">bIsCovered</span><span class="p">)</span>
+        <span class="n">vArg1</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;XCenter:=&quot;</span><span class="p">),</span> <span class="n">vArg1</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">XStart</span><span class="p">)</span>
+        <span class="n">vArg1</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;YCenter:=&quot;</span><span class="p">),</span> <span class="n">vArg1</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">YStart</span><span class="p">)</span>
+        <span class="n">vArg1</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;ZCenter:=&quot;</span><span class="p">),</span> <span class="n">vArg1</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">ZStart</span><span class="p">)</span>
+        <span class="n">vArg1</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;MajRadius:=&quot;</span><span class="p">),</span> <span class="n">vArg1</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">MajorRadius</span><span class="p">)</span>
+        <span class="n">vArg1</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;Ratio:=&quot;</span><span class="p">),</span> <span class="n">vArg1</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">Ratio</span><span class="p">)</span>
+        <span class="n">vArg1</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;WhichAxis:=&quot;</span><span class="p">),</span> <span class="n">vArg1</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">szAxis</span><span class="p">)</span>
+
+        <span class="n">vArg2</span> <span class="o">=</span> <span class="n">o</span><span class="o">.</span><span class="n">export_attributes</span><span class="p">(</span><span class="n">name</span><span class="p">)</span>
+        <span class="n">o</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">oeditor</span><span class="o">.</span><span class="n">CreateEllipse</span><span class="p">(</span><span class="n">vArg1</span><span class="p">,</span> <span class="n">vArg2</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">bIsCovered</span><span class="p">:</span>
+            <span class="nb">id</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_update_object</span><span class="p">(</span><span class="n">o</span><span class="p">,</span> <span class="s2">&quot;Sheet&quot;</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="nb">id</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_update_object</span><span class="p">(</span><span class="n">o</span><span class="p">,</span> <span class="s2">&quot;Line&quot;</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="nb">id</span></div>
+
+    <span class="nd">@aedt_exception_handler</span>
+    <span class="k">def</span> <span class="nf">create_equationbased_curve</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">udpequationbasedcurveddefinition</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">matname</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="c1"># TODO Test</span>
+        <span class="nb">id</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_new_id</span><span class="p">()</span>
+
+        <span class="n">o</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">objects</span><span class="p">[</span><span class="nb">id</span><span class="p">]</span>
+        <span class="n">o</span><span class="o">.</span><span class="n">material_name</span><span class="p">,</span> <span class="n">o</span><span class="o">.</span><span class="n">solve_inside</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_check_material</span><span class="p">(</span><span class="n">matname</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">defaultmaterial</span><span class="p">)</span>
+
+        <span class="n">vArg1</span> <span class="o">=</span> <span class="n">udpequationbasedcurveddefinition</span><span class="o">.</span><span class="n">toScript</span><span class="p">()</span>
+        <span class="n">vArg2</span> <span class="o">=</span> <span class="n">o</span><span class="o">.</span><span class="n">export_attributes</span><span class="p">(</span><span class="n">name</span><span class="p">)</span>
+
+        <span class="n">o</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">oeditor</span><span class="o">.</span><span class="n">CreateEquationCurve</span><span class="p">(</span><span class="n">vArg1</span><span class="p">,</span> <span class="n">vArg2</span><span class="p">)</span>
+        <span class="nb">id</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_update_object</span><span class="p">(</span><span class="n">o</span><span class="p">,</span> <span class="s2">&quot;Line&quot;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="nb">id</span>
+
+    <span class="nd">@aedt_exception_handler</span>
+    <span class="k">def</span> <span class="nf">create_helix</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">udphelixdefinition</span><span class="p">):</span>
+        <span class="c1"># TODO Test</span>
+        <span class="nb">id</span> <span class="o">=</span> <span class="n">udphelixdefinition</span><span class="o">.</span><span class="n">ProfileID</span>
+
+        <span class="n">o</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">objects</span><span class="p">[</span><span class="nb">id</span><span class="p">]</span>
+
+        <span class="n">vArg1</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;NAME:Selections&quot;</span><span class="p">]</span>
+        <span class="n">vArg1</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;Selections:=&quot;</span><span class="p">),</span> <span class="n">vArg1</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">o</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
+        <span class="n">vArg1</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;NewPartsModelFlag:=&quot;</span><span class="p">),</span> <span class="n">vArg1</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">&#39;Model&#39;</span><span class="p">)</span>
+
+        <span class="n">vArg2</span> <span class="o">=</span> <span class="n">udphelixdefinition</span><span class="o">.</span><span class="n">toScript</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">model_units</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">oeditor</span><span class="o">.</span><span class="n">CreateHelix</span><span class="p">(</span><span class="n">vArg1</span><span class="p">,</span> <span class="n">vArg2</span><span class="p">)</span>
+        <span class="nb">id</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_update_object</span><span class="p">(</span><span class="n">o</span><span class="p">)</span>
+        <span class="k">return</span> <span class="nb">id</span>
+
+<div class="viewcode-block" id="Primitives3D.create_polyline_with_crosssection"><a class="viewcode-back" href="../../../../API/Primitives3D.html#pyaedt.core.modeler.Primitives3D.Primitives3D.create_polyline_with_crosssection">[docs]</a>    <span class="nd">@aedt_exception_handler</span>
+    <span class="k">def</span> <span class="nf">create_polyline_with_crosssection</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">polylinename</span><span class="p">,</span> <span class="n">crosssectiontype</span><span class="o">=</span><span class="s2">&quot;Rectangle&quot;</span><span class="p">,</span> <span class="n">width</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">height</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
+                                          <span class="n">bendtype</span><span class="o">=</span><span class="s2">&quot;Corner&quot;</span><span class="p">,</span> <span class="n">orientation</span><span class="o">=</span><span class="s2">&quot;Auto&quot;</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Create a 3D object from polyline and sheet</span>
+
+
+<span class="sd">        :param polylinename: name of polyline</span>
+<span class="sd">        :param crosssectiontype: type of crossection. &quot;Rectangle&quot;, &quot;Circle&quot;...</span>
+<span class="sd">        :param width: width of crossection</span>
+<span class="sd">        :param height: height of crosssection if Rectangle. Number of Segments if Circle</span>
+<span class="sd">        :param bendtype: bend type. Default &quot;Corner&quot;.</span>
+<span class="sd">        :param orientation: orientation. Default &quot;Auto&quot;</span>
+<span class="sd">        :return: Bool</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">arg1</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;NAME:AllTabs&quot;</span><span class="p">]</span>
+        <span class="n">arg2</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;NAME:Geometry3DCmdTab&quot;</span><span class="p">,</span> <span class="p">[</span><span class="s2">&quot;NAME:PropServers&quot;</span><span class="p">,</span> <span class="n">polylinename</span> <span class="o">+</span> <span class="s2">&quot;:CreatePolyline:1&quot;</span><span class="p">]]</span>
+        <span class="n">arg3</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;NAME:ChangedProps&quot;</span><span class="p">]</span>
+        <span class="n">arg3</span><span class="o">.</span><span class="n">append</span><span class="p">([</span><span class="s2">&quot;NAME:Type&quot;</span><span class="p">,</span> <span class="s2">&quot;Value:=&quot;</span><span class="p">,</span> <span class="n">crosssectiontype</span><span class="p">])</span>
+        <span class="n">arg3</span><span class="o">.</span><span class="n">append</span><span class="p">([</span><span class="s2">&quot;NAME:Orientation&quot;</span><span class="p">,</span> <span class="s2">&quot;Value:=&quot;</span><span class="p">,</span> <span class="n">orientation</span><span class="p">])</span>
+        <span class="n">arg3</span><span class="o">.</span><span class="n">append</span><span class="p">([</span><span class="s2">&quot;NAME:Bend Type&quot;</span><span class="p">,</span> <span class="s2">&quot;Value:=&quot;</span><span class="p">,</span> <span class="n">bendtype</span><span class="p">])</span>
+        <span class="n">arg3</span><span class="o">.</span><span class="n">append</span><span class="p">([</span><span class="s2">&quot;NAME:Width/Diameter&quot;</span><span class="p">,</span> <span class="s2">&quot;Value:=&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">arg_with_dim</span><span class="p">(</span><span class="n">width</span><span class="p">)])</span>
+        <span class="k">if</span> <span class="n">crosssectiontype</span> <span class="o">==</span> <span class="s2">&quot;Rectangle&quot;</span><span class="p">:</span>
+            <span class="n">arg3</span><span class="o">.</span><span class="n">append</span><span class="p">([</span><span class="s2">&quot;NAME:Height&quot;</span><span class="p">,</span> <span class="s2">&quot;Value:=&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">arg_with_dim</span><span class="p">(</span><span class="n">height</span><span class="p">)])</span>
+        <span class="k">elif</span> <span class="n">crosssectiontype</span> <span class="o">==</span> <span class="s2">&quot;Circle&quot;</span><span class="p">:</span>
+            <span class="n">arg3</span><span class="o">.</span><span class="n">append</span><span class="p">([</span><span class="s2">&quot;NAME:Number of Segments&quot;</span><span class="p">,</span> <span class="s2">&quot;Value:=&quot;</span><span class="p">,</span> <span class="nb">int</span><span class="p">(</span><span class="n">height</span><span class="p">)])</span>
+        <span class="k">elif</span> <span class="n">crosssectiontype</span> <span class="o">==</span> <span class="s2">&quot;Isosceles Trapezoid&quot;</span><span class="p">:</span>
+            <span class="n">arg3</span><span class="o">.</span><span class="n">append</span><span class="p">([</span><span class="s2">&quot;NAME:Top Width&quot;</span><span class="p">,</span> <span class="s2">&quot;Value:=&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">arg_with_dim</span><span class="p">(</span><span class="n">width</span><span class="p">)])</span>
+            <span class="n">arg3</span><span class="o">.</span><span class="n">append</span><span class="p">([</span><span class="s2">&quot;NAME:Height&quot;</span><span class="p">,</span> <span class="s2">&quot;Value:=&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">arg_with_dim</span><span class="p">(</span><span class="n">height</span><span class="p">)])</span>
+        <span class="n">arg2</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">arg3</span><span class="p">)</span>
+        <span class="n">arg1</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">arg2</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">oeditor</span><span class="o">.</span><span class="n">ChangeProperty</span><span class="p">(</span><span class="n">arg1</span><span class="p">)</span>
+        <span class="n">objid</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_obj_id</span><span class="p">(</span><span class="n">polylinename</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">objects</span><span class="p">[</span><span class="n">objid</span><span class="p">]</span><span class="o">.</span><span class="n">is3d</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">objects</span><span class="p">[</span><span class="n">objid</span><span class="p">]</span><span class="o">.</span><span class="n">object_type</span> <span class="o">=</span> <span class="s2">&quot;Solid&quot;</span>
+        <span class="k">return</span> <span class="kc">True</span></div>
+
+<div class="viewcode-block" id="Primitives3D.convert_segments_to_line"><a class="viewcode-back" href="../../../../API/Primitives3D.html#pyaedt.core.modeler.Primitives3D.Primitives3D.convert_segments_to_line">[docs]</a>    <span class="nd">@aedt_exception_handler</span>
+    <span class="k">def</span> <span class="nf">convert_segments_to_line</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">object_name</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Convert a CreatePolyline list of segment into lines. it applies to splines and 3 points args</span>
+
+<span class="sd">        :param object_name: object id or object name</span>
+<span class="sd">        :return: Bool</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="n">object_name</span><span class="p">)</span> <span class="ow">is</span> <span class="nb">int</span><span class="p">:</span>
+            <span class="n">object_name</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">objects</span><span class="p">[</span><span class="n">object_name</span><span class="p">]</span><span class="o">.</span><span class="n">name</span>
+        <span class="n">edges</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_object_edges</span><span class="p">(</span><span class="n">object_name</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">reversed</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">edges</span><span class="p">))):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">oeditor</span><span class="o">.</span><span class="n">ChangeProperty</span><span class="p">(</span>
+                <span class="p">[</span>
+                    <span class="s2">&quot;NAME:AllTabs&quot;</span><span class="p">,</span>
+                    <span class="p">[</span>
+                        <span class="s2">&quot;NAME:Geometry3DPolylineTab&quot;</span><span class="p">,</span>
+                        <span class="p">[</span>
+                            <span class="s2">&quot;NAME:PropServers&quot;</span><span class="p">,</span>
+                            <span class="n">object_name</span> <span class="o">+</span> <span class="s2">&quot;:CreatePolyline:1:Segment&quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">i</span><span class="p">)</span>
+                        <span class="p">],</span>
+                        <span class="p">[</span>
+                            <span class="s2">&quot;NAME:ChangedProps&quot;</span><span class="p">,</span>
+                            <span class="p">[</span>
+                                <span class="s2">&quot;NAME:Segment Type&quot;</span><span class="p">,</span>
+                                <span class="s2">&quot;Value:=&quot;</span><span class="p">,</span> <span class="s2">&quot;Line&quot;</span>
+                            <span class="p">]</span>
+                        <span class="p">]</span>
+                    <span class="p">]</span>
+                <span class="p">])</span>
+        <span class="k">return</span> <span class="kc">True</span></div>
+
+<div class="viewcode-block" id="Primitives3D.delete_edges_from_polilyne"><a class="viewcode-back" href="../../../../API/Primitives3D.html#pyaedt.core.modeler.Primitives3D.Primitives3D.delete_edges_from_polilyne">[docs]</a>    <span class="nd">@aedt_exception_handler</span>
+    <span class="k">def</span> <span class="nf">delete_edges_from_polilyne</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">objectname</span><span class="p">,</span> <span class="n">edge_to_delete</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Delete edges in a polilyne</span>
+
+<span class="sd">        :param objectname:name of the polyline</span>
+<span class="sd">        :param edge_to_delete: list of ids of edge in polynes. it is an integer from 0 to (num_edges of the polyline-1)</span>
+<span class="sd">        :return: Bool</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="n">objectname</span><span class="p">)</span> <span class="ow">is</span> <span class="nb">int</span><span class="p">:</span>
+            <span class="n">objectname</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">objects</span><span class="p">[</span><span class="n">objectname</span><span class="p">]</span><span class="o">.</span><span class="n">name</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">oeditor</span><span class="o">.</span><span class="n">DeletePolylinePoint</span><span class="p">(</span>
+            <span class="p">[</span>
+                <span class="s2">&quot;NAME:Delete Point&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;Selections:=&quot;</span><span class="p">,</span> <span class="n">objectname</span> <span class="o">+</span> <span class="s2">&quot;:CreatePolyline:1&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;Segment Indices:=&quot;</span><span class="p">,</span> <span class="n">edge_to_delete</span><span class="p">,</span>
+                <span class="s2">&quot;At Start:=&quot;</span><span class="p">,</span> <span class="kc">False</span><span class="p">])</span>
+        <span class="k">return</span> <span class="kc">True</span></div>
+
+<div class="viewcode-block" id="Primitives3D.create_rectangle"><a class="viewcode-back" href="../../../../API/Primitives3D.html#pyaedt.core.modeler.Primitives3D.Primitives3D.create_rectangle">[docs]</a>    <span class="nd">@aedt_exception_handler</span>
+    <span class="k">def</span> <span class="nf">create_rectangle</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">cs_plane</span><span class="p">,</span> <span class="n">position</span><span class="p">,</span> <span class="n">dimension_list</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">matname</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Create a rectangle</span>
+
+
+<span class="sd">        :param cs_plane: CoordinateSystem Plane</span>
+<span class="sd">        :type cs_plane: CoordinateSystemPlane</span>
+<span class="sd">        :param position: ApplicationName.modeler.Position(x,y,z) object</span>
+<span class="sd">        :param dimension_list: dimension list</span>
+<span class="sd">        :param name: Object Name</span>
+<span class="sd">        :param matname: material name. Optional, if nothing default material will be assigned</span>
+<span class="sd">        :return: id</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="nb">id</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_new_id</span><span class="p">()</span>
+
+        <span class="n">o</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">objects</span><span class="p">[</span><span class="nb">id</span><span class="p">]</span>
+        <span class="n">o</span><span class="o">.</span><span class="n">material_name</span><span class="p">,</span> <span class="n">o</span><span class="o">.</span><span class="n">solve_inside</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_check_material</span><span class="p">(</span><span class="n">matname</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">defaultmaterial</span><span class="p">)</span>
+
+        <span class="n">szAxis</span> <span class="o">=</span> <span class="n">GeometryOperators</span><span class="o">.</span><span class="n">cs_plane_str</span><span class="p">(</span><span class="n">cs_plane</span><span class="p">)</span>
+        <span class="n">XStart</span><span class="p">,</span> <span class="n">YStart</span><span class="p">,</span> <span class="n">ZStart</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">pos_with_arg</span><span class="p">(</span><span class="n">position</span><span class="p">)</span>
+
+        <span class="n">Width</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">arg_with_dim</span><span class="p">(</span><span class="n">dimension_list</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+        <span class="n">Height</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">arg_with_dim</span><span class="p">(</span><span class="n">dimension_list</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+
+        <span class="n">vArg1</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;NAME:RectangleParameters&quot;</span><span class="p">]</span>
+        <span class="n">vArg1</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;XStart:=&quot;</span><span class="p">),</span> <span class="n">vArg1</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">XStart</span><span class="p">)</span>
+        <span class="n">vArg1</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;YStart:=&quot;</span><span class="p">),</span> <span class="n">vArg1</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">YStart</span><span class="p">)</span>
+        <span class="n">vArg1</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;ZStart:=&quot;</span><span class="p">),</span> <span class="n">vArg1</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">ZStart</span><span class="p">)</span>
+        <span class="n">vArg1</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;Width:=&quot;</span><span class="p">),</span> <span class="n">vArg1</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">Width</span><span class="p">)</span>
+        <span class="n">vArg1</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;Height:=&quot;</span><span class="p">),</span> <span class="n">vArg1</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">Height</span><span class="p">)</span>
+        <span class="n">vArg1</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;WhichAxis:=&quot;</span><span class="p">),</span> <span class="n">vArg1</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">szAxis</span><span class="p">)</span>
+
+        <span class="n">vArg2</span> <span class="o">=</span> <span class="n">o</span><span class="o">.</span><span class="n">export_attributes</span><span class="p">(</span><span class="n">name</span><span class="p">)</span>
+        <span class="n">o</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">oeditor</span><span class="o">.</span><span class="n">CreateRectangle</span><span class="p">(</span><span class="n">vArg1</span><span class="p">,</span> <span class="n">vArg2</span><span class="p">)</span>
+        <span class="nb">id</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_update_object</span><span class="p">(</span><span class="n">o</span><span class="p">,</span> <span class="s2">&quot;Sheet&quot;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="nb">id</span></div>
+
+<div class="viewcode-block" id="Primitives3D.create_udp"><a class="viewcode-back" href="../../../../API/Primitives3D.html#pyaedt.core.modeler.Primitives3D.Primitives3D.create_udp">[docs]</a>    <span class="nd">@aedt_exception_handler</span>
+    <span class="k">def</span> <span class="nf">create_udp</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">udp_dll_name</span><span class="p">,</span> <span class="n">udp_parameters_list</span><span class="p">,</span> <span class="n">upd_library</span><span class="o">=</span><span class="s1">&#39;syslib&#39;</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">udptye</span><span class="o">=</span><span class="s2">&quot;Solid&quot;</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Create User Defined Primitive</span>
+
+<span class="sd">        :param udp_dll_name: dll name</span>
+<span class="sd">        :param udp_parameters_list: udp pairs object</span>
+<span class="sd">        :param upd_library: udp library</span>
+<span class="sd">        :param name: component name</span>
+<span class="sd">        :param udptye: udpy type</span>
+<span class="sd">        :return: object ID</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="nb">id</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_new_id</span><span class="p">()</span>
+
+        <span class="n">o</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">objects</span><span class="p">[</span><span class="nb">id</span><span class="p">]</span>
+        <span class="k">if</span> <span class="s2">&quot;.dll&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">udp_dll_name</span><span class="p">:</span>
+            <span class="n">vArg1</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;NAME:UserDefinedPrimitiveParameters&quot;</span><span class="p">,</span> <span class="s2">&quot;DllName:=&quot;</span><span class="p">,</span> <span class="n">udp_dll_name</span> <span class="o">+</span> <span class="s2">&quot;.dll&quot;</span><span class="p">,</span> <span class="s2">&quot;Library:=&quot;</span><span class="p">,</span> <span class="n">upd_library</span><span class="p">]</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">vArg1</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;NAME:UserDefinedPrimitiveParameters&quot;</span><span class="p">,</span> <span class="s2">&quot;DllName:=&quot;</span><span class="p">,</span> <span class="n">udp_dll_name</span><span class="p">,</span> <span class="s2">&quot;Library:=&quot;</span><span class="p">,</span> <span class="n">upd_library</span><span class="p">]</span>
+
+        <span class="n">vArgParamVector</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;NAME:ParamVector&quot;</span><span class="p">]</span>
+
+        <span class="k">for</span> <span class="n">pair</span> <span class="ow">in</span> <span class="n">udp_parameters_list</span><span class="p">:</span>
+            <span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="n">pair</span><span class="p">)</span> <span class="ow">is</span> <span class="nb">list</span><span class="p">:</span>
+                <span class="n">vArgParamVector</span><span class="o">.</span><span class="n">append</span><span class="p">([</span><span class="s2">&quot;NAME:Pair&quot;</span><span class="p">,</span> <span class="s2">&quot;Name:=&quot;</span><span class="p">,</span> <span class="n">pair</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="s2">&quot;Value:=&quot;</span><span class="p">,</span> <span class="n">pair</span><span class="p">[</span><span class="mi">1</span><span class="p">]])</span>
+
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">vArgParamVector</span><span class="o">.</span><span class="n">append</span><span class="p">([</span><span class="s2">&quot;NAME:Pair&quot;</span><span class="p">,</span> <span class="s2">&quot;Name:=&quot;</span><span class="p">,</span> <span class="n">pair</span><span class="o">.</span><span class="n">Name</span><span class="p">,</span> <span class="s2">&quot;Value:=&quot;</span><span class="p">,</span> <span class="n">pair</span><span class="o">.</span><span class="n">Value</span><span class="p">])</span>
+
+        <span class="n">vArg1</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">vArgParamVector</span><span class="p">)</span>
+        <span class="n">namergs</span> <span class="o">=</span> <span class="n">name</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;.dll&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;/&quot;</span><span class="p">)</span>
+        <span class="n">o</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="n">name</span>
+        <span class="n">vArg2</span> <span class="o">=</span> <span class="n">o</span><span class="o">.</span><span class="n">export_attributes</span><span class="p">(</span><span class="n">namergs</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">oeditor</span><span class="o">.</span><span class="n">CreateUserDefinedPart</span><span class="p">(</span><span class="n">vArg1</span><span class="p">,</span> <span class="n">vArg2</span><span class="p">)</span>
+        <span class="nb">id</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_update_object</span><span class="p">(</span><span class="n">o</span><span class="p">,</span> <span class="n">udptye</span><span class="p">)</span>
+        <span class="k">return</span> <span class="nb">id</span></div>
+
+<div class="viewcode-block" id="Primitives3D.create_udm"><a class="viewcode-back" href="../../../../API/Primitives3D.html#pyaedt.core.modeler.Primitives3D.Primitives3D.create_udm">[docs]</a>    <span class="nd">@aedt_exception_handler</span>
+    <span class="k">def</span> <span class="nf">create_udm</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">udmfullname</span><span class="p">,</span> <span class="n">udm_params_list</span><span class="p">,</span> <span class="n">udm_library</span><span class="o">=</span><span class="s1">&#39;syslib&#39;</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Create User Defined Model</span>
+
+<span class="sd">        :param udmfullname: udm full name including folder</span>
+<span class="sd">        :param udm_params_list: udpm pairs object</span>
+<span class="sd">        :param udm_library: udp library</span>
+<span class="sd">        :return: object ID</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1">#id = self._new_id()</span>
+
+        <span class="n">vArg1</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;NAME:UserDefinedModelParameters&quot;</span><span class="p">,[</span><span class="s2">&quot;NAME:Definition&quot;</span><span class="p">],</span> <span class="p">[</span><span class="s2">&quot;NAME:Options&quot;</span><span class="p">]]</span>
+        <span class="n">vArgParamVector</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;NAME:GeometryParams&quot;</span><span class="p">]</span>
+
+        <span class="k">for</span> <span class="n">pair</span> <span class="ow">in</span> <span class="n">udm_params_list</span><span class="p">:</span>
+            <span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="n">pair</span><span class="p">)</span> <span class="ow">is</span> <span class="nb">list</span><span class="p">:</span>
+                <span class="n">name</span> <span class="o">=</span> <span class="n">pair</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+                <span class="n">val</span> <span class="o">=</span> <span class="n">pair</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">name</span> <span class="o">=</span> <span class="n">pair</span><span class="o">.</span><span class="n">Name</span>
+                <span class="n">val</span> <span class="o">=</span> <span class="n">pair</span><span class="o">.</span><span class="n">Value</span>
+            <span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="n">val</span><span class="p">)</span> <span class="ow">is</span> <span class="nb">int</span><span class="p">:</span>
+                <span class="n">vArgParamVector</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+                    <span class="p">[</span><span class="s2">&quot;NAME:UDMParam&quot;</span><span class="p">,</span> <span class="s2">&quot;Name:=&quot;</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="s2">&quot;Value:=&quot;</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">val</span><span class="p">),</span> <span class="s2">&quot;PropType2:=&quot;</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="s2">&quot;PropFlag2:=&quot;</span><span class="p">,</span> <span class="mi">2</span><span class="p">])</span>
+            <span class="k">elif</span> <span class="nb">str</span><span class="p">(</span><span class="n">val</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span> <span class="ow">in</span> <span class="s1">&#39;0123456789&#39;</span><span class="p">:</span>
+                <span class="n">vArgParamVector</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+                    <span class="p">[</span><span class="s2">&quot;NAME:UDMParam&quot;</span><span class="p">,</span> <span class="s2">&quot;Name:=&quot;</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="s2">&quot;Value:=&quot;</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">val</span><span class="p">),</span> <span class="s2">&quot;PropType2:=&quot;</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="s2">&quot;PropFlag2:=&quot;</span><span class="p">,</span> <span class="mi">4</span><span class="p">])</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">vArgParamVector</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+                    <span class="p">[</span><span class="s2">&quot;NAME:UDMParam&quot;</span><span class="p">,</span> <span class="s2">&quot;Name:=&quot;</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="s2">&quot;Value:=&quot;</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">val</span><span class="p">),</span> <span class="s2">&quot;DataType:=&quot;</span><span class="p">,</span> <span class="s2">&quot;String&quot;</span><span class="p">,</span> <span class="s2">&quot;PropType2:=&quot;</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span>
+                     <span class="s2">&quot;PropFlag2:=&quot;</span><span class="p">,</span> <span class="mi">0</span><span class="p">])</span>
+
+        <span class="n">vArg1</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">vArgParamVector</span><span class="p">)</span>
+        <span class="n">vArg1</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;DllName:=&quot;</span><span class="p">)</span>
+        <span class="n">vArg1</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">udmfullname</span><span class="p">)</span>
+        <span class="n">vArg1</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;Library:=&quot;</span><span class="p">)</span>
+        <span class="n">vArg1</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">udm_library</span><span class="p">)</span>
+        <span class="n">vArg1</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;Version:=&quot;</span><span class="p">)</span>
+        <span class="n">vArg1</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;2.0&quot;</span><span class="p">)</span>
+        <span class="n">vArg1</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;ConnectionID:=&quot;</span><span class="p">)</span>
+        <span class="n">vArg1</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;&quot;</span><span class="p">)</span>
+        <span class="n">oname</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">oeditor</span><span class="o">.</span><span class="n">CreateUserDefinedModel</span><span class="p">(</span><span class="n">vArg1</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">oname</span><span class="p">:</span>
+            <span class="n">object_lists</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">oeditor</span><span class="o">.</span><span class="n">GetPartsForUserDefinedModel</span><span class="p">(</span><span class="n">oname</span><span class="p">)</span>
+            <span class="k">for</span> <span class="n">el</span> <span class="ow">in</span> <span class="n">object_lists</span><span class="p">:</span>
+                <span class="nb">id</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_new_id</span><span class="p">()</span>
+                <span class="n">o</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">objects</span><span class="p">[</span><span class="nb">id</span><span class="p">]</span>
+                <span class="n">o</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="n">el</span>
+                <span class="n">obj</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">oeditor</span><span class="o">.</span><span class="n">GetObjectsInGroup</span><span class="p">(</span><span class="s2">&quot;Solids&quot;</span><span class="p">))</span>
+                <span class="k">if</span> <span class="n">el</span> <span class="ow">in</span> <span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">oeditor</span><span class="o">.</span><span class="n">GetObjectsInGroup</span><span class="p">(</span><span class="s2">&quot;Solids&quot;</span><span class="p">)):</span>
+                    <span class="nb">id</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_update_object</span><span class="p">(</span><span class="n">o</span><span class="p">)</span>
+                <span class="k">elif</span> <span class="n">el</span> <span class="ow">in</span> <span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">oeditor</span><span class="o">.</span><span class="n">GetObjectsInGroup</span><span class="p">(</span><span class="s2">&quot;Sheets&quot;</span><span class="p">)):</span>
+                    <span class="nb">id</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_update_object</span><span class="p">(</span><span class="n">o</span><span class="p">,</span> <span class="s2">&quot;Sheet&quot;</span><span class="p">)</span>
+                <span class="k">elif</span> <span class="n">el</span> <span class="ow">in</span> <span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">oeditor</span><span class="o">.</span><span class="n">GetObjectsInGroup</span><span class="p">(</span><span class="s2">&quot;Lines&quot;</span><span class="p">)):</span>
+                    <span class="nb">id</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_update_object</span><span class="p">(</span><span class="n">o</span><span class="p">,</span> <span class="s2">&quot;Line&quot;</span><span class="p">)</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="nb">id</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_update_object</span><span class="p">(</span><span class="n">o</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">update_object_properties</span><span class="p">(</span><span class="n">o</span><span class="p">)</span>
+            <span class="k">return</span> <span class="n">oname</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">False</span></div>
+
+<div class="viewcode-block" id="Primitives3D.create_cone"><a class="viewcode-back" href="../../../../API/Primitives3D.html#pyaedt.core.modeler.Primitives3D.Primitives3D.create_cone">[docs]</a>    <span class="nd">@aedt_exception_handler</span>
+    <span class="k">def</span> <span class="nf">create_cone</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">cs_axis</span><span class="p">,</span> <span class="n">position</span><span class="p">,</span> <span class="n">bottom_radius</span><span class="p">,</span> <span class="n">top_radius</span><span class="p">,</span> <span class="n">height</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">matname</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Create a cone</span>
+
+
+<span class="sd">        :param cs_axis: CoordinateSystem Axis</span>
+<span class="sd">        :type cs_axis: CoordinateSystemAxis</span>
+<span class="sd">        :param position: ApplicationName.modeler.Position(x,y,z) object</span>
+<span class="sd">        :param bottom_radius: bottom radius</span>
+<span class="sd">        :param top_radius: topradius radius</span>
+<span class="sd">        :param height: height</span>
+<span class="sd">        :param name: Object Name</span>
+<span class="sd">        :param matname: material name. Optional, if nothing default material will be assigned</span>
+<span class="sd">        :return: id</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="nb">id</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_new_id</span><span class="p">()</span>
+
+        <span class="n">o</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">objects</span><span class="p">[</span><span class="nb">id</span><span class="p">]</span>
+        <span class="n">o</span><span class="o">.</span><span class="n">material_name</span><span class="p">,</span> <span class="n">o</span><span class="o">.</span><span class="n">solve_inside</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_check_material</span><span class="p">(</span><span class="n">matname</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">defaultmaterial</span><span class="p">)</span>
+
+        <span class="n">XCenter</span><span class="p">,</span> <span class="n">YCenter</span><span class="p">,</span> <span class="n">ZCenter</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">pos_with_arg</span><span class="p">(</span><span class="n">position</span><span class="p">)</span>
+        <span class="n">szAxis</span> <span class="o">=</span> <span class="n">GeometryOperators</span><span class="o">.</span><span class="n">cs_axis_str</span><span class="p">(</span><span class="n">cs_axis</span><span class="p">)</span>
+        <span class="n">Height</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">arg_with_dim</span><span class="p">(</span><span class="n">height</span><span class="p">)</span>
+        <span class="n">RadiusBt</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">arg_with_dim</span><span class="p">(</span><span class="n">bottom_radius</span><span class="p">)</span>
+        <span class="n">RadiusUp</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">arg_with_dim</span><span class="p">(</span><span class="n">top_radius</span><span class="p">)</span>
+
+        <span class="n">vArg1</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;NAME:ConeParameters&quot;</span><span class="p">]</span>
+        <span class="n">vArg1</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;XCenter:=&quot;</span><span class="p">),</span> <span class="n">vArg1</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">XCenter</span><span class="p">)</span>
+        <span class="n">vArg1</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;YCenter:=&quot;</span><span class="p">),</span> <span class="n">vArg1</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">YCenter</span><span class="p">)</span>
+        <span class="n">vArg1</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;ZCenter:=&quot;</span><span class="p">),</span> <span class="n">vArg1</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">ZCenter</span><span class="p">)</span>
+        <span class="n">vArg1</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;WhichAxis:=&quot;</span><span class="p">),</span> <span class="n">vArg1</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">szAxis</span><span class="p">)</span>
+        <span class="n">vArg1</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;Height:=&quot;</span><span class="p">),</span> <span class="n">vArg1</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">Height</span><span class="p">)</span>
+        <span class="n">vArg1</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;BottomRadius:=&quot;</span><span class="p">),</span> <span class="n">vArg1</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">RadiusBt</span><span class="p">)</span>
+        <span class="n">vArg1</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;TopRadius:=&quot;</span><span class="p">),</span> <span class="n">vArg1</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">RadiusUp</span><span class="p">)</span>
+
+        <span class="n">vArg2</span> <span class="o">=</span> <span class="n">o</span><span class="o">.</span><span class="n">export_attributes</span><span class="p">(</span><span class="n">name</span><span class="p">)</span>
+
+        <span class="n">o</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">oeditor</span><span class="o">.</span><span class="n">CreateCone</span><span class="p">(</span><span class="n">vArg1</span><span class="p">,</span> <span class="n">vArg2</span><span class="p">)</span>
+        <span class="nb">id</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_update_object</span><span class="p">(</span><span class="n">o</span><span class="p">)</span>
+        <span class="k">return</span> <span class="nb">id</span></div>
+
+<div class="viewcode-block" id="Primitives3D.insert_3d_component"><a class="viewcode-back" href="../../../../API/Primitives3D.html#pyaedt.core.modeler.Primitives3D.Primitives3D.insert_3d_component">[docs]</a>    <span class="nd">@aedt_exception_handler</span>
+    <span class="k">def</span> <span class="nf">insert_3d_component</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">compFile</span><span class="p">,</span> <span class="n">geoParams</span><span class="p">,</span> <span class="n">szMatParams</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="n">szDesignParams</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="n">targetCS</span><span class="o">=</span><span class="s1">&#39;Global&#39;</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Insert a new 3d Compoent object</span>
+
+<span class="sd">        :param compFile:Compoent file</span>
+<span class="sd">        :param geoParams: Geometrical Parameters</span>
+<span class="sd">        :param szMatParams: Material Parameters</span>
+<span class="sd">        :param szDesignParams: Design Parameters</span>
+<span class="sd">        :param targetCS: Target Coordinate System</span>
+<span class="sd">        :return:</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="nb">id</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_new_id</span><span class="p">()</span>
+
+        <span class="n">o</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">objects</span><span class="p">[</span><span class="nb">id</span><span class="p">]</span>
+
+        <span class="n">vArg1</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;NAME:InsertComponentData&quot;</span><span class="p">]</span>
+
+        <span class="n">szGeoParams</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span>
+        <span class="c1"># for pair in geoParams:</span>
+        <span class="c1">#     name = pair.Name</span>
+        <span class="c1">#     val = pair.Value</span>
+        <span class="c1">#     szGeoParams += &quot;{0}=&#39;{1}&#39; &quot;.format(name, val)</span>
+        <span class="k">for</span> <span class="n">par</span> <span class="ow">in</span> <span class="n">geoParams</span><span class="p">:</span>
+            <span class="n">name</span> <span class="o">=</span> <span class="n">par</span>
+            <span class="n">val</span> <span class="o">=</span> <span class="n">geoParams</span><span class="p">[</span><span class="n">par</span><span class="p">]</span>
+            <span class="n">szGeoParams</span> <span class="o">+=</span> <span class="s2">&quot;</span><span class="si">{0}</span><span class="s2">=&#39;</span><span class="si">{1}</span><span class="s2">&#39; &quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">val</span><span class="p">)</span>
+
+        <span class="n">vArg1</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;GeometryParameters:=&quot;</span><span class="p">)</span>
+        <span class="n">vArg1</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">szGeoParams</span><span class="p">)</span>
+        <span class="n">vArg1</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;MaterialParameters:=&quot;</span><span class="p">)</span>
+        <span class="n">vArg1</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">szMatParams</span><span class="p">)</span>
+        <span class="n">vArg1</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;DesignParameters:=&quot;</span><span class="p">)</span>
+        <span class="n">vArg1</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">szDesignParams</span><span class="p">)</span>
+        <span class="n">vArg1</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;TargetCS:=&quot;</span><span class="p">)</span>
+        <span class="n">vArg1</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">targetCS</span><span class="p">)</span>
+        <span class="n">vArg1</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;ComponentFile:=&quot;</span><span class="p">)</span>
+        <span class="n">vArg1</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">compFile</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">oeditor</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">o</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">oeditor</span><span class="o">.</span><span class="n">Insert3DComponent</span><span class="p">(</span><span class="n">vArg1</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">refresh_all_ids</span><span class="p">()</span>
+            <span class="c1"># id = self._update_object(o)</span>
+        <span class="k">return</span> <span class="nb">id</span></div>
+
+<div class="viewcode-block" id="Primitives3D.get_3d_component_object_list"><a class="viewcode-back" href="../../../../API/Primitives3D.html#pyaedt.core.modeler.Primitives3D.Primitives3D.get_3d_component_object_list">[docs]</a>    <span class="nd">@aedt_exception_handler</span>
+    <span class="k">def</span> <span class="nf">get_3d_component_object_list</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">componentname</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Given a 3DComponent it returns the list of all objects belonging to it</span>
+
+
+<span class="sd">        :param componentname: 3DComponent Name</span>
+<span class="sd">        :return: List of objects</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">compobj</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">oeditor</span><span class="o">.</span><span class="n">GetChildObject</span><span class="p">(</span><span class="n">componentname</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">compobj</span><span class="p">:</span>
+            <span class="k">return</span> <span class="nb">list</span><span class="p">(</span><span class="n">compobj</span><span class="o">.</span><span class="n">GetChildNames</span><span class="p">())</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="p">[]</span></div>
+
+<div class="viewcode-block" id="Primitives3D.get_all_solids_names"><a class="viewcode-back" href="../../../../API/Primitives3D.html#pyaedt.core.modeler.Primitives3D.Primitives3D.get_all_solids_names">[docs]</a>    <span class="nd">@aedt_exception_handler</span>
+    <span class="k">def</span> <span class="nf">get_all_solids_names</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">refresh_list</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        get all solids names in the design</span>
+
+
+<span class="sd">        :param refresh_list: bool, force the refresh of objects</span>
+<span class="sd">        :return: list of the solids names</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_all_objects_names</span><span class="p">(</span><span class="n">refresh_list</span><span class="o">=</span><span class="n">refresh_list</span><span class="p">,</span> <span class="n">get_solids</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">get_sheets</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">get_lines</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="Primitives3D.get_face_normal"><a class="viewcode-back" href="../../../../API/Primitives3D.html#pyaedt.core.modeler.Primitives3D.Primitives3D.get_face_normal">[docs]</a>    <span class="nd">@aedt_exception_handler</span>
+    <span class="k">def</span> <span class="nf">get_face_normal</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">faceId</span><span class="p">,</span> <span class="n">bounding_box</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Get the face normal.</span>
+<span class="sd">        Limitations:</span>
+<span class="sd">        - the face must be planar.</span>
+<span class="sd">        - Currently it works only if the face has at least two vertices. Notable excluded items are circles and</span>
+<span class="sd">        ellipses that have only one vertex.</span>
+<span class="sd">        - If a bounding box is specified, the normal is orientated outwards with respect to the bounding box.</span>
+<span class="sd">        Usually the bounding box refers to a volume where the face lies.</span>
+<span class="sd">        If no bounding box is specified, the normal can be inward or outward the volume.</span>
+
+
+<span class="sd">        :param faceId: part ID (integer).</span>
+<span class="sd">        :param bounding_box: optional, bounding box in the form [x_min, y_min, z_min, x_Max, y_Max, z_Max]</span>
+<span class="sd">        :return: normal versor (normalized [x, y, z]) or None.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">vertices_ids</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_face_vertices</span><span class="p">(</span><span class="n">faceId</span><span class="p">)</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">vertices_ids</span><span class="p">)</span> <span class="o">&lt;</span> <span class="mi">2</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">None</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">v1</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_vertex_position</span><span class="p">(</span><span class="n">vertices_ids</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+            <span class="n">v2</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_vertex_position</span><span class="p">(</span><span class="n">vertices_ids</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+        <span class="n">fc</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_face_center</span><span class="p">(</span><span class="n">faceId</span><span class="p">)</span>
+        <span class="n">cv1</span> <span class="o">=</span> <span class="n">GeometryOperators</span><span class="o">.</span><span class="n">v_points</span><span class="p">(</span><span class="n">fc</span><span class="p">,</span> <span class="n">v1</span><span class="p">)</span>
+        <span class="n">cv2</span> <span class="o">=</span> <span class="n">GeometryOperators</span><span class="o">.</span><span class="n">v_points</span><span class="p">(</span><span class="n">fc</span><span class="p">,</span> <span class="n">v2</span><span class="p">)</span>
+        <span class="n">n</span> <span class="o">=</span> <span class="n">GeometryOperators</span><span class="o">.</span><span class="n">v_cross</span><span class="p">(</span><span class="n">cv1</span><span class="p">,</span> <span class="n">cv2</span><span class="p">)</span>
+        <span class="n">normal</span> <span class="o">=</span> <span class="n">GeometryOperators</span><span class="o">.</span><span class="n">normalize_vector</span><span class="p">(</span><span class="n">n</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">bounding_box</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">normal</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">            try to move the face center twice, the first with the normal vector, and the second with its inverse.</span>
+<span class="sd">            Measures which is closer to the center point of the bounding box.</span>
+<span class="sd">            &quot;&quot;&quot;</span>
+            <span class="n">inv_norm</span> <span class="o">=</span> <span class="p">[</span><span class="o">-</span><span class="n">i</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">normal</span><span class="p">]</span>
+            <span class="n">mv1</span> <span class="o">=</span> <span class="n">GeometryOperators</span><span class="o">.</span><span class="n">v_sum</span><span class="p">(</span><span class="n">fc</span><span class="p">,</span> <span class="n">normal</span><span class="p">)</span>
+            <span class="n">mv2</span> <span class="o">=</span> <span class="n">GeometryOperators</span><span class="o">.</span><span class="n">v_sum</span><span class="p">(</span><span class="n">fc</span><span class="p">,</span> <span class="n">inv_norm</span><span class="p">)</span>
+            <span class="n">bb_center</span> <span class="o">=</span> <span class="n">GeometryOperators</span><span class="o">.</span><span class="n">get_mid_point</span><span class="p">(</span><span class="n">bounding_box</span><span class="p">[</span><span class="mi">0</span><span class="p">:</span><span class="mi">3</span><span class="p">],</span> <span class="n">bounding_box</span><span class="p">[</span><span class="mi">3</span><span class="p">:</span><span class="mi">6</span><span class="p">])</span>
+            <span class="n">d1</span> <span class="o">=</span> <span class="n">GeometryOperators</span><span class="o">.</span><span class="n">points_distance</span><span class="p">(</span><span class="n">mv1</span><span class="p">,</span> <span class="n">bb_center</span><span class="p">)</span>
+            <span class="n">d2</span> <span class="o">=</span> <span class="n">GeometryOperators</span><span class="o">.</span><span class="n">points_distance</span><span class="p">(</span><span class="n">mv2</span><span class="p">,</span> <span class="n">bb_center</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">d1</span> <span class="o">&gt;</span> <span class="n">d2</span><span class="p">:</span>
+                <span class="k">return</span> <span class="n">normal</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">return</span> <span class="n">inv_norm</span></div></div>
+</pre></div>
+
+              </div>
+              
+              
+              <div class='prev-next-bottom'>
+                
+
+              </div>
+              
+          </main>
+          
+
+      </div>
+    </div>
+
+    
+  <script src="../../../../_static/js/index.d3f166471bb80abb5163.js"></script>
+
+
+    <footer class="footer mt-5 mt-md-0">
+  <div class="container">
+    <p>
+          &copy; Copyright Copyright(c) 1986-2021, ANSYSInc. unauthorised use, distribution or duplication is prohibited. This tool release is unofficial and not covered by standard Ansys Support license..<br/>
+        Created using <a href="http://sphinx-doc.org/">Sphinx</a> 3.5.2.<br/>
+    </p>
+  </div>
+</footer>
+  </body>
+</html>
