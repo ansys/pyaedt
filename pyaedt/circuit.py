@@ -78,12 +78,12 @@ def from_rkm(code):
 
     Parameters
     ----------
-    code :
+    code : str
         
 
     Returns
     -------
-
+    str
     """
 
     # matches rkm codes that start with a digit
@@ -115,12 +115,12 @@ def to_aedt(code):
 
     Parameters
     ----------
-    code :
+    code : str
         
 
     Returns
     -------
-
+    str
     """
     pattern = r'([{}]{})'.format(''.join(AEDT_MAPS.keys()), '{1}')
     regex = re.compile(pattern, re.I)
@@ -133,12 +133,12 @@ def from_rkm_to_aedt(code):
 
     Parameters
     ----------
-    code :
+    code : str
         
 
     Returns
     -------
-
+    str
     """
     return to_aedt(from_rkm(code))
 
@@ -199,12 +199,12 @@ class Circuit(FieldAnalysisCircuit, object):
 
         Parameters
         ----------
-        file_to_import :
+        file_to_import : str
             full path to spice file
 
         Returns
         -------
-        type
+        bool
             True if completed
 
         """
@@ -400,12 +400,12 @@ class Circuit(FieldAnalysisCircuit, object):
 
         Parameters
         ----------
-        file_to_import :
+        file_to_import : str
             full path to spice file
 
         Returns
         -------
-        type
+        bool
             True if completed
 
         """
@@ -524,12 +524,12 @@ class Circuit(FieldAnalysisCircuit, object):
 
         Parameters
         ----------
-        refid :
+        refid : str
             string
 
         Returns
         -------
-        type
+        str
             refid Nexxim Type
 
         """
@@ -556,7 +556,7 @@ class Circuit(FieldAnalysisCircuit, object):
         Parameters
         ----------
         source_project_path :
-            
+
         source_project_name :
             
         source_design_name :

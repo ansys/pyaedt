@@ -286,7 +286,7 @@ class FieldAnalysisCircuit(Analysis):
 
         Returns
         -------
-        type
+        :calss: SetupCircuit
             setup object
 
         """

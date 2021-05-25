@@ -33,16 +33,16 @@ start = time.time()
 
 # This example runs without HFSS3DLayout class. EDB class is opened directly and edb_core is opened in WriteMode
 edb = Edb(aedbproject, 'Galileo_G87173_204', isreadonly=False)
-comp = edb.get_component_by_name("J1")
-pin = edb.get_pin_from_component(comp.GetName(), pinName="1")
-stackup = edb.stackup_layers
-component_list = edb.components
-component_info = edb.get_component_info("J1")
-edb.create_padstack()
-vias = edb.padstacks
-viasinfo = edb.get_padstack_info()
-signalnets = edb.signal_nets
-powernets = edb.power_nets
+comp = edb.core_components.get_component_by_name("J1")
+pin = edb.core_components.get_pin_from_component(comp.GetName(), pinName="1")
+stackup = edb.core_components.stackup_layers
+component_list = edb.core_components.components
+component_info = edb.core_components.get_component_info("J1")
+edb.core_padstack.create_padstack()
+vias = edb.core_padstack.padstacks
+viasinfo = edb.core_padstack.get_padstack_info()
+signalnets = edb.core_nets.signal_nets
+powernets = edb.core_nets.power_nets
 edb.save_edb()
 edb.close_edb()
 

@@ -20,14 +20,14 @@ def pyaedt_help(modulename="index", browser="chrome"):
 
     Parameters
     ----------
-    modulename :
+    modulename : str
         name of the module or search string (Default value = "index")
-    browser :
+    browser : str
         string name of the browser. it can be chrome, iexplore, msedge, firefox (Default value = "chrome")
 
     Returns
     -------
-    type
+    None
         open pyaedt on browser
 
     """

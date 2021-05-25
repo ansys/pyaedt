@@ -41,22 +41,6 @@ with open(os.path.join(root_path,"pyaedt", "version.txt"), "r") as f:
 # The full version, including alpha/beta/rc tags
 release = version
 
-# Not needed since examples moved into pyaedt Folder
-# example_dir = os.path.join(documentation_dir,"examples")
-# if not os.path.exists(example_dir):
-#     os.mkdir(example_dir)
-# model_dir = os.path.join(example_dir, "Examples_Files")
-# if not os.path.exists(model_dir):
-#     os.mkdir(model_dir)
-# copy_tree(os.path.join(root_path,"examples", "pyaedt", "Examples_Files"), model_dir)
-# python_files = glob.glob(os.path.join(root_path,"examples","pyaedt") + "/0*.py")
-# python_files += glob.glob(os.path.join(root_path,"examples","pyaedt") + "/1*.py")
-# for f in python_files:
-#     shutil.copy2(f, example_dir)
-#
-# jupyter_files = glob.glob(os.path.join(root_path, "examples","pyaedt","Notebooks") + "/*.ipynb")
-# for f in jupyter_files:
-#     shutil.copy2(f, example_dir)
 
 # -- General configuration ---------------------------------------------------
 
@@ -73,7 +57,7 @@ extensions = ['sphinx.ext.autodoc',
               "sphinx_copybutton",
               'recommonmark',
               'sphinx.ext.graphviz',
-              'nbsphinx',
+              'sphinx_gallery.gen_gallery',
               'sphinx.ext.mathjax',
               'sphinx.ext.inheritance_diagram']
 
@@ -123,6 +107,65 @@ master_doc = 'index'
 # The name of the Pygments (syntax highlighting) style to use.
 pygments_style = 'sphinx'
 
+
+# import pyvista
+# import warnings
+# import numpy as np
+# # Manage errors
+# pyvista.set_error_output_file('errors.txt')
+#
+# # Ensure that offscreen rendering is used for docs generation
+# pyvista.OFF_SCREEN = True
+#
+# # Preferred plotting style for documentation
+# # pyvista.set_plot_theme('document')
+#
+# # must be less than or equal to the XVFB window size
+# pyvista.rcParams['window_size'] = np.array([1024, 768])  # * 2
+#
+# # Save figures in specified directory
+# pyvista.FIGURE_PATH = os.path.join(os.path.abspath('./images/'), 'auto-generated/')
+# if not os.path.exists(pyvista.FIGURE_PATH):
+#     os.makedirs(pyvista.FIGURE_PATH)
+#
+# # necessary when building the sphinx gallery
+# pyvista.BUILDING_GALLERY = True
+#
+# # suppress annoying matplotlib bug
+# warnings.filterwarnings(
+#     "ignore",
+#     category=UserWarning,
+#     message='Matplotlib is currently using agg, which is a non-GUI backend, so cannot show the figure.',
+# )
+#
+#
+# # -- Sphinx Gallery Options ---------------------------------------------------
+# from sphinx_gallery.sorting import FileNameSortKey
+#
+# sphinx_gallery_conf = {
+#     # convert rst to md for ipynb
+#     'pypandoc': True,
+#     # path to your examples scripts
+#     "examples_dirs": ["../../examples_docs/"],
+#     # path where to save gallery generated examples
+#     "gallery_dirs": ["examples"],
+#     # Patter to search for example files
+#     "filename_pattern": r"\.ipynb",
+#     # Remove the "Download all examples" button from the top level gallery
+#     "download_all_examples": False,
+#     # Sort gallery example by file name instead of number of lines (default)
+#     "within_subsection_order": FileNameSortKey,
+#     # directory where function granular galleries are stored
+#     "backreferences_dir": None,
+#     # Modules for which function level galleries are created.  In
+#     "doc_module": "ansys-mapdl-core",
+#     "image_scrapers": ('pyvista', 'matplotlib'),
+#     'ignore_pattern': 'flycheck*',
+#     "thumbnail_size": (350, 350),
+#     # 'first_notebook_cell': ("%matplotlib inline\n"
+#     #                         "from pyvista import set_plot_theme\n"
+#     #                         "set_plot_theme('document')"),
+# }
 
 
 
