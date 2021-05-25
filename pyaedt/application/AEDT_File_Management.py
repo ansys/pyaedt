@@ -12,13 +12,14 @@ def read_info_fromcsv(projdir, name):
 
     Parameters
     ----------
-    projdir :
+    projdir : str
         project directory
-    name :
+    name : str
         File name
 
     Returns
     -------
+    list
 
     """
 

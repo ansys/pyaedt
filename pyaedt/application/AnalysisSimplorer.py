@@ -78,11 +78,11 @@ class FieldAnalysisSimplorer(Analysis):
 
         Parameters
         ----------
-        setupname :
+        setupname : str
             optional, name of the new setup (Default value = "MySetupAuto")
-        setuptype :
+        setuptype : str
             optional, setup type. if None, default type will be applied
-        props :
+        props : dict
             optional dictionary of properties with values (Default value = {})
 
         Returns
