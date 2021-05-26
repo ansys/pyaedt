@@ -184,7 +184,7 @@ class EdbNets(object):
     def delete_nets(self, netlist):
         """Delete Nets from Edb
         
-        :example:
+        :examples:
 
         Parameters
         ----------

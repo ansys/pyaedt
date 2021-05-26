@@ -46,23 +46,7 @@ from .application.DataHandlers import random_string
 
 
 class Hfss(FieldAnalysis3D, object):
-    """HFSS Object
-
-    Parameters
-    ----------
-    projectname :
-        name of the project to be selected or full path to the project to be opened  or to the AEDTZ archive. if None try to get active project and, if nothing present to create an empy one
-    designname :
-        name of the design to be selected. if None, try to get active design and, if nothing present to create an empy one
-    solution_type :
-        solution type to be applied to design. if None default is taken
-    setup_name :
-        setup_name to be used as nominal. if none active setup is taken or nothing
-
-    Returns
-    -------
-
-    """
+    """HFSS object"""
     def __repr__(self):
         try:
             return "HFSS {} {}. ProjectName:{} DesignName:{} ".format(self._aedt_version, self.solution_type, self.project_name, self.design_name)
@@ -70,7 +54,23 @@ class Hfss(FieldAnalysis3D, object):
             return "HFSS Module"
 
     def __init__(self, projectname=None, designname=None, solution_type=None, setup_name=None):
+        """HFSS Object
 
+            Parameters
+            ----------
+            projectname :
+                name of the project to be selected or full path to the project to be opened  or to the AEDTZ archive. if None try to get active project and, if nothing present to create an empy one
+            designname :
+                name of the design to be selected. if None, try to get active design and, if nothing present to create an empy one
+            solution_type :
+                solution type to be applied to design. if None default is taken
+            setup_name :
+                setup_name to be used as nominal. if none active setup is taken or nothing
+
+            Returns
+            -------
+
+        """
         FieldAnalysis3D.__init__(self, "HFSS", projectname, designname, solution_type, setup_name)
     def __enter__(self):
         return self

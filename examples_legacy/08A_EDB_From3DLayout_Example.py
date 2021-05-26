@@ -1,6 +1,6 @@
 # ------------------------------------------------------------------------------
 #
-# This Example shows how to use HFSS3DLayout to do basic layout operations. To be noted how slower it is compared to example 08B
+# This Example shows how to use HFSS3DLayout to do basic layout operations. To be noted how slower it is compared to examples 08B
 #
 # -------------------------------------------------------------------------------
 import os

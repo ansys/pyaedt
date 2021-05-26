@@ -1,6 +1,6 @@
 # ------------------------------------------------------------------------------
 #
-# This Example shows how to use EDB to do basic layout operations. To be noted how fast it is compared to example 08A
+# This Example shows how to use EDB to do basic layout operations. To be noted how fast it is compared to examples 08A
 #
 # -------------------------------------------------------------------------------
 import os
@@ -31,7 +31,7 @@ shutil.copy2(os.path.join(project + ".aedb", "edb.def"), os.path.join(aedbprojec
 
 start = time.time()
 
-# This example runs without HFSS3DLayout class. EDB class is opened directly and edb_core is opened in WriteMode
+# This examples runs without HFSS3DLayout class. EDB class is opened directly and edb_core is opened in WriteMode
 edb = Edb(aedbproject, 'Galileo_G87173_204', isreadonly=False)
 comp = edb.core_components.get_component_by_name("J1")
 pin = edb.core_components.get_pin_from_component(comp.GetName(), pinName="1")

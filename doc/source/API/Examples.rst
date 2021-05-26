@@ -1,4 +1,4 @@
-.. AEDTLib documentation master file, created by
+.. pyaedt documentation master file, created by
    sphinx-quickstart on Fri Jun 12 11:39:54 2020.
    You can adapt this file completely to your liking, but it should at least
    contain the root `toctree` directive.
@@ -6,21 +6,21 @@
 Examples
 ===================================
 
-Here you can find a list of examples that shows how to use AEDTLib in real practical cases.
+Here you can find a list of examples that shows how to use pyaedt in real practical cases.
 
 **Getting Started Examples:**
 
-- `JupyterLab HFSS Full Example <../../Examples/Notebooks/HFSS_Icepak_fullEXample.ipynb>`_: It is a Jupyter lab file that shows how user can launch AEDTLib from Jupyter lab. It requires Juputer Lab to be installed on your machine.
+- `JupyterLab HFSS Full Example <../../Examples/Notebooks/HFSS_Icepak_fullEXample.ipynb>`_: It is a Jupyter lab file that shows how user can launch pyaedt from Jupyter lab. It requires Juputer Lab to be installed on your machine.
 
-- `JupyterLab HFSS Full Example Non Graphical <../../Examples/Notebooks/HFSS_Icepak_fullEXample-NG.ipynb>`_: It is a Jupyter lab file that shows how user can launch AEDTLib from Jupyter lab. It requires Juputer Lab to be installed on your machine. Non Graphical Version
+- `JupyterLab HFSS Full Example Non Graphical <../../Examples/Notebooks/HFSS_Icepak_fullEXample-NG.ipynb>`_: It is a Jupyter lab file that shows how user can launch pyaedt from Jupyter lab. It requires Juputer Lab to be installed on your machine. Non Graphical Version
 
 - `JupyterLab Far Field PostProcessing Example <../../Examples/Notebooks/far_field_test.ipynb>`_: It is a Jupyter lab file that shows how user can use matplotly to postprocess data from AEDT in Non-Graphical mode. It requires Juputer Lab to be installed on your machine.
 
 - `JupyterLab Sherlock to Icepak Example <../../Examples/Notebooks/SherlockToIcepak.ipynb>`_: It is a Jupyter lab file that shows how user can import files from Sherlock and create Icepak Project.
 
-- `JupyterLab Maxwll Example 1 <../../Examples/Notebooks/maxwell_aedtlib_test.ipynb>`_: It is a Jupyter lab file that shows how user can create a maxwell project, run analysis and plot results.
+- `JupyterLab Maxwll Example 1 <../../Examples/Notebooks/maxwell_pyaedt_test.ipynb>`_: It is a Jupyter lab file that shows how user can create a maxwell project, run analysis and plot results.
 
-- `JupyterLab Maxwll Example 2 <../../Examples/Notebooksmaxwell_aedtlib_test-NG.ipynb>`_: It is a Jupyter lab file that shows how user can create a maxwell project, run analysis and plot results. Non Graphical Version
+- `JupyterLab Maxwll Example 2 <../../Examples/Notebooksmaxwell_pyaedt_test-NG.ipynb>`_: It is a Jupyter lab file that shows how user can create a maxwell project, run analysis and plot results. Non Graphical Version
 
 - `JupyterLab Netlist Example <../../Examples/Notebooks/Netlist.ipynb>`_: It is a Jupyter lab file that shows how user can read a netlist and create a schematic
 
@@ -32,7 +32,7 @@ Here you can find a list of examples that shows how to use AEDTLib in real pract
 
 - `Q3D Example <../../Examples/03_Q3D_Example.py>`_ Q3D_Example.py: It includes an example of creating Q3D Project
 
-- `EDB Example <../../Examples/08A_EDB_From3DLayout_Example.py>`_: It includes an example of using Edb API from AEDTLib within 3DLayout (read ONLY)
+- `EDB Example <../../Examples/08A_EDB_From3DLayout_Example.py>`_: It includes an example of using Edb API from pyaedt within 3DLayout (read ONLY)
 
 - `EDB Standalone Example <../../Examples/08B_EDB_Standalone_example.py>`_: It includes an example of using Edb API ouside aedt (read/write)
 
@@ -52,7 +52,7 @@ Here you can find a list of examples that shows how to use AEDTLib in real pract
 
 Jupyeter can be launched with the following command:
 
-*"jupyter lab pathtoAEDTLibRoot/Documentation/Examples/example_name.ipynb"* and jupyter server will be launched and the notebook will be loaded
+*"jupyter lab pathtopyaedtRoot/Documentation/Examples/example_name.ipynb"* and jupyter server will be launched and the notebook will be loaded
 
 Example
 __________
@@ -62,7 +62,7 @@ __________
 .. code:: python
 
     from pyaedt.Destkop import Desktop
-    from pyaedt.Circuit import Maxwell3d
+    from pyaedt.Circuit import Maxwell3D
 
     with Desktop("2020.1", NG=True):
          # AEDT 2020R1 in Non-Graphicalmode will be launched
@@ -78,7 +78,7 @@ __________
    plate = GEO.primitives.create_box([0, 0, 0], [294, 294, 19], name="Plate", matname="aluminum")
    hole = GEO.primitives.create_box([18,18,0], [108, 108, 19], name="Hole")
 
-**3. Modeler operations**
+**3. modeler operations**
 
 .. code:: python
 

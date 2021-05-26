@@ -1,18 +1,18 @@
-.. AEDTLib documentation master file, created by
+.. pyaedt documentation master file, created by
    sphinx-quickstart on Fri Jun 12 11:39:54 2020.
    You can adapt this file completely to your liking, but it should at least
    contain the root `toctree` directive.
 
-Core Modules
+application modules
 ===================================
 
-This Section contain info about all the Core Modules of pyaedt. In particular:
+This Section contain info about all the application modules of pyaedt. In particular:
 
 
 #. Design
 #. Variables
 #. Analysis
-#. Modeler
+#. modeler
 #. DesignXPloration
 
 
@@ -30,9 +30,9 @@ Variable Class contain all the methods for managing AEDT Variables (both Project
 Analysis Classes contain all the properties and methods needed to setup and run AEDT Analysis
 
 
-**Modeler**
+**modeler**
 
-Modeler Classeses contain all the properties and methods needed to edit a Modeler, including all primitives methods and properties
+modeler Classeses contain all the properties and methods needed to edit a modeler, including all primitives methods and properties
 
 **DesignXploration**
 

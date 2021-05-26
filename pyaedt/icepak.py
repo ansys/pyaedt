@@ -169,7 +169,7 @@ class Icepak(FieldAnalysisIcepak):
         Parameters
         ----------
         list_powers :
-            list of input powers. its a list of list like in the example [["Obj1", 1], ["Obj2", 3]]. it can contain multiple column for power inputs
+            list of input powers. its a list of list like in the examples [["Obj1", 1], ["Obj2", 3]]. it can contain multiple column for power inputs
         assign_material :
             bool (Default value = True)
         default_material :

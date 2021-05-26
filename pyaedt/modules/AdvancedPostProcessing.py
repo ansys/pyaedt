@@ -533,6 +533,8 @@ class PostProcessor(Post):
              (Default value = False)
         off_screen :
              (Default value = False)
+        autoclose :
+             (Default value = False)
 
         Returns
         -------

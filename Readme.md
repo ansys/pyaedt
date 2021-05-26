@@ -30,33 +30,33 @@ It requires Juputer Lab to be installed on your machine. It can be launched with
 
     *"jupyter lab pathtoAEDTLibRoot/Documentation/Examples/far_field_test.ipynb"* and jupyter server will be launched and the notebook will be loaded
 
-- [HFSS Example](examples/01_HFSS_Icepak_FullProject.py): Includes HFSS and Icepak Analysis
+- [HFSS Example](examples_legacy/01_HFSS_Icepak_FullProject.py): Includes HFSS and Icepak Analysis
 
-- [Maxwell 3D Example](examples/02_Maxwell_Icepak_App_Example.py): It includes Maxwell and Icepak Analysis
+- [Maxwell 3D Example](examples_legacy/02_Maxwell_Icepak_App_Example.py): It includes Maxwell and Icepak Analysis
 
-- [Solution Setup Example](examples/13_Solution_Setup_Example.py): It includes example to create automatically a Simulation Setup in different tools
+- [Solution Setup Example](examples_legacy/13_Solution_Setup_Example.py): It includes example to create automatically a Simulation Setup in different tools
 
 - [Icepak Example](../examples/AEDTLib/Icepak_Example.py): It includes example to create mesh regions and edit it
 
-- [Q3D Example](examples/03_Q3D_Example.py)Q3D_Example.py: It includes an example of creating Q3D Project
+- [Q3D Example](examples_legacy/03_Q3D_Example.py)Q3D_Example.py: It includes an example of creating Q3D Project
 
-- [EDB Example](examples/08A_EDB_From3DLayout_Example.py): It includes an example of using Edb API from AEDTLib within 3DLayout (read ONLY)
+- [EDB Example](examples_legacy/08A_EDB_From3DLayout_Example.py): It includes an example of using Edb API from AEDTLib within 3DLayout (read ONLY)
 
-- [EDB Standalone Example](examples/08B_EDB_Standalone_example.py): It includes an example of using Edb API ouside aedt (read/write)
+- [EDB Standalone Example](examples_legacy/08B_EDB_Standalone_example.py): It includes an example of using Edb API ouside aedt (read/write)
 
-- [HFSS 3D Layout Example](examples/08C_HFSS_3DLayout_example.py): It includes an example of using HFSS3DLayout
+- [HFSS 3D Layout Example](examples_legacy/08C_HFSS_3DLayout_example.py): It includes an example of using HFSS3DLayout
 
-- [Dipole Example](examples/05_Dipole_Example.py): It includes an example of using HFSS 
+- [Dipole Example](examples_legacy/05_Dipole_Example.py): It includes an example of using HFSS 
 
-- [Circuit Example](examples/06_Circuit_Example.py): A Simple RLC Example
+- [Circuit Example](examples_legacy/06_Circuit_Example.py): A Simple RLC Example
 
-- [Netlist Example](examples/09_Import_Netlist.py): A Simple HSPICE Netlist Import Example
+- [Netlist Example](examples_legacy/09_Import_Netlist.py): A Simple HSPICE Netlist Import Example
 
-- [Geometry Creation Example](examples/10_Geometry_Creation_Package.py): A Simple Package Creation Example
+- [Geometry Creation Example](examples_legacy/10_Geometry_Creation_Package.py): A Simple Package Creation Example
 
-- [Ansys Report Example](examples/11_Ansys_Report.py): An example on how to create pdf reports
+- [Ansys Report Example](examples_legacy/11_Ansys_Report.py): An example on how to create pdf reports
 
-- [HeatSink Example](examples/11_Ansys_Report.py): An example on how to create a fully parametrized HeatSink
+- [HeatSink Example](examples_legacy/11_Ansys_Report.py): An example on how to create a fully parametrized HeatSink
 
 Why the need a structured API
 

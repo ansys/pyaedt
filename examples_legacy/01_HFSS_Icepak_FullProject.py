@@ -15,8 +15,7 @@ from pyaedt import Hfss
 from pyaedt import Icepak
 from pyaedt import Desktop
 from pyaedt.generic.general_methods import generate_unique_name
-
-sys.path.append(r'..\pyaedt\DLLs\PDFReport')
+sys.path.append(r'..\DLLs\PDFReport')
 import clr
 clr.AddReference("AnsysReport")
 from pyaedt.application.DataHandlers import create_table_for_csharp
@@ -32,7 +31,7 @@ except ImportError:
     advanced = False
 
 # local_path = os.path.dirname(os.path.realpath(__file__))
-local_path = "../../examples/pyaedt/"
+local_path = "../../examples_legacy/pyaedt/"
 module_path = pathlib.Path(local_path)
 root_path = module_path.parent
 desktopVersion = "2021.1"
@@ -176,35 +175,35 @@ with Desktop(desktopVersion, NonGraphical, NewThread):
     aedtapp.close_project(aedtapp.project_name)
 
     #Generating PDF Report
-    #
-    # report = AnsysReport.CreatePdfReport()
-    #
-    # report.Specs.ModelName = "Coaxial"
-    # report.Specs.Revision = "Rev1"
-    #
-    # report.Specs.AnsysVersion = "2021R1"
-    # report.Specs.ProjectName = "My Coaxial"
-    # report.AddAnsysHeader()
-    # report.AddFirstPage()
-    # section2 = report.CreateNewSection()
-    #
-    # report.AddChapter("Simulation Results")
-    # testo = "The project name is " + report.Specs.ProjectName + "."
-    # report.AddText(testo)
-    # imagefiles = glob.glob(results_folder + "/*.jpg")
-    # for img in imagefiles:
-    #     report.AddImageWithCaption(img, img, 13)
-    #
-    # report.AddChapter("Project Variables")
-    #
-    # my_table = [["$dim", "$height"], ["5mm", "10mm"]]
-    #
-    # mytable = create_table_for_csharp(my_table, True)
-    # report.AddTableFromList("Project Variables", mytable, True, True)
-    #
-    # report.AddTableOfContent()
-    # filename=report.SavePDF(results_folder)
-    #os.startfile(os.path.join(results_folder,filename))
+
+    report = AnsysReport.CreatePdfReport()
+
+    report.Specs.ModelName = "Coaxial"
+    report.Specs.Revision = "Rev1"
+
+    report.Specs.AnsysVersion = "2021R1"
+    report.Specs.ProjectName = "My Coaxial"
+    report.AddAnsysHeader()
+    report.AddFirstPage()
+    section2 = report.CreateNewSection()
+
+    report.AddChapter("Simulation Results")
+    testo = "The project name is " + report.Specs.ProjectName + "."
+    report.AddText(testo)
+    imagefiles = glob.glob(results_folder + "/*.jpg")
+    for img in imagefiles:
+        report.AddImageWithCaption(img, img, 13)
+
+    report.AddChapter("Project Variables")
+
+    my_table = [["$dim", "$height"], ["5mm", "10mm"]]
+
+    mytable = create_table_for_csharp(my_table, True)
+    report.AddTableFromList("Project Variables", mytable, True, True)
+
+    report.AddTableOfContent()
+    filename=report.SavePDF(results_folder)
+    os.startfile(os.path.join(results_folder,filename))
 
 
 print("loaded")

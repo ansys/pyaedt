@@ -1,18 +1,18 @@
-.. AEDTLib documentation master file, created by
+.. pyaedt documentation master file, created by
    sphinx-quickstart on Fri Jun 12 11:39:54 2020.
    You can adapt this file completely to your liking, but it should at least
    contain the root `toctree` directive.
 
-About AEDTLib
+About pyaedt
 ===================================
 
-Introduction to AEDTLib  version |version|
+Introduction to pyaedt  version |version|
 --------------------------------------------
 
 
 
-AEDTLIb is intended to consolidate and extend all existing functionalities around AEDT-based scripting to allow re-use of existing code, sharing of best-practice and  increase collaboration collaboration.
-AEDTLib is run under `MIT License <LICENSE.html>`_
+pyaedt is intended to consolidate and extend all existing functionalities around AEDT-based scripting to allow re-use of existing code, sharing of best-practice and  increase collaboration collaboration.
+pyaedt is run under `MIT License <LICENSE.html>`_
 
 This tool has actually been tested on HFSS, Icepak and Maxwell 3D.
 
@@ -29,12 +29,12 @@ Useful Links:
 
 
 
-**What is AEDTLib**
+**What is pyaedt**
 
-AEDTLib is an python library which interacts directly with AEDT API making coding to end user much simpler.
+pyaedt is an python library which interacts directly with AEDT API making coding to end user much simpler.
 It uses an architecture that can be reused for all 3D tools (Maxwell, Q3D, HFSS, Icepak), and in future for all other desktop tools. Its classes and methods structures allows to simplify operation for end-user while reusing as much as possible of the information across the API.
 
-**Why the need AEDTLib**
+**Why the need pyaedt**
 
 Recording and reusing script is a very fast approach for simple operations in Desktop UI. But:
 
@@ -44,7 +44,7 @@ Recording and reusing script is a very fast approach for simple operations in De
 
 - Complex Coding are demanded to few people across the Globe
 
-Main advantages of AEDTLib are:
+Main advantages of pyaedt are:
 - Automatic initialization of all the AEDT Objects (from desktop to every single objects like editor, boundaries, etc…)
 
 - Error Management
@@ -63,21 +63,21 @@ Main advantages of AEDTLib are:
 
 
 
-.. figure:: ./Resources/BlankDiagram3DModeler.png
+.. figure:: ./Resources/BlankDiagram3Dmodeler.png
     :width: 600pt
 
-    AEDTLib Architecture Overview for 3D Solvers
+    pyaedt Architecture Overview for 3D Solvers
 
 .. figure:: ./Resources/BlankDiagram3DLayout.png
     :width: 600pt
 
-    AEDTLib Architecture Overview for HFSS 3DLayout/EDB Solver
+    pyaedt Architecture Overview for HFSS 3DLayout/EDB Solver
 
 
 .. figure:: ./Resources/BlankDiagramCircuit.png
     :width: 600pt
 
-    AEDTLib Architecture Overview for Circuit Solvers (Nexxim/Simplorer)
+    pyaedt Architecture Overview for Circuit Solvers (Nexxim/Simplorer)
 
 Its classes and methods structures allows to simplify operation for end-user while reusing as much as possible of the information across the API.
 Main advantages:
@@ -145,7 +145,7 @@ Examples of usage:
          hfss["$dim"] = "1mm"  #this is a project variable
 
 
-- Modeler
+- modeler
 
 .. code:: python
 
@@ -162,7 +162,7 @@ Examples of usage:
    LICENSE
    Resources/Installation
    API/API
-   API/Examples
+   examples/index
    Resources/Code_Guidelines
 
 

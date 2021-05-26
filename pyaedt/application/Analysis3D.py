@@ -162,7 +162,7 @@ class FieldAnalysis3D(Analysis, object):
         Parameters
         ----------
         design :
-            starting application object (example hfss1= HFSS3DLayout)
+            starting application object (examples hfss1= HFSS3DLayout)
         object_list :
             List of object to copy (Default value = None)
         no_vacuum : bool

@@ -179,6 +179,8 @@ class BoundaryObject(BoundaryCommon, object):
             self._parent.oboundary.AssignVoltageDrop(self._get_args())
         elif self.type == "Current":
             self._parent.oboundary.AssignCurrent(self._get_args())
+        elif self.type == 'Balloon':
+            self._parent.oboundary.AssignBalloon(self._get_args())
         elif self.type == "Winding" or self.type == "Winding Group":
             self._parent.oboundary.AssignWindingGroup(self._get_args())
         elif self.type == "VectorPotential":

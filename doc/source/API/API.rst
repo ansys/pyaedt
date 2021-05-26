@@ -2,7 +2,7 @@
 API documentation
 ===================================
 
-Welcome to AEDTLib API Documentation.
+Welcome to pyaedt API Documentation.
 Use the search button or click on any module.
 
 

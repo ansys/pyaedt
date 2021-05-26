@@ -1,7 +1,7 @@
 # ------------------------------------------------------------------------------
 #
 # This Example shows how to create and manage variables
-# NOTE This example produces and error at the moment
+# NOTE This examples produces and error at the moment
 #
 # -------------------------------------------------------------------------------
 from pyaedt import Desktop

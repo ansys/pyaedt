@@ -332,18 +332,14 @@ class Analysis(Design, object):
 
     @property
     def nominal_sweep(self):
-        """
-
-        Parameters
-        ----------
+        """Return nominal sweep
 
         Returns
         -------
-        type
+        str
             sweep is available it will return the lastadaptive
             
             :return: str nominal setup sweep if present
-
         """
 
         if len(self.existing_analysis_sweeps)>1:

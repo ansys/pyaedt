@@ -1,6 +1,6 @@
 # ------------------------------------------------------------------------------
 #
-# This Example shows how to create a geometry in HFSS using pyaedt. The specific example creates a multilayer structure (package)
+# This Example shows how to create a geometry in HFSS using pyaedt. The specific examples creates a multilayer structure (package)
 #
 # -------------------------------------------------------------------------------
 import os

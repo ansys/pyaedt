@@ -813,6 +813,38 @@ class Maxwell2d(Maxwell, FieldAnalysis2D, object):
         return True
 
     @aedt_exception_handler
+    def assign_balloon(self, edge_list, bound_name= None):
+        """
+        Assign Balloons boundary to list of edges
+
+        Parameters
+        ----------
+        edge_list: list
+            list of edges
+        bound_name: str
+            boundary name
+
+        Returns
+        -------
+        :class: BoundaryObject
+            boundary object
+
+        """
+        edge_list = self.modeler._convert_list_to_ids(edge_list)
+
+        if not bound_name:
+            bound_name = generate_unique_name("Balloon")
+
+        props2 = OrderedDict(
+            {"Edges": edge_list})
+        bound = BoundaryObject(self, bound_name, props2, "Balloon")
+
+        if bound.create():
+            self.boundaries.append(bound)
+            return bound
+        return False
+
+    @aedt_exception_handler
     def assign_vector_potential(self, input_edge, vectorvalue=0, bound_name=None):
         """Assign Coils to list of objects or faceID
 

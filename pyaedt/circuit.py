@@ -74,7 +74,7 @@ AEDT_MAPS = {
 
 def from_rkm(code):
     """Convert a RKM code string to a string with decimal point.
-    examples: R47 = 0.47,  4R7 = 4.7,  470R = 470,  4K7 = 4.7k,  47K = 47k, 47K3 = 47.3k,  470K = 470k,  4M7 = 4.7MΩ
+    example: R47 = 0.47,  4R7 = 4.7,  470R = 470,  4K7 = 4.7k,  47K = 47k, 47K3 = 47.3k,  470K = 470k,  4M7 = 4.7MΩ
 
     Parameters
     ----------

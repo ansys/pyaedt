@@ -92,7 +92,7 @@ class EdbLayout(object):
     def get_polygons_by_layer(self, layer_name):
         """Return the polygons beloning to a specific layer
         
-        :example:
+        :examples:
 
         Parameters
         ----------
@@ -115,7 +115,7 @@ class EdbLayout(object):
     def get_polygon_bounding_box(self, polygon):
         """Return the polygon bounding box
         
-        :example:
+        :examples:
 
         Parameters
         ----------
@@ -141,7 +141,7 @@ class EdbLayout(object):
     def get_polygon_points(self, polygon):
         """Return Polygon Points list. for Arcs, 1 point will be returned
         
-        :example:
+        :examples:
 
         Parameters
         ----------

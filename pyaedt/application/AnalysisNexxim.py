@@ -51,7 +51,7 @@ class FieldAnalysisCircuit(Analysis):
 
     @property
     def nominal_sweep(self):
-        """ """
+        """ return the nominal sweep"""
         if self.existing_analysis_setups:
             return self.existing_analysis_setups[0]
         else:

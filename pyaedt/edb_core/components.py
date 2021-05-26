@@ -158,7 +158,7 @@ class Components(object):
 
     @property
     def components(self):
-        """:example:
+        """:examples:
         
         
         :return:Dictionary of EDB ComponentSetupInfo
@@ -184,7 +184,7 @@ class Components(object):
 
     @property
     def resistors(self):
-        """:example:
+        """:examples:
         
         
         :return: Dictionary of Resistors
@@ -212,7 +212,7 @@ class Components(object):
 
     @property
     def capacitors(self):
-        """:example:
+        """:examples:
         
         
         :return: Dictionary of capacitors
@@ -240,7 +240,7 @@ class Components(object):
 
     @property
     def inductors(self):
-        """:example:
+        """:examples:
         
         
         :return: Dictionary of inductors
@@ -267,7 +267,7 @@ class Components(object):
 
     @property
     def ICs(self):
-        """:example:
+        """:examples:
         
         
         :return: Dictionary of capacitors
@@ -294,7 +294,7 @@ class Components(object):
 
     @property
     def IOs(self):
-        """:example:
+        """:examples:
         
         
         :return: Dictionary of capacitors
@@ -322,7 +322,7 @@ class Components(object):
 
     @property
     def Others(self):
-        """:example:
+        """:examples:
         
         
         
@@ -350,7 +350,7 @@ class Components(object):
 
     @property
     def components_by_partname(self):
-        """:example:
+        """:examples:
         
         
         
@@ -448,7 +448,7 @@ class Components(object):
 
     @aedt_exception_handler
     def create_component_from_pins(self, pins, component_name):
-        """:example:
+        """:examples:
 
         Parameters
         ----------
@@ -486,7 +486,7 @@ class Components(object):
     def set_component_model(self, componentname, model_type="Spice", modelpath=None, modelname=None):
         """Assign a model (spice or Touchstone to a component)
         
-        :example:
+        :examples:
 
         Parameters
         ----------
@@ -572,7 +572,7 @@ class Components(object):
     def create_pingroup_from_pins(self, pins, group_name=None):
         """Create a pin group on a component
         
-         :example:
+         :examples:
 
         Parameters
         ----------
@@ -606,7 +606,7 @@ class Components(object):
     def delete_single_pin_rlc(self):
         """Delete all RLC Components with less than 2 Pins
         
-        :example:
+        :examples:
         
         
         :return: list of deleted components
@@ -636,7 +636,7 @@ class Components(object):
     def delete_component(self, component_name):
         """Delete Component
         
-        :example:
+        :examples:
 
         Parameters
         ----------
@@ -663,7 +663,7 @@ class Components(object):
     def disable_rlc_component(self, component_name):
         """Disable Given Component
         
-        :example:
+        :examples:
 
         Parameters
         ----------
@@ -697,7 +697,7 @@ class Components(object):
     def set_component_rlc(self, componentname, res_value=None, ind_value=None, cap_value=None, isparallel=False):
         """Set RLC Component Values
         
-        :example:
+        :examples:
 
         Parameters
         ----------
