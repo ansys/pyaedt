@@ -277,10 +277,19 @@ def force_close_desktop():
         try:
             os.kill(pid, 9)
             del Module.oDesktop
-
+            log= logging.getLogger(__name__)
+            handlers = log.handlers[:]
+            for handler in handlers:
+                handler.close()
+                log.removeHandler(handler)
             return True
         except:
             Module.oMessenger.add_error_message("something went wrong in Closing AEDT")
+            log= logging.getLogger(__name__)
+            handlers = log.handlers[:]
+            for handler in handlers:
+                handler.close()
+                log.removeHandler(handler)
             return False
 
 
