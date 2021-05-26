@@ -2,8 +2,8 @@
 from .conftest import scratch_path
 
 # Import required modules
-from pyaedt.core import Maxwell3d
-from pyaedt.core.generic.filesystem import Scratch
+from pyaedt import Maxwell3d
+from pyaedt.generic.filesystem import Scratch
 import gc
 test_project_name = "eddy"
 

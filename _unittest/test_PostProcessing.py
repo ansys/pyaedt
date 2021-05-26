@@ -5,8 +5,8 @@ import pytest
 from .conftest import local_path, scratch_path
 
 # Import required modules
-from pyaedt.core import Hfss
-from pyaedt.core.generic.filesystem import Scratch
+from pyaedt import Hfss
+from pyaedt.generic.filesystem import Scratch
 import gc
 
 test_project_name = "coax_setup_solved"

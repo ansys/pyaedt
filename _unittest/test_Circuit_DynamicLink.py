@@ -2,8 +2,8 @@
 import os
 from .conftest import local_path, scratch_path
 
-from pyaedt.core import Circuit
-from pyaedt.core.generic.filesystem import Scratch
+from pyaedt import Circuit
+from pyaedt.generic.filesystem import Scratch
 import gc
 # Access the desktop
 test_project_name = "Dynamic_Link"

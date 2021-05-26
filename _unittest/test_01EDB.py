@@ -4,8 +4,8 @@ from .conftest import local_path, scratch_path
 import gc
 
 # Import required modules
-from pyaedt.core import Edb
-from pyaedt.core.generic.filesystem import Scratch
+from pyaedt import Edb
+from pyaedt.generic.filesystem import Scratch
 from .conftest import desktopVersion
 test_project_name = "Galileo"
 

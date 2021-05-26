@@ -4,8 +4,8 @@ import os
 from .conftest import local_path, scratch_path
 
 # Import required modules
-from pyaedt.core import Hfss
-from pyaedt.core.generic.filesystem import Scratch
+from pyaedt import Hfss
+from pyaedt.generic.filesystem import Scratch
 test_project_name = "Coax_HFSS"
 import gc
 

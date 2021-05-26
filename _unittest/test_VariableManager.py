@@ -2,8 +2,8 @@ import pytest
 # Setup paths for module imports
 import gc
 # Import required modules
-from pyaedt.core import Hfss
-from pyaedt.core.generic.filesystem import Scratch
+from pyaedt import Hfss
+from pyaedt.generic.filesystem import Scratch
 
 class TestVariable:
     def setup_class(self):
