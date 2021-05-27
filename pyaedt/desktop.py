@@ -63,8 +63,11 @@ else:
 
 aedt_env_var_prefix = "ANSYSEM_ROOT"
 version_list = sorted([x for x in os.environ if x.startswith(aedt_env_var_prefix)], reverse=True)
-assert version_list, "No Installed versions found in system environment variables ANSYSEM_ROOTxxx"
-most_recent_version = version_list[0]
+if not version_list:
+    print("No Installed versions found in system environment variables ANSYSEM_ROOTxxx")
+    most_recent_version = ""
+else:
+    most_recent_version = version_list[0]
 
 
 if "IronPython" in sys.version or ".NETFramework" in sys.version:
@@ -82,7 +85,7 @@ else:
         import win32com.client
         _com = 'pywin32'
     else:
-        raise Exception("Error. No win32com.client or Pythonnet modules found. Please install them")
+        print("Error. No win32com.client or Pythonnet modules found. Please install them")
     _pythonver = sys.version_info[0]
 
 if os.name == 'nt':
@@ -340,11 +343,7 @@ class Desktop:
             self._main.AEDTVersion = self._main.oDesktop.GetVersion()[0:6]
             self._main.oDesktop.RestoreWindow()
             self._main.oMessenger = AEDTMessageManager()
-            specified_version = self.current_version
-            assert specified_version in self.version_keys, \
-                "Specified version {} not known.".format(specified_version)
-            version_key = specified_version
-            base_path = os.getenv(self._version_ids[specified_version])
+            base_path = self._main.oDesktop.GetExeDir()
             self._main.sDesktopinstallDirectory = base_path
             self.release = False
         else:

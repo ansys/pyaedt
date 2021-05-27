@@ -32,13 +32,12 @@ from ..modules.DesignXPloration import DOESetups, DXSetups, ParametericsSetups, 
 from .Design import Design
 from ..modules.MaterialLib import Materials
 from ..generic.general_methods import aedt_exception_handler
-from ..desktop import _pythonver
+import sys
 
-if _pythonver > 2:
-    from ..modules.AdvancedPostProcessing import PostProcessor
-else:
+if "IronPython" in sys.version or ".NETFramework" in sys.version:
     from ..modules.PostProcessor import PostProcessor
-
+else:
+    from ..modules.AdvancedPostProcessing import PostProcessor
 
 class Analysis(Design, object):
     """**Class Analysis**
