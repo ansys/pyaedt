@@ -1,129 +1,90 @@
-.. pyaedt documentation master file, created by
-   sphinx-quickstart on Fri Jun 12 11:39:54 2020.
-   You can adapt this file completely to your liking, but it should at least
-   contain the root `toctree` directive.
+PyAEDT Documentation
+====================
 
-About pyaedt
-===================================
+Introduction
+------------
 
-Introduction to pyaedt  version |version|
---------------------------------------------
+PyAEDT is intended to consolidate and extend all existing functionalities around AEDT-based scripting to allow re-use of existing code, sharing of best-practice and increase collaboration collaboration.
+PyAEDT is run under `MIT License <LICENSE.html>`_
 
-
-
-pyaedt is intended to consolidate and extend all existing functionalities around AEDT-based scripting to allow re-use of existing code, sharing of best-practice and  increase collaboration collaboration.
-pyaedt is run under `MIT License <LICENSE.html>`_
-
-This tool has actually been tested on HFSS, Icepak and Maxwell 3D.
-
-Useful Links:
-
-- `Coding Guidelines <Resources/Code_Guidelines.md>`_
+This tool includes functionality to interact with HFSS, Icepak and Maxwell 3D.
 
 
-- `Installation Guidelines <Resources/Installation.md>`_
+**What is PyAEDT**
 
-- `PEP 8 <https://www.python.org/dev/peps/pep-0008/>`_
+PyAEDT is an Python library which interacts directly with the AEDT API to make scripting simpler for the end user.
+It uses an architecture that can be reused for all 3D tools (Maxwell, Q3D, HFSS, Icepak), and in future for all other desktop tools. Its classes and methods structures simplifies operation for end-user while reusing as much as possible of the information across the API.
 
-- `Clean Code - R. C. Martin <https://www.amazon.com/Robert-Martin-Clean-Code-Collection-ebook/dp/B00666M59G>`_
+**Why PyAEDT**
 
+Recording and reusing script is a very fast approach for simple operations in Desktop UI. However:
 
+- Code recorded is dirty and difficult to read and understand.
+- Difficult to resuse and adapt recorded scripts.
+- Complex Coding is a need for many global users of AEDT.
 
-**What is pyaedt**
+Main advantages of PyAEDT are:
 
-pyaedt is an python library which interacts directly with AEDT API making coding to end user much simpler.
-It uses an architecture that can be reused for all 3D tools (Maxwell, Q3D, HFSS, Icepak), and in future for all other desktop tools. Its classes and methods structures allows to simplify operation for end-user while reusing as much as possible of the information across the API.
-
-**Why the need pyaedt**
-
-Recording and reusing script is a very fast approach for simple operations in Desktop UI. But:
-
-- Code recorded is very dirty
-
-- Code reusability is very low
-
-- Complex Coding are demanded to few people across the Globe
-
-Main advantages of pyaedt are:
-- Automatic initialization of all the AEDT Objects (from desktop to every single objects like editor, boundaries, etc…)
-
+- Automatic initialization of all the AEDT Objects (e.g. desktop objects like editor, boundaries, etc…)
 - Error Management
-
 - Log management
-
 - Variable Management
-
-- Compatibility with Ironpython and CPython
-
-- Simplification of complex API syntax thanks to Data Objects and PEP8 compatibility
-
-- Sharing of new codes across FES team with TFS
-
-- User can reuse most of the code across different solvers
-
-
+- Compatibility with IronPython and CPython.
+- Simplification of complex API syntax using to Data Objects while maintaining PEP8 compliance.
+- Code reusability across different solvers.
+- Docstrings on functions for better understanding and tool usage.
+- Unit Test of code to increase quality across different AEDT Version
 
 .. figure:: ./Resources/BlankDiagram3Dmodeler.png
     :width: 600pt
 
     pyaedt Architecture Overview for 3D Solvers
+    PyAEDT Architecture Overview for 3D Solvers
 
 .. figure:: ./Resources/BlankDiagram3DLayout.png
     :width: 600pt
 
     pyaedt Architecture Overview for HFSS 3DLayout/EDB Solver
+    PyAEDT Architecture Overview for HFSS 3DLayout/EDB Solver
 
 
 .. figure:: ./Resources/BlankDiagramCircuit.png
     :width: 600pt
 
     pyaedt Architecture Overview for Circuit Solvers (Nexxim/Simplorer)
+    PyAEDT Architecture Overview for Circuit Solvers (Nexxim/Simplorer)
 
-Its classes and methods structures allows to simplify operation for end-user while reusing as much as possible of the information across the API.
-Main advantages:
-
-Automatic initialization of all the AEDT Objects (from desktop to every single objects like editor, boundaries, etc…)
-- Error Management
-- Variable Management
-- Compatibility with Ironpython and CPython
-- Compatibility on Windows and Linux (Ironpython only). This requires further intensive tests
-- Simplification of complex API syntax thanks to Data Objects and PEP8 compatibility
-- Sharing of new codes across FES team with TFS
-- User can reuse most of the code across different solvers
-- Docstrings on functions for better understanding and tool usage
-- Unit Test of code to increase quality across different AEDT Version
 
 **Usage Workflow**
 
-User has to:
-1. Initialize Desktop Class with version of AEDT to be used.
-2. initialize application to use within AEDT
+Start AEDT by
+1. Initializing Desktop Class with version of AEDT to be used.
+2. Initializing the application used within AEDT
 
 **Desktop.py - Connect to Desktop from Python IDE**
 
-- Works inside Electronics Desktop and as a Standalone Application
-- Automatically detect if it is Ironpython or CPython and initialize accordingly the Desktop
+- Works inside Electronics Desktop and as a Standalone Application.
+- Automatically detect if it is IronPython or CPython and initialize the Desktop
 - Advanced Error Management
 
 Examples of usage:
 
-- Explicit Desktop Declaration and error management
+- Explicit Desktop declaration and error management:
 
 .. code:: python
 
     from pyaedt.Destkop import Desktop
     from pyaedt.Circuit import Circuit
     with Desktop("2020.1", NG=True):
-        print("AEDT 2020R1 in Non-Graphicalmode will be launched)
+        print("AEDT 2020R1 in Non-Graphical mode will be launched)
         circuit = Circuit()
         ...
-        print("any error here will be catched by Desktop=
+        print("any error here will be caught by Desktop...")
         ...
-    print("here Desktop is automatically release")
+    print("Desktop is automatically released here")
 
 
-- Implicit Desktop Declaration and error management
-
+- Implicit Desktop Declaration and error management:
 
 .. code:: python
 
@@ -131,9 +92,10 @@ Examples of usage:
     with Circuit as circuit:
         print("Latest version of Desktop in Graphical mode will be launched")
         ...
-        print("any error here will be catched by Desktop")
+        print("Any error here will be caught by Desktop...")
         ...
-    print("here Desktop is automatically release")
+    print("Desktop is automatically released here")
+
 
 - Variables
 
@@ -141,8 +103,8 @@ Examples of usage:
 
     from pyaedt.HFSS import HFSS
     with HFSS as hfss:
-         hfss["dim"]="1mm"   #this is a design variable
-         hfss["$dim"] = "1mm"  #this is a project variable
+         hfss["dim"] = "1mm"   # this is a design variable
+         hfss["$dim"] = "1mm"  # this is a project variable
 
 
 - modeler
@@ -152,9 +114,7 @@ Examples of usage:
     from pyaedt.HFSS import HFSS
     with HFSS as hfss:
          # Same command to create the box, assign variables, and assign materials
-         hfss.modeler.primitives.create_box([0,0,0], [10,"dim",10], "mybox", "aluminum")
-
-
+         hfss.modeler.primitives.create_box([0, 0, 0], [10, "dim", 10], "mybox", "aluminum")
 
 .. toctree::
    :hidden:
@@ -166,9 +126,17 @@ Examples of usage:
    Resources/Code_Guidelines
 
 
+Style Guide
+~~~~~~~~~~~
+PyAEDT follows the PEP8 style guidelines.  See the following links for additional details.
 
+- `Coding Guidelines <Resources/Code_Guidelines.md>`_
 
+- `Installation Guidelines <Resources/Installation.md>`_
 
+- `PEP 8 <https://www.python.org/dev/peps/pep-0008/>`_
+
+- `Clean Code - R. C. Martin <https://www.amazon.com/Robert-Martin-Clean-Code-Collection-ebook/dp/B00666M59G>`_
 
 
 Indices and tables

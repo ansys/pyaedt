@@ -115,6 +115,7 @@ class Edb(object):
         self.layout_methods = self.edblib.Layout.LayoutMethods
         self.simsetupdata = self.simSetup.Ansoft.SimSetupData.Data
 
+
     @aedt_exception_handler
     def open_edb(self, init_dlls=False):
         """
@@ -429,6 +430,21 @@ class Edb(object):
     def save_edb(self):
         """ """
         self._db.Save()
+        return True
+
+    @aedt_exception_handler
+    def save_edb_as(self, fname):
+        """
+
+        Parameters
+        ----------
+        fname
+
+        Returns
+        -------
+
+        """
+        self._db.SaveAs(fname)
         return True
 
     @aedt_exception_handler

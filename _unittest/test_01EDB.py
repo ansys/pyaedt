@@ -44,6 +44,7 @@ class Test3DLayout:
         assert len(self.edbapp.core_components.IOs)>0
         assert len(self.edbapp.core_components.Others)>0
 
+
     def test_get_stackup(self):
         stackup = self.edbapp.core_stackup.stackup_layers
         assert (len(stackup.layers)>2)
@@ -221,4 +222,6 @@ class Test3DLayout:
     #     for el in self.edbapp.padstacks:
     #         assert self.edbapp.get_padstack_data_parameters(self.edbapp.padstacks[el]) != {}
 
-
+    def test_save_edb_as(self):
+        assert self.edbapp.save_edb_as(os.path.join(self.local_scratch.path, "Gelileo_new.aedb"))
+        assert os.path.exists(os.path.join(self.local_scratch.path, "Gelileo_new.aedb", "edb.def"))
