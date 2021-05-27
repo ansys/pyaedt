@@ -1,4 +1,0 @@
-
-[:platform_system == "Windows"]
-pythonnet>=2.4.0
-pywin32>=2.2.7
