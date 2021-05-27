@@ -73,7 +73,7 @@ extensions = ['sphinx.ext.autodoc',
               "sphinx_copybutton",
               'recommonmark',
               'sphinx.ext.graphviz',
-              'nbsphinx',
+              #'nbsphinx',
               'sphinx_gallery.gen_gallery',
               'sphinx.ext.mathjax',
               'sphinx.ext.inheritance_diagram']
