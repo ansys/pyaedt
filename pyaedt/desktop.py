@@ -51,6 +51,8 @@ import pkgutil
 import getpass
 import re
 from .application.MessageManager import AEDTMessageManager
+from .misc import list_installed_ansysem
+
 pathname = os.path.dirname(__file__)
 if os.path.exists(os.path.join(pathname,'version.txt')):
     with open(os.path.join(pathname,'version.txt'), "r") as f:
@@ -61,17 +63,18 @@ elif os.path.exists(os.path.join(pathname, "..", 'version.txt')):
 else:
     pyaedtversion = "X"
 
-aedt_env_var_prefix = "ANSYSEM_ROOT"
-version_list = sorted([x for x in os.environ if x.startswith(aedt_env_var_prefix)], reverse=True)
-assert version_list, "No Installed versions found in system environment variables ANSYSEM_ROOTxxx"
-most_recent_version = version_list[0]
+_pythonver = sys.version_info[0]
 
+if os.name == 'nt':
+    IsWindows = True
+else:
+    IsWindows = False
+logger = logging.getLogger(__name__)
 
 if "IronPython" in sys.version or ".NETFramework" in sys.version:
     import clr  # IronPython C:\Program Files\AnsysEM\AnsysEM19.4\Win64\common\IronPython\ipy64.exe
     _com = 'pythonnet'
-    _pythonver = 2
-else:
+elif IsWindows:
     import pythoncom
     modules = [tup[1] for tup in pkgutil.iter_modules()]
     if 'clr' in modules:
@@ -83,13 +86,6 @@ else:
         _com = 'pywin32'
     else:
         raise Exception("Error. No win32com.client or Pythonnet modules found. Please install them")
-    _pythonver = sys.version_info[0]
-
-if os.name == 'nt':
-    IsWindows = True
-else:
-    IsWindows = False
-logger = logging.getLogger(__name__)
 
 
 def exception_to_desktop(self, ex_value, tb_data):
@@ -302,6 +298,7 @@ class Desktop:
         self._version_keys = []
         self._version_ids = {}
 
+        version_list = list_installed_ansysem()
         for version_env_var in version_list:
             current_version_id = version_env_var.replace("ANSYSEM_ROOT", '')
             version = int(current_version_id[0:2])
