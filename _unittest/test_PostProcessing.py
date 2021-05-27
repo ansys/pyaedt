@@ -40,7 +40,7 @@ class TestDesign:
         plot1.IsoVal = "Tone"
         assert plot1.modify_folder()
 
-    @pytest.skip()
+    @pytest.mark.skip(reason="Not running in non-graphical mode")
     def test_02_export_fields(self):
         quantity_name2 = "ComplexMag_H"
         setup_name = "Setup1 : LastAdaptive"
@@ -61,7 +61,7 @@ class TestDesign:
         self.aedtapp.export_touchstone( "Setup1","Sweep", os.path.join(self.local_scratch.path, "Setup1_Sweep.S2p"))
         assert os.path.exists(os.path.join(self.local_scratch.path, "Setup1_Sweep.S2p"))
 
-    @pytest.skip()
+    @pytest.mark.skip(reason="Not running in non-graphical mode")
     def test_05_export_report_to_jpg(self):
 
         self.aedtapp.post.export_report_to_jpg(self.local_scratch.path, "MyTestScattering")
