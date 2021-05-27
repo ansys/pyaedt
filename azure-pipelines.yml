@@ -15,7 +15,7 @@ steps:
     versionSpec: '$(python.version)'
 
 - script: |
-   pytest _unittest --cov --cov-report=xml
+   pytest _unittest/ --cov --cov-report=xml
    
    coverage xml
   displayName: 'Pytest'
