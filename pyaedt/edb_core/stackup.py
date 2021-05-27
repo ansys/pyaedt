@@ -90,9 +90,9 @@ class EdbStackup(object):
             :return:list of signal layers
 
         """
+        signal_layers = EDBLayers(self).signal_layers
 
-        signal_dict = EDBLayers(self)
-        return signal_dict
+        return signal_layers
 
 
     @property

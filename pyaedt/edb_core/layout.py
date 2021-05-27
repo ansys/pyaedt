@@ -24,6 +24,13 @@ from System import Double, Array
 from System.Collections.Generic import List
 import random
 
+class Primitive(object):
+
+    def __init__(self,parent, id):
+        self.parent = parent
+        self.id = id
+        self.poly = []
+        self.paths = []
 
 class EdbLayout(object):
     """HFSS 3DLayout object"""
@@ -37,8 +44,10 @@ class EdbLayout(object):
         """ """
         return self.parent.messenger
 
-    def __init__(self, parent):
+    def __init__(self,parent):
         self.parent = parent
+        self._primitives = {}
+        self.init_primitives()
 
 
     @property
@@ -81,41 +90,41 @@ class EdbLayout(object):
         """ """
         return self.parent.core_stackup.stackup_layers.layers
 
+    @aedt_exception_handler
+    def init_primitives(self):
+        for lay in self.layers:
+            self._primitives[lay.GetName()] = self.get_polygons_by_layer(lay.GetName())
+
     @property
     def polygons(self):
         """:return: list of polygons"""
         layoutInstance = self.active_layout.GetLayoutInstance()
         layoutObjectInstances = layoutInstance.GetAllLayoutObjInstances()
-        objs = [el.GetLayoutObj() for el in layoutObjectInstances.Items if el.GetLayoutObj().GetType().Name == "Path"]
+        objs = [el.GetLayoutObj() for el in layoutObjectInstances.Items if el.GetLayoutObj().GetType().Name == "Polygon"]
         return objs
 
-    def get_polygons_by_layer(self, layer_name):
-        """Return the polygons beloning to a specific layer
-        
-        :example:
 
-        Parameters
-        ----------
-        layer_name :
-            str layer name
+    def get_polygons_by_layer(self, layer_name, net_list=None):
+        """
+        return
 
-        Returns
-        -------
-        type
-            list of polygons
-
-        >>> poly = edb_core.core_primitives.get_polygons_by_layer("GND")
+        :param layer_name: str layer name
+        :param net_list: list of net name
+        :return: list of Primitive object
         """
         objinst=[]
         for el in self.polygons:
             if el.GetLayer().GetName() == layer_name:
-                objinst.append(el)
+                if net_list and el.GetNet().GetName() in net_list:
+                    objinst.append(el)
+                else:
+                    objinst.append(el)
         return objinst
 
     def get_polygon_bounding_box(self, polygon):
         """Return the polygon bounding box
         
-        :example:
+        :examples:
 
         Parameters
         ----------
@@ -141,7 +150,7 @@ class EdbLayout(object):
     def get_polygon_points(self, polygon):
         """Return Polygon Points list. for Arcs, 1 point will be returned
         
-        :example:
+        :examples:
 
         Parameters
         ----------

@@ -1663,7 +1663,7 @@ class PostProcessor(object):
         
         
             m3d = Maxwell3D()
-            m3d.post.get_report_data("SurfaceLoss")   #Eddy Current example
+            m3d.post.get_report_data("SurfaceLoss")   #Eddy Current examples
             m3d.post.get_report_data("Wind(LoadA,LaodA)")    #TransientAnalsysis
 
         Parameters
@@ -1752,7 +1752,10 @@ class PostProcessor(object):
             ctxt = ["NAME:Context", "SimValueContext:=",
                     [did, 0, 2, 0, False, False, -1, 1, 0, 1, 1, "", 0, 0, "IDIID", False, "1"]]
         elif context:
-            ctxt = ["Context:=", context]
+            if type(context) is  list:
+                ctxt = context
+            else:
+                ctxt = ["Context:=", context]
 
         if type(expression) is not list:
             expression = [expression]

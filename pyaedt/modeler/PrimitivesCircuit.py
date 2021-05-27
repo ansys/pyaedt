@@ -771,11 +771,11 @@ class CircuitComponents(object):
 
         """
         if type(partid) is str:
-            x = retry_ntimes(10, self.oeditor.GetComponentPinLocation, partid, pinname, True)
-            y = retry_ntimes(10, self.oeditor.GetComponentPinLocation, partid, pinname, False)
+            x = retry_ntimes(30, self.oeditor.GetComponentPinLocation, partid, pinname, True)
+            y = retry_ntimes(30, self.oeditor.GetComponentPinLocation, partid, pinname, False)
         else:
-            x = retry_ntimes(10, self.oeditor.GetComponentPinLocation, self.components[partid].composed_name, pinname, True)
-            y = retry_ntimes(10, self.oeditor.GetComponentPinLocation, self.components[partid].composed_name, pinname, False)
+            x = retry_ntimes(30, self.oeditor.GetComponentPinLocation, self.components[partid].composed_name, pinname, True)
+            y = retry_ntimes(30, self.oeditor.GetComponentPinLocation, self.components[partid].composed_name, pinname, False)
         return [x, y]
 
     @aedt_exception_handler

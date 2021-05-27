@@ -240,7 +240,7 @@ def retry_ntimes(n, function, *args, **kwargs):
     while retry < n:
         try:
             ret_val = function(*args, **kwargs)
-            if not ret_val:
+            if not ret_val and type(ret_val) is not float and type(ret_val) is not int:
                 ret_val = True
         except:
             retry += 1

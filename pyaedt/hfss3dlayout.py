@@ -45,7 +45,7 @@ from .generic.general_methods import generate_unique_name, aedt_exception_handle
 
 
 class SweepString(object):
-    """generate a sweep string like for example "LIN 10GHz 20GHz 0.05GHz LINC 20GHz 30GHz 10 DEC 30GHz 40GHz 10 40GHz"""
+    """generate a sweep string like for examples "LIN 10GHz 20GHz 0.05GHz LINC 20GHz 30GHz 10 DEC 30GHz 40GHz 10 40GHz"""
     def __init__(self, unit='GHz'):
         """
 

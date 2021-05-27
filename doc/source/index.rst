@@ -35,20 +35,23 @@ Main advantages of PyAEDT are:
 - Docstrings on functions for better understanding and tool usage.
 - Unit Test of code to increase quality across different AEDT Version
 
-.. figure:: ./Resources/BlankDiagram3DModeler.png
+.. figure:: ./Resources/BlankDiagram3Dmodeler.png
     :width: 600pt
 
+    pyaedt Architecture Overview for 3D Solvers
     PyAEDT Architecture Overview for 3D Solvers
 
 .. figure:: ./Resources/BlankDiagram3DLayout.png
     :width: 600pt
 
+    pyaedt Architecture Overview for HFSS 3DLayout/EDB Solver
     PyAEDT Architecture Overview for HFSS 3DLayout/EDB Solver
 
 
 .. figure:: ./Resources/BlankDiagramCircuit.png
     :width: 600pt
 
+    pyaedt Architecture Overview for Circuit Solvers (Nexxim/Simplorer)
     PyAEDT Architecture Overview for Circuit Solvers (Nexxim/Simplorer)
 
 
@@ -104,7 +107,7 @@ Examples of usage:
          hfss["$dim"] = "1mm"  # this is a project variable
 
 
-- Modeler
+- modeler
 
 .. code:: python
 
@@ -119,7 +122,7 @@ Examples of usage:
    LICENSE
    Resources/Installation
    API/API
-   API/Examples
+   examples/index
    Resources/Code_Guidelines
 
 

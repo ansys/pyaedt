@@ -1,4 +1,0 @@
-Voltage Sources
-Source Name	Current / A	Series R Voltage / V	Power Output / W	
-Vsource_U2M1_V3P3_S0_A1_U2M1_GND_D1	1.700358983392e+00	1.700358983392e-06	5.611187536414e+00	
-
