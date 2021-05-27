@@ -24,10 +24,10 @@ author = 'Ansys Inc.'
 documentation_dir = os.path.join(root_path, "Documentation")
 if not os.path.exists(documentation_dir):
     os.mkdir(documentation_dir)
+
+# read in version from file
 with open(os.path.join(root_path, "pyaedt", "version.txt"), "r") as f:
-    version = f.readline()
-# The full version, including alpha/beta/rc tags
-release = version
+    release = version = f.readline()
 
 
 # -- General configuration ---------------------------------------------------

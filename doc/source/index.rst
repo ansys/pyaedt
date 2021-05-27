@@ -37,7 +37,7 @@ Main advantages of PyAEDT are:
 - Docstrings on functions for better understanding and tool usage.
 - Unit Test of code to increase quality across different AEDT Version
 
-.. figure:: ./Resources/BlankDiagram3Dmodeler.png
+.. figure:: ./Resources/BlankDiagram3DModeler.png
     :width: 600pt
 
     pyaedt Architecture Overview for 3D Solvers
