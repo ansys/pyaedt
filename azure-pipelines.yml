@@ -15,15 +15,15 @@ steps:
     versionSpec: '$(python.version)'
 
 - script: |
-   coverage run -m pytest _unittest --doctest-modules --junitxml=junit/test-results.xml
+   pytest _unittest --cov --cov-report=xml
    
    coverage xml
   displayName: 'Pytest'
 
 - task: PublishTestResults@2
-  displayName: 'Publish Test Results **/test-results.xml'
+  displayName: 'Publish Test Results **/coverage.xml'
   inputs:
-    testResultsFiles: '**/test-results.xml'
+    testResultsFiles: '**/coverage.xml'
     testRunTitle: 'Python $(python.version)'
   condition: always()
 
