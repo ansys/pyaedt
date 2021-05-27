@@ -1,0 +1,275 @@
+
+<!DOCTYPE html>
+
+<html lang="Python">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
+    <title>Installation &#8212; PyAEDT 0.5.0 documentation</title>
+    
+  <link href="../_static/css/theme.css" rel="stylesheet" />
+  <link href="../_static/css/index.c5995385ac14fb8791e8eb36b4908be2.css" rel="stylesheet" />
+
+    
+  <link rel="stylesheet"
+    href="../_static/vendor/fontawesome/5.13.0/css/all.min.css">
+  <link rel="preload" as="font" type="font/woff2" crossorigin
+    href="../_static/vendor/fontawesome/5.13.0/webfonts/fa-solid-900.woff2">
+  <link rel="preload" as="font" type="font/woff2" crossorigin
+    href="../_static/vendor/fontawesome/5.13.0/webfonts/fa-brands-400.woff2">
+
+    
+      
+
+    
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/basic.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/copybutton.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/graphviz.css" />
+    
+  <link rel="preload" as="script" href="../_static/js/index.1c5a1a01449ed65a7b51.js">
+
+    <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
+    <script src="../_static/jquery.js"></script>
+    <script src="../_static/underscore.js"></script>
+    <script src="../_static/doctools.js"></script>
+    <script src="../_static/clipboard.min.js"></script>
+    <script src="../_static/copybutton.js"></script>
+    <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="API documentation" href="../API/API.html" />
+    <link rel="prev" title="License Agreeement" href="../LICENSE.html" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="docsearch:language" content="en" />
+    
+  </head>
+  <body data-spy="scroll" data-target="#bd-toc-nav" data-offset="80">
+    
+    <div class="container-fluid" id="banner"></div>
+
+    
+    <nav class="navbar navbar-light navbar-expand-lg bg-light fixed-top bd-navbar" id="navbar-main"><style>
+    .navbar-light {
+        background-color: black !important;
+    }
+</style>
+
+<div class="container-xl">
+
+    <a class="navbar-brand" href="../index.html">
+    
+      <img src="../_static/logo-ansys.png" class="logo" alt="logo" />
+    
+    </a>
+    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbar-menu" aria-controls="navbar-menu" aria-expanded="false" aria-label="Toggle navigation">
+      <span class="navbar-toggler-icon" >
+        <i class="fas fa-bars" style="color:#fff; font-size:28px;"></i>
+      </span>
+    </button>
+    
+    <div id="navbar-menu" class="col-lg-9 collapse navbar-collapse">
+      <ul id="navbar-main-elements" class="navbar-nav mr-auto">
+        
+        
+        <li class="nav-item ">
+            <a class="nav-link" href="../LICENSE.html">License Agreeement</a>
+        </li>
+        
+        <li class="nav-item active">
+            <a class="nav-link" href="#">Installation</a>
+        </li>
+        
+        <li class="nav-item ">
+            <a class="nav-link" href="../API/API.html">API documentation</a>
+        </li>
+        
+        <li class="nav-item ">
+            <a class="nav-link" href="Code_Guidelines.html">Code Guidelines</a>
+        </li>
+        
+        
+      </ul>
+
+
+      
+
+      <ul class="navbar-nav">
+        
+          <li class="nav-item">
+            <a class="nav-link" href="https://github.com/pyansys/PyAEDT" target="_blank" rel="noopener">
+              <span><i class="fab fa-github-square" style="font-size:24px"></i></span>
+            </a>
+          </li>
+        
+        
+        
+      </ul>
+    </div>
+</div>
+    </nav>
+    
+
+    <div class="container-xl">
+      <div class="row">
+          
+            
+            <!-- Only show if we have sidebars configured, else just a small margin  -->
+            <div class="col-12 col-md-3 bd-sidebar"><form class="bd-search d-flex align-items-center" action="../search.html" method="get">
+  <i class="icon fas fa-search"></i>
+  <input type="search" class="form-control" name="q" id="search-input" placeholder="Search the docs ..." aria-label="Search the docs ..." autocomplete="off" >
+</form><nav class="bd-links" id="bd-docs-nav" aria-label="Main navigation">
+  <div class="bd-toc-item active">
+    
+  </div>
+</nav>
+            </div>
+            
+          
+
+          
+          <div class="d-none d-xl-block col-xl-2 bd-toc">
+            
+              
+              <div class="toc-item">
+                
+<div class="tocsection onthispage pt-5 pb-3">
+    <i class="fas fa-list"></i> On this page
+</div>
+
+<nav id="bd-toc-nav">
+    <ul class="visible nav section-nav flex-column">
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#summary">
+   <strong>
+    Summary
+   </strong>
+  </a>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#requirements">
+   <strong>
+    Requirements
+   </strong>
+  </a>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#installing-on-cpython-v3-7-v3-8">
+   <strong>
+    Installing on CPython v3.7-v3.8
+   </strong>
+  </a>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#using-ironpython-in-aedt">
+   <strong>
+    Using IronPython in AEDT
+   </strong>
+  </a>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#using-standalone-ironpython">
+   <strong>
+    Using Standalone IronPython
+   </strong>
+  </a>
+ </li>
+</ul>
+
+</nav>
+              </div>
+              
+              <div class="toc-item">
+                
+              </div>
+              
+            
+          </div>
+          
+
+          
+          
+            
+          
+          <main class="col-12 col-md-9 col-xl-7 py-md-5 pl-md-5 pr-md-4 bd-content" role="main">
+              
+              <div>
+                
+  <section id="installation">
+<h1>Installation<a class="headerlink" href="#installation" title="Permalink to this headline">¶</a></h1>
+<section id="summary">
+<h2><strong>Summary</strong><a class="headerlink" href="#summary" title="Permalink to this headline">¶</a></h2>
+<p>pyaedt is intended to consolidate and extend all existing capital around AEDT-based scripting to allow re-use of existing code, sharing of best-practice adn collaboration.</p>
+<p>This tool has actually been tested on HFSS, Icepak and Maxwell 3D.</p>
+<p>Basic support is given for EDB and Circuit (Nexxim)</p>
+</section>
+<section id="requirements">
+<h2><strong>Requirements</strong><a class="headerlink" href="#requirements" title="Permalink to this headline">¶</a></h2>
+<p>In addition to the runtime dependencies listed in the Installing section below, EDB Utilities requires ANSYS EM Suite 2019 R3 or later.</p>
+</section>
+<section id="installing-on-cpython-v3-7-v3-8">
+<h2><strong>Installing on CPython v3.7-v3.8</strong><a class="headerlink" href="#installing-on-cpython-v3-7-v3-8" title="Permalink to this headline">¶</a></h2>
+<p>Install Prerequisite packages: pythonnet, pywin32</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">pip</span> <span class="n">install</span> <span class="o">-</span><span class="n">i</span> <span class="n">https</span><span class="p">:</span><span class="o">//</span><span class="n">pkgs</span><span class="o">.</span><span class="n">dev</span><span class="o">.</span><span class="n">azure</span><span class="o">.</span><span class="n">com</span><span class="o">/</span><span class="n">EMEA</span><span class="o">-</span><span class="n">FES</span><span class="o">-</span><span class="n">E</span><span class="o">/</span><span class="n">Public</span><span class="o">-</span><span class="n">Releases</span><span class="o">/</span><span class="n">_packaging</span><span class="o">/</span><span class="n">pyaedt_Public</span><span class="o">/</span><span class="n">pypi</span><span class="o">/</span><span class="n">simple</span><span class="o">/</span> <span class="o">--</span><span class="n">extra</span><span class="o">-</span><span class="n">index</span><span class="o">-</span><span class="n">url</span> <span class="n">https</span><span class="p">:</span><span class="o">//</span><span class="n">pypi</span><span class="o">.</span><span class="n">org</span><span class="o">/</span><span class="n">simple</span> <span class="n">pyaedt</span>
+</pre></div>
+</div>
+</section>
+<section id="using-ironpython-in-aedt">
+<h2><strong>Using IronPython in AEDT</strong><a class="headerlink" href="#using-ironpython-in-aedt" title="Permalink to this headline">¶</a></h2>
+<p>Download pyaedt from the following link
+<a class="reference external" href="https://dev.azure.com/EMEA-FES-E/Public-Releases/_packaging?_a=package&amp;feed=pyaedt_Public&amp;package=pyaedt&amp;protocolType=PyPI#">https://dev.azure.com/EMEA-FES-E/Public-Releases/_packaging?_a=package&amp;feed=pyaedt_Public&amp;package=pyaedt&amp;protocolType=PyPI#</a></p>
+<p>Extract files in AEDT PersonalLib folder
+Run install command described below</p>
+<p>Install command</p>
+<p>The below command uses the Python user-site convention for package storage. You may substitute an alternative location convention, such as the --home option instead of --user, and add the installed folder to IRONPYTHONPATH.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">ipy64</span> <span class="n">setup</span><span class="o">.</span><span class="n">py</span> <span class="n">install</span> <span class="o">--</span><span class="n">user</span>
+</pre></div>
+</div>
+</section>
+<section id="using-standalone-ironpython">
+<h2><strong>Using Standalone IronPython</strong><a class="headerlink" href="#using-standalone-ironpython" title="Permalink to this headline">¶</a></h2>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">ipy64</span> <span class="o">-</span><span class="n">X</span><span class="p">:</span><span class="n">Frames</span> <span class="o">-</span><span class="n">m</span> <span class="n">pip</span> <span class="n">install</span> <span class="o">-</span><span class="n">i</span> <span class="n">https</span><span class="p">:</span><span class="o">//</span><span class="n">pkgs</span><span class="o">.</span><span class="n">dev</span><span class="o">.</span><span class="n">azure</span><span class="o">.</span><span class="n">com</span><span class="o">/</span><span class="n">EMEA</span><span class="o">-</span><span class="n">FES</span><span class="o">-</span><span class="n">E</span><span class="o">/</span><span class="n">Public</span><span class="o">-</span><span class="n">Releases</span><span class="o">/</span><span class="n">_packaging</span><span class="o">/</span><span class="n">pyaedt_Public</span><span class="o">/</span><span class="n">pypi</span><span class="o">/</span><span class="n">simple</span><span class="o">/</span> <span class="n">pyaedt</span>
+</pre></div>
+</div>
+</section>
+</section>
+
+
+              </div>
+              
+              
+              <div class='prev-next-bottom'>
+                
+    <a class='left-prev' id="prev-link" href="../LICENSE.html" title="previous page">License Agreeement</a>
+    <a class='right-next' id="next-link" href="../API/API.html" title="next page">API documentation</a>
+
+              </div>
+              
+          </main>
+          
+
+      </div>
+    </div>
+  
+  <script src="../_static/js/index.1c5a1a01449ed65a7b51.js"></script>
+
+  <footer class="footer mt-5 mt-md-0">
+  <div class="container">
+    
+    <div class="footer-item">
+      <p class="copyright">
+    &copy; Copyright Copyright(c) 1986-2021, ANSYS Inc. unauthorised use, distribution or duplication is prohibited..<br/>
+</p>
+    </div>
+    
+    <div class="footer-item">
+      <p class="sphinx-version">
+Created using <a href="http://sphinx-doc.org/">Sphinx</a> 4.0.2.<br/>
+</p>
+    </div>
+    
+  </div>
+</footer>
+  </body>
+</html>

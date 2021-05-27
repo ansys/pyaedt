@@ -1,0 +1,30 @@
+:root {
+  --ansysGold: #FFB71B;
+  --ansysBronze: #C89211;
+  --pythonBlue: #3972a1;
+}
+
+body {
+ font-family: 'Source Sans Pro', sans-serif;
+ color: black;
+}
+
+h1, h2, h3, h4, h5, h6 {
+    color: var(--pythonBlue);
+    font-family: 'Source Sans Pro', sans-serif;
+}
+
+.navbar-toggler-icon {
+    background-image: url("data:image/svg+xml;charset=utf8,%3Csvg viewBox='0 0 32 32' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath stroke='rgba(255,255,255, 0.9)' stroke-width='2' stroke-linecap='round' stroke-miterlimit='10' d='M4 8h24M4 16h24M4 24h24'/%3E%3C/svg%3E") !important;
+}
+
+
+a.headerlink:hover {
+    background-color: var(--pythonBlue);
+}
+
+a.headerlink {
+    /* background-color: var(--pythonBlue); */
+    color: var(--pythonBlue);
+}
+

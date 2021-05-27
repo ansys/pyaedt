@@ -1,1 +1,1 @@
-sphinx-build -b html . ../../Documentation
+sphinx-build -b html . ../../docs

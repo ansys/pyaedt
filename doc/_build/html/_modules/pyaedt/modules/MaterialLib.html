@@ -1,0 +1,1062 @@
+
+<!DOCTYPE html>
+
+<html lang="Python">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>pyaedt.modules.MaterialLib &#8212; PyAEDT 0.5.0 documentation</title>
+    
+  <link href="../../../_static/css/theme.css" rel="stylesheet" />
+  <link href="../../../_static/css/index.c5995385ac14fb8791e8eb36b4908be2.css" rel="stylesheet" />
+
+    
+  <link rel="stylesheet"
+    href="../../../_static/vendor/fontawesome/5.13.0/css/all.min.css">
+  <link rel="preload" as="font" type="font/woff2" crossorigin
+    href="../../../_static/vendor/fontawesome/5.13.0/webfonts/fa-solid-900.woff2">
+  <link rel="preload" as="font" type="font/woff2" crossorigin
+    href="../../../_static/vendor/fontawesome/5.13.0/webfonts/fa-brands-400.woff2">
+
+    
+      
+
+    
+    <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/basic.css" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/copybutton.css" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/graphviz.css" />
+    
+  <link rel="preload" as="script" href="../../../_static/js/index.1c5a1a01449ed65a7b51.js">
+
+    <script data-url_root="../../../" id="documentation_options" src="../../../_static/documentation_options.js"></script>
+    <script src="../../../_static/jquery.js"></script>
+    <script src="../../../_static/underscore.js"></script>
+    <script src="../../../_static/doctools.js"></script>
+    <script src="../../../_static/clipboard.min.js"></script>
+    <script src="../../../_static/copybutton.js"></script>
+    <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="docsearch:language" content="en" />
+    
+  </head>
+  <body data-spy="scroll" data-target="#bd-toc-nav" data-offset="80">
+    
+    <div class="container-fluid" id="banner"></div>
+
+    
+    <nav class="navbar navbar-light navbar-expand-lg bg-light fixed-top bd-navbar" id="navbar-main"><style>
+    .navbar-light {
+        background-color: black !important;
+    }
+</style>
+
+<div class="container-xl">
+
+    <a class="navbar-brand" href="../../../index.html">
+    
+      <img src="../../../_static/logo-ansys.png" class="logo" alt="logo" />
+    
+    </a>
+    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbar-menu" aria-controls="navbar-menu" aria-expanded="false" aria-label="Toggle navigation">
+      <span class="navbar-toggler-icon" >
+        <i class="fas fa-bars" style="color:#fff; font-size:28px;"></i>
+      </span>
+    </button>
+    
+    <div id="navbar-menu" class="col-lg-9 collapse navbar-collapse">
+      <ul id="navbar-main-elements" class="navbar-nav mr-auto">
+        
+        
+        <li class="nav-item ">
+            <a class="nav-link" href="../../../LICENSE.html">License Agreeement</a>
+        </li>
+        
+        <li class="nav-item ">
+            <a class="nav-link" href="../../../Resources/Installation.html">Installation</a>
+        </li>
+        
+        <li class="nav-item ">
+            <a class="nav-link" href="../../../API/API.html">API documentation</a>
+        </li>
+        
+        <li class="nav-item ">
+            <a class="nav-link" href="../../../Resources/Code_Guidelines.html">Code Guidelines</a>
+        </li>
+        
+        
+      </ul>
+
+
+      
+
+      <ul class="navbar-nav">
+        
+          <li class="nav-item">
+            <a class="nav-link" href="https://github.com/pyansys/PyAEDT" target="_blank" rel="noopener">
+              <span><i class="fab fa-github-square" style="font-size:24px"></i></span>
+            </a>
+          </li>
+        
+        
+        
+      </ul>
+    </div>
+</div>
+    </nav>
+    
+
+    <div class="container-xl">
+      <div class="row">
+          
+            
+            <!-- Only show if we have sidebars configured, else just a small margin  -->
+            <div class="col-12 col-md-3 bd-sidebar"><form class="bd-search d-flex align-items-center" action="../../../search.html" method="get">
+  <i class="icon fas fa-search"></i>
+  <input type="search" class="form-control" name="q" id="search-input" placeholder="Search the docs ..." aria-label="Search the docs ..." autocomplete="off" >
+</form><nav class="bd-links" id="bd-docs-nav" aria-label="Main navigation">
+  <div class="bd-toc-item active">
+    
+  </div>
+</nav>
+            </div>
+            
+          
+
+          
+          <div class="d-none d-xl-block col-xl-2 bd-toc">
+            
+          </div>
+          
+
+          
+          
+            
+          
+          <main class="col-12 col-md-9 col-xl-7 py-md-5 pl-md-5 pr-md-4 bd-content" role="main">
+              
+              <div>
+                
+  <h1>Source code for pyaedt.modules.MaterialLib</h1><div class="highlight"><pre>
+<span></span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">Material Library Class</span>
+<span class="sd">----------------------------------------------------------------</span>
+
+<span class="sd">Disclaimer</span>
+<span class="sd">==================================================</span>
+
+<span class="sd">**Copyright (c) 1986-2021, ANSYS Inc. unauthorised use, distribution or duplication is prohibited**</span>
+
+<span class="sd">**This tool release is unofficial and not covered by standard Ansys Support license.**</span>
+
+
+<span class="sd">Description</span>
+<span class="sd">==================================================</span>
+
+<span class="sd">This class contains all the functionalities to create and edit materials</span>
+
+
+<span class="sd">================</span>
+
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="n">absolute_import</span>
+<span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">import</span> <span class="nn">xml.etree.ElementTree</span> <span class="k">as</span> <span class="nn">ET</span>
+<span class="kn">from</span> <span class="nn">.Material</span> <span class="kn">import</span> <span class="o">*</span>
+<span class="kn">from</span> <span class="nn">..generic.general_methods</span> <span class="kn">import</span> <span class="n">aedt_exception_handler</span>
+
+
+<div class="viewcode-block" id="indent"><a class="viewcode-back" href="../../../API/MaterialLib.html#pyaedt.modules.MaterialLib.indent">[docs]</a><span class="nd">@aedt_exception_handler</span>
+<span class="k">def</span> <span class="nf">indent</span><span class="p">(</span><span class="n">elem</span><span class="p">,</span> <span class="n">level</span><span class="o">=</span><span class="mi">0</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Creates an Indented structure of the XML</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    elem :</span>
+<span class="sd">        </span>
+<span class="sd">    level :</span>
+<span class="sd">         (Default value = 0)</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">i</span> <span class="o">=</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span> <span class="o">+</span> <span class="n">level</span> <span class="o">*</span> <span class="s2">&quot;  &quot;</span>
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">elem</span><span class="p">):</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">elem</span><span class="o">.</span><span class="n">text</span> <span class="ow">or</span> <span class="ow">not</span> <span class="n">elem</span><span class="o">.</span><span class="n">text</span><span class="o">.</span><span class="n">strip</span><span class="p">():</span>
+            <span class="n">elem</span><span class="o">.</span><span class="n">text</span> <span class="o">=</span> <span class="n">i</span> <span class="o">+</span> <span class="s2">&quot;  &quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">elem</span><span class="o">.</span><span class="n">tail</span> <span class="ow">or</span> <span class="ow">not</span> <span class="n">elem</span><span class="o">.</span><span class="n">tail</span><span class="o">.</span><span class="n">strip</span><span class="p">():</span>
+            <span class="n">elem</span><span class="o">.</span><span class="n">tail</span> <span class="o">=</span> <span class="n">i</span>
+        <span class="k">for</span> <span class="n">elem</span> <span class="ow">in</span> <span class="n">elem</span><span class="p">:</span>
+            <span class="n">indent</span><span class="p">(</span><span class="n">elem</span><span class="p">,</span> <span class="n">level</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">elem</span><span class="o">.</span><span class="n">tail</span> <span class="ow">or</span> <span class="ow">not</span> <span class="n">elem</span><span class="o">.</span><span class="n">tail</span><span class="o">.</span><span class="n">strip</span><span class="p">():</span>
+            <span class="n">elem</span><span class="o">.</span><span class="n">tail</span> <span class="o">=</span> <span class="n">i</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">level</span> <span class="ow">and</span> <span class="p">(</span><span class="ow">not</span> <span class="n">elem</span><span class="o">.</span><span class="n">tail</span> <span class="ow">or</span> <span class="ow">not</span> <span class="n">elem</span><span class="o">.</span><span class="n">tail</span><span class="o">.</span><span class="n">strip</span><span class="p">()):</span>
+            <span class="n">elem</span><span class="o">.</span><span class="n">tail</span> <span class="o">=</span> <span class="n">i</span></div>
+
+<div class="viewcode-block" id="Materials"><a class="viewcode-back" href="../../../API/MaterialLib.html#pyaedt.modules.MaterialLib.Materials">[docs]</a><span class="k">class</span> <span class="nc">Materials</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Material Management&quot;&quot;&quot;</span>
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">odefinition_manager</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_parent</span><span class="o">.</span><span class="n">_oproject</span><span class="o">.</span><span class="n">GetDefinitionManager</span><span class="p">()</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">omaterial_manager</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">odefinition_manager</span><span class="o">.</span><span class="n">GetManager</span><span class="p">(</span><span class="s2">&quot;Material&quot;</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">messenger</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_parent</span><span class="o">.</span><span class="n">_messenger</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">oproject</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_parent</span><span class="o">.</span><span class="n">_oproject</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">parent</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_parent</span> <span class="o">=</span> <span class="n">parent</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">material_keys</span> <span class="o">=</span> <span class="n">defaultdict</span><span class="p">(</span><span class="n">Material</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_load_from_project</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">messenger</span><span class="o">.</span><span class="n">add_info_message</span><span class="p">(</span><span class="s1">&#39;Successfully loaded project materials !&#39;</span><span class="p">)</span>
+        <span class="k">pass</span>
+
+    <span class="k">def</span> <span class="fm">__len__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">material_keys</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="fm">__iter__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">material_keys</span><span class="o">.</span><span class="n">itervalues</span><span class="p">()</span>
+
+<div class="viewcode-block" id="Materials.load_from_file"><a class="viewcode-back" href="../../../API/MaterialLib.html#pyaedt.modules.MaterialLib.Materials.load_from_file">[docs]</a>    <span class="nd">@aedt_exception_handler</span>
+    <span class="k">def</span> <span class="nf">load_from_file</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filename</span><span class="p">,</span> <span class="n">project_as_precedence</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Load materials from file</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        filename :</span>
+<span class="sd">            full filename paht (xml)</span>
+<span class="sd">        project_as_precedence :</span>
+<span class="sd">            bool (Default value = True)</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        type</span>
+<span class="sd">            bool</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">mats</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">load_from_xml_full</span><span class="p">(</span><span class="n">filename</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">mat</span> <span class="ow">in</span> <span class="n">mats</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">mat</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">material_keys</span> <span class="ow">and</span> <span class="n">project_as_precedence</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">messenger</span><span class="o">.</span><span class="n">add_warning_message</span><span class="p">(</span>
+                    <span class="s2">&quot;Material &quot;</span> <span class="o">+</span> <span class="n">mat</span> <span class="o">+</span> <span class="s2">&quot; that was present in the file is already present in the project. Skipping it&quot;</span><span class="p">)</span>
+            <span class="k">elif</span> <span class="n">mat</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">material_keys</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">project_as_precedence</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">material_keys</span><span class="p">[</span><span class="n">mat</span><span class="p">]</span> <span class="o">=</span> <span class="n">mats</span><span class="p">[</span><span class="n">mat</span><span class="p">]</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">messenger</span><span class="o">.</span><span class="n">add_warning_message</span><span class="p">(</span>
+                    <span class="s2">&quot;Material &quot;</span> <span class="o">+</span> <span class="n">mat</span> <span class="o">+</span> <span class="s2">&quot; that was present in the file is already present in the project. Overwriting it&quot;</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">material_keys</span><span class="p">[</span><span class="n">mat</span><span class="p">]</span> <span class="o">=</span> <span class="n">mats</span><span class="p">[</span><span class="n">mat</span><span class="p">]</span>
+
+        <span class="k">return</span> <span class="kc">True</span></div>
+
+    <span class="k">def</span> <span class="nf">_load_from_project</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Load materials from project&quot;&quot;&quot;</span>
+        <span class="n">mats</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">odefinition_manager</span><span class="o">.</span><span class="n">GetProjectMaterialNames</span><span class="p">()</span>
+        <span class="k">for</span> <span class="n">el</span> <span class="ow">in</span> <span class="n">mats</span><span class="p">:</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_aedmattolibrary</span><span class="p">(</span><span class="n">el</span><span class="p">)</span>
+            <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">messenger</span><span class="o">.</span><span class="n">add_info_message</span><span class="p">(</span><span class="s1">&#39;aedmattolibrary failed for material </span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">el</span><span class="p">))</span>
+
+    <span class="nd">@aedt_exception_handler</span>
+    <span class="k">def</span> <span class="nf">_aedmattolibrary</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">matname</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        matname :</span>
+<span class="sd">            </span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">matname</span> <span class="o">=</span> <span class="n">matname</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span>
+        <span class="n">matprop</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">omaterial_manager</span><span class="o">.</span><span class="n">GetData</span><span class="p">(</span><span class="n">matname</span><span class="p">))</span>
+        <span class="n">newmat</span> <span class="o">=</span> <span class="n">Material</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_parent</span><span class="p">)</span>
+        <span class="n">newmat</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="n">matname</span>
+        <span class="n">newmat</span><span class="o">.</span><span class="n">origin</span> <span class="o">=</span> <span class="s2">&quot;Project&quot;</span>
+        <span class="k">for</span> <span class="n">el</span> <span class="ow">in</span> <span class="n">matprop</span><span class="p">:</span>
+            <span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="n">el</span><span class="p">)</span> <span class="ow">is</span> <span class="nb">str</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">el</span><span class="p">[:</span><span class="o">-</span><span class="mi">2</span><span class="p">]</span> <span class="ow">in</span> <span class="n">MatProperties</span><span class="o">.</span><span class="n">aedtname</span><span class="p">:</span>
+                    <span class="k">if</span> <span class="s2">&quot;pwl&quot;</span> <span class="ow">in</span> <span class="n">matprop</span><span class="p">[</span><span class="n">matprop</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="n">el</span><span class="p">)</span> <span class="o">+</span> <span class="mi">1</span><span class="p">]:</span>
+                        <span class="n">prop</span> <span class="o">=</span> <span class="n">matprop</span><span class="p">[</span><span class="n">matprop</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="n">el</span><span class="p">)</span> <span class="o">+</span> <span class="mi">1</span><span class="p">]</span>
+                        <span class="n">fddataset</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_read_dataset</span><span class="p">(</span><span class="n">prop</span><span class="p">)</span>
+                        <span class="n">newmat</span><span class="o">.</span><span class="n">property</span><span class="p">[</span><span class="n">el</span><span class="p">[:</span><span class="o">-</span><span class="mi">2</span><span class="p">]]</span><span class="o">.</span><span class="n">property_value</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">dataset</span> <span class="o">=</span> <span class="n">fddataset</span>
+                    <span class="k">else</span><span class="p">:</span>
+                        <span class="n">newmat</span><span class="o">.</span><span class="n">property</span><span class="p">[</span><span class="n">el</span><span class="p">[:</span><span class="o">-</span><span class="mi">2</span><span class="p">]]</span><span class="o">.</span><span class="n">property_value</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">value</span> <span class="o">=</span> <span class="n">matprop</span><span class="p">[</span><span class="n">matprop</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="n">el</span><span class="p">)</span> <span class="o">+</span> <span class="mi">1</span><span class="p">]</span>
+                    <span class="n">newmat</span><span class="o">.</span><span class="n">property</span><span class="p">[</span><span class="n">el</span><span class="p">[:</span><span class="o">-</span><span class="mi">2</span><span class="p">]]</span><span class="o">.</span><span class="n">type</span> <span class="o">=</span> <span class="s2">&quot;simple&quot;</span>
+            <span class="k">elif</span> <span class="nb">type</span><span class="p">(</span><span class="n">el</span><span class="p">)</span> <span class="ow">is</span> <span class="nb">list</span> <span class="ow">or</span> <span class="nb">type</span><span class="p">(</span><span class="n">el</span><span class="p">)</span> <span class="ow">is</span> <span class="nb">tuple</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">el</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;NAME:ModifierData&#39;</span><span class="p">:</span>
+                    <span class="n">tlist</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">el</span><span class="p">[</span><span class="mi">1</span><span class="p">][</span><span class="mi">3</span><span class="p">])</span>
+                    <span class="k">del</span> <span class="n">tlist</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+                    <span class="k">for</span> <span class="n">tm</span> <span class="ow">in</span> <span class="n">tlist</span><span class="p">:</span>
+                        <span class="n">propth</span> <span class="o">=</span> <span class="n">tm</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span>
+                        <span class="n">idth</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">tm</span><span class="p">[</span><span class="mi">4</span><span class="p">])</span>
+                        <span class="k">if</span> <span class="n">tm</span><span class="p">[</span><span class="mi">8</span><span class="p">]</span><span class="o">==</span><span class="kc">True</span><span class="p">:</span>
+                            <span class="n">valth</span> <span class="o">=</span> <span class="n">tm</span><span class="p">[</span><span class="mi">10</span><span class="p">]</span>
+                            <span class="k">if</span> <span class="s2">&quot;pwl&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">valth</span> <span class="ow">and</span> <span class="s2">&quot;temp&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">valth</span><span class="o">.</span><span class="n">lower</span><span class="p">():</span>
+                                <span class="n">fddataset</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_read_dataset</span><span class="p">(</span><span class="n">valth</span><span class="p">)</span>
+                            <span class="k">else</span><span class="p">:</span>
+                                <span class="n">fddataset</span> <span class="o">=</span> <span class="n">valth</span>
+                            <span class="n">newmat</span><span class="o">.</span><span class="n">property</span><span class="p">[</span><span class="n">propth</span><span class="p">]</span><span class="o">.</span><span class="n">property_value</span><span class="p">[</span><span class="n">idth</span><span class="p">]</span><span class="o">.</span><span class="n">thermalmodifier</span> <span class="o">=</span> <span class="n">fddataset</span>
+
+                        <span class="k">else</span><span class="p">:</span>
+                            <span class="n">thclosed</span> <span class="o">=</span> <span class="n">ClosedFormTM</span><span class="p">()</span>
+                            <span class="n">thclosed</span><span class="o">.</span><span class="n">Tref</span><span class="o">=</span><span class="n">tm</span><span class="p">[</span><span class="mi">10</span><span class="p">]</span>
+                            <span class="n">thclosed</span><span class="o">.</span><span class="n">C1</span><span class="o">=</span><span class="n">tm</span><span class="p">[</span><span class="mi">12</span><span class="p">]</span>
+                            <span class="n">thclosed</span><span class="o">.</span><span class="n">C2</span><span class="o">=</span><span class="n">tm</span><span class="p">[</span><span class="mi">14</span><span class="p">]</span>
+                            <span class="n">thclosed</span><span class="o">.</span><span class="n">TL</span><span class="o">=</span><span class="n">tm</span><span class="p">[</span><span class="mi">16</span><span class="p">]</span>
+                            <span class="n">thclosed</span><span class="o">.</span><span class="n">TU</span><span class="o">=</span><span class="n">tm</span><span class="p">[</span><span class="mi">18</span><span class="p">]</span>
+                            <span class="n">thclosed</span><span class="o">.</span><span class="n">autocalculation</span><span class="o">=</span><span class="n">tm</span><span class="p">[</span><span class="mi">20</span><span class="p">]</span>
+                            <span class="k">if</span> <span class="ow">not</span> <span class="n">thclosed</span><span class="o">.</span><span class="n">autocalculation</span><span class="p">:</span>
+                                <span class="n">thclosed</span><span class="o">.</span><span class="n">TML</span><span class="o">=</span><span class="n">tm</span><span class="p">[</span><span class="mi">22</span><span class="p">]</span>
+                                <span class="n">thclosed</span><span class="o">.</span><span class="n">TMU</span> <span class="o">=</span> <span class="n">tm</span><span class="p">[</span><span class="mi">24</span><span class="p">]</span>
+                            <span class="n">newmat</span><span class="o">.</span><span class="n">property</span><span class="p">[</span><span class="n">propth</span><span class="p">]</span><span class="o">.</span><span class="n">property_value</span><span class="p">[</span><span class="n">idth</span><span class="p">]</span><span class="o">.</span><span class="n">thermalmodifier</span> <span class="o">=</span> <span class="n">thclosed</span>
+
+
+                <span class="k">elif</span> <span class="n">el</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">5</span><span class="p">:]</span> <span class="ow">in</span> <span class="n">MatProperties</span><span class="o">.</span><span class="n">aedtname</span><span class="p">:</span>
+                    <span class="n">propertyname</span> <span class="o">=</span> <span class="n">el</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">5</span><span class="p">:]</span>
+                    <span class="n">proparray</span> <span class="o">=</span> <span class="n">el</span>
+                    <span class="n">proptype</span> <span class="o">=</span> <span class="n">proparray</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span>
+                    <span class="k">if</span> <span class="n">proptype</span> <span class="o">==</span> <span class="s2">&quot;AnisoProperty&quot;</span><span class="p">:</span>
+                        <span class="n">newmat</span><span class="o">.</span><span class="n">property</span><span class="p">[</span><span class="n">propertyname</span><span class="p">]</span><span class="o">.</span><span class="n">set_type</span><span class="p">(</span><span class="s2">&quot;anisotropic&quot;</span><span class="p">)</span>
+                        <span class="n">newmat</span><span class="o">.</span><span class="n">property</span><span class="p">[</span><span class="n">propertyname</span><span class="p">]</span><span class="o">.</span><span class="n">type</span> <span class="o">=</span> <span class="s2">&quot;anisotropic&quot;</span>
+                        <span class="n">i</span> <span class="o">=</span> <span class="mi">0</span>
+                        <span class="k">while</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="mi">3</span><span class="p">:</span>
+                            <span class="n">val</span> <span class="o">=</span> <span class="n">proparray</span><span class="p">[</span><span class="mi">5</span> <span class="o">+</span> <span class="n">i</span> <span class="o">*</span> <span class="mi">2</span><span class="p">]</span>
+                            <span class="k">if</span> <span class="s2">&quot;pwl&quot;</span> <span class="ow">in</span> <span class="n">val</span> <span class="ow">and</span> <span class="s2">&quot;if(&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">val</span><span class="p">:</span>
+                                <span class="n">prop</span> <span class="o">=</span> <span class="n">val</span>
+                                <span class="n">fddataset</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_read_dataset</span><span class="p">(</span><span class="n">prop</span><span class="p">)</span>
+                                <span class="n">newmat</span><span class="o">.</span><span class="n">property</span><span class="p">[</span><span class="n">propertyname</span><span class="p">]</span><span class="o">.</span><span class="n">property_value</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">dataset</span> <span class="o">=</span> <span class="n">fddataset</span>
+                            <span class="k">else</span><span class="p">:</span>
+                                <span class="n">newmat</span><span class="o">.</span><span class="n">property</span><span class="p">[</span><span class="n">propertyname</span><span class="p">]</span><span class="o">.</span><span class="n">property_value</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">value</span> <span class="o">=</span> <span class="n">val</span>
+                            <span class="n">i</span> <span class="o">+=</span> <span class="mi">1</span>
+                    <span class="k">elif</span> <span class="n">proptype</span> <span class="o">==</span> <span class="s2">&quot;TensoProperty&quot;</span><span class="p">:</span>
+                        <span class="n">newmat</span><span class="o">.</span><span class="n">property</span><span class="p">[</span><span class="n">propertyname</span><span class="p">]</span><span class="o">.</span><span class="n">type</span> <span class="o">=</span> <span class="s2">&quot;tensor&quot;</span>
+                        <span class="c1"># TODO check and add Tensor</span>
+                    <span class="k">elif</span> <span class="n">proptype</span> <span class="o">==</span> <span class="s2">&quot;nonlinear&quot;</span> <span class="ow">and</span> <span class="p">(</span><span class="n">propertyname</span> <span class="o">==</span> <span class="s1">&#39;permittivity&#39;</span> <span class="ow">or</span> <span class="n">propertyname</span> <span class="o">==</span> <span class="s1">&#39;conductivity&#39;</span><span class="p">):</span>
+                        <span class="n">newmat</span><span class="o">.</span><span class="n">property</span><span class="p">[</span><span class="n">propertyname</span><span class="p">]</span><span class="o">.</span><span class="n">type</span> <span class="o">=</span> <span class="s2">&quot;nonlinear&quot;</span>
+                        <span class="n">ds</span> <span class="o">=</span> <span class="n">Dataset</span><span class="p">()</span>
+                        <span class="n">array</span> <span class="o">=</span> <span class="n">proparray</span><span class="p">[</span><span class="mi">3</span><span class="p">]</span>
+                        <span class="n">ds</span><span class="o">.</span><span class="n">unitx</span> <span class="o">=</span> <span class="n">array</span><span class="p">[</span><span class="mi">1</span><span class="p">][</span><span class="mi">1</span><span class="p">]</span>
+                        <span class="n">ds</span><span class="o">.</span><span class="n">unity</span> <span class="o">=</span> <span class="n">array</span><span class="p">[</span><span class="mi">1</span><span class="p">][</span><span class="mi">2</span><span class="p">]</span>
+                        <span class="n">i</span> <span class="o">=</span><span class="mi">2</span>
+                        <span class="n">ds</span><span class="o">.</span><span class="n">ds</span> <span class="o">=</span> <span class="p">[]</span>
+                        <span class="k">while</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="nb">len</span><span class="p">(</span><span class="n">array</span><span class="p">):</span>
+                            <span class="n">ds</span><span class="o">.</span><span class="n">ds</span><span class="o">.</span><span class="n">append</span><span class="p">([</span><span class="n">array</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="mi">1</span><span class="p">],</span> <span class="n">array</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="mi">2</span><span class="p">]])</span>
+                            <span class="n">i</span> <span class="o">+=</span> <span class="mi">1</span>
+                        <span class="n">newmat</span><span class="o">.</span><span class="n">property</span><span class="p">[</span><span class="n">propertyname</span><span class="p">]</span><span class="o">.</span><span class="n">property_value</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">dataset</span> <span class="o">=</span> <span class="n">ds</span>
+                    <span class="k">elif</span> <span class="n">proptype</span> <span class="o">==</span> <span class="s2">&quot;nonlinear&quot;</span> <span class="ow">and</span> <span class="n">propertyname</span> <span class="o">==</span> <span class="s1">&#39;permeability&#39;</span><span class="p">:</span>
+                        <span class="n">newmat</span><span class="o">.</span><span class="n">property</span><span class="p">[</span><span class="n">propertyname</span><span class="p">]</span><span class="o">.</span><span class="n">type</span> <span class="o">=</span> <span class="s2">&quot;nonlinear&quot;</span>
+                        <span class="n">idx</span> <span class="o">=</span> <span class="n">proparray</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="s2">&quot;HUnit:=&quot;</span><span class="p">)</span>
+                        <span class="n">ds</span> <span class="o">=</span> <span class="n">Dataset</span><span class="p">()</span>
+                        <span class="n">ds</span><span class="o">.</span><span class="n">unitx</span> <span class="o">=</span> <span class="n">proparray</span><span class="p">[</span><span class="n">idx</span><span class="o">+</span><span class="mi">1</span><span class="p">]</span>
+                        <span class="n">ds</span><span class="o">.</span><span class="n">unity</span> <span class="o">=</span> <span class="n">proparray</span><span class="p">[</span><span class="n">idx</span><span class="o">+</span><span class="mi">3</span><span class="p">]</span>
+                        <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">proparray</span><span class="p">:</span>
+                            <span class="k">if</span> <span class="p">(</span><span class="nb">type</span><span class="p">(</span><span class="n">p</span><span class="p">)</span> <span class="ow">is</span> <span class="nb">tuple</span> <span class="ow">or</span> <span class="nb">type</span><span class="p">(</span><span class="n">p</span><span class="p">)</span> <span class="ow">is</span> <span class="nb">list</span><span class="p">)</span> <span class="ow">and</span> <span class="n">p</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="ow">and</span> <span class="s2">&quot;BHCoordinates&quot;</span> <span class="ow">in</span> <span class="n">p</span><span class="p">[</span><span class="mi">0</span><span class="p">]:</span>
+                                <span class="n">i</span> <span class="o">=</span> <span class="mi">2</span>
+                                <span class="n">ds</span><span class="o">.</span><span class="n">ds</span> <span class="o">=</span> <span class="p">[]</span>
+                                <span class="k">while</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="nb">len</span><span class="p">(</span><span class="n">p</span><span class="p">):</span>
+                                    <span class="n">ds</span><span class="o">.</span><span class="n">ds</span><span class="o">.</span><span class="n">append</span><span class="p">([</span><span class="n">p</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="mi">1</span><span class="p">],</span> <span class="n">p</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="mi">2</span><span class="p">]])</span>
+                                    <span class="n">i</span> <span class="o">+=</span> <span class="mi">1</span>
+                                <span class="n">newmat</span><span class="o">.</span><span class="n">property</span><span class="p">[</span><span class="n">propertyname</span><span class="p">]</span><span class="o">.</span><span class="n">property_value</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">dataset</span> <span class="o">=</span> <span class="n">ds</span>
+
+                <span class="k">elif</span> <span class="n">el</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;NAME:thermal_material_type&#39;</span><span class="p">:</span>
+                    <span class="n">newmat</span><span class="o">.</span><span class="n">thermal_material_type</span> <span class="o">=</span> <span class="n">el</span><span class="p">[</span><span class="mi">4</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">material_keys</span><span class="p">[</span><span class="n">matname</span><span class="p">]</span> <span class="o">=</span> <span class="n">newmat</span>
+        <span class="k">return</span> <span class="kc">True</span>
+
+    <span class="nd">@aedt_exception_handler</span>
+    <span class="k">def</span> <span class="nf">_read_dataset</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">prop</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        prop :</span>
+<span class="sd">            </span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">start</span> <span class="o">=</span> <span class="n">prop</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="s2">&quot;$&quot;</span><span class="p">)</span>
+        <span class="n">stop</span> <span class="o">=</span> <span class="n">prop</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="s2">&quot;,&quot;</span><span class="p">)</span>
+        <span class="n">dsname</span> <span class="o">=</span> <span class="n">prop</span><span class="p">[</span><span class="n">start</span><span class="p">:</span><span class="n">stop</span> <span class="o">-</span> <span class="nb">len</span><span class="p">(</span><span class="n">prop</span><span class="p">)]</span>
+        <span class="n">filename</span> <span class="o">=</span> <span class="s2">&quot;C:</span><span class="se">\\</span><span class="s2">Temp</span><span class="se">\\</span><span class="s2">ds.tab&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">oproject</span><span class="o">.</span><span class="n">ExportDataset</span><span class="p">(</span><span class="n">dsname</span><span class="p">,</span> <span class="n">filename</span><span class="p">)</span>
+        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">filename</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+            <span class="n">lines</span> <span class="o">=</span> <span class="n">f</span><span class="o">.</span><span class="n">readlines</span><span class="p">()</span>
+        <span class="n">i</span> <span class="o">=</span> <span class="mi">1</span>
+        <span class="n">dsdata</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">while</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="nb">len</span><span class="p">(</span><span class="n">lines</span><span class="p">):</span>
+            <span class="n">a</span> <span class="o">=</span> <span class="n">lines</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39; </span><span class="se">\t</span><span class="s1">&#39;</span><span class="p">)</span>
+            <span class="n">dsdata</span><span class="o">.</span><span class="n">append</span><span class="p">([</span><span class="n">a</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">a</span><span class="p">[</span><span class="mi">1</span><span class="p">]])</span>
+            <span class="n">i</span> <span class="o">+=</span> <span class="mi">1</span>
+        <span class="n">fddataset</span> <span class="o">=</span> <span class="n">Dataset</span><span class="p">()</span>
+        <span class="n">fddataset</span><span class="o">.</span><span class="n">namex</span> <span class="o">=</span> <span class="s2">&quot;Frequency&quot;</span>
+        <span class="n">fddataset</span><span class="o">.</span><span class="n">unitx</span> <span class="o">=</span> <span class="n">lines</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">2</span><span class="p">:]</span>
+        <span class="n">fddataset</span><span class="o">.</span><span class="n">ds</span> <span class="o">=</span> <span class="n">dsdata</span>
+        <span class="k">return</span> <span class="n">fddataset</span>
+
+<div class="viewcode-block" id="Materials.checkifmaterialexists"><a class="viewcode-back" href="../../../API/MaterialLib.html#pyaedt.modules.MaterialLib.Materials.checkifmaterialexists">[docs]</a>    <span class="nd">@aedt_exception_handler</span>
+    <span class="k">def</span> <span class="nf">checkifmaterialexists</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">mat</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Check if Material Exists</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        mat :</span>
+<span class="sd">            material name</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        type</span>
+<span class="sd">            True/False</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">mat</span> <span class="o">=</span> <span class="n">mat</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span>
+        <span class="n">lista</span> <span class="o">=</span> <span class="p">[</span><span class="n">i</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">odefinition_manager</span><span class="o">.</span><span class="n">GetProjectMaterialNames</span><span class="p">())]</span>
+        <span class="k">if</span> <span class="n">mat</span> <span class="ow">in</span> <span class="n">lista</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">True</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">mattry</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">omaterial_manager</span><span class="o">.</span><span class="n">GetData</span><span class="p">(</span><span class="n">mat</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">mattry</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_aedmattolibrary</span><span class="p">(</span><span class="n">mat</span><span class="p">)</span>
+                <span class="k">return</span> <span class="kc">True</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">return</span> <span class="kc">False</span></div>
+
+<div class="viewcode-block" id="Materials.check_thermal_modifier"><a class="viewcode-back" href="../../../API/MaterialLib.html#pyaedt.modules.MaterialLib.Materials.check_thermal_modifier">[docs]</a>    <span class="nd">@aedt_exception_handler</span>
+    <span class="k">def</span> <span class="nf">check_thermal_modifier</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">mat</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Check the termal modifier of predefined material</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        mat :</span>
+<span class="sd">            material name</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        type</span>
+<span class="sd">            bool</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">mat</span> <span class="o">=</span> <span class="n">mat</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span>
+        <span class="n">exists</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="k">if</span> <span class="n">mat</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">material_keys</span><span class="p">:</span>
+            <span class="n">exists</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">checkifmaterialexists</span><span class="p">(</span><span class="n">mat</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_load_from_project</span><span class="p">()</span>
+            <span class="n">exists</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="k">if</span> <span class="n">exists</span><span class="p">:</span>
+            <span class="n">omat</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">material_keys</span><span class="p">[</span><span class="n">mat</span><span class="p">]</span>
+            <span class="k">for</span> <span class="n">el</span> <span class="ow">in</span> <span class="n">omat</span><span class="o">.</span><span class="n">property</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">omat</span><span class="o">.</span><span class="n">property</span><span class="p">[</span><span class="n">el</span><span class="p">]</span><span class="o">.</span><span class="n">property_value</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">thermalmodifier</span><span class="p">:</span>
+                    <span class="k">return</span> <span class="kc">True</span>
+        <span class="k">return</span> <span class="kc">False</span></div>
+
+<div class="viewcode-block" id="Materials.check_thermal_modifier_OLD"><a class="viewcode-back" href="../../../API/MaterialLib.html#pyaedt.modules.MaterialLib.Materials.check_thermal_modifier_OLD">[docs]</a>    <span class="nd">@aedt_exception_handler</span>
+    <span class="k">def</span> <span class="nf">check_thermal_modifier_OLD</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">mat</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        mat :</span>
+<span class="sd">            </span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">mat</span> <span class="o">=</span> <span class="n">mat</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span>
+        <span class="n">exists</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="k">if</span> <span class="n">mat</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">material_keys</span><span class="p">:</span>
+            <span class="n">exists</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">checkifmaterialexists</span><span class="p">(</span><span class="n">mat</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">exists</span><span class="p">:</span>
+            <span class="n">omat</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">material_keys</span><span class="p">[</span><span class="n">mat</span><span class="p">]</span>
+            <span class="k">for</span> <span class="n">el</span> <span class="ow">in</span> <span class="n">omat</span><span class="o">.</span><span class="n">property</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">omat</span><span class="o">.</span><span class="n">property</span><span class="p">[</span><span class="n">el</span><span class="p">]</span><span class="o">.</span><span class="n">property_value</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">thermalmodifier</span><span class="p">:</span>
+                    <span class="k">return</span> <span class="kc">True</span>
+        <span class="k">return</span> <span class="kc">False</span></div>
+
+<div class="viewcode-block" id="Materials.creatematerial"><a class="viewcode-back" href="../../../API/MaterialLib.html#pyaedt.modules.MaterialLib.Materials.creatematerial">[docs]</a>    <span class="nd">@aedt_exception_handler</span>
+    <span class="k">def</span> <span class="nf">creatematerial</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">materialname</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;The function create a new material named materialname and apply defaults value and return the material object</span>
+<span class="sd">        that allows user to customize the material</span>
+<span class="sd">        The function will not update the material in</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        materialname :</span>
+<span class="sd">            material name</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        type</span>
+<span class="sd">            Material Object</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">materialname</span> <span class="o">=</span> <span class="n">materialname</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">messenger</span><span class="o">.</span><span class="n">add_info_message</span><span class="p">(</span><span class="s1">&#39;Adding New Material material to Project Library: &#39;</span> <span class="o">+</span> <span class="n">materialname</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">materialname</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">material_keys</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">messenger</span><span class="o">.</span><span class="n">add_warning_message</span><span class="p">(</span>
+                <span class="s2">&quot;Warning. The material is already in database. Please change name or edit it&quot;</span><span class="p">)</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">material_keys</span><span class="p">[</span><span class="n">materialname</span><span class="p">]</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">material</span> <span class="o">=</span> <span class="n">Material</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_parent</span><span class="p">)</span>
+            <span class="n">material</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="n">materialname</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">messenger</span><span class="o">.</span><span class="n">add_info_message</span><span class="p">(</span><span class="s2">&quot;Material added. Please edit it to update in Desktop&quot;</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">material_keys</span><span class="p">[</span><span class="n">materialname</span><span class="p">]</span> <span class="o">=</span> <span class="n">material</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">material_keys</span><span class="p">[</span><span class="n">materialname</span><span class="p">]</span></div>
+
+<div class="viewcode-block" id="Materials.creatematerialsurface"><a class="viewcode-back" href="../../../API/MaterialLib.html#pyaedt.modules.MaterialLib.Materials.creatematerialsurface">[docs]</a>    <span class="nd">@aedt_exception_handler</span>
+    <span class="k">def</span> <span class="nf">creatematerialsurface</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">material_name</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;The function create a new material surface named args</span>
+<span class="sd">        material args properties are loaded from the XML file database amat.xml</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        material_name :</span>
+<span class="sd">            material name</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        type</span>
+<span class="sd">            Material emissivity</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">material_name</span> <span class="o">=</span> <span class="n">material_name</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">messenger</span><span class="o">.</span><span class="n">add_info_message</span><span class="p">(</span><span class="s1">&#39;Adding New Material Surface to Icepak Project Library: &#39;</span> <span class="o">+</span> <span class="n">material_name</span><span class="p">)</span>
+        <span class="n">materials</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">material_keys</span>
+        <span class="k">if</span> <span class="n">materials</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">messenger</span><span class="o">.</span><span class="n">add_error_message</span><span class="p">(</span><span class="s2">&quot;Error. XML not loaded. Run read_material_from_xml function&quot;</span><span class="p">)</span>
+            <span class="k">return</span>
+        <span class="n">matsurf</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="k">for</span> <span class="n">mat</span> <span class="ow">in</span> <span class="n">materials</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">material_name</span> <span class="o">==</span> <span class="n">mat</span><span class="o">.</span><span class="n">GetName</span><span class="p">():</span>
+                <span class="n">matsurf</span> <span class="o">=</span> <span class="n">mat</span>
+        <span class="n">defaultEmissivity</span> <span class="o">=</span> <span class="s2">&quot;0.8&quot;</span>
+        <span class="k">if</span> <span class="n">matsurf</span><span class="p">:</span>
+            <span class="n">defaultEmissivity</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">matsurf</span><span class="o">.</span><span class="n">GetParameter</span><span class="p">(</span><span class="s2">&quot;emissivity&quot;</span><span class="p">))</span>
+
+        <span class="n">arg</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">arg</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;Name:&quot;</span> <span class="o">+</span> <span class="n">material_name</span><span class="p">)</span>
+        <span class="n">arg</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;CoordinateSystemType:=&quot;</span><span class="p">)</span>
+        <span class="n">arg</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;Cartesian&quot;</span><span class="p">)</span>
+        <span class="n">arg</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;BulkOrSurfaceType:=&quot;</span><span class="p">)</span>
+        <span class="n">arg</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
+        <span class="n">arg</span><span class="o">.</span><span class="n">append</span><span class="p">([</span><span class="s2">&quot;NAME:PhysicsTypes&quot;</span><span class="p">,</span> <span class="s2">&quot;set:=&quot;</span><span class="p">,</span> <span class="p">[</span><span class="s2">&quot;Thermal&quot;</span><span class="p">]])</span>
+        <span class="n">arg</span><span class="o">.</span><span class="n">append</span><span class="p">([</span><span class="s2">&quot;NAME:PhysicsTypes&quot;</span><span class="p">,</span> <span class="s2">&quot;set:=&quot;</span><span class="p">,</span> <span class="p">[</span><span class="s2">&quot;Thermal&quot;</span><span class="p">]])</span>
+        <span class="n">arg</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;surface_emissivity:=&quot;</span><span class="p">)</span>
+        <span class="n">arg</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">defaultEmissivity</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">omaterial_manager</span><span class="o">.</span><span class="n">AddSurfaceMaterial</span><span class="p">(</span><span class="n">arg</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">defaultEmissivity</span></div>
+
+
+<div class="viewcode-block" id="Materials.create_mat_project_vars"><a class="viewcode-back" href="../../../API/MaterialLib.html#pyaedt.modules.MaterialLib.Materials.create_mat_project_vars">[docs]</a>    <span class="k">def</span> <span class="nf">create_mat_project_vars</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">matlist</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Create Material Properties variables based on a material list</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        matlist :</span>
+<span class="sd">            list of material properties</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        type</span>
+<span class="sd">            matprop</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">matprop</span><span class="o">=</span><span class="p">{}</span>
+        <span class="k">for</span> <span class="n">prop</span> <span class="ow">in</span> <span class="n">MatProperties</span><span class="o">.</span><span class="n">aedtname</span><span class="p">:</span>
+            <span class="n">matprop</span><span class="p">[</span><span class="n">prop</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
+            <span class="k">for</span> <span class="n">mat</span> <span class="ow">in</span> <span class="n">matlist</span><span class="p">:</span>
+                <span class="k">try</span><span class="p">:</span>
+                    <span class="n">matprop</span><span class="p">[</span><span class="n">prop</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="n">mat</span><span class="o">.</span><span class="n">property</span><span class="p">[</span><span class="n">prop</span><span class="p">]</span><span class="o">.</span><span class="n">property_value</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">value</span><span class="p">))</span>
+                <span class="k">except</span><span class="p">:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">messenger</span><span class="o">.</span><span class="n">add_warning_message</span><span class="p">(</span><span class="s2">&quot;Warning. Wrong parsed property. Reset to 0&quot;</span><span class="p">)</span>
+                    <span class="n">matprop</span><span class="p">[</span><span class="n">prop</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">matprop</span></div>
+
+<div class="viewcode-block" id="Materials.creatematerial_sweeps"><a class="viewcode-back" href="../../../API/MaterialLib.html#pyaedt.modules.MaterialLib.Materials.creatematerial_sweeps">[docs]</a>    <span class="nd">@aedt_exception_handler</span>
+    <span class="k">def</span> <span class="nf">creatematerial_sweeps</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">swargs</span><span class="p">,</span> <span class="n">matname</span><span class="p">,</span> <span class="n">enableTM</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;The function create a new material named  made of an array of materials args</span>
+<span class="sd">        If material nees a dataset (thermal modifier) than a dataset is creted</span>
+<span class="sd">        material args properties are loaded from the XML file database amat.xml</span>
+<span class="sd">        enableTM: Boolean enable Thermal modifier in material description. At moment unused</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        swargs :</span>
+<span class="sd">            list of materials to be merged into single sweep material</span>
+<span class="sd">        matname :</span>
+<span class="sd">            name of sweep material</span>
+<span class="sd">        enableTM :</span>
+<span class="sd">            bool (Default value = True)</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        type</span>
+<span class="sd">            name of project variable index</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">matsweep</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">matname</span> <span class="o">=</span> <span class="n">matname</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span>
+        <span class="k">for</span> <span class="n">args</span> <span class="ow">in</span> <span class="n">swargs</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">args</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">material_keys</span><span class="p">:</span>
+                <span class="n">matsweep</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">material_keys</span><span class="p">[</span><span class="n">args</span><span class="p">])</span>
+            <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">checkifmaterialexists</span><span class="p">(</span><span class="n">args</span><span class="p">):</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_aedmattolibrary</span><span class="p">(</span><span class="n">args</span><span class="p">)</span>
+                <span class="n">matsweep</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">material_keys</span><span class="p">[</span><span class="n">args</span><span class="p">])</span>
+
+        <span class="n">mat_dict</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">create_mat_project_vars</span><span class="p">(</span><span class="n">matsweep</span><span class="p">)</span>
+        <span class="n">newmat</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">creatematerial</span><span class="p">(</span><span class="n">matname</span><span class="p">)</span>
+        <span class="n">index</span> <span class="o">=</span> <span class="s2">&quot;$ID&quot;</span><span class="o">+</span><span class="n">matname</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_parent</span><span class="p">[</span><span class="n">index</span><span class="p">]</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="k">for</span> <span class="n">el</span> <span class="ow">in</span> <span class="n">mat_dict</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_parent</span><span class="p">[</span><span class="s2">&quot;$&quot;</span><span class="o">+</span><span class="n">matname</span><span class="o">+</span><span class="n">el</span><span class="p">]</span> <span class="o">=</span> <span class="n">mat_dict</span><span class="p">[</span><span class="n">el</span><span class="p">]</span>
+            <span class="n">newmat</span><span class="o">.</span><span class="n">property</span><span class="p">[</span><span class="n">el</span><span class="p">]</span><span class="o">.</span><span class="n">property_value</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">value</span> <span class="o">=</span> <span class="s2">&quot;$&quot;</span><span class="o">+</span><span class="n">matname</span><span class="o">+</span><span class="n">el</span><span class="o">+</span><span class="s2">&quot;[&quot;</span><span class="o">+</span> <span class="n">index</span> <span class="o">+</span> <span class="s2">&quot;]&quot;</span>
+            <span class="c1"># TODO add Thermal modifier</span>
+        <span class="n">newmat</span><span class="o">.</span><span class="n">update</span><span class="p">()</span>
+        <span class="k">return</span> <span class="n">index</span></div>
+
+<div class="viewcode-block" id="Materials.duplicate_material"><a class="viewcode-back" href="../../../API/MaterialLib.html#pyaedt.modules.MaterialLib.Materials.duplicate_material">[docs]</a>    <span class="nd">@aedt_exception_handler</span>
+    <span class="k">def</span> <span class="nf">duplicate_material</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">material</span><span class="p">,</span> <span class="n">new_name</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Duplicate Material</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        material :</span>
+<span class="sd">            material original name</span>
+<span class="sd">        new_name :</span>
+<span class="sd">            target name</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        type</span>
+<span class="sd">            new material object</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">newMat</span> <span class="o">=</span> <span class="n">material</span>
+        <span class="n">newMat</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="n">new_name</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">material_keys</span><span class="p">[</span><span class="n">new_name</span><span class="p">]</span> <span class="o">=</span> <span class="n">newMat</span>
+        <span class="k">return</span> <span class="n">newMat</span></div>
+
+<div class="viewcode-block" id="Materials.GetConductors"><a class="viewcode-back" href="../../../API/MaterialLib.html#pyaedt.modules.MaterialLib.Materials.GetConductors">[docs]</a>    <span class="nd">@aedt_exception_handler</span>
+    <span class="k">def</span> <span class="nf">GetConductors</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Get List of conductors in material database</span>
+<span class="sd">        </span>
+<span class="sd">        :return:list of string</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">data</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">mat</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">material_keys</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="k">if</span> <span class="n">mat</span><span class="o">.</span><span class="n">is_conductor</span><span class="p">():</span>
+                <span class="n">data</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">key</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">data</span></div>
+
+<div class="viewcode-block" id="Materials.GetDielectrics"><a class="viewcode-back" href="../../../API/MaterialLib.html#pyaedt.modules.MaterialLib.Materials.GetDielectrics">[docs]</a>    <span class="nd">@aedt_exception_handler</span>
+    <span class="k">def</span> <span class="nf">GetDielectrics</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Get List of dielectrics in material database</span>
+<span class="sd">        </span>
+<span class="sd">        :return:list of string</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">data</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">mat</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">material_keys</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="k">if</span> <span class="n">mat</span><span class="o">.</span><span class="n">is_dielectric</span><span class="p">():</span>
+                <span class="n">data</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">key</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">data</span></div>
+
+<div class="viewcode-block" id="Materials.get_material_list"><a class="viewcode-back" href="../../../API/MaterialLib.html#pyaedt.modules.MaterialLib.Materials.get_material_list">[docs]</a>    <span class="nd">@aedt_exception_handler</span>
+    <span class="k">def</span> <span class="nf">get_material_list</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Get List of material database</span>
+<span class="sd">        </span>
+<span class="sd">        :return:list of string</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">data</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">material_keys</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span>
+        <span class="k">return</span> <span class="n">data</span></div>
+
+<div class="viewcode-block" id="Materials.get_material_count"><a class="viewcode-back" href="../../../API/MaterialLib.html#pyaedt.modules.MaterialLib.Materials.get_material_count">[docs]</a>    <span class="nd">@aedt_exception_handler</span>
+    <span class="k">def</span> <span class="nf">get_material_count</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Get number of materials</span>
+<span class="sd">        </span>
+<span class="sd">        :return:number of materials</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">material_keys</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="Materials.get_material"><a class="viewcode-back" href="../../../API/MaterialLib.html#pyaedt.modules.MaterialLib.Materials.get_material">[docs]</a>    <span class="nd">@aedt_exception_handler</span>
+    <span class="k">def</span> <span class="nf">get_material</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">szMat</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Get material object</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        szMat :</span>
+<span class="sd">            material name</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        type</span>
+<span class="sd">            Material object if exists</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">szMat</span> <span class="o">=</span> <span class="n">szMat</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">szMat</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">material_keys</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">material_keys</span><span class="p">[</span><span class="n">szMat</span><span class="p">]</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">None</span></div>
+
+<div class="viewcode-block" id="Materials.get_material_properties"><a class="viewcode-back" href="../../../API/MaterialLib.html#pyaedt.modules.MaterialLib.Materials.get_material_properties">[docs]</a>    <span class="nd">@aedt_exception_handler</span>
+    <span class="k">def</span> <span class="nf">get_material_properties</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">szMat</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Get material dictionary properties</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        szMat :</span>
+<span class="sd">            material</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        type</span>
+<span class="sd">            Dictionary of all material properties</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">szMat</span> <span class="o">=</span> <span class="n">szMat</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span>
+        <span class="n">props</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="k">if</span> <span class="n">szMat</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">material_keys</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">el</span> <span class="ow">in</span> <span class="n">MatProperties</span><span class="o">.</span><span class="n">aedtname</span><span class="p">:</span>
+                <span class="n">props</span><span class="p">[</span><span class="n">el</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">material_keys</span><span class="p">[</span><span class="n">szMat</span><span class="p">]</span><span class="o">.</span><span class="n">property</span><span class="p">[</span><span class="n">el</span><span class="p">]</span><span class="o">.</span><span class="n">property_value</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">value</span>
+            <span class="k">return</span> <span class="n">props</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">None</span></div>
+
+<div class="viewcode-block" id="Materials.setup_air_properties"><a class="viewcode-back" href="../../../API/MaterialLib.html#pyaedt.modules.MaterialLib.Materials.setup_air_properties">[docs]</a>    <span class="nd">@aedt_exception_handler</span>
+    <span class="k">def</span> <span class="nf">setup_air_properties</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Setup Air properties</span>
+<span class="sd">        </span>
+<span class="sd">        :return:</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">omaterial_manager</span><span class="o">.</span><span class="n">EditMaterial</span><span class="p">(</span><span class="s2">&quot;AIR&quot;</span><span class="p">,</span>
+                                                <span class="p">[</span><span class="s2">&quot;NAME:AIR&quot;</span><span class="p">,</span> <span class="s2">&quot;CoordinateSystemType:=&quot;</span><span class="p">,</span> <span class="s2">&quot;Cartesian&quot;</span><span class="p">,</span>
+                                                 <span class="s2">&quot;BulkOrSurfaceType:=&quot;</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span>
+                                                 <span class="p">[</span><span class="s2">&quot;NAME:PhysicsTypes&quot;</span><span class="p">,</span> <span class="s2">&quot;set:=&quot;</span><span class="p">,</span> <span class="p">[</span><span class="s2">&quot;Thermal&quot;</span><span class="p">]],</span>
+                                                 <span class="p">[</span><span class="s2">&quot;NAME:AttachedData&quot;</span><span class="p">,</span>
+                                                  <span class="p">[</span><span class="s2">&quot;NAME:MatAppearanceData&quot;</span><span class="p">,</span> <span class="s2">&quot;property_data:=&quot;</span><span class="p">,</span> <span class="s2">&quot;appearance_data&quot;</span><span class="p">,</span>
+                                                   <span class="s2">&quot;Red:=&quot;</span><span class="p">,</span> <span class="mi">230</span><span class="p">,</span>
+                                                   <span class="s2">&quot;Green:=&quot;</span><span class="p">,</span> <span class="mi">230</span><span class="p">,</span>
+                                                   <span class="s2">&quot;Blue:=&quot;</span><span class="p">,</span> <span class="mi">230</span><span class="p">,</span>
+                                                   <span class="s2">&quot;Transparency:=&quot;</span><span class="p">,</span> <span class="mf">0.949999988079071</span><span class="p">]</span>
+                                                  <span class="p">],</span>
+                                                 <span class="s2">&quot;thermal_conductivity:=&quot;</span><span class="p">,</span> <span class="s2">&quot;0.0261&quot;</span><span class="p">,</span>
+                                                 <span class="s2">&quot;mass_density:=&quot;</span><span class="p">,</span> <span class="s2">&quot;1.1614&quot;</span><span class="p">,</span>
+                                                 <span class="s2">&quot;specific_heat:=&quot;</span><span class="p">,</span> <span class="s2">&quot;1005&quot;</span><span class="p">,</span>
+                                                 <span class="s2">&quot;thermal_expansion_coeffcient:=&quot;</span><span class="p">,</span> <span class="s2">&quot;0.003333&quot;</span><span class="p">,</span>
+                                                 <span class="p">[</span><span class="s2">&quot;NAME:thermal_material_type&quot;</span><span class="p">,</span> <span class="s2">&quot;property_type:=&quot;</span><span class="p">,</span> <span class="s2">&quot;ChoiceProperty&quot;</span><span class="p">,</span>
+                                                  <span class="s2">&quot;Choice:=&quot;</span><span class="p">,</span> <span class="s2">&quot;Fluid&quot;</span><span class="p">],</span>
+                                                 <span class="s2">&quot;diffusivity:=&quot;</span><span class="p">,</span> <span class="s2">&quot;2.92e-05&quot;</span><span class="p">,</span>
+                                                 <span class="s2">&quot;molecular_mass:=&quot;</span><span class="p">,</span> <span class="s2">&quot;0.028966&quot;</span><span class="p">,</span>
+                                                 <span class="s2">&quot;viscosity:=&quot;</span><span class="p">,</span> <span class="s2">&quot;1.853e-05&quot;</span><span class="p">])</span>
+        <span class="k">return</span> <span class="kc">True</span></div>
+
+<div class="viewcode-block" id="Materials.load_from_xml_full"><a class="viewcode-back" href="../../../API/MaterialLib.html#pyaedt.modules.MaterialLib.Materials.load_from_xml_full">[docs]</a>    <span class="nd">@aedt_exception_handler</span>
+    <span class="k">def</span> <span class="nf">load_from_xml_full</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">Filename</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;New Function for loading materials from XML. Previous version didn&#39;t allow read/write on the same file.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        Filename :</span>
+<span class="sd">            Complete Filename (Default value = None)</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        type</span>
+<span class="sd">            material dictionary</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">messenger</span><span class="o">.</span><span class="n">add_info_message</span><span class="p">(</span><span class="s1">&#39;InitFromXml: Enter&#39;</span><span class="p">)</span>
+        <span class="n">o_mat_xml</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="n">i</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="k">if</span> <span class="n">Filename</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="c1"># Try and find it in path</span>
+            <span class="n">sFilename</span> <span class="o">=</span> <span class="s1">&#39;pyaedt</span><span class="se">\\</span><span class="s1">misc</span><span class="se">\\</span><span class="s1">amat.xml&#39;</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">sFilename</span> <span class="o">=</span> <span class="n">Filename</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">messenger</span><span class="o">.</span><span class="n">add_info_message</span><span class="p">(</span><span class="s1">&#39;xml filename: </span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">sFilename</span><span class="p">))</span>
+        <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">abspath</span><span class="p">(</span><span class="n">sFilename</span><span class="p">)):</span>
+            <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">sFilename</span><span class="p">)</span> <span class="k">as</span> <span class="n">xml_File</span><span class="p">:</span>
+                <span class="n">cntrl2</span> <span class="o">=</span> <span class="n">ET</span><span class="o">.</span><span class="n">parse</span><span class="p">(</span><span class="n">xml_File</span><span class="p">)</span>
+                <span class="n">cntrl3</span> <span class="o">=</span> <span class="n">cntrl2</span><span class="o">.</span><span class="n">getroot</span><span class="p">()[</span><span class="mi">0</span><span class="p">]</span>
+                <span class="n">tagcntrl</span> <span class="o">=</span> <span class="n">cntrl3</span><span class="o">.</span><span class="n">tag</span>
+                <span class="n">tagattr</span> <span class="o">=</span> <span class="n">cntrl3</span><span class="o">.</span><span class="n">attrib</span>
+                <span class="k">if</span> <span class="n">tagcntrl</span> <span class="o">==</span> <span class="s1">&#39;Materials&#39;</span><span class="p">:</span>
+                    <span class="c1"># first level (e.g. &lt;Materials&gt;)</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">messenger</span><span class="o">.</span><span class="n">add_info_message</span><span class="p">(</span><span class="s1">&#39;Found Materials in the Database&#39;</span><span class="p">)</span>
+                    <span class="c1"># Add Material to Database</span>
+                    <span class="k">for</span> <span class="n">items</span> <span class="ow">in</span> <span class="n">cntrl3</span><span class="p">:</span>
+                        <span class="c1"># 2nd level (e.g. &lt;Material name=&quot;Aluminum&quot;&gt;)</span>
+                        <span class="n">szMatName</span> <span class="o">=</span> <span class="n">items</span><span class="o">.</span><span class="n">attrib</span><span class="p">[</span><span class="s1">&#39;name&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span>
+                        <span class="n">o_mat_xml</span><span class="p">[</span><span class="n">szMatName</span><span class="p">]</span> <span class="o">=</span> <span class="n">Material</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_parent</span><span class="p">)</span>
+                        <span class="n">o_mat_xml</span><span class="p">[</span><span class="n">szMatName</span><span class="p">]</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="n">szMatName</span>
+                        <span class="n">o_mat_xml</span><span class="p">[</span><span class="n">szMatName</span><span class="p">]</span><span class="o">.</span><span class="n">origin</span> <span class="o">=</span> <span class="s2">&quot;XML&quot;</span>
+                        <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">items</span><span class="p">:</span>
+                            <span class="c1"># 3rd level (e.g. &lt;Property name=&quot;Conductivity&quot;&gt;)</span>
+                            <span class="n">maxids</span> <span class="o">=</span> <span class="mi">0</span>
+                            <span class="nb">id</span> <span class="o">=</span> <span class="mi">0</span>
+                            <span class="k">if</span> <span class="s1">&#39;Behavior&#39;</span> <span class="ow">in</span> <span class="n">item</span><span class="o">.</span><span class="n">attrib</span><span class="p">:</span>
+                                <span class="k">if</span> <span class="n">item</span><span class="o">.</span><span class="n">attrib</span><span class="p">[</span><span class="s1">&#39;Behavior&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;Isotropic&quot;</span><span class="p">:</span>
+                                    <span class="n">beahvior</span> <span class="o">=</span> <span class="s2">&quot;simple&quot;</span>
+                                <span class="k">elif</span> <span class="n">item</span><span class="o">.</span><span class="n">attrib</span><span class="p">[</span><span class="s1">&#39;Behavior&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;Orthotropic&quot;</span><span class="p">:</span>
+                                    <span class="n">beahvior</span> <span class="o">=</span> <span class="s2">&quot;anisotropic&quot;</span>
+                                    <span class="n">maxids</span> <span class="o">=</span> <span class="mi">2</span>
+                                <span class="k">elif</span> <span class="n">item</span><span class="o">.</span><span class="n">attrib</span><span class="p">[</span><span class="s1">&#39;Behavior&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;Tensor&quot;</span><span class="p">:</span>
+                                    <span class="n">beahvior</span> <span class="o">=</span> <span class="s2">&quot;tensor&quot;</span>
+                                    <span class="n">maxids</span> <span class="o">=</span> <span class="mi">8</span>
+                            <span class="k">else</span><span class="p">:</span>
+                                <span class="n">beahvior</span> <span class="o">=</span> <span class="s2">&quot;simple&quot;</span>
+                            <span class="k">if</span> <span class="n">item</span><span class="o">.</span><span class="n">attrib</span><span class="p">[</span><span class="s1">&#39;name&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;Fluid Properties&quot;</span><span class="p">:</span>
+                                <span class="n">o_mat_xml</span><span class="p">[</span><span class="n">szMatName</span><span class="p">]</span><span class="o">.</span><span class="n">thermal_material_type</span> <span class="o">=</span> <span class="s2">&quot;Fluid&quot;</span>
+                            <span class="k">for</span> <span class="n">data</span> <span class="ow">in</span> <span class="n">item</span><span class="p">:</span>
+                                <span class="c1"># 4th level (e.g. &lt;Data name=&quot;Conductivity&quot; unit=&quot;[siemens m^-1]&quot;&gt;)</span>
+                                <span class="k">if</span> <span class="n">beahvior</span> <span class="o">==</span> <span class="s2">&quot;simple&quot;</span><span class="p">:</span>
+                                    <span class="n">aedtname</span> <span class="o">=</span> <span class="n">MatProperties</span><span class="o">.</span><span class="n">aedtname</span><span class="p">[</span><span class="n">MatProperties</span><span class="o">.</span><span class="n">fullname</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="n">data</span><span class="o">.</span><span class="n">attrib</span><span class="p">[</span><span class="s1">&#39;name&#39;</span><span class="p">])]</span>
+                                <span class="k">elif</span> <span class="n">beahvior</span> <span class="o">==</span> <span class="s2">&quot;anisotropic&quot;</span><span class="p">:</span>
+                                    <span class="k">if</span> <span class="s2">&quot;direction&quot;</span> <span class="ow">in</span> <span class="n">data</span><span class="o">.</span><span class="n">attrib</span><span class="p">[</span><span class="s1">&#39;name&#39;</span><span class="p">]:</span>
+                                        <span class="n">aedtname</span> <span class="o">=</span> <span class="n">MatProperties</span><span class="o">.</span><span class="n">aedtname</span><span class="p">[</span>
+                                            <span class="n">MatProperties</span><span class="o">.</span><span class="n">fullname</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="n">data</span><span class="o">.</span><span class="n">attrib</span><span class="p">[</span><span class="s1">&#39;name&#39;</span><span class="p">][:</span><span class="o">-</span><span class="mi">12</span><span class="p">])]</span>
+                                    <span class="k">else</span><span class="p">:</span>
+                                        <span class="n">aedtname</span> <span class="o">=</span> <span class="n">MatProperties</span><span class="o">.</span><span class="n">aedtname</span><span class="p">[</span>
+                                            <span class="n">MatProperties</span><span class="o">.</span><span class="n">fullname</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="n">data</span><span class="o">.</span><span class="n">attrib</span><span class="p">[</span><span class="s1">&#39;name&#39;</span><span class="p">][:</span><span class="o">-</span><span class="mi">3</span><span class="p">])]</span>
+
+                                <span class="k">else</span><span class="p">:</span>
+                                    <span class="n">aedtname</span> <span class="o">=</span> <span class="n">MatProperties</span><span class="o">.</span><span class="n">aedtname</span><span class="p">[</span>
+                                        <span class="n">MatProperties</span><span class="o">.</span><span class="n">fullname</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="n">data</span><span class="o">.</span><span class="n">attrib</span><span class="p">[</span><span class="s1">&#39;name&#39;</span><span class="p">][:</span><span class="o">-</span><span class="mi">3</span><span class="p">])]</span>
+
+                                <span class="k">if</span> <span class="s1">&#39;unit&#39;</span> <span class="ow">in</span> <span class="n">data</span><span class="o">.</span><span class="n">attrib</span><span class="p">:</span>
+                                    <span class="n">o_mat_xml</span><span class="p">[</span><span class="n">szMatName</span><span class="p">]</span><span class="o">.</span><span class="n">property</span><span class="p">[</span><span class="n">aedtname</span><span class="p">]</span><span class="o">.</span><span class="n">unit</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">attrib</span><span class="p">[</span><span class="s1">&#39;unit&#39;</span><span class="p">]</span>
+                                <span class="k">if</span> <span class="n">maxids</span> <span class="o">&gt;</span> <span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">o_mat_xml</span><span class="p">[</span><span class="n">szMatName</span><span class="p">]</span><span class="o">.</span><span class="n">property</span><span class="p">[</span><span class="n">aedtname</span><span class="p">]</span><span class="o">.</span><span class="n">property_value</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span><span class="p">):</span>
+                                    <span class="n">o_mat_xml</span><span class="p">[</span><span class="n">szMatName</span><span class="p">]</span><span class="o">.</span><span class="n">property</span><span class="p">[</span><span class="n">aedtname</span><span class="p">]</span><span class="o">.</span><span class="n">set_type</span><span class="p">(</span><span class="n">beahvior</span><span class="p">)</span>
+                                <span class="k">for</span> <span class="n">el</span> <span class="ow">in</span> <span class="n">data</span><span class="p">:</span>
+                                    <span class="c1"># 5th level e.g. (&lt;Double&gt;1.0&lt;/Double&gt; OR &lt;DataSets XName=&quot;Temperature&quot; type=&quot;Relative&quot; unit=&quot;[C]&quot;&gt;)</span>
+                                    <span class="k">if</span> <span class="n">el</span><span class="o">.</span><span class="n">tag</span> <span class="o">==</span> <span class="s2">&quot;Double&quot;</span><span class="p">:</span>
+                                        <span class="n">o_mat_xml</span><span class="p">[</span><span class="n">szMatName</span><span class="p">]</span><span class="o">.</span><span class="n">property</span><span class="p">[</span><span class="n">aedtname</span><span class="p">]</span><span class="o">.</span><span class="n">property_value</span><span class="p">[</span><span class="nb">id</span><span class="p">]</span><span class="o">.</span><span class="n">value</span> <span class="o">=</span> <span class="n">el</span><span class="o">.</span><span class="n">text</span>
+                                    <span class="k">elif</span> <span class="n">el</span><span class="o">.</span><span class="n">tag</span> <span class="o">==</span> <span class="s2">&quot;DataSets&quot;</span> <span class="ow">and</span> <span class="n">el</span><span class="o">.</span><span class="n">attrib</span><span class="p">[</span><span class="s1">&#39;XName&#39;</span><span class="p">]</span> <span class="o">!=</span> <span class="s2">&quot;Temperature&quot;</span><span class="p">:</span>
+                                        <span class="n">ds</span> <span class="o">=</span> <span class="n">Dataset</span><span class="p">()</span>
+                                        <span class="n">listtoadd</span> <span class="o">=</span> <span class="p">[]</span>
+                                        <span class="k">for</span> <span class="n">d1</span> <span class="ow">in</span> <span class="n">el</span><span class="p">:</span>
+                                            <span class="n">listtoadd</span><span class="o">.</span><span class="n">append</span><span class="p">([</span><span class="n">d1</span><span class="o">.</span><span class="n">attrib</span><span class="p">[</span><span class="s1">&#39;X&#39;</span><span class="p">],</span> <span class="n">d1</span><span class="o">.</span><span class="n">attrib</span><span class="p">[</span><span class="s1">&#39;Y&#39;</span><span class="p">]])</span>
+                                        <span class="n">ds</span><span class="o">.</span><span class="n">ds</span> <span class="o">=</span> <span class="n">listtoadd</span>
+                                        <span class="k">if</span> <span class="s1">&#39;XName&#39;</span> <span class="ow">in</span> <span class="n">el</span><span class="o">.</span><span class="n">attrib</span><span class="p">:</span>
+                                            <span class="n">ds</span><span class="o">.</span><span class="n">namex</span> <span class="o">=</span> <span class="n">el</span><span class="o">.</span><span class="n">attrib</span><span class="p">[</span><span class="s1">&#39;XName&#39;</span><span class="p">]</span>
+                                        <span class="k">else</span><span class="p">:</span>
+                                            <span class="n">ds</span><span class="o">.</span><span class="n">namex</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
+                                        <span class="k">if</span> <span class="s1">&#39;YName&#39;</span> <span class="ow">in</span> <span class="n">el</span><span class="o">.</span><span class="n">attrib</span><span class="p">:</span>
+                                            <span class="n">ds</span><span class="o">.</span><span class="n">namey</span> <span class="o">=</span> <span class="n">el</span><span class="o">.</span><span class="n">attrib</span><span class="p">[</span><span class="s1">&#39;YName&#39;</span><span class="p">]</span>
+                                        <span class="k">else</span><span class="p">:</span>
+                                            <span class="n">ds</span><span class="o">.</span><span class="n">namey</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
+                                        <span class="k">if</span> <span class="s1">&#39;type&#39;</span> <span class="ow">in</span> <span class="n">el</span><span class="o">.</span><span class="n">attrib</span><span class="p">:</span>
+                                            <span class="n">ds</span><span class="o">.</span><span class="n">type</span> <span class="o">=</span> <span class="n">el</span><span class="o">.</span><span class="n">attrib</span><span class="p">[</span><span class="s1">&#39;type&#39;</span><span class="p">]</span>
+                                        <span class="k">else</span><span class="p">:</span>
+                                            <span class="n">ds</span><span class="o">.</span><span class="n">type</span> <span class="o">=</span> <span class="s2">&quot;Absolute&quot;</span>
+                                        <span class="k">if</span> <span class="s1">&#39;unit&#39;</span> <span class="ow">in</span> <span class="n">el</span><span class="o">.</span><span class="n">attrib</span><span class="p">:</span>
+                                            <span class="n">ds</span><span class="o">.</span><span class="n">unit</span> <span class="o">=</span> <span class="n">el</span><span class="o">.</span><span class="n">attrib</span><span class="p">[</span><span class="s1">&#39;unit&#39;</span><span class="p">]</span>
+                                        <span class="k">else</span><span class="p">:</span>
+                                            <span class="n">ds</span><span class="o">.</span><span class="n">unit</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
+                                        <span class="n">o_mat_xml</span><span class="p">[</span><span class="n">szMatName</span><span class="p">]</span><span class="o">.</span><span class="n">property</span><span class="p">[</span><span class="n">aedtname</span><span class="p">]</span><span class="o">.</span><span class="n">property_value</span><span class="p">[</span><span class="nb">id</span><span class="p">]</span><span class="o">.</span><span class="n">dataset</span> <span class="o">=</span> <span class="n">ds</span>
+                                    <span class="k">elif</span> <span class="n">el</span><span class="o">.</span><span class="n">tag</span> <span class="o">==</span> <span class="s2">&quot;DataSets&quot;</span> <span class="ow">and</span> <span class="n">el</span><span class="o">.</span><span class="n">attrib</span><span class="p">[</span><span class="s1">&#39;XName&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;Temperature&quot;</span><span class="p">:</span>
+                                        <span class="n">ds</span> <span class="o">=</span> <span class="n">Dataset</span><span class="p">()</span>
+                                        <span class="n">listtoadd</span> <span class="o">=</span> <span class="p">[]</span>
+                                        <span class="k">for</span> <span class="n">d1</span> <span class="ow">in</span> <span class="n">el</span><span class="p">:</span>
+                                            <span class="n">listtoadd</span><span class="o">.</span><span class="n">append</span><span class="p">([</span><span class="n">d1</span><span class="o">.</span><span class="n">attrib</span><span class="p">[</span><span class="s1">&#39;X&#39;</span><span class="p">],</span> <span class="n">d1</span><span class="o">.</span><span class="n">attrib</span><span class="p">[</span><span class="s1">&#39;Y&#39;</span><span class="p">]])</span>
+                                        <span class="n">ds</span><span class="o">.</span><span class="n">ds</span> <span class="o">=</span> <span class="n">listtoadd</span>
+                                        <span class="k">if</span> <span class="s1">&#39;XName&#39;</span> <span class="ow">in</span> <span class="n">el</span><span class="o">.</span><span class="n">attrib</span><span class="p">:</span>
+                                            <span class="n">ds</span><span class="o">.</span><span class="n">namex</span> <span class="o">=</span> <span class="n">el</span><span class="o">.</span><span class="n">attrib</span><span class="p">[</span><span class="s1">&#39;XName&#39;</span><span class="p">]</span>
+                                        <span class="k">else</span><span class="p">:</span>
+                                            <span class="n">ds</span><span class="o">.</span><span class="n">namex</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
+                                        <span class="k">if</span> <span class="s1">&#39;YName&#39;</span> <span class="ow">in</span> <span class="n">el</span><span class="o">.</span><span class="n">attrib</span><span class="p">:</span>
+                                            <span class="n">ds</span><span class="o">.</span><span class="n">namey</span> <span class="o">=</span> <span class="n">el</span><span class="o">.</span><span class="n">attrib</span><span class="p">[</span><span class="s1">&#39;YName&#39;</span><span class="p">]</span>
+                                        <span class="k">else</span><span class="p">:</span>
+                                            <span class="n">ds</span><span class="o">.</span><span class="n">namey</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
+                                        <span class="k">if</span> <span class="s1">&#39;type&#39;</span> <span class="ow">in</span> <span class="n">el</span><span class="o">.</span><span class="n">attrib</span><span class="p">:</span>
+                                            <span class="n">ds</span><span class="o">.</span><span class="n">type</span> <span class="o">=</span> <span class="n">el</span><span class="o">.</span><span class="n">attrib</span><span class="p">[</span><span class="s1">&#39;type&#39;</span><span class="p">]</span>
+                                        <span class="k">else</span><span class="p">:</span>
+                                            <span class="n">ds</span><span class="o">.</span><span class="n">type</span> <span class="o">=</span> <span class="s2">&quot;Relative&quot;</span>
+                                        <span class="k">if</span> <span class="s1">&#39;unit&#39;</span> <span class="ow">in</span> <span class="n">el</span><span class="o">.</span><span class="n">attrib</span><span class="p">:</span>
+                                            <span class="n">ds</span><span class="o">.</span><span class="n">unit</span> <span class="o">=</span> <span class="n">el</span><span class="o">.</span><span class="n">attrib</span><span class="p">[</span><span class="s1">&#39;unit&#39;</span><span class="p">]</span>
+                                        <span class="k">else</span><span class="p">:</span>
+                                            <span class="n">ds</span><span class="o">.</span><span class="n">unit</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
+                                        <span class="n">o_mat_xml</span><span class="p">[</span><span class="n">szMatName</span><span class="p">]</span><span class="o">.</span><span class="n">property</span><span class="p">[</span><span class="n">aedtname</span><span class="p">]</span><span class="o">.</span><span class="n">property_value</span><span class="p">[</span><span class="nb">id</span><span class="p">]</span><span class="o">.</span><span class="n">thermalmodifier</span> <span class="o">=</span> <span class="n">ds</span>
+                                <span class="k">if</span> <span class="nb">id</span> <span class="o">==</span> <span class="n">maxids</span><span class="p">:</span>
+                                    <span class="nb">id</span> <span class="o">=</span> <span class="mi">0</span>
+                                <span class="k">else</span><span class="p">:</span>
+                                    <span class="nb">id</span> <span class="o">+=</span> <span class="mi">1</span>
+
+                        <span class="n">i</span> <span class="o">+=</span> <span class="mi">1</span>
+        <span class="k">return</span> <span class="n">o_mat_xml</span></div>
+
+
+<div class="viewcode-block" id="Materials.py2xmlFull"><a class="viewcode-back" href="../../../API/MaterialLib.html#pyaedt.modules.MaterialLib.Materials.py2xmlFull">[docs]</a>    <span class="nd">@aedt_exception_handler</span>
+    <span class="k">def</span> <span class="nf">py2xmlFull</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filename</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;convert material object to xml</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        filename :</span>
+<span class="sd">            name of the file to save</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">header</span> <span class="o">=</span> <span class="n">ET</span><span class="o">.</span><span class="n">Element</span><span class="p">(</span><span class="s1">&#39;c:Control&#39;</span><span class="p">)</span>
+        <span class="n">header</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="s2">&quot;schemaVersion&quot;</span><span class="p">,</span> <span class="s2">&quot;2.0&quot;</span><span class="p">)</span>
+        <span class="n">header</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="s2">&quot;xmlns:c&quot;</span><span class="p">,</span> <span class="s2">&quot;http://www.ansys.com/control&quot;</span><span class="p">)</span>
+        <span class="n">header</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="s2">&quot;Editedby&quot;</span><span class="p">,</span> <span class="s2">&quot;pyaedt&quot;</span><span class="p">)</span>
+        <span class="n">materials</span> <span class="o">=</span> <span class="n">ET</span><span class="o">.</span><span class="n">SubElement</span><span class="p">(</span><span class="n">header</span><span class="p">,</span> <span class="s1">&#39;Materials&#39;</span><span class="p">)</span>
+        <span class="n">i</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="k">for</span> <span class="n">mat</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">material_keys</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">messenger</span><span class="o">.</span><span class="n">add_info_message</span><span class="p">(</span><span class="s2">&quot;adding material &quot;</span> <span class="o">+</span> <span class="n">mat</span><span class="p">)</span>
+            <span class="n">material</span> <span class="o">=</span> <span class="n">ET</span><span class="o">.</span><span class="n">SubElement</span><span class="p">(</span><span class="n">materials</span><span class="p">,</span> <span class="s1">&#39;Material&#39;</span><span class="p">)</span>
+            <span class="n">material</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="s2">&quot;name&quot;</span><span class="p">,</span> <span class="n">mat</span><span class="p">)</span>
+            <span class="k">for</span> <span class="n">propname</span> <span class="ow">in</span> <span class="n">MatProperties</span><span class="o">.</span><span class="n">aedtname</span><span class="p">:</span>
+                <span class="n">xmlproperty</span> <span class="o">=</span> <span class="n">ET</span><span class="o">.</span><span class="n">SubElement</span><span class="p">(</span><span class="n">material</span><span class="p">,</span> <span class="s1">&#39;Property&#39;</span><span class="p">)</span>
+                <span class="n">xmlproperty</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="s2">&quot;name&quot;</span><span class="p">,</span> <span class="n">propname</span><span class="p">)</span>
+                <span class="n">prop</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">material_keys</span><span class="p">[</span><span class="n">mat</span><span class="p">]</span><span class="o">.</span><span class="n">property</span><span class="p">[</span><span class="n">propname</span><span class="p">]</span>
+                <span class="k">if</span> <span class="n">prop</span><span class="o">.</span><span class="n">type</span> <span class="o">==</span> <span class="s2">&quot;anisotropic&quot;</span><span class="p">:</span>
+                    <span class="n">xmlproperty</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="s2">&quot;Behavior&quot;</span><span class="p">,</span> <span class="s2">&quot;Orthotropic&quot;</span><span class="p">)</span>
+                <span class="k">for</span> <span class="n">matdata</span> <span class="ow">in</span> <span class="n">prop</span><span class="o">.</span><span class="n">property_value</span><span class="p">:</span>
+                    <span class="n">data</span> <span class="o">=</span> <span class="n">ET</span><span class="o">.</span><span class="n">SubElement</span><span class="p">(</span><span class="n">xmlproperty</span><span class="p">,</span> <span class="s1">&#39;Data&#39;</span><span class="p">)</span>
+                    <span class="n">data</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="s2">&quot;name&quot;</span><span class="p">,</span> <span class="n">propname</span><span class="p">)</span>
+                    <span class="k">if</span> <span class="n">prop</span><span class="o">.</span><span class="n">unit</span><span class="p">:</span>
+                        <span class="n">data</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="s2">&quot;unit&quot;</span><span class="p">,</span> <span class="n">prop</span><span class="o">.</span><span class="n">unit</span><span class="p">)</span>
+                    <span class="n">val</span> <span class="o">=</span> <span class="n">ET</span><span class="o">.</span><span class="n">SubElement</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="s1">&#39;Double&#39;</span><span class="p">)</span>
+                    <span class="n">val</span><span class="o">.</span><span class="n">text</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">matdata</span><span class="o">.</span><span class="n">value</span><span class="p">)</span>
+
+                    <span class="k">if</span> <span class="n">matdata</span><span class="o">.</span><span class="n">dataset</span><span class="p">:</span>
+                        <span class="n">ds</span> <span class="o">=</span> <span class="n">matdata</span><span class="o">.</span><span class="n">dataset</span>
+                        <span class="n">dataset</span> <span class="o">=</span> <span class="n">ET</span><span class="o">.</span><span class="n">SubElement</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="s1">&#39;DataSets&#39;</span><span class="p">)</span>
+                        <span class="n">dataset</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="s2">&quot;XName&quot;</span><span class="p">,</span> <span class="n">ds</span><span class="o">.</span><span class="n">namex</span><span class="p">)</span>
+                        <span class="k">if</span> <span class="n">ds</span><span class="o">.</span><span class="n">type</span><span class="p">:</span>
+                            <span class="n">dataset</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="s2">&quot;type&quot;</span><span class="p">,</span> <span class="n">ds</span><span class="o">.</span><span class="n">type</span><span class="p">)</span>
+                        <span class="k">if</span> <span class="n">ds</span><span class="o">.</span><span class="n">unit</span><span class="p">:</span>
+                            <span class="n">dataset</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="s2">&quot;unit&quot;</span><span class="p">,</span> <span class="n">ds</span><span class="o">.</span><span class="n">unit</span><span class="p">)</span>
+                        <span class="k">if</span> <span class="n">ds</span><span class="o">.</span><span class="n">namex</span><span class="p">:</span>
+                            <span class="n">dataset</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="s2">&quot;YName&quot;</span><span class="p">,</span> <span class="n">ds</span><span class="o">.</span><span class="n">namey</span><span class="p">)</span>
+                        <span class="k">if</span> <span class="n">ds</span><span class="o">.</span><span class="n">namez</span><span class="p">:</span>
+                            <span class="n">dataset</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="s2">&quot;ZName&quot;</span><span class="p">,</span> <span class="n">ds</span><span class="o">.</span><span class="n">namez</span><span class="p">)</span>
+                        <span class="k">for</span> <span class="n">el</span> <span class="ow">in</span> <span class="n">ds</span><span class="o">.</span><span class="n">ds</span><span class="p">:</span>
+                            <span class="n">datasetvalues</span> <span class="o">=</span> <span class="n">ET</span><span class="o">.</span><span class="n">SubElement</span><span class="p">(</span><span class="n">dataset</span><span class="p">,</span> <span class="s1">&#39;DataSet&#39;</span><span class="p">)</span>
+                            <span class="n">datasetvalues</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="s2">&quot;X&quot;</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">el</span><span class="p">[</span><span class="mi">0</span><span class="p">]))</span>
+                            <span class="n">datasetvalues</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="s2">&quot;Y&quot;</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">el</span><span class="p">[</span><span class="mi">1</span><span class="p">]))</span>
+                            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">el</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">2</span><span class="p">:</span>
+                                <span class="n">datasetvalues</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="s2">&quot;Z&quot;</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">el</span><span class="p">[</span><span class="mi">2</span><span class="p">]))</span>
+                    <span class="k">if</span> <span class="n">matdata</span><span class="o">.</span><span class="n">thermalmodifier</span><span class="p">:</span>
+                        <span class="n">ds</span> <span class="o">=</span> <span class="n">matdata</span><span class="o">.</span><span class="n">thermalmodifier</span>
+                        <span class="n">dataset</span> <span class="o">=</span> <span class="n">ET</span><span class="o">.</span><span class="n">SubElement</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="s1">&#39;DataSets&#39;</span><span class="p">)</span>
+                        <span class="n">dataset</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="s2">&quot;XName&quot;</span><span class="p">,</span> <span class="n">ds</span><span class="o">.</span><span class="n">namex</span><span class="p">)</span>
+                        <span class="k">if</span> <span class="n">ds</span><span class="o">.</span><span class="n">type</span><span class="p">:</span>
+                            <span class="n">dataset</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="s2">&quot;type&quot;</span><span class="p">,</span> <span class="n">ds</span><span class="o">.</span><span class="n">type</span><span class="p">)</span>
+                        <span class="k">if</span> <span class="n">ds</span><span class="o">.</span><span class="n">unitx</span><span class="p">:</span>
+                            <span class="n">dataset</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="s2">&quot;unitx&quot;</span><span class="p">,</span> <span class="n">ds</span><span class="o">.</span><span class="n">unit</span><span class="p">)</span>
+                        <span class="k">if</span> <span class="n">ds</span><span class="o">.</span><span class="n">unity</span><span class="p">:</span>
+                            <span class="n">dataset</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="s2">&quot;unity&quot;</span><span class="p">,</span> <span class="n">ds</span><span class="o">.</span><span class="n">unity</span><span class="p">)</span>
+                        <span class="k">if</span> <span class="n">ds</span><span class="o">.</span><span class="n">unitz</span><span class="p">:</span>
+                            <span class="n">dataset</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="s2">&quot;unitz&quot;</span><span class="p">,</span> <span class="n">ds</span><span class="o">.</span><span class="n">uniz</span><span class="p">)</span>
+                        <span class="k">if</span> <span class="n">ds</span><span class="o">.</span><span class="n">namex</span><span class="p">:</span>
+                            <span class="n">dataset</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="s2">&quot;YName&quot;</span><span class="p">,</span> <span class="n">ds</span><span class="o">.</span><span class="n">namey</span><span class="p">)</span>
+                        <span class="k">if</span> <span class="n">ds</span><span class="o">.</span><span class="n">namez</span><span class="p">:</span>
+                            <span class="n">dataset</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="s2">&quot;ZName&quot;</span><span class="p">,</span> <span class="n">ds</span><span class="o">.</span><span class="n">namez</span><span class="p">)</span>
+                        <span class="k">for</span> <span class="n">el</span> <span class="ow">in</span> <span class="n">ds</span><span class="o">.</span><span class="n">ds</span><span class="p">:</span>
+                            <span class="n">datasetvalues</span> <span class="o">=</span> <span class="n">ET</span><span class="o">.</span><span class="n">SubElement</span><span class="p">(</span><span class="n">dataset</span><span class="p">,</span> <span class="s1">&#39;DataSet&#39;</span><span class="p">)</span>
+                            <span class="n">datasetvalues</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="s2">&quot;X&quot;</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">el</span><span class="p">[</span><span class="mi">0</span><span class="p">]))</span>
+                            <span class="n">datasetvalues</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="s2">&quot;Y&quot;</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">el</span><span class="p">[</span><span class="mi">1</span><span class="p">]))</span>
+                            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">el</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">2</span><span class="p">:</span>
+                                <span class="n">datasetvalues</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="s2">&quot;Z&quot;</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">el</span><span class="p">[</span><span class="mi">2</span><span class="p">]))</span>
+
+            <span class="n">i</span> <span class="o">+=</span> <span class="mi">1</span>
+        <span class="n">indent</span><span class="p">(</span><span class="n">header</span><span class="p">)</span>
+        <span class="n">ET</span><span class="o">.</span><span class="n">ElementTree</span><span class="p">(</span><span class="n">header</span><span class="p">)</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s1">&#39;utf-8&#39;</span><span class="p">,</span> <span class="n">xml_declaration</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="k">return</span> <span class="kc">True</span></div></div>
+</pre></div>
+
+              </div>
+              
+              
+              <div class='prev-next-bottom'>
+                
+
+              </div>
+              
+          </main>
+          
+
+      </div>
+    </div>
+  
+  <script src="../../../_static/js/index.1c5a1a01449ed65a7b51.js"></script>
+
+  <footer class="footer mt-5 mt-md-0">
+  <div class="container">
+    
+    <div class="footer-item">
+      <p class="copyright">
+    &copy; Copyright Copyright(c) 1986-2021, ANSYS Inc. unauthorised use, distribution or duplication is prohibited..<br/>
+</p>
+    </div>
+    
+    <div class="footer-item">
+      <p class="sphinx-version">
+Created using <a href="http://sphinx-doc.org/">Sphinx</a> 4.0.2.<br/>
+</p>
+    </div>
+    
+  </div>
+</footer>
+  </body>
+</html>
