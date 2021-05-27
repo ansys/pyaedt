@@ -1,4 +1,8 @@
 pywin32 >= 2.2.7; python_version > '2.7'
 pythonnet >= 2.4.0; python_version > '2.7'
 psutil >= 5.0.0; python_version > '2.7'
+pyvista
+matplotlib
+numpy
+
 
