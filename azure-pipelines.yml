@@ -14,10 +14,10 @@ steps:
     versionSpec: '$(python.version)'
 
 - script: |
-   coverage run -m pytest AEDTLib\_unittest --doctest-modules --junitxml=junit/test-results.xml
+   coverage run -m pytest _unittest --doctest-modules --junitxml=junit/test-results.xml
    
    coverage xml
-  displayName: 'pytest copy'
+  displayName: 'Pytest'
 
 - task: PublishTestResults@2
   displayName: 'Publish Test Results **/test-results.xml'
@@ -34,7 +34,6 @@ steps:
   condition: succeededOrFailed()
 
 - script: |
-   copy /b/v/y version.txt AEDTLib/version.txt
    del /F /Q dist\*.*
    python setup.py sdist
   displayName: 'Build Artifact'
