@@ -4,7 +4,7 @@ Installation
 **Summary**
 ________________________
 
-AEDTLIb is intended to consolidate and extend all existing capital around AEDT-based scripting to allow re-use of existing code, sharing of best-practice adn collaboration.
+PyAedt is intended to consolidate and extend all existing capital around AEDT-based scripting to allow re-use of existing code, sharing of best-practice adn collaboration.
 
 This tool has actually been tested on HFSS, Icepak and Maxwell 3D.
 
@@ -21,14 +21,14 @@ Install Prerequisite packages: pythonnet >=2.5 pywin32
 
 .. code:: python
 
-    pip install -i https://pkgs.dev.azure.com/EMEA-FES-E/Public-Releases/_packaging/AEDTLib_Public/pypi/simple/ --extra-index-url https://pypi.org/simple AEDTLib
+    pip install pyaedt
 
 
 **Using IronPython in AEDT**
 ________________________________________________
-Download AEDTLib from the following link
+Download PyAedt from the following link
 
-[AEDTLib](https://dev.azure.com/EMEA-FES-E/Public-Releases/_packaging?_a=package&feed=AEDTLib_Public&package=AEDTLib&protocolType=PyPI#)
+[PyAedt](https://dev.azure.com/EMEA-FES-E/Public-Releases/_packaging?_a=package&feed=PyAedt_Public&package=PyAedt&protocolType=PyPI#)
 
 Extract files in AEDT PersonalLib folder
 Run install command described below
@@ -46,4 +46,4 @@ ________________________________________________
 
 .. code:: python
 
-    ipy64 -X:Frames -m pip install -i https://pkgs.dev.azure.com/EMEA-FES-E/Public-Releases/_packaging/AEDTLib_Public/pypi/simple/ AEDTLib
+    ipy64 -X:Frames -m pip install pyaedt

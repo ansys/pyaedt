@@ -1,7 +1,6 @@
 #Multi-configuration and multi-agent job options are not exported to YAML. Configure these options using documentation guidance: https://docs.microsoft.com/vsts/pipelines/process/phases
-pr:
-    - master
-    - releases/*
+trigger:
+  none
 
 pool:
   name: Ansys
@@ -15,15 +14,19 @@ steps:
     versionSpec: '$(python.version)'
 
 - script: |
-   pytest _unittest --cov --cov-report=xml
+   pytest _unittest --cov --cov-report=xml --cov-report=html
    
-   coverage xml
   displayName: 'Pytest'
 
+- script: |
+
+   coverage xml
+  displayName: 'Coverage'
+
 - task: PublishTestResults@2
-  displayName: 'Publish Test Results **/coverage.xml'
+  displayName: 'Publish Test Results **/test-results.xml'
   inputs:
-    testResultsFiles: '**/coverage.xml'
+    testResultsFiles: '**/test-results.xml'
     testRunTitle: 'Python $(python.version)'
   condition: always()
 

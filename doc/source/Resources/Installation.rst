@@ -21,15 +21,13 @@ Install Prerequisite packages: pythonnet, pywin32
 
 .. code:: python
 
-    pip install -i https://pkgs.dev.azure.com/EMEA-FES-E/Public-Releases/_packaging/pyaedt_Public/pypi/simple/ --extra-index-url https://pypi.org/simple pyaedt
+    pip install pyaedt
 
 
 **Using IronPython in AEDT**
 ________________________________________________
-Download pyaedt from the following link
-`<https://dev.azure.com/EMEA-FES-E/Public-Releases/_packaging?_a=package&feed=pyaedt_Public&package=pyaedt&protocolType=PyPI#>`_
-
-Extract files in AEDT PersonalLib folder
+Download pyaedt package
+Extract files in AEDT (Ansys Electronics Desktop Framework) PersonalLib folder
 Run install command described below
 
 Install command
@@ -45,4 +43,4 @@ ________________________________________________
 
 .. code:: python
 
-    ipy64 -X:Frames -m pip install -i https://pkgs.dev.azure.com/EMEA-FES-E/Public-Releases/_packaging/pyaedt_Public/pypi/simple/ pyaedt
+    ipy64 -X:Frames -m pip install pyaedt
