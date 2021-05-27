@@ -14,10 +14,14 @@ steps:
     versionSpec: '$(python.version)'
 
 - script: |
-   coverage run -m pytest _unittest --doctest-modules --junitxml=junit/test-results.xml
+   pytest _unittest --cov --cov-report=xml --cov-report=html
    
-   coverage xml
   displayName: 'Pytest'
+
+- script: |
+
+   coverage xml
+  displayName: 'Coverage'
 
 - task: PublishTestResults@2
   displayName: 'Publish Test Results **/test-results.xml'

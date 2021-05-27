@@ -1,8 +1,4 @@
 # Configuration file for the Sphinx_PyAEDT documentation builder.
-#
-# This file only contains a selection of the most common options. For a full
-# list see the documentation:
-# https://www.sphinx-doc.org/en/master/usage/configuration.html
 
 # -- Project information -----------------------------------------------------
 import sys
@@ -49,7 +45,6 @@ extensions = ['sphinx.ext.autodoc',
               "sphinx_copybutton",
               'recommonmark',
               'sphinx.ext.graphviz',
-              'nbsphinx',
               'sphinx.ext.mathjax',
               'sphinx.ext.inheritance_diagram']
 
