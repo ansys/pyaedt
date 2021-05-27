@@ -41,23 +41,6 @@ with open(os.path.join(root_path,"pyaedt","version.txt"), "r") as f:
 # The full version, including alpha/beta/rc tags
 release = version
 
-# Not needed since Examples moved into AEDTLib Folder
-# example_dir = os.path.join(documentation_dir,"Examples")
-# if not os.path.exists(example_dir):
-#     os.mkdir(example_dir)
-# model_dir = os.path.join(example_dir, "Examples_Files")
-# if not os.path.exists(model_dir):
-#     os.mkdir(model_dir)
-# copy_tree(os.path.join(root_path,"Examples", "AEDTLib", "Examples_Files"), model_dir)
-# python_files = glob.glob(os.path.join(root_path,"Examples","AEDTLib") + "/0*.py")
-# python_files += glob.glob(os.path.join(root_path,"Examples","AEDTLib") + "/1*.py")
-# for f in python_files:
-#     shutil.copy2(f, example_dir)
-#
-# jupyter_files = glob.glob(os.path.join(root_path, "Examples","AEDTLib","Notebooks") + "/*.ipynb")
-# for f in jupyter_files:
-#     shutil.copy2(f, example_dir)
-
 # -- General configuration ---------------------------------------------------
 
 # Add any Sphinx_AEDTLib extension module names here, as strings. They can be
