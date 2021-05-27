@@ -17,9 +17,11 @@ import shutil
 local_path = os.path.abspath('')
 module_path = pathlib.Path(local_path)
 aedt_lib_path = module_path.parent.parent
-example_path =os.path.join(module_path.parent, "Examples_Files")
 sys.path.append(os.path.join(aedt_lib_path))
-
+from pyaedt import generate_unique_name
+temp_folder = os.path.join(os.environ["TEMP"], generate_unique_name("Example"))
+if not os.path.exists(temp_folder): os.makedirs(temp_folder)
+print(temp_folder)
 ######################################
 #Copying Example in Temp Folder
 
@@ -42,6 +44,7 @@ print(targetfile)
 
 d = Desktop("2021.1")
 h3d=Hfss3dLayout(targetfile)
+h3d.save_project(os.path.join(temp_folder,"edb_demo.aedt"))
 
 ######################################
 # Disable visibility for all Nets
@@ -127,7 +130,6 @@ h3d.modeler.fit_all()
 # Enable and run the following command to close the desktop
 h3d.close_project()
 d.force_close_desktop()
-examples.delete_downloads()
 
 
 

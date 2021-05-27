@@ -1,7 +1,7 @@
 
 import sys
 from collections import OrderedDict, defaultdict
-
+import time
 try:
     import clr
     from System import Double, Array
@@ -455,6 +455,7 @@ class EDBLayer(object):
             self.messenger.add_error_message('Failed to set new layers when updating stackup info')
             return False
         self._parent._update_edb_objects()
+        time.sleep(1)
         return True
 
 
@@ -504,6 +505,17 @@ class EDBLayers(object):
         allStckuplayers = filter(lambda lyr: (lyr.GetLayerType() == self.edb.Cell.LayerType.DielectricLayer) or (
                 lyr.GetLayerType() == self.edb.Cell.LayerType.SignalLayer), allLayers)
         return sorted(allStckuplayers, key=lambda lyr=self.edb.Cell.StackupLayer: lyr.GetLowerElevation())
+
+    @property
+    def signal_layers(self):
+        layers = self.edb_layers
+        signal_layers = {}
+        for lyr in layers:
+            if lyr.GetLayerType() == self.edb.Cell.LayerType.SignalLayer:
+                lyr_name = lyr.GetName()
+                signal_layers[lyr_name] = lyr
+        return signal_layers
+
 
     @property
     def layer_collection(self):

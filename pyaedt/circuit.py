@@ -591,32 +591,41 @@ class Circuit(FieldAnalysisCircuit, object):
 
         return pins
 
+
     @aedt_exception_handler
     def import_touchsthone_solution(self, filename, solution_name="Imported_Data"):
-        """Import Touchstone file as solution
+        """ Import Touchstone file as solution
 
         Parameters
         ----------
-        filename :
-            sNp filename
-        solution_name :
-            solution name (Default value = "Imported_Data")
-
+        filename : str
+            sNp/ts filename
+        solution_name : str
+                solution name
         Returns
         -------
-        type
+        list
             list of ports
-
         """
-        re_filename = re.compile(r"\.s(?P<ports>\d+)+p", re.I)
-        m = re_filename.search(filename)
-        ports = int(m.group('ports'))
-        portnames = None
-        with open(filename,"r") as f:
-            lines = f.readlines()
-            portnames = [i.split(" = ")[1].strip() for i in lines if "Port[" in i]
-        if not portnames:
-            portnames = ["Port{}".format(i+1) for i in range(ports)]
+        if filename[-2:] == "ts":
+            with open(filename, "r") as f:
+                lines = f.readlines()
+                for i in lines:
+                    if "[Number of Ports]" in  i:
+                        ports = int(i[i.find("]")+1:])
+                portnames = [i.split(" = ")[1].strip() for i in lines if "! Port" in i[:9]]
+                if not portnames:
+                    portnames = ["Port{}".format(i + 1) for i in range(ports)]
+        else:
+            re_filename = re.compile(r"\.s(?P<ports>\d+)+p", re.I)
+            m = re_filename.search(filename)
+            ports = int(m.group('ports'))
+            portnames = None
+            with open(filename,"r") as f:
+                lines = f.readlines()
+                portnames = [i.split(" = ")[1].strip() for i in lines if "Port[" in i]
+            if not portnames:
+                portnames = ["Port{}".format(i+1) for i in range(ports)]
         arg = ["NAME:NPortData", "Description:=", "", "ImageFile:=", "",
                "SymbolPinConfiguration:=", 0, ["NAME:PortInfoBlk"], ["NAME:PortOrderBlk"],
                "filename:=", filename, "numberofports:=", ports, "sssfilename:=", "",
@@ -636,6 +645,75 @@ class Circuit(FieldAnalysisCircuit, object):
                "NoiseModelOption:=", "External"]
         self.odesign.ImportData(arg, "", True)
         return portnames
+
+    # @aedt_exception_handler
+    # def export_fullwave_spice(self, designname=None, setupname=None, is_solution_file=False, filename=None,
+    #                           passivity=False, causality=False, renormalize=False, impedance=50, error=0.5,
+    #                           poles=10000):
+    #     """
+    #     This method doesn't work actually
+    #     Export Full Wave Spice using NDE
+    #
+    #     Parameters
+    #     ----------
+    #     designname : str
+    #             name of the design or the solution file full path if it is an imported file
+    #     setupname : str
+    #             name of setup if is a design
+    #     is_solution_file: bool
+    #             True if it is an imported solution
+    #     filename: str
+    #             full path to exported sp file
+    #     passivity: bool
+    #     causality: bool
+    #     renormalize: bool
+    #     impedance: float
+    #         impedance in case of renormalization
+    #     error: float
+    #         fitting error
+    #     poles: int
+    #         fitting poles
+    #
+    #     Returns
+    #     -------
+    #     str
+    #         filename if the export if successful
+    #     """
+    #     if not designname:
+    #         designname = self.design_name
+    #     if not filename:
+    #         filename = os.path.join(self.project_path, self.design_name + ".sp")
+    #     if is_solution_file:
+    #         setupname = designname
+    #         designname = ""
+    #     else:
+    #         if not setupname:
+    #             setupname=self.nominal_sweep
+    #     self.onetwork_data_explorer.ExportFullWaveSpice(designname, is_solution_file, setupname, "",
+    #                                                     ["NAME:Frequencies"],
+    #                                                     ["NAME:SpiceData", "SpiceType:=", "HSpice",
+    #                                                      "EnforcePassivity:=", passivity, "EnforceCausality:=",
+    #                                                      causality,
+    #                                                      "UseCommonGround:=", True,
+    #                                                      "ShowGammaComments:=", True,
+    #                                                      "Renormalize:=", renormalize,
+    #                                                      "RenormImpedance:=", impedance,
+    #                                                      "FittingError:=", error,
+    #                                                      "MaxPoles:=", poles,
+    #                                                      "PassivityType:=", "IteratedFittingOfPV",
+    #                                                      "ColumnFittingType:=", "Matrix",
+    #                                                      "SSFittingType:=", "FastFit",
+    #                                                      "RelativeErrorToleranc:=", False,
+    #                                                      "EnsureAccurateZfit:=", True,
+    #                                                      "TouchstoneFormat:=", "MA",
+    #                                                      "TouchstoneUnits:=", "GHz",
+    #                                                      "TouchStonePrecision:=", 15,
+    #                                                      "SubcircuitName:=", "",
+    #                                                      "SYZDataInAutoMode:=", False,
+    #                                                      "ExportDirectory:=", os.path.dirname(filename)+"\\",
+    #                                                      "ExportSpiceFileName:=", os.path.basename(filename),
+    #                                                      "FullwaveSpiceFileName:=", os.path.basename(filename)[:-2]+"sss"])
+    #     return filename
 
     @aedt_exception_handler
     def create_touchstone_report(self,plot_name, curvenames, solution_name=None, variation_dict=None):

@@ -168,6 +168,10 @@ class Components(object):
 
         Returns
         -------
+        dict
+
+        Examples
+        --------
 
         >>> from pyaedt import EDB
         >>> edbapp = EDB("myaedbfolder")
@@ -184,16 +188,17 @@ class Components(object):
 
     @property
     def resistors(self):
-        """:examples:
-        
-        
-        :return: Dictionary of Resistors
+        """
 
         Parameters
         ----------
 
         Returns
         -------
+        dict
+
+        Examples
+        --------
 
         >>> from pyaedt import EDB
         >>> edbapp = EDB("myaedbfolder")
@@ -222,6 +227,10 @@ class Components(object):
 
         Returns
         -------
+        dict
+
+        Examples
+        --------
 
         >>> from pyaedt import EDB
         >>> edbapp = EDB("myaedbfolder")
@@ -250,6 +259,10 @@ class Components(object):
 
         Returns
         -------
+        dict
+
+        Examples
+        --------
 
         >>> from pyaedt import EDB
         >>> edbapp = EDB("myaedbfolder")
@@ -277,6 +290,10 @@ class Components(object):
 
         Returns
         -------
+        dict
+
+        Examples
+        --------
 
         >>> from pyaedt import EDB
         >>> edbapp = EDB("myaedbfolder")
@@ -304,6 +321,10 @@ class Components(object):
 
         Returns
         -------
+        dict
+
+        Examples
+        --------
 
         >>> from pyaedt import EDB
         >>> edbapp = EDB("myaedbfolder")
@@ -333,6 +354,10 @@ class Components(object):
 
         Returns
         -------
+        dict
+
+        Examples
+        --------
 
         >>> from pyaedt import EDB
         >>> edbapp = EDB("myaedbfolder")
@@ -361,6 +386,10 @@ class Components(object):
 
         Returns
         -------
+        dict
+
+        Examples
+        --------
 
         >>> from pyaedt import EDB
         >>> edbapp = EDB("myaedbfolder")
@@ -388,7 +417,7 @@ class Components(object):
 
         Returns
         -------
-        type
+        list
             :return: List of component Setup Info
 
         """
@@ -410,7 +439,7 @@ class Components(object):
 
         Returns
         -------
-        type
+        self.edb.Cell.Hierarchy.Component
             Edb component (Edb.Cell.Hierarchy.Component) object if exists
 
         """
@@ -572,7 +601,6 @@ class Components(object):
     def create_pingroup_from_pins(self, pins, group_name=None):
         """Create a pin group on a component
         
-         :examples:
 
         Parameters
         ----------
@@ -583,11 +611,14 @@ class Components(object):
 
         Returns
         -------
+        tuple
+            (bool, pingroup)
 
         >>> from pyaedt import EDB
         >>> edbapp = EDB("myaedbfolder")
         >>> edbapp.core_components.create_pingroup_from_pins(gndpinlist, "MyGNDPingroup")
         """
+
         if len(pins) < 1:
             self.messenger.add_error_message('No pins specified for pin group {}'.format(group_name))
             return (False, None)
@@ -605,17 +636,17 @@ class Components(object):
     @aedt_exception_handler
     def delete_single_pin_rlc(self):
         """Delete all RLC Components with less than 2 Pins
-        
-        :examples:
-        
-        
-        :return: list of deleted components
+
 
         Parameters
         ----------
 
         Returns
         -------
+        list
+
+        Examples
+        --------
 
         >>> from pyaedt import EDB
         >>> edbapp = EDB("myaedbfolder")
@@ -645,7 +676,7 @@ class Components(object):
 
         Returns
         -------
-        type
+        bool
             Bool
 
         >>> from pyaedt import EDB
@@ -672,8 +703,11 @@ class Components(object):
 
         Returns
         -------
-        type
+        bool
             Bool
+
+        Examples
+        --------
 
         >>> from pyaedt import EDB
         >>> edbapp = EDB("myaedbfolder")
@@ -825,8 +859,15 @@ class Components(object):
 
         Returns
         -------
-        type
+        list
             the list of pin. [] if component not found
+
+       Examples
+       --------
+
+        >>> from AEDTLib.EDB import EDB
+        >>> edbapp = EDB("myaedbfolder", "project name", "release version")
+        >>> edbapp.core_components.get_pin_from_component("R1", refdes, optional:str nets, optional: str pins)
 
         """
 
@@ -863,6 +904,12 @@ class Components(object):
         type
             name as string
 
+        Examples
+        --------
+
+        >>> from AEDTLib.EDB import EDB
+        >>> edbapp = EDB("myaedbfolder", "project name", "release version")
+        >>> edbapp.core_components.get_aedt_pin_name(pin)
         """
         if "IronPython" in sys.version or ".NETFramework" in sys.version:
                 name = clr.Reference[String]()
@@ -883,9 +930,15 @@ class Components(object):
 
         Returns
         -------
-        type
-            x, y] as list of float
+        list
+            [x, y] as list of float
 
+        Examples
+        --------
+
+        >>> from AEDTLib.EDB import EDB
+        >>> edbapp = EDB("myaedbfolder", "project name", "release version")
+        >>> edbapp.core_components.get_pin_position(pin)
         """
         if is_ironpython:
             res, pt_pos, rot_pos = pin.GetPositionAndRotation()
@@ -913,9 +966,15 @@ class Components(object):
 
         Returns
         -------
-        type
+        list
             pinlist
 
+        Examples
+        --------
+
+        >>> from AEDTLib.EDB import EDB
+        >>> edbapp = EDB("myaedbfolder", "project name", "release version")
+        >>> edbapp.core_components.get_pins_name_from_net(pin_list, net_name)
         """
         pinlist = []
         for pin in pin_list:
@@ -937,6 +996,12 @@ class Components(object):
         type
             list of nets
 
+        Examples
+        --------
+
+        >>> from AEDTLib.EDB import EDB
+        >>> edbapp = EDB("myaedbfolder", "project name", "release version")
+        >>> edbapp.core_components.get_nets_from_pin_list(pinlist)
         """
         netlist = []
         for pin in PinList:
@@ -955,7 +1020,14 @@ class Components(object):
         Returns
         -------
         type
-            dicti
+            dict
+
+        Examples
+        --------
+
+        >>> from AEDTLib.EDB import EDB
+        >>> edbapp = EDB("myaedbfolder", "project name", "release version")
+        >>> edbapp.core_components.get_component_net_connection_info(refdes)
 
         """
         component_pins = self.get_pin_from_component(refdes)
@@ -970,7 +1042,16 @@ class Components(object):
         return data
 
     def get_rats(self):
-        """:return:"""
+        """
+        return the list of dictionaries of dictionary of RefDes, PinNames and NetNames
+        :example:
+
+        >>> from AEDTLib.EDB import EDB
+        >>> edbapp = EDB("myaedbfolder", "project name", "release version")
+        >>> edbapp.core_components.get_rats()
+
+        :return: list of dictionaries of dictionary of RefDes, PinNames and NetNames
+        """
         df_list = []
         for refdes in self.components.keys():
             df = self.get_component_net_connection_info(refdes)
@@ -984,12 +1065,19 @@ class Components(object):
 
         Parameters
         ----------
-        threshold :
+        threshold : int
             return: (Default value = 1)
 
         Returns
         -------
+        list
 
+        Examples
+        ---------
+
+        >>> from AEDTLib.EDB import EDB
+        >>> edbapp = EDB("myaedbfolder", "project name", "release version")
+        >>> edbapp.core_components.get_through_resistor_list()
         """
         through_comp_list = []
         for refdes, comp_obj in self.resistors.items():

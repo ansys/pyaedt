@@ -2,7 +2,7 @@ import os
 # Setup paths for module imports
 from .conftest import local_path, scratch_path
 import gc
-
+import time
 # Import required modules
 from pyaedt import Edb
 from pyaedt.generic.filesystem import Scratch
@@ -48,6 +48,10 @@ class Test3DLayout:
         stackup = self.edbapp.core_stackup.stackup_layers
         assert (len(stackup.layers)>2)
 
+    def get_signal_layers(self):
+        signal_layers = self.edbapp.core_stackup.signal_layers
+        assert signal_layers
+
     def test_component_lists(self):
         component_list = self.edbapp.core_components.components
         assert (len(component_list) > 2)
@@ -73,6 +77,7 @@ class Test3DLayout:
         layers = self.edbapp.core_stackup.stackup_layers
         layers['LYR_1'].name
         layers['LYR_1'].thickness_value = "100um"
+        time.sleep(2)
         assert layers['LYR_1'].thickness_value == "100um"
         layers['LYR_2'].material_name = "aluminum"
         assert layers['LYR_2'].material_name == "aluminum"
@@ -200,6 +205,11 @@ class Test3DLayout:
         for poly in polys:
             bounding = self.edbapp.core_primitives.get_polygon_bounding_box(poly)
             assert len(bounding) == 4
+
+    def test_get_polygons_bbylayerandnets(self):
+        nets = ["GND", "IO2"]
+        polys = self.edbapp.core_primitives.get_polygons_by_layer("TOP", nets)
+        assert polys
 
     def test_get_polygons_points(self):
         polys = self.edbapp.core_primitives.get_polygons_by_layer("GND")

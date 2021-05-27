@@ -22,7 +22,7 @@ HFSS3DLayout  Analysis
 --------------------------------------------
 This Example shows how to use HFSS3DLayout combined with EDB to interact with a layout
 
-.. GENERATED FROM PYTHON SOURCE LINES 7-23
+.. GENERATED FROM PYTHON SOURCE LINES 7-25
 
 .. code-block:: default
 
@@ -39,21 +39,31 @@ This Example shows how to use HFSS3DLayout combined with EDB to interact with a 
     local_path = os.path.abspath('')
     module_path = pathlib.Path(local_path)
     aedt_lib_path = module_path.parent.parent
-    example_path =os.path.join(module_path.parent, "Examples_Files")
     sys.path.append(os.path.join(aedt_lib_path))
+    from pyaedt import generate_unique_name
+    temp_folder = os.path.join(os.environ["TEMP"], generate_unique_name("Example"))
+    if not os.path.exists(temp_folder): os.makedirs(temp_folder)
+    print(temp_folder)
 
 
 
 
+.. rst-class:: sphx-glr-script-out
+
+ Out:
+
+ .. code-block:: none
+
+    C:\Users\mcapodif\AppData\Local\Temp\Example_M9GLCQ
 
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 24-25
+.. GENERATED FROM PYTHON SOURCE LINES 26-27
 
 Copying Example in Temp Folder
 
-.. GENERATED FROM PYTHON SOURCE LINES 25-37
+.. GENERATED FROM PYTHON SOURCE LINES 27-39
 
 .. code-block:: default
 
@@ -79,17 +89,17 @@ Copying Example in Temp Folder
 
  .. code-block:: none
 
-    C:\Users\mcapodif\AppData\Local\Temp\Example_TYAIAR\edb/Galileo.aedb\edb.def
+    C:\Users\mcapodif\AppData\Local\Temp\PyAEDTExamples\edb/Galileo.aedb\edb.def
 
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 38-40
+.. GENERATED FROM PYTHON SOURCE LINES 40-42
 
 Initializing Desktop
 Launching HFSS 3DLayout
 
-.. GENERATED FROM PYTHON SOURCE LINES 40-46
+.. GENERATED FROM PYTHON SOURCE LINES 42-49
 
 .. code-block:: default
 
@@ -98,6 +108,7 @@ Launching HFSS 3DLayout
 
     d = Desktop("2021.1")
     h3d=Hfss3dLayout(targetfile)
+    h3d.save_project(os.path.join(temp_folder,"edb_demo.aedt"))
 
 
 
@@ -110,7 +121,7 @@ Launching HFSS 3DLayout
  .. code-block:: none
 
     Info: Using Windows TaskManager to Load processes
-    Info: Ansoft.ElectronicsDesktop.2021.1 Started with Process ID 29564
+    Info: Ansoft.ElectronicsDesktop.2021.1 Started with Process ID 26916
     Info: pyaedt v0.5.0 started
     Info: Started external COM connection with module pythonnet_v3
     Info: Python version 3.8.5 (default, Sep  3 2020, 21:29:08) [MSC v.1916 64 bit (AMD64)]
@@ -126,16 +137,18 @@ Launching HFSS 3DLayout
     Info: Layers Loaded
     Info: Primitives Loaded
     Info: Modeler Loaded
+    Info: Saving Galileo Project
+
+    True
 
 
 
-
-.. GENERATED FROM PYTHON SOURCE LINES 47-49
+.. GENERATED FROM PYTHON SOURCE LINES 50-52
 
 Disable visibility for all Nets
 Check Setups from setups objects
 
-.. GENERATED FROM PYTHON SOURCE LINES 49-53
+.. GENERATED FROM PYTHON SOURCE LINES 52-56
 
 .. code-block:: default
 
@@ -158,11 +171,11 @@ Check Setups from setups objects
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 54-55
+.. GENERATED FROM PYTHON SOURCE LINES 57-58
 
 Check Boundaries from setups objects
 
-.. GENERATED FROM PYTHON SOURCE LINES 55-59
+.. GENERATED FROM PYTHON SOURCE LINES 58-62
 
 .. code-block:: default
 
@@ -185,12 +198,12 @@ Check Boundaries from setups objects
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 60-62
+.. GENERATED FROM PYTHON SOURCE LINES 63-65
 
 Hide all nets
 #####################################
 
-.. GENERATED FROM PYTHON SOURCE LINES 62-69
+.. GENERATED FROM PYTHON SOURCE LINES 65-72
 
 .. code-block:: default
 
@@ -211,16 +224,17 @@ Hide all nets
 
  .. code-block:: none
 
+    Info: Messenger Initialized in EDB
 
     True
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 70-71
+.. GENERATED FROM PYTHON SOURCE LINES 73-74
 
 Show only 2 nets
 
-.. GENERATED FROM PYTHON SOURCE LINES 71-75
+.. GENERATED FROM PYTHON SOURCE LINES 74-78
 
 .. code-block:: default
 
@@ -243,12 +257,12 @@ Show only 2 nets
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 76-78
+.. GENERATED FROM PYTHON SOURCE LINES 79-81
 
 Show all layers
 #####################################
 
-.. GENERATED FROM PYTHON SOURCE LINES 78-89
+.. GENERATED FROM PYTHON SOURCE LINES 81-92
 
 .. code-block:: default
 
@@ -270,11 +284,11 @@ Show all layers
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 90-91
+.. GENERATED FROM PYTHON SOURCE LINES 93-94
 
 Change Layer Color
 
-.. GENERATED FROM PYTHON SOURCE LINES 91-98
+.. GENERATED FROM PYTHON SOURCE LINES 94-101
 
 .. code-block:: default
 
@@ -300,7 +314,7 @@ Change Layer Color
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 99-103
+.. GENERATED FROM PYTHON SOURCE LINES 102-106
 
 .. code-block:: default
 
@@ -315,12 +329,12 @@ Change Layer Color
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 104-106
+.. GENERATED FROM PYTHON SOURCE LINES 107-109
 
 Disable component visibility for TOP and BOTTOM
 update_stackup_layer will apply modification to layout
 
-.. GENERATED FROM PYTHON SOURCE LINES 108-117
+.. GENERATED FROM PYTHON SOURCE LINES 111-120
 
 .. code-block:: default
 
@@ -348,7 +362,7 @@ update_stackup_layer will apply modification to layout
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 118-125
+.. GENERATED FROM PYTHON SOURCE LINES 121-128
 
 .. code-block:: default
 
@@ -366,7 +380,7 @@ update_stackup_layer will apply modification to layout
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 126-136
+.. GENERATED FROM PYTHON SOURCE LINES 129-138
 
 .. code-block:: default
 
@@ -374,7 +388,6 @@ update_stackup_layer will apply modification to layout
     # Enable and run the following command to close the desktop
     h3d.close_project()
     d.force_close_desktop()
-    examples.delete_downloads()
 
 
 
@@ -390,7 +403,7 @@ update_stackup_layer will apply modification to layout
 
  .. code-block:: none
 
-    Info: Closing the active Galileo AEDT Project
+    Info: Closing the active edb_demo AEDT Project
 
 
 
@@ -398,7 +411,7 @@ update_stackup_layer will apply modification to layout
 
 .. rst-class:: sphx-glr-timing
 
-   **Total running time of the script:** ( 0 minutes  34.540 seconds)
+   **Total running time of the script:** ( 0 minutes  33.383 seconds)
 
 
 .. _sphx_glr_download_examples_EDB_in_3DLayout.py:

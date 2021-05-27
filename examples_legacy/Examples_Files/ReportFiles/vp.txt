@@ -1,3 +1,0 @@
-Voltage Probes
-Probe Name	Value / V	
-

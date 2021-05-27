@@ -5,7 +5,7 @@ import urllib.request
 
 from pyaedt.generic.general_methods import  generate_unique_name
 EXAMPLE_REPO = 'https://github.com/pyansys/example-data/raw/master/pyaedt/'
-EXAMPLES_PATH = os.path.join(os.environ["TEMP"], generate_unique_name("Example"))
+EXAMPLES_PATH = os.path.join(os.environ["TEMP"], "PyAEDTExamples")
 
 
 def delete_downloads():
@@ -52,7 +52,7 @@ def _download_file(directory, filename):
 # front-facing functions
 
 def download_aedb() -> str:
-    """Download an example transient result file and return the download path.
+    """Download an example of AEDB File and return the def path.
     Examples files are downloaded to a persistent cache to avoid
     re-downloading the same file twice.
     Returns
@@ -63,7 +63,7 @@ def download_aedb() -> str:
     --------
     Download an example result file and return the path of the file
     >>> from pyaedt import examples
-    >>> path = examples.download_aedb
+    >>> path = examples.download_aedb()
     >>> path
     'C:/Users/user/AppData/local/temp/Galileo.aedb'
     """
@@ -71,9 +71,8 @@ def download_aedb() -> str:
 
     return _download_file('edb/Galileo.aedb', 'edb.def')
 
-
-def download_sherlock() -> str:
-    """Download an example transient result file and return the download path.
+def download_netlist() -> str:
+    """Download an example of netlist File and return the def path.
     Examples files are downloaded to a persistent cache to avoid
     re-downloading the same file twice.
     Returns
@@ -84,7 +83,47 @@ def download_sherlock() -> str:
     --------
     Download an example result file and return the path of the file
     >>> from pyaedt import examples
-    >>> path = examples.download_aedb
+    >>> path = examples.download_netlist()
+    >>> path
+    'C:/Users/user/AppData/local/temp/pyaedtexamples/netlist_small.cir'
+    """
+
+    return _download_file('netlist', 'netlist_small.cir')
+
+
+def download_touchstone() -> str:
+    """Download an example of touchstone File and return the def path.
+    Examples files are downloaded to a persistent cache to avoid
+    re-downloading the same file twice.
+    Returns
+    -------
+    str
+        Path to the example file.
+    Examples
+    --------
+    Download an example result file and return the path of the file
+    >>> from pyaedt import examples
+    >>> path = examples.download_touchstone()
+    >>> path
+    'C:/Users/user/AppData/local/temp/pyaedtexamples/ssn_ssn.s6p'
+    """
+
+    return _download_file('touchstone', 'SSN_ssn.s6p')
+
+
+def download_sherlock() -> str:
+    """Download an example of sherlock needed files and return the def path.
+    Examples files are downloaded to a persistent cache to avoid
+    re-downloading the same file twice.
+    Returns
+    -------
+    str
+        Path to the example file.
+    Examples
+    --------
+    Download an example result file and return the path of the file
+    >>> from pyaedt import examples
+    >>> path = examples.download_sherlock()
     >>> path
     'C:/Users/user/AppData/local/temp/Galileo.aedb'
     """
@@ -95,102 +134,4 @@ def download_sherlock() -> str:
     _download_file('sherlock/SherlockTutorial.aedb', 'edb.def')
 
     return os.path.join(EXAMPLES_PATH, "sherlock")
-
-def download_all_kinds_of_complexity() -> str:
-    """Download an example static result and return the download path.
-    Examples files are downloaded to a persistent cache to avoid
-    re-downloading the same file twice.
-    Returns
-    -------
-    str
-        Path to the example file.
-    Examples
-    --------
-    Download an example result file and return the path of the file
-    >>> from ansys.dpf.core import examples
-    >>> path = examples.download_all_kinds_of_complexity
-    >>> path
-    'C:/Users/user/AppData/local/temp/allKindOfComplexity.rst'
-    """
-    return _download_file('testing', 'allKindOfComplexity.rst')
-
-
-def download_all_kinds_of_complexity_modal() -> str:
-    """Download an example result file from a static modal analysis and
-    return the download path.
-    Examples files are downloaded to a persistent cache to avoid
-    re-downloading the same file twice.
-    Returns
-    -------
-    str
-        Path to the example file.
-    Examples
-    --------
-    Download an example result file and return the path of the file
-    >>> from pyaedt import examples
-    >>> path = examples.download_all_kinds_of_complexity_modal()
-    >>> path
-    'C:/Users/user/AppData/local/temp/modal_allKindOfComplexity.rst'
-    """
-    return _download_file('testing', 'modal_allKindOfComplexity.rst')
-
-
-def download_pontoon() -> str:
-    """Download an example result file from a static modal analsys and
-    return the download path.
-    Examples files are downloaded to a persistent cache to avoid
-    re-downloading the same file twice.
-    Returns
-    -------
-    str
-        Path to the example file.
-    Examples
-    --------
-    Download an example result file and return the path of the file
-    >>> from pyaedt import examples
-    >>> path = examples.download_pontoon()
-    >>> path
-    'C:/Users/user/AppData/local/temp/pontoon.rst'
-    """
-    return _download_file('docs', 'pontoon.rst')
-
-
-def download_multi_harmonic_result() -> str:
-    """Download an example multi-harmonic result file and return the
-    download path.
-    Examples files are downloaded to a persistent cache to avoid
-    re-downloading the same file twice.
-    Returns
-    -------
-    str
-        Path to the example file.
-    Examples
-    --------
-    Download an example result file and return the path of the file
-    >>> from pyaedt import examples
-    >>> path = examples.download_multi_harmonic_result()
-    >>> path
-    'C:/Users/user/AppData/local/temp/file_harmonic_5rpms.rst'
-    """
-    return _download_file('harmonic', 'file_harmonic_5rpms.rst')
-
-
-def download_multi_stage_cyclic_result() -> str:
-    """Download an example multi stage result file and return the
-    download path.
-    Examples files are downloaded to a persistent cache to avoid
-    re-downloading the same file twice.
-    Returns
-    -------
-    str
-        Path to the example file.
-    Examples
-    --------
-    Download an example result file and return the path of the file
-    >>> from pyaedt import examples
-    >>> path = examples.download_multi_stage_cyclic_result()
-    >>> path
-    'C:/Users/user/AppData/local/temp/multistage.rst'
-    """
-    return _download_file('multistage', 'multistage.rst')
 

@@ -234,10 +234,10 @@ class EdbPadstacks(object):
         padstackData.SetHoleRange(self.edb.Definition.PadstackHoleRange.UpperPadToLowerPad)
         padstackData.SetMaterial('copper')
         if not startlayer:
-            layers = list(self.parent.core_stackup.signal_layers.layers.keys())
+            layers = list(self.parent.core_stackup.signal_layers.keys())
             startlayer = layers[0]
         if not endlayer:
-            layers = list(self.parent.core_stackup.signal_layers.layers.keys())
+            layers = list(self.parent.core_stackup.signal_layers.keys())
             endlayer = layers[len(layers) - 1]
         for layer in [startlayer, 'Default', endlayer]:
             padparam_array = Array[type(self.edb_value(paddiam))]([self.edb_value(paddiam)])

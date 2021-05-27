@@ -179,6 +179,16 @@ class EdbNets(object):
             el.append(comp_type)
         return df_list, net_group
 
+    @aedt_exception_handler
+    def get_net_by_name(self, net_name):
+        edb_net = self.parent.edb.Cell.Net.FindByName(self.edb.builder.layout, net_name)
+        if edb_net is not None:
+            return edb_net
+
+    @aedt_exception_handler
+    def get_component_from_net(self, net_name):
+        edb_net = self.get_net_by_name(net_name)
+        return list(set([net for net in edb_net.Terminals.GetComponent().GetName()]))
 
     @aedt_exception_handler
     def delete_nets(self, netlist):

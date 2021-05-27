@@ -12,6 +12,8 @@ test_project_name = "Galileo"
 netlist1 = 'netlist_small.cir'
 netlist2 = 'Schematic1.qcv'
 touchstone = 'SSN_ssn.s6p'
+touchstone2 = 'Galileo_V3P3S0.ts'
+
 class TestCircuit:
     def setup_class(self):
         with Scratch(scratch_path) as self.local_scratch:
@@ -20,10 +22,12 @@ class TestCircuit:
                 netlist_file1 = os.path.join(local_path, 'example_models', netlist1)
                 netlist_file2 = os.path.join(local_path, 'example_models', netlist2)
                 touchstone_file = os.path.join(local_path, 'example_models', touchstone)
+                touchstone_file2 = os.path.join(local_path, 'example_models', touchstone2)
                 self.test_project = self.local_scratch.copyfile(example_project)
                 self.local_scratch.copyfile(netlist_file1)
                 self.local_scratch.copyfile(netlist_file2)
                 self.local_scratch.copyfile(touchstone_file)
+                self.local_scratch.copyfile(touchstone_file2)
                 self.local_scratch.copyfolder(os.path.join(local_path, 'example_models', test_project_name + '.aedb'),
                                               os.path.join(self.local_scratch.path, test_project_name + '.aedb'))
                 self.aedtapp = Circuit(self.test_project)
@@ -86,16 +90,25 @@ class TestCircuit:
     def test_09_import_touchstone(self):
         self.aedtapp.insert_design("Circuit Design", "Touchstone_import")
         ports = self.aedtapp.import_touchsthone_solution(os.path.join(self.local_scratch.path, touchstone))
+        ports2 = self.aedtapp.import_touchsthone_solution(os.path.join(self.local_scratch.path, touchstone2))
         numports = len(ports)
         assert numports == 6
+        numports2 = len(ports2)
+        assert numports2 == 3
         tx = ports[:int(numports / 2)]
         rx = ports[int(numports / 2):]
         insertions = ["dB(S({},{}))".format(i, j) for i, j in zip(tx, rx)]
         assert self.aedtapp.create_touchstone_report("Insertion Losses", insertions)
+
+    # def test_10_export_fullwave(self):
+    #     output = self.aedtapp.export_fullwave_spice(os.path.join(self.local_scratch.path, touchstone2), is_solution_file=True)
+    #     assert output
+    #     pass
+
+    def test_11_read_touchstone(self):
+        from pyaedt.generic.TouchstoneParser import read_touchstone
         data = read_touchstone(os.path.join(self.local_scratch.path, touchstone))
         assert len(data.expressions)>0
         assert data.data_real()
         assert data.data_imag()
         assert data.data_db()
-
-

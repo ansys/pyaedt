@@ -22,7 +22,7 @@ HFSS-Icepack Coupling Analysis
 --------------------------------------------
 This Example shows how to create an Icepak Project starting from Sherlock Files (step and csv) and aedb board 
 
-.. GENERATED FROM PYTHON SOURCE LINES 7-25
+.. GENERATED FROM PYTHON SOURCE LINES 7-26
 
 .. code-block:: default
 
@@ -39,23 +39,32 @@ This Example shows how to create an Icepak Project starting from Sherlock Files 
     module_path = pathlib.Path(local_path)
     aedt_lib_path = module_path.parent
     sys.path.append(os.path.join(aedt_lib_path))
-    from pyaedt import examples
-    project_dir = examples.download_sherlock()
+    from pyaedt import examples, generate_unique_name
+    input_dir = examples.download_sherlock()
+    temp_folder = os.path.join(os.environ["TEMP"], generate_unique_name("Example"))
+    if not os.path.exists(temp_folder): os.makedirs(temp_folder)
+    print(temp_folder)
 
 
 
 
 
+.. rst-class:: sphx-glr-script-out
+
+ Out:
+
+ .. code-block:: none
+
+    C:\Users\mcapodif\AppData\Local\Temp\Example_U6G90N
 
 
 
 
-
-.. GENERATED FROM PYTHON SOURCE LINES 26-27
+.. GENERATED FROM PYTHON SOURCE LINES 27-28
 
 Input Variables
 
-.. GENERATED FROM PYTHON SOURCE LINES 27-37
+.. GENERATED FROM PYTHON SOURCE LINES 28-38
 
 .. code-block:: default
 
@@ -76,12 +85,12 @@ Input Variables
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 38-40
+.. GENERATED FROM PYTHON SOURCE LINES 39-41
 
 Import pyaedt and start AEDT
 AEDT will run in nongraphical mode
 
-.. GENERATED FROM PYTHON SOURCE LINES 40-52
+.. GENERATED FROM PYTHON SOURCE LINES 41-53
 
 .. code-block:: default
 
@@ -90,11 +99,11 @@ AEDT will run in nongraphical mode
     from pyaedt import Desktop
     d=Desktop("2021.1", NG=False)
     start = time.time()
-    material_list = os.path.join(project_dir, material_name)
-    component_list = os.path.join(project_dir, component_properties)
-    validation=os.path.join(project_dir, "validation.log")
-    file_path=os.path.join(project_dir, component_step)
-    project_name=os.path.join(project_dir, component_step[:-3]+"aedt")
+    material_list = os.path.join(input_dir, material_name)
+    component_list = os.path.join(input_dir, component_properties)
+    validation=os.path.join(temp_folder, "validation.log")
+    file_path=os.path.join(input_dir, component_step)
+    project_name = os.path.join(temp_folder, component_step[:-3]+"aedt")
 
 
 
@@ -108,7 +117,7 @@ AEDT will run in nongraphical mode
  .. code-block:: none
 
     Info: Using Windows TaskManager to Load processes
-    Info: Ansoft.ElectronicsDesktop.2021.1 Started with Process ID 4400
+    Info: Ansoft.ElectronicsDesktop.2021.1 Started with Process ID 10408
     Info: pyaedt v0.5.0 started
     Info: Started external COM connection with module pythonnet_v3
     Info: Python version 3.8.5 (default, Sep  3 2020, 21:29:08) [MSC v.1916 64 bit (AMD64)]
@@ -117,11 +126,11 @@ AEDT will run in nongraphical mode
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 53-54
+.. GENERATED FROM PYTHON SOURCE LINES 54-55
 
 Create an Icepak project and delete Region to improve performances
 
-.. GENERATED FROM PYTHON SOURCE LINES 54-62
+.. GENERATED FROM PYTHON SOURCE LINES 55-63
 
 .. code-block:: default
 
@@ -144,7 +153,7 @@ Create an Icepak project and delete Region to improve performances
  .. code-block:: none
 
     Warning: No design present - inserting a new design
-    Info: Added design 'Icepak_S4H' of type Icepak
+    Info: Added design 'Icepak_U6B' of type Icepak
     Info: Design Loaded
     Info: Successfully loaded project materials !
     Info: Materials Loaded
@@ -153,17 +162,17 @@ Create an Icepak project and delete Region to improve performances
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 63-64
+.. GENERATED FROM PYTHON SOURCE LINES 64-65
 
 Import PCB from aedb file
 
-.. GENERATED FROM PYTHON SOURCE LINES 64-70
+.. GENERATED FROM PYTHON SOURCE LINES 65-71
 
 .. code-block:: default
 
 
 
-    odb_path = os.path.join(project_dir, aedt_odb_project)
+    odb_path = os.path.join(input_dir, aedt_odb_project)
     ipk.create_pcb_from_3dlayout(component_name, odb_path, aedt_odb_design_name,extenttype="Polygon",
                                    outlinepolygon=outline_polygon_name)
 
@@ -184,11 +193,11 @@ Import PCB from aedb file
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 71-72
+.. GENERATED FROM PYTHON SOURCE LINES 72-73
 
 create an offset Coordinate system to match odb++ with sherlock step file
 
-.. GENERATED FROM PYTHON SOURCE LINES 72-76
+.. GENERATED FROM PYTHON SOURCE LINES 73-77
 
 .. code-block:: default
 
@@ -207,15 +216,15 @@ create an offset Coordinate system to match odb++ with sherlock step file
  .. code-block:: none
 
 
-    <pyaedt.modeler.Modeler.CoordinateSystem object at 0x0000021DF37C8370>
+    <pyaedt.modeler.Modeler.CoordinateSystem object at 0x000001825BEB0700>
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 77-78
+.. GENERATED FROM PYTHON SOURCE LINES 78-79
 
 import cad
 
-.. GENERATED FROM PYTHON SOURCE LINES 78-84
+.. GENERATED FROM PYTHON SOURCE LINES 79-85
 
 .. code-block:: default
 
@@ -235,18 +244,18 @@ import cad
 
  .. code-block:: none
 
-    Info: Step file C:\Users\mcapodif\AppData\Local\Temp\Example_TYAIAR\sherlock\TutorialBoard.stp imported
-    Info: Saving Project148 Project
+    Info: Step file C:\Users\mcapodif\AppData\Local\Temp\PyAEDTExamples\sherlock\TutorialBoard.stp imported
+    Info: Saving Project149 Project
 
     True
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 85-86
+.. GENERATED FROM PYTHON SOURCE LINES 86-87
 
 removing pcb objects
 
-.. GENERATED FROM PYTHON SOURCE LINES 86-90
+.. GENERATED FROM PYTHON SOURCE LINES 87-91
 
 .. code-block:: default
 
@@ -271,11 +280,11 @@ removing pcb objects
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 91-92
+.. GENERATED FROM PYTHON SOURCE LINES 92-93
 
 Creating Region
 
-.. GENERATED FROM PYTHON SOURCE LINES 92-96
+.. GENERATED FROM PYTHON SOURCE LINES 93-97
 
 .. code-block:: default
 
@@ -298,11 +307,11 @@ Creating Region
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 97-98
+.. GENERATED FROM PYTHON SOURCE LINES 98-99
 
 assigning Materials
 
-.. GENERATED FROM PYTHON SOURCE LINES 98-103
+.. GENERATED FROM PYTHON SOURCE LINES 99-104
 
 .. code-block:: default
 
@@ -349,11 +358,11 @@ assigning Materials
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 104-105
+.. GENERATED FROM PYTHON SOURCE LINES 105-106
 
 Deleting Object with no material Assignment
 
-.. GENERATED FROM PYTHON SOURCE LINES 105-113
+.. GENERATED FROM PYTHON SOURCE LINES 106-114
 
 .. code-block:: default
 
@@ -382,11 +391,11 @@ Deleting Object with no material Assignment
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 114-115
+.. GENERATED FROM PYTHON SOURCE LINES 115-116
 
 Assign Power to Component Blocks
 
-.. GENERATED FROM PYTHON SOURCE LINES 115-121
+.. GENERATED FROM PYTHON SOURCE LINES 116-122
 
 .. code-block:: default
 
@@ -411,11 +420,11 @@ Assign Power to Component Blocks
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 122-123
+.. GENERATED FROM PYTHON SOURCE LINES 123-124
 
 Setup and Boundaries
 
-.. GENERATED FROM PYTHON SOURCE LINES 123-135
+.. GENERATED FROM PYTHON SOURCE LINES 124-136
 
 .. code-block:: default
 
@@ -444,15 +453,15 @@ Setup and Boundaries
     Info: Face List boundary_faces created
     Info: Opening Assigned
 
-    <pyaedt.modules.Boundary.BoundaryObject object at 0x0000021D80608EE0>
+    <pyaedt.modules.Boundary.BoundaryObject object at 0x000001826199C9D0>
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 136-137
+.. GENERATED FROM PYTHON SOURCE LINES 137-138
 
 Check for intersection using Validation and fix it by assigning Priorities
 
-.. GENERATED FROM PYTHON SOURCE LINES 137-152
+.. GENERATED FROM PYTHON SOURCE LINES 138-153
 
 .. code-block:: default
 
@@ -466,7 +475,7 @@ Check for intersection using Validation and fix it by assigning Priorities
     end = time.time()-start
     ipk.close_desktop()
     print("Elapsed time: {}".format(datetime.timedelta(seconds=end)))
-    print("Project Saved in {} ".format(project_dir))
+    print("Project Saved in {} ".format(temp_folder))
 
 
 
@@ -484,8 +493,8 @@ Check for intersection using Validation and fix it by assigning Priorities
     Info: Saving TutorialBoard Project
     0 Intersections have been found. Applying Priorities
     Info: Saving TutorialBoard Project
-    Elapsed time: 0:04:36.108799
-    Project Saved in C:\Users\mcapodif\AppData\Local\Temp\Example_TYAIAR\sherlock 
+    Elapsed time: 0:00:38.890274
+    Project Saved in C:\Users\mcapodif\AppData\Local\Temp\Example_U6G90N 
 
 
 
@@ -493,7 +502,7 @@ Check for intersection using Validation and fix it by assigning Priorities
 
 .. rst-class:: sphx-glr-timing
 
-   **Total running time of the script:** ( 5 minutes  37.775 seconds)
+   **Total running time of the script:** ( 0 minutes  56.586 seconds)
 
 
 .. _sphx_glr_download_examples_Sherlock_Example.py:

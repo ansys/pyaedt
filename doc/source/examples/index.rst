@@ -34,6 +34,27 @@ Here are a series of examples using AEDT with ``pyaedt``.
 
 .. raw:: html
 
+    <div class="sphx-glr-thumbcontainer" tooltip="Netlist Example Analysis">
+
+.. only:: html
+
+ .. figure:: /examples/images/thumb/sphx_glr_Create_Netlist_thumb.png
+     :alt: Netlist Example Analysis
+
+     :ref:`sphx_glr_examples_Create_Netlist.py`
+
+.. raw:: html
+
+    </div>
+
+
+.. toctree::
+   :hidden:
+
+   /examples/Create_Netlist
+
+.. raw:: html
+
     <div class="sphx-glr-thumbcontainer" tooltip="HFSS3DLayout  Analysis">
 
 .. only:: html
@@ -157,6 +178,48 @@ Here are a series of examples using AEDT with ``pyaedt``.
    :hidden:
 
    /examples/Sherlock_Example
+
+.. raw:: html
+
+    <div class="sphx-glr-thumbcontainer" tooltip="Touchstone Management">
+
+.. only:: html
+
+ .. figure:: /examples/images/thumb/sphx_glr_Touchstone_Management_thumb.png
+     :alt: Touchstone Management
+
+     :ref:`sphx_glr_examples_Touchstone_Management.py`
+
+.. raw:: html
+
+    </div>
+
+
+.. toctree::
+   :hidden:
+
+   /examples/Touchstone_Management
+
+.. raw:: html
+
+    <div class="sphx-glr-thumbcontainer" tooltip="EDB  Analysis">
+
+.. only:: html
+
+ .. figure:: /examples/images/thumb/sphx_glr_edb_example_thumb.png
+     :alt: EDB  Analysis
+
+     :ref:`sphx_glr_examples_edb_example.py`
+
+.. raw:: html
+
+    </div>
+
+
+.. toctree::
+   :hidden:
+
+   /examples/edb_example
 .. raw:: html
 
     <div class="sphx-glr-clear"></div>
