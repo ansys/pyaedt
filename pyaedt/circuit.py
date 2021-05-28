@@ -175,17 +175,6 @@ class Circuit(FieldAnalysisCircuit, object):
 
     @aedt_exception_handler
     def _get_number_from_string(self, stringval):
-        """
-
-        Parameters
-        ----------
-        stringval :
-            
-
-        Returns
-        -------
-
-        """
         value = stringval[stringval.find("=") + 1:].strip().replace("{", "").replace("}", "").replace(",",".")
         return from_rkm_to_aedt(value)
 
@@ -206,7 +195,6 @@ class Circuit(FieldAnalysisCircuit, object):
         -------
         bool
             True if completed
-
         """
         xpos = 0
         ypos = 0
@@ -407,7 +395,6 @@ class Circuit(FieldAnalysisCircuit, object):
         -------
         bool
             True if completed
-
         """
 
         xpos = 0
@@ -531,7 +518,6 @@ class Circuit(FieldAnalysisCircuit, object):
         -------
         str
             refid Nexxim Type
-
         """
         if refid[1] == "R":
             return "resistor:RES."
@@ -547,35 +533,35 @@ class Circuit(FieldAnalysisCircuit, object):
             return ""
 
     @aedt_exception_handler
-    def get_source_pin_names(self, source_project_path, source_project_name, source_design_name, port_selector=3):
-        """port_selector:
+    def get_source_pin_names(self, source_design_name, source_project_name=None, source_project_path=None, port_selector=3):
+        """Port_selector:
         - 1 Wave Port
         - 2 Terminal
         - 3 Circuit Port
 
         Parameters
         ----------
-        source_project_path :
-
-        source_project_name :
-            
-        source_design_name :
-            
-        port_selector :
+        source_project_name :str
+            source project name
+        source_design_name : str
+            source design name
+        source_project_path : str
+            source project path if different than existsting one
+        port_selector : int
+             1 - Wave Port, 2  - Terminal, 3 - Circuit
              (Default value = 3)
 
         Returns
         -------
-
+        list
+            pin lists
         """
 
-        oName = self.project_name
-        if oName == source_project_name:
+        if not source_project_name or self.project_name == source_project_name:
             oSrcProject = self._desktop.GetActiveProject()
         else:
             self._desktop.OpenProject(source_project_path)
             oSrcProject = self._desktop.SetActiveProject(source_project_name)
-
         oDesign = oSrcProject.SetActiveDesign(source_design_name)
         oModule = oDesign.GetModule("BoundarySetup")
         port = None
@@ -721,18 +707,18 @@ class Circuit(FieldAnalysisCircuit, object):
 
         Parameters
         ----------
-        plot_name :
+        plot_name : str
             name of the plot
-        curvenames :
+        curvenames : str
             list of curves to plot
-        solution_name :
+        solution_name : str
             name of solution (Default value = None)
-        variation_dict :
+        variation_dict : dict
             name of variations (Default value = None)
 
         Returns
         -------
-        type
+        bool
             Boolean
 
         """
@@ -747,5 +733,4 @@ class Circuit(FieldAnalysisCircuit, object):
                              ["NAME:Context", "SimValueContext:=",
                               [3, 0, 2, 0, False, False, -1, 1, 0, 1, 1, "", 0, 0]], variations,
                              ["X Component:=", "Freq", "Y Component:=", curvenames])
-
         return True

@@ -24,6 +24,7 @@ class Test3DLayout:
                 pass
 
     def teardown_class(self):
+
         self.edbapp.close_edb()
         self.edbapp = None
         self.local_scratch.remove()
@@ -75,13 +76,12 @@ class Test3DLayout:
         assert self.edbapp.core_components.set_component_rlc("L3A1", res_value=1e-3, ind_value="10e-6", isparallel=True)
 
     def test_update_layer(self):
-        layers = self.edbapp.core_stackup.stackup_layers
-        layers['LYR_1'].name
-        layers['LYR_1'].thickness_value = "100um"
+        self.edbapp.core_stackup.stackup_layers['LYR_1'].name
+        self.edbapp.core_stackup.stackup_layers['LYR_1'].thickness_value = "100um"
         time.sleep(2)
-        assert layers['LYR_1'].thickness_value == "100um"
-        layers['LYR_2'].material_name = "aluminum"
-        assert layers['LYR_2'].material_name == "aluminum"
+        assert self.edbapp.core_stackup.stackup_layers['LYR_1'].thickness_value == "100um"
+        self.edbapp.core_stackup.stackup_layers['LYR_2'].material_name = "aluminum"
+        assert self.edbapp.core_stackup.stackup_layers['LYR_2'].material_name == "aluminum"
 
     def test_add_layer(self):
         layers = self.edbapp.core_stackup.stackup_layers

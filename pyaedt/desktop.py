@@ -30,12 +30,12 @@ hfss = HFSS()   it initialize HFSS
 
 desktop = Desktop("2019.3")   it launches Desktop 2019R3 in Graphical Mode
 
-hfss = HFSS()                 it initialize HFSS
+hfss = Hfss()                 it initialize HFSS
 
 
 **Example 3**
 
-hfss = HFSS()    the HFSS class will initialize Desktop to latest version installed on your machine in Graphical Mode and then will initialize HFSS
+hfss = Hfss()    the HFSS class will initialize Desktop to latest version installed on your machine in Graphical Mode and then will initialize HFSS
 
 
 ================

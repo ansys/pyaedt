@@ -68,21 +68,21 @@ class TestHFSS:
         udp = self.aedtapp.modeler.Position(0, 0, 0)
         id5 = self.aedtapp.modeler.primitives.create_circle(self.aedtapp.CoordinateSystemPlane.YZPlane,udp,10, name="sheet1")
         self.aedtapp.solution_type ="DrivenTerminal"
-        name = self.aedtapp.create_wave_port_from_sheets(id5,5,self.aedtapp.AxisDir.XNeg,40,2,"sheet1_Port", True)
-        assert name[0] == "sheet1_Port"
-        assert name[0] in [i.name for i in self.aedtapp.boundaries]
+        ports = self.aedtapp.create_wave_port_from_sheets(id5,5,self.aedtapp.AxisDir.XNeg,40,2,"sheet1_Port", True)
+        assert ports[0].name == "sheet1_Port"
+        assert ports[0].name in [i.name for i in self.aedtapp.boundaries]
         self.aedtapp.solution_type ="DrivenModal"
         udp = self.aedtapp.modeler.Position(5, 0, 0)
         id6 = self.aedtapp.modeler.primitives.create_circle(self.aedtapp.CoordinateSystemPlane.YZPlane,udp,10, name="sheet2")
-        name = self.aedtapp.create_wave_port_from_sheets(id6,5,self.aedtapp.AxisDir.XPos,40,2,"sheet2_Port", True)
-        assert name[0] == "sheet2_Port"
-        assert name[0] in [i.name for i in self.aedtapp.boundaries]
+        ports = self.aedtapp.create_wave_port_from_sheets(id6,5,self.aedtapp.AxisDir.XPos,40,2,"sheet2_Port", True)
+        assert ports[0].name == "sheet2_Port"
+        assert ports[0].name in [i.name for i in self.aedtapp.boundaries]
 
         id6 = self.aedtapp.modeler.primitives.create_box([20,20,20], [10,10,2],matname="Copper", name="My_Box")
         id7 = self.aedtapp.modeler.primitives.create_box([20,25,30], [10,2,2],matname="Copper")
         rect = self.aedtapp.modeler.primitives.create_rectangle(self.aedtapp.CoordinateSystemPlane.YZPlane,[20,25,20],[2,10])
-        name = self.aedtapp.create_wave_port_from_sheets(rect, 5,self.aedtapp.AxisDir.ZNeg,40,2,"sheet3_Port", True)
-        assert name[0] in [i.name for i in self.aedtapp.boundaries]
+        ports = self.aedtapp.create_wave_port_from_sheets(rect, 5,self.aedtapp.AxisDir.ZNeg,40,2,"sheet3_Port", True)
+        assert ports[0].name in [i.name for i in self.aedtapp.boundaries]
         pass
 
     def test_06a_create_sweep(self):
@@ -153,10 +153,10 @@ class TestHFSS:
         self.aedtapp.assignmaterial("BoxWG2", "Copper")
         port = self.aedtapp.create_wave_port_between_objects("BoxWG1", "BoxWG2", self.aedtapp.AxisDir.XNeg, 50, 1, "Wave1",
                                                              False)
-        assert port == "Wave1"
+        assert port.name == "Wave1"
         port2 = self.aedtapp.create_wave_port_between_objects("BoxWG1", "BoxWG2", self.aedtapp.AxisDir.XPos, 25, 2,
                                                            "Wave1", True, 5)
-        assert port2 != "Wave1" and "Wave1" in port2
+        assert port2.name != "Wave1" and "Wave1" in port2.name
 
     def test_10_create_lumped_on_objects(self):
         box1 = self.aedtapp.modeler.primitives.create_box([0, 0, 50], [10, 10, 5], "BoxLumped1")
