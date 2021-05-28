@@ -283,7 +283,7 @@ class FieldAnalysis3DLayout(Analysis):
 
         Returns
         -------
-        type
+        :class: Setup3DLayout
             setup object
 
         """
