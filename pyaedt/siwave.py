@@ -27,18 +27,15 @@ import os
 import sys
 import pkgutil
 
-aedt_env_var_prefix = "ANSYSEM_ROOT"
-version_list = sorted([x for x in os.environ if x.startswith(aedt_env_var_prefix)], reverse=True)
-assert version_list, "No Installed versions found in system environment variables ANSYSEM_ROOTxxx"
-most_recent_version = version_list[0]
+from .misc import list_installed_ansysem
 
+_pythonver = sys.version_info[0]
 
 if "IronPython" in sys.version or ".NETFramework" in sys.version:
     import clr  # IronPython C:\Program Files\AnsysEM\AnsysEM19.4\Win64\common\IronPython\ipy64.exe
     _com = 'pythonnet'
-    _pythonver = 2
     import System
-else:
+elif os.name == 'nt':
     modules = [tup[1] for tup in pkgutil.iter_modules()]
     if 'clr' in modules:
         import clr
@@ -49,7 +46,7 @@ else:
         _com = 'pywin32'
     else:
         raise Exception("Error. No win32com.client or Pythonnet modules found. Please install them")
-    _pythonver = sys.version_info[0]
+
 
 # if _pythonver == 3:
 #     from .MessageManager import AEDTMessageManager
@@ -75,6 +72,7 @@ class Siwave:
         self._version_keys = []
         self._version_ids = {}
 
+        version_list = list_installed_ansysem()
         for version_env_var in version_list:
             current_version_id = version_env_var.replace("ANSYSEM_ROOT", '')
             version = int(current_version_id[0:2])

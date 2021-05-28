@@ -626,7 +626,7 @@ class Components(object):
             cmp_name = pins[0].GetComponent().GetName()
             net_name = pins[0].GetNet().GetName()
             group_name = "{}_{}_{}".format(cmp_name, net_name, random.randint(0, 100))
-        pingroup = self.parent.edb.Cell.Hierarchy.PinGroup.Create(self.builder.EdbHandler.layout, group_name, pins)
+        pingroup = self.edb.Cell.Hierarchy.PinGroup.Create(self.parent.active_layout, group_name, convert_py_list_to_net_list(pins))
         if pingroup.IsNull():
             return (False, None)
         else:

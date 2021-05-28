@@ -137,21 +137,21 @@ def select_directory(initial_dir=None, description=None):
     -------
 
     """
-        browser = FolderBrowserDialog()
+    browser = FolderBrowserDialog()
 
-        if initial_dir:
-            browser.RootFolder = Environment.SpecialFolder.Desktop
-            browser.SelectedPath = initial_dir
-        if description:
-            browser.Description = description
-        else:
-            browser.Description = "Select an empty folder to create the toolkit"
+    if initial_dir:
+        browser.RootFolder = Environment.SpecialFolder.Desktop
+        browser.SelectedPath = initial_dir
+    if description:
+        browser.Description = description
+    else:
+        browser.Description = "Select an empty folder to create the toolkit"
 
-        test = browser.ShowDialog()
-        if test == DialogResult.OK:
-            return browser.SelectedPath
-        else:
-            return None
+    test = browser.ShowDialog()
+    if test == DialogResult.OK:
+        return browser.SelectedPath
+    else:
+        return None
 
 def copy_files_mkdir(root, files_in_subdir):
     """
