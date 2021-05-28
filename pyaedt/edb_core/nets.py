@@ -181,7 +181,7 @@ class EdbNets(object):
 
     @aedt_exception_handler
     def get_net_by_name(self, net_name):
-        edb_net = self.parent.edb.Cell.Net.FindByName(self.edb.builder.layout, net_name)
+        edb_net = self.parent.edb.Cell.Net.FindByName(self.active_layout, net_name)
         if edb_net is not None:
             return edb_net
 

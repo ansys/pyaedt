@@ -93,7 +93,7 @@ class EdbLayout(object):
     @aedt_exception_handler
     def init_primitives(self):
         for lay in self.layers:
-            self._primitives[lay.GetName()] = self.get_polygons_by_layer(lay.GetName())
+            self._primitives[lay] = self.get_polygons_by_layer(lay)
 
     @property
     def polygons(self):

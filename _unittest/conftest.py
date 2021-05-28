@@ -24,10 +24,5 @@ def desktop_init():
     p = pathlib.Path(scratch_path).glob('**/scratch*')
     for folder in p:
         shutil.rmtree(folder, ignore_errors=True)
-    if os.path.exists(os.path.join(local_path, "batch.log")):
-        time.sleep(2) #wait that batch.log is released
-        try:
-            os.remove(os.path.join(local_path, "batch.log"))
-        except:
-            print("cannot remove batch.log file")
+
 
