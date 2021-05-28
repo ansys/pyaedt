@@ -4,8 +4,10 @@ PyAEDT Documentation
 Introduction
 ------------
 
-PyAEDT is intended to consolidate and extend all existing functionalities around AEDT-based scripting to allow re-use of existing code, sharing of best-practice and increase collaboration collaboration.
-PyAEDT is run under `MIT License <LICENSE.html>`_
+PyAEDT is intended to consolidate and extend all existing
+functionalities around AEDT-based scripting to allow re-use of
+existing code, sharing of best-practice and increase collaboration
+collaboration.  PyAEDT is licensed under `MIT License <LICENSE.html>`_
 
 This tool includes functionality to interact with HFSS, Icepak and Maxwell 3D.
 
@@ -35,7 +37,7 @@ Main advantages of PyAEDT are:
 - Docstrings on functions for better understanding and tool usage.
 - Unit Test of code to increase quality across different AEDT Version
 
-.. figure:: ./Resources/BlankDiagram3Dmodeler.png
+.. figure:: ./Resources/BlankDiagram3DModeler.png
     :width: 600pt
 
     pyaedt Architecture Overview for 3D Solvers
