@@ -46,7 +46,7 @@ You must:
 **Desktop.py - Connect to Desktop from Python IDE**
 
 - Works inside Electronics Desktop and as a standalone application
-- Detects automatically if it is Ironpython or CPython and initializes the desktop according
+- Detects automatically if running in an IronPython or CPython environment and initializes the desktop accordingly.
 - Provides advanced error management 
 
 Examples of usage:
