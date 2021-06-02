@@ -1,8 +1,8 @@
 PyAEDT
 ======
 
-PyAedt consolidates and extends all AEDT-based scripting functionalities to allow reuse of existing code, sharing of best practices, and increased collaboration.
-PyAedt runs under the [MIT License](LICENSE.md).
+PyAEDT consolidates and extends all AEDT-based scripting functionalities to allow reuse of existing code, sharing of best practices, and increased collaboration.
+PyAEDT runs under the [MIT License](LICENSE.md).
 
 This tool has been tested on HFSS, Icepak, and Maxwell 3D, EDB, and Q3D.
 
@@ -17,9 +17,9 @@ Useful Links:
 
 - [Clean Code - R. C. Martin ](https://www.amazon.com/Robert-Martin-Clean-Code-Collection-ebook/dp/B00666M59G)
 
-**What is PyAedt?**
+**What is PyAEDT?**
 
-PyAedt uses an architecture that can be reused for all 3D tools (Maxwell, Q3D, HFSS, and Icepak). In the future, this architecture will be used for all other desktop tools.
+PyAEDT uses an architecture that can be reused for all 3D tools (Maxwell, Q3D, HFSS, and Icepak). In the future, this architecture will be used for all other desktop tools.
     
 ![Overview](Resources/Items.png)
 
@@ -46,7 +46,7 @@ You must:
 **Desktop.py - Connect to Desktop from Python IDE**
 
 - Works inside Electronics Desktop and as a standalone application
-- Detects automatically if running in an IronPython or CPython environment and initializes the desktop accordingly.
+- Detects automatically if running in an IronPython or CPython environment and initializes Desktop accordingly.
 - Provides advanced error management 
 
 Examples of usage:
