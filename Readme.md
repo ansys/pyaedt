@@ -23,7 +23,7 @@ PyAedt uses an architecture that can be reused for all 3D tools (Maxwell, Q3D, H
     
 ![Overview](Resources/Items.png)
 
-PyAedt class and method structures simplify operation for end users while reusing as much information as possible across the API.
+PyAEDT class and method structures simplify operation for end users while reusing as much information as possible across the API.
 
 **Main Advantages**
 
@@ -109,6 +109,5 @@ If the string contains "$", it is stored as a project variable.
     hfss["a"]= "1mm" # local variable
     hfss["$a"]= "1mm" # project variable
 ```    
-
 
 
