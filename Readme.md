@@ -32,7 +32,7 @@ PyAEDT class and method structures simplify operation for end users while reusin
 - Variable management
 - Compatibility with Ironpython and CPython
 - Compatibility with Windows and Linux (IronPython only, which requires further testing)
-- Simplification of complex API syntax thanks to data objects and PEP8 compatibility
+- Simplification of complex API syntax using data objects and PEP8 compatibility
 - Sharing of new code across the FES team with TFS
 - Reuse of most code across different solvers
 - Docstrings on functions for better understanding and tool usage
