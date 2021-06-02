@@ -1,10 +1,10 @@
-ReadMe
-=======
+PyAEDT
+======
 
-PyAedt is intended to consolidate and extend all existing functionalities around AEDT-based scripting to allow re-use of existing code, sharing of best-practice and  increase collaboration collaboration.
-PyAedt is run under [MIT License](LICENSE.md).
+PyAEDT consolidates and extends all AEDT-based scripting functionalities to allow reuse of existing code, sharing of best practices, and increased collaboration.
+PyAEDT runs under the [MIT License](LICENSE.md).
 
-This tool has actually been tested on HFSS, Icepak and Maxwell 3D, EDB, Q3D.
+This tool has been tested on HFSS, Icepak, and Maxwell 3D, EDB, and Q3D.
 
 Useful Links:
 - [PyAedt Documentation](Documentation/index.html)
@@ -17,71 +17,71 @@ Useful Links:
 
 - [Clean Code - R. C. Martin ](https://www.amazon.com/Robert-Martin-Clean-Code-Collection-ebook/dp/B00666M59G)
 
-**What is PyAedt**
+**What is PyAEDT?**
 
-PyAedt uses an architecture that can be reused for all 3D tools (Maxwell, Q3D, HFSS, Icepak), and in future for all other desktop tools.
+PyAEDT uses an architecture that can be reused for all 3D tools (Maxwell, Q3D, HFSS, and Icepak). In the future, this architecture will be used for all other desktop tools.
     
 ![Overview](Resources/Items.png)
 
-Its classes and methods structures allows to simplify operation for end-user while reusing as much as possible of the information across the API.
-Main advantages:
+PyAEDT class and method structures simplify operation for end users while reusing as much information as possible across the API.
 
-Automatic initialization of all the AEDT Objects (from desktop to every single objects like editor, boundaries, etc…)
-- Error Management
-- Variable Management
+**Main Advantages**
+
+- Automatic initialization of all AEDT objects (from the desktop to every single object like the editor, boundaries, and so on)
+- Error management
+- Variable management
 - Compatibility with Ironpython and CPython
-- Compatibility on Windows and Linux (Ironpython only). This requires further intensive tests 
-- Simplification of complex API syntax thanks to Data Objects and PEP8 compatibility
-- Sharing of new codes across FES team with TFS
-- User can reuse most of the code across different solvers
+- Compatibility with Windows and Linux (IronPython only, which requires further testing)
+- Simplification of complex API syntax using data objects and PEP8 compatibility
+- Reuse of most code across different solvers
 - Docstrings on functions for better understanding and tool usage
-- Unit Test of code to increase quality across different AEDT Version
+- Unit tests of code to increase quality across different AEDT versions
 
 **Usage Workflow**
 
-User has to:
-1. Initialize Desktop Class with version of AEDT to be used.
-2. initialize application to use within AEDT
+You must:
+1. Initialize the ``Desktop`` class with the version of AEDT to use.
+2. Initialize the application to use within AEDT.
 
 **Desktop.py - Connect to Desktop from Python IDE**
 
-- Works inside Electronics Desktop and as a Standalone Application
-- Automatically detect if it is Ironpython or CPython and initialize accordingly the Desktop
-- Advanced Error Management 
+- Works inside Electronics Desktop and as a standalone application
+- Detects automatically if running in an IronPython or CPython environment and initializes Desktop accordingly.
+- Provides advanced error management 
 
 Examples of usage:
 
-- Explicit Desktop Declaration and error management
+- Explicit Desktop declaration and error management
 
 ```
     from pyaedt import Desktop
     from pyaedt import Circuit    
     with Desktop("2020.1", NG=True):
-        print("AEDT 2020R1 in Non-Graphicalmode will be launched)
+        print("AEDT 2020R1 in Non-Graphical mode will be launched.")
         circuit = Circuit()
         ...
-        print("any error here will be catched by Desktop=
+        print("Any error here will be caught by Desktop."
         ...
-    print("here Desktop is automatically release")
+    print("Here Desktop is automatically released.")
 ```    
 
-- Implicit Desktop Declaration and error management
+- Implicit Desktop declaration and error management
 
 
 ```
     from pyaedt import Circuit    
     with Circuit as circuit:
-        print("Latest version of Desktop in Graphical mode will be launched")
+        print("Latest version of Desktop in Graphical mode will be launched.")
         ...
-        print("any error here will be catched by Desktop")
+        print("Any error here will be caught by Desktop.")
         ...
-    print("here Desktop is automatically release")
+    print("Here Desktop is automatically released.")
 ```
 
 
 **Application Classes and Inheritance**
 
-An application class inherits both a Design and an Analysis class
+An ``Application`` class inherits both a ``Design`` class and an ``Analysis`` class.
 
 - Example
 
@@ -91,7 +91,7 @@ An application class inherits both a Design and an Analysis class
     from pyaedt import Circuit
     
     with Desktop("2020.1", NG=True):
-        AEDT 2020R1 in Non-Graphicalmode will be launched
+        AEDT 2020R1 in Non-Graphical mode will be launched.
         circuit = Circuit()
         circuit.save_project("C:/Temp/My_projectname.aedt") # this function is from Design.py
 ```       
@@ -99,8 +99,8 @@ An application class inherits both a Design and an Analysis class
 
 **Variable Class**
 
-Variables can be created by simply assinging properties 
-If String contains "$" then it will be stored as Project Variable
+Variables can be created by simply assinging properties. 
+If the string contains "$", it is stored as a project variable.
 
 - Example
 
@@ -108,6 +108,3 @@ If String contains "$" then it will be stored as Project Variable
     hfss["a"]= "1mm" # local variable
     hfss["$a"]= "1mm" # project variable
 ```    
-
-
-
