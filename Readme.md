@@ -31,7 +31,7 @@ PyAEDT class and method structures simplify operation for end users while reusin
 - Error management
 - Variable management
 - Compatibility with Ironpython and CPython
-- Compatibility on Windows and Linux (Ironpython only, which requires further testing) 
+- Compatibility with Windows and Linux (IronPython only, which requires further testing)
 - Simplification of complex API syntax thanks to data objects and PEP8 compatibility
 - Sharing of new code across the FES team with TFS
 - Reuse of most code across different solvers
@@ -109,4 +109,3 @@ If the string contains "$", it is stored as a project variable.
     hfss["a"]= "1mm" # local variable
     hfss["$a"]= "1mm" # project variable
 ```    
-
