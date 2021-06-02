@@ -1,5 +1,5 @@
-ReadMe
-=======
+PyAEDT
+======
 
 PyAedt consolidates and extends all AEDT-based scripting functionalities to allow reuse of existing code, sharing of best practices, and increased collaboration.
 PyAedt runs under the [MIT License](LICENSE.md).
@@ -109,5 +109,4 @@ If the string contains "$", it is stored as a project variable.
     hfss["a"]= "1mm" # local variable
     hfss["$a"]= "1mm" # project variable
 ```    
-
 
