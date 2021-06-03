@@ -27,7 +27,7 @@ jobs:
         uses: actions/upload-artifact@v2.2.3
         with:
           name: Documentation
-          path: doc/build/html
+          path: doc/_build/html
           retention-days: 7
 
       - name: Deploy
