@@ -9,8 +9,11 @@ from ..modules.SolveSetup import SetupCircuit
 
 class FieldAnalysisSimplorer(Analysis):
     """**AEDT_CircuitAnalysis**
+
     Class for Simplorer Analysis Setup (Simplorer)
-    It is automatically initialized by Application call (like HFSS, Q3D...). Refer to Application function for inputs definition
+
+    It is automatically initialized by Application call (like HFSS,
+    Q3D...). Refer to Application function for inputs definition
 
     Parameters
     ----------

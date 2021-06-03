@@ -10,7 +10,9 @@ from ..modules.MeshIcepak import IcepakMesh
 class FieldAnalysisIcepak(Analysis, object):
     """AEDT_Icepak_FieldAnalysis
     Class for 3D Field Analysis Setup (Icepak)
-    It is automatically initialized by Application call (like HFSS, Q3D...). Refer to Application function for inputs definition
+
+    It is automatically initialized by Application call (like HFSS,
+    Q3D...). Refer to Application function for inputs definition
 
     Parameters
     ----------

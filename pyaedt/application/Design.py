@@ -1,30 +1,22 @@
 """
-Design Class
-----------------------------------------------------------------
-
-Disclaimer
-==================================================
-
-**Copyright (c) 1986-2021, ANSYS Inc. unauthorised use, distribution or duplication is prohibited**
-
-**This tool release is unofficial and not covered by standard Ansys Support license.**
-
+Design Module
+-------------
 
 Description
-==================================================
-This class contains all the basic Project information and objects. since it is hinerithed in the Main Tool class it will be a simple call from it
+===========
+This class contains all the basic Project information and
+objects. since it is hinerithed in the Main Tool class it will be a
+simple call from it
 
-:Example:
+Examples
+--------
 
-    hfss = HFSS()
+>>> hfss = HFSS()
 
-    hfss.oproject return the oProject object
+Return the oProject object
 
-    hfss.oproject return the oProject object
+>>> hfss.oproject
 
-
-
-========================================================
 
 """
 from __future__ import absolute_import
@@ -343,15 +335,19 @@ class Design(object):
 
     @property
     def design_name(self):
-        """Property
-        
-        :return: name of the parent AEDT Design
-
-        Parameters
-        ----------
+        """Name of the parent AEDT Design.
 
         Returns
         -------
+        str
+            Name of the parent AEDT Design.
+
+        Examples
+        --------
+        Set the design name.
+
+        >>> hfss = HFSS()
+        >>> hfss.design_name = 'new_design'
 
         """
         name = self.odesign.GetName()
@@ -362,19 +358,6 @@ class Design(object):
 
     @design_name.setter
     def design_name(self, new_name):
-        """Property
-        
-        :return: Change the name of the parent AEDT Design
-
-        Parameters
-        ----------
-        new_name :
-            
-
-        Returns
-        -------
-
-        """
         if ";" in new_name:
             new_name = new_name.split(";")[1]
         # src_dir = self.working_directory
@@ -383,12 +366,7 @@ class Design(object):
 
     @property
     def design_list(self):
-        """Property
-        
-        :return: List of available designs
-
-        Parameters
-        ----------
+        """List of available designs
 
         Returns
         -------
@@ -2005,21 +1983,21 @@ class Design(object):
 
     @aedt_exception_handler
     def save_project(self, project_file=None, overwrite=True, refresh_obj_ids_after_save=False):
-        """Save the AEDT Project and add a message
+        """Save the AEDT Project and add a message.
 
         Parameters
         ----------
-        project_file :
-            Optional. Project Full path (Default value = None)
-        overwrite :
-            overwrite existing project (Default value = True)
-        refresh_obj_ids_after_save :
-            Bool (Default value = False)
+        project_file : str, optional
+            Full Project path. Default ``None``.
+        overwrite : bool, optional
+            Overwrite existing project.  Default ``True``.
+        refresh_obj_ids_after_save : bool
+            Refresh object IDs after save.  Default ``False``.
 
         Returns
         -------
-        type
-            True
+        bool
+            Always returns ``True``
 
         """
         msg_text = "Saving {0} Project".format(self.project_name)
@@ -2034,17 +2012,17 @@ class Design(object):
 
     @aedt_exception_handler
     def delete_project(self, project_name):
-        """Delete the project named
+        """Delete the named project.
 
         Parameters
         ----------
-        project_name :
-            name of the project to delete
+        project_name : str
+            Name of the project to delete
 
         Returns
         -------
-        type
-            nothing
+        bool
+            Always returns ``True``.
 
         """
         assert self.project_name != project_name, "Cannot delete active design"
@@ -2149,6 +2127,3 @@ class Design(object):
         if destype == self._design_type:
             consistent = self._check_solution_consistency()
         return consistent
-
-
-

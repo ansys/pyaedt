@@ -9,7 +9,8 @@ class FieldAnalysis2D(Analysis):
     
     Class for 2D Field Analysis Setup (Maxwell2D, Q2D)
     
-    It is automatically initialized by Application call. Refer to Application function for inputs definition
+    It is automatically initialized by Application call. Refer to
+    Application function for inputs definition
 
     Parameters
     ----------
