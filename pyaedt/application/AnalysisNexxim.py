@@ -9,7 +9,9 @@ from ..modules.SolveSetup import SetupCircuit
 class FieldAnalysisCircuit(Analysis):
     """**AEDT_CircuitAnalysis**
     Class for Circuit Analysis Setup (Nexxim,)
-    It is automatically initialized by Application call (like HFSS, Q3D...). Refer to Application function for inputs definition
+
+    It is automatically initialized by Application call (like HFSS,
+    Q3D...). Refer to Application function for inputs definition
 
     Parameters
     ----------

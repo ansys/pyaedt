@@ -11,7 +11,8 @@ class FieldAnalysisRMxprt(Analysis):
     To BE Implemented
     Class for RMXpert Field Analysis Setup
     
-    It is automatically initialized by Application call (like HFSS, Q3D...). Refer to Application function for inputs definition
+    It is automatically initialized by Application call (like HFSS,
+    Q3D...). Refer to Application function for inputs definition
 
     Parameters
     ----------

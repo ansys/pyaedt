@@ -1,44 +1,30 @@
 """
 Desktop Class
-----------------
+-------------
 
-Disclaimer
-################
-
-**Copyright (c) 1986-2021, ANSYS Inc. unauthorised use, distribution or duplication is prohibited**
-
-**This tool release is unofficial and not covered by standard Ansys Support license.**
+This class initializes AEDT and MessageManager to manage the AEDT
+desktop.  It can be initialized in standalone way before launching an
+app or it is automatically initialized to latest installed AEDT
+version.
 
 
-Description
-################
+Examples
+--------
+Launch Desktop 2020R1 in Non-Graphical Mode and initialize HFSS
 
-This class initialize AEDT, MessageManager and manage AEDT Release and Closing.
-It can be initialized in standalone way before launching an app or it is automatically initialized by the APP to latest installed AEDT version
+>>> import pyaedt
+>>> desktop = pyaedt.Desktop("2020.1", NG=True)
+>>> hfss = pyaedt.Hfss()
 
+Launch Desktop 2019R3 in Graphical Mode
 
-:Example:
+>>> desktop = Desktop("2019.3")
+>>> hfss = pyaedt.Hfss()
 
-**Example 1**
+The initialize Desktop to latest version installed on your machine in
+Graphical Mode and initialize HFSS.
 
-desktop = Desktop("2020.1", NG = "True")   it launches Desktop 2020R1 in Non-Graphical Mode
-
-hfss = HFSS()   it initialize HFSS
-
-
-**Example 2**
-
-desktop = Desktop("2019.3")   it launches Desktop 2019R3 in Graphical Mode
-
-hfss = HFSS()                 it initialize HFSS
-
-
-**Example 3**
-
-hfss = HFSS()    the HFSS class will initialize Desktop to latest version installed on your machine in Graphical Mode and then will initialize HFSS
-
-
-================
+hfss = pyaedt.Hfss()
 
 """
 from __future__ import absolute_import
@@ -129,7 +115,8 @@ def update_aedt_registry(key, value, desktop_version="193"):
     
     Update aedt options registry keys. value includes "" if needed
     
-    :Example:
+    Examples
+    --------
     
     updateAEDTRegistry("HFSS/HPCLicenseType",'"'12'"')
     

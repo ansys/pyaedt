@@ -1,22 +1,14 @@
 """
 Analysis Classes
-----------------------------------------------------------------
-
-Disclaimer
-==================================================
-
-**Copyright (c) 1986-2021, ANSYS Inc. unauthorised use, distribution or duplication is prohibited**
-
-**This tool release is unofficial and not covered by standard Ansys Support license.**
-
+----------------
 
 Description
-======================================================
+===========
 
-This class contains all the Common modules of AEDT. it includes file management, messaging, and all the calls to AEDT modules
-like modeler, mesh, postprocessing, setup
+This module contains all the Common classes of PyAEDT, including file
+management, messaging, and all the calls to AEDT modules like modeler,
+mesh, postprocessing, setup.
 
-========================================================
 
 """
 from __future__ import absolute_import
