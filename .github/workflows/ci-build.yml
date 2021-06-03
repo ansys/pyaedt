@@ -1,0 +1,39 @@
+name: Documentation Build
+
+on: [push, pull_request, workflow_dispatch]
+
+jobs:
+  docs_build:
+    runs-on: ubuntu-20.04
+
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Setup Python
+        uses: actions/setup-python@v2.2.2
+        with:
+          python-version: 3.8
+
+      - name: Install pyaedt
+        run: |
+          pip install .
+  
+      - name: Build Documentation
+        run: |
+          pip install -r requirements_docs.txt
+          make -C doc html
+  
+      - name: Upload Documentation
+        uses: actions/upload-artifact@v2.2.3
+        with:
+          name: Documentation
+          path: doc/build/html
+          retention-days: 7
+
+      - name: Deploy
+        uses: JamesIves/github-pages-deploy-action@3.7.1
+        with:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          BRANCH: gh-pages
+          FOLDER: doc/build/html
+          CLEAN: true
