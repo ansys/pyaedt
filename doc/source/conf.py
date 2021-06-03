@@ -106,18 +106,18 @@ pyvista.OFF_SCREEN = True
 # pyvista.set_plot_theme('document')
 
 # must be less than or equal to the XVFB window size
-pyvista.rcParams['window_size'] = np.array([1024, 768])  # * 2
+pyvista.rcParams['window_size'] = np.array([1024, 768])
 
 # Save figures in specified directory
 pyvista.FIGURE_PATH = os.path.join(os.path.abspath('./images/'), 'auto-generated/')
 if not os.path.exists(pyvista.FIGURE_PATH):
     os.makedirs(pyvista.FIGURE_PATH)
 
-# necessary when building the sphinx gallery
-
+# gallery build requires AEDT install
 if os.name != 'posix':
     extensions.append('sphinx_gallery.gen_gallery')
 
+    # necessary for pyvista when building the sphinx gallery
     pyvista.BUILDING_GALLERY = True
 
     # suppress annoying matplotlib bug
