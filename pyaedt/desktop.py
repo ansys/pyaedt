@@ -1,8 +1,6 @@
-"""
-Desktop Class
--------------
+"""This is the desktop module used to initialize AEDT.
 
-This class initializes AEDT and MessageManager to manage the AEDT
+This module initializes AEDT and MessageManager to manage the AEDT
 desktop.  It can be initialized in standalone way before launching an
 app or it is automatically initialized to latest installed AEDT
 version.
