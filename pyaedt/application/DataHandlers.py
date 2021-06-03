@@ -6,6 +6,8 @@ from ..generic.general_methods import aedt_exception_handler, generate_unique_na
 from ..modeler.Object3d import EdgePrimitive, FacePrimitive, VertexPrimitive
 try:
     import clr
+    if not hasattr(clr, 'AddReference'):
+        raise ImportError
     clr.AddReference("System.Collections")
     from System.Collections.Generic import List
     clr.AddReference("System")

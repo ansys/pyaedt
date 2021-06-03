@@ -25,11 +25,11 @@ from .Design import Design
 from ..modules.MaterialLib import Materials
 from ..generic.general_methods import aedt_exception_handler
 from ..desktop import _pythonver
-
-if _pythonver > 2:
-    from ..modules.AdvancedPostProcessing import PostProcessor
-else:
+import sys
+if "IronPython" in sys.version or ".NETFramework" in sys.version:
     from ..modules.PostProcessor import PostProcessor
+else:
+    from ..modules.AdvancedPostProcessing import PostProcessor
 
 
 class Analysis(Design, object):
@@ -727,7 +727,7 @@ class Analysis(Design, object):
 
         Returns
         -------
-        type
+        :class: Setup
             setup object
 
         """

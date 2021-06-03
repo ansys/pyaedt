@@ -2,7 +2,7 @@ from ..generic.general_methods import aedt_exception_handler, generate_unique_na
 from .Analysis import Analysis
 from .Design import solutions_settings
 from ..modeler.Circuit import ModelerSimplorer
-from ..modules.AdvancedPostProcessing import PostProcessor
+from ..modules.PostProcessor import PostProcessor
 from ..modules.SetupTemplates import SetupKeys
 from ..modules.SolveSetup import SetupCircuit
 

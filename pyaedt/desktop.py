@@ -24,8 +24,6 @@ Launch Desktop 2019R3 in Graphical Mode
 The initialize Desktop to latest version installed on your machine in
 Graphical Mode and initialize HFSS.
 
-hfss = pyaedt.Hfss()
-
 """
 from __future__ import absolute_import
 
@@ -324,11 +322,7 @@ class Desktop:
             self._main.AEDTVersion = self._main.oDesktop.GetVersion()[0:6]
             self._main.oDesktop.RestoreWindow()
             self._main.oMessenger = AEDTMessageManager()
-            specified_version = self.current_version
-            assert specified_version in self.version_keys, \
-                "Specified version {} not known.".format(specified_version)
-            version_key = specified_version
-            base_path = os.getenv(self._version_ids[specified_version])
+            base_path = self._main.oDesktop.GetExeDir()
             self._main.sDesktopinstallDirectory = base_path
             self.release = False
         else:

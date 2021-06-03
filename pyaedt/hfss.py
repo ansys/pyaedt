@@ -86,29 +86,6 @@ class Hfss(FieldAnalysis3D, object):
 
     @aedt_exception_handler
     def _create_lumped_driven(self, objectname, int_line_start, int_line_stop, impedance, portname,renorm, deemb):
-        """
-
-        Parameters
-        ----------
-        objectname :
-            
-        int_line_start :
-            
-        int_line_stop :
-            
-        impedance :
-            
-        portname :
-            
-        renorm :
-            
-        deemb :
-            
-
-        Returns
-        -------
-
-        """
         start = [str(i)+self.modeler.primitives.model_units for i in int_line_start]
         stop = [str(i)+self.modeler.primitives.model_units for i in int_line_stop]
         props = OrderedDict({"Objects": [objectname], "DoDeembed": deemb, "RenormalizeAllTerminals": renorm,
@@ -128,23 +105,6 @@ class Hfss(FieldAnalysis3D, object):
 
     @aedt_exception_handler
     def _create_port_terminal(self, objectname, int_line_stop, portname, iswaveport=False):
-        """
-
-        Parameters
-        ----------
-        objectname :
-            
-        int_line_stop :
-            
-        portname :
-            
-        iswaveport :
-             (Default value = False)
-
-        Returns
-        -------
-
-        """
         ref_conductors=self.modeler.convert_to_selections(int_line_stop,False)
         props = OrderedDict({})
         props["Faces"]=int(objectname)
@@ -155,42 +115,10 @@ class Hfss(FieldAnalysis3D, object):
         if bound.create():
             self.boundaries.append(bound)
             return bound
-
-        # self.oboundary.AutoIdentifyPorts(
-        #     [
-        #         "NAME:Faces",
-        #         int(objectname)
-        #     ], iswaveport,
-        #     [
-        #         "NAME:ReferenceConductors",
-        #         ref_conductors
-        #     ], portname, True)
         return True
 
     @aedt_exception_handler
     def _create_circuit_port(self, edgelist, impedance, name, renorm, deemb, renorm_impedance=""):
-        """
-
-        Parameters
-        ----------
-        edgelist :
-            
-        impedance :
-            
-        name :
-            
-        renorm :
-            
-        deemb :
-            
-        renorm_impedance :
-             (Default value = "")
-
-        Returns
-        -------
-
-        """
-
         edgelist = self.modeler._convert_list_to_ids(edgelist,False)
         props = OrderedDict({"Edges": edgelist, "Impedance": str(impedance) + "ohm", "DoDeembed": deemb,
                              "RenormalizeAllTerminals": renorm})
@@ -216,32 +144,8 @@ class Hfss(FieldAnalysis3D, object):
     @aedt_exception_handler
     def _create_waveport_driven(self, objectname, int_line_start=None, int_line_stop=None, impedance=50, portname="",
                                 renorm=True, nummodes=1, deemb_distance=0):
-        """
-
-        Parameters
-        ----------
-        objectname :
-            
-        int_line_start :
-             (Default value = None)
-        int_line_stop :
-             (Default value = None)
-        impedance :
-             (Default value = 50)
-        portname :
-             (Default value = "")
-        renorm :
-             (Default value = True)
-        nummodes :
-             (Default value = 1)
-        deemb_distance :
-             (Default value = 0)
-
-        Returns
-        -------
-
-        """
-
+        start = None
+        stop = None
         if int_line_start and int_line_stop:
             start = [str(i)+self.modeler.primitives.model_units for i in int_line_start]
             stop = [str(i)+self.modeler.primitives.model_units for i in int_line_stop]
@@ -272,7 +176,7 @@ class Hfss(FieldAnalysis3D, object):
                 mode["ModeNum"] = i
                 mode["UseIntLine"] = useintline
                 if useintline:
-                    mode["IntLine"] = OrderedDict({"Start":start,"End":stop})
+                    mode["IntLine"] = OrderedDict({"Start": start, "End": stop})
                 mode["AlignmentGroup"] = 0
                 mode["CharImp"] = "Zpi"
                 mode["RenormImp"] = str(impedance)+"ohm"
@@ -307,40 +211,44 @@ class Hfss(FieldAnalysis3D, object):
 
         Parameters
         ----------
-        obj :
+        obj : list or str
             object list
-        mat :
+        mat : str
             material name to use, optional (Default value = None)
-        cond :
+        cond : float
             if not material is provided user has to provide conductivity (Default value = 58000000)
-        perm :
+        perm : float
             if not material is provided user has to provide permittivity (Default value = 1)
-        usethickness :
+        usethickness : bool
             boolean (Default value = False)
-        thickness :
+        thickness : str
             thickness value in case usethickness=True (Default value = "0.1mm")
-        roughness :
+        roughness : str
             optional roughness value (Default value = "0um")
-        isinfgnd :
+        isinfgnd : bool
             Boolean (Default value = False)
-        istwoside :
+        istwoside : bool
             Boolean (Default value = False)
-        isInternal :
+        isInternal : bool
             Boolean (Default value = True)
-        issheelElement :
+        issheelElement : bool
             Boolena (Default value = False)
-        usehuray :
+        usehuray : bool
             Boolean (Default value = False)
-        radius :
+        radius : str
             Huray Coefficient (Default value = "0.5um")
-        ratio :
+        ratio : str
             Huray Coefficient (Default value = "2.9")
 
         Returns
         -------
-        type
+        :class: BoundaryObject
             Boundary Object
 
+        Examples
+        --------
+        >>> id1 = aedtapp.modeler.primitives.get_obj_id("inner")
+        >>> coat = aedtapp.assigncoating([id1], "copper",usethickness=True, thickness="0.2mm")
         """
 
         mat = mat.lower()
@@ -394,7 +302,7 @@ class Hfss(FieldAnalysis3D, object):
 
         Parameters
         ----------
-        setupname :
+        setupname : str
             name of the setup to which is attached the sweep
         unit :
             Units ("MHz", "GHz"....) (Default value = "GHz")
@@ -419,6 +327,7 @@ class Hfss(FieldAnalysis3D, object):
             True if operation succeeded
 
         """
+
         if sweepname is None:
             sweepname = generate_unique_name("Sweep")
 
@@ -427,24 +336,24 @@ class Hfss(FieldAnalysis3D, object):
         for i in self.setups:
             if i.name == setupname:
                 setupdata = i
-        for sw in setupdata.sweeps:
-            if sweepname ==  sw.name:
-                self.messenger.add_warning_message("Sweep {} alrady present. Please rename and retry".format(sweepname))
-                return False
-        sweepdata = setupdata.add_sweep(sweepname, sweeptype)
-        sweepdata.props["RangeStart"] = str(freqstart) + unit
-        sweepdata.props["RangeEnd"] = str(freqstop) + unit
-        sweepdata.props["RangeCount"] = num_of_freq_points
-        sweepdata.props["Type"] = sweeptype
-        if sweeptype == "Interpolating":
-            sweepdata.props["InterpTolerance"] = interpolation_tol
-            sweepdata.props["InterpMaxSolns"] = interpolation_max_solutions
-            sweepdata.props["InterpMinSolns"] = 0
-            sweepdata.props["InterpMinSubranges"] = 1
+                for sw in setupdata.sweeps:
+                    if sweepname == sw.name:
+                        self.messenger.add_warning_message("Sweep {} alrady present. Please rename and retry".format(sweepname))
+                        return False
+                sweepdata = setupdata.add_sweep(sweepname, sweeptype)
+                sweepdata.props["RangeStart"] = str(freqstart) + unit
+                sweepdata.props["RangeEnd"] = str(freqstop) + unit
+                sweepdata.props["RangeCount"] = num_of_freq_points
+                sweepdata.props["Type"] = sweeptype
+                if sweeptype == "Interpolating":
+                    sweepdata.props["InterpTolerance"] = interpolation_tol
+                    sweepdata.props["InterpMaxSolns"] = interpolation_max_solutions
+                    sweepdata.props["InterpMinSolns"] = 0
+                    sweepdata.props["InterpMinSubranges"] = 1
 
-        sweepdata.props["RangeStart"] = str(freqstart) + unit
-        sweepdata.update()
-        return sweepname
+                sweepdata.props["RangeStart"] = str(freqstart) + unit
+                sweepdata.update()
+                return sweepname
 
 
     @aedt_exception_handler
@@ -454,26 +363,26 @@ class Hfss(FieldAnalysis3D, object):
 
         Parameters
         ----------
-        freqstart :
-            Starting Frequency of sweep
-        freqstop :
-            Stop Frequency of Sweep
-        sweepname :
-            name of the Sweep (Default value = None)
-        unit :
-            Units ("MHz", "GHz"....)
-        num_of_freq_points :
-            Number of frequency point in the range
-        setupname :
+        setupname : str
             Setup name
-        save_fields :
+        freqstart : float
+            Starting Frequency of sweep (eg. 1)
+        freqstop : float
+            Stop Frequency of Sweep
+        sweepname : str
+            name of the Sweep (Default value = None)
+        unit : str
+            Units ("MHz", "GHz"....)
+        num_of_freq_points : int
+            Number of frequency point in the range
+        save_fields : bool
             bool (Default value = True)
         save_rad_fields :
             bool (Default value = False)
 
         Returns
         -------
-        type
+        :class: SweepHFSS
             sweepname
 
         """
@@ -485,21 +394,21 @@ class Hfss(FieldAnalysis3D, object):
         for i in self.setups:
             if i.name == setupname:
                 setupdata = i
-        for sw in setupdata.sweeps:
-            if sweepname == sw.name:
-                self.messenger.add_warning_message("Sweep {} alrady present. Please rename and retry".format(sweepname))
-                return False
-        sweepdata = setupdata.add_sweep(sweepname, "Discrete")
-        sweepdata.props["RangeStart"] = str(freqstart) + unit,
-        sweepdata.props["RangeEnd"] = str(freqstop) + unit,
-        sweepdata.props["RangeCount"] = num_of_freq_points,
-        sweepdata.props["SaveFields"] = save_fields
-        sweepdata.props["SaveRadFields"] = save_rad_fields
-        sweepdata.props["Type"] = "Discrete"
-        sweepdata.props["RangeType"] = "LinearCount"
-        sweepdata.props["ExtrapToDC"] = False
-        sweepdata.update()
-        return sweepname
+                for sw in setupdata.sweeps:
+                    if sweepname == sw.name:
+                        self.messenger.add_warning_message("Sweep {} alrady present. Please rename and retry".format(sweepname))
+                        return False
+                sweepdata = setupdata.add_sweep(sweepname, "Discrete")
+                sweepdata.props["RangeStart"] = str(freqstart) + unit,
+                sweepdata.props["RangeEnd"] = str(freqstop) + unit,
+                sweepdata.props["RangeCount"] = num_of_freq_points,
+                sweepdata.props["SaveFields"] = save_fields
+                sweepdata.props["SaveRadFields"] = save_rad_fields
+                sweepdata.props["Type"] = "Discrete"
+                sweepdata.props["RangeType"] = "LinearCount"
+                sweepdata.props["ExtrapToDC"] = False
+                sweepdata.update()
+                return sweepname
 
     @aedt_exception_handler
     def create_linear_step_sweep(self, setupname, unit, freqstart, freqstop, step_size,
@@ -508,26 +417,26 @@ class Hfss(FieldAnalysis3D, object):
 
         Parameters
         ----------
-        freqstart :
+        freqstart : float
             Starting Frequency of sweep
-        freqstop :
+        freqstop : float
             Stop Frequency of Sweep
-        sweepname :
+        sweepname : str
             name of the Sweep (Default value = None)
-        unit :
+        unit : str
             Units ("MHz", "GHz"....)
-        step_size :
+        step_size : float
             Frequency size of the step
-        setupname :
+        setupname : str
             Setup name
-        save_fields :
+        save_fields : bool
             bool (Default value = True)
-        save_rad_fields :
+        save_rad_fields : bool
             bool (Default value = False)
 
         Returns
         -------
-        type
+        :class: SweepHFSS
             sweepname
 
         """
@@ -539,21 +448,21 @@ class Hfss(FieldAnalysis3D, object):
         for i in self.setups:
             if i.name == setupname:
                 setupdata = i
-        for sw in setupdata.sweeps:
-            if sweepname == sw.name:
-                self.messenger.add_warning_message("Sweep {} alrady present. Please rename and retry".format(sweepname))
-                return False
-        sweepdata = setupdata.add_sweep(sweepname, "Discrete")
-        sweepdata.props["RangeStart"] = str(freqstart) + unit
-        sweepdata.props["RangeEnd"] = str(freqstop) + unit
-        sweepdata.props["RangeStep"] = str(step_size) + unit
-        sweepdata.props["SaveFields"] = save_fields
-        sweepdata.props["SaveRadFields"] = save_rad_fields
-        sweepdata.props["ExtrapToDC"] = False
-        sweepdata.props["Type"] = "Discrete"
-        sweepdata.props["RangeType"] = "LinearStep"
-        sweepdata.update()
-        return sweepname
+                for sw in setupdata.sweeps:
+                    if sweepname == sw.name:
+                        self.messenger.add_warning_message("Sweep {} alrady present. Please rename and retry".format(sweepname))
+                        return False
+                sweepdata = setupdata.add_sweep(sweepname, "Discrete")
+                sweepdata.props["RangeStart"] = str(freqstart) + unit
+                sweepdata.props["RangeEnd"] = str(freqstop) + unit
+                sweepdata.props["RangeStep"] = str(step_size) + unit
+                sweepdata.props["SaveFields"] = save_fields
+                sweepdata.props["SaveRadFields"] = save_rad_fields
+                sweepdata.props["ExtrapToDC"] = False
+                sweepdata.props["Type"] = "Discrete"
+                sweepdata.props["RangeType"] = "LinearStep"
+                sweepdata.update()
+                return sweepname
 
 
     @aedt_exception_handler
@@ -562,20 +471,20 @@ class Hfss(FieldAnalysis3D, object):
 
         Parameters
         ----------
-        setupname :
+        setupname : str
             Setup name
-        freq :
+        freq : str
             sweep freq (including Units) as string (Default value = "1GHz")
-        sweepname :
+        sweepname : str
             name of the sweep (Default value = "SinglePoint")
-        save_field :
+        save_field : bool
             bool (Default value = True)
-        save_radiating_field :
+        save_radiating_field : bool
             bool (Default value = False)
 
         Returns
         -------
-        type
+        :class: SweepHFSS
             sweepname
 
         """
@@ -587,23 +496,22 @@ class Hfss(FieldAnalysis3D, object):
         for i in self.setups:
             if i.name == setupname:
                 setupdata = i
-        for sw in setupdata.sweeps:
-            if sweepname == sw.name:
-                self.messenger.add_warning_message("Sweep {} alrady present. Please rename and retry".format(sweepname))
-                return False
-        sweepdata = setupdata.add_sweep(sweepname, "Discrete")
-        sweepdata.props["RangeStart"] = freq
-        sweepdata.props["RangeEnd"] = freq
-        sweepdata.props["SaveSingleField"] = save_field
-        sweepdata.props["SaveFields"] = save_field
-        sweepdata.props["SaveRadFields"] = save_radiating_field
-        sweepdata.props["ExtrapToDC"] = False
-        sweepdata.props["Type"] = "Discrete"
-        sweepdata.props["RangeType"] = "SinglePoints"
-        sweepdata.update()
-
-        self._messenger.add_info_message("Sweep Created Correctly")
-        return sweepname
+                for sw in setupdata.sweeps:
+                    if sweepname == sw.name:
+                        self.messenger.add_warning_message("Sweep {} alrady present. Please rename and retry".format(sweepname))
+                        return False
+                sweepdata = setupdata.add_sweep(sweepname, "Discrete")
+                sweepdata.props["RangeStart"] = freq
+                sweepdata.props["RangeEnd"] = freq
+                sweepdata.props["SaveSingleField"] = save_field
+                sweepdata.props["SaveFields"] = save_field
+                sweepdata.props["SaveRadFields"] = save_radiating_field
+                sweepdata.props["ExtrapToDC"] = False
+                sweepdata.props["Type"] = "Discrete"
+                sweepdata.props["RangeType"] = "SinglePoints"
+                sweepdata.update()
+                self._messenger.add_info_message("Sweep Created Correctly")
+                return sweepname
 
 
     @aedt_exception_handler
@@ -839,7 +747,7 @@ class Hfss(FieldAnalysis3D, object):
 
         Returns
         -------
-        type
+        :class: BoundaryObject
             Port Name
 
         """
@@ -856,30 +764,14 @@ class Hfss(FieldAnalysis3D, object):
             elif portname+":1" in self.modeler.get_excitations_name():
                 portname = generate_unique_name(portname)
             if self.solution_type == "DrivenModal":
-                self._create_waveport_driven(sheet_name, point0, point1, impedance, portname, renorm, nummodes, deembed_dist)
+                return self._create_waveport_driven(sheet_name, point0, point1, impedance, portname, renorm, nummodes, deembed_dist)
             else:
                 faces = self.modeler.primitives.get_object_faces(sheet_name)
-                self._create_port_terminal(faces[0], endobject, portname, iswaveport=True)
-            return portname
+                return self._create_port_terminal(faces[0], endobject, portname, iswaveport=True)
         return False
 
     @aedt_exception_handler
     def _create_pec_cap(self, sheet_name, axisdir, pecthick):
-        """
-
-        Parameters
-        ----------
-        sheet_name :
-            
-        axisdir :
-            
-        pecthick :
-            
-
-        Returns
-        -------
-
-        """
         vector = [0, 0, 0]
         if axisdir < 3:
             vector[divmod(axisdir, 3)[1]] = -pecthick / 2
@@ -921,7 +813,7 @@ class Hfss(FieldAnalysis3D, object):
 
         Returns
         -------
-        type
+        :class: BoundaryObject
             Port Name
 
         """
@@ -937,11 +829,10 @@ class Hfss(FieldAnalysis3D, object):
             elif portname+":1" in self.modeler.get_excitations_name():
                 portname = generate_unique_name(portname)
             if self.solution_type == "DrivenModal":
-                self._create_waveport_driven(sheet_name, point0, point1, impedance, portname, renorm, nummodes, deembed_dist)
+                return self._create_waveport_driven(sheet_name, point0, point1, impedance, portname, renorm, nummodes, deembed_dist)
             else:
                 faces = self.modeler.primitives.get_object_faces(sheet_name)
-                self._create_port_terminal(faces[0], endobject, portname, iswaveport=True)
-            return portname
+                return self._create_port_terminal(faces[0], endobject, portname, iswaveport=True)
         return False
 
     @aedt_exception_handler
@@ -965,7 +856,7 @@ class Hfss(FieldAnalysis3D, object):
 
         Returns
         -------
-        type
+        :class: BoundaryObject
             boundary object
 
         """
@@ -1001,7 +892,7 @@ class Hfss(FieldAnalysis3D, object):
 
         Returns
         -------
-        type
+        :class: BoundaryObject
             Boundary Object
 
         """
@@ -1037,7 +928,7 @@ class Hfss(FieldAnalysis3D, object):
 
         Returns
         -------
-
+        bool
         """
         self.odesign.SARSetup(TissueMass, MaterialDensity, Tissue_object_List_ID, voxel_size, Average_SAR_method)
         return True
@@ -1059,7 +950,7 @@ class Hfss(FieldAnalysis3D, object):
 
         Returns
         -------
-
+        bool
         """
         vars= [
                 "NAME:Settings",
@@ -1102,7 +993,7 @@ class Hfss(FieldAnalysis3D, object):
 
         Returns
         -------
-        type
+        :class: BoundaryObject
             Boundary Name
 
         """
@@ -1163,7 +1054,7 @@ class Hfss(FieldAnalysis3D, object):
 
         Returns
         -------
-        type
+        :class: BoundaryObject
             Boundary Name
 
         """
@@ -1203,7 +1094,7 @@ class Hfss(FieldAnalysis3D, object):
 
         Returns
         -------
-        type
+        :class: BoundaryObject
             Boundary Object if successful
 
         """
@@ -1236,19 +1127,6 @@ class Hfss(FieldAnalysis3D, object):
 
     @aedt_exception_handler
     def _get_reference_and_integration_points(self, sheet, axisdir):
-        """
-
-        Parameters
-        ----------
-        sheet :
-            
-        axisdir :
-            
-
-        Returns
-        -------
-
-        """
         objID = self.modeler.oeditor.GetFaceIDs(sheet)
         face_edges = self.modeler.primitives.get_face_edges(objID[0])
         mid_points = [self.modeler.primitives.get_edge_midpoint(i) for i in face_edges]
@@ -1309,7 +1187,8 @@ class Hfss(FieldAnalysis3D, object):
 
         Returns
         -------
-
+        list
+            list of objects created
         """
         sheet = self.modeler.convert_to_selections(sheet, True)
         portnames = []
@@ -1321,13 +1200,15 @@ class Hfss(FieldAnalysis3D, object):
             elif portname+":1" in self.modeler.get_excitations_name():
                 portname = generate_unique_name(portname)
             if self.solution_type == "DrivenModal":
-                self._create_waveport_driven(obj, int_start, int_stop, impedance, portname, renorm, nummodes, deemb)
-                portnames.append(portname)
+                b = self._create_waveport_driven(obj, int_start, int_stop, impedance, portname, renorm, nummodes, deemb)
+                if b:
+                    portnames.append(b)
             else:
                 faces = self.modeler.primitives.get_object_faces(obj)
                 if len(refid)>0:
-                    self._create_port_terminal(faces[0], refid, portname, iswaveport=True)
-                    portnames.append(portname)
+                    b = self._create_port_terminal(faces[0], refid, portname, iswaveport=True)
+                    if b:
+                        portnames.append(b)
 
                 else:
                     return False
