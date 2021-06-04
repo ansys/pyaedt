@@ -20,7 +20,7 @@ jobs:
 
       - name: Verify install
         run: |
-          cd tests/
+          mkdir tmp && cd tmp  # move to different directory to test import
           python -c "import pyaedt"
   
       - name: Build Documentation
