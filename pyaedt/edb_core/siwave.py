@@ -15,13 +15,11 @@ if 'clr' in modules:
     from System import Convert, String
     from System import Double, Array
     from System.Collections.Generic import List
-import enum
 
-class SourceType(enum.Enum):
-    Port = 1
-    CurrentSource = 2
-    VoltageSource = 3
-    Resistor = 4
+
+class SourceType(object):
+    (Port, CurrentSource, VoltageSource, Resistor) = (1, 2, 3, 4)
+
 
 class PinGroup():
     def __init__(self):
