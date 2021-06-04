@@ -9,7 +9,9 @@ from ..modules.Mesh3DLayout import Mesh
 class FieldAnalysis3DLayout(Analysis):
     """**AEDT_3DLayout_FieldAnalysis**
     Class for HFSS 3DLayoyt Field Analysis Setup
-    It is automatically initialized by Application call (like HFSS, Q3D...). Refer to Application function for inputs definition
+
+    It is automatically initialized by Application call (like HFSS,
+    Q3D...). Refer to Application function for inputs definition.
 
     Parameters
     ----------
@@ -283,7 +285,7 @@ class FieldAnalysis3DLayout(Analysis):
 
         Returns
         -------
-        type
+        :class: Setup3DLayout
             setup object
 
         """

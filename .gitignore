@@ -342,3 +342,12 @@ healthchecksdb
 
 # virtual environment
 /venv/
+
+# sphinx build
+doc/_build/
+
+# pip files
+*.egg-info/*
+
+# mypi cache
+.mypy_cache/

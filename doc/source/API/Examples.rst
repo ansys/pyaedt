@@ -1,61 +1,59 @@
-.. pyaedt documentation master file, created by
-   sphinx-quickstart on Fri Jun 12 11:39:54 2020.
-   You can adapt this file completely to your liking, but it should at least
-   contain the root `toctree` directive.
-
 Examples
-===================================
+========
 
-Here you can find a list of examples that shows how to use pyaedt in real practical cases.
+Here you can find a list of examples that shows how to use PyAEDT in
+real practical cases.
 
 **Getting Started Examples:**
 
-- `JupyterLab HFSS Full Example <../../Examples/Notebooks/HFSS_Icepak_fullEXample.ipynb>`_: It is a Jupyter lab file that shows how user can launch pyaedt from Jupyter lab. It requires Juputer Lab to be installed on your machine.
+..
+   - `JupyterLab HFSS Full Example <../Examples/Notebooks/HFSS_Icepak_fullEXample.ipynb>`_: It is a Jupyter lab file that shows how user can launch pyaedt from Jupyter lab. It requires Juputer Lab to be installed on your machine.
 
-- `JupyterLab HFSS Full Example Non Graphical <../../Examples/Notebooks/HFSS_Icepak_fullEXample-NG.ipynb>`_: It is a Jupyter lab file that shows how user can launch pyaedt from Jupyter lab. It requires Juputer Lab to be installed on your machine. Non Graphical Version
+   - `JupyterLab HFSS Full Example Non Graphical <../../Examples/Notebooks/HFSS_Icepak_fullEXample-NG.ipynb>`_: It is a Jupyter lab file that shows how user can launch pyaedt from Jupyter lab. It requires Juputer Lab to be installed on your machine. Non Graphical Version
 
-- `JupyterLab Far Field PostProcessing Example <../../Examples/Notebooks/far_field_test.ipynb>`_: It is a Jupyter lab file that shows how user can use matplotly to postprocess data from AEDT in Non-Graphical mode. It requires Juputer Lab to be installed on your machine.
+   - `JupyterLab Far Field PostProcessing Example <../../Examples/Notebooks/far_field_test.ipynb>`_: It is a Jupyter lab file that shows how user can use matplotly to postprocess data from AEDT in Non-Graphical mode. It requires Juputer Lab to be installed on your machine.
 
-- `JupyterLab Sherlock to Icepak Example <../../Examples/Notebooks/SherlockToIcepak.ipynb>`_: It is a Jupyter lab file that shows how user can import files from Sherlock and create Icepak Project.
+   - `JupyterLab Sherlock to Icepak Example <../../Examples/Notebooks/SherlockToIcepak.ipynb>`_: It is a Jupyter lab file that shows how user can import files from Sherlock and create Icepak Project.
 
-- `JupyterLab Maxwll Example 1 <../../Examples/Notebooks/maxwell_pyaedt_test.ipynb>`_: It is a Jupyter lab file that shows how user can create a maxwell project, run analysis and plot results.
+   - `JupyterLab Maxwll Example 1 <../../Examples/Notebooks/maxwell_pyaedt_test.ipynb>`_: It is a Jupyter lab file that shows how user can create a maxwell project, run analysis and plot results.
 
-- `JupyterLab Maxwll Example 2 <../../Examples/Notebooksmaxwell_pyaedt_test-NG.ipynb>`_: It is a Jupyter lab file that shows how user can create a maxwell project, run analysis and plot results. Non Graphical Version
+   - `JupyterLab Maxwll Example 2 <../../Examples/Notebooksmaxwell_pyaedt_test-NG.ipynb>`_: It is a Jupyter lab file that shows how user can create a maxwell project, run analysis and plot results. Non Graphical Version
 
-- `JupyterLab Netlist Example <../../Examples/Notebooks/Netlist.ipynb>`_: It is a Jupyter lab file that shows how user can read a netlist and create a schematic
+   - `JupyterLab Netlist Example <../../Examples/Notebooks/Netlist.ipynb>`_: It is a Jupyter lab file that shows how user can read a netlist and create a schematic
 
-- `HFSS Example <../../Examples/01_HFSS_Icepak_FullProject.py>`_: Includes HFSS and Icepak Analysis
+   - `HFSS Example <../../Examples/01_HFSS_Icepak_FullProject.py>`_: Includes HFSS and Icepak Analysis
 
-- `Maxwell 3D Example <../../Examples/02_Maxwell_Icepak_App_Example.py>`_: It includes Maxwell and Icepak Analysis
+   - `Maxwell 3D Example <../../Examples/02_Maxwell_Icepak_App_Example.py>`_: It includes Maxwell and Icepak Analysis
 
-- `Solution Setup Example <../../Examples/13_Solution_Setup_Example.py>`_: It includes example to create automatically a Simulation Setup in different tools
+   - `Solution Setup Example <../../Examples/13_Solution_Setup_Example.py>`_: It includes example to create automatically a Simulation Setup in different tools
 
-- `Q3D Example <../../Examples/03_Q3D_Example.py>`_ Q3D_Example.py: It includes an example of creating Q3D Project
+   - `Q3D Example <../../Examples/03_Q3D_Example.py>`_ Q3D_Example.py: It includes an example of creating Q3D Project
 
-- `EDB Example <../../Examples/08A_EDB_From3DLayout_Example.py>`_: It includes an example of using Edb API from pyaedt within 3DLayout (read ONLY)
+   - `EDB Example <../../Examples/08A_EDB_From3DLayout_Example.py>`_: It includes an example of using Edb API from pyaedt within 3DLayout (read ONLY)
 
-- `EDB Standalone Example <../../Examples/08B_EDB_Standalone_example.py>`_: It includes an example of using Edb API ouside aedt (read/write)
+   - `EDB Standalone Example <../../Examples/08B_EDB_Standalone_example.py>`_: It includes an example of using Edb API ouside aedt (read/write)
 
-- `HFSS 3D Layout Example <../../Examples/08C_HFSS_3DLayout_example.py>`_: It includes an example of using HFSS3DLayout
+   - `HFSS 3D Layout Example <../../Examples/08C_HFSS_3DLayout_example.py>`_: It includes an example of using HFSS3DLayout
 
-- `Dipole Example <../../Examples/05_Dipole_Example.py>`_: It includes an example of using HFSS
+   - `Dipole Example <../../Examples/05_Dipole_Example.py>`_: It includes an example of using HFSS
 
-- `Circuit Example <../../Examples/06_Circuit_Example.py>`_: A Simple RLC Example
+   - `Circuit Example <../../Examples/06_Circuit_Example.py>`_: A Simple RLC Example
 
-- `Netlist Example <../../Examples/09_Import_Netlist.py>`_: A Simple HSPICE Netlist Import Example
+   - `Netlist Example <../../Examples/09_Import_Netlist.py>`_: A Simple HSPICE Netlist Import Example
 
-- `Geometry Creation Example <../../Examples/10_Geometry_Creation_Package.py>`_: A Simple Package Creation Example
+   - `Geometry Creation Example <../../Examples/10_Geometry_Creation_Package.py>`_: A Simple Package Creation Example
 
-- `Ansys Report Example <../../Examples/11_Ansys_Report.py>`_: An example on how to create pdf reports
+   - `Ansys Report Example <../../Examples/11_Ansys_Report.py>`_: An example on how to create pdf reports
 
-- `HeatSink Example <../../Examples/11_Ansys_Report.py>`_: An example on how to create a fully parametrized HeatSink
+   - `HeatSink Example <../../Examples/11_Ansys_Report.py>`_: An example on how to create a fully parametrized HeatSink
 
 Jupyeter can be launched with the following command:
 
 *"jupyter lab pathtopyaedtRoot/Documentation/Examples/example_name.ipynb"* and jupyter server will be launched and the notebook will be loaded
 
+
 Example
-__________
+-------
 
 **1. Insert a Maxwell design and instantiate Geometry modeler.**
 
@@ -188,8 +186,10 @@ __________
    M3D.save_project(project_name)
 
 
-Plot can be done in AEDT or outside like shown in this example. Additional examples shows that the same way of working
-can be applied to touchstons or other report data. Furthermore Field Plots can be exported and processed using Plotly package
+Plots can be generated within AEDT or externally as shown in this
+example. Additional examples show that the approach can be
+applied to touchstone or other report data. Additionally, Field Plots
+can be exported and processed using ``Plotly`` package
 
 
 

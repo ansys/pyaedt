@@ -1,23 +1,9 @@
 # -*- coding: utf-8 -*-
 """
 Circuit Class
-----------------
-
-Disclaimer
-==========
-
-**Copyright (c) 1986-2021, ANSYS Inc. unauthorised use, distribution or duplication is prohibited**
-
-**This tool release is unofficial and not covered by standard Ansys Support license.**
-
-
-Description
-==================================================================
-
-This class contains the link to Circuit object. It includes all inherited classes and modules needed to create and edit circut designs
-
-
-================================================================
+-------------
+This class contains the link to Circuit object. It includes all
+inherited classes and modules needed to create and edit circut designs.
 
 """
 from __future__ import absolute_import
@@ -74,16 +60,44 @@ AEDT_MAPS = {
 
 def from_rkm(code):
     """Convert a RKM code string to a string with decimal point.
-    example: R47 = 0.47,  4R7 = 4.7,  470R = 470,  4K7 = 4.7k,  47K = 47k, 47K3 = 47.3k,  470K = 470k,  4M7 = 4.7MΩ
 
     Parameters
     ----------
     code : str
-        
+        RKM code string.
 
     Returns
     -------
     str
+        String with decimal point and R value.
+
+    Examples
+    --------
+    >>> from pyaedt.circuit import from_rkm
+    >>> from_rkm('R47')
+    '0.47'
+
+    >>> from_rkm('4R7')
+    '4.7'
+
+    >>> from_rkm('470R')
+    '470'
+
+    >>> from_rkm('4K7')
+    '4.7k'
+
+    >>> from_rkm('47K')
+    '47k'
+
+    >>> from_rkm('47K3')
+    '47.3k'
+
+    >>> from_rkm('470K')
+    '470k'
+
+    >>> from_rkm('4M7')
+    '4.7M'
+
     """
 
     # matches rkm codes that start with a digit
@@ -148,17 +162,18 @@ class Circuit(FieldAnalysisCircuit, object):
 
     Parameters
     ----------
-    projectname :
-        name of the project to be selected or full path to the project to be opened  or to the AEDTZ archive. if None try to get active project and, if nothing present to create an empy one
-    designname :
-        name of the design to be selected. if None, try to get active design and, if nothing present to create an empy one
-    solution_type :
-        solution type to be applied to design. if None default is taken
-    setup_name :
-        setup_name to be used as nominal. if none active setup is taken or nothing
-
-    Returns
-    -------
+    projectname : str, optional
+        Name of the project to be selected or full path to the project
+        to be opened or to the AEDTZ archive. If ``None``, try to get
+        active project and, if nothing present to create an empty one.
+    designname : str, optional
+        Name of the design to be selected. if ``None``, try to get
+        active design and, if nothing present to create an empty one.
+    solution_type : str, optional
+        Solution type to be applied to design. If ``None``, the default is used.
+    setup_name : str, optional
+        Setup_name to be used as nominal. If ``None`` active setup is
+        used or nothing.
 
     """
 
@@ -169,7 +184,6 @@ class Circuit(FieldAnalysisCircuit, object):
         return self
 
     def __exit__(self, ex_type, ex_value, ex_traceback):
-        ''' Push exit up to parent object Design '''
         if ex_type:
             exception_to_desktop(self, ex_value, ex_traceback)
 
@@ -182,6 +196,7 @@ class Circuit(FieldAnalysisCircuit, object):
     @aedt_exception_handler
     def create_schematic_from_netlist(self, file_to_import):
         """Create a Circuit Schematic from a spice netlist.
+
         Supported in this moment:
         -R, L, C, Diodes, Bjts
         -Discrete components with syntax Uxxx net1 net2 ... netn modname
@@ -389,12 +404,12 @@ class Circuit(FieldAnalysisCircuit, object):
         Parameters
         ----------
         file_to_import : str
-            full path to spice file
+            Full path to spice file.
 
         Returns
         -------
         bool
-            True if completed
+            ``True`` if successful.
         """
 
         xpos = 0
@@ -512,7 +527,7 @@ class Circuit(FieldAnalysisCircuit, object):
         Parameters
         ----------
         refid : str
-            string
+            Reference ID.
 
         Returns
         -------

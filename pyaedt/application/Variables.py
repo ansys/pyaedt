@@ -1,32 +1,27 @@
 """
-Variables Library Class
-----------------------------------------------------------------
+Variables Module
+----------------
 
-Disclaimer
-============================================================
+This class contains functionalities to create and edit design
+and project variables using the 3D tools.
 
-**Copyright (c) 1986-2021, ANSYS Inc. unauthorised use, distribution or duplication is prohibited**
+Examples
+--------
 
-**This tool release is unofficial and not covered by standard Ansys Support license.**
+>>> from pyaedt.hfss import Hfss
+>>> hfss = Hfss()
 
+Create a project variable
 
-Description
-==================================================
+>>> hfss["$d"] = "5mm"
 
-This class contains all the functionalities to create and edit design and project variable in a very easy way in all the 3D Tools
+Create a local variable
 
-:Example:
+>>> hfss["d"] = "5mm"
 
-hfss = HFSS()
-hfss["$d"] = "5mm"   create a project variable
+Create a postprocessing variable
 
-
-hfss["d"] = "5mm"   create a local variable
-pip install sphinx-adc-theme
-hfss["postd"] = "1W"   create a postprocessing variable
-
-
-================
+>>> hfss["postd"] = "1W"
 
 """
 from __future__ import absolute_import
@@ -1070,18 +1065,7 @@ class DataSet(object):
 
     @aedt_exception_handler
     def update(self):
-        """Update Dataset
-        
-        
-        :return: Bool
-
-        Parameters
-        ----------
-
-        Returns
-        -------
-
-        """
+        """Update Dataset"""
         args = self._args()
         if not args:
             return False
@@ -1093,18 +1077,7 @@ class DataSet(object):
 
     @aedt_exception_handler
     def delete(self):
-        """Delete a Dataset
-        
-        
-        :return: Bool
-
-        Parameters
-        ----------
-
-        Returns
-        -------
-
-        """
+        """Delete the dataset."""
         if self.name[0] == "$":
             self._parent._oproject.DeleteDataset(self.name)
             del self._parent.project_datasets[self.name]
@@ -1115,17 +1088,13 @@ class DataSet(object):
 
     @aedt_exception_handler
     def export(self, dataset_path=None):
-        """Export Dataset
+        """Export dataset
 
         Parameters
         ----------
-        dataset_path :
-            path where to export. if None the dataset will be exported to project_path (Default value = None)
-
-        Returns
-        -------
-        type
-            Bool
+        dataset_path : str, optional
+            Path where to export.  If ``None`` the dataset will be
+            exported to project_path (Default value = None)
 
         """
         if not dataset_path:
