@@ -16,7 +16,7 @@ jobs:
 
       - name: Install pyaedt
         run: |
-          pip install .
+          pip install . --use-feature=in-tree-build
   
       - name: Build Documentation
         run: |
