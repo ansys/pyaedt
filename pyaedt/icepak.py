@@ -45,9 +45,9 @@ class Icepak(FieldAnalysisIcepak):
     ----------
     projectname :
         name of the project to be selected or full path to the project to be opened  or to the AEDTZ
-        archive. if None try to get active project and, if nothing present to create an empy one
+        archive. if None try to get active project and, if nothing present to create an empty one
     designname :
-        name of the design to be selected. if None, try to get active design and, if nothing present to create an empy one
+        name of the design to be selected. if None, try to get active design and, if nothing present to create an empty one
     solution_type :
         solution type to be applied to design. if None default is taken
     setup_name :
@@ -157,7 +157,7 @@ class Icepak(FieldAnalysisIcepak):
 
     @aedt_exception_handler
     def create_source_blocks_from_list(self, list_powers, assign_material=True, default_material="Ceramic_material"):
-        """Assign to Box in Icepak Sources coming from CSV file. assignement is made by name
+        """Assign to Box in Icepak Sources coming from CSV file. assignment is made by name
 
         Parameters
         ----------
@@ -416,7 +416,7 @@ class Icepak(FieldAnalysisIcepak):
         Parameters
         ----------
         component_prefix :
-            compnents prefix on which to serach (Default value = "COMP_")
+            components prefix on which to search (Default value = "COMP_")
 
         Returns
         -------
@@ -752,7 +752,7 @@ class Icepak(FieldAnalysisIcepak):
     @aedt_exception_handler
     def eval_surface_quantity_from_field_summary(self, faces_list, quantity_name="HeatTransCoeff", savedir=None,
                                                  filename=None, sweep_name=None, parameter_dict_with_values={}):
-        """Creates the export of the Field Surface ouptut. It will export 1 csv file for the specified variation variation
+        """Creates the export of the Field Surface output. It will export 1 csv file for the specified variation variation
 
         Parameters
         ----------
@@ -802,7 +802,7 @@ class Icepak(FieldAnalysisIcepak):
 
     def eval_volume_quantity_from_field_summary(self, object_list, quantity_name="HeatTransCoeff",  savedir=None,
                                                  filename=None, sweep_name=None, parameter_dict_with_values={}):
-        """Creates the export of the Field Volume ouptut. It will export 1 csv file for the specified variation variation
+        """Creates the export of the Field Volume output. It will export 1 csv file for the specified variation variation
 
         Parameters
         ----------
@@ -851,7 +851,7 @@ class Icepak(FieldAnalysisIcepak):
 
     @aedt_exception_handler
     def UniteFieldsSummaryReports(self, savedir, proj_icepak):
-        """Unite the files created by Fields Summary for the varius variations
+        """Unite the files created by Fields Summary for the various variations
 
         Parameters
         ----------
@@ -1056,7 +1056,7 @@ class Icepak(FieldAnalysisIcepak):
         extenttype :
             extend type. Bounding Box or Polygon (Default value = "Bounding Box")
         outlinepolygon :
-            in case of extentype is Polygon the name of the poligon (Default value = "")
+            in case of extentype is Polygon the name of the polygon (Default value = "")
         powerin :
             in case cosim is disabled, the power to dissipate (default 0W)
 

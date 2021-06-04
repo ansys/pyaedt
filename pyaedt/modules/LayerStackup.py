@@ -504,7 +504,7 @@ class Layers(object):
         layername :
             name of the layer
         layertype :
-            tyep of the layer (Default value = "signal")
+            type of the layer (Default value = "signal")
         thickness :
             thickness with units (Default value = "0mm")
         elevation :

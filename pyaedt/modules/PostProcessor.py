@@ -817,7 +817,7 @@ class PostProcessor(object):
             grid_stop_wu = [str(grid_stop[0])+units, str(grid_stop[1])+ang_units, str(grid_stop[2])+ang_units]
             grid_step_wu = [str(grid_step[0])+units, str(grid_step[1])+ang_units, str(grid_step[2])+ang_units]
         else:
-            self._parent._messenger.add_error_message("Erro in Type of Grid")
+            self._parent._messenger.add_error_message("Error in Type of Grid")
             return False
         if not variation_dict:
             variation_dict = self._parent.available_variations.nominal_w_values
@@ -1186,7 +1186,7 @@ class PostProcessor(object):
         name :
             Project Name
         Xaxis :
-            Indipendent Variable
+            Independent Variable
         outputlist :
             List of Parameter to export
         setupname :
@@ -1229,7 +1229,7 @@ class PostProcessor(object):
         name :
             Project Name
         Xaxis :
-            Indipendent Variable
+            independent Variable
         outputlist :
             List of Parameter to export
         setupname :

@@ -183,7 +183,7 @@ class ModelerNexxim(ModelerCircuit):
         Returns
         -------
         type
-            True if succeded
+            True if succeeded
 
         """
         self.oeditor.Move(
@@ -214,7 +214,7 @@ class ModelerNexxim(ModelerCircuit):
         Returns
         -------
         type
-            True if succeded
+            True if succeeded
 
         """
         self.oeditor.Rotate(
@@ -232,14 +232,14 @@ class ModelerNexxim(ModelerCircuit):
 
     @aedt_exception_handler
     def subtract(self, blank, tool):
-        """Subract objects from names
+        """Subtract objects from names
 
         Parameters
         ----------
         blank :
             name of geometry from which subtract
         tool :
-            name of geometry that will be subracted. it can be a list
+            name of geometry that will be subtracted. it can be a list
 
         Returns
         -------

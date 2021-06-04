@@ -188,14 +188,14 @@ class Modeler3DLayout(Modeler):
 
     @aedt_exception_handler
     def subtract(self, blank, tool):
-        """Subract objects from names
+        """Subtract objects from names
 
         Parameters
         ----------
         blank :
             name of geometry from which subtract
         tool :
-            name of geometry that will be subracted. it can be a list
+            name of geometry that will be subtracted. it can be a list
 
         Returns
         -------

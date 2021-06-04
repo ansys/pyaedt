@@ -336,7 +336,7 @@ class TouchstoneData(object):
 
 @aedt_exception_handler
 def get_return_losses(excitation_names, excitation_name_prefix=''):
-    """Get the list of all the Returnloss from a list of exitations. If no exitation is provided it will provide a full list of return Losses
+    """Get the list of all the Returnloss from a list of exctitations. If no excitation is provided it will provide a full list of return Losses
     Example: excitation_names ["1","2"] is_touchstone_expression=False output ["S(1,1)",, S(2,2)]
     Example: excitation_names ["S(1,1)","S(1,2)", S(2,2)] is_touchstone_expression=True output ["S(1,1)",, S(2,2)]
 
@@ -395,8 +395,8 @@ def get_insertion_losses_from_prefix(expressions, tx_prefix, rx_prefix):
 
 @aedt_exception_handler
 def get_insertion_losses_from_lists(txlist, reclist):
-    """Get the list of all the Insertion Losses from two list of exitations (driver and receiver). Optionally prefix can
-    be used to retrive driver and receiver names.
+    """Get the list of all the Insertion Losses from two list of exctitations (driver and receiver). Optionally prefix can
+    be used to retrieve driver and receiver names.
     Example: excitation_names ["1"] ["2"] output ["S(1,2)"]
 
     Parameters
@@ -422,8 +422,8 @@ def get_insertion_losses_from_lists(txlist, reclist):
 
 @aedt_exception_handler
 def get_next_xtalk(expressions, tx_prefix=""):
-    """Get the list of all the Near End XTalk a list of exitation. Optionally prefix can
-    be used to retrive driver names.
+    """Get the list of all the Near End XTalk a list of excitation. Optionally prefix can
+    be used to retrieve driver names.
     Example: excitation_names ["1", "2", "3"] output ["S(1,2)", "S(1,3)", "S(2,3)"]
 
     Parameters
@@ -453,7 +453,7 @@ def get_next_xtalk(expressions, tx_prefix=""):
 
 @aedt_exception_handler
 def get_fext_xtalk_from_list(trlist, reclist,  skip_same_index_couples=True):
-    """Get the list of all the Far End XTalk from 2 lists of exitations.  If skip_same_index_couples is true, the tx and rx with same index
+    """Get the list of all the Far End XTalk from 2 lists of exctitations.  If skip_same_index_couples is true, the tx and rx with same index
     position will be considered insertion losses and excluded from the list
     Example: excitation_names ["1", "2"] ["3","4"] output ["S(1,4)", "S(2,3)"]
 
@@ -481,8 +481,8 @@ def get_fext_xtalk_from_list(trlist, reclist,  skip_same_index_couples=True):
 
 @aedt_exception_handler
 def get_fext_xtalk_from_prefix(expressions, tx_prefix, rx_prefix, skip_same_index_couples=True):
-    """Get the list of all the Far End XTalk from a list of exitations and a prefix that will
-    be used to retrive driver and receivers names. If skip_same_index_couples is true, the tx and rx with same index
+    """Get the list of all the Far End XTalk from a list of exctitations and a prefix that will
+    be used to retrieve driver and receivers names. If skip_same_index_couples is true, the tx and rx with same index
     position will be considered insertion losses and excluded from the list
 
     Parameters

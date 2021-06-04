@@ -47,7 +47,7 @@ class Test3DLayout:
         n2 = self.aedtapp.modeler.primitives.create_rectangle("Signal1", 0, 0, 6, 8, 3, 2, "myrectangle")
         assert n2 == "myrectangle"
 
-    def test_05_subract(self):
+    def test_05_subtract(self):
         assert self.aedtapp.modeler.subtract("mycircle", "myrectangle")
 
     def test_06_unite(self):

@@ -654,12 +654,12 @@ class Primitives3D(Primitives, object):
 
     @aedt_exception_handler
     def insert_3d_component(self, compFile, geoParams, szMatParams='', szDesignParams='', targetCS='Global'):
-        """Insert a new 3d Compoent object
+        """Insert a new 3d Component object
 
         Parameters
         ----------
         compFile :
-            Compoent file
+            Component file
         geoParams :
             Geometrical Parameters
         szMatParams :
