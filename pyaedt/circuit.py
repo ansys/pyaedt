@@ -208,7 +208,8 @@ class Circuit(FieldAnalysisCircuit, object):
 
         Returns
         -------
-            ``True`` if successful.
+        bool
+            True if completed
         """
         xpos = 0
         ypos = 0

@@ -1,13 +1,6 @@
 """
-HFSS Class
+Hfss Class
 ----------------------------------------------------------------
-
-Disclaimer
-==================================================
-
-**Copyright (c) 1986-2021, ANSYS Inc. unauthorised use, distribution or duplication is prohibited**
-
-**This tool release is unofficial and not covered by standard Ansys Support license.**
 
 
 Description
@@ -18,17 +11,16 @@ This class contains all the HFSS Functionalities. It inherites all the objects t
 
 :Example:
 
-hfss = HFSS()     creates and hfss object and connect to existing hfss design (create a new hfss design if not present)
+hfss = Hfss()     creates and hfss object and connect to existing hfss design (create a new hfss design if not present)
 
 
-hfss = HFSS(projectname)     creates and hfss object and link to projectname project
+hfss = Hfss(projectname)     creates and hfss object and link to projectname project. If project doesn't exists, it creates a new one and rename it
 
 
-hfss = HFSS(projectname,designame)     creates and hfss object and link to designname design in projectname project
+hfss = Hfss(projectname,designame)     creates and hfss object and link to designname design in projectname project
 
 
-hfss = HFSS("myfile.aedt")     creates and hfss object and open specified project
-
+hfss = Hfss("myfile.aedt")     creates and hfss object and open specified project
 
 
 ========================================================

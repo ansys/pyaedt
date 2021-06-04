@@ -1,14 +1,7 @@
+
 """
 Maxwell Class
 ----------------------------------------------------------------
-
-Disclaimer
-==================================================
-
-**Copyright (c) 1986-2021, ANSYS Inc. unauthorised use, distribution or duplication is prohibited**
-
-**This tool release is unofficial and not covered by standard Ansys Support license.**
-
 
 Description
 ==================================================
@@ -18,16 +11,16 @@ This class contains all the Maxwell Functionalities. It inherites all the object
 
 :Example:
 
-app = Maxwell()     creates and Icepak object and connect to existing Maxwell design (create a new Maxwell design if not present)
+app = Maxwell3d()     creates  Maxwell 3D object and connect to existing Maxwell design (create a new Maxwell design if not present)
 
 
-app = Maxwell(projectname)     creates and  Maxwell and link to projectname project
+app = Maxwell3d(projectname)     creates and  Maxwell 3D and link to projectname project
 
 
-app = Maxwell(projectname,designame)     creates and Maxwell object and link to designname design in projectname project
+app = Maxwell3d(projectname,designame)     creates and Maxwell 3D object and link to designname design in projectname project
 
 
-app = Maxwell("myfile.aedt")     creates and Maxwell object and open specified project
+app = Maxwell2d("myfile.aedt")     creates and Maxwell 2D object and open specified project
 
 
 """
