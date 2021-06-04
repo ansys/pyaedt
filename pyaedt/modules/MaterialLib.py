@@ -90,7 +90,7 @@ class Materials(object):
         Parameters
         ----------
         filename :
-            full filename paht (xml)
+            full filename path (xml)
         project_as_precedence :
             bool (Default value = True)
 
@@ -446,7 +446,7 @@ class Materials(object):
     @aedt_exception_handler
     def creatematerial_sweeps(self, swargs, matname, enableTM=True):
         """The function create a new material named  made of an array of materials args
-        If material nees a dataset (thermal modifier) than a dataset is creted
+        If material needs a dataset (thermal modifier) than a dataset is created
         material args properties are loaded from the XML file database amat.xml
         enableTM: Boolean enable Thermal modifier in material description. At moment unused
 

@@ -59,7 +59,7 @@ class Setup(object):
         """
         :param parent: AEDT Module for Analysis Setup
         :param setupname: Setup Name
-        :param solutiontype: Setup Type of Apllication.SolutionType
+        :param solutiontype: Setup Type of Application.SolutionType
         :param isnewsetup: Boolean. True if is a new setup to be created from template. False to access existing Setup
         """
         self._parent = None
@@ -448,7 +448,7 @@ class SetupCircuit(object):
     setupname :
         Setup Name
     solutiontype :
-        Setup Type of Apllication.SolutionType
+        Setup Type of Application.SolutionType
     isnewsetup :
         Boolean. True if is a new setup to be created from template. False to access existing Setup
 

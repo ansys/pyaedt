@@ -51,9 +51,9 @@ class Hfss(FieldAnalysis3D, object):
             Parameters
             ----------
             projectname :
-                name of the project to be selected or full path to the project to be opened  or to the AEDTZ archive. if None try to get active project and, if nothing present to create an empy one
+                name of the project to be selected or full path to the project to be opened  or to the AEDTZ archive. if None try to get active project and, if nothing present to create an empty one
             designname :
-                name of the design to be selected. if None, try to get active design and, if nothing present to create an empy one
+                name of the design to be selected. if None, try to get active design and, if nothing present to create an empty one
             solution_type :
                 solution type to be applied to design. if None default is taken
             setup_name :
@@ -330,7 +330,7 @@ class Hfss(FieldAnalysis3D, object):
                 setupdata = i
                 for sw in setupdata.sweeps:
                     if sweepname == sw.name:
-                        self.messenger.add_warning_message("Sweep {} alrady present. Please rename and retry".format(sweepname))
+                        self.messenger.add_warning_message("Sweep {} already present. Please rename and retry".format(sweepname))
                         return False
                 sweepdata = setupdata.add_sweep(sweepname, sweeptype)
                 sweepdata.props["RangeStart"] = str(freqstart) + unit
@@ -388,7 +388,7 @@ class Hfss(FieldAnalysis3D, object):
                 setupdata = i
                 for sw in setupdata.sweeps:
                     if sweepname == sw.name:
-                        self.messenger.add_warning_message("Sweep {} alrady present. Please rename and retry".format(sweepname))
+                        self.messenger.add_warning_message("Sweep {} already present. Please rename and retry".format(sweepname))
                         return False
                 sweepdata = setupdata.add_sweep(sweepname, "Discrete")
                 sweepdata.props["RangeStart"] = str(freqstart) + unit,
@@ -442,7 +442,7 @@ class Hfss(FieldAnalysis3D, object):
                 setupdata = i
                 for sw in setupdata.sweeps:
                     if sweepname == sw.name:
-                        self.messenger.add_warning_message("Sweep {} alrady present. Please rename and retry".format(sweepname))
+                        self.messenger.add_warning_message("Sweep {} already present. Please rename and retry".format(sweepname))
                         return False
                 sweepdata = setupdata.add_sweep(sweepname, "Discrete")
                 sweepdata.props["RangeStart"] = str(freqstart) + unit
@@ -490,7 +490,7 @@ class Hfss(FieldAnalysis3D, object):
                 setupdata = i
                 for sw in setupdata.sweeps:
                     if sweepname == sw.name:
-                        self.messenger.add_warning_message("Sweep {} alrady present. Please rename and retry".format(sweepname))
+                        self.messenger.add_warning_message("Sweep {} already present. Please rename and retry".format(sweepname))
                         return False
                 sweepdata = setupdata.add_sweep(sweepname, "Discrete")
                 sweepdata.props["RangeStart"] = freq
@@ -1341,7 +1341,7 @@ class Hfss(FieldAnalysis3D, object):
         sourcename :
             Perfect E Name. (Default value = None)
         is_infinite_gnd :
-            Boolean to dertermine if Perfect E is an Infinite Ground (Default value = False)
+            Boolean to determine if Perfect E is an Infinite Ground (Default value = False)
 
         Returns
         -------

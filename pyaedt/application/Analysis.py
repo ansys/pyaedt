@@ -184,7 +184,7 @@ class Analysis(Design, object):
 
     @property
     def mesh(self):
-        """Mesh Obect
+        """Mesh Object
         
         :return: mesh object
 
@@ -199,7 +199,7 @@ class Analysis(Design, object):
 
     @property
     def post(self):
-        """Post Processor Obect
+        """Post Processor Object
         
         :return: post processor object
 
@@ -214,7 +214,7 @@ class Analysis(Design, object):
 
     @property
     def osolution(self):
-        """osolution Obect
+        """osolution Object
         
         :return: Solutions Module object
 
@@ -451,7 +451,7 @@ class Analysis(Design, object):
 
         @property
         def variables(self):
-            """:return:List of indipendent variables"""
+            """:return:List of independent variables"""
             return [i for i in self._parent.variable_manager.independent_variables]
 
         @aedt_exception_handler
@@ -573,7 +573,7 @@ class Analysis(Design, object):
 
     @aedt_exception_handler
     def export_parametric_results(self, sweepname, filename, exportunits=True):
-        """Given a specific sweep, it export the list of all avaliable parametric variation solved to a file
+        """Given a specific sweep, it export the list of all available parametric variation solved to a file
 
         Parameters
         ----------
@@ -587,7 +587,7 @@ class Analysis(Design, object):
         Returns
         -------
         type
-            True (succeded) | False (Failed)
+            True (succeeded) | False (Failed)
 
         """
 
@@ -600,7 +600,7 @@ class Analysis(Design, object):
         """Revert solution to initial mesh and re-run it
         
         
-        :return: True (succeded) | False (Failed)
+        :return: True (succeeded) | False (Failed)
 
         Parameters
         ----------
@@ -619,7 +619,7 @@ class Analysis(Design, object):
         """Revert solution to initial mesh and re-run it
         
         
-        :return: True (succeded) | False (Failed)
+        :return: True (succeeded) | False (Failed)
 
         Parameters
         ----------
@@ -1071,7 +1071,7 @@ class Analysis(Design, object):
         Returns
         -------
         type
-            True if succeded
+            True if succeeded
 
         """
         if not simsetup:
@@ -1105,7 +1105,7 @@ class Analysis(Design, object):
         Returns
         -------
         type
-            True if succeded
+            True if succeeded
 
         """
 

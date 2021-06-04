@@ -315,7 +315,7 @@ class CSVDataset:
         self._index = 0
         return self
 
-    # Create an iterator to yield the row data as a string as we loop thorugh the object
+    # Create an iterator to yield the row data as a string as we loop through the object
     def __next__(self):
         if self._index < (self.number_of_rows-1):
             output = []

@@ -55,7 +55,7 @@ class FieldAnalysis2D(Analysis):
         Returns
         -------
         type
-            True if succeded | False if failed
+            True if succeeded | False if failed
 
         """
         mat = mat.lower()

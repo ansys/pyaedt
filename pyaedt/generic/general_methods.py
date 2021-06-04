@@ -205,7 +205,7 @@ def generate_unique_name(rootname, suffix='', n=6):
     suffix :
         Suffix to be added (Default value = '')
     n :
-        Number of random charachters in the name, defaults to 6
+        Number of random characters in the name, defaults to 6
 
     Returns
     -------

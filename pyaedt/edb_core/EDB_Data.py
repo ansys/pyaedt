@@ -644,7 +644,7 @@ class EDBLayers(object):
         Returns
         -------
         type
-            True if operation succesfully complete
+            True if operation successfully complete
 
         """
         thisLC = self._parent.edb.Cell.LayerCollection(self._parent.active_layout.GetLayerCollection())

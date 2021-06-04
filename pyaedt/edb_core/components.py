@@ -527,7 +527,7 @@ class Components(object):
         Returns
         -------
         type
-            True if succeded | False if failed
+            True if succeeded | False if failed
 
         >>> from pyaedt import EDB
         >>> edbapp = EDB("myaedbfolder")
@@ -791,7 +791,7 @@ class Components(object):
     def update_rlc_from_bom(self, bom_file, delimiter=";", valuefield="Func des", comptype="Prod name",
                             refdes="Pos / Place"):
         """Function to update the edb_core components values (RLCs) with values coming from BOM.
-        Files is a text file delimited and header values needed inside the bom reader have to be explicitily set if different from the defaults
+        Files is a text file delimited and header values needed inside the bom reader have to be explicitly set if different from the defaults
         valuefield has to contain the value of the Component (eg. 22pF) at beginning of the value followed by a space and then the rest of the value
 
         Parameters

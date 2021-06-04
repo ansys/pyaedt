@@ -48,5 +48,5 @@ def pyaedt_help(modulename="index", browser="chrome"):
         os.system("start {} {} ".format(browser, networkpath))
         return True
     except:
-        print("Broswer not found")
+        print("Browser not found")
         return False

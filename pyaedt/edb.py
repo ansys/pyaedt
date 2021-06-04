@@ -586,7 +586,7 @@ class Edb(object):
         Parameters
         ----------
         CmpDict :
-            Imput Component Dictionary
+            Input Component Dictionary
 
         Returns
         -------

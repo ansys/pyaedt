@@ -41,9 +41,9 @@ class Simplorer(FieldAnalysisSimplorer, object):
     ----------
     projectname :
         name of the project to be selected or full path to the project to be opened  or to the AEDTZ
-        archive. if None try to get active project and, if nothing present to create an empy one
+        archive. if None try to get active project and, if nothing present to create an empty one
     designname :
-        name of the design to be selected. if None, try to get active design and, if nothing present to create an empy one
+        name of the design to be selected. if None, try to get active design and, if nothing present to create an empty one
     solution_type :
         solution type to be applied to design. if None default is taken
     setup_name :
@@ -57,9 +57,9 @@ class Simplorer(FieldAnalysisSimplorer, object):
     def __init__(self, projectname=None, designname=None, solution_type=None, setup_name=None):
         """
         :param projectname: name of the project to be selected or full path to the project to be opened. if None try to
-         get active project and, if nothing present to create an empy one
+         get active project and, if nothing present to create an empty one
         :param designname: name of the design to be selected. if None, try to get active design and, if nothing present
-        to create an empy one
+        to create an empty one
         :param solution_type: solution type to be applied to design. if None default is taken
         :param setup_name: setup_name to be used as nominal. if none active setup is taken or nothing
         """

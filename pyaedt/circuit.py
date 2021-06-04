@@ -3,7 +3,7 @@
 Circuit Class
 -------------
 This class contains the link to Circuit object. It includes all
-inherited classes and modules needed to create and edit circut designs.
+inherited classes and modules needed to create and edit circuit designs.
 
 """
 from __future__ import absolute_import

@@ -249,9 +249,9 @@ class CoordinateSystem(object):
         view :
             View. Default "iso". possible "XY", "XZ", "XY", "rotate"
         x_pointing :
-            if view="rotate", this is a 3 elements list specifing the X axis pointing in the global CS (Default value = [1)
+            if view="rotate", this is a 3 elements list specifying the X axis pointing in the global CS (Default value = [1)
         y_pointing :
-            if view="rotate", this is a 3 elements list specifing the Y axis pointing in the global CS (Default value = [0)
+            if view="rotate", this is a 3 elements list specifying the Y axis pointing in the global CS (Default value = [0)
         name :
             name of the CS (Default value = None)
         0 :
@@ -619,7 +619,7 @@ class GeometryModeler(Modeler, object):
             if enable_deformation:
                 self.odesign.SetObjectDeformation(["EnabledObjects:=", vdef])
         except:
-            self.messenger.add_error_message("Failed to enable the temperature and deformation dependance")
+            self.messenger.add_error_message("Failed to enable the temperature and deformation dependence")
             return False
         else:
             self.messenger.add_debug_message(
@@ -644,7 +644,7 @@ class GeometryModeler(Modeler, object):
         -------
 
         """
-        self.messenger.add_debug_message("Set model temperature and enabeling Thermal Feedback")
+        self.messenger.add_debug_message("Set model temperature and enabling Thermal Feedback")
         if create_project_var:
             self._parent.variable_manager["$AmbientTemp"] = str(ambient_temp) + "cel"
             var = "$AmbientTemp"
@@ -666,7 +666,7 @@ class GeometryModeler(Modeler, object):
         try:
             self.odesign.SetObjectTemperature(vargs1)
         except:
-            self.messenger.add_error_message("Failed to enable the temperature dependance")
+            self.messenger.add_error_message("Failed to enable the temperature dependence")
             return False
         else:
             self.messenger.add_debug_message("Assigned Objects Temperature")
@@ -972,7 +972,7 @@ class GeometryModeler(Modeler, object):
 
     @aedt_exception_handler
     def get_excitations_name(self):
-        """Get all the avaialble excitation names
+        """Get all the available excitation names
         
         :return: list of names. Excitations with multiple modes will produce one excitation for each mode
 
@@ -990,7 +990,7 @@ class GeometryModeler(Modeler, object):
     @aedt_exception_handler
     def get_boundaries_name(self):
 
-        """Get all the avaialble Boundaries names
+        """Get all the available Boundaries names
         
         :return: list of names. Excitations with multiple modes will produce one excitation for each mode
 
@@ -1527,7 +1527,7 @@ class GeometryModeler(Modeler, object):
 
     @aedt_exception_handler
     def subtract(self, theList, theList1, keepOriginals=True):
-        """Subract objects from IDs
+        """Subtract objects from IDs
 
         Parameters
         ----------
@@ -1646,7 +1646,7 @@ class GeometryModeler(Modeler, object):
         angle :
             float angle (for type 2 and 3) (Default value = 45)
         chamfer_type :
-            0 - Simmetric , 1 - Left Distance-Right Distance, 2 - Left Distance-Angle, 3 - Right Distance-Angle (Default value = 0)
+            0 - Symmetric , 1 - Left Distance-Right Distance, 2 - Left Distance-Angle, 3 - Right Distance-Angle (Default value = 0)
 
         Returns
         -------
@@ -2625,7 +2625,7 @@ class GeometryModeler(Modeler, object):
         Returns
         -------
         type
-            True if succeded
+            True if succeeded
 
         """
         list2 = self.select_allfaces_fromobjects(externalobjects)  # find ALL faces of outer objects
@@ -2634,8 +2634,8 @@ class GeometryModeler(Modeler, object):
         return True
 
     @aedt_exception_handler
-    def explicitiyly_subract(self, diellist, metallist):
-        """expliticiltySubract all the elements in aSolveInside and aSolveSurface lists
+    def explicitiyly_subtract(self, diellist, metallist):
+        """expliticiltySubtract all the elements in aSolveInside and aSolveSurface lists
 
         Parameters
         ----------
@@ -2650,7 +2650,7 @@ class GeometryModeler(Modeler, object):
             True if operation succeeded
 
         """
-        self.messenger.add_info_message("Creating Explicit Subraction between Objects")
+        self.messenger.add_info_message("Creating Explicit Subtraction between Objects")
         for el in diellist:
             list1 = el
             list2 = ""
@@ -2675,7 +2675,7 @@ class GeometryModeler(Modeler, object):
                 self.subtract(list1, list2, True)
                 self.purge_history(list1)
                 self.purge_history(list2)
-        self.messenger.add_info_message("Explicit Subraction Completed")
+        self.messenger.add_info_message("Explicit Subtraction Completed")
         return True
 
     @aedt_exception_handler
@@ -3535,7 +3535,7 @@ class GeometryModeler(Modeler, object):
         def __init__(self, *args):
             """class Position
 
-            :param args: it can be a list of orgs (x, y, z coordinates) or 3 separate values. if no or insufficient arguements, 0 is applied
+            :param args: it can be a list of orgs (x, y, z coordinates) or 3 separate values. if no or insufficient arguments, 0 is applied
 
             """
             if len(args) == 1 and type(args[0]) is list:
@@ -3646,7 +3646,7 @@ class GeometryModeler(Modeler, object):
         Returns
         -------
         type
-            True if succeded, False otherwise
+            True if succeeded, False otherwise
 
         """
         group_list = self.convert_to_selections(groups, return_list=True)
@@ -3663,7 +3663,7 @@ class GeometryModeler(Modeler, object):
         """flatten the entire assembly removing all group trees
         TODO: unit test
         
-        :return: True if succeded, False otherwise
+        :return: True if succeeded, False otherwise
 
         Parameters
         ----------
