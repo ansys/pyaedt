@@ -1,4 +1,5 @@
 
+import warnings
 import sys
 from collections import OrderedDict, defaultdict
 import time
@@ -11,7 +12,7 @@ try:
         _ironpython = True
     edb_initialized = True
 except ImportError:
-    print("clr module is needed. Install Pythonnet or use Ironpython version if you want to use EDB Module")
+    warnings.warn("The clr is missing. Install Pythonnet or use Ironpython version if you want to use EDB Module")
     edb_initialized = False
 
 

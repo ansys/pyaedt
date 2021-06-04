@@ -21,6 +21,7 @@ Return the oProject object
 """
 from __future__ import absolute_import
 
+import warnings
 import os
 import re
 import csv
@@ -41,7 +42,7 @@ from ..modules.Boundary import BoundaryObject
 try:
     import webbrowser
 except ImportError:
-    print("webbrowser not supported")
+    warnings.warn("webbrowser not supported")
 
 design_solutions = {
     "Maxwell 2D": [
