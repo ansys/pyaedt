@@ -349,6 +349,7 @@ doc/_build/
 # pip files
 *.egg-info/*
 build/
+dist/
 
 # mypi cache
 .mypy_cache/
