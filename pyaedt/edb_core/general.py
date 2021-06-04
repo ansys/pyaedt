@@ -7,10 +7,13 @@ This class manages Edb General Methods and related methods
 
 """
 from __future__ import absolute_import
-import clr
-clr.AddReference("System.Collections")
-from System.Collections.Generic import List
-from System import Int32
+import pkgutil
+modules = [tup[1] for tup in pkgutil.iter_modules()]
+if 'clr' in modules:
+    import clr
+    clr.AddReference("System.Collections")
+    from System.Collections.Generic import List
+    from System import Int32
 import inspect
 import itertools
 import sys

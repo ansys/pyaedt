@@ -14,7 +14,6 @@ local_path = os.path.abspath('')
 module_path = pathlib.Path(local_path)
 aedt_lib_path = module_path.parent.parent.parent
 sys.path.append(os.path.join(aedt_lib_path))
-import clr
 import os
 import time
 from pyaedt import generate_unique_name, examples

@@ -31,10 +31,8 @@ print(project_dir)
 from pyaedt import Hfss
 from pyaedt import Icepak
 from pyaedt import Desktop
-import clr
 import numpy as np
 import matplotlib.pyplot as plt
-import math
 advanced = True
 
 

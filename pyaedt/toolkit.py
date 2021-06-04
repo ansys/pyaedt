@@ -55,7 +55,10 @@ from __future__ import print_function
 import os
 import json
 import sys
-import clr
+import pkgutil
+modules = [tup[1] for tup in pkgutil.iter_modules()]
+if 'clr' in modules:
+    import clr
 import subprocess
 import shutil
 from datetime import datetime
