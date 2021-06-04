@@ -22,20 +22,19 @@ in future for all other desktop tools. Its classes and methods
 structures simplifies operation for end-user while reusing as much as
 possible of the information across the API.
 
-.. figure:: ./doc/source/Resources/Items.png
+.. figure:: https://github.com/pyansys/PyAEDT/raw/main/doc/source/Resources/Items.png
     :width: 600pt
 
-    pyaedt Architecture Overview for 3D Solvers
     PyAEDT Architecture Overview for 3D Solvers
 
 
 Why PyAEDT
 ----------
-Recording and reusing script is a very fast approach for simple
-operations in Desktop UI. However:
+Recording and reusing script is a quick and easy approach for
+automating simple operations in Desktop UI. However:
 
 - Code recorded is dirty and difficult to read and understand.
-- Difficult to resuse and adapt recorded scripts.
+- Difficult to reuse and adapt recorded scripts.
 - Complex Coding is a need for many global users of AEDT.
 
 Main advantages of PyAEDT are:
@@ -49,28 +48,24 @@ Main advantages of PyAEDT are:
 - Simplification of complex API syntax using to Data Objects while
   maintaining PEP8 compliance.
 - Code reusability across different solvers.
-- Docstrings on functions for better understanding and tool usage.
+- Clear documentation on functions and API.
 - Unit Test of code to increase quality across different AEDT versions.
 
 
-.. figure:: ./doc/source/Resources/BlankDiagram3DModeler.png
+.. figure:: https://github.com/pyansys/PyAEDT/raw/main/doc/source/Resources/BlankDiagram3DModeler.png
     :width: 600pt
 
-    pyaedt Architecture Overview for 3D Solvers
     PyAEDT Architecture Overview for 3D Solvers
 
-
-.. figure:: ./doc/source/Resources/BlankDiagram3DLayout.png
+.. figure:: https://github.com/pyansys/PyAEDT/raw/main/doc/source/Resources/BlankDiagram3DLayout.png
     :width: 600pt
 
-    pyaedt Architecture Overview for HFSS 3DLayout/EDB Solver
     PyAEDT Architecture Overview for HFSS 3DLayout/EDB Solver
 
 
-.. figure:: ./doc/source/Resources/BlankDiagramCircuit.png
+.. figure:: https://github.com/pyansys/PyAEDT/raw/main/doc/source/Resources/BlankDiagramCircuit.png
     :width: 600pt
 
-    pyaedt Architecture Overview for Circuit Solvers (Nexxim/Simplorer)
     PyAEDT Architecture Overview for Circuit Solvers (Nexxim/Simplorer)
 
 
@@ -94,8 +89,7 @@ Explicit Desktop declaration and error management
 
     AEDT 2020R1 in Non-Graphical mode will be launched
 
-    from pyaedt.Destkop import Desktop
-    from pyaedt.Circuit import Circuit
+    from pyaedt. import Desktop, Circuit
     with Desktop("2020.1", NG=True):
         circuit = Circuit()
         ...
@@ -128,8 +122,8 @@ Variables
 
     from pyaedt.HFSS import HFSS
     with HFSS as hfss:
-         hfss["dim"] = "1mm"   # this is a design variable
-         hfss["$dim"] = "1mm"  # this is a project variable
+         hfss["dim"] = "1mm"   # design variable
+         hfss["$dim"] = "1mm"  # project variable
 
 
 Modeler
@@ -137,7 +131,9 @@ Modeler
 
 .. code:: python
 
+    Create a box, assign variables, and assign materials.
+
     from pyaedt.HFSS import HFSS
     with HFSS as hfss:
-         # Same command to create the box, assign variables, and assign materials
-         hfss.modeler.primitives.create_box([0, 0, 0], [10, "dim", 10], "mybox", "aluminum")
+         hfss.modeler.primitives.create_box([0, 0, 0], [10, "dim", 10],
+                                            "mybox", "aluminum")

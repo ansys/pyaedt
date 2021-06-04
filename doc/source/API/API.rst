@@ -6,7 +6,6 @@ Welcome to pyaedt API Documentation.
 Use the search button or click on any module.
 
 
-
 .. toctree::
    :maxdepth: 2
 
