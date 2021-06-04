@@ -129,7 +129,7 @@ class EdbLayout(object):
         Returns
         -------
         type
-            bouding box [-x,-y,+x,+y]
+            bounding box [-x,-y,+x,+y]
 
         >>> poly = edb_core.core_primitives.get_polygons_by_layer("GND")
         >>> bounding = edb_core.core_primitives.get_polygon_bounding_box(poly[0])

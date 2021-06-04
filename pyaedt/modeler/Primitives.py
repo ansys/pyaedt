@@ -602,7 +602,7 @@ class Primitives(object):
         Returns
         -------
         type
-            True if succeded, False otherwise
+            True if succeeded, False otherwise
 
         """
         if type(objects) is not list:

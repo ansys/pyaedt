@@ -996,7 +996,7 @@ class Design(object):
 
     @aedt_exception_handler
     def activate_variable_statistical(self, variable_name, min_val=None, max_val=None, tolerance=None, probability=None, mean=None):
-        """Activate Statitistical Analsyis for variable selected. Optionally setup ranges
+        """Activate Statitistical Analysis for variable selected. Optionally setup ranges
 
         Parameters
         ----------
@@ -1029,7 +1029,7 @@ class Design(object):
 
     @aedt_exception_handler
     def activate_variable_optimization(self, variable_name, min_val=None, max_val=None):
-        """Activate Optimization Analsyis for variable selected. Optionally setup ranges
+        """Activate Optimization Analysis for variable selected. Optionally setup ranges
 
         Parameters
         ----------
@@ -1056,7 +1056,7 @@ class Design(object):
 
     @aedt_exception_handler
     def activate_variable_sensitivity(self, variable_name, min_val=None, max_val=None):
-        """Activate Sensitivity Analsyis for variable selected. Optionally setup ranges
+        """Activate Sensitivity Analysis for variable selected. Optionally setup ranges
 
         Parameters
         ----------
@@ -1083,7 +1083,7 @@ class Design(object):
 
     @aedt_exception_handler
     def activate_variable_tuning(self, variable_name, min_val=None, max_val=None):
-        """Activate Tuning Analsyis for variable selected. Optionally setup ranges
+        """Activate Tuning Analysis for variable selected. Optionally setup ranges
 
         Parameters
         ----------
@@ -1110,7 +1110,7 @@ class Design(object):
 
     @aedt_exception_handler
     def deactivate_variable_statistical(self, variable_name):
-        """Deactivate Statistical Analsyis for variable selected.
+        """Deactivate Statistical Analysis for variable selected.
 
         Parameters
         ----------
@@ -1133,7 +1133,7 @@ class Design(object):
 
     @aedt_exception_handler
     def deactivate_variable_optimization(self, variable_name):
-        """Deactivate Optimization Analsyis for variable selected.
+        """Deactivate Optimization Analysis for variable selected.
 
         Parameters
         ----------
@@ -1156,7 +1156,7 @@ class Design(object):
 
     @aedt_exception_handler
     def deactivate_variable_sensitivity(self, variable_name):
-        """Deactivate Sensitivity Analsyis for variable selected.
+        """Deactivate Sensitivity Analysis for variable selected.
 
         Parameters
         ----------
@@ -1179,7 +1179,7 @@ class Design(object):
 
     @aedt_exception_handler
     def deactivate_variable_tuning(self, variable_name):
-        """Deactivate Tuning Analsyis for variable selected.
+        """Deactivate Tuning Analysis for variable selected.
 
         Parameters
         ----------
@@ -1301,7 +1301,7 @@ class Design(object):
 
     @aedt_exception_handler
     def load_project(self, project_file, design_name=None, close_active_proj=False):
-        """Open aedt project based on project file. Desing is optional
+        """Open aedt project based on project file. Design is optional
 
         Parameters
         ----------
@@ -1768,7 +1768,7 @@ class Design(object):
         """Inserts a design of the specified design type. Default design type is taked from the derived application \
         class. If no design-name is given, the default design name is <Design-Type>Design<_index>. If the given or \
         default design name is in use, then an underscore + index is added            to ensure that the design name\
-        is unique. The inserted object is asigned to self._odesign
+        is unique. The inserted object is assigned to self._odesign
 
         Parameters
         ----------

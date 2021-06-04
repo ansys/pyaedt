@@ -308,7 +308,7 @@ class Desktop:
         :param specified_version: Version of AEDT to be used. if None. Latest version of AEDT is used
         :param NG: Non Graphical Boolean. True launch AEDT in NG Mode
         :param AlwaysNew: New Thread Boolean. if True it launches a new instance of AEDT even if another one of the specified_version is active on the machine
-        :param release_on_exit: Bolean. Release Desktop on Exit
+        :param release_on_exit: Boolean. Release Desktop on Exit
         """
         self._main = sys.modules['__main__']
         self._main.close_on_exit = False

@@ -129,7 +129,7 @@ class VertexPrimitive(object):
         angle :
             float angle (for type 2 and 3) (Default value = 45)
         chamfer_type :
-            0 - Simmetric , 1 - Left Distance-Right Distance, 2 - Left Distance-Angle, 3 - Right Distance-Angle (Default value = 0)
+            0 - Symmetric , 1 - Left Distance-Right Distance, 2 - Left Distance-Angle, 3 - Right Distance-Angle (Default value = 0)
 
         Returns
         -------
@@ -279,7 +279,7 @@ class EdgePrimitive(object):
         angle :
             float angle (for type 2 and 3) (Default value = 45)
         chamfer_type :
-            0 - Simmetric , 1 - Left Distance-Right Distance, 2 - Left Distance-Angle, 3 - Right Distance-Angle (Default value = 0)
+            0 - Symmetric , 1 - Left Distance-Right Distance, 2 - Left Distance-Angle, 3 - Right Distance-Angle (Default value = 0)
 
         Returns
         -------
@@ -1316,7 +1316,7 @@ class Padstack(object):
         Returns
         -------
         type
-            True if succeded
+            True if succeeded
 
         """
         if layername in self.layers:

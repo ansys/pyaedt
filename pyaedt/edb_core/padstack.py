@@ -217,7 +217,7 @@ class EdbPadstacks(object):
         """
         if not padstackname:
             padstackname = generate_unique_name("VIA")
-        # assert not self.isreadonly, "Write Functions are not avaiable within AEDT"
+        # assert not self.isreadonly, "Write Functions are not available within AEDT"
         padstackData = self.edb.Definition.PadstackDefData.Create()
         ptype = self.edb.Definition.PadGeometryType.Circle
         holparam = Array[type(self.edb_value(holediam))]([self.edb_value(holediam)])
