@@ -45,6 +45,10 @@ advanced = True
 
 
 desktopVersion = "2021.1"
+###############################################################################
+# NonGraphical
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# Change Boolean to False to open AEDT in graphical mode
 NonGraphical = True
 NewThread = False
 project_name = "Test_Jupyter_NG"

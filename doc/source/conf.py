@@ -21,9 +21,7 @@ sys.path.append(os.path.join(root_path))
 project = 'PyAEDT'
 copyright = 'Copyright(c) 1986-2021, ANSYS Inc. unauthorised use, distribution or duplication is prohibited.'
 author = 'Ansys Inc.'
-documentation_dir = os.path.join(root_path, "Documentation")
-if not os.path.exists(documentation_dir):
-    os.mkdir(documentation_dir)
+
 
 # read in version from file
 with open(os.path.join(root_path, "pyaedt", "version.txt"), "r") as f:
@@ -38,7 +36,7 @@ with open(os.path.join(root_path, "pyaedt", "version.txt"), "r") as f:
 extensions = ['sphinx.ext.autodoc',
               "sphinx.ext.viewcode",
               "sphinx.ext.autosummary",
-              "nbsphinx",
+              #"nbsphinx",
               "sphinx.ext.intersphinx",
               'sphinx.ext.napoleon',
               'sphinx.ext.coverage',
@@ -156,7 +154,7 @@ if os.name != 'posix':
 # -- Options for HTML output -------------------------------------------------
 html_show_sourcelink = True
 html_theme = 'pyansys_sphinx_theme'
-html_logo = "./Resources/logo-ansys.png"
+html_logo = "./Resources/pyansys-logo-black-cropped.png"
 
 html_theme_options = {
     "github_url": "https://github.com/pyansys/PyAEDT",

@@ -41,7 +41,14 @@ outline_polygon_name = "poly_14188"
 
 from pyaedt import Icepak
 from pyaedt import Desktop
-d=Desktop("2021.1", NG=False)
+
+###############################################################################
+# NonGraphical
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# Change Boolean to False to open AEDT in graphical mode
+NonGraphical = True
+
+d=Desktop("2021.1", NG=NonGraphical)
 start = time.time()
 material_list = os.path.join(input_dir, material_name)
 component_list = os.path.join(input_dir, component_properties)

@@ -26,7 +26,7 @@ if os.path.exists(targetfolder):
 shutil.copytree(example_path[:-8], targetfolder)
 targetfile=os.path.join(targetfolder)
 print(targetfile)
-
+aedt_file = targetfile[:-12]+"aedt"
 
 
 #################################
@@ -35,7 +35,7 @@ from pyaedt import Edb
 
 #################################
 
-
+if os.path.exists(aedt_file): os.remove(aedt_file)
 edb = Edb(edbpath=targetfile)
 
 #################################

@@ -29,9 +29,14 @@ project_dir = os.path.join(os.environ["TEMP"], generate_unique_name("Example"))
 if not os.path.exists(project_dir): os.makedirs(project_dir)
 print(project_dir)
 
+###############################################################################
+# NonGraphical
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# Change Boolean to False to open AEDT in graphical mode
+NonGraphical = True
 
 if not "oDesk" in dir():
-    oDesk = Desktop(specified_version="2021.1", NG=True)
+    oDesk = Desktop(specified_version="2021.1", NG=NonGraphical)
 project_name = 'test'
 project_name = os.path.join(project_dir, project_name + '.aedt')
 

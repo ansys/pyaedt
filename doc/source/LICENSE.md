@@ -1,3 +1,5 @@
+LICENSE
+========================================================
 ANSYS INC. Copyright (c) 1986-2021
 
 Permission is hereby granted, free of charge, to any person obtaining a
