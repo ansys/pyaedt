@@ -40,6 +40,7 @@ class CoordinateSystem(object):
         self._parent = parent
         self.name = name
         self.props = props
+        self.ref_cs = None
         self.model_units = self._parent.model_units
         try:
             if "KernelVersion" in self.props:
@@ -125,7 +126,7 @@ class CoordinateSystem(object):
         -------
 
         """
-        self._change_property(self.name, ["NAME:ChangedProps", ["NAME:Reference CS", "Value:=", self.props["Reference CS"]]])
+        self._change_property(self.name, ["NAME:ChangedProps", ["NAME:Reference CS", "Value:=", self.ref_cs]])
 
         try:
             self._change_property(self.name, ["NAME:ChangedProps", ["NAME:Mode", "Value:=", self.props["Mode"]]])
@@ -246,27 +247,27 @@ class CoordinateSystem(object):
         return True
 
     @aedt_exception_handler
-    def create(self, origin=[0, 0, 0], view="iso", x_pointing=[1, 0, 0], y_pointing=[0, 1, 0], reference_cs="Global", name=None):
+    def create(self, origin=None, view=None, x_pointing=None, y_pointing=None, reference_cs="Global", name=None):
         """Create a Coordinate system
+        Specify either the view or the pointing vectors.
+        If view is specified, the pointing vectors are ignored.
+        Default is coordinate system parallel to the Global centered in the Globa origin.
 
         Parameters
         ----------
         origin :
-            origin of the CS (Default value = [0)
+            origin of the CS (Default value = [0, 0, 0])
         view :
-            View. Default "iso". possible "XY", "XZ", "XY", "rotate"
+            View. Default "iso". possible "XY", "XZ", "XY", None, "rotate"
+            "rotate" is obsolete, simply do not specify a view instead.
         x_pointing :
-            if view="rotate", this is a 3 elements list specifing the X axis pointing in the global CS (Default value = [1)
+            if view="rotate", this is a 3 elements list specifing the X axis pointing in the global CS
+            (Default value = [1, 0, 0])
         y_pointing :
-            if view="rotate", this is a 3 elements list specifing the Y axis pointing in the global CS (Default value = [0)
+            if view="rotate", this is a 3 elements list specifing the Y axis pointing in the global CS
+            (Default value = [0, 1, 0])
         name :
             name of the CS (Default value = None)
-        0 :
-            
-        0] :
-            
-        1 :
-            
         reference_cs :
              (Default value = "Global")
 
@@ -277,69 +278,65 @@ class CoordinateSystem(object):
 
         """
         if not origin:
-            originX = "0" + self.model_units
-            originY = "0" + self.model_units
-            originZ = "0" + self.model_units
-        else:
-            originX = self._dim_arg(origin[0], self.model_units)
-            originY = self._dim_arg(origin[1], self.model_units)
-            originZ = self._dim_arg(origin[2], self.model_units)
+            origin = [0, 0, 0]
+        if not x_pointing:
+            x_pointing = [1, 0, 0]
+        if not y_pointing:
+            y_pointing = [0, 1, 0]
 
         if name:
             self.name = name
         else:
-            self.name = generate_unique_name("CS_")
+            self.name = generate_unique_name("CS")
+
+        originX = self._dim_arg(origin[0], self.model_units)
+        originY = self._dim_arg(origin[1], self.model_units)
+        originZ = self._dim_arg(origin[2], self.model_units)
+
         pointing = []
-        if not view:
-            self.view = "iso"
-        elif view == "rotate":
-            self.view = "rotate"
+        if not view or view == "rotate":
+            # self.view = "rotate"
             pointing.append(self._dim_arg((x_pointing[0] - origin[0]), self.model_units))
             pointing.append(self._dim_arg((x_pointing[1] - origin[1]), self.model_units))
             pointing.append(self._dim_arg((x_pointing[2] - origin[2]), self.model_units))
             pointing.append(self._dim_arg((y_pointing[0] - origin[0]), self.model_units))
             pointing.append(self._dim_arg((y_pointing[1] - origin[1]), self.model_units))
             pointing.append(self._dim_arg((y_pointing[2] - origin[2]), self.model_units))
-        else:
-            self.view = view
+        # else:
+        #     self.view = view
 
         orientationParameters = OrderedDict(
-            {"Reference CS": reference_cs, "Mode": "Axis/Position", "OriginX": originX, "OriginY": originY, "OriginZ": originZ})
-        if self.view == "YZ":
+            {"Mode": "Axis/Position", "OriginX": originX, "OriginY": originY, "OriginZ": originZ})
+        if view == "YZ":
             orientationParameters["XAxisXvec"] = "0mm"
             orientationParameters["XAxisYvec"] = "0mm"
             orientationParameters["XAxisZvec"] = "-1mm"
             orientationParameters["YAxisXvec"] = "0mm"
             orientationParameters["YAxisYvec"] = "1mm"
             orientationParameters["YAxisZvec"] = "0mm"
-
-        elif self.view == "XZ":
+        elif view == "XZ":
             orientationParameters["XAxisXvec"] = "1mm"
             orientationParameters["XAxisYvec"] = "0mm"
             orientationParameters["XAxisZvec"] = "0mm"
             orientationParameters["YAxisXvec"] = "0mm"
             orientationParameters["YAxisYvec"] = "-1mm"
             orientationParameters["YAxisZvec"] = "0mm"
-
-        elif self.view == "XY":
+        elif view == "XY":
             orientationParameters["XAxisXvec"] = "1mm"
             orientationParameters["XAxisYvec"] = "0mm"
             orientationParameters["XAxisZvec"] = "0mm"
             orientationParameters["YAxisXvec"] = "0mm"
             orientationParameters["YAxisYvec"] = "1mm"
             orientationParameters["YAxisZvec"] = "0mm"
-
-
-        elif self.view == "iso":
+        elif view == "iso":
             orientationParameters["XAxisXvec"] = "1mm"
             orientationParameters["XAxisYvec"] = "1mm"
             orientationParameters["XAxisZvec"] = "-2mm"
             orientationParameters["YAxisXvec"] = "-1mm"
             orientationParameters["YAxisYvec"] = "1mm"
             orientationParameters["YAxisZvec"] = "0mm"
-
-
-        elif self.view == "rotate":
+        else:
+        # elif self.view == "rotate":
             orientationParameters["XAxisXvec"] = pointing[0]
             orientationParameters["XAxisYvec"] = pointing[1]
             orientationParameters["XAxisZvec"] = pointing[2]
@@ -347,24 +344,28 @@ class CoordinateSystem(object):
             orientationParameters["YAxisYvec"] = pointing[4]
             orientationParameters["YAxisZvec"] = pointing[5]
 
-
-        self.props=OrderedDict(orientationParameters)
-
-
+        self.props = OrderedDict(orientationParameters)
         self._parent.oeditor.CreateRelativeCS(self.orientation, self.attributes)
+        self.ref_cs = reference_cs
+        self.update()
+
         self._parent.coordinate_systems.append(self)
         return self
 
     @property
     def orientation(self):
-        """ """
-        arg=["Name:RelativeCSParameters"]
+        """
+        Construct the internal Named Array for orientation
+        """
+        arg = ["Name:RelativeCSParameters"]
         dict2arg(self.props, arg)
         return arg
 
     @property
     def attributes(self):
-        """ """
+        """
+        Construct the internal Named Array for the attributes
+        """
         coordinateSystemAttributes = ["NAME:Attributes", "Name:=", self.name]
         return coordinateSystemAttributes
 
@@ -432,8 +433,7 @@ class GeometryModeler(Modeler, object):
         Modeler.__init__(self, parent)
         self.coordinate_system = CoordinateSystem(self)
         self.coordinate_systems = self._get_coordinates_data()
-        self._is3d=is3d
-
+        self._is3d = is3d
 
     @aedt_exception_handler
     def _convert_list_to_ids(self,input_list, convert_objects_ids_to_name=True):
@@ -471,17 +471,31 @@ class GeometryModeler(Modeler, object):
     def _get_coordinates_data(self):
         """ """
         coord = []
+        id2name = {1: 'Global'}
+        name2refid = {}
         if self._parent.design_properties and 'ModelSetup' in self._parent.design_properties:
             cs = self._parent.design_properties['ModelSetup']["GeometryCore"]["GeometryOperations"]["CoordinateSystems"]
             for ds in cs:
                 try:
                     if type(cs[ds]) is OrderedDict:
-                        coord.append(CoordinateSystem(self, cs[ds]['RelativeCSParameters'], cs[ds]["Attributes"]["Name"]))
+                        props = cs[ds]['RelativeCSParameters']
+                        name = cs[ds]["Attributes"]["Name"]
+                        cs_id = cs[ds]["ID"]
+                        id2name[cs_id] = name
+                        name2refid[name] = cs[ds]['ReferenceCoordSystemID']
+                        coord.append(CoordinateSystem(self, props, name))
                     elif type(cs[ds]) is list:
                         for el in cs[ds]:
-                            coord.append(CoordinateSystem(self, el['RelativeCSParameters'], el["Attributes"]["Name"]))
+                            props = el['RelativeCSParameters']
+                            name = el["Attributes"]["Name"]
+                            cs_id = el["ID"]
+                            id2name[cs_id] = name
+                            name2refid[name] = el['ReferenceCoordSystemID']
+                            coord.append(CoordinateSystem(self, props, name))
                 except:
                     pass
+            for cs in coord:
+                cs.ref_cs = id2name[name2refid[cs.name]]
         return coord
 
 

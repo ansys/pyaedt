@@ -213,7 +213,7 @@ class TestModeler:
     def test_34_update_coordinate_system(self):
         CS1 = self.aedtapp.modeler.coordinate_system.create(name="CS1", view="rotate")
         CS2 = self.aedtapp.modeler.coordinate_system.create(name="CS2", view="rotate")
-        CS2.props["Reference CS"] = "CS1"
+        CS2.ref_cs = "CS1"
         assert CS2.update()
         CS1.props["OriginX"] = 10
         CS1.props["OriginY"] = 10
@@ -223,7 +223,7 @@ class TestModeler:
         CS2.props["Phi"] = 30
         CS2.props["Theta"] = 30
         assert CS2.update()
-        CS2.props["Reference CS"] = "Global"
+        CS2.ref_cs = "Global"
         CS2.update()
         assert self.aedtapp.modeler.oeditor.GetCoordinateSystems() == ('Global', 'CS1', 'CS2')
         assert len(self.aedtapp.modeler.coordinate_systems)==2

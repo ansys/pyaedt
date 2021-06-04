@@ -1,5 +1,6 @@
 from ..generic.general_methods import aedt_exception_handler
 from .modeler_constants import CoordinateSystemPlane, CoordinateSystemAxis, SweepDraftType
+import math
 
 class GeometryOperators(object):
     """ """
@@ -154,18 +155,18 @@ class GeometryOperators(object):
     @staticmethod
     @aedt_exception_handler
     def v_cross(a, b):
-        """
+        """ cross product of geometry vectors a and b
 
         Parameters
         ----------
         a :
-            
+            first vector [x, y, z]
         b :
-            
+            second vector [x, y, z]
 
         Returns
         -------
-
+        result vector
         """
         c = [a[1] * b[2] - a[2] * b[1],
              a[2] * b[0] - a[0] * b[2],
@@ -175,37 +176,75 @@ class GeometryOperators(object):
     @staticmethod
     @aedt_exception_handler
     def _v_dot(a, b):
-        """
+        """ dot product between two geometric vectors a and b
 
         Parameters
         ----------
         a :
-            
+            first vector [x, y, z]
         b :
-            
+            second vector [x, y, z]
 
         Returns
         -------
-
+        result vector
         """
         c = a[0] * b[0] + a[1] * b[1] + a[2] * b[2]
         return c
-    
+
     @staticmethod
     @aedt_exception_handler
-    def v_sub(a, b):
-        """
+    def v_dot(a, b):
+        """ dot product between two geometric vectors a and b
 
         Parameters
         ----------
         a :
-            
+            first vector [x, y, z]
         b :
-            
+            second vector [x, y, z]
 
         Returns
         -------
+        result vector
+        """
+        return GeometryOperators._v_dot(a, b)
 
+    @staticmethod
+    @aedt_exception_handler
+    def v_prod(s, v):
+        """ Product between the scalar s and the vector v
+        v can be any length
+
+        Parameters
+        ----------
+        s :
+            scalar
+        v :
+            vector [x, y, z]
+
+        Returns
+        -------
+        result vector
+        """
+        r = [s * i for i in v]
+        return r
+
+    @staticmethod
+    @aedt_exception_handler
+    def v_sub(a, b):
+        """ geometry vectors subtraction a-b
+
+        Parameters
+        ----------
+        a :
+            fisrt vector [x, y, z]
+        b :
+            second vector [x, y, z]
+
+        Returns
+        -------
+        result vector
         """
         c = [a[0] - b[0],
              a[1] - b[1],
@@ -215,18 +254,18 @@ class GeometryOperators(object):
     @staticmethod
     @aedt_exception_handler
     def v_sum(a, b):
-        """
+        """ geometry vectors sum a+b
 
         Parameters
         ----------
         a :
-            
+            fisrt vector [x, y, z]
         b :
-            
+            second vector [x, y, z]
 
         Returns
         -------
-
+        result vector
         """
         c = [a[0] + b[0],
              a[1] + b[1],
@@ -236,16 +275,16 @@ class GeometryOperators(object):
     @staticmethod
     @aedt_exception_handler
     def v_norm(a):
-        """
+        """ euclidean norm of geometry vector a
 
         Parameters
         ----------
         a :
-            
+            input vector [x, y, z]
 
         Returns
         -------
-
+        norm, scalar same unit as vector coordinates
         """
         m = (a[0]**2 + a[1]**2 + a[2]**2) ** 0.5
         return m
@@ -253,16 +292,16 @@ class GeometryOperators(object):
     @staticmethod
     @aedt_exception_handler
     def normalize_vector(v):
-        """
+        """ normalize the geometry vector v, get the unit vector
 
         Parameters
         ----------
         v :
-            
+            input vector [x, y, z]
 
         Returns
         -------
-
+        result unit vector
         """
         # normalize a vector to its norm
         norm = GeometryOperators.v_norm(v)
@@ -277,33 +316,31 @@ class GeometryOperators(object):
         Parameters
         ----------
         p1 :
-            x1,y1,z1] of p1
+            [x1,y1,z1] of p1
         p2 :
-            x2,y2,z2] of p2
+            [x2,y2,z2] of p2
 
         Returns
         -------
-        type
-            vx, vy, vz]
-
+        type [vx, vy, vz]
         """
         return GeometryOperators.v_sub(p2, p1)
     
     @staticmethod
     @aedt_exception_handler
     def points_distance(p1, p2):
-        """
+        """ return the distance between 2 points expressed as their cartesian coordinates
 
         Parameters
         ----------
         p1 :
-            
+            [x1,y1,z1] of p1
         p2 :
-            
+            [x2,y2,z2] of p2
 
         Returns
         -------
-
+        distance, scalar value in same unit as points coordinates
         """
         v = GeometryOperators.v_points(p1, p2)
         d = GeometryOperators.v_norm(v)
@@ -512,3 +549,126 @@ class GeometryOperators(object):
             for el1 in vertlist2:
                 sum += GeometryOperators.points_distance(el, el1)
         return sum/(len(vertlist1)+len(vertlist2))
+
+    @staticmethod
+    @aedt_exception_handler
+    def v_angle(a, b):
+        """ evaluates the angle between a and b
+
+        Parameters
+        ----------
+        a :
+            fisrt vector [x, y, z]
+        b :
+            second vector [x, y, z]
+
+        Returns
+        -------
+        angle in radians
+        """
+        d = GeometryOperators.v_dot(a, b)
+        an = GeometryOperators.v_norm(a)
+        bn = GeometryOperators.v_norm(b)
+        theta = math.acos(d / (an*bn))
+        return theta
+
+    @staticmethod
+    @aedt_exception_handler
+    def pointing_to_axis_angle(x_pointing, y_pointing):
+        """ get the axis angle rotation formulation from the HFSS X-Axis and Y-Pointing as per AEDT interface
+            coordinate system definition
+
+        Parameters
+        ----------
+        x_pointing :
+            X-Axis in format [x, y, z]
+        y_pointing :
+            Y-Pointing in format [x, y, z]
+
+        Returns
+        -------
+        tuple ([ux, uy, uz], theta) containing the rotation axix expressed as x, y, z components of the unit vector u
+        and the rotation angle theta expressed in radians.
+        """
+        u = GeometryOperators.normalize_vector(x_pointing)
+        yp = GeometryOperators.normalize_vector(y_pointing)
+        y = [0, 1, 0]
+        xpn = GeometryOperators.v_dot(u, u)
+        tp = GeometryOperators.v_dot(yp, u) * xpn
+        pyp = GeometryOperators.v_sub(yp, GeometryOperators.v_prod(tp, u))
+        t = GeometryOperators.v_dot(y, u) * xpn
+        py = GeometryOperators.v_sub(y, GeometryOperators.v_prod(t, u))
+        theta = GeometryOperators.v_angle(pyp, py)
+        return u, theta
+
+    @staticmethod
+    @aedt_exception_handler
+    def axis_angle_to_quaternion(u, theta):
+        """ convert the axis angle rotation formulation to quaternion
+
+        Parameters
+        ----------
+        u :
+            rotation axix in format [ux, uy, uz]
+        theta :
+            angle of rotation in radians
+
+        Returns
+        -------
+        quaternion [q1, q2, q3, q4]
+        """
+        un = GeometryOperators.normalize_vector(u)
+        s = math.sin(theta * 0.5)
+        q1 = math.cos(theta * 0.5)
+        q2 = un[0] * s
+        q3 = un[1] * s
+        q4 = un[2] * s
+        return [q1, q2, q3, q4]
+
+    @staticmethod
+    @aedt_exception_handler
+    def quaternion_to_axis_angle(q):
+        """ convert the quaternion to axis angle rotation formulation
+
+        Parameters
+        ----------
+        q :
+            quaternion [q1, q2, q3, q4]
+
+        Returns
+        -------
+        tuple ([ux, uy, uz], theta) containing the rotation axix expressed as x, y, z components of the unit vector u
+        and the rotation angle theta expressed in radians.
+        """
+        q1 = q[0]
+        q2 = q[1]
+        q3 = q[2]
+        q4 = q[3]
+        n = (q2*q2 + q3*q3 + q4*q4) ** 0.5
+        u = [q2/n, q3/n, q4/n]
+        theta = math.atan2(n, q1)
+        return u, theta
+
+    @staticmethod
+    @aedt_exception_handler
+    def axis_angle_to_quaternion(u, theta):
+        """ convert the axis angle rotation formulation to quaternion
+
+        Parameters
+        ----------
+        u :
+            rotation axix in format [ux, uy, uz]
+        theta :
+            angle of rotation in radians
+
+        Returns
+        -------
+        quaternion [q1, q2, q3, q4]
+        """
+        un = GeometryOperators.normalize_vector(u)
+        s = math.sin(theta * 0.5)
+        q1 = math.cos(theta * 0.5)
+        q2 = un[0] * s
+        q3 = un[1] * s
+        q4 = un[2] * s
+        return [q1, q2, q3, q4]
