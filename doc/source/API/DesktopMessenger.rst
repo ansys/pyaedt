@@ -6,10 +6,6 @@
 Desktop & Messenger
 ===================================
 
-**Diagram**
-
-.. inheritance-diagram:: pyaedt.Desktop pyaedt.application.MessageManager
-    :parts: 1
 
 .. toctree::
    :maxdepth: 2

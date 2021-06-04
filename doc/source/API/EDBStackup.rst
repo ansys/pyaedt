@@ -6,7 +6,7 @@
 EDB Stackup
 ===================================
 
-.. automodule:: pyaedt.edb.stackup
+.. automodule:: pyaedt.edb_core.stackup
     :members:
 
 .. toctree::

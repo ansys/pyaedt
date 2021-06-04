@@ -50,7 +50,13 @@ from pyaedt import Desktop
 
 
 desktopVersion = "2021.1"
-NonGraphical = False
+
+
+###############################################################################
+# NonGraphical
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# Change Boolean to False to open AEDT in graphical mode
+NonGraphical = True
 NewThread = False
 
 #########################################################

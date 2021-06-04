@@ -20,12 +20,18 @@ from pyaedt import Desktop
 from pyaedt import Q3d
 
 ###############################################################################
+# NonGraphical
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# Change Boolean to False to open AEDT in graphical mode
+NonGraphical = True
+
+###############################################################################
 # Launch Desktop and Q3D
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # This examples will use AEDT 2021.1 in Graphical mode
 
 # This examples will use SI units.
-d = Desktop("2021.1",False, False)
+d = Desktop("2021.1",NonGraphical, False)
 
 q=Q3d()
 

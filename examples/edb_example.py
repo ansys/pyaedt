@@ -14,7 +14,6 @@ local_path = os.path.abspath('')
 module_path = pathlib.Path(local_path)
 aedt_lib_path = module_path.parent.parent.parent
 sys.path.append(os.path.join(aedt_lib_path))
-import clr
 import os
 import time
 from pyaedt import generate_unique_name, examples
@@ -26,7 +25,7 @@ if os.path.exists(targetfolder):
 shutil.copytree(example_path[:-8], targetfolder)
 targetfile=os.path.join(targetfolder)
 print(targetfile)
-
+aedt_file = targetfile[:-12]+"aedt"
 
 
 #################################
@@ -35,7 +34,7 @@ from pyaedt import Edb
 
 #################################
 
-
+if os.path.exists(aedt_file): os.remove(aedt_file)
 edb = Edb(edbpath=targetfile)
 
 #################################

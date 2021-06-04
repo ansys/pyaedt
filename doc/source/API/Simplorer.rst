@@ -6,7 +6,7 @@
 Simplorer
 ===================================
 
-.. automodule:: pyaedt.Simplorer
+.. automodule:: pyaedt.simplorer
     :members:
 
 

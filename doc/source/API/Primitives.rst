@@ -6,10 +6,6 @@
 Primitives
 ===================================
 
-**Diagram**
-
-.. inheritance-diagram:: pyaedt.modeler.Primitives pyaedt.modeler.Primitives2D pyaedt.modeler.Primitives3D pyaedt.modeler.Primitives3DLayout pyaedt.modeler.PrimitivesCircuit pyaedt.modeler.PrimitivesNexxim pyaedt.modeler.PrimitivesSimplorer pyaedt.modeler.GeometryOperators pyaedt.modeler.Object3d
-    :parts: 1
 
 
 .. toctree::

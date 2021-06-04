@@ -6,12 +6,6 @@
 Material & Stackup
 ===================================
 
-**Diagram**
-
-
-.. inheritance-diagram:: pyaedt.modules.MaterialLib pyaedt.modules.Material
-    :parts: 1
-
 
 .. toctree::
    :maxdepth: 2

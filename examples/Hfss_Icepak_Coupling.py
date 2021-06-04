@@ -31,10 +31,8 @@ print(project_dir)
 from pyaedt import Hfss
 from pyaedt import Icepak
 from pyaedt import Desktop
-import clr
 import numpy as np
 import matplotlib.pyplot as plt
-import math
 advanced = True
 
 
@@ -45,6 +43,10 @@ advanced = True
 
 
 desktopVersion = "2021.1"
+###############################################################################
+# NonGraphical
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# Change Boolean to False to open AEDT in graphical mode
 NonGraphical = True
 NewThread = False
 project_name = "Test_Jupyter_NG"

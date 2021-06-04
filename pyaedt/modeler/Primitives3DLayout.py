@@ -1,14 +1,16 @@
 import sys
 from collections import defaultdict
 
-import clr
-
 from ..generic.general_methods import aedt_exception_handler
 from .Object3d import Padstack, Components3DLayout, Geometries3DLayout, Pins3DLayout, Nets3DLayout, \
     _uname
 from .Primitives import _ironpython, default_materials
 from .GeometryOperators import GeometryOperators
-from System import String
+import pkgutil
+modules = [tup[1] for tup in pkgutil.iter_modules()]
+if 'clr' in modules:
+    import clr
+    from System import String
 
 
 class Primitives3DLayout(object):

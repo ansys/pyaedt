@@ -1,10 +1,13 @@
 from __future__ import absolute_import
-import clr
 from .general import *
 from ..generic.general_methods import get_filename_without_extension, generate_unique_name
-from System import Convert, String
-from System import Double, Array
-from System.Collections.Generic import List
+import pkgutil
+modules = [tup[1] for tup in pkgutil.iter_modules()]
+if 'clr' in modules:
+    import clr
+    from System import Convert, String
+    from System import Double, Array
+    from System.Collections.Generic import List
 
 
 class EdbNets(object):

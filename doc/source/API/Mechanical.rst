@@ -6,7 +6,7 @@
 AEDT Mechanical
 ===================================
 
-.. automodule:: pyaedt.Mechanical
+.. automodule:: pyaedt.mechanical
     :members:
 
 

@@ -17,7 +17,14 @@ from pyaedt import Desktop
 # This examples will use SI units.
 
 desktopVersion = "2021.1"
-NonGraphical = False
+
+###############################################################################
+# NonGraphical
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# Change Boolean to False to open AEDT in graphical mode
+NonGraphical = True
+
+
 NewThread = False
 d = Desktop(desktopVersion, NonGraphical, NewThread)
 aedtapp = Circuit()
