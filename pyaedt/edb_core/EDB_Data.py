@@ -10,10 +10,8 @@ try:
     _ironpython = False
     if "IronPython" in sys.version or ".NETFramework" in sys.version:
         _ironpython = True
-    edb_initialized = True
 except ImportError:
     warnings.warn("The clr is missing. Install Pythonnet or use Ironpython version if you want to use EDB Module")
-    edb_initialized = False
 
 
 # class EDBLayer(object):
