@@ -1,13 +1,6 @@
 """
 Q3D Class
-----------------------------------------------------------------
-
-Disclaimer
-==================================================
-
-**Copyright (c) 1986-2021, ANSYS Inc. unauthorised use, distribution or duplication is prohibited**
-
-**This tool release is unofficial and not covered by standard Ansys Support license.**
+---------------------
 
 
 Description
@@ -18,16 +11,16 @@ This class contains all the Q3D Functionalities. It inherites all the objects th
 
 :Example:
 
-app = Q3D()     creates and Q3D object and connect to existing Q3D design (create a new Q3D design if not present)
+app = Q3d()     creates and Q3D object and connect to existing Q3D design (create a new Q3D design if not present)
 
 
-app = Q3D(projectname)     creates and Q3D and link to projectname project
+app = Q2d(projectname)     creates and Q2d and link to projectname project
 
 
-app = Q3D(projectname,designame)     creates and Q3D object and link to designname design in projectname project
+app = Q2d(projectname,designame)     creates and Q3D object and link to designname design in projectname project
 
 
-app = Q3D("myfile.aedt")     creates and Q3D object and open specified project
+app = Q2dD("myfile.aedt")     creates and Q2d object and open specified project
 
 
 

@@ -3,13 +3,6 @@
 Advanced PostProcessing Class
 ================================
 
-**Disclaimer**
-
-
-*Copyright (c) 1986-2021, ANSYS Inc. unauthorised use, distribution or duplication is prohibited*
-
-*This tool release is unofficial and not covered by standard Ansys Support license.*
-
 
 **Description**
 

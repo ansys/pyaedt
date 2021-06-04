@@ -1,27 +1,20 @@
 """
-Icepak Class
+Icepak 3d Layout Class
 ----------------------------------------------------------------
-
-Disclaimer
-==================================================
-
-**Copyright (c) 1986-2021, ANSYS Inc. unauthorised use, distribution or duplication is prohibited**
-
-**This tool release is unofficial and not covered by standard Ansys Support license.**
 
 
 Description
 ==================================================
 
-This class contains all the Icepak Functionalities. It inherites all the objects that belongs to Icepak
+This class contains all the Icepak AEDT Functionalities. It inherites all the objects that belongs to Icepak
 
 
 :Example:
 
-app = Icepak()     creates and Icepak object and connect to existing Maxwell design (create a new Maxwell design if not present)
+app = Icepak()     creates and Icepak object and connect to existing hfss design (create a new hfss design if not present)
 
 
-app = Icepak(projectname)     creates and Icepak object and link to projectname project
+app = Icepak(projectname)     creates and Icepak object and link to projectname project. If project doesn't exists, it creates a new one and rename it
 
 
 app = Icepak(projectname,designame)     creates and Icepak object and link to designname design in projectname project
@@ -30,10 +23,10 @@ app = Icepak(projectname,designame)     creates and Icepak object and link to de
 app = Icepak("myfile.aedt")     creates and Icepak object and open specified project
 
 
-
 ========================================================
 
 """
+
 from __future__ import absolute_import
 import csv
 import math

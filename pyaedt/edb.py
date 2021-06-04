@@ -1,34 +1,20 @@
+# -*- coding: utf-8 -*-
 """
-EDB Class
-----------------------------------------------------------------
-
-Disclaimer
-============================================================
-
-**Copyright (c) 1986-2021, ANSYS Inc. unauthorised use, distribution or duplication is prohibited**
-
-**This tool release is unofficial and not covered by standard Ansys Support license.**
-
-
-Description
-============================================================
-
+Edb Class
+-------------
 This class contains all the EDB Functionalities. It inherites all the objects that belongs to EDB.
 
 It is implicitily loaeded in HFSS3DLayout when launched
 
+Example
+________
 
-:Example:
-
-app = EDB()     creates and EDB object create a new EDB cell
-
-
-app = EDB("myfile.edb_core")     creates and EDB object and open specified project
+app = Edb()     creates and EDB object create a new EDB cell
 
 
-======================================================================
-
+app = Edb("myfile.aedb")     creates and EDB object and open specified project
 """
+
 import os
 import sys
 import traceback

@@ -37,7 +37,7 @@ class Test3DLayoutEDB:
         assert comp['L3A1'].get_placement_layer()
         assert comp['L3A1'].get_part()
         assert comp['L3A1'].get_part_type()
-        assert comp['L3A1'].set_property_value("Angle","0deg")
+        assert comp['L3A1'].set_property_value("Angle", "0deg")
 
 
     def test_get_geometries(self):

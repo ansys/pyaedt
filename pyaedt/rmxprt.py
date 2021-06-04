@@ -1,13 +1,6 @@
 """
 RMxprt Class
-----------------------------------------------------------------
-
-Disclaimer
-==================================================
-
-**Copyright (c) 1986-2021, ANSYS Inc. unauthorised use, distribution or duplication is prohibited**
-
-**This tool release is unofficial and not covered by standard Ansys Support license.**
+-------------------
 
 
 Description
@@ -18,16 +11,16 @@ This class contains all the RMxprt Functionalities. It inherites all the objects
 
 :Example:
 
-app = RMxprt()     creates and Icepak object and connect to existing RMxprt design (create a new RMxprt design if not present)
+app = Rmxprt()     creates  Rmxprt object and connect to existing RMxprt design (create a new RMxprt design if not present)
 
 
-app = RMxprt(projectname)     creates and  RMxprt and link to projectname project
+app = Rmxprt(projectname)     creates and  Rmxprt and link to projectname project
 
 
-app = RMxprt(projectname,designame)     creates and RMxprt object and link to designname design in projectname project
+app = Rmxprt(projectname,designame)     creates and RMxprt object and link to designname design in projectname project
 
 
-app = RMxprt("myfile.aedt")     creates and RMxprt object and open specified project
+app = Rmxprt("myfile.aedt")     creates and RMxprt object and open specified project
 
 
 
