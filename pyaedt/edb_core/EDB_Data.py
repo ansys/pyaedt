@@ -7,9 +7,6 @@ try:
     import clr
     from System import Double, Array
     from System.Collections.Generic import List
-    _ironpython = False
-    if "IronPython" in sys.version or ".NETFramework" in sys.version:
-        _ironpython = True
 except ImportError:
     warnings.warn("The clr is missing. Install Pythonnet or use Ironpython version if you want to use EDB Module")
 
