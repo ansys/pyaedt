@@ -50,22 +50,42 @@ jobs:
 - job: DocGalleryBuild
   pool:
     name: ansys
+
   variables:
     python.version: '3.7.7'
+    python.venv: 'docs_venv'
+
   steps:
   - task: UsePythonVersion@0
     displayName: 'Use Python $(python.version)'
     inputs:
       versionSpec: '$(python.version)'
+
   - script: |
+      python -m venv $(docs_venv)
+      $(docs_venv)\Scripts\activate.bat
+      python -V
+      python -m pip install pip -U
+    displayName: 'Create python virtual env'
+
+  - script: |
+      $(docs_venv)\Scripts\activate.bat
       pip install . --use-feature=in-tree-build
       mkdir tmp && cd tmp  # move to different directory to test import
       python -c "import pyaedt"
     displayName: 'Install pyaedt'
+
   - script: |
+      $(docs_venv)\Scripts\activate.bat
       pip install -r requirements_docs.txt
       .\doc\make.bat html
     displayName: 'Build documentation'
+
+  - script: |
+     del /F /Q $(docs_venv)
+     python setup.py sdist
+    displayName: 'Cleanup Virtual Env'
+
   - task: PublishBuildArtifacts@1
     displayName: 'Publish Documentation'
     inputs:
