@@ -22,12 +22,24 @@ jobs:
   variables:
     python.version: '3.7'
     python.venv: 'docs_venv'
+    ANSYSEM_ROOT211: '$(System.DefaultWorkingDirectory)/aedt/Win64'
+    ANSYSLMD_LICENSE_FILE='1055@$(LICENSE_SRV_IP)'
 
   steps:
   - task: UsePythonVersion@0
     displayName: 'Use Python $(python.version)'
     inputs:
       versionSpec: '$(python.version)'
+
+  - powershell: |
+      python -m pip install pip -U
+    displayName: Upgrade pip
+
+  - powershell: |
+      pip install . --use-feature=in-tree-build
+      mkdir tmp && cd tmp  # move to different directory to test import
+      python -c "import pyaedt"
+    displayName: Install pyaedt
 
   - task: UniversalPackages@0
     inputs:
@@ -39,5 +51,6 @@ jobs:
       vstsPackageVersion: '21.1.0'
 
   - powershell: |
-      ls '$(System.DefaultWorkingDirectory)/aedt'
-    displayName: Verify AEDT install
+      ls '$(ANSYSEM_ROOT211)'
+      python -c "import pyaedt; print(pyaedt.Hfss())"
+    displayName: Verify AEDT install with pyaedt
