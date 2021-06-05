@@ -11,7 +11,7 @@ local_path = os.path.dirname(os.path.realpath(__file__))
 
 scratch_path = tempfile.TemporaryDirectory().name
 os.mkdir(scratch_path)
-# module_path = pathlib.Path(local_path)
+module_path = pathlib.Path(local_path)
 # sys.path.append(module_path)
 
 

@@ -345,6 +345,7 @@ healthchecksdb
 
 # sphinx build
 doc/_build/
+doc/source/examples
 
 # pip files
 *.egg-info/*
