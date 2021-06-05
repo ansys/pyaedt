@@ -592,7 +592,7 @@ class GeometryOperators(object):
         """
         u = GeometryOperators.normalize_vector(x_pointing)
         yp = GeometryOperators.normalize_vector(y_pointing)
-        y = [0, 1, 0]
+        y = [0., 1., 0.]
         xpn = GeometryOperators.v_dot(u, u)
         tp = GeometryOperators.v_dot(yp, u) * xpn
         pyp = GeometryOperators.v_sub(yp, GeometryOperators.v_prod(tp, u))
@@ -672,3 +672,32 @@ class GeometryOperators(object):
         q3 = un[1] * s
         q4 = un[2] * s
         return [q1, q2, q3, q4]
+
+    @staticmethod
+    @aedt_exception_handler
+    def quaternion_to_euler_zxz(q):
+        """ convert the quaternion to Euler angles following rotation sequence ZXZ
+
+        Parameters
+        ----------
+        q :
+            quaternion [q1, q2, q3, q4]
+
+        Returns
+        -------
+        tuple (psi, theta, phi) containing Euler angles in radians.
+        """
+        q1 = q[0]
+        q2 = q[1]
+        q3 = q[2]
+        q4 = q[3]
+        m13 = 2. * (q2*q4 + q1*q3)
+        m23 = 2. * (q3*q4 - q1*q2)
+        m33 = q1*q1 - q2*q2 - q3*q3 + q4*q4
+        m31 = 2 * (q2*q4 - q1*q3)
+        m32 = 2. * (q3*q4 + q1*q2)
+        psi = math.atan2(m13, -m23)
+        theta = math.atan2((1-m33*m33)**0.5, m33)
+        phi = math.atan2(m31, m32)
+        return psi, theta, phi
+
