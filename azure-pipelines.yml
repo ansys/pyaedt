@@ -1,50 +1,73 @@
-#Multi-configuration and multi-agent job options are not exported to YAML. Configure these options using documentation guidance: https://docs.microsoft.com/vsts/pipelines/process/phases
+
 trigger:
   none
 
-pool:
-  name: Ansys
-variables:
-  python.version: '3.7.7'
+jobs:
+- job: UnitTesting
+  pool:
+    name: Ansys
+  variables:
+    python.version: '3.7.7'
+  steps:
+  - task: UsePythonVersion@0
+    displayName: 'Use Python $(python.version)'
+    inputs:
+      versionSpec: '$(python.version)'
 
-steps:
-- task: UsePythonVersion@0
-  displayName: 'Use Python $(python.version)'
-  inputs:
-    versionSpec: '$(python.version)'
+  - script: |
+     pytest _unittest --cov --cov-report=xml --cov-report=html   
+    displayName: 'Pytest'
 
-- script: |
-   pytest _unittest --cov --cov-report=xml --cov-report=html
-   
-  displayName: 'Pytest'
+  - script: |
+     coverage xml
+    displayName: 'Coverage'
 
-- script: |
+  - task: PublishTestResults@2
+    displayName: 'Publish Test Results **/test-results.xml'
+    inputs:
+      testResultsFiles: '**/test-results.xml'
+      testRunTitle: 'Python $(python.version)'
+    condition: always()
 
-   coverage xml
-  displayName: 'Coverage'
+  - task: PublishCodeCoverageResults@1
+    displayName: 'Publish code coverage from $(System.DefaultWorkingDirectory)/coverage.xml'
+    inputs:
+      codeCoverageTool: Cobertura
+      summaryFileLocation: '$(System.DefaultWorkingDirectory)/coverage.xml'
+    condition: succeededOrFailed()
 
-- task: PublishTestResults@2
-  displayName: 'Publish Test Results **/test-results.xml'
-  inputs:
-    testResultsFiles: '**/test-results.xml'
-    testRunTitle: 'Python $(python.version)'
-  condition: always()
+  - script: |
+     del /F /Q dist\*.*
+     python setup.py sdist
+    displayName: 'Build Artifact'
 
-- task: PublishCodeCoverageResults@1
-  displayName: 'Publish code coverage from $(System.DefaultWorkingDirectory)/coverage.xml'
-  inputs:
-    codeCoverageTool: Cobertura
-    summaryFileLocation: '$(System.DefaultWorkingDirectory)/coverage.xml'
-  condition: succeededOrFailed()
+  - task: PublishBuildArtifacts@1
+    displayName: 'Publish Artifact: dist'
+    inputs:
+      PathtoPublish: dist
+      ArtifactName: dist
 
-- script: |
-   del /F /Q dist\*.*
-   python setup.py sdist
-  displayName: 'Build Artifact'
-
-- task: PublishBuildArtifacts@1
-  displayName: 'Publish Artifact: dist'
-  inputs:
-    PathtoPublish: dist
-    ArtifactName: dist
-
+- job: DocGalleryBuild
+  pool:
+    name: ansys
+  variables:
+    python.version: '3.7.7'
+  steps:
+  - task: UsePythonVersion@0
+    displayName: 'Use Python $(python.version)'
+    inputs:
+      versionSpec: '$(python.version)'
+  - script: |
+     displayName: 'Install pyaedt'
+     pip install . --use-feature=in-tree-build
+     mkdir tmp && cd tmp  # move to different directory to test import
+     python -c "import pyaedt"
+  - script: |
+     displayName: 'Build documentation'
+     pip install -r requirements_docs.txt
+     .\doc\make.bat
+  - task: PublishBuildArtifacts@1
+    displayName: 'Publish Documentation'
+    inputs:
+      PathtoPublish: doc/_build/html
+      ArtifactName: Documentation
