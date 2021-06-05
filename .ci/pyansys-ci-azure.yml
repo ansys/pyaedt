@@ -23,7 +23,7 @@ jobs:
     python.version: '3.7'
     python.venv: 'docs_venv'
     ANSYSEM_ROOT211: '$(System.DefaultWorkingDirectory)/aedt/Win64'
-    ANSYSLMD_LICENSE_FILE='1055@$(LICENSE_SRV_IP)'
+    ANSYSLMD_LICENSE_FILE: '1055@$(LICENSE_SRV_IP)'
 
   steps:
   - task: UsePythonVersion@0
