@@ -57,7 +57,7 @@ jobs:
   - powershell: |
       pip install -r requirements_test.txt
       pip install pytest-azurepipelines
-   displayName: Install unit test requirements
+    displayName: Install unit test requirements
 
   - powershell: |
       $env:ANSYSLMD_LICENSE_FILE = '1055@$(LICENSE_SRV_IP)'
