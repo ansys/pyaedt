@@ -37,7 +37,8 @@ jobs:
 
   - powershell: |
       pip install . --use-feature=in-tree-build
-      mkdir tmp && cd tmp  # move to different directory to test import
+      mkdir tmp
+      cd tmp
       python -c "import pyaedt"
     displayName: Install pyaedt
 
