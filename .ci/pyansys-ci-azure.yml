@@ -32,7 +32,7 @@ jobs:
   - task: UniversalPackages@0
     inputs:
       command: 'download'
-      downloadDirectory: '$(System.DefaultWorkingDirectory)'\aedt
+      downloadDirectory: '$(System.DefaultWorkingDirectory)/aedt'
       feedsToUse: 'internal'
       vstsFeed: '705e121a-9631-49f5-8aaf-c7142856f923'
       vstsFeedPackage: 'aedt'
