@@ -2,51 +2,6 @@
 trigger:
   none
 
-jobs:
-- job: UnitTesting
-  pool:
-    name: Ansys
-  variables:
-    python.version: '3.7.7'
-  steps:
-  - task: UsePythonVersion@0
-    displayName: 'Use Python $(python.version)'
-    inputs:
-      versionSpec: '$(python.version)'
-
-  - script: |
-     pytest _unittest --cov --cov-report=xml --cov-report=html   
-    displayName: 'Pytest'
-
-  - script: |
-     coverage xml
-    displayName: 'Coverage'
-
-  - task: PublishTestResults@2
-    displayName: 'Publish Test Results **/test-results.xml'
-    inputs:
-      testResultsFiles: '**/test-results.xml'
-      testRunTitle: 'Python $(python.version)'
-    condition: always()
-
-  - task: PublishCodeCoverageResults@1
-    displayName: 'Publish code coverage from $(System.DefaultWorkingDirectory)/coverage.xml'
-    inputs:
-      codeCoverageTool: Cobertura
-      summaryFileLocation: '$(System.DefaultWorkingDirectory)/coverage.xml'
-    condition: succeededOrFailed()
-
-  - script: |
-     del /F /Q dist\*.*
-     python setup.py sdist
-    displayName: 'Build Artifact'
-
-  - task: PublishBuildArtifacts@1
-    displayName: 'Publish Artifact: dist'
-    inputs:
-      PathtoPublish: dist
-      ArtifactName: dist
-
 - job: DocGalleryBuild
   pool:
     name: ansys
@@ -61,40 +16,12 @@ jobs:
     inputs:
       versionSpec: '$(python.version)'
 
-  - powershell: |
-      Set-StrictMode -Version Latest
-      $ErrorActionPreference = "Stop"
-      $PSDefaultParameterValues['*:ErrorAction']='Stop'
-      git clone --depth 1 git://github.com/pyvista/gl-ci-helpers.git
-      powershell gl-ci-helpers/appveyor/install_opengl.ps1
-    displayName: 'Install OpenGL'
-
-  - script: |
-      python -m venv $(python.venv)
-      $(python.venv)\Scripts\activate.bat
-      python -V
-      python -m pip install pip -U
-    displayName: 'Create python virtual env'
-
-  - script: |
-      $(python.venv)\Scripts\activate.bat
-      pip install . --use-feature=in-tree-build
-      mkdir tmp && cd tmp  # move to different directory to test import
-      python -c "import pyaedt"
-    displayName: 'Install pyaedt'
-
-  - script: |
-      $(python.venv)\Scripts\activate.bat
-      pip install -r requirements_docs.txt
-      .\doc\make.bat html
-    displayName: 'Build documentation'
-
-  - script: |
-     del /F /Q $(python.venv)
-    displayName: 'Cleanup Virtual Env'
-
-  - task: PublishBuildArtifacts@1
-    displayName: 'Publish Documentation'
+  - task: UniversalPackages@0
     inputs:
-      PathtoPublish: doc/_build/html
-      ArtifactName: Documentation
+      command: 'download'
+      downloadDirectory: '$(System.DefaultWorkingDirectory)'\aedt
+      feedsToUse: 'internal'
+      vstsFeed: '705e121a-9631-49f5-8aaf-c7142856f923'
+      vstsFeedPackage: 'aedt'
+      vstsPackageVersion: '21.1.0'
+
