@@ -1,6 +1,19 @@
 
 trigger:
-  none
+  branches:
+    include:
+    - '*'
+    exclude:
+    - gh-pages
+  tags:
+    include:
+    - '*'
+
+pr:
+  branches:
+    exclude:
+    - '*'
+
 jobs:
 - job: DocGalleryBuild
   pool:
@@ -24,4 +37,3 @@ jobs:
       vstsFeed: '705e121a-9631-49f5-8aaf-c7142856f923'
       vstsFeedPackage: 'aedt'
       vstsPackageVersion: '21.1.0'
-
