@@ -65,7 +65,7 @@ jobs:
   - script: |
      displayName: 'Build documentation'
      pip install -r requirements_docs.txt
-     .\doc\make.bat
+     .\doc\make.bat html
   - task: PublishBuildArtifacts@1
     displayName: 'Publish Documentation'
     inputs:
