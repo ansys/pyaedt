@@ -23,7 +23,6 @@ jobs:
     python.version: '3.7'
     python.venv: 'docs_venv'
     ANSYSEM_ROOT211: '$(System.DefaultWorkingDirectory)/aedt/Win64'
-    ANSYSLMD_LICENSE_FILE: '1055@$(LICENSE_SRV_IP)'
 
   steps:
   - task: UsePythonVersion@0
@@ -53,5 +52,10 @@ jobs:
 
   - powershell: |
       ls '$(ANSYSEM_ROOT211)'
-      python -c "import pyaedt; print(pyaedt.Hfss())"
+    displayName: Verify AEDT files
+
+  - powershell: |
+      $env:ANSYSLMD_LICENSE_FILE = '1055@$(LICENSE_SRV_IP)'
+      echo $(global_variable)
+      python -c "import pyaedt;print('pyaedt imported');print(pyaedt.Hfss())"
     displayName: Verify AEDT install with pyaedt
