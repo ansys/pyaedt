@@ -58,13 +58,13 @@ jobs:
     inputs:
       versionSpec: '$(python.version)'
   - script: |
-     displayName: 'Install pyaedt'
-     pip install . --use-feature=in-tree-build
-     mkdir tmp && cd tmp  # move to different directory to test import
-     python -c "import pyaedt"
+    displayName: 'Install pyaedt'
+      pip install . --use-feature=in-tree-build
+      mkdir tmp && cd tmp  # move to different directory to test import
+      python -c "import pyaedt"
   - script: |
-     displayName: 'Build documentation'
-     pip install -r requirements_docs.txt
+    displayName: 'Build documentation'
+      pip install -r requirements_docs.txt
      .\doc\make.bat html
   - task: PublishBuildArtifacts@1
     displayName: 'Publish Documentation'
