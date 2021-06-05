@@ -1,7 +1,6 @@
 import tempfile
 import pathlib
 import os
-import time
 import shutil
 import sys
 
@@ -9,11 +8,11 @@ import pytest
 from pyaedt import Desktop
 
 local_path = os.path.dirname(os.path.realpath(__file__))
-module_path = pathlib.Path(local_path)
-# scratch_path = "C:\\temp"
+
 scratch_path = tempfile.TemporaryDirectory().name
 os.mkdir(scratch_path)
-sys.path.append(module_path)
+# module_path = pathlib.Path(local_path)
+# sys.path.append(module_path)
 
 
 desktopVersion = "2021.1"

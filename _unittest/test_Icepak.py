@@ -175,7 +175,8 @@ class TestIcepak:
     def test_21_ExportFLDFil(self):
         object_list = "box"
         fld_file = os.path.join(scratch_path, 'test_fld.fld')
-        self.aedtapp.post.export_field_file("Temp", self.aedtapp.nominal_sweep, [], filename=fld_file, obj_list=object_list)
+        self.aedtapp.post.export_field_file("Temp", self.aedtapp.nominal_sweep, [],
+                                            filename=fld_file, obj_list=object_list)
         assert os.path.exists(fld_file)
 
     def test_88_create_heat_sink(self):
