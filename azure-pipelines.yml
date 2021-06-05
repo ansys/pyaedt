@@ -64,7 +64,7 @@ jobs:
     displayName: 'Install pyaedt'
   - script: |
       pip install -r requirements_docs.txt
-     .\doc\make.bat html
+      .\doc\make.bat html
     displayName: 'Build documentation'
   - task: PublishBuildArtifacts@1
     displayName: 'Publish Documentation'
