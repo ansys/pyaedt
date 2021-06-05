@@ -37,3 +37,7 @@ jobs:
       vstsFeed: '705e121a-9631-49f5-8aaf-c7142856f923'
       vstsFeedPackage: 'aedt'
       vstsPackageVersion: '21.1.0'
+
+  - powershell: |
+      ls '$(System.DefaultWorkingDirectory)/aedt'
+    displayName: Verify AEDT install
