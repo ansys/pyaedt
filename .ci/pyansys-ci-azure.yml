@@ -54,15 +54,15 @@ jobs:
       ls '$(ANSYSEM_ROOT211)'
     displayName: List AEDT files
 
-  # - powershell: |
-  #     $env:ANSYSLMD_LICENSE_FILE = '1055@$(LICENSE_SRV_IP)'
-  #     python -c "import pyaedt;print('pyaedt imported');print(pyaedt.Hfss())"
-  #   displayName: Verify AEDT install with pyaedt
-
   - powershell: |
       pip install -r requirements_test.txt
       pip install pytest-azurepipelines
    displayName: Install unit test requirements
+
+  - powershell: |
+      $env:ANSYSLMD_LICENSE_FILE = '1055@$(LICENSE_SRV_IP)'
+      python -c "import pyaedt;dsk = pyaedt.Desktop();print(dsk);dsk.release_desktop()"
+    displayName: Verify AEDT install with pyaedt
 
   - powershell: |
       $env:ANSYSLMD_LICENSE_FILE = '1055@$(LICENSE_SRV_IP)'
