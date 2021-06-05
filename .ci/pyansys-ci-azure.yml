@@ -56,6 +56,6 @@ jobs:
 
   - powershell: |
       $env:ANSYSLMD_LICENSE_FILE = '1055@$(LICENSE_SRV_IP)'
-      echo $(global_variable)
+      echo $env:ANSYSLMD_LICENSE_FILE
       python -c "import pyaedt;print('pyaedt imported');print(pyaedt.Hfss())"
     displayName: Verify AEDT install with pyaedt
