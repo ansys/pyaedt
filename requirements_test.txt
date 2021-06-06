@@ -1,0 +1,6 @@
+pyvista
+matplotlib
+numpy
+pytest
+pytest-cov
+codecov
