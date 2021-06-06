@@ -18,7 +18,7 @@ app = Edb("myfile.aedb")     creates and EDB object and open specified project
 import os
 import sys
 import traceback
-import time
+import warnings
 
 try:
     import clr
@@ -33,7 +33,7 @@ try:
         _ironpython = True
     edb_initialized = True
 except ImportError:
-    print("clr module is needed. Install Pythonnet or use Ironpython version if you want to use EDB Module")
+    warnings.warn("The clr is missing. Install Pythonnet or use Ironpython version if you want to use EDB Module")
     edb_initialized = False
 
 
