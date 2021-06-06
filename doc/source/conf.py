@@ -19,7 +19,7 @@ sys.path.append(os.path.join(root_path))
 
 sys.path.append(os.path.join(root_path))
 project = 'PyAEDT'
-copyright = 'Copyright(c) 1986-2021, ANSYS Inc. unauthorised use, distribution or duplication is prohibited.'
+copyright = 'Copyright (c) 2021 ANSYS, Inc. All rights reserved.'
 author = 'Ansys Inc.'
 
 
