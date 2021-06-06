@@ -16,15 +16,9 @@ class TestDesign:
     def setup_class(self):
         # set a scratch directory and the environment / test data
         with Scratch(scratch_path) as self.local_scratch:
-            try:
-                example_project = os.path.join(local_path, 'example_models', test_project_name + '.aedtz')
-                self.test_project = self.local_scratch.copyfile(example_project)
-
-                self.aedtapp = Hfss(self.test_project)
-            except:
-                pass
-                #self.desktop.force_close_desktop()
-
+            example_project = os.path.join(local_path, 'example_models', test_project_name + '.aedtz')
+            self.test_project = self.local_scratch.copyfile(example_project)
+            self.aedtapp = Hfss(self.test_project)
 
     def teardown_class(self):
         assert self.aedtapp.close_project(self.aedtapp.project_name)
