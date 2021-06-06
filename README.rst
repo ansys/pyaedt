@@ -137,3 +137,16 @@ Modeler
     with HFSS as hfss:
          hfss.modeler.primitives.create_box([0, 0, 0], [10, "dim", 10],
                                             "mybox", "aluminum")
+
+License
+-------
+``PyAEDT`` is licensed under the MIT license.
+
+This module, ``pyaedt`` makes no commercial claim over Ansys
+whatsoever.  This tool extends the functionality of ``AEDT`` by adding
+an additioanl Python interface to the AEDT without changing the core
+behavior or license of the original software.  The use of the
+interactive APDL control of ``PyAEDT`` requires a legally licensed
+local copy of Ansys.
+
+To get a copy of Ansys, please visit `Ansys <https://www.ansys.com/>`_.
