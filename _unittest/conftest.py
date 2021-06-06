@@ -16,7 +16,6 @@ scratch_path = tempfile.TemporaryDirectory().name
 if not os.path.isdir(scratch_path):
     os.mkdir(scratch_path)
 
-sys.path.append(module_path)
 
 desktopVersion = "2021.1"
 NonGraphical = False
