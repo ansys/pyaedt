@@ -345,9 +345,12 @@ healthchecksdb
 
 # sphinx build
 doc/_build/
+doc/source/examples
 
 # pip files
 *.egg-info/*
+build/
+dist/
 
 # mypi cache
 .mypy_cache/

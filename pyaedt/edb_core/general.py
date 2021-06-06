@@ -7,13 +7,18 @@ This class manages Edb General Methods and related methods
 
 """
 from __future__ import absolute_import
-import pkgutil
-modules = [tup[1] for tup in pkgutil.iter_modules()]
-if 'clr' in modules:
+import warnings
+
+
+try:
     import clr
     clr.AddReference("System.Collections")
     from System.Collections.Generic import List
     from System import Int32
+except ImportError:
+    warnings.warn('This module requires pythonnet.')
+
+
 import inspect
 import itertools
 import sys

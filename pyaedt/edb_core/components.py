@@ -7,19 +7,22 @@ This class manages Edb Components and related methods
 
 
 """
-import os
 import re
+import random
+import warnings
+
 from .general import *
 from ..generic.general_methods import get_filename_without_extension, generate_unique_name
-import pkgutil
-modules = [tup[1] for tup in pkgutil.iter_modules()]
-if 'clr' in modules:
+
+try:
     import clr
     clr.AddReference("System")
     from System import Convert, String
     from System import Double, Array
     from System.Collections.Generic import List
-import random
+except ImportError:
+    warnings.warn('This module requires pythonnet.')
+
 
 def resistor_value_parser(RValue):
     """
