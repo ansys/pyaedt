@@ -6,15 +6,19 @@ This class manages Edb HFSS3DLayout and related methods
 
 
 """
+import warnings
 from .general import *
 from ..generic.general_methods import get_filename_without_extension, generate_unique_name
-import pkgutil
-modules = [tup[1] for tup in pkgutil.iter_modules()]
-if 'clr' in modules:
+
+
+try:
     import clr
     from System import Convert, String
     from System import Double, Array
     from System.Collections.Generic import List
+except ImportError:
+    warnings.warn('This module requires pythonnet.')
+
 
 class Edb3DLayout(object):
     """HFSS 3DLayout object"""

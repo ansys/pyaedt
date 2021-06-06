@@ -9,9 +9,16 @@ This class manages Edb Stackup and related methods
 
 """
 from __future__ import absolute_import
+import warnings
 from .general import *
-from System import Double
-from System.Collections.Generic import List
+
+try:
+    from System import Double
+    from System.Collections.Generic import List
+except ImportError:
+    warnings.warn('This module requires pythonnet.')
+
+
 from .EDB_Data import EDBLayers, EDBLayer
 
 
