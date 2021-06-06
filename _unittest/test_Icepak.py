@@ -167,14 +167,14 @@ class TestIcepak:
 
     def test_19_eval_htc(self):
         box = [i.id for i in self.aedtapp.modeler.primitives["box"].faces]
-        assert os.path.exists(self.aedtapp.eval_surface_quantity_from_field_summary(box, savedir=r'C:\Temp'))
+        assert os.path.exists(self.aedtapp.eval_surface_quantity_from_field_summary(box, savedir=scratch_path))
 
     def test_20_eval_tempc(self):
-        assert os.path.exists(self.aedtapp.eval_volume_quantity_from_field_summary(["box"],"Temperature", savedir=r'C:\Temp'))
+        assert os.path.exists(self.aedtapp.eval_volume_quantity_from_field_summary(["box"],"Temperature", savedir=scratch_path))
 
     def test_21_ExportFLDFil(self):
         object_list = "box"
-        fld_file = r'C:\Temp\test_fld.fld'
+        fld_file = os.path.join(scratch_path, 'test_fld.fld')
         self.aedtapp.post.export_field_file("Temp", self.aedtapp.nominal_sweep, [], filename=fld_file, obj_list=object_list)
         assert os.path.exists(fld_file)
 
