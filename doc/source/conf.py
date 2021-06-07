@@ -112,8 +112,7 @@ if not os.path.exists(pyvista.FIGURE_PATH):
     os.makedirs(pyvista.FIGURE_PATH)
 
 # gallery build requires AEDT install
-# if os.name != 'posix':
-if False:
+if os.name != 'posix':
     extensions.append('sphinx_gallery.gen_gallery')
 
     # necessary for pyvista when building the sphinx gallery
