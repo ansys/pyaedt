@@ -2,9 +2,9 @@
 """
 Edb Class
 -------------
-This class contains all EDB functionalities. It inherites all objects that belong to EDB.
+This class contains all EDB functionalities. It inherits all objects that belong to EDB.
 
-It is implicitily loaded in HFSS 3D Layout when launched.
+This class is implicitily loaded in HFSS 3D Layout when it is launched.
 
 Example
 ________
