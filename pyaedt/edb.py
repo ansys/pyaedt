@@ -6,7 +6,8 @@ This class contains all EDB functionalities. It inherits all objects that belong
 
 This class is implicitily loaded in HFSS 3D Layout when launched.
 
-Example
+
+Examples:
 ________
 
 app = Edb()     Creates an ``Edb`` object and creates a new EDB cell.
