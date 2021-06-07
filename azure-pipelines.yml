@@ -6,6 +6,7 @@ pool:
   name: Ansys
 variables:
   python.version: '3.7.7'
+  python.venv: 'testvenv'
 
 steps:
 - task: UsePythonVersion@0
@@ -14,12 +15,28 @@ steps:
     versionSpec: '$(python.version)'
 
 - script: |
-   pytest _unittest --cov --cov-report=xml --cov-report=html
-   
-  displayName: 'Pytest'
+    python -venv '$(python.venv)'
+    '$(python.venv)\Scripts\activate.bat'
+    pip install pip -U
+    python -c "import sys; print(sys.executable)"
+  displayName: 'Create virtual env'
 
 - script: |
+    '$(python.venv)\Scripts\activate.bat'
+    pip install . --use-feature=in-tree-build
+    pip install -r requirements_test.txt
+    pip install pytest-azurepipelines
+    mkdir tmp
+    cd tmp
+    python -c "import pyaedt; print('Imported pyaedt')"
+  displayName: 'Install pyaedt'
 
+- script: |
+    '$(python.venv)\Scripts\activate.bat'
+    pytest -v --cov --cov-report=xml --cov-report=html
+  displayName: 'Unit testing'
+
+- script: |
    coverage xml
   displayName: 'Coverage'
 
@@ -38,9 +55,10 @@ steps:
   condition: succeededOrFailed()
 
 - script: |
-   del /F /Q dist\*.*
-   python setup.py sdist
-  displayName: 'Build Artifact'
+    '$(python.venv)\Scripts\activate.bat'
+    del /F /Q dist\*.*
+    python setup.py sdist
+  displayName: 'Build sdist Package'
 
 - task: PublishBuildArtifacts@1
   displayName: 'Publish Artifact: dist'

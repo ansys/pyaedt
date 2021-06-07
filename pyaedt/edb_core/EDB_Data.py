@@ -1,4 +1,5 @@
 
+import warnings
 import sys
 from collections import OrderedDict, defaultdict
 import time
@@ -6,13 +7,8 @@ try:
     import clr
     from System import Double, Array
     from System.Collections.Generic import List
-    _ironpython = False
-    if "IronPython" in sys.version or ".NETFramework" in sys.version:
-        _ironpython = True
-    edb_initialized = True
 except ImportError:
-    print("clr module is needed. Install Pythonnet or use Ironpython version if you want to use EDB Module")
-    edb_initialized = False
+    warnings.warn("The clr is missing. Install Pythonnet or use Ironpython version if you want to use EDB Module")
 
 
 # class EDBLayer(object):

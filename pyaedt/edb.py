@@ -18,7 +18,7 @@ app = Edb("myfile.aedb")     creates and EDB object and open specified project
 import os
 import sys
 import traceback
-import time
+import warnings
 
 try:
     import clr
@@ -33,14 +33,14 @@ try:
         _ironpython = True
     edb_initialized = True
 except ImportError:
-    print("clr module is needed. Install Pythonnet or use Ironpython version if you want to use EDB Module")
+    warnings.warn("The clr is missing. Install Pythonnet or use Ironpython version if you want to use EDB Module")
     edb_initialized = False
 
 
 from .application.MessageManager import EDBMessageManager
 from .edb_core import *
 
-from .generic.general_methods import get_filename_without_extension, generate_unique_name, aedt_exception_handler, env_path
+from .generic.general_methods import get_filename_without_extension, generate_unique_name, aedt_exception_handler, env_path, env_value
 
 
 class Edb(object):
@@ -68,18 +68,19 @@ class Edb(object):
         """ """
         sys.path.append(os.path.join(os.path.dirname(__file__), "dlls", "EDBLib"))
         if os.name == 'posix':
-            if env_path( self.edbversion) in os.environ:
-                self.base_path = env_path( self.edbversion)
+            if env_path(self.edbversion) in os.environ:
+                self.base_path = env_path(self.edbversion)
                 sys.path.append(self.base_path)
             else:
                 main = sys.modules["__main__"]
                 if "oDesktop" in dir(main):
                     self.base_path = main.oDesktop.GetExeDir()
                     sys.path.append(main.oDesktop.GetExeDir())
+                    os.environ[env_value(self.edbversion)] = self.base_path
             clr.AddReferenceToFile('Ansys.Ansoft.Edb.dll')
             clr.AddReferenceToFile('Ansys.Ansoft.EdbBuilderUtils.dll')
             clr.AddReferenceToFile('EdbLib.dll')
-            clr.AddReferenceToFile('Ansys.Ansoft.SimSetupData')
+            clr.AddReferenceToFileAndPath(os.path.join(self.base_path, 'Ansys.Ansoft.SimSetupData.dll'))
         else:
             self.base_path = env_path( self.edbversion)
             sys.path.append(self.base_path)
@@ -118,6 +119,8 @@ class Edb(object):
         if init_dlls:
             self._init_dlls()
         if not self.isreadonly:
+            print(self.edbpath)
+            print(self.edbversion)
             self.builder = self.layout_methods.OpenEdbStandAlone(self.edbpath, self.edbversion)
         else:
             self.builder = self.layout_methods.OpenEdbInAedt(self.edbpath, self.edbversion)

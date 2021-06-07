@@ -16,7 +16,6 @@ test_project_name = "Coax_HFSS"
 
 class Test3DLayout:
     def setup_class(self):
-        #self.desktop = Desktop(desktopVersion, NonGraphical, NewThread)
         self.aedtapp = Hfss3dLayout()
 
     def teardown_class(self):
@@ -156,8 +155,10 @@ class Test3DLayout:
         assert self.aedtapp.analyze_setup("RFBoardSetup3")
 
     def test_19B_export_touchsthone(self):
-        assert self.aedtapp.export_touchstone("RFBoardSetup3", "Last Adaptive", r'C:\Temp\touchstone.s2p', [], [])
-        assert os.path.exists(r'C:\Temp\touchstone.s2p')
+        filename = os.path.join(scratch_path, 'touchstone.s2p')
+        assert self.aedtapp.export_touchstone("RFBoardSetup3", "Last Adaptive",
+                                              filename, [], [])
+        assert os.path.exists(filename)
 
     def test_19_export_to_hfss(self):
         with Scratch(scratch_path) as local_scratch:

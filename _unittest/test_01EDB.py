@@ -6,7 +6,7 @@ import time
 # Import required modules
 from pyaedt import Edb
 from pyaedt.generic.filesystem import Scratch
-from .conftest import desktopVersion
+from .conftest import desktop_version
 test_project_name = "Galileo"
 
 
@@ -19,7 +19,7 @@ class Test3DLayout:
                 aedbproject = os.path.join(self.local_scratch.path, test_project_name + '.aedb')
                 self.local_scratch.copyfolder(os.path.join(local_path, 'example_models', test_project_name + '.aedb'),
                                               os.path.join(self.local_scratch.path, test_project_name + '.aedb'))
-                self.edbapp = Edb(aedbproject, 'Galileo_G87173_204', edbversion=desktopVersion, isreadonly=False)
+                self.edbapp = Edb(aedbproject, 'Galileo_G87173_204', edbversion=desktop_version, isreadonly=False)
             except:
                 pass
 

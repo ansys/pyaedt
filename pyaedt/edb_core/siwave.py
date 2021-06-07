@@ -6,22 +6,22 @@ This class manages Edb Siwave and related methods
 
 
 """
+import warnings
 from .general import *
 from ..generic.general_methods import get_filename_without_extension, generate_unique_name
-import pkgutil
-modules = [tup[1] for tup in pkgutil.iter_modules()]
-if 'clr' in modules:
+
+try:
     import clr
     from System import Convert, String
     from System import Double, Array
     from System.Collections.Generic import List
-import enum
+except ImportError:
+    warnings.warn('This module requires pythonnet.')
 
-class SourceType(enum.Enum):
-    Port = 1
-    CurrentSource = 2
-    VoltageSource = 3
-    Resistor = 4
+
+class SourceType(object):
+    (Port, CurrentSource, VoltageSource, Resistor) = (1, 2, 3, 4)
+
 
 class PinGroup():
     def __init__(self):
