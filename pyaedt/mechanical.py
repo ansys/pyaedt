@@ -2,14 +2,7 @@
 Mechanical Class
 ----------------------------------------------------------------
 
-
-Description
-==================================================
-
 This class contains all Mechanical functionalities. It inherits all objects that belong to Mechanical.
-
-
-
 
 
 """
