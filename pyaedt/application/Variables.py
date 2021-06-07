@@ -873,13 +873,13 @@ class Variable(object):
     --------
     >>> from pyaedt.application.Variables import Variable
 
-    Define a varable using a string-value consistent with the AEDT properties
+    Define a variable using a string-value consistent with the AEDT properties
     >>> v = Variable("45mm")
 
     A unitless variable with value 3.0
     >>> v = Variable(3.0)
 
-    A variable defined ba a numeric result and a unit string
+    A variable defined by a numeric result and a unit string
     >>> v = Variable(3.0 * 4.5, units="mm")
     >>> assert v.numeric_value = 13.5
     >>> assert v.units = "mm"
