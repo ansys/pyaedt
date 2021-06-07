@@ -55,9 +55,12 @@ jobs:
     displayName: List AEDT files
 
   - powershell: |
-      pip install -r requirements_test.txt
-      pip install pytest-azurepipelines
-    displayName: Install unit test requirements
+      Set-StrictMode -Version Latest
+      $ErrorActionPreference = "Stop"
+      $PSDefaultParameterValues['*:ErrorAction']='Stop'
+      git clone --depth 1 git://github.com/pyvista/gl-ci-helpers.git
+      powershell gl-ci-helpers/appveyor/install_opengl.ps1
+    displayName: 'Install OpenGL'
 
   - powershell: |
       $env:ANSYSLMD_LICENSE_FILE = '1055@$(LICENSE_SRV_IP)'
@@ -66,5 +69,6 @@ jobs:
 
   - powershell: |
       $env:ANSYSLMD_LICENSE_FILE = '1055@$(LICENSE_SRV_IP)'
-      python -m pytest -v --cov --cov-report=xml --cov-report=html
-    displayName: 'Unit testing'
+      pip install -r requirements_docs.txt
+      doc\make.bat html
+    displayName: 'Build documentation'
