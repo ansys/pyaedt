@@ -16,3 +16,4 @@ sphinx-autodoc-typehints
 pyansys_sphinx_theme
 pypandoc
 nbsphinx
+ipython

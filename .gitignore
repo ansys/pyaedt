@@ -354,3 +354,6 @@ dist/
 
 # mypi cache
 .mypy_cache/
+
+# emacs
+*flycheck*
