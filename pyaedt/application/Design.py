@@ -217,6 +217,23 @@ model_names = {
     "EMIT Design": "EMIT Design",
 }
 
+#TODO: refactor this to Generic ?
+def _variation_string_to_dict(variation_string):
+    """Helper function to convert a list of "="-separated strings into a dictionary
+
+    Returns
+    -------
+    dict
+    """
+    var_data = variation_string.split()
+    variation_dict = {}
+    for var in var_data:
+        pos_eq = var.find("=")
+        var_name = var[0:pos_eq]
+        var_value = var[pos_eq+1:].replace('\'', '')
+        variation_dict[var_name] = var_value
+    return variation_dict
+
 class Design(object):
     """Class Design. Contains all functions and objects connected to the active Project and Design"""
     def __str__(self):
@@ -2119,6 +2136,79 @@ class Design(object):
         si_value = self._odesign.GetVariationVariableValue(variation_string, variable_name)
 
         return si_value
+
+    @aedt_exception_handler
+    def evaluate_expression(self, expression_string):
+        """ Evaluate an arbitrary valid string expression and return the numerical value in SI units
+
+        Parameters
+        ----------
+        expression_string : str
+        A valid design property/project variable string, i.e "34mm*sqrt(2)", "$G1*p2/34"
+
+        Returns
+        -------
+        float
+
+        """
+        # Set the value of an internal reserved design variable to the specified string
+        if expression_string in self._variable_manager.variables:
+            return self._variable_manager.variables[expression_string]
+        else:
+            try:
+                self._variable_manager.set_variable("pyaedt_evaluator", expression=expression_string, prop_type="VariableProp",
+                                                    readonly=True, hidden=True, description="Internal_Evaluator")
+            except:
+                raise("Invalid string expression {}".expression_string)
+
+            # Extract the numeric value of the expression (in SI units!)
+            return self._variable_manager.variables["pyaedt_evaluator"].value
+
+    @aedt_exception_handler
+    def design_variation(self, variation_string=None):
+        """Generate a string to specify a desired variation
+
+        Converts a user input string defining a desired solution variation, e.g. "p1=1mm p2=3mm" into a valid
+        string taking into account all existing design properties and project variables including non-sweep
+        dependent properties.
+
+        This is actually needed because the standard GetVariationVariableValue does not work for obtaining
+        values of dependent (non-sweep variables). Presumably using the new beta feature object-oriented
+        scripting model this could be made redundant in future releases.
+
+        Parameters
+        ----------
+        variation_string : str
+        Variation string of the form "p1=1mm p2=3mm"
+
+            Parameters
+            ----------
+            variation_string
+
+            Returns
+            -------
+
+        """
+        nominal = self._odesign.GetNominalVariation()
+        if variation_string:
+            # decompose the nominal variation into a dictionary of name[value]
+            nominal_dict = _variation_string_to_dict(nominal)
+
+            # decompose the desired variation into a dictionary of name[value]
+            var_dict = _variation_string_to_dict(variation_string)
+
+            # set the values of the desired variation in the active design
+            for key, value in var_dict.items():
+                self[key] = value
+
+            # get the desired variation values
+            nominal = self._odesign.GetNominalVariation()
+
+            # Reset the nominal values in the active design
+            for key in var_dict:
+                self[key] = nominal_dict[key]
+
+        return nominal
 
     @aedt_exception_handler
     def _assert_consistent_design_type(self, des_name):
