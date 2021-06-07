@@ -6,21 +6,21 @@ Simplorer Class
 Description
 ==================================================
 
-This class contains all the Simplorer Functionalities.
+This class contains all Simplorer functionalities.
 
 
-:Example:
+Examples:
 
-app = Simplorer()     creates and Simplorer object and connect to existing Maxwell design (create a new Maxwell design if not present)
-
-
-app = Simplorer(projectname)     creates and  Maxwell and link to projectname project
+app = Simplorer()     Creates a ``Simplorer`` object and connects to an existing Maxwell design or cceates a new Maxwell design if one is not present.
 
 
-app = Simplorer(projectname,designame)     creates and Maxwell object and link to designname design in projectname project
+app = Simplorer(projectname)     Creates a ``Simplorer`` object and links to a project named projectname.
 
 
-app = Simplorer("myfile.aedt")     creates and Maxwell object and open specified project
+app = Simplorer(projectname,designame)     Creates a ``Simplorer``object and links to a design named designname in a project named projectname.
+
+
+app = Simplorer("myfile.aedt")     Creates a ``Simplorer`` object and opens the specified project.
 
 
 """
