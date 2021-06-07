@@ -6,21 +6,21 @@ Maxwell Class
 Description
 ==================================================
 
-This class contains all the Maxwell Functionalities. It inherites all the objects that belongs to Maxwell
+This class contains all Maxwell functionalities. It inherits all objects that belong to Maxwell.
 
 
-:Example:
+Example:
 
-app = Maxwell3d()     creates  Maxwell 3D object and connect to existing Maxwell design (create a new Maxwell design if not present)
-
-
-app = Maxwell3d(projectname)     creates and  Maxwell 3D and link to projectname project
+app = Maxwell3d()     Creates a ``Maxwell3d`` object and connects to an existing Maxwell design or creates a new one if no design is present.
 
 
-app = Maxwell3d(projectname,designame)     creates and Maxwell 3D object and link to designname design in projectname project
+app = Maxwell3d(projectname)     Creates a ``Maxwell3d`` object and links to a project named projectname.
 
 
-app = Maxwell2d("myfile.aedt")     creates and Maxwell 2D object and open specified project
+app = Maxwell3d(projectname,designame)     Creates a ``Maxwell3d`` object and links to design named designname in a project named projectname.
+
+
+app = Maxwell2d("myfile.aedt")     Creates a ``Maxwell2d`` object and opens the specified project.
 
 
 """
