@@ -9,10 +9,10 @@ This class is implicitily loaded in HFSS 3D Layout when it is launched.
 Example
 ________
 
-app = Edb()     Creates an EDB object and creates a new EDB cell.
+app = Edb()     Creates an ``Edb`` object and creates a new EDB cell.
 
 
-app = Edb("myfile.aedb")     Creates an EDB object and opens a specified project.
+app = Edb("myfile.aedb")     Creates an ``Edb`` object and opens the specified project.
 """
 
 import os
