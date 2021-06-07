@@ -2,7 +2,7 @@
 """
 Circuit Class
 -------------
-This class contains the link to Circuit object. It includes all
+This class contains the link to the ``Circuit`` object. It includes all
 inherited classes and modules needed to create and edit circuit designs.
 
 """
