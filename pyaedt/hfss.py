@@ -2,10 +2,6 @@
 Hfss Class
 ----------------------------------------------------------------
 
-
-Description
-==================================================
-
 This class contains all HFSS functionalities. It inherits all objects that belong to HFSS.
 
 
