@@ -74,5 +74,5 @@ steps:
     git remote add origin https://github.com/pyansys/PyAEDT-docs.git
     git push -u origin master
   displayName: "Publish GitHub Pages on Tag"
-  condition: contains(variables['Build.SourceBranch'], 'refs/tags/'
+  condition: contains(variables['Build.SourceBranch'], 'refs/tags/')
   workingDirectory: doc/_build/html
