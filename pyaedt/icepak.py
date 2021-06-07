@@ -14,7 +14,7 @@ Examples:
 app = Icepak()     Creates an ``Icepak`` object and connects to an existing HFSS design or creates a new HFSS design if one is not present.
 
 
-app = Icepak(projectname)     Creates an ``Icepak`` object and links to project named projectname. If this project doesn't exists, it creates one with this this name.
+app = Icepak(projectname)     Creates an ``Icepak`` object and links to project named projectname. If this project doesn't exists, it creates a new one with this name.
 
 
 app = Icepak(projectname,designame)     Creates an ``Icepak`` object and links to a design named designname in a project named projectname.
