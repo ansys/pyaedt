@@ -255,7 +255,7 @@ class Design(object):
 
     @aedt_exception_handler
     def __getitem__(self, variable_name):
-        assert variable_name in self.variable_manager.variables, "Variable {0} dies not exist !".format(variable_name)
+        #assert variable_name in self.variable_manager.variables, "Variable {0} dies not exist !".format(variable_name)
         return self.variable_manager[variable_name].string_value
 
     @aedt_exception_handler
@@ -338,7 +338,7 @@ class Design(object):
     @property
     def aedt_version_id(self):
         """Property
-        
+
         :return: AEDT Version
 
         Parameters
@@ -376,6 +376,11 @@ class Design(object):
 
     @design_name.setter
     def design_name(self, new_name):
+        """
+        Property
+
+        :return: Change the name of the parent AEDT Design
+        """
         if ";" in new_name:
             new_name = new_name.split(";")[1]
         # src_dir = self.working_directory
@@ -400,7 +405,7 @@ class Design(object):
     @property
     def design_type(self):
         """Property
-        
+
         :return: Design Type
 
         Parameters
@@ -415,7 +420,7 @@ class Design(object):
     @property
     def project_name(self):
         """Property
-        
+
         :return: Project Name
 
         Parameters
@@ -430,7 +435,7 @@ class Design(object):
     @property
     def project_list(self):
         """Property
-        
+
         :return: List of available Projects
 
         Parameters
@@ -445,7 +450,7 @@ class Design(object):
     @property
     def project_path(self):
         """Property
-        
+
         :return: Project Path
 
         Parameters
@@ -460,7 +465,7 @@ class Design(object):
     @property
     def project_file(self):
         """Property
-        
+
         :return: Full absolute Project name and path
 
         Parameters
@@ -475,7 +480,7 @@ class Design(object):
     @property
     def lock_file(self):
         """Property
-        
+
         :return: Full absolute Project lock file
 
         Parameters
@@ -490,7 +495,7 @@ class Design(object):
     @property
     def results_directory(self):
         """Property
-        
+
         :return: Full absolute path of the aedtresults directory
 
         Parameters
@@ -505,7 +510,7 @@ class Design(object):
     @property
     def solution_type(self):
         """Property
-        
+
         :return: Solution Type
 
         Parameters
@@ -554,7 +559,7 @@ class Design(object):
     @property
     def valid_design(self):
         """Property
-        
+
         :return: True if oproject and odesign exists
 
         Parameters
@@ -569,7 +574,7 @@ class Design(object):
     @property
     def personallib(self):
         """Property
-        
+
         :return: Full absolute path of the PersonalLib directory
 
         Parameters
@@ -584,7 +589,7 @@ class Design(object):
     @property
     def userlib(self):
         """Property
-        
+
         :return: Full absolute path of the UserLib directory
 
         Parameters
@@ -599,7 +604,7 @@ class Design(object):
     @property
     def syslib(self):
         """Property
-        
+
         :return: Full absolute path of the SysLib directory
 
         Parameters
@@ -614,7 +619,7 @@ class Design(object):
     @property
     def src_dir(self):
         """Property
-        
+
         :return: Full absolute path of the python directory
 
         Parameters
@@ -629,7 +634,7 @@ class Design(object):
     @property
     def pyaedt_dir(self):
         """Property
-        
+
         :return: Full absolute path of the pyaedt Root Parent
 
         Parameters
@@ -644,7 +649,7 @@ class Design(object):
     @property
     def library_list(self):
         """Property
-        
+
         :return: list of [syslub, userlib, personallib]
 
         Parameters
@@ -659,7 +664,7 @@ class Design(object):
     @property
     def temp_directory(self):
         """Property
-        
+
         :return: Full absolute path of the TEMP directory
 
         Parameters
@@ -674,7 +679,7 @@ class Design(object):
     @property
     def toolkit_directory(self):
         """Property
-        
+
         :return: Full absolute path of the toolkit directory for this project - creates it if does not exist
 
         Parameters
@@ -692,7 +697,7 @@ class Design(object):
     @property
     def working_directory(self):
         """Property
-        
+
         :return: Full absolute path of the working directory for this project - creates it if does not exist
 
         Parameters
@@ -710,7 +715,7 @@ class Design(object):
     @property
     def default_solution_type(self):
         """Property
-        
+
         :return: Default solution type for the current application running
 
         Parameters
@@ -725,7 +730,7 @@ class Design(object):
     @property
     def odesign(self):
         """Property
-        
+
         :return: oDesign object
 
         Parameters
@@ -744,7 +749,7 @@ class Design(object):
         Parameters
         ----------
         des_name :
-            
+
 
         Returns
         -------
@@ -753,8 +758,10 @@ class Design(object):
         warning_msg = None
         activedes = des_name
         if des_name:
-            if self._assert_consistent_design_type(des_name) == des_name:
-                self.insert_design(self._design_type, design_name=des_name, solution_type=self._solution_type)
+            if des_name in self.design_list:
+                self._assert_consistent_design_type(des_name)
+            else:
+                warning_msg = "Design {} does not exist - inserting a new design".format(des_name)
         else:
             # self._odesign = self._oproject.GetActiveDesign()
             if self.design_list:
@@ -773,15 +780,15 @@ class Design(object):
             else:
                 warning_msg = "No design present - inserting a new design"
 
-            if warning_msg:
-                self._messenger.add_warning_message(warning_msg, level='Project')
-                self.insert_design(self._design_type, solution_type=self._solution_type)
+        if warning_msg:
+            self._messenger.add_warning_message(warning_msg, level='Project')
+            self.insert_design(self._design_type, solution_type=self._solution_type)
         self.boundaries = self._get_boundaries_data()
 
     @property
     def oboundary(self):
         """Property
-        
+
         :return: BoundarySetup Module object
 
         Parameters
@@ -796,7 +803,7 @@ class Design(object):
     @property
     def omodelsetup(self):
         """Property
-        
+
         :return: ModelSetup Module object
 
         Parameters
@@ -812,7 +819,7 @@ class Design(object):
     @property
     def oimportexport(self):
         """Property
-        
+
         :return: ImportExport Module object
 
         Parameters
@@ -827,7 +834,7 @@ class Design(object):
     @property
     def oproject(self):
         """Property
-        
+
         :return: oProject object
 
         Parameters
@@ -886,7 +893,7 @@ class Design(object):
     @property
     def oanalysis_setup(self):
         """Property
-        
+
         :return: AnalysisSetup Module object
 
         Parameters
@@ -901,7 +908,7 @@ class Design(object):
     @property
     def odesktop(self):
         """Property
-        
+
         :return: oDesktop Module object
 
         Parameters
@@ -916,7 +923,7 @@ class Design(object):
     @property
     def desktop_install_dir(self):
         """Property
-        
+
         :return: AEDT Install Dir
 
         Parameters
@@ -931,7 +938,7 @@ class Design(object):
     @property
     def messenger(self):
         """Property
-        
+
         :return: Messenger object that can be used for logging on log file and on AEDT Message Windows
 
         Parameters
@@ -946,7 +953,7 @@ class Design(object):
     @property
     def variable_manager(self):
         """Property
-        
+
         :return: Variable maanager that can be used to create and manage Project, Design and PostProcessing Variables
 
         Parameters
@@ -965,11 +972,11 @@ class Design(object):
         Parameters
         ----------
         arg :
-            
+
         optimetrics_type :
-            
+
         variable_name :
-            
+
         min_val :
              (Default value = None)
         max_val :
@@ -1242,9 +1249,9 @@ class Design(object):
         Parameters
         ----------
         name :
-            
+
         datas :
-            
+
 
         Returns
         -------
@@ -1314,6 +1321,34 @@ class Design(object):
     def release_desktop(self):
         """:return: Release the desktop by keeping it open"""
         release_desktop()
+        return True
+
+    @aedt_exception_handler
+    def help(self, modulename="index"):
+        """
+        Launch Online help. Works on Windows Only (for linux manually launch it from Documentation folder)
+
+
+        :param modulename: name of the module or search string
+        :return: open default browser
+        """
+
+        filename = os.path.join(os.path.dirname(__file__), "Documentation", modulename+".html")
+        if os.path.exists(filename):
+            filepath = filename.replace(":\\", ":/").replace("\\", "/")
+            networkpath = "file:///" + filepath
+        else:
+            filename = os.path.dirname(__file__)+"/Documentation/search.html?q={}&".format(modulename)
+            filepath = filename.replace(":\\", ":/").replace("\\", "/")
+            paths = [r"C:\Program Files\Google\Chrome\Application\chrome.exe",
+                     r"C:\Program Files (x86)\Google\Chrome\Application\chrome.exe"]
+            networkpath = "file:///" + filepath
+            for p in paths:
+                if os.path.exists(p):
+                    os.system("start chrome " + networkpath)
+                    return True
+
+        webbrowser.open_new(networkpath)
         return True
 
 
@@ -1541,7 +1576,7 @@ class Design(object):
         Parameters
         ----------
         ___________ :
-            
+
         material_override :
             bool (Default value = True)
         enable :
@@ -1578,15 +1613,15 @@ class Design(object):
 
         Returns
         -------
-        
+
             bool
 
         """
         self._messenger.add_info_message("Changing the validation design settings")
         self.odesign.SetDesignSettings(["NAME:Design Settings Data"],
-                                       ["NAME:Model Validation Settings", 
+                                       ["NAME:Model Validation Settings",
                                         "EntityCheckLevel:=", entity_check_level,
-                                        "IgnoreUnclassifiedObjects:=", ignore_unclassified, 
+                                        "IgnoreUnclassifiedObjects:=", ignore_unclassified,
                                         "SkipIntersectionChecks:=", skip_intersections])
         return True
 
@@ -1700,7 +1735,7 @@ class Design(object):
         Parameters
         ----------
         name :
-            
+
 
         Returns
         -------
@@ -1720,7 +1755,7 @@ class Design(object):
         Parameters
         ----------
         separator_name :
-            
+
 
         Returns
         -------
@@ -1831,7 +1866,7 @@ class Design(object):
         Parameters
         ----------
         design_name :
-            
+
 
         Returns
         -------
@@ -1930,7 +1965,7 @@ class Design(object):
         Parameters
         ----------
         label :
-            
+
 
         Returns
         -------
@@ -2157,7 +2192,7 @@ class Design(object):
             return self._variable_manager.variables[expression_string]
         else:
             try:
-                self._variable_manager.set_variable("pyaedt_evaluator", expression=expression_string, prop_type="VariableProp",
+                self._variable_manager.set_variable("pyaedt_evaluator", expression=expression_string,
                                                     readonly=True, hidden=True, description="Internal_Evaluator")
             except:
                 raise("Invalid string expression {}".expression_string)
@@ -2218,7 +2253,7 @@ class Design(object):
         Parameters
         ----------
         des_name :
-            
+
 
         Returns
         -------
@@ -2253,3 +2288,6 @@ class Design(object):
         if destype == self._design_type:
             consistent = self._check_solution_consistency()
         return consistent
+
+
+

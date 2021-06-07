@@ -26,7 +26,7 @@ def indent(elem, level=0):
     Parameters
     ----------
     elem :
-        
+
     level :
          (Default value = 0)
 
@@ -72,7 +72,7 @@ class Materials(object):
 
     def __init__(self, parent):
         self._parent = parent
-        self.material_keys = defaultdict(Material)
+        self.material_keys = defaultdict(lambda: Material(parent))
         self._load_from_project()
         self.messenger.add_info_message('Successfully loaded project materials !')
         pass
@@ -130,7 +130,7 @@ class Materials(object):
         Parameters
         ----------
         matname :
-            
+
 
         Returns
         -------
@@ -239,7 +239,7 @@ class Materials(object):
         Parameters
         ----------
         prop :
-            
+
 
         Returns
         -------
@@ -327,7 +327,7 @@ class Materials(object):
         Parameters
         ----------
         mat :
-            
+
 
         Returns
         -------
@@ -510,7 +510,7 @@ class Materials(object):
     @aedt_exception_handler
     def GetConductors(self):
         """Get List of conductors in material database
-        
+
         :return:list of string
 
         Parameters
@@ -529,7 +529,7 @@ class Materials(object):
     @aedt_exception_handler
     def GetDielectrics(self):
         """Get List of dielectrics in material database
-        
+
         :return:list of string
 
         Parameters
@@ -548,7 +548,7 @@ class Materials(object):
     @aedt_exception_handler
     def get_material_list(self):
         """Get List of material database
-        
+
         :return:list of string
 
         Parameters
@@ -564,7 +564,7 @@ class Materials(object):
     @aedt_exception_handler
     def get_material_count(self):
         """Get number of materials
-        
+
         :return:number of materials
 
         Parameters
@@ -624,7 +624,7 @@ class Materials(object):
     @aedt_exception_handler
     def setup_air_properties(self):
         """Setup Air properties
-        
+
         :return:
 
         Parameters
