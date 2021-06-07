@@ -34,6 +34,9 @@ data = read_touchstone(example_path)
 
 #################################
 # Get Curves names
+# those methods allows to identify the list of insertion losses, return losses, fext and next based on few inputs
+# and port names
+
 rl_list = get_return_losses(data.ports)
 il_list = get_insertion_losses_from_prefix(data.ports,"U1", "U7")
 fext_list = get_fext_xtalk_from_prefix(data.ports,"U1","U7")
@@ -50,7 +53,7 @@ worst_fext, mean3 = get_worst_curve_from_solution_data(data,freq_min=1, freq_max
 worst_next, mean4 = get_worst_curve_from_solution_data(data,freq_min=1, freq_max=20,worst_is_higher=True,curve_list=next_list)
 
 #################################
-# Plot Curves
+# Plot Curves on Matplotlib
 
 fig, ax = plt.subplots(figsize=(20, 10))
 ax.set(xlabel='Frequency (Hz)', ylabel='Return Loss (dB)', title='Return Loss')
@@ -66,7 +69,6 @@ mag_data4 = 20*np.log10(np.array(data.solutions_data_mag[worst_next]))
 ax.plot(freq_data, mag_data4,label=worst_next)
 ax.legend(["Worst RL="+worst_rl,"Worst IL="+worst_il,"Worst FEXT="+worst_fext,"Worst NEXT="+worst_next])
 plt.show()
-
 
 
 
