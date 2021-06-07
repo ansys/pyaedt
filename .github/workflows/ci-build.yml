@@ -22,18 +22,3 @@ jobs:
         run: |
           pip install -r requirements_docs.txt
           make -C doc html
-  
-      - name: Upload Documentation
-        uses: actions/upload-artifact@v2.2.3
-        with:
-          name: Documentation
-          path: doc/_build/html
-          retention-days: 7
-
-      - name: Deploy
-        uses: JamesIves/github-pages-deploy-action@3.7.1
-        with:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          BRANCH: gh-pages
-          FOLDER: doc/_build/html
-          CLEAN: true
