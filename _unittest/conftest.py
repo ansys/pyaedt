@@ -1,5 +1,6 @@
 import tempfile
 import pathlib
+import pytest
 import os
 import shutil
 import sys
@@ -12,6 +13,11 @@ local_path = os.path.dirname(os.path.realpath(__file__))
 scratch_path = tempfile.TemporaryDirectory().name
 os.mkdir(scratch_path)
 module_path = pathlib.Path(local_path)
+
+# set scratch path and create it if necessary
+scratch_path = tempfile.TemporaryDirectory().name
+if not os.path.isdir(scratch_path):
+    os.mkdir(scratch_path)
 # sys.path.append(module_path)
 
 
