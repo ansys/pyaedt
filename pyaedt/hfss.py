@@ -14,7 +14,7 @@ Examples:
 hfss = Hfss()     Creates an ``Hfss`` object and connects to an existing HFSS design or creates a new HFSS design if one is not present.
 
 
-hfss = Hfss(projectname)     Creates an ``Hfss`` object and links to a project named projectname. If this project doesn't exist, it creates a new project named projectname.
+hfss = Hfss(projectname)     Creates an ``Hfss`` object and links to a project named projectname. If this project doesn't exist, it creates one with this name.
 
 
 hfss = Hfss(projectname,designame)     Creates an ``Hfss`` object and links to a design named designname in a project named projectname.
