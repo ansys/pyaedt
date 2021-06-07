@@ -2,12 +2,7 @@
 Hfss 3d Layout Class
 ----------------------------------------------------------------
 
-
-Description
-==================================================
-
 This class contains all HFSS 3D Layout functionalities. It inherits all objects that belong to HFSS 3D Layout, including EDB API queries.
-
 
 Examples:
 
