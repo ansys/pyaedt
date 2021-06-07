@@ -32,8 +32,8 @@ import string
 import random
 import time
 from collections import OrderedDict
-from ..application.MessageManager import AEDTMessageManager
-from ..application.Variables import VariableManager, DataSet
+from .MessageManager import AEDTMessageManager
+from .Variables import VariableManager, DataSet
 from ..desktop import exception_to_desktop, Desktop, force_close_desktop, release_desktop, get_version_env_variable
 from ..generic.LoadAEDTFile import load_entire_aedt_file
 from ..generic.general_methods import aedt_exception_handler
