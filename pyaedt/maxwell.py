@@ -3,13 +3,10 @@
 Maxwell Class
 ----------------------------------------------------------------
 
-Description
-==================================================
-
 This class contains all Maxwell functionalities. It inherits all objects that belong to Maxwell.
 
 
-Example:
+Examples:
 
 app = Maxwell3d()     Creates a ``Maxwell3d`` object and connects to an existing Maxwell design or creates a new one if no design is present.
 
