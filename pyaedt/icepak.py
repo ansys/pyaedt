@@ -2,10 +2,6 @@
 Icepak 3d Layout Class
 ----------------------------------------------------------------
 
-
-Description
-==================================================
-
 This class contains all Icepak functionalities. It inherits all objects that belong to Icepak.
 
 
