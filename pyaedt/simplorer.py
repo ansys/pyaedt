@@ -2,10 +2,6 @@
 Simplorer Class
 ----------------------------------------------------------------
 
-
-Description
-==================================================
-
 This class contains all Simplorer functionalities.
 
 
