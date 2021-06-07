@@ -18,7 +18,7 @@ Launch AEDT 2019 R3 in graphical mode and initialize HFSS
 >>> desktop = Desktop("2019.3")
 >>> hfss = pyaedt.Hfss()
 
-The previous example initializes the `Desktop1 module to the latest AEDT version installed on your machine in
+The previous example initializes the `Desktop` module to the latest AEDT version installed on your machine in
 graphical mode and initializes HFSS.
 
 """
