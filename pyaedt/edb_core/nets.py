@@ -175,11 +175,10 @@ class EdbNets(object):
                             df = [el['refdes'][i], el['pin_name'][i],net ]
                             df_list.append(df)
                         i += 1
-
         component_type = []
         for el in df_list:
             refdes = el[0]
-            comp_type = self.parent.core_components.components[refdes].type
+            comp_type = self.parent.core_components._cmp[refdes].type
             component_type.append(comp_type)
             el.append(comp_type)
         return df_list, net_group

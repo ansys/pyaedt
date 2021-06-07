@@ -864,8 +864,8 @@ class Components(object):
        Examples
        --------
 
-        >>> from AEDTLib.EDB import EDB
-        >>> edbapp = EDB("myaedbfolder", "project name", "release version")
+        >>> from pyaedt.edb import Edb
+        >>> edbapp = Edb("myaedbfolder", "project name", "release version")
         >>> edbapp.core_components.get_pin_from_component("R1", refdes, optional:str nets, optional: str pins)
 
         """
@@ -906,8 +906,8 @@ class Components(object):
         Examples
         --------
 
-        >>> from AEDTLib.EDB import EDB
-        >>> edbapp = EDB("myaedbfolder", "project name", "release version")
+        >>> from pyaedt.edb import Edb
+        >>> edbapp = Edb("myaedbfolder", "project name", "release version")
         >>> edbapp.core_components.get_aedt_pin_name(pin)
         """
         if "IronPython" in sys.version or ".NETFramework" in sys.version:
@@ -935,8 +935,8 @@ class Components(object):
         Examples
         --------
 
-        >>> from AEDTLib.EDB import EDB
-        >>> edbapp = EDB("myaedbfolder", "project name", "release version")
+        >>> from pyaedt.edb import Edb
+        >>> edbapp = Edb("myaedbfolder", "project name", "release version")
         >>> edbapp.core_components.get_pin_position(pin)
         """
         if is_ironpython:
@@ -971,8 +971,8 @@ class Components(object):
         Examples
         --------
 
-        >>> from AEDTLib.EDB import EDB
-        >>> edbapp = EDB("myaedbfolder", "project name", "release version")
+        >>> from pyaedt.edb import Edb
+        >>> edbapp = Edb("myaedbfolder", "project name", "release version")
         >>> edbapp.core_components.get_pins_name_from_net(pin_list, net_name)
         """
         pinlist = []
@@ -998,8 +998,8 @@ class Components(object):
         Examples
         --------
 
-        >>> from AEDTLib.EDB import EDB
-        >>> edbapp = EDB("myaedbfolder", "project name", "release version")
+        >>> from pyaedt.edb import Edb
+        >>> edbapp = Edb("myaedbfolder", "project name", "release version")
         >>> edbapp.core_components.get_nets_from_pin_list(pinlist)
         """
         netlist = []
@@ -1024,7 +1024,7 @@ class Components(object):
         Examples
         --------
 
-        >>> from AEDTLib.EDB import EDB
+        >>> from pyaedt.edb import Edb
         >>> edbapp = EDB("myaedbfolder", "project name", "release version")
         >>> edbapp.core_components.get_component_net_connection_info(refdes)
 
@@ -1045,8 +1045,8 @@ class Components(object):
         return the list of dictionaries of dictionary of RefDes, PinNames and NetNames
         :example:
 
-        >>> from AEDTLib.EDB import EDB
-        >>> edbapp = EDB("myaedbfolder", "project name", "release version")
+        >>> from pyaedt.edb import Edb
+        >>> edbapp = Edb("myaedbfolder", "project name", "release version")
         >>> edbapp.core_components.get_rats()
 
         :return: list of dictionaries of dictionary of RefDes, PinNames and NetNames
@@ -1074,7 +1074,7 @@ class Components(object):
         Examples
         ---------
 
-        >>> from AEDTLib.EDB import EDB
+        >>> from pyaedt.edb import Edb
         >>> edbapp = EDB("myaedbfolder", "project name", "release version")
         >>> edbapp.core_components.get_through_resistor_list()
         """
