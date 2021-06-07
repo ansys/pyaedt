@@ -2,10 +2,6 @@
 Q3D Class
 ---------------------
 
-
-Description
-==================================================
-
 This class contains all Q3D functionalities. It inherits all objects that belong to Q3D.
 
 
