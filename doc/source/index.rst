@@ -13,6 +13,7 @@ PyAEDT Documentation
    API/API
    examples/index
    Resources/Code_Guidelines
+   Resources/Contributing
 
 
 Style Guide

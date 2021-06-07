@@ -27,6 +27,15 @@ possible of the information across the API.
 
     PyAEDT Architecture Overview for 3D Solvers
 
+Project Transition - Legacy Support
+------------------------------------------
+This project was formerly known as AEDTLib, and we'd like to thank all the early adopters, contributors, and users who submitted issues, gave feedback, and contributed code through the years. The pyaedt project has been taken up Ansys and will be leveraged in creating new Pythonic, cross-platform, and multi-language service based interfaces for Ansys's products. Your contributions to pyaedt has shaped it into a better solution.
+
+
+
+Dependencies
+--------------
+You will need a local licenced copy of Ansys Electronics Desktop to run pyaedt prior and including 2021R1.
 
 Why PyAEDT
 ----------
@@ -89,7 +98,7 @@ Explicit Desktop declaration and error management
 
     AEDT 2020R1 in Non-Graphical mode will be launched
 
-    from pyaedt. import Desktop, Circuit
+    from pyaedt import Desktop, Circuit
     with Desktop("2020.1", NG=True):
         circuit = Circuit()
         ...
@@ -133,8 +142,8 @@ Modeler
 
     Create a box, assign variables, and assign materials.
 
-    from pyaedt.HFSS import HFSS
-    with HFSS as hfss:
+    from pyaedt.hfss import Hfss
+    with Hfss as hfss:
          hfss.modeler.primitives.create_box([0, 0, 0], [10, "dim", 10],
                                             "mybox", "aluminum")
 
