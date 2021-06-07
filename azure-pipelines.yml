@@ -8,9 +8,6 @@ trigger:
     include:
     - '*'
 
-trigger:
-  none
-
 pool:
   name: Ansys
 variables:
