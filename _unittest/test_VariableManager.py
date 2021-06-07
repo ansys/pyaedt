@@ -15,7 +15,6 @@ class TestVariable:
         #self.local_scratch.remove()
         gc.collect()
 
-    @pytest.mark.serial
     def test_01_set_globals(self):
         var = self.aedtapp.variable_manager
         self.aedtapp['$Test_Global1'] = "5rad"

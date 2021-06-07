@@ -771,8 +771,8 @@ class Icepak(FieldAnalysisIcepak):
 
         Returns
         -------
-        type
-            str filename
+        str
+            filename
 
         """
         name=generate_unique_name(quantity_name)
@@ -821,8 +821,8 @@ class Icepak(FieldAnalysisIcepak):
 
         Returns
         -------
-        type
-            str filename
+        str
+            filename
 
         """
 

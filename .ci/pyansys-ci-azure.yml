@@ -61,7 +61,7 @@ jobs:
 
   - powershell: |
       $env:ANSYSLMD_LICENSE_FILE = '1055@$(LICENSE_SRV_IP)'
-      python -c "import pyaedt;dsk = pyaedt.Desktop();print(dsk);dsk.force_close_desktop()"
+      python -c "import pyaedt;dsk = pyaedt.Desktop("2021.1");print(dsk);dsk.force_close_desktop()"
     displayName: Verify AEDT install with pyaedt
 
   - powershell: |
