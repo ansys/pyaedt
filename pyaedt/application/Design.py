@@ -2086,6 +2086,41 @@ class Design(object):
 
 
     @aedt_exception_handler
+    def get_evaluated_value(self, variable_name, variation=None):
+        """
+        Returns the floating-point evaluated value of a given variable
+        (design property or project variable) in SI-units
+
+        Optionally a variation string of the form
+
+        Parameters
+        ----------
+        variable_name : str, default=None
+        Name of the project- or design variable to be evaluated
+        variation : str, default=None
+        Variation string for the evaluation. If not specified then use the nominal variation
+
+        >>> M3D = Maxwell3D()
+        >>> M3D["p1"] = "10mm"
+        >>> M3D["p2"] = "20mm"
+        >>> M3D["p3"] = "P1 * p2"
+        >>> eval_p3 = M3D.get_evaluated_value("p3")
+
+        Returns
+        -------
+        float
+
+        """
+        if not variation:
+            variation_string = self._odesign.GetNominalVariation()
+        else:
+            variation_string = self.design_variation(variation_string=variation)
+
+        si_value = self._odesign.GetVariationVariableValue(variation_string, variable_name)
+
+        return si_value
+
+    @aedt_exception_handler
     def _assert_consistent_design_type(self, des_name):
         """
 
