@@ -14,7 +14,7 @@ Examples:
 hfss = Hfss3dLayout()     Creates an ``Hfss3dLayout`` object and connects to an existing HFSS design or create a new HFSS design if one is not present.
 
 
-hfss = Hfss3dLayout(projectname)     Creates an ``Hfss3dLayout`` object and links to project named projectname. If this project doesn't exist, it creates a new one project with this name.
+hfss = Hfss3dLayout(projectname)     Creates an ``Hfss3dLayout`` object and links to project named projectname. If this project doesn't exist, it creates a new one with this name.
 
 
 hfss = Hfss3dLayout(projectname,designame)     Creates an ``Hfss3dLayout` object and links to a design named designname in a project named projectname.
