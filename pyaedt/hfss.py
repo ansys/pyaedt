@@ -11,16 +11,16 @@ This class contains all HFSS functionalities. It inherits all objects that belon
 
 Examples:
 
-hfss = Hfss()     Creates an HFSS object and connects to an existing HFSS design or creates a new HFSS design if one is not present.
+hfss = Hfss()     Creates an ``Hfss`` object and connects to an existing HFSS design or creates a new HFSS design if one is not present.
 
 
-hfss = Hfss(projectname)     Creates an HFSS object and links to a project named projectname. If this project doesn't exist, it creates a new project named projectname.
+hfss = Hfss(projectname)     Creates an ``Hfss`` object and links to a project named projectname. If this project doesn't exist, it creates a new project named projectname.
 
 
-hfss = Hfss(projectname,designame)     Creates an HFSS object and links to design named designname in a project named projectname.
+hfss = Hfss(projectname,designame)     Creates an ``Hfss`` object and links to a design named designname in a project named projectname.
 
 
-hfss = Hfss("myfile.aedt")     creates and hfss object and open specified project
+hfss = Hfss("myfile.aedt")     Creates an ``Hfss`` object and opens the specified project.
 
 
 ========================================================
