@@ -1,26 +1,25 @@
-"""This is the desktop module used to initialize AEDT.
+"""This is the `Desktop` module used to initialize AEDT.
 
-This module initializes AEDT and MessageManager to manage the AEDT
-desktop.  It can be initialized in standalone way before launching an
-app or it is automatically initialized to latest installed AEDT
-version.
+This module initializes AEDT and MessageManager to manage AEDT.
+You can initialize the `Desktop` module before launching an app.  
+Otherwise, it automatically initializes to the latest installed AEDT version.
 
 
 Examples
 --------
-Launch Desktop 2020R1 in Non-Graphical Mode and initialize HFSS
+Launch AEDT 2020 R1 in non-graphical mode and initialize HFSS
 
 >>> import pyaedt
 >>> desktop = pyaedt.Desktop("2020.1", NG=True)
 >>> hfss = pyaedt.Hfss()
 
-Launch Desktop 2019R3 in Graphical Mode
+Launch AEDT 2019 R3 in graphical mode and initialize HFSS
 
 >>> desktop = Desktop("2019.3")
 >>> hfss = pyaedt.Hfss()
 
-The initialize Desktop to latest version installed on your machine in
-Graphical Mode and initialize HFSS.
+The previous example initializes the `Desktop1 module to the latest AEDT version installed on your machine in
+graphical mode and initializes HFSS.
 
 """
 from __future__ import absolute_import
