@@ -4,7 +4,9 @@ on: [push, pull_request, workflow_dispatch]
 
 jobs:
   docs_build:
-    runs-on: ubuntu-20.04
+    pool:
+      name: Ansys
+    #runs-on: ubuntu-20.04
 
     steps:
       - uses: actions/checkout@v2
@@ -12,7 +14,7 @@ jobs:
       - name: Setup Python
         uses: actions/setup-python@v2.2.2
         with:
-          python-version: 3.8
+          python-version: 3.7
 
       - name: Install pyaedt
         run: |
@@ -25,7 +27,7 @@ jobs:
   
       - name: Build Documentation
         run: |
-          sudo apt-get install graphviz
+          #sudo apt-get install graphviz
           pip install -r requirements_docs.txt
           make -C doc html
   

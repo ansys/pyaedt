@@ -167,16 +167,16 @@ class Test3DLayout:
         assert self.edbapp.core_components.delete_component("R1")
 
     def test_create_coax_port(self):
-        assert self.edbapp.core_hfss.create_coax_port_on_component("U2A5","V1P0_S0")
+        assert self.edbapp.core_hfss.create_coax_port_on_component("U2A5", "V1P0_S0")
 
     def test_create_siwave_circuit_port(self):
-        assert self.edbapp.core_siwave.create_circuit_port("U2A5","V1P5_S3","U2A5","GND",50,"test")
+        assert self.edbapp.core_siwave.create_circuit_port("U2A5", "V1P5_S3", "U2A5", "GND", 50, "test")
 
     def test_create_siwave_voltage_source(self):
-        assert self.edbapp.core_siwave.create_voltage_source("U2A5","V1P5_S3","U2A5","GND",3.3,0)
+        assert self.edbapp.core_siwave.create_voltage_source("U2A5", "V1P5_S3", "U2A5", "GND", 3.3, 0)
 
     def test_create_siwave_current_source(self):
-        assert self.edbapp.core_siwave.create_current_source("U2A5","V1P5_S3","U2A5","GND",0.1,0)
+        assert self.edbapp.core_siwave.create_current_source("U2A5", "V1P5_S3", "U2A5", "GND", 0.1, 0)
 
     def test_create_siwave_ac_analsyis(self):
         assert self.edbapp.core_siwave.add_siwave_ac_analysis()
