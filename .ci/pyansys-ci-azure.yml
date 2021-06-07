@@ -26,9 +26,15 @@ jobs:
 
   steps:
   - task: UsePythonVersion@0
-    displayName: 'Use Python $(python.version)'
     inputs:
       versionSpec: '$(python.version)'
+    displayName: 'Use Python $(python.version)'
+
+  - script: |
+      git clone --depth 1 https://github.com/pyansys/aedt-req
+      cd aedt-req
+      install.bat
+    displayName: Install Redistributables
 
   - powershell: |
       python -m pip install pip -U
