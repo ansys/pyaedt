@@ -17,14 +17,14 @@ if not os.path.isdir(scratch_path):
     os.mkdir(scratch_path)
 
 
-desktopVersion = "2021.1"
-NonGraphical = False
-NewThread = False
+desktop_version = "2021.1"
+non_graphical = False
+new_thread = False
 
 
 @pytest.fixture(scope='session', autouse=True)
 def desktop_init():
-    desktop = Desktop(desktopVersion, NonGraphical, NewThread)
+    desktop = Desktop(desktop_version, non_graphical, new_thread)
 
     yield desktop
 

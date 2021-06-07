@@ -16,7 +16,6 @@ test_project_name = "Coax_HFSS"
 
 class Test3DLayout:
     def setup_class(self):
-        #self.desktop = Desktop(desktopVersion, NonGraphical, NewThread)
         self.aedtapp = Hfss3dLayout()
 
     def teardown_class(self):

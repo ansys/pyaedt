@@ -377,8 +377,8 @@ class Desktop:
                         if m:
                             processID.append(m.group(1))
 
-                if NG or AlwaysNew:
-                    #forcing new object in case of non-graphical run
+                if NG or AlwaysNew or not processID:
+                    # forcing new object in case of non-graphical run or if no process already exists
                     App = StandalonePyScriptWrapper.CreateObjectNew(NG)
                 else:
                     App = StandalonePyScriptWrapper.CreateObject(version)
