@@ -3,7 +3,7 @@
 Maxwell 2D  Coil Analysis
 --------------------------------------------
 This tutorial shows how you can use PyAedt to create a project in
-in Maxwell2D and run a simulation
+in Maxwell2D and run an Eddy Current Simulation
 """
 
 import sys
@@ -33,15 +33,15 @@ print(project_dir)
 # NonGraphical
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # Change Boolean to False to open AEDT in graphical mode
+
 NonGraphical = True
 
-if not "oDesk" in dir():
-    oDesk = Desktop(specified_version="2021.1", NG=NonGraphical)
+oDesk = Desktop(specified_version="2021.1", NG=NonGraphical)
 project_name = 'test'
 project_name = os.path.join(project_dir, project_name + '.aedt')
 
 #########################################
-# 2. Insert a Maxwell design and instantiate Geometry modeler.
+# Insert a Maxwell design and instantiate Geometry modeler.
 
 
 M3D = Maxwell3d(solution_type="EddyCurrent")
@@ -50,10 +50,16 @@ GEO.model_units = "mm"
 CS = GEO.coordinate_system
 
 #############################
-# 3. Create the Model
+# Create the Model
+# create box that will be used in simulation
 
 plate = GEO.primitives.create_box([0, 0, 0], [294, 294, 19], name="Plate", matname="aluminum")
 hole = GEO.primitives.create_box([18, 18, 0], [108, 108, 19], name="Hole")
+
+#############################
+# Modeler Operation
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# different modeler operation can be applied using subtract, material assignment, solve_inside
 
 
 GEO.subtract([plate], [hole])
@@ -96,6 +102,12 @@ M3D.modeler.create_air_region(*[300] * 6)
 # set eddy effects
 
 M3D.eddy_effects_on(['Plate'])
+
+###############################################################################
+# Add an Eddy Current Setup
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# This method add a transient setup and defines all the setup settings
+
 Setup = M3D.create_setup()
 Setup.props["MaximumPasses"] = 12
 Setup.props["MinimumPasses"] = 2
@@ -112,13 +124,13 @@ Setup.enable_expression_cache([p_plate, p_coil], "Fields", "Phase=\'0deg\' ", Tr
 
 
 ###################################################
-# 4. Solve
-
-
+#  Solve
 
 M3D.analyse_nominal()
 
 
+###################################################
+#  get_report_data returns a data class with all data produced from the simulation
 
 val = M3D.post.get_report_data(expression="SolidLoss")
 
@@ -128,7 +140,7 @@ M3D.post.report_types
 
 
 ###################################################
-# Plot Results
+# Plot Results using matplotlib
 
 fig, ax = plt.subplots(figsize=(20, 10))
 
@@ -140,8 +152,7 @@ ax.plot(freq_data, mag_data)
 plt.show()
 
 ###################################################
-# 5.Savethe project and release the desktop object
-# Save the project and close it.
+# Savethe project and release the desktop object
 # oDesk.release_desktop(close_projects=True)  # doesn't work from Jupyter
 
 M3D.save_project(project_name)
