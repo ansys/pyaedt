@@ -317,6 +317,9 @@ class BoundaryObject(BoundaryCommon, object):
             for f in faces:
                 if type(f) is EdgePrimitive or type(f) is FacePrimitive or type(f) is VertexPrimitive:
                     faces_out.append(f.id)
+                elif f in self._parent.modeler.primitives.objects_names.keys():
+                    list_out = self._parent.modeler.primitives.get_object_faces(f)
+                    faces_out.extend(list_out)
                 else:
                     faces_out.append(f)
             self._parent.oboundary.ReassignBoundary(["Name:"+self.name, "Faces:=", faces_out])

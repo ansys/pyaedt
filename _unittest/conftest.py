@@ -21,13 +21,13 @@ if not os.path.isdir(scratch_path):
 # sys.path.append(module_path)
 
 
-desktopVersion = "2021.1"
+desktop_version = "2021.1"
 NonGraphical = False
 NewThread = True
 
 @pytest.fixture(scope='session', autouse=True)
 def desktop_init():
-    desktop = Desktop(desktopVersion, NonGraphical, NewThread)
+    desktop = Desktop(desktop_version, NonGraphical, NewThread)
 
     yield desktop
 

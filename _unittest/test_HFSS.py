@@ -221,9 +221,9 @@ class TestHFSS:
         bound = self.aedtapp.assign_perfecth_to_sheets(self.aedtapp.modeler.primitives["My_Box"].faces[0].id)
         assert bound
         bound.props["Faces"].append(self.aedtapp.modeler.primitives["My_Box"].faces[1])
-        bound.update_assignment()
-        bound.props["Faces"] = "rlcBound"
-        bound.update_assignment()
+        assert bound.update_assignment()
+        bound.props["Faces"] = ["rlcBound"]
+        assert bound.update_assignment()
 
 
     def test_18_create_sources_on_objects(self):
