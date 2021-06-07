@@ -2,10 +2,6 @@
 RMxprt Class
 -------------------
 
-
-Description
-==================================================
-
 This class contains all RMxprt functionalities. It inherits all objects that belong to RMxprt.
 
 
