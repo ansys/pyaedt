@@ -2,17 +2,17 @@
 """
 Edb Class
 -------------
-This class contains all the EDB Functionalities. It inherites all the objects that belongs to EDB.
+This class contains all EDB functionalities. It inherites all objects that belong to EDB.
 
-It is implicitily loaeded in HFSS3DLayout when launched
+It is implicitily loaded in HFSS 3D Layout when launched.
 
 Example
 ________
 
-app = Edb()     creates and EDB object create a new EDB cell
+app = Edb()     Creates an EDB object and creates a new EDB cell.
 
 
-app = Edb("myfile.aedb")     creates and EDB object and open specified project
+app = Edb("myfile.aedb")     Creates an EDB object and opens a specified project.
 """
 
 import os
