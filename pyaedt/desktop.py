@@ -1,8 +1,7 @@
-"""This is the ``Desktop`` module used to initialize AEDT.
+"""The ``Desktop`` module is used to initialize AEDT.
 
 This module initializes AEDT and MessageManager to manage AEDT.
-You can initialize the ``Desktop`` module before launching an app.  
-Otherwise, it automatically initializes to the latest installed AEDT version.
+You can initialize the ``Desktop`` module before launching an app or have the app automatically initialize it to the latest installed AEDT version.
 
 
 Examples
