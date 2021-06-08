@@ -36,11 +36,14 @@ setuptools.setup(
                 ('License', glob.iglob('./*.md', recursive=True)),
                 ('version', ['pyaedt/version.txt'])],
     include_package_data=True,
-    license="MIT License",
+    license="MIT",
     classifiers=[
         "Development Status :: 4 - Beta",
-        "Programming Language :: Python :: 3",
-        "License :: MIT License",
-        "Operating System :: OS Independent",
+        "Programming Language :: Python :: 3.6",
+        "Programming Language :: Python :: 3.7",
+        "Programming Language :: Python :: 3.8",
+        "License :: OSI Approved :: MIT License",
+        "Operating System :: Microsoft :: Windows",
+        "Operating System :: POSIX",
     ],
 )
