@@ -82,7 +82,7 @@ inheritance_node_attrs = dict(shape='ellipse', fontsize=14, height=0.75,
 
 source_suffix = {
     '.rst': 'restructuredtext',
-    '.md': 'markdown',
+    '.md': 'markdown'
 }
 
 

@@ -17,12 +17,6 @@ Nexxim and Simplorer. Finally it provides scripting capabilities in Ansys layout
 structures simplify operation for the end user while reusing information as much as
 possible across the API.
 
-This figure shows an overview of the pyAEDT architecture for 3D solvers:
-
-.. figure:: https://aedtdocs.pyansys.com/_images/Items.png
-    :width: 600pt
-
-    PyAEDT Architecture Overview for 3D Solvers
 
 Documentation and Issues
 -----------------------------------
@@ -68,21 +62,6 @@ The main advantages of PyAEDT are:
 - Code reusability across different solvers
 - Clear documentation on functions and API
 - Unit test of code to increase quality across different AEDT versions
-
-This figure shows an overview of the PyAEDT architecture for 3D solvers:
-
-.. figure:: https://aedtdocs.pyansys.com/_images/BlankDiagram3DModeler.png
-    :width: 600pt
-
-This figure shows an overview of the PyAEDT architecture for the HFSS 3DLayout and EDB solver:
-
-.. figure:: https://aedtdocs.pyansys.com/_images/BlankDiagram3DLayout.png
-    :width: 600pt
-
-This figure shows an overview of the PyAEDT architecture for Circuit solvers (Simplorer and Nexxim):
-
-.. figure:: https://aedtdocs.pyansys.com/_images/BlankDiagramCircuit.png
-    :width: 600pt
 
 
 Example Workflow

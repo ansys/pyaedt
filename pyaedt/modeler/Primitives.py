@@ -1185,7 +1185,7 @@ class Primitives(object):
         >>> from pyaedt.desktop import Desktop
         >>> from pyaedt.Maxwell import Maxwell3d
         >>> from pyaedt.modeler.Primitives import PolylineSegment
-        >>> desktop=Desktop(specified_version="2020.2", AlwaysNew=False)
+        >>> desktop=Desktop(specified_version="2021.1", AlwaysNew=False)
         >>> aedtapp = Maxwell3D()
         >>> aedtapp.modeler.model_units = "mm"
         >>> primitives = aedtapp.modeler.primitives

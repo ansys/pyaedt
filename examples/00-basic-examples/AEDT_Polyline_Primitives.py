@@ -1,7 +1,7 @@
 """
 Polyline Example Analysis
 --------------------------------------------
-This tutorial shows how you can create and manipulate polylines using
+This tutorial shows how you can create and manipulate polylines using pyaedt
 """
 
 

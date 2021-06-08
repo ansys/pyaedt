@@ -56,7 +56,7 @@ class Edb(object):
     isreadonly :
         ``True`` if ``edb_core` is open in read-only mode (when owned by 3D Layout).
     edbversion :
-        Version of ``edb_core`` to use. The default is ``2020.1``.
+        Version of ``edb_core`` to use. The default is ``2021.1``.
     isaedtowned :
         True if ``edb_core`` is launched from 3D Layout.
 

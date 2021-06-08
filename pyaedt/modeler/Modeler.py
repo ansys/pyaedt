@@ -574,8 +574,7 @@ class GeometryModeler(Modeler, object):
 
     @aedt_exception_handler
     def add_workbench_link(self, objects, ambient_temp=22, create_project_var=False, enable_deformation=True):
-        """# TODO fix 2020R2 Bug this is not working in 2020R2
-        Assign Temperature and Deformation Objects for WorkBench Link. From 2020R2 Material needs to have Thermal Modifierl
+        """Assign Temperature and Deformation Objects for WorkBench Link. From 2020R2 Material needs to have Thermal Modifierl
 
         Parameters
         ----------
