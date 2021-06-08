@@ -82,10 +82,10 @@ Explicit Desktop declaration and error management
 
 .. code:: python
 
-    AEDT 2020R1 in Non-Graphical mode will be launched
+    AEDT 2021R1 in Non-Graphical mode will be launched
 
     from pyaedt import Desktop, Circuit
-    with Desktop("2020.1", NG=True):
+    with Desktop("2021.1", NG=True):
         circuit = Circuit()
         ...
         # Any error here will be caught by Desktop...
