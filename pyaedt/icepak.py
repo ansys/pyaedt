@@ -416,9 +416,8 @@ class Icepak(FieldAnalysisIcepak):
 
         Returns
         -------
-        type
+        bool
             Bool
-
         """
         temp_log = os.path.join(self.project_path, "validation.log")
         validate = self.odesign.ValidateDesign(temp_log)

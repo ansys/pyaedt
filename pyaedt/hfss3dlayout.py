@@ -13,10 +13,10 @@ hfss = Hfss3dLayout()     Creates an ``Hfss3dLayout`` object and connects to an 
 hfss = Hfss3dLayout(projectname)     Creates an ``Hfss3dLayout`` object and links to a project named projectname. If this project doesn't exist, it creates a new one with this name.
 
 
-hfss = Hfss3dLayout(projectname,designame)     Creates an ``Hfss3dLayout` object and links to a design named designname in a project named projectname.
+hfss = Hfss3dLayout(projectname,designame)     Creates an ``Hfss3dLayout`` object and links to a design named designname in a project named projectname.
 
 
-hfss = Hfss3dLayout("myfile.aedt")     Creates an ``Hfss3dLayout object` and opens the specified project.
+hfss = Hfss3dLayout("myfile.aedt")     Creates an ``Hfss3dLayout object`` and opens the specified project.
 
 
 ========================================================
