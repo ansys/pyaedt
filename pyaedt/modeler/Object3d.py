@@ -6,9 +6,11 @@ from __future__ import absolute_import
 
 import random
 import string
+import numbers
 from collections import defaultdict
-from ..generic.general_methods import generate_unique_name, retry_ntimes, aedt_exception_handler
+from .. import generate_unique_name, retry_ntimes, aedt_exception_handler
 from .GeometryOperators import GeometryOperators
+from ..application.Variables import Variable
 
 @aedt_exception_handler
 def _uname(name=None):
@@ -33,7 +35,7 @@ def _uname(name=None):
 @aedt_exception_handler
 def _to_boolean(val):
     """Get the boolean value of the provided input.
-    
+
         If the value is a boolean return the value.
         Otherwise check to see if the value is in
         ["false", "f", "no", "n", "none", "0", "[]", "{}", "" ]
@@ -42,7 +44,7 @@ def _to_boolean(val):
     Parameters
     ----------
     val :
-        
+
 
     Returns
     -------
@@ -63,9 +65,9 @@ def _dim_arg(Value, Units):
     Parameters
     ----------
     Value :
-        
+
     Units :
-        
+
 
     Returns
     -------
@@ -85,7 +87,7 @@ def parse_dim_arg(string2parse):
     Parameters
     ----------
     string2parse :
-        
+
 
     Returns
     -------
@@ -225,8 +227,8 @@ class EdgePrimitive(object):
     @property
     def midpoint(self):
         """Get the midpoint coordinates of given edge name or edge ID
-        
-        
+
+
         If the edge is not a segment with two vertices return an empty list.
         :return: midpoint coordinates
 
@@ -249,8 +251,8 @@ class EdgePrimitive(object):
     @property
     def length(self):
         """Get the edge length if has 2 points
-        
-        
+
+
         :return: edge length
 
         Parameters
@@ -429,7 +431,7 @@ class FacePrimitive(object):
         offset :
             float offset to apply
         vector :
-            
+
 
         Returns
         -------
@@ -542,6 +544,7 @@ class Object3d(object):
         self.object_type = "Solid"
         self._material_name = ""
         self._bounding_box = []
+        self._id = None
 
 
     @aedt_exception_handler
@@ -634,7 +637,7 @@ class Object3d(object):
         Parameters
         ----------
         mat :
-            
+
 
         Returns
         -------
@@ -912,7 +915,7 @@ class Object3d(object):
         Parameters
         ----------
         oclone :
-            
+
 
         Returns
         -------
@@ -931,7 +934,7 @@ class Object3d(object):
         Parameters
         ----------
         vPropChange :
-            
+
 
         Returns
         -------
@@ -956,7 +959,7 @@ class Object3d(object):
         Parameters
         ----------
         oclone :
-            
+
 
         Returns
         -------
@@ -974,138 +977,6 @@ class Object3d(object):
         self.name = oclone.name
         self.m_clone = oclone.m_clone
         return True
-
-    @aedt_exception_handler
-    def export_polyline(self, arrayofpositions, iscovered=False, isclosed=False, type=None, arc_angle=None, arc_plane=None):
-        """
-
-        Parameters
-        ----------
-        arrayofpositions :
-            
-        iscovered :
-             (Default value = False)
-        isclosed :
-             (Default value = False)
-        type :
-             (Default value = None)
-        arc_angle :
-             (Default value = None)
-        arc_plane :
-             (Default value = None)
-
-        Returns
-        -------
-
-        """
-        if not type:
-            segment_type = "Line"
-        else:
-            segment_type = type
-
-        vArg1 = ["NAME:PolylineParameters"]
-        vArg1.append("IsPolylineCovered:=")
-        vArg1.append(iscovered)
-        vArg1.append("IsPolylineClosed:=")
-        vArg1.append(isclosed)
-        # PointsArray
-        vArg2 = ["NAME:PolylinePoints"]
-        for i, pt in enumerate(arrayofpositions):
-            if segment_type == 'AngularArc' and i == 3:
-                break
-            vArg2.append(self._PLPointArray(pt))
-
-
-
-        # SegArray
-        vArg3 = self._segarray(type=segment_type, arc_points=arrayofpositions, arc_angle=arc_angle, arc_plane=arc_plane)
-
-        vArg1.append(vArg2)
-        vArg1.append(vArg3)
-        vArg4 = ["NAME:PolylineXSection", "XSectionType:=", "None", "XSectionOrient:=", "Auto", "XSectionWidth:=",
-                 "0mm", "XSectionTopWidth:=", "0mm", "XSectionHeight:=", "0mm", "XSectionNumSegments:=", "0",
-                 "XSectionBendType:=", "Corner"]
-        # Poly Line Cross Section
-        vArg1.append(vArg4)
-
-        return vArg1
-
-    @aedt_exception_handler
-    def _segarray(self, type="Line", arc_points=None, arc_angle=None, arc_plane=None):
-        """
-
-        Parameters
-        ----------
-        type :
-             (Default value = "Line")
-        arc_points :
-             (Default value = None)
-        arc_angle :
-             (Default value = None)
-        arc_plane :
-             (Default value = None)
-
-        Returns
-        -------
-
-        """
-
-        id = 0
-        seg = ["NAME:PolylineSegments"]
-        if type =="Line":
-            while id < (len(arc_points)-1):
-
-                seg.append([ "NAME:PLSegment",
-                        "SegmentType:="	, "Line",
-                        "StartIndex:="		, id,
-                        "NoOfPoints:="		, 2 ])
-                id +=1
-
-        elif type =="Arc":
-
-            seg.append([ "NAME:PLSegment",
-                    "SegmentType:="	, "Arc",
-                    "StartIndex:="		, id,
-                    "NoOfPoints:="		, 3,
-                    "NoOfSegments:="	, "0" ])
-
-        elif type == "AngularArc":
-
-            seg.append( [ "NAME:PLSegment",
-                    "SegmentType:="	, "AngularArc",
-                    "StartIndex:="		, id,
-                    "NoOfPoints:="		, 3,
-                    "NoOfSegments:="	, "0",
-                    "ArcAngle:="		, str(arc_angle)+"deg",
-                    "ArcCenterX:="		, str(arc_points[3].X)+"mm",
-                    "ArcCenterY:="		, str(arc_points[3].Y)+"mm",
-                    "ArcCenterZ:="		, str(arc_points[3].Z)+"mm",
-                    "ArcPlane:="		, arc_plane ] )
-
-        return seg
-
-    @aedt_exception_handler
-    def _PLPointArray(self, pt):
-        """
-
-        Parameters
-        ----------
-        pt :
-            
-
-        Returns
-        -------
-
-        """
-        aPLPoint = ["NAME:PLPoint"]
-        aPLPoint.append('X:=')
-        aPLPoint.append(_dim_arg(pt[0], self.object_units))
-        aPLPoint.append('Y:=')
-        aPLPoint.append(_dim_arg(pt[1], self.object_units))
-        aPLPoint.append('Z:=')
-        aPLPoint.append(_dim_arg(pt[2], self.object_units))
-        return aPLPoint
-
 
 class Padstack(object):
     """ """
@@ -1378,7 +1249,7 @@ class Padstack(object):
     @aedt_exception_handler
     def create(self):
         """Create Padstack in AEDT
-        
+
         :return:
 
         Parameters
@@ -1394,7 +1265,7 @@ class Padstack(object):
     @aedt_exception_handler
     def update(self):
         """Update Padstack in AEDT
-        
+
         :return:
 
         Parameters
@@ -1409,7 +1280,7 @@ class Padstack(object):
     @aedt_exception_handler
     def remove(self):
         """REmove Padstack in AEDT
-        
+
         :return:
 
         Parameters
@@ -1591,9 +1462,9 @@ class CircuitComponent(object):
         Parameters
         ----------
         property_name :
-            
+
         property_value :
-            
+
 
         Returns
         -------
@@ -1608,7 +1479,7 @@ class CircuitComponent(object):
         Parameters
         ----------
         vPropChange :
-            
+
         names_list :
              (Default value = None)
 
@@ -1671,7 +1542,7 @@ class Objec3DLayout(object):
         Parameters
         ----------
         vPropChange :
-            
+
         names_list :
              (Default value = None)
 
