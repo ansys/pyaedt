@@ -34,7 +34,6 @@ import time
 from collections import OrderedDict
 from .MessageManager import AEDTMessageManager
 from .Variables import VariableManager, DataSet
-from ..maxwell import Maxwell3d
 from ..desktop import exception_to_desktop, Desktop, force_close_desktop, release_desktop, get_version_env_variable
 from ..generic.LoadAEDTFile import load_entire_aedt_file
 from ..generic.general_methods import aedt_exception_handler
@@ -2134,7 +2133,7 @@ class Design(object):
         variation : str, default=None
         Variation string for the evaluation. If not specified then use the nominal variation
 
-        >>> M3D = Maxwell3d()
+        >>> M3D = Maxwell3D()
         >>> M3D["p1"] = "10mm"
         >>> M3D["p2"] = "20mm"
         >>> M3D["p3"] = "P1 * p2"
@@ -2196,7 +2195,7 @@ class Design(object):
         Parameters
         ----------
         variation_string : str
-            Variation string of the form "p1=1mm p2=3mm"
+        Variation string of the form "p1=1mm p2=3mm"
 
         Returns
         -------
@@ -2266,6 +2265,3 @@ class Design(object):
         if destype == self._design_type:
             consistent = self._check_solution_consistency()
         return consistent
-
-
-

@@ -16,7 +16,7 @@ module_path = pathlib.Path(local_path)
 aedt_lib_path = module_path.parent.parent.parent
 sys.path.append(os.path.join(aedt_lib_path))
 
-from pyaedt import Desktop
+from pyaedt.desktop import Desktop
 from pyaedt import Q3d
 
 ###############################################################################

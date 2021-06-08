@@ -21,6 +21,7 @@ from .conftest import local_path, scratch_path
 # Import required modules
 from pyaedt import Maxwell2d
 from pyaedt.generic.filesystem import Scratch
+from pyaedt.modeler.Primitives import Polyline
 import gc
 
 class TestMaxwell2D:
@@ -63,7 +64,7 @@ class TestMaxwell2D:
     def test_05_create_poly(self):
         udp = [self.aedtapp.modeler.Position(0, 0, 0),self.aedtapp.modeler.Position(10, 5, 0)]
         id1 = self.aedtapp.modeler.primitives.draw_polyline(udp, name="Ellipse1", matname="copper")
-        assert isinstance(id1, int)
+        assert isinstance(id1, Polyline)
 
 
     def test_03_create_setup(self):

@@ -836,18 +836,18 @@ class GeometryModeler(Modeler, object):
             self.find_point_around(objectname,offset, sheet_dim, self._parent.CoordinateSystemPlane.ZXPlane)
             p1 = self.primitives.draw_polyline([self.Position(start), self.Position(offset)])
             p2 = self.primitives.draw_polyline([self.Position(start), self.Position(offset)])
-            self.translate(p2, [0, axisdist, 0])
-            self.connect([p1,p2])
+            self.translate(p2.id, [0, axisdist, 0])
+            self.connect([p1.id, p2.id])
             #rect = self.primitives.create_rectangle(self._parent.CoordinateSystemPlane.YZPlane,start,pos)
         elif divmod(axisdir,3)[1] == 2:
             self.find_point_around(objectname,offset, sheet_dim, self._parent.CoordinateSystemPlane.XYPlane)
             p1 = self.primitives.draw_polyline([self.Position(start), self.Position(offset)])
             p2 = self.primitives.draw_polyline([self.Position(start), self.Position(offset)])
-            self.translate(p2, [0,0,axisdist])
-            self.connect([p1,p2])
+            self.translate(p2.id, [0,0,axisdist])
+            self.connect([p1.id, p2.id])
             #rect = self.primitives.create_rectangle(self._parent.CoordinateSystemPlane.ZXPlane,start,pos)
 
-        return p1
+        return p1.id
 
     @aedt_exception_handler
     def _get_faceid_on_axis(self, objname, axisdir):
@@ -2581,13 +2581,17 @@ class GeometryModeler(Modeler, object):
             if dist < rad:
                 rad = dist
                 move_vector = GeometryOperators.v_sub(fc, first_vert)
+
+        P = self.primitives.get_existing_polyline(object_id=new_edges[0])
+
         if edge_to_delete:
-            self.primitives.delete_edges_from_polilyne(new_edges[0], edge_to_delete)
+            P.remove_edges(edge_to_delete)
+            #self.primitives.delete_edges_from_polilyne(new_edges[0], edge_to_delete)
+
         angle = math.pi * (180 -360/numberofsegments)/360
 
-        P = Polyline(self, object_id=new_edges[0])
         status = P.set_crosssection_properties(type="Circle", num_seg=numberofsegments,
-                                               width= (rad*(2-math.sin(angle))) * 2)
+                                               width=(rad*(2-math.sin(angle))) * 2)
         if status:
             self.translate(new_edges[0], move_vector)
             self.set_object_model_state(bondname, False)

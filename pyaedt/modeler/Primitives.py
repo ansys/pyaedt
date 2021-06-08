@@ -105,7 +105,7 @@ class Polyline(object):
     set_crosssection_properties
     insert_segment
     remove_vertex
-    remove_edge
+    remove_edges
     clone
 
     """
@@ -159,7 +159,7 @@ class Polyline(object):
 
         else:
             # Instantiate a new Polyline object for an existing object id in the modeler
-            self._o = parent.objects[object_id]
+            self._o = self._parent.objects[object_id]
             self._positions = []
             for vertex in self._o.vertices:
                 position = vertex.position
@@ -578,7 +578,7 @@ class Polyline(object):
         return True
 
     @aedt_exception_handler
-    def remove_edge(self, edge_id):
+    def remove_edges(self, edge_id):
         """ Remove a vertex from an existing polyline by position
 
         Removes a vertex from a polyline object. The user must enter the exact position of the vertex as a list
@@ -586,8 +586,8 @@ class Polyline(object):
 
         Parameters
         ----------
-        position : list
-
+        edge_id : int or list of int
+            One or more edge ids within the total number of edges within the Polyline
         Returns
         -------
         bool
@@ -595,15 +595,17 @@ class Polyline(object):
         Examples
         ------
         >>> P = primitives.draw_polyline([[0, 1, 2], [0, 2, 3], [2, 1, 4]])
-        >>> P.remove_edge(edge_id=0)
+        >>> P.remove_edges(edge_id=0)
 
         """
+        if isinstance(edge_id, int):
+            edge_id  = [edge_id]
         try:
             self._parent.oeditor.DeletePolylinePoint(
                 [
                     "NAME:Delete Point",
                     "Selections:=", self.name + ":CreatePolyline:1",
-                    "Segment Indices:=", [edge_id],
+                    "Segment Indices:=", edge_id,
                     "At Start:="	, True])
         except:
             raise ValueError("Invalid edge id {}specified on Polyline {}".format(edge_id, self.name))
@@ -1072,7 +1074,7 @@ class Primitives(object):
     def draw_polyline(self, position_list, segment_type=None,
                       cover_surface=False, close_surface=False, name=None,
                       matname=None, xsection_type=None, xsection_orient=None,
-                      xsection_width=0, xsection_topwidth=0, xsection_height=0,
+                      xsection_width=1, xsection_topwidth=1, xsection_height=1,
                       xsection_num_seg=0, xsection_bend_type=None):
 
         """Draw a Polyline Object in the 3D modeler
@@ -1134,9 +1136,9 @@ class Primitives(object):
         Examples
         -------
         Setup the desktop environment
-        >>> from AEDTLib.Desktop import Desktop
-        >>> from AEDTLib.Maxwell import Maxwell3D
-        >>> from AEDTLib.Modeler.Primitives import PolylineSegment
+        >>> from pyaedt.desktop import Desktop
+        >>> from pyaedt.Maxwell import Maxwell3d
+        >>> from pyaedt.modeler.Primitives import PolylineSegment
         >>> desktop=Desktop(specified_version="2020.2", AlwaysNew=False)
         >>> aedtapp = Maxwell3D()
         >>> aedtapp.modeler.model_units = "mm"
@@ -1170,13 +1172,28 @@ class Primitives(object):
         >>> primitives.draw_polyline(start_point, segment_type=segment_def, name="PL_center_point_arc")
 
         """
-
         new_polyline = Polyline(parent=self, position_list=position_list, segment_type=segment_type,
                                 cover_surface=cover_surface, close_surface=close_surface, name=name,
                                 matname=matname, xsection_type=xsection_type, xsection_orient=xsection_orient,
                                 xsection_width=xsection_width, xsection_topwidth=xsection_topwidth, xsection_height=xsection_height,
                                 xsection_num_seg=xsection_num_seg, xsection_bend_type=xsection_bend_type)
         return new_polyline
+
+    @aedt_exception_handler
+    def get_existing_polyline(self, object_id):
+        """Return a Polyline object to allow manipulation of an existing polyline
+
+        Parameters
+        ----------
+        object_id . int
+            Integer object id of an existing polyline object in the 3D Modeler
+
+        Returns
+        -------
+        Polyline
+
+        """
+        return Polyline(self, object_id=object_id)
 
     @aedt_exception_handler
     def create_udp(self, dllName, udpPairs, szLib=None, name=None, udptye=None):
