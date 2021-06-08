@@ -1,6 +1,13 @@
 #Multi-configuration and multi-agent job options are not exported to YAML. Configure these options using documentation guidance: https://docs.microsoft.com/vsts/pipelines/process/phases
 trigger:
-  none
+  branches:
+    include:
+    - '*'
+    exclude:
+    - 'gh-pages'
+  tags:
+    include:
+    - '*'
 
 pool:
   name: Ansys
