@@ -74,7 +74,7 @@ steps:
 - script: |
     twine upload --skip-existing dist/*.tar.gz
   displayName: 'Upload to package PyPi'
-  condition: contains(variables['Build.SourceBranchName'], 'refs/tags/')
+  condition: contains(variables['Build.SourceBranch'], 'refs/tags/')
   env:
     TWINE_USERNAME: __token__
     TWINE_PASSWORD: $(PYPI_TOKEN)
