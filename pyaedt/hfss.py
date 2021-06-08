@@ -2,25 +2,21 @@
 Hfss Class
 ----------------------------------------------------------------
 
-
-Description
-==================================================
-
-This class contains all the HFSS Functionalities. It inherites all the objects that belongs to HFSS
+This class contains all HFSS functionalities. It inherits all objects that belong to HFSS.
 
 
-:Example:
+Examples:
 
-hfss = Hfss()     creates and hfss object and connect to existing hfss design (create a new hfss design if not present)
-
-
-hfss = Hfss(projectname)     creates and hfss object and link to projectname project. If project doesn't exists, it creates a new one and rename it
+hfss = Hfss()     Creates an ``Hfss`` object and connects to an existing HFSS design or creates a new HFSS design if one is not present.
 
 
-hfss = Hfss(projectname,designame)     creates and hfss object and link to designname design in projectname project
+hfss = Hfss(projectname)     Creates an ``Hfss`` object and links to a project named projectname. If this project doesn't exist, it creates one with this name.
 
 
-hfss = Hfss("myfile.aedt")     creates and hfss object and open specified project
+hfss = Hfss(projectname,designame)     Creates an ``Hfss`` object and links to a design named designname in a project named projectname.
+
+
+hfss = Hfss("myfile.aedt")     Creates an ``Hfss`` object and opens the specified project.
 
 
 ========================================================
