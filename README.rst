@@ -1,21 +1,30 @@
 Introduction
--------------
+------------
 PyAEDT is intended to consolidate and extend all existing
 functionalities around scripting for Ansys Electronics Dekstop (AEDT)
 to allow reuse of existing code, sharing of best practices, and increased
 collaboration. PyAEDT is licensed under the `MIT License
 <https://github.com/pyansys/PyAEDT/blob/main/LICENSE>`_.
 
-PyAEDT includes functionality to interact with these AEDT products: 
-HFSS, Icepak, Maxwell 3D, and Q3D.
+This tool includes functionality to interact the following AEDT tools and Ansys products:
+- HFSS
+- Icepak,
+- Maxwell 2D/3D
+- Q3D/2DExtractor
+- Mechanical
+- Nexxim
+- Simplorer
+- EDB Database.
 
 What is PyAEDT?
------------------
+---------------
 PyAEDT is a Python library that interacts directly with the AEDT API
 to make scripting simpler for the end user.  It uses an architecture
-that can be reused for all AEDT 3D products (HFSS, Icepak, Maxwell 3D, and Q3D) and,
-in the future, for all other AEDT products. Its class and method
-structures simplify operation for the end user while reusing information as much as
+that can be reused for all AEDT 3D products (HFSS, Icepak, Maxwell 3D,
+Q3D and Mechanical) as well as 2D tools and circuit tools like
+Nexxim and Simplorer. Finally it provides scripting capabilities in Ansys
+layout tools like HFSS3DLayout/EDB. Its class and method structures simplify
+operation for the end user while reusing information as much as
 possible across the API.
 
 This figure shows an overview of the pyAEDT architecture for 3D solvers:
@@ -25,7 +34,7 @@ This figure shows an overview of the pyAEDT architecture for 3D solvers:
 
 
 Documentation and Issues
------------------------------------
+------------------------
 See the `Documentation <https://aedtdocs.pyansys.com>`_ page for more
 details and the `Examples gallery
 <https://aedtdocs.pyansys.com/examples/index.html>`_ for some
@@ -36,7 +45,7 @@ To post issues, questions, and code, go to `PyAedt Issues
 
 
 Project Transition - Legacy Support
--------------------------------------
+-----------------------------------
 This project was formerly known as AEDTLib. 
 Thanks to all early adopters, contributors, and users who submitted issues, 
 gave feedback, and contributed code through the years. 
@@ -45,14 +54,13 @@ cross-platform, and multi-language service-based interfaces for Ansys products.
 Your contributions to PyAEDT will help shape PyAEDT into a better solution.
 
 
-
 Dependencies
 ------------
 You must have a local licenced copy of AEDT to run PyAEDT. 
 PyAEDT supports AEDT versions prior to and including 2021 R1.
 
 Why PyAEDT?
-------------
+-----------
 Recording and reusing script is a quick and easy approach for
 automating simple operations in the AEDT UI. 
 However, disadvantages of this approach are:
