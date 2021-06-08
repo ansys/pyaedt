@@ -28,13 +28,13 @@ possible of the information across the API.
     PyAEDT Architecture Overview for 3D Solvers
 
 Project Transition - Legacy Support
-------------------------------------------
-This project was formerly known as AEDTLib, and we'd like to thank all the early adopters, contributors, and users who submitted issues, gave feedback, and contributed code through the years. The pyaedt project has been taken up Ansys and will be leveraged in creating new Pythonic, cross-platform, and multi-language service based interfaces for Ansys's products. Your contributions to pyaedt has shaped it into a better solution.
+-----------------------------------
+This project was formerly known as AEDTLib, and we'd like to thank all the early adopters, contributors, and users who submitted issues, gave feedback, and contributed code through the years. The pyaedt project has been taken up Ansys and will be leveraged in creating new Pythonic, cross-platform, and multi-language service based interfaces for Ansys's products. Your contributions to PyAEDT have shaped it into a better solution.
 
 
 
 Dependencies
---------------
+------------
 You will need a local licenced copy of Ansys Electronics Desktop to run pyaedt prior and including 2021R1.
 
 Why PyAEDT

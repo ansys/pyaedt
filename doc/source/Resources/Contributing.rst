@@ -19,19 +19,19 @@ You can clone the source repository from PyAedt GitHub and install the latest ve
 Questions
 ----------
 
-For general or technical questions about the project, its applications, or about software usage, please create an issue at PyAedt Issues where the community or PyAedt developers can collectively address your questions. The project support team can be reached at massimo.capodiferro@ansys.com
+For general or technical questions about the project, its applications, or about software usage, please create an issue at PyAEDT Issues where the community or PyAEDT developers can collectively address your questions. The project support team can be reached at massimo.capodiferro@ansys.com
 
 By posting on the issues page, your question can be addressed by community members with the needed expertise and the knowledge gained will remain available on the issues page for other users.
 
 Reporting Bugs
 --------------------
 
-If you encounter any bugs or crashes while using PyAedt, please report it at PyAedt Issues with an appropriate label so we can promptly address it. When reporting an issue, please be overly descriptive so that we may reproduce it. Whenever possible, please provide tracebacks, screenshots, and sample files to help us address the issue.
+If you encounter any bugs or crashes while using PyAEDT, please report it at PyAEDT Issues with an appropriate label so we can promptly address it. When reporting an issue, please be overly descriptive so that we may reproduce it. Whenever possible, please provide tracebacks, screenshots, and sample files to help us address the issue.
 
 Feature Requests
---------------------
+----------------
 
-We encourage users to submit ideas for improvements to PyAedt! Please create an issue on the PyAedt Issues with a Feature Request label to suggest an improvement. Please use a descriptive title and provide ample background information to help the community implement that functionality. For example, if you would like a reader for a specific file format, please provide a link to documentation of that file format and possibly provide some sample files with screenshots to work with. We will use the issue thread as a place to discuss and provide feedback.
+We encourage users to submit ideas for improvements to PyAEDT! Please create an issue on the PyAEDT Issues with a Feature Request label to suggest an improvement. Please use a descriptive title and provide ample background information to help the community implement that functionality. For example, if you would like a reader for a specific file format, please provide a link to documentation of that file format and possibly provide some sample files with screenshots to work with. We will use the issue thread as a place to discuss and provide feedback.
 
 Contributing New Code
 -----------------------
@@ -41,17 +41,17 @@ If you have an idea for how to improve PyAedt, consider first creating an issue 
 Once you are ready to start coding, please see the Development Practices section for more details.
 
 Licensing
---------------------
+---------
 
 All contributed code will be licensed under The MIT License found in the repository. If you did not write the code yourself, it is your responsibility to ensure that the existing license is compatible and included in the contributed files or you can obtain permission from the original author to relicense the code.
 
 Development Practices
-----------------------
+---------------------
 
-This section provides a guide to how we conduct development in the PyAedt repository. Please follow the practices outlined here when contributing directly to this repository.
+This section provides a guide to how we conduct development in the PyAEDT repository. Please follow the practices outlined here when contributing directly to this repository.
 
 Guidelines
---------------------
+----------
 
 Consider the following general coding paradigms when contributing:
 
@@ -67,10 +67,10 @@ Additionally, please do not include any data sets for which a license is not ava
 
 Finally, please take a look at our Code of Conduct
 
-Contributing to PyAedt through GitHub
-----------------------------------------
+Contributing to PyAEDT through GitHub
+-------------------------------------
 
-To submit new code to PyAedt, first fork the PyAedt GitHub Repo and then clone the forked repository to your computer. Next, create a new branch based on the Branch Naming Conventions Section in your local repository.
+To submit new code to PyAEDT, first fork the PyAEDT GitHub Repo and then clone the forked repository to your computer. Next, create a new branch based on the Branch Naming Conventions Section in your local repository.
 
 Next, add your new feature and commit it locally. Be sure to commit often as it is often helpful to revert to past commits, especially if your change is complex. Also, be sure to test often. See the Testing Section below for automating testing.
 
@@ -86,7 +86,7 @@ For code verification, someone from the pyansys developers team will review your
 Since it may be necessary to merge your branch with the current release branch (see below), please do not delete your branch if it is a fix/ branch.
 
 Branch Naming Conventions
-~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~~~~
 
 To streamline development, we have the following requirements for naming branches. These requirements help the core developers know what kind of changes any given branch is introducing before looking at the code.
 
@@ -118,23 +118,30 @@ Run the primary test suite and generate a coverage report with:
     pytest -v --cov _unittest
 
 Spelling and Code Style
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~~
 If you are using Linux or Mac OS, run check spelling and coding style with:
 
-make
-Any misspelled words will be reported. You can add words to be ignored to ignore_words.txt
 
-codespell ./pyaedt -S "*.pyc,*.aedt,*.xml,*.txt,*.gif,*.png,*.jpg,*.js,*.html,*.doctree,*.ttf,*.woff,*.woff2,*.eot,*.mp4,*.inv,*.pickle,*.ipynb,flycheck*,./.git/*,./.hypothesis/*,*.yml,./docs/build/*,./docs/images/*,./dist/*,*~,.hypothesis*,./docs/source/examples/*,*cover,*.dat,*.mac,\#*,PKG-INFO,*.mypy_cache/*,*.xml,*.aedt,*.svg" -I "ignore_words.txt"
+.. code::
+
+    cd <local pyvista root directory>
+    pip install -r requirements_style.txt
+    make
+
+Any misspelled words will be reported. You can add words to be ignored to `ignore_words.txt`
+
 Documentation
+-------------
 Documentation for PyAedt is generated from three sources:
 
-Docstrings from the classes, functions, and modules of pyaedt using sphinx.ext.autodoc.
-Restructured test from docs/
-Examples from examples/
-General usage and API descriptions should be placed within docs/source and the docstrings. Full examples should be placed in examples.
+- Docstrings from the classes, functions, and modules of PyAEDT using `sphinx.ext.autodoc`.
+- Restructured test from `docs/`
+- Examples from `examples/`
+
+General usage and API descriptions should be placed within `docs/source` and method docstrings. Full examples should be placed in `examples/`.
 
 Documentation Style and Organization
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 Docstrings should follow the numpydocs docstring guidelines. Documentation from docs use reStructuredText format. Examples within the examples/ directory should be PEP8 compliant and will be compiled dynamically during the build process; ensure they run properly locally as they will be verified through the continuous integration performed on GitHub Actions.
 
 Building the Documentation Locally
@@ -157,19 +164,19 @@ Next, if running Linux/Mac OS, build the documentation with:
 
 .. code::
 
-    make -C docs html
+    make -C doc html
 
 Otherwise, if running Windows, build the documentation by running:
 
 .. code::
 
-   cd docs
+   cd doc
    make.bat html
 
 Upon the successful build of the documentation, you can open the local build by opening index.html at docs/build/html/ with your browser.
 
-Continuous Integration and Continuous Delivery
--------------------------------------------------
+Continuous Integration and Continuous Delivery (CI/CD)
+------------------------------------------------------
 
 The PyAedt project uses continuous integration and delivery (CI/CD) to automate the building, testing, and deployment tasks. The CI Pipeline is deployed on both GitHub Actions and Azure Pipelines and performs following tasks:
 
@@ -186,7 +193,7 @@ This project has a branching model that enables rapid development of features wi
 The main features of our branching model are:
 
 - The master branch is the main development branch. All features, patches, and other branches should be merged here. While all PRs should pass all applicable CI checks, this branch may be functionally unstable as changes might have introduced unintended side-effects or bugs that were not caught through unit testing.
-- There will be one or many release/ branches based on minor releases (for example release/0.2) which contain a stable version of the code base that is also reflected on PyPi/. Hotfixes from fix/ branches should be merged both to master and to these branches. When necessary to create a new patch release these release branches will have their __version__.py updated and be tagged with a patched semantic version (e.g. 0.2.1). This triggers CI to push to PyPi, and allow us to rapidly push hotfixes for past versions of pyaedt without having to worry about untested features.
+- There will be one or many release/ branches based on minor releases (for example release/0.2) which contain a stable version of the code base that is also reflected on PyPi/. Hotfixes from fix/ branches should be merged both to master and to these branches. When necessary to create a new patch release these release branches will have their `__version__.py` updated and be tagged with a patched semantic version (e.g. 0.2.1). This triggers CI to push to PyPi, and allow us to rapidly push hotfixes for past versions of pyaedt without having to worry about untested features.
 - When a minor release candidate is ready, a new release branch will be created from master with the next incremented minor version (e.g. release/0.2), which will be thoroughly tested. When deemed stable, the release branch will be tagged with the version (0.2.0 in this case), and if necessary merged with master if any changes were pushed to it. Feature development then continues on master and any hotfixes will now be merged with this release. Older release branches should not be deleted so they can be patched as needed.
 
 Minor Release Steps
