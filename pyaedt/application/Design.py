@@ -34,9 +34,11 @@ import time
 from collections import OrderedDict
 from .MessageManager import AEDTMessageManager
 from .Variables import VariableManager, DataSet
+from ..maxwell import Maxwell3d
 from ..desktop import exception_to_desktop, Desktop, force_close_desktop, release_desktop, get_version_env_variable
 from ..generic.LoadAEDTFile import load_entire_aedt_file
 from ..generic.general_methods import aedt_exception_handler
+from ..generic.list_handling import variation_string_to_dict
 from ..modules.Boundary import BoundaryObject
 
 try:
@@ -218,22 +220,6 @@ model_names = {
     "EMIT Design": "EMIT Design",
 }
 
-#TODO: refactor this to Generic ?
-def _variation_string_to_dict(variation_string):
-    """Helper function to convert a list of "="-separated strings into a dictionary
-
-    Returns
-    -------
-    dict
-    """
-    var_data = variation_string.split()
-    variation_dict = {}
-    for var in var_data:
-        pos_eq = var.find("=")
-        var_name = var[0:pos_eq]
-        var_value = var[pos_eq+1:].replace('\'', '')
-        variation_dict[var_name] = var_value
-    return variation_dict
 
 class Design(object):
     """Class Design. Contains all functions and objects connected to the active Project and Design"""
@@ -255,7 +241,6 @@ class Design(object):
 
     @aedt_exception_handler
     def __getitem__(self, variable_name):
-        #assert variable_name in self.variable_manager.variables, "Variable {0} dies not exist !".format(variable_name)
         return self.variable_manager[variable_name].string_value
 
     @aedt_exception_handler
@@ -294,7 +279,6 @@ class Design(object):
         self.solution_type = self._solution_type
         self.project_datasets = self._get_project_datasets()
         self.design_datasets = self._get_design_datasets()
-
 
     @property
     def project_properies(self):
@@ -758,10 +742,8 @@ class Design(object):
         warning_msg = None
         activedes = des_name
         if des_name:
-            if des_name in self.design_list:
-                self._assert_consistent_design_type(des_name)
-            else:
-                warning_msg = "Design {} does not exist - inserting a new design".format(des_name)
+            if self._assert_consistent_design_type(des_name) == des_name:
+                self.insert_design(self._design_type, design_name=des_name, solution_type=self._solution_type)
         else:
             # self._odesign = self._oproject.GetActiveDesign()
             if self.design_list:
@@ -780,9 +762,9 @@ class Design(object):
             else:
                 warning_msg = "No design present - inserting a new design"
 
-        if warning_msg:
-            self._messenger.add_warning_message(warning_msg, level='Project')
-            self.insert_design(self._design_type, solution_type=self._solution_type)
+            if warning_msg:
+                self._messenger.add_warning_message(warning_msg, level='Project')
+                self.insert_design(self._design_type, solution_type=self._solution_type)
         self.boundaries = self._get_boundaries_data()
 
     @property
@@ -2140,9 +2122,8 @@ class Design(object):
 
     @aedt_exception_handler
     def get_evaluated_value(self, variable_name, variation=None):
-        """
-        Returns the floating-point evaluated value of a given variable
-        (design property or project variable) in SI-units
+        """Returns the floating-point evaluated value of a given variable in SI-units
+        (design property or project variable)
 
         Optionally a variation string of the form
 
@@ -2153,7 +2134,7 @@ class Design(object):
         variation : str, default=None
         Variation string for the evaluation. If not specified then use the nominal variation
 
-        >>> M3D = Maxwell3D()
+        >>> M3D = Maxwell3d()
         >>> M3D["p1"] = "10mm"
         >>> M3D["p2"] = "20mm"
         >>> M3D["p3"] = "P1 * p2"
@@ -2215,23 +2196,20 @@ class Design(object):
         Parameters
         ----------
         variation_string : str
-        Variation string of the form "p1=1mm p2=3mm"
+            Variation string of the form "p1=1mm p2=3mm"
 
-            Parameters
-            ----------
-            variation_string
-
-            Returns
-            -------
+        Returns
+        -------
+        str
 
         """
         nominal = self._odesign.GetNominalVariation()
         if variation_string:
             # decompose the nominal variation into a dictionary of name[value]
-            nominal_dict = _variation_string_to_dict(nominal)
+            nominal_dict = variation_string_to_dict(nominal)
 
             # decompose the desired variation into a dictionary of name[value]
-            var_dict = _variation_string_to_dict(variation_string)
+            var_dict = variation_string_to_dict(variation_string)
 
             # set the values of the desired variation in the active design
             for key, value in var_dict.items():

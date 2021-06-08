@@ -1,12 +1,6 @@
 #!/usr/bin/env python
 # coding: utf-8
 
-# **Resolve the path of AEDTLib - to be discussed since modules in site-packages would remove need for this**
-
-import sys
-root_path = r'C:\data\aedt-adapter'
-sys.path.append(root_path)
-
 
 # #### Perform required imports from AEDTLib and connect to the Desktop
 
