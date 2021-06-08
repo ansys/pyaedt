@@ -38,10 +38,11 @@ class CoordinateSystem(object):
     """CS Data and execution class"""
     def __init__(self, parent, props=None, name=None):
         self._parent = parent
+        self.model_units = self._parent.model_units
         self.name = name
         self.props = props
         self.ref_cs = None
-        self.model_units = self._parent.model_units
+        self.quaternion = None
         try:
             if "KernelVersion" in self.props:
                 del self.props["KernelVersion"]
@@ -247,29 +248,48 @@ class CoordinateSystem(object):
         return True
 
     @aedt_exception_handler
-    def create(self, origin=None, view=None, x_pointing=None, y_pointing=None, reference_cs="Global", name=None):
+    def create(self, origin=None, reference_cs="Global", name=None,
+               mode=None, view=None,
+               x_pointing=None, y_pointing=None,
+               psi=None, theta=None, phi=None, u=None):
         """Create a Coordinate system
-        Specify either the view or the pointing vectors.
-        If view is specified, the pointing vectors are ignored.
-        Default is coordinate system parallel to the Global centered in the Globa origin.
+        Specify the mode = 'view', 'axis', 'zxz', 'zyz', 'axisrotation'. Default = 'axis'
+        If mode = 'view', specify view = "XY", "XZ", "XY", "rotate"
+        If mode = 'axis', specify x_pointing and y_pointing
+        If mode = 'zxz' or 'zyz', specify psi, theta, phi
+        If mode = 'axisrotation', specify u, theta
+
+        Parameters not needed by the specified mode are ignored.
+        For back compatibility, view='rotate' is the same as mode='axis'
+        Default is coordinate system parallel to the Global centered in the Global origin.
 
         Parameters
         ----------
         origin :
             origin of the CS (Default value = [0, 0, 0])
+        name :
+            name of the CS (Default value = None)
+        reference_cs :
+             Reference coordinate system name (Default value = "Global")
+        mode:
+            Definition mode. 'view', 'axis', 'zxz', 'zyz', 'axisrotation'. Default = 'axis'
         view :
             View. Default "iso". possible "XY", "XZ", "XY", None, "rotate"
             "rotate" is obsolete, simply do not specify a view instead.
         x_pointing :
-            if view="rotate", this is a 3 elements list specifing the X axis pointing in the global CS
+            if mode="axis", this is a 3 elements list specifing the X axis pointing in the global CS
             (Default value = [1, 0, 0])
         y_pointing :
-            if view="rotate", this is a 3 elements list specifing the Y axis pointing in the global CS
+            if mode="axis", this is a 3 elements list specifing the Y axis pointing in the global CS
             (Default value = [0, 1, 0])
-        name :
-            name of the CS (Default value = None)
-        reference_cs :
-             (Default value = "Global")
+        psi :
+            Euler angle psi in radians
+        theta :
+            Euler angle theta in radians
+        phi :
+            Euler angle phi in radians
+        u :
+            rotation axix in format [ux, uy, uz]
 
         Returns
         -------
@@ -283,6 +303,8 @@ class CoordinateSystem(object):
             x_pointing = [1, 0, 0]
         if not y_pointing:
             y_pointing = [0, 1, 0]
+        if mode is None and view == "rotate":
+            mode = "axis"
 
         if name:
             self.name = name
@@ -346,6 +368,11 @@ class CoordinateSystem(object):
 
         self.props = OrderedDict(orientationParameters)
         self._parent.oeditor.CreateRelativeCS(self.orientation, self.attributes)
+
+        x, y, z = GeometryOperators.pointing_to_axis(pointing[0:3], pointing[3:6])
+        a, b, g = GeometryOperators.axis_to_euler_zyz(x, y, z)
+        self.quaternion = GeometryOperators.euler_zyz_to_quaternion(a, b, g)
+
         self.ref_cs = reference_cs
         self.update()
 
@@ -465,12 +492,11 @@ class GeometryModeler(Modeler, object):
                 output_list.append(el)
         return output_list
 
-
-
     @aedt_exception_handler
     def _get_coordinates_data(self):
         """ """
         coord = []
+        props = {}
         id2name = {1: 'Global'}
         name2refid = {}
         if self._parent.design_properties and 'ModelSetup' in self._parent.design_properties:
@@ -495,9 +521,31 @@ class GeometryModeler(Modeler, object):
                 except:
                     pass
             for cs in coord:
-                cs.ref_cs = id2name[name2refid[cs.name]]
+                try:
+                    cs.ref_cs = id2name[name2refid[cs.name]]
+                    if props['Mode'] == 'Axis/Position':
+                        x1 = GeometryOperators.parse_dim_arg(props['XAxisXvec'])
+                        x2 = GeometryOperators.parse_dim_arg(props['XAxisYvec'])
+                        x3 = GeometryOperators.parse_dim_arg(props['XAxisZvec'])
+                        y1 = GeometryOperators.parse_dim_arg(props['YAxisXvec'])
+                        y2 = GeometryOperators.parse_dim_arg(props['YAxisYvec'])
+                        y3 = GeometryOperators.parse_dim_arg(props['YAxisZvec'])
+                        x, y, z = GeometryOperators.pointing_to_axis([x1, x2, x3], [y1, y2, y3])
+                        a, b, g = GeometryOperators.axis_to_euler_zyz(x, y, z)
+                        cs.quaternion = GeometryOperators.euler_zyz_to_quaternion(a, b, g)
+                    elif props['Mode'] == 'Euler Angle ZXZ':
+                        a = GeometryOperators.parse_dim_arg(props['Psi'])
+                        b = GeometryOperators.parse_dim_arg(props['Theta'])
+                        g = GeometryOperators.parse_dim_arg(props['Phi'])
+                        cs.quaternion = GeometryOperators.euler_zxz_to_quaternion(a, b, g)
+                    elif props['Mode'] == 'Euler Angle ZYZ':
+                        a = GeometryOperators.parse_dim_arg(props['Psi'])
+                        b = GeometryOperators.parse_dim_arg(props['Theta'])
+                        g = GeometryOperators.parse_dim_arg(props['Phi'])
+                        cs.quaternion = GeometryOperators.euler_zyz_to_quaternion(a, b, g)
+                except:
+                    pass
         return coord
-
 
     def __get__(self, instance, owner):
         self._parent = instance
@@ -512,8 +560,6 @@ class GeometryModeler(Modeler, object):
     def model_units(self):
         """ """
         return retry_ntimes(10, self.oeditor.GetModelUnits)
-
-
 
     @model_units.setter
     def model_units(self, units):

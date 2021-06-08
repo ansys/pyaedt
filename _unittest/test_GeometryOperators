@@ -1,0 +1,18 @@
+import math
+from pyaedt.modeler.GeometryOperators import GeometryOperators as go
+
+
+class TestGeometryOperators:
+
+    def setup_class(self):
+        pass
+
+    def teardown_class(self):
+        pass
+
+    def test_01_deg2rad(self):
+        assert go.deg2rad(180.) - math.pi < 1e-12
+        assert go.deg2rad(180) - math.pi < 1e-12
+
+    def test_02_rad2deg(self):
+        assert go.rad2deg(math.pi) - 180. < 1e-12

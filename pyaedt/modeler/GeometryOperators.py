@@ -1,6 +1,9 @@
 from ..generic.general_methods import aedt_exception_handler
 from .modeler_constants import CoordinateSystemPlane, CoordinateSystemAxis, SweepDraftType
 import math
+import numpy
+import re
+
 
 class GeometryOperators(object):
     """ """
@@ -30,19 +33,69 @@ class GeometryOperators(object):
     @staticmethod
     @aedt_exception_handler
     def parse_dim_arg(string2parse):
-        """
+        """It converts number + unit (e.g. '2mm') in a float (e.g. 0.002).
+            Angles are returned in radians.
 
         Parameters
         ----------
-        string2parse :
+        string2parse : string e.g. '2mm'
             
 
         Returns
         -------
-
+        float number e.g. 0.002
         """
-        return string2parse
-    
+        scaling = {
+            "m": 1.0,
+            "meter": 1.0,
+            "meters": 1.0,
+            "dm": 0.1,
+            "cm": 1e-2,
+            "mm": 1e-3,
+            "um": 1e-6,
+            "nm": 1e-9,
+            "in": 2.54e-2,
+            "mil": 2.54e-5,
+            "uin": 2.54e-8,
+            "ft": 3.048e-1,
+            "s": 1.0,
+            "sec": 1.0,
+            "ms": 1e-3,
+            "us": 1e-6,
+            "ns": 1e-9,
+            "Hz": 1.0,
+            "kHz": 1e3,
+            "MHz": 1e6,
+            "GHz": 1e9,
+            "THz": 1e12
+        }
+
+        if type(string2parse) is not str:
+            try:
+                return float(string2parse)
+            except ValueError:
+                raise TypeError("Input argument is not string nor number")
+
+        pattern = r"(?P<number>[-+]?(\d+(\.\d*)?|\.\d+)([eE][-+]?\d+)?)\s*(?P<unit>[a-zA-Z]*)"
+        m = re.search(pattern, string2parse)
+
+        if m:
+            if not m.group("unit"):
+                return float(m.group("number"))
+            elif m.group("unit") == 'deg':
+                return GeometryOperators.deg2rad(float(m.group("number")))
+            elif m.group("unit") == 'rad':
+                return float(m.group("number"))
+            else:
+                try:
+                    scaling_factor = scaling[m.group("unit")]
+                except KeyError as e:
+                    raise e
+                else:
+                    return float(m.group("number")) * scaling_factor
+        else:
+            raise TypeError("String is no number")
+
     @staticmethod
     @aedt_exception_handler
     def cs_plane_str(val):
@@ -574,9 +627,8 @@ class GeometryOperators(object):
 
     @staticmethod
     @aedt_exception_handler
-    def pointing_to_axis_angle(x_pointing, y_pointing):
-        """ get the axis angle rotation formulation from the HFSS X-Axis and Y-Pointing as per AEDT interface
-            coordinate system definition
+    def pointing_to_axis(x_pointing, y_pointing):
+        """ get the axis from the HFSS X-Axis and Y-Pointing as per AEDT interface coordinate system definition
 
         Parameters
         ----------
@@ -587,43 +639,98 @@ class GeometryOperators(object):
 
         Returns
         -------
-        tuple ([ux, uy, uz], theta) containing the rotation axix expressed as x, y, z components of the unit vector u
-        and the rotation angle theta expressed in radians.
+        tuple [Xx, Xy, Xz], [Yx, Yy, Yz], [Zx, Zy, Zz] of the 3 axis (normalized)
         """
-        u = GeometryOperators.normalize_vector(x_pointing)
-        yp = GeometryOperators.normalize_vector(y_pointing)
-        y = [0., 1., 0.]
-        xpn = GeometryOperators.v_dot(u, u)
-        tp = GeometryOperators.v_dot(yp, u) * xpn
-        pyp = GeometryOperators.v_sub(yp, GeometryOperators.v_prod(tp, u))
-        t = GeometryOperators.v_dot(y, u) * xpn
-        py = GeometryOperators.v_sub(y, GeometryOperators.v_prod(t, u))
-        theta = GeometryOperators.v_angle(pyp, py)
-        return u, theta
+        xp = GeometryOperators.normalize_vector(x_pointing)
+
+        tp = GeometryOperators.v_dot(y_pointing, xp)
+        ypt = GeometryOperators.v_sub(y_pointing, GeometryOperators.v_prod(tp, xp))
+        yp = GeometryOperators.normalize_vector(ypt)
+
+        zpt = GeometryOperators.v_cross(xp, yp)
+        zp = GeometryOperators.normalize_vector(zpt)
+
+        return xp, yp, zp
 
     @staticmethod
     @aedt_exception_handler
-    def axis_angle_to_quaternion(u, theta):
-        """ convert the axis angle rotation formulation to quaternion
+    def axis_to_euler_zxz(x, y, z):
+        """ Find the Euler angles of a given frame defined by x, y, z axis, following rotation sequence ZXZ.
+        Provides assumption for the gimbal lock problem.
 
         Parameters
         ----------
-        u :
-            rotation axix in format [ux, uy, uz]
-        theta :
-            angle of rotation in radians
+        x :
+            X Axis in format [Xx, Xy, Xz]
+        y :
+            Y Axis in format [Yx, Yy, Yz]
+        z :
+            Y Axis in format [Zx, Zy, Zz]
 
         Returns
         -------
-        quaternion [q1, q2, q3, q4]
+        tuple (psi, theta, phi) containing Euler angles in radians.
         """
-        un = GeometryOperators.normalize_vector(u)
-        s = math.sin(theta * 0.5)
-        q1 = math.cos(theta * 0.5)
-        q2 = un[0] * s
-        q3 = un[1] * s
-        q4 = un[2] * s
-        return [q1, q2, q3, q4]
+        x1 = x[0]
+        x2 = x[1]
+        x3 = x[2]
+        y3 = y[2]
+        z1 = z[0]
+        z2 = z[1]
+        z3 = z[2]
+        if z == [0, 0, 1]:
+            psi = GeometryOperators.atan2(x2, x1)
+            theta = 0.
+            phi = 0.
+        elif z == [0, 0, -1]:
+            psi = GeometryOperators.atan2(x2, x1)
+            theta = math.pi
+            phi = 0.
+        else:
+            psi = GeometryOperators.atan2(z1, -z2)
+            theta = math.acos(z3)
+            phi = GeometryOperators.atan2(x3, y3)
+        return psi, theta, phi
+
+    @staticmethod
+    @aedt_exception_handler
+    def axis_to_euler_zyz(x, y, z):
+        """ Find the Euler angles of a given frame defined by x, y, z axis, following rotation sequence ZYZ.
+        Provides assumption for the gimbal lock problem.
+
+        Parameters
+        ----------
+        x :
+            X Axis in format [Xx, Xy, Xz]
+        y :
+            Y Axis in format [Yx, Yy, Yz]
+        z :
+            Y Axis in format [Zx, Zy, Zz]
+
+        Returns
+        -------
+        tuple (psi, theta, phi) containing Euler angles in radians.
+        """
+        x1 = x[0]
+        x2 = x[1]
+        x3 = x[2]
+        y3 = y[2]
+        z1 = z[0]
+        z2 = z[1]
+        z3 = z[2]
+        if z == [0, 0, 1]:
+            psi = GeometryOperators.atan2(x2, x1)
+            theta = 0.
+            phi = 0.
+        elif z == [0, 0, -1]:
+            psi = GeometryOperators.atan2(x2, x1)
+            theta = math.pi
+            phi = 0.
+        else:
+            psi = GeometryOperators.atan2(z2, z1)
+            theta = math.acos(z3)
+            phi = GeometryOperators.atan2(y3, -x3)
+        return psi, theta, phi
 
     @staticmethod
     @aedt_exception_handler
@@ -646,7 +753,7 @@ class GeometryOperators(object):
         q4 = q[3]
         n = (q2*q2 + q3*q3 + q4*q4) ** 0.5
         u = [q2/n, q3/n, q4/n]
-        theta = math.atan2(n, q1)
+        theta = 2.0 * GeometryOperators.atan2(n, q1)
         return u, theta
 
     @staticmethod
@@ -694,10 +801,188 @@ class GeometryOperators(object):
         m13 = 2. * (q2*q4 + q1*q3)
         m23 = 2. * (q3*q4 - q1*q2)
         m33 = q1*q1 - q2*q2 - q3*q3 + q4*q4
-        m31 = 2 * (q2*q4 - q1*q3)
+        m31 = 2. * (q2*q4 - q1*q3)
         m32 = 2. * (q3*q4 + q1*q2)
-        psi = math.atan2(m13, -m23)
-        theta = math.atan2((1-m33*m33)**0.5, m33)
-        phi = math.atan2(m31, m32)
+        psi = GeometryOperators.atan2(m13, -m23)
+        theta = GeometryOperators.atan2((1.-m33*m33)**0.5, m33)
+        phi = GeometryOperators.atan2(m31, m32)
         return psi, theta, phi
 
+    @staticmethod
+    @aedt_exception_handler
+    def euler_zxz_to_quaternion(psi, theta, phi):
+        """ convert the Euler angles following rotation sequence ZXZ to quaternion representation
+
+        Parameters
+        ----------
+        psi :
+            Euler angle psi in radians
+        theta :
+            Euler angle theta in radians
+        phi :
+            Euler angle phi in radians
+
+        Returns
+        -------
+        quaternion in [q1, q2, q3, q4] list
+        """
+        t1 = psi
+        t2 = theta
+        t3 = phi
+        c = math.cos(t2 * 0.5)
+        s = math.sin(t2 * 0.5)
+        q1 = c * math.cos((t1+t3) * 0.5)
+        q2 = s * math.cos((t1-t3) * 0.5)
+        q3 = s * math.sin((t1-t3) * 0.5)
+        q4 = c * math.sin((t1+t3) * 0.5)
+        return [q1, q2, q3, q4]
+
+    @staticmethod
+    @aedt_exception_handler
+    def quaternion_to_euler_zyz(q):
+        """ convert the quaternion to Euler angles following rotation sequence ZYZ
+
+        Parameters
+        ----------
+        q :
+            quaternion [q1, q2, q3, q4]
+
+        Returns
+        -------
+        tuple (psi, theta, phi) containing Euler angles in radians.
+        """
+        q1 = q[0]
+        q2 = q[1]
+        q3 = q[2]
+        q4 = q[3]
+        m13 = 2. * (q2*q4 + q1*q3)
+        m23 = 2. * (q3*q4 - q1*q2)
+        m33 = q1*q1 - q2*q2 - q3*q3 + q4*q4
+        m31 = 2. * (q2*q4 - q1*q3)
+        m32 = 2. * (q3*q4 + q1*q2)
+        psi = GeometryOperators.atan2(m23, m13)
+        theta = GeometryOperators.atan2((1.-m33*m33)**0.5, m33)
+        phi = GeometryOperators.atan2(m32, -m31)
+        return psi, theta, phi
+
+    @staticmethod
+    @aedt_exception_handler
+    def euler_zyz_to_quaternion(psi, theta, phi):
+        """ convert the Euler angles following rotation sequence ZYZ to quaternion representation
+
+        Parameters
+        ----------
+        psi :
+            Euler angle psi in radians
+        theta :
+            Euler angle theta in radians
+        phi :
+            Euler angle phi in radians
+
+        Returns
+        -------
+        quaternion in [q1, q2, q3, q4] list
+        """
+        t1 = psi
+        t2 = theta
+        t3 = phi
+        c = math.cos(t2 * 0.5)
+        s = math.sin(t2 * 0.5)
+        q1 = c * math.cos((t1+t3) * 0.5)
+        q2 = -s * math.sin((t1-t3) * 0.5)
+        q3 = s * math.cos((t1-t3) * 0.5)
+        q4 = c * math.sin((t1+t3) * 0.5)
+        return [q1, q2, q3, q4]
+
+    @staticmethod
+    @aedt_exception_handler
+    def deg2rad(angle):
+        """ convert the angle from degrees to radians
+
+        Parameters
+        ----------
+        angle :
+            Angle in degrees
+
+        Returns
+        -------
+        Angle in radians
+        """
+        pi = math.pi
+        return angle / 180. * pi
+
+    @staticmethod
+    @aedt_exception_handler
+    def rad2deg(angle):
+        """ convert the angle from radians to degrees
+
+        Parameters
+        ----------
+        angle :
+            Angle in radians
+
+        Returns
+        -------
+        Angle in degrees
+        """
+        pi = math.pi
+        return angle * 180. / pi
+
+    @staticmethod
+    @aedt_exception_handler
+    def atan2(y, x):
+        """ implementation of atan2 that not suffer from this
+        math.atan2(0.0, 0.0) = 0.0
+        math.atan2(-0.0, 0.0) = -0.0
+        math.atan2(0.0, -0.0) = 3.141592653589793
+        math.atan2(-0.0, -0.0) = -3.141592653589793
+        and returns always 0.0
+
+        Parameters
+        ----------
+        y :
+            y parameter of atan2
+        x :
+            x parameter of atan2
+
+        Returns
+        -------
+        atan2(y, x)
+        """
+        eps = numpy.finfo(float).eps
+        if abs(y) < eps:
+            y = 0.0
+        if abs(x) < eps:
+            x = 0.0
+        return math.atan2(y, x)
+
+    @staticmethod
+    @aedt_exception_handler
+    def axis_angle_to_euler_zxz(u, theta):
+        """ convert the axis/angle to Euler angles following rotation sequence ZXZ
+
+        Parameters
+        ----------
+        u :
+            axis rotation
+        theta :
+            rotation angle
+
+        Returns
+        -------
+        tuple (psi, theta, phi) containing Euler angles in radians.
+        """
+        ux = u[0]
+        uy = u[1]
+        uz = u[2]
+        s = math.sin(theta)
+        c = math.cos(theta)
+        m13 = ux*uz*(1-c) + uy * s
+        m23 = uy*uz*(1-c) - ux * s
+        m33 = c + uz*uz*(1-c)
+        m31 = uz*ux*(1-c) - uy * s
+        m32 = uz*uy*(1-c) + ux * s
+        psi = GeometryOperators.atan2(m13, -m23)
+        theta = GeometryOperators.atan2((1.-m33*m33)**0.5, m33)
+        phi = GeometryOperators.atan2(m31, m32)
+        return psi, theta, phi
