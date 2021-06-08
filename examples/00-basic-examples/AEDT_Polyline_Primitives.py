@@ -18,7 +18,7 @@ from pyaedt.modeler.Primitives import Polyline, PolylineSegment
 # To get a new instance of the desktop, set AlwaysNew=True
 # To run the desktop in non-graphical mode, use NG=True
 
-desktop=Desktop(specified_version="2020.2", AlwaysNew=False, NG=False)
+desktop=Desktop(specified_version="2021.1", AlwaysNew=False, NG=False)
 
 
 # ### Create a Maxwell3D object  and set the unit type to mm
@@ -108,7 +108,7 @@ P = prim3D.draw_polyline(position_list=[start_point],
 
 # ##### Plot the polyline primitives
 
-store_path = r'C:\data\Projects\Porsche_Formula_E\01_Motor\02_Leaf_MotorCAD'
+store_path = r'C:\temp'
 M3D.post.export_model_picture(store_path, "temp", picturename="Model", ShowAxis=True, ShowGrid=True, ShowRuler=True)
 file_name = os.path.join(store_path, "temp", "Pictures", "Model.jpg")
 Image(file_name, width=500)
@@ -259,7 +259,7 @@ project_file = os.path.join(project_dir, project_name + '.aedt')
 
 M3D.save_project(project_file)
 
-M3D.close_desktop()
+desktop.force_close_desktop()
 
 
 

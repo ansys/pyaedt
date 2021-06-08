@@ -1020,6 +1020,50 @@ class Primitives(object):
         return False
 
     @aedt_exception_handler
+    def create_region(self, pad_percent):
+        """Create Air Region
+
+        Parameters
+        ----------
+        pad_percent :
+            Pad Percent List
+
+        Returns
+        -------
+        type
+            object Id
+
+        """
+        if "Region" in self.get_all_objects_names():
+            return None
+        id = self._new_id()
+        obj = self.objects[id]
+        arg = ["NAME:RegionParameters"]
+        p = ["+X", "+Y", "+Z", "-X", "-Y", "-Z"]
+        i = 0
+        for pval in p:
+            pvalstr = str(pval) + "PaddingType:="
+            qvalstr = str(pval) + "Padding:="
+            arg.append(pvalstr)
+            arg.append("Percentage Offset")
+            arg.append(qvalstr)
+            arg.append(str(pad_percent[i]))
+            i += 1
+        arg2 = ["NAME:Attributes", "Name:=", "Region", "Flags:=", "Wireframe#", "Color:=", "(143 175 143)",
+                "Transparency:=", 0, "PartCoordinateSystem:=", "Global", "UDMId:=", "", "Materiaobjidue:=",
+                "\"air\"", "SurfaceMateriaobjidue:=", "\"\"", "SolveInside:=", True, "IsMaterialEditable:=", True,
+                "UseMaterialAppearance:=", False, "IsLightweight:=", False]
+        self.oeditor.CreateRegion(arg, arg2)
+        obj.name = "Region"
+        obj.solve_inside = True
+        obj.transparency = 0
+        obj.wireframe = True
+        id = self._update_object(obj)
+        self.objects[id] = obj
+        return id
+
+
+    @aedt_exception_handler
     def create_object_from_edge(self, edgeID):
         """Create object from Edge
 
