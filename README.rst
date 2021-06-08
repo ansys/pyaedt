@@ -29,6 +29,18 @@ This figure shows an overview of the pyAEDT architecture for 3D solvers:
 
     PyAEDT Architecture Overview for 3D Solvers
 
+Documentation and Issues
+-----------------------------------
+See the `Documentation <https://aedtdocs.pyansys.com>`_ page for more
+details, and the `Examples gallery
+<https://aedtdocs.pyansys.com/examples/index.html>`_ for some
+examples.
+
+Please feel free to post issues and other questions at `PyAedt Issues
+<https://github.com/pyansys/pyaedt/issues>`_.  This is the best place
+to post questions and code.
+
+
 Project Transition - Legacy Support
 -----------------------------------
 This project was formerly known as AEDTLib, and we'd like to thank all the early adopters, contributors, and users who submitted issues, gave feedback, and contributed code through the years. The pyaedt project has been taken up Ansys and will be leveraged in creating new Pythonic, cross-platform, and multi-language service based interfaces for Ansys's products. Your contributions to PyAEDT have shaped it into a better solution.
