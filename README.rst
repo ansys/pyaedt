@@ -9,7 +9,6 @@ PyAEDT is licensed under the `MIT License
 This tool includes functionality to interact with these AEDT tools: HFSS, Icepak,
 Maxwell 3D, and Q3D.
 
-
 What is PyAEDT?
 -----------------
 PyAEDT is a Python library that interacts directly with the AEDT API
