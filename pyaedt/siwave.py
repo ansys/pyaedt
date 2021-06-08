@@ -2,12 +2,8 @@
 Siwave Class
 ----------------
 
-
-Description
-==========
-
-This class initialize Siwave, MessageManager and manage Siwave Release and Closing.
-It can be initialized in standalone way before launching an app or it is automatically initialized by the APP to latest installed AEDT version
+This class initializes Siwave and MessageManager and manages Siwave release and closing.
+It can be initialized as standalone before launching an app or automatically initialized by an app to the latest installed AEDT version.
 
 
 

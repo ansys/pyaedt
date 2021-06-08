@@ -20,6 +20,7 @@ import random
 from collections import OrderedDict
 from .Primitives2D import Primitives2D
 from .Primitives3D import Primitives3D
+from .Primitives import Polyline, PolylineSegment
 from .GeometryOperators import GeometryOperators
 from ..application.Variables import AEDT_units
 from ..generic.general_methods import generate_unique_name, retry_ntimes, aedt_exception_handler
@@ -826,27 +827,27 @@ class GeometryModeler(Modeler, object):
         offset = [i for i in start]
         if divmod(axisdir,3)[1] == 0:
             self.find_point_around(objectname,offset, sheet_dim, self._parent.CoordinateSystemPlane.YZPlane)
-            p1 = self.primitives.create_polyline([self.Position(start), self.Position(offset)])
-            p2 = self.primitives.create_polyline([self.Position(start), self.Position(offset)])
+            p1 = self.primitives.draw_polyline([self.Position(start), self.Position(offset)])
+            p2 = self.primitives.draw_polyline([self.Position(start), self.Position(offset)])
             self.translate(p2, [axisdist, 0, 0])
             self.connect([p1,p2])
             #rect = self.primitives.create_rectangle(self._parent.CoordinateSystemPlane.XYPlane,  start,pos)
         elif divmod(axisdir,3)[1]== 1:
             self.find_point_around(objectname,offset, sheet_dim, self._parent.CoordinateSystemPlane.ZXPlane)
-            p1 = self.primitives.create_polyline([self.Position(start), self.Position(offset)])
-            p2 = self.primitives.create_polyline([self.Position(start), self.Position(offset)])
-            self.translate(p2, [0, axisdist, 0])
-            self.connect([p1,p2])
+            p1 = self.primitives.draw_polyline([self.Position(start), self.Position(offset)])
+            p2 = self.primitives.draw_polyline([self.Position(start), self.Position(offset)])
+            self.translate(p2.id, [0, axisdist, 0])
+            self.connect([p1.id, p2.id])
             #rect = self.primitives.create_rectangle(self._parent.CoordinateSystemPlane.YZPlane,start,pos)
         elif divmod(axisdir,3)[1] == 2:
             self.find_point_around(objectname,offset, sheet_dim, self._parent.CoordinateSystemPlane.XYPlane)
-            p1 = self.primitives.create_polyline([self.Position(start), self.Position(offset)])
-            p2 = self.primitives.create_polyline([self.Position(start), self.Position(offset)])
-            self.translate(p2, [0,0,axisdist])
-            self.connect([p1,p2])
+            p1 = self.primitives.draw_polyline([self.Position(start), self.Position(offset)])
+            p2 = self.primitives.draw_polyline([self.Position(start), self.Position(offset)])
+            self.translate(p2.id, [0,0,axisdist])
+            self.connect([p1.id, p2.id])
             #rect = self.primitives.create_rectangle(self._parent.CoordinateSystemPlane.ZXPlane,start,pos)
 
-        return p1
+        return p1.id
 
     @aedt_exception_handler
     def _get_faceid_on_axis(self, objname, axisdir):
@@ -1372,29 +1373,29 @@ class GeometryModeler(Modeler, object):
         return True
 
     @aedt_exception_handler
-    def sweep_along_vector(self, objid, sweepVector, sweepoptions):
+    def sweep_along_vector(self, objid, sweep_vector, draft_angle=0, draft_type="Round"):
         """Sweep selection along vector
-        #TODO TEST
 
         Parameters
         ----------
-        objid :
+        objid : str, int
             if str, it is considered an objecname. if Int it is considered an object id
-        sweepVector :
+        sweep_vector :
             Application.Position object
-        sweepoptions :
-            Application.SweepOptions object
-
+        draft_angle : float
+            Draft Angle
+        draft_type : str
+            Draft Type. Default Round
         Returns
         -------
-
+        bool
         """
         selections = self.convert_to_selections(objid)
-        vectorx, vectory, vectorz = self.primitives.pos_with_arg(sweepVector)
+        vectorx, vectory, vectorz = self.primitives.pos_with_arg(sweep_vector)
         vArg1 = ['NAME:Selections', 'Selections:=', selections, 'NewPartsModelFlag:=', 'Model']
         vArg2 = ["NAME:VectorSweepParameters"]
-        vArg2.append('DraftAngle:='), vArg2.append(self.primitives.arg_with_dim(sweepoptions.DraftAngle, 'deg'))
-        vArg2.append('DraftType:='), vArg2.append(GeometryOperators.draft_type_str(sweepoptions.DraftType))
+        vArg2.append('DraftAngle:='), vArg2.append(self.primitives.arg_with_dim(draft_angle, 'deg'))
+        vArg2.append('DraftType:='), vArg2.append(GeometryOperators.draft_type_str(draft_type))
         vArg2.append('SweepVectorX:='), vArg2.append(vectorx)
         vArg2.append('SweepVectorY:='), vArg2.append(vectory)
         vArg2.append('SweepVectorZ:='), vArg2.append(vectorz)
@@ -1404,7 +1405,39 @@ class GeometryModeler(Modeler, object):
         return True
 
     @aedt_exception_handler
-    def sweep_around_axis(self, objid, cs_axis, sweepAngle, sweepoptions):
+    def sweep_along_path(self, objid, sweep_object, draft_angle=0, draft_type="Round", is_check_face_intersection=False, twist_angle=0):
+        """Sweep selection along vector
+
+        Parameters
+        ----------
+        objid: str, int
+            if str, it is considered an objecname. if Int it is considered an object id
+        sweep_object: if str, it is considered an objecname. if Int is considered an object id
+        draft_angle : float
+            Draft Angle
+        draft_type : str
+            Draft Type. Default "Round"
+        is_check_face_intersection: Boolean, False by default
+        twist_angle: Float Angle in degres, 0 by default
+
+        Returns
+        -------
+        bool
+        """
+        selections = self.convert_to_selections(objid) + "," + self.convert_to_selections(sweep_object)
+        vArg1 = ['NAME:Selections', 'Selections:=', selections, 'NewPartsModelFlag:=', 'Model']
+        vArg2 = ["NAME:PathSweepParameters"]
+        vArg2.append('DraftAngle:='), vArg2.append(self.primitives.arg_with_dim(draft_angle, 'deg'))
+        vArg2.append('DraftType:='), vArg2.append(GeometryOperators.draft_type_str(draft_type))
+        vArg2.append('CheckFaceFaceIntersection:='), vArg2.append(is_check_face_intersection)
+        vArg2.append('TwistAngle:='), vArg2.append(str(twist_angle) + 'deg')
+
+        self.oeditor.SweepAlongPath(vArg1, vArg2)
+        return True
+
+
+    @aedt_exception_handler
+    def sweep_around_axis(self, objid, cs_axis, sweep_angle=0, draft_angle=0):
         """Sweep selection aroun axis
         #TODO TEST
 
@@ -1414,10 +1447,10 @@ class GeometryModeler(Modeler, object):
             if str, it is considered an objecname. if Int it is considered an object id
         cs_axis :
             Application.CoordinateSystemAxis object
-        sweepAngle :
-            float. Sweep Angle in degrees
-        sweepoptions :
-            Application.SweepOptions object
+        sweep_angle : float
+             Sweep Angle in degrees
+        draft_angle : float
+            Draft Angle
 
         Returns
         -------
@@ -1425,13 +1458,12 @@ class GeometryModeler(Modeler, object):
         """
         selections = self.convert_to_selections(objid)
 
-        draftAngle = sweepoptions.DraftAngle
 
         vArg1 = ['NAME:Selections', 'Selections:=', selections, 'NewPartsModelFlag:=', 'Model']
         vArg2 = ['NAME:AxisSweepParameters', 'CoordinateSystemID:=', -1, 'DraftAngle:=',
-                 self.primitives.arg_with_dim(draftAngle, 'deg'),
+                 self.primitives.arg_with_dim(draft_angle, 'deg'),
                  'DraftType:=', 'Round', 'CheckFaceFaceIntersection:=', False, 'SweepAxis:=', GeometryOperators.cs_axis_str(cs_axis),
-                 'SweepAngle:=', self.primitives.arg_with_dim(sweepAngle, 'deg'), 'NumOfSegments:=', '0']
+                 'SweepAngle:=', self.primitives.arg_with_dim(sweep_angle, 'deg'), 'NumOfSegments:=', '0']
 
         self.oeditor.SweepAroundAxis(vArg1, vArg2)
 
@@ -2580,19 +2612,23 @@ class GeometryModeler(Modeler, object):
             if dist < rad:
                 rad = dist
                 move_vector = GeometryOperators.v_sub(fc, first_vert)
+
+        P = self.primitives.get_existing_polyline(object_id=new_edges[0])
+
         if edge_to_delete:
-            self.primitives.delete_edges_from_polilyne(new_edges[0], edge_to_delete)
+            P.remove_edges(edge_to_delete)
+            #self.primitives.delete_edges_from_polilyne(new_edges[0], edge_to_delete)
+
         angle = math.pi * (180 -360/numberofsegments)/360
 
-        status = self.primitives.create_polyline_with_crosssection(self.primitives.get_obj_name(new_edges[0]),
-                                                                 "Circle", (rad*(2-math.sin(angle))) * 2, numberofsegments)
+        status = P.set_crosssection_properties(type="Circle", num_seg=numberofsegments,
+                                               width=(rad*(2-math.sin(angle))) * 2)
         if status:
             self.translate(new_edges[0], move_vector)
             self.set_object_model_state(bondname, False)
             return new_edges[0]
         else:
             return False
-
 
     @aedt_exception_handler
     def get_entitylist_id(self, name):

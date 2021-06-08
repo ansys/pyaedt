@@ -1,6 +1,6 @@
 from ..generic.general_methods import aedt_exception_handler
 from .Object3d import Object3d
-from .Primitives import Primitives
+from .Primitives import Primitives, Polyline
 from .GeometryOperators import GeometryOperators
 import os
 
@@ -13,7 +13,7 @@ class Primitives3D(Primitives, object):
     @aedt_exception_handler
     def create_box(self, position, dimensions_list, name=None, matname=None):
         """Create a Box
-        
+
 
         Parameters
         ----------
@@ -33,7 +33,7 @@ class Primitives3D(Primitives, object):
 
         Examples
         _________
-        >>> from pyaedt import HFSS
+        >>> from pyaedt import hfss
         >>> hfss = HFSS()
         >>> origin = [0,0,0]
         >>> dimensions = [10,5,20]
@@ -63,6 +63,37 @@ class Primitives3D(Primitives, object):
             vArg2 = o.export_attributes_legacy(name)
         o.name = self.oeditor.CreateBox(vArg1, vArg2)
         id = self._update_object(o)
+        return id
+
+
+    @aedt_exception_handler
+    def create_region(self, pad_percent):
+        if "Region" in self.get_all_objects_names():
+            return None
+        id = self._new_id()
+        obj = self.objects[id]
+        arg = ["NAME:RegionParameters"]
+        p = ["+X", "+Y", "+Z", "-X", "-Y", "-Z"]
+        i = 0
+        for pval in p:
+            pvalstr = str(pval) + "PaddingType:="
+            qvalstr = str(pval) + "Padding:="
+            arg.append(pvalstr)
+            arg.append("Percentage Offset")
+            arg.append(qvalstr)
+            arg.append(str(pad_percent[i]))
+            i += 1
+        arg2 = ["NAME:Attributes", "Name:=", "Region", "Flags:=", "Wireframe#", "Color:=", "(143 175 143)",
+                "Transparency:=", 0, "PartCoordinateSystem:=", "Global", "UDMId:=", "", "Materiaobjidue:=",
+                "\"air\"", "SurfaceMateriaobjidue:=", "\"\"", "SolveInside:=", True, "IsMaterialEditable:=", True,
+                "UseMaterialAppearance:=", False, "IsLightweight:=", False]
+        self.oeditor.CreateRegion(arg, arg2)
+        obj.name = "Region"
+        obj.solve_inside = True
+        obj.transparency = 0
+        obj.wireframe = True
+        id = self._update_object(obj)
+        self.objects[id] = obj
         return id
 
     @aedt_exception_handler
@@ -266,7 +297,7 @@ class Primitives3D(Primitives, object):
         Parameters
         ----------
         udpequationbasedcurveddefinition :
-            
+
         name :
              (Default value = None)
         matname :
@@ -296,7 +327,7 @@ class Primitives3D(Primitives, object):
         Parameters
         ----------
         udphelixdefinition :
-            
+
 
         Returns
         -------
@@ -316,54 +347,6 @@ class Primitives3D(Primitives, object):
         self.oeditor.CreateHelix(vArg1, vArg2)
         id = self._update_object(o)
         return id
-
-    @aedt_exception_handler
-    def create_polyline_with_crosssection(self, polylinename, crosssectiontype="Rectangle", width=1, height=1,
-                                          bendtype="Corner", orientation="Auto"):
-        """Create a 3D object from polyline and sheet
-
-        Parameters
-        ----------
-        polylinename :
-            name of polyline
-        crosssectiontype :
-            type of crossection. "Rectangle", "Circle"... (Default value = "Rectangle")
-        width :
-            width of crossection (Default value = 1)
-        height :
-            height of crosssection if Rectangle. Number of Segments if Circle (Default value = 1)
-        bendtype :
-            bend type. Default "Corner".
-        orientation :
-            orientation. Default "Auto"
-
-        Returns
-        -------
-        type
-            Bool
-
-        """
-        arg1 = ["NAME:AllTabs"]
-        arg2 = ["NAME:Geometry3DCmdTab", ["NAME:PropServers", polylinename + ":CreatePolyline:1"]]
-        arg3 = ["NAME:ChangedProps"]
-        arg3.append(["NAME:Type", "Value:=", crosssectiontype])
-        arg3.append(["NAME:Orientation", "Value:=", orientation])
-        arg3.append(["NAME:Bend Type", "Value:=", bendtype])
-        arg3.append(["NAME:Width/Diameter", "Value:=", self.arg_with_dim(width)])
-        if crosssectiontype == "Rectangle":
-            arg3.append(["NAME:Height", "Value:=", self.arg_with_dim(height)])
-        elif crosssectiontype == "Circle":
-            arg3.append(["NAME:Number of Segments", "Value:=", int(height)])
-        elif crosssectiontype == "Isosceles Trapezoid":
-            arg3.append(["NAME:Top Width", "Value:=", self.arg_with_dim(width)])
-            arg3.append(["NAME:Height", "Value:=", self.arg_with_dim(height)])
-        arg2.append(arg3)
-        arg1.append(arg2)
-        self.oeditor.ChangeProperty(arg1)
-        objid = self.get_obj_id(polylinename)
-        self.objects[objid].is3d = True
-        self.objects[objid].object_type = "Solid"
-        return True
 
     @aedt_exception_handler
     def convert_segments_to_line(self, object_name):
@@ -405,35 +388,7 @@ class Primitives3D(Primitives, object):
         return True
 
     @aedt_exception_handler
-    def delete_edges_from_polilyne(self, objectname, edge_to_delete):
-        """Delete edges in a polilyne
-
-        Parameters
-        ----------
-        objectname :
-            name of the polyline
-        edge_to_delete :
-            list of ids of edge in polynes. it is an integer from 0 to (num_edges of the polyline-1)
-
-        Returns
-        -------
-        type
-            Bool
-
-        """
-        if type(objectname) is int:
-            objectname = self.objects[objectname].name
-
-        self.oeditor.DeletePolylinePoint(
-            [
-                "NAME:Delete Point",
-                "Selections:=", objectname + ":CreatePolyline:1",
-                "Segment Indices:=", edge_to_delete,
-                "At Start:=", False])
-        return True
-
-    @aedt_exception_handler
-    def create_rectangle(self, cs_plane, position, dimension_list, name=None, matname=None):
+    def create_rectangle(self, csPlane, position, dblList, name=None, matname=None):
         """Create a rectangle
 
         Parameters
@@ -455,16 +410,13 @@ class Primitives3D(Primitives, object):
             id
 
         """
-        id = self._new_id()
+        o = self.request_new_object(matname=matname)
 
-        o = self.objects[id]
-        o.material_name, o.solve_inside = self._check_material(matname, self.defaultmaterial)
-
-        szAxis = GeometryOperators.cs_plane_str(cs_plane)
+        szAxis = GeometryOperators.cs_plane_str(csPlane)
         XStart, YStart, ZStart = self.pos_with_arg(position)
 
-        Width = self.arg_with_dim(dimension_list[0])
-        Height = self.arg_with_dim(dimension_list[1])
+        Width = self.arg_with_dim(dblList[0])
+        Height = self.arg_with_dim(dblList[1])
 
         vArg1 = ["NAME:RectangleParameters"]
         vArg1.append("XStart:="), vArg1.append(XStart)

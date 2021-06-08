@@ -1448,6 +1448,8 @@ class PostProcessor(object):
         """
 
         # Setup arguments list for createReport function
+        if not os.path.exists(dir + "//" + name):
+            os.mkdir(dir + "//" + name)
         if not os.path.exists(dir + "//" + name + "//Pictures"):
             os.mkdir(dir + "//" + name + "//Pictures")
 

@@ -3,7 +3,8 @@
 HFSS-Icepack Coupling Analysis
 --------------------------------------------
 This Example shows how to create a full project from scratch in HFSS and Icepak (linked to HFSS). the project creates
-a setup, solves it and create post processing output. It includes a lot of commands to show pyaedt Capabilitiesn
+a setup, solves it and create post processing output. It includes a lot of commands to show pyaedt Capabilities
+This Example needs PyVista, numpy and matplotlib,  to be installed on the machine to provide advanced post processing features
 """
 
 
@@ -11,8 +12,7 @@ a setup, solves it and create post processing output. It includes a lot of comma
 import os
 import sys
 import pathlib
-import glob
-from IPython.display import Image
+
 
 local_path = os.path.abspath('')
 module_path = pathlib.Path(local_path)
