@@ -59,7 +59,7 @@ AEDT_MAPS = {
 
 
 def from_rkm(code):
-    """Convert a RKM code string to a string with decimal point.
+    """Convert a RKM code string to a string with a decimal point.
 
     Parameters
     ----------
@@ -69,7 +69,7 @@ def from_rkm(code):
     Returns
     -------
     str
-        String with decimal point and R value.
+        String with a decimal point and R value.
 
     Examples
     --------
@@ -100,7 +100,7 @@ def from_rkm(code):
 
     """
 
-    # matches rkm codes that start with a digit
+    # Matches RKM codes that start with a digit.
     # fd_pattern = r'([0-9]+)([LREkKMGTFmuµUnNpP]+)([0-9]*)'
     fd_pattern = r'([0-9]+)([{}]+)([0-9]*)'.format(''.join(RKM_MAPS.keys()),)
     # matches rkm codes that end with a digit
@@ -158,22 +158,22 @@ def from_rkm_to_aedt(code):
 
 
 class Circuit(FieldAnalysisCircuit, object):
-    """Circuit Object
+    """Circuit object.
 
     Parameters
     ----------
     projectname : str, optional
-        Name of the project to be selected or full path to the project
-        to be opened or to the AEDTZ archive. If ``None``, try to get
-        active project and, if nothing present to create an empty one.
+        Name of the project to select or the full path to the project
+        or AEDTZ archive to open. If ``None``, try to get the
+        active project and, if no project is present, create an empty project.
     designname : str, optional
-        Name of the design to be selected. if ``None``, try to get
-        active design and, if nothing present to create an empty one.
+        Name of the design to select. If ``None``, try to get the
+        active design and, if no design is present, create an empty design.
     solution_type : str, optional
-        Solution type to be applied to design. If ``None``, the default is used.
+        Solution type to apply to the design. If ``None``, the default is used.
     setup_name : str, optional
-        Setup_name to be used as nominal. If ``None`` active setup is
-        used or nothing.
+        Setup_name to use as nominal. If ``None``, the active setup is
+        used or nothing is used.
 
     """
 
@@ -195,7 +195,7 @@ class Circuit(FieldAnalysisCircuit, object):
 
     @aedt_exception_handler
     def create_schematic_from_netlist(self, file_to_import):
-        """Create a Circuit Schematic from a spice netlist.
+        """Create a circuit schematic from a spice netlist.
 
         Supported in this moment:
         -R, L, C, Diodes, Bjts
@@ -396,15 +396,15 @@ class Circuit(FieldAnalysisCircuit, object):
 
     @aedt_exception_handler
     def create_schematic_from_mentor_netlist(self, file_to_import):
-        """Create a Circuit Schematic from a Mentor netlist.
-        Supported in this moment:
+        """Create a circuit schematic from a Mentor netlist.
+        Supported currently:
         -R, L, C, Diodes, Bjts
         -Discrete components with syntax Uxxx net1 net2 ... netn modname
 
         Parameters
         ----------
         file_to_import : str
-            Full path to spice file.
+            Full path to the spice file.
 
         Returns
         -------
@@ -441,8 +441,8 @@ class Circuit(FieldAnalysisCircuit, object):
 
         column_number = int(math.sqrt(len(comps)))
         for el in comps:
-            name = el[2].strip()   #Remove carriage return
-            name = name[1:-1]      #remove quotes
+            name = el[2].strip()   #Remove carriage return.
+            name = name[1:-1]      #Remove quotes.
             if len(el) > 3:
                 comptype = el[3]
             else:
@@ -522,7 +522,7 @@ class Circuit(FieldAnalysisCircuit, object):
 
     @aedt_exception_handler
     def retrieve_mentor_comp(self, refid):
-        """Identifies from the reference ID which type of component is (from Mentor Netlist)
+        """Identifies from the reference ID the type of Mentor Netlist component.
 
         Parameters
         ----------
@@ -595,7 +595,7 @@ class Circuit(FieldAnalysisCircuit, object):
 
     @aedt_exception_handler
     def import_touchsthone_solution(self, filename, solution_name="Imported_Data"):
-        """ Import Touchstone file as solution
+        """ Import Touchstone file as the solution.
 
         Parameters
         ----------
@@ -652,19 +652,19 @@ class Circuit(FieldAnalysisCircuit, object):
     #                           passivity=False, causality=False, renormalize=False, impedance=50, error=0.5,
     #                           poles=10000):
     #     """
-    #     This method doesn't work actually
-    #     Export Full Wave Spice using NDE
+    #     This method doesn't work.
+    #     Export Full Wave Spice using NDE.
     #
     #     Parameters
     #     ----------
     #     designname : str
-    #             name of the design or the solution file full path if it is an imported file
+    #             Name of the design or the solution file full path if it is an imported file.
     #     setupname : str
-    #             name of setup if is a design
+    #             Name of setup if it is a design.
     #     is_solution_file: bool
-    #             True if it is an imported solution
+    #             True if it is an imported solution.
     #     filename: str
-    #             full path to exported sp file
+    #             Full path to the exported sp file.
     #     passivity: bool
     #     causality: bool
     #     renormalize: bool
@@ -678,7 +678,7 @@ class Circuit(FieldAnalysisCircuit, object):
     #     Returns
     #     -------
     #     str
-    #         filename if the export if successful
+    #         The file name if the export is successful.
     #     """
     #     if not designname:
     #         designname = self.design_name
@@ -718,18 +718,18 @@ class Circuit(FieldAnalysisCircuit, object):
 
     @aedt_exception_handler
     def create_touchstone_report(self,plot_name, curvenames, solution_name=None, variation_dict=None):
-        """Create a touchstone plot
+        """Create a touchstone plot.
 
         Parameters
         ----------
         plot_name : str
-            name of the plot
+            Name of the plot.
         curvenames : str
-            list of curves to plot
+            List of the curves to plot.
         solution_name : str
-            name of solution (Default value = None)
+            Name of the solution. The default value is ``None``.
         variation_dict : dict
-            name of variations (Default value = None)
+            Names of the variations. The default value is ``None``.
 
         Returns
         -------
