@@ -77,5 +77,5 @@ steps:
   condition: contains(variables['Build.SourceBranch'], 'refs/tags/')
   env:
     TWINE_USERNAME: __token__
-    TWINE_PASSWORD: $(twine.token)
+    TWINE_PASSWORD: $(PYPI_TOKEN)
     TWINE_REPOSITORY_URL: "https://upload.pypi.org/legacy/"
