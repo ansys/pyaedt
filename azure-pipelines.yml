@@ -68,7 +68,14 @@ steps:
 
 - script: |
     pip install twine
-    python setup.py sdist
-    twine upload --skip-existing dist/*
-  displayName: 'Upload to PyPi when tagged'
-  condition: contains(variables['Build.SourceBranch'], 'refs/tags/')
+    twine check dist/*
+  displayName: 'Verify package'
+
+- script: |
+    twine upload --skip-existing dist/*.tar.gz
+  displayName: 'Upload to package PyPi'
+  condition: contains(variables['Build.SourceBranchName'], 'refs/tags/')
+  env:
+    TWINE_USERNAME: __token__
+    TWINE_PASSWORD: $(PYPI_TOKEN)
+    TWINE_REPOSITORY_URL: "https://upload.pypi.org/legacy/"
