@@ -7,13 +7,13 @@ This class contains all EDB functionalities. It inherits all objects that belong
 This class is implicitily loaded in HFSS 3D Layout when launched.
 
 
-Examples:
+Examples
 __________
 
-app = Edb()     Creates an ``Edb`` object and creates a new EDB cell.
+>>> app = Edb()     Create an ``Edb`` object and a new EDB cell.
 
 
-app = Edb("myfile.aedb")     Creates an ``Edb`` object and opens the specified project.
+>>> app = Edb("myfile.aedb")     Create an ``Edb`` object and open the specified project.
 """
 
 import os
@@ -34,7 +34,7 @@ try:
         _ironpython = True
     edb_initialized = True
 except ImportError:
-    warnings.warn("The clr is missing. Install Pythonnet or use Ironpython version if you want to use EDB Module")
+    warnings.warn("The clr is missing. Install Pythonnet or use an Ironpython version if you want to use the EDB Module.")
     edb_initialized = False
 
 
@@ -45,20 +45,20 @@ from .generic.general_methods import get_filename_without_extension, generate_un
 
 
 class Edb(object):
-    """EDB Object
+    """EDB object
 
     Parameters
     ----------
     edbpath :
-        full path to aedb folder
+        Full path to the ``aedb`` folder.
     cellname :
-        name of the cell to be selected.
+        Name of the cell to select.
     isreadonly :
-        True in case edb_core is opened in read-only mode (when owned by 3DLayout)
+        ``True`` if ``edb_core` is open in read-only mode (when owned by 3D Layout).
     edbversion :
-        version of edb_core to use. Default "2020.1"
+        Version of ``edb_core`` to use. The default is ``2020.1``.
     isaedtowned :
-        True if edb_core is launched from 3dLayout
+        True if ``edb_core`` is launched from 3D Layout.
 
     Returns
     -------
@@ -136,7 +136,7 @@ class Edb(object):
         Parameters
         ----------
         init_dlls :
-             (Default value = False)
+             The default value is ``False``.
 
         Returns
         -------
@@ -159,21 +159,21 @@ class Edb(object):
 
     @aedt_exception_handler
     def import_layout_pcb(self, input_file, working_dir, init_dlls=False):
-        """this function import a brd file and generate a edb.def file in working dir
+        """This function imports a brd file and generates an ``edb.def`` file in the working directory.
 
         Parameters
         ----------
         input_file :
-            full path to brd file
+            Full path to the brd file.
         working_dir :
-            working dir where the aedb folder will be created. aedb name will be the same as brd name
+            Directory in which to create the ``aedb`` folder. The aedb name will be the same as the brd name.
         init_dlls :
              (Default value = False)
 
         Returns
         -------
         type
-            aedbfile full path
+            The full path for the aedb file.
 
         """
         if init_dlls:
@@ -241,7 +241,7 @@ class Edb(object):
             self.edb_exception(ex_value, ex_traceback)
 
     def edb_exception(self, ex_value, tb_data):
-        """writes the trace stack to the desktop when a python error occurs
+        """Writes the trace stack to the desktop when a python error occurs.
 
         Parameters
         ----------
@@ -456,14 +456,14 @@ class Edb(object):
 
     @aedt_exception_handler
     def import_cadence_file(self, inputBrd, WorkDir=None):
-        """this function import a brd file and generate a edb.def file in working dir
+        """This function imports a brd file and generates an ``edb.def` file in the working directory.
 
         Parameters
         ----------
         inputBrd :
-            full path to brd file
+            Full path to the brd file.
         WorkDir :
-            working dir where the aedb folder will be created. aedb name will be the same as brd name (Default value = None)
+            The directory in which to create the ``aedb`` folder. The aedb name will be the same as the brd name. The default value is ``None``.
 
         Returns
         -------
@@ -478,19 +478,19 @@ class Edb(object):
 
     @aedt_exception_handler
     def import_gds_file(self, inputGDS, WorkDir=None):
-        """this function import a brd file and generate a edb.def file in working dir
+        """This function imports a brd file and generates an ``edb.def` file in the working directory.
 
         Parameters
         ----------
         inputGDS :
-            full path to brd file
+            Full path to the brd file.
         WorkDir :
-            working dir where the aedb folder will be created. aedb name will be the same as brd name (Default value = None)
+            The directory in which to create the ``aedb` folder. The aedb name will be the same as the brd name. Tge default value is ``None``.
 
         Returns
         -------
         type
-            aedbfile full path
+            The full path to the aedb file.
 
         """
         if self.import_layout_pcb(inputBrd, working_dir=WorkDir):
@@ -502,7 +502,7 @@ class Edb(object):
 
     # def get_padstack_data_parameters(self, PadStackDef):
     #     """
-    #     Get all the Padstak Data Parameter
+    #     Get all Padstak data parameters.
     #
     #
     #     :param PadStackDef:  Padstack Definition object
@@ -540,17 +540,17 @@ class Edb(object):
 
     @aedt_exception_handler
     def get_rlc_from_signal_nets(self, CmpDict=None):
-        """Get RLC from signal Nets
+        """Get RLC from signal Nets.
 
         Parameters
         ----------
         CmpDict :
-            dictionary of components (Default value = None)
+            Dictionary of components. The default value is ``None``.
 
         Returns
         -------
         type
-            list of components that belongs to signal nets
+            List of components that belong to signal Nets.
 
         """
         # CmpInf = self.GetCmpInf(layout)
@@ -564,17 +564,17 @@ class Edb(object):
 
     @aedt_exception_handler
     def is_power_gound_net(self, NetNameList):
-        """Return a True if one of the net in the list is power or ground
+        """Return ``True`` if one of the nets in the list is power or ground.
 
         Parameters
         ----------
         NetNameList :
-            list of net names
+            List of net names.
 
         Returns
         -------
         type
-            True if one of net name is power or ground
+            ``True`` if one of net names is power or ground.
 
         """
         for nn in range(len(NetNameList)):
@@ -585,17 +585,17 @@ class Edb(object):
 
     @aedt_exception_handler
     def get_rl_from_nets(self, CmpDict):
-        """Return an array of components with RL based on a Component Dictionary
+        """Return an array of components with RL based on a component dictionary.
 
         Parameters
         ----------
         CmpDict :
-            Input Component Dictionary
+            Input component dictionary
 
         Returns
         -------
         type
-            Componenet nets for component dictionary
+            Componenet nets for the component dictionary.
 
         """
         RlFromNets = {}
@@ -607,19 +607,19 @@ class Edb(object):
 
     @aedt_exception_handler
     def get_rl_for_DC_path(self, CmpDict, ResMaxValue=10):
-        """Return the Rl DC Path of a specific dictionary list
+        """Return the Rl DC path of a specific dictionary list.
 
         Parameters
         ----------
         CmpDict :
-            dictionary of components
+            Dictionary of components.
         ResMaxValue :
-            max value of Resistance to be considered in DC Path (Default value = 10)
+            Maximum value of resistance to consider in the DC path. The default value is ``10``.
 
         Returns
         -------
         type
-            Dictionary of components with nets
+            Dictionary of components with nets.
 
         """
         RlDCPath = {}
@@ -725,7 +725,7 @@ class Edb(object):
 
         positivePins = self.get_pin_from_component(component, positiveNetName)
         if positivePins is None:
-            self._messenger.add_error_message('Failed to get positive pins when dissolving component')
+            self._messenger.add_error_message('Failed to get positive pins when dissolving component.')
             return returnOnError
         if len(positivePins) < 1:
             self._messenger.add_error_message('No positive pins in net {} on component {}'.format(positiveNetName, component.GetName()))
@@ -733,10 +733,10 @@ class Edb(object):
 
         negativePins = self.get_pin_from_component(component, negativeNetName)
         if negativePins is None:
-            self._messenger.add_error_message('Failed to get negative pins when dissolving component')
+            self._messenger.add_error_message('Failed to get negative pins when dissolving component.')
             return returnOnError
         if len(negativePins) < 1:
-            self._messenger.add_error_message('No negative pins in net {} on component {}'.format(negativeNetName, component.GetName()))
+            self._messenger.add_error_message('No negative pins are present in net {} on component {}'.format(negativeNetName, component.GetName()))
             return returnOnError
 
         for pin in positivePins + negativePins:
