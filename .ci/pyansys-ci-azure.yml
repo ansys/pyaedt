@@ -53,8 +53,8 @@ jobs:
       downloadDirectory: '$(System.DefaultWorkingDirectory)/aedt'
       feedsToUse: 'internal'
       vstsFeed: '705e121a-9631-49f5-8aaf-c7142856f923'
-      vstsFeedPackage: 'aedt_full'
-      vstsPackageVersion: '21.1.0'
+      vstsFeedPackage: 'aedt'
+      vstsPackageVersion: '21.1.1'
 
   - powershell: |
       ls '$(ANSYSEM_ROOT211)'
