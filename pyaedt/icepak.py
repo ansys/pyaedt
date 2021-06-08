@@ -2,25 +2,21 @@
 Icepak 3d Layout Class
 ----------------------------------------------------------------
 
-
-Description
-==================================================
-
-This class contains all the Icepak AEDT Functionalities. It inherites all the objects that belongs to Icepak
+This class contains all Icepak functionalities. It inherits all objects that belong to Icepak.
 
 
-:Example:
+Examples:
 
-app = Icepak()     creates and Icepak object and connect to existing hfss design (create a new hfss design if not present)
-
-
-app = Icepak(projectname)     creates and Icepak object and link to projectname project. If project doesn't exists, it creates a new one and rename it
+app = Icepak()     Creates an ``Icepak`` object and connects to an existing HFSS design or creates a new HFSS design if one is not present.
 
 
-app = Icepak(projectname,designame)     creates and Icepak object and link to designname design in projectname project
+app = Icepak(projectname)     Creates an ``Icepak`` object and links to project named projectname. If this project doesn't exists, it creates a new one with this name.
 
 
-app = Icepak("myfile.aedt")     creates and Icepak object and open specified project
+app = Icepak(projectname,designame)     Creates an ``Icepak`` object and links to a design named designname in a project named projectname.
+
+
+app = Icepak("myfile.aedt")     Creates an ``Icepak`` object and opens the specified project.
 
 
 ========================================================
@@ -420,9 +416,8 @@ class Icepak(FieldAnalysisIcepak):
 
         Returns
         -------
-        type
+        bool
             Bool
-
         """
         temp_log = os.path.join(self.project_path, "validation.log")
         validate = self.odesign.ValidateDesign(temp_log)

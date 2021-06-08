@@ -2,25 +2,21 @@
 Q3D Class
 ---------------------
 
-
-Description
-==================================================
-
-This class contains all the Q3D Functionalities. It inherites all the objects that belongs to Q3D
+This class contains all Q3D functionalities. It inherits all objects that belong to Q3D.
 
 
-:Example:
+Examples:
 
-app = Q3d()     creates and Q3D object and connect to existing Q3D design (create a new Q3D design if not present)
-
-
-app = Q2d(projectname)     creates and Q2d and link to projectname project
+app = Q3d()     Creates a ``Q3d`` object and connects to an existing Q3D design or create a new Q3D design if one is not present.
 
 
-app = Q2d(projectname,designame)     creates and Q3D object and link to designname design in projectname project
+app = Q2d(projectname)     Creates a ``Q2d`` object and links to a project named projectname.
 
 
-app = Q2dD("myfile.aedt")     creates and Q2d object and open specified project
+app = Q2d(projectname,designame)     Creates a ``Q2d`` object and links to a design named designname in a project named projectname.
+
+
+app = Q2d("myfile.aedt")     Creates a ``Q2d`` object and opens the specified project.
 
 
 
