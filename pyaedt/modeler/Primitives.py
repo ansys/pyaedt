@@ -531,7 +531,7 @@ class Polyline(object):
             List of x, y, z coordinates specifying the vertex to be removed
 
         abstol : float, default = 0.0
-            Absolute tolerance of the comparison of specified postion to the vertex positions
+            Absolute tolerance of the comparison of specified position to the vertex positions
 
         Returns
         -------
