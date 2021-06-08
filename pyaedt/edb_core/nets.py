@@ -191,11 +191,6 @@ class EdbNets(object):
             return edb_net
 
     @aedt_exception_handler
-    def get_component_from_net(self, net_name):
-        edb_net = self.get_net_by_name(net_name)
-        return list(set([net for net in edb_net.Terminals.GetComponent().GetName()]))
-
-    @aedt_exception_handler
     def delete_nets(self, netlist):
         """Delete Nets from Edb
         
