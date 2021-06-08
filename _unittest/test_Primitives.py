@@ -124,7 +124,7 @@ class TestPrimitives:
         udp3 = self.aedtapp.modeler.Position(5, 5, 0)
         udp4 = self.aedtapp.modeler.Position(2, 5, 3)
         arrofpos = [udp1, udp4, udp2, udp3, udp1]
-        id6 = self.aedtapp.modeler.primitives.create_polyline(arrofpos, coversurface=True, name="Poly1", matname="Copper")
+        id6 = self.aedtapp.modeler.primitives.draw_polyline(arrofpos, cover_surface=True, name="Poly1", matname="Copper")
         assert type(id6) is int
         assert self.prim[id6].object_type == "Sheet"
         assert self.prim[id6].is3d is False
@@ -135,8 +135,8 @@ class TestPrimitives:
         udp3 = self.aedtapp.modeler.Position(5, 5, 0)
         udp4 = self.aedtapp.modeler.Position(2, 5, 3)
         arrofpos = [udp1, udp2, udp3]
-        id5 = self.aedtapp.modeler.primitives.create_polyline(arrofpos, name="Poly2")
-        self.aedtapp.modeler.primitives.create_polyline_with_crosssection("Poly2")
+        #TODO: CHECK WHEN CROSSSECTION IS SET WITHOUT VALUES
+        id5 = self.aedtapp.modeler.primitives.draw_polyline(arrofpos, name="Poly2", xsection_type="Rectangle")
         assert type(id5) is int
         assert self.prim[id5].object_type == "Solid"
         assert self.prim[id5].is3d is True
@@ -286,7 +286,7 @@ class TestPrimitives:
         udp3 = self.aedtapp.modeler.Position(-31, -31, 7)
         udp4 = self.aedtapp.modeler.Position(2, 5, 3)
         arrofpos = [udp1, udp2, udp3, udp4]
-        id6 = self.aedtapp.modeler.primitives.create_polyline(arrofpos, coversurface=False, name="bill")
+        id6 = self.aedtapp.modeler.primitives.draw_polyline(arrofpos, coversurface=False, name="bill")
         polyname = self.prim.get_bodynames_from_position([-27, -27, 11])
         assert "bill" in polyname
 

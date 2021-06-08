@@ -557,7 +557,7 @@ class Icepak(FieldAnalysisIcepak):
         Fin_Line.append(self.Position('FinLength', 'FinThickness + FinLength*sin(PatternAngle*3.14/180)', 0))
         Fin_Line.append(self.Position('FinLength', 'FinLength*sin(PatternAngle*3.14/180)', 0))
         Fin_Line.append(self.Position(0, 0, 0))
-        self.modeler.primitives.create_polyline(Fin_Line, True, "Fin")
+        self.modeler.primitives.draw_polyline(Fin_Line, cover_surface=True, name="Fin")
         Fin_Line2 = []
         Fin_Line2.append(self.Position(0, 'sin(DraftAngle*3.14/180)*FinThickness', 'FinHeight'))
         Fin_Line2.append(self.Position(0, 'FinThickness-sin(DraftAngle*3.14/180)*FinThickness', 'FinHeight'))
@@ -567,7 +567,7 @@ class Icepak(FieldAnalysisIcepak):
         Fin_Line2.append(
             self.Position('FinLength', 'FinLength*sin(PatternAngle*3.14/180)+sin(DraftAngle*3.14/180)*FinThickness', 'FinHeight'))
         Fin_Line2.append(self.Position(0, 'sin(DraftAngle*3.14/180)*FinThickness', 'FinHeight'))
-        self.modeler.primitives.create_polyline(Fin_Line2, True, "Fin_top")
+        self.modeler.primitives.draw_polyline(Fin_Line2, cover_surface=True, name="Fin_top")
         self.modeler.connect(["Fin", "Fin_top"])
         self.assignmaterial("Fin", matname)
         # self.modeler.thicken_sheet("Fin",'-FinHeight')
@@ -604,7 +604,7 @@ class Icepak(FieldAnalysisIcepak):
             Center_Line.append(self.Position('VerticalSeparation', '-HSHeight-Tolerance', '-Tolerance'))
             Center_Line.append(self.Position('-VerticalSeparation', '-HSHeight-Tolerance', '-Tolerance'))
             Center_Line.append(self.Position('-SymSeparation', 'Tolerance', '-Tolerance'))
-            self.modeler.primitives.create_polyline(Center_Line, True, "Center")
+            self.modeler.primitives.draw_polyline(Center_Line, cover_surface=True, name="Center")
             self.modeler.thicken_sheet("Center", '-FinHeight-2*Tolerance')
             all_names = self.modeler.primitives.get_all_objects_names()
             list = [i for i in all_names if "Fin" in i]

@@ -42,16 +42,13 @@ q=Q3d()
 
 
 
-q.modeler.primitives.create_polyline([[0,0,0], [-100,0,0]], name="Bar1", matname="copper")
-q.modeler.primitives.create_polyline_with_crosssection("Bar1",width="5mm")
+q.modeler.primitives.draw_polyline([[0,0,0], [-100,0,0]], name="Bar1", matname="copper", xsection_width="5mm")
 
 
-q.modeler.primitives.create_polyline([[0,-15,0], [-150,-15,0]], name="Bar2", matname="aluminum")
-q.modeler.primitives.create_polyline_with_crosssection("Bar2",width="5mm")
+q.modeler.primitives.draw_polyline([[0,-15,0], [-150,-15,0]], name="Bar2", matname="aluminum", xsection_width="5mm")
 
 
-q.modeler.primitives.create_polyline([[0,-30,0], [-175,-30,0], [-175,-10,0]], name="Bar3", matname="copper")
-q.modeler.primitives.create_polyline_with_crosssection("Bar3",width="5mm")
+q.modeler.primitives.draw_polyline([[0,-30,0], [-175,-30,0], [-175,-10,0]], name="Bar3", matname="copper", xsection_width="5mm")
 
 q.modeler.primitives.create_box([50,30,-0.5], [-250,-100,-3], name="substrate", matname="FR4_epoxy")
 

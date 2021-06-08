@@ -20,6 +20,7 @@ import random
 from collections import OrderedDict
 from .Primitives2D import Primitives2D
 from .Primitives3D import Primitives3D
+from .Primitives import Polyline, PolylineSegment
 from .GeometryOperators import GeometryOperators
 from ..application.Variables import AEDT_units
 from ..generic.general_methods import generate_unique_name, retry_ntimes, aedt_exception_handler
@@ -826,22 +827,22 @@ class GeometryModeler(Modeler, object):
         offset = [i for i in start]
         if divmod(axisdir,3)[1] == 0:
             self.find_point_around(objectname,offset, sheet_dim, self._parent.CoordinateSystemPlane.YZPlane)
-            p1 = self.primitives.create_polyline([self.Position(start), self.Position(offset)])
-            p2 = self.primitives.create_polyline([self.Position(start), self.Position(offset)])
+            p1 = self.primitives.draw_polyline([self.Position(start), self.Position(offset)])
+            p2 = self.primitives.draw_polyline([self.Position(start), self.Position(offset)])
             self.translate(p2, [axisdist, 0, 0])
             self.connect([p1,p2])
             #rect = self.primitives.create_rectangle(self._parent.CoordinateSystemPlane.XYPlane,  start,pos)
         elif divmod(axisdir,3)[1]== 1:
             self.find_point_around(objectname,offset, sheet_dim, self._parent.CoordinateSystemPlane.ZXPlane)
-            p1 = self.primitives.create_polyline([self.Position(start), self.Position(offset)])
-            p2 = self.primitives.create_polyline([self.Position(start), self.Position(offset)])
+            p1 = self.primitives.draw_polyline([self.Position(start), self.Position(offset)])
+            p2 = self.primitives.draw_polyline([self.Position(start), self.Position(offset)])
             self.translate(p2, [0, axisdist, 0])
             self.connect([p1,p2])
             #rect = self.primitives.create_rectangle(self._parent.CoordinateSystemPlane.YZPlane,start,pos)
         elif divmod(axisdir,3)[1] == 2:
             self.find_point_around(objectname,offset, sheet_dim, self._parent.CoordinateSystemPlane.XYPlane)
-            p1 = self.primitives.create_polyline([self.Position(start), self.Position(offset)])
-            p2 = self.primitives.create_polyline([self.Position(start), self.Position(offset)])
+            p1 = self.primitives.draw_polyline([self.Position(start), self.Position(offset)])
+            p2 = self.primitives.draw_polyline([self.Position(start), self.Position(offset)])
             self.translate(p2, [0,0,axisdist])
             self.connect([p1,p2])
             #rect = self.primitives.create_rectangle(self._parent.CoordinateSystemPlane.ZXPlane,start,pos)
@@ -2584,15 +2585,15 @@ class GeometryModeler(Modeler, object):
             self.primitives.delete_edges_from_polilyne(new_edges[0], edge_to_delete)
         angle = math.pi * (180 -360/numberofsegments)/360
 
-        status = self.primitives.create_polyline_with_crosssection(self.primitives.get_obj_name(new_edges[0]),
-                                                                 "Circle", (rad*(2-math.sin(angle))) * 2, numberofsegments)
+        P = Polyline(self, object_id=new_edges[0])
+        status = P.set_crosssection_properties(type="Circle", num_seg=numberofsegments,
+                                               width= (rad*(2-math.sin(angle))) * 2)
         if status:
             self.translate(new_edges[0], move_vector)
             self.set_object_model_state(bondname, False)
             return new_edges[0]
         else:
             return False
-
 
     @aedt_exception_handler
     def get_entitylist_id(self, name):
