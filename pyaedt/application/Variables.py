@@ -858,14 +858,8 @@ class Variable(object):
 
     Attributes
     ------
-    string_value : str
-        Value string as stored in the AEDT properties window, e.g. "5mm"
-    unit_system : str
-        String descriptor of the unit system, e.g. 'Length'
     units : str
         The defined variable units
-    numerical_value : float
-        numerical value of the variable in the defined variable units
     value : float
         The numerical value of the variable in SI-Units
 

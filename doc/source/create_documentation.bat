@@ -1,1 +1,1 @@
-sphinx-build -b html . ../../docs
+sphinx-build -b html . ../../../PyAEDT-docs

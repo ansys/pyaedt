@@ -13,7 +13,7 @@ app = Simplorer()     Creates a ``Simplorer`` object and connects to an existing
 app = Simplorer(projectname)     Creates a ``Simplorer`` object and links to a project named projectname.
 
 
-app = Simplorer(projectname,designame)     Creates a ``Simplorer``object and links to a design named designname in a project named projectname.
+app = Simplorer(projectname,designame)     Creates a ``Simplorer`` object and links to a design named designname in a project named projectname.
 
 
 app = Simplorer("myfile.aedt")     Creates a ``Simplorer`` object and opens the specified project.

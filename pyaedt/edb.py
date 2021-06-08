@@ -8,7 +8,7 @@ This class is implicitily loaded in HFSS 3D Layout when launched.
 
 
 Examples:
-________
+__________
 
 app = Edb()     Creates an ``Edb`` object and creates a new EDB cell.
 
