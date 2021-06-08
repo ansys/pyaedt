@@ -1,5 +1,8 @@
-#!/usr/bin/env python
-# coding: utf-8
+"""
+Polyline Example Analysis
+--------------------------------------------
+This tutorial shows how you can create and manipulate polylines using
+"""
 
 
 # #### Perform required imports from AEDTLib and connect to the Desktop
@@ -256,6 +259,7 @@ project_file = os.path.join(project_dir, project_name + '.aedt')
 
 M3D.save_project(project_file)
 
+M3D.close_desktop()
 
 
 

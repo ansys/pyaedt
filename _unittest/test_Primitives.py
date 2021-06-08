@@ -141,6 +141,19 @@ class TestPrimitives:
         assert self.prim[P.id].object_type == "Solid"
         assert self.prim[P.id].is3d is True
 
+    def test_10_sweep_along_path(self):
+        udp1 = [0, 0, 0]
+        udp2 = [5, 0, 0]
+        udp3 = [5, 5, 0]
+        arrofpos = [udp1, udp2, udp3]
+        P = self.aedtapp.modeler.primitives.draw_polyline(arrofpos, name="poly_vector")
+        rect = self.aedtapp.modeler.primitives.create_rectangle(self.aedtapp.CoordinateSystemPlane.YZPlane, [0,-2,-2],[4,3], name="rect_1")
+        assert self.aedtapp.modeler.sweep_along_path(rect, P.id )
+
+    def test_10_sweep_along_vector(self):
+        rect2 = self.aedtapp.modeler.primitives.create_rectangle(self.aedtapp.CoordinateSystemPlane.YZPlane, [0,-2,-2],[4,3], name="rect_2")
+        assert self.aedtapp.modeler.sweep_along_vector(rect2, [10,20,20] )
+
     def test_11_create_rectangle(self):
         udp = self.aedtapp.modeler.Position(5, 3, 8)
         plane = self.aedtapp.CoordinateSystemPlane.XYPlane

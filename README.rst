@@ -1,5 +1,5 @@
 Introduction
-------------
+-------------
 PyAEDT is intended to consolidate and extend all existing
 functionalities around AEDT-based scripting to allow reuse of
 existing code, sharing of best practices, and increased collaboration.

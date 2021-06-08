@@ -48,6 +48,7 @@ class Primitives3D(Primitives, object):
         XSize, YSize, ZSize = self.pos_with_arg(dimensions_list)
         if XSize is None or YSize is None or YSize is None:
             raise AttributeError("Dimension Argument must be a valid 3 Element List")
+        o.material_name, o.solve_inside = self._check_material(matname, self.defaultmaterial)
         vArg1 = ["NAME:BoxParameters"]
         vArg1.append("XPosition:="), vArg1.append(XPosition)
         vArg1.append("YPosition:="), vArg1.append(YPosition)
