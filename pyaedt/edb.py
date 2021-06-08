@@ -1,14 +1,15 @@
 # -*- coding: utf-8 -*-
 """
 Edb Class
--------------
+---------
+
 This class contains all EDB functionalities. It inherits all objects that belong to EDB.
 
 This class is implicitily loaded in HFSS 3D Layout when launched.
 
 
 Examples
-__________
+________
 
 >>> app = Edb()     Create an ``Edb`` object and a new EDB cell.
 
@@ -54,7 +55,7 @@ class Edb(object):
     cellname :
         Name of the cell to select.
     isreadonly :
-        ``True`` if ``edb_core` is open in read-only mode (when owned by 3D Layout).
+        ``True`` if ``edb_core`` is open in read-only mode (when owned by 3D Layout).
     edbversion :
         Version of ``edb_core`` to use. The default is ``2021.1``.
     isaedtowned :
@@ -456,7 +457,7 @@ class Edb(object):
 
     @aedt_exception_handler
     def import_cadence_file(self, inputBrd, WorkDir=None):
-        """This function imports a brd file and generates an ``edb.def` file in the working directory.
+        """This function imports a brd file and generates an ``edb.def`` file in the working directory.
 
         Parameters
         ----------
@@ -478,7 +479,7 @@ class Edb(object):
 
     @aedt_exception_handler
     def import_gds_file(self, inputGDS, WorkDir=None):
-        """This function imports a brd file and generates an ``edb.def` file in the working directory.
+        """This function imports a brd file and generates an ``edb.def`` file in the working directory.
 
         Parameters
         ----------

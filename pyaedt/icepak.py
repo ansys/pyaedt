@@ -411,7 +411,7 @@ class Icepak(FieldAnalysisIcepak):
 
         Parameters
         ----------
-        component_prefix :
+        component_prefix:
             components prefix on which to search (Default value = "COMP_")
 
         Returns
