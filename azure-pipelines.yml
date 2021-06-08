@@ -66,4 +66,16 @@ steps:
     PathtoPublish: dist
     ArtifactName: dist
 
+- script: |
+    pip install twine
+    twine check dist/*
+  displayName: 'Verify package'
 
+- script: |
+    twine upload --skip-existing dist/*.tar.gz
+  displayName: 'Upload to package PyPi'
+  condition: contains(variables['Build.SourceBranch'], 'refs/tags/')
+  env:
+    TWINE_USERNAME: __token__
+    TWINE_PASSWORD: $(twine.token)
+    TWINE_REPOSITORY_URL: "https://upload.pypi.org/legacy/"
