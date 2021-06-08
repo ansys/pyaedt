@@ -1114,7 +1114,6 @@ class Primitives(object):
                       matname=None, xsection_type=None, xsection_orient=None,
                       xsection_width=1, xsection_topwidth=1, xsection_height=1,
                       xsection_num_seg=0, xsection_bend_type=None):
-
         """Draw a Polyline Object in the 3D modeler
 
         Returns an object of type Polyline, allowing for manipulation of the Polyline.
@@ -1125,9 +1124,6 @@ class Primitives(object):
             array of positions of each point of polyline
             A position is a list of 2D or 3D coordinates. Position coordinate values can be numbers or valid
             AEDT string expressions e.g. [0, 1, 2] or ["0mm", "5mm", "1mm"] or ["x1", "y1"] etc.
-
-        object_id : int, default=None
-            optional object id from the AEDTmodeler, will be ignored if position_list is not None
 
         segment_type: str or PolylineSegment or list, default=None
             default behaviour: all points are connected as "Line" segments

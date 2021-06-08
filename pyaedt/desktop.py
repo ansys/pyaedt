@@ -350,13 +350,13 @@ class Desktop:
                     oAnsoftApp = StandalonePyScriptWrapper.CreateObjectNew(NG)
                 else:
                     oAnsoftApp = StandalonePyScriptWrapper.CreateObject(version)
-
                 self._main.oDesktop = oAnsoftApp.GetAppDesktop()
                 self._main.isoutsideDesktop = True
             elif _com == 'pythonnet_v3':
                 sys.path.append(base_path)
                 sys.path.append(os.path.join(base_path, 'PythonFiles', 'DesktopPlugin'))
                 print(base_path)
+                print("============================================")
                 clr.AddReference("Ansys.Ansoft.CoreCOMScripting")
                 AnsoftCOMUtil = __import__("Ansys.Ansoft.CoreCOMScripting")
                 self.COMUtil = AnsoftCOMUtil.Ansoft.CoreCOMScripting.Util.COMUtil
