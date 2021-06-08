@@ -373,7 +373,8 @@ class Polyline(object):
                             if current_segment.type == "Arc" and self._is_closed:
                                 position_list.append(position_list[0])
                             else:
-                                raise IndexError("Insufficient points in position_list to complete the specifed segment list")
+                                err_str = "Insufficient points in position_list to complete the specified segment list"
+                                raise IndexError(err_str)
                         points_str.append(self._pl_point(position_list[pos_count + i]))
                         pos_count_incr += 1
                         index_count += 1
@@ -527,9 +528,10 @@ class Polyline(object):
         Parameters
         ----------
         position : list
+            List of x, y, z coordinates specifying the vertex to be removed
 
         abstol : float, default = 0.0
-        Absolute tolerance of the comparison of specified postion to the vertex positions
+            Absolute tolerance of the comparison of specified postion to the vertex positions
 
         Returns
         -------
@@ -1131,7 +1133,7 @@ class Primitives(object):
         -------
         Polyline
             Object with additional methods for manipulating the polyline e.g. insert_segment. The object-id of the
-            creted polyline can be accessed via Polyline.id
+            created polyline can be accessed via Polyline.id
 
         Examples
         -------
