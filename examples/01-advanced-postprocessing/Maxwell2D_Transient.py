@@ -9,10 +9,6 @@ This Example needs PyVista, numpy and matplotlib,  to be installed on the machin
 
 import os
 from pyaedt import Maxwell2d
-from pyaedt import generate_unique_name
-
-# could use m2d.temp_directory ??
-
 
 ###############################################################################
 # NonGraphical
@@ -24,7 +20,6 @@ NonGraphical = True
 # Insert a Maxwell design and save project
 
 m2d=Maxwell2d(solution_type="TransientXY", specified_version="2021.1", NG=NonGraphical)
-# TODO avoid the environmnent variable ? Maybe even say if the
 project_dir = m2d.generate_temp_project_directory(name="Example")
 m2d.save_project(os.path.join(project_dir,"M2d.aedt"))
 

@@ -1307,41 +1307,42 @@ class Design(object):
         return True
 
     @aedt_exception_handler
-    def generate_temp_project_directory(self, name=None, base_path=None):
+    def generate_temp_project_directory(self, subdir_name=None):
         """Generate a unique directory string to store a project
 
-        Creates a directory name for storage of a project in a location which is guaranteed to exist. If base path
-        is specified, then use this and assert that it exists. If base_path is not specified, then use
-        self.temp_directory itself.
-
-        If the 'name' parameter is defined, then add a sub-directory within base_path, and add a suffix if
-        necessary to ensure that this directory is empty (unique name)
+        Creates a directory name for storage of a project in a location which is guaranteed to exist (the temp
+        directory of the AEDT installation). If the 'name' parameter is defined, then add a sub-directory within
+        the temp directory and add a hash suffix to ensure that this directory is empty (unique name)
 
         Parameters
         ----------
-        name : str, default=None
-            Name of the directory. This will be joined to the base path. If not defined, then use the base path
-        base_path : str, default=None
-            Base path of the project directory (must exist). If not specified then use self.temp_directory
+        subdir_name : str
+            Base name of the subdirectory to be created
 
         Returns
         -------
         str
 
+        Examples
+        --------
+        >>> m3d = Maxwell3d()
+        >>> proj_directory = m3d.generate_temp_project_directory("Example")
+
         """
-        if name:
-            dir_name =  generate_unique_name("Example")
+        base_path = self.temp_directory
+
+        if subdir_name:
+            assert isinstance(subdir_name, str), "Input argument 'subdir' must be a string"
+            dir_name = generate_unique_name(subdir_name)
         else:
             dir_name = ""
 
-        if not base_path:
-            base_path = self.temp_directory
-        else:
-            assert os.path.exists(base_path), "Specified path {} does not exist!".format(base_path)
-
         project_dir = os.path.join(base_path, dir_name)
-        if not os.path.exists(project_dir): os.makedirs(project_dir)
-        return project_dir
+        try:
+            if not os.path.exists(project_dir): os.makedirs(project_dir)
+            return project_dir
+        except OSError:
+            return False
 
     @aedt_exception_handler
     def help(self, modulename="index"):
