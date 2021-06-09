@@ -1,22 +1,32 @@
 """
-Hfss 3d Layout Class
-----------------------------------------------------------------
+HFSS 3D Layout Class.
 
-This class contains all HFSS 3D Layout functionalities. It inherits all objects that belong to HFSS 3D Layout, including EDB API queries.
-
-
-Examples:
-
-hfss = Hfss3dLayout()     Creates an ``Hfss3dLayout`` object and connects to an existing HFSS design or create a new HFSS design if one is not present.
+This class contains all HFSS 3D Layout functionalities. It inherits
+all objects that belong to HFSS 3D Layout, including EDB API queries.
 
 
-hfss = Hfss3dLayout(projectname)     Creates an ``Hfss3dLayout`` object and links to a project named projectname. If this project doesn't exist, it creates a new one with this name.
+Examples
+--------
 
+Create an ``Hfss3dLayout`` object and connects to an existing HFSS
+design or create a new HFSS design if one is not present.
 
-hfss = Hfss3dLayout(projectname,designame)     Creates an ``Hfss3dLayout`` object and links to a design named designname in a project named projectname.
+>>> hfss = Hfss3dLayout()
 
+Create an ``Hfss3dLayout`` object and links to a project named
+projectname. If this project doesn't exist, it creates a new one with
+this name.
 
-hfss = Hfss3dLayout("myfile.aedt")     Creates an ``Hfss3dLayout object`` and opens the specified project.
+>>> hfss = Hfss3dLayout(projectname)
+
+Creates an ``Hfss3dLayout`` object and links to a design named
+designname in a project named projectname.
+
+>>> hfss = Hfss3dLayout(projectname,designame)
+
+Creates an ``Hfss3dLayout object`` and opens the specified project.
+
+>>> hfss = Hfss3dLayout("myfile.aedt")
 
 
 ========================================================
