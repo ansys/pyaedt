@@ -12,6 +12,7 @@ from .application.AnalysisNexxim import FieldAnalysisCircuit
 from .desktop import exception_to_desktop
 from .generic.general_methods import generate_unique_name, aedt_exception_handler
 import re
+import os
 
 RKM_MAPS = {
     # Resistors
@@ -186,6 +187,10 @@ class Circuit(FieldAnalysisCircuit, object):
     def __exit__(self, ex_type, ex_value, ex_traceback):
         if ex_type:
             exception_to_desktop(self, ex_value, ex_traceback)
+
+    @property
+    def onetwork_data_explorer(self):
+        return self._desktop.GetTool("NdExplorer")
 
     @aedt_exception_handler
     def _get_number_from_string(self, stringval):
@@ -647,74 +652,76 @@ class Circuit(FieldAnalysisCircuit, object):
         self.odesign.ImportData(arg, "", True)
         return portnames
 
-    # @aedt_exception_handler
-    # def export_fullwave_spice(self, designname=None, setupname=None, is_solution_file=False, filename=None,
-    #                           passivity=False, causality=False, renormalize=False, impedance=50, error=0.5,
-    #                           poles=10000):
-    #     """
-    #     This method doesn't work.
-    #     Export Full Wave Spice using NDE.
-    #
-    #     Parameters
-    #     ----------
-    #     designname : str
-    #             Name of the design or the solution file full path if it is an imported file.
-    #     setupname : str
-    #             Name of setup if it is a design.
-    #     is_solution_file: bool
-    #             True if it is an imported solution.
-    #     filename: str
-    #             Full path to the exported sp file.
-    #     passivity: bool
-    #     causality: bool
-    #     renormalize: bool
-    #     impedance: float
-    #         impedance in case of renormalization
-    #     error: float
-    #         fitting error
-    #     poles: int
-    #         fitting poles
-    #
-    #     Returns
-    #     -------
-    #     str
-    #         The file name if the export is successful.
-    #     """
-    #     if not designname:
-    #         designname = self.design_name
-    #     if not filename:
-    #         filename = os.path.join(self.project_path, self.design_name + ".sp")
-    #     if is_solution_file:
-    #         setupname = designname
-    #         designname = ""
-    #     else:
-    #         if not setupname:
-    #             setupname=self.nominal_sweep
-    #     self.onetwork_data_explorer.ExportFullWaveSpice(designname, is_solution_file, setupname, "",
-    #                                                     ["NAME:Frequencies"],
-    #                                                     ["NAME:SpiceData", "SpiceType:=", "HSpice",
-    #                                                      "EnforcePassivity:=", passivity, "EnforceCausality:=",
-    #                                                      causality,
-    #                                                      "UseCommonGround:=", True,
-    #                                                      "ShowGammaComments:=", True,
-    #                                                      "Renormalize:=", renormalize,
-    #                                                      "RenormImpedance:=", impedance,
-    #                                                      "FittingError:=", error,
-    #                                                      "MaxPoles:=", poles,
-    #                                                      "PassivityType:=", "IteratedFittingOfPV",
-    #                                                      "ColumnFittingType:=", "Matrix",
-    #                                                      "SSFittingType:=", "FastFit",
-    #                                                      "RelativeErrorToleranc:=", False,
-    #                                                      "EnsureAccurateZfit:=", True,
-    #                                                      "TouchstoneFormat:=", "MA",
-    #                                                      "TouchstoneUnits:=", "GHz",
-    #                                                      "TouchStonePrecision:=", 15,
-    #                                                      "SubcircuitName:=", "",
-    #                                                      "SYZDataInAutoMode:=", False,
-    #                                                      "ExportDirectory:=", os.path.dirname(filename)+"\\",
-    #                                                      "ExportSpiceFileName:=", os.path.basename(filename),
-    #                                                      "FullwaveSpiceFileName:=", os.path.basename(filename)[:-2]+"sss"])
-    #     return filename
+    @aedt_exception_handler
+    def export_fullwave_spice(self, designname=None, setupname=None, is_solution_file=False, filename=None,
+                              passivity=False, causality=False, renormalize=False, impedance=50, error=0.5,
+                              poles=10000):
+        """
+        This method doesn't work.
+        Export Full Wave Spice using NDE.
+
+        Parameters
+        ----------
+        designname : str
+                Name of the design or the solution file full path if it is an imported file.
+        setupname : str
+                Name of setup if it is a design.
+        is_solution_file: bool
+                True if it is an imported solution.
+        filename: str
+                Full path to the exported sp file.
+        passivity: bool
+        causality: bool
+        renormalize: bool
+        impedance: float
+            impedance in case of renormalization
+        error: float
+            fitting error
+        poles: int
+            fitting poles
+
+        Returns
+        -------
+        str
+            The file name if the export is successful.
+        """
+        if not designname:
+            designname = self.design_name
+        if not filename:
+            filename = os.path.join(self.project_path, self.design_name + ".sp")
+        if is_solution_file:
+            setupname = designname
+            designname = ""
+        else:
+            if not setupname:
+                setupname=self.nominal_sweep
+        self.onetwork_data_explorer.ExportFullWaveSpice(designname, is_solution_file, setupname, "",
+                                                        [],
+                                                        ["NAME:SpiceData", "SpiceType:=", "HSpice",
+                                                         "EnforcePassivity:=", passivity, "EnforceCausality:=",
+                                                         causality,
+                                                         "UseCommonGround:=", True,
+                                                         "ShowGammaComments:=", True,
+                                                         "Renormalize:=", renormalize,
+                                                         "RenormImpedance:=", impedance,
+                                                         "FittingError:=", error,
+                                                         "MaxPoles:=", poles,
+                                                         "PassivityType:=", "IteratedFittingOfPV",
+                                                         "ColumnFittingType:=", "Matrix",
+                                                         "SSFittingType:=", "FastFit",
+                                                         "RelativeErrorToleranc:=", False,
+                                                         "EnsureAccurateZfit:=", True,
+                                                         "TouchstoneFormat:=", "MA",
+                                                         "TouchstoneUnits:=", "GHz",
+                                                         "TouchStonePrecision:=", 15,
+                                                         "SubcircuitName:=", "",
+                                                         "SYZDataInAutoMode:=", False,
+                                                         "ExportDirectory:=", os.path.dirname(filename)+"\\",
+                                                         "ExportSpiceFileName:=", os.path.basename(filename),
+                                                         "FullwaveSpiceFileName:=",
+                                                         os.path.basename(filename), "UseMultipleCores:=",
+                                                         True, "NumberOfCores:=", 20])
+        return filename
 
     @aedt_exception_handler
     def create_touchstone_report(self,plot_name, curvenames, solution_name=None, variation_dict=None):
