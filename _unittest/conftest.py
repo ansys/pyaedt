@@ -29,7 +29,7 @@ if os.path.exists(local_config_file):
     with open(local_config_file) as f:
         config = json.load(f)
 else:
-    default_config = {
+    config = {
         "desktopVersion": "2021.1",
         "NonGraphical": False,
         "NewThread": False,
