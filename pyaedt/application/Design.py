@@ -1307,7 +1307,7 @@ class Design(object):
         return True
 
     @aedt_exception_handler
-    def generate_temp_project_directory(self, subdir_name=None):
+    def generate_temp_project_directory(self, subdir_name):
         """Generate a unique directory string to store a project
 
         Creates a directory name for storage of a project in a location which is guaranteed to exist (the temp
@@ -1317,7 +1317,7 @@ class Design(object):
         Parameters
         ----------
         subdir_name : str
-            Base name of the subdirectory to be created
+            Base name of the sub-directory to be created im self.tempdirectory
 
         Returns
         -------
@@ -1331,12 +1331,8 @@ class Design(object):
         """
         base_path = self.temp_directory
 
-        if subdir_name:
-            assert isinstance(subdir_name, str), "Input argument 'subdir' must be a string"
-            dir_name = generate_unique_name(subdir_name)
-        else:
-            dir_name = ""
-
+        assert isinstance(subdir_name, str), "Input argument 'subdir' must be a string"
+        dir_name = generate_unique_name(subdir_name)
         project_dir = os.path.join(base_path, dir_name)
         try:
             if not os.path.exists(project_dir): os.makedirs(project_dir)

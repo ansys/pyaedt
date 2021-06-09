@@ -179,8 +179,6 @@ class TestDesign:
         assert os.path.exists(proj_dir1)
         proj_dir2 = self.aedtapp.generate_temp_project_directory("")
         assert os.path.exists(proj_dir2)
-        proj_dir3 = self.aedtapp.generate_temp_project_directory()
-        assert os.path.exists(proj_dir3)
         proj_dir4 = self.aedtapp.generate_temp_project_directory(34)
         assert os.path.exists(proj_dir4)
         proj_dir5 = self.aedtapp.generate_temp_project_directory(":_34")

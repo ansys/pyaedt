@@ -20,7 +20,7 @@ NonGraphical = True
 # Insert a Maxwell design and save project
 
 m2d=Maxwell2d(solution_type="TransientXY", specified_version="2021.1", NG=NonGraphical)
-project_dir = m2d.generate_temp_project_directory(name="Example")
+project_dir = m2d.generate_temp_project_directory("Example")
 m2d.save_project(os.path.join(project_dir,"M2d.aedt"))
 
 ###################################################

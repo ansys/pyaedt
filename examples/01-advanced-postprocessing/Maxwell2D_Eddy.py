@@ -25,7 +25,7 @@ NonGraphical = False
 # Insert a Maxwell design and instantiate Geometry modeler.
 
 M3D = Maxwell3d(solution_type="EddyCurrent", specified_version="2021.1", NG=NonGraphical)
-project_dir = M3D.generate_temp_project_directory(name="Example")
+project_dir = M3D.generate_temp_project_directory("Example")
 project_name = os.path.join(project_dir, 'test.aedt')
 M3D.modeler.model_units = "mm"
 CS = M3D.modeler.coordinate_system
@@ -43,8 +43,7 @@ hole = primitives.create_box([18, 18, 0], [108, 108, 19], name="Hole")
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # different modeler operation can be applied using subtract, material assignment, solve_inside
 
-
-primitives.subtract([plate], [hole])
+M3D.modeler.subtract([plate], [hole])
 M3D.assignmaterial(plate, "aluminum")
 M3D.solve_inside("Plate")
 adaptive_frequency = "200Hz"
@@ -58,7 +57,7 @@ center_hole = M3D.modeler.Position(119, 25, 49)
 center_coil = M3D.modeler.Position(94, 0, 49)
 coil_hole = primitives.create_box(center_hole, [150, 150, 100], name="Coil_Hole")  # All positions in model units
 coil = primitives.create_box(center_coil, [200, 200, 100], name="Coil")  # All positions in model units
-primitives.subtract([coil], [coil_hole])
+M3D.modeler.subtract([coil], [coil_hole])
 M3D.assignmaterial(coil, "copper")
 M3D.solve_inside("Coil")
 p_coil = M3D.post.volumetric_loss("Coil")
@@ -71,8 +70,8 @@ CS.create([200, 100, 0], view="XY", name="Coil_CS")
 ##############################
 # Create coil terminal
 
-primitives.section(["Coil"], M3D.CoordinateSystemPlane.ZXPlane)
-primitives.separate_bodies(["Coil_Section1"])
+M3D.modeler.section(["Coil"], M3D.CoordinateSystemPlane.ZXPlane)
+M3D.modeler.separate_bodies(["Coil_Section1"])
 primitives.delete("Coil_Section1_Separate1")
 M3D.assign_current(["Coil_Section1"], amplitude=2472)
 
