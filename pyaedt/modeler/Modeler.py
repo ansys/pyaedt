@@ -907,7 +907,7 @@ class GeometryModeler(Modeler, object):
 
         """
         tol = 1e-6
-        out, parallel = self.primitives.find_remote_edges(startobj, endobject, axisdir)
+        out, parallel = self.primitives.find_closest_edges(startobj, endobject, axisdir)
         port_edges = self.primitives.get_equivalent_parallel_edges(out, True, axisdir, startobj, endobject)
         if port_edges is None:
             return False
