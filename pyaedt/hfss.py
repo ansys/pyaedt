@@ -312,8 +312,8 @@ class Hfss(FieldAnalysis3D, object):
 
         Returns
         -------
-        type
-            ``True`` if the operation succeeds.
+        SweepHFSS
+            Sweep object
 
         """
 
@@ -342,7 +342,8 @@ class Hfss(FieldAnalysis3D, object):
 
                 sweepdata.props["RangeStart"] = str(freqstart) + unit
                 sweepdata.update()
-                return sweepname
+                return sweepdata
+        return False
 
 
     @aedt_exception_handler
@@ -371,8 +372,8 @@ class Hfss(FieldAnalysis3D, object):
 
         Returns
         -------
-        :class: SweepHFSS
-            sweepname
+        SweepHFSS
+            Sweep object
 
         """
         if sweepname is None:
@@ -397,7 +398,8 @@ class Hfss(FieldAnalysis3D, object):
                 sweepdata.props["RangeType"] = "LinearCount"
                 sweepdata.props["ExtrapToDC"] = False
                 sweepdata.update()
-                return sweepname
+                return sweepdata
+        return False
 
     @aedt_exception_handler
     def create_linear_step_sweep(self, setupname, unit, freqstart, freqstop, step_size,
@@ -425,8 +427,8 @@ class Hfss(FieldAnalysis3D, object):
 
         Returns
         -------
-        :class: SweepHFSS
-            sweepname
+        SweepHFSS
+            Sweep object
 
         """
         if sweepname is None:
@@ -451,7 +453,8 @@ class Hfss(FieldAnalysis3D, object):
                 sweepdata.props["Type"] = "Discrete"
                 sweepdata.props["RangeType"] = "LinearStep"
                 sweepdata.update()
-                return sweepname
+                return sweepdata
+        return False
 
 
     @aedt_exception_handler
@@ -473,8 +476,8 @@ class Hfss(FieldAnalysis3D, object):
 
         Returns
         -------
-        :class: SweepHFSS
-            sweepname
+        SweepHFSS
+            Sweep object
 
         """
         if sweepname is None:
@@ -500,7 +503,8 @@ class Hfss(FieldAnalysis3D, object):
                 sweepdata.props["RangeType"] = "SinglePoints"
                 sweepdata.update()
                 self._messenger.add_info_message("Sweep Created Correctly")
-                return sweepname
+                return sweepdata
+        return False
 
 
     @aedt_exception_handler
@@ -530,7 +534,7 @@ class Hfss(FieldAnalysis3D, object):
 
         Returns
         -------
-        type
+        str
             Port name
 
         """
@@ -787,7 +791,7 @@ class Hfss(FieldAnalysis3D, object):
         Parameters
         ----------
         startobj :
-            First object (starting) object for the integration line.
+            First object (starting) object for the integration line. typically is the reference plane
         endobject :
             Second (ending) object for the integration line.
         axisdir :
@@ -810,7 +814,7 @@ class Hfss(FieldAnalysis3D, object):
 
         Returns
         -------
-        :class: BoundaryObject
+        BoundaryObject
             Port name
 
         """
@@ -831,6 +835,7 @@ class Hfss(FieldAnalysis3D, object):
                 faces = self.modeler.primitives.get_object_faces(sheet_name)
                 return self._create_port_terminal(faces[0], endobject, portname, iswaveport=True)
         return False
+
 
     @aedt_exception_handler
     def create_perfecte_from_objects(self, startobj, endobject, axisdir=0, sourcename=None, is_infinite_gnd=False, bound_on_plane=True ):

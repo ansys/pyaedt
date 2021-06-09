@@ -551,7 +551,10 @@ class GeometryModeler(Modeler, object):
             else:
                 return '3D'
         except Exception:
-            return '3D'
+            if self.design_type == "2D Extractor":
+                return '2D'
+            else:
+                return '3D'
 
     @property
     def design_type(self):
@@ -904,12 +907,10 @@ class GeometryModeler(Modeler, object):
 
         """
         tol = 1e-6
-        out, parallel = self.primitives.find_closest_edges(startobj, endobject, axisdir)
-
+        out, parallel = self.primitives.find_remote_edges(startobj, endobject, axisdir)
         port_edges = self.primitives.get_equivalent_parallel_edges(out, True, axisdir, startobj, endobject)
         if port_edges is None:
             return False
-
         sheet_name = self.primitives.get_obj_name(port_edges[0])
         point0 = self.primitives.get_edge_midpoint(port_edges[0])
         point1 = self.primitives.get_edge_midpoint(port_edges[1])
@@ -917,7 +918,6 @@ class GeometryModeler(Modeler, object):
         self.primitives.get_object_edges(port_edges[0])
         len = self.primitives.get_edge_length(self.primitives.get_object_edges(port_edges[0])[0])
         vect = GeometryOperators.v_points(point1, point0)
-
         l1 = self.primitives.get_edge_length(out[0])
         l2 = self.primitives.get_edge_length(out[1])
         if l1 < l2:
@@ -1438,7 +1438,6 @@ class GeometryModeler(Modeler, object):
     @aedt_exception_handler
     def sweep_around_axis(self, objid, cs_axis, sweep_angle=0, draft_angle=0):
         """Sweep selection aroun axis
-        #TODO TEST
 
         Parameters
         ----------
@@ -2397,146 +2396,6 @@ class GeometryModeler(Modeler, object):
             ])
         return True
 
-    # @aedt_exception_handler
-    # def create_faceted_bondwire_from_true_surface(self, bondname, bond_direction, min_size = 0.2, numberofsegments=8, exact_size=False):
-    #     """
-    #     Create a new faceted bondwire from existing True Surface one
-    #     :param bondname: name of bondwire to replace
-    #     :param min_size: minimum size of the subsegment of the new polyline
-    #     :param bond_direction: bondwire axis direction. 0 = X, 1=Y, 2=Z
-    #     :return: New Bondwirename
-    #     """
-    #     edges = self.primitives.get_object_edges(bondname)
-    #     faces = self.primitives.get_object_faces(bondname)
-    #     centers = []
-    #     for el in faces:
-    #         center = self.primitives.get_face_center(el)
-    #         if center:
-    #             centers.append(center)
-    #     edgelist = []
-    #     verlist = []
-    #     minbound=1e6
-    #     maxbound=-1e6
-    #     initial_edge=0
-    #     initial_vert=0
-    #     for el in edges:
-    #         ver = self.primitives.get_edge_vertices(el)
-    #         if len(ver) < 2:
-    #             continue
-    #         p1 = self.primitives.get_vertex_position(ver[0])
-    #         p2 = self.primitives.get_vertex_position(ver[1])
-    #         p3 = [abs(i - j) for i, j in zip(p1, p2)]
-    #
-    #         dir = p3.index(max(p3))
-    #         dirm = p3.index(min(p3))
-    #         if dir == bond_direction or dirm != bond_direction:
-    #             edgelist.append(el)
-    #             verlist.append([p1, p2])
-    #             if min(p1[bond_direction], p2[bond_direction]) < minbound:
-    #                 initial_edge = el
-    #                 minbound = min(p1[bond_direction], p2[bond_direction])
-    #                 if p1[bond_direction]< p2[bond_direction]:
-    #                     initial_vert = p2
-    #                     ver_id = ver[1]
-    #                     end_vert=p1
-    #                 else:
-    #                     initial_vert = p1
-    #                     end_vert = p2
-    #                     ver_id = ver[0]
-    #
-    #             if max(p1[bond_direction], p2[bond_direction]) > minbound:
-    #                 maxbound = min(p1[bond_direction], p2[bond_direction])
-    #
-    #
-    #
-    #
-    #     if not edgelist:
-    #         self.messenger.add_error_message("No edges found specified direction. Check again")
-    #         return False
-    #     connected = [initial_edge]
-    #     tol = 1e-6
-    #     edgelist.pop(edgelist.index(initial_edge))
-    #     bound= minbound
-    #     while bound<=maxbound:
-    #         edges = self.primitives.get_edgeids_from_vertexid(ver_id, bondname)
-    #         par_coeff =[]
-    #         edges_id =[]
-    #         for edge in edges:
-    #             if edge not in connected:
-    #                 ver = self.primitives.get_edge_vertices(edge)
-    #                 p1 = self.primitives.get_vertex_position(ver[0])
-    #                 p2 = self.primitives.get_vertex_position(ver[1])
-    #                 par_coeff.append(GeometryOperators.parallel_coeff(initial_vert,end_vert,p1,p2))
-    #                 edges_id.append(edge)
-    #         if not par_coeff:
-    #             break
-    #         edge_id = edges_id[par_coeff.index(max(par_coeff))]
-    #         connected.append(edge_id)
-    #         ver = self.primitives.get_edge_vertices(edge_id)
-    #         p1 = self.primitives.get_vertex_position(ver[0])
-    #         p2 = self.primitives.get_vertex_position(ver[1])
-    #         dist=GeometryOperators.points_distance(p1, initial_vert)
-    #         if dist<tol:
-    #             if p2[bond_direction] == bound:
-    #                 break
-    #             initial_vert = p2
-    #             end_vert = p1
-    #             ver_id = ver[1]
-    #         else:
-    #             if p1[bond_direction] == bound:
-    #                 break
-    #             initial_vert = p1
-    #             end_vert = p2
-    #             ver_id = ver[0]
-    #         bound = initial_vert[bond_direction]
-    #
-    #     new_edges = []
-    #     for edge in connected:
-    #         new_edges.append(self.primitives.create_object_from_edge(edge))
-    #
-    #     self.unite(new_edges)
-    #     self.generate_object_history(new_edges[0])
-    #     self.primitives.convert_segments_to_line(new_edges[0])
-    #
-    #     edges = self.primitives.get_object_edges(new_edges[0])
-    #     i = 0
-    #     edge_to_delete = []
-    #     first_vert = None
-    #     for edge in edges:
-    #         ver = self.primitives.get_edge_vertices(edge)
-    #         p1 = self.primitives.get_vertex_position(ver[0])
-    #         p2 = self.primitives.get_vertex_position(ver[1])
-    #         if not first_vert:
-    #             first_vert = p1
-    #         dist = GeometryOperators.points_distance(p1, p2)
-    #         if dist < min_size:
-    #             edge_to_delete.append(i)
-    #         i += 1
-    #
-    #     rad = 1e6
-    #     move_vector = None
-    #     for fc in centers:
-    #         dist = GeometryOperators.points_distance(fc, first_vert)
-    #         if dist < rad:
-    #             rad = dist
-    #             move_vector = GeometryOperators.v_sub(fc, first_vert)
-    #     if edge_to_delete:
-    #         self.primitives.delete_edges_from_polilyne(new_edges[0], edge_to_delete)
-    #     angle = math.pi * (180 -360/numberofsegments)/360
-    #     if exact_size:
-    #         status = self.primitives.create_polyline_with_crosssection(self.primitives.get_obj_name(new_edges[0]),
-    #                                                                  "Circle", rad * 2, numberofsegments)
-    #     else:
-    #         status = self.primitives.create_polyline_with_crosssection(self.primitives.get_obj_name(new_edges[0]),
-    #                                                                  "Circle", (rad*(2-math.sin(angle))) * 2, numberofsegments)
-    #     if status:
-    #         self.translate(new_edges[0], move_vector)
-    #         self.set_object_model_state(bondname, False)
-    #         return new_edges[0]
-    #     else:
-    #         return False
-
-
 
     @aedt_exception_handler
     def create_faceted_bondwire_from_true_surface(self, bondname, bond_direction, min_size = 0.2, numberofsegments=8):
@@ -3173,7 +3032,7 @@ class GeometryModeler(Modeler, object):
 
     @aedt_exception_handler
     def select_all_extfaces(self, mats):
-        """Select all external faces of a a list of objects
+        """Select all faces of a a list of objects that touches the model bounding box
 
         Parameters
         ----------
@@ -3188,9 +3047,11 @@ class GeometryModeler(Modeler, object):
         self.messenger.add_info_message("Selecting Outer Faces")
 
         sel = []
-
+        if type(mats) is str:
+            mats=[mats]
         for mat in mats:
             objs = self.oeditor.GetObjectsByMaterial(mat)
+            objs.extend(self.oeditor.GetObjectsByMaterial(mat.lower()))
             Id = []
             aedt_bounding_box = self.get_model_bounding_box()
             ObjName = []
@@ -3215,35 +3076,6 @@ class GeometryModeler(Modeler, object):
         return sel
 
     @aedt_exception_handler
-    def select_allfaces(self, mats):
-        """Select all external faces of a a list of objects
-
-        Parameters
-        ----------
-        mats :
-            list of materials to be included into the search. All objects with this materials will be included
-            :output sel: list of faces
-
-        Returns
-        -------
-
-        """
-        self.messenger.add_info_message("Selecting Outer Faces")
-
-        sel = []
-
-        for mat in mats:
-            objs = self.oeditor.GetObjectsByMaterial(mat)
-
-            for i in objs:
-
-                oFaceIDs = self.oeditor.GetFaceIDs(i)
-
-                for facce in oFaceIDs:
-                    sel.append(int(facce))
-        return sel
-
-    @aedt_exception_handler
     def load_hfss(self, cadfile):
         """
 
@@ -3260,7 +3092,7 @@ class GeometryModeler(Modeler, object):
         return True
 
     @aedt_exception_handler
-    def select_allfaces_frommat(self, mats):
+    def select_allfaces_from_mat(self, mats):
         """Select all external faces of a a list of objects
 
         Parameters
@@ -3276,7 +3108,8 @@ class GeometryModeler(Modeler, object):
         self.messenger.add_info_message("Selecting Outer Faces")
 
         sel = []
-
+        if type(mats) is str:
+            mats=[mats]
         for mat in mats:
             objs = self.oeditor.GetObjectsByMaterial(mat)
 
@@ -3316,7 +3149,7 @@ class GeometryModeler(Modeler, object):
 
     @aedt_exception_handler
     def select_ext_faces(self, mats):
-        """Select all external faces of a a list of objects
+        """This algorithm try to Select all external faces of a a list of objects
 
         Parameters
         ----------
@@ -3331,9 +3164,11 @@ class GeometryModeler(Modeler, object):
         self.messenger.add_info_message("Selecting Outer Faces")
 
         sel = []
-
+        if type(mats) is str:
+            mats=[mats]
         for mat in mats:
             objs = self.oeditor.GetObjectsByMaterial(mat)
+            objs.extend(self.oeditor.GetObjectsByMaterial(mat.lower()))
             Id = []
             aedt_bounding_box = self.get_model_bounding_box()
             ObjName = []

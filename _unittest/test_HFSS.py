@@ -183,8 +183,6 @@ class TestHFSS:
         assert pe.name in self.aedtapp.modeler.get_boundaries_name()
         assert ph.name in self.aedtapp.modeler.get_boundaries_name()
 
-
-
     def test_13_create_impedance_on_objects(self):
         box1 = self.aedtapp.modeler.primitives.create_box([0,0,0], [10,10,5], "imp1", "Copper")
         box2 = self.aedtapp.modeler.primitives.create_box([0, 0, 10], [10, 10, 5], "imp2", "copper")
@@ -204,7 +202,6 @@ class TestHFSS:
         assert pe.name in self.aedtapp.modeler.get_boundaries_name()
         ph = self.aedtapp.assign_perfecth_to_sheets("RectBound")
         assert ph.name in self.aedtapp.modeler.get_boundaries_name()
-
 
     def test_16_create_impedance_on_sheets(self):
         rect = self.aedtapp.modeler.primitives.create_rectangle(self.aedtapp.CoordinateSystemPlane.XYPlane, [0, 0, 0],
@@ -313,3 +310,10 @@ class TestHFSS:
 
     def test_30_assign_initial_mesh(self):
         assert self.aedtapp.mesh.assign_initial_mesh_from_slider(6)
+
+    def test_31_create_microstrip_port(self):
+        ms = self.aedtapp.modeler.primitives.create_box([4,5,0],[1,100,0.2],name="MS1", matname="copper")
+        sub = self.aedtapp.modeler.primitives.create_box([0,5,-2],[20,100,2],name="SUB1", matname="FR4_epoxy")
+        gnd = self.aedtapp.modeler.primitives.create_box([0,5,-2.2],[20,100,0.2],name="GND1", matname="FR4_epoxy")
+        port = self.aedtapp.create_wave_port_microstrip_between_objects("GND1", "MS1",   portname="MS1", axisdir=1)
+        assert port.name == "MS1"

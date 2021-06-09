@@ -36,6 +36,17 @@ class TestPrimitives:
         assert self.prim[id].object_type == "Solid"
         assert self.prim[id].is3d == True
 
+    def test_01_get_faces_from_mat(self):
+        faces = self.aedtapp.modeler.select_allfaces_from_mat("Copper")
+        assert len(faces)==6
+
+    def test_01_get_ext_faces(self):
+        udp = self.aedtapp.modeler.Position(1, 1, 1)
+        dimensions = [7, 7, 4]
+        id2 = self.prim.create_box(udp, dimensions, "Mybox2", "Copper")
+        faces = self.aedtapp.modeler.select_all_extfaces("Copper")
+        assert len(faces) == 6
+
     def test_01_check_object_faces(self):
         assert len(self.prim["Mybox"].faces) == 6
         f = self.prim["Mybox"].faces[0]
@@ -56,7 +67,9 @@ class TestPrimitives:
         v = self.prim["Mybox"].vertices[0]
         assert type(v.position) is list and len(v.position) == 3
 
-
+    def test_01_get_objects_in_group(self):
+        objs = self.aedtapp.modeler.get_objects_in_group("Solids")
+        assert type(objs) is list
 
     def test_02_create_circle(self):
         udp = self.aedtapp.modeler.Position(5, 3, 8)
@@ -147,8 +160,17 @@ class TestPrimitives:
         udp3 = [5, 5, 0]
         arrofpos = [udp1, udp2, udp3]
         P = self.aedtapp.modeler.primitives.draw_polyline(arrofpos, name="poly_vector")
+        assert type(self.aedtapp.modeler.get_vertices_of_line("poly_vector")) is list
         rect = self.aedtapp.modeler.primitives.create_rectangle(self.aedtapp.CoordinateSystemPlane.YZPlane, [0,-2,-2],[4,3], name="rect_1")
         assert self.aedtapp.modeler.sweep_along_path(rect, P.id )
+
+
+    def test_10_sweep_around_axis(self):
+        udp1 = [0, 0, 0]
+        udp2 = [5, 0, 0]
+        udp3 = [5, 5, 0]
+        rect = self.aedtapp.modeler.primitives.create_rectangle(self.aedtapp.CoordinateSystemPlane.YZPlane, [0,-2,-2],[4,3], name="rect_sw")
+        assert self.aedtapp.modeler.sweep_around_axis(rect, self.aedtapp.CoordinateSystemAxis.ZAxis )
 
     def test_10_sweep_along_vector(self):
         rect2 = self.aedtapp.modeler.primitives.create_rectangle(self.aedtapp.CoordinateSystemPlane.YZPlane, [0,-2,-2],[4,3], name="rect_2")
