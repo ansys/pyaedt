@@ -1975,8 +1975,6 @@ class Primitives(object):
         actual_point = None
         is_parallel = False
         for el in edge_start_list:
-            if el == 1380 or el == 1406:
-                print("found")
             vertices_i = self.get_edge_vertices(el)
             vertex1_i = None
             vertex2_i = None
@@ -1989,8 +1987,6 @@ class Primitives(object):
             else:
                 continue
             for el1 in edge_stop_list:
-                if el1 == 1380 or el1 == 1406:
-                    print("found")
                 vertices_j = self.get_edge_vertices(el1)
                 vertex1_j = None
                 vertex2_j = None
