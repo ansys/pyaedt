@@ -39,6 +39,7 @@ from ..generic.LoadAEDTFile import load_entire_aedt_file
 from ..generic.general_methods import aedt_exception_handler
 from ..generic.list_handling import variation_string_to_dict
 from ..modules.Boundary import BoundaryObject
+from ..generic.general_methods import generate_unique_name
 
 try:
     import webbrowser
@@ -247,7 +248,8 @@ class Design(object):
         self.variable_manager[variable_name] = variable_value
         return True
 
-    def __init__(self, design_type, project_name=None, design_name=None, solution_type=None):
+    def __init__(self, design_type, project_name=None, design_name=None, solution_type=None,
+                 specified_version=None, NG=False, AlwaysNew=True, release_on_exit=True):
         # Get Desktop from global Desktop Environment
         self._project_dictionary = OrderedDict()
         self.boundaries = OrderedDict()
@@ -255,7 +257,7 @@ class Design(object):
         self.design_datasets = {}
         main_module = sys.modules['__main__']
         if "pyaedt_initialized" not in dir(main_module):
-            Desktop()
+            Desktop(specified_version, NG, AlwaysNew, release_on_exit)
         self._project_dictionary = {}
         self._mttime = None
         self._desktop = main_module.oDesktop
@@ -1303,6 +1305,43 @@ class Design(object):
         """:return: Release the desktop by keeping it open"""
         release_desktop()
         return True
+
+    @aedt_exception_handler
+    def generate_temp_project_directory(self, name=None, base_path=None):
+        """Generate a unique directory string to store a project
+
+        Creates a directory name for storage of a project in a location which is guaranteed to exist. If base path
+        is specified, then use this and assert that it exists. If base_path is not specified, then use
+        self.temp_directory itself.
+
+        If the 'name' parameter is defined, then add a sub-directory within base_path, and add a suffix if
+        necessary to ensure that this directory is empty (unique name)
+
+        Parameters
+        ----------
+        name : str, default=None
+            Name of the directory. This will be joined to the base path. If not defined, then use the base path
+        base_path : str, default=None
+            Base path of the project directory (must exist). If not specified then use self.temp_directory
+
+        Returns
+        -------
+        str
+
+        """
+        if name:
+            dir_name =  generate_unique_name("Example")
+        else:
+            dir_name = ""
+
+        if not base_path:
+            base_path = self.temp_directory
+        else:
+            assert os.path.exists(base_path), "Specified path {} does not exist!".format(base_path)
+
+        project_dir = os.path.join(base_path, dir_name)
+        if not os.path.exists(project_dir): os.makedirs(project_dir)
+        return project_dir
 
     @aedt_exception_handler
     def help(self, modulename="index"):

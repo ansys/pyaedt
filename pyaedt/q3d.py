@@ -63,11 +63,14 @@ class QExtractor(FieldAnalysis3D, FieldAnalysis2D, object):
         design_file = os.path.join(self.working_directory, "design_data.json")
         return design_file
 
-    def __init__(self, Q3DType, projectname=None, designname=None, solution_type=None, setup_name=None):
+    def __init__(self, Q3DType, projectname=None, designname=None, solution_type=None, setup_name=None,
+                 specified_version=None, NG=False, AlwaysNew=True, release_on_exit=True):
         if Q3DType == "Q3D Extractor":
-            FieldAnalysis3D.__init__(self, "Q3D Extractor", projectname, designname, solution_type, setup_name)
+            FieldAnalysis3D.__init__(self, "Q3D Extractor", projectname, designname, solution_type, setup_name,
+                                     specified_version, NG, AlwaysNew, release_on_exit)
         else:
-            FieldAnalysis2D.__init__(self, "2D Extractor", projectname, designname, solution_type, setup_name)
+            FieldAnalysis2D.__init__(self, "2D Extractor", projectname, designname, solution_type, setup_name,
+                                     specified_version, NG, AlwaysNew, release_on_exit)
 
     def __enter__(self):
         return self
@@ -97,8 +100,10 @@ class Q3d(QExtractor, object):
     -------
 
     """
-    def __init__(self, projectname=None, designname=None, solution_type=None, setup_name=None):
-        QExtractor.__init__(self, "Q3D Extractor", projectname, designname, solution_type, setup_name)
+    def __init__(self, projectname=None, designname=None, solution_type=None, setup_name=None,
+                 specified_version=None, NG=False, AlwaysNew=True, release_on_exit=True):
+        QExtractor.__init__(self, "Q3D Extractor", projectname, designname, solution_type, setup_name,
+                            specified_version, NG, AlwaysNew, release_on_exit)
 
     @aedt_exception_handler
     def auto_identify_nets(self):
@@ -373,5 +378,7 @@ class Q2d(QExtractor, object):
         """ """
         return self.odesign.GetGeometryMode()
 
-    def __init__(self, projectname=None, designname=None, solution_type=None, setup_name=None):
-        QExtractor.__init__(self, "2D Extractor", projectname, designname, solution_type, setup_name)
+    def __init__(self, projectname=None, designname=None, solution_type=None, setup_name=None,
+                 specified_version=None, NG=False, AlwaysNew=True, release_on_exit=True):
+        QExtractor.__init__(self, "2D Extractor", projectname, designname, solution_type, setup_name,
+                            specified_version, NG, AlwaysNew, release_on_exit)

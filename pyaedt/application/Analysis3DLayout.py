@@ -20,9 +20,11 @@ class FieldAnalysis3DLayout(Analysis):
     -------
 
     """
-    def __init__(self, application, projectname, designname, solution_type, setup_name=None):
+    def __init__(self, application, projectname, designname, solution_type, setup_name=None,
+                 specified_version=None, NG=False, AlwaysNew=True, release_on_exit=True):
 
-        Analysis.__init__(self, application, projectname, designname, solution_type, setup_name)
+        Analysis.__init__(self, application, projectname, designname, solution_type, setup_name,
+                          specified_version, NG, AlwaysNew, release_on_exit)
         self.messenger.add_info_message("Analysis Loaded")
         self._modeler = Modeler3DLayout(self)
         self._modeler.primitives.init_padstacks()

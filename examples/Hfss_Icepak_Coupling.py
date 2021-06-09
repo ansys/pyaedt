@@ -30,7 +30,6 @@ print(project_dir)
 
 from pyaedt import Hfss
 from pyaedt import Icepak
-from pyaedt import Desktop
 import numpy as np
 import matplotlib.pyplot as plt
 
@@ -59,8 +58,7 @@ project_file = os.path.join(project_dir, project_name + ".aedt")
 # Initializes the HFSS Design in AEDT.
 # If there is a running HFSS Design the aedtapp will be linked to it, otherwise a new design will be run.
 
-desktop=Desktop(desktopVersion, NonGraphical, NewThread)
-aedtapp = Hfss()
+aedtapp = Hfss(specified_version=desktopVersion)
 
 ################################################################
 # Variables Settings
@@ -284,7 +282,7 @@ plt.show()
 
 
 aedtapp.close_project(aedtapp.project_name)
-desktop.force_close_desktop()
+aedtapp.close_desktop()
 
 
 

@@ -541,7 +541,8 @@ class Maxwell3d(Maxwell, FieldAnalysis3D, object):
         """ """
         return '3D'
 
-    def __init__(self, projectname=None, designname=None, solution_type=None, setup_name=None):
+    def __init__(self, projectname=None, designname=None, solution_type=None, setup_name=None,
+                 specified_version=None, NG=False, AlwaysNew=True, release_on_exit=True):
         """
         :param projectname: name of the project to be selected or full path to the project to be opened. if None try to
          get active project and, if nothing present to create an empty one
@@ -550,9 +551,9 @@ class Maxwell3d(Maxwell, FieldAnalysis3D, object):
         :param solution_type: solution type to be applied to design. if None default is taken
         :param setup_name: setup_name to be used as nominal. if none active setup is taken or nothing
         """
-        FieldAnalysis3D.__init__(self, "Maxwell 3D", projectname, designname, solution_type, setup_name)
+        FieldAnalysis3D.__init__(self, "Maxwell 3D", projectname, designname, solution_type, setup_name,
+                                 specified_version, NG, AlwaysNew, release_on_exit)
         Maxwell.__init__(self)
-        # AEDT_3D_FieldAnalysis.__init__(self, "Maxwell 3D", projectname, designname, solution_type, setup_name)
 
     @aedt_exception_handler
     def setup_ctrlprog(self, setup, py_file, file_str=None):
@@ -632,8 +633,10 @@ class Maxwell2d(Maxwell, FieldAnalysis2D, object):
         """ """
         return self.odesign.GetGeometryMode()
 
-    def __init__(self, projectname=None, designname=None, solution_type=None, setup_name=None):
-        FieldAnalysis2D.__init__(self, "Maxwell 2D", projectname, designname, solution_type, setup_name)
+    def __init__(self, projectname=None, designname=None, solution_type=None, setup_name=None,
+                 specified_version=None, NG=False, AlwaysNew=True, release_on_exit=True):
+        FieldAnalysis2D.__init__(self, "Maxwell 2D", projectname, designname, solution_type, setup_name,
+                                 specified_version, NG, AlwaysNew, release_on_exit)
         Maxwell.__init__(self)
 
     def get_model_depth(self):

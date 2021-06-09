@@ -21,7 +21,6 @@ root_path2 = root_path.parent
 sys.path.append(os.path.join(root_path))
 sys.path.append(os.path.join(root_path2))
 
-from pyaedt import Desktop
 from pyaedt import Maxwell3d
 from pyaedt import generate_unique_name
 
@@ -36,7 +35,6 @@ print(project_dir)
 
 NonGraphical = True
 
-oDesk = Desktop(specified_version="2021.1", NG=NonGraphical)
 project_name = 'test'
 project_name = os.path.join(project_dir, project_name + '.aedt')
 
@@ -44,7 +42,7 @@ project_name = os.path.join(project_dir, project_name + '.aedt')
 # Insert a Maxwell design and instantiate Geometry modeler.
 
 
-M3D = Maxwell3d(solution_type="EddyCurrent")
+M3D = Maxwell3d(solution_type="EddyCurrent", specified_version="2021.1", NG=NonGraphical)
 GEO = M3D.modeler
 GEO.model_units = "mm"
 CS = GEO.coordinate_system
@@ -156,7 +154,7 @@ plt.show()
 # oDesk.release_desktop(close_projects=True)  # doesn't work from Jupyter
 
 M3D.save_project(project_name)
-oDesk.force_close_desktop()  # Use this from Jupyter
+M3D.close_desktop()  # Use this from Jupyter
 
 
 
