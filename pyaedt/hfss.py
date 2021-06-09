@@ -1930,7 +1930,7 @@ class Hfss(FieldAnalysis3D, object):
         plotname :
             Name of the plot.
         Xaxis :
-            X-axis value. The default is ``X``.
+            X-axis value. The default is ``"X"``.
 
         Returns
         -------
