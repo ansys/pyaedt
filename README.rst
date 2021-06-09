@@ -7,9 +7,9 @@ collaboration. PyAEDT is licensed under the `MIT License
 <https://github.com/pyansys/PyAEDT/blob/main/LICENSE>`_.
 
 This tool includes functionality to interact the following AEDT tools and Ansys products:
-- HFSS
-- Icepak,
-- Maxwell 2D/3D
+- HFSS and HFSS 3D Layout
+- Icepak
+- Maxwell 2D/3D and RMxprt
 - Q3D/2DExtractor
 - Mechanical
 - Nexxim
@@ -23,7 +23,7 @@ to make scripting simpler for the end user.  It uses an architecture
 that can be reused for all AEDT 3D products (HFSS, Icepak, Maxwell 3D,
 Q3D and Mechanical) as well as 2D tools and circuit tools like
 Nexxim and Simplorer. Finally it provides scripting capabilities in Ansys
-layout tools like HFSS3DLayout/EDB. Its class and method structures simplify
+layout tools like HFSS 3D Layout and EDB. Its class and method structures simplify
 operation for the end user while reusing information as much as
 possible across the API.
 

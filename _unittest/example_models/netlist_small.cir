@@ -12,4 +12,15 @@ L200 N1721592 BUS_N 1uH
 U48 N1814870 BUS_N N1804444 GND_MEAS_DC DCH010505SN7
 V1 N1721592 BUS_N 12
 V2 N1814870 0 PULSE(0 10 0 0.1u 0.1u 1.2u 5u)
+I1 N1763408 0 1e-3
+.param a=50V
+.PARAM definire=20
+.param a1=50V
+.PARAM definire2=20
+.param a3=50V
+.PARAM definire3=20
+.param a4=50V
+.PARAM definire4=20
+.model CON4 V1
+.lib C:\Temp\model.lib
 .END

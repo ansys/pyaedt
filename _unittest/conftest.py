@@ -11,7 +11,7 @@ from pyaedt import Desktop
 default_config = {
     "desktopVersion": "2021.1",
     "NonGraphical": False,
-    "NewThread": False,
+    "NewThread": True,
     "test_desktops": False
 }
 

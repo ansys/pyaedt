@@ -30,8 +30,8 @@ wg1, p1, p2= hfss.modeler.create_waveguide([0,0,0],hfss.CoordinateSystemAxis.YAx
 ###################################
 # Create Wave ports on sheets
 
-hfss.create_wave_port_from_sheets(p1, axisdir=hfss.AxisDir.ZPos, portname="1")
-hfss.create_wave_port_from_sheets(p2, axisdir=hfss.AxisDir.ZPos, portname="2")
+hfss.create_wave_port_from_sheet(p1, axisdir=hfss.AxisDir.ZPos, portname="1")
+hfss.create_wave_port_from_sheet(p2, axisdir=hfss.AxisDir.ZPos, portname="2")
 
 ###################################
 # Here we create a setup and a frequency sweep that will be used as base for Optimetrics setups

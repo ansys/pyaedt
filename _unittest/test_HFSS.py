@@ -68,20 +68,20 @@ class TestHFSS:
         udp = self.aedtapp.modeler.Position(0, 0, 0)
         id5 = self.aedtapp.modeler.primitives.create_circle(self.aedtapp.CoordinateSystemPlane.YZPlane,udp,10, name="sheet1")
         self.aedtapp.solution_type ="DrivenTerminal"
-        ports = self.aedtapp.create_wave_port_from_sheets(id5,5,self.aedtapp.AxisDir.XNeg,40,2,"sheet1_Port", True)
+        ports = self.aedtapp.create_wave_port_from_sheet(id5, 5, self.aedtapp.AxisDir.XNeg, 40, 2, "sheet1_Port", True)
         assert ports[0].name == "sheet1_Port"
         assert ports[0].name in [i.name for i in self.aedtapp.boundaries]
         self.aedtapp.solution_type ="DrivenModal"
         udp = self.aedtapp.modeler.Position(5, 0, 0)
         id6 = self.aedtapp.modeler.primitives.create_circle(self.aedtapp.CoordinateSystemPlane.YZPlane,udp,10, name="sheet2")
-        ports = self.aedtapp.create_wave_port_from_sheets(id6,5,self.aedtapp.AxisDir.XPos,40,2,"sheet2_Port", True)
+        ports = self.aedtapp.create_wave_port_from_sheet(id6, 5, self.aedtapp.AxisDir.XPos, 40, 2, "sheet2_Port", True)
         assert ports[0].name == "sheet2_Port"
         assert ports[0].name in [i.name for i in self.aedtapp.boundaries]
 
         id6 = self.aedtapp.modeler.primitives.create_box([20,20,20], [10,10,2],matname="Copper", name="My_Box")
         id7 = self.aedtapp.modeler.primitives.create_box([20,25,30], [10,2,2],matname="Copper")
         rect = self.aedtapp.modeler.primitives.create_rectangle(self.aedtapp.CoordinateSystemPlane.YZPlane,[20,25,20],[2,10])
-        ports = self.aedtapp.create_wave_port_from_sheets(rect, 5,self.aedtapp.AxisDir.ZNeg,40,2,"sheet3_Port", True)
+        ports = self.aedtapp.create_wave_port_from_sheet(rect, 5, self.aedtapp.AxisDir.ZNeg, 40, 2, "sheet3_Port", True)
         assert ports[0].name in [i.name for i in self.aedtapp.boundaries]
         pass
 
@@ -183,8 +183,6 @@ class TestHFSS:
         assert pe.name in self.aedtapp.modeler.get_boundaries_name()
         assert ph.name in self.aedtapp.modeler.get_boundaries_name()
 
-
-
     def test_13_create_impedance_on_objects(self):
         box1 = self.aedtapp.modeler.primitives.create_box([0,0,0], [10,10,5], "imp1", "Copper")
         box2 = self.aedtapp.modeler.primitives.create_box([0, 0, 10], [10, 10, 5], "imp2", "copper")
@@ -204,7 +202,6 @@ class TestHFSS:
         assert pe.name in self.aedtapp.modeler.get_boundaries_name()
         ph = self.aedtapp.assign_perfecth_to_sheets("RectBound")
         assert ph.name in self.aedtapp.modeler.get_boundaries_name()
-
 
     def test_16_create_impedance_on_sheets(self):
         rect = self.aedtapp.modeler.primitives.create_rectangle(self.aedtapp.CoordinateSystemPlane.XYPlane, [0, 0, 0],
@@ -237,7 +234,7 @@ class TestHFSS:
     def test_19_create_lumped_on_sheet(self):
         rect = self.aedtapp.modeler.primitives.create_rectangle(self.aedtapp.CoordinateSystemPlane.XYPlane, [0, 0, 0],
                                                                 [10, 2], "lump_port", "Copper")
-        port = self.aedtapp.assign_lumped_port_to_sheet("lump_port", self.aedtapp.AxisDir.XNeg, 50,
+        port = self.aedtapp.create_lumped_port_to_sheet("lump_port", self.aedtapp.AxisDir.XNeg, 50,
                                                             "Lump_sheet", True, False)
         assert port+":1" in self.aedtapp.modeler.get_excitations_name()
 
@@ -313,3 +310,10 @@ class TestHFSS:
 
     def test_30_assign_initial_mesh(self):
         assert self.aedtapp.mesh.assign_initial_mesh_from_slider(6)
+
+    def test_31_create_microstrip_port(self):
+        ms = self.aedtapp.modeler.primitives.create_box([4,5,0],[1,100,0.2],name="MS1", matname="copper")
+        sub = self.aedtapp.modeler.primitives.create_box([0,5,-2],[20,100,2],name="SUB1", matname="FR4_epoxy")
+        gnd = self.aedtapp.modeler.primitives.create_box([0,5,-2.2],[20,100,0.2],name="GND1", matname="FR4_epoxy")
+        port = self.aedtapp.create_wave_port_microstrip_between_objects("GND1", "MS1",   portname="MS1", axisdir=1)
+        assert port.name == "MS1"
