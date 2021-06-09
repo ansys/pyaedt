@@ -439,7 +439,7 @@ class Hfss(FieldAnalysis3D, object):
                 setupdata = i
                 for sw in setupdata.sweeps:
                     if sweepname == sw.name:
-                        self.messenger.add_warning_message("Sweep {} already present. Please rename and retry".format(sweepname))
+                        self.messenger.add_warning_message("Sweep {} is already present. Rename and retry.".format(sweepname))
                         return False
                 sweepdata = setupdata.add_sweep(sweepname, "Discrete")
                 sweepdata.props["RangeStart"] = str(freqstart) + unit
@@ -1090,9 +1090,9 @@ class Hfss(FieldAnalysis3D, object):
         sheet_name :
             Name  of the sheet. It can be an integer (facesID), a string (sheet), or a list of previous. The default is ``None``.
         boundary_name :
-            Name of the boundary. The default is `` ``.
+            Name of the boundary. The default is ``" "``.
         is_infinite_gnd :
-            Boolean, The default is ``False``.
+            Boolean. The default is ``False``.
 
         Returns
         -------
