@@ -6,10 +6,6 @@
 Setup
 ===================================
 
-**Diagram**
-
-.. inheritance-diagram:: pyaedt.modules.SolveSetup pyaedt.modules.SetupTemplates pyaedt.modules.SolutionType
-    :parts: 1
 
 .. toctree::
    :maxdepth: 2

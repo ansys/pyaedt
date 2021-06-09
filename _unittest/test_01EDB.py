@@ -6,7 +6,7 @@ import time
 # Import required modules
 from pyaedt import Edb
 from pyaedt.generic.filesystem import Scratch
-from .conftest import desktopVersion
+from .conftest import desktop_version
 test_project_name = "Galileo"
 
 
@@ -19,11 +19,12 @@ class Test3DLayout:
                 aedbproject = os.path.join(self.local_scratch.path, test_project_name + '.aedb')
                 self.local_scratch.copyfolder(os.path.join(local_path, 'example_models', test_project_name + '.aedb'),
                                               os.path.join(self.local_scratch.path, test_project_name + '.aedb'))
-                self.edbapp = Edb(aedbproject, 'Galileo_G87173_204', edbversion=desktopVersion, isreadonly=False)
+                self.edbapp = Edb(aedbproject, 'Galileo_G87173_204', edbversion=desktop_version, isreadonly=False)
             except:
                 pass
 
     def teardown_class(self):
+
         self.edbapp.close_edb()
         self.edbapp = None
         self.local_scratch.remove()
@@ -51,7 +52,7 @@ class Test3DLayout:
 
     def get_signal_layers(self):
         signal_layers = self.edbapp.core_stackup.signal_layers
-        assert signal_layers
+        assert (len(list(signal_layers.values())))
 
     def test_component_lists(self):
         component_list = self.edbapp.core_components.components
@@ -75,13 +76,12 @@ class Test3DLayout:
         assert self.edbapp.core_components.set_component_rlc("L3A1", res_value=1e-3, ind_value="10e-6", isparallel=True)
 
     def test_update_layer(self):
-        layers = self.edbapp.core_stackup.stackup_layers
-        layers['LYR_1'].name
-        layers['LYR_1'].thickness_value = "100um"
+        self.edbapp.core_stackup.stackup_layers['LYR_1'].name
+        self.edbapp.core_stackup.stackup_layers['LYR_1'].thickness_value = "100um"
         time.sleep(2)
-        assert layers['LYR_1'].thickness_value == "100um"
-        layers['LYR_2'].material_name = "aluminum"
-        assert layers['LYR_2'].material_name == "aluminum"
+        assert self.edbapp.core_stackup.stackup_layers['LYR_1'].thickness_value == "100um"
+        self.edbapp.core_stackup.stackup_layers['LYR_2'].material_name = "aluminum"
+        assert self.edbapp.core_stackup.stackup_layers['LYR_2'].material_name == "aluminum"
 
     def test_add_layer(self):
         layers = self.edbapp.core_stackup.stackup_layers
@@ -170,7 +170,13 @@ class Test3DLayout:
         assert self.edbapp.core_hfss.create_coax_port_on_component("U2A5","V1P0_S0")
 
     def test_create_siwave_circuit_port(self):
-        assert self.edbapp.core_siwave.create_circuit_port("U2A5", "DDR3_DM0")
+        assert self.edbapp.core_siwave.create_circuit_port("U2A5","V1P5_S3","U2A5","GND",50,"test")
+
+    def test_create_siwave_voltage_source(self):
+        assert self.edbapp.core_siwave.create_voltage_source("U2A5","V1P5_S3","U2A5","GND",3.3,0)
+
+    def test_create_siwave_current_source(self):
+        assert self.edbapp.core_siwave.create_current_source("U2A5","V1P5_S3","U2A5","GND",0.1,0)
 
     def test_create_siwave_ac_analsyis(self):
         assert self.edbapp.core_siwave.add_siwave_ac_analysis()

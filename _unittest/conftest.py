@@ -1,22 +1,30 @@
+import tempfile
 import pytest
 import os
 import time
 import shutil
 import sys
-from pyaedt import Desktop
 import pathlib
+
+from pyaedt import Desktop
+
 local_path = os.path.dirname(os.path.realpath(__file__))
 module_path = pathlib.Path(local_path)
-scratch_path = "C:\\temp"
-sys.path.append(module_path)
 
-desktopVersion = "2021.1"
-NonGraphical = False
-NewThread = False
+# set scratch path and create it if necessary
+scratch_path = tempfile.TemporaryDirectory().name
+if not os.path.isdir(scratch_path):
+    os.mkdir(scratch_path)
+
+
+desktop_version = "2021.1"
+non_graphical = False
+new_thread = True
+
 
 @pytest.fixture(scope='session', autouse=True)
 def desktop_init():
-    desktop = Desktop(desktopVersion, NonGraphical, NewThread)
+    desktop = Desktop(desktop_version, non_graphical, new_thread)
 
     yield desktop
 
@@ -24,10 +32,4 @@ def desktop_init():
     p = pathlib.Path(scratch_path).glob('**/scratch*')
     for folder in p:
         shutil.rmtree(folder, ignore_errors=True)
-    if os.path.exists(os.path.join(local_path, "batch.log")):
-        time.sleep(2) #wait that batch.log is released
-        try:
-            os.remove(os.path.join(local_path, "batch.log"))
-        except:
-            print("cannot remove batch.log file")
 

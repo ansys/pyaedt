@@ -7,7 +7,7 @@ EDB Components
 ===================================
 **Diagram**
 
-.. automodule:: pyaedt.edb.components
+.. automodule:: pyaedt.edb_core.components
     :members:
 
 .. toctree::

@@ -2,32 +2,21 @@
 Simplorer Class
 ----------------------------------------------------------------
 
-Disclaimer
-==================================================
-
-**Copyright (c) 1986-2021, ANSYS Inc. unauthorised use, distribution or duplication is prohibited**
-
-**This tool release is unofficial and not covered by standard Ansys Support license.**
+This class contains all Simplorer functionalities.
 
 
-Description
-==================================================
+Examples:
 
-This class contains all the Simplorer Functionalities.
-
-
-:Example:
-
-app = Simplorer()     creates and Icepak object and connect to existing Maxwell design (create a new Maxwell design if not present)
+app = Simplorer()     Creates a ``Simplorer`` object and connects to an existing Maxwell design or cceates a new Maxwell design if one is not present.
 
 
-app = Simplorer(projectname)     creates and  Maxwell and link to projectname project
+app = Simplorer(projectname)     Creates a ``Simplorer`` object and links to a project named projectname.
 
 
-app = Simplorer(projectname,designame)     creates and Maxwell object and link to designname design in projectname project
+app = Simplorer(projectname,designame)     Creates a ``Simplorer`` object and links to a design named designname in a project named projectname.
 
 
-app = Simplorer("myfile.aedt")     creates and Maxwell object and open specified project
+app = Simplorer("myfile.aedt")     Creates a ``Simplorer`` object and opens the specified project.
 
 
 """
@@ -48,9 +37,9 @@ class Simplorer(FieldAnalysisSimplorer, object):
     ----------
     projectname :
         name of the project to be selected or full path to the project to be opened  or to the AEDTZ
-        archive. if None try to get active project and, if nothing present to create an empy one
+        archive. if None try to get active project and, if nothing present to create an empty one
     designname :
-        name of the design to be selected. if None, try to get active design and, if nothing present to create an empy one
+        name of the design to be selected. if None, try to get active design and, if nothing present to create an empty one
     solution_type :
         solution type to be applied to design. if None default is taken
     setup_name :
@@ -64,9 +53,9 @@ class Simplorer(FieldAnalysisSimplorer, object):
     def __init__(self, projectname=None, designname=None, solution_type=None, setup_name=None):
         """
         :param projectname: name of the project to be selected or full path to the project to be opened. if None try to
-         get active project and, if nothing present to create an empy one
+         get active project and, if nothing present to create an empty one
         :param designname: name of the design to be selected. if None, try to get active design and, if nothing present
-        to create an empy one
+        to create an empty one
         :param solution_type: solution type to be applied to design. if None default is taken
         :param setup_name: setup_name to be used as nominal. if none active setup is taken or nothing
         """

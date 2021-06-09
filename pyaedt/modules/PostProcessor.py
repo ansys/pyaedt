@@ -2,13 +2,6 @@
 Post Processing Library Class
 --------------------------------------------------------------------------------
 
-Disclaimer
-========================================
-
-**Copyright (c) 1986-2021, ANSYS Inc. unauthorised use, distribution or duplication is prohibited**
-
-**This tool release is unofficial and not covered by standard Ansys Support license.**
-
 
 Description
 ============================================================
@@ -824,7 +817,7 @@ class PostProcessor(object):
             grid_stop_wu = [str(grid_stop[0])+units, str(grid_stop[1])+ang_units, str(grid_stop[2])+ang_units]
             grid_step_wu = [str(grid_step[0])+units, str(grid_step[1])+ang_units, str(grid_step[2])+ang_units]
         else:
-            self._parent._messenger.add_error_message("Erro in Type of Grid")
+            self._parent._messenger.add_error_message("Error in Type of Grid")
             return False
         if not variation_dict:
             variation_dict = self._parent.available_variations.nominal_w_values
@@ -1127,7 +1120,7 @@ class PostProcessor(object):
 
     @aedt_exception_handler
     def export_field_image_with_View(self, plotName, exportFilePath, view="iso", wireframe=True):
-        """NOTE: on AEDT 2019.3 it works only on ISO view due to a bug in API. It woks fine from 2020R1
+        """NOTE: on AEDT 2019.3 it works only on ISO view due to a bug in API. It woks fine from 2021R1
 
         Parameters
         ----------
@@ -1193,7 +1186,7 @@ class PostProcessor(object):
         name :
             Project Name
         Xaxis :
-            Indipendent Variable
+            Independent Variable
         outputlist :
             List of Parameter to export
         setupname :
@@ -1236,7 +1229,7 @@ class PostProcessor(object):
         name :
             Project Name
         Xaxis :
-            Indipendent Variable
+            independent Variable
         outputlist :
             List of Parameter to export
         setupname :
@@ -1455,6 +1448,8 @@ class PostProcessor(object):
         """
 
         # Setup arguments list for createReport function
+        if not os.path.exists(dir + "//" + name):
+            os.mkdir(dir + "//" + name)
         if not os.path.exists(dir + "//" + name + "//Pictures"):
             os.mkdir(dir + "//" + name + "//Pictures")
 

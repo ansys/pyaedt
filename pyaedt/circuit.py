@@ -1,23 +1,9 @@
 # -*- coding: utf-8 -*-
 """
 Circuit Class
-----------------
-
-Disclaimer
-==========
-
-**Copyright (c) 1986-2021, ANSYS Inc. unauthorised use, distribution or duplication is prohibited**
-
-**This tool release is unofficial and not covered by standard Ansys Support license.**
-
-
-Description
-==================================================================
-
-This class contains the link to Circuit object. It includes all inherited classes and modules needed to create and edit circut designs
-
-
-================================================================
+-------------
+This class contains the link to the ``Circuit`` object. It includes all
+inherited classes and modules needed to create and edit circuit designs.
 
 """
 from __future__ import absolute_import
@@ -26,6 +12,7 @@ from .application.AnalysisNexxim import FieldAnalysisCircuit
 from .desktop import exception_to_desktop
 from .generic.general_methods import generate_unique_name, aedt_exception_handler
 import re
+import os
 
 RKM_MAPS = {
     # Resistors
@@ -73,20 +60,48 @@ AEDT_MAPS = {
 
 
 def from_rkm(code):
-    """Convert a RKM code string to a string with decimal point.
-    example: R47 = 0.47,  4R7 = 4.7,  470R = 470,  4K7 = 4.7k,  47K = 47k, 47K3 = 47.3k,  470K = 470k,  4M7 = 4.7MΩ
+    """Convert a RKM code string to a string with a decimal point.
 
     Parameters
     ----------
     code : str
-        
+        RKM code string.
 
     Returns
     -------
     str
+        String with a decimal point and R value.
+
+    Examples
+    --------
+    >>> from pyaedt.circuit import from_rkm
+    >>> from_rkm('R47')
+    '0.47'
+
+    >>> from_rkm('4R7')
+    '4.7'
+
+    >>> from_rkm('470R')
+    '470'
+
+    >>> from_rkm('4K7')
+    '4.7k'
+
+    >>> from_rkm('47K')
+    '47k'
+
+    >>> from_rkm('47K3')
+    '47.3k'
+
+    >>> from_rkm('470K')
+    '470k'
+
+    >>> from_rkm('4M7')
+    '4.7M'
+
     """
 
-    # matches rkm codes that start with a digit
+    # Matches RKM codes that start with a digit.
     # fd_pattern = r'([0-9]+)([LREkKMGTFmuµUnNpP]+)([0-9]*)'
     fd_pattern = r'([0-9]+)([{}]+)([0-9]*)'.format(''.join(RKM_MAPS.keys()),)
     # matches rkm codes that end with a digit
@@ -144,21 +159,22 @@ def from_rkm_to_aedt(code):
 
 
 class Circuit(FieldAnalysisCircuit, object):
-    """Circuit Object
+    """Circuit object.
 
     Parameters
     ----------
-    projectname :
-        name of the project to be selected or full path to the project to be opened  or to the AEDTZ archive. if None try to get active project and, if nothing present to create an empy one
-    designname :
-        name of the design to be selected. if None, try to get active design and, if nothing present to create an empy one
-    solution_type :
-        solution type to be applied to design. if None default is taken
-    setup_name :
-        setup_name to be used as nominal. if none active setup is taken or nothing
-
-    Returns
-    -------
+    projectname : str, optional
+        Name of the project to select or the full path to the project
+        or AEDTZ archive to open. If ``None``, try to get the
+        active project and, if no project is present, create an empty project.
+    designname : str, optional
+        Name of the design to select. If ``None``, try to get the
+        active design and, if no design is present, create an empty design.
+    solution_type : str, optional
+        Solution type to apply to the design. If ``None``, the default is used.
+    setup_name : str, optional
+        Setup_name to use as nominal. If ``None``, the active setup is
+        used or nothing is used.
 
     """
 
@@ -169,30 +185,23 @@ class Circuit(FieldAnalysisCircuit, object):
         return self
 
     def __exit__(self, ex_type, ex_value, ex_traceback):
-        ''' Push exit up to parent object Design '''
         if ex_type:
             exception_to_desktop(self, ex_value, ex_traceback)
 
+    @property
+    def onetwork_data_explorer(self):
+        return self._desktop.GetTool("NdExplorer")
+
     @aedt_exception_handler
     def _get_number_from_string(self, stringval):
-        """
-
-        Parameters
-        ----------
-        stringval :
-            
-
-        Returns
-        -------
-
-        """
         value = stringval[stringval.find("=") + 1:].strip().replace("{", "").replace("}", "").replace(",",".")
         return from_rkm_to_aedt(value)
 
 
     @aedt_exception_handler
     def create_schematic_from_netlist(self, file_to_import):
-        """Create a Circuit Schematic from a spice netlist.
+        """Create a circuit schematic from a spice netlist.
+
         Supported in this moment:
         -R, L, C, Diodes, Bjts
         -Discrete components with syntax Uxxx net1 net2 ... netn modname
@@ -206,7 +215,6 @@ class Circuit(FieldAnalysisCircuit, object):
         -------
         bool
             True if completed
-
         """
         xpos = 0
         ypos = 0
@@ -393,21 +401,20 @@ class Circuit(FieldAnalysisCircuit, object):
 
     @aedt_exception_handler
     def create_schematic_from_mentor_netlist(self, file_to_import):
-        """Create a Circuit Schematic from a Mentor netlist.
-        Supported in this moment:
+        """Create a circuit schematic from a Mentor netlist.
+        Supported currently:
         -R, L, C, Diodes, Bjts
         -Discrete components with syntax Uxxx net1 net2 ... netn modname
 
         Parameters
         ----------
         file_to_import : str
-            full path to spice file
+            Full path to the spice file.
 
         Returns
         -------
         bool
-            True if completed
-
+            ``True`` if successful.
         """
 
         xpos = 0
@@ -439,8 +446,8 @@ class Circuit(FieldAnalysisCircuit, object):
 
         column_number = int(math.sqrt(len(comps)))
         for el in comps:
-            name = el[2].strip()   #Remove carriage return
-            name = name[1:-1]      #remove quotes
+            name = el[2].strip()   #Remove carriage return.
+            name = name[1:-1]      #Remove quotes.
             if len(el) > 3:
                 comptype = el[3]
             else:
@@ -520,18 +527,17 @@ class Circuit(FieldAnalysisCircuit, object):
 
     @aedt_exception_handler
     def retrieve_mentor_comp(self, refid):
-        """Identifies from the reference ID which type of component is (from Mentor Netlist)
+        """Identifies from the reference ID the type of Mentor Netlist component.
 
         Parameters
         ----------
         refid : str
-            string
+            Reference ID.
 
         Returns
         -------
         str
             refid Nexxim Type
-
         """
         if refid[1] == "R":
             return "resistor:RES."
@@ -547,35 +553,35 @@ class Circuit(FieldAnalysisCircuit, object):
             return ""
 
     @aedt_exception_handler
-    def get_source_pin_names(self, source_project_path, source_project_name, source_design_name, port_selector=3):
-        """port_selector:
+    def get_source_pin_names(self, source_design_name, source_project_name=None, source_project_path=None, port_selector=3):
+        """Port_selector:
         - 1 Wave Port
         - 2 Terminal
         - 3 Circuit Port
 
         Parameters
         ----------
-        source_project_path :
-
-        source_project_name :
-            
-        source_design_name :
-            
-        port_selector :
+        source_project_name :str
+            source project name
+        source_design_name : str
+            source design name
+        source_project_path : str
+            source project path if different than existsting one
+        port_selector : int
+             1 - Wave Port, 2  - Terminal, 3 - Circuit
              (Default value = 3)
 
         Returns
         -------
-
+        list
+            pin lists
         """
 
-        oName = self.project_name
-        if oName == source_project_name:
+        if not source_project_name or self.project_name == source_project_name:
             oSrcProject = self._desktop.GetActiveProject()
         else:
             self._desktop.OpenProject(source_project_path)
             oSrcProject = self._desktop.SetActiveProject(source_project_name)
-
         oDesign = oSrcProject.SetActiveDesign(source_design_name)
         oModule = oDesign.GetModule("BoundarySetup")
         port = None
@@ -594,7 +600,7 @@ class Circuit(FieldAnalysisCircuit, object):
 
     @aedt_exception_handler
     def import_touchsthone_solution(self, filename, solution_name="Imported_Data"):
-        """ Import Touchstone file as solution
+        """ Import Touchstone file as the solution.
 
         Parameters
         ----------
@@ -646,93 +652,95 @@ class Circuit(FieldAnalysisCircuit, object):
         self.odesign.ImportData(arg, "", True)
         return portnames
 
-    # @aedt_exception_handler
-    # def export_fullwave_spice(self, designname=None, setupname=None, is_solution_file=False, filename=None,
-    #                           passivity=False, causality=False, renormalize=False, impedance=50, error=0.5,
-    #                           poles=10000):
-    #     """
-    #     This method doesn't work actually
-    #     Export Full Wave Spice using NDE
-    #
-    #     Parameters
-    #     ----------
-    #     designname : str
-    #             name of the design or the solution file full path if it is an imported file
-    #     setupname : str
-    #             name of setup if is a design
-    #     is_solution_file: bool
-    #             True if it is an imported solution
-    #     filename: str
-    #             full path to exported sp file
-    #     passivity: bool
-    #     causality: bool
-    #     renormalize: bool
-    #     impedance: float
-    #         impedance in case of renormalization
-    #     error: float
-    #         fitting error
-    #     poles: int
-    #         fitting poles
-    #
-    #     Returns
-    #     -------
-    #     str
-    #         filename if the export if successful
-    #     """
-    #     if not designname:
-    #         designname = self.design_name
-    #     if not filename:
-    #         filename = os.path.join(self.project_path, self.design_name + ".sp")
-    #     if is_solution_file:
-    #         setupname = designname
-    #         designname = ""
-    #     else:
-    #         if not setupname:
-    #             setupname=self.nominal_sweep
-    #     self.onetwork_data_explorer.ExportFullWaveSpice(designname, is_solution_file, setupname, "",
-    #                                                     ["NAME:Frequencies"],
-    #                                                     ["NAME:SpiceData", "SpiceType:=", "HSpice",
-    #                                                      "EnforcePassivity:=", passivity, "EnforceCausality:=",
-    #                                                      causality,
-    #                                                      "UseCommonGround:=", True,
-    #                                                      "ShowGammaComments:=", True,
-    #                                                      "Renormalize:=", renormalize,
-    #                                                      "RenormImpedance:=", impedance,
-    #                                                      "FittingError:=", error,
-    #                                                      "MaxPoles:=", poles,
-    #                                                      "PassivityType:=", "IteratedFittingOfPV",
-    #                                                      "ColumnFittingType:=", "Matrix",
-    #                                                      "SSFittingType:=", "FastFit",
-    #                                                      "RelativeErrorToleranc:=", False,
-    #                                                      "EnsureAccurateZfit:=", True,
-    #                                                      "TouchstoneFormat:=", "MA",
-    #                                                      "TouchstoneUnits:=", "GHz",
-    #                                                      "TouchStonePrecision:=", 15,
-    #                                                      "SubcircuitName:=", "",
-    #                                                      "SYZDataInAutoMode:=", False,
-    #                                                      "ExportDirectory:=", os.path.dirname(filename)+"\\",
-    #                                                      "ExportSpiceFileName:=", os.path.basename(filename),
-    #                                                      "FullwaveSpiceFileName:=", os.path.basename(filename)[:-2]+"sss"])
-    #     return filename
-
     @aedt_exception_handler
-    def create_touchstone_report(self,plot_name, curvenames, solution_name=None, variation_dict=None):
-        """Create a touchstone plot
+    def export_fullwave_spice(self, designname=None, setupname=None, is_solution_file=False, filename=None,
+                              passivity=False, causality=False, renormalize=False, impedance=50, error=0.5,
+                              poles=10000):
+        """
+        This method doesn't work.
+        Export Full Wave Spice using NDE.
 
         Parameters
         ----------
-        plot_name :
-            name of the plot
-        curvenames :
-            list of curves to plot
-        solution_name :
-            name of solution (Default value = None)
-        variation_dict :
-            name of variations (Default value = None)
+        designname : str
+                Name of the design or the solution file full path if it is an imported file.
+        setupname : str
+                Name of setup if it is a design.
+        is_solution_file: bool
+                True if it is an imported solution.
+        filename: str
+                Full path to the exported sp file.
+        passivity: bool
+        causality: bool
+        renormalize: bool
+        impedance: float
+            impedance in case of renormalization
+        error: float
+            fitting error
+        poles: int
+            fitting poles
 
         Returns
         -------
-        type
+        str
+            The file name if the export is successful.
+        """
+        if not designname:
+            designname = self.design_name
+        if not filename:
+            filename = os.path.join(self.project_path, self.design_name + ".sp")
+        if is_solution_file:
+            setupname = designname
+            designname = ""
+        else:
+            if not setupname:
+                setupname=self.nominal_sweep
+        self.onetwork_data_explorer.ExportFullWaveSpice(designname, is_solution_file, setupname, "",
+                                                        [],
+                                                        ["NAME:SpiceData", "SpiceType:=", "HSpice",
+                                                         "EnforcePassivity:=", passivity, "EnforceCausality:=",
+                                                         causality,
+                                                         "UseCommonGround:=", True,
+                                                         "ShowGammaComments:=", True,
+                                                         "Renormalize:=", renormalize,
+                                                         "RenormImpedance:=", impedance,
+                                                         "FittingError:=", error,
+                                                         "MaxPoles:=", poles,
+                                                         "PassivityType:=", "IteratedFittingOfPV",
+                                                         "ColumnFittingType:=", "Matrix",
+                                                         "SSFittingType:=", "FastFit",
+                                                         "RelativeErrorToleranc:=", False,
+                                                         "EnsureAccurateZfit:=", True,
+                                                         "TouchstoneFormat:=", "MA",
+                                                         "TouchstoneUnits:=", "GHz",
+                                                         "TouchStonePrecision:=", 15,
+                                                         "SubcircuitName:=", "",
+                                                         "SYZDataInAutoMode:=", False,
+                                                         "ExportDirectory:=", os.path.dirname(filename)+"\\",
+                                                         "ExportSpiceFileName:=", os.path.basename(filename),
+                                                         "FullwaveSpiceFileName:=",
+                                                         os.path.basename(filename), "UseMultipleCores:=",
+                                                         True, "NumberOfCores:=", 20])
+        return filename
+
+    @aedt_exception_handler
+    def create_touchstone_report(self,plot_name, curvenames, solution_name=None, variation_dict=None):
+        """Create a touchstone plot.
+
+        Parameters
+        ----------
+        plot_name : str
+            Name of the plot.
+        curvenames : str
+            List of the curves to plot.
+        solution_name : str
+            Name of the solution. The default value is ``None``.
+        variation_dict : dict
+            Names of the variations. The default value is ``None``.
+
+        Returns
+        -------
+        bool
             Boolean
 
         """
@@ -747,5 +755,4 @@ class Circuit(FieldAnalysisCircuit, object):
                              ["NAME:Context", "SimValueContext:=",
                               [3, 0, 2, 0, False, False, -1, 1, 0, 1, 1, "", 0, 0]], variations,
                              ["X Component:=", "Freq", "Y Component:=", curvenames])
-
         return True

@@ -1,10 +1,15 @@
 from __future__ import absolute_import
-import clr
+import warnings
 from .general import *
 from ..generic.general_methods import get_filename_without_extension, generate_unique_name
-from System import Convert, String
-from System import Double, Array
-from System.Collections.Generic import List
+
+try:
+    import clr
+    from System import Convert, String
+    from System import Double, Array
+    from System.Collections.Generic import List
+except ImportError:
+    warnings.warn('This module requires pythonnet.')
 
 
 class EdbNets(object):
@@ -174,21 +179,16 @@ class EdbNets(object):
         component_type = []
         for el in df_list:
             refdes = el[0]
-            comp_type = self.parent.core_components.components[refdes].type
+            comp_type = self.parent.core_components._cmp[refdes].type
             component_type.append(comp_type)
             el.append(comp_type)
         return df_list, net_group
 
     @aedt_exception_handler
     def get_net_by_name(self, net_name):
-        edb_net = self.parent.edb.Cell.Net.FindByName(self.edb.builder.layout, net_name)
+        edb_net = self.parent.edb.Cell.Net.FindByName(self.active_layout, net_name)
         if edb_net is not None:
             return edb_net
-
-    @aedt_exception_handler
-    def get_component_from_net(self, net_name):
-        edb_net = self.get_net_by_name(net_name)
-        return list(set([net for net in edb_net.Terminals.GetComponent().GetName()]))
 
     @aedt_exception_handler
     def delete_nets(self, netlist):

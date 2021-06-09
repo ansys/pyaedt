@@ -2,13 +2,6 @@
 Mesh Library Class
 ----------------------------------------------------------------
 
-Disclaimer
-==================================================
-
-**Copyright (c) 1986-2021, ANSYS Inc. unauthorised use, distribution or duplication is prohibited**
-
-**This tool release is unofficial and not covered by standard Ansys Support license.**
-
 
 Description
 ==================================================
@@ -507,7 +500,7 @@ class Mesh(object):
         else:
             seltype = None
         if seltype is None:
-            self.messenger.add_error_message("Error in Assigment")
+            self.messenger.add_error_message("Error in Assignment")
             return
         props = OrderedDict({"Type": "LengthBased", "RefineInside": isinside, "Enabled": True, seltype: names,
                              "RestrictElem": restrictel, "NumMaxElem": numel, "RestrictLength": restrictlength,
@@ -568,7 +561,7 @@ class Mesh(object):
         else:
             seltype = None
         if seltype is None:
-            self.messenger.add_error_message("Error in Assigment")
+            self.messenger.add_error_message("Error in Assignment")
             return
 
         props = OrderedDict({"Type": "SkinDepthBased", "Enabled": True, seltype: names,
@@ -617,7 +610,7 @@ class Mesh(object):
         else:
             seltype = None
         if seltype is None:
-            self.messenger.add_error_message("Error in Assigment")
+            self.messenger.add_error_message("Error in Assignment")
             return
         props = OrderedDict({"Type": "Curvilinear", seltype: names, "Apply": enable})
         mop = MeshOperation(self, meshop_name, props, "Curvilinear")
@@ -661,7 +654,7 @@ class Mesh(object):
         else:
             seltype = None
         if seltype is None:
-            self.messenger.add_error_message("Error in Assigment")
+            self.messenger.add_error_message("Error in Assignment")
             return
         props = OrderedDict(
             {"Type": "CurvatureExtraction", seltype: names, "DisableForFacetedSurfaces": disable_for_faceted_surf})
@@ -757,7 +750,7 @@ class Mesh(object):
         refine_inside :
             Boolean (Default value = True)
         maxelementlength :
-            dim wih units. None to disable (Default value = None)
+            dim with units. None to disable (Default value = None)
         layerNum :
             Number. None to disable (Default value = None)
         meshop_name :

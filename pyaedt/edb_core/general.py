@@ -4,21 +4,21 @@ General Methods
 
 This class manages Edb General Methods and related methods
 
-Disclaimer
-==========
-
-**Copyright (c) 1986-2021, ANSYS Inc. unauthorised use, distribution or duplication is prohibited**
-
-**This tool release is unofficial and not covered by standard Ansys Support license.**
-
-
 
 """
 from __future__ import absolute_import
-import clr
-clr.AddReference("System.Collections")
-from System.Collections.Generic import List
-from System import Int32
+import warnings
+
+
+try:
+    import clr
+    clr.AddReference("System.Collections")
+    from System.Collections.Generic import List
+    from System import Int32
+except ImportError:
+    warnings.warn('This module requires pythonnet.')
+
+
 import inspect
 import itertools
 import sys

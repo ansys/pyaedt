@@ -4,20 +4,21 @@ EdbStackup Class
 
 This class manages Edb Stackup and related methods
 
-Disclaimer
-==========
-
-**Copyright (c) 1986-2021, ANSYS Inc. unauthorised use, distribution or duplication is prohibited**
-
-**This tool release is unofficial and not covered by standard Ansys Support license.**
 
 
 
 """
 from __future__ import absolute_import
+import warnings
 from .general import *
-from System import Double
-from System.Collections.Generic import List
+
+try:
+    from System import Double
+    from System.Collections.Generic import List
+except ImportError:
+    warnings.warn('This module requires pythonnet.')
+
+
 from .EDB_Data import EDBLayers, EDBLayer
 
 

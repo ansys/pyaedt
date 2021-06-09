@@ -444,7 +444,7 @@ class GeometryOperators(object):
     @staticmethod
     @aedt_exception_handler
     def distance_vector(p, a, b):
-        """return the vector distance betwee a point p and a line defined by two points a1 and a2
+        """return the vector distance between a point p and a line defined by two points a1 and a2
         The used formula is   d = (a-p)-((a-p)dot p)n
         where a is a point of the line (either a1 or a2) and n is the unit vector in the direction of the line.
 

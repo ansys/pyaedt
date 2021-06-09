@@ -6,7 +6,7 @@
 Icepak
 ===================================
 
-.. automodule:: pyaedt.Icepak
+.. automodule:: pyaedt.icepak
     :members:
 
 

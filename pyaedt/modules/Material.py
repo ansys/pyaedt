@@ -2,13 +2,6 @@
 Material Class
 ----------------
 
-Disclaimer
-==================================================
-
-**Copyright (c) 1986-2021, ANSYS Inc. unauthorised use, distribution or duplication is prohibited**
-
-**This tool release is unofficial and not covered by standard Ansys Support license.**
-
 
 Description
 ==================================================
@@ -406,7 +399,7 @@ class Material(object):
         Returns
         -------
         type
-            poperty value
+            property value
 
         """
         return self.property[PropertyConstant].property_value[idx].value
@@ -583,7 +576,7 @@ class Material(object):
         enableTM :
             Boolean, to include Thermal Modifier in AEDT (Default value = True)
         enableFM :
-            Booolean, to include Frequency Modifier in AEDT (Default value = True)
+            Boolean, to include Frequency Modifier in AEDT (Default value = True)
 
         Returns
         -------

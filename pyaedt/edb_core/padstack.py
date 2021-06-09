@@ -4,23 +4,19 @@ EdbPadstack Class
 
 This class manages Edb Padstacks and related methods
 
-Disclaimer
-==========
-
-**Copyright (c) 1986-2021, ANSYS Inc. unauthorised use, distribution or duplication is prohibited**
-
-**This tool release is unofficial and not covered by standard Ansys Support license.**
-
-
 
 """
-
-import clr
+import warnings
 from .general import *
 from ..generic.general_methods import get_filename_without_extension, generate_unique_name
-from System import Convert, String
-from System import Double, Array
-from System.Collections.Generic import List
+
+try:
+    import clr
+    from System import Convert, String
+    from System import Double, Array
+    from System.Collections.Generic import List
+except ImportError:
+    warnings.warn('This module requires pythonnet.')
 
 
 class EdbPadstacks(object):
@@ -222,7 +218,7 @@ class EdbPadstacks(object):
         """
         if not padstackname:
             padstackname = generate_unique_name("VIA")
-        # assert not self.isreadonly, "Write Functions are not avaiable within AEDT"
+        # assert not self.isreadonly, "Write Functions are not available within AEDT"
         padstackData = self.edb.Definition.PadstackDefData.Create()
         ptype = self.edb.Definition.PadGeometryType.Circle
         holparam = Array[type(self.edb_value(holediam))]([self.edb_value(holediam)])

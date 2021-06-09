@@ -1,3 +1,4 @@
+import warnings
 import random
 import string
 from collections import OrderedDict
@@ -11,7 +12,7 @@ try:
     clr.AddReference("System")
     from System import Double, Array
 except ImportError:
-    pass
+    warnings.warn("Pythonnet is needed to run pyaedt")
 
 @aedt_exception_handler
 def tuple2dict(t, d):

@@ -45,7 +45,7 @@ class Modeler2D(GeometryModeler):
         Parameters
         ----------
         object_name :
-            object from which calcuate radius
+            object from which calculate radius
         inner :
              (Default value = False)
 

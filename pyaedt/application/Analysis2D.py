@@ -9,7 +9,8 @@ class FieldAnalysis2D(Analysis):
     
     Class for 2D Field Analysis Setup (Maxwell2D, Q2D)
     
-    It is automatically initialized by Application call. Refer to Application function for inputs definition
+    It is automatically initialized by Application call. Refer to
+    Application function for inputs definition
 
     Parameters
     ----------
@@ -54,7 +55,7 @@ class FieldAnalysis2D(Analysis):
         Returns
         -------
         type
-            True if succeded | False if failed
+            True if succeeded | False if failed
 
         """
         mat = mat.lower()

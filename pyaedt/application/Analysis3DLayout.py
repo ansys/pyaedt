@@ -9,7 +9,9 @@ from ..modules.Mesh3DLayout import Mesh
 class FieldAnalysis3DLayout(Analysis):
     """**AEDT_3DLayout_FieldAnalysis**
     Class for HFSS 3DLayoyt Field Analysis Setup
-    It is automatically initialized by Application call (like HFSS, Q3D...). Refer to Application function for inputs definition
+
+    It is automatically initialized by Application call (like HFSS,
+    Q3D...). Refer to Application function for inputs definition.
 
     Parameters
     ----------
@@ -45,7 +47,7 @@ class FieldAnalysis3DLayout(Analysis):
 
     @property
     def get_all_sparameter_list(self, excitation_names=[]):
-        """Get the list of all the SParameter from a list of exitations. If no exitation is provided it will provide a full list of sparameters
+        """Get the list of all the SParameter from a list of exctitations. If no excitation is provided it will provide a full list of sparameters
         Example: excitation_names ["1","2"] output ["S(1,1)", "S(1,2)", S(2,2)]
 
         Parameters
@@ -72,7 +74,7 @@ class FieldAnalysis3DLayout(Analysis):
 
     @aedt_exception_handler
     def get_all_return_loss_list(self, excitation_names=[], excitation_name_prefix=''):
-        """Get the list of all the Returnloss from a list of exitations. If no exitation is provided it will provide a full list of return Losses
+        """Get the list of all the Returnloss from a list of exctitations. If no excitation is provided it will provide a full list of return Losses
         Example: excitation_names ["1","2"] output ["S(1,1)",, S(2,2)]
 
         Parameters
@@ -99,8 +101,8 @@ class FieldAnalysis3DLayout(Analysis):
 
     @aedt_exception_handler
     def get_all_insertion_loss_list(self, trlist=[], reclist=[], tx_prefix='', rx_prefix=''):
-        """Get the list of all the Insertion Losses from two list of exitations (driver and receiver). Optionally prefix can
-        be used to retrive driver and receiver names.
+        """Get the list of all the Insertion Losses from two list of exctitations (driver and receiver). Optionally prefix can
+        be used to retrieve driver and receiver names.
         Example: excitation_names ["1"] ["2"] output ["S(1,2)"]
 
         Parameters
@@ -134,8 +136,8 @@ class FieldAnalysis3DLayout(Analysis):
 
     @aedt_exception_handler
     def get_next_xtalk_list(self, trlist=[], tx_prefix=""):
-        """Get the list of all the Near End XTalk a list of exitation. Optionally prefix can
-        be used to retrive driver names.
+        """Get the list of all the Near End XTalk a list of excitation. Optionally prefix can
+        be used to retrieve driver names.
         Example: excitation_names ["1", "2", "3"] output ["S(1,2)", "S(1,3)", "S(2,3)"]
 
         Parameters
@@ -163,8 +165,8 @@ class FieldAnalysis3DLayout(Analysis):
 
     @aedt_exception_handler
     def get_fext_xtalk_list(self, trlist=[], reclist=[], tx_prefix='', rx_prefix='', skip_same_index_couples=True):
-        """Get the list of all the Far End XTalk from 2 lists of exitations. Optionally prefix can
-        be used to retrive driver and receivers names. If skip_same_index_couples is true, the tx and rx with same index
+        """Get the list of all the Far End XTalk from 2 lists of exctitations. Optionally prefix can
+        be used to retrieve driver and receivers names. If skip_same_index_couples is true, the tx and rx with same index
         position will be considered insertion losses and excluded from the list
         Example: excitation_names ["1", "2"] ["3","4"] output ["S(1,4)", "S(2,3)"]
 
@@ -283,7 +285,7 @@ class FieldAnalysis3DLayout(Analysis):
 
         Returns
         -------
-        type
+        :class: Setup3DLayout
             setup object
 
         """

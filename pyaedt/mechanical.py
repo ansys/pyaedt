@@ -2,21 +2,7 @@
 Mechanical Class
 ----------------------------------------------------------------
 
-Disclaimer
-==================================================
-
-**Copyright (c) 1986-2021, ANSYS Inc. unauthorised use, distribution or duplication is prohibited**
-
-**This tool release is unofficial and not covered by standard Ansys Support license.**
-
-
-Description
-==================================================
-
-This class contains all the Mechanical Functionalities. It inherites all the objects that belongs to Mechanical
-
-
-
+This class contains all Mechanical functionalities. It inherits all objects that belong to Mechanical.
 
 
 """
@@ -35,9 +21,9 @@ class Mechanical(FieldAnalysis3D, object):
     Parameters
     ----------
     projectname :
-        name of the project to be selected or full path to the project to be opened  or to the AEDTZ archive. if None try to get active project and, if nothing present to create an empy one
+        name of the project to be selected or full path to the project to be opened  or to the AEDTZ archive. if None try to get active project and, if nothing present to create an empty one
     designname :
-        name of the design to be selected. if None, try to get active design and, if nothing present to create an empy one
+        name of the design to be selected. if None, try to get active design and, if nothing present to create an empty one
     solution_type :
         solution type to be applied to design. if None default is taken
     setup_name :

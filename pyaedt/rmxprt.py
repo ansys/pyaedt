@@ -1,33 +1,22 @@
 """
 RMxprt Class
-----------------------------------------------------------------
+-------------------
 
-Disclaimer
-==================================================
-
-**Copyright (c) 1986-2021, ANSYS Inc. unauthorised use, distribution or duplication is prohibited**
-
-**This tool release is unofficial and not covered by standard Ansys Support license.**
+This class contains all RMxprt functionalities. It inherits all objects that belong to RMxprt.
 
 
-Description
-==================================================
+Examples:
 
-This class contains all the RMxprt Functionalities. It inherites all the objects that belongs to RMxprt
-
-
-:Example:
-
-app = RMxprt()     creates and Icepak object and connect to existing RMxprt design (create a new RMxprt design if not present)
+app = Rmxprt()     Creates a ``Rmxprt`` object and connects to an existing RMxprt design or creates a new RMxprt design if one is not present.
 
 
-app = RMxprt(projectname)     creates and  RMxprt and link to projectname project
+app = Rmxprt(projectname)     Creates a ``Rmxprt`` object and links to a project named projectname.
 
 
-app = RMxprt(projectname,designame)     creates and RMxprt object and link to designname design in projectname project
+app = Rmxprt(projectname,designame)     Creates a ``RMxprt`` object and links to a design named designname in a project named projectname.
 
 
-app = RMxprt("myfile.aedt")     creates and RMxprt object and open specified project
+app = Rmxprt("myfile.aedt")     Creates a ``RMxprt`` object and opens the specified project.
 
 
 
@@ -138,9 +127,9 @@ class Rmxprt(FieldAnalysisRMxprt):
     Parameters
     ----------
     projectname :
-        name of the project to be selected or full path to the project to be opened  or to the AEDTZ  archive. if None try to get active project and, if nothing present to create an empy one
+        name of the project to be selected or full path to the project to be opened  or to the AEDTZ  archive. if None try to get active project and, if nothing present to create an empty one
     designname :
-        name of the design to be selected. if None, try to get active design and, if nothing present to create an empy one
+        name of the design to be selected. if None, try to get active design and, if nothing present to create an empty one
     solution_type :
         solution type to be applied to design. if None default is taken
     setup_name :

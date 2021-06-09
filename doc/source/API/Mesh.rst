@@ -8,9 +8,6 @@ Mesh
 
 **Diagram**
 
-.. inheritance-diagram:: pyaedt.modules.Mesh pyaedt.modules.MeshIcepak pyaedt.modules.Mesh3DLayout
-    :parts: 1
-
 .. toctree::
    :maxdepth: 2
    :caption: Classes:

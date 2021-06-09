@@ -2,13 +2,6 @@
 Layer Stackup Class
 ----------------------------------------------------------------
 
-Disclaimer
-==================================================
-
-**Copyright (c) 1986-2021, ANSYS Inc. unauthorised use, distribution or duplication is prohibited**
-
-**This tool release is unofficial and not covered by standard Ansys Support license.**
-
 
 Description
 ==================================================
@@ -511,7 +504,7 @@ class Layers(object):
         layername :
             name of the layer
         layertype :
-            tyep of the layer (Default value = "signal")
+            type of the layer (Default value = "signal")
         thickness :
             thickness with units (Default value = "0mm")
         elevation :

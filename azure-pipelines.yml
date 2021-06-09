@@ -1,11 +1,20 @@
 #Multi-configuration and multi-agent job options are not exported to YAML. Configure these options using documentation guidance: https://docs.microsoft.com/vsts/pipelines/process/phases
 trigger:
-  none
+  branches:
+    include:
+    - releases/*
+    - master
+    exclude:
+    - 'gh-pages'
+  tags:
+    include:
+    - '*'
 
 pool:
   name: Ansys
 variables:
   python.version: '3.7.7'
+  python.venv: 'testvenv'
 
 steps:
 - task: UsePythonVersion@0
@@ -14,12 +23,28 @@ steps:
     versionSpec: '$(python.version)'
 
 - script: |
-   pytest _unittest --cov --cov-report=xml --cov-report=html
-   
-  displayName: 'Pytest'
+    python -venv '$(python.venv)'
+    '$(python.venv)\Scripts\activate.bat'
+    pip install pip -U
+    python -c "import sys; print(sys.executable)"
+  displayName: 'Create virtual env'
 
 - script: |
+    '$(python.venv)\Scripts\activate.bat'
+    pip install . --use-feature=in-tree-build
+    pip install -r requirements_test.txt
+    pip install pytest-azurepipelines
+    mkdir tmp
+    cd tmp
+    python -c "import pyaedt; print('Imported pyaedt')"
+  displayName: 'Install pyaedt'
 
+- script: |
+    '$(python.venv)\Scripts\activate.bat'
+    pytest -v --cov --cov-report=xml --cov-report=html
+  displayName: 'Unit testing'
+
+- script: |
    coverage xml
   displayName: 'Coverage'
 
@@ -38,9 +63,10 @@ steps:
   condition: succeededOrFailed()
 
 - script: |
-   del /F /Q dist\*.*
-   python setup.py sdist
-  displayName: 'Build Artifact'
+    '$(python.venv)\Scripts\activate.bat'
+    del /F /Q dist\*.*
+    python setup.py sdist
+  displayName: 'Build sdist Package'
 
 - task: PublishBuildArtifacts@1
   displayName: 'Publish Artifact: dist'
@@ -48,3 +74,16 @@ steps:
     PathtoPublish: dist
     ArtifactName: dist
 
+- script: |
+    pip install twine
+    twine check dist/*
+  displayName: 'Verify package'
+
+- script: |
+    twine upload --skip-existing dist/*.tar.gz
+  displayName: 'Upload to package PyPi'
+  condition: contains(variables['Build.SourceBranch'], 'refs/tags/')
+  env:
+    TWINE_USERNAME: __token__
+    TWINE_PASSWORD: $(PYPI_TOKEN)
+    TWINE_REPOSITORY_URL: "https://upload.pypi.org/legacy/"

@@ -4,25 +4,20 @@ Components Class
 
 This class manages Edb Components and related methods
 
-Disclaimer
-==========
-
-**Copyright (c) 1986-2021, ANSYS Inc. unauthorised use, distribution or duplication is prohibited**
-
-**This tool release is unofficial and not covered by standard Ansys Support license.**
-
-
 
 """
-import clr
-import os
-import re
+import warnings
 from .general import *
 from ..generic.general_methods import get_filename_without_extension, generate_unique_name
-from System import Convert, String
-from System import Double, Array
-from System.Collections.Generic import List
-import random
+
+
+try:
+    import clr
+    from System import Convert, String
+    from System import Double, Array
+    from System.Collections.Generic import List
+except ImportError:
+    warnings.warn('This module requires pythonnet.')
 
 class Primitive(object):
 
@@ -93,7 +88,7 @@ class EdbLayout(object):
     @aedt_exception_handler
     def init_primitives(self):
         for lay in self.layers:
-            self._primitives[lay.GetName()] = self.get_polygons_by_layer(lay.GetName())
+            self._primitives[lay] = self.get_polygons_by_layer(lay)
 
     @property
     def polygons(self):
@@ -134,7 +129,7 @@ class EdbLayout(object):
         Returns
         -------
         type
-            bouding box [-x,-y,+x,+y]
+            bounding box [-x,-y,+x,+y]
 
         >>> poly = edb_core.core_primitives.get_polygons_by_layer("GND")
         >>> bounding = edb_core.core_primitives.get_polygon_bounding_box(poly[0])

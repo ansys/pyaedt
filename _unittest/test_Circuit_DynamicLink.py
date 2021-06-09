@@ -57,7 +57,7 @@ class TestCircuitDL:
     def test_02_add_subcircuits(self):
         source_project_path = os.path.join(self.local_scratch.path, src_project_name + '.aedt')
         layout_design = "Galileo_G87173_205_cutout3"
-        pin_names = self.aedtapp.get_source_pin_names(source_project_path, src_project_name, src_design_name, 3)
+        pin_names = self.aedtapp.get_source_pin_names(src_design_name,src_project_name, source_project_path,  3)
         hfss3Dlayout_comp_id, hfss3Dlayout_comp = self.aedtapp.modeler.components.create_3dlayout_subcircuit(layout_design)
         hfss_comp_id, hfss_comp = self.aedtapp.modeler.components.add_subcircuit_hfss_link("uUSB", pin_names, source_project_path, src_project_name, src_design_name)
 

@@ -1,6 +1,6 @@
 """
 
-HFSS3DLayout  Analysis
+HFSS3DLayout Analysis
 --------------------------------------------
 This Example shows how to use HFSS3DLayout combined with EDB to interact with a layout
 """
@@ -14,10 +14,7 @@ import shutil
 
 
 
-local_path = os.path.abspath('')
-module_path = pathlib.Path(local_path)
-aedt_lib_path = module_path.parent.parent
-sys.path.append(os.path.join(aedt_lib_path))
+
 from pyaedt import generate_unique_name
 temp_folder = os.path.join(os.environ["TEMP"], generate_unique_name("Example"))
 if not os.path.exists(temp_folder): os.makedirs(temp_folder)
@@ -29,32 +26,49 @@ print(temp_folder)
 from pyaedt import Desktop
 from pyaedt import Hfss3dLayout
 from pyaedt import examples
-from pyaedt.generic.general_methods import generate_unique_name
 
 
 
 targetfile=examples.download_aedb()
 print(targetfile)
+aedt_file = targetfile[:-12]+"aedt"
+
+
+
+###############################################################################
+# Initializing Desktop
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# This examples will use version 2021.1
+
+# This examples will use SI units.
+
+desktopVersion = "2021.1"
+
+
+###############################################################################
+# NonGraphical
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# Change Boolean to False to open AEDT in graphical mode
+NonGraphical = True
+NewThread = False
 
 ######################################
 # Initializing Desktop
 # Launching HFSS 3DLayout
+# h3d object will contain also Edb Class query methods
 
-
-
-d = Desktop("2021.1")
+d = Desktop(desktopVersion, NonGraphical, NewThread)
+if os.path.exists(aedt_file): os.remove(aedt_file)
 h3d=Hfss3dLayout(targetfile)
 h3d.save_project(os.path.join(temp_folder,"edb_demo.aedt"))
 
 ######################################
-# Disable visibility for all Nets
-# Check Setups from setups objects
-
+# Print Setups from setups objects
 
 h3d.setups[0].props
 
 ######################################
-# Check Boundaries from setups objects
+# Print Boundaries from setups objects
 
 
 h3d.boundaries
@@ -62,8 +76,6 @@ h3d.boundaries
 ######################################
 # Hide all nets
 ######################################
-
-# Enable Visibility for few nets
 
 
 h3d.modeler.primitives.change_net_visibility(visible=False)
@@ -78,7 +90,6 @@ h3d.modeler.primitives.change_net_visibility(["A0_GPIO", "A0_MUX"], visible=True
 ######################################
 # Show all layers
 ######################################
-
 # Show all the layers
 
 
@@ -92,22 +103,14 @@ for lay in layers:
 ######################################
 # Change Layer Color
 
-
 layer=h3d.modeler.layers.layers[h3d.modeler.layers.layer_id("TOP")]
 layer.set_layer_color(0,255,0)
 h3d.modeler.fit_all()
-h3d.modeler.model_units
 
 ######################################
 
 # Disable component visibility for TOP and BOTTOM
 # update_stackup_layer will apply modification to layout
-
-######################################
-# Disable component visibility for TOP and BOTTOM
-# update_stackup_layer will apply modification to layout
-
-#%%
 
 top = h3d.modeler.layers.layers[h3d.modeler.layers.layer_id("TOP")]
 top.IsVisibleComponent = False
@@ -129,6 +132,13 @@ h3d.modeler.fit_all()
 
 # Enable and run the following command to close the desktop
 h3d.close_project()
+
+###############################################################################
+# Close Desktop
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# After the simulaton is completed user can close the desktop or release it (using release_desktop method).
+# All methods give possibility to save projects before exit
+
 d.force_close_desktop()
 
 

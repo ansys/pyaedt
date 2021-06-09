@@ -3,13 +3,6 @@
 Advanced PostProcessing Class
 ================================
 
-**Disclaimer**
-
-
-*Copyright (c) 1986-2021, ANSYS Inc. unauthorised use, distribution or duplication is prohibited*
-
-*This tool release is unofficial and not covered by standard Ansys Support license.*
-
 
 **Description**
 
@@ -25,22 +18,26 @@ from .PostProcessor import PostProcessor as Post
 from ..generic.general_methods import aedt_exception_handler
 import time
 import math
+import warnings
 
 try:
     import numpy as np
 except ImportError:
-    print("The numpy module from python.org is required to run some functionalities of PostProcess")
+    warnings.warn("The numpy module required to run some functionalities of PostProcess.\n"
+                  "Install with \n\npip install numpy\n\nRequires CPython")
 
 try:
     import pyvista as pv
     pyvista_available = True
 except ImportError:
-    print("The pyvista module from python.org is required to run some functionalities of PostProcess")
-    pyvista_available = False
+    warnings.warn("The pyvista module required to run some functionalities of PostProcess.\n"
+                  "Install with \n\npip install pyvista\n\nRequires CPython")
+
 try:
     import matplotlib.pyplot as plt
 except ImportError:
-    print("The numpy module from python.org is required to run some functionalities of PostProcess")
+    warnings.warn("The matplotlib module required to run some functionalities of PostProcess.\n"
+                  "Install with \n\npip install matplotlib\n\nRequires CPython")
 
 
 class PostProcessor(Post):

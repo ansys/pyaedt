@@ -1,4 +1,3 @@
-# Copyright (c) 1986-2021, ANSYS Inc. unauthorised use, distribution or duplication is prohibited
 import csv
 import re
 import os

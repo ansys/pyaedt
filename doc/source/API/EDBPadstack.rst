@@ -6,7 +6,7 @@
 EDB Padstacks
 ===================================
 
-.. automodule:: pyaedt.edb.padstack
+.. automodule:: pyaedt.edb_core.padstack
     :members:
 
 .. toctree::

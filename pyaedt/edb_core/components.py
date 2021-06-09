@@ -4,26 +4,25 @@ Components Class
 
 This class manages Edb Components and related methods
 
-Disclaimer
-==========
-
-**Copyright (c) 1986-2021, ANSYS Inc. unauthorised use, distribution or duplication is prohibited**
-
-**This tool release is unofficial and not covered by standard Ansys Support license.**
-
 
 
 """
-import clr
-import os
 import re
+import random
+import warnings
+
 from .general import *
 from ..generic.general_methods import get_filename_without_extension, generate_unique_name
-clr.AddReference("System")
-from System import Convert, String
-from System import Double, Array
-from System.Collections.Generic import List
-import random
+
+try:
+    import clr
+    clr.AddReference("System")
+    from System import Convert, String
+    from System import Double, Array
+    from System.Collections.Generic import List
+except ImportError:
+    warnings.warn('This module requires pythonnet.')
+
 
 def resistor_value_parser(RValue):
     """
@@ -531,7 +530,7 @@ class Components(object):
         Returns
         -------
         type
-            True if succeded | False if failed
+            True if succeeded | False if failed
 
         >>> from pyaedt import EDB
         >>> edbapp = EDB("myaedbfolder")
@@ -626,7 +625,7 @@ class Components(object):
             cmp_name = pins[0].GetComponent().GetName()
             net_name = pins[0].GetNet().GetName()
             group_name = "{}_{}_{}".format(cmp_name, net_name, random.randint(0, 100))
-        pingroup = self.parent.edb.Cell.Hierarchy.PinGroup.Create(self.builder.EdbHandler.layout, group_name, pins)
+        pingroup = self.edb.Cell.Hierarchy.PinGroup.Create(self.parent.active_layout, group_name, convert_py_list_to_net_list(pins))
         if pingroup.IsNull():
             return (False, None)
         else:
@@ -795,7 +794,7 @@ class Components(object):
     def update_rlc_from_bom(self, bom_file, delimiter=";", valuefield="Func des", comptype="Prod name",
                             refdes="Pos / Place"):
         """Function to update the edb_core components values (RLCs) with values coming from BOM.
-        Files is a text file delimited and header values needed inside the bom reader have to be explicitily set if different from the defaults
+        Files is a text file delimited and header values needed inside the bom reader have to be explicitly set if different from the defaults
         valuefield has to contain the value of the Component (eg. 22pF) at beginning of the value followed by a space and then the rest of the value
 
         Parameters

@@ -1,33 +1,23 @@
+
 """
 Maxwell Class
 ----------------------------------------------------------------
 
-Disclaimer
-==================================================
-
-**Copyright (c) 1986-2021, ANSYS Inc. unauthorised use, distribution or duplication is prohibited**
-
-**This tool release is unofficial and not covered by standard Ansys Support license.**
+This class contains all Maxwell functionalities. It inherits all objects that belong to Maxwell.
 
 
-Description
-==================================================
+Examples:
 
-This class contains all the Maxwell Functionalities. It inherites all the objects that belongs to Maxwell
-
-
-:Example:
-
-app = Maxwell()     creates and Icepak object and connect to existing Maxwell design (create a new Maxwell design if not present)
+app = Maxwell3d()     Creates a ``Maxwell3d`` object and connects to an existing Maxwell design or creates a new one if no design is present.
 
 
-app = Maxwell(projectname)     creates and  Maxwell and link to projectname project
+app = Maxwell3d(projectname)     Creates a ``Maxwell3d`` object and links to a project named projectname.
 
 
-app = Maxwell(projectname,designame)     creates and Maxwell object and link to designname design in projectname project
+app = Maxwell3d(projectname,designame)     Creates a ``Maxwell3d`` object and links to design named designname in a project named projectname.
 
 
-app = Maxwell("myfile.aedt")     creates and Maxwell object and open specified project
+app = Maxwell2d("myfile.aedt")     Creates a ``Maxwell2d`` object and opens the specified project.
 
 
 """
@@ -533,9 +523,9 @@ class Maxwell3d(Maxwell, FieldAnalysis3D, object):
     ----------
     projectname :
         name of the project to be selected or full path to the project to be opened  or to the AEDTZ
-        archive. if None try to get active project and, if nothing present to create an empy one
+        archive. if None try to get active project and, if nothing present to create an empty one
     designname :
-        name of the design to be selected. if None, try to get active design and, if nothing present to create an empy one
+        name of the design to be selected. if None, try to get active design and, if nothing present to create an empty one
     solution_type :
         solution type to be applied to design. if None default is taken
     setup_name :
@@ -554,9 +544,9 @@ class Maxwell3d(Maxwell, FieldAnalysis3D, object):
     def __init__(self, projectname=None, designname=None, solution_type=None, setup_name=None):
         """
         :param projectname: name of the project to be selected or full path to the project to be opened. if None try to
-         get active project and, if nothing present to create an empy one
+         get active project and, if nothing present to create an empty one
         :param designname: name of the design to be selected. if None, try to get active design and, if nothing present
-        to create an empy one
+        to create an empty one
         :param solution_type: solution type to be applied to design. if None default is taken
         :param setup_name: setup_name to be used as nominal. if none active setup is taken or nothing
         """
@@ -619,9 +609,9 @@ class Maxwell2d(Maxwell, FieldAnalysis2D, object):
     ----------
     projectname :
         name of the project to be selected or full path to the project to be opened  or to the AEDTZ
-        archive. if None try to get active project and, if nothing present to create an empy one
+        archive. if None try to get active project and, if nothing present to create an empty one
     designname :
-        name of the design to be selected. if None, try to get active design and, if nothing present to create an empy one
+        name of the design to be selected. if None, try to get active design and, if nothing present to create an empty one
     solution_type :
         solution type to be applied to design. if None default is taken
     setup_name :

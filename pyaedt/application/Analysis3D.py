@@ -1,6 +1,5 @@
 import glob
 import os
-from os import path
 import ntpath
 from ..generic.general_methods import aedt_exception_handler, generate_unique_name
 from .Analysis import Analysis
@@ -10,11 +9,11 @@ from ..modules.Mesh import Mesh
 
 class FieldAnalysis3D(Analysis, object):
     """AEDT_3D_FieldAnalysis
-    
-    
+
     Class for 3D Field Analysis Setup (HFSS, Maxwell3D, Q3D)
-    
-    It is automatically initialized by Application call (like HFSS, Q3D...). Refer to Application function for inputs definition
+
+    It is automatically initialized by Application call (like HFSS,
+    Q3D...). Refer to Application function for inputs definition
 
     Parameters
     ----------
@@ -243,7 +242,7 @@ class FieldAnalysis3D(Analysis, object):
         Returns
         -------
         type
-            True if succeded | False if failed
+            True if succeeded | False if failed
 
         """
         mat = mat.lower()

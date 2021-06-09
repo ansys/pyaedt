@@ -6,12 +6,6 @@
 Application Objects
 ===================================
 
-**Diagram**
-
-.. inheritance-diagram:: pyaedt.hfss pyaedt.q3d pyaedt.icepak pyaedt.circuit pyaedt.edb pyaedt.hfss3dlayout  pyaedt.maxwell pyaedt.mechanical pyaedt.simplorer pyaedt.rmxprt
-    :parts: 1
-
-
 .. toctree::
    :maxdepth: 2
    :caption: Classes:
@@ -27,3 +21,7 @@ Application Objects
    RMxprt
 
 
+**Diagram**
+
+.. inheritance-diagram:: pyaedt.hfss pyaedt.q3d pyaedt.icepak pyaedt.circuit pyaedt.edb pyaedt.hfss3dlayout  pyaedt.maxwell pyaedt.mechanical pyaedt.simplorer pyaedt.rmxprt
+    :parts: 1

@@ -1,4 +1,3 @@
-import clr
 import os
 import string
 import random
@@ -11,7 +10,10 @@ from collections import OrderedDict
 import inspect
 import itertools
 logger = logging.getLogger(__name__)
-
+import pkgutil
+modules = [tup[1] for tup in pkgutil.iter_modules()]
+if 'clr' in modules:
+    import clr
 
 class MethodNotSupportedError(Exception):
     """ """
@@ -177,6 +179,29 @@ def env_path(input_version):
 
 
 @aedt_exception_handler
+def env_value(input_version):
+    """
+
+    Parameters
+    ----------
+    input_version :
+
+
+    Returns
+    -------
+
+    """
+    version = int(input_version[2:4])
+    release = int(input_version[5])
+    if version < 20:
+        if release < 3:
+            version -= 1
+        else:
+            release -= 2
+    v_key = "ANSYSEM_ROOT{0}{1}".format(version, release)
+    return v_key
+
+@aedt_exception_handler
 def get_filename_without_extension(path):
     """
 
@@ -203,7 +228,7 @@ def generate_unique_name(rootname, suffix='', n=6):
     suffix :
         Suffix to be added (Default value = '')
     n :
-        Number of random charachters in the name, defaults to 6
+        Number of random characters in the name, defaults to 6
 
     Returns
     -------

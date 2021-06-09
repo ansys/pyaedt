@@ -1,39 +1,28 @@
 """
-Icepak Class
+Icepak 3d Layout Class
 ----------------------------------------------------------------
 
-Disclaimer
-==================================================
-
-**Copyright (c) 1986-2021, ANSYS Inc. unauthorised use, distribution or duplication is prohibited**
-
-**This tool release is unofficial and not covered by standard Ansys Support license.**
+This class contains all Icepak functionalities. It inherits all objects that belong to Icepak.
 
 
-Description
-==================================================
+Examples:
 
-This class contains all the Icepak Functionalities. It inherites all the objects that belongs to Icepak
-
-
-:Example:
-
-app = Icepak()     creates and Icepak object and connect to existing Maxwell design (create a new Maxwell design if not present)
+app = Icepak()     Creates an ``Icepak`` object and connects to an existing HFSS design or creates a new HFSS design if one is not present.
 
 
-app = Icepak(projectname)     creates and Icepak object and link to projectname project
+app = Icepak(projectname)     Creates an ``Icepak`` object and links to project named projectname. If this project doesn't exists, it creates a new one with this name.
 
 
-app = Icepak(projectname,designame)     creates and Icepak object and link to designname design in projectname project
+app = Icepak(projectname,designame)     Creates an ``Icepak`` object and links to a design named designname in a project named projectname.
 
 
-app = Icepak("myfile.aedt")     creates and Icepak object and open specified project
-
+app = Icepak("myfile.aedt")     Creates an ``Icepak`` object and opens the specified project.
 
 
 ========================================================
 
 """
+
 from __future__ import absolute_import
 import csv
 import math
@@ -52,9 +41,9 @@ class Icepak(FieldAnalysisIcepak):
     ----------
     projectname :
         name of the project to be selected or full path to the project to be opened  or to the AEDTZ
-        archive. if None try to get active project and, if nothing present to create an empy one
+        archive. if None try to get active project and, if nothing present to create an empty one
     designname :
-        name of the design to be selected. if None, try to get active design and, if nothing present to create an empy one
+        name of the design to be selected. if None, try to get active design and, if nothing present to create an empty one
     solution_type :
         solution type to be applied to design. if None default is taken
     setup_name :
@@ -164,7 +153,7 @@ class Icepak(FieldAnalysisIcepak):
 
     @aedt_exception_handler
     def create_source_blocks_from_list(self, list_powers, assign_material=True, default_material="Ceramic_material"):
-        """Assign to Box in Icepak Sources coming from CSV file. assignement is made by name
+        """Assign to Box in Icepak Sources coming from CSV file. assignment is made by name
 
         Parameters
         ----------
@@ -422,14 +411,13 @@ class Icepak(FieldAnalysisIcepak):
 
         Parameters
         ----------
-        component_prefix :
-            compnents prefix on which to serach (Default value = "COMP_")
+        component_prefix:
+            components prefix on which to search (Default value = "COMP_")
 
         Returns
         -------
-        type
+        bool
             Bool
-
         """
         temp_log = os.path.join(self.project_path, "validation.log")
         validate = self.odesign.ValidateDesign(temp_log)
@@ -564,7 +552,7 @@ class Icepak(FieldAnalysisIcepak):
         Fin_Line.append(self.Position('FinLength', 'FinThickness + FinLength*sin(PatternAngle*3.14/180)', 0))
         Fin_Line.append(self.Position('FinLength', 'FinLength*sin(PatternAngle*3.14/180)', 0))
         Fin_Line.append(self.Position(0, 0, 0))
-        self.modeler.primitives.create_polyline(Fin_Line, True, "Fin")
+        self.modeler.primitives.draw_polyline(Fin_Line, cover_surface=True, name="Fin")
         Fin_Line2 = []
         Fin_Line2.append(self.Position(0, 'sin(DraftAngle*3.14/180)*FinThickness', 'FinHeight'))
         Fin_Line2.append(self.Position(0, 'FinThickness-sin(DraftAngle*3.14/180)*FinThickness', 'FinHeight'))
@@ -574,7 +562,7 @@ class Icepak(FieldAnalysisIcepak):
         Fin_Line2.append(
             self.Position('FinLength', 'FinLength*sin(PatternAngle*3.14/180)+sin(DraftAngle*3.14/180)*FinThickness', 'FinHeight'))
         Fin_Line2.append(self.Position(0, 'sin(DraftAngle*3.14/180)*FinThickness', 'FinHeight'))
-        self.modeler.primitives.create_polyline(Fin_Line2, True, "Fin_top")
+        self.modeler.primitives.draw_polyline(Fin_Line2, cover_surface=True, name="Fin_top")
         self.modeler.connect(["Fin", "Fin_top"])
         self.assignmaterial("Fin", matname)
         # self.modeler.thicken_sheet("Fin",'-FinHeight')
@@ -611,7 +599,7 @@ class Icepak(FieldAnalysisIcepak):
             Center_Line.append(self.Position('VerticalSeparation', '-HSHeight-Tolerance', '-Tolerance'))
             Center_Line.append(self.Position('-VerticalSeparation', '-HSHeight-Tolerance', '-Tolerance'))
             Center_Line.append(self.Position('-SymSeparation', 'Tolerance', '-Tolerance'))
-            self.modeler.primitives.create_polyline(Center_Line, True, "Center")
+            self.modeler.primitives.draw_polyline(Center_Line, cover_surface=True, name="Center")
             self.modeler.thicken_sheet("Center", '-FinHeight-2*Tolerance')
             all_names = self.modeler.primitives.get_all_objects_names()
             list = [i for i in all_names if "Fin" in i]
@@ -759,7 +747,7 @@ class Icepak(FieldAnalysisIcepak):
     @aedt_exception_handler
     def eval_surface_quantity_from_field_summary(self, faces_list, quantity_name="HeatTransCoeff", savedir=None,
                                                  filename=None, sweep_name=None, parameter_dict_with_values={}):
-        """Creates the export of the Field Surface ouptut. It will export 1 csv file for the specified variation variation
+        """Creates the export of the Field Surface output. It will export 1 csv file for the specified variation variation
 
         Parameters
         ----------
@@ -809,7 +797,7 @@ class Icepak(FieldAnalysisIcepak):
 
     def eval_volume_quantity_from_field_summary(self, object_list, quantity_name="HeatTransCoeff",  savedir=None,
                                                  filename=None, sweep_name=None, parameter_dict_with_values={}):
-        """Creates the export of the Field Volume ouptut. It will export 1 csv file for the specified variation variation
+        """Creates the export of the Field Volume output. It will export 1 csv file for the specified variation variation
 
         Parameters
         ----------
@@ -858,7 +846,7 @@ class Icepak(FieldAnalysisIcepak):
 
     @aedt_exception_handler
     def UniteFieldsSummaryReports(self, savedir, proj_icepak):
-        """Unite the files created by Fields Summary for the varius variations
+        """Unite the files created by Fields Summary for the various variations
 
         Parameters
         ----------
@@ -1063,7 +1051,7 @@ class Icepak(FieldAnalysisIcepak):
         extenttype :
             extend type. Bounding Box or Polygon (Default value = "Bounding Box")
         outlinepolygon :
-            in case of extentype is Polygon the name of the poligon (Default value = "")
+            in case of extentype is Polygon the name of the polygon (Default value = "")
         powerin :
             in case cosim is disabled, the power to dissipate (default 0W)
 
