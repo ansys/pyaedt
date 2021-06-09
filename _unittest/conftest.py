@@ -37,11 +37,11 @@ else:
     }
 
 # Define desktopVersion explicitly since this is imported by other modules
-desktopVersion = config["desktopVersion"]
+desktop_version = config["desktopVersion"]
 
 @pytest.fixture(scope='session', autouse=True)
 def desktop_init():
-    desktop = Desktop(desktopVersion, config["NonGraphical"], config["NewThread"])
+    desktop = Desktop(desktop_version, config["NonGraphical"], config["NewThread"])
 
     yield desktop
 
