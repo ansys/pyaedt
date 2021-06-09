@@ -54,7 +54,7 @@ class Hfss(FieldAnalysis3D, object):
             solution_type :
                 Solution type to apply to design. If ``None`, the default type is applied.
             setup_name :
-                ``setup_name to use as the nominal. If ``None``, the active setup is used or nothing is used.
+                ``setup_name`` to use as the nominal. If ``None``, the active setup is used or nothing is used.
 
             Returns
             -------
@@ -359,7 +359,7 @@ class Hfss(FieldAnalysis3D, object):
         freqstop : float
             Stopping frequency of the sweep.
         sweepname : str
-            Mame of the sweep. The default is ``None``.
+            Name of the sweep. The default is ``None``.
         unit : str
             Units ("MHz", "GHz"...).
         num_of_freq_points : int
@@ -372,7 +372,7 @@ class Hfss(FieldAnalysis3D, object):
         Returns
         -------
         :class: SweepHFSS
-            sweepname
+            Sweep name
 
         """
         if sweepname is None:
@@ -426,7 +426,7 @@ class Hfss(FieldAnalysis3D, object):
         Returns
         -------
         :class: SweepHFSS
-            sweepname
+            Sweep name
 
         """
         if sweepname is None:
@@ -474,7 +474,7 @@ class Hfss(FieldAnalysis3D, object):
         Returns
         -------
         :class: SweepHFSS
-            sweepname
+            Sweep name
 
         """
         if sweepname is None:
@@ -520,7 +520,7 @@ class Hfss(FieldAnalysis3D, object):
         impedance :
             Port impedance. The default is ``50``.
         portname :
-            Port name. The default is ``None``.
+            Name of the port. The default is ``None``.
         renorm :
             Boolean. Renormalize mode. The default is ``True``.
         renorm_impedance :
@@ -565,7 +565,7 @@ class Hfss(FieldAnalysis3D, object):
         impedance :
             Port impedance. The default is ``50``.
         portname :
-            Port name. The default is ``None``.
+            Name of the port. The default is ``None``.
         renorm :
             Boolean. Renormalize mode. The value is ``True``.
         deemb :
@@ -615,7 +615,7 @@ class Hfss(FieldAnalysis3D, object):
             ``XNeg``, ``YNeg``, ``ZNeg``, ``XPos``, ``YPos``, and ``ZPos``. The default value is ``XYNeg``.
             The default value is ``XYNeg``.
         sourcename :
-            Optional. The name of the source. The default is ``None``.
+            Optional. Name of the source. The default is ``None``.
         source_on_plane :
             Boolean. If ``True``, the source is to be created on the plane ortogonal to ``AxisDir``. The default is ``True``.
 
@@ -643,7 +643,7 @@ class Hfss(FieldAnalysis3D, object):
 
     @aedt_exception_handler
     def create_current_source_from_objects(self, startobj, endobject, axisdir=0, sourcename=None, source_on_plane=True):
-        """Function that creates a voltage source taking the closest edges of two objects.
+        """Create a voltage source taking the closest edges of two objects.
 
         Parameters
         ----------
@@ -688,7 +688,7 @@ class Hfss(FieldAnalysis3D, object):
         Parameters
         ----------
         sheet_name :
-            
+            The name of the sheet.
         point1 :
             
         point2 :
@@ -834,7 +834,7 @@ class Hfss(FieldAnalysis3D, object):
 
     @aedt_exception_handler
     def create_perfecte_from_objects(self, startobj, endobject, axisdir=0, sourcename=None, is_infinite_gnd=False, bound_on_plane=True ):
-        """Creates a perfect E  taking the closest edges of two objects.
+        """Creates a Perfect E  taking the closest edges of two objects.
 
         Parameters
         ----------
@@ -873,7 +873,7 @@ class Hfss(FieldAnalysis3D, object):
 
     @aedt_exception_handler
     def create_perfecth_from_objects(self, startobj, endobject, axisdir=0, sourcename=None,bound_on_plane=True):
-        """Create a perfect H taking the closest edges of two objects.
+        """Create a Perfect H taking the closest edges of two objects.
 
         Parameters
         ----------
@@ -967,7 +967,7 @@ class Hfss(FieldAnalysis3D, object):
     @aedt_exception_handler
     def create_lumped_rlc_between_objects(self, startobj, endobject, axisdir=0, sourcename=None, rlctype="Parallel",
                                           Rvalue=None, Lvalue=None, Cvalue=None, bound_on_plane=True):
-        """Creates a perfect H taking the closest edges of two objects.
+        """Creates a Perfect H taking the closest edges of two objects.
 
         Parameters
         ----------
@@ -985,7 +985,7 @@ class Hfss(FieldAnalysis3D, object):
         Lvalue :
             Inductance value in H. None to disable. The default is ``None``.
         rlctype :
-            The RLC Type. Choices are ``Parallel" or "Series". The default is ``Parallel``.
+            The RLC type. Choices are ``Parallel" or "Series". The default is ``Parallel``.
         Rvalue :
             Resistance value in Ohm. None to disable. The default is ``None``.
         bound_on_plane :
@@ -1044,7 +1044,7 @@ class Hfss(FieldAnalysis3D, object):
             Position of the impedance. It should be one of the values for ``Application.AxisDir``, which are:
             ``XNeg``, ``YNeg``, ``ZNeg``, ``XPos``, ``YPos``, and ``ZPos``. The default is ``0``.
         sourcename :
-            Impedance name. The default is ``None``.
+            Name of the impedance. The default is ``None``.
         resistance :
             Resistance value in Ohm. None to disable. The default is ``50``.
         reactance :
@@ -1457,7 +1457,7 @@ class Hfss(FieldAnalysis3D, object):
 
     @aedt_exception_handler
     def assign_impedance_to_sheet(self, sheet_name, sourcename=None, resistance=50, reactance=0, is_infground=False):
-        """Function that creates an impedance taking one sheet.
+        """Create an impedance taking one sheet.
 
         Parameters
         ----------
@@ -1498,7 +1498,7 @@ class Hfss(FieldAnalysis3D, object):
                                        port_impedance="50",
                                        renormalize=False, renorm_impedance="50",
                                        deembed=False):
-        """Create circuit port. Integration line from edge2 to edge1
+        """Create circuit port. Integration line is from edge2 to edge1.
         
         Renormalize impedance is ignored in driven terminal.
         impedance format: - int, float, str:"50", str: "50+1i*55"
@@ -1506,9 +1506,9 @@ class Hfss(FieldAnalysis3D, object):
         Parameters
         ----------
         edge_signal :
-            edge id
+            Edge identifier.
         edge_gnd :
-            edge id
+            Edge identifier.
         port_name :
             Name of the port. The default is `` ``.
         port_impedance :
@@ -1848,11 +1848,11 @@ class Hfss(FieldAnalysis3D, object):
         Parameters
         ----------
         PlotName :
-             The default is ``Parameter Plot Nominal``.
+             The name of the plot. The default is ``Parameter Plot Nominal``.
         sweep_name :
-             The default is ``None``.
+             The name of the sweep. The default is ``None``.
         PortNames :
-             The default is ``None``.
+             The name of the port. The default is ``None``.
         PortExcited :
              The default is ``None``.
         variations :
@@ -1930,7 +1930,7 @@ class Hfss(FieldAnalysis3D, object):
         plotname :
             Name of the plot.
         Xaxis :
-            X axis value. The default is ``X``.
+            X-axis value. The default is ``X``.
 
         Returns
         -------
@@ -1949,26 +1949,19 @@ class Hfss(FieldAnalysis3D, object):
     @aedt_exception_handler
     def export_touchstone(self, solutionname, sweepname, filename=None, variation=[], variations_value=[]):
         """Synopsis: Export Touchston file to a local folder.
-        
-        
-        solutionname = Name of the solution that has been solved.
-        sweepname = Name of the sweep that has been solved.
-        FileName = Full path to the output file.
-        Variations = List of all parameter variations, such as ``["$AmbientTemp", "$PowerIn"]``.
-        VariationsValue = List of all parameter variation values), such as ``["22cel", "100"]``.
-
+              
         Parameters
         ----------
         solutionname :
-            
+             Name of the solution that has been solved.
         sweepname :
-            
+             Name of the sweep that has been solved.
         filename :
-             The default is ``None``.
+             Full path to the output file. The default is ``None``.
         variation :
-             The default is ``[]``.
+             List of all parameter variations, such as ``["$AmbientTemp", "$PowerIn"]``. The default is ``[]``.
         variations_value :
-             The default is ``[]``.
+             List of all parameter variation values), such as ``["22cel", "100"]``. The default is ``[]``.
 
         Returns
         -------
@@ -2016,7 +2009,7 @@ class Hfss(FieldAnalysis3D, object):
 
     @aedt_exception_handler
     def set_export_touchstone(self, activate):
-        """Set automatic export of touchstone after simulation set to ``True``
+        """Set automatic export of Touchstone file after simulation set to ``True``
 
         Parameters
         ----------
@@ -2051,9 +2044,9 @@ class Hfss(FieldAnalysis3D, object):
         Parameters
         ----------
         obj_names :
-            
+             Names of the objects.       
         boundary_name :
-             The default is `` ``.
+             Name of the boundary. The default is `` ``.
 
         Returns
         -------
@@ -2062,7 +2055,7 @@ class Hfss(FieldAnalysis3D, object):
         #TODO: to be tested
 
         """
-        Assign radiation boundary to one or more objects (usually one or more airbox objects).
+        Assign radiation boundary to one or more objects (usually airbox objects).
 
         :param obj_names: Object name or ID to which the boundary condition is assigned.
         :param boundary_name: Optional. Name of the boundary.
@@ -2077,12 +2070,12 @@ class Hfss(FieldAnalysis3D, object):
 
     @aedt_exception_handler
     def assign_radiation_boundary_to_faces(self, faces_id, boundary_name=""):
-        """Assign radiation boundary to one or more objects (usually one or more airbox objects).
+        """Assign radiation boundary to one or more objects (usually airbox objects).
 
         Parameters
         ----------
         faces_id :
-            Face ID to which the boundary condition is assigned,
+            Face ID to which the boundary condition is assigned.
         boundary_name :
             Optional. Name of the boundary. The default is `` ``.
 
