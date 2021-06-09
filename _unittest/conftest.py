@@ -19,7 +19,7 @@ if not os.path.isdir(scratch_path):
 
 desktop_version = "2021.1"
 non_graphical = False
-new_thread = False
+new_thread = True
 
 
 @pytest.fixture(scope='session', autouse=True)

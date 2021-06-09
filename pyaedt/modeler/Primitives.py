@@ -2,14 +2,6 @@
 Primitives Library Class
 ----------------------------------------------------------------
 
-Disclaimer
-==================================================
-
-**Copyright (c) 1986-2021, ANSYS Inc. unauthorised use, distribution or duplication is prohibited**
-
-**This tool release is unofficial and not covered by standard Ansys Support license.**
-
-
 Description
 ==================================================
 
@@ -1122,7 +1114,6 @@ class Primitives(object):
                       matname=None, xsection_type=None, xsection_orient=None,
                       xsection_width=1, xsection_topwidth=1, xsection_height=1,
                       xsection_num_seg=0, xsection_bend_type=None):
-
         """Draw a Polyline Object in the 3D modeler
 
         Returns an object of type Polyline, allowing for manipulation of the Polyline.
@@ -1133,9 +1124,6 @@ class Primitives(object):
             array of positions of each point of polyline
             A position is a list of 2D or 3D coordinates. Position coordinate values can be numbers or valid
             AEDT string expressions e.g. [0, 1, 2] or ["0mm", "5mm", "1mm"] or ["x1", "y1"] etc.
-
-        object_id : int, default=None
-            optional object id from the AEDTmodeler, will be ignored if position_list is not None
 
         segment_type: str or PolylineSegment or list, default=None
             default behaviour: all points are connected as "Line" segments
@@ -1185,7 +1173,7 @@ class Primitives(object):
         >>> from pyaedt.desktop import Desktop
         >>> from pyaedt.Maxwell import Maxwell3d
         >>> from pyaedt.modeler.Primitives import PolylineSegment
-        >>> desktop=Desktop(specified_version="2020.2", AlwaysNew=False)
+        >>> desktop=Desktop(specified_version="2021.1", AlwaysNew=False)
         >>> aedtapp = Maxwell3D()
         >>> aedtapp.modeler.model_units = "mm"
         >>> primitives = aedtapp.modeler.primitives
@@ -2033,15 +2021,11 @@ class Primitives(object):
                         continue
                     elif pd1 >= pd2 and not GeometryOperators.is_projection_inside(vertex1_j, vertex2_j, vertex1_i, vertex2_i):
                         continue
-                    # if self.get_edge_length(el)<self.get_edge_length(el1):
-                    #     pos = [i+j for i,j in zip(start_midpoint, vect)]
-                    #     if end_obj not in self.get_bodynames_from_position(pos):
-                    #         continue
-                    # else:
-                    #     pos = [i-j for i,j in zip(end_midpoint, vect)]
-                    #     if start_obj not in self.get_bodynames_from_position(pos):
-                    #         continue
-
+                if GeometryOperators.is_between_points(end_midpoint, vertex1_i,
+                                                       vertex1_j) or GeometryOperators.is_between_points(start_midpoint,
+                                                                                                         vertex2_i,
+                                                                                                         vertex2_j):
+                    continue
                 if actual_point is None:
                     edge_list = [el, el1]
                     is_parallel = parallel_edges

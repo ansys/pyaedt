@@ -97,6 +97,7 @@ setup3 = aedtapp.create_setup("MyDC", aedtapp.SimulationSetupTypes.NexximDC)
 
 aedtapp.analyze_setup("MyLNA")
 
+aedtapp.export_fullwave_spice()
 ###############################################################################
 # Close Desktop
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
