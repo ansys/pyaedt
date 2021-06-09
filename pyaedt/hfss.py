@@ -2077,7 +2077,7 @@ class Hfss(FieldAnalysis3D, object):
         faces_id :
             Face ID to which the boundary condition is assigned.
         boundary_name :
-            Optional. Name of the boundary. The default is `` ``.
+            Optional. Name of the boundary. The default is ``""``.
 
         Returns
         -------
