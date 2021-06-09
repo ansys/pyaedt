@@ -2021,15 +2021,11 @@ class Primitives(object):
                         continue
                     elif pd1 >= pd2 and not GeometryOperators.is_projection_inside(vertex1_j, vertex2_j, vertex1_i, vertex2_i):
                         continue
-                    # if self.get_edge_length(el)<self.get_edge_length(el1):
-                    #     pos = [i+j for i,j in zip(start_midpoint, vect)]
-                    #     if end_obj not in self.get_bodynames_from_position(pos):
-                    #         continue
-                    # else:
-                    #     pos = [i-j for i,j in zip(end_midpoint, vect)]
-                    #     if start_obj not in self.get_bodynames_from_position(pos):
-                    #         continue
-
+                if GeometryOperators.is_between_points(end_midpoint, vertex1_i,
+                                                       vertex1_j) or GeometryOperators.is_between_points(start_midpoint,
+                                                                                                         vertex2_i,
+                                                                                                         vertex2_j):
+                    continue
                 if actual_point is None:
                     edge_list = [el, el1]
                     is_parallel = parallel_edges

@@ -312,8 +312,8 @@ class Hfss(FieldAnalysis3D, object):
 
         Returns
         -------
-        type
-            ``True`` if the operation succeeds.
+        SweepHFSS
+            Sweep object
 
         """
 
@@ -342,7 +342,8 @@ class Hfss(FieldAnalysis3D, object):
 
                 sweepdata.props["RangeStart"] = str(freqstart) + unit
                 sweepdata.update()
-                return sweepname
+                return sweepdata
+        return False
 
 
     @aedt_exception_handler
@@ -371,8 +372,8 @@ class Hfss(FieldAnalysis3D, object):
 
         Returns
         -------
-        :class: SweepHFSS
-            Sweep name
+        SweepHFSS
+            Sweep object
 
         """
         if sweepname is None:
@@ -397,7 +398,8 @@ class Hfss(FieldAnalysis3D, object):
                 sweepdata.props["RangeType"] = "LinearCount"
                 sweepdata.props["ExtrapToDC"] = False
                 sweepdata.update()
-                return sweepname
+                return sweepdata
+        return False
 
     @aedt_exception_handler
     def create_linear_step_sweep(self, setupname, unit, freqstart, freqstop, step_size,
@@ -425,8 +427,8 @@ class Hfss(FieldAnalysis3D, object):
 
         Returns
         -------
-        :class: SweepHFSS
-            Sweep name
+        SweepHFSS
+            Sweep object
 
         """
         if sweepname is None:
@@ -451,7 +453,8 @@ class Hfss(FieldAnalysis3D, object):
                 sweepdata.props["Type"] = "Discrete"
                 sweepdata.props["RangeType"] = "LinearStep"
                 sweepdata.update()
-                return sweepname
+                return sweepdata
+        return False
 
 
     @aedt_exception_handler
@@ -473,8 +476,8 @@ class Hfss(FieldAnalysis3D, object):
 
         Returns
         -------
-        :class: SweepHFSS
-            Sweep name
+        SweepHFSS
+            Sweep object
 
         """
         if sweepname is None:
@@ -500,7 +503,8 @@ class Hfss(FieldAnalysis3D, object):
                 sweepdata.props["RangeType"] = "SinglePoints"
                 sweepdata.update()
                 self._messenger.add_info_message("Sweep Created Correctly")
-                return sweepname
+                return sweepdata
+        return False
 
 
     @aedt_exception_handler
@@ -530,7 +534,7 @@ class Hfss(FieldAnalysis3D, object):
 
         Returns
         -------
-        type
+        str
             Port name
 
         """
@@ -787,7 +791,7 @@ class Hfss(FieldAnalysis3D, object):
         Parameters
         ----------
         startobj : 
-            First (starting) object for the integration line.
+            First (starting) object for the integration line. This is typically the reference plane. 
         endobject :
             Second (ending) object for the integration line.
         axisdir :
@@ -810,8 +814,17 @@ class Hfss(FieldAnalysis3D, object):
 
         Returns
         -------
-        :class: BoundaryObject
-            Port name
+        BoundaryObject
+            Port object
+
+        Examples
+        --------
+        >>>  from pyaedt import Hfss
+        >>> hfss = Hfss()
+        >>> ms = hfss.modeler.primitives.create_box([4,5,0],[1,100,0.2],name="MS1", matname="copper")
+        >>> sub = hfss.modeler.primitives.create_box([0,5,-2],[20,100,2],name="SUB1", matname="FR4_epoxy")
+        >>> gnd = hfss.modeler.primitives.create_box([0,5,-2.2],[20,100,0.2],name="GND1", matname="FR4_epoxy")
+        >>> port = hfss.create_wave_port_microstrip_between_objects("GND1", "MS1",   portname="MS1", axisdir=1)
 
         """
         if not self.modeler.primitives.does_object_exists(startobj) or not self.modeler.primitives.does_object_exists(endobject):
@@ -831,6 +844,7 @@ class Hfss(FieldAnalysis3D, object):
                 faces = self.modeler.primitives.get_object_faces(sheet_name)
                 return self._create_port_terminal(faces[0], endobject, portname, iswaveport=True)
         return False
+
 
     @aedt_exception_handler
     def create_perfecte_from_objects(self, startobj, endobject, axisdir=0, sourcename=None, is_infinite_gnd=False, bound_on_plane=True ):
@@ -1166,8 +1180,8 @@ class Hfss(FieldAnalysis3D, object):
         return refid, int_start, int_stop
 
     @aedt_exception_handler
-    def create_wave_port_from_sheets(self, sheet, deemb=0, axisdir=0, impedance=50, nummodes=1, portname=None,
-                                     renorm=True):
+    def create_wave_port_from_sheet(self, sheet, deemb=0, axisdir=0, impedance=50, nummodes=1, portname=None,
+                                    renorm=True):
         """Create waveport on sheet objects created starting from sheets.
 
         Parameters
@@ -1220,7 +1234,7 @@ class Hfss(FieldAnalysis3D, object):
         return portnames
 
     @aedt_exception_handler
-    def assign_lumped_port_to_sheet(self, sheet_name, axisdir=0, impedance=50, portname=None,
+    def create_lumped_port_to_sheet(self, sheet_name, axisdir=0, impedance=50, portname=None,
                                     renorm=True, deemb=False, reference_object_list=[]):
         """Create a Lumped taking one sheet.
 
@@ -1947,7 +1961,7 @@ class Hfss(FieldAnalysis3D, object):
     @aedt_exception_handler
     def export_touchstone(self, solutionname, sweepname, filename=None, variation=[], variations_value=[]):
         """Synopsis: Export Touchston file to a local folder.
-              
+
         Parameters
         ----------
         solutionname : str

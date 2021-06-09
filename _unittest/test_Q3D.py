@@ -3,7 +3,7 @@ import os
 from .conftest import scratch_path, local_path
 import gc
 # Import required modules
-from pyaedt import Q3d
+from pyaedt import Q3d, Q2d
 from pyaedt.generic.filesystem import Scratch
 
 test_project_name = "coax_Q3D"
@@ -35,10 +35,23 @@ class TestQ3D:
         assert isinstance(id1, int)
 
 
+    def test_03_get_properties(self):
+        assert self.aedtapp.odefinition_manager
+        assert self.aedtapp.omaterial_manager
+        assert self.aedtapp.design_file
+
     def test_06a_create_setup(self):
         mysetup = self.aedtapp.create_setup()
         mysetup.props["SaveFields"] = True
         assert mysetup.update()
+        sweep = self.aedtapp.create_discrete_sweep(mysetup.name, sweepname="mysweep", freqstart=1)
+        assert sweep
+        assert sweep.props["RangeStart"] == 1
+        sweep2 = self.aedtapp.create_frequency_sweep(mysetup.name, sweepname="mysweep2",unit="GHz",freqstart=1, freqstop=4)
+        assert sweep2
+        assert sweep2.props["RangeEnd"] == 4
+
+        pass
 
 
     def test_07_create_source_sinks(self):
@@ -47,12 +60,36 @@ class TestQ3D:
         assert source.name =="Source1"
         assert sink.name =="Sink1"
 
-    def test_08_create_source_sinks(self):
+    def test_07B_create_source_tosheet(self):
+        self.aedtapp.modeler.primitives.create_circle(self.aedtapp.CoordinateSystemPlane.XYPlane,[0,0,0],4,name="Source1")
+        self.aedtapp.modeler.primitives.create_circle(self.aedtapp.CoordinateSystemPlane.XYPlane,[10,10,10],4,name="Sink1")
+
+        source = self.aedtapp.assign_source_to_sheet("Source1", sourcename="Source3")
+        sink = self.aedtapp.assign_sink_to_sheet("Sink1", sinkname="Sink3")
+        assert source.name =="Source3"
+        assert sink.name =="Sink3"
+
+        self.aedtapp.modeler.primitives.create_circle(self.aedtapp.CoordinateSystemPlane.XYPlane,[0,0,0],4,name="Source1")
+        self.aedtapp.modeler.primitives.create_circle(self.aedtapp.CoordinateSystemPlane.XYPlane,[10,10,10],4,name="Sink1")
+
+        source = self.aedtapp.assign_source_to_sheet("Source1", netname="GND", objectname="Cylinder1")
+        sink = self.aedtapp.assign_sink_to_sheet("Sink1", netname="GND", objectname="Cylinder1")
+        assert source
+        assert sink
+
+    def test_08_create_faceted_bondwire(self):
         self.aedtapp.load_project(self.test_project, close_active_proj=True)
         assert self.aedtapp.modeler.create_faceted_bondwire_from_true_surface("bondwire_example",
                                                                               self.aedtapp.CoordinateSystemAxis.ZAxis,
                                                                               min_size=0.2, numberofsegments=8)
         pass
 
+    def test_09_autoidentify(self):
+        assert self.aedtapp.auto_identify_nets()
+        pass
 
-
+    def test_10_q2d(self):
+        q2d = Q2d()
+        assert q2d
+        assert q2d.dim == '2D'
+        pass

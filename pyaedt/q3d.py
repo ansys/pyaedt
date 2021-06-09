@@ -51,13 +51,6 @@ class QExtractor(FieldAnalysis3D, FieldAnalysis2D, object):
     '''
 
     @property
-    def symmetry_multiplier(self):
-        """ """
-        omodule = self._odesign.GetModule("ModelSetup")
-        return int(omodule.GetSymmetryMultiplier())
-
-
-    @property
     def design_file(self):
         """ """
         design_file = os.path.join(self.working_directory, "design_data.json")
@@ -76,7 +69,6 @@ class QExtractor(FieldAnalysis3D, FieldAnalysis2D, object):
         """ Push exit up to parent object Design """
         if ex_type:
             exception_to_desktop(self, ex_value, ex_traceback)
-
 
 class Q3d(QExtractor, object):
     """Q3D Object
@@ -103,7 +95,6 @@ class Q3d(QExtractor, object):
     @aedt_exception_handler
     def auto_identify_nets(self):
         """Automatically Iddentify Nets
-        :return:
 
         Parameters
         ----------
@@ -133,7 +124,7 @@ class Q3d(QExtractor, object):
 
         Returns
         -------
-        type
+        BoundaryObject
             source object
 
         """
@@ -154,40 +145,43 @@ class Q3d(QExtractor, object):
 
 
     @aedt_exception_handler
-    def assign_source_to_object(self, sheetname, obj_name, netname=None, source_name=None):
-        """Generate a source on a face id of an object. Face ID is selected based on axisdir. It will be the face that
-        has the maximum/minimum in that axis dir
+    def assign_source_to_sheet(self, sheetname, objectname=None, netname=None, sourcename=None):
+        """Generate a source on aobject.  It will be the face that
+        has the maximum/minimum in that axis
 
         Parameters
         ----------
         sheetname :
             name of the sheet/object on which create a source
-        obj_name :
+        objectname :
             name of the parent object
         netname :
             name of the net (optional) (Default value = None)
-        source_name :
+        sourcename :
             name of the source (optional) (Default value = None)
 
         Returns
         -------
-        type
+        BoundaryObject
             source object
 
         """
-        if not netname:
-            netname = obj_name
-        if not source_name:
-            source_name = generate_unique_name("Source")
-        sheetname = self.modeler._convert_list_to_ids(sheetname)
 
-        props = OrderedDict({"Faces": sheetname, "ParentBndID": obj_name, "Net": netname})
-        bound = BoundaryObject(self, source_name, props, "Source")
+        if not sourcename:
+            sourcename = generate_unique_name("Source")
+        sheetname = self.modeler._convert_list_to_ids(sheetname)
+        props = OrderedDict({"Objects": [sheetname]})
+        if objectname:
+            props["ParentBndID"] = objectname
+        props["TerminalType"] = "ConstantVoltage"
+        if netname:
+            props["Net"] = netname
+        props = OrderedDict({"Objects": sheetname, "TerminalType": "ConstantVoltage", "Net": netname})
+        bound = BoundaryObject(self, sourcename, props, "Source")
         if bound.create():
             self.boundaries.append(bound)
             return bound
         return False
-
 
     @aedt_exception_handler
     def assign_sink_to_objectface(self, object_name, axisdir=0, sink_name=None, net_name=None):
@@ -209,7 +203,7 @@ class Q3d(QExtractor, object):
 
         Returns
         -------
-        type
+        BoundaryObject
             sink object
 
         """
@@ -229,41 +223,47 @@ class Q3d(QExtractor, object):
         return False
 
     @aedt_exception_handler
-    def assign_sink_to_sheet(self, sheetname, obj_name, netname=None, sink_name=None):
-        """Generate a sink on a face id of an object. Face ID is selected based on axisdir. It will be the face that
+    def assign_sink_to_sheet(self, sheetname, objectname=None, netname=None, sinkname=None):
+        """Generate a sink on aobject.  It will be the face that
         has the maximum/minimum in that axis dir
 
         Parameters
         ----------
         sheetname :
             name of the sheet/object on which create a sink
-        obj_name :
+        objectname :
             name of the parent object
         netname :
             name of the net (optional) (Default value = None)
-        sink_name :
-            name of the source (optional) (Default value = None)
+        sinkname :
+            name of the sink (optional) (Default value = None)
 
         Returns
         -------
-        type
-            sink object
+        BoundaryObject
+            source object
 
         """
-        if not netname:
-            netname = obj_name
-        if not sink_name:
-            sink_name = generate_unique_name("Sink")
-        props = OrderedDict({"Objects": [sheetname], "ParentBndID": obj_name, "Net": netname})
-        bound = BoundaryObject(self, sink_name, props, "Sink")
+
+        if not sinkname:
+            sinkname = generate_unique_name("Source")
+        sheetname = self.modeler._convert_list_to_ids(sheetname)
+        props = OrderedDict({"Objects": [sheetname]})
+        if objectname:
+            props["ParentBndID"] = objectname
+        props["TerminalType"] = "ConstantVoltage"
+        if netname:
+            props["Net"] = netname
+
+        props = OrderedDict({"Objects": sheetname, "TerminalType": "ConstantVoltage", "Net": netname})
+        bound = BoundaryObject(self, sinkname, props, "Sink")
         if bound.create():
             self.boundaries.append(bound)
             return bound
         return False
 
-
     @aedt_exception_handler
-    def create_frequency_sweep(self, setupname, unit, freqstart, freqstop, fastsweep=False):
+    def create_frequency_sweep(self, setupname, unit, freqstart, freqstop, freqstep=None, sweepname=None):
         """
 
         Parameters
@@ -276,72 +276,99 @@ class Q3d(QExtractor, object):
             Starting Frequency of sweep
         freqstop :
             Stop Frequency of Sweep
-        fastsweep :
-            boolean =False for Fast sweep, True for interpolating (Default value = False)
+
 
         Returns
         -------
 
         """
+        if sweepname is None:
+            sweepname = generate_unique_name("Sweep")
 
-        arg = ["Name:Sweep", "IsEnabled:=", True, "RangeType:=", "LinearCount", "RangeStart:=",
-               str(freqstart) + unit,
-               "RangeEnd:=", str(freqstop) + unit]
-        sweeptype = "Fast" if fastsweep is True else "Interpolating"
-        arg += ["RangeCount:=", 451, "Type:="]
-        arg.append(sweeptype)
-        arg += ["SaveFields:=", False, "SaveRadFields:=", False]
-        if fastsweep:
-            arg += ["GenerateFieldsForAllFreqs:=", False, "ExtrapToDC:=", False]
-            print("Fast Sweep Setup")
-        else:
-            arg += ["InterpTolerance:=", 0.5, "InterpMaxSolns:=", 250, "InterpMinSolns:=", 0,
-                    "InterpMinSubranges:=", 1]
-            arg += ["ExtrapToDC:=", False, "InterpUseS:=", True, "InterpUsePortImped:=", False,
-                    "InterpUsePropConst:=", True]
-            arg += ["UseDerivativeConvergence:=", False, "InterpDerivTolerance:=", 0.2, "UseFullBasis:=", True]
-            arg += ["EnforcePassivity:=", True, "PassivityErrorTolerance:=", 0.0001]
-            print("Interpolating Sweep Setup")
-        self.oanalysis.InsertFrequencySweep(setupname, arg)
-        print("Setup Created Correctly")
-        return setupname
-
+        if setupname not in self.setup_names:
+            return False
+        for i in self.setups:
+            if i.name == setupname:
+                setupdata = i
+                for sw in setupdata.sweeps:
+                    if sweepname == sw.name:
+                        self.messenger.add_warning_message("Sweep {} already present. Please rename and retry".format(sweepname))
+                        return False
+                sweepdata = setupdata.add_sweep(sweepname, "Discrete")
+                sweepdata.props["RangeStart"] = freqstart
+                if not freqstop:
+                    freqstop = freqstart
+                if not freqstep:
+                    freq_step = (freqstop-freqstart)/11
+                    if freq_step == 0:
+                        freqstep = freqstart
+                sweepdata.props["RangeEnd"] = freqstop
+                sweepdata.props["RangeStep"] = freqstep
+                sweepdata.props["SaveFields"] = False
+                sweepdata.props["SaveRadFields"] = False
+                sweepdata.props["Type"] = "Interpolating"
+                sweepdata.props["RangeType"] = "LinearStep"
+                sweepdata.update()
+                return sweepdata
+        return False
 
     @aedt_exception_handler
-    def create_discrete_sweep(self, setup_name, sweep_name, freq):
+    def create_discrete_sweep(self, setupname, freqstart, freqstop=None, freqstep=None, units="GHz", sweepname=None, savefields=False):
         """Create a Discrete Sweep with a single frequency value
-        name: Setup name
-        freq: sweep freq (including Units) as string
-        sweepname: name of the sweep
 
         Parameters
         ----------
-        setup_name :
+        setupname : str
+            name of setup to which sweeps belongs
             
-        sweep_name :
+        sweepname : str
+            name of sweep
             
-        freq :
-            
+        freqstart : float
+            discrete frequency start point
+        freqstop : float
+            discrete frequency stop point. If ``None``, single point sweep
+        freqstep : float
+            discrete frequency step point. If ``None``, 11 points will be created
+        units  : str
+            Default to ``"GHz"``.
+        savefields : bool
+            define if field will be generated.  Defaults to ``False``.
 
         Returns
         -------
-
+        SweepQ3D:
+            sweep option
         """
-        self.oanalysis.InsertFrequencySweep(setup_name,
-                                                  [
-                                                      "NAME:" + sweep_name,
-                                                      "IsEnabled:=", True,
-                                                      "RangeType:=", "SinglePoints",
-                                                      "RangeStart:=", freq,
-                                                      "RangeEnd:=", freq,
-                                                      "SaveSingleField:=", False,
-                                                      "Type:=", "Discrete",
-                                                      "SaveFields:=", True,
-                                                      "SaveRadFields:=", False,
-                                                      "ExtrapToDC:=", False
-                                                  ])
-        return True
+        if sweepname is None:
+            sweepname = generate_unique_name("Sweep")
 
+        if setupname not in self.setup_names:
+            return False
+        for i in self.setups:
+            if i.name == setupname:
+                setupdata = i
+                for sw in setupdata.sweeps:
+                    if sweepname == sw.name:
+                        self.messenger.add_warning_message("Sweep {} already present. Please rename and retry".format(sweepname))
+                        return False
+                sweepdata = setupdata.add_sweep(sweepname, "Discrete")
+                sweepdata.props["RangeStart"] = freqstart
+                if not freqstop:
+                    freqstop = freqstart
+                if not freqstep:
+                    freqstep = (freqstop - freqstart) / 11
+                    if freqstep == 0:
+                        freqstep = freqstart
+                sweepdata.props["RangeEnd"] = freqstop
+                sweepdata.props["RangeStep"] = freqstep
+                sweepdata.props["SaveFields"] = savefields
+                sweepdata.props["SaveRadFields"] = False
+                sweepdata.props["Type"] = "Discrete"
+                sweepdata.props["RangeType"] = "LinearStep"
+                sweepdata.update()
+                return sweepdata
+        return False
 
 class Q2d(QExtractor, object):
     """Q2D Object
@@ -368,10 +395,6 @@ class Q2d(QExtractor, object):
         """ """
         return self.modeler.dimension
 
-    @property
-    def geometry_mode(self):
-        """ """
-        return self.odesign.GetGeometryMode()
 
     def __init__(self, projectname=None, designname=None, solution_type=None, setup_name=None):
         QExtractor.__init__(self, "2D Extractor", projectname, designname, solution_type, setup_name)
