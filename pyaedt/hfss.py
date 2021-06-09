@@ -5,18 +5,19 @@ Hfss Class
 This class contains all HFSS functionalities. It inherits all objects that belong to HFSS.
 
 
-Examples:
+Examples
+----------------------------------------------------------------
 
-hfss = Hfss()     Creates an ``Hfss`` object and connects to an existing HFSS design or creates a new HFSS design if one is not present.
-
-
-hfss = Hfss(projectname)     Creates an ``Hfss`` object and links to a project named projectname. If this project doesn't exist, it creates one with this name.
+>>> hfss = Hfss()     Create an ``Hfss`` object and connect to an existing HFSS design or create a new HFSS design if one does not exist.
 
 
-hfss = Hfss(projectname,designame)     Creates an ``Hfss`` object and links to a design named designname in a project named projectname.
+>>> hfss = Hfss(projectname)     Create an ``Hfss`` object and link to a project named ``projectname``. If this project does not exist, create one with this name.
 
 
-hfss = Hfss("myfile.aedt")     Creates an ``Hfss`` object and opens the specified project.
+>>> hfss = Hfss(projectname,designame)     Create an ``Hfss`` object and link to a design named ``designname`` in a project named ``projectname``.
+
+
+>>> hfss = Hfss("myfile.aedt")     Create an ``Hfss`` object and open the specified project.
 
 
 ========================================================
@@ -47,13 +48,13 @@ class Hfss(FieldAnalysis3D, object):
             Parameters
             ----------
             projectname :
-                name of the project to be selected or full path to the project to be opened  or to the AEDTZ archive. if None try to get active project and, if nothing present to create an empty one
+                Name of the project to select or the full path to the project or AEDTZ archive to open. If ``None``, try to get an active project and, if none are present, create an empty project.
             designname :
-                name of the design to be selected. if None, try to get active design and, if nothing present to create an empty one
+                Name of the design to select. If ``None``, try to get an active design and, if none are present, create an empty design.
             solution_type :
-                solution type to be applied to design. if None default is taken
+                Solution type to apply to design. If ``None`, the default type is applied.
             setup_name :
-                setup_name to be used as nominal. if none active setup is taken or nothing
+                ``setup_name to use as the nominal. If ``None``, the active setup is used or nothing is used.
 
             Returns
             -------
@@ -64,7 +65,7 @@ class Hfss(FieldAnalysis3D, object):
         return self
 
     def __exit__(self, ex_type, ex_value, ex_traceback):
-        """ Push exit up to parent object Design """
+        """ Push exit up to the parent object ``Design``. """
         if ex_type:
             exception_to_desktop(self, ex_value, ex_traceback)
 
@@ -195,43 +196,43 @@ class Hfss(FieldAnalysis3D, object):
                       cond=58000000, perm=1, usethickness=False, thickness="0.1mm", roughness="0um",
                       isinfgnd=False, istwoside=False, isInternal=True, issheelElement=False, usehuray=False,
                       radius="0.5um", ratio="2.9"):
-        """The function assigns Finite Conductivity to object obj with material mat
+        """This function assigns finite conductivity to object ``obj`` with material mat.
 
         Parameters
         ----------
         obj : list or str
-            object list
+            Object list.
         mat : str
-            material name to use, optional (Default value = None)
+            Optional. Material name to use. The default is ``None``.
         cond : float
-            if not material is provided user has to provide conductivity (Default value = 58000000)
+            If no material is provided, a conductivity value must be supplied. The default is ``58000000``.
         perm : float
-            if not material is provided user has to provide permittivity (Default value = 1)
+            If no material is provided, a permittivity value must be supplied. The default is ``1``.
         usethickness : bool
-            boolean (Default value = False)
+            Boolean. The default is ``False``.
         thickness : str
-            thickness value in case usethickness=True (Default value = "0.1mm")
+            Thickness value to use if ``usethickness=True``. The default is ``0.1mm``.
         roughness : str
-            optional roughness value (Default value = "0um")
+            Optional. Roughness value. The default is ``0um``.
         isinfgnd : bool
-            Boolean (Default value = False)
+            Boolean. The default is ``False``.
         istwoside : bool
-            Boolean (Default value = False)
+            Boolean. The default is ``False``.
         isInternal : bool
-            Boolean (Default value = True)
+            Boolean. The default is ``True``.
         issheelElement : bool
-            Boolena (Default value = False)
+            Boolean. The default is ``False``.
         usehuray : bool
-            Boolean (Default value = False)
+            Boolean. The default is ``False``. 
         radius : str
-            Huray Coefficient (Default value = "0.5um")
+            Huray coefficient. The default is ``0.5um``.
         ratio : str
-            Huray Coefficient (Default value = "2.9")
+            Huray coefficient. The default is ``2.9``.
 
         Returns
         -------
         :class: BoundaryObject
-            Boundary Object
+            Boundary object
 
         Examples
         --------
@@ -286,33 +287,33 @@ class Hfss(FieldAnalysis3D, object):
     def create_frequency_sweep(self, setupname, unit="GHz", freqstart=1e-3, freqstop=10, sweepname=None,
                                num_of_freq_points=451, sweeptype="Interpolating",
                                interpolation_tol=0.5, interpolation_max_solutions=250):
-        """Create a Frequency Sweep
+        """Create a frequency sweep.
 
         Parameters
         ----------
         setupname : str
-            name of the setup to which is attached the sweep
+            Name of the setup which is attached the sweep.
         unit :
-            Units ("MHz", "GHz"....) (Default value = "GHz")
+            Units ("MHz", "GHz"...). The default is ``GHz``.
         freqstart :
-            Starting Frequency of sweep (Default value = 1e-3)
+            Starting frequency of the sweep. The default is ``1e-3``.
         freqstop :
-            Stop Frequency of Sweep (Default value = 10)
+            Stopping frequency of the sweep. The default is ``10``.
         sweepname :
-            name of the Sweep (Default value = None)
+            Name of the sweep. The default value is ``None``.
         num_of_freq_points :
-            Number of frequency point in the range (Default value = 451)
+            Number of frequency points in the range. The default value is ``451``.
         sweeptype :
-            Fast"|"Interpolating"|"Discrete" (default)
+            The type of sweep. Choices are ``Fast``, ``"Interpolating``, and ``Discrete``. The default is ``Discrete.``
         interpolation_max_solutions :
-            max number of solutions evaluated for the interpolation process (Default value = 250)
+            Maximum number of solutions evaluated for the interpolation process. The default is ``250``.
         interpolation_tol :
-            error tolerance threshold for the interpolation process (Default value = 0.5)
+            Error tolerance threshold for the interpolation process. The default is ``0.5``.
 
         Returns
         -------
         type
-            True if operation succeeded
+            ``True`` if the operation succeeds.
 
         """
 
@@ -326,7 +327,7 @@ class Hfss(FieldAnalysis3D, object):
                 setupdata = i
                 for sw in setupdata.sweeps:
                     if sweepname == sw.name:
-                        self.messenger.add_warning_message("Sweep {} already present. Please rename and retry".format(sweepname))
+                        self.messenger.add_warning_message("Sweep {} is already present. Rename and retry".format(sweepname))
                         return False
                 sweepdata = setupdata.add_sweep(sweepname, sweeptype)
                 sweepdata.props["RangeStart"] = str(freqstart) + unit
@@ -347,26 +348,26 @@ class Hfss(FieldAnalysis3D, object):
     @aedt_exception_handler
     def create_linear_count_sweep(self, setupname, unit, freqstart, freqstop, num_of_freq_points,
                                   sweepname=None, save_fields=True, save_rad_fields=False):
-        """Create a Discrete Sweep with specified the number of points
+        """Create a discrete sweep with the specified number of points.
 
         Parameters
         ----------
         setupname : str
-            Setup name
+            Setup name.
         freqstart : float
-            Starting Frequency of sweep (eg. 1)
+            Starting grequency of sweep,  such as ``1``.
         freqstop : float
-            Stop Frequency of Sweep
+            Stopping frequency of the sweep.
         sweepname : str
-            name of the Sweep (Default value = None)
+            Mame of the sweep. The default is ``None``.
         unit : str
-            Units ("MHz", "GHz"....)
+            Units ("MHz", "GHz"...).
         num_of_freq_points : int
-            Number of frequency point in the range
+            Number of frequency points in the range.
         save_fields : bool
-            bool (Default value = True)
+            Boolean. The default is ``True``.
         save_rad_fields :
-            bool (Default value = False)
+            Boolean. The default is ``False``.
 
         Returns
         -------
@@ -384,7 +385,7 @@ class Hfss(FieldAnalysis3D, object):
                 setupdata = i
                 for sw in setupdata.sweeps:
                     if sweepname == sw.name:
-                        self.messenger.add_warning_message("Sweep {} already present. Please rename and retry".format(sweepname))
+                        self.messenger.add_warning_message("Sweep {} is already present. Rename and retry".format(sweepname))
                         return False
                 sweepdata = setupdata.add_sweep(sweepname, "Discrete")
                 sweepdata.props["RangeStart"] = str(freqstart) + unit,
@@ -401,26 +402,26 @@ class Hfss(FieldAnalysis3D, object):
     @aedt_exception_handler
     def create_linear_step_sweep(self, setupname, unit, freqstart, freqstop, step_size,
                                  sweepname=None, save_fields=True, save_rad_fields=False):
-        """Create a Discrete Sweep with specified the number of points
+        """Create a discrete sweep with the specified number of points.
 
         Parameters
         ----------
         freqstart : float
-            Starting Frequency of sweep
+            Starting frequency of the sweep.
         freqstop : float
-            Stop Frequency of Sweep
+            Stopping frequency of the sweep.
         sweepname : str
-            name of the Sweep (Default value = None)
+            Name of the sweep. The default is ``None``.
         unit : str
-            Units ("MHz", "GHz"....)
+            Units ("MHz", "GHz"...).
         step_size : float
-            Frequency size of the step
+            Frequency size of the step.
         setupname : str
-            Setup name
+            Name of the setup.
         save_fields : bool
-            bool (Default value = True)
+            Boolean. The default is ``True``.
         save_rad_fields : bool
-            bool (Default value = False)
+            Boolean. The default is ``False``.
 
         Returns
         -------
@@ -455,20 +456,20 @@ class Hfss(FieldAnalysis3D, object):
 
     @aedt_exception_handler
     def create_discrete_sweep(self, setupname, sweepname="SinglePoint", freq="1GHz", save_field=True, save_radiating_field=False):
-        """Create a Discrete Sweep with a single frequency value
+        """Create a discrete sweep with a single frequency value.
 
         Parameters
         ----------
         setupname : str
-            Setup name
+            Name of the setup.
         freq : str
-            sweep freq (including Units) as string (Default value = "1GHz")
+            Sweep frequency (including ``Units``) as string. The default is ``1GHz``.
         sweepname : str
-            name of the sweep (Default value = "SinglePoint")
+            Name of the sweep. The default is ``SinglePoint``.
         save_field : bool
-            bool (Default value = True)
+            Boolean. The default is ``True``.
         save_radiating_field : bool
-            bool (Default value = False)
+            Boolean. The default is ``False``.
 
         Returns
         -------
@@ -505,31 +506,32 @@ class Hfss(FieldAnalysis3D, object):
     @aedt_exception_handler
     def create_circuit_port_between_objects(self, startobj, endobject, axisdir="XYNeg", impedance=50, portname=None,
                                             renorm=True, renorm_impedance=50, deemb=False):
-        """Function that Creates a Circuit port taking the closest edges of two objects.
+        """Create a circuit port taking the closest edges of two objects.
 
         Parameters
         ----------
         startobj :
-            First object (starting object for integration line)
+            First (starting) object for the integration line.
         endobject :
-            Second object (ending object for integration line)
+            Second (ending) object for the integration line.
         axisdir :
-            Position of port. it should be one of Application.AxisDir [XNeg, YNeg, ZNeg, XPos,YPos,ZPos] (Default value = "XYNeg")
+            Position of the port. It should be one of the values for ``Application.AxisDir``, which are:
+            ``XNeg``, ``YNeg``, ``ZNeg``, ``XPos``, ``YPos``, and ``ZPos``. The default is ``XYNeg``.
         impedance :
-            Port Impedance (Default value = 50)
+            Port impedance. The default is ``50``.
         portname :
-            Port Name. (Default value = None)
+            Port name. The default is ``None``.
         renorm :
-            Boolean, Renormalize Mode (Default value = True)
+            Boolean. Renormalize mode. The default is ``True``.
         renorm_impedance :
-            Float or str, Renormalize Impedance (Default value = 50)
+            Float or string. Renormalize impedance. The default is ``50``.
         deemb :
-            Boolean DEembed Port (Default value = False)
+            Boolean. DEembed port. The default is ``False``.
 
         Returns
         -------
         type
-            portname
+            Port name
 
         """
         if not self.modeler.primitives.does_object_exists(startobj) or not self.modeler.primitives.does_object_exists(endobject):
@@ -549,35 +551,37 @@ class Hfss(FieldAnalysis3D, object):
     @aedt_exception_handler
     def create_lumped_port_between_objects(self, startobj, endobject, axisdir=0, impedance=50, portname=None,
                                            renorm=True, deemb=False,port_on_plane=True):
-        """Function that Creates a Lumped taking the closest edges of two objects.
+        """Create a lumped taking the closest edges of two objects.
 
         Parameters
         ----------
         startobj :
-            First object (starting object for integration line)
+            First (starting) object for the integration line.
         endobject :
-            Second object (ending object for integration line)
+            Second (ending) object for the integration line.
         axisdir :
-            Position of port. it should be one of Application.AxisDir [XNeg, YNeg, ZNeg, XPos,YPos,ZPos] (Default value = 0)
+            Position of the port. It should be one of the values for ``Application.AxisDir``, which are:
+            ``XNeg``, ``YNeg``, ``ZNeg``, ``XPos``, ``YPos``, and ``ZPos``. The default is ``XYNeg``.
         impedance :
-            Port Impedance (Default value = 50)
+            Port impedance. The default is ``50``.
         portname :
-            Port Name. (Default value = None)
+            Port name. The default is ``None``.
         renorm :
-            Boolean, Renormalize Mode (Default value = True)
+            Boolean. Renormalize mode. The value is ``True``.
         deemb :
-            Boolean DEembed Port (Default value = False)
+            Boolean. DEembed port. The value is ``False``.
         port_on_plane :
-            Boolean. If True Source will be created on the Plane ortogonal to AxisDir (Default value = True)
+            Boolean. If ``True``, the source is to be created on the plane ortogonal to ``AxisDir``. 
+            The default is ``True``.
 
         Returns
         -------
         type
-            portname
+            Port name
 
         """
         if not self.modeler.primitives.does_object_exists(startobj) or not self.modeler.primitives.does_object_exists(endobject):
-            self.messenger.add_error_message("One or both objects doesn't exists. Check and retry")
+            self.messenger.add_error_message("One or both objects do not exist. Check and retry.")
             return False
 
         if self.solution_type in ["DrivenModal", "DrivenTerminal", "Transient Network"]:
@@ -598,25 +602,27 @@ class Hfss(FieldAnalysis3D, object):
 
     @aedt_exception_handler
     def create_voltage_source_from_objects(self, startobj, endobject, axisdir=0, sourcename=None, source_on_plane=True):
-        """Function that Creates a Voltage Source taking the closest edges of two objects.
+        """Creates a voltage source taking the closest edges of two objects.
 
         Parameters
         ----------
         startobj :
-            First object (starting object for integration line)
+            First (starting) object for the integration line.
         endobject :
-            Second object (ending object for integration line)
+            Second (ending) object for the integration line.
         axisdir :
-            Position of VS. it should be one of Application.AxisDir [XNeg, YNeg, ZNeg, XPos,YPos,ZPos] (Default value = 0)
+            Position of the port. It should be one of the values for ``Application.AxisDir``, which are:
+            ``XNeg``, ``YNeg``, ``ZNeg``, ``XPos``, ``YPos``, and ``ZPos``. The default value is ``XYNeg``.
+            The default value is ``XYNeg``.
         sourcename :
-            Optional Source Name (Default value = None)
+            Optional. The name of the source. The default is ``None``.
         source_on_plane :
-            Boolean. If True Source will be created on the Plane ortogonal to AxisDir (Default value = True)
+            Boolean. If ``True``, the source is to be created on the plane ortogonal to ``AxisDir``. The default is ``True``.
 
         Returns
         -------
         type
-            sourcename
+           Source name
 
         """
         if not self.modeler.primitives.does_object_exists(startobj) or not self.modeler.primitives.does_object_exists(endobject):
@@ -637,29 +643,30 @@ class Hfss(FieldAnalysis3D, object):
 
     @aedt_exception_handler
     def create_current_source_from_objects(self, startobj, endobject, axisdir=0, sourcename=None, source_on_plane=True):
-        """Function that Creates a Voltage Source taking the closest edges of two objects.
+        """Function that creates a voltage source taking the closest edges of two objects.
 
         Parameters
         ----------
         startobj :
-            First object (starting object for integration line)
+            First (starting) object for the integration line.
         endobject :
-            Second object (ending object for integration line)
+            Second (ending) object for the integration line.
         axisdir :
-            Position of VS. it should be one of Application.AxisDir [XNeg, YNeg, ZNeg, XPos,YPos,ZPos] (Default value = 0)
+            Position of the VS. It should be one of the values for ``Application.AxisDir``, which are:
+            ``XNeg``, ``YNeg``, ``ZNeg``, ``XPos``, ``YPos``, and ``ZPos``. The default is ``0``.
         sourcename :
-            Optional Source Name (Default value = None)
+            Optional. Name of the source. The default is ``None``.
         source_on_plane :
-            Boolean. If True Source will be created on the Plane ortogonal to AxisDir (Default value = True)
+            Boolean. If ``True``, the source is to created on the plane ortogonal to ``AxisDir``. The default is ``True``.
 
         Returns
         -------
         type
-            sourcename
+            Source name
 
         """
         if not self.modeler.primitives.does_object_exists(startobj) or not self.modeler.primitives.does_object_exists(endobject):
-            self.messenger.add_error_message("One or both objects doesn't exists. Check and retry")
+            self.messenger.add_error_message("One or both objects do not exist. Check and retry.")
             return False
         if self.solution_type in ["DrivenModal", "DrivenTerminal", "Transient Network"]:
             sheet_name, point0, point1 = self.modeler._create_sheet_from_object_closest_edge(startobj,endobject,axisdir, source_on_plane)
@@ -689,7 +696,7 @@ class Hfss(FieldAnalysis3D, object):
         sourcename :
             
         sourcetype :
-             (Default value = "Voltage")
+             The default is ``Voltage``.
 
         Returns
         -------
@@ -708,39 +715,40 @@ class Hfss(FieldAnalysis3D, object):
     @aedt_exception_handler
     def create_wave_port_between_objects(self, startobj, endobject, axisdir=0, impedance=50, nummodes=1, portname=None,
                                          renorm=True, deembed_dist=0, port_on_plane=True, add_pec_cap=False):
-        """Function that Creates a Waveport taking the closest edges of two objects.
+        """Create a waveport taking the closest edges of two objects.
 
         Parameters
         ----------
         startobj :
-            First object (starting object for integration line)
+            First (starting) object for the integration line.
         endobject :
-            Second object (ending object for integration line)
+            Second (ending) object for the integration line.
         axisdir :
-            Position of port. it should be one of Application.AxisDir [XNeg, YNeg, ZNeg, XPos,YPos,ZPos] (Default value = 0)
+            Position of the port. It should be one of the values for ``Application.AxisDir``, which are:
+            ``XNeg``, ``YNeg``, ``ZNeg``, ``XPos``, ``YPos``, and ``ZPos``. The default is ``0``.
         impedance :
-            Port Impedance (Default value = 50)
+            Port impedance. The default is ``50``.
         nummodes :
-            Number of Modes (Default value = 1)
+            Number of modes. The default is ``1``.
         portname :
-            Port Name. (Default value = None)
+            Name of the port. The default is ``None``.
         renorm :
-            Boolean, Renormalize Mode (Default value = True)
+            Boolean. Renormalize mode. The default is ``True``
         deembed_dist :
-            Deembed Distance. Float in model units (default mm). if 0 Deembed is disabled
+            Deembed distance. Float in model units. The default for model units is ``mm``. If ``0``, deembed is disabled.
         port_on_plane :
-            Boolean. If True Port will be created on the Plane ortogonal to AxisDir (Default value = True)
+            Boolean. If ``True``, the port is to be created on the plane ortogonal to ``AxisDir``. The default is ``True``.
         add_pec_cap :
-             (Default value = False)
+             The default is ``False``.
 
         Returns
         -------
         :class: BoundaryObject
-            Port Name
+            Port name
 
         """
         if not self.modeler.primitives.does_object_exists(startobj) or not self.modeler.primitives.does_object_exists(endobject):
-            self.messenger.add_error_message("One or both objects doesn't exists. Check and retry")
+            self.messenger.add_error_message("One or both objects do not exist. Check and retry.")
             return False
         if self.solution_type in ["DrivenModal", "DrivenTerminal", "Transient Network"]:
             sheet_name, point0, point1 = self.modeler._create_sheet_from_object_closest_edge(startobj,endobject,axisdir, port_on_plane)
@@ -774,39 +782,40 @@ class Hfss(FieldAnalysis3D, object):
     @aedt_exception_handler
     def create_wave_port_microstrip_between_objects(self, startobj, endobject, axisdir=0, impedance=50, nummodes=1, portname=None,
                                          renorm=True, deembed_dist=0, vfactor=3, hfactor=5):
-        """Function that Creates a Waveport taking the closest edges of two objects.
+        """Create a waveport taking the closest edges of two objects.
 
         Parameters
         ----------
         startobj :
-            First object (starting object for integration line)
+            First object (starting) object for the integration line.
         endobject :
-            Second object (ending object for integration line)
+            Second (ending) object for the integration line.
         axisdir :
-            Position of port. it should be one of Application.AxisDir [XNeg, YNeg, ZNeg, XPos,YPos,ZPos] (Default value = 0)
+            Position of the port. It should be one of the values for ``Application.AxisDir``, which are:
+            ``XNeg``, ``YNeg``, ``ZNeg``, ``XPos``, ``YPos``, and ``ZPos``. The default is ``0``.
         impedance :
-            Port Impedance (Default value = 50)
+            Port impedance. The default is ``50``.
         nummodes :
-            Number of Modes (Default value = 1)
+            Number of modes. The default is ``1``.
         portname :
-            Port Name. (Default value = None)
+            Name of the port. The default is ``None``.
         renorm :
-            Boolean, Renormalize Mode (Default value = True)
+            Boolean. Renormalize mode. The default is ``True``.
         deembed_dist :
-            Deembed Distance. Float in model units (default mm). if 0 Deembed is disabled
+            Deembed distance. Float in model units (default mm). If ``0`` Deembed is disabled.
         vfactor :
-            Port Vertical Factor (Default value = 3)
+            Port vertical factor. The default is ``3``.
         hfactor :
-            Port HorizontalFactor (Default value = 5)
+            Port horizontal factor. The default is ``5``.
 
         Returns
         -------
         :class: BoundaryObject
-            Port Name
+            Port name
 
         """
         if not self.modeler.primitives.does_object_exists(startobj) or not self.modeler.primitives.does_object_exists(endobject):
-            self.messenger.add_error_message("One or both objects doesn't exists. Check and retry")
+            self.messenger.add_error_message("One or both objects do not exist. Check and retry.")
             return False
         if self.solution_type in ["DrivenModal", "DrivenTerminal", "Transient Network"]:
             sheet_name, point0, point1 = self.modeler._create_microstrip_sheet_from_object_closest_edge(startobj,endobject,axisdir, vfactor, hfactor)
@@ -825,7 +834,7 @@ class Hfss(FieldAnalysis3D, object):
 
     @aedt_exception_handler
     def create_perfecte_from_objects(self, startobj, endobject, axisdir=0, sourcename=None, is_infinite_gnd=False, bound_on_plane=True ):
-        """Function that Creates a Perfect E  taking the closest edges of two objects.
+        """Creates a perfect E  taking the closest edges of two objects.
 
         Parameters
         ----------
@@ -834,22 +843,23 @@ class Hfss(FieldAnalysis3D, object):
         endobject :
             Second object (ending object for integration line)
         axisdir :
-            Position of port. it should be one of Application.AxisDir [XNeg, YNeg, ZNeg, XPos,YPos,ZPos] (Default value = 0)
+            Position of the port. It should be one of the values for ``Application.AxisDir``, which are:
+            ``XNeg``, ``YNeg``, ``ZNeg``, ``XPos``, ``YPos``, and ``ZPos``. The default is ``0``.
         sourcename :
-            Perfect E Name. (Default value = None)
+            Perfect E name. The default is ``None``.
         bound_on_plane :
-            Boolean. If True PerfectE will be created on the Plane ortogonal to AxisDir (Default value = True)
+            Boolean. If ``True``, the perfect E is to be created on the plane ortogonal to ``AxisDir``. The default is ``True``.
         is_infinite_gnd :
-             (Default value = False)
+             The default is ``False``.
 
         Returns
         -------
         :class: BoundaryObject
-            boundary object
+            Boundary object
 
         """
         if not self.modeler.primitives.does_object_exists(startobj) or not self.modeler.primitives.does_object_exists(endobject):
-            self.messenger.add_error_message("One or both objects doesn't exists. Check and retry")
+            self.messenger.add_error_message("One or both objects do not exist. Check and retry.")
             return False
         if self.solution_type in ["DrivenModal", "DrivenTerminal", "Transient Network"]:
             sheet_name, point0, point1 = self.modeler._create_sheet_from_object_closest_edge(startobj,endobject,axisdir, bound_on_plane)
@@ -863,29 +873,30 @@ class Hfss(FieldAnalysis3D, object):
 
     @aedt_exception_handler
     def create_perfecth_from_objects(self, startobj, endobject, axisdir=0, sourcename=None,bound_on_plane=True):
-        """Function that Creates a Perfect H  taking the closest edges of two objects.
+        """Create a perfect H taking the closest edges of two objects.
 
         Parameters
         ----------
         startobj :
-            First object (starting object for integration line)
+            First (starting) object for the integration line.
         endobject :
-            Second object (ending object for integration line)
+            Second (ending) object for the integration line.
         axisdir :
-            Position of port. it should be one of Application.AxisDir [XNeg, YNeg, ZNeg, XPos,YPos,ZPos] (Default value = 0)
+            Position of the port. It should be one of the values for ``Application.AxisDir``, which are:
+            ``XNeg``, ``YNeg``, ``ZNeg``, ``XPos``, ``YPos``, and ``ZPos``. The default is ``0``.
         sourcename :
-            Perfect H Name. (Default value = None)
+            Perfect H name. The default is ``None``.
         bound_on_plane :
-            Boolean. If True PerfectH will be created on the Plane ortogonal to AxisDir (Default value = True)
+            Boolean. If ``True``, perfect H is to created on the plane ortogonal to ``AxisDir``. The default is ``True``.
 
         Returns
         -------
         :class: BoundaryObject
-            Boundary Object
+            Boundary object
 
         """
         if not self.modeler.primitives.does_object_exists(startobj) or not self.modeler.primitives.does_object_exists(endobject):
-            self.messenger.add_error_message("One or both objects doesn't exists. Check and retry")
+            self.messenger.add_error_message("One or both objects do not exist. Check and retry.")
             return False
         if self.solution_type in ["DrivenModal", "DrivenTerminal", "Transient Network"]:
             sheet_name, point0, point1 = self.modeler._create_sheet_from_object_closest_edge(startobj,endobject,axisdir, bound_on_plane)
@@ -899,46 +910,46 @@ class Hfss(FieldAnalysis3D, object):
 
     @aedt_exception_handler
     def SARSetup(self,Tissue_object_List_ID, TissueMass=1, MaterialDensity=1,  voxel_size=1, Average_SAR_method=0):
-        """Set SAR Settings
+        """Set SAR settings.
 
         Parameters
         ----------
         Tissue_object_List_ID :
             33
         TissueMass :
-            param MaterialDensity: (Default value = 1)
+            param MaterialDensity: The default is ``1``.
         voxel_size :
-            param Average_SAR_method: (Default value = 1)
+            param Average_SAR_method: The default is ``1``.
         MaterialDensity :
-             (Default value = 1)
+             The default is ``1``.
         Average_SAR_method :
-             (Default value = 0)
+             The default is ``0``.
 
         Returns
         -------
-        bool
+        Boolean
         """
         self.odesign.SARSetup(TissueMass, MaterialDensity, Tissue_object_List_ID, voxel_size, Average_SAR_method)
         return True
 
     @aedt_exception_handler
     def create_open_region(self, Frequency="1GHz", Boundary="Radiation", ApplyInfiniteGP=False, GPAXis="-z"):
-        """Create an open region on the active Editor
+        """Create an open region on the active editor.
 
         Parameters
         ----------
         Frequency :
-            Frequency with Units (Default value = "1GHz")
+            Frequency with units. The  default is ``1GHz``.
         Boundary :
-            Boundary Type. Default "Radition"
+            Boundary Type. The default is ``Radition``.
         ApplyInfiniteGP :
-            Bool to apply infinite Ground Plane (Default value = False)
+            Boolean to apply an infinite ground plane. The default is ``False``.
         GPAXis :
-             (Default value = "-z")
+             The default is``-z``.
 
         Returns
         -------
-        bool
+        Boolean
         """
         vars= [
                 "NAME:Settings",
@@ -956,37 +967,39 @@ class Hfss(FieldAnalysis3D, object):
     @aedt_exception_handler
     def create_lumped_rlc_between_objects(self, startobj, endobject, axisdir=0, sourcename=None, rlctype="Parallel",
                                           Rvalue=None, Lvalue=None, Cvalue=None, bound_on_plane=True):
-        """Function that Creates a Perfect H  taking the closest edges of two objects.
+        """Creates a perfect H taking the closest edges of two objects.
 
         Parameters
         ----------
         startobj :
-            First object (starting object for integration line)
+            First (starting) object for the integration line.
         endobject :
-            Second object (ending object for integration line)
+            Second (ending) object for the integration line.
         axisdir :
-            Position of port. it should be one of Application.AxisDir [XNeg, YNeg, ZNeg, XPos,YPos,ZPos] (Default value = 0)
+            Position of the port. It should be one of the values for ``Application.AxisDir``, which are:
+            ``XNeg``, ``YNeg``, ``ZNeg``, ``XPos``, ``YPos``, and ``ZPos``. The default is ``0``.
         sourcename :
-            Perfect H Name. (Default value = None)
+            Perfect H name. The default is ``None``.
         Cvalue :
-            Capacitance Value in F. None to disable (Default value = None)
+            Capacitance value in F. None to disable. The default is ``None``.
         Lvalue :
-            Inductacnce Value in H. None to disable (Default value = None)
+            Inductance value in H. None to disable. The default is ``None``.
         rlctype :
-            Parallel" or "Series" (Default value = "Parallel")
+            The RLC Type. Choices are ``Parallel" or "Series". The default is ``Parallel``.
         Rvalue :
-            Resistance Value in Ohm. None to disable (Default value = None)
+            Resistance value in Ohm. None to disable. The default is ``None``.
         bound_on_plane :
-            Boolean. If True Boundary will be created on the Plane ortogonal to AxisDir (Default value = True)
+            Boolean. If ``True``, the boundary is to be created on the plane ortogonal to ``AxisDir``.
+            The default is ``True``.
 
         Returns
         -------
         :class: BoundaryObject
-            Boundary Name
+            Boundary name
 
         """
         if not self.modeler.primitives.does_object_exists(startobj) or not self.modeler.primitives.does_object_exists(endobject):
-            self.messenger.add_error_message("One or both objects doesn't exists. Check and retry")
+            self.messenger.add_error_message("One or both objects do not exist. Check and retry.")
             return False
         if self.solution_type in ["DrivenModal", "DrivenTerminal", "Transient Network"] and (Rvalue or Lvalue or Cvalue):
             sheet_name, point0, point1 = self.modeler._create_sheet_from_object_closest_edge(startobj,endobject,axisdir, bound_on_plane)
@@ -1019,35 +1032,36 @@ class Hfss(FieldAnalysis3D, object):
 
     @aedt_exception_handler
     def create_impedance_between_objects(self, startobj, endobject, axisdir=0, sourcename=None, resistance=50, reactance=0, is_infground=False, bound_on_plane=True):
-        """Function that Creates an impedance taking the closest edges of two objects.
+        """Create an impedance taking the closest edges of two objects.
 
         Parameters
         ----------
         startobj :
-            First object (starting object for integration line)
+            First (starting) object for the integration line.
         endobject :
-            Second object (ending object for integration line)
+            Second (ending) object for the integration line.
         axisdir :
-            Position of impedance. it should be one of Application.AxisDir [XNeg, YNeg, ZNeg, XPos,YPos,ZPos] (Default value = 0)
+            Position of the impedance. It should be one of the values for ``Application.AxisDir``, which are:
+            ``XNeg``, ``YNeg``, ``ZNeg``, ``XPos``, ``YPos``, and ``ZPos``. The default is ``0``.
         sourcename :
-            impedance Name. (Default value = None)
+            Impedance name. The default is ``None``.
         resistance :
-            Resistance Value in Ohm. None to disable (Default value = 50)
+            Resistance value in Ohm. None to disable. The default is ``50``.
         reactance :
-            Reactance Value in Ohm. None to disable (Default value = 0)
+            Reactance value in Ohm. None to disable. The default is ``0``.
         bound_on_plane :
-            Boolean. If True Impdedance will be created on the Plane ortogonal to AxisDir (Default value = True)
+            Boolean. If ``True``, the impedance is to be created on the plane ortogonal to ``AxisDir``. The default is ``True``.
         is_infground :
-             (Default value = False)
+             The default is ``False``.
 
         Returns
         -------
         :class: BoundaryObject
-            Boundary Name
+            Boundary name
 
         """
         if not self.modeler.primitives.does_object_exists(startobj) or not self.modeler.primitives.does_object_exists(endobject):
-            self.messenger.add_error_message("One or both objects doesn't exists. Check and retry")
+            self.messenger.add_error_message("One or both objects do not exist. Check and retry.")
             return False
         if self.solution_type in ["DrivenModal", "DrivenTerminal", "Transient Network"] :
             sheet_name, point0, point1 = self.modeler._create_sheet_from_object_closest_edge(startobj, endobject, axisdir, bound_on_plane)
@@ -1067,23 +1081,23 @@ class Hfss(FieldAnalysis3D, object):
 
     @aedt_exception_handler
     def create_boundary(self, boundary_type=BoundaryType.PerfectE, sheet_name=None, boundary_name="", is_infinite_gnd=False):
-        """Create a Boundary given specific inputs
+        """Create a boundary given specific inputs.
 
         Parameters
         ----------
         boundary_type :
-            BoundaryType object (PerfectE, PerfectH, Aperture, Radiation) (Default value = BoundaryType.PerfectE)
+            Boundary type object. Choices are ``PerfectE``, ``PerfectH``, ``Aperture``, and ``Radiation``. The default is ``BoundaryType.PerfectE``.
         sheet_name :
-            Sheet Name. It can be an integer (facesID), a string (sheet) or a list of previous (Default value = None)
+            Name  of the sheet. It can be an integer (facesID), a string (sheet), or a list of previous. The default is ``None``.
         boundary_name :
-            Boundary Name (Default value = "")
+            Name of the boundary. The default is `` ``.
         is_infinite_gnd :
-            Boolean (Default value = False)
+            Boolean, The default is ``False``.
 
         Returns
         -------
         :class: BoundaryObject
-            Boundary Object if successful
+            Boundary object if successful
 
         """
 
@@ -1152,31 +1166,32 @@ class Hfss(FieldAnalysis3D, object):
     @aedt_exception_handler
     def create_wave_port_from_sheets(self, sheet, deemb=0, axisdir=0, impedance=50, nummodes=1, portname=None,
                                      renorm=True):
-        """create WavePort on sheet objects created starting from sheets
+        """Create waveport on sheet objects created starting from sheets.
 
         Parameters
         ----------
         sheet :
-            list of input sheets from where ports will be created
+            List of input sheets from which to create ports.
         deemb :
-            deembedding value distance. Float in model_units (Default value = 0)
+            Deembedding value distance. Float in model units. The default is ``0``.
         axisdir :
-            Position of reference object. it should be one of Application.AxisDir [XNeg, YNeg, ZNeg, XPos,YPos,ZPos] (Default value = 0)
+            Position of the reference object. It should be one of the values for ``Application.AxisDir``, which are:
+            ``XNeg``, ``YNeg``, ``ZNeg``, ``XPos``, ``YPos``, and ``ZPos``. The default is ``0``.
         impedance :
-            Port Impedance (Default value = 50)
+            Port impedance. The default is ``50``.
         nummodes :
-            Number of Modes (Default value = 1)
+            Number of modes. The default is ``1``.
         portname :
-            Port Name. (Default value = None)
+            The name of the port. The default is ``None``.
         renorm :
-            Boolean, Renormalize Mode (Default value = True)
+            Boolean. Renormalize mode. The default is ``True``.
         deembed_dist :
-            Deembed Distance. Float in model units (default mm). if 0 Deembed is disabled
+            Deembed distance. Float in model units (default mm). If ``0`` deembed is disabled.
 
         Returns
         -------
         list
-            list of objects created
+            List of objects created.
         """
         sheet = self.modeler.convert_to_selections(sheet, True)
         portnames = []
@@ -1205,29 +1220,30 @@ class Hfss(FieldAnalysis3D, object):
     @aedt_exception_handler
     def assign_lumped_port_to_sheet(self, sheet_name, axisdir=0, impedance=50, portname=None,
                                     renorm=True, deemb=False, reference_object_list=[]):
-        """Function that Creates a Lumped taking one sheet
+        """Create a Lumped taking one sheet.
 
         Parameters
         ----------
         sheet_name :
-            Sheet Name object
+            Name of sheet object.
         axisdir :
-            Integration Line direction of port. it should be one of Application.AxisDir [XNeg, YNeg, ZNeg, XPos,YPos,ZPos] (Default value = 0)
+            Direction of port. It should be one of the values for ``Application.AxisDir``, which are:
+            ``XNeg``, ``YNeg``, ``ZNeg``, ``XPos``, ``YPos``, and ``ZPos``. The default is ``0``.
         impedance :
-            Port Impedance (Default value = 50)
+            Port impedance. The default is ``50``.
         portname :
-            Port Name. (Default value = None)
+            Name of the port. The default is ``None``.
         renorm :
-            bool) Renormalize Mode (Default value = True)
+            Boolean. Renormalize mode. The default is ``True``.
         deemb :
-            bool) Deembed Port (Default value = False)
+            bool) Deembed port. The default is ``False``.
         reference_object_list :
-            for Driven Terminal Solutions only. list of reference conductors (Default value = [])
+            For a Driven Terminal Solutions only. List of reference conductors. The default is ``[]``.
 
         Returns
         -------
         type
-            Object Name
+            Object name
 
         """
 
@@ -1262,21 +1278,22 @@ class Hfss(FieldAnalysis3D, object):
 
     @aedt_exception_handler
     def assig_voltage_source_to_sheet(self, sheet_name, axisdir=0, sourcename=None):
-        """Function that Creates a Voltage Source taking one sheet.
+        """Create a voltage source taking one sheet.
 
         Parameters
         ----------
         sheet_name :
-            Sheet name on which apply the boundary
+            Name of sheet on which to apply the boundary.
         axisdir :
-            Position of VS. it should be one of Application.AxisDir [XNeg, YNeg, ZNeg, XPos,YPos,ZPos] (Default value = 0)
+            Position of the VS. It should be one of the values for ``Application.AxisDir``, which are:
+            ``XNeg``, ``YNeg``, ``ZNeg``, ``XPos``, ``YPos``, and ``ZPos``. The default is ``0``.
         sourcename :
-            Optional Source Name (Default value = None)
+            Optional. Name of the source. The default is ``None``.
 
         Returns
         -------
         type
-            Object Name
+            Object name
 
         """
 
@@ -1295,21 +1312,22 @@ class Hfss(FieldAnalysis3D, object):
 
     @aedt_exception_handler
     def assign_current_source_to_sheet(self, sheet_name,  axisdir=0, sourcename=None):
-        """Function that Creates a Voltage Source taking one sheet.
+        """Creates a voltage source taking one sheet.
 
         Parameters
         ----------
         sheet_name :
-            Sheet name on which apply the boundary
+            Name of the sheet on which to apply the boundary.
         axisdir :
-            Position of VS. it should be one of Application.AxisDir [XNeg, YNeg, ZNeg, XPos,YPos,ZPos] (Default value = 0)
+            Position of VS. It should be one of the values for ``Application.AxisDir``, which are:
+            ``XNeg``, ``YNeg``, ``ZNeg``, ``XPos``, ``YPos``, and ``ZPos``. The default is ``0``.
         sourcename :
-            Optional Source Name (Default value = None)
+           Optional. Name of the source. The default is ``None``.
 
         Returns
         -------
         type
-            Object Name
+            Object name
 
         """
 
@@ -1328,21 +1346,21 @@ class Hfss(FieldAnalysis3D, object):
 
     @aedt_exception_handler
     def assign_perfecte_to_sheets(self, sheet_list, sourcename=None, is_infinite_gnd=False ):
-        """Function that Creates a Perfect E  taking one sheet.
+        """Creates a pPerfect E  taking one sheet.
 
         Parameters
         ----------
         sheet_list :
-            Sheet name or list on which apply the boundary
+            Name of the sheet or list on which to apply the boundary.
         sourcename :
-            Perfect E Name. (Default value = None)
+            Perfect E name. The default is ``None``.
         is_infinite_gnd :
-            Boolean to determine if Perfect E is an Infinite Ground (Default value = False)
+            Boolean to determine if Perfect E is an infinite ground. The default is ``False``.
 
         Returns
         -------
         type
-            Boundary Object
+            Boundary object
 
         """
         if self.solution_type in ["DrivenModal", "DrivenTerminal", "Transient Network"]:
@@ -1355,19 +1373,19 @@ class Hfss(FieldAnalysis3D, object):
 
     @aedt_exception_handler
     def assign_perfecth_to_sheets(self, sheet_list, sourcename=None):
-        """Function that Creates a Perfect H  taking one sheet.
+        """Create a Perfect H taking one sheet.
 
         Parameters
         ----------
         sheet_list :
-            list of sheets on which apply the boundary
+            List of sheets on which to apply the boundary.
         sourcename :
-            Perfect H Name. (Default value = None)
+            Perfect H name. The default is ``None``.
 
         Returns
         -------
         type
-            Boundary Object
+            Boundary object
 
         """
         if self.solution_type in ["DrivenModal", "DrivenTerminal", "Transient Network"]:
@@ -1382,29 +1400,30 @@ class Hfss(FieldAnalysis3D, object):
     @aedt_exception_handler
     def assign_lumped_rlc_to_sheet(self, sheet_name, axisdir=0, sourcename=None, rlctype="Parallel",
                                           Rvalue=None, Lvalue=None, Cvalue=None):
-        """Function that Creates a Perfect H  taking one sheet.
+        """Create a Perfect H taking one sheet.
 
         Parameters
         ----------
         sheet_name :
-            Name of the sheet on which apply the boundary
+            Name of the sheet on which to apply the boundary.
         axisdir :
-            Position of port. it should be one of Application.AxisDir [XNeg, YNeg, ZNeg, XPos,YPos,ZPos] (Default value = 0)
+            Position of the port. It should be one of the values for ``Application.AxisDir``, which are:
+            ``XNeg``, ``YNeg``, ``ZNeg``, ``XPos``, ``YPos``, and ``ZPos``. The default is ``0``.
         sourcename :
-            Perfect H Name. (Default value = None)
+            Perfect H name. The default is ``None``.
         Cvalue :
-            Capacitance Value in F. None to disable (Default value = None)
+            Capacitance value in F. None to disable. The default is ``None``.
         Lvalue :
-            Inductacnce Value in H. None to disable (Default value = None)
+            Inductance value in H. None to disable. The default is ``None``.
         rlctype :
-            Parallel" or "Series" (Default value = "Parallel")
+            The RLC type. Choices are ``Parallel`` or ``Series``. The default is ``Parallel``.
         Rvalue :
-            Resistance Value in Ohm. None to disable (Default value = None)
+            Resistance value in Ohm. None to disable. The default is ``None``.
 
         Returns
         -------
         type
-            Object Name
+            Object name
 
         """
 
@@ -1438,25 +1457,25 @@ class Hfss(FieldAnalysis3D, object):
 
     @aedt_exception_handler
     def assign_impedance_to_sheet(self, sheet_name, sourcename=None, resistance=50, reactance=0, is_infground=False):
-        """Function that Creates an impedance taking one sheet.
+        """Function that creates an impedance taking one sheet.
 
         Parameters
         ----------
         sheet_name :
-            Name of the sheet on which apply the boundary
+            Name of the sheet on which to apply the boundary.
         sourcename :
-            impedance Name. (Default value = None)
+            Impedance name. The default is ``None``.
         resistance :
-            Resistance Value in Ohm. None to disable (Default value = 50)
+            Resistance value in Ohm. None to disable. The default is ``50``.
         reactance :
-            Reactance Value in Ohm. None to disable (Default value = 0)
+            Reactance value in Ohm. None to disable. The default is ``0``.
         is_infground :
-             (Default value = False)
+             The default is ``False``.
 
         Returns
         -------
         type
-            Object Name
+            Object name
 
         """
 
@@ -1481,7 +1500,7 @@ class Hfss(FieldAnalysis3D, object):
                                        deembed=False):
         """Create circuit port. Integration line from edge2 to edge1
         
-        renormalize impedance is ignored in driven terminal
+        Renormalize impedance is ignored in driven terminal.
         impedance format: - int, float, str:"50", str: "50+1i*55"
 
         Parameters
@@ -1491,20 +1510,20 @@ class Hfss(FieldAnalysis3D, object):
         edge_gnd :
             edge id
         port_name :
-            name of the port (Default value = "")
+            Name of the port. The default is `` ``.
         port_impedance :
-            str impedance (Default value = "50")
+            str impedance. The default is ``50``.
         renormalize :
-            bool (Default value = False)
+            Boolean. The default is ``False``.
         renorm_impedance :
-            str impedance (Default value = "50")
+            str impedance. The default is ``50``
         deembed :
-            bool (Default value = False)
+            Boolean. The default is ``50``
 
         Returns
         -------
         type
-            bool
+            Boolean
 
         """
         edge_list = [edge_signal, edge_gnd]
@@ -1522,16 +1541,16 @@ class Hfss(FieldAnalysis3D, object):
 
     @aedt_exception_handler
     def edit_source(self, portandmode, powerin, phase="0deg"):
-        """Setup the Power Loaded to the Filter. this is needed for thermal Analysis
+        """Set up the power loaded to the filter. This is needed for thermal analysis.
 
         Parameters
         ----------
         powerin :
-            Power (in Watt) or project variable to be put as stored energy into the the project
+            Power (in Watts) or the project variable to be put as stored energy in the the project.
         portandmode :
             Portname and mode. Example Port1:1
         phase :
-             (Default value = "0deg")
+             The default is ``0deg``.
 
         Returns
         -------
@@ -1548,11 +1567,11 @@ class Hfss(FieldAnalysis3D, object):
 
     @aedt_exception_handler
     def thicken_port_sheets(self, inputlist, value, internalExtr=True, internalvalue=1):
-        """thicken_port_sheets: create thicken sheets of value "mm" over the full list of input port faces inputlist
-        inputlist: list of faces to thicken
-        value: value in mm to thicken
-        internalExtr: define if the sheet must also be extruded internally
-        internalvalue: define the value in mm to thicken internally the sheet (vgoing into the model)
+        """thicken_port_sheets: Create thicken sheets of value "mm" over the full list of input port faces inputlist
+        inputlist: List of faces to thicken.
+        value: Value in mm to thicken.
+        internalExtr: Define if the sheet must also be extruded internally.
+        internalvalue: Define the value in mm to thicken internally the sheet (vgoing into the model).
 
         Parameters
         ----------
@@ -1702,22 +1721,22 @@ class Hfss(FieldAnalysis3D, object):
 
     @aedt_exception_handler
     def validate_full_design(self, dname=None, outputdir=None, ports=None):
-        """Validate the design based on expected value and save infos on log file
-        and also returns the validation info in a list
+        """Validate the design based on the expected value and save information in log file
+        and also return the validation information in a list.
 
         Parameters
         ----------
         dname :
-            optional, name of design to validate (Default value = None)
+            Optional. Name of the design to validate. The default is ``None``.
         outputdir :
-            optional, output dir where to save the log file (Default value = None)
+            Optional. The output directory to which to save the log file. The default is ``None``.
         ports :
-            number of excitations (sum of modes) expected (Default value = None)
+            Number of excitations (sum of modes) that is expected. The default is ``None``.
 
         Returns
         -------
         type
-            all the info in a list for use later
+            All the information in a list for later use.
 
         """
         self._messenger.add_debug_message("Design Validation Checks")
@@ -1738,13 +1757,13 @@ class Hfss(FieldAnalysis3D, object):
             temp2_msg = [i.strip('Project: ' + pname + ', Design: ' + dname + ', ').strip('\r\n') for i in temp_msg]
             val_list.extend(temp2_msg)
 
-        # Run Design Validation and write out the lines to the logger
+        # Run design validation and write out the lines to the log.
         temp_val_file = os.path.join(os.environ['TEMP'], "\\val_temp.log")
         simple_val_return = self.validate_simple(temp_val_file)
         if simple_val_return == 1:
-            msg = "Design validation check PASSED!"
+            msg = "Design validation check PASSED."
         elif simple_val_return == 0:
-            msg = "Design validation check ERROR!"
+            msg = "Design validation check ERROR."
             validation_ok = False
         val_list.append(msg)
         msg = "Design Validation Messages:"
@@ -1755,24 +1774,24 @@ class Hfss(FieldAnalysis3D, object):
                 val_list.extend(temp)
             os.remove(temp_val_file)
         else:
-            msg = "** No Design Validation File found **"
+            msg = "** No design validation file isfound. **"
             self._messenger.add_debug_message(msg)
             val_list.append(msg)
-        msg = "-- End of Design Validation Messages"
+        msg = "** End of design validation messages. **"
         val_list.append(msg)
 
-        # Find the Excitations and check or list them out
+        # Find the excitations and check or list them out
         msg = "Excitations Check:"
         val_list.append(msg)
         if self.solution_type != 'Eigenmode':
             detected_excitations = self.modeler.get_excitations_name()
             if ports:
                 if self.solution_type == 'DrivenTerminal':
-                    ports_t = ports * 2  # for each port we have terminal and reference excitation
+                    ports_t = ports * 2  # For each port, there is terminal and reference excitations.
                 else:
                     ports_t = ports
                 if ports_t != len(detected_excitations):
-                    msg = "** Port Number Error! - Please check model **"
+                    msg = "** Port Number Error. Check the model. **"
                     self._messenger.add_error_message(msg)
                     val_list.append(msg)
                     validation_ok = False
@@ -1786,11 +1805,11 @@ class Hfss(FieldAnalysis3D, object):
                     val_list.append(msg3)
                     val_list.append(msg4)
         else:
-            msg = "Eigen Model Detected - no excitatons defined"
+            msg = "Eigen model is detected. No excitatons are defined."
             self._messenger.add_debug_message(msg)
             val_list.append(msg)
 
-        # Find the number of analysis setups and output the info
+        # Find the number of analysis setups and output the info.
         msg = "Analysis Setup Messages:"
         val_list.append(msg)
         setups = list(self.oanalysis.GetSetups())
@@ -1807,18 +1826,18 @@ class Hfss(FieldAnalysis3D, object):
                             msg = ' |__ ' + sw
                             val_list.append(msg)
         else:
-            msg = 'No setup detected!'
+            msg = 'No setup is detected.'
             val_list.append(msg)
 
         with open(validation_log_file, "w") as f:
             for item in val_list:
                 f.write("%s\n" % item)
-        return val_list, validation_ok  # return all the info in a list for use later
+        return val_list, validation_ok  # Return all the information in a list for later use.
 
 
     @aedt_exception_handler
     def create_scattering(self, PlotName="S Parameter Plot Nominal", sweep_name=None, PortNames=None, PortExcited=None, variations=None ):
-        """Create Scattering Report
+        """Create scattering report.
         
         
         sweeps = design eXploration variations (list of str)
@@ -1829,21 +1848,21 @@ class Hfss(FieldAnalysis3D, object):
         Parameters
         ----------
         PlotName :
-             (Default value = "S Parameter Plot Nominal")
+             The default is ``Parameter Plot Nominal``.
         sweep_name :
-             (Default value = None)
+             The default is ``None``.
         PortNames :
-             (Default value = None)
+             The default is ``None``.
         PortExcited :
-             (Default value = None)
+             The default is ``None``.
         variations :
-             (Default value = None)
+             The default is ``None``.
 
         Returns
         -------
 
         """
-        # set plot name
+        # Set plot name
         # Setup arguments list for CreateReport function
         Families = ["Freq:=", ["All"]]
         if variations:
@@ -1898,20 +1917,20 @@ class Hfss(FieldAnalysis3D, object):
 
     @aedt_exception_handler
     def create_qfactor_report(self, project_dir, outputlist, setupname, plotname, Xaxis="X"):
-        """Function that export CSV of eigenQ Plot
+        """Export a CSV file of the EigenQ plot
 
         Parameters
         ----------
         project_dir :
-            Output dir
+            Output directory.
         outputlist :
-            output quantity, in this case, Q-factor
+            Output quantity. In this case, the Q-factor.
         setupname :
-            Name of the setup from which generate the report
+            Name of the setup from which to generate the report.
         plotname :
-            name of the plot
+            Name of the plot.
         Xaxis :
-            Xasis value (default "X")
+            X axis value. The default is ``X``.
 
         Returns
         -------
@@ -1929,14 +1948,14 @@ class Hfss(FieldAnalysis3D, object):
 
     @aedt_exception_handler
     def export_touchstone(self, solutionname, sweepname, filename=None, variation=[], variations_value=[]):
-        """Synopsis: Export Touchston file to local folder
+        """Synopsis: Export Touchston file to a local folder.
         
         
-        solutionname = name of the solution solved
-        sweepname = name of the sweep solved
-        FileName = full path of output file
-        Variations = list (list of all parameters variations e.g. ["$AmbientTemp", "$PowerIn"] )
-        VariationsValue = list (list of all parameters variations value) e.g. ["22cel", "100"] )
+        solutionname = Name of the solution that has been solved.
+        sweepname = Name of the sweep that has been solved.
+        FileName = Full path to the output file.
+        Variations = List of all parameter variations, such as ``["$AmbientTemp", "$PowerIn"]``.
+        VariationsValue = List of all parameter variation values), such as ``["22cel", "100"]``.
 
         Parameters
         ----------
@@ -1945,18 +1964,18 @@ class Hfss(FieldAnalysis3D, object):
         sweepname :
             
         filename :
-             (Default value = None)
+             The default is ``None``.
         variation :
-             (Default value = [])
+             The default is ``[]``.
         variations_value :
-             (Default value = [])
+             The default is ``[]``.
 
         Returns
         -------
 
         """
 
-        # normalize the save path
+        # Normalize the save path
         if not filename:
             appendix = ""
             for v, vv in zip(variation,variations_value):
@@ -1997,17 +2016,17 @@ class Hfss(FieldAnalysis3D, object):
 
     @aedt_exception_handler
     def set_export_touchstone(self, activate):
-        """Set Automatic export of touchstone after simulation to True
+        """Set automatic export of touchstone after simulation set to ``True``
 
         Parameters
         ----------
         activate : bool
-            Export after simulation
+            Export after simulation.
 
         Returns
         -------
         type
-            True if operation succeeded
+            ``True`` if operation succeeded.
 
         """
 
@@ -2034,7 +2053,7 @@ class Hfss(FieldAnalysis3D, object):
         obj_names :
             
         boundary_name :
-             (Default value = "")
+             The default is `` ``.
 
         Returns
         -------
@@ -2043,11 +2062,11 @@ class Hfss(FieldAnalysis3D, object):
         #TODO: to be tested
 
         """
-        Assign radiation boundary to one or more objects (usually airbox object)
+        Assign radiation boundary to one or more objects (usually one or more airbox objects).
 
-        :param obj_names: objects name or id to which the boundary condition is assigned
-        :param boundary_name: optional, name of the boundary
-        :return: True if correctly assigned
+        :param obj_names: Object name or ID to which the boundary condition is assigned.
+        :param boundary_name: Optional. Name of the boundary.
+        :return: ``True`` if correctly assigned.
         """
         object_list = self.modeler.convert_to_selections(obj_names, return_list=True)
         if boundary_name:
@@ -2058,19 +2077,19 @@ class Hfss(FieldAnalysis3D, object):
 
     @aedt_exception_handler
     def assign_radiation_boundary_to_faces(self, faces_id, boundary_name=""):
-        """Assign radiation boundary to one or more objects (usually airbox object)
+        """Assign radiation boundary to one or more objects (usually one or more airbox objects).
 
         Parameters
         ----------
         faces_id :
-            face id to which the boundary condition is assigned
+            Face ID to which the boundary condition is assigned,
         boundary_name :
-            optional, name of the boundary (Default value = "")
+            Optional. Name of the boundary. The default is `` ``.
 
         Returns
         -------
-        type
-            True if correctly assigned
+        Type
+            ``True`` if correctly assigned.
 
         """
         if type(faces_id) is not list:

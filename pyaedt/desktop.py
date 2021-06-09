@@ -1,7 +1,8 @@
 """The ``Desktop`` module is used to initialize AEDT.
 
 This module initializes AEDT and MessageManager to manage AEDT.
-You can initialize the ``Desktop`` module before launching an app or have the app automatically initialize it to the latest installed AEDT version.
+You can initialize the ``Desktop`` module before launching an app or 
+have the app automatically initialize it to the latest installed AEDT version.
 
 
 Examples
@@ -17,8 +18,8 @@ Launch AEDT 2021 R1 in graphical mode and initialize HFSS
 >>> desktop = Desktop("2021.1")
 >>> hfss = pyaedt.Hfss()
 
-The previous example initializes the ``Desktop`` module to the latest AEDT version installed on your machine in
-graphical mode and initializes HFSS.
+The previous example initializes the ``Desktop`` module to the latest AEDT version 
+installed on your machine in graphical mode and initializes HFSS.
 
 """
 from __future__ import absolute_import
@@ -69,9 +70,9 @@ elif IsWindows:
 
 
 def exception_to_desktop(self, ex_value, tb_data):
-    """Writes the trace stack to the desktop when a python error occurs
+    """Writes the trace stack to the desktop when a python error occurs.
     
-    It adds the message to AEDT Global message manager and to the log file (if present)
+    It adds the message to the AEDT global message manager and to the log file (if present).
 
     Parameters
     ----------
@@ -107,7 +108,7 @@ def exception_to_desktop(self, ex_value, tb_data):
 def update_aedt_registry(key, value, desktop_version="193"):
     """Windows Only
     
-    Update aedt options registry keys. value includes "" if needed
+    Update AEDT options registry keys. Value includes "" if needed.
     
     Examples
     --------
@@ -148,14 +149,14 @@ def update_aedt_registry(key, value, desktop_version="193"):
 
 
 def release_desktop(close_projects=True, close_desktop=True):
-    """Release the Desktop API
+    """Release the AEDT API.
 
     Parameters
     ----------
     close_projects :
-        Boolean, Close the projects opened in the session (Default value = True)
+        Boolean. Close the projects opened in the session. The default value is ``True``.
     close_desktop :
-        Boolean, Close the active Desktop Session (Default value = True)
+        Boolean. Close the active AEDT session. The default value is ``True``.
 
     Returns
     -------
@@ -220,7 +221,7 @@ def release_desktop(close_projects=True, close_desktop=True):
 
 
 def force_close_desktop():
-    """Close all the projects and kill oDesktop
+    """Close all AEDT projects and shut down AEDT.
     
     :return: True (Closed) | False (Failed to Close)
 
@@ -271,7 +272,7 @@ def force_close_desktop():
 
 
 class Desktop:
-    """The core module that initialize Ansys Electronics Desktop tool based on inputs provided:"""
+    """The core module that initializes AEDT based on inputs provided:"""
     @property
     def version_keys(self):
         """ """
@@ -301,12 +302,12 @@ class Desktop:
 
     def __init__(self, specified_version=None, NG=False, AlwaysNew=True, release_on_exit=True):
         """
-        Init Electronic Desktop. On Windows it works without limitations in IronPython and CPython. On Linux it works only in embedded Ironpython in AEDT
+        Initialize AEDT. On Windows, it works without limitations in IronPython and CPython. On Linux, it works only in embedded Ironpython in AEDT.
 
-        :param specified_version: Version of AEDT to be used. if None. Latest version of AEDT is used
-        :param NG: Non Graphical Boolean. True launch AEDT in NG Mode
-        :param AlwaysNew: New Thread Boolean. if True it launches a new instance of AEDT even if another one of the specified_version is active on the machine
-        :param release_on_exit: Boolean. Release Desktop on Exit
+        :param specified_version: Version of AEDT to use. If ``None``, the latest version of AEDT is used.
+        :param NG: Non-graphical Boolean. If ``True``, launch AEDT in non-graphic mode.
+        :param AlwaysNew: New Thread Boolean. If ``True``, launch a new instance of AEDT even if another instance of the ``specified_version`` is active on the machine.
+        :param release_on_exit: Boolean. Release AEDT on exit.
         """
         self._main = sys.modules['__main__']
         self._main.close_on_exit = False
@@ -376,7 +377,7 @@ class Desktop:
                             processID.append(m.group(1))
 
                 if NG or AlwaysNew or not processID:
-                    # forcing new object in case of non-graphical run or if no process already exists
+                    # Force new object in no non-graphical instance is running or if there is not an already existing process.
                     App = StandalonePyScriptWrapper.CreateObjectNew(NG)
                 else:
                     App = StandalonePyScriptWrapper.CreateObject(version)
@@ -417,7 +418,7 @@ class Desktop:
                             self._main.oDesktop = win32com.client.Dispatch(obj.QueryInterface(pythoncom.IID_IDispatch))
                             break
                 else:
-                    logger.warning("pyaedt is not supported in versions older than 2021.1")
+                    logger.warning("PyAEDT is not supported in AEDT versions older than 2021.1.")
                     oAnsoftApp = win32com.client.Dispatch(version)
                     self._main.oDesktop = oAnsoftApp.GetAppDesktop()
                     self._main.isoutsideDesktop = True
@@ -449,12 +450,12 @@ class Desktop:
         self._main.oMessenger.add_info_message(info_msg2, 'Global')
         self._main.oMessenger.add_info_message(info_msg3, 'Global')
         if _com == 'pywin32' and (AlwaysNew or NG):
-            info_msg5 = 'AlwaysNew or NG option is not available for pywin32 connection only. Install Pythonnet to support it.'
+            info_msg5 = 'The ``AlwaysNew`` or ``NG`` option is not available for a pywin32 connection only. Install Pythonnet to support these options.'
             self._main.oMessenger.add_info_message(info_msg5, 'Global')
         elif _com == 'pythonnet':
             dll_path = os.path.join(base_path,"common","IronPython", "dlls")
             sys.path.append(dll_path)
-            info_msg5 = 'Adding IronPython common dlls to sys.path: {0}'.format(dll_path)
+            info_msg5 = 'Adding IronPython common dlls to the sys.path: {0}'.format(dll_path)
             self._main.oMessenger.add_info_message(info_msg5, 'Global')
 
     @property
@@ -468,14 +469,14 @@ class Desktop:
         return self
 
     def __exit__(self, ex_type, ex_value, ex_traceback):
-        # Write the trace stack to the log file if an exception occurred in the main script
+        # Write the trace stack to the log file if an exception occurred in the main script.
         if ex_type:
             err = self._exception(ex_value, ex_traceback)
         if self.release:
             self.release_desktop(close_projects=self._main.close_on_exit, close_on_exit=self._main.close_on_exit)
 
     def _exception(self, ex_value, tb_data):
-        """Writes the trace stack to the desktop when a python error occurs
+        """Writes the trace stack to the desktop when a python error occurs.
 
         Parameters
         ----------
