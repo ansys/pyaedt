@@ -669,7 +669,7 @@ class GeometryOperators(object):
 
         Returns
         -------
-        tuple (psi, theta, phi) containing Euler angles in radians.
+        tuple (phi, theta, psi) containing Euler angles in radians.
         """
         x1 = x[0]
         x2 = x[1]
@@ -679,18 +679,18 @@ class GeometryOperators(object):
         z2 = z[1]
         z3 = z[2]
         if z == [0, 0, 1]:
-            psi = GeometryOperators.atan2(x2, x1)
+            phi = GeometryOperators.atan2(x2, x1)
             theta = 0.
-            phi = 0.
+            psi = 0.
         elif z == [0, 0, -1]:
-            psi = GeometryOperators.atan2(x2, x1)
+            phi = GeometryOperators.atan2(x2, x1)
             theta = math.pi
-            phi = 0.
+            psi = 0.
         else:
-            psi = GeometryOperators.atan2(z1, -z2)
+            phi = GeometryOperators.atan2(z1, -z2)
             theta = math.acos(z3)
-            phi = GeometryOperators.atan2(x3, y3)
-        return psi, theta, phi
+            psi = GeometryOperators.atan2(x3, y3)
+        return phi, theta, psi
 
     @staticmethod
     @aedt_exception_handler
@@ -709,7 +709,7 @@ class GeometryOperators(object):
 
         Returns
         -------
-        tuple (psi, theta, phi) containing Euler angles in radians.
+        tuple (phi, theta, psi) containing Euler angles in radians.
         """
         x1 = x[0]
         x2 = x[1]
@@ -719,18 +719,55 @@ class GeometryOperators(object):
         z2 = z[1]
         z3 = z[2]
         if z == [0, 0, 1]:
-            psi = GeometryOperators.atan2(x2, x1)
+            phi = GeometryOperators.atan2(x2, x1)
             theta = 0.
-            phi = 0.
+            psi = 0.
         elif z == [0, 0, -1]:
-            psi = GeometryOperators.atan2(x2, x1)
+            phi = GeometryOperators.atan2(x2, x1)
             theta = math.pi
-            phi = 0.
+            psi = 0.
         else:
-            psi = GeometryOperators.atan2(z2, z1)
+            phi = GeometryOperators.atan2(z2, z1)
             theta = math.acos(z3)
-            phi = GeometryOperators.atan2(y3, -x3)
-        return psi, theta, phi
+            psi = GeometryOperators.atan2(y3, -x3)
+        return phi, theta, psi
+
+    @staticmethod
+    @aedt_exception_handler
+    def quaternion_to_axis(q):
+        """ convert the quaternion to a rotated frame defined by x, y, z axis
+
+        Parameters
+        ----------
+        q :
+            quaternion [q1, q2, q3, q4]
+
+        Returns
+        -------
+        tuple [Xx, Xy, Xz], [Yx, Yy, Yz], [Zx, Zy, Zz] of the 3 axis (normalized)
+        """
+        q1 = q[0]
+        q2 = q[1]
+        q3 = q[2]
+        q4 = q[3]
+
+        m11 = q1*q1 + q2*q2 - q3*q3 - q4*q4
+        m12 = 2. * (q2*q3 - q1*q4)
+        m13 = 2. * (q2*q4 + q1*q3)
+
+        m21 = 2. * (q2*q3 + q1*q4)
+        m22 = q1*q1 - q2*q2 + q3*q3 - q4*q4
+        m23 = 2. * (q3*q4 - q1*q2)
+
+        m31 = 2. * (q2*q4 - q1*q3)
+        m32 = 2. * (q3*q4 + q1*q2)
+        m33 = q1*q1 - q2*q2 - q3*q3 + q4*q4
+
+        x = GeometryOperators.normalize_vector([m11, m21, m31])
+        y = GeometryOperators.normalize_vector([m12, m22, m32])
+        z = GeometryOperators.normalize_vector([m13, m23, m33])
+
+        return x, y, z
 
     @staticmethod
     @aedt_exception_handler
@@ -792,7 +829,7 @@ class GeometryOperators(object):
 
         Returns
         -------
-        tuple (psi, theta, phi) containing Euler angles in radians.
+        tuple (phi, theta, psi) containing Euler angles in radians.
         """
         q1 = q[0]
         q2 = q[1]
@@ -803,32 +840,32 @@ class GeometryOperators(object):
         m33 = q1*q1 - q2*q2 - q3*q3 + q4*q4
         m31 = 2. * (q2*q4 - q1*q3)
         m32 = 2. * (q3*q4 + q1*q2)
-        psi = GeometryOperators.atan2(m13, -m23)
+        phi = GeometryOperators.atan2(m13, -m23)
         theta = GeometryOperators.atan2((1.-m33*m33)**0.5, m33)
-        phi = GeometryOperators.atan2(m31, m32)
-        return psi, theta, phi
+        psi = GeometryOperators.atan2(m31, m32)
+        return phi, theta, psi
 
     @staticmethod
     @aedt_exception_handler
-    def euler_zxz_to_quaternion(psi, theta, phi):
+    def euler_zxz_to_quaternion(phi, theta, psi):
         """ convert the Euler angles following rotation sequence ZXZ to quaternion representation
 
         Parameters
         ----------
-        psi :
+        phi :
             Euler angle psi in radians
         theta :
             Euler angle theta in radians
-        phi :
+        psi :
             Euler angle phi in radians
 
         Returns
         -------
         quaternion in [q1, q2, q3, q4] list
         """
-        t1 = psi
+        t1 = phi
         t2 = theta
-        t3 = phi
+        t3 = psi
         c = math.cos(t2 * 0.5)
         s = math.sin(t2 * 0.5)
         q1 = c * math.cos((t1+t3) * 0.5)
@@ -849,7 +886,7 @@ class GeometryOperators(object):
 
         Returns
         -------
-        tuple (psi, theta, phi) containing Euler angles in radians.
+        tuple (phi, theta, psi) containing Euler angles in radians.
         """
         q1 = q[0]
         q2 = q[1]
@@ -860,32 +897,32 @@ class GeometryOperators(object):
         m33 = q1*q1 - q2*q2 - q3*q3 + q4*q4
         m31 = 2. * (q2*q4 - q1*q3)
         m32 = 2. * (q3*q4 + q1*q2)
-        psi = GeometryOperators.atan2(m23, m13)
+        phi = GeometryOperators.atan2(m23, m13)
         theta = GeometryOperators.atan2((1.-m33*m33)**0.5, m33)
-        phi = GeometryOperators.atan2(m32, -m31)
-        return psi, theta, phi
+        psi = GeometryOperators.atan2(m32, -m31)
+        return phi, theta, psi
 
     @staticmethod
     @aedt_exception_handler
-    def euler_zyz_to_quaternion(psi, theta, phi):
+    def euler_zyz_to_quaternion(phi, theta, psi):
         """ convert the Euler angles following rotation sequence ZYZ to quaternion representation
 
         Parameters
         ----------
-        psi :
+        phi :
             Euler angle psi in radians
         theta :
             Euler angle theta in radians
-        phi :
+        psi :
             Euler angle phi in radians
 
         Returns
         -------
         quaternion in [q1, q2, q3, q4] list
         """
-        t1 = psi
+        t1 = phi
         t2 = theta
-        t3 = phi
+        t3 = psi
         c = math.cos(t2 * 0.5)
         s = math.sin(t2 * 0.5)
         q1 = c * math.cos((t1+t3) * 0.5)

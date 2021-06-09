@@ -34,6 +34,7 @@ import math
 from ..application.DataHandlers import dict2arg
 from .Object3d import EdgePrimitive, FacePrimitive, VertexPrimitive
 
+
 class CoordinateSystem(object):
     """CS Data and execution class"""
     def __init__(self, parent, props=None, name=None):
@@ -163,7 +164,7 @@ class CoordinateSystem(object):
         Parameters
         ----------
         mode_type :
-            0 for "Axis/Position", 1 for "Euler Angle ZYZ", 2 for "Euler Angle ZXZ" (Default value = 0)
+            0 for "Axis/Position", 1 for "Euler Angle ZXZ", 2 for "Euler Angle ZYZ" (Default value = 0)
 
         Returns
         -------
@@ -171,47 +172,39 @@ class CoordinateSystem(object):
             bool
 
         """
-        if mode_type == 0:
-            if self.props and self.props["Mode"] == "Euler Angle ZXZ":
+        if mode_type == 0:  # "Axis/Position"
+            if self.props and (self.props["Mode"] == "Euler Angle ZXZ" or self.props["Mode"] == "Euler Angle ZYZ"):
                 self.props["Mode"] = "Axis/Position"
-                xaxis=[1,0,0]
-                ypoint=[0,1,0]
-                self.props["XAxisXvec"]=xaxis[0]
-                self.props["XAxisYvec"]=xaxis[1]
-                self.props["XAxisZvec"]=xaxis[2]
-                self.props["YAxisXvec"]=ypoint[0]
-                self.props["YAxisYvec"]=ypoint[1]
-                self.props["YAxisZvec"]=ypoint[2]
+                x, y, z = GeometryOperators.quaternion_to_axis(self.quaternion)
+                xaxis = x
+                ypoint = y
+                self.props["XAxisXvec"] = xaxis[0]
+                self.props["XAxisYvec"] = xaxis[1]
+                self.props["XAxisZvec"] = xaxis[2]
+                self.props["YAxisXvec"] = ypoint[0]
+                self.props["YAxisYvec"] = ypoint[1]
+                self.props["YAxisZvec"] = ypoint[2]
                 del self.props['Phi']
                 del self.props['Theta']
                 del self.props['Psi']
-            elif self.props and self.props["Mode"] == "Euler Angle ZYZ":
-                self.props["Mode"] = "Axis/Position"
-                xaxis=[1,0,0]
-                ypoint=[0,1,0]
-                self.props["XAxisXvec"]=xaxis[0]
-                self.props["XAxisYvec"]=xaxis[1]
-                self.props["XAxisZvec"]=xaxis[2]
-                self.props["YAxisXvec"]=ypoint[0]
-                self.props["YAxisYvec"]=ypoint[1]
-                self.props["YAxisZvec"]=ypoint[2]
-                del self.props['Phi']
-                del self.props['Theta']
-                del self.props['Psi']
-        if mode_type == 1:
+                self.update()
+        elif mode_type == 1:  # "Euler Angle ZXZ"
             if self.props and self.props["Mode"] == "Euler Angle ZYZ":
                 self.props["Mode"] = "Euler Angle ZXZ"
-                phi = 0
-                theta = 0
-                psi = 0
+                a, b, g = GeometryOperators.quaternion_to_euler_zxz(self.quaternion)
+                phi = GeometryOperators.rad2deg(a)
+                theta = GeometryOperators.rad2deg(b)
+                psi = GeometryOperators.rad2deg(g)
                 self.props["Phi"] = "{}deg".format(phi)
                 self.props["Theta"] = "{}deg".format(theta)
                 self.props["Psi"] = "{}deg".format(psi)
+                self.update()
             elif self.props and self.props["Mode"] == "Axis/Position":
                 self.props["Mode"] = "Euler Angle ZXZ"
-                phi = 0
-                theta = 0
-                psi = 0
+                a, b, g = GeometryOperators.quaternion_to_euler_zxz(self.quaternion)
+                phi = GeometryOperators.rad2deg(a)
+                theta = GeometryOperators.rad2deg(b)
+                psi = GeometryOperators.rad2deg(g)
                 self.props["Phi"] = "{}deg".format(phi)
                 self.props["Theta"] = "{}deg".format(theta)
                 self.props["Psi"] = "{}deg".format(psi)
@@ -221,20 +214,24 @@ class CoordinateSystem(object):
                 del self.props["YAxisXvec"]
                 del self.props["YAxisYvec"]
                 del self.props["YAxisZvec"]
-        if mode_type == 2:
+                self.update()
+        elif mode_type == 2:  # "Euler Angle ZYZ"
             if self.props and self.props["Mode"] == "Euler Angle ZXZ":
                 self.props["Mode"] = "Euler Angle ZYZ"
-                phi = 0
-                theta = 0
-                psi = 0
+                a, b, g = GeometryOperators.quaternion_to_euler_zyz(self.quaternion)
+                phi = GeometryOperators.rad2deg(a)
+                theta = GeometryOperators.rad2deg(b)
+                psi = GeometryOperators.rad2deg(g)
                 self.props["Phi"] = "{}deg".format(phi)
                 self.props["Theta"] = "{}deg".format(theta)
                 self.props["Psi"] = "{}deg".format(psi)
+                self.update()
             elif self.props and self.props["Mode"] == "Axis/Position":
                 self.props["Mode"] = "Euler Angle ZYZ"
-                phi = 0
-                theta = 0
-                psi = 0
+                a, b, g = GeometryOperators.quaternion_to_euler_zyz(self.quaternion)
+                phi = GeometryOperators.rad2deg(a)
+                theta = GeometryOperators.rad2deg(b)
+                psi = GeometryOperators.rad2deg(g)
                 self.props["Phi"] = "{}deg".format(phi)
                 self.props["Theta"] = "{}deg".format(theta)
                 self.props["Psi"] = "{}deg".format(psi)
@@ -244,17 +241,19 @@ class CoordinateSystem(object):
                 del self.props["YAxisXvec"]
                 del self.props["YAxisYvec"]
                 del self.props["YAxisZvec"]
-        self.update()
+                self.update()
+        else:
+            ValueError('mode_type=0 for "Axis/Position", =1 for "Euler Angle ZXZ", =2 for "Euler Angle ZYZ"')
         return True
 
     @aedt_exception_handler
-    def create(self, origin=None, reference_cs="Global", name=None,
-               mode=None, view=None,
+    def create(self, origin=None, reference_cs='Global', name=None,
+               mode='axis', view='iso',
                x_pointing=None, y_pointing=None,
-               psi=None, theta=None, phi=None, u=None):
+               psi=0, theta=0, phi=0, u=None):
         """Create a Coordinate system
         Specify the mode = 'view', 'axis', 'zxz', 'zyz', 'axisrotation'. Default = 'axis'
-        If mode = 'view', specify view = "XY", "XZ", "XY", "rotate"
+        If mode = 'view', specify view = 'XY', 'XZ', 'XY', 'iso', 'rotate' (obsolete)
         If mode = 'axis', specify x_pointing and y_pointing
         If mode = 'zxz' or 'zyz', specify psi, theta, phi
         If mode = 'axisrotation', specify u, theta
@@ -275,7 +274,7 @@ class CoordinateSystem(object):
             Definition mode. 'view', 'axis', 'zxz', 'zyz', 'axisrotation'. Default = 'axis'
         view :
             View. Default "iso". possible "XY", "XZ", "XY", None, "rotate"
-            "rotate" is obsolete, simply do not specify a view instead.
+            "rotate" is obsolete, simply specify mode = 'axis'.
         x_pointing :
             if mode="axis", this is a 3 elements list specifing the X axis pointing in the global CS
             (Default value = [1, 0, 0])
@@ -283,13 +282,13 @@ class CoordinateSystem(object):
             if mode="axis", this is a 3 elements list specifing the Y axis pointing in the global CS
             (Default value = [0, 1, 0])
         psi :
-            Euler angle psi in radians
+            Euler angle psi in degrees (Default value = 0)
         theta :
-            Euler angle theta in radians
+            Euler angle theta in degrees, or orataion angle in degrees (Default value = 0)
         phi :
-            Euler angle phi in radians
+            Euler angle phi in degrees (Default value = 0)
         u :
-            rotation axix in format [ux, uy, uz]
+            rotation axix in format [ux, uy, uz] (Default value = [1, 0, 0])
 
         Returns
         -------
@@ -303,7 +302,10 @@ class CoordinateSystem(object):
             x_pointing = [1, 0, 0]
         if not y_pointing:
             y_pointing = [0, 1, 0]
-        if mode is None and view == "rotate":
+        if not u:
+            u = [1, 0, 0]
+        if view == "rotate":
+            # legacy compatibility
             mode = "axis"
 
         if name:
@@ -314,62 +316,97 @@ class CoordinateSystem(object):
         originX = self._dim_arg(origin[0], self.model_units)
         originY = self._dim_arg(origin[1], self.model_units)
         originZ = self._dim_arg(origin[2], self.model_units)
+        orientationParameters = OrderedDict({"OriginX": originX, "OriginY": originY, "OriginZ": originZ})
 
-        pointing = []
-        if not view or view == "rotate":
-            # self.view = "rotate"
-            pointing.append(self._dim_arg((x_pointing[0] - origin[0]), self.model_units))
-            pointing.append(self._dim_arg((x_pointing[1] - origin[1]), self.model_units))
-            pointing.append(self._dim_arg((x_pointing[2] - origin[2]), self.model_units))
-            pointing.append(self._dim_arg((y_pointing[0] - origin[0]), self.model_units))
-            pointing.append(self._dim_arg((y_pointing[1] - origin[1]), self.model_units))
-            pointing.append(self._dim_arg((y_pointing[2] - origin[2]), self.model_units))
-        # else:
-        #     self.view = view
-
-        orientationParameters = OrderedDict(
-            {"Mode": "Axis/Position", "OriginX": originX, "OriginY": originY, "OriginZ": originZ})
-        if view == "YZ":
-            orientationParameters["XAxisXvec"] = "0mm"
-            orientationParameters["XAxisYvec"] = "0mm"
-            orientationParameters["XAxisZvec"] = "-1mm"
-            orientationParameters["YAxisXvec"] = "0mm"
-            orientationParameters["YAxisYvec"] = "1mm"
-            orientationParameters["YAxisZvec"] = "0mm"
-        elif view == "XZ":
-            orientationParameters["XAxisXvec"] = "1mm"
-            orientationParameters["XAxisYvec"] = "0mm"
-            orientationParameters["XAxisZvec"] = "0mm"
-            orientationParameters["YAxisXvec"] = "0mm"
-            orientationParameters["YAxisYvec"] = "-1mm"
-            orientationParameters["YAxisZvec"] = "0mm"
-        elif view == "XY":
-            orientationParameters["XAxisXvec"] = "1mm"
-            orientationParameters["XAxisYvec"] = "0mm"
-            orientationParameters["XAxisZvec"] = "0mm"
-            orientationParameters["YAxisXvec"] = "0mm"
-            orientationParameters["YAxisYvec"] = "1mm"
-            orientationParameters["YAxisZvec"] = "0mm"
-        elif view == "iso":
-            orientationParameters["XAxisXvec"] = "1mm"
-            orientationParameters["XAxisYvec"] = "1mm"
-            orientationParameters["XAxisZvec"] = "-2mm"
-            orientationParameters["YAxisXvec"] = "-1mm"
-            orientationParameters["YAxisYvec"] = "1mm"
-            orientationParameters["YAxisZvec"] = "0mm"
+        if mode == "view":
+            orientationParameters["Mode"] = "Axis/Position"
+            if view == "YZ":
+                orientationParameters["XAxisXvec"] = "0mm"
+                orientationParameters["XAxisYvec"] = "0mm"
+                orientationParameters["XAxisZvec"] = "-1mm"
+                orientationParameters["YAxisXvec"] = "0mm"
+                orientationParameters["YAxisYvec"] = "1mm"
+                orientationParameters["YAxisZvec"] = "0mm"
+            elif view == "XZ":
+                orientationParameters["XAxisXvec"] = "1mm"
+                orientationParameters["XAxisYvec"] = "0mm"
+                orientationParameters["XAxisZvec"] = "0mm"
+                orientationParameters["YAxisXvec"] = "0mm"
+                orientationParameters["YAxisYvec"] = "-1mm"
+                orientationParameters["YAxisZvec"] = "0mm"
+            elif view == "XY":
+                orientationParameters["XAxisXvec"] = "1mm"
+                orientationParameters["XAxisYvec"] = "0mm"
+                orientationParameters["XAxisZvec"] = "0mm"
+                orientationParameters["YAxisXvec"] = "0mm"
+                orientationParameters["YAxisYvec"] = "1mm"
+                orientationParameters["YAxisZvec"] = "0mm"
+            elif view == "iso":
+                orientationParameters["XAxisXvec"] = "1mm"
+                orientationParameters["XAxisYvec"] = "1mm"
+                orientationParameters["XAxisZvec"] = "-2mm"
+                orientationParameters["YAxisXvec"] = "-1mm"
+                orientationParameters["YAxisYvec"] = "1mm"
+                orientationParameters["YAxisZvec"] = "0mm"
+            else:
+                raise ValueError("With mode = 'view', specify view = 'XY', 'XZ', 'XY', 'iso' ")
+            x1 = GeometryOperators.parse_dim_arg(orientationParameters['XAxisXvec'])
+            x2 = GeometryOperators.parse_dim_arg(orientationParameters['XAxisYvec'])
+            x3 = GeometryOperators.parse_dim_arg(orientationParameters['XAxisZvec'])
+            y1 = GeometryOperators.parse_dim_arg(orientationParameters['YAxisXvec'])
+            y2 = GeometryOperators.parse_dim_arg(orientationParameters['YAxisYvec'])
+            y3 = GeometryOperators.parse_dim_arg(orientationParameters['YAxisZvec'])
+            x, y, z = GeometryOperators.pointing_to_axis([x1, x2, x3], [y1, y2, y3])
+            a, b, g = GeometryOperators.axis_to_euler_zyz(x, y, z)
+            self.quaternion = GeometryOperators.euler_zyz_to_quaternion(a, b, g)
+        elif mode == "axis":
+            orientationParameters["Mode"] = "Axis/Position"
+            orientationParameters["XAxisXvec"] = self._dim_arg((x_pointing[0] - origin[0]), self.model_units)
+            orientationParameters["XAxisYvec"] = self._dim_arg((x_pointing[1] - origin[1]), self.model_units)
+            orientationParameters["XAxisZvec"] = self._dim_arg((x_pointing[2] - origin[2]), self.model_units)
+            orientationParameters["YAxisXvec"] = self._dim_arg((y_pointing[0] - origin[0]), self.model_units)
+            orientationParameters["YAxisYvec"] = self._dim_arg((y_pointing[1] - origin[1]), self.model_units)
+            orientationParameters["YAxisZvec"] = self._dim_arg((y_pointing[2] - origin[2]), self.model_units)
+            x, y, z = GeometryOperators.pointing_to_axis(x_pointing, y_pointing)
+            a, b, g = GeometryOperators.axis_to_euler_zyz(x, y, z)
+            self.quaternion = GeometryOperators.euler_zyz_to_quaternion(a, b, g)
+        elif mode == "zxz":
+            orientationParameters["Mode"] = "Euler Angle ZXZ"
+            orientationParameters["Psi"] = self._dim_arg(psi, 'deg')
+            orientationParameters["Theta"] = self._dim_arg(theta, 'deg')
+            orientationParameters["Phi"] = self._dim_arg(phi, 'deg')
+            a = GeometryOperators.deg2rad(psi)
+            b = GeometryOperators.deg2rad(theta)
+            g = GeometryOperators.deg2rad(phi)
+            self.quaternion = GeometryOperators.euler_zxz_to_quaternion(a, b, g)
+        elif mode == "zyz":
+            orientationParameters["Mode"] = "Euler Angle ZYZ"
+            orientationParameters["Psi"] = self._dim_arg(psi, 'deg')
+            orientationParameters["Theta"] = self._dim_arg(theta, 'deg')
+            orientationParameters["Phi"] = self._dim_arg(phi, 'deg')
+            a = GeometryOperators.deg2rad(psi)
+            b = GeometryOperators.deg2rad(theta)
+            g = GeometryOperators.deg2rad(phi)
+            self.quaternion = GeometryOperators.euler_zyz_to_quaternion(a, b, g)
+        elif mode == "axisrotation":
+            th = GeometryOperators.deg2rad(theta)
+            q = GeometryOperators.axis_angle_to_quaternion(u, th)
+            a, b, c = GeometryOperators.quaternion_to_euler_zyz(q)
+            psi = GeometryOperators.rad2deg(a)
+            theta = GeometryOperators.rad2deg(b)
+            phi = GeometryOperators.rad2deg(c)
+            orientationParameters["Mode"] = "Euler Angle ZYZ"
+            orientationParameters["Psi"] = self._dim_arg(psi, 'deg')
+            orientationParameters["Theta"] = self._dim_arg(theta, 'deg')
+            orientationParameters["Phi"] = self._dim_arg(phi, 'deg')
+            self.quaternion = q
         else:
-        # elif self.view == "rotate":
-            orientationParameters["XAxisXvec"] = pointing[0]
-            orientationParameters["XAxisYvec"] = pointing[1]
-            orientationParameters["XAxisZvec"] = pointing[2]
-            orientationParameters["YAxisXvec"] = pointing[3]
-            orientationParameters["YAxisYvec"] = pointing[4]
-            orientationParameters["YAxisZvec"] = pointing[5]
+            raise ValueError("Specify the mode = 'view', 'axis', 'zxz', 'zyz', 'axisrotation' ")
 
-        self.props = OrderedDict(orientationParameters)
+        self.props = orientationParameters
         self._parent.oeditor.CreateRelativeCS(self.orientation, self.attributes)
 
-        x, y, z = GeometryOperators.pointing_to_axis(pointing[0:3], pointing[3:6])
+        x, y, z = GeometryOperators.pointing_to_axis(x_pointing, y_pointing)
         a, b, g = GeometryOperators.axis_to_euler_zyz(x, y, z)
         self.quaternion = GeometryOperators.euler_zyz_to_quaternion(a, b, g)
 
@@ -496,7 +533,6 @@ class GeometryModeler(Modeler, object):
     def _get_coordinates_data(self):
         """ """
         coord = []
-        props = {}
         id2name = {1: 'Global'}
         name2refid = {}
         if self._parent.design_properties and 'ModelSetup' in self._parent.design_properties:
@@ -523,25 +559,25 @@ class GeometryModeler(Modeler, object):
             for cs in coord:
                 try:
                     cs.ref_cs = id2name[name2refid[cs.name]]
-                    if props['Mode'] == 'Axis/Position':
-                        x1 = GeometryOperators.parse_dim_arg(props['XAxisXvec'])
-                        x2 = GeometryOperators.parse_dim_arg(props['XAxisYvec'])
-                        x3 = GeometryOperators.parse_dim_arg(props['XAxisZvec'])
-                        y1 = GeometryOperators.parse_dim_arg(props['YAxisXvec'])
-                        y2 = GeometryOperators.parse_dim_arg(props['YAxisYvec'])
-                        y3 = GeometryOperators.parse_dim_arg(props['YAxisZvec'])
+                    if cs.props['Mode'] == 'Axis/Position':
+                        x1 = GeometryOperators.parse_dim_arg(cs.props['XAxisXvec'])
+                        x2 = GeometryOperators.parse_dim_arg(cs.props['XAxisYvec'])
+                        x3 = GeometryOperators.parse_dim_arg(cs.props['XAxisZvec'])
+                        y1 = GeometryOperators.parse_dim_arg(cs.props['YAxisXvec'])
+                        y2 = GeometryOperators.parse_dim_arg(cs.props['YAxisYvec'])
+                        y3 = GeometryOperators.parse_dim_arg(cs.props['YAxisZvec'])
                         x, y, z = GeometryOperators.pointing_to_axis([x1, x2, x3], [y1, y2, y3])
                         a, b, g = GeometryOperators.axis_to_euler_zyz(x, y, z)
                         cs.quaternion = GeometryOperators.euler_zyz_to_quaternion(a, b, g)
-                    elif props['Mode'] == 'Euler Angle ZXZ':
-                        a = GeometryOperators.parse_dim_arg(props['Psi'])
-                        b = GeometryOperators.parse_dim_arg(props['Theta'])
-                        g = GeometryOperators.parse_dim_arg(props['Phi'])
+                    elif cs.props['Mode'] == 'Euler Angle ZXZ':
+                        a = GeometryOperators.parse_dim_arg(cs.props['Phi'])
+                        b = GeometryOperators.parse_dim_arg(cs.props['Theta'])
+                        g = GeometryOperators.parse_dim_arg(cs.props['Psi'])
                         cs.quaternion = GeometryOperators.euler_zxz_to_quaternion(a, b, g)
-                    elif props['Mode'] == 'Euler Angle ZYZ':
-                        a = GeometryOperators.parse_dim_arg(props['Psi'])
-                        b = GeometryOperators.parse_dim_arg(props['Theta'])
-                        g = GeometryOperators.parse_dim_arg(props['Phi'])
+                    elif cs.props['Mode'] == 'Euler Angle ZYZ':
+                        a = GeometryOperators.parse_dim_arg(cs.props['Phi'])
+                        b = GeometryOperators.parse_dim_arg(cs.props['Theta'])
+                        g = GeometryOperators.parse_dim_arg(cs.props['Psi'])
                         cs.quaternion = GeometryOperators.euler_zyz_to_quaternion(a, b, g)
                 except:
                     pass
