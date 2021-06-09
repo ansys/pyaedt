@@ -1,5 +1,5 @@
-PyAEDT Documentation
-====================
+PyAEDT Documentation  |version|
+===============================
 
 ..
    Simply reuse the root readme
