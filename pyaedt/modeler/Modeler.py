@@ -3050,8 +3050,8 @@ class GeometryModeler(Modeler, object):
         if type(mats) is str:
             mats=[mats]
         for mat in mats:
-            objs = self.oeditor.GetObjectsByMaterial(mat)
-            objs.extend(self.oeditor.GetObjectsByMaterial(mat.lower()))
+            objs = list(self.oeditor.GetObjectsByMaterial(mat))
+            objs.extend(list(self.oeditor.GetObjectsByMaterial(mat.lower())))
             Id = []
             aedt_bounding_box = self.get_model_bounding_box()
             ObjName = []
@@ -3167,8 +3167,8 @@ class GeometryModeler(Modeler, object):
         if type(mats) is str:
             mats=[mats]
         for mat in mats:
-            objs = self.oeditor.GetObjectsByMaterial(mat)
-            objs.extend(self.oeditor.GetObjectsByMaterial(mat.lower()))
+            objs = list(self.oeditor.GetObjectsByMaterial(mat))
+            objs.extend(list(self.oeditor.GetObjectsByMaterial(mat.lower())))
             Id = []
             aedt_bounding_box = self.get_model_bounding_box()
             ObjName = []
