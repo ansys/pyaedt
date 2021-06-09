@@ -147,7 +147,7 @@ class Q3d(QExtractor, object):
     @aedt_exception_handler
     def assign_source_to_sheet(self, sheetname, objectname=None, netname=None, sourcename=None):
         """Generate a source on aobject.  It will be the face that
-        has the maximum/minimum in that axis dir
+        has the maximum/minimum in that axis
 
         Parameters
         ----------
@@ -327,13 +327,13 @@ class Q3d(QExtractor, object):
         freqstart : float
             discrete frequency start point
         freqstop : float
-            discrete frequency stop point. If None, single point sweep
+            discrete frequency stop point. If ``None``, single point sweep
         freqstep : float
-            discrete frequency step point. If None, 11 points will be created
+            discrete frequency step point. If ``None``, 11 points will be created
         units  : str
-            Default GHz
+            Default to ``"GHz"``.
         savefields : bool
-            define if field will be generated
+            define if field will be generated.  Defaults to ``False``.
 
         Returns
         -------

@@ -40,13 +40,6 @@ class TestPrimitives:
         faces = self.aedtapp.modeler.select_allfaces_from_mat("Copper")
         assert len(faces)==6
 
-    def test_01_get_ext_faces(self):
-        udp = self.aedtapp.modeler.Position(1, 1, 1)
-        dimensions = [7, 7, 4]
-        id2 = self.prim.create_box(udp, dimensions, "Mybox2", "Copper")
-        faces = self.aedtapp.modeler.select_all_extfaces("Copper")
-        assert len(faces) == 6
-
     def test_01_check_object_faces(self):
         assert len(self.prim["Mybox"].faces) == 6
         f = self.prim["Mybox"].faces[0]

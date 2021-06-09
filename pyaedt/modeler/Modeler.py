@@ -3031,51 +3031,6 @@ class GeometryModeler(Modeler, object):
         return True
 
     @aedt_exception_handler
-    def select_all_extfaces(self, mats):
-        """Select all faces of a a list of objects that touches the model bounding box
-
-        Parameters
-        ----------
-        mats :
-            list of materials to be included into the search. All objects with this materials will be included
-            :output sel: list of faces
-
-        Returns
-        -------
-
-        """
-        self.messenger.add_info_message("Selecting Outer Faces")
-
-        sel = []
-        if type(mats) is str:
-            mats=[mats]
-        for mat in mats:
-            objs = list(self.oeditor.GetObjectsByMaterial(mat))
-            objs.extend(list(self.oeditor.GetObjectsByMaterial(mat.lower())))
-            Id = []
-            aedt_bounding_box = self.get_model_bounding_box()
-            ObjName = []
-            for obj in objs:
-                oVertexIDs = self.oeditor.GetVertexIDsFromObject(obj)
-                found = False
-                for vertex in oVertexIDs:
-                    position = self.oeditor.GetVertexPosition(vertex)
-                    if not found and (
-                            position[0] == str(aedt_bounding_box[0]) or position[1] == str(aedt_bounding_box[1]) or
-                            position[2] == str(aedt_bounding_box[2]) or position[0] == str(aedt_bounding_box[3]) or
-                            position[1] == str(aedt_bounding_box[4]) or position[2] == str(aedt_bounding_box[5])):
-                        Id.append(self.oeditor.GetObjectIDByName(obj))
-                        ObjName.append(obj)
-                        found = True
-            for i in ObjName:
-
-                oFaceIDs = self.oeditor.GetFaceIDs(i)
-
-                for facce in oFaceIDs:
-                    sel.append(int(facce))
-        return sel
-
-    @aedt_exception_handler
     def load_hfss(self, cadfile):
         """
 
@@ -3111,7 +3066,8 @@ class GeometryModeler(Modeler, object):
         if type(mats) is str:
             mats=[mats]
         for mat in mats:
-            objs = self.oeditor.GetObjectsByMaterial(mat)
+            objs = list(self.oeditor.GetObjectsByMaterial(mat))
+            objs.extend(list(self.oeditor.GetObjectsByMaterial(mat.lower())))
 
             for i in objs:
 
@@ -3149,7 +3105,7 @@ class GeometryModeler(Modeler, object):
 
     @aedt_exception_handler
     def select_ext_faces(self, mats):
-        """This algorithm try to Select all external faces of a a list of objects
+        """This algorithm tries to select all external faces of a list of objects.
 
         Parameters
         ----------
