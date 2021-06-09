@@ -1042,7 +1042,7 @@ class Hfss(FieldAnalysis3D, object):
             Second (ending) object for the integration line.
         axisdir :
             Position of the impedance. It should be one of the values for ``Application.AxisDir``, which are:
-            ``XNeg``, ``YNeg``, ``ZNeg``, ``XPos``, ``YPos``, and ``ZPos``. The default is ``0``.
+            ``"XNeg"``, ``"YNeg"``, ``"ZNeg"``, ``"XPos"``, ``"YPos"``, and ``"ZPos"``. The default is ``0``.
         sourcename :
             Name of the impedance. The default is ``None``.
         resistance :
@@ -2094,4 +2094,3 @@ class Hfss(FieldAnalysis3D, object):
         else:
             rad_name = generate_unique_name("Rad_")
         return self.create_boundary(self.BoundaryType.Radiation, faces_list, rad_name)
-
