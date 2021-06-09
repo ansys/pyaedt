@@ -19,12 +19,12 @@ this name.
 
 >>> hfss = Hfss3dLayout(projectname)
 
-Creates an ``Hfss3dLayout`` object and links to a design named
+Create an ``Hfss3dLayout`` object and links to a design named
 designname in a project named projectname.
 
 >>> hfss = Hfss3dLayout(projectname,designame)
 
-Creates an ``Hfss3dLayout object`` and opens the specified project.
+Create an ``Hfss3dLayout object`` and opens the specified project.
 
 >>> hfss = Hfss3dLayout("myfile.aedt")
 
@@ -646,7 +646,6 @@ class Hfss3dLayout(FieldAnalysis3DLayout, object):
         # self.oanalysis_setup.AddSweep(setupname, arg)
         # self._messenger.add_debug_message("Sweep Setup created correctly")
         return sweepname
-
 
 
 
