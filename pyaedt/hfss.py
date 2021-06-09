@@ -292,7 +292,7 @@ class Hfss(FieldAnalysis3D, object):
         Parameters
         ----------
         setupname : str
-            Name of the setup that is attached the sweep.
+            Name of the setup that is attached to the sweep.
         unit :
             Units ("MHz", "GHz"...). The default is ``GHz``.
         freqstart :
