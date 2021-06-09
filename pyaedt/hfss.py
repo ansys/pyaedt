@@ -1510,7 +1510,7 @@ class Hfss(FieldAnalysis3D, object):
         edge_gnd :
             Edge identifier.
         port_name :
-            Name of the port. The default is `` ``.
+            Name of the port. The default is ``""``.
         port_impedance :
             str impedance. The default is ``50``.
         renormalize :
