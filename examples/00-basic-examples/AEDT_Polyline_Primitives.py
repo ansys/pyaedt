@@ -18,8 +18,8 @@ prim3D = M3D.modeler.primitives
 
 
 # ### Clear any existing objects
-
-prim3D.delete(prim3D.get_all_objects_names())
+all_modeler_objects = prim3D.get_all_objects_names()
+prim3D.delete(all_modeler_objects)
 
 
 # ### Define some design Variables as parameters for the polyline objects
