@@ -196,7 +196,7 @@ class Hfss(FieldAnalysis3D, object):
                       cond=58000000, perm=1, usethickness=False, thickness="0.1mm", roughness="0um",
                       isinfgnd=False, istwoside=False, isInternal=True, issheelElement=False, usehuray=False,
                       radius="0.5um", ratio="2.9"):
-        """This function assigns finite conductivity to object ``obj`` with material mat.
+        """Assign finite conductivity to object ``obj`` with material mat.
 
         Parameters
         ----------
@@ -292,7 +292,7 @@ class Hfss(FieldAnalysis3D, object):
         Parameters
         ----------
         setupname : str
-            Name of the setup which is attached the sweep.
+            Name of the setup that is attached the sweep.
         unit :
             Units ("MHz", "GHz"...). The default is ``GHz``.
         freqstart :
@@ -353,9 +353,9 @@ class Hfss(FieldAnalysis3D, object):
         Parameters
         ----------
         setupname : str
-            Setup name.
+            Name of the setup.
         freqstart : float
-            Starting grequency of sweep,  such as ``1``.
+            Starting frequency of the sweep,  such as ``1``.
         freqstop : float
             Stopping frequency of the sweep.
         sweepname : str
@@ -487,7 +487,7 @@ class Hfss(FieldAnalysis3D, object):
                 setupdata = i
                 for sw in setupdata.sweeps:
                     if sweepname == sw.name:
-                        self.messenger.add_warning_message("Sweep {} already present. Please rename and retry".format(sweepname))
+                        self.messenger.add_warning_message("Sweep {} is already present. Rename and retry.".format(sweepname))
                         return False
                 sweepdata = setupdata.add_sweep(sweepname, "Discrete")
                 sweepdata.props["RangeStart"] = freq
@@ -520,7 +520,7 @@ class Hfss(FieldAnalysis3D, object):
         impedance :
             Port impedance. The default is ``50``.
         portname :
-            Name of the port. The default is ``None``.
+            The name of the port. The default is ``None``.
         renorm :
             Boolean. Renormalize mode. The default is ``True``.
         renorm_impedance :
@@ -565,7 +565,7 @@ class Hfss(FieldAnalysis3D, object):
         impedance :
             Port impedance. The default is ``50``.
         portname :
-            Name of the port. The default is ``None``.
+            The name of the port. The default is ``None``.
         renorm :
             Boolean. Renormalize mode. The value is ``True``.
         deemb :
