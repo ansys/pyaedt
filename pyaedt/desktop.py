@@ -10,12 +10,12 @@ Examples
 Launch AEDT 2020 R1 in non-graphical mode and initialize HFSS
 
 >>> import pyaedt
->>> desktop = pyaedt.Desktop("2020.1", NG=True)
+>>> desktop = pyaedt.Desktop("2021.1", NG=True)
 >>> hfss = pyaedt.Hfss()
 
-Launch AEDT 2019 R3 in graphical mode and initialize HFSS
+Launch AEDT 2021 R1 in graphical mode and initialize HFSS
 
->>> desktop = Desktop("2019.3")
+>>> desktop = Desktop("2021.1")
 >>> hfss = pyaedt.Hfss()
 
 The previous example initializes the ``Desktop`` module to the latest AEDT version 
@@ -351,13 +351,13 @@ class Desktop:
                     oAnsoftApp = StandalonePyScriptWrapper.CreateObjectNew(NG)
                 else:
                     oAnsoftApp = StandalonePyScriptWrapper.CreateObject(version)
-
                 self._main.oDesktop = oAnsoftApp.GetAppDesktop()
                 self._main.isoutsideDesktop = True
             elif _com == 'pythonnet_v3':
                 sys.path.append(base_path)
                 sys.path.append(os.path.join(base_path, 'PythonFiles', 'DesktopPlugin'))
                 print(base_path)
+                print("============================================")
                 clr.AddReference("Ansys.Ansoft.CoreCOMScripting")
                 AnsoftCOMUtil = __import__("Ansys.Ansoft.CoreCOMScripting")
                 self.COMUtil = AnsoftCOMUtil.Ansoft.CoreCOMScripting.Util.COMUtil

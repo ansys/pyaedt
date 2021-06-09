@@ -674,7 +674,7 @@ class Analysis(Design, object):
 
         Returns
         -------
-        :class: Setup
+        Setup
             setup object
 
         """

@@ -1120,7 +1120,7 @@ class PostProcessor(object):
 
     @aedt_exception_handler
     def export_field_image_with_View(self, plotName, exportFilePath, view="iso", wireframe=True):
-        """NOTE: on AEDT 2019.3 it works only on ISO view due to a bug in API. It woks fine from 2020R1
+        """NOTE: on AEDT 2019.3 it works only on ISO view due to a bug in API. It woks fine from 2021R1
 
         Parameters
         ----------

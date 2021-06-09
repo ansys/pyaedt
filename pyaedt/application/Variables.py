@@ -2,13 +2,6 @@
 Variables Library Class
 ----------------------------------------------------------------
 
-Disclaimer
-============================================================
-
-**Copyright (c) 1986-2021, ANSYS Inc. unauthorised use, distribution or duplication is prohibited**
-
-**This tool release is unofficial and not covered by standard Ansys Support license.**
-
 
 Description
 ==================================================
@@ -441,10 +434,10 @@ class VariableManager(object):
     Examples
     ------
 
-    >>> from pyaedt.Maxwell import Maxwell3D
-    >>> from pyaedt.Desktop import Desktop
+    >>> from pyaedt.maxwell import Maxwell3d
+    >>> from pyaedt.desktop import Desktop
     >>> d = Desktop()
-    >>> aedtapp = Maxwell3D()
+    >>> aedtapp = Maxwell3d()
     >>> # Define some test variables
     >>> aedtapp["Var1"] = 3
     >>> aedtapp["Var2"] = "12deg"
@@ -474,10 +467,8 @@ class VariableManager(object):
      'Var2': <pyaedt.application.Variables.Variable at 0x2661f3557c8>}
 
     See Also
-    ------
+    --------
     Variable class
-
-
     """
     @property
     def variables(self):
@@ -493,82 +484,66 @@ class VariableManager(object):
 
     @property
     def design_variables(self):
-        """ """
         return self._variable_dict([self.odesign])
 
     @property
     def project_variables(self):
-        """ """
         return self._variable_dict([self.oproject])
 
     @property
     def independent_variables(self):
-        """ """
         return self._variable_dict([self.odesign, self.oproject], dependent=False)
 
     @property
     def independent_project_variables(self):
-        """ """
         return self._variable_dict([self.oproject], dependent=False)
 
     @property
     def independent_design_variables(self):
-        """ """
         return self._variable_dict([self.odesign], dependent=False)
 
     @property
     def dependent_variables(self):
-        """ """
         return self._variable_dict([self.odesign, self.oproject], independent=False)
 
     @property
     def variable_names(self):
-        """ """
         return [var_name for var_name in self.variables]
 
     @property
     def project_variable_names(self):
-        """ """
         return [var_name for var_name in self.project_variables]
 
     @property
     def independent_project_variable_names(self):
-        """ """
         return [var_name for var_name in self.independent_project_variables]
 
     @property
     def design_variable_names(self):
-        """ """
         return [var_name for var_name in self.design_variables]
 
     @property
     def independent_design_variable_names(self):
-        """ """
         return [var_name for var_name in self.independent_design_variables]
 
     @property
     def independent_variable_names(self):
-        """ """
         return [var_name for var_name in self.independent_variables]
 
     @property
     def dependent_variable_names(self):
-        """ """
         return [var_name for var_name in self.dependent_variables]
 
     @property
     def oproject(self):
-        """ """
         return self._parent._oproject
 
     @property
     def odesign(self):
-        """ """
         return self._parent._odesign
 
     @property
     def messenger(self):
-        """ """
         return self._parent._messenger
 
     def __init__(self, parent):
@@ -910,12 +885,10 @@ class Variable(object):
 
     @property
     def units(self):
-        """ Return the units of the expression as a string """
         return self._units
 
     @property
     def value(self):
-        """ Return the value of the expression as a float value in SI units"""
         return self._value
 
     @property

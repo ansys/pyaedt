@@ -76,11 +76,9 @@ class TestDesign:
             print(self.aedtapp.materials)
         except:
             assert False
-    #@pytest.mark.skip("Skipping this test since it is not working on 2020R2 due to Bug 291237")
     def test_09_add_workbench_link(self):
         assert self.aedtapp.modeler.add_workbench_link(["inner"], "25")
 
-    #@pytest.mark.skip("Skipping this test since it is not working on 2020R2 due to Bug 291237")
     def test_09_set_objects_temperature(self):
         ambient_temp = 22
         objects = [o for o in self.aedtapp.modeler.primitives.get_all_solids_names()

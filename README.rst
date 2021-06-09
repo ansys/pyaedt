@@ -27,12 +27,6 @@ layout tools like HFSS3DLayout/EDB. Its class and method structures simplify
 operation for the end user while reusing information as much as
 possible across the API.
 
-This figure shows an overview of the pyAEDT architecture for 3D solvers:
-
-.. figure:: https://aedtdocs.pyansys.com/_images/Items.png
-    :width: 600pt
-
-
 Documentation and Issues
 ------------------------
 See the `Documentation <https://aedtdocs.pyansys.com>`_ page for more
@@ -46,23 +40,23 @@ To post issues, questions, and code, go to `PyAedt Issues
 
 Project Transition - Legacy Support
 -----------------------------------
-This project was formerly known as AEDTLib. 
-Thanks to all early adopters, contributors, and users who submitted issues, 
-gave feedback, and contributed code through the years. 
-With PyAEDT, Ansys is leveraging its ability to create new Pythonic, 
-cross-platform, and multi-language service-based interfaces for Ansys products. 
+This project was formerly known as AEDTLib.
+Thanks to all early adopters, contributors, and users who submitted issues,
+gave feedback, and contributed code through the years.
+With PyAEDT, Ansys is leveraging its ability to create new Pythonic,
+cross-platform, and multi-language service-based interfaces for Ansys products.
 Your contributions to PyAEDT will help shape PyAEDT into a better solution.
 
 
 Dependencies
 ------------
-You must have a local licenced copy of AEDT to run PyAEDT. 
+You must have a local licenced copy of AEDT to run PyAEDT.
 PyAEDT supports AEDT versions prior to and including 2021 R1.
 
 Why PyAEDT?
 -----------
 Recording and reusing script is a quick and easy approach for
-automating simple operations in the AEDT UI. 
+automating simple operations in the AEDT UI.
 However, disadvantages of this approach are:
 
 - The code recorded is dirty and difficult to read and understand.
@@ -83,23 +77,6 @@ The main advantages of PyAEDT are:
 - Clear documentation on functions and API
 - Unit test of code to increase quality across different AEDT versions
 
-This figure shows an overview of the PyAEDT architecture for 3D solvers:
-
-.. figure:: https://aedtdocs.pyansys.com/_images/BlankDiagram3DModeler.png
-    :width: 600pt
-
-This figure shows an overview of the PyAEDT architecture for the HFSS 3DLayout 
-and EDB solver:
-
-.. figure:: https://aedtdocs.pyansys.com/_images/BlankDiagram3DLayout.png
-    :width: 600pt
-
-This figure shows an overview of the PyAEDT architecture for Circuit solvers 
-(Simplorer and Nexxim):
-
-.. figure:: https://aedtdocs.pyansys.com/_images/BlankDiagramCircuit.png
-    :width: 600pt
-
 
 Example Workflow
 -----------------
@@ -119,10 +96,10 @@ Explicit Desktop declaration and error management
 
 .. code:: python
 
-    Launch AEDT 2020 R1 in non-graphical mode
+    AEDT 2021R1 in Non-Graphical mode will be launched
 
     from pyaedt import Desktop, Circuit
-    with Desktop("2020.1", NG=True):
+    with Desktop("2021.1", NG=True):
         circuit = Circuit()
         ...
         # Any error here will be caught by Desktop.
@@ -179,6 +156,6 @@ whatsoever. This tool extends the functionality of AEDT by adding
 an additional Python interface to AEDT without changing the core
 behavior or license of the original software. The use of the
 interactive APDL control of PyAEDT requires a legally licensed
-local copy of AEDT.
+local copy of Ansys Electronics Desktop.
 
-For more information about AEDT, visit `Ansys <https://www.ansys.com/>`_.
+For more information about AEDT, visit `Ansys <https://www.ansys.com/products/electronics>`_.
