@@ -1178,8 +1178,8 @@ class Hfss(FieldAnalysis3D, object):
         return refid, int_start, int_stop
 
     @aedt_exception_handler
-    def create_wave_port_from_sheets(self, sheet, deemb=0, axisdir=0, impedance=50, nummodes=1, portname=None,
-                                     renorm=True):
+    def create_wave_port_from_sheet(self, sheet, deemb=0, axisdir=0, impedance=50, nummodes=1, portname=None,
+                                    renorm=True):
         """Create waveport on sheet objects created starting from sheets.
 
         Parameters
@@ -1232,7 +1232,7 @@ class Hfss(FieldAnalysis3D, object):
         return portnames
 
     @aedt_exception_handler
-    def assign_lumped_port_to_sheet(self, sheet_name, axisdir=0, impedance=50, portname=None,
+    def create_lumped_port_to_sheet(self, sheet_name, axisdir=0, impedance=50, portname=None,
                                     renorm=True, deemb=False, reference_object_list=[]):
         """Create a Lumped taking one sheet.
 
