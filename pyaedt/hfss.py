@@ -815,7 +815,7 @@ class Hfss(FieldAnalysis3D, object):
         Returns
         -------
         BoundaryObject
-            Port name
+            Port object
 
         Examples
         --------
