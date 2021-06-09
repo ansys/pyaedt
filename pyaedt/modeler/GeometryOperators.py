@@ -32,14 +32,19 @@ class GeometryOperators(object):
     
     @staticmethod
     @aedt_exception_handler
-    def parse_dim_arg(string2parse):
+    def parse_dim_arg(string2parse, scale_to_unit=None):
         """It converts number + unit (e.g. '2mm') in a float (e.g. 0.002).
             Angles are returned in radians.
+            The optional argument scale_to_unit let you specify the destination unit.
+            e.g. parse_dim_arg('2mm') returns 0.002  and parse_dim_arg('2mm', scale_to_unit='mm') returns 2.0
 
         Parameters
         ----------
-        string2parse : string e.g. '2mm'
-            
+        string2parse :
+            string e.g. '2mm'
+
+        scale_to_unit :
+            unit e.g. 'mm'
 
         Returns
         -------
@@ -76,6 +81,14 @@ class GeometryOperators(object):
             except ValueError:
                 raise TypeError("Input argument is not string nor number")
 
+        if scale_to_unit:
+            try:
+                sunit = scaling[scale_to_unit]
+            except KeyError as e:
+                raise e
+        else:
+            sunit = 1.
+
         pattern = r"(?P<number>[-+]?(\d+(\.\d*)?|\.\d+)([eE][-+]?\d+)?)\s*(?P<unit>[a-zA-Z]*)"
         m = re.search(pattern, string2parse)
 
@@ -92,7 +105,7 @@ class GeometryOperators(object):
                 except KeyError as e:
                     raise e
                 else:
-                    return float(m.group("number")) * scaling_factor
+                    return float(m.group("number")) * scaling_factor / sunit
         else:
             raise TypeError("String is no number")
 
@@ -995,31 +1008,93 @@ class GeometryOperators(object):
 
     @staticmethod
     @aedt_exception_handler
-    def axis_angle_to_euler_zxz(u, theta):
-        """ convert the axis/angle to Euler angles following rotation sequence ZXZ
+    def q_prod(p, q):
+        """ product of two quaternions p and q defined as:
+            p = p0 + p' = p0 + ip1 + jp2 + kp3
+            q = q0 + q' = q0 + iq1 + jq2 + kq3
+
+            r = pq = p0q0 - p' • q' + p0q' + q0p' + p' x q'
 
         Parameters
         ----------
-        u :
-            axis rotation
-        theta :
-            rotation angle
+        p :
+            quaternion [p1, p2, p3, p4]
+        q :
+            quaternion [q1, q2, q3, q4]
 
         Returns
         -------
-        tuple (psi, theta, phi) containing Euler angles in radians.
+        result quaternion in format [r1, r2, r3, r4]
         """
-        ux = u[0]
-        uy = u[1]
-        uz = u[2]
-        s = math.sin(theta)
-        c = math.cos(theta)
-        m13 = ux*uz*(1-c) + uy * s
-        m23 = uy*uz*(1-c) - ux * s
-        m33 = c + uz*uz*(1-c)
-        m31 = uz*ux*(1-c) - uy * s
-        m32 = uz*uy*(1-c) + ux * s
-        psi = GeometryOperators.atan2(m13, -m23)
-        theta = GeometryOperators.atan2((1.-m33*m33)**0.5, m33)
-        phi = GeometryOperators.atan2(m31, m32)
-        return psi, theta, phi
+        p0 = p[0]
+        pv = p[1:4]
+        q0 = q[0]
+        qv = q[1:4]
+
+        r0 = p0 * q0 - GeometryOperators.v_dot(pv, qv)
+
+        t1 = GeometryOperators.v_prod(p0, qv)
+        t2 = GeometryOperators.v_prod(q0, pv)
+        t3 = GeometryOperators.v_cross(pv, qv)
+        rv = GeometryOperators.v_sum(t1, GeometryOperators.v_sum(t2, t3))
+
+        return [r0, rv[0], rv[1], rv[2]]
+
+    @staticmethod
+    @aedt_exception_handler
+    def q_rotation(v, q):
+        """ evaluate the rotation of a vector v defined by the quaternion q, evaluated as:
+
+            q = q0 + q' = q0 + iq1 + jq2 + kq3
+            w = qvq* = (q0^2 - |q'|^2)v + 2(q' • v)q' + 2q0(q' x v)
+
+        Parameters
+        ----------
+        v :
+            vector [v1, v2, v3]
+        q :
+            quaternion [q1, q2, q3, q4]
+
+        Returns
+        -------
+        result vector w [w1, w2, w3]
+        """
+        q0 = q[0]
+        qv = q[1:4]
+
+        c1 = q0*q0 - (qv[0]*qv[0] + qv[1]*qv[1] + qv[2]*qv[2])
+        t1 = GeometryOperators.v_prod(c1, v)
+
+        c2 = 2. * GeometryOperators.v_dot(qv, v)
+        t2 = GeometryOperators.v_prod(c2, qv)
+
+        t3 = GeometryOperators.v_cross(qv, v)
+        t4 = GeometryOperators.v_prod(2. * q0, t3)
+
+        w = GeometryOperators.v_sum(t1, GeometryOperators.v_sum(t2, t4))
+
+        return w
+
+    @staticmethod
+    @aedt_exception_handler
+    def q_rotation_inv(v, q):
+        """ evaluate the inverse rotation of a vector v defined by the quaternion q.
+        It can also be the rotationof the coordinate frame with respect to the vector v.
+
+            q = q0 + q' = q0 + iq1 + jq2 + kq3
+            q* = q0 - q' = q0 - iq1 - jq2 - kq3
+            w = q*vq
+
+        Parameters
+        ----------
+        v :
+            vector [v1, v2, v3]
+        q :
+            quaternion [q1, q2, q3, q4]
+
+        Returns
+        -------
+        result vector w [w1, w2, w3]
+        """
+        q1 = [q[0], -q[1], -q[2], -q[3]]
+        return GeometryOperators.q_rotation(v, q1)

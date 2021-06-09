@@ -413,8 +413,7 @@ class CoordinateSystem(object):
         self.ref_cs = reference_cs
         self.update()
 
-        self._parent.coordinate_systems.append(self)
-        return self
+        return True
 
     @property
     def orientation(self):
@@ -495,7 +494,6 @@ class GeometryModeler(Modeler, object):
         """
         self._parent = parent
         Modeler.__init__(self, parent)
-        self.coordinate_system = CoordinateSystem(self)
         self.coordinate_systems = self._get_coordinates_data()
         self._is3d = is3d
 
@@ -675,9 +673,119 @@ class GeometryModeler(Modeler, object):
         return list(objects)
 
     @aedt_exception_handler
+    def create_coordinate_system(self, origin=None, reference_cs='Global', name=None,
+                                 mode='axis', view='iso',
+                                 x_pointing=None, y_pointing=None,
+                                 psi=0, theta=0, phi=0, u=None):
+        """Create a Coordinate system
+        Specify the mode = 'view', 'axis', 'zxz', 'zyz', 'axisrotation'. Default = 'axis'
+        If mode = 'view', specify view = 'XY', 'XZ', 'XY', 'iso', 'rotate' (obsolete)
+        If mode = 'axis', specify x_pointing and y_pointing
+        If mode = 'zxz' or 'zyz', specify psi, theta, phi
+        If mode = 'axisrotation', specify u, theta
+
+        Parameters not needed by the specified mode are ignored.
+        For back compatibility, view='rotate' is the same as mode='axis'
+        Default is coordinate system parallel to the Global centered in the Global origin.
+
+        Parameters
+        ----------
+        origin :
+            origin of the CS (Default value = [0, 0, 0])
+        name :
+            name of the CS (Default value = None)
+        reference_cs :
+             Reference coordinate system name (Default value = "Global")
+        mode:
+            Definition mode. 'view', 'axis', 'zxz', 'zyz', 'axisrotation'. Default = 'axis'
+        view :
+            View. Default "iso". possible "XY", "XZ", "XY", None, "rotate"
+            "rotate" is obsolete, simply specify mode = 'axis'.
+        x_pointing :
+            if mode="axis", this is a 3 elements list specifing the X axis pointing in the global CS
+            (Default value = [1, 0, 0])
+        y_pointing :
+            if mode="axis", this is a 3 elements list specifing the Y axis pointing in the global CS
+            (Default value = [0, 1, 0])
+        psi :
+            Euler angle psi in degrees (Default value = 0)
+        theta :
+            Euler angle theta in degrees, or orataion angle in degrees (Default value = 0)
+        phi :
+            Euler angle phi in degrees (Default value = 0)
+        u :
+            rotation axix in format [ux, uy, uz] (Default value = [1, 0, 0])
+
+        Returns
+        -------
+        type
+            CS object
+
+        """
+        if name:
+            cs_names = [i.name for i in self.coordinate_systems]
+            if name in cs_names:
+                raise AttributeError('A coordinate system with the specified name alredy exists!')
+
+        cs = CoordinateSystem(self)
+        if cs:
+            result = cs.create(origin=origin, reference_cs=reference_cs, name=name,
+                               mode=mode, view=view,
+                               x_pointing=x_pointing, y_pointing=y_pointing,
+                               psi=psi, theta=theta, phi=phi, u=u)
+            if result:
+                self.coordinate_systems.append(cs)
+                return cs
+        return False
+
+    @aedt_exception_handler
+    def global_to_cs(self, point, ref_cs):
+        """ Transform a point from the global coordinate system to the specified coordinate system
+
+        Parameters
+        ----------
+        point :
+            opint in format [x, y, z]
+        ref_cs :
+            name of the destination reference system
+
+        Returns
+        -------
+        transformed point coordinates [x, y, z]
+        """
+        if type(point) is not list or len(point) != 3:
+            raise AttributeError('point must be in format [x, y, z]')
+        try:
+            point = [float(i) for i in point]
+        except:
+            raise AttributeError('point must be in format [x, y, z]')
+        if ref_cs == 'Global':
+            return point
+        cs_names = [i.name for i in self.coordinate_systems]
+        if ref_cs not in cs_names:
+            raise AttributeError('Specified coordinate system does not exist in the design!')
+
+        def get_total_transformation(p, cs):
+            idx = cs_names.index(cs)
+            q = self.coordinate_systems[idx].quaternion
+            ox = GeometryOperators.parse_dim_arg(self.coordinate_systems[idx].props['OriginX'], self.model_units)
+            oy = GeometryOperators.parse_dim_arg(self.coordinate_systems[idx].props['OriginY'], self.model_units)
+            oz = GeometryOperators.parse_dim_arg(self.coordinate_systems[idx].props['OriginZ'], self.model_units)
+            o = [ox, oy, oz]
+            refcs = self.coordinate_systems[idx].ref_cs
+            if refcs == 'Global':
+                p1 = p
+            else:
+                p1 = get_total_transformation(p, refcs)
+            p2 = GeometryOperators.q_rotation_inv(GeometryOperators.v_sub(p1, o), q)
+            return p2
+
+        return get_total_transformation(point, ref_cs)
+
+    @aedt_exception_handler
     def add_workbench_link(self, objects, ambient_temp=22, create_project_var=False, enable_deformation=True):
         """# TODO fix 2020R2 Bug this is not working in 2020R2
-        Assign Temperature and Deformation Objects for WorkBench Link. From 2020R2 Material needs to have Thermal Modifierl
+        Assign Temperature and Deformation Objects for WorkBench Link. From 2020R2 Material needs to have Thermal Modifier
 
         Parameters
         ----------
