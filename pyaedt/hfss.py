@@ -1721,7 +1721,7 @@ class Hfss(FieldAnalysis3D, object):
 
     @aedt_exception_handler
     def validate_full_design(self, dname=None, outputdir=None, ports=None):
-        """Validate the design based on the expected value and save infomation in log file
+        """Validate the design based on the expected value and save information in log file
         and also return the validation information in a list.
 
         Parameters
