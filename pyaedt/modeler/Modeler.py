@@ -2179,7 +2179,7 @@ class GeometryModeler(Modeler, object):
 
     @aedt_exception_handler
     def create_waveguide(self, origin, wg_direction_axis, wgmodel="WG0", wg_length=100, wg_thickness=None,
-                         wg_material="aluminum", parametrize_w=False, parametrize_h=False):
+                         wg_material="aluminum", parametrize_w=False, parametrize_h=False, create_sheets_on_openings=False, name=None):
         """Create a Standard Waveguide. Optionally, W and H can be parametrized
         Available models WG0.0, WG0, WG1, WG2, WG3, WG4, WG5, WG6, WG7, WG8, WG9, WG9A, WG10, WG11, WG11A, WG12, WG13,
         WG14, WG15, WR102, WG16, WG17, WG18, WG19, WG20, WG21, WG22, WG24, WG25, WG26, WG27, WG28, WG29, WG29, WG30, WG31, WG32
@@ -2202,13 +2202,18 @@ class GeometryModeler(Modeler, object):
             Parametrize W (Default value = False)
         parametrize_h : bool
             Parametrize H (Default value = False)
-
+        create_sheets_on_openings : bool
+            Create a sheet on both opening if True (Default value = False)
+        name : None
+            Optional, wg name
         Returns
         -------
         type
             id of WG
 
         """
+        p1=-1
+        p2=-1
         WG = {"WG0.0": [584.2, 292.1], "WG0": [533.4, 266.7], "WG1": [457.2, 228.6], "WG2": [381, 190.5],
               "WG3": [292.1, 146.05], "WG4": [247.65, 123.825], "WG5": [195.58, 97.79],
               "WG6": [165.1, 82.55], "WG7": [129.54, 64.77], "WG8": [109.22, 54.61], "WG9": [88.9, 44.45],
@@ -2229,10 +2234,10 @@ class GeometryModeler(Modeler, object):
             if parametrize_h:
                 self._parent[wgmodel + "_H"] = self.primitives.arg_with_dim(wgheight)
                 h = wgmodel + "_H"
-                hb = wgmodel + "_H + " + self.primitives.arg_with_dim(2 * wg_thickness)
+                hb = wgmodel + "_H + 2*" + self.primitives.arg_with_dim(wg_thickness)
             else:
                 h = self.primitives.arg_with_dim(wgheight)
-                hb = self.primitives.arg_with_dim(wgheight) + " + " + self.primitives.arg_with_dim(2 * wg_thickness)
+                hb = self.primitives.arg_with_dim(wgheight) + " + 2*" + self.primitives.arg_with_dim(wg_thickness)
 
             if parametrize_w:
                 self._parent[wgmodel + "_W"] = self.primitives.arg_with_dim(wgwidth)
@@ -2240,32 +2245,56 @@ class GeometryModeler(Modeler, object):
                 wb = wgmodel + "_W + " + self.primitives.arg_with_dim(2 * wg_thickness)
             else:
                 w = self.primitives.arg_with_dim(wgwidth)
-                wb = self.primitives.arg_with_dim(wgwidth) + " + " + self.primitives.arg_with_dim(2 * wg_thickness)
+                wb = self.primitives.arg_with_dim(wgwidth) + " + 2*" + self.primitives.arg_with_dim(wg_thickness)
             if wg_direction_axis == self._parent.CoordinateSystemAxis.ZAxis:
                 airbox = self.primitives.create_box(origin, [w, h, wg_length])
-                origin[0] -= wg_thickness
-                origin[1] -= wg_thickness
+
+                if type(wg_thickness) is str:
+                    origin[0] = str(origin[0]) + "-" + wg_thickness
+                    origin[1] = str(origin[1]) + "-" + wg_thickness
+                else:
+                    origin[0] -= wg_thickness
+                    origin[1] -= wg_thickness
 
             elif wg_direction_axis == self._parent.CoordinateSystemAxis.YAxis:
                 airbox = self.primitives.create_box(origin, [w, wg_length, h])
-                origin[0] -= wg_thickness
-                origin[2] -= wg_thickness
+
+
+                if type(wg_thickness) is str:
+                    origin[0] = str(origin[0]) + "-" + wg_thickness
+                    origin[2] = str(origin[2]) + "-" + wg_thickness
+                else:
+                    origin[0] -= wg_thickness
+                    origin[2] -= wg_thickness
             else:
                 airbox = self.primitives.create_box(origin, [wg_length, w, h])
-                origin[2] -= wg_thickness
-                origin[1] -= wg_thickness
 
+                if type(wg_thickness) is str:
+                    origin[2] = str(origin[2]) + "-" + wg_thickness
+                    origin[1] = str(origin[1]) + "-" + wg_thickness
+                else:
+                    origin[2] -= wg_thickness
+                    origin[1] -= wg_thickness
+            centers=[f.center for f in self.primitives.objects[airbox].faces]
+            posx = [i[wg_direction_axis] for i in centers]
+            mini = posx.index(min(posx))
+            maxi = posx.index(max(posx))
+            if create_sheets_on_openings:
+                p1 = self.primitives.create_object_from_face(self.primitives.objects[airbox].faces[mini].id)
+                p2 = self.primitives.create_object_from_face(self.primitives.objects[airbox].faces[maxi].id)
+            if not name:
+                name = generate_unique_name(wgmodel)
             if wg_direction_axis == self._parent.CoordinateSystemAxis.ZAxis:
                 wgbox = self.primitives.create_box(origin, [wb, hb, wg_length],
-                                                   name=generate_unique_name(wgmodel))
+                                                   name=name)
             elif wg_direction_axis == self._parent.CoordinateSystemAxis.YAxis:
-                wgbox = self.primitives.create_box(origin, [wb, wg_length, hb], name=generate_unique_name(wgmodel))
+                wgbox = self.primitives.create_box(origin, [wb, wg_length, hb], name=name)
             else:
-                wgbox = self.primitives.create_box(origin, [wg_length, wb, hb], name=generate_unique_name(wgmodel))
+                wgbox = self.primitives.create_box(origin, [wg_length, wb, hb], name=name)
             self.subtract(wgbox, airbox, False)
             self._parent.assignmaterial(wgbox, wg_material)
 
-            return wgbox
+            return wgbox, p1, p2
         else:
             return None
 

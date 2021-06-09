@@ -181,11 +181,13 @@ class TestModeler:
     def test_30_create_waveguide(self):
         position = self.aedtapp.modeler.Position(0, 0, 0)
         assert type(self.aedtapp.modeler.create_waveguide(position, self.aedtapp.CoordinateSystemAxis.XAxis,
-                                                          wg_length=2000)) is int
+                                                          wg_length=2000)) is tuple
         position = self.aedtapp.modeler.Position(0, 0, 0)
         wg9 = self.aedtapp.modeler.create_waveguide(position, self.aedtapp.CoordinateSystemAxis.ZAxis, wgmodel="WG9",
-                                                    wg_length=1500, parametrize_h=True)
-        assert wg9 > 0
+                                                    wg_length=1500, parametrize_h=True, create_sheets_on_openings=True)
+        assert wg9[0] > 0
+        assert wg9[1] > 0
+        assert wg9[2] > 0
         wgfail = self.aedtapp.modeler.create_waveguide(position, self.aedtapp.CoordinateSystemAxis.ZAxis,
                                                        wgmodel="MYMODEL",
                                                        wg_length=2000, parametrize_h=True)
