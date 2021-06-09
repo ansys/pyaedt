@@ -2046,7 +2046,7 @@ class Hfss(FieldAnalysis3D, object):
         obj_names :
              Names of the objects.       
         boundary_name :
-             Name of the boundary. The default is `` ``.
+             Name of the boundary. The default is ``""``.
 
         Returns
         -------
