@@ -282,7 +282,7 @@ class CoordinateSystem(object):
         phi :
             Euler angle phi in degrees (Default value = 0)
         u :
-            rotation axix in format [ux, uy, uz] (Default value = [1, 0, 0])
+            rotation axis in format [ux, uy, uz] (Default value = [1, 0, 0])
 
         Returns
         -------
@@ -699,10 +699,10 @@ class GeometryModeler(Modeler, object):
             View. Default "iso". possible "XY", "XZ", "XY", None, "rotate"
             "rotate" is obsolete, simply specify mode = 'axis'.
         x_pointing :
-            if mode="axis", this is a 3 elements list specifing the X axis pointing in the global CS
+            if mode="axis", this is a 3 elements list specifying the X axis pointing in the global CS
             (Default value = [1, 0, 0])
         y_pointing :
-            if mode="axis", this is a 3 elements list specifing the Y axis pointing in the global CS
+            if mode="axis", this is a 3 elements list specifying the Y axis pointing in the global CS
             (Default value = [0, 1, 0])
         psi :
             Euler angle psi in degrees (Default value = 0)
@@ -711,7 +711,7 @@ class GeometryModeler(Modeler, object):
         phi :
             Euler angle phi in degrees (Default value = 0)
         u :
-            rotation axix in format [ux, uy, uz] (Default value = [1, 0, 0])
+            rotation axis in format [ux, uy, uz] (Default value = [1, 0, 0])
 
         Returns
         -------
@@ -722,7 +722,7 @@ class GeometryModeler(Modeler, object):
         if name:
             cs_names = [i.name for i in self.coordinate_systems]
             if name in cs_names:
-                raise AttributeError('A coordinate system with the specified name alredy exists!')
+                raise AttributeError('A coordinate system with the specified name already exists!')
 
         cs = CoordinateSystem(self)
         if cs:

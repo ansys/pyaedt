@@ -304,7 +304,7 @@ class GeometryOperators(object):
         Parameters
         ----------
         a :
-            fisrt vector [x, y, z]
+            first vector [x, y, z]
         b :
             second vector [x, y, z]
 
@@ -325,7 +325,7 @@ class GeometryOperators(object):
         Parameters
         ----------
         a :
-            fisrt vector [x, y, z]
+            first vector [x, y, z]
         b :
             second vector [x, y, z]
 
@@ -624,7 +624,7 @@ class GeometryOperators(object):
         Parameters
         ----------
         a :
-            fisrt vector [x, y, z]
+            first vector [x, y, z]
         b :
             second vector [x, y, z]
 
@@ -794,7 +794,7 @@ class GeometryOperators(object):
 
         Returns
         -------
-        tuple ([ux, uy, uz], theta) containing the rotation axix expressed as x, y, z components of the unit vector u
+        tuple ([ux, uy, uz], theta) containing the rotation axis expressed as x, y, z components of the unit vector u
         and the rotation angle theta expressed in radians.
         """
         q1 = q[0]
@@ -814,7 +814,7 @@ class GeometryOperators(object):
         Parameters
         ----------
         u :
-            rotation axix in format [ux, uy, uz]
+            rotation axis in format [ux, uy, uz]
         theta :
             angle of rotation in radians
 
