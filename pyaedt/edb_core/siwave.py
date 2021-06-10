@@ -7,6 +7,7 @@ This class manages Edb Siwave and related methods
 
 """
 import warnings
+import os
 from .general import *
 from ..generic.general_methods import get_filename_without_extension, generate_unique_name
 
@@ -258,7 +259,7 @@ class EdBSiwave(object):
 
 
     def __init__(self, parent):
-        self.parent =parent
+        self.parent = parent
 
     @aedt_exception_handler
     def create_circuit_port(self, positive_component_name, positive_net_name, negative_component_name=None,
@@ -420,6 +421,15 @@ class EdBSiwave(object):
         return True
 
     @aedt_exception_handler
+    def create_exec_file(self):
+        workdir = os.path.dirname(self.parent.edbpath)
+        file_name = os.path.join(workdir,os.path.splitext(os.path.basename(self.parent.edbpath))[0] + '.exec')
+        if os.path.isfile(file_name):
+            os.remove(file_name)
+        f = open(file_name,"w")
+        return f
+
+    @aedt_exception_handler
     def add_siwave_ac_analysis(self, accuracy_level=1, decade_count=10, sweeptype=1, start_freq=1, stop_freq=1e9, step_freq=1e6, discre_sweep=False):
         """
         Add Siwave AC Analysis
@@ -435,6 +445,32 @@ class EdBSiwave(object):
         :return:
         """
         self.siwave_setup.AddACSimSetup(self.builder, accuracy_level, str(decade_count), sweeptype, str(start_freq), str(stop_freq), str(step_freq), discre_sweep)
+        exec_file = self.create_exec_file()
+        exec_file.write("ExecAcSim\n")
+        exec_file.close()
+        return True
+
+    @aedt_exception_handler
+    def add_siwave_syz_analysis(self, accuracy_level=1, decade_count=10, sweeptype=1, start_freq=1, stop_freq=1e9,
+                               step_freq=1e6, discre_sweep=False):
+        """
+        Add Siwave SYZ Analysis
+
+
+        :param accuracy_level:
+        :param decade_count:
+        :param sweeptype:
+        :param start_freq:
+        :param stop_freq:
+        :param step_freq:
+        :param discre_sweep:
+        :return:
+        """
+        self.siwave_setup.AddSYZSimSetup(self.builder, accuracy_level, str(decade_count), sweeptype, str(start_freq),
+                                        str(stop_freq), str(step_freq), discre_sweep)
+        exec_file = self.create_exec_file()
+        exec_file.write("ExecSyzSim\n")
+        exec_file.close()
         return True
 
     @aedt_exception_handler
@@ -454,6 +490,9 @@ class EdBSiwave(object):
         """
 
         self.siwave_setup.AddDCSimSetup(self.builder, accuracy_level)
+        exec_file = self.create_exec_file()
+        exec_file.write("ExecDcSim\n")
+        exec_file.close()
         return True
 
     @aedt_exception_handler
