@@ -110,6 +110,7 @@ class TestIcepak:
         setup_name = "DomSetup"
         my_setup = self.aedtapp.create_setup(setup_name)
         my_setup.props["Convergence Criteria - Max Iterations"] = 10
+        assert self.aedtapp.get_property_value("AnalysisSetup:DomSetup", "Iterations", "Setup")
         assert my_setup.update()
         assert self.aedtapp.assign_2way_coupling(setup_name,2,True,20)
 
@@ -189,6 +190,22 @@ class TestIcepak:
         self.aedtapp.modeler.primitives.create_box([4, 5, 6], [5, 5, 5], "network_box2", "copper")
         result = self.aedtapp.create_network_blocks([["network_box", 20, 10, 3], ["network_box2", 4, 10, 3]], self.aedtapp.GravityDirection.ZNeg, 1.05918, False)
         assert len(result[0].props["Nodes"]) == 3 and len(result[1].props["Nodes"]) == 3 # two face nodes plus one internal
+
+    def test_24_get_boundary_property_value(self):
+        assert self.aedtapp.get_property_value("BoundarySetup:box2", "Total Power", "Boundary") == "2W"
+
+    def test_25_copy_solid_bodies(self):
+        new_design = Icepak(projectname="CopiedProject", designname="CopiedBodies")
+        assert new_design.copy_solid_bodies_from(self.aedtapp)
+        assert sorted(new_design.modeler.solid_bodies) == ["Region", "box", "box2", "box3", "network_box", "network_box2"]
+
+    def test_26_get_all_conductors(self):
+        conductors = self.aedtapp.get_all_conductors_names()
+        assert sorted(conductors) == ["box", "box2", "box3", "network_box", "network_box2"]
+
+    def test_27_get_all_dielectrics(self):
+        dielectrics = self.aedtapp.get_all_dielectrics_names()
+        assert dielectrics == ["Region"]
 
     def test_88_create_heat_sink(self):
         assert self.aedtapp.create_parametric_fin_heat_sink()
