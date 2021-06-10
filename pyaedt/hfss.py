@@ -1,6 +1,6 @@
 """
-HFSS Class
-----------
+Introduction
+------------------
 
 This class contains all HFSS functionalities. It inherits all objects that belong to HFSS.
 
@@ -8,19 +8,25 @@ This class contains all HFSS functionalities. It inherits all objects that belon
 Examples
 --------
 
->>> hfss = Hfss()     Create an ``Hfss`` object and connect to an existing HFSS design or create a new HFSS design if one does not exist.
+Create an ``Hfss`` object and connect to an existing HFSS design or create a new HFSS design if one does not exist.
 
+>>> hfss = Hfss()
 
->>> hfss = Hfss(projectname)     Create an ``Hfss`` object and link to a project named ``projectname``. If this project does not exist, create one with this name.
+Create an ``Hfss`` object and link to a project named ``projectname``. If this project does not exist, create one with this name.
 
+>>> hfss = Hfss(projectname)
 
->>> hfss = Hfss(projectname,designame)     Create an ``Hfss`` object and link to a design named ``designname`` in a project named ``projectname``.
+Create an ``Hfss`` object and link to a design named ``designname`` in a project named ``projectname``.
 
+>>> hfss = Hfss(projectname,designame)
 
->>> hfss = Hfss("myfile.aedt")     Create an ``Hfss`` object and open the specified project.
+Create an ``Hfss`` object and open the specified project.
 
+>>> hfss = Hfss("myfile.aedt")
 
-========================================================
+Create a ``Desktop on 2021R1`` object and then creates an ``Hfss`` object and open the specified project.
+
+>>> hfss = Hfss(specified_version="2021.1", projectname="myfile.aedt")
 
 """
 from __future__ import absolute_import

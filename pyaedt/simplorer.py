@@ -1,24 +1,27 @@
 """
-Simplorer Class
-----------------------------------------------------------------
+Introduction
+------------------
 
 This class contains all Simplorer functionalities.
 
 
 Examples:
 
-app = Simplorer()     Creates a ``Simplorer`` object and connects to an existing Maxwell design or cceates a new Maxwell design if one is not present.
+Creates a ``Simplorer`` object and connects to an existing Maxwell design or cceates a new Maxwell design if one is not present.
 
+>>> app = Simplorer()
 
-app = Simplorer(projectname)     Creates a ``Simplorer`` object and links to a project named projectname.
+Creates a ``Simplorer`` object and links to a project named projectname.
 
+>>> app = Simplorer(projectname)
 
-app = Simplorer(projectname,designame)     Creates a ``Simplorer`` object and links to a design named designname in a project named projectname.
+Creates a ``Simplorer`` object and links to a design named designname in a project named projectname.
 
+>>> app = Simplorer(projectname,designame)
 
-app = Simplorer("myfile.aedt")     Creates a ``Simplorer`` object and opens the specified project.
+Creates a ``Simplorer`` object and opens the specified project.
 
-
+>>> app = Simplorer("myfile.aedt")
 """
 from __future__ import absolute_import
 

@@ -1,27 +1,36 @@
 """
-Icepak 3d Layout Class
-----------------------------------------------------------------
+Introduction
+------------------
 
 This class contains all Icepak functionalities. It inherits all objects that belong to Icepak.
 
 
-Examples:
 
-app = Icepak()     Creates an ``Icepak`` object and connects to an existing HFSS design or creates a new HFSS design if one is not present.
+Examples
+--------
 
+Create an ``Icepak`` object and connect to an existing HFSS design or create a new HFSS design if one does not exist.
 
-app = Icepak(projectname)     Creates an ``Icepak`` object and links to project named projectname. If this project doesn't exists, it creates a new one with this name.
+>>> aedtapp = Icepak()
 
+Create an ``Icepak`` object and link to a project named ``projectname``. If this project does not exist, create one with this name.
 
-app = Icepak(projectname,designame)     Creates an ``Icepak`` object and links to a design named designname in a project named projectname.
+>>> aedtapp = Icepak(projectname)
 
+Create an ``Icepak`` object and link to a design named ``designname`` in a project named ``projectname``.
 
-app = Icepak("myfile.aedt")     Creates an ``Icepak`` object and opens the specified project.
+>>> aedtapp = Icepak(projectname,designame)
 
+Create an ``Icepak`` object and open the specified project.
 
-========================================================
+>>> aedtapp = Icepak("myfile.aedt")
+
+Create a ``Desktop on 2021R1`` object and then creates an ``Icepak`` object and open the specified project.
+
+>>> aedtapp = Icepak(specified_version="2021.1", projectname="myfile.aedt")
 
 """
+
 
 from __future__ import absolute_import
 import csv
