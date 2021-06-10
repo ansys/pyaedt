@@ -1301,9 +1301,22 @@ class Design(object):
         return True
 
     @aedt_exception_handler
-    def release_desktop(self):
-        """:return: Release the desktop by keeping it open"""
-        release_desktop()
+    def release_desktop(self, close_projects=True, close_desktop=True):
+        """
+
+        Parameters
+        ----------
+        close_projects: bool
+            close all projects
+        close_desktop: bool
+            close desktop after release it
+
+        Returns
+        -------
+        bool
+            True if desktop released
+        """
+        release_desktop(close_projects, close_desktop)
         return True
 
     @aedt_exception_handler
