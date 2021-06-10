@@ -178,5 +178,17 @@ class TestIcepak:
         self.aedtapp.post.export_field_file("Temp", self.aedtapp.nominal_sweep, [], filename=fld_file, obj_list=object_list)
         assert os.path.exists(fld_file)
 
+    def test_22_create_source_blocks_from_list(self):
+        self.aedtapp.modeler.primitives.create_box([1,  1,1], [3, 3, 3], "box3", "copper")
+        result = self.aedtapp.create_source_blocks_from_list([["box2", 2], ["box3", 3]])
+        assert result[1].props["Total Power"] == "2W"
+        assert result[3].props["Total Power"] == "3W"
+
+    def test_23_create_network_blocks(self):
+        self.aedtapp.modeler.primitives.create_box([1, 2, 3], [10, 10, 10], "network_box", "copper")
+        self.aedtapp.modeler.primitives.create_box([4, 5, 6], [5, 5, 5], "network_box2", "copper")
+        result = self.aedtapp.create_network_blocks([["network_box", 20, 10, 3], ["network_box2", 4, 10, 3]], self.aedtapp.GravityDirection.ZNeg, 1.05918, False)
+        assert len(result[0].props["Nodes"]) == 3 and len(result[1].props["Nodes"]) == 3 # two face nodes plus one internal
+
     def test_88_create_heat_sink(self):
         assert self.aedtapp.create_parametric_fin_heat_sink()
