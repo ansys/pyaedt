@@ -1,3 +1,22 @@
+"""
+Unit Test Configuration Module
+-------------------------------
+
+Description
+===========
+
+This module contains the configuration and fixture for the pytest-based unit tests for pyaedt.
+
+The default configuration can be changed by placing a file called local_config.json in the same
+directory as this module. An example of the contents of local_config.json
+{
+  "desktopVersion": "2021.1",
+  "NonGraphical": false,
+  "NewThread": false,
+  "test_desktops": true
+}
+
+"""
 import tempfile
 import pytest
 import os
@@ -7,13 +26,6 @@ import json
 from .launch_desktop_tests import run_desktop_tests
 
 from pyaedt import Desktop
-
-default_config = {
-    "desktopVersion": "2021.1",
-    "NonGraphical": False,
-    "NewThread": True,
-    "test_desktops": False
-}
 
 local_path = os.path.dirname(os.path.realpath(__file__))
 module_path = pathlib.Path(local_path)
@@ -32,7 +44,7 @@ else:
     config = {
         "desktopVersion": "2021.1",
         "NonGraphical": False,
-        "NewThread": False,
+        "NewThread": True,
         "test_desktops": False
     }
 
