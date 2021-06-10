@@ -48,9 +48,11 @@ class Analysis(Design, object):
 
     """
 
-    def __init__(self, application, projectname, designname, solution_type, setup_name):
+    def __init__(self, application, projectname, designname, solution_type, setup_name,
+                 specified_version, NG, AlwaysNew, release_on_exit):
         self.setups = []
-        Design.__init__(self, application, projectname, designname, solution_type)
+        Design.__init__(self, application, projectname, designname, solution_type,
+                        specified_version, NG, AlwaysNew, release_on_exit)
         self.messenger.add_info_message("Design Loaded")
         self._setup = None
         if setup_name:

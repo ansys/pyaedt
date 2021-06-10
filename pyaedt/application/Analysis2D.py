@@ -19,10 +19,12 @@ class FieldAnalysis2D(Analysis):
     -------
 
     """
-    def __init__(self, application, projectname, designname, solution_type, setup_name=None):
+    def __init__(self, application, projectname, designname, solution_type, setup_name=None,
+                 specified_version=None, NG=False, AlwaysNew=True, release_on_exit=True):
 
 
-        Analysis.__init__(self, application, projectname, designname, solution_type, setup_name)
+        Analysis.__init__(self, application, projectname, designname, solution_type, setup_name,
+                          specified_version, NG, AlwaysNew, release_on_exit)
         self._modeler = Modeler2D(self)
         self._mesh = Mesh(self)
         # self._post = PostProcessor(self)

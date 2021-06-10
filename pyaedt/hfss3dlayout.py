@@ -122,9 +122,10 @@ class Hfss3dLayout(FieldAnalysis3DLayout, object):
 
     """
 
-    def __init__(self, projectname=None, designname=None, solution_type=None, setup_name=None):
+    def __init__(self, projectname=None, designname=None, solution_type=None, setup_name=None,
+                 specified_version=None, NG=False, AlwaysNew=True, release_on_exit=True):
         FieldAnalysis3DLayout.__init__(self, "HFSS 3D Layout Design", projectname, designname, solution_type,
-                                       setup_name)
+                                       setup_name, specified_version, NG, AlwaysNew, release_on_exit)
 
     def __enter__(self):
         return self

@@ -14,16 +14,9 @@ from pyaedt.maxwell import Maxwell3d
 from pyaedt.modeler.Primitives import Polyline, PolylineSegment
 
 #########################################################################
-# # Connect to the Electronics Desktop
-# To get a new instance of the desktop, set AlwaysNew=True
-# To run the desktop in non-graphical mode, use NG=True
-
-desktop = Desktop(specified_version="2021.1", AlwaysNew=False, NG=False)
-
-#########################################################################
 # ### Create a Maxwell3D object  and set the unit type to mm
 
-M3D = Maxwell3d(solution_type="Transient", designname="test_polyline_3D")
+M3D = Maxwell3d(solution_type="Transient", designname="test_polyline_3D", specified_version="2021.1")
 M3D.modeler.model_units = "mm"
 prim3D = M3D.modeler.primitives
 
