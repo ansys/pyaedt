@@ -1710,7 +1710,7 @@ class PostProcessor(object):
 
     @aedt_exception_handler
     def create_rectangular_plot(self, expression="dB(S(1,1))", setup_sweep_name='', families_dict={"Freq": ["All"]},
-                                primary_sweep_variable="Freq", context=None, plotname=None):
+                                primary_sweep_variable="Freq", context=None, plotname=None,plottype=None):
         """Create a 2D Rectangular plot in AEDT
 
         Parameters
@@ -1759,13 +1759,27 @@ class PostProcessor(object):
         if self.post_solution_type not in report_type:
             print("Solution not supported")
             return False
-        modal_data = report_type[self.post_solution_type]
+        if not plottype:
+            modal_data = report_type[self.post_solution_type]
+        else:
+            modal_data = plottype
         if not plotname:
             plotname = generate_unique_name("Plot")
         families_input = []
+        families_input.append(primary_sweep_variable+":=")
+        if type(families_dict[primary_sweep_variable]) is list:
+            families_input.append(families_dict[primary_sweep_variable])
+        else:
+            families_input.append([families_dict[primary_sweep_variable]])
         for el in families_dict:
+            if el == primary_sweep_variable:
+                continue
             families_input.append(el+":=")
-            families_input.append(families_dict[el])
+            if type(families_dict[el]) is list:
+                families_input.append(families_dict[el])
+            else:
+                families_input.append([families_dict[el]])
+
         self.oreportsetup.CreateReport(plotname, modal_data, "Rectangular Plot", setup_sweep_name, ctxt, families_input,
                                                        ["X Component:=", primary_sweep_variable, "Y Component:=",
                                                    expression])

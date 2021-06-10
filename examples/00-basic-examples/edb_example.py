@@ -4,7 +4,7 @@ EDB  Analysis
 --------------------------------------------
 This Example shows how to use EDB co to interact with a layout
 """
-
+# sphinx_gallery_thumbnail_path = 'Resources/edb.png'
 import os
 import sys
 import pathlib

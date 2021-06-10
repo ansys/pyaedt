@@ -4,7 +4,7 @@ HFSS3DLayout Analysis
 --------------------------------------------
 This Example shows how to use HFSS3DLayout combined with EDB to interact with a layout
 """
-
+# sphinx_gallery_thumbnail_path = 'Resources/edb2.png'
 
 
 import sys

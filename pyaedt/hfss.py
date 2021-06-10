@@ -1511,6 +1511,7 @@ class Hfss(FieldAnalysis3D, object):
                 return bound
         return False
 
+
     @aedt_exception_handler
     def create_circuit_port_from_edges(self, edge_signal, edge_gnd, port_name="",
                                        port_impedance="50",
