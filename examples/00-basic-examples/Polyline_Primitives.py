@@ -251,7 +251,7 @@ project_file = os.path.join(project_dir, project_name + '.aedt')
 
 M3D.save_project(project_file)
 
-desktop.force_close_desktop()
+M3D.close_desktop()
 
 
 

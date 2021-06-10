@@ -29,14 +29,13 @@ project_dir = M3D.generate_temp_project_directory("Example")
 project_name = os.path.join(project_dir, 'test.aedt')
 M3D.modeler.model_units = "mm"
 CS = M3D.modeler.coordinate_system
-primitives = M3D.modeler.primitives
 
 #############################
 # Create the Model
 # create box that will be used in simulation
 
-plate = primitives.create_box([0, 0, 0], [294, 294, 19], name="Plate", matname="aluminum")
-hole = primitives.create_box([18, 18, 0], [108, 108, 19], name="Hole")
+plate = M3D.modeler.primitives.create_box([0, 0, 0], [294, 294, 19], name="Plate", matname="aluminum")
+hole = M3D.modeler.primitives.create_box([18, 18, 0], [108, 108, 19], name="Hole")
 
 #############################
 # Modeler Operation
@@ -55,8 +54,8 @@ M3D.save_project(project_name)  # unable to save file by passing the file name o
 
 center_hole = M3D.modeler.Position(119, 25, 49)
 center_coil = M3D.modeler.Position(94, 0, 49)
-coil_hole = primitives.create_box(center_hole, [150, 150, 100], name="Coil_Hole")  # All positions in model units
-coil = primitives.create_box(center_coil, [200, 200, 100], name="Coil")  # All positions in model units
+coil_hole = M3D.modeler.primitives.create_box(center_hole, [150, 150, 100], name="Coil_Hole")  # All positions in model units
+coil = M3D.modeler.primitives.create_box(center_coil, [200, 200, 100], name="Coil")  # All positions in model units
 M3D.modeler.subtract([coil], [coil_hole])
 M3D.assignmaterial(coil, "copper")
 M3D.solve_inside("Coil")
@@ -72,7 +71,7 @@ CS.create([200, 100, 0], view="XY", name="Coil_CS")
 
 M3D.modeler.section(["Coil"], M3D.CoordinateSystemPlane.ZXPlane)
 M3D.modeler.separate_bodies(["Coil_Section1"])
-primitives.delete("Coil_Section1_Separate1")
+M3D.modeler.primitives.delete("Coil_Section1_Separate1")
 M3D.assign_current(["Coil_Section1"], amplitude=2472)
 
 #################################
