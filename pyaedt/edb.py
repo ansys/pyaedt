@@ -1,24 +1,19 @@
 # -*- coding: utf-8 -*-
 """
-EDB Class
----------
+This module contains all EDB functionalities in the ``Edb`` class. It inherits all objects that belong to EDB.
 
-This class contains all EDB functionalities. It inherits all objects that belong to EDB.
-
-This class is implicitily loaded in HFSS 3D Layout when launched.
+This module is implicitily loaded in HFSS 3D Layout when launched.
 
 
 Examples
 --------
+Create an ``Edb`` object and a new EDB cell.
 
->>> app = Edb()     Create an ``Edb`` object and a new EDB cell.
+>>> app = Edb()     
 
+Create an ``Edb`` object and open the specified project.
 
->>> app = Edb("myfile.aedb")     Create an ``Edb`` object and open the specified project.
-
-
-
-========================================================
+>>> app = Edb("myfile.aedb")
 
 """
 
@@ -59,11 +54,11 @@ class Edb(object):
         Full path to the ``aedb`` folder.
     cellname : str
         Name of the cell to select.
-    isreadonly : bool
+    isreadonly : bool, optional
         Whether to open ``edb_core`` in read-only mode when it is owned by HFSS 3D Layout. The default is ``False``.
-    edbversion : str
+    edbversion : str, optional
         Version of ``edb_core`` to use. The default is ``"2021.1"``.
-    isaedtowned : bool
+    isaedtowned : bool, optional
         Whether to launch ``edb_core`` from HFSS 3D Layout. The default is ``False``.
 
     Returns
