@@ -12,9 +12,6 @@ import os
 import pathlib
 import shutil
 
-
-
-
 from pyaedt import generate_unique_name
 temp_folder = os.path.join(os.environ["TEMP"], generate_unique_name("Example"))
 if not os.path.exists(temp_folder): os.makedirs(temp_folder)
