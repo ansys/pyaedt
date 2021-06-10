@@ -199,5 +199,13 @@ class TestIcepak:
         assert new_design.copy_solid_bodies_from(self.aedtapp)
         assert sorted(new_design.modeler.solid_bodies) == ["Region", "box", "box2", "box3", "network_box", "network_box2"]
 
+    def test_26_get_all_conductors(self):
+        conductors = self.aedtapp.get_all_conductors_names()
+        assert sorted(conductors) == ["box", "box2", "box3", "network_box", "network_box2"]
+
+    def test_27_get_all_dielectrics(self):
+        dielectrics = self.aedtapp.get_all_dielectrics_names()
+        assert dielectrics == ["Region"]
+
     def test_88_create_heat_sink(self):
         assert self.aedtapp.create_parametric_fin_heat_sink()
