@@ -109,6 +109,24 @@ def download_antenna_array() -> str:
 
     return _download_file('array_antenna', 'FiniteArray_Radome_77GHz_3D_CADDM.aedt')
 
+def download_sbr() -> str:
+    """Download an example of SBR+ Array and return the def path.
+    Examples files are downloaded to a persistent cache to avoid
+    re-downloading the same file twice.
+    Returns
+    -------
+    str
+        Path to the example file.
+    Examples
+    --------
+    Download an example result file and return the path of the file
+    >>> from pyaedt import examples
+    >>> path = examples.download_antenna_array()
+    >>> path
+    'C:/Users/user/AppData/local/temp/pyaedtexamples/FiniteArray_Radome_77GHz_3D_CADDM.aedt'
+    """
+
+    return _download_file('sbr', 'Cassegrain.aedt')
 
 def download_touchstone() -> str:
     """Download an example of touchstone File and return the def path.

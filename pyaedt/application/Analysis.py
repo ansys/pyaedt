@@ -689,7 +689,7 @@ class Analysis(Design, object):
         if props:
             for el in props:
                 setup.props[el] = props[el]
-        setup.update()
+            setup.update()
         self.analysis_setup = name
         self.setups.append(setup)
         return setup
