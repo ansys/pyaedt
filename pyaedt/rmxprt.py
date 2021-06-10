@@ -1,26 +1,26 @@
 """
-RMxprt Class
--------------------
+Introduction
+------------------
 
 This class contains all RMxprt functionalities. It inherits all objects that belong to RMxprt.
 
 
 Examples:
+Creates a ``Rmxprt`` object and connects to an existing RMxprt design or creates a new RMxprt design if one is not present.
 
-app = Rmxprt()     Creates a ``Rmxprt`` object and connects to an existing RMxprt design or creates a new RMxprt design if one is not present.
+>>> app = Rmxprt()
 
+Creates a ``Rmxprt`` object and links to a project named projectname.
 
-app = Rmxprt(projectname)     Creates a ``Rmxprt`` object and links to a project named projectname.
+>>> app = Rmxprt(projectname)
 
+Creates a ``RMxprt`` object and links to a design named designname in a project named projectname.
 
-app = Rmxprt(projectname,designame)     Creates a ``RMxprt`` object and links to a design named designname in a project named projectname.
+>>> app = Rmxprt(projectname,designame)
 
+Creates a ``RMxprt`` object and opens the specified project.
 
-app = Rmxprt("myfile.aedt")     Creates a ``RMxprt`` object and opens the specified project.
-
-
-
-========================================================
+>>> app = Rmxprt("myfile.aedt")
 
 """
 from __future__ import absolute_import

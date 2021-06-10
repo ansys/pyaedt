@@ -1,5 +1,6 @@
 """
-HFSS 3D Layout Class.
+Introduction
+------------------
 
 This class contains all HFSS 3D Layout functionalities. It inherits
 all objects that belong to HFSS 3D Layout, including EDB API queries.
@@ -8,28 +9,25 @@ all objects that belong to HFSS 3D Layout, including EDB API queries.
 Examples
 --------
 
-Create an ``Hfss3dLayout`` object and connect to an existing HFSS
-design or create a new HFSS design if one does not exist.
+Create an ``Hfss3dLayout`` object and connect to an existing HFSS design or create a new HFSS design if one does not exist.
 
->>> hfss = Hfss3dLayout()
+>>> aedtapp = Hfss3dLayout()
 
-Create an ``Hfss3dLayout`` object and link to a project named
-``projectname``. If this project does not exist, create a new one with
-this name.
+Create an ``Hfss3dLayout`` object and link to a project named ``projectname``. If this project does not exist, create one with this name.
 
->>> hfss = Hfss3dLayout(projectname)
+>>> aedtapp = Hfss3dLayout(projectname)
 
-Create an ``Hfss3dLayout`` object and link to a design named
-``designname`` in a project named ``projectname``.
+Create an ``Hfss3dLayout`` object and link to a design named ``designname`` in a project named ``projectname``.
 
->>> hfss = Hfss3dLayout(projectname, designame)
+>>> aedtapp = Hfss3dLayout(projectname,designame)
 
-Create an ``Hfss3dLayout object`` and open the specified project.
+Create an ``Hfss3dLayout`` object and open the specified project.
 
->>> hfss = Hfss3dLayout("myfile.aedt")
+>>> aedtapp = Hfss3dLayout("myfile.aedt")
 
+Create a ``Desktop on 2021R1`` object and then creates an ``Hfss3dLayout`` object and open the specified project.
 
-========================================================
+>>> aedtapp = Hfss3dLayout(specified_version="2021.1", projectname="myfile.aedt")
 
 """
 

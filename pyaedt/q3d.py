@@ -1,22 +1,27 @@
 """
-Q3D Class
----------------------
+Introduction
+------------------
 
 This class contains all Q3D functionalities. It inherits all objects that belong to Q3D.
 
 
 Examples:
 
-app = Q3d()     Creates a ``Q3d`` object and connects to an existing Q3D design or create a new Q3D design if one is not present.
+Creates a ``Q3d`` object and connects to an existing Q3D design or create a new Q3D design if one is not present.
 
+>>> app = Q3d()
 
-app = Q2d(projectname)     Creates a ``Q2d`` object and links to a project named projectname.
+Creates a ``Q2d`` object and links to a project named projectname.
 
+>>> app = Q2d(projectname)
 
-app = Q2d(projectname,designame)     Creates a ``Q2d`` object and links to a design named designname in a project named projectname.
+Creates a ``Q2d`` object and links to a design named designname in a project named projectname.
 
+>>> app = Q2d(projectname,designame)
 
-app = Q2d("myfile.aedt")     Creates a ``Q2d`` object and opens the specified project.
+Creates a ``Q2d`` object and opens the specified project.
+
+>>> app = Q2d("myfile.aedt")
 
 
 
@@ -32,7 +37,6 @@ from .modules.Boundary import BoundaryObject
 import os
 
 class QExtractor(FieldAnalysis3D, FieldAnalysis2D, object):
-    """ """
     @property
     def odefinition_manager(self):
         """ """
