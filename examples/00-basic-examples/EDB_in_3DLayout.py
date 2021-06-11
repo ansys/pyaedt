@@ -4,16 +4,13 @@ HFSS3DLayout Analysis
 --------------------------------------------
 This Example shows how to use HFSS3DLayout combined with EDB to interact with a layout
 """
-
+# sphinx_gallery_thumbnail_path = 'Resources/edb2.png'
 
 
 import sys
 import os
 import pathlib
 import shutil
-
-
-
 
 from pyaedt import generate_unique_name
 temp_folder = os.path.join(os.environ["TEMP"], generate_unique_name("Example"))

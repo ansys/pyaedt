@@ -4,6 +4,7 @@ Optimetrics Example Analysis
 --------------------------------------------
 This tutorial shows how you can use PyAedt to create a project in HFSS and create all optimetrics setup
 """
+# sphinx_gallery_thumbnail_path = 'Resources/optimetrics.png'
 
 from pyaedt import Hfss
 from pyaedt import Desktop
@@ -11,7 +12,7 @@ from pyaedt import Desktop
 ###################################
 # Starting Desktop in Non-Graphical mode. User can change boolean to run in graphical mode
 
-NG = True
+NG = False
 d =Desktop("2021.1", NG=NG)
 
 ###################################

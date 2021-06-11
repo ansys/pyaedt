@@ -39,6 +39,7 @@ from ..generic.LoadAEDTFile import load_entire_aedt_file
 from ..generic.general_methods import aedt_exception_handler
 from ..generic.list_handling import variation_string_to_dict
 from ..modules.Boundary import BoundaryObject
+from ..generic.general_methods import generate_unique_name
 
 try:
     import webbrowser
@@ -247,7 +248,8 @@ class Design(object):
         self.variable_manager[variable_name] = variable_value
         return True
 
-    def __init__(self, design_type, project_name=None, design_name=None, solution_type=None):
+    def __init__(self, design_type, project_name=None, design_name=None, solution_type=None,
+                 specified_version=None, NG=False, AlwaysNew=True, release_on_exit=True):
         # Get Desktop from global Desktop Environment
         self._project_dictionary = OrderedDict()
         self.boundaries = OrderedDict()
@@ -255,7 +257,7 @@ class Design(object):
         self.design_datasets = {}
         main_module = sys.modules['__main__']
         if "pyaedt_initialized" not in dir(main_module):
-            Desktop()
+            Desktop(specified_version, NG, AlwaysNew, release_on_exit)
         self._project_dictionary = {}
         self._mttime = None
         self._desktop = main_module.oDesktop
@@ -1299,10 +1301,57 @@ class Design(object):
         return True
 
     @aedt_exception_handler
-    def release_desktop(self):
-        """:return: Release the desktop by keeping it open"""
-        release_desktop()
+    def release_desktop(self, close_projects=True, close_desktop=True):
+        """
+
+        Parameters
+        ----------
+        close_projects: bool
+            close all projects
+        close_desktop: bool
+            close desktop after release it
+
+        Returns
+        -------
+        bool
+            True if desktop released
+        """
+        release_desktop(close_projects, close_desktop)
         return True
+
+    @aedt_exception_handler
+    def generate_temp_project_directory(self, subdir_name):
+        """Generate a unique directory string to store a project
+
+        Creates a directory name for storage of a project in a location which is guaranteed to exist (the temp
+        directory of the AEDT installation). If the 'name' parameter is defined, then add a sub-directory within
+        the temp directory and add a hash suffix to ensure that this directory is empty (unique name)
+
+        Parameters
+        ----------
+        subdir_name : str
+            Base name of the sub-directory to be created im self.tempdirectory
+
+        Returns
+        -------
+        str
+
+        Examples
+        --------
+        >>> m3d = Maxwell3d()
+        >>> proj_directory = m3d.generate_temp_project_directory("Example")
+
+        """
+        base_path = self.temp_directory
+
+        assert isinstance(subdir_name, str), "Input argument 'subdir' must be a string"
+        dir_name = generate_unique_name(subdir_name)
+        project_dir = os.path.join(base_path, dir_name)
+        try:
+            if not os.path.exists(project_dir): os.makedirs(project_dir)
+            return project_dir
+        except OSError:
+            return False
 
     @aedt_exception_handler
     def help(self, modulename="index"):

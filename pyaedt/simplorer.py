@@ -1,24 +1,27 @@
 """
-Simplorer Class
-----------------------------------------------------------------
+Introduction
+------------------
 
 This class contains all Simplorer functionalities.
 
 
 Examples:
 
-app = Simplorer()     Creates a ``Simplorer`` object and connects to an existing Maxwell design or cceates a new Maxwell design if one is not present.
+Creates a ``Simplorer`` object and connects to an existing Maxwell design or cceates a new Maxwell design if one is not present.
 
+>>> app = Simplorer()
 
-app = Simplorer(projectname)     Creates a ``Simplorer`` object and links to a project named projectname.
+Creates a ``Simplorer`` object and links to a project named projectname.
 
+>>> app = Simplorer(projectname)
 
-app = Simplorer(projectname,designame)     Creates a ``Simplorer`` object and links to a design named designname in a project named projectname.
+Creates a ``Simplorer`` object and links to a design named designname in a project named projectname.
 
+>>> app = Simplorer(projectname,designame)
 
-app = Simplorer("myfile.aedt")     Creates a ``Simplorer`` object and opens the specified project.
+Creates a ``Simplorer`` object and opens the specified project.
 
-
+>>> app = Simplorer("myfile.aedt")
 """
 from __future__ import absolute_import
 
@@ -50,7 +53,8 @@ class Simplorer(FieldAnalysisSimplorer, object):
 
     """
 
-    def __init__(self, projectname=None, designname=None, solution_type=None, setup_name=None):
+    def __init__(self, projectname=None, designname=None, solution_type=None, setup_name=None,
+                 specified_version=None, NG=False, AlwaysNew=True, release_on_exit=True):
         """
         :param projectname: name of the project to be selected or full path to the project to be opened. if None try to
          get active project and, if nothing present to create an empty one
@@ -59,7 +63,8 @@ class Simplorer(FieldAnalysisSimplorer, object):
         :param solution_type: solution type to be applied to design. if None default is taken
         :param setup_name: setup_name to be used as nominal. if none active setup is taken or nothing
         """
-        FieldAnalysisSimplorer.__init__(self, "Twin Builder", projectname, designname, solution_type, setup_name)
+        FieldAnalysisSimplorer.__init__(self, "Twin Builder", projectname, designname, solution_type, setup_name,
+                                        specified_version, NG, AlwaysNew, release_on_exit)
 
 
     @aedt_exception_handler

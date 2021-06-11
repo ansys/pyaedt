@@ -1,20 +1,20 @@
 # -*- coding: utf-8 -*-
 """
-Edb Class
----------
+This module contains all EDB functionalities in the ``Edb`` class. It inherits all objects that belong to EDB.
 
-This class contains all EDB functionalities. It inherits all objects that belong to EDB.
-
-This class is implicitily loaded in HFSS 3D Layout when launched.
+This module is implicitily loaded in HFSS 3D Layout when launched.
 
 
 Examples
-________
+--------
+Create an ``Edb`` object and a new EDB cell.
 
->>> app = Edb()     Create an ``Edb`` object and a new EDB cell.
+>>> app = Edb()     
 
+Create an ``Edb`` object and open the specified project.
 
->>> app = Edb("myfile.aedb")     Create an ``Edb`` object and open the specified project.
+>>> app = Edb("myfile.aedb")
+
 """
 
 import os
@@ -50,16 +50,16 @@ class Edb(object):
 
     Parameters
     ----------
-    edbpath :
+    edbpath : str
         Full path to the ``aedb`` folder.
-    cellname :
+    cellname : str
         Name of the cell to select.
-    isreadonly :
-        ``True`` if ``edb_core`` is open in read-only mode (when owned by 3D Layout).
-    edbversion :
-        Version of ``edb_core`` to use. The default is ``2021.1``.
-    isaedtowned :
-        True if ``edb_core`` is launched from 3D Layout.
+    isreadonly : bool, optional
+        Whether to open ``edb_core`` in read-only mode when it is owned by HFSS 3D Layout. The default is ``False``.
+    edbversion : str, optional
+        Version of ``edb_core`` to use. The default is ``"2021.1"``.
+    isaedtowned : bool, optional
+        Whether to launch ``edb_core`` from HFSS 3D Layout. The default is ``False``.
 
     Returns
     -------
@@ -111,8 +111,8 @@ class Edb(object):
 
         Parameters
         ----------
-        init_dlls :
-             (Default value = False)
+        init_dlls : bool
+             Whether to initialize DLLs. The default is ``False``.
 
         Returns
         -------
@@ -137,7 +137,7 @@ class Edb(object):
         Parameters
         ----------
         init_dlls :
-             The default value is ``False``.
+             Whether to initialize DLLs. The default is ``False``.
 
         Returns
         -------
@@ -160,21 +160,21 @@ class Edb(object):
 
     @aedt_exception_handler
     def import_layout_pcb(self, input_file, working_dir, init_dlls=False):
-        """This function imports a brd file and generates an ``edb.def`` file in the working directory.
+        """Import a brd file and generate an ``edb.def`` file in the working directory.
 
         Parameters
         ----------
-        input_file :
+        input_file : str
             Full path to the brd file.
-        working_dir :
+        working_dir : str
             Directory in which to create the ``aedb`` folder. The aedb name will be the same as the brd name.
-        init_dlls :
-             (Default value = False)
+        init_dlls : bool
+             Whether to initialize DLLs. The default is ``False``.
 
         Returns
         -------
         type
-            The full path for the aedb file.
+            Full path to the aedb file.
 
         """
         if init_dlls:
@@ -242,7 +242,7 @@ class Edb(object):
             self.edb_exception(ex_value, ex_traceback)
 
     def edb_exception(self, ex_value, tb_data):
-        """Writes the trace stack to the desktop when a python error occurs.
+        """Write the trace stack to the desktop when a python error occurs.
 
         Parameters
         ----------
@@ -457,19 +457,19 @@ class Edb(object):
 
     @aedt_exception_handler
     def import_cadence_file(self, inputBrd, WorkDir=None):
-        """This function imports a brd file and generates an ``edb.def`` file in the working directory.
+        """Import a brd file and generate an ``edb.def`` file in the working directory.
 
         Parameters
         ----------
-        inputBrd :
+        inputBrd : str
             Full path to the brd file.
-        WorkDir :
+        WorkDir : str
             The directory in which to create the ``aedb`` folder. The aedb name will be the same as the brd name. The default value is ``None``.
 
         Returns
         -------
         type
-            Bool
+            Boolean
 
         """
         if self.import_layout_pcb(inputBrd, working_dir=WorkDir):
@@ -479,14 +479,14 @@ class Edb(object):
 
     @aedt_exception_handler
     def import_gds_file(self, inputGDS, WorkDir=None):
-        """This function imports a brd file and generates an ``edb.def`` file in the working directory.
+        """Import a brd file and generate an ``edb.def`` file in the working directory.
 
         Parameters
         ----------
-        inputGDS :
+        inputGDS : str
             Full path to the brd file.
-        WorkDir :
-            The directory in which to create the ``aedb` folder. The aedb name will be the same as the brd name. Tge default value is ``None``.
+        WorkDir : str
+            The directory in which to create the ``aedb` folder. The aedb name will be the same as the brd name. The default value is ``None``.
 
         Returns
         -------
@@ -575,7 +575,7 @@ class Edb(object):
         Returns
         -------
         type
-            ``True`` if one of net names is power or ground.
+            ``True`` if one of the net names is ``power`` or ``ground``.
 
         """
         for nn in range(len(NetNameList)):
@@ -663,9 +663,9 @@ class Edb(object):
         negativeNetName :
             
         value :
-             (Default value = None)
+             The default is ``None``.
         s2pPath :
-             (Default value = None)
+             The default is ``None``.
 
         Returns
         -------

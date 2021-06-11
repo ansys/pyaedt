@@ -1,26 +1,35 @@
+"""
+Introduction
+------------------
+
+This class contains all Maxwell 2D/3D functionalities. It inherits all objects that belong to Maxwell.
+
+
+Examples
+--------
+
+Create an ``Maxwell2d`` object and connect to an existing HFSS design or create a new HFSS design if one does not exist.
+
+>>> aedtapp = Maxwell2d()
+
+Create an ``Maxwell2d`` object and link to a project named ``projectname``. If this project does not exist, create one with this name.
+
+>>> aedtapp = Maxwell2d(projectname)
+
+Create an ``Maxwell2d`` object and link to a design named ``designname`` in a project named ``projectname``.
+
+>>> aedtapp = Maxwell2d(projectname,designame)
+
+Create an ``Maxwell3d`` object and open the specified project.
+
+>>> aedtapp = Maxwell3d("myfile.aedt")
+
+Create a ``Desktop on 2021R1`` object and then creates an ``Maxwell3d`` object and open the specified project.
+
+>>> aedtapp = Maxwell3d(specified_version="2021.1", projectname="myfile.aedt")
 
 """
-Maxwell Class
-----------------------------------------------------------------
 
-This class contains all Maxwell functionalities. It inherits all objects that belong to Maxwell.
-
-
-Examples:
-
-app = Maxwell3d()     Creates a ``Maxwell3d`` object and connects to an existing Maxwell design or creates a new one if no design is present.
-
-
-app = Maxwell3d(projectname)     Creates a ``Maxwell3d`` object and links to a project named projectname.
-
-
-app = Maxwell3d(projectname,designame)     Creates a ``Maxwell3d`` object and links to design named designname in a project named projectname.
-
-
-app = Maxwell2d("myfile.aedt")     Creates a ``Maxwell2d`` object and opens the specified project.
-
-
-"""
 from __future__ import absolute_import
 import math
 import os
@@ -541,7 +550,8 @@ class Maxwell3d(Maxwell, FieldAnalysis3D, object):
         """ """
         return '3D'
 
-    def __init__(self, projectname=None, designname=None, solution_type=None, setup_name=None):
+    def __init__(self, projectname=None, designname=None, solution_type=None, setup_name=None,
+                 specified_version=None, NG=False, AlwaysNew=True, release_on_exit=True):
         """
         :param projectname: name of the project to be selected or full path to the project to be opened. if None try to
          get active project and, if nothing present to create an empty one
@@ -550,9 +560,9 @@ class Maxwell3d(Maxwell, FieldAnalysis3D, object):
         :param solution_type: solution type to be applied to design. if None default is taken
         :param setup_name: setup_name to be used as nominal. if none active setup is taken or nothing
         """
-        FieldAnalysis3D.__init__(self, "Maxwell 3D", projectname, designname, solution_type, setup_name)
+        FieldAnalysis3D.__init__(self, "Maxwell 3D", projectname, designname, solution_type, setup_name,
+                                 specified_version, NG, AlwaysNew, release_on_exit)
         Maxwell.__init__(self)
-        # AEDT_3D_FieldAnalysis.__init__(self, "Maxwell 3D", projectname, designname, solution_type, setup_name)
 
     @aedt_exception_handler
     def setup_ctrlprog(self, setup, py_file, file_str=None):
@@ -632,8 +642,10 @@ class Maxwell2d(Maxwell, FieldAnalysis2D, object):
         """ """
         return self.odesign.GetGeometryMode()
 
-    def __init__(self, projectname=None, designname=None, solution_type=None, setup_name=None):
-        FieldAnalysis2D.__init__(self, "Maxwell 2D", projectname, designname, solution_type, setup_name)
+    def __init__(self, projectname=None, designname=None, solution_type=None, setup_name=None,
+                 specified_version=None, NG=False, AlwaysNew=True, release_on_exit=True):
+        FieldAnalysis2D.__init__(self, "Maxwell 2D", projectname, designname, solution_type, setup_name,
+                                 specified_version, NG, AlwaysNew, release_on_exit)
         Maxwell.__init__(self)
 
     def get_model_depth(self):

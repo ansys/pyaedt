@@ -172,19 +172,23 @@ class Components(object):
         Examples
         --------
 
-        >>> from pyaedt import EDB
-        >>> edbapp = EDB("myaedbfolder")
+        >>> from pyaedt import Edb
+        >>> edbapp = Edb("myaedbfolder")
         >>> edbapp.core_components.components
         """
+        if not self._cmp:
+            self.refresh_components()
+        return self._cmp
+
+    @aedt_exception_handler
+    def refresh_components(self):
         try:
             cmplist = self.get_component_list()
             self._cmp = {}
             for cmp in cmplist:
-                self._cmp[cmp.RefDes] = Component(self,cmp, cmp.RefDes)
+                self._cmp[cmp.RefDes] = Component(self, cmp, cmp.RefDes)
         except:
             pass
-        return self._cmp
-
     @property
     def resistors(self):
         """
@@ -199,19 +203,14 @@ class Components(object):
         Examples
         --------
 
-        >>> from pyaedt import EDB
-        >>> edbapp = EDB("myaedbfolder")
+        >>> from pyaedt import Edb
+        >>> edbapp = Edb("myaedbfolder")
         >>> edbapp.core_components.resistors
         """
-        try:
-            comps = self.edbutils.ComponentSetupInfo.GetFromLayout(self.active_layout)
-            self._res = {}
-            for cmp in self.edbutils.ComponentSetupInfo.GetFromLayout(self.active_layout):
-                if cmp.PartType == 'Resistor':
-                    self._res[cmp.RefDes] = Component(self,cmp, cmp.RefDes)
-        except:
-            pass
-
+        self._res = {}
+        for el, val in self.components.items():
+            if val.type == 'Resistor':
+                self._res[el] = val
         return self._res
 
     @property
@@ -231,19 +230,14 @@ class Components(object):
         Examples
         --------
 
-        >>> from pyaedt import EDB
-        >>> edbapp = EDB("myaedbfolder")
+        >>> from pyaedt import Edb
+        >>> edbapp = Edb("myaedbfolder")
         >>> edbapp.core_components.capacitors
         """
-        try:
-            comps = self.edbutils.ComponentSetupInfo.GetFromLayout(self.active_layout)
-            self._cap = {}
-            for cmp in comps:
-                if cmp.PartType == 'Capacitor':
-                    self._cap[cmp.RefDes] = Component(self,cmp, cmp.RefDes)
-        except:
-            pass
-
+        self._cap = {}
+        for el, val in self.components.items():
+            if val.type == 'Capacitor':
+                self._cap[el] = val
         return self._cap
 
     @property
@@ -267,15 +261,12 @@ class Components(object):
         >>> edbapp = EDB("myaedbfolder")
         >>> edbapp.core_components.inductors
         """
-        try:
-            comps = self.edbutils.ComponentSetupInfo.GetFromLayout(self.active_layout)
-            self._ind = {}
-            for cmp in comps:
-                if cmp.PartType == 'Inductor':
-                    self._ind[cmp.RefDes] = Component(self,cmp, cmp.RefDes)
-        except:
-            pass
+        self._ind = {}
+        for el, val in self.components.items():
+            if val.type == 'Inductor':
+                self._ind[el] = val
         return self._ind
+
 
     @property
     def ICs(self):
@@ -294,19 +285,16 @@ class Components(object):
         Examples
         --------
 
-        >>> from pyaedt import EDB
-        >>> edbapp = EDB("myaedbfolder")
+        >>> from pyaedt import Edb
+        >>> edbapp = Edb("myaedbfolder")
         >>> edbapp.core_components.ICs
         """
-        try:
-            comps = self.edbutils.ComponentSetupInfo.GetFromLayout(self.active_layout)
-            self._ics = {}
-            for cmp in comps:
-                if cmp.PartType == 'IC':
-                    self._ics[cmp.RefDes] = Component(self,cmp, cmp.RefDes)
-        except:
-            pass
+        self._ics = {}
+        for el, val in self.components.items():
+            if val.type == 'IC':
+                self._ics[el] = val
         return self._ics
+
 
     @property
     def IOs(self):
@@ -325,20 +313,16 @@ class Components(object):
         Examples
         --------
 
-        >>> from pyaedt import EDB
-        >>> edbapp = EDB("myaedbfolder")
+        >>> from pyaedt import Edb
+        >>> edbapp = Edb("myaedbfolder")
         >>> edbapp.core_components.IOs
         """
-        try:
-            comps = self.edbutils.ComponentSetupInfo.GetFromLayout(self.active_layout)
-            self._ios = {}
-            for cmp in comps:
-                if cmp.PartType == 'IO':
-                    self._ios[cmp.RefDes] = Component(self,cmp, cmp.RefDes)
-        except:
-            pass
-
+        self._ios = {}
+        for el, val in self.components.items():
+            if val.type == 'IO':
+                self._ios[el] = val
         return self._ios
+
 
     @property
     def Others(self):
@@ -358,30 +342,21 @@ class Components(object):
         Examples
         --------
 
-        >>> from pyaedt import EDB
-        >>> edbapp = EDB("myaedbfolder")
+        >>> from pyaedt import Edb
+        >>> edbapp = Edb("myaedbfolder")
         >>> edbapp.core_components.others
         """
-        try:
-            comps = self.edbutils.ComponentSetupInfo.GetFromLayout(self.active_layout)
-            self._others = {}
-            for cmp in comps:
-                if cmp.PartType == 'Other':
-                    self._others[cmp.RefDes] = Component(self,cmp, cmp.RefDes)
-        except:
-            pass
+        self._others = {}
+        for el, val in self.components.items():
+            if val.type == 'Other':
+                self._others[el] = val
         return self._others
+
 
     @property
     def components_by_partname(self):
-        """:examples:
+        """return a dictionary by part name
         
-        
-        
-        :return: Components Dictionary grouped by PartName
-
-        Parameters
-        ----------
 
         Returns
         -------
@@ -390,34 +365,28 @@ class Components(object):
         Examples
         --------
 
-        >>> from pyaedt import EDB
-        >>> edbapp = EDB("myaedbfolder")
+        >>> from pyaedt import Edb
+        >>> edbapp = Edb("myaedbfolder")
         >>> edbapp.core_components.components_by_partname
         """
-
-        try:
-            comps = self.edbutils.ComponentSetupInfo.GetFromLayout(self.active_layout)
-            self._comps_by_part = {}
-            for comp in comps:
-                if comp.PartName in self._comps_by_part.keys():
-                    self._comps_by_part[comp.PartName].append(Component(self,comp, comp.RefDes))
-                else:
-                    self._comps_by_part[comp.PartName] = [Component(self,comp, comp.RefDes)]
-        except:
-            pass
+        self._comps_by_part = {}
+        for el, val in self.components.items():
+            if val.partname in self._comps_by_part.keys():
+                self._comps_by_part[val.partname].append(val)
+            else:
+                self._comps_by_part[val.partname] = [val]
         return self._comps_by_part
+
 
     @aedt_exception_handler
     def get_component_list(self):
-        """
+        """Return list of components Edb Objects
 
-        Parameters
-        ----------
 
         Returns
         -------
         list
-            :return: List of component Setup Info
+            List of component Setup Info
 
         """
         cmp_setup_info_list = self.parent.edbutils.ComponentSetupInfo.GetFromLayout(
@@ -647,19 +616,21 @@ class Components(object):
         Examples
         --------
 
-        >>> from pyaedt import EDB
-        >>> edbapp = EDB("myaedbfolder")
+        >>> from pyaedt import Edb
+        >>> edbapp = Edb("myaedbfolder")
         >>> list_of_deleted_rlcs = edbapp.core_components.delete_single_pin_rlc()
         >>> print(list_of_deleted_rlcs)
         """
         deleted_comps = []
-        for comp,val  in self.components.items():
+        for comp, val in self.components.items():
             if val.numpins<2 and (val.type == "Resistor" or val.type == "Capacitor" or val.type == "Inductor"):
                 edb_cmp = self.get_component_by_name(comp)
                 if edb_cmp is not None:
                     edb_cmp.Delete()
                     deleted_comps.append(comp)
                     self.parent.messenger.add_info_message("Component {} deleted".format(comp))
+        for el in deleted_comps:
+            del self.components[el]
         return deleted_comps
 
     @aedt_exception_handler
@@ -678,13 +649,15 @@ class Components(object):
         bool
             Bool
 
-        >>> from pyaedt import EDB
-        >>> edbapp = EDB("myaedbfolder")
+        >>> from pyaedt import Edb
+        >>> edbapp = Edb("myaedbfolder")
         >>> edbapp.core_components.delete_component("A1")
         """
         edb_cmp = self.get_component_by_name(component_name)
         if edb_cmp is not None:
             edb_cmp.Delete()
+            if edb_cmp in list(self.components.keys()):
+                del self.components[edb_cmp]
             return True
         return False
 
@@ -1045,8 +1018,8 @@ class Components(object):
         return the list of dictionaries of dictionary of RefDes, PinNames and NetNames
         :example:
 
-        >>> from AEDTLib.EDB import EDB
-        >>> edbapp = EDB("myaedbfolder", "project name", "release version")
+        >>> from pyaedt import Edb
+        >>> edbapp = Edb("myaedbfolder", "project name", "release version")
         >>> edbapp.core_components.get_rats()
 
         :return: list of dictionaries of dictionary of RefDes, PinNames and NetNames

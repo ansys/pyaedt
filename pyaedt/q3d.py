@@ -1,22 +1,27 @@
 """
-Q3D Class
----------------------
+Introduction
+------------------
 
 This class contains all Q3D functionalities. It inherits all objects that belong to Q3D.
 
 
 Examples:
 
-app = Q3d()     Creates a ``Q3d`` object and connects to an existing Q3D design or create a new Q3D design if one is not present.
+Creates a ``Q3d`` object and connects to an existing Q3D design or create a new Q3D design if one is not present.
 
+>>> app = Q3d()
 
-app = Q2d(projectname)     Creates a ``Q2d`` object and links to a project named projectname.
+Creates a ``Q2d`` object and links to a project named projectname.
 
+>>> app = Q2d(projectname)
 
-app = Q2d(projectname,designame)     Creates a ``Q2d`` object and links to a design named designname in a project named projectname.
+Creates a ``Q2d`` object and links to a design named designname in a project named projectname.
 
+>>> app = Q2d(projectname,designame)
 
-app = Q2d("myfile.aedt")     Creates a ``Q2d`` object and opens the specified project.
+Creates a ``Q2d`` object and opens the specified project.
+
+>>> app = Q2d("myfile.aedt")
 
 
 
@@ -32,7 +37,6 @@ from .modules.Boundary import BoundaryObject
 import os
 
 class QExtractor(FieldAnalysis3D, FieldAnalysis2D, object):
-    """ """
     @property
     def odefinition_manager(self):
         """ """
@@ -56,11 +60,14 @@ class QExtractor(FieldAnalysis3D, FieldAnalysis2D, object):
         design_file = os.path.join(self.working_directory, "design_data.json")
         return design_file
 
-    def __init__(self, Q3DType, projectname=None, designname=None, solution_type=None, setup_name=None):
+    def __init__(self, Q3DType, projectname=None, designname=None, solution_type=None, setup_name=None,
+                 specified_version=None, NG=False, AlwaysNew=True, release_on_exit=True):
         if Q3DType == "Q3D Extractor":
-            FieldAnalysis3D.__init__(self, "Q3D Extractor", projectname, designname, solution_type, setup_name)
+            FieldAnalysis3D.__init__(self, "Q3D Extractor", projectname, designname, solution_type, setup_name,
+                                     specified_version, NG, AlwaysNew, release_on_exit)
         else:
-            FieldAnalysis2D.__init__(self, "2D Extractor", projectname, designname, solution_type, setup_name)
+            FieldAnalysis2D.__init__(self, "2D Extractor", projectname, designname, solution_type, setup_name,
+                                     specified_version, NG, AlwaysNew, release_on_exit)
 
     def __enter__(self):
         return self
@@ -89,8 +96,10 @@ class Q3d(QExtractor, object):
     -------
 
     """
-    def __init__(self, projectname=None, designname=None, solution_type=None, setup_name=None):
-        QExtractor.__init__(self, "Q3D Extractor", projectname, designname, solution_type, setup_name)
+    def __init__(self, projectname=None, designname=None, solution_type=None, setup_name=None,
+                 specified_version=None, NG=False, AlwaysNew=True, release_on_exit=True):
+        QExtractor.__init__(self, "Q3D Extractor", projectname, designname, solution_type, setup_name,
+                            specified_version, NG, AlwaysNew, release_on_exit)
 
     @aedt_exception_handler
     def auto_identify_nets(self):
@@ -396,5 +405,7 @@ class Q2d(QExtractor, object):
         return self.modeler.dimension
 
 
-    def __init__(self, projectname=None, designname=None, solution_type=None, setup_name=None):
-        QExtractor.__init__(self, "2D Extractor", projectname, designname, solution_type, setup_name)
+    def __init__(self, projectname=None, designname=None, solution_type=None, setup_name=None,
+                 specified_version=None, NG=False, AlwaysNew=True, release_on_exit=True):
+        QExtractor.__init__(self, "2D Extractor", projectname, designname, solution_type, setup_name,
+                            specified_version, NG, AlwaysNew, release_on_exit)
