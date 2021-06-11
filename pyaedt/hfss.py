@@ -853,7 +853,7 @@ class Hfss(FieldAnalysis3D, object):
             vector[divmod(axisdir, 3)[1]] = pecthick / 2
 
         status, pecobj = self.modeler.duplicate_along_line(sheet_name, vector)
-        self.modeler.thicken_sheet(pecobj[0], pecthick, True)
+        self.modeler.thicken_sheet(pecobj[-1], pecthick, True)
         self.assignmaterial(pecobj[0], "pec")
         return True
 
