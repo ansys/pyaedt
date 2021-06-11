@@ -765,30 +765,6 @@ class Analysis(Design, object):
         return True
 
     @aedt_exception_handler
-    def set_output_variable(self, variable, expression):
-        """Set output variable value
-
-        Parameters
-        ----------
-        variable :
-            name of the variable
-        expression :
-            string expression of the value
-
-        Returns
-        -------
-        type
-            None
-
-        """
-        oModule = self.odesign.GetModule("OutputVariable")
-        if variable in self.output_variables:
-            oModule.EditOutputVariable(variable, expression, variable, self.existing_analysis_sweeps[0], self.solution_type, [])
-        else:
-            oModule.CreateOutputVariable(variable, expression, self.existing_analysis_sweeps[0], self.solution_type, [])
-        return True
-
-    @aedt_exception_handler
     def get_output_variable(self, variable, solution_name=None, report_type_name=None):
         """Get output variable value
 
