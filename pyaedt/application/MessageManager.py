@@ -61,6 +61,7 @@ class AEDTMessageManager(object):
         else:
             self.logger = None
 
+    #TODO Remove ??
     @aedt_exception_handler
     def design_name(self, level=None):
         """
@@ -84,6 +85,7 @@ class AEDTMessageManager(object):
         else:
             return ""
 
+    #TODO Remove ??
     @aedt_exception_handler
     def project_name(self, level=None):
         """
@@ -99,6 +101,7 @@ class AEDTMessageManager(object):
         """
         if not level:
             level = 'Design'
+
         if message_levels[level] > 0:
             try:
                 return self.oproject.GetName()
@@ -108,7 +111,7 @@ class AEDTMessageManager(object):
             return ""
 
     @aedt_exception_handler
-    def add_error_message(self, message_text, level='Design'):
+    def add_error_message(self, message_text, level=None):
         """Add a type 2 "Error" message to the active design level of the message manager tree.
 
         Add an error message to the logger if the handler is present.
@@ -132,13 +135,13 @@ class AEDTMessageManager(object):
         >>> hfss.messenger.add_error_message("Project Error Message", "Project")
 
         """
+        if not level:
+            level = 'Design'
 
         self.add_message(2, message_text, level)
-        if self.logger:
-            self.logger.error(message_text)
 
     @aedt_exception_handler
-    def add_warning_message(self, message_text, level='Design'):
+    def add_warning_message(self, message_text, level=None):
         """Add a type 1 "Warning" message to the active design level of the message manager tree.
         Add a warning message to the logger if the handler is present
 
@@ -161,12 +164,13 @@ class AEDTMessageManager(object):
         >>> hfss.messenger.add_warning_message("Project warning message")
 
         """
+        if not level:
+            level = 'Design'
+
         self.add_message(1, message_text, level)
-        if self.logger:
-            self.logger.warning(message_text)
 
     @aedt_exception_handler
-    def add_info_message(self, message_text, level='Design'):
+    def add_info_message(self, message_text, level=None):
         """Add a type 0 "Info" message to the active design level of the message manager tree
 
         Add an info message to the logger if the handler is present
@@ -185,33 +189,17 @@ class AEDTMessageManager(object):
         >>> hfss.messenger.add_info_message("Global warning message", "Global")
 
         """
+        if not level:
+            level = 'Design'
+
         self.add_message(0, message_text, level)
-        if self.logger:
-            self.logger.info(message_text)
 
     @aedt_exception_handler
-    def add_debug_message(self, message_text, level='Design'):
-        """Add a type 0 "Info" message to the active design level of the message manager tree.
-
-        Add a debug message to the logger if the handler is present
-
-        Parameters
-        ----------
-        message_text : str
-            message to show
-        level : str, optional
-            Message level. Default message level is ``'Design'``
-
-        Examples
-        --------
-        Add a debug message at the global level.
-
-        >>> hfss.messenger.add_info_message("Global warning message", "Global")
-
+    def add_debug_message(self, message_text, level=None):
         """
-        self.add_message(0, message_text, level)
-        if self.logger:
-            self.logger.debug(message_text)
+        .. deprecated use add_info_message
+        """
+        self.add_info_message(message_text, level)
 
     @aedt_exception_handler
     def add_message(self, type, message_text, level=None, proj_name=None, des_name=None):
@@ -246,12 +234,17 @@ class AEDTMessageManager(object):
             self._desktop.AddMessage(proj_name, des_name, type, message_text)
         if len(message_text) > 250:
             message_text = message_text[:250] + "..."
+
+        # Print to stdout and to logger
         if type == 0:
-            print("Info: {}".format(message_text))
+            print("pyaedt Info: {}".format(message_text))
+            self.logger.info(message_text)
         if type == 1:
-            print("Warning: {}".format(message_text))
+            print("pyaedt Warning: {}".format(message_text))
+            self.logger.warning(message_text)
         if type == 2:
-            print("Error: {}".format(message_text))
+            print("pyaedt Error: {}".format(message_text))
+            self.logger.error(message_text)
 
     @aedt_exception_handler
     def clear_messages(self, proj_name=None, des_name=None, level=2):

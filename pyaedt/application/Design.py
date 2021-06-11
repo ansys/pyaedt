@@ -31,6 +31,7 @@ import json
 import string
 import random
 import time
+import logging
 from collections import OrderedDict
 from .MessageManager import AEDTMessageManager
 from .Variables import VariableManager, DataSet
@@ -264,6 +265,7 @@ class Design(object):
         self._aedt_version = main_module.AEDTVersion
         self._desktop_install_dir = main_module.sDesktopinstallDirectory
         self._messenger = AEDTMessageManager(self)
+        self.logger = logging.getLogger(__name__)
 
         assert design_type in design_solutions, "Invalid design type specified: {}".format(design_type)
         self._design_type = design_type
@@ -764,7 +766,7 @@ class Design(object):
                 warning_msg = "No design present - inserting a new design"
 
             if warning_msg:
-                self._messenger.add_warning_message(warning_msg, level='Project')
+                self.logger.debug(warning_msg)
                 self.insert_design(self._design_type, solution_type=self._solution_type)
         self.boundaries = self._get_boundaries_data()
 

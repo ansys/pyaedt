@@ -41,14 +41,18 @@ class TestPrimitives:
         assert len(faces)==6
 
     def test_01_check_object_faces(self):
-        assert len(self.prim["Mybox"].faces) == 6
+
+        if not self.prim["Mybox"]:
+            self.test_01_create_box()
+
+        face_list = self.prim["Mybox"].faces
+        assert len(face_list) == 6
         f = self.prim["Mybox"].faces[0]
         assert type(f.center) is list and len(f.center) == 3
         assert type(f.area) is float and f.area > 0
         assert self.prim["Mybox"].faces[0].move_with_offset(0.1)
         assert self.prim["Mybox"].faces[0].move_with_vector([0,0,0.01])
         assert type(f.normal) is list
-
 
     def test_01_check_object_edges(self):
         e = self.prim["Mybox"].edges[1]
