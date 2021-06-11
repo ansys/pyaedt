@@ -41,10 +41,6 @@ from ..generic.list_handling import variation_string_to_dict
 from ..modules.Boundary import BoundaryObject
 from ..generic.general_methods import generate_unique_name
 
-try:
-    import webbrowser
-except ImportError:
-    warnings.warn("webbrowser not supported")
 
 design_solutions = {
     "Maxwell 2D": [
@@ -1352,34 +1348,6 @@ class Design(object):
             return project_dir
         except OSError:
             return False
-
-    @aedt_exception_handler
-    def help(self, modulename="index"):
-        """
-        Launch Online help. Works on Windows Only (for linux manually launch it from Documentation folder)
-
-
-        :param modulename: name of the module or search string
-        :return: open default browser
-        """
-
-        filename = os.path.join(os.path.dirname(__file__), "Documentation", modulename+".html")
-        if os.path.exists(filename):
-            filepath = filename.replace(":\\", ":/").replace("\\", "/")
-            networkpath = "file:///" + filepath
-        else:
-            filename = os.path.dirname(__file__)+"/Documentation/search.html?q={}&".format(modulename)
-            filepath = filename.replace(":\\", ":/").replace("\\", "/")
-            paths = [r"C:\Program Files\Google\Chrome\Application\chrome.exe",
-                     r"C:\Program Files (x86)\Google\Chrome\Application\chrome.exe"]
-            networkpath = "file:///" + filepath
-            for p in paths:
-                if os.path.exists(p):
-                    os.system("start chrome " + networkpath)
-                    return True
-
-        webbrowser.open_new(networkpath)
-        return True
 
 
     @aedt_exception_handler

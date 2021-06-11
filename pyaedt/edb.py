@@ -70,7 +70,7 @@ class Edb(object):
         """ """
         sys.path.append(os.path.join(os.path.dirname(__file__), "dlls", "EDBLib"))
         if os.name == 'posix':
-            if env_path(self.edbversion) in os.environ:
+            if env_value(self.edbversion) in os.environ:
                 self.base_path = env_path(self.edbversion)
                 sys.path.append(self.base_path)
             else:
