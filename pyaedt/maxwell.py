@@ -120,6 +120,22 @@ class Maxwell(object):
 
     Parameters
     ----------
+    projectname : str, optional
+        Name of the project to select or the full path to the project
+        to open.  The default is ``None``. If ``None``, try to get an
+        active project and, if no projects are present, create an
+        empty project.
+    designname : str, optional
+        Name of the design to select. The default is ``None``. If
+        ``None``, try to get an active design. If no designs are
+        present, create an empty design.
+    solution_type : str, optional
+        Solution type to apply to the design.  The default is
+        ``None``. If ``None``, the default is used.
+    setup_name : str, optional
+        The name of the setup to use as the nominal.  The default is
+        ``None``.  If ``None``, the active setup is used or nothing is
+        used.
 
     Returns
     -------
@@ -554,15 +570,7 @@ class Maxwell3d(Maxwell, FieldAnalysis3D, object):
     def __init__(self, projectname=None, designname=None, solution_type=None, setup_name=None,
                  specified_version=None, NG=False, AlwaysNew=True, release_on_exit=True):
         """
-        :param projectname: Name of the project to select or the full path to the project to open. 
-        The default is ``None``. If ``None``, try to get an active project and, if no projects are present,
-        create an empty project.
-        :param designname: Name of the design to select. The default is ``None``. If ``None``, try to get 
-        an active design and, if no designs are present, create an empty design.
-        :param solution_type: Solution type to apply to the design.  The default is ``None``. If ``None``,
-        the default is taken.
-        :param setup_name: The name of the setup to use as the nominal.  The default is ``None``. 
-        If ``None, the active setup is used or nothing is used.
+        Initialize the ``Maxwell`` class.
         """
         FieldAnalysis3D.__init__(self, "Maxwell 3D", projectname, designname, solution_type, setup_name,
                                  specified_version, NG, AlwaysNew, release_on_exit)
@@ -578,11 +586,11 @@ class Maxwell3d(Maxwell, FieldAnalysis3D, object):
             Name of the solution setup of the Maxwell design. For example, ``Setup1``.
             
         py_file : str
-            Name of the Python file that thee Maxwell solver processis to copy to the temp directory and 
-            rename to setup+'.ctrlprog'  For example, if ``py_file`` is defined as ``my_script.py`` and the 
-            solver setup is called ``Setup1``, the resulting file in the temp directory is ``Setup1.ctrlprog``. 
+            Name of the Python file that the Maxwell solver processes to copy to the temp directory and 
+            rename to ``setup + ".ctrlprog"``.  For example, if ``py_file`` is defined as ``"my_script.py"`` and the 
+            solver setup is called ``"Setup1"``, the resulting file in the temp directory is ``"Setup1.ctrlprog"``. 
             For this reason, it is important to instruct the operating system to use a python interpreter to 
-            run any file with the extension ``.ctrlprog``.
+            run any file with the extension ``".ctrlprog"``.
             
         file_str : str, optional
             Name of the python file to run at each timestep. The default is ``None``.
@@ -812,7 +820,7 @@ class Maxwell2d(Maxwell, FieldAnalysis2D, object):
     @aedt_exception_handler
     def assign_balloon(self, edge_list, bound_name= None):
         """
-        Assign balloon boundary to a list of edges.
+        Assign a balloon boundary to a list of edges.
 
         Parameters
         ----------
