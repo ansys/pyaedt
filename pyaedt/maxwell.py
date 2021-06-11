@@ -273,7 +273,7 @@ class Maxwell(object):
         return False
 
     @aedt_exception_handler
-    def assign_voltage_drop(self, face_list, amplitude=1, swap_direction=False, name=None):  # Assign the current Source
+    def assign_voltage_drop(self, face_list, amplitude=1, swap_direction=False, name=None):
         """Assign voltage source to the face list.
 
         Parameters
@@ -308,7 +308,7 @@ class Maxwell(object):
         return False
 
     @aedt_exception_handler
-    def assign_winding(self, coil_terminals = None, winding_type="Current", current_value=1, res=0, ind=0, voltage=0,
+    def assign_winding(self, coil_terminals=None, winding_type="Current", current_value=1, res=0, ind=0, voltage=0,
                        parallel_branches=1, name=None):
         """Assign winding to Maxwell design.
 
@@ -329,8 +329,8 @@ class Maxwell(object):
             Voltage. The default is ``0``.
         parallel_branches : int, optional
             The default is ``1``.
-        name : st, optional
-            Name. The default is ``None``.
+        name : str, optional
+            Name to assign the winding. The default is ``None``.
 
         Returns
         -------
@@ -391,7 +391,7 @@ class Maxwell(object):
         ----------
         input_object : list
             List of objects or face IDs to input.
-        conductor_number : optional
+        conductor_number : int, optional
             Number of conductors. The default is ``1``.
         polarity : str, optional
             Type of the polarity. The default is ``"Positive"``.         
