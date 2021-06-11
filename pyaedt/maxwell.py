@@ -90,7 +90,7 @@ def float_units(val_str, units=""):
     ----------
     val_str : str
         
-    units :
+    units : str, optional
          The default is ``""``.
 
     Returns
@@ -113,7 +113,9 @@ def float_units(val_str, units=""):
 
 
 class Maxwell(object):
-    """Class of common Maxwell functionalities. This class contains all methods that are common to 
+    """Class of common Maxwell functionalities.
+    
+    This class contains all methods that are common to 
     Maxwell 2D and Maxwell 3D.
 
     Parameters
@@ -198,8 +200,8 @@ class Maxwell(object):
 
         Parameters
         ----------
-        object_list :list
-
+        object_list : list
+            List of objects to assign to the current source.
         amplitude : optional
             The default is ``1``.
         phase : str, optional
@@ -209,7 +211,7 @@ class Maxwell(object):
         swap_direction : bool, optional
             The default is ``False``.
         name : str, optional
-            The default is ``None``.  # Assign the current Source
+            The default is ``None``.
 
         Returns
         -------
@@ -236,7 +238,7 @@ class Maxwell(object):
         return False
 
     @aedt_exception_handler
-    def assign_voltage(self, face_list, amplitude=1, name=None):  # Assign the current Source
+    def assign_voltage(self, face_list, amplitude=1, name=None):
         """Assign voltage source to the face list.
 
         Parameters
