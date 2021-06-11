@@ -1,30 +1,27 @@
 """
-Introduction
-------------------
-
-This class contains all Maxwell 2D/3D functionalities. It inherits all objects that belong to Maxwell.
+This module contains all Maxwell 2D/3D functionalities in the ''maxwell`` class. It inherits all objects that belong to Maxwell.
 
 
 Examples
 --------
 
-Create an ``Maxwell2d`` object and connect to an existing HFSS design or create a new HFSS design if one does not exist.
+Create a ``Maxwell2d`` object and connect to an existing HFSS design or create a new HFSS design if one does not exist.
 
 >>> aedtapp = Maxwell2d()
 
-Create an ``Maxwell2d`` object and link to a project named ``projectname``. If this project does not exist, create one with this name.
+Create a ``Maxwell2d`` object and link to a project named ``projectname``. If this project does not exist, create one with this name.
 
 >>> aedtapp = Maxwell2d(projectname)
 
-Create an ``Maxwell2d`` object and link to a design named ``designname`` in a project named ``projectname``.
+Create a ``Maxwell2d`` object and link to a design named ``designname`` in a project named ``projectname``.
 
 >>> aedtapp = Maxwell2d(projectname,designame)
 
-Create an ``Maxwell3d`` object and open the specified project.
+Create a ``Maxwell3d`` object and open the specified project.
 
 >>> aedtapp = Maxwell3d("myfile.aedt")
 
-Create a ``Desktop on 2021R1`` object and then creates an ``Maxwell3d`` object and open the specified project.
+Create a ``Desktop on 2021R1`` object and then create a ``Maxwell3d`` object and open the specified project.
 
 >>> aedtapp = Maxwell3d(specified_version="2021.1", projectname="myfile.aedt")
 
@@ -91,10 +88,10 @@ def float_units(val_str, units=""):
 
     Parameters
     ----------
-    val_str :
+    val_str : str
         
     units :
-         (Default value = "")
+         The default is ``""``.
 
     Returns
     -------
@@ -116,8 +113,8 @@ def float_units(val_str, units=""):
 
 
 class Maxwell(object):
-    """Class of Common Functionalities of Maxwell. This class contains all the methods that are common between Maxwell2D
-    and Maxwell3D
+    """Class of common Maxwell functionalities. This class contains all methods that are common to 
+    Maxwell 2D and Maxwell 3D.
 
     Parameters
     ----------
@@ -173,10 +170,10 @@ class Maxwell(object):
 
         Parameters
         ----------
-        object_list :
+        object_list : list
             
-        activate :
-             (Default value = True)
+        activate : bool, optional
+             The default is ``True``.
 
         Returns
         -------
@@ -201,18 +198,18 @@ class Maxwell(object):
 
         Parameters
         ----------
-        object_list :
+        object_list :list
 
-        amplitude :
-             (Default value = 1)
-        phase :
-             (Default value = "0deg")
-        solid :
-             (Default value = True)
-        swap_direction :
-             (Default value = False)
-        name :
-             (Default value = None):  # Assign the current Source
+        amplitude : optional
+            The default is ``1``.
+        phase : str, optional
+            The default is ``"0deg"``.
+        solid : bool, optional
+            The default is ``True``.
+        swap_direction : bool, optional
+            The default is ``False``.
+        name : str, optional
+            The default is ``None``.  # Assign the current Source
 
         Returns
         -------
@@ -240,16 +237,16 @@ class Maxwell(object):
 
     @aedt_exception_handler
     def assign_voltage(self, face_list, amplitude=1, name=None):  # Assign the current Source
-        """Assign voltage source to face list
+        """Assign voltage source to the face list.
 
         Parameters
         ----------
-        face_list :
-            list of objects
-        amplitude :
-            float voltage amplitude in mV (Default value = 1)
-        name :
-            boundary name (Default value = None)
+        face_list : list
+            List of objects.
+        amplitude : float, optional
+            Voltage amplitude in mV. The default is ``1``.
+        name : str, optional
+            Name of the boundary. The default is ``None``.
 
         Returns
         -------
@@ -275,18 +272,18 @@ class Maxwell(object):
 
     @aedt_exception_handler
     def assign_voltage_drop(self, face_list, amplitude=1, swap_direction=False, name=None):  # Assign the current Source
-        """Assign voltage source to face list
+        """Assign voltage source to the face list.
 
         Parameters
         ----------
-        face_list :
-            list of objects
-        amplitude :
-            float voltage amplitude in mV (Default value = 1)
-        swap_direction :
-            bool (Default value = False)
-        name :
-            boundary name (Default value = None)
+        face_list : list
+            List of objects.
+        amplitude : float, optional
+            Voltage amplitude in mV. The default is ``1``.
+        swap_direction : bool, optional
+            The default value is ``False``.
+        name : str, optional
+            Name of the boundary. The default is ``None``.
 
         Returns
         -------
@@ -311,26 +308,27 @@ class Maxwell(object):
     @aedt_exception_handler
     def assign_winding(self, coil_terminals = None, winding_type="Current", current_value=1, res=0, ind=0, voltage=0,
                        parallel_branches=1, name=None):
-        """Assign winding to Maxwell Design
+        """Assign winding to Maxwell design.
 
         Parameters
         ----------
-        coil_terminals :
-            list of faces to which create coil terminal. (Default value = None)
-        winding_type :
-            str "Current", "Voltage", "External" (Default value = "Current")
-        current_value :
-            float ampere (Default value = 1)
-        res :
-            float ohm (Default value = 0)
-        ind :
-            float Henry (Default value = 0)
-        voltage :
-            float Volt (Default value = 0)
-        parallel_branches :
-            int (Default value = 1)
-        name :
-            str name (Default value = None)
+        coil_terminals : list, optional
+            List of faces on which to create the coil terminal. The default is ``None``.
+        winding_type : str, optional
+            Type of the winding. Options are ``"Current"``, ``"Voltage"``, and ``"External"``. 
+            The default is ``"Current"``.
+        current_value : float, optional
+            Value of the current in amperes. The default is ``1``.
+        res : float, optional
+            Resistance in ohms. The default is ``0``.
+        ind : float, optional
+            Henry. The default is ``0``.
+        voltage : float, optional
+            Voltage. The default is ``0``.
+        parallel_branches : int, optional
+            The default is ``1``.
+        name : st, optional
+            Name. The default is ``None``.
 
         Returns
         -------
@@ -362,19 +360,19 @@ class Maxwell(object):
 
     @aedt_exception_handler
     def add_winding_coils(self, windingname, coil_names):
-        """Add Coils to Winding
+        """Add coils to winding.
 
         Parameters
         ----------
-        windingname :
-            Winding Name
-        coil_names :
-            Coils Names. Can be a list of 1 or more element
+        windingname : str
+            Name of the winding.
+        coil_names : list
+            List of the one or more coils.
 
         Returns
         -------
-        type
-            Bool
+        bool
+          ``True`` when successful, ``False`` when failed.   
 
         """
         if self.modeler._is3d:
@@ -385,20 +383,18 @@ class Maxwell(object):
 
     @aedt_exception_handler
     def assign_coil(self, input_object, conductor_number=1, polarity="Positive", name=None):
-        """Assign Coils to list of objects or faceID
+        """Assign coils to a list of objects or face IDs.
 
         Parameters
         ----------
-        input_list :
-            inputs list of objects or face IDs
-        conductor_number :
-            conductors number (Default value = 1)
-        polarity :
-            polarity (Default value = "Positive")
-        input_object :
-            
-        name :
-             (Default value = None)
+        input_object : list
+            List of objects or face IDs to input.
+        conductor_number : optional
+            Number of conductors. The default is ``1``.
+        polarity : str, optional
+            Type of the polarity. The default is ``"Positive"``.         
+        name : str, optional
+             The default is ``None``.
 
         Returns
         -------
@@ -445,10 +441,10 @@ class Maxwell(object):
 
         Parameters
         ----------
-        name :
+        name : str
             
-        activate :
-             (Default value = True)
+        activate : bool, optional
+            The default value is ``True``.
 
         Returns
         -------
@@ -530,16 +526,19 @@ class Maxwell3d(Maxwell, FieldAnalysis3D, object):
 
     Parameters
     ----------
-    projectname :
-        name of the project to be selected or full path to the project to be opened  or to the AEDTZ
-        archive. if None try to get active project and, if nothing present to create an empty one
-    designname :
-        name of the design to be selected. if None, try to get active design and, if nothing present to create an empty one
-    solution_type :
-        solution type to be applied to design. if None default is taken
-    setup_name :
-        setup_name to be used as nominal. if none active setup is taken or nothing
-
+    projectname : str, optional
+        Name of the project to select or the full path to the project or AEDTZ archive to open. 
+        The default is ``None``. If ``None``, try to get an active project and, if no projects are present, 
+        create an empty project.
+     designname : str, optional
+         Name of the design to select. The default is ``None``. If ``None``, try to get an active design and, 
+         if no designs are present, create an empty design.
+     solution_type : str, optional
+         Solution type to apply to the design. The default is ``None``. If ``None`, the default type is applied.
+     setup_name : str, optional
+         The name of the setup to use as the nominal. The default is ``None``. If ``None``, the active setup 
+         is used or nothing is used.
+   
     Returns
     -------
 
@@ -553,12 +552,15 @@ class Maxwell3d(Maxwell, FieldAnalysis3D, object):
     def __init__(self, projectname=None, designname=None, solution_type=None, setup_name=None,
                  specified_version=None, NG=False, AlwaysNew=True, release_on_exit=True):
         """
-        :param projectname: name of the project to be selected or full path to the project to be opened. if None try to
-         get active project and, if nothing present to create an empty one
-        :param designname: name of the design to be selected. if None, try to get active design and, if nothing present
-        to create an empty one
-        :param solution_type: solution type to be applied to design. if None default is taken
-        :param setup_name: setup_name to be used as nominal. if none active setup is taken or nothing
+        :param projectname: Name of the project to select or the full path to the project to open. 
+        The default is ``None``. If ``None``, try to get an active project and, if no projects are present,
+        create an empty project.
+        :param designname: Name of the design to select. The default is ``None``. If ``None``, try to get 
+        an active design and, if no designs are present, create an empty design.
+        :param solution_type: Solution type to apply to the design.  The default is ``None``. If ``None``,
+        the default is taken.
+        :param setup_name: The name of the setup to use as the nominal.  The default is ``None``. 
+        If ``None, the active setup is used or nothing is used.
         """
         FieldAnalysis3D.__init__(self, "Maxwell 3D", projectname, designname, solution_type, setup_name,
                                  specified_version, NG, AlwaysNew, release_on_exit)
@@ -566,26 +568,22 @@ class Maxwell3d(Maxwell, FieldAnalysis3D, object):
 
     @aedt_exception_handler
     def setup_ctrlprog(self, setup, py_file, file_str=None):
-        """Configure the transient design setup to run a specific vontrol program.
-        
-        Input arguments:
-        setup: Name of the solution setup of the maxwell design (e.g. 'Setup1')
-        py_file: Name of the python file to be run at each timestep
-        
-        Note: the file py_file will be copied by the Maxwell solver process to the temp directory and will be
-              re-named to setup+'.ctrlprog'   e.g if py_file is defined as "my_script.py' and the solver setup
-              is called 'Setup1', then the resulting file in the temp-directory is Setup1.ctrlprog. For this reason
-              it is important to instruct the operating system to use a python interpreter to run any file with extension
-              '.ctrlprog'.
+        """Configure the transient design setup to run a specific control program.
 
         Parameters
         ----------
-        setup :
+        setup : str
+            Name of the solution setup of the Maxwell design. For example, ``Setup1``.
             
-        py_file :
+        py_file : str
+            Name of the Python file that thee Maxwell solver processis to copy to the temp directory and 
+            rename to setup+'.ctrlprog'  For example, if ``py_file`` is defined as ``my_script.py`` and the 
+            solver setup is called ``Setup1``, the resulting file in the temp directory is ``Setup1.ctrlprog``. 
+            For this reason, it is important to instruct the operating system to use a python interpreter to 
+            run any file with the extension ``.ctrlprog``.
             
-        file_str :
-             (Default value = None)
+        file_str : str, optional
+            Name of the python file to run at each timestep. The default is ``None``.
 
         Returns
         -------
@@ -617,15 +615,18 @@ class Maxwell2d(Maxwell, FieldAnalysis2D, object):
 
     Parameters
     ----------
-    projectname :
-        name of the project to be selected or full path to the project to be opened  or to the AEDTZ
-        archive. if None try to get active project and, if nothing present to create an empty one
-    designname :
-        name of the design to be selected. if None, try to get active design and, if nothing present to create an empty one
-    solution_type :
-        solution type to be applied to design. if None default is taken
-    setup_name :
-        setup_name to be used as nominal. if none active setup is taken or nothing
+    projectname : str, optional
+        Name of the project to select or the full path to the project or AEDTZ archive to open. 
+        The default is ``None``. If ``None``, try to get an active project and, if no projects are present, 
+        create an empty project.
+     designname : str, optional
+         Name of the design to select. The default is ``None``. If ``None``, try to get an active design and, 
+         if no designs are present, create an empty design.
+     solution_type : str, optional
+         Solution type to apply to the design. The default is ``None``. If ``None`, the default type is applied.
+     setup_name : str, optional
+         The name of the setup to use as the nominal. The default is ``None``. If ``None``, the active setup 
+         is used or nothing is used.
 
     Returns
     -------
@@ -684,14 +685,14 @@ class Maxwell2d(Maxwell, FieldAnalysis2D, object):
 
     @aedt_exception_handler
     def generate_design_data(self, linefilter=None, objectfilter=None):
-        """Generate a generic set of design data and store in the extension directory as design_data.json.
+        """Generate a generic set of design data and store it in the extension directory as ``design_data.json``.
 
         Parameters
         ----------
-        linefilter :
-             (Default value = None)
-        objectfilter :
-             (Default value = None)
+        linefilter : optional
+             The default is ``None``.
+        objectfilter : optional
+             The default is ``None``.
 
         Returns
         -------
@@ -733,29 +734,21 @@ class Maxwell2d(Maxwell, FieldAnalysis2D, object):
     def setup_ctrlprog(self, file_str=None, keep_modifications=False, python_interpreter=None,
                        pymxwl_module_location=None, working_directory=None, aedt_lib_dir=None):
         """Configure the transient design setup to run a specific control program.
-        
-        Input arguments:
-        
-        Note: the file py_file will be copied by the Maxwell solver process to the temp directory and will be
-              re-named to setup+'.ctrlprog'   e.g if py_file is defined as "Setup1.py' and the solver setup
-              is called 'Setup1', then the resulting file in the temp-directory is Setup1.ctrlprog. For this reason
-              it is important to instruct the operating system to use a python interpreter to run any file with extension
-              '.ctrlprog'.
-
+              
         Parameters
         ----------
-        file_str :
-             (Default value = None)
-        keep_modifications :
-             (Default value = False)
-        python_interpreter :
-             (Default value = None)
-        pymxwl_module_location :
-             (Default value = None)
-        working_directory :
-             (Default value = None)
-        aedt_lib_dir :
-             (Default value = None)
+        file_str : str, optional
+            The default value is ``None``.
+        keep_modifications : bool, optional
+            The default value is ``False``.
+        python_interpreter : optional
+             The default value is ``None``.
+        pymxwl_module_location : optional
+             The default value is ``None``.
+        working_directory : str, optional
+             The default value is ``None``.
+        aedt_lib_dir : str, optional
+             The default value is ``None``.
 
         Returns
         -------
@@ -792,7 +785,7 @@ class Maxwell2d(Maxwell, FieldAnalysis2D, object):
             if file_str is not None:
                 with io.open(ctl_file, "w", newline='\n') as fo:
                     fo.write(file_str)
-                assert os.path.exists(ctl_file), "Control Program File could not be created"
+                assert os.path.exists(ctl_file), "Control Program file could not be created."
 
         assert os.path.exists(ctl_file_compute), "Control Program {} does not exist.".format(ctl_file_compute)
         oModule = self._odesign.GetModule("AnalysisSetup")
@@ -808,7 +801,7 @@ class Maxwell2d(Maxwell, FieldAnalysis2D, object):
 
         '''
         self._messenger.add_info_message(
-            "Successfully set up control program: {0}\nUsing pymxwl module located at:{1}".format(ctl_file,
+            "Successfully set up the control program: {0}\nUsing pymxwl module located at:{1}".format(ctl_file,
                                                                                                    pymxwl_module_location),
             self.setup_des_name)
         '''  # send an info message to give the user a feedback about the generaed user control program file
@@ -817,14 +810,14 @@ class Maxwell2d(Maxwell, FieldAnalysis2D, object):
     @aedt_exception_handler
     def assign_balloon(self, edge_list, bound_name= None):
         """
-        Assign Balloons boundary to list of edges
+        Assign balloon boundary to a list of edges.
 
         Parameters
         ----------
         edge_list: list
-            list of edges
-        bound_name: str
-            boundary name
+            List of edges.
+        bound_name: str, optional
+            Name of the boundary. The default is ``None``.
 
         Returns
         -------
@@ -848,16 +841,16 @@ class Maxwell2d(Maxwell, FieldAnalysis2D, object):
 
     @aedt_exception_handler
     def assign_vector_potential(self, input_edge, vectorvalue=0, bound_name=None):
-        """Assign Coils to list of objects or faceID
+        """Assign coils to a list of objects or faceIDs.
 
         Parameters
         ----------
-        input_edge :
-            inputs list of edges or edgeIDs
-        vectorvalue :
-            float (Default value = 0)
-        bound_name :
-            str optional (Default value = None)
+        input_edge : list
+            List of edges or edge IDs to input.
+        vectorvalue : float, optional
+            The value of the vector. The default is ``0``.
+        bound_name : str, optional
+            The name of the boundary. The default is ``None``.
 
         Returns
         -------
