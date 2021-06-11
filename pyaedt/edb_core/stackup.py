@@ -64,8 +64,6 @@ class EdbStackup(object):
     def stackup_layers(self):
         """Get all stackup layers
         
-        :return: list of all stackup layers
-
         Parameters
         ----------
 
@@ -91,9 +89,8 @@ class EdbStackup(object):
             :return:list of signal layers
 
         """
-        signal_layers = EDBLayers(self).signal_layers
+        return self.stackup_layers.signal_layers
 
-        return signal_layers
 
 
     @property
