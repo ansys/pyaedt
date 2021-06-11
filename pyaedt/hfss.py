@@ -1542,7 +1542,7 @@ class Hfss(FieldAnalysis3D, object):
         ----------
         sheet_name : str
             Name of the sheet on which to apply the boundary.
-        axisdir : st, pptional
+        axisdir : st, optional
             Position of the port. It should be one of the values for ``Application.AxisDir``, 
             which are: ``"XNeg"``, ``"YNeg"``, ``"ZNeg"``, ``"XPos"``, ``"YPos"``, and ``"ZPos"``. 
             The default is ``"0"``.
