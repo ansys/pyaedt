@@ -223,7 +223,11 @@ class Circuit(FieldAnalysisCircuit, object):
     @aedt_exception_handler
     def _get_number_from_string(self, stringval):
         value = stringval[stringval.find("=") + 1:].strip().replace("{", "").replace("}", "").replace(",",".")
-        return from_rkm_to_aedt(value)
+        try:
+            float(value)
+            return value
+        except:
+            return from_rkm_to_aedt(value)
 
 
     @aedt_exception_handler

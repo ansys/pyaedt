@@ -831,8 +831,8 @@ class GeometryModeler(Modeler, object):
             self.find_point_around(objectname,offset, sheet_dim, self._parent.CoordinateSystemPlane.YZPlane)
             p1 = self.primitives.draw_polyline([self.Position(start), self.Position(offset)])
             p2 = self.primitives.draw_polyline([self.Position(start), self.Position(offset)])
-            self.translate(p2, [axisdist, 0, 0])
-            self.connect([p1,p2])
+            self.translate(p2.id, [axisdist, 0, 0])
+            self.connect([p1.id,p2.id])
             #rect = self.primitives.create_rectangle(self._parent.CoordinateSystemPlane.XYPlane,  start,pos)
         elif divmod(axisdir,3)[1]== 1:
             self.find_point_around(objectname,offset, sheet_dim, self._parent.CoordinateSystemPlane.ZXPlane)

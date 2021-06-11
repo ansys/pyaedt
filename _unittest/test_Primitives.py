@@ -533,6 +533,16 @@ class TestPrimitives:
 
         assert P2.id != P1.id
 
+    def test_43_create_bond_wires(self):
+
+        b1 = self.aedtapp.modeler.primitives.create_bondwire([0,0,0], [10,10,2], h1=0.15, h2=0, diameter=0.034, facets=8, matname="copper", name="jedec51")
+        assert b1
+        b2 = self.aedtapp.modeler.primitives.create_bondwire([0,0,0], [10,10,2], h1=0.15, h2=0, diameter=0.034, bond_type=1,  matname="copper", name="jedec41")
+        assert b2
+        b2 = self.aedtapp.modeler.primitives.create_bondwire([0,0,0], [10,10,2], h1=0.15, h2=0, diameter=0.034, bond_type=2,  matname="copper", name="jedec41")
+        assert b2
+        b2 = self.aedtapp.modeler.primitives.create_bondwire([0,0,0], [10,10,2], h1=0.15, h2=0, diameter=0.034, bond_type=3,  matname="copper", name="jedec41")
+        assert b2 == False
 
     def test_99_get_edges_on_bunding_box(self):
         self.aedtapp.close_project(name=self.aedtapp.project_name, saveproject=False)
