@@ -200,8 +200,8 @@ class Q3d(QExtractor, object):
         object_name : str
             Name of the object.
         axisdir : optional
-            The intitial axis direction. Choices are ``0`` through ``5``. The default is ``None``.
-        sink_name : str, optinal
+            The initial axis direction. Choices are ``0`` through ``5``. The default is ``None``.
+        sink_name : str, optional
             Name of the sink. The default is ``None``.
         net_name : str, optional
             Name of the net. The default is ``None`` in which case ``object_name`` will be considered.
