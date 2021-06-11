@@ -851,7 +851,7 @@ class Maxwell2d(Maxwell, FieldAnalysis2D, object):
 
     @aedt_exception_handler
     def assign_vector_potential(self, input_edge, vectorvalue=0, bound_name=None):
-        """Assign coils to a list of objects or faceIDs.
+        """Assign coils to a list of objects or face IDs.
 
         Parameters
         ----------
