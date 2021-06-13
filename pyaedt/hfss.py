@@ -1,26 +1,29 @@
 """
-HFSS Class
-----------
-
 This class contains all HFSS functionalities. It inherits all objects that belong to HFSS.
 
 
 Examples
 --------
 
->>> hfss = Hfss()     Create an ``Hfss`` object and connect to an existing HFSS design or create a new HFSS design if one does not exist.
+Create an ``Hfss`` object and connect to an existing HFSS design or create a new HFSS design if one does not exist:
 
+>>> hfss = Hfss()
 
->>> hfss = Hfss(projectname)     Create an ``Hfss`` object and link to a project named ``projectname``. If this project does not exist, create one with this name.
+Create an ``Hfss`` object and link to a project named ``projectname``. If this project does not exist, create one with this name:
 
+>>> hfss = Hfss(projectname)
 
->>> hfss = Hfss(projectname,designame)     Create an ``Hfss`` object and link to a design named ``designname`` in a project named ``projectname``.
+Create an ``Hfss`` object and link to a design named ``designname`` in a project named ``projectname``:
 
+>>> hfss = Hfss(projectname,designame)
 
->>> hfss = Hfss("myfile.aedt")     Create an ``Hfss`` object and open the specified project.
+Create an ``Hfss`` object and open the specified project:
 
+>>> hfss = Hfss("myfile.aedt")
 
-========================================================
+Create a ``Desktop on 2021R1`` object and then create an ``Hfss`` object and open the specified project:
+
+>>> hfss = Hfss(specified_version="2021.1", projectname="myfile.aedt")
 
 """
 from __future__ import absolute_import
@@ -36,9 +39,11 @@ from .application.DataHandlers import random_string
 
 class Hfss(FieldAnalysis3D, object):
     """HFSS object"""
+
     def __repr__(self):
         try:
-            return "HFSS {} {}. ProjectName:{} DesignName:{} ".format(self._aedt_version, self.solution_type, self.project_name, self.design_name)
+            return "HFSS {} {}. ProjectName:{} DesignName:{} ".format(self._aedt_version, self.solution_type,
+                                                                      self.project_name, self.design_name)
         except:
             return "HFSS Module"
 
@@ -48,21 +53,36 @@ class Hfss(FieldAnalysis3D, object):
 
             Parameters
             ----------
-            projectname : str
-                Name of the project to select or the full path to the project or AEDTZ archive to open. If ``None``, try to get an active project and, if none are present, create an empty project.
-            designname : str
-                Name of the design to select. If ``None``, try to get an active design and, if none are present, create an empty design.
-            solution_type : str
-                Solution type to apply to design. If ``None`, the default type is applied.
-            setup_name : str
-                The name of the setup to use as the nominal. If ``None``, the active setup is used or nothing is used.
+            projectname : str, optional
+                Name of the project to select or the full path to the project or AEDTZ archive to open. 
+                The default is ``None``. If ``None``, try to get an active project and, if no projects are present, 
+                create an empty project.
+            designname : str, optional
+                Name of the design to select. The default is ``None``. If ``None``, try to get an active design and, 
+                if no designs are present, create an empty design.
+            solution_type : str, optional
+                Solution type to apply to design. The default is ``None``. If ``None`, the default type is applied.
+            setup_name : str, optional
+                The name of the setup to use as the nominal. The default is ``None``. If ``None``, the active setup 
+                is used or nothing is used.
+            specified_version : str, optional
+                The version to use. The default is ``None``. If ``None``, the active setup is used or nothing is used.
+            NG : bool, optional
+                The default is ``False``.   
+            AlwaysNew : bool, optional
+                The default is ``True``.
+            release_on_exit : bool, optional
+                The default is ``True``.
+              
 
             Returns
             -------
+            
 
         """
         FieldAnalysis3D.__init__(self, "HFSS", projectname, designname, solution_type, setup_name,
                                  specified_version, NG, AlwaysNew, release_on_exit)
+
     def __enter__(self):
         return self
 
@@ -76,9 +96,9 @@ class Hfss(FieldAnalysis3D, object):
         (PerfectE, PerfectH, Aperture, Radiation, Impedance, LayeredImp, LumpedRLC, FiniteCond) = range(0, 8)
 
     @aedt_exception_handler
-    def _create_lumped_driven(self, objectname, int_line_start, int_line_stop, impedance, portname,renorm, deemb):
-        start = [str(i)+self.modeler.primitives.model_units for i in int_line_start]
-        stop = [str(i)+self.modeler.primitives.model_units for i in int_line_stop]
+    def _create_lumped_driven(self, objectname, int_line_start, int_line_stop, impedance, portname, renorm, deemb):
+        start = [str(i) + self.modeler.primitives.model_units for i in int_line_start]
+        stop = [str(i) + self.modeler.primitives.model_units for i in int_line_stop]
         props = OrderedDict({"Objects": [objectname], "DoDeembed": deemb, "RenormalizeAllTerminals": renorm,
                              "Modes": OrderedDict({"Mode1": OrderedDict({"ModeNum": 1, "UseIntLine": True,
                                                                          "IntLine": OrderedDict(
@@ -87,8 +107,8 @@ class Hfss(FieldAnalysis3D, object):
                                                                          "RenormImp": str(impedance) + "ohm"})}),
                              "ShowReporterFilter": False,
                              "ReporterFilter": [True],
-                             "Impedance"	:  str(impedance)+"ohm"})
-        bound = BoundaryObject(self, portname,props, "LumpedPort")
+                             "Impedance": str(impedance) + "ohm"})
+        bound = BoundaryObject(self, portname, props, "LumpedPort")
         if bound.create():
             self.boundaries.append(bound)
             return bound
@@ -96,12 +116,12 @@ class Hfss(FieldAnalysis3D, object):
 
     @aedt_exception_handler
     def _create_port_terminal(self, objectname, int_line_stop, portname, iswaveport=False):
-        ref_conductors=self.modeler.convert_to_selections(int_line_stop,False)
+        ref_conductors = self.modeler.convert_to_selections(int_line_stop, False)
         props = OrderedDict({})
-        props["Faces"]=int(objectname)
-        props["IsWavePort"]=iswaveport
-        props["ReferenceConductors"]=ref_conductors
-        props["RenormalizeModes"]=True
+        props["Faces"] = int(objectname)
+        props["IsWavePort"] = iswaveport
+        props["ReferenceConductors"] = ref_conductors
+        props["RenormalizeModes"] = True
         bound = BoundaryObject(self, portname, props, "AutoIdentify")
         if bound.create():
             self.boundaries.append(bound)
@@ -110,7 +130,7 @@ class Hfss(FieldAnalysis3D, object):
 
     @aedt_exception_handler
     def _create_circuit_port(self, edgelist, impedance, name, renorm, deemb, renorm_impedance=""):
-        edgelist = self.modeler._convert_list_to_ids(edgelist,False)
+        edgelist = self.modeler._convert_list_to_ids(edgelist, False)
         props = OrderedDict({"Edges": edgelist, "Impedance": str(impedance) + "ohm", "DoDeembed": deemb,
                              "RenormalizeAllTerminals": renorm})
 
@@ -126,7 +146,7 @@ class Hfss(FieldAnalysis3D, object):
             props["RenormImp"] = renorm_imp
         else:
             props["TerminalIDList"] = []
-        bound = BoundaryObject(self,name,props, "CircuitPort")
+        bound = BoundaryObject(self, name, props, "CircuitPort")
         if bound.create():
             self.boundaries.append(bound)
             return bound
@@ -138,20 +158,20 @@ class Hfss(FieldAnalysis3D, object):
         start = None
         stop = None
         if int_line_start and int_line_stop:
-            start = [str(i)+self.modeler.primitives.model_units for i in int_line_start]
-            stop = [str(i)+self.modeler.primitives.model_units for i in int_line_stop]
+            start = [str(i) + self.modeler.primitives.model_units for i in int_line_start]
+            stop = [str(i) + self.modeler.primitives.model_units for i in int_line_stop]
             useintline = True
         else:
-            useintline=False
+            useintline = False
 
         props = OrderedDict({})
         props["Objects"] = [objectname]
         props["NumModes"] = nummodes
         props["UseLineModeAlignment"] = False
 
-        if deemb_distance!=0:
+        if deemb_distance != 0:
             props["DoDeembed"] = True
-            props["DeembedDist"] = str(deemb_distance)+self.modeler.model_units
+            props["DeembedDist"] = str(deemb_distance) + self.modeler.model_units
 
         else:
             props["DoDeembed"] = False
@@ -159,9 +179,9 @@ class Hfss(FieldAnalysis3D, object):
         modes = OrderedDict({})
         arg2 = []
         arg2.append("NAME:Modes")
-        i=1
-        report_filter=[]
-        while i<=nummodes:
+        i = 1
+        report_filter = []
+        while i <= nummodes:
             if i == 1:
                 mode = OrderedDict({})
                 mode["ModeNum"] = i
@@ -170,7 +190,7 @@ class Hfss(FieldAnalysis3D, object):
                     mode["IntLine"] = OrderedDict({"Start": start, "End": stop})
                 mode["AlignmentGroup"] = 0
                 mode["CharImp"] = "Zpi"
-                mode["RenormImp"] = str(impedance)+"ohm"
+                mode["RenormImp"] = str(impedance) + "ohm"
                 modes["Mode1"] = mode
             else:
                 mode = OrderedDict({})
@@ -179,8 +199,8 @@ class Hfss(FieldAnalysis3D, object):
                 mode["UseIntLine"] = False
                 mode["AlignmentGroup"] = 0
                 mode["CharImp"] = "Zpi"
-                mode["RenormImp"] = str(impedance)+"ohm"
-                modes["Mode"+str(i)] = mode
+                mode["RenormImp"] = str(impedance) + "ohm"
+                modes["Mode" + str(i)] = mode
             report_filter.append(True)
             i += 1
         props["Modes"] = modes
@@ -205,30 +225,30 @@ class Hfss(FieldAnalysis3D, object):
         obj : list or str
             Object list.
         mat : str, optional
-            Material name to use. The default is ``None``.
-        cond : float
+            Material to use. The default is ``None``.
+        cond : float, optional
             If no material is provided, a conductivity value must be supplied. The default is ``58000000``.
-        perm : float
+        perm : float, optional
             If no material is provided, a permittivity value must be supplied. The default is ``1``.
-        usethickness : bool
+        usethickness : bool, optional
             Indicates whether to use thickness. The default is ``False``.
-        thickness : str
+        thickness : str, optional
             Thickness value if ``usethickness=True``. The default is ``"0.1mm"``.
         roughness : str, optional
             Roughness value. The default is ``"0um"``.
-        isinfgnd : bool
+        isinfgnd : bool, optional
             The default is ``False``.
-        istwoside : bool
+        istwoside : bool, optional
             The default is ``False``.
-        isInternal : bool
+        isInternal : bool, optional
             The default is ``True``.
-        issheelElement : bool
+        issheelElement : bool, optional
             The default is ``False``.
-        usehuray : bool
-            Indicates whether to use an Huray coefficient. The default is ``False``. 
-        radius : str
+        usehuray : bool, optional
+            Whether to use an Huray coefficient. The default is ``False``. 
+        radius : str, optional
             Radius value if ``usehuray=True``. The default is ``"0.5um"``.
-        ratio : str
+        ratio : str, optional
             Ratio value if ``usehuray=True``. The default is ``"2.9"``.
 
         Returns
@@ -245,7 +265,7 @@ class Hfss(FieldAnalysis3D, object):
         mat = mat.lower()
         listobj = self.modeler.convert_to_selections(obj, True)
         listobjname = "_".join(listobj)
-        props = {"Objects" : listobj}
+        props = {"Objects": listobj}
         if mat:
             if mat in self.materials.material_keys:
                 Mat = self.materials.material_keys[mat]
@@ -295,23 +315,25 @@ class Hfss(FieldAnalysis3D, object):
         ----------
         setupname : str
             Name of the setup that is attached to the sweep.
-        unit : str
-            Units, such as ``"MHz``, ``"GHz"``, and so on. The default is ``"GHz"``.
-        freqstart : float
+        unit : str, optional
+            Unit, such as ``"MHz``, ``"GHz"``, and so on. The default is ``"GHz"``.
+        freqstart : float, optional
             Starting frequency of the sweep. The default is ``1e-3``.
-        freqstop : float
+        freqstop : float, optional
             Stopping frequency of the sweep. The default is ``10``.
-        sweepname : str
+        sweepname : str, optional
             Name of the sweep. The default is ``None``.
-        num_of_freq_points : int
+        num_of_freq_points : int, optional
             Number of frequency points in the range. The default is ``451``.
-        sweeptype : str
-            Type of sweep. Choices are ``Fast``, ``"Interpolating``, and ``Discrete``. The default is ``""Interpolating"``.
-        interpolation_max_solutions : float
-            Maximum number of solutions evaluated for the interpolation process. The default is ``250``.
-        interpolation_tol : float
+        sweeptype : str, optional
+            Type of sweep. Choices are ``Fast``, ``"Interpolating``, and ``Discrete``. The default is
+            ``""Interpolating"``.
+        interpolation_tol : float, optional
             Error tolerance threshold for the interpolation process. The default is ``0.5``.
-
+        interpolation_max_solutions : float, optional
+            Maximum number of solutions evaluated for the interpolation process. The default is 
+            ``250``.
+        
         Returns
         -------
         SweepHFSS
@@ -329,7 +351,8 @@ class Hfss(FieldAnalysis3D, object):
                 setupdata = i
                 for sw in setupdata.sweeps:
                     if sweepname == sw.name:
-                        self.messenger.add_warning_message("Sweep {} is already present. Rename and retry".format(sweepname))
+                        self.messenger.add_warning_message(
+                            "Sweep {} is already present. Rename and retry".format(sweepname))
                         return False
                 sweepdata = setupdata.add_sweep(sweepname, sweeptype)
                 sweepdata.props["RangeStart"] = str(freqstart) + unit
@@ -347,7 +370,6 @@ class Hfss(FieldAnalysis3D, object):
                 return sweepdata
         return False
 
-
     @aedt_exception_handler
     def create_linear_count_sweep(self, setupname, unit, freqstart, freqstop, num_of_freq_points,
                                   sweepname=None, save_fields=True, save_rad_fields=False):
@@ -357,19 +379,19 @@ class Hfss(FieldAnalysis3D, object):
         ----------
         setupname : str
             Name of the setup.
+        unit : str
+            Unit, such as ``"MHz``, ``"GHz"``, and so on. The default is ``"GHz"``.
         freqstart : float
             Starting frequency of the sweep,  such as ``1``.
         freqstop : float
             Stopping frequency of the sweep.
-        sweepname : str
-            Name of the sweep. The default is ``None``.
-        unit : str
-            Units, such as ``"MHz``, ``"GHz"``, and so on. The default is ``"GHz"``.
         num_of_freq_points : int
             Number of frequency points in the range.
-        save_fields : bool
+        sweepname : str, optional
+            Name of the sweep. The default is ``None``.
+        save_fields : bool, optional
             The default is ``True``.
-        save_rad_fields :
+        save_rad_fields : bool, optional
            The default is ``False``.
 
         Returns
@@ -388,7 +410,8 @@ class Hfss(FieldAnalysis3D, object):
                 setupdata = i
                 for sw in setupdata.sweeps:
                     if sweepname == sw.name:
-                        self.messenger.add_warning_message("Sweep {} is already present. Rename and retry".format(sweepname))
+                        self.messenger.add_warning_message(
+                            "Sweep {} is already present. Rename and retry".format(sweepname))
                         return False
                 sweepdata = setupdata.add_sweep(sweepname, "Discrete")
                 sweepdata.props["RangeStart"] = str(freqstart) + unit,
@@ -410,21 +433,21 @@ class Hfss(FieldAnalysis3D, object):
 
         Parameters
         ----------
+        setupname : str
+            Name of the setup.
+        unit : str
+            Unit, such as ``"MHz``, ``"GHz"``, and so on. 
         freqstart : float
             Starting frequency of the sweep.
         freqstop : float
             Stopping frequency of the sweep.
-        sweepname : str
-            Name of the sweep. The default is ``None``.
-        unit : str
-            Units, such as ``"MHz``, ``"GHz"``, and so on. The default is ``"GHz"``.
         step_size : float
             Frequency size of the step.
-        setupname : str
-            Name of the setup.
-        save_fields : bool
+        sweepname : str, optional
+            Name of the sweep. The default is ``None``.
+        save_fields : bool, optional
             The default is ``True``.
-        save_rad_fields : bool
+        save_rad_fields : bool, optional
             The default is ``False``.
 
         Returns
@@ -443,7 +466,8 @@ class Hfss(FieldAnalysis3D, object):
                 setupdata = i
                 for sw in setupdata.sweeps:
                     if sweepname == sw.name:
-                        self.messenger.add_warning_message("Sweep {} is already present. Rename and retry.".format(sweepname))
+                        self.messenger.add_warning_message(
+                            "Sweep {} is already present. Rename and retry.".format(sweepname))
                         return False
                 sweepdata = setupdata.add_sweep(sweepname, "Discrete")
                 sweepdata.props["RangeStart"] = str(freqstart) + unit
@@ -458,22 +482,74 @@ class Hfss(FieldAnalysis3D, object):
                 return sweepdata
         return False
 
+    @aedt_exception_handler
+    def create_sbr_linked_antenna(self, source_object, target_cs="Global", solution=None, fieldtype="nearfield",
+                                  use_composite_ports=False, use_global_current=True, current_conformance="Disable",
+                                  thin_sources=True, power_fraction="0.95"):
+
+        compName = source_object.design_name
+        uniquename = generate_unique_name(compName)
+        if source_object.project_name == self.project_name:
+            project_name = "This Project*"
+        else:
+            project_name = os.path.join(source_object.project_path, source_object.project_name + ".aedt")
+        design_name = source_object.design_name
+        if not solution:
+            solution = source_object.nominal_adaptive
+        params = ["NAME:Params"]
+        pars = source_object.available_variations.nominal_w_values
+        for el in pars:
+            if type(el) is list:
+                params.append(el[0])
+            else:
+                params.append(el)
+        native_props = ["NAME:NativeComponentDefinitionProvider", "Type:=", "Linked Antenna",
+                        "Unit:=", self.modeler.model_units, "Is Parametric Array:=", False, "Project:=", project_name,
+                        "Product:=", "HFSS", "Design:=", design_name, "Soln:=", solution, params,
+                        "ForceSourceToSolve:=", True, "PreservePartnerSoln:=", True, "PathRelativeTo:=",
+                        "TargetProject",
+                        "FieldType:=", fieldtype, "UseCompositePort:=", use_composite_ports,
+                        ["NAME:SourceBlockageStructure", "NonModelObject:=", []]]
+        if fieldtype == "nearfield":
+            native_props.extend(
+                ["UseGlobalCurrentSrcOption:=", use_global_current, "Current Source Conformance:=", current_conformance,
+                 "Thin Sources:=",
+                 thin_sources, "Power Fraction:=", power_fraction])
+        self.modeler.oeditor.InsertNativeComponent(
+            ["NAME:InsertNativeComponentData", "TargetCS:=", target_cs,
+             "SubmodelDefinitionName:=", uniquename, ["NAME:ComponentPriorityLists"],
+             "NextUniqueID:=", 0, "MoveBackwards:=", False, "DatasetType:=", "ComponentDatasetType",
+             ["NAME:DatasetDefinitions"],
+             ["NAME:BasicComponentInfo", "ComponentName:=", uniquename, "Company:=", "",
+              "Company URL:=", "", "Model Number:=", "", "Help URL:=", "",
+              "Version:=", "1.0", "Notes:=", "", "IconType:=", "Linked Antenna"],
+             ["NAME:GeometryDefinitionParameters", ["NAME:VariableOrders"]],
+             ["NAME:DesignDefinitionParameters", ["NAME:VariableOrders"]],
+             ["NAME:MaterialDefinitionParameters", ["NAME:VariableOrders"]],
+             "MapInstanceParameters:=", "DesignVariable",
+             "UniqueDefinitionIdentifier:=", "50f4783d-0ef1-4f06-a809-8cbf64c07462",
+             "OriginFilePath:=", "", "IsLocal:=", False, "ChecksumString:=", "", "ChecksumHistory:=", [],
+             "VersionHistory:=", [],             native_props,
+             ["NAME:InstanceParameters", "GeometryParameters:=", "", "MaterialParameters:=", "", "DesignParameters:=",
+              ""]])
+        return True
 
     @aedt_exception_handler
-    def create_discrete_sweep(self, setupname, sweepname="SinglePoint", freq="1GHz", save_field=True, save_radiating_field=False):
+    def create_discrete_sweep(self, setupname, sweepname="SinglePoint", freq="1GHz", save_field=True,
+                              save_radiating_field=False):
         """Create a discrete sweep with a single frequency value.
 
         Parameters
         ----------
         setupname : str
             Name of the setup.
-        freq : str
-            Sweep frequency (including units). The default is ``"1GHz"``.
-        sweepname : str
+        sweepname : str, optional
             Name of the sweep. The default is ``"SinglePoint"``.
-        save_field : bool
+        freq : str, optional
+            Sweep frequency including units. The default is ``"1GHz"``.
+        save_field : bool, optional
             The default is ``True``.
-        save_radiating_field : bool
+        save_radiating_field : bool, optional
             The default is ``False``.
 
         Returns
@@ -492,7 +568,8 @@ class Hfss(FieldAnalysis3D, object):
                 setupdata = i
                 for sw in setupdata.sweeps:
                     if sweepname == sw.name:
-                        self.messenger.add_warning_message("Sweep {} is already present. Rename and retry.".format(sweepname))
+                        self.messenger.add_warning_message(
+                            "Sweep {} is already present. Rename and retry.".format(sweepname))
                         return False
                 sweepdata = setupdata.add_sweep(sweepname, "Discrete")
                 sweepdata.props["RangeStart"] = freq
@@ -508,7 +585,6 @@ class Hfss(FieldAnalysis3D, object):
                 return sweepdata
         return False
 
-
     @aedt_exception_handler
     def create_circuit_port_between_objects(self, startobj, endobject, axisdir="XYNeg", impedance=50, portname=None,
                                             renorm=True, renorm_impedance=50, deemb=False):
@@ -520,19 +596,20 @@ class Hfss(FieldAnalysis3D, object):
             First (starting) object for the integration line.
         endobject :
             Second (ending) object for the integration line.
-        axisdir :
-            Position of the port. It should be one of the values for ``Application.AxisDir``, which are:
-            ``"XNeg"``, ``"YNeg"``, ``"ZNeg"``, ``"XPos"``, ``"YPos"``, and ``"ZPos"``. The default is ``"XYNeg"``.
-        impedance :
+        axisdir : str, optional
+            Position of the port. It should be one of the values for ``Application.AxisDir``, 
+            which are:  ``"XNeg"``, ``"YNeg"``, ``"ZNeg"``, ``"XPos"``, ``"YPos"``, and ``"ZPos"``. 
+            The default is ``"XYNeg"``.
+        impedance : optional
             Port impedance. The default is ``50``.
-        portname :
+        portname : str, optional
             Name of the port. The default is ``None``.
-        renorm : bool
+        renorm : bool, optional
             Renormalize mode. The default is ``True``.
-        renorm_impedance : float or str
+        renorm_impedance : float or str, optional
             Renormalize impedance. The default is ``50``.
-        deemb : bool
-            DEembed port. The default is ``False``.
+        deemb : bool, optional
+            Whether to deembed the port. The default is ``False``.
 
         Returns
         -------
@@ -540,7 +617,8 @@ class Hfss(FieldAnalysis3D, object):
             Port name
 
         """
-        if not self.modeler.primitives.does_object_exists(startobj) or not self.modeler.primitives.does_object_exists(endobject):
+        if not self.modeler.primitives.does_object_exists(startobj) or not self.modeler.primitives.does_object_exists(
+                endobject):
             self.messenger.add_error_message("One or both objects doesn't exists. Check and retry")
             return False
         if self.solution_type in ["DrivenModal", "DrivenTerminal", "Transient Network"]:
@@ -548,15 +626,15 @@ class Hfss(FieldAnalysis3D, object):
             port_edges = []
             if not portname:
                 portname = generate_unique_name("Port")
-            elif portname+":1" in self.modeler.get_excitations_name():
+            elif portname + ":1" in self.modeler.get_excitations_name():
                 portname = generate_unique_name(portname)
-            if self._create_circuit_port(out, impedance,portname, renorm, deemb,renorm_impedance=renorm_impedance):
+            if self._create_circuit_port(out, impedance, portname, renorm, deemb, renorm_impedance=renorm_impedance):
                 return portname
         return False
 
     @aedt_exception_handler
     def create_lumped_port_between_objects(self, startobj, endobject, axisdir=0, impedance=50, portname=None,
-                                           renorm=True, deemb=False,port_on_plane=True):
+                                           renorm=True, deemb=False, port_on_plane=True):
         """Create a lumped taking the closest edges of two objects.
 
         Parameters
@@ -567,17 +645,17 @@ class Hfss(FieldAnalysis3D, object):
             Second (ending) object for the integration line.
         axisdir :
             Position of the port. It should be one of the values for ``Application.AxisDir``, which are:
-            ``"XNeg"``, ``"YNeg"``, ``"ZNeg"``, ``"XPos"``, ``"YPos"``, and ``"ZPos"``. The default is ``"XYNeg"``.
-        impedance :
+            ``"XNeg"``, ``"YNeg"``, ``"ZNeg"``, ``"XPos"``, ``"YPos"``, and ``"ZPos"``. The default is ``"0"``.
+        impedance : optional
             Port impedance. The default is ``50``.
-        portname : str
+        portname : str, optional
             Name of the port. The default is ``None``.
-        renorm : bool
+        renorm : bool, optional
             Renormalize mode. The default is ``True``.
-        deemb :
-            DEembed port. The default is ``False``.
-        port_on_plane : bool
-            If ``True``, the source is to be created on the plane ortogonal to ``AxisDir``. 
+        deemb : bool, optional
+            Whether to deembed the port. The default is ``False``.
+        port_on_plane : bool, optional
+            Whether to create the source on the plane ortogonal to ``AxisDir``. 
             The default is ``True``.
 
         Returns
@@ -586,7 +664,8 @@ class Hfss(FieldAnalysis3D, object):
             Port name
 
         """
-        if not self.modeler.primitives.does_object_exists(startobj) or not self.modeler.primitives.does_object_exists(endobject):
+        if not self.modeler.primitives.does_object_exists(startobj) or not self.modeler.primitives.does_object_exists(
+                endobject):
             self.messenger.add_error_message("One or both objects do not exist. Check and retry.")
             return False
 
@@ -596,10 +675,10 @@ class Hfss(FieldAnalysis3D, object):
 
             if not portname:
                 portname = generate_unique_name("Port")
-            elif portname+":1" in self.modeler.get_excitations_name():
+            elif portname + ":1" in self.modeler.get_excitations_name():
                 portname = generate_unique_name(portname)
             if self.solution_type == "DrivenModal":
-                self._create_lumped_driven(sheet_name, point0, point1, impedance, portname,renorm, deemb)
+                self._create_lumped_driven(sheet_name, point0, point1, impedance, portname, renorm, deemb)
             else:
                 faces = self.modeler.primitives.get_object_faces(sheet_name)
                 self._create_port_terminal(faces[0], endobject, portname, iswaveport=False)
@@ -608,7 +687,7 @@ class Hfss(FieldAnalysis3D, object):
 
     @aedt_exception_handler
     def create_voltage_source_from_objects(self, startobj, endobject, axisdir=0, sourcename=None, source_on_plane=True):
-        """Creates a voltage source taking the closest edges of two objects.
+        """Create a voltage source taking the closest edges of two objects.
 
         Parameters
         ----------
@@ -616,14 +695,14 @@ class Hfss(FieldAnalysis3D, object):
             First (starting) object for the integration line.
         endobject :
             Second (ending) object for the integration line.
-        axisdir :
-            Position of the port. It should be one of the values for ``Application.AxisDir``, which are:
-            ``"XNeg"``, ``"YNeg"``, ``"ZNeg"``, ``"XPos"``, ``"YPos"``, and ``"ZPos"``. The default is ``XYNeg``.
+        axisdir : str, optional
+            Position of the port. It should be one of the values for ``Application.AxisDir``, 
+            which are: ``"XNeg"``, ``"YNeg"``, ``"ZNeg"``, ``"XPos"``, ``"YPos"``, and ``"ZPos"``. 
             The default value is ``"0"``.
-        sourcename : optional
+        sourcename : str, optional
             Name of the source. The default is ``None``.
-        source_on_plane : bool
-            If ``True``, the source is to be created on the plane ortogonal to ``AxisDir``. The default is ``True``.
+        source_on_plane : bool, optional
+            Whether to create the source on the plane ortogonal to ``AxisDir``. The default is ``True``.
 
         Returns
         -------
@@ -631,14 +710,16 @@ class Hfss(FieldAnalysis3D, object):
            Source name
 
         """
-        if not self.modeler.primitives.does_object_exists(startobj) or not self.modeler.primitives.does_object_exists(endobject):
+        if not self.modeler.primitives.does_object_exists(startobj) or not self.modeler.primitives.does_object_exists(
+                endobject):
             self.messenger.add_error_message("One or both objects doesn't exists. Check and retry")
             return False
         if self.solution_type in ["DrivenModal", "DrivenTerminal", "Transient Network"]:
-            sheet_name, point0, point1 = self.modeler._create_sheet_from_object_closest_edge(startobj,endobject,axisdir, source_on_plane)
+            sheet_name, point0, point1 = self.modeler._create_sheet_from_object_closest_edge(startobj, endobject,
+                                                                                             axisdir, source_on_plane)
             if not sourcename:
                 sourcename = generate_unique_name("Voltage")
-            elif sourcename+":1" in self.modeler.get_excitations_name():
+            elif sourcename + ":1" in self.modeler.get_excitations_name():
                 sourcename = generate_unique_name(sourcename)
             status = self.create_source_excitation(sheet_name, point0, point1, sourcename, sourcetype="Voltage")
             if status:
@@ -657,13 +738,13 @@ class Hfss(FieldAnalysis3D, object):
             First (starting) object for the integration line.
         endobject :
             Second (ending) object for the integration line.
-        axisdir :
+        axisdir : optional
             Position of the VS. It should be one of the values for ``Application.AxisDir``, which are:
-            ``"XNeg"``, ``"YNeg"``, ``"ZNeg"``, ``"XPos"``, ``"YPos"``, and ``"ZPos"``. The default is ``"0"`.
-        sourcename : optional
+            ``"XNeg"``, ``"YNeg"``, ``"ZNeg"``, ``"XPos"``, ``"YPos"``, and ``"ZPos"``. The default is ``"0"``.
+        sourcename : str, optional
             Name of the source. The default is ``None``.
-        source_on_plane : bool
-            If ``True``, the source is to be created on the plane ortogonal to ``AxisDir``. The default is ``True``.
+        source_on_plane : bool, optional
+            Whether to create the source on the plane ortogonal to ``AxisDir``. The default is ``True``.
 
         Returns
         -------
@@ -671,14 +752,16 @@ class Hfss(FieldAnalysis3D, object):
             Source name
 
         """
-        if not self.modeler.primitives.does_object_exists(startobj) or not self.modeler.primitives.does_object_exists(endobject):
+        if not self.modeler.primitives.does_object_exists(startobj) or not self.modeler.primitives.does_object_exists(
+                endobject):
             self.messenger.add_error_message("One or both objects do not exist. Check and retry.")
             return False
         if self.solution_type in ["DrivenModal", "DrivenTerminal", "Transient Network"]:
-            sheet_name, point0, point1 = self.modeler._create_sheet_from_object_closest_edge(startobj,endobject,axisdir, source_on_plane)
+            sheet_name, point0, point1 = self.modeler._create_sheet_from_object_closest_edge(startobj, endobject,
+                                                                                             axisdir, source_on_plane)
             if not sourcename:
                 sourcename = generate_unique_name("Current")
-            elif sourcename+":1" in self.modeler.get_excitations_name():
+            elif sourcename + ":1" in self.modeler.get_excitations_name():
                 sourcename = generate_unique_name(sourcename)
             status = self.create_source_excitation(sheet_name, point0, point1, sourcename, sourcetype="Current")
             if status:
@@ -701,7 +784,7 @@ class Hfss(FieldAnalysis3D, object):
             
         sourcename : str
             
-        sourcetype : str
+        sourcetype : str, optional
              The default is ``"Voltage"``.
 
         Returns
@@ -710,7 +793,7 @@ class Hfss(FieldAnalysis3D, object):
         """
 
         props = OrderedDict({"Objects": [sheet_name],
-               "Direction":OrderedDict({"Start": point1, "End": point2})})
+                             "Direction": OrderedDict({"Start": point1, "End": point2})})
 
         bound = BoundaryObject(self, sourcename, props, sourcetype)
         if bound.create():
@@ -729,22 +812,24 @@ class Hfss(FieldAnalysis3D, object):
             First (starting) object for the integration line.
         endobject :
             Second (ending) object for the integration line.
-        axisdir :
-            Position of the port. It should be one of the values for ``Application.AxisDir``, which are:
-            ``"XNeg"``, ``"YNeg"``, ``"ZNeg"``, ``"XPos"``, ``"YPos"``, and ``"ZPos"``. The default is ``"0"`.
-        impedance :
+        axisdir : str, optional
+            Position of the port. It should be one of the values for ``Application.AxisDir``, 
+            which are: ``"XNeg"``, ``"YNeg"``, ``"ZNeg"``, ``"XPos"``, ``"YPos"``, and ``"ZPos"``. 
+            The default is ``"0"``.
+        impedance : optional
             Port impedance. The default is ``50``.
-        nummodes : int
+        nummodes : int, optional
             Number of modes. The default is ``1``.
-        portname : str
+        portname : str, optional
             Name of the port. The default is ``None``.
-        renorm :  bool
+        renorm : bool, optional
             Renormalize mode. The default is ``True``.
-         deembed_dist : float
-            Deembed distance in model units, which is ``mm`` by default. If ``0``, deembed is disabled.
-        port_on_plane : bool
-            If ``True``, the port is to be created on the plane ortogonal to ``AxisDir``. The default is ``True``.
-        add_pec_cap :
+        deembed_dist : float, optional
+            Deembed distance in model units, which is ``mm`` by default. The default is ``0``, 
+            which means that deembed is disabled.
+        port_on_plane : bool, optional
+            Whether to create the port on the plane ortogonal to ``AxisDir``. The default is ``True``.
+        add_pec_cap : bool, optional
              The default is ``False``.
 
         Returns
@@ -753,20 +838,23 @@ class Hfss(FieldAnalysis3D, object):
             Port name
 
         """
-        if not self.modeler.primitives.does_object_exists(startobj) or not self.modeler.primitives.does_object_exists(endobject):
+        if not self.modeler.primitives.does_object_exists(startobj) or not self.modeler.primitives.does_object_exists(
+                endobject):
             self.messenger.add_error_message("One or both objects do not exist. Check and retry.")
             return False
         if self.solution_type in ["DrivenModal", "DrivenTerminal", "Transient Network"]:
-            sheet_name, point0, point1 = self.modeler._create_sheet_from_object_closest_edge(startobj,endobject,axisdir, port_on_plane)
+            sheet_name, point0, point1 = self.modeler._create_sheet_from_object_closest_edge(startobj, endobject,
+                                                                                             axisdir, port_on_plane)
             if add_pec_cap:
                 dist = GeometryOperators.points_distance(point0, point1)
-                self._create_pec_cap(sheet_name, axisdir, dist/10)
+                self._create_pec_cap(sheet_name, axisdir, dist / 10)
             if not portname:
                 portname = generate_unique_name("Port")
-            elif portname+":1" in self.modeler.get_excitations_name():
+            elif portname + ":1" in self.modeler.get_excitations_name():
                 portname = generate_unique_name(portname)
             if self.solution_type == "DrivenModal":
-                return self._create_waveport_driven(sheet_name, point0, point1, impedance, portname, renorm, nummodes, deembed_dist)
+                return self._create_waveport_driven(sheet_name, point0, point1, impedance, portname, renorm, nummodes,
+                                                    deembed_dist)
             else:
                 faces = self.modeler.primitives.get_object_faces(sheet_name)
                 return self._create_port_terminal(faces[0], endobject, portname, iswaveport=True)
@@ -781,13 +869,14 @@ class Hfss(FieldAnalysis3D, object):
             vector[divmod(axisdir, 3)[1]] = pecthick / 2
 
         status, pecobj = self.modeler.duplicate_along_line(sheet_name, vector)
-        self.modeler.thicken_sheet(pecobj[0], pecthick, True)
+        self.modeler.thicken_sheet(pecobj[-1], pecthick, True)
         self.assignmaterial(pecobj[0], "pec")
         return True
 
     @aedt_exception_handler
-    def create_wave_port_microstrip_between_objects(self, startobj, endobject, axisdir=0, impedance=50, nummodes=1, portname=None,
-                                         renorm=True, deembed_dist=0, vfactor=3, hfactor=5):
+    def create_wave_port_microstrip_between_objects(self, startobj, endobject, axisdir=0, impedance=50, nummodes=1,
+                                                    portname=None,
+                                                    renorm=True, deembed_dist=0, vfactor=3, hfactor=5):
         """Create a waveport taking the closest edges of two objects.
 
         Parameters
@@ -796,22 +885,24 @@ class Hfss(FieldAnalysis3D, object):
             First (starting) object for the integration line. This is typically the reference plane. 
         endobject :
             Second (ending) object for the integration line.
-        axisdir :
-            Position of the port. It should be one of the values for ``Application.AxisDir``, which are:
-            ``"XNeg"``, ``"YNeg"``, ``"ZNeg"``, ``"XPos"``, ``"YPos"``, and ``"ZPos"``. The default is ``"0"`.
-        impedance :
+        axisdir : str, optional
+            Position of the port. It should be one of the values for ``Application.AxisDir``, 
+            which are: ``"XNeg"``, ``"YNeg"``, ``"ZNeg"``, ``"XPos"``, ``"YPos"``, and ``"ZPos"``. 
+            The default is ``"0"``.
+        impedance : optional
             Port impedance. The default is ``50``.
-        nummodes : int
+        nummodes : int, optional
             Number of modes. The default is ``1``.
-        portname : str
+        portname : str, optional
             Name of the port. The default is ``None``.
-        renorm : bool
+        renorm : bool, optional
             Renormalize mode. The default is ``True``.
         deembed_dist : float
-            Deembed distance in model units, which is ``mm`` by default. If ``0``, deembed is disabled.
-        vfactor :
+            Deembed distance in model units, which is ``mm`` by default. The default is ``0``, 
+            which means deembed is disabled.
+        vfactor : optional
             Port vertical factor. The default is ``3``.
-        hfactor :
+        hfactor : optional
             Port horizontal factor. The default is ``5``.
 
         Returns
@@ -829,27 +920,33 @@ class Hfss(FieldAnalysis3D, object):
         >>> port = hfss.create_wave_port_microstrip_between_objects("GND1", "MS1",   portname="MS1", axisdir=1)
 
         """
-        if not self.modeler.primitives.does_object_exists(startobj) or not self.modeler.primitives.does_object_exists(endobject):
+        if not self.modeler.primitives.does_object_exists(startobj) or not self.modeler.primitives.does_object_exists(
+                endobject):
             self.messenger.add_error_message("One or both objects do not exist. Check and retry.")
             return False
         if self.solution_type in ["DrivenModal", "DrivenTerminal", "Transient Network"]:
-            sheet_name, point0, point1 = self.modeler._create_microstrip_sheet_from_object_closest_edge(startobj,endobject,axisdir, vfactor, hfactor)
+            sheet_name, point0, point1 = self.modeler._create_microstrip_sheet_from_object_closest_edge(startobj,
+                                                                                                        endobject,
+                                                                                                        axisdir,
+                                                                                                        vfactor,
+                                                                                                        hfactor)
             dist = GeometryOperators.points_distance(point0, point1)
-            self._create_pec_cap(sheet_name, axisdir,dist/10)
+            self._create_pec_cap(sheet_name, axisdir, dist / 10)
             if not portname:
                 portname = generate_unique_name("Port")
-            elif portname+":1" in self.modeler.get_excitations_name():
+            elif portname + ":1" in self.modeler.get_excitations_name():
                 portname = generate_unique_name(portname)
             if self.solution_type == "DrivenModal":
-                return self._create_waveport_driven(sheet_name, point0, point1, impedance, portname, renorm, nummodes, deembed_dist)
+                return self._create_waveport_driven(sheet_name, point0, point1, impedance, portname, renorm, nummodes,
+                                                    deembed_dist)
             else:
                 faces = self.modeler.primitives.get_object_faces(sheet_name)
                 return self._create_port_terminal(faces[0], endobject, portname, iswaveport=True)
         return False
 
-
     @aedt_exception_handler
-    def create_perfecte_from_objects(self, startobj, endobject, axisdir=0, sourcename=None, is_infinite_gnd=False, bound_on_plane=True ):
+    def create_perfecte_from_objects(self, startobj, endobject, axisdir=0, sourcename=None, is_infinite_gnd=False,
+                                     bound_on_plane=True):
         """Creates a Perfect E  taking the closest edges of two objects.
 
         Parameters
@@ -858,27 +955,30 @@ class Hfss(FieldAnalysis3D, object):
             First object (starting object for integration line)
         endobject :
             Second object (ending object for integration line)
-        axisdir :
-            Position of the port. It should be one of the values for ``Application.AxisDir``, which are:
-            ``"XNeg"``, ``"YNeg"``, ``"ZNeg"``, ``"XPos"``, ``"YPos"``, and ``"ZPos"``. The default is ``"0"`.
-        sourcename : str
+        axisdir : str, optional
+            Position of the port. It should be one of the values for ``Application.AxisDir``, 
+            which are: ``"XNeg"``, ``"YNeg"``, ``"ZNeg"``, ``"XPos"``, ``"YPos"``, and ``"ZPos"``. 
+            The default is ``"0"``.
+        sourcename : str, optional
             Perfect E name. The default is ``None``.
-        bound_on_plane : bool
-            If ``True``, the Perfect E is to be created on the plane ortogonal to ``AxisDir``. The default is ``True``.
-        is_infinite_gnd :
+        is_infinite_gnd : bool, optional
              The default is ``False``.
-
+        bound_on_plane : bool, optional
+            Whether to create the Perfect E on the plane ortogonal to ``AxisDir``. The default is ``True``.
+        
         Returns
         -------
         :class: BoundaryObject
             Boundary object
 
         """
-        if not self.modeler.primitives.does_object_exists(startobj) or not self.modeler.primitives.does_object_exists(endobject):
+        if not self.modeler.primitives.does_object_exists(startobj) or not self.modeler.primitives.does_object_exists(
+                endobject):
             self.messenger.add_error_message("One or both objects do not exist. Check and retry.")
             return False
         if self.solution_type in ["DrivenModal", "DrivenTerminal", "Transient Network"]:
-            sheet_name, point0, point1 = self.modeler._create_sheet_from_object_closest_edge(startobj,endobject,axisdir, bound_on_plane)
+            sheet_name, point0, point1 = self.modeler._create_sheet_from_object_closest_edge(startobj, endobject,
+                                                                                             axisdir, bound_on_plane)
 
             if not sourcename:
                 sourcename = generate_unique_name("PerfE")
@@ -888,7 +988,7 @@ class Hfss(FieldAnalysis3D, object):
         return False
 
     @aedt_exception_handler
-    def create_perfecth_from_objects(self, startobj, endobject, axisdir=0, sourcename=None,bound_on_plane=True):
+    def create_perfecth_from_objects(self, startobj, endobject, axisdir=0, sourcename=None, bound_on_plane=True):
         """Create a Perfect H taking the closest edges of two objects.
 
         Parameters
@@ -897,13 +997,14 @@ class Hfss(FieldAnalysis3D, object):
             First (starting) object for the integration line.
         endobject :
             Second (ending) object for the integration line.
-        axisdir :
-            Position of the port. It should be one of the values for ``Application.AxisDir``, which are:
-            ``"XNeg"``, ``"YNeg"``, ``"ZNeg"``, ``"XPos"``, ``"YPos"``, and ``"ZPos"``. The default is ``"0"`.
-        sourcename : str
+        axisdir : str, optional
+            Position of the port. It should be one of the values for ``Application.AxisDir``, 
+            which are: ``"XNeg"``, ``"YNeg"``, ``"ZNeg"``, ``"XPos"``, ``"YPos"``, and ``"ZPos"``. 
+            The default is ``"0"``.
+        sourcename : str, optional
             Perfect H name. The default is ``None``.
-        bound_on_plane : bool
-            If ``True``, Perfect H is to created on the plane ortogonal to ``AxisDir``. The default is ``True``.
+        bound_on_plane : bool, optional
+            Whether to create the Perfect H on the plane ortogonal to ``AxisDir``. The default is ``True``.
 
         Returns
         -------
@@ -911,11 +1012,13 @@ class Hfss(FieldAnalysis3D, object):
             Boundary object
 
         """
-        if not self.modeler.primitives.does_object_exists(startobj) or not self.modeler.primitives.does_object_exists(endobject):
+        if not self.modeler.primitives.does_object_exists(startobj) or not self.modeler.primitives.does_object_exists(
+                endobject):
             self.messenger.add_error_message("One or both objects do not exist. Check and retry.")
             return False
         if self.solution_type in ["DrivenModal", "DrivenTerminal", "Transient Network"]:
-            sheet_name, point0, point1 = self.modeler._create_sheet_from_object_closest_edge(startobj,endobject,axisdir, bound_on_plane)
+            sheet_name, point0, point1 = self.modeler._create_sheet_from_object_closest_edge(startobj, endobject,
+                                                                                             axisdir, bound_on_plane)
 
             if not sourcename:
                 sourcename = generate_unique_name("PerfH")
@@ -925,22 +1028,20 @@ class Hfss(FieldAnalysis3D, object):
         return None
 
     @aedt_exception_handler
-    def SARSetup(self,Tissue_object_List_ID, TissueMass=1, MaterialDensity=1,  voxel_size=1, Average_SAR_method=0):
+    def SARSetup(self, Tissue_object_List_ID, TissueMass=1, MaterialDensity=1, voxel_size=1, Average_SAR_method=0):
         """Set SAR settings.
 
         Parameters
         ----------
         Tissue_object_List_ID :
             33
-        TissueMass :
+        TissueMass : optional
             The default is ``1``.
-        MaterialDensity : 
+        MaterialDensity : optional
             The default is ``1``.
-        voxel_size :
+        voxel_size : optional
             The default is ``1``.
-        MaterialDensity :
-            The default is ``1``.
-        Average_SAR_method :
+        Average_SAR_method : optional
             The default is ``0``.
 
         Returns
@@ -956,25 +1057,25 @@ class Hfss(FieldAnalysis3D, object):
 
         Parameters
         ----------
-        Frequency : str
+        Frequency : str, optional
             Frequency with units. The  default is ``"1GHz"``.
-        Boundary : str
-            Boundary type. The default is ``"Radition"``.
-        ApplyInfiniteGP : bool
-            Indicatews whether to apply an infinite ground plane. The default is ``False``.
-        GPAXis :
-            The default is``-z``.
+        Boundary : str, optional
+            Type of boundary. The default is ``"Radition"``.
+        ApplyInfiniteGP : bool, optional
+            Whether to apply an infinite ground plane. The default is ``False``.
+        GPAXis : st, optional
+            The default is``"-z"``.
 
         Returns
         -------
         Boolean
         """
-        vars= [
-                "NAME:Settings",
-                "OpFreq:="	, Frequency,
-                "Boundary:="		, Boundary,
-                "ApplyInfiniteGP:="	, ApplyInfiniteGP
-            ]
+        vars = [
+            "NAME:Settings",
+            "OpFreq:=", Frequency,
+            "Boundary:=", Boundary,
+            "ApplyInfiniteGP:=", ApplyInfiniteGP
+        ]
         if ApplyInfiniteGP:
             vars.append("Direction:=")
             vars.append(GPAXis)
@@ -994,20 +1095,21 @@ class Hfss(FieldAnalysis3D, object):
         endobject :
             Second (ending) object for the integration line.
         axisdir :
-            Position of the port. It should be one of the values for ``Application.AxisDir``, which are:
-            ``"XNeg"``, ``"YNeg"``, ``"ZNeg"``, ``"XPos"``, ``"YPos"``, and ``"ZPos"``. The default is ``"0"`.
-        sourcename : str
+            Position of the port. It should be one of the values for ``Application.AxisDir``, 
+            which are: ``"XNeg"``, ``"YNeg"``, ``"ZNeg"``, ``"XPos"``, ``"YPos"``, and ``"ZPos"``. 
+            The default is ``"0"``.
+        sourcename : str, optional
             Perfect H name. The default is ``None``.
-        Cvalue :
-            Capacitance value in F. None to disable. The default is ``None``.
-        Lvalue :
-            Inductance value in H. None to disable. The default is ``None``.
-        rlctype : str
-            The RLC type. Choices are ``"Parallel"" or ""Series"". The default is ``"Parallel"``.
-        Rvalue :
+        rlctype : str, optional
+            The type of RLC. Choices are ``"Parallel"" or ""Series"". The default is ``"Parallel"``.
+        Rvalue : optional
             Resistance value in Ohm. None to disable. The default is ``None``.
-        bound_on_plane : bool
-            If ``True``, the boundary is to be created on the plane ortogonal to ``AxisDir``.
+        Lvalue : optional
+            Inductance value in H. None to disable. The default is ``None``.
+        Cvalue : optional
+            Capacitance value in F. None to disable. The default is ``None``.
+        bound_on_plane : bool, optional
+            Whether to create the boundary on the plane ortogonal to ``AxisDir``.
             The default is ``True``.
 
         Returns
@@ -1016,11 +1118,14 @@ class Hfss(FieldAnalysis3D, object):
             Boundary name
 
         """
-        if not self.modeler.primitives.does_object_exists(startobj) or not self.modeler.primitives.does_object_exists(endobject):
+        if not self.modeler.primitives.does_object_exists(startobj) or not self.modeler.primitives.does_object_exists(
+                endobject):
             self.messenger.add_error_message("One or both objects do not exist. Check and retry.")
             return False
-        if self.solution_type in ["DrivenModal", "DrivenTerminal", "Transient Network"] and (Rvalue or Lvalue or Cvalue):
-            sheet_name, point0, point1 = self.modeler._create_sheet_from_object_closest_edge(startobj,endobject,axisdir, bound_on_plane)
+        if self.solution_type in ["DrivenModal", "DrivenTerminal", "Transient Network"] and (
+                Rvalue or Lvalue or Cvalue):
+            sheet_name, point0, point1 = self.modeler._create_sheet_from_object_closest_edge(startobj, endobject,
+                                                                                             axisdir, bound_on_plane)
 
             if not sourcename:
                 sourcename = generate_unique_name("Lump")
@@ -1031,17 +1136,17 @@ class Hfss(FieldAnalysis3D, object):
 
             props = OrderedDict()
             props["Objects"] = [sheet_name]
-            props["CurrentLine"] = OrderedDict({"Start":start, "End": stop})
+            props["CurrentLine"] = OrderedDict({"Start": start, "End": stop})
             props["RLC Type"] = [rlctype]
             if Rvalue:
                 props["UseResist"] = True
-                props["Resistance"] = str(Rvalue)+"ohm"
+                props["Resistance"] = str(Rvalue) + "ohm"
             if Lvalue:
                 props["UseInduct"] = True
-                props["Inductance"] = str(Lvalue)+"H"
+                props["Inductance"] = str(Lvalue) + "H"
             if Cvalue:
                 props["UseCap"] = True
-                props["Capacitance"] = str(Cvalue)+"F"
+                props["Capacitance"] = str(Cvalue) + "F"
             bound = BoundaryObject(self, sourcename, props, "LumpedRLC")
             if bound.create():
                 self.boundaries.append(bound)
@@ -1049,7 +1154,8 @@ class Hfss(FieldAnalysis3D, object):
         return False
 
     @aedt_exception_handler
-    def create_impedance_between_objects(self, startobj, endobject, axisdir=0, sourcename=None, resistance=50, reactance=0, is_infground=False, bound_on_plane=True):
+    def create_impedance_between_objects(self, startobj, endobject, axisdir=0, sourcename=None, resistance=50,
+                                         reactance=0, is_infground=False, bound_on_plane=True):
         """Create an impedance taking the closest edges of two objects.
 
         Parameters
@@ -1058,19 +1164,21 @@ class Hfss(FieldAnalysis3D, object):
             First (starting) object for the integration line.
         endobject :
             Second (ending) object for the integration line.
-        axisdir :
-            Position of the impedance. It should be one of the values for ``Application.AxisDir``, which are:
-            ``"XNeg"``, ``"YNeg"``, ``"ZNeg"``, ``"XPos"``, ``"YPos"``, and ``"ZPos"``. The default is ``"0"`.
-        sourcename : str
+        axisdir : str, optional
+            Position of the impedance. It should be one of the values for ``Application.AxisDir``, 
+            which are: ``"XNeg"``, ``"YNeg"``, ``"ZNeg"``, ``"XPos"``, ``"YPos"``, and ``"ZPos"``. 
+            The default is ``"0"``.
+        sourcename : str, optional
             Name of the impedance. The default is ``None``.
-        resistance :
+        resistance : optional
             Resistance value in Ohm. None to disable. The default is ``50``.
-        reactance :
+        reactance : optional
             Reactance value in Ohm. None to disable. The default is ``0``.
-        bound_on_plane : bool
-            If ``True``, the impedance is to be created on the plane ortogonal to ``AxisDir``. The default is ``True``.
-        is_infground : bool
+        is_infground : bool, optional
             The default is ``False``.
+        bound_on_plane : bool, optional
+            Whether to create the impedance on the plane ortogonal to ``AxisDir``. The default is ``True``.
+        
 
         Returns
         -------
@@ -1078,11 +1186,13 @@ class Hfss(FieldAnalysis3D, object):
             Boundary name
 
         """
-        if not self.modeler.primitives.does_object_exists(startobj) or not self.modeler.primitives.does_object_exists(endobject):
+        if not self.modeler.primitives.does_object_exists(startobj) or not self.modeler.primitives.does_object_exists(
+                endobject):
             self.messenger.add_error_message("One or both objects do not exist. Check and retry.")
             return False
-        if self.solution_type in ["DrivenModal", "DrivenTerminal", "Transient Network"] :
-            sheet_name, point0, point1 = self.modeler._create_sheet_from_object_closest_edge(startobj, endobject, axisdir, bound_on_plane)
+        if self.solution_type in ["DrivenModal", "DrivenTerminal", "Transient Network"]:
+            sheet_name, point0, point1 = self.modeler._create_sheet_from_object_closest_edge(startobj, endobject,
+                                                                                             axisdir, bound_on_plane)
 
             if not sourcename:
                 sourcename = generate_unique_name("Imped")
@@ -1098,16 +1208,19 @@ class Hfss(FieldAnalysis3D, object):
         return False
 
     @aedt_exception_handler
-    def create_boundary(self, boundary_type=BoundaryType.PerfectE, sheet_name=None, boundary_name="", is_infinite_gnd=False):
+    def create_boundary(self, boundary_type=BoundaryType.PerfectE, sheet_name=None, boundary_name="",
+                        is_infinite_gnd=False):
         """Create a boundary given specific inputs.
 
         Parameters
         ----------
-        boundary_type :
-            Boundary type object. Choices are ``"PerfectE"``, ``"PerfectH"``, ``"Aperture"``, and ``"Radiation"``. The default is ``"BoundaryType.PerfectE"``.
-        sheet_name : in, str, list
-            Name of the sheet. It can be an integer (facesID), a string (sheet), or a list. The default is ``None``.
-        boundary_name : str
+        boundary_type : str, optional
+            Boundary type object. Choices are ``"PerfectE"``, ``"PerfectH"``, ``"Aperture"``, and 
+            ``"Radiation"``. The default is ``"BoundaryType.PerfectE"``.
+        sheet_name : in, str, list, optional
+            Name of the sheet. It can be an integer (facesID), a string (sheet), or a list of integers
+            and strings. The default is ``None``.
+        boundary_name : str, optional
             Name of the boundary. The default is ``""``.
         is_infinite_gnd : bool
             The default is ``False``.
@@ -1164,7 +1277,7 @@ class Hfss(FieldAnalysis3D, object):
             for el in mid_points:
                 if el[axisdir - 3] > min_point[axisdir - 3]:
                     min_point = el
-                if el[axisdir-3] < max_point[axisdir-3]:
+                if el[axisdir - 3] < max_point[axisdir - 3]:
                     max_point = el
 
         refid = self.modeler.primitives.get_bodynames_from_position(min_point)
@@ -1174,7 +1287,7 @@ class Hfss(FieldAnalysis3D, object):
             if el in diels:
                 refid.remove(el)
 
-        int_start=None
+        int_start = None
         int_stop = None
         if min_point != max_point:
             int_start = min_point
@@ -1190,21 +1303,23 @@ class Hfss(FieldAnalysis3D, object):
         ----------
         sheet : list
             List of input sheets from which to create ports.
-        deemb : float
+        deemb : float, optional
             Deembedding value distance in model units. The default is ``0``.
-        axisdir :
-            Position of the reference object. It should be one of the values for ``Application.AxisDir``, which are:
-            ``"XNeg"``, ``"YNeg"``, ``"ZNeg"``, ``"XPos"``, ``"YPos"``, and ``"ZPos"``. The default is ``"0"`.
-        impedance :
+        axisdir : str, optional
+            Position of the reference object. It should be one of the values for ``Application.AxisDir``, 
+            which are: ``"XNeg"``, ``"YNeg"``, ``"ZNeg"``, ``"XPos"``, ``"YPos"``, and ``"ZPos"``. 
+            The default is ``"0"``.
+        impedance : optional
             Port impedance. The default is ``50``.
-        nummodes : int
+        nummodes : int, optional
             Number of modes. The default is ``1``.
-        portname : str
+        portname : str, optional
             Name of the port. The default is ``None``.
-        renorm : bool
+        renorm : bool, optional
             Renormalize mode. The default is ``True``.
         deembed_dist : float
-            Deembed distance in model units, where the default units is ``"mm"`` if ``0`` deembed is disabled.
+            Deembed distance in model units, where the default units is ``"mm"``. The default is ``0``,
+            which means that deembed is disabled.
 
         Returns
         -------
@@ -1218,7 +1333,7 @@ class Hfss(FieldAnalysis3D, object):
 
             if not portname:
                 portname = generate_unique_name("Port")
-            elif portname+":1" in self.modeler.get_excitations_name():
+            elif portname + ":1" in self.modeler.get_excitations_name():
                 portname = generate_unique_name(portname)
             if self.solution_type == "DrivenModal":
                 b = self._create_waveport_driven(obj, int_start, int_stop, impedance, portname, renorm, nummodes, deemb)
@@ -1226,7 +1341,7 @@ class Hfss(FieldAnalysis3D, object):
                     portnames.append(b)
             else:
                 faces = self.modeler.primitives.get_object_faces(obj)
-                if len(refid)>0:
+                if len(refid) > 0:
                     b = self._create_port_terminal(faces[0], refid, portname, iswaveport=True)
                     if b:
                         portnames.append(b)
@@ -1243,20 +1358,21 @@ class Hfss(FieldAnalysis3D, object):
         Parameters
         ----------
         sheet_name : str
-            Name of sheet.
-        axisdir :
-            Direction of port. It should be one of the values for ``Application.AxisDir``, which are:
-            ``"XNeg"``, ``"YNeg"``, ``"ZNeg"``, ``"XPos"``, ``"YPos"``, and ``"ZPos"``. The default is ``"0"`.
-        impedance :
+            Name of the sheet.
+        axisdir : optional
+            Direction of port. It should be one of the values for ``Application.AxisDir``, 
+            which are: ``"XNeg"``, ``"YNeg"``, ``"ZNeg"``, ``"XPos"``, ``"YPos"``, and ``"ZPos"``. 
+            The default is ``"0"`.
+        impedance : optional
             Port impedance. The default is ``50``.
-        portname : str
+        portname : str, optional
             Name of the port. The default is ``None``.
-        renorm : bool
+        renorm : bool, optional
             Renormalize mode. The default is ``True``.
-        deemb : bool
-            Deembed port. The default is ``False``.
-        reference_object_list : list
-            For Driven Terminal Solutions only. List of reference conductors. The default is ``[]``.
+        deemb : bool, optional
+            Whether to deembed the port. The default is ``False``.
+        reference_object_list : list, optional
+            For Driven Terminal Solutions only, a list of reference conductors. The default is ``[]``.
 
         Returns
         -------
@@ -1302,9 +1418,10 @@ class Hfss(FieldAnalysis3D, object):
         ----------
         sheet_name : str
             Name of the sheet on which to apply the boundary.
-        axisdir :
-            Position of the VS. It should be one of the values for ``Application.AxisDir``, which are:
-            ``"XNeg"``, ``"YNeg"``, ``"ZNeg"``, ``"XPos"``, ``"YPos"``, and ``"ZPos"``. The default is ``"0"`.
+        axisdir : str, optional
+            Position of the VS. It should be one of the values for ``Application.AxisDir``, 
+            which are: ``"XNeg"``, ``"YNeg"``, ``"ZNeg"``, ``"XPos"``, ``"YPos"``, and ``"ZPos"``. 
+            The default is ``"0"``.
         sourcename : str, optional
             Name of the source. The default is ``None``.
 
@@ -1319,7 +1436,7 @@ class Hfss(FieldAnalysis3D, object):
             point0, point1 = self.modeler.primitives.get_mid_points_on_dir(sheet_name, axisdir)
             if not sourcename:
                 sourcename = generate_unique_name("Voltage")
-            elif sourcename+":1" in self.modeler.get_excitations_name():
+            elif sourcename + ":1" in self.modeler.get_excitations_name():
                 sourcename = generate_unique_name(sourcename)
             status = self.create_source_excitation(sheet_name, point0, point1, sourcename, sourcetype="Voltage")
             if status:
@@ -1329,16 +1446,17 @@ class Hfss(FieldAnalysis3D, object):
         return False
 
     @aedt_exception_handler
-    def assign_current_source_to_sheet(self, sheet_name,  axisdir=0, sourcename=None):
-        """Creates a voltage source taking one sheet.
+    def assign_current_source_to_sheet(self, sheet_name, axisdir=0, sourcename=None):
+        """Create a voltage source taking one sheet.
 
         Parameters
         ----------
         sheet_name : str
             Name of the sheet on which to apply the boundary.
-        axisdir :
-            Position of VS. It should be one of the values for ``Application.AxisDir``, which are:
-            ``"XNeg"``, ``"YNeg"``, ``"ZNeg"``, ``"XPos"``, ``"YPos"``, and ``"ZPos"``. The default is ``"0"`.
+        axisdir : str, optional
+            Position of VS. It should be one of the values for ``Application.AxisDir``, 
+            which are: ``"XNeg"``, ``"YNeg"``, ``"ZNeg"``, ``"XPos"``, ``"YPos"``, and ``"ZPos"``. 
+            The default is ``"0"``.
         sourcename : str, optional
            Name of the source. The default is ``None``.
 
@@ -1353,7 +1471,7 @@ class Hfss(FieldAnalysis3D, object):
             point0, point1 = self.modeler.primitives.get_mid_points_on_dir(sheet_name, axisdir)
             if not sourcename:
                 sourcename = generate_unique_name("Current")
-            elif sourcename+":1" in self.modeler.get_excitations_name():
+            elif sourcename + ":1" in self.modeler.get_excitations_name():
                 sourcename = generate_unique_name(sourcename)
             status = self.create_source_excitation(sheet_name, point0, point1, sourcename, sourcetype="Current")
             if status:
@@ -1363,17 +1481,17 @@ class Hfss(FieldAnalysis3D, object):
         return False
 
     @aedt_exception_handler
-    def assign_perfecte_to_sheets(self, sheet_list, sourcename=None, is_infinite_gnd=False ):
-        """Creates a Perfect E  taking one sheet.
+    def assign_perfecte_to_sheets(self, sheet_list, sourcename=None, is_infinite_gnd=False):
+        """Create a Perfect E  taking one sheet.
 
         Parameters
         ----------
         sheet_list : str or list
             Name of the sheet or list on which to apply the boundary.
-        sourcename :
+        sourcename : str, optional
             Perfect E name. The default is ``None``.
-        is_infinite_gnd : bool
-            Determine if Perfect E is an infinite ground. The default is ``False``.
+        is_infinite_gnd : bool, optional
+            Whether the Perfect E is an infinite ground. The default is ``False``.
 
         Returns
         -------
@@ -1381,7 +1499,7 @@ class Hfss(FieldAnalysis3D, object):
             Boundary object
 
         """
-        if self.solution_type in ["DrivenModal", "DrivenTerminal", "Transient Network"]:
+        if self.solution_type in ["DrivenModal", "DrivenTerminal", "Transient Network", "SBR+"]:
             if not sourcename:
                 sourcename = generate_unique_name("PerfE")
             elif sourcename in self.modeler.get_boundaries_name():
@@ -1397,7 +1515,7 @@ class Hfss(FieldAnalysis3D, object):
         ----------
         sheet_list : list
             List of sheets on which to apply the boundary.
-        sourcename : str
+        sourcename : str, optional
             Perfect H name. The default is ``None``.
 
         Returns
@@ -1406,7 +1524,7 @@ class Hfss(FieldAnalysis3D, object):
             Boundary object
 
         """
-        if self.solution_type in ["DrivenModal", "DrivenTerminal", "Transient Network"]:
+        if self.solution_type in ["DrivenModal", "DrivenTerminal", "Transient Network", "SBR+"]:
 
             if not sourcename:
                 sourcename = generate_unique_name("PerfH")
@@ -1417,27 +1535,28 @@ class Hfss(FieldAnalysis3D, object):
 
     @aedt_exception_handler
     def assign_lumped_rlc_to_sheet(self, sheet_name, axisdir=0, sourcename=None, rlctype="Parallel",
-                                          Rvalue=None, Lvalue=None, Cvalue=None):
+                                   Rvalue=None, Lvalue=None, Cvalue=None):
         """Create a Perfect H taking one sheet.
 
         Parameters
         ----------
         sheet_name : str
             Name of the sheet on which to apply the boundary.
-        axisdir :
-            Position of the port. It should be one of the values for ``Application.AxisDir``, which are:
-            ``"XNeg"``, ``"YNeg"``, ``"ZNeg"``, ``"XPos"``, ``"YPos"``, and ``"ZPos"``. The default is ``"0"`.
-        sourcename : str
+        axisdir : st, optional
+            Position of the port. It should be one of the values for ``Application.AxisDir``, 
+            which are: ``"XNeg"``, ``"YNeg"``, ``"ZNeg"``, ``"XPos"``, ``"YPos"``, and ``"ZPos"``. 
+            The default is ``"0"``.
+        sourcename : str, optional
             Perfect H name. The default is ``None``.
-        Cvalue :
-            Capacitance value in F. None to disable. The default is ``None``.
-        Lvalue :
-            Inductance value in H. None to disable. The default is ``None``.
-        rlctype : str
-            The RLC type. Choices are ``"Parallel"`` or ``"Series"``. The default is ``"Parallel"``.
-        Rvalue :
+        rlctype : str, optional
+            The type of RLC. Choices are ``"Parallel"`` or ``"Series"``. The default is ``"Parallel"``.
+        Rvalue : optional
             Resistance value in Ohm. None to disable. The default is ``None``.
-
+        Lvalue : optional
+            Inductance value in H. None to disable. The default is ``None``.
+        Cvalue : optional
+            Capacitance value in F. None to disable. The default is ``None``.
+       
         Returns
         -------
         type
@@ -1445,7 +1564,8 @@ class Hfss(FieldAnalysis3D, object):
 
         """
 
-        if self.solution_type in ["DrivenModal", "DrivenTerminal", "Transient Network"] and (Rvalue or Lvalue or Cvalue):
+        if self.solution_type in ["DrivenModal", "DrivenTerminal", "Transient Network", "SBR+"] and (
+                Rvalue or Lvalue or Cvalue):
             point0, point1 = self.modeler.primitives.get_mid_points_on_dir(sheet_name, axisdir)
 
             if not sourcename:
@@ -1456,17 +1576,17 @@ class Hfss(FieldAnalysis3D, object):
             stop = [str(i) + self.modeler.primitives.model_units for i in point1]
             props = OrderedDict()
             props["Objects"] = [sheet_name]
-            props["CurrentLine"] = OrderedDict({"Start":start, "End": stop})
+            props["CurrentLine"] = OrderedDict({"Start": start, "End": stop})
             props["RLC Type"] = [rlctype]
             if Rvalue:
                 props["UseResist"] = True
-                props["Resistance"] = str(Rvalue)+"ohm"
+                props["Resistance"] = str(Rvalue) + "ohm"
             if Lvalue:
                 props["UseInduct"] = True
-                props["Inductance"] = str(Lvalue)+"H"
+                props["Inductance"] = str(Lvalue) + "H"
             if Cvalue:
                 props["UseCap"] = True
-                props["Capacitance"] = str(Cvalue)+"F"
+                props["Capacitance"] = str(Cvalue) + "F"
             bound = BoundaryObject(self, sourcename, props, "LumpedRLC")
             if bound.create():
                 self.boundaries.append(bound)
@@ -1481,13 +1601,13 @@ class Hfss(FieldAnalysis3D, object):
         ----------
         sheet_name : str
             Name of the sheet on which to apply the boundary.
-        sourcename : str
+        sourcename : str, optional
             Impedance name. The default is ``None``.
-        resistance :
+        resistance : optional
             Resistance value in Ohm. None to disable. The default is ``50``.
-        reactance :
+        reactance : optional
             Reactance value in Ohm. None to disable. The default is ``0``.
-        is_infground : bool
+        is_infground : bool, optional
              The default is ``False``.
 
         Returns
@@ -1497,7 +1617,7 @@ class Hfss(FieldAnalysis3D, object):
 
         """
 
-        if self.solution_type in ["DrivenModal", "DrivenTerminal", "Transient Network"] :
+        if self.solution_type in ["DrivenModal", "DrivenTerminal", "Transient Network"]:
 
             if not sourcename:
                 sourcename = generate_unique_name("Imped")
@@ -1511,6 +1631,7 @@ class Hfss(FieldAnalysis3D, object):
                 return bound
         return False
 
+
     @aedt_exception_handler
     def create_circuit_port_from_edges(self, edge_signal, edge_gnd, port_name="",
                                        port_impedance="50",
@@ -1519,7 +1640,8 @@ class Hfss(FieldAnalysis3D, object):
         """Create circuit port. Integration line is from edge2 to edge1.
         
         Renormalize impedance is ignored in driven terminal.
-        impedance format: - int, float, str:"50", str: "50+1i*55"
+        
+        Impedance format: - int, float, str:"50", str: "50+1i*55"
 
         Parameters
         ----------
@@ -1527,16 +1649,16 @@ class Hfss(FieldAnalysis3D, object):
             Edge ID.
         edge_gnd :
             Edge ID.
-        port_name : str
+        port_name : str, optional
             Name of the port. The default is ``""``.
-        port_impedance : str
+        port_impedance : str, optional
             Impedance. The default is ``50``.
         renormalize : bool
             The default is ``False``.
-        renorm_impedance :  str
+        renorm_impedance :  str, optional
             Impedance. The default is ``50``
-        deembed : bool
-            The default is ``50``
+        deembed : bool. optional
+            Whether to deembed the port. The default is ``False``
 
         Returns
         -------
@@ -1563,12 +1685,12 @@ class Hfss(FieldAnalysis3D, object):
 
         Parameters
         ----------
+        portandmode : str
+            Port name and mode. Example: ``"Port1:1"``
         powerin :
             Power (in Watts) or the project variable to be put as stored energy in the the project.
-        portandmode :
-            Port name and mode. Example: ``Port1:1``
-        phase : str
-             The default is ``"0deg"``.
+        phase : str, optional
+            The default is ``"0deg"``.
 
         Returns
         -------
@@ -1585,25 +1707,27 @@ class Hfss(FieldAnalysis3D, object):
 
     @aedt_exception_handler
     def thicken_port_sheets(self, inputlist, value, internalExtr=True, internalvalue=1):
-        """thicken_port_sheets: Create thicken sheets of value "mm" over the full list of input port faces inputlist.
+        """thicken_port_sheets: Create thicken sheets of value "mm" over the full list of 
+        input port faces inputlist.
        
         Parameters
         ----------
         inputlist : list
             List of faces to thicken.
         value :
-            Value in mm to thicken.
-        internalExtr : bool
-            Indicates if the sheet must also be extruded internally. The default is ``True``.
-        internalvalue :
-            The value in mm to thicken the sheet internally (vgoing into the model) if ``internalExtr=True``. The default is ``1``.
+            Value in mm to thicken the faces.
+        internalExtr : bool, optional
+            Whether the sheet must also be extruded internally. The default is ``True``.
+        internalvalue : optional
+            Value in mm to thicken the sheet internally (vgoing into the model) if ``internalExtr=True``. 
+            The default is ``1``.
 
         Returns
         -------
 
         """
         tol = 1e-6
-        ports_ID={}
+        ports_ID = {}
         aedt_bounding_box = self.modeler.primitives.get_model_bounding_box()
         directions = {}
         for el in inputlist:
@@ -1690,8 +1814,8 @@ class Hfss(FieldAnalysis3D, object):
                         fc2 = [float(i) for i in fc2]
                         fa2 = self.modeler.primitives.get_face_area(int(f))
                         faceoriginal = [float(i) for i in faceCenter]
-                        #dist = mat.sqrt(sum([(a*a-b*b) for a,b in zip(faceCenter, fc2)]))
-                        if abs(fa2 - maxarea) < tol**2 and (abs(faceoriginal[2] - fc2[2]) > tol or abs(
+                        # dist = mat.sqrt(sum([(a*a-b*b) for a,b in zip(faceCenter, fc2)]))
+                        if abs(fa2 - maxarea) < tol ** 2 and (abs(faceoriginal[2] - fc2[2]) > tol or abs(
                                 faceoriginal[1] - fc2[1]) > tol or abs(faceoriginal[0] - fc2[0]) > tol):
                             ports_ID[el] = int(f)
 
@@ -1744,7 +1868,7 @@ class Hfss(FieldAnalysis3D, object):
             Name of the design to validate. The default is ``None``.
         outputdir : str, optional
             Output directory to which to save the log file. The default is ``None``.
-        ports : int
+        ports : int, optional
             Number of excitations (sum of modes) that is expected. The default is ``None``.
 
         Returns
@@ -1848,9 +1972,9 @@ class Hfss(FieldAnalysis3D, object):
                 f.write("%s\n" % item)
         return val_list, validation_ok  # Return all the information in a list for later use.
 
-
     @aedt_exception_handler
-    def create_scattering(self, PlotName="S Parameter Plot Nominal", sweep_name=None, PortNames=None, PortExcited=None, variations=None ):
+    def create_scattering(self, PlotName="S Parameter Plot Nominal", sweep_name=None, PortNames=None, PortExcited=None,
+                          variations=None):
         """Create scattering report.
         
         
@@ -1861,15 +1985,15 @@ class Hfss(FieldAnalysis3D, object):
 
         Parameters
         ----------
-        PlotName : str
+        PlotName : str, optional
              Name of the plot. The default is ``" S Parameter Plot Nominal"``.
-        sweep_name : str
+        sweep_name : str, optional
              Name of the sweep. The default is ``None``.
-        PortNames : str
+        PortNames : str, optional
              Name of the port. The default is ``None``.
-        PortExcited : str
+        PortExcited : str, optional
              The default is ``None``.
-        variations : str
+        variations : str, optional
              The default is ``None``.
 
         Returns
@@ -1943,7 +2067,7 @@ class Hfss(FieldAnalysis3D, object):
             Name of the setup from which to generate the report.
         plotname : str
             Name of the plot.
-        Xaxis : str
+        Xaxis : str, optional
             X-axis value. The default is ``"X"``.
 
         Returns
@@ -1970,11 +2094,11 @@ class Hfss(FieldAnalysis3D, object):
              Name of the solution that has been solved.
         sweepname : str
              Name of the sweep that has been solved.
-        filename : str
+        filename : str, optional
              Full path to the output file. The default is ``None``.
-        variation : list
+        variation : list, optional
              List of all parameter variations, such as ``["$AmbientTemp", "$PowerIn"]``. The default is ``[]``.
-        variations_value : list
+        variations_value : list, optional
              List of all parameter variation values), such as ``["22cel", "100"]``. The default is ``[]``.
 
         Returns
@@ -1985,18 +2109,18 @@ class Hfss(FieldAnalysis3D, object):
         # Normalize the save path
         if not filename:
             appendix = ""
-            for v, vv in zip(variation,variations_value):
-                appendix += "_"+ v + vv.replace("\'","")
-            ext = ".S" + str(self.oboundary.GetNumExcitations())+"p"
-            filename = os.path.join(self.project_path, solutionname +"_"+ sweepname + appendix + ext)
+            for v, vv in zip(variation, variations_value):
+                appendix += "_" + v + vv.replace("\'", "")
+            ext = ".S" + str(self.oboundary.GetNumExcitations()) + "p"
+            filename = os.path.join(self.project_path, solutionname + "_" + sweepname + appendix + ext)
         else:
             filename = filename.replace("//", "/").replace("\\", "/")
         print("Exporting Touchstone " + filename)
         DesignVariations = ""
-        i=0
+        i = 0
         for el in variation:
             DesignVariations += str(variation[i]) + "=\'" + str(variations_value[i].replace("\'", "")) + "\' "
-            i+=1
+            i += 1
             # DesignVariations = "$AmbientTemp=\'22cel\' $PowerIn=\'100\'"
         # array containing "SetupName:SolutionName" pairs (note that setup and solution are separated by a colon)
         SolutionSelectionArray = [solutionname + ":" + sweepname]
@@ -2020,7 +2144,6 @@ class Hfss(FieldAnalysis3D, object):
                                          NonStandardExtensions)
         return True
 
-
     @aedt_exception_handler
     def set_export_touchstone(self, activate):
         """Set automatic export of the Touchstone file after simulation if set to ``True``.
@@ -2028,7 +2151,7 @@ class Hfss(FieldAnalysis3D, object):
         Parameters
         ----------
         activate : bool
-            Export after simulation.
+            Whether to export the Touchstone file after the simulation finishes.
 
         Returns
         -------
@@ -2059,14 +2182,14 @@ class Hfss(FieldAnalysis3D, object):
         ----------
         obj_names : str
              Names of the objects.       
-        boundary_name : str
+        boundary_name : str, optional
              Name of the boundary. The default is ``""``.
 
         Returns
         -------
 
         """
-        #TODO: to be tested
+        # TODO: to be tested
 
         """
         Assign radiation boundary to one or more objects (usually airbox objects).
@@ -2080,7 +2203,7 @@ class Hfss(FieldAnalysis3D, object):
             rad_name = boundary_name
         else:
             rad_name = generate_unique_name("Rad_")
-        return self.create_boundary(self.BoundaryType.Radiation, object_list,rad_name)
+        return self.create_boundary(self.BoundaryType.Radiation, object_list, rad_name)
 
     @aedt_exception_handler
     def assign_radiation_boundary_to_faces(self, faces_id, boundary_name=""):

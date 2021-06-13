@@ -1,11 +1,35 @@
 """
-Mechanical Class
-----------------------------------------------------------------
+Introduction
+------------------
 
 This class contains all Mechanical functionalities. It inherits all objects that belong to Mechanical.
 
 
+Examples
+--------
+
+Create an ``Mechanical`` object and connect to an existing HFSS design or create a new HFSS design if one does not exist.
+
+>>> aedtapp = Mechanical()
+
+Create an ``Mechanical`` object and link to a project named ``projectname``. If this project does not exist, create one with this name.
+
+>>> aedtapp = Mechanical(projectname)
+
+Create an ``Mechanical`` object and link to a design named ``designname`` in a project named ``projectname``.
+
+>>> aedtapp = Mechanical(projectname,designame)
+
+Create an ``Mechanical`` object and open the specified project.
+
+>>> aedtapp = Mechanical("myfile.aedt")
+
+Create a ``Desktop on 2021R1`` object and then creates an ``Mechanical`` object and open the specified project.
+
+>>> aedtapp = Mechanical(specified_version="2021.1", projectname="myfile.aedt")
+
 """
+
 from __future__ import absolute_import
 
 from .application.Analysis3D import FieldAnalysis3D

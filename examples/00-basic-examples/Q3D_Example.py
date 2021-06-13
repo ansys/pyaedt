@@ -5,6 +5,7 @@ Q3D Bus Bar Analysis
 This tutorial shows how you can use PyAedt to create a BusBar Project in
 in Q3D and run a simulation
 """
+# sphinx_gallery_thumbnail_path = 'Resources/busbar.png'
 
 import os
 import sys

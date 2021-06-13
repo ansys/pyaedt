@@ -7,6 +7,7 @@ collaboration. PyAEDT is licensed under the `MIT License
 <https://github.com/pyansys/PyAEDT/blob/main/LICENSE>`_.
 
 This tool includes functionality to interact the following AEDT tools and Ansys products:
+
 - HFSS and HFSS 3D Layout
 - Icepak
 - Maxwell 2D/3D and RMxprt
@@ -14,7 +15,7 @@ This tool includes functionality to interact the following AEDT tools and Ansys 
 - Mechanical
 - Nexxim
 - Simplorer
-- EDB Database.
+- EDB Database
 
 What is PyAEDT?
 ---------------
@@ -34,8 +35,8 @@ details and the `Examples gallery
 <https://aedtdocs.pyansys.com/examples/index.html>`_ for some
 examples.
 
-To post issues, questions, and code, go to `PyAedt Issues
-<https://github.com/pyansys/pyaedt/issues>`_.
+To post issues, questions, and code, go to `PyAEDT Issues
+<https://github.com/pyansys/PyAEDT/issues>`_.
 
 
 Project Transition - Legacy Support

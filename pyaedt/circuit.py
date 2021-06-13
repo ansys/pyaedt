@@ -1,11 +1,37 @@
 # -*- coding: utf-8 -*-
 """
-Circuit Class
--------------
+Introduction
+------------------
+
 This class contains the link to the ``Circuit`` object. It includes all
 inherited classes and modules needed to create and edit circuit designs.
 
+
+Examples
+--------
+
+Create an ``Circuit`` object and connect to an existing HFSS design or create a new HFSS design if one does not exist.
+
+>>> aedtapp = Circuit()
+
+Create an ``Circuit`` object and link to a project named ``projectname``. If this project does not exist, create one with this name.
+
+>>> aedtapp = Circuit(projectname)
+
+Create an ``Circuit`` object and link to a design named ``designname`` in a project named ``projectname``.
+
+>>> aedtapp = Circuit(projectname,designame)
+
+Create an ``Circuit`` object and open the specified project.
+
+>>> aedtapp = Circuit("myfile.aedt")
+
+Create a ``Desktop on 2021R1`` object and then creates an ``Circuit`` object and open the specified project.
+
+>>> aedtapp = Circuit(specified_version="2021.1", projectname="myfile.aedt")
+
 """
+
 from __future__ import absolute_import
 import math
 from .application.AnalysisNexxim import FieldAnalysisCircuit

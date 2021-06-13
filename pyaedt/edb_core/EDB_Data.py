@@ -1,4 +1,3 @@
-
 import warnings
 import sys
 from collections import OrderedDict, defaultdict
@@ -9,121 +8,6 @@ try:
     from System.Collections.Generic import List
 except ImportError:
     warnings.warn("The clr is missing. Install Pythonnet or use Ironpython version if you want to use EDB Module")
-
-
-# class EDBLayer(object):
-#     def __init__(self, builder, stackup_methods, edblayer):
-#         self.layer = edblayer
-#         self.stackup_methods = stackup_methods
-#         self._builder = builder
-#         self._name = None
-#         self._layer_type = None
-#         self._thickness = None
-#         self._etch_factor = None
-#         self._material_name = None
-#         self._filling_material_name = None
-#         self._lower_elevation = None
-#         self.id = self.layer.GetLayerId()
-#
-#
-#     @property
-#     def layout(self):
-#         return self._builder.EdbHandler.layout
-#
-#     @property
-#     def name(self):
-#         if not self._name:
-#             self._name = self.layer.GetName()
-#         return self._name
-#
-#     @name.setter
-#     def name(self, value):
-#         self.stackup_methods.EditLayerName(self._builder, self.name, value)
-#         self._name = value
-#
-#     @property
-#     def layer_type(self):
-#         if not self._layer_type:
-#             self._layer_type = self.layer.GetLayerType()
-#         return self._layer_type
-#
-#     @layer_type.setter
-#     def layer_type(self, value):
-#         #self.stackup_methods.EditLayerName(self.layout, self._name, value)
-#         self._layer_type = value
-#
-#     @property
-#     def material_name(self):
-#         if not self._material_name:
-#             try:
-#                 self._material_name = self.layer.GetMaterial()
-#             except:
-#                 self._material_name = None
-#         return self._material_name
-#
-#     @material_name.setter
-#     def material_name(self, value):
-#         self._material_name = value
-#
-#     @property
-#     def thickness(self):
-#         if not self._thickness:
-#             try:
-#                 self._thickness = self.layer.GetThicknessValue().ToString()
-#             except:
-#                 self._thickness = ""
-#         return self._thickness
-#
-#     @thickness.setter
-#     def thickness(self, value):
-#         self.stackup_methods.SetLayerThickness(self._builder, self.name, value)
-#         self._thickness = value
-#
-#     @property
-#     def filling_material_name(self):
-#         if not self._filling_material_name:
-#             try:
-#                 self._filling_material_name = self.layer.GetFillMaterial()
-#             except:
-#                 self._filling_material_name = None
-#         return self._filling_material_name
-#
-#     @filling_material_name.setter
-#     def filling_material_name(self, value):
-#         self._filling_material_name = value
-#
-#     @property
-#     def lower_elevation(self):
-#         if not self._lower_elevation:
-#             try:
-#                 self._lower_elevation = self.layer.GetLowerElevation()
-#             except:
-#                 self._lower_elevation = None
-#         return self._lower_elevation
-#
-#     @lower_elevation.setter
-#     def lower_elevation(self, value):
-#         self._lower_elevation = value
-#
-#     @property
-#     def upper_elevation(self):
-#         try:
-#             return self.layer.GetUpperElevation()
-#         except:
-#             return None
-#
-#     @property
-#     def etch_factor(self):
-#         if not self._etch_factor:
-#             try:
-#                 self._etch_factor = self.layer.GetEtchFactor().ToString()
-#             except:
-#                 self._etch_factor = None
-#         return self._etch_factor
-#
-#     @etch_factor.setter
-#     def etch_factor(self, value):
-#         self._etch_factor = value
 
 
 class EDBLayer(object):
@@ -157,14 +41,18 @@ class EDBLayer(object):
 
     def init_vals(self):
         """ """
-        self._name = self._layer.GetName()
-        self._layer_type = self._layer.GetLayerType()
-        self._thickness = self._layer.GetThicknessValue().ToString()
-        self._etch_factor = self._layer.GetEtchFactor().ToString()
-        self._material_name = self._layer.GetMaterial()
-        self._filling_material_name = self._layer.GetFillMaterial()
-        self._lower_elevation = self._layer.GetLowerElevation()
-        self._upper_elevation = self._layer.GetUpperElevation()
+        try:
+            self._name = self._layer.GetName()
+            self._layer_type = self._layer.GetLayerType()
+            self._thickness = self._layer.GetThicknessValue().ToString()
+            if self._layer_type == 0 or self._layer_type == 2:
+                self._etch_factor = self._layer.GetEtchFactor().ToString()
+                self._filling_material_name = self._layer.GetFillMaterial()
+            self._material_name = self._layer.GetMaterial()
+            self._lower_elevation = self._layer.GetLowerElevation()
+            self._upper_elevation = self._layer.GetUpperElevation()
+        except:
+            pass
 
     @property
     def messenger(self):
@@ -263,11 +151,13 @@ class EDBLayer(object):
     @property
     def filling_material_name(self):
         """ """
-        try:
-            self._filling_material_name = self._layer.GetFillMaterial()
-        except:
-            pass
-        return self._filling_material_name
+        if self._layer_type == 0 or self._layer_type == 2:
+            try:
+                self._filling_material_name = self._layer.GetFillMaterial()
+            except:
+                pass
+            return self._filling_material_name
+        return ""
 
     @filling_material_name.setter
     def filling_material_name(self, value):
@@ -282,8 +172,9 @@ class EDBLayer(object):
         -------
 
         """
-        self._filling_material_name = value
-        self.update_layers()
+        if self._layer_type == 0 or self._layer_type == 2:
+            self._filling_material_name = value
+            self.update_layers()
 
     @property
     def lower_elevation(self):
@@ -322,11 +213,13 @@ class EDBLayer(object):
     @property
     def etch_factor(self):
         """ """
-        try:
-            self._etch_factor = self._layer.GetEtchFactor().ToString()
-        except:
-            pass
-        return self._etch_factor
+        if self._layer_type == 0 or self._layer_type == 2:
+            try:
+                self._etch_factor = self._layer.GetEtchFactor().ToString()
+            except:
+                pass
+            return self._etch_factor
+        return 0
 
     @etch_factor.setter
     def etch_factor(self, value):
@@ -341,8 +234,9 @@ class EDBLayer(object):
         -------
 
         """
-        self._etch_factor = value
-        self.update_layers()
+        if self._layer_type == 0 or self._layer_type==2:
+            self._etch_factor = value
+            self.update_layers()
 
     def update_layer_vals(self, layerName, newLayer, etchMap, materialMap, fillMaterialMap, thicknessMap, layerTypeMap):
         """
@@ -382,7 +276,7 @@ class EDBLayer(object):
         newLayer.SetThickness(self.edb.Utility.Value(thicknessMap))
         newLayer.SetMaterial(materialMap)
         newLayer.SetFillMaterial(fillMaterialMap)
-        if etchMap:
+        if etchMap and layerTypeMap == 0 or layerTypeMap==2:
             etchVal = float(etchMap)
         else:
             etchVal = 0.0
@@ -491,7 +385,8 @@ class EDBLayers(object):
     @property
     def layers(self):
         """ """
-        self._update_edb_objects()
+        if not self._edb_object:
+            self._update_edb_objects()
         return self._edb_object
 
     @property
@@ -499,24 +394,22 @@ class EDBLayers(object):
         """ """
         allLayers = list(list(self.layer_collection.Layers(self.edb.Cell.LayerTypeSet.AllLayerSet)))
         allStckuplayers = filter(lambda lyr: (lyr.GetLayerType() == self.edb.Cell.LayerType.DielectricLayer) or (
-                lyr.GetLayerType() == self.edb.Cell.LayerType.SignalLayer), allLayers)
+                lyr.GetLayerType() == self.edb.Cell.LayerType.SignalLayer or lyr.GetLayerType() == self.edb.Cell.LayerType.ConductingLayer), allLayers)
         return sorted(allStckuplayers, key=lambda lyr=self.edb.Cell.StackupLayer: lyr.GetLowerElevation())
 
     @property
     def signal_layers(self):
-        layers = self.edb_layers
-        signal_layers = {}
-        for lyr in layers:
-            if lyr.GetLayerType() == self.edb.Cell.LayerType.SignalLayer:
-                lyr_name = lyr.GetName()
-                signal_layers[lyr_name] = lyr
-        return signal_layers
+        self._signal_layers = {}
+        for layer, edblayer in self.layers.items():
+            if edblayer._layer_type == self.edb.Cell.LayerType.SignalLayer or edblayer._layer_type == self.edb.Cell.LayerType.ConductingLayer:
+                self._signal_layers[layer]= edblayer
+        return self._signal_layers
 
 
     @property
     def layer_collection(self):
         """ """
-        return self._parent.edb.Cell.LayerCollection(self._parent.active_layout.GetLayerCollection())
+        return self.edb.Cell.LayerCollection(self.active_layout.GetLayerCollection())
 
     @property
     def layer_collection_mode(self):
