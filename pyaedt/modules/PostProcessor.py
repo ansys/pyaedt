@@ -1646,7 +1646,7 @@ class PostProcessor(object):
         return solution_data
 
     @aedt_exception_handler
-    def get_report_data(self, expression="dB(S(1,1))", setup_sweep_name='', domain='Sweep', families_dict=None, report_type=None):
+    def get_report_data(self, expression="dB(S(1,1))", setup_sweep_name='', domain='Sweep', families_dict=None, report_input_type=None):
         """Generate Report Data using GetSolutionDataPerVariation function. it returns the data object, the solDataArray
         and the FreqVals Array.
         
@@ -1663,16 +1663,18 @@ class PostProcessor(object):
 
         Parameters
         ----------
-        setup_sweep_name :
+        setup_sweep_name : str
             Name of setup to compute report. if None, nominal sweep will be applied (Default value = '')
-        domain :
+        domain : str, list
             Context Type (Sweep or Time) (Default value = 'Sweep')
-        families_dict :
+        families_dict : dict
             Dictionary of variables and values. Default {"Freq": ["All"]}
-        expression :
+        expression : str, list
             string or list of traces to include (Default value = "dB(S(1)
         1))" :
-            
+        report_input_type : str, optional
+            string or list of traces to include (Default value = "dB(S(1)
+        1))" :
 
         Returns
         -------
@@ -1697,13 +1699,13 @@ class PostProcessor(object):
         if not setup_sweep_name:
             setup_sweep_name = self._parent.nominal_sweep
 
-        if not report_type:
-            report_type = report_type[self.post_solution_type]
+        if not report_input_type:
+            report_input_type = report_type[self.post_solution_type]
 
         if families_dict is None:
             families_dict = {"Freq": ["All"]}
 
-        solution_data = self.get_solution_data_per_variation(report_type, setup_sweep_name, ctxt, families_dict, expression)
+        solution_data = self.get_solution_data_per_variation(report_input_type, setup_sweep_name, ctxt, families_dict, expression)
         if not solution_data:
             print("No Data Available. Check inputs")
             return False
