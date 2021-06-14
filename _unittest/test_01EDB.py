@@ -81,6 +81,7 @@ class Test3DLayout:
         time.sleep(2)
         assert self.edbapp.core_stackup.stackup_layers['LYR_1'].thickness_value == "100um"
         self.edbapp.core_stackup.stackup_layers['LYR_2'].material_name = "aluminum"
+        time.sleep(2)
         assert self.edbapp.core_stackup.stackup_layers['LYR_2'].material_name == "aluminum"
 
     def test_add_layer(self):

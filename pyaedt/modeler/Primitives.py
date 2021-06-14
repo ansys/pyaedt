@@ -511,7 +511,7 @@ class Polyline(object):
         return duplicate
 
     @aedt_exception_handler
-    def remove_vertex(self, position, abstol=0.0):
+    def remove_vertex(self, position, abstol=1e-9):
         """ Remove a vertex from an existing polyline by position
 
         Removes a vertex from a polyline object. The user must enter the exact position of the vertex as a list
@@ -551,7 +551,7 @@ class Polyline(object):
         for ind, vertex_pos in enumerate(self.vertex_positions):
             # compare the specified point with the vertex data using an absolute tolerance
             # (default of math.isclose is 1e-9 which should be ok in almost all cases)
-            found_vertex = math.isclose(vertex_pos, pos_xyz, abs_tol=abstol)
+            found_vertex = GeometryOperators.points_distance(vertex_pos, pos_xyz) <= abstol
             if found_vertex:
                 if ind == len(self.vertex_positions) - 1:
                     seg_id = ind-1
