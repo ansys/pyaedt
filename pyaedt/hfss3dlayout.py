@@ -413,7 +413,6 @@ class Hfss3dLayout(FieldAnalysis3DLayout, object):
         -------
 
         """
-
         Families = ["Freq:=", ["All"]]
         if variations:
             Families +=variations
