@@ -20,9 +20,10 @@ steps:
   inputs:
     versionSpec: '$(python.version)'
 
-- script: |
-    python -venv testvenv
-    'testvenv\Scripts\activate.bat'
+- powershell: |
+    rm -r -fo '$(python.venv)'
+    python -m venv '$(python.venv)'
+    '$(python.venv)\Scripts\activate.bat'
     pip install pip -U
     python -c "import sys; print(sys.executable)"
   displayName: 'Create virtual env'
