@@ -93,5 +93,10 @@ class TestMaxwell2D:
         mysetup.props["SaveFields"] = True
         assert mysetup.update()
 
-
-
+    def test_07_assign_material(self):
+        # Assign to material not in library
+        self.aedtapp.assignmaterial(["Rectangle1"], "ceramic_material")
+        assert self.aedtapp.modeler.primitives["Rectangle1"].material_name == "ceramic_material"
+        # Assign to material already in library
+        self.aedtapp.assignmaterial(["Rectangle1"], "steel_stainless")
+        assert self.aedtapp.modeler.primitives["Rectangle1"].material_name == "steel_stainless"
