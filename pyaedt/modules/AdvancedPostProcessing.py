@@ -220,7 +220,7 @@ class PostProcessor(Post):
 
     @aedt_exception_handler
     def _plot_from_aedtplt(self, aedtplt_files=None, imageformat="jpg", view="iso", plot_type="Full",
-                           plot_label="Temperature", model_color="#8faf8f", show_model_edge=False, jupyter=False):
+                           plot_label="Temperature", model_color="#8faf8f", show_model_edge=False, off_screen=False):
         """This function exports the 3D Field Solver Mesh &/or fields as images using Python Plotly. This is currently
         supported only on Windows using CPython
 
@@ -241,7 +241,7 @@ class PostProcessor(Post):
         show_model_edge :
             boolean
             return: list of files generated (Default value = False)
-        jupyter :
+        off_screen :
              (Default value = False)
 
         Returns
@@ -253,7 +253,7 @@ class PostProcessor(Post):
         if type(aedtplt_files) is str:
             aedtplt_files = [aedtplt_files]
 
-        plot = pv.Plotter()
+        plot = pv.Plotter(off_screen=off_screen)
         plot.enable_anti_aliasing()
         plot.enable_fly_to_right_click()
         lines = []
@@ -471,7 +471,7 @@ class PostProcessor(Post):
         if plot:
             end = time.time() - start
             self.messenger.add_info_message("PyVista Generation tooks {} secs".format(end))
-            if jupyter:
+            if off_screen:
                 if imageformat:
                     plot.show(screenshot=filename + "." + imageformat)
                     files_list.append(filename + "." + imageformat)
@@ -806,7 +806,7 @@ class PostProcessor(Post):
 
     @aedt_exception_handler
     def plot_field_from_fieldplot(self, plotname, project_path="", meshplot=False, setup_name=None,
-                                  intrinsic_dict={}, imageformat="jpg", view="iso", plot_label="Temperature", plot_folder=None):
+                                  intrinsic_dict={}, imageformat="jpg", view="iso", plot_label="Temperature", plot_folder=None, off_screen=False):
         """Export Field Plot to picture format (jpg, png) using PLOTLY method which rebuilds the mesh and overlap fields on it
 
         Parameters
@@ -859,7 +859,7 @@ class PostProcessor(Post):
                     if file_to_add:
                         files_to_add.append(file_to_add)
             file_list = self._plot_from_aedtplt(files_to_add, imageformat=imageformat, view=view,
-                                                plot_label=plot_label)
+                                                plot_label=plot_label, off_screen=off_screen)
             endt = time.time() - start
             print("Field Generation, export and plot time: ", endt)
         return file_list
