@@ -23,7 +23,7 @@ steps:
 - powershell: |
     python -m venv '$(python.venv)'
     .\'$(python.venv)\Scripts\Activate.ps1'
-    pip install pip -U
+    python -m pip install pip -U
     python -c "import sys; print(sys.executable)"
   displayName: 'Create virtual env'
 
@@ -38,9 +38,9 @@ steps:
   displayName: 'Install pyaedt'
 
 - script: |
-    .\'$(python.venv)\Scripts\Activate.ps1'
+    $(python.venv)\Scripts\activate.bat
     pip install -r requirements_docs.txt
-    C:doc\make.bat html
+    doc\make.bat html
   displayName: 'Build documentation'
 
 - task: PublishBuildArtifacts@1
