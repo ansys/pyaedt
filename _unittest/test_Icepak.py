@@ -160,8 +160,17 @@ class TestIcepak:
     def test_16_check_priorities(self):
         self.aedtapp.assign_priority_on_intersections("box")
 
+    def test_16_create_output_variable(self):
+        self.aedtapp["Variable1"] = "0.5"
+        assert self.aedtapp.create_output_variable("OutputVariable1", "abs(Variable1)") # test creation
+        assert self.aedtapp.create_output_variable("OutputVariable1", "asin(Variable1)") # test update
+
     def test_17_analyse(self):
         self.aedtapp.analyse_nominal()
+    
+    def test_17_get_output_variable(self):
+        value = self.aedtapp.get_output_variable("OutputVariable1")
+        assert value ==  0.5235987755982988
 
     def test_18_export_summary(self):
         assert self.aedtapp.export_summary()
