@@ -246,11 +246,11 @@ class Icepak(FieldAnalysisIcepak):
         ----------
         object_name : str
             Name of the object for which to create the block.
-        power : str, float, int
+        power : str, float, or int
             Input power.
-        rjc : str,float, int
+        rjc : str, float, or int
             Thermal resistance RJC value.
-        rjb :str, float, int
+        rjb : str, float, or int
             RJB value
         gravity_dir : int, optional
             Gravity direction from -X to +Z. Choices are ``0`` through ``5``. 
