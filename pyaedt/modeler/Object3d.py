@@ -107,7 +107,7 @@ class VertexPrimitive(object):
     Parameters
     ----------
     parent : Object3d
-        Pointer to the calling object which provides additional funtionality
+        Pointer to the calling object which provides additional functionality
 
     id : int
         Object id as determined by the parent object
@@ -576,7 +576,7 @@ class Object3d(object):
 
         Returns
         -------
-        list of list of float
+        list of [list of float]
         """
         #TODO May not work if the model is changed by the user in the GUI in the meantime.
         if not self._bounding_box:
@@ -636,7 +636,7 @@ class Object3d(object):
 
     @property
     def m_Editor(self):
-        """Provides a pointer to the oEditor object in the AEDT API. Indended primarily for use by
+        """Provides a pointer to the oEditor object in the AEDT API. Intended primarily for use by
            FacePrimitive, EdgePrimitive, VertexPrimitive child objects
 
         Returns
@@ -647,7 +647,7 @@ class Object3d(object):
 
     @property
     def messenger(self):
-        """Provides a pointer to the oEditor object in the AEDT API. Indended primarily for use by
+        """Provides a pointer to the oEditor object in the AEDT API. Intended primarily for use by
            FacePrimitive, EdgePrimitive, VertexPrimitive child objects
 
         Returns
@@ -658,7 +658,7 @@ class Object3d(object):
 
     @property
     def material_name(self):
-        """Material name of the object
+        """Gets or Sets the material name of the object
 
         Returns
         -------
@@ -668,22 +668,11 @@ class Object3d(object):
 
     @material_name.setter
     def material_name(self, mat):
-        """
-
-        Parameters
-        ----------
-        mat :
-
-
-        Returns
-        -------
-
-        """
         self._material_name = mat
 
     @property
     def object_units(self):
-        """Length Units of the part
+        """Gets the Length Units of the part
 
         Returns
         -------
@@ -701,9 +690,7 @@ class Object3d(object):
         Returns
         -------
         list
-
         """
-
         unique_design_name = generate_unique_name("bounding")
         new_design = self._parent.oproject.InsertDesign("HFSS", unique_design_name, "", "")
         self.m_Editor.Copy(["NAME:Selections", "Selections:=", self.name])

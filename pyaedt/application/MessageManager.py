@@ -95,7 +95,7 @@ class AEDTMessageManager(object):
 
     Methods
     -------
-    add_error messsage
+    add_error message
     add_warning_message
     add_info_message
     add debug_message (deprecated)
@@ -184,7 +184,7 @@ class AEDTMessageManager(object):
 
         Examples
         --------
-        Add a warning message to the desktop messge manager
+        Add a warning message to the desktop message manager
 
         >>> hfss.messenger.add_warning_message("Project warning message")
 
