@@ -204,9 +204,11 @@ class TestIcepak:
         assert self.aedtapp.get_property_value("BoundarySetup:box2", "Total Power", "Boundary") == "2W"
 
     def test_25_copy_solid_bodies(self):
-        new_design = Icepak(projectname="CopiedProject", designname="CopiedBodies")
+        new_design = Icepak(projectname="IcepakCopiedProject", designname="IcepakCopiedBodies")
         assert new_design.copy_solid_bodies_from(self.aedtapp)
         assert sorted(new_design.modeler.solid_bodies) == ["Region", "box", "box2", "box3", "network_box", "network_box2"]
+        new_design.delete_design("IcepakCopiedBodies")
+        new_design.close_project("IcepakCopiedProject")
 
     def test_26_get_all_conductors(self):
         conductors = self.aedtapp.get_all_conductors_names()
