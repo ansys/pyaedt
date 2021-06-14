@@ -29,9 +29,9 @@ steps:
 
 - powershell: |
     .\'$(python.venv)\Scripts\Activate.ps1'
-    pip install . --use-feature=in-tree-build
-    pip install -r requirements_test.txt
-    pip install pytest-azurepipelines
+    python -m pip install . --use-feature=in-tree-build
+    python -m pip install -r requirements_test.txt
+    python -m pip install pytest-azurepipelines
     mkdir tmp
     cd tmp
     python -c "import pyaedt; print('Imported pyaedt')"
@@ -39,7 +39,7 @@ steps:
 
 - script: |
     $(python.venv)\Scripts\activate.bat
-    pip install -r requirements_docs.txt
+    python -m pip install -r requirements_docs.txt
     doc\make.bat html
   displayName: 'Build documentation'
 
