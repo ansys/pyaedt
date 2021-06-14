@@ -845,6 +845,11 @@ class Primitives(object):
         return self._parent.odesign
 
     @property
+    def materials(self):
+        """ """
+        return self._parent.materials
+
+    @property
     def defaultmaterial(self):
         """ """
         return default_materials[self._parent._design_type]

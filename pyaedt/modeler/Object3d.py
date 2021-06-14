@@ -19,23 +19,23 @@ from .GeometryOperators import GeometryOperators
 
 @aedt_exception_handler
 def _uname(name=None):
-    """
+    """Appends a 6-digit hash code to a specified name
 
     Parameters
     ----------
-    name :
-         (Default value = None)
+    name : str, default='NewObject_'
+        Specified name
 
     Returns
     -------
-
+    str
     """
     char_set = string.ascii_uppercase + string.digits
-    uName = ''.join(random.sample(char_set, 6))
+    unique_name = ''.join(random.sample(char_set, 6))
     if name:
-        return name + uName
+        return name + unique_name
     else:
-        return 'NewObject_' + uName
+        return 'NewObject_' + unique_name
 
 @aedt_exception_handler
 def _to_boolean(val):
@@ -48,61 +48,46 @@ def _to_boolean(val):
 
     Parameters
     ----------
-    val :
-
+    val : bool or str
+        Input value to be tested for True/False condition
 
     Returns
     -------
-
+    bool
     """
 
     if val is True or val is False:
         return val
 
-    falseItems = ["false", "f", "no", "n", "none", "0", "[]", "{}", ""]
+    false_items = ["false", "f", "no", "n", "none", "0", "[]", "{}", ""]
 
-    return not str(val).strip().lower() in falseItems
+    return not str(val).strip().lower() in false_items
+
 
 @aedt_exception_handler
-def _dim_arg(Value, Units):
-    """
+def _dim_arg(value, units):
+    """Concatenate a specified units string to a numerical input
 
     Parameters
     ----------
-    Value :
-
-    Units :
-
-
-    Returns
-    -------
-
-    """
-    if type(Value) is str:
-        val = Value
-    else:
-        val = str(Value) + Units
-
-    return val
-
-@aedt_exception_handler
-def parse_dim_arg(string2parse):
-    """
-
-    Parameters
-    ----------
-    string2parse :
-
+    value : str or number
+        Valid expression string in the AEDT modeler, e.g. "5mm"
+    units : str
+        Valid units string in the AEDT modeler, e.g. "mm"
 
     Returns
     -------
-
+    str
     """
-    return string2parse
+    try:
+        val = float(value)
+        return str(val) + units
+    except ValueError:
+        return value
 
 
 class VertexPrimitive(object):
-    """Vertex Object within the AEDT Desktop Modeler
+    """Vertex object within the AEDT Desktop Modeler
 
     Parameters
     ----------
@@ -115,7 +100,6 @@ class VertexPrimitive(object):
     Attributes
     ----------
     position
-
     """
     def __init__(self, parent, id):
         self.id = id
@@ -185,20 +169,20 @@ class VertexPrimitive(object):
         return True
 
     @aedt_exception_handler
-    def fillet(self, radius=0.1, setback=0):
+    def fillet(self, radius=0.1, setback=0.0):
         """Add Fillet to selected edge
 
         Parameters
         ----------
-        radius :
-            float Fillet Radius (Default value = 0.1)
-        setback :
-            float Fillet setback (Default value = 0)
+        radius : float, default=0.1
+            Fillet Radius
+        setback : float, default=0.0
+            Fillet setback
 
         Returns
         -------
         type
-            Bool
+            bool
 
         """
         if self._parent.is3d:
@@ -388,7 +372,13 @@ class FacePrimitive(object):
 
     @property
     def center(self):
-        """:return: An array as list of float [x, y, z] containing planar face center position"""
+        """Get the face center (in model units)
+
+        Returns
+        -------
+        list of float or False
+            Center position in [x, y, z] coordinates - only works for planar faces. otherwise return False
+        """
         try:
             c = self._parent.m_Editor.GetFaceCenter(self.id)
         except:
@@ -397,28 +387,29 @@ class FacePrimitive(object):
         center = [float(i) for i in c]
         return center
 
-
     @property
     def area(self):
-        """:return: float value for face area"""
+        """Get the face area (in model units)
 
+        Returns
+        -------
+        float
+        """
         area = self._parent.m_Editor.GetFaceArea(self.id)
         return area
 
     @aedt_exception_handler
-    def move_with_offset(self, offset=1):
-        """Move Face Along Normal
+    def move_with_offset(self, offset=1.0):
+        """Move face along normal
 
         Parameters
         ----------
-        offset :
-            float offset to apply (Default value = 1)
+        offset : float, default=1.0
+            Offset to apply (in model units)
 
         Returns
         -------
-        type
-            Bool
-
+        bool
         """
         try:
             self._parent.m_Editor.MoveFaces(["NAME:Selections", "Selections:=", self._parent.name, "NewPartsModelFlag:=", "Model"],
@@ -432,19 +423,16 @@ class FacePrimitive(object):
 
     @aedt_exception_handler
     def move_with_vector(self, vector):
-        """Move Face Along Normal
+        """Move face Along a specified vector
 
         Parameters
         ----------
-        offset :
-            float offset to apply
-        vector :
-
+        vector : list of float [x, y, z]
+            Move vector to apply to the face
 
         Returns
         -------
-        type
-            Bool
+        bool
 
         """
         try:
@@ -463,6 +451,7 @@ class FacePrimitive(object):
     @property
     def normal(self):
         """Get the face normal.
+
         Limitations:
         - the face must be planar.
         - Currently it works only if the face has at least two vertices. Notable excluded items are circles and
@@ -473,18 +462,18 @@ class FacePrimitive(object):
 
         Parameters
         ----------
-        faceId :
-            part ID (integer).
+        faceId : int
+            Face id
 
         Returns
         -------
-        type
-            normal versor (normalized [x, y, z]) or None.
+        list of float [x, y, z]
+            normal vector (normalized [x, y, z]) or None.
 
         """
         vertices_ids = self.vertices
         if len(vertices_ids) < 2 or not self.center:
-            self._messenger.add_warning_message("Not enough vertices or non-planar face")
+            self._parent.messenger.add_warning_message("Not enough vertices or non-planar face")
             return None
         # elif len(vertices_ids)<2:
         #     v1 = vertices_ids[0].position
@@ -580,7 +569,7 @@ class Object3d(object):
         """
         #TODO May not work if the model is changed by the user in the GUI in the meantime.
         if not self._bounding_box:
-            self._bounding_box = self.update_bounding_box()
+            self._bounding_box = self._update_bounding_box()
         return self._bounding_box
 
     @property
@@ -658,7 +647,7 @@ class Object3d(object):
 
     @property
     def material_name(self):
-        """Gets or Sets the material name of the object
+        """Gets or sets the material name of the object
 
         Returns
         -------
@@ -668,7 +657,11 @@ class Object3d(object):
 
     @material_name.setter
     def material_name(self, mat):
-        self._material_name = mat
+        mat_mgr = self._parent.materials
+        if mat_mgr.checkifmaterialexists(mat):
+            self._material_name = mat
+        else:
+            self.messenger.add_warning_message("Material {} does not exist".format(mat))
 
     @property
     def object_units(self):
@@ -681,29 +674,13 @@ class Object3d(object):
         return self._parent.model_units
 
     @aedt_exception_handler
-    def update_bounding_box(self):
-        """Get the bounding-box of the single object
-
-        This is done by creating a new empty design, copying the object there and getting the model bounding box. A
-        list of six 3-D position vectors is returned
+    def get_name(self):
+        """Get the object name
 
         Returns
         -------
-        list
+        str
         """
-        unique_design_name = generate_unique_name("bounding")
-        new_design = self._parent.oproject.InsertDesign("HFSS", unique_design_name, "", "")
-        self.m_Editor.Copy(["NAME:Selections", "Selections:=", self.name])
-        oeditor = new_design.SetActiveEditor("3D Modeler")
-        oeditor.Paste()
-        bb = list(oeditor.GetModelBoundingBox())
-        self._bounding_box = [float(b) for b in bb]
-        self._parent.oproject.DeleteDesign(unique_design_name)
-        return self._bounding_box
-
-    @aedt_exception_handler
-    def get_name(self):
-        """:return: get object name"""
         return self._m_name
 
     @aedt_exception_handler
@@ -792,9 +769,6 @@ class Object3d(object):
                 "SurfaceMaterialValue:=", chr(34) +"Steel-oxidised-surface"+ chr(34), "SolveInside:=", self.get_solve_inside(),
                 "IsMaterialEditable:=", True, "UseMaterialAppearance:=", False, "IsLightweight:=", False]
         return args
-
-    # def set_object_units(self, sUnits):
-    #     self.object_units = sUnits
 
     @aedt_exception_handler
     def set_part_coordinate_system(self, sCS):
@@ -977,6 +951,27 @@ class Object3d(object):
 
         # return newObject
         pass
+
+    @aedt_exception_handler
+    def _update_bounding_box(self):
+        """Get the bounding-box of the single object
+
+        This is done by creating a new empty design, copying the object there and getting the model bounding box. A
+        list of six 3-D position vectors is returned
+
+        Returns
+        -------
+        list
+        """
+        unique_design_name = generate_unique_name("bounding")
+        new_design = self._parent.oproject.InsertDesign("HFSS", unique_design_name, "", "")
+        self.m_Editor.Copy(["NAME:Selections", "Selections:=", self.name])
+        oeditor = new_design.SetActiveEditor("3D Modeler")
+        oeditor.Paste()
+        bb = list(oeditor.GetModelBoundingBox())
+        self._bounding_box = [float(b) for b in bb]
+        self._parent.oproject.DeleteDesign(unique_design_name)
+        return self._bounding_box
 
     @aedt_exception_handler
     def _change_property(self, vPropChange):

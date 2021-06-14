@@ -1,5 +1,7 @@
 # standard imports
 import os
+import math
+
 # Setup paths for module imports
 from .conftest import local_path, scratch_path
 
@@ -46,6 +48,40 @@ class TestObject3D:
         object_vertices = new_object.vertices
         for vertex in object_vertices:
             assert len(vertex.position) == 3
+
+    def test_03_FacePrimitive(self):
+        if not self.prim["Mybox"]:
+            self.prim.create_box([0, 0, 0], [10, 10, 5], "Mybox", "Copper")
+        if not self.prim["MySphere"]:
+            self.prim.create_sphere([0, 0, 0], radius="1mm", name="Mysphere", matname="Copper")
+        planar_face = self.prim["Mybox"].faces[0]
+        assert planar_face.center == [5.0, 5.0, 5.0]
+        planar_face.move_with_offset(1)
+        assert planar_face.center == [5.0, 5.0, 6.0]
+        assert planar_face.normal == [0, 0, 1]
+        assert planar_face.area == 100
+        non_planar_face = self.prim["Mysphere"].faces[0]
+        assert math.isclose(non_planar_face.area, 12.56637061435917)
+        assert non_planar_face.move_with_offset(1)
+        assert math.isclose(non_planar_face.area, 50.26548245743669)
+        assert not non_planar_face.normal
+
+    def test_04_object_material_property(self):
+        id1 = self.prim.create_box([0, 0, 0], [10, 10, 5], "Mybox", "Copper1234Invalid")
+        assert self.prim[id1].material_name == "vacuum"
+
+        id2 = self.prim.create_box([0, 0, 0], [10, 10, 5], "Mybox", "copper")
+        assert self.prim[id2].material_name == "copper"
+
+        # Property Setter with valid material
+        self.prim[id2].material_name = "vacuum"
+        assert self.prim[id2].material_name == "vacuum"
+
+        # Property Setter with invalid material
+        self.prim[id2].material_name = "SteelInvalid"
+        assert self.prim[id2].material_name == "vacuum"
+
+        pass
 
 
 

@@ -428,6 +428,11 @@ class GeometryModeler(Modeler, object):
         self.coordinate_systems = self._get_coordinates_data()
         self._is3d=is3d
 
+    @property
+    def materials(self):
+        """ """
+        return self._parent.materials
+
 
     @aedt_exception_handler
     def _convert_list_to_ids(self,input_list, convert_objects_ids_to_name=True):
