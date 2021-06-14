@@ -333,7 +333,7 @@ class EdBSiwave(object):
         neg_node_pins = self.parent.core_components.get_pin_from_component(negative_component_name, negative_net_name)
 
         if source_name == "":
-            source_name = "Port_{}_{}_{}_{}".format(positive_component_name, positive_net_name, negative_component_name,
+            source_name = "Vsource_{}_{}_{}_{}".format(positive_component_name, positive_net_name, negative_component_name,
                                                   negative_net_name)
         voltage_source.name = source_name
         voltage_source.positive_node.component_node = pos_node_cmp
@@ -470,6 +470,7 @@ class EdBSiwave(object):
                                         str(stop_freq), str(step_freq), discre_sweep)
         exec_file = self.create_exec_file()
         exec_file.write("ExecSyzSim\n")
+        exec_file.write("SaveSiw\n")
         exec_file.close()
         return True
 

@@ -10,7 +10,10 @@ import os
 import subprocess
 from .general_methods import env_path, env_value
 class AedtSolve(object):
+    '''
+    class dedicated for calling Aedt solvers. Only solving on local machines is supported for the moment.
 
+    '''
     def __init__(self,aedt_version="2021.1", aedt_installer_path=None):
         self._project_path = ""
         self._command = []
@@ -33,7 +36,7 @@ class AedtSolve(object):
     @ProjectPath.setter
     def ProjectPath(self, value):
         self._project_path = value
-        self._logfile = os.path.splitext(self._project_path[0]) + ".log"
+        self._logfile = os.path.splitext(self._project_path)[0] + ".log"
 
     @property
     def ExePath(self):
@@ -87,17 +90,19 @@ class AedtSolve(object):
         self.Command.append(os.path.join(self.installer_path,'ansysedt.exe'))
         if self.NonGraphical:
             self.Command.append('-Batchsolve')
+            self.Command.append('-ng')
             self.Command.append('-Monitor')
             self.Command.append('-MachineList')
             # TODO Add batch option support
         if self.Local:
-            self.Command.append('Local')
-            self.Command.append('list=localhost:-1:{0}:90%'.format(str(self.NbCores)))
+            pass
 
-        self.Command.append('Auto')
-        self.Command.append('LogFile')
+        #self.Command.append('-Auto')
+        self.Command.append('-machinelist numcores={}'.format(self.NbCores))
+        self.Command.append('-LogFile')
         self.Command.append(self.LogFile)
         self.Command.append(self.ProjectPath)
+        print(self._command)
         p = subprocess.Popen(self.Command)
         p.wait()
 
@@ -167,6 +172,7 @@ class SiwaveSolve(object):
                     content = f.readlines()
                     if not 'SetNumCpus' in content:
                         f.writelines(str.format('SetNumCpus {}', str(self.NbCores)) + '\n')
+                        f.writelines("SaveSiw")
                     else:
                         fstarts = [i for i in range(len(content)) if content[i].startswith('SetNumCpus')]
                         content[fstarts] = str.format('SetNumCpus {}', str(self.NbCores))
