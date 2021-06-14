@@ -1646,7 +1646,7 @@ class PostProcessor(object):
         return solution_data
 
     @aedt_exception_handler
-    def get_report_data(self, expression="dB(S(1,1))", setup_sweep_name='', domain='Sweep', families_dict=None):
+    def get_report_data(self, expression="dB(S(1,1))", setup_sweep_name='', domain='Sweep', families_dict=None, report_type=None):
         """Generate Report Data using GetSolutionDataPerVariation function. it returns the data object, the solDataArray
         and the FreqVals Array.
         
@@ -1687,6 +1687,8 @@ class PostProcessor(object):
                 did = 1
             ctxt = ["NAME:Context", "SimValueContext:=",
                     [did, 0, 2, 0, False, False, -1, 1, 0, 1, 1, "", 0, 0, "IDIID", False, "1"]]
+        elif type(domain) is list:
+            ctxt = domain
         else:
             ctxt = ["Domain:=", domain]
 
@@ -1694,15 +1696,14 @@ class PostProcessor(object):
             expression = [expression]
         if not setup_sweep_name:
             setup_sweep_name = self._parent.nominal_sweep
-        if self.post_solution_type not in report_type:
-            print("Solution not supported")
-            return False
-        modal_data = report_type[self.post_solution_type]
+
+        if not report_type:
+            report_type = report_type[self.post_solution_type]
 
         if families_dict is None:
             families_dict = {"Freq": ["All"]}
 
-        solution_data = self.get_solution_data_per_variation(modal_data, setup_sweep_name, ctxt, families_dict, expression)
+        solution_data = self.get_solution_data_per_variation(report_type, setup_sweep_name, ctxt, families_dict, expression)
         if not solution_data:
             print("No Data Available. Check inputs")
             return False
