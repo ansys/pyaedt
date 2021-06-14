@@ -1,24 +1,22 @@
 """
-Introduction
-------------------
+This module contains all RMxprt functionalities in the ``rmxprt`` class.
 
-This class contains all RMxprt functionalities. It inherits all objects that belong to RMxprt.
+Examples
+--------
 
-
-Examples:
-Creates a ``Rmxprt`` object and connects to an existing RMxprt design or creates a new RMxprt design if one is not present.
+Create a ``Rmxprt`` object and connect to an existing RMxprt design or create a new RMxprt design if one does not exist.
 
 >>> app = Rmxprt()
 
-Creates a ``Rmxprt`` object and links to a project named projectname.
+Create a ``Rmxprt`` object and link to a project named ``projectname``. If this project does not exist, create one with this name.
 
 >>> app = Rmxprt(projectname)
 
-Creates a ``RMxprt`` object and links to a design named designname in a project named projectname.
+Create a ``RMxprt`` object and link to a design named ``designname`` in a project named ``projectname``.
 
 >>> app = Rmxprt(projectname,designame)
 
-Creates a ``RMxprt`` object and opens the specified project.
+Create a ``RMxprt`` object and open the specified project.
 
 >>> app = Rmxprt("myfile.aedt")
 
@@ -41,7 +39,8 @@ class RMXprtModule(object):
 
         Parameters
         ----------
-        parameter_name :
+        parameter_name : str
+            Name of the parameter.
             
 
         Returns
@@ -71,8 +70,8 @@ class RMXprtModule(object):
 
         Parameters
         ----------
-        parameter_name :
-            
+        parameter_name : str
+            Name of the parameter.  
         value :
             
 
@@ -126,14 +125,18 @@ class Rmxprt(FieldAnalysisRMxprt):
 
     Parameters
     ----------
-    projectname :
-        name of the project to be selected or full path to the project to be opened  or to the AEDTZ  archive. if None try to get active project and, if nothing present to create an empty one
-    designname :
-        name of the design to be selected. if None, try to get active design and, if nothing present to create an empty one
-    solution_type :
-        solution type to be applied to design. if None default is taken
-    setup_name :
-        setup_name to be used as nominal. if none active setup is taken or nothing
+    projectname : str, optional
+        Name of the project to select or the full path to the project or AEDTZ archive to open. 
+        The default is ``None``. If ``None``, try to get an active project and, if no projects are present, 
+        create an empty project.
+    designname : str, optional
+        Name of the design to select. The default is ``None``. If ``None``, try to get an active design and, 
+        if no designs are present, create an empty design.
+    solution_type : str, optional
+        Solution type to apply to the design. The default is ``None``. If ``None`, the default type is applied.
+    setup_name : str, optional
+        Name of the setup to use as the nominal. The default is ``None``. If ``None``, the active setup 
+        is used or nothing is used.
 
     Returns
     -------
