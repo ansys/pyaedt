@@ -43,6 +43,7 @@ steps:
   displayName: 'install documentation build requirements'
 
 - powershell: |
+    .\'$(python.venv)\Scripts\Activate.ps1'
     C:doc\make.bat html
   displayName: 'Build documentation'
 
@@ -54,6 +55,7 @@ steps:
 
 - powershell: |
     git init
+    git checkout -b gh-pages
     git config --local user.name "pyansys-ci-bot"
     git config --local user.email "$(GH_EMAIL)"
     git config --local --add http.https://pyansys-ci-bot@github.com/pyansys/PyAEDT-docs-dev/_git/.extraHeader "AUTHORIZATION: Basic $(GH_PAT)"
@@ -65,7 +67,7 @@ steps:
 
 - powershell: |
     git remote add origin https://github.com/pyansys/PyAEDT-docs-dev.git
-    git push -u origin master
+    git push -u origin gh-pages --force
   displayName: "TESTING: Publish GitHub Pages merge commit"
   condition: contains(variables['Build.SourceBranch'], 'refs/heads/main')
   workingDirectory: doc/_build/html
@@ -73,7 +75,7 @@ steps:
 # - script: |
 #     set -ex
 #     git remote add origin https://github.com/pyansys/PyAEDT-docs.git
-#     git push -u origin master
+#     git push -u origin gh-pages --force
 #   displayName: "Publish GitHub Pages on Tag"
 #   condition: contains(variables['Build.SourceBranch'], 'refs/tags/')
 #   workingDirectory: doc/_build/html
