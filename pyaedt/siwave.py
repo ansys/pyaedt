@@ -212,7 +212,7 @@ class Siwave:
         ----------
         proj_path : str, optional
             Full path to the project. The default is ``None``.
-        projectName : str, optinal
+        projectName : str, optional
              Name of the project. The default is ``None``.
 
         Returns
