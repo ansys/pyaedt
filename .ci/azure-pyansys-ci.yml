@@ -22,13 +22,13 @@ steps:
 
 - powershell: |
     python -m venv '$(python.venv)'
-    '$(python.venv)\Scripts\activate.bat'
+    .\'$(python.venv)\Scripts\Activate.ps1'
     pip install pip -U
     python -c "import sys; print(sys.executable)"
   displayName: 'Create virtual env'
 
-- script: |
-    '$(python.venv)\Scripts\activate.bat'
+- powershell: |
+    .\'$(python.venv)\Scripts\Activate.ps1'
     pip install . --use-feature=in-tree-build
     pip install -r requirements_test.txt
     pip install pytest-azurepipelines
@@ -38,9 +38,9 @@ steps:
   displayName: 'Install pyaedt'
 
 - script: |
-    '$(python.venv)\Scripts\activate.bat'
+    .\'$(python.venv)\Scripts\Activate.ps1'
     pip install -r requirements_docs.txt
-    doc\make.bat html
+    C:doc\make.bat html
   displayName: 'Build documentation'
 
 - task: PublishBuildArtifacts@1
