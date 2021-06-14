@@ -14,7 +14,6 @@ This class contains all the functionalities to create and edit materials
 """
 from __future__ import absolute_import
 import os
-import logging
 import xml.etree.ElementTree as ET
 from .Material import *
 from ..generic.general_methods import aedt_exception_handler
@@ -64,19 +63,18 @@ class Materials(object):
     @property
     def messenger(self):
         """ """
-        return self._parent._messenger
+        return self._parent.messenger
 
     @property
     def oproject(self):
         """ """
-        return self._parent._oproject
+        return self._parent.oproject
 
     def __init__(self, parent):
         self._parent = parent
         self.material_keys = defaultdict(lambda: Material(parent))
         self._load_from_project()
-        self.logger = logging.getLogger(__name__)
-        self.logger.info('Successfully loaded project materials !')
+        self.messenger.logger.info('Successfully loaded project materials !')
         pass
 
     def __len__(self):
