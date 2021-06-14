@@ -44,6 +44,7 @@ class TestDesign:
                                               setup_name=setup_name, imageformat="jpg", view="iso", off_screen=True)
         assert os.path.exists(image_file[0])
 
+    @pytest.mark.skip(reason="Not running in non-graphical mode")
     def test_01_Animate_plt(self):
         cutlist = ["Global:XY"]
         phases = [str(i * 5) + "deg" for i in range(18)]
@@ -56,6 +57,7 @@ class TestDesign:
 
 
 
+    @pytest.mark.skip(reason="Not running in non-graphical mode")
     def test_02_export_fields(self):
         quantity_name2 = "ComplexMag_H"
         setup_name = "Setup1 : LastAdaptive"
