@@ -68,8 +68,7 @@ class Primitives3D(Primitives, object):
     @aedt_exception_handler
     def create_bondwire(self, start_position, end_position, h1=0.2, h2=0, alpha=80, beta=5, bond_type=0,
                         diameter=0.025, facets=6, name=None, matname=None):
-        """Create a Bondwiere
-
+        """Create a Bondwire.
 
         Parameters
         ----------
