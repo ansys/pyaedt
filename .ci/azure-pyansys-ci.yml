@@ -9,9 +9,9 @@ trigger:
     - '*'
 
 pool:
-  name: Ansys
+  name: pyansys
 variables:
-  python.version: '3.7'
+  python.version: '3.8'
   python.venv: 'testvenv'
 
 steps:
@@ -63,14 +63,14 @@ steps:
 - script: |
     git remote add origin https://github.com/pyansys/PyAEDT-docs-dev.git
     git push -u origin master
-  displayName: "TESTING: Publish GitHub Pages on any commit"
-  condition: not(contains(variables['Build.SourceBranch'], 'refs/tags/'))
+  displayName: "TESTING: Publish GitHub Pages merge commit"
+  condition: contains(variables['Build.SourceBranch'], 'refs/heads/main')
   workingDirectory: doc/_build/html
 
-- script: |
-    set -ex
-    git remote add origin https://github.com/pyansys/PyAEDT-docs.git
-    git push -u origin master
-  displayName: "Publish GitHub Pages on Tag"
-  condition: contains(variables['Build.SourceBranch'], 'refs/tags/')
-  workingDirectory: doc/_build/html
+# - script: |
+#     set -ex
+#     git remote add origin https://github.com/pyansys/PyAEDT-docs.git
+#     git push -u origin master
+#   displayName: "Publish GitHub Pages on Tag"
+#   condition: contains(variables['Build.SourceBranch'], 'refs/tags/')
+#   workingDirectory: doc/_build/html
