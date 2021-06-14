@@ -494,7 +494,7 @@ class Edb(object):
             The full path to the aedb file.
 
         """
-        if self.import_layout_pcb(inputBrd, working_dir=WorkDir):
+        if self.import_layout_pcb(inputGDS, working_dir=WorkDir):
             return True
         else:
             return False
