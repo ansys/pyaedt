@@ -314,6 +314,7 @@ class Desktop:
         self._main.isoutsideDesktop = False
         self._main.pyaedt_version = pyaedtversion
         self.release = release_on_exit
+        self.logfile = None
         module_logger = logging.getLogger(__name__)
 
         if "oDesktop" in dir(self._main) and self._main.oDesktop is not None:
@@ -439,8 +440,9 @@ class Desktop:
         self.logger = logging.getLogger(__name__)
         if not self.logger.handlers:
             project_dir = self._main.oDesktop.GetProjectDirectory()
+            self.logfile = os.path.join(project_dir, "pyaedt.log")
             logging.basicConfig(
-                filename=os.path.join(project_dir, "pyaedt.log"),
+                filename=self.logfile,
                 level=logging.DEBUG,
                 format='%(asctime)s:%(name)s:%(levelname)-8s:%(message)s',
                 datefmt='%Y/%m/%d %H.%M.%S',
