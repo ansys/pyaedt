@@ -21,7 +21,6 @@ steps:
     versionSpec: '$(python.version)'
 
 - powershell: |
-    rm -r -fo '$(python.venv)'
     python -m venv '$(python.venv)'
     '$(python.venv)\Scripts\activate.bat'
     pip install pip -U
