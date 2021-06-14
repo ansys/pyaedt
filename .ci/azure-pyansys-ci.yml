@@ -37,15 +37,18 @@ steps:
     python -c "import pyaedt; print('Imported pyaedt')"
   displayName: 'Install pyaedt'
 
-- script: |
-    $(python.venv)\Scripts\activate.bat
+- powershell: |
+    .\'$(python.venv)\Scripts\Activate.ps1'
     python -m pip install -r requirements_docs.txt
-    doc\make.bat html
+  displayName: 'install documentation build requirements'
+
+- powershell: |
+    C:doc\make.bat html
   displayName: 'Build documentation'
 
 - task: PublishBuildArtifacts@1
   inputs:
-    PathtoPublish: doc/_build/html
+    PathtoPublish: doc\_build\html
     ArtifactName: documentation
   displayName: 'Publish documentation'
 
@@ -60,7 +63,7 @@ steps:
   displayName: "Init git and add docs"
   workingDirectory: doc/_build/html
 
-- script: |
+- powershell: |
     git remote add origin https://github.com/pyansys/PyAEDT-docs-dev.git
     git push -u origin master
   displayName: "TESTING: Publish GitHub Pages merge commit"
