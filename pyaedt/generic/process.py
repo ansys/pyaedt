@@ -10,8 +10,8 @@ import os
 import subprocess
 from .general_methods import env_path, env_value
 class AedtSolve(object):
-    """Class dedicated for calling AEDT solvers. Only solving on local machines is supported for the moment.
-
+    '''
+    class dedicated for calling Aedt solvers. Only solving on local machines is supported for the moment.
     Examples
     --------
     >>> from pyaedt import AedtSolve
@@ -19,7 +19,7 @@ class AedtSolve(object):
     >>> solver.NonGraphical = True
     >>> solver.ProjectPath = edb_file
     >>> solver.solve()
-    """
+    '''
     def __init__(self,aedt_version="2021.1", aedt_installer_path=None):
         self._project_path = ""
         self._command = []
@@ -36,80 +36,80 @@ class AedtSolve(object):
                 raise Exception("Either a valide aedt version or full path has to be provided")
 
     @property
-    def ProjectPath(self):
+    def projectpath(self):
         return self._project_path
 
-    @ProjectPath.setter
-    def ProjectPath(self, value):
+    @projectpath.setter
+    def projectpath(self, value):
         self._project_path = value
         self._logfile = os.path.splitext(self._project_path)[0] + ".log"
 
     @property
-    def ExePath(self):
+    def exepath(self):
         return self._exe
 
-    @ExePath.setter
-    def ExePath(self,value):
+    @exepath.setter
+    def exepath(self,value):
         self._exe = value
 
     @property
-    def Command(self):
+    def command(self):
         return  self._command
 
-    @Command.setter
-    def Command(self,value):
+    @command.setter
+    def command(self,value):
         self._command = value
 
     @property
-    def NbCores(self):
+    def nbcores(self):
         return self._nbcores
 
-    @NbCores.setter
-    def NbCores(self,value):
+    @nbcores.setter
+    def nbcores(self,value):
         self._nbcores = value
 
     @property
-    def NonGraphical(self):
+    def nongraphical(self):
         return self._ng
 
-    @NonGraphical.setter
-    def NonGraphical(self,value):
+    @nongraphical.setter
+    def nongraphical(self,value):
         self._ng = value
 
     @property
-    def Local(self):
+    def local(self):
         return self._local
 
-    @Local.setter
-    def Local(self,value):
+    @local.setter
+    def local(self,value):
         self._local = value
 
     @property
-    def LogFile(self):
+    def logfile(self):
         return self._logfile
 
-    @LogFile.setter
-    def LogFile(self,value):
+    @logfile.setter
+    def logfile(self,value):
         self._logfile = value
 
     def solve(self):
-        self.Command.append(os.path.join(self.installer_path,'ansysedt.exe'))
-        if self.NonGraphical:
-            self.Command.append('-Batchsolve')
-            self.Command.append('-ng')
-            self.Command.append('-Monitor')
-            self.Command.append('-MachineList')
+        self.command.append(os.path.join(self.installer_path,'ansysedt.exe'))
+        if self.nongraphical:
+            self.command.append('-Batchsolve')
+            self.command.append('-ng')
+            self.command.append('-Monitor')
+            self.command.append('-MachineList')
             # TODO Add batch option support
-        if self.Local:
+        if self._local:
             pass
 
         #self.Command.append('-Auto')
-        self.Command.append('-machinelist numcores={}'.format(self.NbCores))
-        self.Command.append('-LogFile')
-        self.Command.append(self.LogFile)
-        self.Command.append(self.ProjectPath)
+        self.command.append('-machinelist numcores={}'.format(self.nbcores))
+        self.command.append('-LogFile')
+        self.command.append(self.logfile)
+        self.command.append(self.projectpath)
         print(self._command)
-        p = subprocess.Popen(self.Command)
+        p = subprocess.Popen(self.command)
         p.wait()
 
 class SiwaveSolve(object):
@@ -128,60 +128,60 @@ class SiwaveSolve(object):
 
 
     @property
-    def SiwaveExe(self):
+    def siwave_exe(self):
         return self._exe
 
-    @SiwaveExe.setter
-    def SiwaveExe(self,value):
+    @siwave_exe.setter
+    def siwave_exe(self,value):
         self._exe = value
 
     @property
-    def ProjectPath(self):
+    def projectpath(self):
         return self._project_path
         self._exec_path = os.path.splitext(self._project_path[0]) + ".exec"
 
-    @ProjectPath.setter
-    def ProjectPath(self,value):
+    @projectpath.setter
+    def projectpath(self,value):
         self._project_path = value
 
     @property
-    def ExecFile(self):
+    def execfile(self):
         return self._exec_path
 
-    @ExecFile.setter
-    def ExecFile(self,value):
+    @execfile.setter
+    def execfile(self,value):
         self._exec_path = value
 
     @property
-    def NbCores(self):
+    def nbcores(self):
         return self._nbcores
 
-    @NbCores.setter
-    def NbCores(self,value):
+    @nbcores.setter
+    def nbcores(self,value):
         self._nbcores = value
 
     @property
-    def NonGraphical(self):
+    def nongraphical(self):
         return self._ng
 
-    @NonGraphical.setter
-    def NonGraphical(self,value):
+    @nongraphical.setter
+    def nongraphical(self,value):
         self._ng = value
 
     def solve(self):
         # supporting non graphical solve only
-        if self.NonGraphical:
+        if self.nongraphical:
             exe_path = os.path.join(self.installer_path, 'siwave_ng.exe')
             exec_file = os.path.splitext(self._project_path)[0] + '.exec'
             if os.path.exists(exec_file):
                 with open(exec_file,"r+") as f:
                     content = f.readlines()
                     if not 'SetNumCpus' in content:
-                        f.writelines(str.format('SetNumCpus {}', str(self.NbCores)) + '\n')
+                        f.writelines(str.format('SetNumCpus {}', str(self.nbcores)) + '\n')
                         f.writelines("SaveSiw")
                     else:
                         fstarts = [i for i in range(len(content)) if content[i].startswith('SetNumCpus')]
-                        content[fstarts] = str.format('SetNumCpus {}', str(self.NbCores))
+                        content[fstarts] = str.format('SetNumCpus {}', str(self.nbcores))
                         f.closed()
                         os.remove(exec_file)
                         f = open(exec_file,"w")
@@ -192,5 +192,6 @@ class SiwaveSolve(object):
             command.append('-formatOutput -useSubdir')
             p = subprocess.Popen(command)
             p.wait()
+
 
 
