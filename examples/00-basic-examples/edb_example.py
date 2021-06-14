@@ -111,6 +111,7 @@ edb.core_nets.delete_nets("A0_N")
 
 
 
+
 #################################
 # Get the stackup limits, top and bottom layers and elevations
 
@@ -125,16 +126,17 @@ edb.core_hfss.create_coax_port_on_component("U2A5", "V1P0_S0")
 # User can change stackup properties with assignment
 # Materials can be created and assigned to layers
 
+
 edb.core_stackup.stackup_layers.layers['TOP'].thickness = "75um"
 edb.core_stackup.create_debye_material("My_Debye", 5, 3, 0.02, 0.05, 1e5, 1e9)
 edb.core_stackup.stackup_layers.layers['UNNAMED_002'].material_name = "My_Debye"
+
 
 #################################
 # Create a new Circuit Port for Siwave Simulation
 edb.core_siwave.create_circuit_port("U2A5", "DDR3_DM0")
 
-#################################
-# Create a new Siwave AC and DC Setups
+
 edb.core_siwave.add_siwave_ac_analysis()
 
 edb.core_siwave.add_siwave_dc_analysis()
