@@ -1,29 +1,24 @@
 """
-Introduction
-------------------
-
-This class contains all Q3D functionalities. It inherits all objects that belong to Q3D.
+This module contains all Q3D functionalities in the ``q3d`` class. It inherits all objects that belong to Q3D.
 
 
 Examples:
 
-Creates a ``Q3d`` object and connects to an existing Q3D design or create a new Q3D design if one is not present.
+Create a ``Q3d`` object and connect to an existing Q3D design or create a new Q3D design if one does not exist.
 
 >>> app = Q3d()
 
-Creates a ``Q2d`` object and links to a project named projectname.
+Create a ``Q2d`` object and link to a project named ``projectname``. If this project does not exist, create one with this name.
 
 >>> app = Q2d(projectname)
 
-Creates a ``Q2d`` object and links to a design named designname in a project named projectname.
+Create a ``Q2d`` object and link to a design named ``designname`` in a project named ``projectname``.
 
 >>> app = Q2d(projectname,designame)
 
-Creates a ``Q2d`` object and opens the specified project.
+Create a ``Q2d`` object and open the specified project.
 
 >>> app = Q2d("myfile.aedt")
-
-
 
 """
 from __future__ import absolute_import
@@ -82,16 +77,19 @@ class Q3d(QExtractor, object):
 
     Parameters
     ----------
-    projectname :
-        name of the project to be selected or full path to the project to be opened  or to the AEDTZ
-        archive. if None try to get active project and, if nothing present to create an empty one
-    designname :
-        name of the design to be selected. if None, try to get active design and, if nothing present to create an empty one
-    solution_type :
-        solution type to be applied to design. if None default is taken
-    setup_name :
-        setup_name to be used as nominal. if none active setup is taken or nothing
-
+    projectname : str, optional
+        Name of the project to select or the full path to the project or AEDTZ archive to open. 
+        The default is ``None``. If ``None``, try to get an active project and, if no projects are present, 
+        create an empty project.
+    designname : str, optional
+        Name of the design to select. The default is ``None``. If ``None``, try to get an active design and, 
+        if no designs are present, create an empty design.
+    solution_type : str, optional
+        Solution type to apply to design. The default is ``None``. If ``None`, the default type is applied.
+    setup_name : str, optional
+        Name of the setup to use as the nominal. The default is ``None``. If ``None``, the active setup 
+        is used or nothing is used.
+    
     Returns
     -------
 
@@ -117,19 +115,19 @@ class Q3d(QExtractor, object):
 
     @aedt_exception_handler
     def assign_source_to_objectface(self, object_name, axisdir=0, source_name=None, net_name=None):
-        """Generate a source on a face id of an object. Face ID is selected based on axisdir. It will be the face that
-        has the maximum/minimum in that axis dir
+        """Generate a source on a face ID of an object. The face ID is selected based on ``axisdir``. It will 
+        be the face that has the maximum/minimum in this axis direction.
 
         Parameters
         ----------
-        object_name :
-            name of the object
-        axisdir :
-            int axis direction. 0-5 (Default value = 0)
-        source_name :
-            name of the source (optional) (Default value = None)
-        net_name :
-            optional net name. in None, object_name will be considered (Default value = None)
+        object_name : str
+            Name of the object.
+        axisdir : optional
+            Initial axis direction. Choices are ``0`` through ``5``. The default is ``0``.
+        source_name : str, optional
+            Name of the source. The default is ``None``.
+        net_name : str, optional
+            Name of the net. The default is ``None`` in which case ``object_name`` will be considered.
 
         Returns
         -------
@@ -155,19 +153,19 @@ class Q3d(QExtractor, object):
 
     @aedt_exception_handler
     def assign_source_to_sheet(self, sheetname, objectname=None, netname=None, sourcename=None):
-        """Generate a source on aobject.  It will be the face that
-        has the maximum/minimum in that axis
+        """Generate a source on an object.  It will be the face that
+        has the maximum/minimum in this axis.
 
         Parameters
         ----------
-        sheetname :
-            name of the sheet/object on which create a source
-        objectname :
-            name of the parent object
-        netname :
-            name of the net (optional) (Default value = None)
-        sourcename :
-            name of the source (optional) (Default value = None)
+        sheetname : str
+            Name of the sheet or object on which to create the source.
+        objectname :  str, optional
+            Name of the parent object. The default is ``None``.
+        netname : str, optional
+            Name of the net. The default is ``None``.
+        sourcename : str,  optional
+            Name of the source. The default is ``None``.
 
         Returns
         -------
@@ -194,21 +192,19 @@ class Q3d(QExtractor, object):
 
     @aedt_exception_handler
     def assign_sink_to_objectface(self, object_name, axisdir=0, sink_name=None, net_name=None):
-        """Generate a sink on a face id of an object. Face ID is selected based on axisdir. It will be the face that
-        has the maximum/minimum in that axis dir
+        """Generate a sink on a face ID of an object. The face ID is selected based on ``axisdir``. It will 
+        be the face that has the maximum/minimum in this axis direction.
 
         Parameters
         ----------
-        object_name :
-            name of the object
-        axisdir :
-            int axis direction. 0-5 (Default value = 0)
-        netname :
-            name of the net (optional)
-        sink_name :
-            name of the sink (optional) (Default value = None)
-        net_name :
-            optional net name. in None, object_name will be considered (Default value = None)
+        object_name : str
+            Name of the object.
+        axisdir : optional
+            The initial axis direction. Choices are ``0`` through ``5``. The default is ``None``.
+        sink_name : str, optional
+            Name of the sink. The default is ``None``.
+        net_name : str, optional
+            Name of the net. The default is ``None`` in which case ``object_name`` will be considered.
 
         Returns
         -------
@@ -233,19 +229,19 @@ class Q3d(QExtractor, object):
 
     @aedt_exception_handler
     def assign_sink_to_sheet(self, sheetname, objectname=None, netname=None, sinkname=None):
-        """Generate a sink on aobject.  It will be the face that
-        has the maximum/minimum in that axis dir
+        """Generate a sink on an object.  It will be the face that
+        has the maximum/minimum in this axis direction.
 
         Parameters
         ----------
         sheetname :
-            name of the sheet/object on which create a sink
-        objectname :
-            name of the parent object
-        netname :
-            name of the net (optional) (Default value = None)
-        sinkname :
-            name of the sink (optional) (Default value = None)
+            Name of the sheet or object on which to create the sink.
+        objectname : str, optional
+            Name of the parent object. The default is ``None``.
+        netname : str, optional
+            Name of the net. The default is ``None``.
+        sinkname : str, optional
+            Name of the sink. The default is ``None``.
 
         Returns
         -------
@@ -277,15 +273,18 @@ class Q3d(QExtractor, object):
 
         Parameters
         ----------
-        setupname :
-            name of the setup to which is attached the sweep
-        unit :
-            Units ("MHz", "GHz"....)
+        setupname : str
+            Name of the setup that is attached to the sweep.
+        unit : str
+            Unit of the frequency. For example, ``"MHz"`` or ``"GHz"``. The default is ``"GHz"`.
         freqstart :
-            Starting Frequency of sweep
-        freqstop :
-            Stop Frequency of Sweep
-
+            Starting frequency of the sweep.
+        freqstop : 
+            Stopping frequency of the sweep.
+        freqstep : optional
+            Frequency step point.
+        sweepname : str, optional
+            Name of the sweep.
 
         Returns
         -------
@@ -301,7 +300,7 @@ class Q3d(QExtractor, object):
                 setupdata = i
                 for sw in setupdata.sweeps:
                     if sweepname == sw.name:
-                        self.messenger.add_warning_message("Sweep {} already present. Please rename and retry".format(sweepname))
+                        self.messenger.add_warning_message("Sweep {} is already present. Rename and retry.".format(sweepname))
                         return False
                 sweepdata = setupdata.add_sweep(sweepname, "Discrete")
                 sweepdata.props["RangeStart"] = freqstart
@@ -323,26 +322,24 @@ class Q3d(QExtractor, object):
 
     @aedt_exception_handler
     def create_discrete_sweep(self, setupname, freqstart, freqstop=None, freqstep=None, units="GHz", sweepname=None, savefields=False):
-        """Create a Discrete Sweep with a single frequency value
+        """Create a discrete sweep with a single frequency value.
 
         Parameters
         ----------
         setupname : str
-            name of setup to which sweeps belongs
-            
-        sweepname : str
-            name of sweep
-            
+            Name of the setup to which the sweeps belongs.
         freqstart : float
-            discrete frequency start point
-        freqstop : float
-            discrete frequency stop point. If ``None``, single point sweep
-        freqstep : float
-            discrete frequency step point. If ``None``, 11 points will be created
-        units  : str
-            Default to ``"GHz"``.
-        savefields : bool
-            define if field will be generated.  Defaults to ``False``.
+            Discrete frequency starting point.
+        freqstop : float, optional
+            Discrete frequency stopping point. If ``None``, a single-point sweep will be performed.
+        freqstep : float, optional
+            Discrete frequency step point. If ``None``, 11 points will be created.
+        units  : str, optional
+            Unit of the discrete frequency. The default is ``"GHz"``.    
+        sweepname : str, optional
+            Name of the sweep.
+        savefields : bool, optional
+            Whether to generate fields. The default is ``False``.
 
         Returns
         -------
@@ -384,16 +381,19 @@ class Q2d(QExtractor, object):
 
     Parameters
     ----------
-    projectname :
-        name of the project to be selected or full path to the project to be opened  or to the AEDTZ
-        archive. if None try to get active project and, if nothing present to create an empty one
-    designname :
-        name of the design to be selected. if None, try to get active design and, if nothing present to create an empty one
-    solution_type :
-        solution type to be applied to design. if None default is taken
-    setup_name :
-        setup_name to be used as nominal. if none active setup is taken or nothing
-
+    projectname : str, optional
+        Name of the project to select or the full path to the project or AEDTZ archive to open. 
+        The default is ``None``. If ``None``, try to get an active project and, if no projects are present, 
+        create an empty project.
+    designname : str, optional
+        Name of the design to select. The default is ``None``. If ``None``, try to get an active design and, 
+        if no designs are present, create an empty design.
+    solution_type : str, optional
+        Solution type to apply to design. The default is ``None``. If ``None`, the default type is applied.
+    setup_name : str, optional
+        The name of the setup to use as the nominal. The default is ``None``. If ``None``, the active setup 
+        is used or nothing is used.
+    
     Returns
     -------
 
