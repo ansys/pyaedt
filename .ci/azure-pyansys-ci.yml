@@ -21,9 +21,6 @@ steps:
     versionSpec: '$(python.version)'
 
 - script: |
-    python -venv '$(python.venv)'
-    '$(python.venv)\Scripts\activate.bat'
-    pip install pip -U
     python -c "import sys; print(sys.executable)"
   displayName: 'Create virtual env'
 
