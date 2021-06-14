@@ -22,20 +22,19 @@ class TestMessage:
         with Scratch(scratch_path) as self.local_scratch:
 
             # Test the global messenger before opening the desktop
-            M = AEDTMessageManager()
-            M.add_info_message("Test desktop level - Info")
-            M.add_info_message("Test desktop level - Info", level='Design')
-            M.add_info_message("Test desktop level - Info", level='Project')
-            M.add_info_message("Test desktop level - Info", level='Global')
-            data = M.messages
-            assert len(data.global_level) == 6
-            assert len(data.project_level) == 0
-            assert len(data.design_level) == 0
-            M.clear_messages(level=0)
-            data = M.messages
-            assert len(data.global_level) == 0
-            assert len(data.project_level) == 0
-            assert len(data.design_level) == 0
+            msg = AEDTMessageManager()
+            msg.clear_messages()
+            msg.add_info_message("Test desktop level - Info")
+            msg.add_info_message("Test desktop level - Info", level='Design')
+            msg.add_info_message("Test desktop level - Info", level='Project')
+            msg.add_info_message("Test desktop level - Info", level='Global')
+            assert len(msg.messages.global_level) == 4
+            assert len(msg.messages.project_level) == 0
+            assert len(msg.messages.design_level) == 0
+            msg.clear_messages(level=0)
+            assert len(msg.messages.global_level) == 0
+            assert len(msg.messages.project_level) == 0
+            assert len(msg.messages.design_level) == 0
 
             self.aedtapp = Hfss()
 
