@@ -1485,7 +1485,7 @@ class PostProcessor(object):
         return True
 
     @aedt_exception_handler
-    def create_field_exptression(self,expression_name, Quantity, obj_name, obj_type="Volume"):
+    def create_field_expression(self,expression_name, Quantity, obj_name, obj_type="Volume"):
         """It create a new expression using Field Calculator given specified input
 
         Parameters
@@ -1678,7 +1678,7 @@ class PostProcessor(object):
 
         Returns
         -------
-        type
+        SolutionData
             SolutionData object if successful
 
         """

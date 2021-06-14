@@ -39,6 +39,22 @@ class TestDesign:
         plot1 = self.aedtapp.post.create_fieldplot_cutplane(cutlist, quantity_name, setup_name, intrinsic)
         plot1.IsoVal = "Tone"
         assert plot1.modify_folder()
+        image_file = self.aedtapp.post.plot_field_from_fieldplot(plot1.name, project_path=self.local_scratch.path, meshplot=False,
+                                              setup_name=setup_name, imageformat="jpg", view="iso", off_screen=True)
+        assert os.path.exists(image_file[0])
+
+
+    def test_01_Animate_plt(self):
+        cutlist = ["Global:XY"]
+        phases = [str(i * 5) + "deg" for i in range(18)]
+        gif_file=self.aedtapp.post.animate_fields_from_aedtplt_2(quantityname="Mag_E", object_list=cutlist, plottype="CutPlane",
+                                                   meshplot=False, setup_name=self.aedtapp.nominal_adaptive,
+                                                   intrinsic_dict={"Freq": "5GHz", "Phase": "0deg"},
+                                                   project_path=self.local_scratch.path, variation_variable="Phase",
+                                                   variation_list=phases, off_screen=True, export_gif=True)
+        assert os.path.exists(gif_file)
+
+
 
     @pytest.mark.skip(reason="Not running in non-graphical mode")
     def test_02_export_fields(self):
@@ -56,6 +72,20 @@ class TestDesign:
         assert self.aedtapp.create_scattering("MyTestScattering")
         setup_name = "Setup2 : Sweep"
         assert not self.aedtapp.create_scattering("MyTestScattering2", setup_name, portnames, portnames)
+
+    def test_03_get_solution_data(self):
+        trace_names = []
+        portnames = ["1", "2"]
+        for el in portnames:
+            for el2 in portnames:
+                trace_names.append('S(' + el + ',' + el2 + ')')
+        cxt = ['Domain:=', 'Sweep']
+        families = ['Freq:=', ['All']]
+        my_data = self.aedtapp.post.get_report_data(expression=trace_names)
+        assert my_data
+        assert my_data.sweeps
+        assert my_data.expressions
+        assert my_data.data_db
 
     def test_04_export_touchstone(self):
         self.aedtapp.export_touchstone( "Setup1","Sweep", os.path.join(self.local_scratch.path, "Setup1_Sweep.S2p"))

@@ -1989,9 +1989,9 @@ class Hfss(FieldAnalysis3D, object):
              Name of the plot. The default is ``" S Parameter Plot Nominal"``.
         sweep_name : str, optional
              Name of the sweep. The default is ``None``.
-        PortNames : str, optional
+        PortNames : list, optional
              Name of the port. The default is ``None``.
-        PortExcited : str, optional
+        PortExcited : list,str optional
              The default is ``None``.
         variations : str, optional
              The default is ``None``.
