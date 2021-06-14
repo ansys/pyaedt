@@ -258,7 +258,7 @@ class Components(object):
         --------
 
         >>> from pyaedt import EDB
-        >>> edbapp = EDB("myaedbfolder")
+        >>> edbapp = Edb("myaedbfolder")
         >>> edbapp.core_components.inductors
         """
         self._ind = {}
@@ -460,7 +460,7 @@ class Components(object):
             python tuple<bool,the Edb.Cell.Hierarchy.Component> With Item1 = True when component has successfully been created and False if not
 
         >>> from pyaedt import EDB
-        >>> edbapp = EDB("myaedbfolder")
+        >>> edbapp = Edb("myaedbfolder")
         >>> pins = edbapp.core_components.get_pin_from_component("A1")
         >>> edbapp.core_components.create_component_from_pins(pins, "A1New")
         """
@@ -502,7 +502,7 @@ class Components(object):
             True if succeeded | False if failed
 
         >>> from pyaedt import EDB
-        >>> edbapp = EDB("myaedbfolder")
+        >>> edbapp = Edb("myaedbfolder")
         >>> edbapp.core_components.set_component_model("A1", model_type="Spice", modelpath="pathtospfile", modelname="spicemodelname")
         """
         if not modelname:
@@ -583,7 +583,7 @@ class Components(object):
             (bool, pingroup)
 
         >>> from pyaedt import EDB
-        >>> edbapp = EDB("myaedbfolder")
+        >>> edbapp = Edb("myaedbfolder")
         >>> edbapp.core_components.create_pingroup_from_pins(gndpinlist, "MyGNDPingroup")
         """
 
@@ -682,7 +682,7 @@ class Components(object):
         --------
 
         >>> from pyaedt import EDB
-        >>> edbapp = EDB("myaedbfolder")
+        >>> edbapp = Edb("myaedbfolder")
         >>> edbapp.core_components.disable_rlc_component("A1")
         """
         edb_cmp = self.get_component_by_name(component_name)
@@ -724,7 +724,7 @@ class Components(object):
             bool
 
         >>> from pyaedt import EDB
-        >>> edbapp = EDB("myaedbfolder")
+        >>> edbapp = Edb("myaedbfolder")
         >>> edbapp.core_components.set_component_rlc("R1", res_value=50, ind_value=1e-9, cap_value=1e-12, isparallel=False)
         """
         edbComponent = self.get_component_by_name(componentname)
@@ -837,8 +837,8 @@ class Components(object):
        Examples
        --------
 
-        >>> from AEDTLib.EDB import EDB
-        >>> edbapp = EDB("myaedbfolder", "project name", "release version")
+        >>> from pyaedt import Edb
+        >>> edbapp = Edb("myaedbfolder", "project name", "release version")
         >>> edbapp.core_components.get_pin_from_component("R1", refdes, optional:str nets, optional: str pins)
 
         """
@@ -879,8 +879,8 @@ class Components(object):
         Examples
         --------
 
-        >>> from AEDTLib.EDB import EDB
-        >>> edbapp = EDB("myaedbfolder", "project name", "release version")
+        >>> from pyaedt import Edb
+        >>> edbapp = Edb("myaedbfolder", "project name", "release version")
         >>> edbapp.core_components.get_aedt_pin_name(pin)
         """
         if "IronPython" in sys.version or ".NETFramework" in sys.version:
@@ -908,8 +908,8 @@ class Components(object):
         Examples
         --------
 
-        >>> from AEDTLib.EDB import EDB
-        >>> edbapp = EDB("myaedbfolder", "project name", "release version")
+        >>> from pyaedt import Edb
+        >>> edbapp = Edb("myaedbfolder", "project name", "release version")
         >>> edbapp.core_components.get_pin_position(pin)
         """
         if is_ironpython:
@@ -944,8 +944,8 @@ class Components(object):
         Examples
         --------
 
-        >>> from AEDTLib.EDB import EDB
-        >>> edbapp = EDB("myaedbfolder", "project name", "release version")
+        >>> from pyaedt import Edb
+        >>> edbapp = Edb("myaedbfolder", "project name", "release version")
         >>> edbapp.core_components.get_pins_name_from_net(pin_list, net_name)
         """
         pinlist = []
@@ -971,8 +971,8 @@ class Components(object):
         Examples
         --------
 
-        >>> from AEDTLib.EDB import EDB
-        >>> edbapp = EDB("myaedbfolder", "project name", "release version")
+        >>> from pyaedt import Edb
+        >>> edbapp = Edb("myaedbfolder", "project name", "release version")
         >>> edbapp.core_components.get_nets_from_pin_list(pinlist)
         """
         netlist = []
@@ -997,8 +997,8 @@ class Components(object):
         Examples
         --------
 
-        >>> from AEDTLib.EDB import EDB
-        >>> edbapp = EDB("myaedbfolder", "project name", "release version")
+        >>> from pyaedt import Edb
+        >>> edbapp = Edb("myaedbfolder", "project name", "release version")
         >>> edbapp.core_components.get_component_net_connection_info(refdes)
 
         """
@@ -1047,8 +1047,8 @@ class Components(object):
         Examples
         ---------
 
-        >>> from AEDTLib.EDB import EDB
-        >>> edbapp = EDB("myaedbfolder", "project name", "release version")
+        >>> from pyaedt import Edb
+        >>> edbapp = Edb("myaedbfolder", "project name", "release version")
         >>> edbapp.core_components.get_through_resistor_list()
         """
         through_comp_list = []
