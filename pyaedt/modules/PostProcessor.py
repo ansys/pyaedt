@@ -1699,13 +1699,16 @@ class PostProcessor(object):
         if not setup_sweep_name:
             setup_sweep_name = self._parent.nominal_sweep
 
+
         if not report_input_type:
             report_input_type = report_type[self.post_solution_type]
+
 
         if families_dict is None:
             families_dict = {"Freq": ["All"]}
 
         solution_data = self.get_solution_data_per_variation(report_input_type, setup_sweep_name, ctxt, families_dict, expression)
+
         if not solution_data:
             print("No Data Available. Check inputs")
             return False
