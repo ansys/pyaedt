@@ -31,6 +31,7 @@ class TestDesign:
         self.local_scratch.remove()
         gc.collect()
 
+    @pytest.mark.skip(reason="Not running in non-graphical mode")
     def test_01_Field_Ploton_cutplanedesignname(self):
         cutlist = ["Global:XY", "Global:XZ", "Global:YZ"]
         setup_name = self.aedtapp.existing_analysis_sweeps[0]
@@ -43,7 +44,7 @@ class TestDesign:
                                               setup_name=setup_name, imageformat="jpg", view="iso", off_screen=True)
         assert os.path.exists(image_file[0])
 
-
+    @pytest.mark.skip(reason="Not running in non-graphical mode")
     def test_01_Animate_plt(self):
         cutlist = ["Global:XY"]
         phases = [str(i * 5) + "deg" for i in range(18)]
