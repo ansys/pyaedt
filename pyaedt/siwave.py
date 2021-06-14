@@ -1,10 +1,7 @@
 """
-Siwave Class
-----------------
+This module initializes Siwave and MessageManager and manages Siwave release and closing.
 
-This class initializes Siwave and MessageManager and manages Siwave release and closing.
-It can be initialized as standalone before launching an app or automatically initialized by an app to the latest installed AEDT version.
-
+The ``siwave`` module can be initialized as standalone before launching an app or automatically initialized by an app to the latest installed AEDT version.
 
 
 ================
@@ -45,7 +42,7 @@ elif os.name == 'nt':
 
 class Siwave:
     """====================================
-    The core module that initialize Ansys Siwave based on inputs provided:
+    The core module that initialize Ansys Siwave based on the inputs provided.
 
     Parameters
     ----------
@@ -194,8 +191,8 @@ class Siwave:
 
         Parameters
         ----------
-        proj_path :
-             (Default value = None)
+        proj_path : str, optional
+            Full path to the project. The default is ``None``.
 
         Returns
         -------
@@ -213,10 +210,10 @@ class Siwave:
 
         Parameters
         ----------
-        projectpath :
-             (Default value = None)
-        projectName :
-             (Default value = None)
+        proj_path : str, optional
+            Full path to the project. The default is ``None``.
+        projectName : str, optinal
+             Name of the project. The default is ``None``.
 
         Returns
         -------
