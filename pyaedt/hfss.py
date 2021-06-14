@@ -1226,7 +1226,7 @@ class Hfss(FieldAnalysis3D, object):
         boundary_name : str, optional
             Name of the boundary. The default is ``""``.
         is_infinite_gnd : bool
-            Whether the boundary is an infinte ground. The default is ``False``.
+            Whether the boundary is an infinite ground. The default is ``False``.
 
         Returns
         -------
