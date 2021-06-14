@@ -179,7 +179,7 @@ class EdbNets(object):
         component_type = []
         for el in df_list:
             refdes = el[0]
-            comp_type = self.parent.core_components.components[refdes].type
+            comp_type = self.parent.core_components._cmp[refdes].type
             component_type.append(comp_type)
             el.append(comp_type)
         return df_list, net_group
@@ -189,11 +189,6 @@ class EdbNets(object):
         edb_net = self.parent.edb.Cell.Net.FindByName(self.active_layout, net_name)
         if edb_net is not None:
             return edb_net
-
-    @aedt_exception_handler
-    def get_component_from_net(self, net_name):
-        edb_net = self.get_net_by_name(net_name)
-        return list(set([net for net in edb_net.Terminals.GetComponent().GetName()]))
 
     @aedt_exception_handler
     def delete_nets(self, netlist):

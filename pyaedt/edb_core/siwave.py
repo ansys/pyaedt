@@ -269,8 +269,8 @@ class EdBSiwave(object):
 
         :example:
 
-        >>> from AEDTLib.EDB import EDB
-        >>> edbapp = EDB("myaedbfolder", "project name", "release version")
+        >>> from pyaedt import Edb
+        >>> edbapp = Edb("myaedbfolder", "project name", "release version")
         >>> edbapp.core_siwave.create_circuit_port("U2A5","V1P5_S3","U2A5","GND",50,"port_name")
 
         :param positive_component_name: Name of the positive component
@@ -285,10 +285,12 @@ class EdBSiwave(object):
         circuit_port.positive_node.net = positive_net_name
         circuit_port.negative_node.net = negative_net_name
         circuit_port.impedance = impedance_value
+        if not negative_component_name:
+            negative_component_name = positive_component_name
         pos_node_cmp = self.parent.core_components.get_component_by_name(positive_component_name)
         neg_node_cmp = self.parent.core_components.get_component_by_name(negative_component_name)
-        pos_node_pins = self.parent.core_components.get_pin_from_component(positive_component_name,positive_net_name)
-        neg_node_pins = self.parent.core_components.get_pin_from_component(negative_component_name,negative_net_name)
+        pos_node_pins = self.parent.core_components.get_pin_from_component(positive_component_name, positive_net_name)
+        neg_node_pins = self.parent.core_components.get_pin_from_component(negative_component_name, negative_net_name)
 
 
         if port_name == "":
@@ -309,8 +311,8 @@ class EdBSiwave(object):
 
         :example:
 
-        >>> from AEDTLib.EDB import EDB
-        >>> edbapp = EDB("myaedbfolder", "project name", "release version")
+        >>> from pyaedt import Edb
+        >>> edbapp = Edb("myaedbfolder", "project name", "release version")
         >>> edb.core_siwave.create_voltage_source("U2A5","V1P5_S3","U2A5","GND",3.3,0,"source_name")
 
         :param positive_component_name: Name of the positive component
@@ -348,8 +350,8 @@ class EdBSiwave(object):
                               negative_net_name="GND", current_value=0.1, phase_value=0, source_name=""):
         """Create a Current Source
 
-        >>> from AEDTLib.EDB import EDB
-        >>> edbapp = EDB("myaedbfolder", "project name", "release version")
+        >>> from pyaedt import Edb
+        >>> edbapp = Edb("myaedbfolder", "project name", "release version")
         >>> edb.core_siwave.create_current_source("U2A5","V1P5_S3","U2A5","GND",0.1,0,"source_name")
 
         :param positive_component_name: Name of the positive component
@@ -387,8 +389,8 @@ class EdBSiwave(object):
                               negative_net_name="GND", rvalue=1, resistor_name=""):
         """Create a Voltage Source
 
-        >>> from AEDTLib.EDB import EDB
-        >>> edbapp = EDB("myaedbfolder", "project name", "release version")
+        >>> from pyaedt import Edb
+        >>> edbapp = Edb("myaedbfolder", "project name", "release version")
         >>> edb.core_siwave.create_resistor("U2A5","V1P5_S3","U2A5","GND",1,"resistor_name")
 
         :param positive_component_name: Name of the positive component
@@ -499,7 +501,7 @@ class EdBSiwave(object):
     @aedt_exception_handler
     def create_pin_group_terminal(self, source):
         pos_pin_group = self.parent.core_components.create_pingroup_from_pins(source.positive_node.node_pins)
-        neg_pin_group = self.parent.core_components.create_pingroup_from_pins(source._negative_node.node_pins)
+        neg_pin_group = self.parent.core_components.create_pingroup_from_pins(source.negative_node.node_pins)
         pos_node_net = self.parent.core_nets.get_net_by_name(source.positive_node.net)
         neg_node_net = self.parent.core_nets.get_net_by_name(source.negative_node.net)
         pos_pingroup_term_name = "{}_{}".format(source.positive_node.net,source.name)

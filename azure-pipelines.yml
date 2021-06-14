@@ -1,6 +1,14 @@
 #Multi-configuration and multi-agent job options are not exported to YAML. Configure these options using documentation guidance: https://docs.microsoft.com/vsts/pipelines/process/phases
 trigger:
-  none
+  branches:
+    include:
+    - releases/*
+    - master
+    exclude:
+    - 'gh-pages'
+  tags:
+    include:
+    - '*'
 
 pool:
   name: Ansys
@@ -66,3 +74,16 @@ steps:
     PathtoPublish: dist
     ArtifactName: dist
 
+- script: |
+    pip install twine
+    twine check dist/*
+  displayName: 'Verify package'
+
+- script: |
+    twine upload --skip-existing dist/*.tar.gz
+  displayName: 'Upload to package PyPi'
+  condition: contains(variables['Build.SourceBranch'], 'refs/tags/')
+  env:
+    TWINE_USERNAME: __token__
+    TWINE_PASSWORD: $(PYPI_TOKEN)
+    TWINE_REPOSITORY_URL: "https://upload.pypi.org/legacy/"

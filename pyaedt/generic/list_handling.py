@@ -65,3 +65,18 @@ def ensure_list(element_list):
         element_list = [element_list]
     return element_list
 
+def variation_string_to_dict(variation_string):
+    """Helper function to convert a list of "="-separated strings into a dictionary
+
+    Returns
+    -------
+    dict
+    """
+    var_data = variation_string.split()
+    variation_dict = {}
+    for var in var_data:
+        pos_eq = var.find("=")
+        var_name = var[0:pos_eq]
+        var_value = var[pos_eq+1:].replace('\'', '')
+        variation_dict[var_name] = var_value
+    return variation_dict

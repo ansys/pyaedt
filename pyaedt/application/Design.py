@@ -32,17 +32,15 @@ import string
 import random
 import time
 from collections import OrderedDict
-from ..application.MessageManager import AEDTMessageManager
-from ..application.Variables import VariableManager, DataSet
+from .MessageManager import AEDTMessageManager
+from .Variables import VariableManager, DataSet
 from ..desktop import exception_to_desktop, Desktop, force_close_desktop, release_desktop, get_version_env_variable
 from ..generic.LoadAEDTFile import load_entire_aedt_file
 from ..generic.general_methods import aedt_exception_handler
+from ..generic.list_handling import variation_string_to_dict
 from ..modules.Boundary import BoundaryObject
+from ..generic.general_methods import generate_unique_name
 
-try:
-    import webbrowser
-except ImportError:
-    warnings.warn("webbrowser not supported")
 
 design_solutions = {
     "Maxwell 2D": [
@@ -218,6 +216,7 @@ model_names = {
     "EMIT Design": "EMIT Design",
 }
 
+
 class Design(object):
     """Class Design. Contains all functions and objects connected to the active Project and Design"""
     def __str__(self):
@@ -238,7 +237,6 @@ class Design(object):
 
     @aedt_exception_handler
     def __getitem__(self, variable_name):
-        assert variable_name in self.variable_manager.variables, "Variable {0} dies not exist !".format(variable_name)
         return self.variable_manager[variable_name].string_value
 
     @aedt_exception_handler
@@ -246,7 +244,8 @@ class Design(object):
         self.variable_manager[variable_name] = variable_value
         return True
 
-    def __init__(self, design_type, project_name=None, design_name=None, solution_type=None):
+    def __init__(self, design_type, project_name=None, design_name=None, solution_type=None,
+                 specified_version=None, NG=False, AlwaysNew=True, release_on_exit=True):
         # Get Desktop from global Desktop Environment
         self._project_dictionary = OrderedDict()
         self.boundaries = OrderedDict()
@@ -254,7 +253,7 @@ class Design(object):
         self.design_datasets = {}
         main_module = sys.modules['__main__']
         if "pyaedt_initialized" not in dir(main_module):
-            Desktop()
+            Desktop(specified_version, NG, AlwaysNew, release_on_exit)
         self._project_dictionary = {}
         self._mttime = None
         self._desktop = main_module.oDesktop
@@ -277,7 +276,6 @@ class Design(object):
         self.solution_type = self._solution_type
         self.project_datasets = self._get_project_datasets()
         self.design_datasets = self._get_design_datasets()
-
 
     @property
     def project_properies(self):
@@ -321,7 +319,7 @@ class Design(object):
     @property
     def aedt_version_id(self):
         """Property
-        
+
         :return: AEDT Version
 
         Parameters
@@ -359,6 +357,11 @@ class Design(object):
 
     @design_name.setter
     def design_name(self, new_name):
+        """
+        Property
+
+        :return: Change the name of the parent AEDT Design
+        """
         if ";" in new_name:
             new_name = new_name.split(";")[1]
         # src_dir = self.working_directory
@@ -383,7 +386,7 @@ class Design(object):
     @property
     def design_type(self):
         """Property
-        
+
         :return: Design Type
 
         Parameters
@@ -398,7 +401,7 @@ class Design(object):
     @property
     def project_name(self):
         """Property
-        
+
         :return: Project Name
 
         Parameters
@@ -413,7 +416,7 @@ class Design(object):
     @property
     def project_list(self):
         """Property
-        
+
         :return: List of available Projects
 
         Parameters
@@ -428,7 +431,7 @@ class Design(object):
     @property
     def project_path(self):
         """Property
-        
+
         :return: Project Path
 
         Parameters
@@ -443,7 +446,7 @@ class Design(object):
     @property
     def project_file(self):
         """Property
-        
+
         :return: Full absolute Project name and path
 
         Parameters
@@ -458,7 +461,7 @@ class Design(object):
     @property
     def lock_file(self):
         """Property
-        
+
         :return: Full absolute Project lock file
 
         Parameters
@@ -473,7 +476,7 @@ class Design(object):
     @property
     def results_directory(self):
         """Property
-        
+
         :return: Full absolute path of the aedtresults directory
 
         Parameters
@@ -488,7 +491,7 @@ class Design(object):
     @property
     def solution_type(self):
         """Property
-        
+
         :return: Solution Type
 
         Parameters
@@ -537,7 +540,7 @@ class Design(object):
     @property
     def valid_design(self):
         """Property
-        
+
         :return: True if oproject and odesign exists
 
         Parameters
@@ -552,7 +555,7 @@ class Design(object):
     @property
     def personallib(self):
         """Property
-        
+
         :return: Full absolute path of the PersonalLib directory
 
         Parameters
@@ -567,7 +570,7 @@ class Design(object):
     @property
     def userlib(self):
         """Property
-        
+
         :return: Full absolute path of the UserLib directory
 
         Parameters
@@ -582,7 +585,7 @@ class Design(object):
     @property
     def syslib(self):
         """Property
-        
+
         :return: Full absolute path of the SysLib directory
 
         Parameters
@@ -597,7 +600,7 @@ class Design(object):
     @property
     def src_dir(self):
         """Property
-        
+
         :return: Full absolute path of the python directory
 
         Parameters
@@ -612,7 +615,7 @@ class Design(object):
     @property
     def pyaedt_dir(self):
         """Property
-        
+
         :return: Full absolute path of the pyaedt Root Parent
 
         Parameters
@@ -627,7 +630,7 @@ class Design(object):
     @property
     def library_list(self):
         """Property
-        
+
         :return: list of [syslub, userlib, personallib]
 
         Parameters
@@ -642,7 +645,7 @@ class Design(object):
     @property
     def temp_directory(self):
         """Property
-        
+
         :return: Full absolute path of the TEMP directory
 
         Parameters
@@ -657,7 +660,7 @@ class Design(object):
     @property
     def toolkit_directory(self):
         """Property
-        
+
         :return: Full absolute path of the toolkit directory for this project - creates it if does not exist
 
         Parameters
@@ -675,7 +678,7 @@ class Design(object):
     @property
     def working_directory(self):
         """Property
-        
+
         :return: Full absolute path of the working directory for this project - creates it if does not exist
 
         Parameters
@@ -693,7 +696,7 @@ class Design(object):
     @property
     def default_solution_type(self):
         """Property
-        
+
         :return: Default solution type for the current application running
 
         Parameters
@@ -708,7 +711,7 @@ class Design(object):
     @property
     def odesign(self):
         """Property
-        
+
         :return: oDesign object
 
         Parameters
@@ -727,7 +730,7 @@ class Design(object):
         Parameters
         ----------
         des_name :
-            
+
 
         Returns
         -------
@@ -764,7 +767,7 @@ class Design(object):
     @property
     def oboundary(self):
         """Property
-        
+
         :return: BoundarySetup Module object
 
         Parameters
@@ -779,7 +782,7 @@ class Design(object):
     @property
     def omodelsetup(self):
         """Property
-        
+
         :return: ModelSetup Module object
 
         Parameters
@@ -795,7 +798,7 @@ class Design(object):
     @property
     def oimportexport(self):
         """Property
-        
+
         :return: ImportExport Module object
 
         Parameters
@@ -810,7 +813,7 @@ class Design(object):
     @property
     def oproject(self):
         """Property
-        
+
         :return: oProject object
 
         Parameters
@@ -869,7 +872,7 @@ class Design(object):
     @property
     def oanalysis_setup(self):
         """Property
-        
+
         :return: AnalysisSetup Module object
 
         Parameters
@@ -884,7 +887,7 @@ class Design(object):
     @property
     def odesktop(self):
         """Property
-        
+
         :return: oDesktop Module object
 
         Parameters
@@ -899,7 +902,7 @@ class Design(object):
     @property
     def desktop_install_dir(self):
         """Property
-        
+
         :return: AEDT Install Dir
 
         Parameters
@@ -914,7 +917,7 @@ class Design(object):
     @property
     def messenger(self):
         """Property
-        
+
         :return: Messenger object that can be used for logging on log file and on AEDT Message Windows
 
         Parameters
@@ -929,7 +932,7 @@ class Design(object):
     @property
     def variable_manager(self):
         """Property
-        
+
         :return: Variable maanager that can be used to create and manage Project, Design and PostProcessing Variables
 
         Parameters
@@ -948,11 +951,11 @@ class Design(object):
         Parameters
         ----------
         arg :
-            
+
         optimetrics_type :
-            
+
         variable_name :
-            
+
         min_val :
              (Default value = None)
         max_val :
@@ -1225,9 +1228,9 @@ class Design(object):
         Parameters
         ----------
         name :
-            
+
         datas :
-            
+
 
         Returns
         -------
@@ -1294,10 +1297,57 @@ class Design(object):
         return True
 
     @aedt_exception_handler
-    def release_desktop(self):
-        """:return: Release the desktop by keeping it open"""
-        release_desktop()
+    def release_desktop(self, close_projects=True, close_desktop=True):
+        """
+
+        Parameters
+        ----------
+        close_projects: bool
+            close all projects
+        close_desktop: bool
+            close desktop after release it
+
+        Returns
+        -------
+        bool
+            True if desktop released
+        """
+        release_desktop(close_projects, close_desktop)
         return True
+
+    @aedt_exception_handler
+    def generate_temp_project_directory(self, subdir_name):
+        """Generate a unique directory string to store a project
+
+        Creates a directory name for storage of a project in a location which is guaranteed to exist (the temp
+        directory of the AEDT installation). If the 'name' parameter is defined, then add a sub-directory within
+        the temp directory and add a hash suffix to ensure that this directory is empty (unique name)
+
+        Parameters
+        ----------
+        subdir_name : str
+            Base name of the sub-directory to be created im self.tempdirectory
+
+        Returns
+        -------
+        str
+
+        Examples
+        --------
+        >>> m3d = Maxwell3d()
+        >>> proj_directory = m3d.generate_temp_project_directory("Example")
+
+        """
+        base_path = self.temp_directory
+
+        assert isinstance(subdir_name, str), "Input argument 'subdir' must be a string"
+        dir_name = generate_unique_name(subdir_name)
+        project_dir = os.path.join(base_path, dir_name)
+        try:
+            if not os.path.exists(project_dir): os.makedirs(project_dir)
+            return project_dir
+        except OSError:
+            return False
 
 
     @aedt_exception_handler
@@ -1524,7 +1574,7 @@ class Design(object):
         Parameters
         ----------
         ___________ :
-            
+
         material_override :
             bool (Default value = True)
         enable :
@@ -1561,15 +1611,15 @@ class Design(object):
 
         Returns
         -------
-        
+
             bool
 
         """
         self._messenger.add_info_message("Changing the validation design settings")
         self.odesign.SetDesignSettings(["NAME:Design Settings Data"],
-                                       ["NAME:Model Validation Settings", 
+                                       ["NAME:Model Validation Settings",
                                         "EntityCheckLevel:=", entity_check_level,
-                                        "IgnoreUnclassifiedObjects:=", ignore_unclassified, 
+                                        "IgnoreUnclassifiedObjects:=", ignore_unclassified,
                                         "SkipIntersectionChecks:=", skip_intersections])
         return True
 
@@ -1683,7 +1733,7 @@ class Design(object):
         Parameters
         ----------
         name :
-            
+
 
         Returns
         -------
@@ -1703,7 +1753,7 @@ class Design(object):
         Parameters
         ----------
         separator_name :
-            
+
 
         Returns
         -------
@@ -1814,7 +1864,7 @@ class Design(object):
         Parameters
         ----------
         design_name :
-            
+
 
         Returns
         -------
@@ -1913,7 +1963,7 @@ class Design(object):
         Parameters
         ----------
         label :
-            
+
 
         Returns
         -------
@@ -2087,13 +2137,117 @@ class Design(object):
 
 
     @aedt_exception_handler
+    def get_evaluated_value(self, variable_name, variation=None):
+        """Returns the floating-point evaluated value of a given variable in SI-units
+        (design property or project variable)
+
+        Optionally a variation string of the form
+
+        Parameters
+        ----------
+        variable_name : str, default=None
+        Name of the project- or design variable to be evaluated
+        variation : str, default=None
+        Variation string for the evaluation. If not specified then use the nominal variation
+
+        >>> M3D = Maxwell3D()
+        >>> M3D["p1"] = "10mm"
+        >>> M3D["p2"] = "20mm"
+        >>> M3D["p3"] = "P1 * p2"
+        >>> eval_p3 = M3D.get_evaluated_value("p3")
+
+        Returns
+        -------
+        float
+
+        """
+        if not variation:
+            variation_string = self._odesign.GetNominalVariation()
+        else:
+            variation_string = self.design_variation(variation_string=variation)
+
+        si_value = self._odesign.GetVariationVariableValue(variation_string, variable_name)
+
+        return si_value
+
+    @aedt_exception_handler
+    def evaluate_expression(self, expression_string):
+        """ Evaluate an arbitrary valid string expression and return the numerical value in SI units
+
+        Parameters
+        ----------
+        expression_string : str
+        A valid design property/project variable string, i.e "34mm*sqrt(2)", "$G1*p2/34"
+
+        Returns
+        -------
+        float
+
+        """
+        # Set the value of an internal reserved design variable to the specified string
+        if expression_string in self._variable_manager.variables:
+            return self._variable_manager.variables[expression_string]
+        else:
+            try:
+                self._variable_manager.set_variable("pyaedt_evaluator", expression=expression_string,
+                                                    readonly=True, hidden=True, description="Internal_Evaluator")
+            except:
+                raise("Invalid string expression {}".expression_string)
+
+            # Extract the numeric value of the expression (in SI units!)
+            return self._variable_manager.variables["pyaedt_evaluator"].value
+
+    @aedt_exception_handler
+    def design_variation(self, variation_string=None):
+        """Generate a string to specify a desired variation
+
+        Converts a user input string defining a desired solution variation, e.g. "p1=1mm p2=3mm" into a valid
+        string taking into account all existing design properties and project variables including non-sweep
+        dependent properties.
+
+        This is actually needed because the standard GetVariationVariableValue does not work for obtaining
+        values of dependent (non-sweep variables). Presumably using the new beta feature object-oriented
+        scripting model this could be made redundant in future releases.
+
+        Parameters
+        ----------
+        variation_string : str
+        Variation string of the form "p1=1mm p2=3mm"
+
+        Returns
+        -------
+        str
+
+        """
+        nominal = self._odesign.GetNominalVariation()
+        if variation_string:
+            # decompose the nominal variation into a dictionary of name[value]
+            nominal_dict = variation_string_to_dict(nominal)
+
+            # decompose the desired variation into a dictionary of name[value]
+            var_dict = variation_string_to_dict(variation_string)
+
+            # set the values of the desired variation in the active design
+            for key, value in var_dict.items():
+                self[key] = value
+
+            # get the desired variation values
+            nominal = self._odesign.GetNominalVariation()
+
+            # Reset the nominal values in the active design
+            for key in var_dict:
+                self[key] = nominal_dict[key]
+
+        return nominal
+
+    @aedt_exception_handler
     def _assert_consistent_design_type(self, des_name):
         """
 
         Parameters
         ----------
         des_name :
-            
+
 
         Returns
         -------

@@ -20,6 +20,7 @@ import random
 from collections import OrderedDict
 from .Primitives2D import Primitives2D
 from .Primitives3D import Primitives3D
+from .Primitives import Polyline, PolylineSegment
 from .GeometryOperators import GeometryOperators
 from ..application.Variables import AEDT_units
 from ..generic.general_methods import generate_unique_name, retry_ntimes, aedt_exception_handler
@@ -550,7 +551,10 @@ class GeometryModeler(Modeler, object):
             else:
                 return '3D'
         except Exception:
-            return '3D'
+            if self.design_type == "2D Extractor":
+                return '2D'
+            else:
+                return '3D'
 
     @property
     def design_type(self):
@@ -573,8 +577,7 @@ class GeometryModeler(Modeler, object):
 
     @aedt_exception_handler
     def add_workbench_link(self, objects, ambient_temp=22, create_project_var=False, enable_deformation=True):
-        """# TODO fix 2020R2 Bug this is not working in 2020R2
-        Assign Temperature and Deformation Objects for WorkBench Link. From 2020R2 Material needs to have Thermal Modifierl
+        """Assign Temperature and Deformation Objects for WorkBench Link. From 2020R2 Material needs to have Thermal Modifierl
 
         Parameters
         ----------
@@ -826,27 +829,27 @@ class GeometryModeler(Modeler, object):
         offset = [i for i in start]
         if divmod(axisdir,3)[1] == 0:
             self.find_point_around(objectname,offset, sheet_dim, self._parent.CoordinateSystemPlane.YZPlane)
-            p1 = self.primitives.create_polyline([self.Position(start), self.Position(offset)])
-            p2 = self.primitives.create_polyline([self.Position(start), self.Position(offset)])
-            self.translate(p2, [axisdist, 0, 0])
-            self.connect([p1,p2])
+            p1 = self.primitives.draw_polyline([self.Position(start), self.Position(offset)])
+            p2 = self.primitives.draw_polyline([self.Position(start), self.Position(offset)])
+            self.translate(p2.id, [axisdist, 0, 0])
+            self.connect([p1.id,p2.id])
             #rect = self.primitives.create_rectangle(self._parent.CoordinateSystemPlane.XYPlane,  start,pos)
         elif divmod(axisdir,3)[1]== 1:
             self.find_point_around(objectname,offset, sheet_dim, self._parent.CoordinateSystemPlane.ZXPlane)
-            p1 = self.primitives.create_polyline([self.Position(start), self.Position(offset)])
-            p2 = self.primitives.create_polyline([self.Position(start), self.Position(offset)])
-            self.translate(p2, [0, axisdist, 0])
-            self.connect([p1,p2])
+            p1 = self.primitives.draw_polyline([self.Position(start), self.Position(offset)])
+            p2 = self.primitives.draw_polyline([self.Position(start), self.Position(offset)])
+            self.translate(p2.id, [0, axisdist, 0])
+            self.connect([p1.id, p2.id])
             #rect = self.primitives.create_rectangle(self._parent.CoordinateSystemPlane.YZPlane,start,pos)
         elif divmod(axisdir,3)[1] == 2:
             self.find_point_around(objectname,offset, sheet_dim, self._parent.CoordinateSystemPlane.XYPlane)
-            p1 = self.primitives.create_polyline([self.Position(start), self.Position(offset)])
-            p2 = self.primitives.create_polyline([self.Position(start), self.Position(offset)])
-            self.translate(p2, [0,0,axisdist])
-            self.connect([p1,p2])
+            p1 = self.primitives.draw_polyline([self.Position(start), self.Position(offset)])
+            p2 = self.primitives.draw_polyline([self.Position(start), self.Position(offset)])
+            self.translate(p2.id, [0,0,axisdist])
+            self.connect([p1.id, p2.id])
             #rect = self.primitives.create_rectangle(self._parent.CoordinateSystemPlane.ZXPlane,start,pos)
 
-        return p1
+        return p1.id
 
     @aedt_exception_handler
     def _get_faceid_on_axis(self, objname, axisdir):
@@ -905,11 +908,9 @@ class GeometryModeler(Modeler, object):
         """
         tol = 1e-6
         out, parallel = self.primitives.find_closest_edges(startobj, endobject, axisdir)
-
         port_edges = self.primitives.get_equivalent_parallel_edges(out, True, axisdir, startobj, endobject)
         if port_edges is None:
             return False
-
         sheet_name = self.primitives.get_obj_name(port_edges[0])
         point0 = self.primitives.get_edge_midpoint(port_edges[0])
         point1 = self.primitives.get_edge_midpoint(port_edges[1])
@@ -917,7 +918,6 @@ class GeometryModeler(Modeler, object):
         self.primitives.get_object_edges(port_edges[0])
         len = self.primitives.get_edge_length(self.primitives.get_object_edges(port_edges[0])[0])
         vect = GeometryOperators.v_points(point1, point0)
-
         l1 = self.primitives.get_edge_length(out[0])
         l2 = self.primitives.get_edge_length(out[1])
         if l1 < l2:
@@ -1372,29 +1372,29 @@ class GeometryModeler(Modeler, object):
         return True
 
     @aedt_exception_handler
-    def sweep_along_vector(self, objid, sweepVector, sweepoptions):
+    def sweep_along_vector(self, objid, sweep_vector, draft_angle=0, draft_type="Round"):
         """Sweep selection along vector
-        #TODO TEST
 
         Parameters
         ----------
-        objid :
+        objid : str, int
             if str, it is considered an objecname. if Int it is considered an object id
-        sweepVector :
+        sweep_vector :
             Application.Position object
-        sweepoptions :
-            Application.SweepOptions object
-
+        draft_angle : float
+            Draft Angle
+        draft_type : str
+            Draft Type. Default Round
         Returns
         -------
-
+        bool
         """
         selections = self.convert_to_selections(objid)
-        vectorx, vectory, vectorz = self.primitives.pos_with_arg(sweepVector)
+        vectorx, vectory, vectorz = self.primitives.pos_with_arg(sweep_vector)
         vArg1 = ['NAME:Selections', 'Selections:=', selections, 'NewPartsModelFlag:=', 'Model']
         vArg2 = ["NAME:VectorSweepParameters"]
-        vArg2.append('DraftAngle:='), vArg2.append(self.primitives.arg_with_dim(sweepoptions.DraftAngle, 'deg'))
-        vArg2.append('DraftType:='), vArg2.append(GeometryOperators.draft_type_str(sweepoptions.DraftType))
+        vArg2.append('DraftAngle:='), vArg2.append(self.primitives.arg_with_dim(draft_angle, 'deg'))
+        vArg2.append('DraftType:='), vArg2.append(GeometryOperators.draft_type_str(draft_type))
         vArg2.append('SweepVectorX:='), vArg2.append(vectorx)
         vArg2.append('SweepVectorY:='), vArg2.append(vectory)
         vArg2.append('SweepVectorZ:='), vArg2.append(vectorz)
@@ -1404,9 +1404,40 @@ class GeometryModeler(Modeler, object):
         return True
 
     @aedt_exception_handler
-    def sweep_around_axis(self, objid, cs_axis, sweepAngle, sweepoptions):
+    def sweep_along_path(self, objid, sweep_object, draft_angle=0, draft_type="Round", is_check_face_intersection=False, twist_angle=0):
+        """Sweep selection along vector
+
+        Parameters
+        ----------
+        objid: str, int
+            if str, it is considered an objecname. if Int it is considered an object id
+        sweep_object: if str, it is considered an objecname. if Int is considered an object id
+        draft_angle : float
+            Draft Angle
+        draft_type : str
+            Draft Type. Default "Round"
+        is_check_face_intersection: Boolean, False by default
+        twist_angle: Float Angle in degres, 0 by default
+
+        Returns
+        -------
+        bool
+        """
+        selections = self.convert_to_selections(objid) + "," + self.convert_to_selections(sweep_object)
+        vArg1 = ['NAME:Selections', 'Selections:=', selections, 'NewPartsModelFlag:=', 'Model']
+        vArg2 = ["NAME:PathSweepParameters"]
+        vArg2.append('DraftAngle:='), vArg2.append(self.primitives.arg_with_dim(draft_angle, 'deg'))
+        vArg2.append('DraftType:='), vArg2.append(GeometryOperators.draft_type_str(draft_type))
+        vArg2.append('CheckFaceFaceIntersection:='), vArg2.append(is_check_face_intersection)
+        vArg2.append('TwistAngle:='), vArg2.append(str(twist_angle) + 'deg')
+
+        self.oeditor.SweepAlongPath(vArg1, vArg2)
+        return True
+
+
+    @aedt_exception_handler
+    def sweep_around_axis(self, objid, cs_axis, sweep_angle=0, draft_angle=0):
         """Sweep selection aroun axis
-        #TODO TEST
 
         Parameters
         ----------
@@ -1414,10 +1445,10 @@ class GeometryModeler(Modeler, object):
             if str, it is considered an objecname. if Int it is considered an object id
         cs_axis :
             Application.CoordinateSystemAxis object
-        sweepAngle :
-            float. Sweep Angle in degrees
-        sweepoptions :
-            Application.SweepOptions object
+        sweep_angle : float
+             Sweep Angle in degrees
+        draft_angle : float
+            Draft Angle
 
         Returns
         -------
@@ -1425,13 +1456,12 @@ class GeometryModeler(Modeler, object):
         """
         selections = self.convert_to_selections(objid)
 
-        draftAngle = sweepoptions.DraftAngle
 
         vArg1 = ['NAME:Selections', 'Selections:=', selections, 'NewPartsModelFlag:=', 'Model']
         vArg2 = ['NAME:AxisSweepParameters', 'CoordinateSystemID:=', -1, 'DraftAngle:=',
-                 self.primitives.arg_with_dim(draftAngle, 'deg'),
+                 self.primitives.arg_with_dim(draft_angle, 'deg'),
                  'DraftType:=', 'Round', 'CheckFaceFaceIntersection:=', False, 'SweepAxis:=', GeometryOperators.cs_axis_str(cs_axis),
-                 'SweepAngle:=', self.primitives.arg_with_dim(sweepAngle, 'deg'), 'NumOfSegments:=', '0']
+                 'SweepAngle:=', self.primitives.arg_with_dim(sweep_angle, 'deg'), 'NumOfSegments:=', '0']
 
         self.oeditor.SweepAroundAxis(vArg1, vArg2)
 
@@ -2148,7 +2178,7 @@ class GeometryModeler(Modeler, object):
 
     @aedt_exception_handler
     def create_waveguide(self, origin, wg_direction_axis, wgmodel="WG0", wg_length=100, wg_thickness=None,
-                         wg_material="aluminum", parametrize_w=False, parametrize_h=False):
+                         wg_material="aluminum", parametrize_w=False, parametrize_h=False, create_sheets_on_openings=False, name=None):
         """Create a Standard Waveguide. Optionally, W and H can be parametrized
         Available models WG0.0, WG0, WG1, WG2, WG3, WG4, WG5, WG6, WG7, WG8, WG9, WG9A, WG10, WG11, WG11A, WG12, WG13,
         WG14, WG15, WR102, WG16, WG17, WG18, WG19, WG20, WG21, WG22, WG24, WG25, WG26, WG27, WG28, WG29, WG29, WG30, WG31, WG32
@@ -2171,13 +2201,18 @@ class GeometryModeler(Modeler, object):
             Parametrize W (Default value = False)
         parametrize_h : bool
             Parametrize H (Default value = False)
-
+        create_sheets_on_openings : bool
+            Create a sheet on both opening if True (Default value = False)
+        name : None
+            Optional, wg name
         Returns
         -------
         type
             id of WG
 
         """
+        p1=-1
+        p2=-1
         WG = {"WG0.0": [584.2, 292.1], "WG0": [533.4, 266.7], "WG1": [457.2, 228.6], "WG2": [381, 190.5],
               "WG3": [292.1, 146.05], "WG4": [247.65, 123.825], "WG5": [195.58, 97.79],
               "WG6": [165.1, 82.55], "WG7": [129.54, 64.77], "WG8": [109.22, 54.61], "WG9": [88.9, 44.45],
@@ -2198,10 +2233,10 @@ class GeometryModeler(Modeler, object):
             if parametrize_h:
                 self._parent[wgmodel + "_H"] = self.primitives.arg_with_dim(wgheight)
                 h = wgmodel + "_H"
-                hb = wgmodel + "_H + " + self.primitives.arg_with_dim(2 * wg_thickness)
+                hb = wgmodel + "_H + 2*" + self.primitives.arg_with_dim(wg_thickness)
             else:
                 h = self.primitives.arg_with_dim(wgheight)
-                hb = self.primitives.arg_with_dim(wgheight) + " + " + self.primitives.arg_with_dim(2 * wg_thickness)
+                hb = self.primitives.arg_with_dim(wgheight) + " + 2*" + self.primitives.arg_with_dim(wg_thickness)
 
             if parametrize_w:
                 self._parent[wgmodel + "_W"] = self.primitives.arg_with_dim(wgwidth)
@@ -2209,32 +2244,56 @@ class GeometryModeler(Modeler, object):
                 wb = wgmodel + "_W + " + self.primitives.arg_with_dim(2 * wg_thickness)
             else:
                 w = self.primitives.arg_with_dim(wgwidth)
-                wb = self.primitives.arg_with_dim(wgwidth) + " + " + self.primitives.arg_with_dim(2 * wg_thickness)
+                wb = self.primitives.arg_with_dim(wgwidth) + " + 2*" + self.primitives.arg_with_dim(wg_thickness)
             if wg_direction_axis == self._parent.CoordinateSystemAxis.ZAxis:
                 airbox = self.primitives.create_box(origin, [w, h, wg_length])
-                origin[0] -= wg_thickness
-                origin[1] -= wg_thickness
+
+                if type(wg_thickness) is str:
+                    origin[0] = str(origin[0]) + "-" + wg_thickness
+                    origin[1] = str(origin[1]) + "-" + wg_thickness
+                else:
+                    origin[0] -= wg_thickness
+                    origin[1] -= wg_thickness
 
             elif wg_direction_axis == self._parent.CoordinateSystemAxis.YAxis:
                 airbox = self.primitives.create_box(origin, [w, wg_length, h])
-                origin[0] -= wg_thickness
-                origin[2] -= wg_thickness
+
+
+                if type(wg_thickness) is str:
+                    origin[0] = str(origin[0]) + "-" + wg_thickness
+                    origin[2] = str(origin[2]) + "-" + wg_thickness
+                else:
+                    origin[0] -= wg_thickness
+                    origin[2] -= wg_thickness
             else:
                 airbox = self.primitives.create_box(origin, [wg_length, w, h])
-                origin[2] -= wg_thickness
-                origin[1] -= wg_thickness
 
+                if type(wg_thickness) is str:
+                    origin[2] = str(origin[2]) + "-" + wg_thickness
+                    origin[1] = str(origin[1]) + "-" + wg_thickness
+                else:
+                    origin[2] -= wg_thickness
+                    origin[1] -= wg_thickness
+            centers=[f.center for f in self.primitives.objects[airbox].faces]
+            posx = [i[wg_direction_axis] for i in centers]
+            mini = posx.index(min(posx))
+            maxi = posx.index(max(posx))
+            if create_sheets_on_openings:
+                p1 = self.primitives.create_object_from_face(self.primitives.objects[airbox].faces[mini].id)
+                p2 = self.primitives.create_object_from_face(self.primitives.objects[airbox].faces[maxi].id)
+            if not name:
+                name = generate_unique_name(wgmodel)
             if wg_direction_axis == self._parent.CoordinateSystemAxis.ZAxis:
                 wgbox = self.primitives.create_box(origin, [wb, hb, wg_length],
-                                                   name=generate_unique_name(wgmodel))
+                                                   name=name)
             elif wg_direction_axis == self._parent.CoordinateSystemAxis.YAxis:
-                wgbox = self.primitives.create_box(origin, [wb, wg_length, hb], name=generate_unique_name(wgmodel))
+                wgbox = self.primitives.create_box(origin, [wb, wg_length, hb], name=name)
             else:
-                wgbox = self.primitives.create_box(origin, [wg_length, wb, hb], name=generate_unique_name(wgmodel))
+                wgbox = self.primitives.create_box(origin, [wg_length, wb, hb], name=name)
             self.subtract(wgbox, airbox, False)
             self._parent.assignmaterial(wgbox, wg_material)
 
-            return wgbox
+            return wgbox, p1, p2
         else:
             return None
 
@@ -2336,146 +2395,6 @@ class GeometryModeler(Modeler, object):
              "UseCurrentCS:=", True
             ])
         return True
-
-    # @aedt_exception_handler
-    # def create_faceted_bondwire_from_true_surface(self, bondname, bond_direction, min_size = 0.2, numberofsegments=8, exact_size=False):
-    #     """
-    #     Create a new faceted bondwire from existing True Surface one
-    #     :param bondname: name of bondwire to replace
-    #     :param min_size: minimum size of the subsegment of the new polyline
-    #     :param bond_direction: bondwire axis direction. 0 = X, 1=Y, 2=Z
-    #     :return: New Bondwirename
-    #     """
-    #     edges = self.primitives.get_object_edges(bondname)
-    #     faces = self.primitives.get_object_faces(bondname)
-    #     centers = []
-    #     for el in faces:
-    #         center = self.primitives.get_face_center(el)
-    #         if center:
-    #             centers.append(center)
-    #     edgelist = []
-    #     verlist = []
-    #     minbound=1e6
-    #     maxbound=-1e6
-    #     initial_edge=0
-    #     initial_vert=0
-    #     for el in edges:
-    #         ver = self.primitives.get_edge_vertices(el)
-    #         if len(ver) < 2:
-    #             continue
-    #         p1 = self.primitives.get_vertex_position(ver[0])
-    #         p2 = self.primitives.get_vertex_position(ver[1])
-    #         p3 = [abs(i - j) for i, j in zip(p1, p2)]
-    #
-    #         dir = p3.index(max(p3))
-    #         dirm = p3.index(min(p3))
-    #         if dir == bond_direction or dirm != bond_direction:
-    #             edgelist.append(el)
-    #             verlist.append([p1, p2])
-    #             if min(p1[bond_direction], p2[bond_direction]) < minbound:
-    #                 initial_edge = el
-    #                 minbound = min(p1[bond_direction], p2[bond_direction])
-    #                 if p1[bond_direction]< p2[bond_direction]:
-    #                     initial_vert = p2
-    #                     ver_id = ver[1]
-    #                     end_vert=p1
-    #                 else:
-    #                     initial_vert = p1
-    #                     end_vert = p2
-    #                     ver_id = ver[0]
-    #
-    #             if max(p1[bond_direction], p2[bond_direction]) > minbound:
-    #                 maxbound = min(p1[bond_direction], p2[bond_direction])
-    #
-    #
-    #
-    #
-    #     if not edgelist:
-    #         self.messenger.add_error_message("No edges found specified direction. Check again")
-    #         return False
-    #     connected = [initial_edge]
-    #     tol = 1e-6
-    #     edgelist.pop(edgelist.index(initial_edge))
-    #     bound= minbound
-    #     while bound<=maxbound:
-    #         edges = self.primitives.get_edgeids_from_vertexid(ver_id, bondname)
-    #         par_coeff =[]
-    #         edges_id =[]
-    #         for edge in edges:
-    #             if edge not in connected:
-    #                 ver = self.primitives.get_edge_vertices(edge)
-    #                 p1 = self.primitives.get_vertex_position(ver[0])
-    #                 p2 = self.primitives.get_vertex_position(ver[1])
-    #                 par_coeff.append(GeometryOperators.parallel_coeff(initial_vert,end_vert,p1,p2))
-    #                 edges_id.append(edge)
-    #         if not par_coeff:
-    #             break
-    #         edge_id = edges_id[par_coeff.index(max(par_coeff))]
-    #         connected.append(edge_id)
-    #         ver = self.primitives.get_edge_vertices(edge_id)
-    #         p1 = self.primitives.get_vertex_position(ver[0])
-    #         p2 = self.primitives.get_vertex_position(ver[1])
-    #         dist=GeometryOperators.points_distance(p1, initial_vert)
-    #         if dist<tol:
-    #             if p2[bond_direction] == bound:
-    #                 break
-    #             initial_vert = p2
-    #             end_vert = p1
-    #             ver_id = ver[1]
-    #         else:
-    #             if p1[bond_direction] == bound:
-    #                 break
-    #             initial_vert = p1
-    #             end_vert = p2
-    #             ver_id = ver[0]
-    #         bound = initial_vert[bond_direction]
-    #
-    #     new_edges = []
-    #     for edge in connected:
-    #         new_edges.append(self.primitives.create_object_from_edge(edge))
-    #
-    #     self.unite(new_edges)
-    #     self.generate_object_history(new_edges[0])
-    #     self.primitives.convert_segments_to_line(new_edges[0])
-    #
-    #     edges = self.primitives.get_object_edges(new_edges[0])
-    #     i = 0
-    #     edge_to_delete = []
-    #     first_vert = None
-    #     for edge in edges:
-    #         ver = self.primitives.get_edge_vertices(edge)
-    #         p1 = self.primitives.get_vertex_position(ver[0])
-    #         p2 = self.primitives.get_vertex_position(ver[1])
-    #         if not first_vert:
-    #             first_vert = p1
-    #         dist = GeometryOperators.points_distance(p1, p2)
-    #         if dist < min_size:
-    #             edge_to_delete.append(i)
-    #         i += 1
-    #
-    #     rad = 1e6
-    #     move_vector = None
-    #     for fc in centers:
-    #         dist = GeometryOperators.points_distance(fc, first_vert)
-    #         if dist < rad:
-    #             rad = dist
-    #             move_vector = GeometryOperators.v_sub(fc, first_vert)
-    #     if edge_to_delete:
-    #         self.primitives.delete_edges_from_polilyne(new_edges[0], edge_to_delete)
-    #     angle = math.pi * (180 -360/numberofsegments)/360
-    #     if exact_size:
-    #         status = self.primitives.create_polyline_with_crosssection(self.primitives.get_obj_name(new_edges[0]),
-    #                                                                  "Circle", rad * 2, numberofsegments)
-    #     else:
-    #         status = self.primitives.create_polyline_with_crosssection(self.primitives.get_obj_name(new_edges[0]),
-    #                                                                  "Circle", (rad*(2-math.sin(angle))) * 2, numberofsegments)
-    #     if status:
-    #         self.translate(new_edges[0], move_vector)
-    #         self.set_object_model_state(bondname, False)
-    #         return new_edges[0]
-    #     else:
-    #         return False
-
 
 
     @aedt_exception_handler
@@ -2580,19 +2499,23 @@ class GeometryModeler(Modeler, object):
             if dist < rad:
                 rad = dist
                 move_vector = GeometryOperators.v_sub(fc, first_vert)
+
+        P = self.primitives.get_existing_polyline(object_id=new_edges[0])
+
         if edge_to_delete:
-            self.primitives.delete_edges_from_polilyne(new_edges[0], edge_to_delete)
+            P.remove_edges(edge_to_delete)
+            #self.primitives.delete_edges_from_polilyne(new_edges[0], edge_to_delete)
+
         angle = math.pi * (180 -360/numberofsegments)/360
 
-        status = self.primitives.create_polyline_with_crosssection(self.primitives.get_obj_name(new_edges[0]),
-                                                                 "Circle", (rad*(2-math.sin(angle))) * 2, numberofsegments)
+        status = P.set_crosssection_properties(type="Circle", num_seg=numberofsegments,
+                                               width=(rad*(2-math.sin(angle))) * 2)
         if status:
             self.translate(new_edges[0], move_vector)
             self.set_object_model_state(bondname, False)
             return new_edges[0]
         else:
             return False
-
 
     @aedt_exception_handler
     def get_entitylist_id(self, name):
@@ -3108,78 +3031,6 @@ class GeometryModeler(Modeler, object):
         return True
 
     @aedt_exception_handler
-    def select_all_extfaces(self, mats):
-        """Select all external faces of a a list of objects
-
-        Parameters
-        ----------
-        mats :
-            list of materials to be included into the search. All objects with this materials will be included
-            :output sel: list of faces
-
-        Returns
-        -------
-
-        """
-        self.messenger.add_info_message("Selecting Outer Faces")
-
-        sel = []
-
-        for mat in mats:
-            objs = self.oeditor.GetObjectsByMaterial(mat)
-            Id = []
-            aedt_bounding_box = self.get_model_bounding_box()
-            ObjName = []
-            for obj in objs:
-                oVertexIDs = self.oeditor.GetVertexIDsFromObject(obj)
-                found = False
-                for vertex in oVertexIDs:
-                    position = self.oeditor.GetVertexPosition(vertex)
-                    if not found and (
-                            position[0] == str(aedt_bounding_box[0]) or position[1] == str(aedt_bounding_box[1]) or
-                            position[2] == str(aedt_bounding_box[2]) or position[0] == str(aedt_bounding_box[3]) or
-                            position[1] == str(aedt_bounding_box[4]) or position[2] == str(aedt_bounding_box[5])):
-                        Id.append(self.oeditor.GetObjectIDByName(obj))
-                        ObjName.append(obj)
-                        found = True
-            for i in ObjName:
-
-                oFaceIDs = self.oeditor.GetFaceIDs(i)
-
-                for facce in oFaceIDs:
-                    sel.append(int(facce))
-        return sel
-
-    @aedt_exception_handler
-    def select_allfaces(self, mats):
-        """Select all external faces of a a list of objects
-
-        Parameters
-        ----------
-        mats :
-            list of materials to be included into the search. All objects with this materials will be included
-            :output sel: list of faces
-
-        Returns
-        -------
-
-        """
-        self.messenger.add_info_message("Selecting Outer Faces")
-
-        sel = []
-
-        for mat in mats:
-            objs = self.oeditor.GetObjectsByMaterial(mat)
-
-            for i in objs:
-
-                oFaceIDs = self.oeditor.GetFaceIDs(i)
-
-                for facce in oFaceIDs:
-                    sel.append(int(facce))
-        return sel
-
-    @aedt_exception_handler
     def load_hfss(self, cadfile):
         """
 
@@ -3196,7 +3047,7 @@ class GeometryModeler(Modeler, object):
         return True
 
     @aedt_exception_handler
-    def select_allfaces_frommat(self, mats):
+    def select_allfaces_from_mat(self, mats):
         """Select all external faces of a a list of objects
 
         Parameters
@@ -3212,9 +3063,11 @@ class GeometryModeler(Modeler, object):
         self.messenger.add_info_message("Selecting Outer Faces")
 
         sel = []
-
+        if type(mats) is str:
+            mats=[mats]
         for mat in mats:
-            objs = self.oeditor.GetObjectsByMaterial(mat)
+            objs = list(self.oeditor.GetObjectsByMaterial(mat))
+            objs.extend(list(self.oeditor.GetObjectsByMaterial(mat.lower())))
 
             for i in objs:
 
@@ -3252,7 +3105,7 @@ class GeometryModeler(Modeler, object):
 
     @aedt_exception_handler
     def select_ext_faces(self, mats):
-        """Select all external faces of a a list of objects
+        """This algorithm tries to select all external faces of a list of objects.
 
         Parameters
         ----------
@@ -3267,9 +3120,11 @@ class GeometryModeler(Modeler, object):
         self.messenger.add_info_message("Selecting Outer Faces")
 
         sel = []
-
+        if type(mats) is str:
+            mats=[mats]
         for mat in mats:
-            objs = self.oeditor.GetObjectsByMaterial(mat)
+            objs = list(self.oeditor.GetObjectsByMaterial(mat))
+            objs.extend(list(self.oeditor.GetObjectsByMaterial(mat.lower())))
             Id = []
             aedt_bounding_box = self.get_model_bounding_box()
             ObjName = []

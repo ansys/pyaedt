@@ -1,30 +1,26 @@
 """
-RMxprt Class
--------------------
+Introduction
+------------------
+
+This class contains all RMxprt functionalities. It inherits all objects that belong to RMxprt.
 
 
-Description
-==================================================
+Examples:
+Creates a ``Rmxprt`` object and connects to an existing RMxprt design or creates a new RMxprt design if one is not present.
 
-This class contains all the RMxprt Functionalities. It inherites all the objects that belongs to RMxprt
+>>> app = Rmxprt()
 
+Creates a ``Rmxprt`` object and links to a project named projectname.
 
-:Example:
+>>> app = Rmxprt(projectname)
 
-app = Rmxprt()     creates  Rmxprt object and connect to existing RMxprt design (create a new RMxprt design if not present)
+Creates a ``RMxprt`` object and links to a design named designname in a project named projectname.
 
+>>> app = Rmxprt(projectname,designame)
 
-app = Rmxprt(projectname)     creates and  Rmxprt and link to projectname project
+Creates a ``RMxprt`` object and opens the specified project.
 
-
-app = Rmxprt(projectname,designame)     creates and RMxprt object and link to designname design in projectname project
-
-
-app = Rmxprt("myfile.aedt")     creates and RMxprt object and open specified project
-
-
-
-========================================================
+>>> app = Rmxprt("myfile.aedt")
 
 """
 from __future__ import absolute_import
@@ -144,8 +140,10 @@ class Rmxprt(FieldAnalysisRMxprt):
 
     """
 
-    def __init__(self, projectname=None, designname=None, solution_type=None, model_units=None, setup_name=None):
-        FieldAnalysisRMxprt.__init__(self, "RMxprtSolution", projectname, designname, solution_type, setup_name)
+    def __init__(self, projectname=None, designname=None, solution_type=None, model_units=None, setup_name=None,
+                 specified_version=None, NG=False, AlwaysNew=True, release_on_exit=True):
+        FieldAnalysisRMxprt.__init__(self, "RMxprtSolution", projectname, designname, solution_type, setup_name,
+                                     specified_version, NG, AlwaysNew, release_on_exit)
         if not model_units or model_units == "mm":
             model_units = "mm"
         else:

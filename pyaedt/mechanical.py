@@ -1,18 +1,35 @@
 """
-Mechanical Class
-----------------------------------------------------------------
+Introduction
+------------------
+
+This class contains all Mechanical functionalities. It inherits all objects that belong to Mechanical.
 
 
-Description
-==================================================
+Examples
+--------
 
-This class contains all the Mechanical Functionalities. It inherites all the objects that belongs to Mechanical
+Create an ``Mechanical`` object and connect to an existing HFSS design or create a new HFSS design if one does not exist.
 
+>>> aedtapp = Mechanical()
 
+Create an ``Mechanical`` object and link to a project named ``projectname``. If this project does not exist, create one with this name.
 
+>>> aedtapp = Mechanical(projectname)
 
+Create an ``Mechanical`` object and link to a design named ``designname`` in a project named ``projectname``.
+
+>>> aedtapp = Mechanical(projectname,designame)
+
+Create an ``Mechanical`` object and open the specified project.
+
+>>> aedtapp = Mechanical("myfile.aedt")
+
+Create a ``Desktop on 2021R1`` object and then creates an ``Mechanical`` object and open the specified project.
+
+>>> aedtapp = Mechanical(specified_version="2021.1", projectname="myfile.aedt")
 
 """
+
 from __future__ import absolute_import
 
 from .application.Analysis3D import FieldAnalysis3D
@@ -41,9 +58,11 @@ class Mechanical(FieldAnalysis3D, object):
 
     """
 
-    def __init__(self, projectname=None, designname=None, solution_type=None, setup_name=None):
+    def __init__(self, projectname=None, designname=None, solution_type=None, setup_name=None,
+                 specified_version=None, NG=False, AlwaysNew=True, release_on_exit=True):
 
-        FieldAnalysis3D.__init__(self, "Mechanical", projectname, designname, solution_type, setup_name)
+        FieldAnalysis3D.__init__(self, "Mechanical", projectname, designname, solution_type, setup_name,
+                                 specified_version, NG, AlwaysNew, release_on_exit)
     def __enter__(self):
         return self
 

@@ -75,17 +75,34 @@ class Test3DLayout:
         assert self.edbapp.core_components.set_component_rlc("C3B14", res_value=1e-3, cap_value="10e-6", isparallel=False)
         assert self.edbapp.core_components.set_component_rlc("L3A1", res_value=1e-3, ind_value="10e-6", isparallel=True)
 
+    def test_add_layer(self):
+        layers = self.edbapp.core_stackup.stackup_layers
+        assert layers.add_layer("NewLayer", "TOP", "copper", "air", "10um", 0)
+
+    def test_add_dielectric(self):
+        diel = self.edbapp.core_stackup.create_dielectric("MyDiel", 3.3, 0.02)
+        assert diel
+
+    def test_add_conductor(self):
+        cond = self.edbapp.core_stackup.create_conductor("MyCond", 55e8)
+        assert cond
+
+    def test_add_djordievic(self):
+        diel = self.edbapp.core_stackup.create_djordjevicsarkar_material("MyDjord", 3.3, 0.02, 3.3)
+        assert diel
+
+    def test_add_debye(self):
+        diel = self.edbapp.core_stackup.create_debye_material("My_Debye", 3, 2.5, 0.02, 0.04, 1e6, 1e9)
+        assert diel
+
     def test_update_layer(self):
         self.edbapp.core_stackup.stackup_layers['LYR_1'].name
         self.edbapp.core_stackup.stackup_layers['LYR_1'].thickness_value = "100um"
         time.sleep(2)
         assert self.edbapp.core_stackup.stackup_layers['LYR_1'].thickness_value == "100um"
-        self.edbapp.core_stackup.stackup_layers['LYR_2'].material_name = "aluminum"
-        assert self.edbapp.core_stackup.stackup_layers['LYR_2'].material_name == "aluminum"
-
-    def test_add_layer(self):
-        layers = self.edbapp.core_stackup.stackup_layers
-        assert layers.add_layer("NewLayer", "TOP", "copper", "air", "10um", 0)
+        self.edbapp.core_stackup.stackup_layers['LYR_2'].material_name = "MyCond"
+        time.sleep(2)
+        assert self.edbapp.core_stackup.stackup_layers['LYR_2'].material_name == "MyCond"
 
     def test_remove_layer(self):
         layers = self.edbapp.core_stackup.stackup_layers

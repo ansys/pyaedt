@@ -1120,7 +1120,7 @@ class PostProcessor(object):
 
     @aedt_exception_handler
     def export_field_image_with_View(self, plotName, exportFilePath, view="iso", wireframe=True):
-        """NOTE: on AEDT 2019.3 it works only on ISO view due to a bug in API. It woks fine from 2020R1
+        """NOTE: on AEDT 2019.3 it works only on ISO view due to a bug in API. It woks fine from 2021R1
 
         Parameters
         ----------
@@ -1448,6 +1448,8 @@ class PostProcessor(object):
         """
 
         # Setup arguments list for createReport function
+        if not os.path.exists(dir + "//" + name):
+            os.mkdir(dir + "//" + name)
         if not os.path.exists(dir + "//" + name + "//Pictures"):
             os.mkdir(dir + "//" + name + "//Pictures")
 
@@ -1483,14 +1485,14 @@ class PostProcessor(object):
         return True
 
     @aedt_exception_handler
-    def create_field_exptression(self,expression_name, Quantity, obj_name, obj_type="Volume"):
+    def create_field_expression(self,expression_name, quantity, obj_name, obj_type="Volume"):
         """It create a new expression using Field Calculator given specified input
 
         Parameters
         ----------
         expression_name :
             Name of the output expression
-        Quantity :
+        quantity :
             Field Quantity to use in expression (eg. E)
         obj_name :
             name of objects on which compute the expression
@@ -1644,7 +1646,7 @@ class PostProcessor(object):
         return solution_data
 
     @aedt_exception_handler
-    def get_report_data(self, expression="dB(S(1,1))", setup_sweep_name='', domain='Sweep', families_dict=None):
+    def get_report_data(self, expression="dB(S(1,1))", setup_sweep_name='', domain='Sweep', families_dict=None, report_input_type=None):
         """Generate Report Data using GetSolutionDataPerVariation function. it returns the data object, the solDataArray
         and the FreqVals Array.
         
@@ -1661,20 +1663,22 @@ class PostProcessor(object):
 
         Parameters
         ----------
-        setup_sweep_name :
+        setup_sweep_name : str
             Name of setup to compute report. if None, nominal sweep will be applied (Default value = '')
-        domain :
+        domain : str, list
             Context Type (Sweep or Time) (Default value = 'Sweep')
-        families_dict :
+        families_dict : dict
             Dictionary of variables and values. Default {"Freq": ["All"]}
-        expression :
+        expression : str, list
             string or list of traces to include (Default value = "dB(S(1)
         1))" :
-            
+        report_input_type : str, optional
+            string or list of traces to include (Default value = "dB(S(1)
+        1))" :
 
         Returns
         -------
-        type
+        SolutionData
             SolutionData object if successful
 
         """
@@ -1685,6 +1689,8 @@ class PostProcessor(object):
                 did = 1
             ctxt = ["NAME:Context", "SimValueContext:=",
                     [did, 0, 2, 0, False, False, -1, 1, 0, 1, 1, "", 0, 0, "IDIID", False, "1"]]
+        elif type(domain) is list:
+            ctxt = domain
         else:
             ctxt = ["Domain:=", domain]
 
@@ -1692,15 +1698,17 @@ class PostProcessor(object):
             expression = [expression]
         if not setup_sweep_name:
             setup_sweep_name = self._parent.nominal_sweep
-        if self.post_solution_type not in report_type:
-            print("Solution not supported")
-            return False
-        modal_data = report_type[self.post_solution_type]
+
+
+        if not report_input_type:
+            report_input_type = report_type[self.post_solution_type]
+
 
         if families_dict is None:
             families_dict = {"Freq": ["All"]}
 
-        solution_data = self.get_solution_data_per_variation(modal_data, setup_sweep_name, ctxt, families_dict, expression)
+        solution_data = self.get_solution_data_per_variation(report_input_type, setup_sweep_name, ctxt, families_dict, expression)
+
         if not solution_data:
             print("No Data Available. Check inputs")
             return False
@@ -1708,7 +1716,7 @@ class PostProcessor(object):
 
     @aedt_exception_handler
     def create_rectangular_plot(self, expression="dB(S(1,1))", setup_sweep_name='', families_dict={"Freq": ["All"]},
-                                primary_sweep_variable="Freq", context=None, plotname=None):
+                                primary_sweep_variable="Freq", context=None, plotname=None,plottype=None):
         """Create a 2D Rectangular plot in AEDT
 
         Parameters
@@ -1757,13 +1765,27 @@ class PostProcessor(object):
         if self.post_solution_type not in report_type:
             print("Solution not supported")
             return False
-        modal_data = report_type[self.post_solution_type]
+        if not plottype:
+            modal_data = report_type[self.post_solution_type]
+        else:
+            modal_data = plottype
         if not plotname:
             plotname = generate_unique_name("Plot")
         families_input = []
+        families_input.append(primary_sweep_variable+":=")
+        if type(families_dict[primary_sweep_variable]) is list:
+            families_input.append(families_dict[primary_sweep_variable])
+        else:
+            families_input.append([families_dict[primary_sweep_variable]])
         for el in families_dict:
+            if el == primary_sweep_variable:
+                continue
             families_input.append(el+":=")
-            families_input.append(families_dict[el])
+            if type(families_dict[el]) is list:
+                families_input.append(families_dict[el])
+            else:
+                families_input.append([families_dict[el]])
+
         self.oreportsetup.CreateReport(plotname, modal_data, "Rectangular Plot", setup_sweep_name, ctxt, families_input,
                                                        ["X Component:=", primary_sweep_variable, "Y Component:=",
                                                    expression])
