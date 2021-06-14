@@ -155,11 +155,11 @@ class Mechanical(FieldAnalysis3D, object):
         
         designname : str, optional
             Name of the design of the source mapping. The default is ``"IcepakDesign1"``.
-        setupname : str, optinal
+        setupname : str, optional
             Name of the EM setup. The default is ``"Setup1"``.
         sweepname :str, optional
             Name of the EM sweep to use for the mapping. The default is no sweep and to use ``"LastAdaptive"``.
-        source_project_name : str, optinal
+        source_project_name : str, optional
             Name of the source project. The default is ``None``, which uses the source from the same project.
         paramlist : list, optional
             List of all parameters in the EM to map. The default is ``[]``.
