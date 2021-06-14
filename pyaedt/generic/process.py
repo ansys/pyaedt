@@ -12,7 +12,11 @@ from .general_methods import env_path, env_value
 class AedtSolve(object):
     '''
     class dedicated for calling Aedt solvers. Only solving on local machines is supported for the moment.
-
+    Examples
+    >>>solver = process.AedtSolve()
+    >>>solver.NonGraphical = True
+    >>>solver.ProjectPath = edb_file
+    >>>solver.solve()
     '''
     def __init__(self,aedt_version="2021.1", aedt_installer_path=None):
         self._project_path = ""
