@@ -1973,16 +1973,11 @@ class Hfss(FieldAnalysis3D, object):
         return val_list, validation_ok  # Return all the information in a list for later use.
 
     @aedt_exception_handler
-    def create_scattering(self, PlotName="S Parameter Plot Nominal", sweep_name=None, PortNames=None, PortExcited=None,
+    def create_scattering(self, plot_name="S Parameter Plot Nominal", sweep_name=None, port_names=None, port_excited=None,
                           variations=None):
         """Create scattering report.
         
         
-        sweeps = design eXploration variations (list of str)
-        PortNames = (list of str)
-        PortExcited = (str)
-        :return:
-
         Parameters
         ----------
         PlotName : str, optional
@@ -1991,7 +1986,7 @@ class Hfss(FieldAnalysis3D, object):
              Name of the sweep. The default is ``None``.
         PortNames : list, optional
              Name of the port. The default is ``None``.
-        PortExcited : list,str optional
+        PortExcited : list or str, optional
              The default is ``None``.
         variations : str, optional
              The default is ``None``.
@@ -2000,8 +1995,7 @@ class Hfss(FieldAnalysis3D, object):
         -------
 
         """
-        # Set plot name
-        # Set up arguments list for CreateReport function
+
         Families = ["Freq:=", ["All"]]
         if variations:
             Families += variations
@@ -2012,22 +2006,22 @@ class Hfss(FieldAnalysis3D, object):
         elif sweep_name not in self.existing_analysis_sweeps:
             self.messenger.add_error_message("Setup {} doesn't exist in Setup list".format(sweep_name))
             return False
-        if not PortNames:
-            PortNames = self.modeler.get_excitations_name()
+        if not port_names:
+            port_names = self.modeler.get_excitations_name()
         full_matrix = False
-        if not PortExcited:
-            PortExcited = PortNames
+        if not port_excited:
+            port_excited = port_names
             full_matrix = True
-        if type(PortNames) is str:
-            PortNames = [PortNames]
-        if type(PortExcited) is str:
-            PortExcited = [PortExcited]
+        if type(port_names) is str:
+            port_names = [port_names]
+        if type(port_excited) is str:
+            port_excited = [port_excited]
         list_y = []
-        for p in list(PortNames):
-            for q in list(PortExcited):
+        for p in list(port_names):
+            for q in list(port_excited):
                 if not full_matrix:
                     list_y.append("dB(S(" + p + "," + q + "))")
-                elif PortExcited.index(q) >= PortNames.index(p):
+                elif port_excited.index(q) >= port_names.index(p):
                     list_y.append("dB(S(" + p + "," + q + "))")
 
         Trace = ["X Component:=", "Freq", "Y Component:=", list_y]
@@ -2040,7 +2034,7 @@ class Hfss(FieldAnalysis3D, object):
             # run CreateReport function
 
             self.post.oreportsetup.CreateReport(
-                PlotName,
+                plot_name,
                 solution_data,
                 "Rectangular Plot",
                 sweep_name,
@@ -2051,7 +2045,6 @@ class Hfss(FieldAnalysis3D, object):
             return True
         return False
 
-        # export the image
 
     @aedt_exception_handler
     def create_qfactor_report(self, project_dir, outputlist, setupname, plotname, Xaxis="X"):

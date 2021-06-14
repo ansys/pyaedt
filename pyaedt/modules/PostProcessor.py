@@ -1485,14 +1485,14 @@ class PostProcessor(object):
         return True
 
     @aedt_exception_handler
-    def create_field_expression(self,expression_name, Quantity, obj_name, obj_type="Volume"):
+    def create_field_expression(self,expression_name, quantity, obj_name, obj_type="Volume"):
         """It create a new expression using Field Calculator given specified input
 
         Parameters
         ----------
         expression_name :
             Name of the output expression
-        Quantity :
+        quantity :
             Field Quantity to use in expression (eg. E)
         obj_name :
             name of objects on which compute the expression
