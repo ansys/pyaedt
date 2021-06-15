@@ -248,3 +248,8 @@ class Test3DLayout:
     def test_save_edb_as(self):
         assert self.edbapp.save_edb_as(os.path.join(self.local_scratch.path, "Gelileo_new.aedb"))
         assert os.path.exists(os.path.join(self.local_scratch.path, "Gelileo_new.aedb", "edb.def"))
+
+    def test_create_cutout(self):
+        output = os.path.join(self.local_scratch.path, "cutout.aedb")
+        assert self.edbapp.create_cutout(["A0_N", "A0_P"],["GND","V3P3_S0"], output_aedb_path=output)
+        assert os.path.exists(os.path.join(output, "edb.def"))
