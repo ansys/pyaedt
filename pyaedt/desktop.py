@@ -314,7 +314,9 @@ class Desktop:
         self._main.isoutsideDesktop = False
         self._main.pyaedt_version = pyaedtversion
         self.release = release_on_exit
-        logger.debug("Launching Desktop Init")
+        self.logfile = None
+        module_logger = logging.getLogger(__name__)
+
         if "oDesktop" in dir(self._main) and self._main.oDesktop is not None:
             self._main.AEDTVersion = self._main.oDesktop.GetVersion()[0:6]
             self._main.oDesktop.RestoreWindow()
@@ -356,15 +358,16 @@ class Desktop:
             elif _com == 'pythonnet_v3':
                 sys.path.append(base_path)
                 sys.path.append(os.path.join(base_path, 'PythonFiles', 'DesktopPlugin'))
-                print(base_path)
-                print("============================================")
+                launch_msg = "Launching AEDT installation {}".format(base_path)
+                print(launch_msg)
+                print("===================================================================================")
                 clr.AddReference("Ansys.Ansoft.CoreCOMScripting")
                 AnsoftCOMUtil = __import__("Ansys.Ansoft.CoreCOMScripting")
                 self.COMUtil = AnsoftCOMUtil.Ansoft.CoreCOMScripting.Util.COMUtil
                 self._main.COMUtil = self.COMUtil
                 StandalonePyScriptWrapper = AnsoftCOMUtil.Ansoft.CoreCOMScripting.COM.StandalonePyScriptWrapper
-                oAnsoftApp = None
-                logger.debug("Launching AEDT with Module Pythonnet")
+
+                module_logger.debug("Launching AEDT with Module Pythonnet")
                 processID = []
                 if IsWindows:
                     username = getpass.getuser()
@@ -383,7 +386,7 @@ class Desktop:
                     App = StandalonePyScriptWrapper.CreateObject(version)
                 processID2 = []
                 if IsWindows:
-                    print("Info: Using Windows TaskManager to Load processes")
+                    module_logger.debug("Info: Using Windows TaskManager to Load processes")
                     username = getpass.getuser()
                     process = "ansysedt.exe"
                     output = os.popen('tasklist /FI "IMAGENAME eq ansysedt.exe" /v').readlines()
@@ -404,7 +407,7 @@ class Desktop:
                     self._main.isoutsideDesktop = True
                 elif version_key>="2021.1":
                     self._main.close_on_exit = True
-                    print("Info: {} Started with Process ID {}".format(version, proc[0]))
+                    module_logger.debug("Info: {} Started with Process ID {}".format(version, proc[0]))
                     context = pythoncom.CreateBindCtx(0)
                     running_coms = pythoncom.GetRunningObjectTable()
                     monikiers = running_coms.EnumRunning()
@@ -418,12 +421,12 @@ class Desktop:
                             self._main.oDesktop = win32com.client.Dispatch(obj.QueryInterface(pythoncom.IID_IDispatch))
                             break
                 else:
-                    logger.warning("PyAEDT is not supported in AEDT versions older than 2021.1.")
+                    module_logger.warning("PyAEDT is not supported in AEDT versions older than 2021.1.")
                     oAnsoftApp = win32com.client.Dispatch(version)
                     self._main.oDesktop = oAnsoftApp.GetAppDesktop()
                     self._main.isoutsideDesktop = True
             else:
-                logger.debug("Launching AEDT with Module win32com.client")
+                module_logger.debug("Launching AEDT with Module win32com.client")
                 oAnsoftApp = win32com.client.Dispatch(version)
                 self._main.oDesktop = oAnsoftApp.GetAppDesktop()
                 self._main.isoutsideDesktop = True
@@ -432,23 +435,31 @@ class Desktop:
             self._main.oDesktop.RestoreWindow()
             self._main.oMessenger = AEDTMessageManager()
         self._main.pyaedt_initialized = True
+
+        # Setup the log file in the AEDT project directory
         self.logger = logging.getLogger(__name__)
         if not self.logger.handlers:
             project_dir = self._main.oDesktop.GetProjectDirectory()
+            self.logfile = os.path.join(project_dir, "pyaedt.log")
             logging.basicConfig(
-                filename=os.path.join(project_dir, "pyaedt.log"),
+                filename=self.logfile,
                 level=logging.DEBUG,
                 format='%(asctime)s:%(name)s:%(levelname)-8s:%(message)s',
-                datefmt='%Y/%m/%d %H.%M.%S')
-            self.logger = logging.getLogger(__name__)
-        info_msg0 = 'pyaedt v{} started'.format(pyaedtversion)
-        info_msg1 = 'Started external COM connection with module {0}'.format(_com)
-        info_msg2 = 'Python version {0}'.format(sys.version)
-        info_msg3 = 'Exe path: {0}'.format(sys.executable)
-        self._main.oMessenger.add_info_message(info_msg0, 'Global')
+                datefmt='%Y/%m/%d %H.%M.%S',
+                filemode='w')
+
+        self.logger.info(launch_msg)
+
+        info_msg1 = 'pyaedt v{}'.format(pyaedtversion.strip())
+        info_msg2 = 'Python version {}'.format(sys.version)
         self._main.oMessenger.add_info_message(info_msg1, 'Global')
         self._main.oMessenger.add_info_message(info_msg2, 'Global')
-        self._main.oMessenger.add_info_message(info_msg3, 'Global')
+
+        info_msg3 = 'Started external COM connection with module {}'.format(_com)
+        info_msg4 = 'Exe path: {}'.format(sys.executable)
+        logger.info(info_msg3)
+        logger.info(info_msg4)
+
         if _com == 'pywin32' and (AlwaysNew or NG):
             info_msg5 = 'The ``AlwaysNew`` or ``NG`` option is not available for a pywin32 connection only. Install Pythonnet to support these options.'
             self._main.oMessenger.add_info_message(info_msg5, 'Global')

@@ -50,14 +50,20 @@ else:
 
 # Define desktopVersion explicitly since this is imported by other modules
 desktop_version = config["desktopVersion"]
+new_thread = config["NewThread"]
+non_graphical = config["NonGraphical"]
 
 @pytest.fixture(scope='session', autouse=True)
 def desktop_init():
-    desktop = Desktop(desktop_version, config["NonGraphical"], config["NewThread"])
+    desktop = Desktop(desktop_version, non_graphical, new_thread)
 
     yield desktop
 
-    desktop.force_close_desktop()
+    # If new_thread is set to false by a local_config, then don't close the desktop.
+    # Intended for local debugging purposes only
+    if new_thread:
+        desktop.force_close_desktop()
+
     p = pathlib.Path(scratch_path).glob('**/scratch*')
     for folder in p:
         shutil.rmtree(folder, ignore_errors=True)

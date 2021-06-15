@@ -28,22 +28,6 @@ class GeometryOperators(object):
     
     @staticmethod
     @aedt_exception_handler
-    def parse_dim_arg(string2parse):
-        """
-
-        Parameters
-        ----------
-        string2parse :
-            
-
-        Returns
-        -------
-
-        """
-        return string2parse
-    
-    @staticmethod
-    @aedt_exception_handler
     def cs_plane_str(val):
         """
 
