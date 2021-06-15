@@ -7,7 +7,10 @@ import os.path
 import subprocess
 import clr
 import os
-import subprocess
+if os.name == 'posix':
+	import subprocessdotnet as subprocess
+else:
+	import subprocess
 from .general_methods import env_path, env_value
 class AedtSolve(object):
     '''
@@ -192,6 +195,5 @@ class SiwaveSolve(object):
             command.append('-formatOutput -useSubdir')
             p = subprocess.Popen(command)
             p.wait()
-
 
 
