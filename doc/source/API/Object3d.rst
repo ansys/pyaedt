@@ -3,17 +3,8 @@
    You can adapt this file completely to your liking, but it should at least
    contain the root `toctree` directive.
 
-modeler
+Object3d
 ===================================
 
-.. toctree::
-   :maxdepth: 2
-   :caption: Classes:
-
-   Modeler
-   Modeler3D
-   Modeler2D
-   Modeler3DLayout
-
-
-
+.. autoclass:: pyaedt.modeler.Object3d.Object3d
+    :members:

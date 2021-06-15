@@ -48,7 +48,7 @@ class Hfss(FieldAnalysis3D, object):
             return "HFSS Module"
 
     def __init__(self, projectname=None, designname=None, solution_type=None, setup_name=None,
-                 specified_version=None, NG=False, AlwaysNew=True, release_on_exit=True):
+                 specified_version=None, NG=False, AlwaysNew=False, release_on_exit=False):
         """HFSS Object
 
             Parameters

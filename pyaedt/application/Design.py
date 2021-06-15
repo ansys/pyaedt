@@ -246,7 +246,7 @@ class Design(object):
         return True
 
     def __init__(self, design_type, project_name=None, design_name=None, solution_type=None,
-                 specified_version=None, NG=False, AlwaysNew=True, release_on_exit=True):
+                 specified_version=None, NG=False, AlwaysNew=False, release_on_exit=False):
         # Get Desktop from global Desktop Environment
         self._project_dictionary = OrderedDict()
         self.boundaries = OrderedDict()

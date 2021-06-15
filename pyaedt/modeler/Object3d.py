@@ -177,13 +177,11 @@ class VertexPrimitive(object):
         radius : float, default=0.1
             Fillet Radius
         setback : float, default=0.0
-            Fillet setback
+            Fillet setback value
 
         Returns
         -------
-        type
-            bool
-
+        bool
         """
         if self._parent.is3d:
             self._parent.messenger.add_error_message("chamfer is possible only on Vertex in 2D Objects ")

@@ -12,7 +12,8 @@ This Section contain info about all the application modules of pyaedt. In partic
 #. Design
 #. Variables
 #. Analysis
-#. modeler
+#. Modeler
+#. Objects
 #. DesignXPloration
 
 
@@ -30,9 +31,13 @@ Variable Class contain all the methods for managing AEDT Variables (both Project
 Analysis Classes contain all the properties and methods needed to setup and run AEDT Analysis
 
 
-**modeler**
+**Modeler**
 
 modeler Classeses contain all the properties and methods needed to edit a modeler, including all primitives methods and properties
+
+**Objects**
+
+Object Classes contain all the properties and methods needed to edit geometric entities
 
 **DesignXploration**
 
@@ -45,6 +50,7 @@ Optimetrics Classeses contain all the properties and methods needed to create an
 
    AnalysisCore
    ModelerCore
+   ObjectCore
    Design
    Variables
    DesignXPlorer
