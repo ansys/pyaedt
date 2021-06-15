@@ -41,8 +41,8 @@ elif os.name == 'nt':
 
 
 class Siwave:
-    """====================================
-    The core module that initialize Ansys Siwave based on the inputs provided.
+    """
+    This class initializes Siwave based on the inputs provided.
 
     Parameters
     ----------
@@ -232,4 +232,3 @@ class Siwave:
 
         self._main.oSiwave.Quit()
         return True
-
