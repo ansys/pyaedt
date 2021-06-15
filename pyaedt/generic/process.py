@@ -177,7 +177,10 @@ class SiwaveSolve(object):
     def solve(self):
         # supporting non graphical solve only
         if self.nongraphical:
-            exe_path = os.path.join(self.installer_path, 'siwave_ng.exe')
+            if os.name == "posix":
+                exe_path = os.path.join(self.installer_path, 'siwave_ng')
+            else:
+                 exe_path = os.path.join(self.installer_path, 'siwave_ng.exe')     
             exec_file = os.path.splitext(self._project_path)[0] + '.exec'
             if os.path.exists(exec_file):
                 with open(exec_file,"r+") as f:
