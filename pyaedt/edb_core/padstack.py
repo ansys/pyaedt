@@ -280,16 +280,17 @@ class EdbPadstacks(object):
 
                 Parameters
                 ----------
-                padstackdef :
-                    Edb.Definition.PadstackDef
-                layername :
+                padstackdef : self.edb.Definition.PadstackDef
+                    Padstack Definition
+                layername : str
                     str
-                padtype :
-                    Edb.Definition.PadType
+                padtype : self edb.Definition.PadType
+                    Pad Type
 
                 Returns
                 -------
-                Tuple<Edb.Definition.PadGeometryType, IList<Edb.Utility.Value>, Edb.Utility.Value, Edb.Utility.Value, Edb.Utility.Value>
+                tuple
+                     Tuple<Edb.Definition.PadGeometryType, IList<Edb.Utility.Value>, Edb.Utility.Value, Edb.Utility.Value, Edb.Utility.Value>
 
                 """
         pad_values = self.padstack_methods.GetPadParametersValue(padstackdef, layername, padtype)
