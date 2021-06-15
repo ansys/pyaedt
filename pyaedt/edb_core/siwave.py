@@ -7,6 +7,7 @@ This class manages Edb Siwave and related methods
 
 """
 import warnings
+import os
 from .general import *
 from ..generic.general_methods import get_filename_without_extension, generate_unique_name
 
@@ -258,7 +259,7 @@ class EdBSiwave(object):
 
 
     def __init__(self, parent):
-        self.parent =parent
+        self.parent = parent
 
     @aedt_exception_handler
     def create_circuit_port(self, positive_component_name, positive_net_name, negative_component_name=None,
@@ -334,7 +335,7 @@ class EdBSiwave(object):
         neg_node_pins = self.parent.core_components.get_pin_from_component(negative_component_name, negative_net_name)
 
         if source_name == "":
-            source_name = "Port_{}_{}_{}_{}".format(positive_component_name, positive_net_name, negative_component_name,
+            source_name = "Vsource_{}_{}_{}_{}".format(positive_component_name, positive_net_name, negative_component_name,
                                                   negative_net_name)
         voltage_source.name = source_name
         voltage_source.positive_node.component_node = pos_node_cmp
@@ -422,21 +423,68 @@ class EdBSiwave(object):
         return True
 
     @aedt_exception_handler
-    def add_siwave_ac_analysis(self, accuracy_level=1, decade_count=10, sweeptype=1, start_freq=1, stop_freq=1e9, step_freq=1e6, discre_sweep=False):
+    def create_exec_file(self):
+        workdir = os.path.dirname(self.parent.edbpath)
+        file_name = os.path.join(workdir,os.path.splitext(os.path.basename(self.parent.edbpath))[0] + '.exec')
+        if os.path.isfile(file_name):
+            os.remove(file_name)
+        f = open(file_name,"w")
+        return f
+
+    @aedt_exception_handler
+    def add_siwave_ac_analysis(self, accuracy_level=1, decade_count=10, sweeptype=1, start_freq=1, stop_freq=1e9, step_freq=1e6, discrete_sweep=False):
         """
-        Add Siwave AC Analysis
+        Add SIWave AC Analysis to EDB
+
+        Parameters
+        ----------
+        accuracy_level : int
+
+        decade_count : int
+
+        sweeptype : int
+        start_freq : float
+        stop_freq : float
+        step_freq : float
+        discrete_sweep: bool
+
+        Returns
+        -------
+        bool
+        """
+        self.siwave_setup.AddACSimSetup(self.builder, accuracy_level, str(decade_count), sweeptype, str(start_freq), str(stop_freq), str(step_freq), discrete_sweep)
+        exec_file = self.create_exec_file()
+        exec_file.write("ExecAcSim\n")
+        exec_file.close()
+        return True
+
+    @aedt_exception_handler
+    def add_siwave_syz_analysis(self, accuracy_level=1, decade_count=10, sweeptype=1, start_freq=1, stop_freq=1e9,
+                               step_freq=1e6, discrete_sweep=False):
+        """Add Siwave SYZ Analysis
 
 
-        :param accuracy_level:
-        :param decade_count:
-        :param sweeptype:
-        :param start_freq:
-        :param stop_freq:
-        :param step_freq:
-        :param discre_sweep:
-        :return:
+        Parameters
+        ----------
+        accuracy_level : 1
+        decade_count : int
+        sweeptype : int
+        start_freq : float
+        stop_freq : float
+        step_freq : float
+        discrete_sweep: bool
+
+        Returns
+        -------
+
         """
-        self.siwave_setup.AddACSimSetup(self.builder, accuracy_level, str(decade_count), sweeptype, str(start_freq), str(stop_freq), str(step_freq), discre_sweep)
+
+        self.siwave_setup.AddSYZSimSetup(self.builder, accuracy_level, str(decade_count), sweeptype, str(start_freq),
+                                        str(stop_freq), str(step_freq), discrete_sweep)
+        exec_file = self.create_exec_file()
+        exec_file.write("ExecSyzSim\n")
+        exec_file.write("SaveSiw\n")
+        exec_file.close()
         return True
 
     @aedt_exception_handler
@@ -456,6 +504,9 @@ class EdBSiwave(object):
         """
 
         self.siwave_setup.AddDCSimSetup(self.builder, accuracy_level)
+        exec_file = self.create_exec_file()
+        exec_file.write("ExecDcSim\n")
+        exec_file.close()
         return True
 
     @aedt_exception_handler
