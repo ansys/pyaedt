@@ -111,7 +111,13 @@ class ModelerNexxim(ModelerCircuit):
 
     @property
     def edb(self):
-        """:return:edb_core object if exists"""
+        """
+
+        Returns
+        -------
+        Edb
+            edb_core object if exists
+        """
         if self._parent.design_type == "Twin Builder":
             return
         edb_folder = os.path.join(self._parent.project_path, self._parent.project_name + ".aedb")
@@ -125,19 +131,22 @@ class ModelerNexxim(ModelerCircuit):
 
     @property
     def layouteditor(self):
-        """ """
         if self._parent.design_type == "Twin Builder":
             return
         return self.odesign.SetActiveEditor("Layout")
 
     @property
     def model_units(self):
-        """ """
         return retry_ntimes(10, self.layouteditor.GetActiveUnits)
 
     @property
     def primitives(self):
-        """ """
+        """
+
+        Returns
+        -------
+        Primitives3DLayout
+        """
         if self._parent.design_type == "Twin Builder":
             return
         if self._primitivesDes != self._parent.project_name + self._parent.design_name:
@@ -147,16 +156,13 @@ class ModelerNexxim(ModelerCircuit):
 
     @model_units.setter
     def model_units(self, units):
-        """
+        """Set Circuit Model Units
 
         Parameters
         ----------
-        units :
+        units : str
+            units
             
-
-        Returns
-        -------
-
         """
         assert units in AEDT_units["Length"], "Invalid units string {0}".format(units)
         ''' Set the model units as a string e.g. "mm" '''
@@ -182,14 +188,22 @@ class ModelerNexxim(ModelerCircuit):
 
         Returns
         -------
-        type
+        bool
             True if succeeded
 
         """
+        if type(selections) is str:
+            selections = [selections]
+        sels = []
+        for sel in selections:
+            for el in list(self.components.components.values()):
+                if sel == el.InstanceName:
+                    sels.append(self.components.components[el.id].composed_name)
+
         self.oeditor.Move(
             [
                 "NAME:Selections",
-                "Selections:", selections
+                "Selections:", sels
             ],
             [
                 "NAME:MoveParameters",
@@ -213,14 +227,19 @@ class ModelerNexxim(ModelerCircuit):
 
         Returns
         -------
-        type
+        bool
             True if succeeded
 
         """
+        sels = []
+        for sel in selections:
+            for el in list(self.components.components.values()):
+                if sel == el.InstanceName:
+                    sels.append(self.components.components[el.id].composed_name)
         self.oeditor.Rotate(
             [
                 "NAME:Selections",
-                "Selections:=", selections
+                "Selections:=", sels
             ],
             [
                 "NAME:RotateParameters",
@@ -228,83 +247,6 @@ class ModelerNexxim(ModelerCircuit):
                 "Disconnect:=", False,
                 "Rubberband:=", False
             ])
-        return True
-
-    @aedt_exception_handler
-    def subtract(self, blank, tool):
-        """Subtract objects from names
-
-        Parameters
-        ----------
-        blank :
-            name of geometry from which subtract
-        tool :
-            name of geometry that will be subtracted. it can be a list
-
-        Returns
-        -------
-
-        """
-
-        vArg1 = ['NAME:primitives', blank]
-        if type(tool) is list:
-            for el in tool:
-                vArg1.append(el)
-        else:
-            vArg1.append(tool)
-        if self.oeditor is not None:
-            self.oeditor.Subtract(vArg1)
-        if type(tool) is list:
-            for el in tool:
-                self.primitives.geometries.pop(el)
-        else:
-            self.primitives.geometries.pop(tool)
-        return True
-
-    @aedt_exception_handler
-    def unite(self, objectlists):
-        """Unite objects from names
-
-        Parameters
-        ----------
-        objectlists :
-            list of objects to unite
-
-        Returns
-        -------
-
-        """
-
-        vArg1 = ['NAME:primitives']
-        for el in objectlists:
-            vArg1.append(el)
-        self.oeditor.Unite(vArg1)
-        for el in objectlists:
-            if not self.oeditor.FindObjects("Name", el):
-                self.primitives.geometries.pop(el)
-        return True
-
-    @aedt_exception_handler
-    def intersect(self, objectlists):
-        """Intersect objects from names
-
-        Parameters
-        ----------
-        objectlists :
-            list of objects to unite
-
-        Returns
-        -------
-
-        """
-
-        vArg1 = ['NAME:primitives']
-        for el in objectlists:
-            vArg1.append(el)
-        self.oeditor.Intersect(vArg1)
-        for el in objectlists:
-            if not self.oeditor.FindObjects("Name", el):
-                self.primitives.geometries.pop(el)
         return True
 
 

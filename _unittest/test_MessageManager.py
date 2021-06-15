@@ -5,7 +5,7 @@ import math
 import os
 
 # Import required modules
-from .conftest import local_path, scratch_path
+from .conftest import local_path, scratch_path, config
 from pyaedt.hfss import Hfss
 from pyaedt.application.MessageManager import AEDTMessageManager
 from pyaedt.application.Variables import Variable
@@ -50,7 +50,7 @@ class TestMessage:
         #self.aedtapp = Hfss()
         pass
 
-    @pytest.mark.skip(reason="Issue on Build machine")
+    @pytest.mark.skipif(config["build_machine"]==True, reason="Issue on Build machine")
     def test_01_get_messages(self, caplog):
 
         msg = self.aedtapp.messenger
@@ -62,7 +62,7 @@ class TestMessage:
         assert len(msg.messages.design_level) == 1
         pass
 
-    @pytest.mark.skip(reason="Issue on Build machine")
+    @pytest.mark.skipif(config["build_machine"]==True, reason="Issue on Build machine")
     def test_02_messaging(self, caplog):
         msg = self.aedtapp.messenger
         msg.clear_messages()
