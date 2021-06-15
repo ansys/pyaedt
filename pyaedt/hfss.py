@@ -1690,7 +1690,7 @@ class Hfss(FieldAnalysis3D, object):
         ----------
         portandmode : str
             Port name and mode, such as ``"Port1:1"``.
-        powerin :
+        powerin : str
             Power (in Watts) or the project variable to be put as stored energy in the the project.
         phase : str, optional
             The default is ``"0deg"``.
