@@ -392,14 +392,9 @@ class Hfss3dLayout(FieldAnalysis3DLayout, object):
         return val_list, validation_ok  # return all the info in a list for use later
 
     @aedt_exception_handler
-    def create_scattering(self, PlotName="S Parameter Plot Nominal", sweep_name=None, PortNames=None, PortExcited=None, variations=None ):
+    def create_scattering(self, plot_name="S Parameter Plot Nominal", sweep_name=None, port_names=None, port_excited=None, variations=None):
         """Create scattering Report
         
-        
-        sweeps = design eXploration variations (list or str)
-        PortNames = (list of str)
-        PortExcited = (str)
-        :return:
 
         Parameters
         ----------
@@ -418,8 +413,6 @@ class Hfss3dLayout(FieldAnalysis3DLayout, object):
         -------
 
         """
-        # set plot name
-        # Setup arguments list for CreateReport function
         Families = ["Freq:=", ["All"]]
         if variations:
             Families +=variations
@@ -427,11 +420,11 @@ class Hfss3dLayout(FieldAnalysis3DLayout, object):
             Families += self.get_nominal_variation()
         if not sweep_name:
             sweep_name = self.existing_analysis_sweeps[1]
-        if not PortNames:
-            PortNames = self.modeler.get_excitations_name()
-        if not PortExcited:
-            PortExcited= PortNames
-        Trace = ["X Component:=", "Freq", "Y Component:=", ["dB(S(" + p + "," + q + "))" for p,q in zip(list(PortNames), list(PortExcited))]]
+        if not port_names:
+            port_names = self.modeler.get_excitations_name()
+        if not port_excited:
+            port_excited= port_names
+        Trace = ["X Component:=", "Freq", "Y Component:=", ["dB(S(" + p + "," + q + "))" for p,q in zip(list(port_names), list(port_excited))]]
         solution_data = ""
         if self.solution_type == "DrivenModal":
             solution_data = "Modal Solution Data"
@@ -440,7 +433,7 @@ class Hfss3dLayout(FieldAnalysis3DLayout, object):
         if solution_data != "":
             # run CreateReport function
             self.post.oreportsetup.CreateReport(
-                PlotName,
+                plot_name,
                 solution_data,
                 "Rectangular Plot",
                 sweep_name,
@@ -451,8 +444,6 @@ class Hfss3dLayout(FieldAnalysis3DLayout, object):
             return True
         else:
             return False
-
-        # export the image
 
     @aedt_exception_handler
     def export_touchstone(self, solutionname, sweepname, filename, variation, variations_value):

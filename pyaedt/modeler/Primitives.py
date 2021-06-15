@@ -797,11 +797,19 @@ class Primitives(object):
 
     @aedt_exception_handler
     def __getitem__(self, partId):
+        """Return an Object3D object for a given object id or object name
+
+        Parameters
+        ----------
+        partId : int or str
+            Object ID or object name from the 3D modeler
+
+        Returns
+        -------
+        Object3d
+
         """
-        :param partId: if integer try to get the object from id. if string, trying to get object from Name
-        :return: part object details
-        """
-        if type(partId) is int and partId in self.objects:
+        if isinstance(partId, int) and partId in self.objects:
             return self.objects[partId]
         elif partId in self.objects_names:
             return self.objects[self.objects_names[partId]]
@@ -809,6 +817,20 @@ class Primitives(object):
 
     @aedt_exception_handler
     def __setitem__(self, partId, partName):
+        """Rename an existing part in the 3D modler
+
+        Parameters
+        ----------
+        partId : int
+            Known object id of the part to be renamed
+
+        partName : str
+            New name for the part
+
+        Returns
+        -------
+
+        """
         self.objects[partId].name = partName
         return True
 
@@ -821,6 +843,11 @@ class Primitives(object):
     def odesign(self):
         """ """
         return self._parent.odesign
+
+    @property
+    def materials(self):
+        """ """
+        return self._parent.materials
 
     @property
     def defaultmaterial(self):
@@ -1336,6 +1363,7 @@ class Primitives(object):
         """
         if type(objects) is not list:
             objects = [objects]
+
         while len(objects) > 100:
             objs = objects[:100]
             objects_str = self.convert_to_selections(objs, return_list=False)
@@ -1349,16 +1377,20 @@ class Primitives(object):
 
 
             objects = objects[100:]
+
         objects_str = self.convert_to_selections(objects, return_list=False)
         arg = [
             "NAME:Selections",
             "Selections:="	, objects_str
             ]
         self.oeditor.Delete(arg)
+
         for el in objects:
             self._delete_object_from_dict(el)
 
-        self.messenger.add_info_message("Deleted {} Objects".format(len(objects)))
+        if len(objects) > 0:
+            self.messenger.add_info_message("Deleted {} Objects".format(len(objects)))
+
         return True
 
     @aedt_exception_handler

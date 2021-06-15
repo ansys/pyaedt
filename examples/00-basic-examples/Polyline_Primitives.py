@@ -9,7 +9,6 @@ This tutorial shows how you can create and manipulate polylines using pyaedt
 
 import os
 from IPython.display import Image, display
-from pyaedt import Desktop
 from pyaedt.maxwell import Maxwell3d
 from pyaedt.modeler.Primitives import Polyline, PolylineSegment
 

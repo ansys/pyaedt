@@ -494,12 +494,94 @@ class Edb(object):
             The full path to the aedb file.
 
         """
-        if self.import_layout_pcb(inputBrd, working_dir=WorkDir):
+        if self.import_layout_pcb(inputGDS, working_dir=WorkDir):
             return True
         else:
             return False
 
+    def create_cutout(self, signal_list, reference_list=["GND"], extent_type="Conforming", expansion_size=0.002,
+                      use_round_corner=False, output_aedb_path=None, replace_design_with_cutout=True):
+        """
+        Create a new Cutout and Save it to a new aedb file.
 
+        Parameters
+        ----------
+        signal_list: list
+            list of signal strings
+        reference_list: list
+            list of reference lists to be added. Default ["GND"]
+        extent_type: str
+            type of extension: "Conforming" or "Bounding"
+        expansion_size: float
+            expansion size ratio in meter. Default 2mm
+        use_round_corner: bool
+        output_aedb_path: str, optional
+            the full path to new aedb file
+        replace_design_with_cutout
+
+        Returns
+        -------
+
+        """
+        _signal_nets = []
+        # validate nets in layout
+        for _sig in signal_list:
+            _netobj = self.edb.Cell.Net.FindByName(self.active_layout, _sig)
+            _signal_nets.append(_netobj)
+
+        _ref_nets = []
+        # validate references in layout
+        for _ref in reference_list:
+            _netobj = self.edb.Cell.Net.FindByName(self.active_layout, _ref)
+            _ref_nets.append(_netobj)
+
+
+        from .edb_core.general import convert_py_list_to_net_list
+        _netsClip = [self.edb.Cell.Net.FindByName(self.active_layout, reference_list[i]) for i, p in
+                     enumerate(reference_list)]
+        _netsClip = convert_py_list_to_net_list(_netsClip)
+        net_signals= convert_py_list_to_net_list(_signal_nets)
+        if extent_type == "Conforming":
+            _poly = self.active_layout.GetExpandedExtentFromNets(net_signals,
+                                                           self.edb.Geometry.ExtentType.Conforming,
+                                                           expansion_size,
+                                                           False,
+                                                           use_round_corner,
+                                                           1)
+        else:
+            _poly = self.active_layout.GetExpandedExtentFromNets(net_signals,
+                                                           self.edb.Geometry.ExtentType.BoundingBox,
+                                                           expansion_size,
+                                                           False,
+                                                           use_round_corner,
+                                                           1)
+
+        _cutout = self.active_cell.CutOut(net_signals, _netsClip, _poly)  # Create new cutout cell/design
+
+        for _setup in self.active_cell.SimulationSetups:  # The analysis setup(s) do not come over with the clipped design copy, so add the analysis setup(s) from the original here
+            _setup_name = _setup.GetName()  # Empty string '' if coming from setup copy and don't set explicitly.
+            if "GetSimSetupInfo" in dir(_setup):
+                _hfssSimSetupInfo = _setup.GetSimSetupInfo()  # setup is an Ansys.Ansoft.Edb.Utility.HFSSSimulationSetup object
+                _hfssSimSetupInfo.Name = 'HFSS Setup 1'  # Set name of analysis setup
+                _setup.SetSimSetupInfo(_hfssSimSetupInfo)  # Write the simulation setup info into the cell/design setup
+                _cutout.AddSimulationSetup(_setup)  # Add simulation setup to the cutout design
+
+        _dbCells = [_cutout]
+        if replace_design_with_cutout == True:
+            self.active_cell.Delete()
+        else:
+            _dbCells.append(self.active_cell)
+
+        if output_aedb_path:
+            db2 = self.edb.Database.Create(
+                output_aedb_path)  # Function input is the name of a .aedb folder inside which the edb.def will be created. Ex: 'D:/backedup/EDB/TEST PROJECTS/CUTOUT/N1.aedb'
+            _dbCells = convert_py_list_to_net_list(_dbCells)
+            db2.CopyCells(_dbCells)  # Copies cutout cell/design to db2 project
+            _success = db2.Save()
+            self._db = db2
+            self.edbpath = output_aedb_path
+            self._active_cell = _cutout
+        return True
 
     # def get_padstack_data_parameters(self, PadStackDef):
     #     """
@@ -643,9 +725,6 @@ class Edb(object):
                 else:
                     pass
         return RlDCPath
-
-
-
 
 
     @aedt_exception_handler

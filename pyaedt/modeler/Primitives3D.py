@@ -24,7 +24,7 @@ class Primitives3D(Primitives, object):
         name :
             box name. Optional, if nothing default name will be assigned
         matname :
-            material name. Optional, if nothing default material will be assigned
+            material name. Optional, if nothing or if invalid, default material will be assigned
 
         Returns
         -------

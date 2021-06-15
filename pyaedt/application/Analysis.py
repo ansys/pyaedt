@@ -53,13 +53,13 @@ class Analysis(Design, object):
         self.setups = []
         Design.__init__(self, application, projectname, designname, solution_type,
                         specified_version, NG, AlwaysNew, release_on_exit)
-        self.messenger.add_info_message("Design Loaded")
+        self.logger.info("Design Loaded")
         self._setup = None
         if setup_name:
             self.analysis_setup = setup_name
         self.solution_type = solution_type
         self._materials = Materials(self)
-        self.messenger.add_info_message("Materials Loaded")
+        self.logger.info("Materials Loaded")
         self._post = PostProcessor(self)
         self._available_variations = self.AvailableVariations(self)
         self.setups = [self.get_setup(setup_name) for setup_name in self.setup_names]

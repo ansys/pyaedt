@@ -31,6 +31,7 @@ import json
 import string
 import random
 import time
+import logging
 from collections import OrderedDict
 from .MessageManager import AEDTMessageManager
 from .Variables import VariableManager, DataSet
@@ -260,6 +261,7 @@ class Design(object):
         self._aedt_version = main_module.AEDTVersion
         self._desktop_install_dir = main_module.sDesktopinstallDirectory
         self._messenger = AEDTMessageManager(self)
+        self.logger = logging.getLogger(__name__)
 
         assert design_type in design_solutions, "Invalid design type specified: {}".format(design_type)
         self._design_type = design_type
@@ -760,7 +762,7 @@ class Design(object):
                 warning_msg = "No design present - inserting a new design"
 
             if warning_msg:
-                self._messenger.add_warning_message(warning_msg, level='Project')
+                self.logger.debug(warning_msg)
                 self.insert_design(self._design_type, solution_type=self._solution_type)
         self.boundaries = self._get_boundaries_data()
 
@@ -1692,14 +1694,14 @@ class Design(object):
 
     @aedt_exception_handler
     def close_project(self, name=None, saveproject=True):
-        """Close the specified project and release the Desktop
+        """Close the specified project
 
         Parameters
         ----------
         name :
-            name of the project (if none take active provect) (Default value = None)
+            name of the project (if none take active project) (Default value = None)
         saveproject : bool
-            Save Project before close (Default value = True)
+            Save project before close (Default value = True)
 
         Returns
         -------
@@ -1712,7 +1714,7 @@ class Design(object):
         else:
             name = self.project_name
             msg_txt = "active "+ self.project_name
-        self._messenger.add_info_message("Closing the {} AEDT Project".format(msg_txt))
+        self._messenger.add_info_message("Closing the {} AEDT Project".format(msg_txt), level="Global")
         if name != self.project_name:
             oproj = self.odesktop.SetActiveProject(name)
         else:

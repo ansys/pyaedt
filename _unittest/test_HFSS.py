@@ -317,3 +317,16 @@ class TestHFSS:
         gnd = self.aedtapp.modeler.primitives.create_box([0,5,-2.2],[20,100,0.2],name="GND1", matname="FR4_epoxy")
         port = self.aedtapp.create_wave_port_microstrip_between_objects("GND1", "MS1",   portname="MS1", axisdir=1)
         assert port.name == "MS1"
+
+    def test_32_get_property_value(self):
+        assert self.aedtapp.get_property_value("BoundarySetup:Coating_inner", "Inf Ground Plane", "Boundary") == "false"
+        assert self.aedtapp.get_property_value("AnalysisSetup:MySetup", "Solution Freq", "Setup") == "1GHz"
+
+    def test_33_copy_solid_bodies(self):
+        project_name = "HfssCopiedProject"
+        design_name = "HfssCopiedBodies"
+        new_design = Hfss(projectname=project_name, designname=design_name)
+        assert new_design.copy_solid_bodies_from(self.aedtapp)
+        assert len(new_design.modeler.solid_bodies) == 41
+        new_design.delete_design(design_name)
+        new_design.close_project(project_name)
