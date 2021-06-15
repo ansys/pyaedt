@@ -14,6 +14,7 @@
 ##                                                                        ##
 ## #########################################################################
 import os
+import pytest
 # Setup paths for module imports
 from .conftest import local_path, scratch_path
 
@@ -21,6 +22,7 @@ from .conftest import local_path, scratch_path
 # Import required modules
 from pyaedt import Maxwell2d
 from pyaedt.generic.filesystem import Scratch
+from pyaedt.modeler.Primitives import Polyline
 import gc
 
 class TestMaxwell2D:
@@ -62,8 +64,8 @@ class TestMaxwell2D:
 
     def test_05_create_poly(self):
         udp = [self.aedtapp.modeler.Position(0, 0, 0),self.aedtapp.modeler.Position(10, 5, 0)]
-        id1 = self.aedtapp.modeler.primitives.create_polyline(udp, name="Ellipse1", matname="copper")
-        assert isinstance(id1, int)
+        id1 = self.aedtapp.modeler.primitives.draw_polyline(udp, name="Ellipse1", matname="copper")
+        assert isinstance(id1, Polyline)
 
 
     def test_03_create_setup(self):
@@ -82,7 +84,7 @@ class TestMaxwell2D:
         bounds = self.aedtapp.assign_vector_potential(self.aedtapp.modeler.primitives["Rectangle1"].edges[0].id, 3)
         assert bounds
         assert bounds.props["Value"] == "3"
-        line = self.aedtapp.modeler.primitives.create_polyline([[0,0,0],[1,0,1]],name="myline")
+        line = self.aedtapp.modeler.primitives.draw_polyline([[0,0,0],[1,0,1]],name="myline")
         bound2 = self.aedtapp.assign_vector_potential("myline", 2)
         assert bound2
         assert bound2.props["Value"] == "2"
@@ -92,5 +94,8 @@ class TestMaxwell2D:
         mysetup.props["SaveFields"] = True
         assert mysetup.update()
 
-
-
+    @pytest.mark.parametrize("material", ["ceramic_material", # material not in library
+                                          "steel_stainless"])  # material already in library
+    def test_07_assign_material(self, material):
+        self.aedtapp.assignmaterial(["Rectangle1"], material)
+        assert self.aedtapp.modeler.primitives["Rectangle1"].material_name == material

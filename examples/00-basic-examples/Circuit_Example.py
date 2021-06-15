@@ -5,6 +5,7 @@ Circuit Example Analysis
 This tutorial shows how you can use PyAedt to create a project in
 in NEXXIM Circuit and run a simulation
 """
+# sphinx_gallery_thumbnail_path = 'Resources/circuit.png'
 
 from pyaedt import Circuit
 from pyaedt import Desktop
@@ -97,6 +98,7 @@ setup3 = aedtapp.create_setup("MyDC", aedtapp.SimulationSetupTypes.NexximDC)
 
 aedtapp.analyze_setup("MyLNA")
 
+aedtapp.export_fullwave_spice()
 ###############################################################################
 # Close Desktop
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

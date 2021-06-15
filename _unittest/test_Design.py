@@ -76,11 +76,9 @@ class TestDesign:
             print(self.aedtapp.materials)
         except:
             assert False
-    #@pytest.mark.skip("Skipping this test since it is not working on 2020R2 due to Bug 291237")
     def test_09_add_workbench_link(self):
         assert self.aedtapp.modeler.add_workbench_link(["inner"], "25")
 
-    #@pytest.mark.skip("Skipping this test since it is not working on 2020R2 due to Bug 291237")
     def test_09_set_objects_temperature(self):
         ambient_temp = 22
         objects = [o for o in self.aedtapp.modeler.primitives.get_all_solids_names()
@@ -173,4 +171,14 @@ class TestDesign:
         props = self.aedtapp.get_components3d_vars("Dipole_Antenna_DM")
         assert len(props) == 3
         pass
+
+    def test_21_generate_temp_project_directory(self):
+        proj_dir1 = self.aedtapp.generate_temp_project_directory("Example")
+        assert os.path.exists(proj_dir1)
+        proj_dir2 = self.aedtapp.generate_temp_project_directory("")
+        assert os.path.exists(proj_dir2)
+        proj_dir4 = self.aedtapp.generate_temp_project_directory(34)
+        assert os.path.exists(proj_dir4)
+        proj_dir5 = self.aedtapp.generate_temp_project_directory(":_34")
+        assert not proj_dir5
 

@@ -8,3 +8,4 @@ Primitives 3D
 
 .. autoclass:: pyaedt.modeler.Primitives3D.Primitives3D
     :members:
+

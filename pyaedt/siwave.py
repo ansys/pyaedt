@@ -1,14 +1,7 @@
 """
-Siwave Class
-----------------
+This module initializes Siwave and MessageManager and manages Siwave release and closing.
 
-
-Description
-==========
-
-This class initialize Siwave, MessageManager and manage Siwave Release and Closing.
-It can be initialized in standalone way before launching an app or it is automatically initialized by the APP to latest installed AEDT version
-
+The ``siwave`` module can be initialized as standalone before launching an app or automatically initialized by an app to the latest installed AEDT version.
 
 
 ================
@@ -48,8 +41,8 @@ elif os.name == 'nt':
 
 
 class Siwave:
-    """====================================
-    The core module that initialize Ansys Siwave based on inputs provided:
+    """
+    This class initializes Siwave based on the inputs provided.
 
     Parameters
     ----------
@@ -121,7 +114,7 @@ class Siwave:
             elif _com == 'pythonnet_v3': #TODO check if possible to use pythonnet. at the moment the tool open AEDt but doesn't return the wrapper of oApp
                 print("Launching AEDT with Module win32com")
 
-                self._main.oSiwave=win32com.client.Dispatch("Siwave.Application.2020.2")
+                self._main.oSiwave=win32com.client.Dispatch("Siwave.Application.2021.1")
 
             self._main.AEDTVersion = version_key
             self.oSiwave = self._main.oSiwave
@@ -198,8 +191,8 @@ class Siwave:
 
         Parameters
         ----------
-        proj_path :
-             (Default value = None)
+        proj_path : str, optional
+            Full path to the project. The default is ``None``.
 
         Returns
         -------
@@ -217,10 +210,10 @@ class Siwave:
 
         Parameters
         ----------
-        projectpath :
-             (Default value = None)
-        projectName :
-             (Default value = None)
+        proj_path : str, optional
+            Full path to the project. The default is ``None``.
+        projectName : str, optional
+             Name of the project. The default is ``None``.
 
         Returns
         -------
@@ -239,4 +232,3 @@ class Siwave:
 
         self._main.oSiwave.Quit()
         return True
-

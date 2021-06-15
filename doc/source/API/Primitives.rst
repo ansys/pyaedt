@@ -12,6 +12,7 @@ Primitives
    :maxdepth: 2
    :caption: Classes:
 
+   CommonPrimitives
    Primitives3D
    Primitives2D
    Primitives3DLayout

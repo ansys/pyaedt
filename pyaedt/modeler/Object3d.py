@@ -1,39 +1,46 @@
-# -*- coding: utf-8 -*-
-# Copyright (C) 2019 ANSYS, Inc - All Rights Reserved
-# Unauthorized copying of this file, via any medium is strictly prohibited
-# Proprietary and confidential
+"""
+3D Object Property Manager
+-------------------------------
+
+Description
+===========
+
+This module contains methods and data-structures to manage all properties of objects (points, lines, sheeets and
+solids) within the AEDT 3D Modeler
+
+"""
 from __future__ import absolute_import
 
 import random
 import string
 from collections import defaultdict
-from ..generic.general_methods import generate_unique_name, retry_ntimes, aedt_exception_handler
+from .. import generate_unique_name, retry_ntimes, aedt_exception_handler
 from .GeometryOperators import GeometryOperators
 
 @aedt_exception_handler
 def _uname(name=None):
-    """
+    """Appends a 6-digit hash code to a specified name
 
     Parameters
     ----------
-    name :
-         (Default value = None)
+    name : str, default='NewObject_'
+        Specified name
 
     Returns
     -------
-
+    str
     """
     char_set = string.ascii_uppercase + string.digits
-    uName = ''.join(random.sample(char_set, 6))
+    unique_name = ''.join(random.sample(char_set, 6))
     if name:
-        return name + uName
+        return name + unique_name
     else:
-        return 'NewObject_' + uName
+        return 'NewObject_' + unique_name
 
 @aedt_exception_handler
 def _to_boolean(val):
     """Get the boolean value of the provided input.
-    
+
         If the value is a boolean return the value.
         Otherwise check to see if the value is in
         ["false", "f", "no", "n", "none", "0", "[]", "{}", "" ]
@@ -41,80 +48,73 @@ def _to_boolean(val):
 
     Parameters
     ----------
-    val :
-        
+    val : bool or str
+        Input value to be tested for True/False condition
 
     Returns
     -------
-
+    bool
     """
 
     if val is True or val is False:
         return val
 
-    falseItems = ["false", "f", "no", "n", "none", "0", "[]", "{}", ""]
+    false_items = ["false", "f", "no", "n", "none", "0", "[]", "{}", ""]
 
-    return not str(val).strip().lower() in falseItems
+    return not str(val).strip().lower() in false_items
+
 
 @aedt_exception_handler
-def _dim_arg(Value, Units):
-    """
+def _dim_arg(value, units):
+    """Concatenate a specified units string to a numerical input
 
     Parameters
     ----------
-    Value :
-        
-    Units :
-        
+    value : str or number
+        Valid expression string in the AEDT modeler, e.g. "5mm"
+    units : str
+        Valid units string in the AEDT modeler, e.g. "mm"
 
     Returns
     -------
-
+    str
     """
-    if type(Value) is str:
-        val = Value
-    else:
-        val = str(Value) + Units
-
-    return val
-
-@aedt_exception_handler
-def parse_dim_arg(string2parse):
-    """
-
-    Parameters
-    ----------
-    string2parse :
-        
-
-    Returns
-    -------
-
-    """
-    return string2parse
+    try:
+        val = float(value)
+        return str(val) + units
+    except ValueError:
+        return value
 
 
 class VertexPrimitive(object):
-    """ """
-    @property
-    def m_Editor(self):
-        """ """
-        return self._parent.m_Editor
+    """Vertex object within the AEDT Desktop Modeler
 
-    def __repr__(self):
-        return "Vertex "+str(self.id)
+    Parameters
+    ----------
+    parent : Object3d
+        Pointer to the calling object which provides additional functionality
 
-    def __str__(self):
-        return "Vertex "+str(self.id)
+    id : int
+        Object id as determined by the parent object
 
+    Attributes
+    ----------
+    position
+    """
     def __init__(self, parent, id):
         self.id = id
         self._parent = parent
+        self._oeditor = parent.m_Editor
 
     @property
     def position(self):
-        """ """
-        return [float(i) for i in list(self.m_Editor.GetVertexPosition(self.id))]
+        """List of [x, y, z] coordinates of a vertex
+
+        Returns
+        -------
+        list of float
+        """
+        return [float(i) for i in list(self._oeditor.GetVertexPosition(self.id))]
 
     @aedt_exception_handler
     def chamfer(self, left_distance=1, right_distance=None, angle=45, chamfer_type=0):
@@ -133,6 +133,7 @@ class VertexPrimitive(object):
 
         Returns
         -------
+        bool
 
         """
         if self._parent.is3d:
@@ -160,28 +161,28 @@ class VertexPrimitive(object):
         else:
             self._parent.messenger.add_error_message("Wrong Type Entered. Type must be integer from 0 to 3")
             return False
-        self.m_Editor.Chamfer(vArg1, ["NAME:Parameters", vArg2])
-        if self._parent.name in list(self.m_Editor.GetObjectsInGroup("UnClassified")):
+        self._parent.m_Editor.Chamfer(vArg1, ["NAME:Parameters", vArg2])
+        if self._parent.name in list(self._parent.m_Editor.GetObjectsInGroup("UnClassified")):
             self._parent.odesign.Undo()
             self._parent.messenger.add_error_message("Operation Failed generating Unclassified object. Check and retry")
             return False
         return True
 
     @aedt_exception_handler
-    def fillet(self, radius=0.1, setback=0):
+    def fillet(self, radius=0.1, setback=0.0):
         """Add Fillet to selected edge
 
         Parameters
         ----------
-        radius :
-            float Fillet Radius (Default value = 0.1)
-        setback :
-            float Fillet setback (Default value = 0)
+        radius : float, default=0.1
+            Fillet Radius
+        setback : float, default=0.0
+            Fillet setback
 
         Returns
         -------
         type
-            Bool
+            bool
 
         """
         if self._parent.is3d:
@@ -193,21 +194,22 @@ class VertexPrimitive(object):
         vArg2.append('Vertices:='), vArg2.append([self.id])
         vArg2.append('Radius:='), vArg2.append(self._parent._parent.arg_with_dim(radius))
         vArg2.append('Setback:='), vArg2.append(self._parent._parent.arg_with_dim(setback))
-        self.m_Editor.Fillet(vArg1, ["NAME:Parameters", vArg2])
-        if self._parent.name in list(self.m_Editor.GetObjectsInGroup("UnClassified")):
+        self._parent.m_Editor.Fillet(vArg1, ["NAME:Parameters", vArg2])
+        if self._parent.name in list(self._parent.m_Editor.GetObjectsInGroup("UnClassified")):
             self._parent.odesign.Undo()
             self._parent.messenger.add_error_message("Operation Failed generating Unclassified object. Check and retry")
             return False
         return True
 
+    def __repr__(self):
+        return "Vertex "+str(self.id)
+
+    def __str__(self):
+        return "Vertex "+str(self.id)
+
 
 class EdgePrimitive(object):
     """ """
-    @property
-    def m_Editor(self):
-        """ """
-        return self._parent.m_Editor
-
     def __repr__(self):
         return "EdgeId "+str(self.id)
 
@@ -217,16 +219,17 @@ class EdgePrimitive(object):
     def __init__(self, parent, id):
         self.id = id
         self._parent = parent
+        self._oeditor = parent.m_Editor
         self.vertices = []
-        for vertex in self.m_Editor.GetVertexIDsFromEdge(self.id):
+        for vertex in self._oeditor.GetVertexIDsFromEdge(self.id):
             vertex = int(vertex)
-            self.vertices.append(VertexPrimitive(self, vertex))
+            self.vertices.append(VertexPrimitive(parent, vertex))
 
     @property
     def midpoint(self):
         """Get the midpoint coordinates of given edge name or edge ID
-        
-        
+
+
         If the edge is not a segment with two vertices return an empty list.
         :return: midpoint coordinates
 
@@ -249,8 +252,8 @@ class EdgePrimitive(object):
     @property
     def length(self):
         """Get the edge length if has 2 points
-        
-        
+
+
         :return: edge length
 
         Parameters
@@ -308,8 +311,8 @@ class EdgePrimitive(object):
         else:
             self._parent.messenger.add_error_message("Wrong Type Entered. Type must be integer from 0 to 3")
             return False
-        self.m_Editor.Chamfer(vArg1, ["NAME:Parameters", vArg2])
-        if self._parent.name in list(self.m_Editor.GetObjectsInGroup("UnClassified")):
+        self._oeditor.Chamfer(vArg1, ["NAME:Parameters", vArg2])
+        if self._parent.name in list(self._parent.m_Editor.GetObjectsInGroup("UnClassified")):
             self._parent.odesign.Undo()
             self._parent.messenger.add_error_message("Operation Failed generating Unclassified object. Check and retry")
             return False
@@ -338,26 +341,16 @@ class EdgePrimitive(object):
         vArg2.append('Vertices:='), vArg2.append([])
         vArg2.append('Radius:='), vArg2.append(self._parent._parent.arg_with_dim(radius))
         vArg2.append('Setback:='), vArg2.append(self._parent._parent.arg_with_dim(setback))
-        self.m_Editor.Fillet(vArg1, ["NAME:Parameters", vArg2])
-        if self._parent.name in list(self.m_Editor.GetObjectsInGroup("UnClassified")):
+        self._parent.m_Editor.Fillet(vArg1, ["NAME:Parameters", vArg2])
+        if self._parent.name in list(self._parent.m_Editor.GetObjectsInGroup("UnClassified")):
             self._parent.odesign.Undo()
             self._parent.messenger.add_error_message("Operation Failed generating Unclassified object. Check and retry")
             return False
         return True
 
+
 class FacePrimitive(object):
     """ """
-
-    @property
-    def m_Editor(self):
-        """ """
-        return self._parent.m_Editor
-
-    @property
-    def _messenger(self):
-        """ """
-        return self._parent.messenger
-
     def __repr__(self):
         return "FaceId "+str(self.id)
 
@@ -367,51 +360,59 @@ class FacePrimitive(object):
     def __init__(self, parent, id):
         self.id = id
         self._parent = parent
+        self._oeditor = self._parent.m_Editor
         self.edges = []
         self.vertices = []
-        for edge in self._parent.m_Editor.GetEdgeIDsFromFace(self.id):
+        for edge in self._oeditor.GetEdgeIDsFromFace(self.id):
             edge = int(edge)
-            self.edges.append(EdgePrimitive(self, edge))
-        for vertex in self._parent.m_Editor.GetVertexIDsFromFace(self.id):
+            self.edges.append(EdgePrimitive(parent, edge))
+        for vertex in self._oeditor.GetVertexIDsFromFace(self.id):
             vertex = int(vertex)
-            self.vertices.append(VertexPrimitive(self, vertex))
+            self.vertices.append(VertexPrimitive(parent, vertex))
 
     @property
     def center(self):
-        """:return: An array as list of float [x, y, z] containing planar face center position"""
+        """Get the face center (in model units)
+
+        Returns
+        -------
+        list of float or False
+            Center position in [x, y, z] coordinates - only works for planar faces. otherwise return False
+        """
         try:
-            c = self.m_Editor.GetFaceCenter(self.id)
+            c = self._parent.m_Editor.GetFaceCenter(self.id)
         except:
-            self._messenger.add_warning_message("Non Planar Faces doesn't provide any Face Center")
+            self._parent.messenger.add_warning_message("Non Planar Faces doesn't provide any Face Center")
             return False
         center = [float(i) for i in c]
         return center
 
-
     @property
     def area(self):
-        """:return: float value for face area"""
-
-        area = self.m_Editor.GetFaceArea(self.id)
-        return area
-
-    @aedt_exception_handler
-    def move_with_offset(self, offset=1):
-        """Move Face Along Normal
-
-        Parameters
-        ----------
-        offset :
-            float offset to apply (Default value = 1)
+        """Get the face area (in model units)
 
         Returns
         -------
-        type
-            Bool
+        float
+        """
+        area = self._parent.m_Editor.GetFaceArea(self.id)
+        return area
 
+    @aedt_exception_handler
+    def move_with_offset(self, offset=1.0):
+        """Move face along normal
+
+        Parameters
+        ----------
+        offset : float, default=1.0
+            Offset to apply (in model units)
+
+        Returns
+        -------
+        bool
         """
         try:
-            self.m_Editor.MoveFaces(["NAME:Selections", "Selections:=", self._parent.name, "NewPartsModelFlag:=", "Model"],
+            self._parent.m_Editor.MoveFaces(["NAME:Selections", "Selections:=", self._parent.name, "NewPartsModelFlag:=", "Model"],
                                     ["NAME:Parameters",
                                      ["NAME:MoveFacesParameters", "MoveAlongNormalFlag:=", True, "OffsetDistance:=", _dim_arg(offset, self._parent.object_units),
                                       "MoveVectorX:=", "0mm", "MoveVectorY:=", "0mm", "MoveVectorZ:=", "0mm",
@@ -422,23 +423,20 @@ class FacePrimitive(object):
 
     @aedt_exception_handler
     def move_with_vector(self, vector):
-        """Move Face Along Normal
+        """Move face Along a specified vector
 
         Parameters
         ----------
-        offset :
-            float offset to apply
-        vector :
-            
+        vector : list of float [x, y, z]
+            Move vector to apply to the face
 
         Returns
         -------
-        type
-            Bool
+        bool
 
         """
         try:
-            self.m_Editor.MoveFaces(
+            self._parent.m_Editor.MoveFaces(
                 ["NAME:Selections", "Selections:=",  self._parent.name, "NewPartsModelFlag:=", "Model"],
                 ["NAME:Parameters",
                  ["NAME:MoveFacesParameters", "MoveAlongNormalFlag:=", False, "OffsetDistance:=", "0mm",
@@ -453,6 +451,7 @@ class FacePrimitive(object):
     @property
     def normal(self):
         """Get the face normal.
+
         Limitations:
         - the face must be planar.
         - Currently it works only if the face has at least two vertices. Notable excluded items are circles and
@@ -463,18 +462,18 @@ class FacePrimitive(object):
 
         Parameters
         ----------
-        faceId :
-            part ID (integer).
+        faceId : int
+            Face id
 
         Returns
         -------
-        type
-            normal versor (normalized [x, y, z]) or None.
+        list of float [x, y, z]
+            normal vector (normalized [x, y, z]) or None.
 
         """
         vertices_ids = self.vertices
         if len(vertices_ids) < 2 or not self.center:
-            self._messenger.add_warning_message("Not enough vertices or non-planar face")
+            self._parent.messenger.add_warning_message("Not enough vertices or non-planar face")
             return None
         # elif len(vertices_ids)<2:
         #     v1 = vertices_ids[0].position
@@ -512,20 +511,33 @@ class FacePrimitive(object):
             return inv_norm
 
 
-
 class Object3d(object):
-    """description of class"""
+    """Object Attributes Manager for the AEDT 3D Modeler
 
-    @property
-    def oproject(self):
-        """ """
-        return self._parent.oproject
+    Attributes
+    ----------
+    bounding_box
+    faces
+    edges
+    vertices
+    material_name
+    object_units
+    m_Editor
 
-    @property
-    def odesign(self):
-        """ """
-        return self._parent.odesign
+    name = None
+    flags = ""
+    color = "(132 132 193)"
+    transparency = 0.3
+    part_coordinate_system = "Global"
+    solve_inside = True
+    m_clone = "Object3d()"
+    wireframe = False
+    model = True
+    is3d = True
+    object_type = "Solid"
+    material_name = ""
 
+    """
     def __init__(self, parent):
         self.name = None
         self._parent = parent
@@ -542,41 +554,32 @@ class Object3d(object):
         self.object_type = "Solid"
         self._material_name = ""
         self._bounding_box = []
-
-
-    @aedt_exception_handler
-    def update_bounding_box(self):
-        """Update Bounding box by creating a new empty design, copying the object there and getting the model bounding box
-        :return: Bounding box list of 6 elements
-
-        Parameters
-        ----------
-
-        Returns
-        -------
-
-        """
-
-        unique_design_name = generate_unique_name("bounding")
-        new_design = self.oproject.InsertDesign("HFSS", unique_design_name, "", "")
-        self.m_Editor.Copy(["NAME:Selections", "Selections:=", self.name])
-        oeditor = new_design.SetActiveEditor("3D Modeler")
-        oeditor.Paste()
-        bb = list(oeditor.GetModelBoundingBox())
-        self._bounding_box = [float(b) for b in bb]
-        self.oproject.DeleteDesign(unique_design_name)
-        return self._bounding_box
+        self._id = None
 
     @property
     def bounding_box(self):
-        """:return: Object Bounding Box. Please note that in case of modeler update it has to be updated using  update_bounding_box method"""
+        """Return the bounding box of the individual part
+
+        List of six [x, y, z] positions of the bounding box containing
+        Xmin, Ymin, Zmin, Xmax, Ymax, and Zmax values
+
+        Returns
+        -------
+        list of [list of float]
+        """
+        #TODO May not work if the model is changed by the user in the GUI in the meantime.
         if not self._bounding_box:
-            self._bounding_box = self.update_bounding_box()
+            self._bounding_box = self._update_bounding_box()
         return self._bounding_box
 
     @property
     def faces(self):
-        """ """
+        """ Returns the a the information for each face in the given part
+
+        Returns
+        -------
+        list of FacePrimitive
+        """
         faces = []
         try:
             for face in self.m_Editor.GetFaceIDs(self.name):
@@ -588,7 +591,12 @@ class Object3d(object):
 
     @property
     def edges(self):
-        """ """
+        """Returns the information for each edge in the given part
+
+        Returns
+        -------
+        list of EdgePrimitive
+        """
         edges = []
         try:
             for edge in self._parent.get_object_edges(self.name):
@@ -600,7 +608,12 @@ class Object3d(object):
 
     @property
     def vertices(self):
-        """ """
+        """Returns the information for each vertex in the given part
+
+        Returns
+        -------
+        list of VertexPrimitive
+        """
         vertices = []
         try:
             for vertex in self._parent.get_object_vertices(self.name):
@@ -612,44 +625,62 @@ class Object3d(object):
 
     @property
     def m_Editor(self):
-        """ """
+        """Provides a pointer to the oEditor object in the AEDT API. Intended primarily for use by
+           FacePrimitive, EdgePrimitive, VertexPrimitive child objects
+
+        Returns
+        -------
+        oEditor COM Object
+        """
         return self._parent.oeditor
 
     @property
     def messenger(self):
-        """ """
+        """Provides a pointer to the oEditor object in the AEDT API. Intended primarily for use by
+           FacePrimitive, EdgePrimitive, VertexPrimitive child objects
+
+        Returns
+        -------
+        AEDTMessageManager
+        """
         return self._parent.messenger
 
     @property
     def material_name(self):
-        """ """
-        # if not self._material_name:
-        #     self._material_name = self._parent.defaultmaterial
+        """Gets or sets the material name of the object
+
+        Returns
+        -------
+        str
+        """
         return self._material_name
 
     @material_name.setter
     def material_name(self, mat):
-        """
-
-        Parameters
-        ----------
-        mat :
-            
-
-        Returns
-        -------
-
-        """
-        self._material_name = mat
+        mat_mgr = self._parent.materials
+        if mat_mgr.checkifmaterialexists(mat):
+            self._material_name = mat
+        else:
+            self.messenger.add_warning_message("Material {} does not exist".format(mat))
 
     @property
     def object_units(self):
-        """ """
+        """Gets the Length Units of the part
+
+        Returns
+        -------
+        str
+        """
         return self._parent.model_units
 
     @aedt_exception_handler
     def get_name(self):
-        """:return: get object name"""
+        """Get the object name
+
+        Returns
+        -------
+        str
+        """
         return self._m_name
 
     @aedt_exception_handler
@@ -738,9 +769,6 @@ class Object3d(object):
                 "SurfaceMaterialValue:=", chr(34) +"Steel-oxidised-surface"+ chr(34), "SolveInside:=", self.get_solve_inside(),
                 "IsMaterialEditable:=", True, "UseMaterialAppearance:=", False, "IsLightweight:=", False]
         return args
-
-    # def set_object_units(self, sUnits):
-    #     self.object_units = sUnits
 
     @aedt_exception_handler
     def set_part_coordinate_system(self, sCS):
@@ -912,7 +940,7 @@ class Object3d(object):
         Parameters
         ----------
         oclone :
-            
+
 
         Returns
         -------
@@ -925,13 +953,34 @@ class Object3d(object):
         pass
 
     @aedt_exception_handler
+    def _update_bounding_box(self):
+        """Get the bounding-box of the single object
+
+        This is done by creating a new empty design, copying the object there and getting the model bounding box. A
+        list of six 3-D position vectors is returned
+
+        Returns
+        -------
+        list
+        """
+        unique_design_name = generate_unique_name("bounding")
+        new_design = self._parent.oproject.InsertDesign("HFSS", unique_design_name, "", "")
+        self.m_Editor.Copy(["NAME:Selections", "Selections:=", self.name])
+        oeditor = new_design.SetActiveEditor("3D Modeler")
+        oeditor.Paste()
+        bb = list(oeditor.GetModelBoundingBox())
+        self._bounding_box = [float(b) for b in bb]
+        self._parent.oproject.DeleteDesign(unique_design_name)
+        return self._bounding_box
+
+    @aedt_exception_handler
     def _change_property(self, vPropChange):
         """
 
         Parameters
         ----------
         vPropChange :
-            
+
 
         Returns
         -------
@@ -956,7 +1005,7 @@ class Object3d(object):
         Parameters
         ----------
         oclone :
-            
+
 
         Returns
         -------
@@ -974,138 +1023,6 @@ class Object3d(object):
         self.name = oclone.name
         self.m_clone = oclone.m_clone
         return True
-
-    @aedt_exception_handler
-    def export_polyline(self, arrayofpositions, iscovered=False, isclosed=False, type=None, arc_angle=None, arc_plane=None):
-        """
-
-        Parameters
-        ----------
-        arrayofpositions :
-            
-        iscovered :
-             (Default value = False)
-        isclosed :
-             (Default value = False)
-        type :
-             (Default value = None)
-        arc_angle :
-             (Default value = None)
-        arc_plane :
-             (Default value = None)
-
-        Returns
-        -------
-
-        """
-        if not type:
-            segment_type = "Line"
-        else:
-            segment_type = type
-
-        vArg1 = ["NAME:PolylineParameters"]
-        vArg1.append("IsPolylineCovered:=")
-        vArg1.append(iscovered)
-        vArg1.append("IsPolylineClosed:=")
-        vArg1.append(isclosed)
-        # PointsArray
-        vArg2 = ["NAME:PolylinePoints"]
-        for i, pt in enumerate(arrayofpositions):
-            if segment_type == 'AngularArc' and i == 3:
-                break
-            vArg2.append(self._PLPointArray(pt))
-
-
-
-        # SegArray
-        vArg3 = self._segarray(type=segment_type, arc_points=arrayofpositions, arc_angle=arc_angle, arc_plane=arc_plane)
-
-        vArg1.append(vArg2)
-        vArg1.append(vArg3)
-        vArg4 = ["NAME:PolylineXSection", "XSectionType:=", "None", "XSectionOrient:=", "Auto", "XSectionWidth:=",
-                 "0mm", "XSectionTopWidth:=", "0mm", "XSectionHeight:=", "0mm", "XSectionNumSegments:=", "0",
-                 "XSectionBendType:=", "Corner"]
-        # Poly Line Cross Section
-        vArg1.append(vArg4)
-
-        return vArg1
-
-    @aedt_exception_handler
-    def _segarray(self, type="Line", arc_points=None, arc_angle=None, arc_plane=None):
-        """
-
-        Parameters
-        ----------
-        type :
-             (Default value = "Line")
-        arc_points :
-             (Default value = None)
-        arc_angle :
-             (Default value = None)
-        arc_plane :
-             (Default value = None)
-
-        Returns
-        -------
-
-        """
-
-        id = 0
-        seg = ["NAME:PolylineSegments"]
-        if type =="Line":
-            while id < (len(arc_points)-1):
-
-                seg.append([ "NAME:PLSegment",
-                        "SegmentType:="	, "Line",
-                        "StartIndex:="		, id,
-                        "NoOfPoints:="		, 2 ])
-                id +=1
-
-        elif type =="Arc":
-
-            seg.append([ "NAME:PLSegment",
-                    "SegmentType:="	, "Arc",
-                    "StartIndex:="		, id,
-                    "NoOfPoints:="		, 3,
-                    "NoOfSegments:="	, "0" ])
-
-        elif type == "AngularArc":
-
-            seg.append( [ "NAME:PLSegment",
-                    "SegmentType:="	, "AngularArc",
-                    "StartIndex:="		, id,
-                    "NoOfPoints:="		, 3,
-                    "NoOfSegments:="	, "0",
-                    "ArcAngle:="		, str(arc_angle)+"deg",
-                    "ArcCenterX:="		, str(arc_points[3].X)+"mm",
-                    "ArcCenterY:="		, str(arc_points[3].Y)+"mm",
-                    "ArcCenterZ:="		, str(arc_points[3].Z)+"mm",
-                    "ArcPlane:="		, arc_plane ] )
-
-        return seg
-
-    @aedt_exception_handler
-    def _PLPointArray(self, pt):
-        """
-
-        Parameters
-        ----------
-        pt :
-            
-
-        Returns
-        -------
-
-        """
-        aPLPoint = ["NAME:PLPoint"]
-        aPLPoint.append('X:=')
-        aPLPoint.append(_dim_arg(pt[0], self.object_units))
-        aPLPoint.append('Y:=')
-        aPLPoint.append(_dim_arg(pt[1], self.object_units))
-        aPLPoint.append('Z:=')
-        aPLPoint.append(_dim_arg(pt[2], self.object_units))
-        return aPLPoint
-
 
 class Padstack(object):
     """ """
@@ -1378,7 +1295,7 @@ class Padstack(object):
     @aedt_exception_handler
     def create(self):
         """Create Padstack in AEDT
-        
+
         :return:
 
         Parameters
@@ -1394,7 +1311,7 @@ class Padstack(object):
     @aedt_exception_handler
     def update(self):
         """Update Padstack in AEDT
-        
+
         :return:
 
         Parameters
@@ -1409,7 +1326,7 @@ class Padstack(object):
     @aedt_exception_handler
     def remove(self):
         """REmove Padstack in AEDT
-        
+
         :return:
 
         Parameters
@@ -1591,9 +1508,9 @@ class CircuitComponent(object):
         Parameters
         ----------
         property_name :
-            
+
         property_value :
-            
+
 
         Returns
         -------
@@ -1608,7 +1525,7 @@ class CircuitComponent(object):
         Parameters
         ----------
         vPropChange :
-            
+
         names_list :
              (Default value = None)
 
@@ -1671,7 +1588,7 @@ class Objec3DLayout(object):
         Parameters
         ----------
         vPropChange :
-            
+
         names_list :
              (Default value = None)
 

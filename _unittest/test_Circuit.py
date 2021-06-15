@@ -100,10 +100,10 @@ class TestCircuit:
         insertions = ["dB(S({},{}))".format(i, j) for i, j in zip(tx, rx)]
         assert self.aedtapp.create_touchstone_report("Insertion Losses", insertions)
 
-    # def test_10_export_fullwave(self):
-    #     output = self.aedtapp.export_fullwave_spice(os.path.join(self.local_scratch.path, touchstone2), is_solution_file=True)
-    #     assert output
-    #     pass
+    def test_10_export_fullwave(self):
+        output = self.aedtapp.export_fullwave_spice(os.path.join(self.local_scratch.path, touchstone), is_solution_file=True)
+        assert output
+        pass
 
     def test_11_read_touchstone(self):
         from pyaedt.generic.TouchstoneParser import read_touchstone

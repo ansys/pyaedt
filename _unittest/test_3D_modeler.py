@@ -92,8 +92,7 @@ class TestModeler:
         udp3 = self.aedtapp.modeler.Position(5, 5, 0)
         udp4 = self.aedtapp.modeler.Position(2, 5, 3)
         arrofpos = [udp1, udp2, udp3]
-        id5 = self.aedtapp.modeler.primitives.create_polyline(arrofpos, name="Poly1")
-        self.aedtapp.modeler.primitives.create_polyline_with_crosssection("Poly1")
+        id5 = self.aedtapp.modeler.primitives.draw_polyline(arrofpos, name="Poly1", xsection_type="Rectangle")
         assert self.aedtapp.modeler.split("Poly1", self.aedtapp.CoordinateSystemPlane.XYPlane, )
 
     def test_12_separate_Bodies(self):
@@ -182,11 +181,13 @@ class TestModeler:
     def test_30_create_waveguide(self):
         position = self.aedtapp.modeler.Position(0, 0, 0)
         assert type(self.aedtapp.modeler.create_waveguide(position, self.aedtapp.CoordinateSystemAxis.XAxis,
-                                                          wg_length=2000)) is int
+                                                          wg_length=2000)) is tuple
         position = self.aedtapp.modeler.Position(0, 0, 0)
         wg9 = self.aedtapp.modeler.create_waveguide(position, self.aedtapp.CoordinateSystemAxis.ZAxis, wgmodel="WG9",
-                                                    wg_length=1500, parametrize_h=True)
-        assert wg9 > 0
+                                                    wg_length=1500, parametrize_h=True, create_sheets_on_openings=True)
+        assert wg9[0] > 0
+        assert wg9[1] > 0
+        assert wg9[2] > 0
         wgfail = self.aedtapp.modeler.create_waveguide(position, self.aedtapp.CoordinateSystemAxis.ZAxis,
                                                        wgmodel="MYMODEL",
                                                        wg_length=2000, parametrize_h=True)
