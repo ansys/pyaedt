@@ -3443,7 +3443,6 @@ class GeometryModeler(Modeler, object):
         """Groups the objects or the groups into one group.
         It is not possible to choose the name.
         If objects is not specified it will reate a group with all the objects.
-        TODO: unit test
 
         Parameters
         ----------
@@ -3496,7 +3495,6 @@ class GeometryModeler(Modeler, object):
     @aedt_exception_handler
     def ungroup(self, groups):
         """ugroup one or more groups
-        TODO: unit test
 
         Parameters
         ----------
@@ -3521,8 +3519,7 @@ class GeometryModeler(Modeler, object):
     @aedt_exception_handler
     def flatten_assembly(self):
         """flatten the entire assembly removing all group trees
-        TODO: unit test
-        
+
         :return: True if succeeded, False otherwise
 
         Parameters

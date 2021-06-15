@@ -23,7 +23,8 @@ with open(os.path.join(HERE, "README.rst"), encoding="utf-8") as f:
 setuptools.setup(
     name="pyaedt",
     version=version,
-    maintainer='ANSYS, Inc.',
+    author='ANSYS, Inc.',
+    maintainer='Massimo Capodiferro',
     author_email="massimo.capodiferro@ansys.com",
     description="higher-level ANSYS Electronics Destkop framework",
     long_description=long_description,

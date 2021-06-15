@@ -99,7 +99,7 @@ class TestDesign:
         assert val == "1.0mm"
 
     def test_13_designs(self):
-        assert self.aedtapp.insert_design("HFSS", design_name="TestTransient", solution_type="Transient Network") == "TestTransient"
+        assert self.aedtapp._insert_design("HFSS", design_name="TestTransient", solution_type="Transient Network") == "TestTransient"
 
     def test_14_get_nominal_variation(self):
         assert (self.aedtapp.get_nominal_variation() != [] or self.aedtapp.get_nominal_variation() is not None)

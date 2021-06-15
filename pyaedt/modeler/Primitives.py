@@ -1257,49 +1257,53 @@ class Primitives(object):
         return Polyline(self, object_id=object_id)
 
     @aedt_exception_handler
-    def create_udp(self, dllName, udpPairs, szLib=None, name=None, udptye=None):
+    def create_udp(self, udp_dll_name, udp_parameters_list, upd_library='syslib', name=None, udptye="Solid"):
         """Create User Defined Primitive
 
-        :param dllName: dll name
-        :param udpPairs: udp pairs object
-        :param szLib: udp library
-        :param name: component name
-        :param udptye: udpy type
-        :return: object ID
+        Parameters
+        ----------
+        udp_dll_name :
+            dll name
+        udp_parameters_list :
+            udp pairs object
+        upd_library :
+            udp library (Default value = 'syslib')
+        name :
+            component name (Default value = None)
+        udptye :
+            udpy type (Default value = "Solid")
+
+        Returns
+        -------
+        type
+            object ID
+
         """
         id = self._new_id()
 
-        if not szLib:
-            szLib ='syslib'
-
-        if not udptye:
-            udptye = "Solid"
-
         o = self.objects[id]
-
-        if ".dll" not in dllName:
-            varg1 = ["NAME:UserDefinedPrimitiveParameters", "DllName:=", dllName+".dll", "Library:=", szLib]
+        if ".dll" not in udp_dll_name:
+            vArg1 = ["NAME:UserDefinedPrimitiveParameters", "DllName:=", udp_dll_name + ".dll", "Library:=", upd_library]
         else:
-            varg1 = ["NAME:UserDefinedPrimitiveParameters", "DllName:=", dllName, "Library:=", szLib]
+            vArg1 = ["NAME:UserDefinedPrimitiveParameters", "DllName:=", udp_dll_name, "Library:=", upd_library]
 
         vArgParamVector = ["NAME:ParamVector"]
 
-        for pair in udpPairs:
+        for pair in udp_parameters_list:
             if type(pair) is list:
                 vArgParamVector.append(["NAME:Pair", "Name:=", pair[0], "Value:=", pair[1]])
 
             else:
                 vArgParamVector.append(["NAME:Pair", "Name:=", pair.Name, "Value:=", pair.Value])
 
-        varg1 += ["NoOfParameters:=", len(udpPairs), "Version:=", "12.1"]
-        varg1.append(vArgParamVector)
+        vArg1.append(vArgParamVector)
         namergs = name.replace(".dll", "").split("/")
-        varg2 = o.export_attributes(namergs[-1])
-        print(varg2)
-
-        self.oeditor.CreateUserDefinedPart(varg1, varg2)
+        o.name = name
+        vArg2 = o.export_attributes(namergs[-1])
+        self.oeditor.CreateUserDefinedPart(vArg1, vArg2)
         id = self._update_object(o, udptye)
         return id
+
 
     @aedt_exception_handler
     def get_obj_name(self, partId):
@@ -2367,7 +2371,7 @@ class Primitives(object):
 
         Returns
         -------
-        type
+        list
             An array as list of float [x, y, z] containing planar face center position
 
         """
@@ -2815,7 +2819,7 @@ class Primitives(object):
         return selected_edges
 
     @aedt_exception_handler
-    def get_edges_for_circuit_port_fromsheet(self, sheet, XY_plane=True, YZ_plane=True, XZ_plane=True,
+    def get_edges_for_circuit_port_from_sheet(self, sheet, XY_plane=True, YZ_plane=True, XZ_plane=True,
                                              allow_perpendicular=False, tol=1e-6):
         """Returns two edges ID suitable for the circuit port.
         One is belonging to the sheet passed in and the second one is the closest
@@ -2987,8 +2991,7 @@ class Primitives(object):
 
         # find the bodies to exclude
         port_sheet_midpoint = self.get_face_center(face_id)
-        point = self._modeler.Position(*port_sheet_midpoint)
-        list_of_bodies = self.get_bodynames_from_position(point)
+        list_of_bodies = self.get_bodynames_from_position(port_sheet_midpoint)
 
         # select all edges
         all_edges = []
