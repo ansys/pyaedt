@@ -96,7 +96,10 @@ class AedtSolve(object):
         self._logfile = value
 
     def solve(self):
-        self.command.append(os.path.join(self.installer_path,'ansysedt.exe'))
+        if os.name == "posix":
+                self.command.append(os.path.join(self.installer_path,'ansysedt'))
+        else:
+               self.command.append(os.path.join(self.installer_path,'ansysedt.exe'))
         if self.nongraphical:
             self.command.append('-Batchsolve')
             self.command.append('-ng')
@@ -195,4 +198,3 @@ class SiwaveSolve(object):
             command.append('-formatOutput -useSubdir')
             p = subprocess.Popen(command)
             p.wait()
-
