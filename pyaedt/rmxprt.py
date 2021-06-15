@@ -8,15 +8,15 @@ Create a ``Rmxprt`` object and connect to an existing RMxprt design or create a 
 
 >>> app = Rmxprt()
 
-Create a ``Rmxprt`` object and link to a project named ``projectname``. If this project does not exist, create one with this name.
+Create an instance of ``Rmxprt`` and link to a project named ``"projectname"``. If this project does not exist, create one with this name.
 
 >>> app = Rmxprt(projectname)
 
-Create a ``RMxprt`` object and link to a design named ``designname`` in a project named ``projectname``.
+Create an instance of ``RMxprt`` and link to a design named ``"designname"`` in a project named ``"projectname"``.
 
 >>> app = Rmxprt(projectname,designame)
 
-Create a ``RMxprt`` object and open the specified project.
+Create an instance of ``RMxprt`` and open the specified project.
 
 >>> app = Rmxprt("myfile.aedt")
 
@@ -166,5 +166,4 @@ class Rmxprt(FieldAnalysisRMxprt):
 
     def __enter__(self):
         return self
-
 
