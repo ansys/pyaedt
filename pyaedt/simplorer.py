@@ -7,7 +7,7 @@ This class contains all Simplorer functionalities.
 
 Examples:
 
-Creates a ``Simplorer`` object and connects to an existing Maxwell design or cceates a new Maxwell design if one is not present.
+Creates a ``Simplorer`` object and connects to an existing Maxwell design or creates a new Maxwell design if one is not present.
 
 >>> app = Simplorer()
 
