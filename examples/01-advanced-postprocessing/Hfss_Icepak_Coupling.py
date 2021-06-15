@@ -221,7 +221,7 @@ if not os.path.exists(results_folder):
     os.mkdir(results_folder)
 
 aedtapp.post.plot_field_from_fieldplot(plot1.name, project_path=results_folder, meshplot=False, setup_name=setup_name,
-                                             intrinsic_dict=intrinsic, imageformat="jpg", view="iso")
+                                             intrinsic_dict=intrinsic, imageformat="jpg", view="iso", off_screen=True)
 
 ################################################################
 # Generating animation from Field Plots
@@ -247,7 +247,7 @@ intrinsic = ""
 surflist = ipkapp.modeler.primitives.get_object_faces("inner")
 plot5 = ipkapp.post.create_fieldplot_surface(surflist, "SurfTemperature")
 
-ipkapp.post.plot_field_from_fieldplot(plot5.name, project_path=results_folder, meshplot=False, setup_name=setup_name, imageformat="jpg", view="iso")
+ipkapp.post.plot_field_from_fieldplot(plot5.name, project_path=results_folder, meshplot=False, setup_name=setup_name, imageformat="jpg", view="iso", off_screen=True)
 
 aedtapp.save_project()
 

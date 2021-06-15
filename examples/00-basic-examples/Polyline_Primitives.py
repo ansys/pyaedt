@@ -99,11 +99,12 @@ P = prim3D.draw_polyline(position_list=[start_point],
 
 #########################################################################
 # ##### Plot the polyline primitives
+# Uncomment to use it
 
-store_path = r'C:\temp'
-M3D.post.export_model_picture(store_path, "temp", picturename="Model", ShowAxis=True, ShowGrid=True, ShowRuler=True)
-file_name = os.path.join(store_path, "temp", "Pictures", "Model.jpg")
-Image(file_name, width=500)
+# store_path = r'C:\temp'
+# M3D.post.export_model_picture(store_path, "temp", picturename="Model", ShowAxis=True, ShowGrid=True, ShowRuler=True)
+# file_name = os.path.join(store_path, "temp", "Pictures", "Model.jpg")
+# Image(file_name, width=500)
 
 #########################################################################
 # ### Compound polyline examples
