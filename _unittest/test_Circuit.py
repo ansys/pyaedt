@@ -78,16 +78,16 @@ class TestCircuit:
         assert type(my_model) is int
 
     def test_07_import_mentor_netlist(self):
-        self.aedtapp.insert_design("Circuit Design", "MentorSchematicImport")
+        self.aedtapp.insert_design("MentorSchematicImport")
         assert self.aedtapp.create_schematic_from_mentor_netlist(os.path.join(self.local_scratch.path, netlist2))
         pass
 
     def test_08_import_netlist(self):
-        self.aedtapp.insert_design("Circuit Design", "SchematicImport")
+        self.aedtapp.insert_design("SchematicImport")
         assert self.aedtapp.create_schematic_from_netlist(os.path.join(self.local_scratch.path, netlist1))
 
     def test_09_import_touchstone(self):
-        self.aedtapp.insert_design("Circuit Design", "Touchstone_import")
+        self.aedtapp.insert_design("Touchstone_import")
         ports = self.aedtapp.import_touchsthone_solution(os.path.join(self.local_scratch.path, touchstone))
         ports2 = self.aedtapp.import_touchsthone_solution(os.path.join(self.local_scratch.path, touchstone2))
         numports = len(ports)
@@ -108,7 +108,7 @@ class TestCircuit:
 
         myindid, myind = self.aedtapp.modeler.components.create_inductor("L100", 1e-9, 0, 0)
         myresid, myres = self.aedtapp.modeler.components.create_resistor("R100", 50, 0.0254, 0)
-        mycapid, mycap = self.aedtapp.modeler.components.create_capacitor("C1", 1e-12, 0.0400, 0)
+        mycapid, mycap = self.aedtapp.modeler.components.create_capacitor("C100", 1e-12, 0.0400, 0)
 
 
         assert self.aedtapp.modeler.connect_schematic_components(myresid, myindid, pinnum_second=2)
@@ -119,7 +119,7 @@ class TestCircuit:
         assert self.aedtapp.modeler.model_units
 
     def test_13_move(self):
-        assert self.aedtapp.modeler.move("L100", 0.01,0.03)
+        assert self.aedtapp.modeler.move("L100", 0.00508, 0.00508)
 
     def test_14_rotate(self):
         assert self.aedtapp.modeler.rotate("L100")

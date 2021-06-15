@@ -534,7 +534,7 @@ class Circuit(FieldAnalysisCircuit, object):
                     if netname:
                         self.modeler.components.create_page_port(netname, pos[0], pos[1], angle)
                     else:
-                        print("notFound")
+                        self.messenger.add_info_message("Page Port Not Crated")
                     id += 1
                 ypos += delta
                 if ypos > delta * (column_number):

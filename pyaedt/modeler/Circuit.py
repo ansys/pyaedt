@@ -203,7 +203,7 @@ class ModelerNexxim(ModelerCircuit):
         self.oeditor.Move(
             [
                 "NAME:Selections",
-                "Selections:", sels
+                "Selections:=", sels
             ],
             [
                 "NAME:MoveParameters",

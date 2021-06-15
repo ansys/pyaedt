@@ -146,7 +146,7 @@ class TestIcepak:
         assert self.aedtapp.edit_design_settings(gravityDir=1)
 
     def test_15_insert_new_icepak(self):
-        self.aedtapp.insert_design("Icepak","Solve")
+        self.aedtapp.insert_design("Solve")
         self.aedtapp.solution_type = self.aedtapp.SolutionTypes.Icepak.SteadyTemperatureAndFlow
         self.aedtapp.modeler.primitives.create_box([0,0,0], [10,10,10],"box", "copper")
         self.aedtapp.modeler.primitives.create_box([9,9,9], [5,5,5],"box2", "copper")
