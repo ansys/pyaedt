@@ -432,21 +432,27 @@ class EdBSiwave(object):
         return f
 
     @aedt_exception_handler
-    def add_siwave_ac_analysis(self, accuracy_level=1, decade_count=10, sweeptype=1, start_freq=1, stop_freq=1e9, step_freq=1e6, discre_sweep=False):
+    def add_siwave_ac_analysis(self, accuracy_level=1, decade_count=10, sweeptype=1, start_freq=1, stop_freq=1e9, step_freq=1e6, discrete_sweep=False):
         """
-        Add Siwave AC Analysis
+        Add SIWave AC Analysis to EDB
 
+        Parameters
+        ----------
+        accuracy_level : int
 
-        :param accuracy_level:
-        :param decade_count:
-        :param sweeptype:
-        :param start_freq:
-        :param stop_freq:
-        :param step_freq:
-        :param discre_sweep:
-        :return:
+        decade_count : int
+
+        sweeptype : int
+        start_freq : float
+        stop_freq : float
+        step_freq : float
+        discrete_sweep: bool
+
+        Returns
+        -------
+        bool
         """
-        self.siwave_setup.AddACSimSetup(self.builder, accuracy_level, str(decade_count), sweeptype, str(start_freq), str(stop_freq), str(step_freq), discre_sweep)
+        self.siwave_setup.AddACSimSetup(self.builder, accuracy_level, str(decade_count), sweeptype, str(start_freq), str(stop_freq), str(step_freq), discrete_sweep)
         exec_file = self.create_exec_file()
         exec_file.write("ExecAcSim\n")
         exec_file.close()
@@ -454,22 +460,27 @@ class EdBSiwave(object):
 
     @aedt_exception_handler
     def add_siwave_syz_analysis(self, accuracy_level=1, decade_count=10, sweeptype=1, start_freq=1, stop_freq=1e9,
-                               step_freq=1e6, discre_sweep=False):
-        """
-        Add Siwave SYZ Analysis
+                               step_freq=1e6, discrete_sweep=False):
+        """Add Siwave SYZ Analysis
 
 
-        :param accuracy_level:
-        :param decade_count:
-        :param sweeptype:
-        :param start_freq:
-        :param stop_freq:
-        :param step_freq:
-        :param discre_sweep:
-        :return:
+        Parameters
+        ----------
+        accuracy_level : 1
+        decade_count : int
+        sweeptype : int
+        start_freq : float
+        stop_freq : float
+        step_freq : float
+        discrete_sweep: bool
+
+        Returns
+        -------
+
         """
+
         self.siwave_setup.AddSYZSimSetup(self.builder, accuracy_level, str(decade_count), sweeptype, str(start_freq),
-                                        str(stop_freq), str(step_freq), discre_sweep)
+                                        str(stop_freq), str(step_freq), discrete_sweep)
         exec_file = self.create_exec_file()
         exec_file.write("ExecSyzSim\n")
         exec_file.write("SaveSiw\n")
