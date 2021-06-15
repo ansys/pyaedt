@@ -5,19 +5,19 @@ This class contains all Simplorer functionalities.
 Examples
 --------
 
-Create a ``Simplorer`` object and connect to an existing Maxwell design or cceate a new Maxwell design if one does not exist.
+Create an instance of ``Simplorer`` and connect to an existing Maxwell design or create a new Maxwell design if one does not exist.
 
 >>> app = Simplorer()
 
-Create a ``Simplorer`` object and link to a project named ``projectname``. If this project does not exist, create one with this name.
+Create a instance of ``Simplorer`` and link to a project named ``"projectname"``. If this project does not exist, create one with this name.
 
 >>> app = Simplorer(projectname)
 
-Create a ``Simplorer`` object and link to a design named ``designname`` in a project named ``projectname``.
+Create an instance of ``Simplorer`` and link to a design named ``"designname"`` in a project named ``"projectname"``.
 
 >>> app = Simplorer(projectname,designame)
 
-Create a ``Simplorer`` object and open the specified project.
+Create an instance of ``Simplorer`` and open the specified project.
 
 >>> app = Simplorer("myfile.aedt")
 
@@ -240,5 +240,4 @@ class Simplorer(FieldAnalysisSimplorer, object):
         """ Push exit up to parent object Design """
         if ex_type:
             exception_to_desktop(self, ex_value, ex_traceback)
-
 
