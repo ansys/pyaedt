@@ -130,7 +130,7 @@ class SiwaveSolve(object):
             try:
                 self.installer_path = env_path(aedt_version)
             except:
-                raise Exception("Either a valide aedt version or full path has to be provided")
+                raise Exception("Either a valid aedt version or full path has to be provided")
 
 
     @property
