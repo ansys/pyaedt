@@ -1,23 +1,23 @@
 """
-This module contains all Mechanical functionalities in the ``mechanical`` class. 
+This module contains all Mechanical functionalities in the ``Mechanical`` class. 
 
 
 Examples
 --------
 
-Create a ``Mechanical`` object and connect to an existing HFSS design or create a new HFSS design if one does not exist.
+Create an instance of ``Mechanical`` and connect to an existing HFSS design or create a new HFSS design if one does not exist.
 
 >>> aedtapp = Mechanical()
 
-Create a ``Mechanical`` object and link to a project named ``projectname``. If this project does not exist, create one with this name.
+Create an instance of ``Mechanical`` and link to a project named ``"projectname"``. If this project does not exist, create one with this name.
 
 >>> aedtapp = Mechanical(projectname)
 
-Create a ``Mechanical`` object and link to a design named ``designname`` in a project named ``projectname``.
+Create an instance of ``Mechanical`` and link to a design named ``"designname"`` in a project named ``projectname``.
 
 >>> aedtapp = Mechanical(projectname,designame)
 
-Create a ``Mechanical`` object and open the specified project.
+Create an instance of ``Mechanical`` and open the specified project.
 
 >>> aedtapp = Mechanical("myfile.aedt")
 
@@ -54,8 +54,6 @@ class Mechanical(FieldAnalysis3D, object):
        Name of the setup to use as the nominal. The default is ``None``. If ``None``, the active setup 
        is used or nothing is used.
 
-    Returns
-    -------
 
     """
 
@@ -87,7 +85,7 @@ class Mechanical(FieldAnalysis3D, object):
             Name of the EM sweep to use for the mapping. The default is no sweep and to use ``"LastAdaptive"``.
         map_frequency : str, optional
             Frequency to map. The default is ``None``. The value must be ``None`` for eigenmode analysis.
-        surface_objects : list
+        surface_objects : list, optional
             List objects in the source that are metals. The default is ``[]``.
         source_project_name : str, optional
             Name of the source project. The default is ``None``, which uses the source from the same project.
@@ -297,7 +295,7 @@ class Mechanical(FieldAnalysis3D, object):
 
     @aedt_exception_handler
     def assign_frictionless_support(self, objects_list,  boundary_name=""):
-        """Assign a Mechanical frictionless support. This function works only in a structural analysis.
+        """Assign a Mechanical frictionless support. This method works only in a structural analysis.
 
         Parameters
         ----------
