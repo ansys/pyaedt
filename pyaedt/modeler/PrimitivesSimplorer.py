@@ -146,8 +146,8 @@ class SimplorerComponents(CircuitComponents):
         ----------
         compname :
             name (Default value = None)
-        model_name :
-            (Default value = "required")
+        model_name : str, optional
+            Name of the model.  Default is ``"required"``.
         xpos :
             x pos (Default value = 0)
         ypos :
