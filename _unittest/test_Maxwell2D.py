@@ -14,6 +14,7 @@
 ##                                                                        ##
 ## #########################################################################
 import os
+import pytest
 # Setup paths for module imports
 from .conftest import local_path, scratch_path
 
@@ -93,10 +94,8 @@ class TestMaxwell2D:
         mysetup.props["SaveFields"] = True
         assert mysetup.update()
 
-    def test_07_assign_material(self):
-        # Assign to material not in library
-        self.aedtapp.assignmaterial(["Rectangle1"], "ceramic_material")
-        assert self.aedtapp.modeler.primitives["Rectangle1"].material_name == "ceramic_material"
-        # Assign to material already in library
-        self.aedtapp.assignmaterial(["Rectangle1"], "steel_stainless")
-        assert self.aedtapp.modeler.primitives["Rectangle1"].material_name == "steel_stainless"
+    @pytest.mark.parametrize("material", ["ceramic_material", # material not in library
+                                          "steel_stainless"])  # material already in library
+    def test_07_assign_material(self, material):
+        self.aedtapp.assignmaterial(["Rectangle1"], material)
+        assert self.aedtapp.modeler.primitives["Rectangle1"].material_name == material

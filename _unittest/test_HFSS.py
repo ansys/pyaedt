@@ -323,8 +323,10 @@ class TestHFSS:
         assert self.aedtapp.get_property_value("AnalysisSetup:MySetup", "Solution Freq", "Setup") == "1GHz"
 
     def test_33_copy_solid_bodies(self):
-        new_design = Hfss(projectname="HfssCopiedProject", designname="HfssCopiedBodies")
+        project_name = "HfssCopiedProject"
+        design_name = "HfssCopiedBodies"
+        new_design = Hfss(projectname=project_name, designname=design_name)
         assert new_design.copy_solid_bodies_from(self.aedtapp)
         assert len(new_design.modeler.solid_bodies) == 41
-        new_design.delete_design("HfssCopiedBodies")
-        new_design.close_project("HfssCopiedProject")
+        new_design.delete_design(design_name)
+        new_design.close_project(project_name)
