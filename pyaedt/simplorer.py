@@ -1,28 +1,28 @@
 """
-Introduction
-------------------
-
 This class contains all Simplorer functionalities.
 
 
-Examples:
+Examples
+--------
 
-Creates a ``Simplorer`` object and connects to an existing Maxwell design or creates a new Maxwell design if one is not present.
+Create an instance of ``Simplorer`` and connect to an existing Maxwell design or create a new Maxwell design if one does not exist.
 
 >>> app = Simplorer()
 
-Creates a ``Simplorer`` object and links to a project named projectname.
+Create a instance of ``Simplorer`` and link to a project named ``"projectname"``. If this project does not exist, create one with this name.
 
 >>> app = Simplorer(projectname)
 
-Creates a ``Simplorer`` object and links to a design named designname in a project named projectname.
+Create an instance of ``Simplorer`` and link to a design named ``"designname"`` in a project named ``"projectname"``.
 
 >>> app = Simplorer(projectname,designame)
 
-Creates a ``Simplorer`` object and opens the specified project.
+Create an instance of ``Simplorer`` and open the specified project.
 
 >>> app = Simplorer("myfile.aedt")
+
 """
+
 from __future__ import absolute_import
 
 import numbers
@@ -38,15 +38,18 @@ class Simplorer(FieldAnalysisSimplorer, object):
 
     Parameters
     ----------
-    projectname :
-        name of the project to be selected or full path to the project to be opened  or to the AEDTZ
-        archive. if None try to get active project and, if nothing present to create an empty one
-    designname :
-        name of the design to be selected. if None, try to get active design and, if nothing present to create an empty one
-    solution_type :
-        solution type to be applied to design. if None default is taken
-    setup_name :
-        setup_name to be used as nominal. if none active setup is taken or nothing
+    projectname : str, optional
+        Name of the project to select or the full path to the project or AEDTZ archive to open. 
+        The default is ``None``. If ``None``, try to get an active project and, if no projects are present, 
+        create an empty project.
+    designname : str, optional
+        Name of the design to select. The default is ``None``. If ``None``, try to get an active design and, 
+        if no designs are present, create an empty design.
+    solution_type : str, optional
+        Solution type to apply to design. The default is ``None``. If ``None`, the default type is applied.
+    setup_name : str, optional
+       Name of the setup to use as the nominal. The default is ``None``. If ``None``, the active setup 
+       is used or nothing is used.
 
     Returns
     -------
@@ -69,20 +72,20 @@ class Simplorer(FieldAnalysisSimplorer, object):
 
     @aedt_exception_handler
     def create_schematic_from_netlist(self, file_to_import):
-        """Create a Circuit Schematic from a spice netlist.
+        """Create a circuit schematic from a spice netlist.
         Supported in this moment:
         -R, L, C, Diodes, Bjts
         -Discrete components with syntax Uxxx net1 net2 ... netn modname
 
         Parameters
         ----------
-        file_to_import :
-            full path to spice file
+        file_to_import : str
+            Full path to the spice file.
 
         Returns
         -------
-        type
-            True if completed
+        bool
+            ``True`` when successful, ``False`` when failed.
 
         """
         xpos = 0
@@ -190,12 +193,13 @@ class Simplorer(FieldAnalysisSimplorer, object):
 
         Parameters
         ----------
-        var_str :
+        var_str : string
+            Name of the variable.
             
         expression :
             
-        analysis_name :
-             (Default value = "TR")
+        analysis_name : str, optional
+             The name of the analysis. The default is ``"TR"``.
 
         Returns
         -------
@@ -236,5 +240,4 @@ class Simplorer(FieldAnalysisSimplorer, object):
         """ Push exit up to parent object Design """
         if ex_type:
             exception_to_desktop(self, ex_value, ex_traceback)
-
 
