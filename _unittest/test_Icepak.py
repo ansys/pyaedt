@@ -146,7 +146,7 @@ class TestIcepak:
         assert self.aedtapp.edit_design_settings(gravityDir=1)
 
     def test_15_insert_new_icepak(self):
-        self.aedtapp.insert_design("Icepak","Solve")
+        self.aedtapp.insert_design("Solve")
         self.aedtapp.solution_type = self.aedtapp.SolutionTypes.Icepak.SteadyTemperatureAndFlow
         self.aedtapp.modeler.primitives.create_box([0,0,0], [10,10,10],"box", "copper")
         self.aedtapp.modeler.primitives.create_box([9,9,9], [5,5,5],"box2", "copper")
@@ -220,5 +220,24 @@ class TestIcepak:
         dielectrics = self.aedtapp.get_all_dielectrics_names()
         assert dielectrics == ["Region"]
 
+    def test_28_assign_surface_material(self):
+        surface_emissivity = self.aedtapp.materials.creatematerialsurface("my_surface", 0.5)
+        assert surface_emissivity == 0.5
+
+    def test_29_create_sweep_material(self):
+        assert self.aedtapp.materials.creatematerial_sweeps(["copper", "silver"], "My_Sweep", False)
+
+    def test_31_load_material_lib(self):
+        assert self.aedtapp.materials.load_from_xml_full()
+
+    def test_32_load_material_lib(self):
+        self.aedtapp.materials.py2xmlFull(os.path.join(self.local_scratch.path,"export.xml"))
+        assert os.path.exists(os.path.join(self.local_scratch.path,"export.xml"))
+
+    def test_33_create_region(self):
+        self.aedtapp.modeler.primitives.delete("Region")
+        assert type(self.aedtapp.modeler.primitives.create_region([100,100,100,100,100,100])) is int
+
     def test_88_create_heat_sink(self):
         assert self.aedtapp.create_parametric_fin_heat_sink()
+

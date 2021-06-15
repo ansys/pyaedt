@@ -1,18 +1,5 @@
 #!/ekm/software/anaconda3/bin/python
-############################################################################
-##                                                                        ##
-## Copyright (c) 2019 by ANSYS Inc. All rights reserved.                  ##
-##                                                                        ##
-## This source file may be used and distributed without restriction       ##
-## provided that this copyright statement is not removed from the file    ##
-## and that any derivative work contains this copyright notice.           ##
-##                                                                        ##
-## Warranty                                                               ##
-## ANSYS Inc. makes no warranty of any kind with regard to the use of     ##
-## this Software, either expressed or implied, including, but not limited ##
-## to the fitness for a particular purpose.                               ##
-##                                                                        ##
-## #########################################################################
+
 import os
 import pytest
 # Setup paths for module imports

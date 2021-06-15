@@ -208,15 +208,15 @@ class TestPrimitives:
         solidnames = self.prim.get_all_objects_names(get_lines=False, get_sheets=False)
         for i in solidnames:
             assert self.prim.objects[self.prim.get_obj_id(i)].is3d
-            assert self.prim.objects[self.prim.get_obj_id(i)].object_type is "Solid"
+            assert self.prim.objects[self.prim.get_obj_id(i)].object_type == "Solid"
         sheetnames = self.prim.get_all_objects_names(get_lines=False, get_solids=False)
         for i in sheetnames:
             assert self.prim.objects[self.prim.get_obj_id(i)].is3d is False
-            assert self.prim.objects[self.prim.get_obj_id(i)].object_type is "Sheet"
+            assert self.prim.objects[self.prim.get_obj_id(i)].object_type == "Sheet"
         listnames = self.prim.get_all_objects_names(get_sheets=False, get_solids=False)
         for i in listnames:
             assert self.prim.objects[self.prim.get_obj_id(i)].is3d is False
-            assert self.prim.objects[self.prim.get_obj_id(i)].object_type is "Line"
+            assert self.prim.objects[self.prim.get_obj_id(i)].object_type == "Line"
         assert len(objnames) == len(solidnames)+len(listnames)+len(sheetnames)
 
     def test_15_get_object_by_material(self):
@@ -339,16 +339,15 @@ class TestPrimitives:
         assert self.aedtapp.modeler.create_sheet_to_ground("Mybox") > 0
         assert self.aedtapp.modeler.create_sheet_to_ground("Mybox", "MyRectangle",self.aedtapp.AxisDir.ZNeg)>0
 
-    # def test_98_get_edges_for_circuit_port(self):
-    #     self.aedtapp.close_project(name=self.aedtapp.project_name, saveproject=False)
-    #     self.aedtapp.load_project(self.test_98_project)
-    #     self.prim.refresh_all_ids()
-    #     edges1 = self.prim.get_edges_for_circuit_port('Port1', XY_plane=False, YZ_plane=True, XZ_plane=False,
-    #                                                   allow_perpendicular=False, tol=1e-6)
-    #     assert edges1 == [5519, 5249]
-    #     edges2 = self.prim.get_edges_for_circuit_port('Port2', XY_plane=False, YZ_plane=True, XZ_plane=False,
-    #                                                   allow_perpendicular=False, tol=1e-6)
-    #     assert edges2 == [5530, 5477]
+    def test_31_get_edges_for_circuit_port(self):
+        udp = self.aedtapp.modeler.Position(0, 0, 8)
+        plane = self.aedtapp.CoordinateSystemPlane.XYPlane
+        id = self.prim.create_rectangle(plane, udp, [3, 10], name="MyGND", matname="Copper")
+        face_id = self.aedtapp.modeler.primitives["MyRectangle"].faces[0].id
+        edges1 = self.aedtapp.modeler.primitives.get_edges_for_circuit_port(face_id, XY_plane=True, YZ_plane=False, XZ_plane=False,
+                                                      allow_perpendicular=True, tol=1e-6)
+        edges2 = self.aedtapp.modeler.primitives.get_edges_for_circuit_port_from_sheet("MyRectangle", XY_plane=True, YZ_plane=False, XZ_plane=False,
+                                                      allow_perpendicular=True, tol=1e-6)
 
     def test_32_chamfer(self):
 
@@ -548,6 +547,12 @@ class TestPrimitives:
         b2 = self.aedtapp.modeler.primitives.create_bondwire([0,0,0], [10,10,2], h1=0.15, h2=0, diameter=0.034, bond_type=3,  matname="copper", name="jedec41")
         assert b2 == False
 
+    def test_44_create_group(self):
+        assert self.aedtapp.modeler.create_group(["jedec51","jedec41"],"mygroup")
+        assert self.aedtapp.modeler.ungroup("mygroup")
+
+    def test_45_flatten_assembly(self):
+        assert self.aedtapp.modeler.flatten_assembly()
     def test_99_get_edges_on_bunding_box(self):
         self.aedtapp.close_project(name=self.aedtapp.project_name, saveproject=False)
         self.aedtapp.load_project(self.test_99_project)

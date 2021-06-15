@@ -1479,7 +1479,6 @@ class PostProcessor(object):
             True (executed)
 
         """
-        # Copy the plot curves as data
         self.oreportsetup.CopyReportsData([PlotName])
         self.oreportsetup.PasteReports()
         return True
@@ -1506,7 +1505,7 @@ class PostProcessor(object):
 
         """
 
-        self.ofieldsreporter.EnterQty(Quantity)
+        self.ofieldsreporter.EnterQty(quantity)
         if obj_type.lower=="volume":
             self.ofieldsreporter.EnterVol(obj_name)
         elif obj_type.lower=="surface":

@@ -330,6 +330,7 @@ class Mechanical(FieldAnalysis3D, object):
             self.boundaries.append(bound)
             return bound
         return False
+
     @aedt_exception_handler
     def assign_fixed_support(self, objects_list,  boundary_name=""):
         """Assign a Mechanical fixed support. This function works only in a Structural analysis.
