@@ -5,15 +5,15 @@ This module contains all HFSS functionalities in the ``hfss`` class.
 Examples
 --------
 
-Create an ``Hfss`` object and connect to an existing HFSS design or create a new HFSS design if one does not exist.
+Create an instance of ``Hfss`` and connect to an existing HFSS design or create a new HFSS design if one does not exist.
 
 >>> hfss = Hfss()
 
-Create an ``Hfss`` object and link to a project named ``projectname``. If this project does not exist, create one with this name.
+Create an instance of ``Hfss`` and link to a project named ``projectname``. If this project does not exist, create one with this name.
 
 >>> hfss = Hfss(projectname)
 
-Create an ``Hfss`` object and link to a design named ``designname`` in a project named ``projectname``.
+Create an instance of ``Hfss`` and link to a design named ``"designname"`` in a project named ``"projectname"``.
 
 >>> hfss = Hfss(projectname,designame)
 
@@ -21,7 +21,7 @@ Create an ``Hfss`` object and open the specified project:
 
 >>> hfss = Hfss("myfile.aedt")
 
-Create a ``Desktop on 2021R1`` object and then create an ``Hfss`` object and open the specified project.
+Create an instance of ``Hfss`` using the 2021.1 release and open the specified project ``"myfile.aedt"``.
 
 >>> hfss = Hfss(specified_version="2021.1", projectname="myfile.aedt")
 
@@ -61,12 +61,12 @@ class Hfss(FieldAnalysis3D, object):
                 Name of the design to select. The default is ``None``. If ``None``, try to get an active design and, 
                 if no designs are present, create an empty design.
             solution_type : str, optional
-                Solution type to apply to the design. The default is ``None``. If ``None`, the default type is applied.
+                Solution type to apply to the design. The default is ``None``. If ``None``, the default type is applied.
             setup_name : str, optional
                 Name of the setup to use as the nominal. The default is ``None``. If ``None``, the active setup 
                 is used or nothing is used.
             specified_version : str, optional
-                Version to use. The default is ``None``. If ``None``, the active setup is used or nothing is used.
+                Version to use. The default is ``None``. If ``None``, the active setup is used or the latest installed is used.
             NG : bool, optional
                 The default is ``False``.   
             AlwaysNew : bool, optional
@@ -218,12 +218,12 @@ class Hfss(FieldAnalysis3D, object):
                       cond=58000000, perm=1, usethickness=False, thickness="0.1mm", roughness="0um",
                       isinfgnd=False, istwoside=False, isInternal=True, issheelElement=False, usehuray=False,
                       radius="0.5um", ratio="2.9"):
-        """Assign finite conductivity to an object ``obj`` with a material ``mat``.
+        """Assign finite conductivity to the object ``obj`` with a material ``mat``.
 
         Parameters
         ----------
         obj : list or str
-            Object to which to assign finite conductivity.
+            Object or objects to which to assign finite conductivity.
         mat : str, optional
             Material to use. The default is ``None``.
         cond : float, optional
@@ -1655,7 +1655,7 @@ class Hfss(FieldAnalysis3D, object):
         port_name : str, optional
             Name of the port. The default is ``""``.
         port_impedance : str, optional
-            Impedance. The default is ``50``.
+            Impedance. The default is ``"50"``.
         renormalize : bool, optional
             Whether to renormalize the mode. The default is ``False``.
         renorm_impedance :  str, optional
@@ -1710,8 +1710,7 @@ class Hfss(FieldAnalysis3D, object):
 
     @aedt_exception_handler
     def thicken_port_sheets(self, inputlist, value, internalExtr=True, internalvalue=1):
-        """thicken_port_sheets: Create thickened sheets of value "mm" over the full list of 
-        input port faces inputlist.
+        """Create thickened sheets of value "mm" over the full list of input port faces ``inputlist``.
        
         Parameters
         ----------
@@ -1868,9 +1867,9 @@ class Hfss(FieldAnalysis3D, object):
         Parameters
         ----------
         dname : str,  optional
-            Name of the design to validate. The default is ``None``.
+            Name of the design to validate. The default is ``None`` and defaults to the current design name.
         outputdir : str, optional
-            Directory in which to save the log file. The default is ``None``.
+            Directory in which to save the log file. The default is ``None`` and defaults to the current project path.
         ports : int, optional
             Number of excitations (sum of modes) that is expected. The default is ``None``.
 
