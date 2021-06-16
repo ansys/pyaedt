@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 """
 3D Object Property Manager
 -------------------------------

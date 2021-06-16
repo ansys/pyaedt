@@ -1341,7 +1341,7 @@ class Primitives(object):
             objtosplit = [objtosplit]
         objnames = []
         for el in objtosplit:
-            if type(el) is int:
+            if type(el) is int and el in list(self.objects.keys()):
                 objnames.append(self.get_obj_name(el))
             else:
                 objnames.append(el)

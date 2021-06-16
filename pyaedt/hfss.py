@@ -1523,7 +1523,7 @@ class Hfss(FieldAnalysis3D, object):
 
         Returns
         -------
-        type
+        BoundaryObject
             Boundary object
 
         """
@@ -2140,7 +2140,7 @@ class Hfss(FieldAnalysis3D, object):
         return True
 
     @aedt_exception_handler
-    def set_export_touchstone(self, activate):
+    def set_export_touchstone(self, activate, export_dir=""):
         """Set automatic export of the Touchstone file after simulation if set to ``True``.
 
         Parameters
@@ -2161,7 +2161,7 @@ class Hfss(FieldAnalysis3D, object):
             settings.append("Export After Simulation:=")
             settings.append(True)
             settings.append("Export Dir:=")
-            settings.append("")
+            settings.append(export_dir)
         elif not activate:
             settings.append("NAME:Design Settings Data")
             settings.append("Export After Simulation:=")
@@ -2171,7 +2171,7 @@ class Hfss(FieldAnalysis3D, object):
 
     @aedt_exception_handler
     def assign_radiation_boundary_to_objects(self, obj_names, boundary_name=""):
-        """
+        """Assign radiation boundary to one or more objects (usually airbox objects).
 
         Parameters
         ----------
@@ -2183,15 +2183,6 @@ class Hfss(FieldAnalysis3D, object):
         Returns
         -------
 
-        """
-        # TODO: to be tested
-
-        """
-        Assign radiation boundary to one or more objects (usually airbox objects).
-
-        :param obj_names: Object name or ID to which the boundary condition is assigned.
-        :param boundary_name: Optional. Name of the boundary.
-        :return: ``True`` if correctly assigned.
         """
         object_list = self.modeler.convert_to_selections(obj_names, return_list=True)
         if boundary_name:
