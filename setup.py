@@ -33,6 +33,7 @@ setuptools.setup(
     packages=['pyaedt', 'pyaedt.misc', 'pyaedt.application', 'pyaedt.modeler', 'pyaedt.modules',
               'pyaedt.generic', 'pyaedt.edb_core', 'pyaedt.examples'],
     data_files=[('dlls', glob.iglob('pyaedt/dlls/**/*', recursive=True)),
+                ('misc', glob.iglob('pyaedt/misc/*', recursive=True)),
                 ('License', glob.iglob('./*.md', recursive=True)),
                 ('version', ['pyaedt/version.txt'])],
     include_package_data=True,

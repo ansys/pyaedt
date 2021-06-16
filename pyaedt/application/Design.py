@@ -1763,23 +1763,7 @@ class Design(object):
             True if the separator exists and can be deleted, False otherwise
 
         """
-        obj = [(self._odesign, "Local"),
-               (self.oproject, "Project")]
-
-        for object in obj:
-            desktop_object = object[0]
-            var_type = object[1]
-            try:
-                desktop_object.ChangeProperty(["NAME:AllTabs",
-                                               ["NAME:{0}VariableTab".format(var_type),
-                                                ["NAME:PropServers",
-                                                 "{0}Variables".format(var_type)],
-                                                ["NAME:DeletedProps",
-                                                 separator_name]]])
-                return True
-            except:
-                pass
-        return False
+        return self._variable_manager.delete_separator(separator_name)
 
     @aedt_exception_handler
     def delete_variable(self, sVarName):
@@ -1796,25 +1780,7 @@ class Design(object):
             none
 
         """
-        if sVarName[0] == "$":
-            var_type = "Project"
-            desktop_object = self.oproject
-        else:
-            var_type = "Local"
-            desktop_object = self._odesign
-
-        var_list = desktop_object.GetVariables()
-        lower_case_vars = [var_name.lower() for var_name in var_list]
-
-        if sVarName.lower() in lower_case_vars:
-            desktop_object.ChangeProperty(["NAME:AllTabs",
-                                           ["NAME:{0}VariableTab".format(var_type),
-                                            ["NAME:PropServers",
-                                             "{0}Variables".format(var_type)],
-                                            ["NAME:DeletedProps",
-                                             sVarName]]])
-            return True
-        return False
+        return  self.variable_manager.delete_variable(sVarName)
 
     @aedt_exception_handler
     def insert_design(self, design_name=None):
