@@ -1442,7 +1442,7 @@ class GeometryModeler(Modeler, object):
 
 
     @aedt_exception_handler
-    def sweep_around_axis(self, objid, cs_axis, sweep_angle=0, draft_angle=0):
+    def sweep_around_axis(self, objid, cs_axis, sweep_angle=360, draft_angle=0):
         """Sweep selection aroun axis
 
         Parameters
