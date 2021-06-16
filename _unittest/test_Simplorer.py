@@ -5,6 +5,8 @@ from .conftest import local_path, scratch_path
 from pyaedt import Simplorer
 from pyaedt.generic.filesystem import Scratch
 import gc
+import os
+netlist1 = 'netlist_small.cir'
 
 class TestSimplorer:
 
@@ -13,6 +15,9 @@ class TestSimplorer:
         design_name = "SimplorerDesign1"
         # set a scratch directory and the environment / test data
         with Scratch(scratch_path) as self.local_scratch:
+            netlist_file1 = os.path.join(local_path, 'example_models', netlist1)
+            self.local_scratch.copyfile(netlist_file1)
+
             self.aedtapp = Simplorer(project_name, design_name)
 
     def teardown_class(self):
@@ -44,3 +49,16 @@ class TestSimplorer:
     def test_06_create_pnp(self):
         id = self.aedtapp.modeler.components.create_pnp("PNP", ypos=-0.25)[0]
         assert self.aedtapp.modeler.components[id].Info == "BJT"
+
+    def test_07_import_netlist(self):
+        self.aedtapp.insert_design("SchematicImport")
+        assert self.aedtapp.create_schematic_from_netlist(os.path.join(self.local_scratch.path, netlist1))
+
+    def test_08_set_hmax(self):
+        assert self.aedtapp.set_hmax("5ms")
+
+    def test_09_set_hmin(self):
+        assert self.aedtapp.set_hmax("0.2ms")
+
+    def test_10_set_hmin(self):
+        assert self.aedtapp.set_hmax("2s")

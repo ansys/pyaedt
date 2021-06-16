@@ -31,12 +31,14 @@ class TestMessage:
             #assert len(msg.messages.global_level) == 4
             #assert len(msg.messages.project_level) == 0
             #assert len(msg.messages.design_level) == 0
-            msg.clear_messages(level=0)
             #assert len(msg.messages.global_level) == 0
             #assert len(msg.messages.project_level) == 0
             #assert len(msg.messages.design_level) == 0
+            msg.clear_messages(level=0)
 
             self.aedtapp = Hfss()
+            msg.clear_messages(level=3)
+
 
     def teardown_class(self):
 
@@ -65,7 +67,7 @@ class TestMessage:
     @pytest.mark.skipif(config["build_machine"]==True, reason="Issue on Build machine")
     def test_02_messaging(self, caplog):
         msg = self.aedtapp.messenger
-        msg.clear_messages()
+        msg.clear_messages(level=3)
         msg.add_info_message("Test Info")
         msg.add_info_message("Test Info", "Project")
         msg.add_info_message("Test Info", 'Global')

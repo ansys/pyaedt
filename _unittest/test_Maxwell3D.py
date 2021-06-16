@@ -89,7 +89,7 @@ class TestMaxwell3D:
 
 
     def test_24_create_curvilinear(self):
-        assert self.aedtapp.mesh.appy_curvilinear_elements(['Coil'], "1mm")
+        assert self.aedtapp.mesh.assign_curvilinear_elements(['Coil'], "1mm")
 
 
     def test_24_create_edge_cut(self):

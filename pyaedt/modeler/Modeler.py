@@ -190,7 +190,7 @@ class CoordinateSystem(object):
                 del self.props['Phi']
                 del self.props['Theta']
                 del self.props['Psi']
-        if mode_type == 1:
+        elif mode_type == 1:
             if self.props and self.props["Mode"] == "Euler Angle ZYZ":
                 self.props["Mode"] = "Euler Angle ZXZ"
                 phi = 0
@@ -213,7 +213,7 @@ class CoordinateSystem(object):
                 del self.props["YAxisXvec"]
                 del self.props["YAxisYvec"]
                 del self.props["YAxisZvec"]
-        if mode_type == 2:
+        elif mode_type == 2:
             if self.props and self.props["Mode"] == "Euler Angle ZXZ":
                 self.props["Mode"] = "Euler Angle ZYZ"
                 phi = 0
@@ -236,8 +236,9 @@ class CoordinateSystem(object):
                 del self.props["YAxisXvec"]
                 del self.props["YAxisYvec"]
                 del self.props["YAxisZvec"]
-        self.update()
-        return True
+        else:
+            return False
+        return self.update()
 
     @aedt_exception_handler
     def create(self, origin=[0, 0, 0], view="iso", x_pointing=[1, 0, 0], y_pointing=[0, 1, 0], reference_cs="Global", name=None):
@@ -266,7 +267,7 @@ class CoordinateSystem(object):
 
         Returns
         -------
-        type
+        CoordinateSystem
             CS object
 
         """
@@ -1143,7 +1144,7 @@ class GeometryModeler(Modeler, object):
             objtosplit = [objtosplit]
         objnames = []
         for el in objtosplit:
-            if type(el) is int:
+            if type(el) is int and el in list(self.primitives.objects.keys()):
                 objnames.append(self.primitives.get_obj_name(el))
             else:
                 objnames.append(el)
@@ -3109,136 +3110,6 @@ class GeometryModeler(Modeler, object):
         return sel
 
     @aedt_exception_handler
-    def select_ext_faces(self, mats):
-        """This algorithm tries to select all external faces of a list of objects.
-
-        Parameters
-        ----------
-        mats :
-            list of materials to be included into the search. All objects with this materials will be included
-            :output sel: list of faces
-
-        Returns
-        -------
-
-        """
-        self.messenger.add_info_message("Selecting Outer Faces")
-
-        sel = []
-        if type(mats) is str:
-            mats=[mats]
-        for mat in mats:
-            objs = list(self.oeditor.GetObjectsByMaterial(mat))
-            objs.extend(list(self.oeditor.GetObjectsByMaterial(mat.lower())))
-            Id = []
-            aedt_bounding_box = self.get_model_bounding_box()
-            ObjName = []
-            for obj in objs:
-                oVertexIDs = self.oeditor.GetVertexIDsFromObject(obj)
-                found = False
-                for vertex in oVertexIDs:
-                    position = self.oeditor.GetVertexPosition(vertex)
-                    if not found and (
-                            position[0] == str(aedt_bounding_box[0]) or position[1] == str(aedt_bounding_box[1]) or
-                            position[2] == str(aedt_bounding_box[2]) or position[0] == str(aedt_bounding_box[3]) or
-                            position[1] == str(aedt_bounding_box[4]) or position[2] == str(aedt_bounding_box[5])):
-                        Id.append(self.oeditor.GetObjectIDByName(obj))
-                        ObjName.append(obj)
-                        found = True
-            for i in ObjName:
-                oVertexIDs = self.oeditor.GetVertexIDsFromObject(i)
-                bounding = [1e6, 1e6, 1e6, -1e6, -1e6, -1e6]
-
-                for vertex in oVertexIDs:
-                    pos = self.oeditor.GetVertexPosition(vertex)
-                    position = []
-                    position.append(float(pos[0]))
-                    position.append(float(pos[1]))
-                    position.append(float(pos[2]))
-
-                    if position[0] <= bounding[0]:
-                        bounding[0] = position[0]
-                    if position[1] <= bounding[1]:
-                        bounding[1] = position[1]
-                    if position[2] <= bounding[2]:
-                        bounding[2] = position[2]
-                    if position[0] >= bounding[3]:
-                        bounding[3] = position[0]
-                    if position[1] >= bounding[4]:
-                        bounding[4] = position[1]
-                    if position[2] >= bounding[5]:
-                        bounding[5] = position[2]
-
-                oFaceIDs = self.oeditor.GetFaceIDs(i)
-
-                for facce in oFaceIDs:
-                    for pos in bounding:
-                        fbounding = [1e6, 1e6, 1e6, -1e6, -1e6, -1e6]
-                        oFaceVertexIDs = self.oeditor.GetVertexIDsFromFace(facce)
-                        for fvertex in oFaceVertexIDs:
-                            fpos = self.oeditor.GetVertexPosition(fvertex)
-                            fposition = []
-                            fposition.append(float(fpos[0]))
-                            fposition.append(float(fpos[1]))
-                            fposition.append(float(fpos[2]))
-                            if fposition[0] < fbounding[0]:
-                                fbounding[0] = fposition[0]
-                            if fposition[1] < fbounding[1]:
-                                fbounding[1] = fposition[1]
-                            if fposition[2] < fbounding[2]:
-                                fbounding[2] = fposition[2]
-                            if fposition[0] > fbounding[3]:
-                                fbounding[3] = fposition[0]
-                            if fposition[1] > fbounding[4]:
-                                fbounding[4] = fposition[1]
-                            if fposition[2] > fbounding[5]:
-                                fbounding[5] = fposition[2]
-
-                        if fbounding[0] <= aedt_bounding_box[0] or fbounding[1] <= aedt_bounding_box[1] \
-                                or fbounding[2] <= aedt_bounding_box[2] or fbounding[3] >= aedt_bounding_box[3] \
-                                or fbounding[4] >= aedt_bounding_box[4] or fbounding[5] >= aedt_bounding_box[5]:
-                            fx1 = (fbounding[0] + fbounding[3]) / 2
-                            fx2 = (fbounding[1] + fbounding[4]) / 2
-                            fx3 = (fbounding[2] + fbounding[5]) / 2
-                            inside = False
-                            for k in ObjName:
-                                if i != k:
-                                    oVertexIDs2 = self.oeditor.GetVertexIDsFromObject(k)
-                                    bounding2 = [1e6, 1e6, 1e6, -1e6, -1e6, -1e6]
-                                    for vertex2 in oVertexIDs2:
-                                        pos = self.oeditor.GetVertexPosition(vertex2)
-                                        position = []
-                                        position.append(float(pos[0]))
-                                        position.append(float(pos[1]))
-                                        position.append(float(pos[2]))
-                                        if position[0] <= bounding2[0]:
-                                            bounding2[0] = position[0]
-                                        if position[1] <= bounding2[1]:
-                                            bounding2[1] = position[1]
-                                        if position[2] <= bounding2[2]:
-                                            bounding2[2] = position[2]
-                                        if position[0] >= bounding2[3]:
-                                            bounding2[3] = position[0]
-                                        if position[1] >= bounding2[4]:
-                                            bounding2[4] = position[1]
-                                        if position[2] >= bounding2[5]:
-                                            bounding2[5] = position[2]
-                                    if (bounding2[3] >= fx1 >= bounding2[0] and
-                                            bounding2[4] >= fx2 >= bounding2[1] and
-                                            bounding2[5] >= fx3 >= bounding2[2]):
-                                        if (bounding2[3] >= fbounding[0] >= bounding2[0] and
-                                                bounding2[4] >= fbounding[1] >= bounding2[1] and
-                                                bounding2[5] >= fbounding[2] >= bounding2[2]):
-                                            inside = True
-
-                            if not inside:
-                                for fpos in fbounding:
-                                    if fpos == pos:
-                                        if int(facce) not in sel:
-                                            sel.append(int(facce))
-        return sel
-
-    @aedt_exception_handler
     def setunassigned_mats(self):
         """It checks for unassagned objects and set them to unmodel"""
         oObjects = list(self.oeditor.GetObjectsInGroup("Solids"))
@@ -3249,14 +3120,15 @@ class GeometryModeler(Modeler, object):
         return True
 
     @aedt_exception_handler
-    def thicken_sheets(self, inputlist, value, internalExtr=True, internalvalue=1):
-        """thicken_sheets: create thicken sheets of value "mm" over the full list of input faces inputlist
+    def automatic_thicken_sheets(self, inputlist, value, internalExtr=True, internalvalue=1):
+        """thicken_sheets: create thicken sheets of value "mm" over the full list of input faces inputlist.
+        The method automatically check which direction the thicken sheet
 
         Parameters
         ----------
-        inputlist :
+        inputlist : list
             list of faces to thicken
-        value :
+        value : str
             value in mm to thicken
         internalExtr :
             define if the sheet must also be extruded internally (Default value = True)
@@ -3269,6 +3141,7 @@ class GeometryModeler(Modeler, object):
         """
         aedt_bounding_box = self.get_model_bounding_box()
         directions = {}
+        inputlist = self.convert_to_selections(inputlist, True)
         for el in inputlist:
             objID = self.oeditor.GetFaceIDs(el)
             faceCenter = self.oeditor.GetFaceCenter(int(objID[0]))

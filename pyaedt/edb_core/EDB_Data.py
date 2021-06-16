@@ -645,10 +645,3 @@ class EDBComponent(object):
             if pin_name not in self._nets:
                 self._nets[pin_name] = pin
         return self._nets
-
-
-
-
-
-
-

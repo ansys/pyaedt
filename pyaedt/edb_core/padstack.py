@@ -275,7 +275,7 @@ class EdbPadstacks(object):
         return padstackname
 
     @aedt_exception_handler
-    def get_pad_parameters_value(self, padstackdef, layername, padtype, ):
+    def get_pad_parameters_value(self, padstackdef, layername, padtype):
         """Get Pad parameters values
 
                 Parameters
@@ -289,9 +289,9 @@ class EdbPadstacks(object):
 
                 Returns
                 -------
-                tuple
-                     Tuple<Edb.Definition.PadGeometryType, IList<Edb.Utility.Value>, Edb.Utility.Value, Edb.Utility.Value, Edb.Utility.Value>
-
+                dict
+                     Dictionary with properties
                 """
         pad_values = self.padstack_methods.GetPadParametersValue(padstackdef, layername, padtype)
-        return pad_values
+        dict_properties = {"PadType":pad_values.Item1, "PadParameters": [i.ToString() for i in pad_values.Item2], "OffsetX":pad_values.Item3.ToString(),"OffsetY":pad_values.Item4.ToString(), "Rotation":pad_values.Item5.ToString()}
+        return dict_properties

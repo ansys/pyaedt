@@ -8,6 +8,12 @@ from pyaedt import Hfss
 from pyaedt.generic.filesystem import Scratch
 from pyaedt.modeler.Primitives import Polyline, PolylineSegment
 import gc
+import pytest
+from .conftest import config
+scdoc = "input.scdoc"
+step = "input.stp"
+
+
 
 class TestPrimitives:
     def setup_class(self):
@@ -16,7 +22,10 @@ class TestPrimitives:
             self.aedtapp = Hfss()
             self.aedtapp.save_project(project_file=test_primitives_projectfile)
             self.prim = self.aedtapp.modeler.primitives
-
+            scdoc_file = os.path.join(local_path, 'example_models', scdoc)
+            self.local_scratch.copyfile(scdoc_file)
+            step_file = os.path.join(local_path, 'example_models', step)
+            self.local_scratch.copyfile(step_file)
             test_98_project = os.path.join(local_path, 'example_models', 'assembly2' + '.aedt')
             self.test_98_project = self.local_scratch.copyfile(test_98_project)
             test_99_project = os.path.join(local_path, 'example_models', 'assembly' + '.aedt')
@@ -553,7 +562,16 @@ class TestPrimitives:
 
     def test_45_flatten_assembly(self):
         assert self.aedtapp.modeler.flatten_assembly()
-    def test_99_get_edges_on_bunding_box(self):
+
+    def test_46_solving_volume(self):
+        vol = self.aedtapp.modeler.get_solving_volume()
+        assert len(vol) == 9
+
+    def test_46_lines(self):
+        lines = self.aedtapp.modeler.vertex_data_of_lines()
+        assert lines
+
+    def test_47_get_edges_on_bunding_box(self):
         self.aedtapp.close_project(name=self.aedtapp.project_name, saveproject=False)
         self.aedtapp.load_project(self.test_99_project)
         self.prim.refresh_all_ids()
@@ -561,4 +579,16 @@ class TestPrimitives:
         assert edges == [5219, 5183]
         edges = self.prim.get_edges_on_bunding_box(['Port1', 'Port2'], return_colinear=False, tol=1e-6)
         assert edges == [5237, 5255, 5273, 5291]
+
+    @pytest.mark.skipif(config["build_machine"] == True,
+                        reason="Skipped because SpaceClaim is not installed on Build Machine")
+    def test_48_import_space_claim(self):
+        self.aedtapp.insert_design("SCImport")
+        assert self.aedtapp.modeler.import_spaceclaim_document(os.path.join(self.local_scratch.path, scdoc))
+        assert len(self.aedtapp.modeler.primitives.objects)==1
+
+    def test_49_import_step(self):
+        self.aedtapp.insert_design("StepImport")
+        assert self.aedtapp.modeler.import_3d_cad(os.path.join(self.local_scratch.path, step))
+        assert len(self.aedtapp.modeler.primitives.objects)==1
 

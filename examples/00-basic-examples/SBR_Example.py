@@ -34,7 +34,7 @@ target.create_sbr_linked_antenna(source, target_cs="feederPosition", fieldtype="
 #####################################
 # Assign Boundaries
 target.assign_perfecte_to_sheets(["Reflector","Subreflector"])
-target.mesh.appy_curvilinear_elements(["Reflector","Subreflector"])
+target.mesh.assign_curvilinear_elements(["Reflector", "Subreflector"])
 #####################################
 # Create Setup  and Solve
 setup1=target.create_setup()

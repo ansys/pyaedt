@@ -241,9 +241,14 @@ class Test3DLayout:
             points = self.edbapp.core_primitives.get_polygon_points(poly)
             assert points
             
-    # def test_get_padstack(self):
-    #     for el in self.edbapp.padstacks:
-    #         assert self.edbapp.get_padstack_data_parameters(self.edbapp.padstacks[el]) != {}
+    def test_get_padstack(self):
+        for el in self.edbapp.core_padstack.padstacks:
+            out = self.edbapp.core_padstack.get_pad_parameters_value(self.edbapp.core_padstack.padstacks[el], "TOP",
+                                                                     self.edbapp.edb.Definition.PadType.RegularPad)
+            assert out
+            out = self.edbapp.core_padstack.get_pad_parameters_value(self.edbapp.core_padstack.padstacks[el], "TOP",
+                                                                     self.edbapp.edb.Definition.PadType.AntiPad)
+            assert out
 
     def test_save_edb_as(self):
         assert self.edbapp.save_edb_as(os.path.join(self.local_scratch.path, "Gelileo_new.aedb"))
