@@ -176,7 +176,7 @@ class TestPrimitives:
         udp2 = [5, 0, 0]
         arrofpos = [udp1, udp2]
         P = self.aedtapp.modeler.primitives.draw_polyline(arrofpos, name="poly_vector_2")
-        assert self.aedtapp.modeler.sweep_around_axis("poly_vector2", self.aedtapp.CoordinateSystemAxis.YAxis)
+        assert self.aedtapp.modeler.sweep_around_axis("poly_vector_2", self.aedtapp.CoordinateSystemAxis.YAxis)
 
     def test_10_sweep_along_vector(self):
         rect2 = self.aedtapp.modeler.primitives.create_rectangle(self.aedtapp.CoordinateSystemPlane.YZPlane, [0,-2,-2],[4,3], name="rect_2")

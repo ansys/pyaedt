@@ -1464,7 +1464,7 @@ class GeometryModeler(Modeler, object):
 
 
         vArg1 = ['NAME:Selections', 'Selections:=', selections, 'NewPartsModelFlag:=', 'Model']
-        vArg2 = ['NAME:AxisSweepParameters', 'CoordinateSystemID:=', -1, 'DraftAngle:=',
+        vArg2 = ['NAME:AxisSweepParameters', 'DraftAngle:=',
                  self.primitives.arg_with_dim(draft_angle, 'deg'),
                  'DraftType:=', 'Round', 'CheckFaceFaceIntersection:=', False, 'SweepAxis:=', GeometryOperators.cs_axis_str(cs_axis),
                  'SweepAngle:=', self.primitives.arg_with_dim(sweep_angle, 'deg'), 'NumOfSegments:=', '0']

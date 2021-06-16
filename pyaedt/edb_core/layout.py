@@ -10,7 +10,6 @@ import warnings
 from .general import *
 from ..generic.general_methods import get_filename_without_extension, generate_unique_name
 import math
-import itertools as IT
 try:
     import clr
     from System import Convert, String
