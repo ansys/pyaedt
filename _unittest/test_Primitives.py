@@ -8,6 +8,12 @@ from pyaedt import Hfss
 from pyaedt.generic.filesystem import Scratch
 from pyaedt.modeler.Primitives import Polyline, PolylineSegment
 import gc
+import pytest
+from .conftest import config
+scdoc = "input.scdoc"
+step = "input.stp"
+
+
 
 class TestPrimitives:
     def setup_class(self):
@@ -16,7 +22,10 @@ class TestPrimitives:
             self.aedtapp = Hfss()
             self.aedtapp.save_project(project_file=test_primitives_projectfile)
             self.prim = self.aedtapp.modeler.primitives
-
+            scdoc_file = os.path.join(local_path, 'example_models', scdoc)
+            self.local_scratch.copyfile(scdoc_file)
+            step_file = os.path.join(local_path, 'example_models', step)
+            self.local_scratch.copyfile(step_file)
             test_98_project = os.path.join(local_path, 'example_models', 'assembly2' + '.aedt')
             self.test_98_project = self.local_scratch.copyfile(test_98_project)
             test_99_project = os.path.join(local_path, 'example_models', 'assembly' + '.aedt')
@@ -165,9 +174,9 @@ class TestPrimitives:
     def test_10_sweep_around_axis(self):
         udp1 = [0, 0, 0]
         udp2 = [5, 0, 0]
-        udp3 = [5, 5, 0]
-        rect = self.aedtapp.modeler.primitives.create_rectangle(self.aedtapp.CoordinateSystemPlane.YZPlane, [0,-2,-2],[4,3], name="rect_sw")
-        assert self.aedtapp.modeler.sweep_around_axis(rect, self.aedtapp.CoordinateSystemAxis.ZAxis )
+        arrofpos = [udp1, udp2]
+        self.aedtapp.modeler.primitives.draw_polyline(arrofpos, name="poly_vector_2")
+        assert self.aedtapp.modeler.sweep_around_axis("poly_vector_2", self.aedtapp.CoordinateSystemAxis.YAxis)
 
     def test_10_sweep_along_vector(self):
         rect2 = self.aedtapp.modeler.primitives.create_rectangle(self.aedtapp.CoordinateSystemPlane.YZPlane, [0,-2,-2],[4,3], name="rect_2")
@@ -208,15 +217,15 @@ class TestPrimitives:
         solidnames = self.prim.get_all_objects_names(get_lines=False, get_sheets=False)
         for i in solidnames:
             assert self.prim.objects[self.prim.get_obj_id(i)].is3d
-            assert self.prim.objects[self.prim.get_obj_id(i)].object_type is "Solid"
+            assert self.prim.objects[self.prim.get_obj_id(i)].object_type == "Solid"
         sheetnames = self.prim.get_all_objects_names(get_lines=False, get_solids=False)
         for i in sheetnames:
             assert self.prim.objects[self.prim.get_obj_id(i)].is3d is False
-            assert self.prim.objects[self.prim.get_obj_id(i)].object_type is "Sheet"
+            assert self.prim.objects[self.prim.get_obj_id(i)].object_type == "Sheet"
         listnames = self.prim.get_all_objects_names(get_sheets=False, get_solids=False)
         for i in listnames:
             assert self.prim.objects[self.prim.get_obj_id(i)].is3d is False
-            assert self.prim.objects[self.prim.get_obj_id(i)].object_type is "Line"
+            assert self.prim.objects[self.prim.get_obj_id(i)].object_type == "Line"
         assert len(objnames) == len(solidnames)+len(listnames)+len(sheetnames)
 
     def test_15_get_object_by_material(self):
@@ -339,16 +348,15 @@ class TestPrimitives:
         assert self.aedtapp.modeler.create_sheet_to_ground("Mybox") > 0
         assert self.aedtapp.modeler.create_sheet_to_ground("Mybox", "MyRectangle",self.aedtapp.AxisDir.ZNeg)>0
 
-    # def test_98_get_edges_for_circuit_port(self):
-    #     self.aedtapp.close_project(name=self.aedtapp.project_name, saveproject=False)
-    #     self.aedtapp.load_project(self.test_98_project)
-    #     self.prim.refresh_all_ids()
-    #     edges1 = self.prim.get_edges_for_circuit_port('Port1', XY_plane=False, YZ_plane=True, XZ_plane=False,
-    #                                                   allow_perpendicular=False, tol=1e-6)
-    #     assert edges1 == [5519, 5249]
-    #     edges2 = self.prim.get_edges_for_circuit_port('Port2', XY_plane=False, YZ_plane=True, XZ_plane=False,
-    #                                                   allow_perpendicular=False, tol=1e-6)
-    #     assert edges2 == [5530, 5477]
+    def test_31_get_edges_for_circuit_port(self):
+        udp = self.aedtapp.modeler.Position(0, 0, 8)
+        plane = self.aedtapp.CoordinateSystemPlane.XYPlane
+        id = self.prim.create_rectangle(plane, udp, [3, 10], name="MyGND", matname="Copper")
+        face_id = self.aedtapp.modeler.primitives["MyRectangle"].faces[0].id
+        edges1 = self.aedtapp.modeler.primitives.get_edges_for_circuit_port(face_id, XY_plane=True, YZ_plane=False, XZ_plane=False,
+                                                      allow_perpendicular=True, tol=1e-6)
+        edges2 = self.aedtapp.modeler.primitives.get_edges_for_circuit_port_from_sheet("MyRectangle", XY_plane=True, YZ_plane=False, XZ_plane=False,
+                                                      allow_perpendicular=True, tol=1e-6)
 
     def test_32_chamfer(self):
 
@@ -548,7 +556,21 @@ class TestPrimitives:
         b2 = self.aedtapp.modeler.primitives.create_bondwire([0,0,0], [10,10,2], h1=0.15, h2=0, diameter=0.034, bond_type=3,  matname="copper", name="jedec41")
         assert b2 == False
 
-    def test_99_get_edges_on_bunding_box(self):
+    def test_44_create_group(self):
+        assert self.aedtapp.modeler.create_group(["jedec51","jedec41"],"mygroup")
+        assert self.aedtapp.modeler.ungroup("mygroup")
+
+    def test_45_flatten_assembly(self):
+        assert self.aedtapp.modeler.flatten_assembly()
+
+    def test_46_solving_volume(self):
+        vol = self.aedtapp.modeler.get_solving_volume()
+        assert len(vol) == 9
+
+    def test_46_lines(self):
+        assert self.aedtapp.modeler.vertex_data_of_lines()
+
+    def test_47_get_edges_on_bunding_box(self):
         self.aedtapp.close_project(name=self.aedtapp.project_name, saveproject=False)
         self.aedtapp.load_project(self.test_99_project)
         self.prim.refresh_all_ids()
@@ -557,3 +579,14 @@ class TestPrimitives:
         edges = self.prim.get_edges_on_bunding_box(['Port1', 'Port2'], return_colinear=False, tol=1e-6)
         assert edges == [5237, 5255, 5273, 5291]
 
+    @pytest.mark.skipif(config["build_machine"] == True,
+                        reason="Skipped because SpaceClaim is not installed on Build Machine")
+    def test_48_import_space_claim(self):
+        self.aedtapp.insert_design("SCImport")
+        assert self.aedtapp.modeler.import_spaceclaim_document(os.path.join(self.local_scratch.path, scdoc))
+        assert len(self.aedtapp.modeler.primitives.objects) == 1
+
+    def test_49_import_step(self):
+        self.aedtapp.insert_design("StepImport")
+        assert self.aedtapp.modeler.import_3d_cad(os.path.join(self.local_scratch.path, step))
+        assert len(self.aedtapp.modeler.primitives.objects) == 1

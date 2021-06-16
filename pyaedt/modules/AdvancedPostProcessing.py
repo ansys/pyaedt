@@ -959,7 +959,7 @@ class PostProcessor(Post):
                                     intrinsic_dict={}, variation_variable="Phi", variation_list=['0deg'],
                                     project_path="", export_gif=False, off_screen=False):
         """Generate  Field Plot to picture format (jpg, png) using PYVISTA method which rebuilds the mesh and overlap fields on it.
-        This method creates the plot and export it. is alternative to animate_fields_from_aedtplt which uses existing plot
+        This method creates the plot and export it. This is alternative to animate_fields_from_aedtplt which uses existing plot
 
         Parameters
         ----------

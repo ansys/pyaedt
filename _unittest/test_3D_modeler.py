@@ -82,8 +82,12 @@ class TestModeler:
         udp = self.aedtapp.modeler.Position(0, 0, 0)
         id5 = self.aedtapp.modeler.primitives.create_circle(self.aedtapp.CoordinateSystemPlane.XYPlane, udp, 10,
                                                             name="sheet1")
-
+        udp = self.aedtapp.modeler.Position(100, 100, 100)
+        id6 = self.aedtapp.modeler.primitives.create_circle(self.aedtapp.CoordinateSystemPlane.XYPlane, udp, 10,
+                                                            name="sheet2")
         status = self.aedtapp.modeler.thicken_sheet(id5, 3)
+        assert status
+        status = self.aedtapp.modeler.automatic_thicken_sheets(id6, 3, False)
         assert status
 
     def test_11_split(self):
@@ -175,6 +179,9 @@ class TestModeler:
         fl = self.aedtapp.modeler.primitives.get_object_faces("Second_airbox")
         assert self.aedtapp.modeler.create_face_list(fl, "my_face_list")
 
+    def test_28B_create_object_list(self):
+        assert self.aedtapp.modeler.create_object_list(["Second_airbox"], "my_object_list")
+
     def test_29_create_outer_face_list(self):
         assert self.aedtapp.modeler.create_outer_facelist(["Second_airbox"])
 
@@ -253,4 +260,20 @@ class TestModeler:
         assert self.aedtapp.activate_variable_statistical("test_opti")
         assert self.aedtapp.activate_variable_statistical("$test_opti1", "1mm", "10mm", "3%", mean="2mm")
         assert self.aedtapp.deactivate_variable_statistical("test_opti")
+
+    def test_36_create_coaxial(self):
+        coax = self.aedtapp.modeler.create_coaxial([0, 0, 0], self.aedtapp.CoordinateSystemAxis.XAxis)
+        assert isinstance(coax[0], int)
+        assert isinstance(coax[1], int)
+        assert isinstance(coax[2], int)
+
+    def test_37_create_coordinate(self):
+        cs = self.aedtapp.modeler.coordinate_system.create()
+        assert cs
+        assert cs.update()
+        assert cs.change_cs_mode(1)
+        assert cs.change_cs_mode(2)
+        assert not cs.change_cs_mode(3)
+
+
 

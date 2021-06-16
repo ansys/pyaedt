@@ -5,7 +5,7 @@ import math
 import os
 
 # Import required modules
-from .conftest import local_path, scratch_path
+from .conftest import local_path, scratch_path, config
 from pyaedt.hfss import Hfss
 from pyaedt.application.MessageManager import AEDTMessageManager
 from pyaedt.application.Variables import Variable
@@ -31,13 +31,13 @@ class TestMessage:
             #assert len(msg.messages.global_level) == 4
             #assert len(msg.messages.project_level) == 0
             #assert len(msg.messages.design_level) == 0
-            msg.clear_messages(level=0)
             #assert len(msg.messages.global_level) == 0
             #assert len(msg.messages.project_level) == 0
             #assert len(msg.messages.design_level) == 0
+            msg.clear_messages(level=0)
 
             self.aedtapp = Hfss()
-
+            msg.clear_messages(level=3)
     def teardown_class(self):
 
         assert self.aedtapp.close_project()
@@ -50,7 +50,7 @@ class TestMessage:
         #self.aedtapp = Hfss()
         pass
 
-    @pytest.mark.skip(reason="Issue on Build machine")
+    @pytest.mark.skipif(config["build_machine"]==True, reason="Issue on Build machine")
     def test_01_get_messages(self, caplog):
 
         msg = self.aedtapp.messenger
@@ -62,10 +62,10 @@ class TestMessage:
         assert len(msg.messages.design_level) == 1
         pass
 
-    @pytest.mark.skip(reason="Issue on Build machine")
+    @pytest.mark.skipif(config["build_machine"]==True, reason="Issue on Build machine")
     def test_02_messaging(self, caplog):
         msg = self.aedtapp.messenger
-        msg.clear_messages()
+        msg.clear_messages(level=3)
         msg.add_info_message("Test Info")
         msg.add_info_message("Test Info", "Project")
         msg.add_info_message("Test Info", 'Global')
@@ -85,4 +85,3 @@ class TestMessage:
         assert len(msg.messages.global_level) == 5
         assert len(msg.messages.project_level) == 6
         assert len(msg.messages.design_level) == 4
-
