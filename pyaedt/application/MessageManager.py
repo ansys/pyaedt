@@ -29,7 +29,7 @@ message_levels = {'Global': 0,
                   'Design': 2}
 
 class Msg():
-    (INFO, WARNING, ERROR, FATAL) = range(0, 4)
+    (INFO, WARNING, ERROR, FATAL) = range(4)
 
 
 class MessageList:
@@ -384,4 +384,3 @@ class EDBMessageManager(object):
 
         """
         self.logger.info(message_text)
-

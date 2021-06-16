@@ -293,5 +293,8 @@ class EdbPadstacks(object):
                      Dictionary with properties
                 """
         pad_values = self.padstack_methods.GetPadParametersValue(padstackdef, layername, padtype)
-        dict_properties = {"PadType":pad_values.Item1, "PadParameters": [i.ToString() for i in pad_values.Item2], "OffsetX":pad_values.Item3.ToString(),"OffsetY":pad_values.Item4.ToString(), "Rotation":pad_values.Item5.ToString()}
-        return dict_properties
+        return {"PadType": pad_values.Item1,
+                "PadParameters": [i.ToString() for i in pad_values.Item2],
+                "OffsetX": pad_values.Item3.ToString(),
+                "OffsetY": pad_values.Item4.ToString(),
+                "Rotation": pad_values.Item5.ToString()}

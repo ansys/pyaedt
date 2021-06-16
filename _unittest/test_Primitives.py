@@ -175,7 +175,7 @@ class TestPrimitives:
         udp1 = [0, 0, 0]
         udp2 = [5, 0, 0]
         arrofpos = [udp1, udp2]
-        P = self.aedtapp.modeler.primitives.draw_polyline(arrofpos, name="poly_vector_2")
+        self.aedtapp.modeler.primitives.draw_polyline(arrofpos, name="poly_vector_2")
         assert self.aedtapp.modeler.sweep_around_axis("poly_vector_2", self.aedtapp.CoordinateSystemAxis.YAxis)
 
     def test_10_sweep_along_vector(self):
@@ -568,8 +568,7 @@ class TestPrimitives:
         assert len(vol) == 9
 
     def test_46_lines(self):
-        lines = self.aedtapp.modeler.vertex_data_of_lines()
-        assert lines
+        assert self.aedtapp.modeler.vertex_data_of_lines()
 
     def test_47_get_edges_on_bunding_box(self):
         self.aedtapp.close_project(name=self.aedtapp.project_name, saveproject=False)
@@ -585,10 +584,9 @@ class TestPrimitives:
     def test_48_import_space_claim(self):
         self.aedtapp.insert_design("SCImport")
         assert self.aedtapp.modeler.import_spaceclaim_document(os.path.join(self.local_scratch.path, scdoc))
-        assert len(self.aedtapp.modeler.primitives.objects)==1
+        assert len(self.aedtapp.modeler.primitives.objects) == 1
 
     def test_49_import_step(self):
         self.aedtapp.insert_design("StepImport")
         assert self.aedtapp.modeler.import_3d_cad(os.path.join(self.local_scratch.path, step))
-        assert len(self.aedtapp.modeler.primitives.objects)==1
-
+        assert len(self.aedtapp.modeler.primitives.objects) == 1

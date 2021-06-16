@@ -263,9 +263,9 @@ class TestModeler:
 
     def test_36_create_coaxial(self):
         coax = self.aedtapp.modeler.create_coaxial([0, 0, 0], self.aedtapp.CoordinateSystemAxis.XAxis)
-        assert type(coax[0]) is int
-        assert type(coax[1]) is int
-        assert type(coax[2]) is int
+        assert isinstance(coax[0], int)
+        assert isinstance(coax[1], int)
+        assert isinstance(coax[2], int)
 
     def test_37_create_coordinate(self):
         cs = self.aedtapp.modeler.coordinate_system.create()
@@ -274,7 +274,6 @@ class TestModeler:
         assert cs.change_cs_mode(1)
         assert cs.change_cs_mode(2)
         assert not cs.change_cs_mode(3)
-
 
 
 

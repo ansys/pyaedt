@@ -38,8 +38,6 @@ class TestMessage:
 
             self.aedtapp = Hfss()
             msg.clear_messages(level=3)
-
-
     def teardown_class(self):
 
         assert self.aedtapp.close_project()
@@ -87,4 +85,3 @@ class TestMessage:
         assert len(msg.messages.global_level) == 5
         assert len(msg.messages.project_level) == 6
         assert len(msg.messages.design_level) == 4
-

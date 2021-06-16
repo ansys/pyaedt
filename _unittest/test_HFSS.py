@@ -352,5 +352,5 @@ class TestHFSS:
 
     def test_37_assign_radiation_to_objects(self):
         self.aedtapp.modeler.primitives.create_box([-100, -100, -100], [200, 200, 200], name="Rad_box2")
-        ids=[i.id for i in self.aedtapp.modeler.primitives["Rad_box2"].faces]
+        ids = [i.id for i in self.aedtapp.modeler.primitives["Rad_box2"].faces]
         assert self.aedtapp.assign_radiation_boundary_to_faces(ids)

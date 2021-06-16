@@ -183,29 +183,29 @@ class EdbLayout(object):
 
     @aedt_exception_handler
     def parametrize_polygon(self, polygon,selection_polygon, offset_name="offsetx", origin=None):
-        """
-        Parametrizes a pieces of polygon based on another polygon
+        """Parametrize pieces of polygon based on another polygon.
 
         Parameters
         ----------
-        polygon: Polygon
-            Polygon to parametrize
-        selection_polygon: Polygon
-            polygon to use as filter
-        offset_name: str
-            name of the variable to create
-        origin: list
-            list of x and y origin. Default is [0,0].
-            It impacts in the vector computation and it is needed to determine expansion direction. In None,
-            it will be computed from the polygons center
+        polygon : Polygon
+            Polygon to parametrize.
+        selection_polygon : Polygon
+            Polygon to use as filter.
+        offset_name : str, optional
+            Name of the variable to create.  Defaults to ``"offsetx"``.
+        origin : list, optional
+            List of x and y origin. Default is ``[0, 0]``. It impacts the vector 
+            computation and is needed to determine expansion direction. If 
+            ``None``, it will be computed from the polygon's center.
 
         Returns
         -------
         bool
+            Returns ``True`` when successful.
         """
         def calc_slope(point, origin):
-            if point[0]-origin[0]!= 0:
-                slope = math.atan((point[1]-origin[1]) / (point[0]-origin[0]))
+            if point[0] - origin[0] != 0:
+                slope = math.atan((point[1] - origin[1]) / (point[0] - origin[0]))
                 xcoeff = math.sin(slope)
                 ycoeff = math.cos(slope)
 
@@ -230,21 +230,20 @@ class EdbLayout(object):
         poligon_data = polygon.GetPolygonData()
         bound_center = poligon_data.GetBoundingCircleCenter()
         bound_center2 = selection_polygon_data.GetBoundingCircleCenter()
-        center = [bound_center.X.ToDouble(),bound_center.Y.ToDouble() ]
-        center2 = [bound_center2.X.ToDouble(),bound_center2.Y.ToDouble() ]
-        x1,y1 = calc_slope(center2,center)
+        center = [bound_center.X.ToDouble(), bound_center.Y.ToDouble()]
+        center2 = [bound_center2.X.ToDouble(), bound_center2.Y.ToDouble()]
+        x1, y1 = calc_slope(center2, center)
         # bounding = self.get_polygon_bounding_box(polygon)
         # bounding2 =self.get_polygon_bounding_box(selection_polygon)
         # center = [(bounding[0] + bounding[2]) / 2, (bounding[1] + bounding[3]) / 2]
         # center2 = [(bounding2[0] + bounding2[2]) / 2, (bounding2[1] + bounding2[3]) / 2]
 
         if not origin:
-
-            origin = [center[0]+float(x1)*10000, center[1]+float(y1)*10000]
+            origin = [center[0] + float(x1)*10000, center[1] + float(y1)*10000]
 
         var_server = self.parent.active_cell.GetVariableServer()
-        var_server.AddVariable(offset_name,self.edb_value(0.0),True)
-        i=0
+        var_server.AddVariable(offset_name,self.edb_value(0.0), True)
+        i = 0
         continue_iterate = True
         prev_point = None
         while continue_iterate:
@@ -256,7 +255,7 @@ class EdbLayout(object):
                         xcoeff, ycoeff = calc_slope([point.X.ToDouble(), point.X.ToDouble()], origin)
 
                         new_points = self.edb.Geometry.PointData(
-                            self.edb.Utility.Value(point.X.ToString() +'{}*{}'.format(xcoeff, offset_name), var_server),
+                            self.edb.Utility.Value(point.X.ToString() + '{}*{}'.format(xcoeff, offset_name), var_server),
                             self.edb.Utility.Value(point.Y.ToString() + '{}*{}'.format(ycoeff, offset_name), var_server))
                         poligon_data.SetPoint(i, new_points)
                     prev_point = point
@@ -267,4 +266,3 @@ class EdbLayout(object):
                 continue_iterate = False
         polygon.SetPolygonData(poligon_data)
         return True
-
