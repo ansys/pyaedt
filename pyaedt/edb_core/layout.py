@@ -9,8 +9,8 @@ This class manages Edb Components and related methods
 import warnings
 from .general import *
 from ..generic.general_methods import get_filename_without_extension, generate_unique_name
-
-
+import math
+import itertools as IT
 try:
     import clr
     from System import Convert, String
@@ -98,7 +98,7 @@ class EdbLayout(object):
         objs = [el.GetLayoutObj() for el in layoutObjectInstances.Items if el.GetLayoutObj().GetType().Name == "Polygon"]
         return objs
 
-
+    @aedt_exception_handler
     def get_polygons_by_layer(self, layer_name, net_list=None):
         """
         return
@@ -116,6 +116,7 @@ class EdbLayout(object):
                     objinst.append(el)
         return objinst
 
+    @aedt_exception_handler
     def get_polygon_bounding_box(self, polygon):
         """Return the polygon bounding box
         
@@ -128,7 +129,7 @@ class EdbLayout(object):
 
         Returns
         -------
-        type
+        list
             bounding box [-x,-y,+x,+y]
 
         >>> poly = edb_core.core_primitives.get_polygons_by_layer("GND")
@@ -142,6 +143,7 @@ class EdbLayout(object):
             pass
         return bounding
 
+    @aedt_exception_handler
     def get_polygon_points(self, polygon):
         """Return Polygon Points list. for Arcs, 1 point will be returned
         
@@ -179,3 +181,91 @@ class EdbLayout(object):
             except:
                 continue_iterate = False
         return points
+
+    @aedt_exception_handler
+    def parametrize_polygon(self, polygon,selection_polygon, offset_name="offsetx", origin=None):
+        """
+        Parametrizes a pieces of polygon based on another polygon
+
+        Parameters
+        ----------
+        polygon: Polygon
+            Polygon to parametrize
+        selection_polygon: Polygon
+            polygon to use as filter
+        offset_name: str
+            name of the variable to create
+        origin: list
+            list of x and y origin. Default is [0,0].
+            It impacts in the vector computation and it is needed to determine expansion direction. In None,
+            it will be computed from the polygons center
+
+        Returns
+        -------
+        bool
+        """
+        def calc_slope(point, origin):
+            if point[0]-origin[0]!= 0:
+                slope = math.atan((point[1]-origin[1]) / (point[0]-origin[0]))
+                xcoeff = math.sin(slope)
+                ycoeff = math.cos(slope)
+
+            else:
+                if point[1] > 0:
+                    xcoeff = 0
+                    ycoeff = 1
+                else:
+                    xcoeff = 0
+                    ycoeff = -1
+            if ycoeff > 0:
+                ycoeff = "+" + str(ycoeff)
+            else:
+                ycoeff = str(ycoeff)
+            if xcoeff > 0:
+                xcoeff = "+" + str(xcoeff)
+            else:
+                xcoeff = str(xcoeff)
+            return xcoeff, ycoeff
+
+        selection_polygon_data = selection_polygon.GetPolygonData()
+        poligon_data = polygon.GetPolygonData()
+        bound_center = poligon_data.GetBoundingCircleCenter()
+        bound_center2 = selection_polygon_data.GetBoundingCircleCenter()
+        center = [bound_center.X.ToDouble(),bound_center.Y.ToDouble() ]
+        center2 = [bound_center2.X.ToDouble(),bound_center2.Y.ToDouble() ]
+        x1,y1 = calc_slope(center2,center)
+        # bounding = self.get_polygon_bounding_box(polygon)
+        # bounding2 =self.get_polygon_bounding_box(selection_polygon)
+        # center = [(bounding[0] + bounding[2]) / 2, (bounding[1] + bounding[3]) / 2]
+        # center2 = [(bounding2[0] + bounding2[2]) / 2, (bounding2[1] + bounding2[3]) / 2]
+
+        if not origin:
+
+            origin = [center[0]+float(x1)*10000, center[1]+float(y1)*10000]
+
+        var_server = self.parent.active_cell.GetVariableServer()
+        var_server.AddVariable(offset_name,self.edb_value(0.0),True)
+        i=0
+        continue_iterate = True
+        prev_point = None
+        while continue_iterate:
+            try:
+                point = poligon_data.GetPoint(i)
+                if prev_point != point:
+                    check_inside = selection_polygon_data.PointInPolygon(point)
+                    if check_inside:
+                        xcoeff, ycoeff = calc_slope([point.X.ToDouble(), point.X.ToDouble()], origin)
+
+                        new_points = self.edb.Geometry.PointData(
+                            self.edb.Utility.Value(point.X.ToString() +'{}*{}'.format(xcoeff, offset_name), var_server),
+                            self.edb.Utility.Value(point.Y.ToString() + '{}*{}'.format(ycoeff, offset_name), var_server))
+                        poligon_data.SetPoint(i, new_points)
+                    prev_point = point
+                    i += 1
+                else:
+                    continue_iterate = False
+            except:
+                continue_iterate = False
+        polygon.SetPolygonData(poligon_data)
+        return True
+

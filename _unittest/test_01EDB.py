@@ -254,7 +254,22 @@ class Test3DLayout:
         assert self.edbapp.save_edb_as(os.path.join(self.local_scratch.path, "Gelileo_new.aedb"))
         assert os.path.exists(os.path.join(self.local_scratch.path, "Gelileo_new.aedb", "edb.def"))
 
+    def test_parametrize_layout(self):
+        for el in self.edbapp.core_primitives.polygons:
+            if el.GetId() == 2647:
+                poly = el
+        for el in self.edbapp.core_primitives.polygons:
+            if el.GetId() == 2742:
+                selection_poly = el
+
+        assert self.edbapp.core_primitives.parametrize_polygon(poly, selection_poly)
+
     def test_create_cutout(self):
         output = os.path.join(self.local_scratch.path, "cutout.aedb")
         assert self.edbapp.create_cutout(["A0_N", "A0_P"],["GND","V3P3_S0"], output_aedb_path=output)
         assert os.path.exists(os.path.join(output, "edb.def"))
+
+
+
+
+

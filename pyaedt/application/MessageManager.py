@@ -23,17 +23,14 @@ Log the three types of messages
 import sys
 import logging
 import os
-from enum import Enum
 from ..generic.general_methods import aedt_exception_handler, generate_unique_name
 message_levels = {'Global': 0,
                   'Project': 1,
                   'Design': 2}
 
-class Msg(Enum):
-    INFO = 0
-    WARNING = 1
-    ERROR = 2
-    FATAL = 3
+class Msg():
+    (INFO, WARNING, ERROR, FATAL) = range(0, 4)
+
 
 class MessageList:
     """Data structure to collect and return message information from the AEDT Message Manager for a specified
