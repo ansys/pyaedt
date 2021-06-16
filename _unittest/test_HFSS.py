@@ -227,7 +227,6 @@ class TestHFSS:
         assert bound
         bound.props["Faces"].append(self.aedtapp.modeler.primitives["My_Box"].faces[1])
         assert bound.update_assignment()
-        assert bound.update()
 
 
     def test_18_create_sources_on_objects(self):
