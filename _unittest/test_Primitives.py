@@ -619,7 +619,7 @@ class TestPrimitives:
     def test_47_get_edges_on_bunding_box(self):
         self.aedtapp.close_project(name=self.aedtapp.project_name, saveproject=False)
         self.aedtapp.load_project(self.test_99_project)
-        self.prim._refresh_all_ids()
+        self.prim.refresh_all_ids()
         edges = self.prim.get_edges_on_bunding_box(['Port1', 'Port2'], return_colinear=True, tol=1e-6)
         assert edges == [5219, 5183]
         edges = self.prim.get_edges_on_bunding_box(['Port1', 'Port2'], return_colinear=False, tol=1e-6)

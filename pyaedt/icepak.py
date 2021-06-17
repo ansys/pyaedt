@@ -1130,7 +1130,7 @@ class Icepak(FieldAnalysisIcepak):
                     compInstancePar]
 
         self.modeler.oeditor.InsertNativeComponent(compData)
-        self.modeler.primitives._refresh_all_ids()
+        self.modeler.primitives.refresh_all_ids()
         self.materials._load_from_project()
         return True
 
@@ -1204,7 +1204,7 @@ class Icepak(FieldAnalysisIcepak):
         oEditor.Copy(["NAME:Selections", "Selections:=", groupName])
 
         self.modeler.oeditor.Paste()
-        self.modeler.primitives._refresh_all_ids()
+        self.modeler.primitives.refresh_all_ids()
         self.materials._load_from_project()
         return True
 

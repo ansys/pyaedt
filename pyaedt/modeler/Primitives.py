@@ -479,7 +479,7 @@ class Polyline(object):
         --------
 
         >>> primitives = self.aedtapp.modeler.primitives
-        >>> P1 = primitives.draw_polyline([[0, 1, 2], [0, 2, 3], [2, 1, 4]])
+        >>> P1 = primitives.create_polyline([[0, 1, 2], [0, 2, 3], [2, 1, 4]])
         >>> P2 = P1.clone()
 
         """
@@ -520,15 +520,15 @@ class Polyline(object):
         Examples
         ------
         Using floating-point values for the vertex positions
-        >>> P = primitives.draw_polyline([[0, 1, 2], [0, 2, 3], [2, 1, 4]])
+        >>> P = primitives.create_polyline([[0, 1, 2], [0, 2, 3], [2, 1, 4]])
         >>> P.remove_vertex([0, 1, 2])
 
         or using string expressions for the position:
-        >>> P = primitives.draw_polyline([[0, 1, 2], [0, 2, 3], [2, 1, 4]])
+        >>> P = primitives.create_polyline([[0, 1, 2], [0, 2, 3], [2, 1, 4]])
         >>> P.remove_vertex(["0mm", "1mm", "2mm"])
 
         and including an absolute tolerance when searching for the vertex to be removed:
-        >>> P = primitives.draw_polyline([[0, 1, 2], [0, 2, 3], [2, 1, 4]])
+        >>> P = primitives.create_polyline([[0, 1, 2], [0, 2, 3], [2, 1, 4]])
         >>> P.remove_vertex(["0mm", "1mm", "2mm"], abstol=1e-6)
 
         """
@@ -576,7 +576,7 @@ class Polyline(object):
 
         Examples
         ------
-        >>> P = primitives.draw_polyline([[0, 1, 2], [0, 2, 3], [2, 1, 4]])
+        >>> P = primitives.create_polyline([[0, 1, 2], [0, 2, 3], [2, 1, 4]])
         >>> P.remove_edges(edge_id=0)
 
         """
@@ -627,7 +627,7 @@ class Polyline(object):
 
         Examples
         --------
-        >>> P = primitives.draw_polyline([[0, 1, 2], [0, 2, 3], [2, 1, 4]])
+        >>> P = primitives.create_polyline([[0, 1, 2], [0, 2, 3], [2, 1, 4]])
         >>> P.set_crosssection_properties(type="Circle", width="1mm")
 
 
@@ -670,16 +670,7 @@ class Polyline(object):
         arg2.append(arg3)
         arg1.append(arg2)
         self._parent.oeditor.ChangeProperty(arg1)
-        objid = self._parent.get_obj_id(self.name)
-
-        # If a cross-section type is defined, specify a solid 3D object
-        if type:
-            if type == "Line":
-                self._parent.objects[objid].object_type = "Sheet"
-            else:
-                self._parent.objects[objid].is3d = True
-                self._parent.objects[objid].object_type = "Solid"
-
+        self._parent._update_object(self._o)
         return True
 
     @aedt_exception_handler
@@ -782,6 +773,26 @@ class Primitives(object):
         self.objects_names = defaultdict()
         self._currentId = 0
         self.refresh()
+
+    @property
+    def solids(self):
+        """List of all objects of type 'Solid'"""
+        return self._solids
+
+    @property
+    def sheets(self):
+        """List of all objects of type 'Sheet'"""
+        return self._sheets
+
+    @property
+    def lines(self):
+        """List of all objects of type 'Line'"""
+        return self._lines
+
+    @property
+    def object_names(self):
+        """List of all objects of type 'Line'"""
+        return self._all_object_names
 
     @aedt_exception_handler
     def __getitem__(self, partId):
@@ -904,36 +915,23 @@ class Primitives(object):
         return True
 
     @aedt_exception_handler
-    def _update_object(self, o, objtype="Solid"):
-        """
-
-        Parameters
-        ----------
-        o :
-
-        objtype :
-             (Default value = "Solid")
-
-        Returns
-        -------
-
-        """
-        o.object_type = objtype
-        if objtype != "Solid":
-            o.is3d = False
-
-        # Store the new id in the Object3d object
-        o._id = self.oeditor.GetObjectIDByName(o.name)
+    def _update_object(self, o, objtype=None):
 
         # Store the new object infos
-        self.objects[o._id] = o
-        self.objects_names[o.name] = o._id
+        self.objects[o.id] = o
+        self.objects_names[o.name] = o.id
+
+        # update the list of objects, sheets and lines from the modeler
+        self._refresh_object_types()
+
+        o.update_object_type()
+        o.update_properties()
 
         # Cleanup
         if 0 in self.objects:
             del self.objects[0]
 
-        return o._id
+        return o.id
 
     @aedt_exception_handler
     def _check_material(self, matname, defaultmatname):
@@ -1124,11 +1122,11 @@ class Primitives(object):
         return id
 
     @aedt_exception_handler
-    def draw_polyline(self, position_list, segment_type=None,
-                      cover_surface=False, close_surface=False, name=None,
-                      matname=None, xsection_type=None, xsection_orient=None,
-                      xsection_width=1, xsection_topwidth=1, xsection_height=1,
-                      xsection_num_seg=0, xsection_bend_type=None):
+    def create_polyline(self, position_list, segment_type=None,
+                        cover_surface=False, close_surface=False, name=None,
+                        matname=None, xsection_type=None, xsection_orient=None,
+                        xsection_width=1, xsection_topwidth=1, xsection_height=1,
+                        xsection_num_seg=0, xsection_bend_type=None):
         """Draw a Polyline Object in the 3D modeler
 
         Returns an object of type Polyline, allowing for manipulation of the Polyline.
@@ -1198,18 +1196,18 @@ class Primitives(object):
         ...                ["71mm", "71mm", "0mm"], ["0mm", "100mm", "0mm"]]
 
         Default behaviour - assume all points are to be connected by line segments - optionally specify the name
-        >>> P1 = primitives.draw_polyline(test_points, name="PL_line_segments")
+        >>> P1 = primitives.create_polyline(test_points, name="PL_line_segments")
 
         Specify that the first segment is a line and the last three points define a 3-point arc
-        >>> P2 = primitives.draw_polyline(test_points, segment_type=["Line", "Arc"], name="PL_line_plus_arc")
+        >>> P2 = primitives.create_polyline(test_points, segment_type=["Line", "Arc"], name="PL_line_plus_arc")
 
         Redraw the 3-point arc alone from the last three points and additionally specify 5 segments using PolylineSegment
-        >>> P3 = primitives.draw_polyline(test_points[1:],
+        >>> P3 = primitives.create_polyline(test_points[1:],
         ...                          segment_type=PolylineSegment(type="Arc", num_seg=7),
         ...                          name = "PL_segmented_arc")
 
         Specify that the four points form a spline - add a circular cross section of diameter 1mm
-        >>> P4 = primitives.draw_polyline(test_points, segment_type="Spline", name="PL_spline",
+        >>> P4 = primitives.create_polyline(test_points, segment_type="Spline", name="PL_spline",
         ...                          xsection_type="Circle", xsection_width="1mm")
 
         Now use the PolylineSegment object to specify more detail about the individual segments
@@ -1218,7 +1216,7 @@ class Primitives(object):
         >>> start_point = test_points[1]
         >>> center_point = test_points[0]
         >>> segment_def = PolylineSegment(type="AngularArc", arc_center=center_point, arc_angle="90deg", arc_plane="XY")
-        >>> primitives.draw_polyline(start_point, segment_type=segment_def, name="PL_center_point_arc")
+        >>> primitives.create_polyline(start_point, segment_type=segment_def, name="PL_center_point_arc")
 
         """
         new_polyline = Polyline(parent=self, position_list=position_list, segment_type=segment_type,
@@ -1493,133 +1491,101 @@ class Primitives(object):
 
     @aedt_exception_handler
     def refresh(self):
-        """Refresh all ids"""
-        self.refresh_all_ids_from_aedt_file()
+        self._refresh_all_ids_from_aedt_file()
+        #TODO: Why do we need this ?
         if not self.objects:
             self.refresh_all_ids()
 
     @aedt_exception_handler
-    def refresh_all_ids(self):
-        """Refresh all ids"""
-        n = 10
-        #self.objects = defaultdict(Object3d)
-        all_object_names = self.get_all_objects_names()
-        try:
-            obj = list(self.oeditor.GetObjectsInGroup("Solids"))
-        except:
-            obj = []
-        for el in obj:
-            if el not in all_object_names:
-                o = Object3d(self)
-                o.name = el
-                o.is3d = True
-                o.object_type = "Solid"
-                o_updated = self.update_object_properties(o)
-                self._update_object(o_updated)
-        try:
-            sheets = list(self.oeditor.GetObjectsInGroup("Sheets"))
-        except:
-            sheets = []
-        for el in sheets:
-            if el not in all_object_names:
-                o = Object3d(self)
-                o.name = el
-                o.is3d = False
-                o.object_type = "Sheet"
-                o_updated = self.update_object_properties(o)
-                self._update_object(o_updated, "Sheet")
+    def _refresh_object_types(self):
+        self._solids = list(self.oeditor.GetObjectsInGroup("Solids"))
+        self._sheets = list(self.oeditor.GetObjectsInGroup("Sheets"))
+        self._lines = list(self.oeditor.GetObjectsInGroup("Lines"))
+        self._all_object_names = self._solids + self._sheets + self._lines
 
-        try:
-            lines = list(self.oeditor.GetObjectsInGroup("Lines"))
-        except:
-            lines = []
-        for el in lines:
+    @aedt_exception_handler
+    def refresh_all_ids(self):
+
+        self._refresh_object_types()
+        all_object_names = self.get_all_objects_names()
+
+        for el in self._solids:
             if el not in all_object_names:
                 o = Object3d(self)
                 o.name = el
-                o.is3d = False
-                o.object_type = "Line"
-                o_updated = self.update_object_properties(o)
-                self._update_object(o_updated, "Line")
-        all_objs = obj+sheets+lines
+                self._update_object(o)
+
+        for el in self._sheets:
+            if el not in all_object_names:
+                o = Object3d(self)
+                o.name = el
+                self._update_object(o)
+
+        for el in self._lines:
+            if el not in all_object_names:
+                o = Object3d(self)
+                o.name = el
+                self._update_object(o)
+
         for el in all_object_names:
-            if el not in all_objs:
+            if el not in self._all_object_names:
                 self._delete_object_from_dict(el)
+
         return len(self.objects)
 
     @aedt_exception_handler
-    def refresh_all_ids_from_aedt_file(self):
-        """Refresh all ids from aedt_file properties. This method is much faster than the original refresh_all_ids method
-
-
-        :return: length of imported objects
-
-        Parameters
-        ----------
-
-        Returns
-        -------
-
-        """
+    def _refresh_all_ids_from_aedt_file(self):
         if not self._parent.design_properties or "ModelSetup" not in self._parent.design_properties:
             return 0
-        solids = list(self.oeditor.GetObjectsInGroup("Solids"))
-        sheets = list(self.oeditor.GetObjectsInGroup("Sheets"))
+
+        self._refresh_object_types()
+
         try:
             groups = self._parent.design_properties['ModelSetup']['GeometryCore']['GeometryOperations']['Groups'][
                 'Group']
-        except:
+        except KeyError:
             groups = []
         if type(groups) is not list:
             groups = [groups]
         try:
             self._parent.design_properties['ModelSetup']['GeometryCore']['GeometryOperations']['ToplevelParts'][
                 'GeometryPart']
-        except:
+        except KeyError:
             return 0
         for el in self._parent.design_properties['ModelSetup']['GeometryCore']['GeometryOperations']['ToplevelParts']['GeometryPart']:
-            try:
-                attribs = el['Attributes']
-                o = Object3d(self)
-                try:
-                    objID = el['Operations']['Operation']['ID']
-                except:
-                    objID = el['Operations']['Operation'][0]['ParentPartID']
-                o.name = attribs['Name']
-                if o.name in solids:
-                    o.is3d = True
-                    o.object_type = "Solid"
-                elif o.name in sheets:
-                    o.is3d = False
-                    o.object_type = "Sheet"
-                else:
-                    o.is3d = False
-                    o.object_type = "Line"
-                o.solve_inside = attribs['SolveInside']
-                o.material_name = attribs['MaterialValue'][1:-1]
-                o.part_coordinate_system = attribs['PartCoordinateSystem']
-                if "NonModel" in attribs['Flags']:
-                    o.model = False
-                else:
-                    o.model = True
-                if "Wireframe" in attribs['Flags']:
-                    o.wireframe = True
-                else:
-                    o.wireframe = False
-                groupname = ""
-                for group in groups:
-                    if attribs['GroupId'] == group['GroupID']:
-                        groupname = group['Attributes']['Name']
 
-                o._m_groupName = groupname
-                o.color = attribs['Color']
-                o.m_surfacematerial = attribs['SurfaceMaterialValue']
-                self.objects[objID] = o
-                self.objects_names[o.name] = objID
-            except:
-                pass
+            attribs = el['Attributes']
+            o = Object3d(self, name=attribs['Name'])
+
+            o.update_object_type()
+
+            o.solve_inside = attribs['SolveInside']
+            o.material_name = attribs['MaterialValue'][1:-1]
+            o.part_coordinate_system = attribs['PartCoordinateSystem']
+            if "NonModel" in attribs['Flags']:
+                o.model = False
+            else:
+                o.model = True
+            if "Wireframe" in attribs['Flags']:
+                o.wireframe = True
+            else:
+                o.wireframe = False
+            groupname = ""
+            for group in groups:
+                if attribs['GroupId'] == group['GroupID']:
+                    groupname = group['Attributes']['Name']
+
+            o._m_groupName = groupname
+            o.color = attribs['Color']
+            o.m_surfacematerial = attribs['SurfaceMaterialValue']
+
+            # Store the new object infos
+            self.objects[o.id] = o
+            self.objects_names[o.name] = o.id
+
         return len(self.objects)
 
+    #TODO Deprecate this to Object3D
     @aedt_exception_handler
     def update_object_properties(self, o):
         """
@@ -1674,9 +1640,9 @@ class Primitives(object):
                 r = (color >> 16) & 255
                 g = (color >> 8) & 255
                 b = color & 255
-                o.color = "(" + str(r) + " " + str(g) + " " + str(b) + ")"
+                o.color = (r, g, b)
             else:
-                o.color = "(0 195 255)"
+                o.color = (0, 195, 255)
         if 'Surface Material' in all_prop:
             o.m_surfacematerial = retry_ntimes(n, self.oeditor.GetPropertyValue,
                                                "Geometry3DAttributeTab", name, 'Surface Material')
@@ -1710,11 +1676,11 @@ class Primitives(object):
         if get_lines and get_sheets and get_solids:
             return [i for i in list(self.objects_names.keys())]
 
-        for el in self.objects:
-            if (self.objects[el].object_type == "Solid" and get_solids) or (
-                    self.objects[el].object_type == "Sheet" and get_sheets) or (
-                    self.objects[el].object_type == "Line" and get_lines):
-                obj_names.append(self.objects[el].name)
+        for id, el in self.objects.items():
+            if (el.object_type == "Solid" and get_solids) \
+                    or (el.object_type == "Sheet" and get_sheets) \
+                    or (el.object_type == "Line" and get_lines):
+                obj_names.append(el.name)
         return obj_names
 
     @aedt_exception_handler
@@ -1905,7 +1871,7 @@ class Primitives(object):
 
         """
         o = self.objects[partId]
-        o.set_color(r, g, b)
+        o.color = (r, g, b)
 
     @aedt_exception_handler
     def set_wireframe(self, partId, fWire):
@@ -1942,22 +1908,6 @@ class Primitives(object):
         """
         o = self.objects[partId]
         o.m_refId = refId
-
-    # @aedt_exception_handler
-    # def get_objname_from_id(self, partId):
-    #     """
-    #
-    #     :param partId: Object ID
-    #     :return: Object name
-    #     """
-    #
-    #     if type(partId) is str:
-    #         if not self.objects:
-    #             self.refresh()
-    #         for el in self.objects:
-    #             if self.objects[el].name == partId:
-    #                 partId = el
-    #     return partId
 
     @aedt_exception_handler
     def find_closest_edges(self, start_obj, end_obj, port_direction=0):
@@ -2355,13 +2305,10 @@ class Primitives(object):
 
         Returns
         -------
-        type
+        list
             An array as list of float [x, y, z] containing planar face center position
 
         """
-        if not self.objects:
-            self.refresh_all_ids()
-
         try:
             c = self.oeditor.GetFaceCenter(face_id)
         except:
@@ -2675,10 +2622,10 @@ class Primitives(object):
         """
 
         objList = []
-        objListSheets = list(self.oeditor.GetObjectsInGroup("Sheets"))
+        objListSheets = self.sheets
         if len(objListSheets) > 0:
             objList.extend(objListSheets)
-        objListSolids = list(self.oeditor.GetObjectsInGroup("Solids"))
+        objListSolids = self.solids
         if len(objListSolids) > 0:
             objList.extend(objListSolids)
         for obj in objList:
@@ -2704,10 +2651,10 @@ class Primitives(object):
 
         if self.oeditor is not None:
             objList = []
-            objListSheets = list(self.oeditor.GetObjectsInGroup("Sheets"))
+            objListSheets = self.sheets
             if len(objListSheets) > 0:
                 objList.extend(objListSheets)
-            objListSolids = list(self.oeditor.GetObjectsInGroup("Solids"))
+            objListSolids = self.solids
             if len(objListSolids) > 0:
                 objList.extend(objListSolids)
             for obj in objList:
@@ -2975,7 +2922,7 @@ class Primitives(object):
 
         # find the bodies to exclude
         port_sheet_midpoint = self.get_face_center(face_id)
-        point = self._modeler.Position(*port_sheet_midpoint)
+        point = self._modeler.Position(port_sheet_midpoint)
         list_of_bodies = self.get_bodynames_from_position(point)
 
         # select all edges

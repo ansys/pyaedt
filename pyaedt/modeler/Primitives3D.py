@@ -693,7 +693,7 @@ class Primitives3D(Primitives, object):
 
         if self.oeditor is not None:
             o.name = self.oeditor.Insert3DComponent(vArg1)
-            self._refresh_all_ids()
+            self.refresh_all_ids()
         return id
 
     @aedt_exception_handler
