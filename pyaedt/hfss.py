@@ -66,13 +66,14 @@ class Hfss(FieldAnalysis3D, object):
                 Name of the setup to use as the nominal. The default is ``None``. If ``None``, the active setup 
                 is used or nothing is used.
             specified_version : str, optional
-                Version to use. The default is ``None``. If ``None``, the active setup is used or the latest installed is used.
+                Version of AEDT to use. The default is ``None``. If ``None``, the active setup is used or the latest installed version is used.
             NG : bool, optional
-                The default is ``False``.   
+                Whether to launch AEDT in the non-graphical mode. The default is ``False``, which launches AEDT in the graphical mode.   
             AlwaysNew : bool, optional
+                Whether to launch an instance of AEDT in a new thread, even if another instance of the ``specified_version`` is active on the machine.
                 The default is ``True``.
             release_on_exit : bool, optional
-                The default is ``True``.
+                Whether to release AEDT on exit. The default is ``True``.
               
 
             Returns
