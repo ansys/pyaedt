@@ -181,19 +181,24 @@ class TestHFSS:
         pe = self.aedtapp.create_perfecth_from_objects("p1","p2",self.aedtapp.AxisDir.ZPos,)
         ph = self.aedtapp.create_perfecte_from_objects("p1","p2",self.aedtapp.AxisDir.ZNeg)
         assert pe.name in self.aedtapp.modeler.get_boundaries_name()
+        assert pe.update()
         assert ph.name in self.aedtapp.modeler.get_boundaries_name()
+        assert ph.update()
 
     def test_13_create_impedance_on_objects(self):
         box1 = self.aedtapp.modeler.primitives.create_box([0,0,0], [10,10,5], "imp1", "Copper")
         box2 = self.aedtapp.modeler.primitives.create_box([0, 0, 10], [10, 10, 5], "imp2", "copper")
         imp = self.aedtapp.create_impedance_between_objects("imp1", "imp2", self.aedtapp.AxisDir.XPos, "TL2", 50, 25)
         assert imp.name in self.aedtapp.modeler.get_boundaries_name()
+        assert imp.update()
+
 
     def test_14_create_lumpedrlc_on_objects(self):
         box1 = self.aedtapp.modeler.primitives.create_box([0,0,0], [10,10,5], "rlc1", "Copper")
         box2 = self.aedtapp.modeler.primitives.create_box([0, 0, 10], [10, 10, 5], "rlc2", "copper")
         imp = self.aedtapp.create_lumped_rlc_between_objects("rlc1","rlc2",self.aedtapp.AxisDir.XPos,Rvalue=50,Lvalue=1e-9)
         assert imp.name in self.aedtapp.modeler.get_boundaries_name()
+        assert imp.update()
 
     def test_15_create_perfects_on_sheets(self):
         rect = self.aedtapp.modeler.primitives.create_rectangle(self.aedtapp.CoordinateSystemPlane.XYPlane, [0, 0, 0],
@@ -208,6 +213,7 @@ class TestHFSS:
                                                                 [10, 2], "ImpBound", "Copper")
         imp = self.aedtapp.assign_impedance_to_sheet("imp1", "TL2", 50, 25)
         assert imp.name in self.aedtapp.modeler.get_boundaries_name()
+        assert imp.update()
 
     def test_17_create_lumpedrlc_on_sheets(self):
         rect = self.aedtapp.modeler.primitives.create_rectangle(self.aedtapp.CoordinateSystemPlane.XYPlane, [0, 0, 0],
@@ -215,12 +221,12 @@ class TestHFSS:
         imp = self.aedtapp.assign_lumped_rlc_to_sheet("rlcBound", self.aedtapp.AxisDir.XPos,Rvalue=50,Lvalue=1e-9)
         names = self.aedtapp.modeler.get_boundaries_name()
         assert imp.name in self.aedtapp.modeler.get_boundaries_name()
+
+    def test_17B_update_assignment(self):
         bound = self.aedtapp.assign_perfecth_to_sheets(self.aedtapp.modeler.primitives["My_Box"].faces[0].id)
         assert bound
         bound.props["Faces"].append(self.aedtapp.modeler.primitives["My_Box"].faces[1])
-        bound.update_assignment()
-        bound.props["Faces"] = "rlcBound"
-        bound.update_assignment()
+        assert bound.update_assignment()
 
 
     def test_18_create_sources_on_objects(self):
@@ -230,6 +236,7 @@ class TestHFSS:
         assert port in self.aedtapp.modeler.get_excitations_name()
         port = self.aedtapp.create_current_source_from_objects("BoxVolt1", "BoxVolt2", self.aedtapp.AxisDir.XPos, "Curr1")
         assert port in self.aedtapp.modeler.get_excitations_name()
+
 
     def test_19_create_lumped_on_sheet(self):
         rect = self.aedtapp.modeler.primitives.create_rectangle(self.aedtapp.CoordinateSystemPlane.XYPlane, [0, 0, 0],
@@ -264,7 +271,7 @@ class TestHFSS:
         assert mesh.update()
 
     def test_24_create_curvilinear(self):
-        mesh = self.aedtapp.mesh.appy_curvilinear_elements(["BoxCircuit2"])
+        mesh = self.aedtapp.mesh.assign_curvilinear_elements(["BoxCircuit2"])
         assert mesh
         mesh.props["Apply"] = False
         assert mesh.update()
@@ -317,3 +324,33 @@ class TestHFSS:
         gnd = self.aedtapp.modeler.primitives.create_box([0,5,-2.2],[20,100,0.2],name="GND1", matname="FR4_epoxy")
         port = self.aedtapp.create_wave_port_microstrip_between_objects("GND1", "MS1",   portname="MS1", axisdir=1)
         assert port.name == "MS1"
+        assert port.update()
+
+    def test_32_get_property_value(self):
+        assert self.aedtapp.get_property_value("BoundarySetup:Coating_inner", "Inf Ground Plane", "Boundary") == "false"
+        assert self.aedtapp.get_property_value("AnalysisSetup:MySetup", "Solution Freq", "Setup") == "1GHz"
+
+    def test_33_copy_solid_bodies(self):
+        project_name = "HfssCopiedProject"
+        design_name = "HfssCopiedBodies"
+        new_design = Hfss(projectname=project_name, designname=design_name)
+        assert new_design.copy_solid_bodies_from(self.aedtapp)
+        assert len(new_design.modeler.solid_bodies) == 41
+        new_design.delete_design(design_name)
+
+    def test_34_object_material_properties(self):
+        props = self.aedtapp.get_object_material_properties("MS1", "conductivity")
+        assert props
+
+    def test_35_set_export_touchstone(self):
+        assert self.aedtapp.set_export_touchstone(True)
+        assert self.aedtapp.set_export_touchstone(False)
+
+    def test_36_assign_radiation_to_objects(self):
+        self.aedtapp.modeler.primitives.create_box([-100,-100,-100],[200,200,200],name="Rad_box")
+        assert self.aedtapp.assign_radiation_boundary_to_objects("Rad_box")
+
+    def test_37_assign_radiation_to_objects(self):
+        self.aedtapp.modeler.primitives.create_box([-100, -100, -100], [200, 200, 200], name="Rad_box2")
+        ids = [i.id for i in self.aedtapp.modeler.primitives["Rad_box2"].faces]
+        assert self.aedtapp.assign_radiation_boundary_to_faces(ids)

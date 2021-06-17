@@ -519,54 +519,6 @@ class Primitives3D(Primitives, object):
         return id
 
     @aedt_exception_handler
-    def create_udp(self, udp_dll_name, udp_parameters_list, upd_library='syslib', name=None, udptye="Solid"):
-        """Create User Defined Primitive
-
-        Parameters
-        ----------
-        udp_dll_name :
-            dll name
-        udp_parameters_list :
-            udp pairs object
-        upd_library :
-            udp library (Default value = 'syslib')
-        name :
-            component name (Default value = None)
-        udptye :
-            udpy type (Default value = "Solid")
-
-        Returns
-        -------
-        type
-            object ID
-
-        """
-        id = self._new_id()
-
-        o = self.objects[id]
-        if ".dll" not in udp_dll_name:
-            vArg1 = ["NAME:UserDefinedPrimitiveParameters", "DllName:=", udp_dll_name + ".dll", "Library:=", upd_library]
-        else:
-            vArg1 = ["NAME:UserDefinedPrimitiveParameters", "DllName:=", udp_dll_name, "Library:=", upd_library]
-
-        vArgParamVector = ["NAME:ParamVector"]
-
-        for pair in udp_parameters_list:
-            if type(pair) is list:
-                vArgParamVector.append(["NAME:Pair", "Name:=", pair[0], "Value:=", pair[1]])
-
-            else:
-                vArgParamVector.append(["NAME:Pair", "Name:=", pair.Name, "Value:=", pair.Value])
-
-        vArg1.append(vArgParamVector)
-        namergs = name.replace(".dll", "").split("/")
-        o.name = name
-        vArg2 = o.export_attributes(namergs[-1])
-        self.oeditor.CreateUserDefinedPart(vArg1, vArg2)
-        id = self._update_object(o, udptye)
-        return id
-
-    @aedt_exception_handler
     def create_udm(self, udmfullname, udm_params_list, udm_library='syslib'):
         """Create User Defined Model
 

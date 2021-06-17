@@ -1,19 +1,7 @@
 #!/ekm/software/anaconda3/bin/python
-############################################################################
-##                                                                        ##
-## Copyright (c) 2019 by ANSYS Inc. All rights reserved.                  ##
-##                                                                        ##
-## This source file may be used and distributed without restriction       ##
-## provided that this copyright statement is not removed from the file    ##
-## and that any derivative work contains this copyright notice.           ##
-##                                                                        ##
-## Warranty                                                               ##
-## ANSYS Inc. makes no warranty of any kind with regard to the use of     ##
-## this Software, either expressed or implied, including, but not limited ##
-## to the fitness for a particular purpose.                               ##
-##                                                                        ##
-## #########################################################################
+
 import os
+import pytest
 # Setup paths for module imports
 from .conftest import local_path, scratch_path
 
@@ -93,5 +81,8 @@ class TestMaxwell2D:
         mysetup.props["SaveFields"] = True
         assert mysetup.update()
 
-
-
+    @pytest.mark.parametrize("material", ["ceramic_material", # material not in library
+                                          "steel_stainless"])  # material already in library
+    def test_07_assign_material(self, material):
+        self.aedtapp.assignmaterial(["Rectangle1"], material)
+        assert self.aedtapp.modeler.primitives["Rectangle1"].material_name == material

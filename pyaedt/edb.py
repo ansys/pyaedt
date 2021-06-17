@@ -499,316 +499,87 @@ class Edb(object):
         else:
             return False
 
-
-
-    # def get_padstack_data_parameters(self, PadStackDef):
-    #     """
-    #     Get all Padstak data parameters.
-    #
-    #
-    #     :param PadStackDef:  Padstack Definition object
-    #     :return: dictionary of parameters
-    #     """
-    #     Antipad = self.edb_core.Definition.PadType.AntiPad
-    #     Pad = self.edb_core.Definition.PadType.RegularPad
-    #     GeometryType = self.edb_core.Definition.PadGeometryType.Rectangle
-    #     PadStackDefName = PadStackDef.GetName()
-    #     PadStackDefData = PadStackDef.GetData()
-    #     LayerNames = PadStackDefData.GetLayerNames()
-    #     padstack_pars={}
-    #     for Layer in LayerNames:
-    #         if _ironpython:
-    #             LayPad = PadStackDefData.GetPadParametersValue(Layer, Pad)
-    #         else:
-    #             value0 = self.edb_value("0.0um")
-    #             xOffset = Double(0.0)
-    #             yOffset = Double(0.0)
-    #             rotation = Double(0.0)
-    #             padparam_array = Array[Double]([])
-    #             PadStackDefData.GetPadParameters(11, Pad, GeometryType, padparam_array, xOffset,
-    #                                                            yOffset, rotation)
-    #
-    #         if LayPad[0]:
-    #             PadDiameter = LayPad[2][0]
-    #
-    #         LayAntipad = PadStackDefData.GetPadParametersValue(Layer, Antipad)
-    #         if LayAntipad[0]:
-    #             AntiPadDiameter = LayAntipad[2][0]
-    #
-    #         padstack_pars[PadStackDefName] ={"Layer": Layer, "PadDiameter": PadDiameter, "AntiPadDiameter": AntiPadDiameter}
-    #     return padstack_pars
-
-
-    @aedt_exception_handler
-    def get_rlc_from_signal_nets(self, CmpDict=None):
-        """Get RLC from signal Nets.
+    def create_cutout(self, signal_list, reference_list=["GND"], extent_type="Conforming", expansion_size=0.002,
+                      use_round_corner=False, output_aedb_path=None, replace_design_with_cutout=True):
+        """
+        Create a new Cutout and Save it to a new aedb file.
 
         Parameters
         ----------
-        CmpDict :
-            Dictionary of components. The default value is ``None``.
-
-        Returns
-        -------
-        type
-            List of components that belong to signal Nets.
-
-        """
-        # CmpInf = self.GetCmpInf(layout)
-        RlcFromSignalNets = {}
-        for cmp in CmpDict.keys():
-            if CmpDict[cmp]['PartType'] in ['Capacitor', 'Resistor', 'Inductor']:
-                if not self.is_power_gound_net(CmpDict[cmp]['Nets']):
-                    CmpNets = CmpDict[cmp]['Nets']
-                    RlcFromSignalNets[cmp] = CmpNets
-        return RlcFromSignalNets
-
-    @aedt_exception_handler
-    def is_power_gound_net(self, NetNameList):
-        """Return ``True`` if one of the nets in the list is power or ground.
-
-        Parameters
-        ----------
-        NetNameList :
-            List of net names.
-
-        Returns
-        -------
-        type
-            ``True`` if one of the net names is ``power`` or ``ground``.
-
-        """
-        for nn in range(len(NetNameList)):
-            net = self.edb.Cell.Net.FindByName(self.active_layout, NetNameList[nn])
-            if net.IsPowerGround():
-                return True
-        return False
-
-    @aedt_exception_handler
-    def get_rl_from_nets(self, CmpDict):
-        """Return an array of components with RL based on a component dictionary.
-
-        Parameters
-        ----------
-        CmpDict :
-            Input component dictionary
-
-        Returns
-        -------
-        type
-            Componenet nets for the component dictionary.
-
-        """
-        RlFromNets = {}
-        for cmp in CmpDict.keys():
-            if CmpDict[cmp]['PartType'] in ['Resistor', 'Inductor']:
-                CmpNets = CmpDict[cmp]['Nets']
-                RlFromNets[cmp] = CmpNets
-        return RlFromNets
-
-    @aedt_exception_handler
-    def get_rl_for_DC_path(self, CmpDict, ResMaxValue=10):
-        """Return the Rl DC path of a specific dictionary list.
-
-        Parameters
-        ----------
-        CmpDict :
-            Dictionary of components.
-        ResMaxValue :
-            Maximum value of resistance to consider in the DC path. The default value is ``10``.
-
-        Returns
-        -------
-        type
-            Dictionary of components with nets.
-
-        """
-        RlDCPath = {}
-        for cmp in CmpDict.keys():
-            if CmpDict[cmp]['PartType'] in ['Resistor', 'Inductor']:
-                CmpNets = CmpDict[cmp]['Nets']
-                if CmpDict[cmp]['ResValue']:
-                    if len(CmpNets) == 2:
-                        if not 'gnd' in [net.lower() for net in CmpNets]:
-                            if CmpDict[cmp]['ResValue'] < ResMaxValue:
-                                RlDCPath[cmp] = CmpNets
-                    elif len(CmpNets) > 2:
-                        NetList = list(set([net.lower() for net in CmpNets]))
-                        if (len(NetList) == 2) and not ('gnd' in NetList) and (CmpDict[cmp]['ResValue'] < ResMaxValue):
-                            RlDCPath[cmp] = CmpNets
-                        elif (len(NetList) > 2) and (CmpDict[cmp]['ResValue'] < ResMaxValue):
-                            RlDCPath[cmp] = CmpNets
-                        else:
-                            pass
-                else:
-                    pass
-        return RlDCPath
-
-
-
-
-
-    @aedt_exception_handler
-    def create_multipin_rlc(self, componentType, baseComponent, positiveNetName, negativeNetName, value=None, s2pPath=None):
-        """
-
-        Parameters
-        ----------
-        componentType :
-            
-        baseComponent :
-            
-        positiveNetName :
-            
-        negativeNetName :
-            
-        value :
-             The default is ``None``.
-        s2pPath :
-             The default is ``None``.
+        signal_list: list
+            list of signal strings
+        reference_list: list
+            list of reference lists to be added. Default ["GND"]
+        extent_type: str
+            type of extension: "Conforming" or "Bounding"
+        expansion_size: float
+            expansion size ratio in meter. Default 2mm
+        use_round_corner: bool
+        output_aedb_path: str, optional
+            the full path to new aedb file
+        replace_design_with_cutout
 
         Returns
         -------
 
         """
-        returnOnError = None
+        _signal_nets = []
+        # validate nets in layout
+        for _sig in signal_list:
+            _netobj = self.edb.Cell.Net.FindByName(self.active_layout, _sig)
+            _signal_nets.append(_netobj)
 
-        baseComponentName = baseComponent.GetName()
-        layout = baseComponent.GetLayout()
+        _ref_nets = []
+        # validate references in layout
+        for _ref in reference_list:
+            _netobj = self.edb.Cell.Net.FindByName(self.active_layout, _ref)
+            _ref_nets.append(_netobj)
 
-        positivePins, negativePins, componentTransform = self.dissolve_component(baseComponent, positiveNetName, negativeNetName)
-        if positivePins is None or negativePins is None:
-            self._messenger.add_error_message('Component {} - failed to dissolve'.format(baseComponentName))
-            return returnOnError
 
-        twoPinComponent, extraPinsComponent = self.create_divided_componenets(positivePins, negativePins, componentTransform, baseComponentName, layout)
-        if twoPinComponent is None or twoPinComponent.IsNull() or \
-            extraPinsComponent is None or extraPinsComponent.IsNull():
-            self._messenger.add_error_message('Component {} - failed to create divided component'.format(baseComponentName))
-            return returnOnError
+        from .edb_core.general import convert_py_list_to_net_list
+        _netsClip = [self.edb.Cell.Net.FindByName(self.active_layout, reference_list[i]) for i, p in
+                     enumerate(reference_list)]
+        _netsClip = convert_py_list_to_net_list(_netsClip)
+        net_signals= convert_py_list_to_net_list(_signal_nets)
+        if extent_type == "Conforming":
+            _poly = self.active_layout.GetExpandedExtentFromNets(net_signals,
+                                                           self.edb.Geometry.ExtentType.Conforming,
+                                                           expansion_size,
+                                                           False,
+                                                           use_round_corner,
+                                                           1)
+        else:
+            _poly = self.active_layout.GetExpandedExtentFromNets(net_signals,
+                                                           self.edb.Geometry.ExtentType.BoundingBox,
+                                                           expansion_size,
+                                                           False,
+                                                           use_round_corner,
+                                                           1)
 
-        positiveGroupName = '{}_positive_group'.format(baseComponentName)
-        positiveGroup = self.create_pingroup_from_pins(positivePins, positiveGroupName, layout)
-        if positiveGroup is None or positiveGroup.IsNull():
-            self._messenger.add_error_message('Component {} - failed to create positive pin group'.format(baseComponentName))
-            return returnOnError
+        _cutout = self.active_cell.CutOut(net_signals, _netsClip, _poly)  # Create new cutout cell/design
 
-        negativeGroupName = '{}_negative_group'.format(baseComponentName)
-        negativeGroup = self.create_pingroup_from_pins(negativePins, negativeGroupName, layout)
-        if negativeGroup is None or negativeGroup.IsNull():
-            self._messenger.add_error_message('Component {} - failed to create negative pin group'.format(baseComponentName))
-            return returnOnError
+        for _setup in self.active_cell.SimulationSetups:  # The analysis setup(s) do not come over with the clipped design copy, so add the analysis setup(s) from the original here
+            _setup_name = _setup.GetName()  # Empty string '' if coming from setup copy and don't set explicitly.
+            if "GetSimSetupInfo" in dir(_setup):
+                _hfssSimSetupInfo = _setup.GetSimSetupInfo()  # setup is an Ansys.Ansoft.Edb.Utility.HFSSSimulationSetup object
+                _hfssSimSetupInfo.Name = 'HFSS Setup 1'  # Set name of analysis setup
+                _setup.SetSimSetupInfo(_hfssSimSetupInfo)  # Write the simulation setup info into the cell/design setup
+                _cutout.AddSimulationSetup(_setup)  # Add simulation setup to the cutout design
 
-        if not self.create_model_on_component(componentType, twoPinComponent, value, s2pPath, negativeNetName):
-            self._messenger.add_error_message('Component {} - failed to create model on component'.format(baseComponentName))
-            return returnOnError
+        _dbCells = [_cutout]
+        if replace_design_with_cutout == True:
+            self.active_cell.Delete()
+        else:
+            _dbCells.append(self.active_cell)
 
-        return twoPinComponent
-
-    @aedt_exception_handler
-    def dissolve_component(self, component, positiveNetName, negativeNetName):
-        """
-
-        Parameters
-        ----------
-        component :
-            
-        positiveNetName :
-            
-        negativeNetName :
-            
-
-        Returns
-        -------
-
-        """
-        returnOnError = (None, None)
-
-        positivePins = self.get_pin_from_component(component, positiveNetName)
-        if positivePins is None:
-            self._messenger.add_error_message('Failed to get positive pins when dissolving component.')
-            return returnOnError
-        if len(positivePins) < 1:
-            self._messenger.add_error_message('No positive pins in net {} on component {}'.format(positiveNetName, component.GetName()))
-            return returnOnError
-
-        negativePins = self.get_pin_from_component(component, negativeNetName)
-        if negativePins is None:
-            self._messenger.add_error_message('Failed to get negative pins when dissolving component.')
-            return returnOnError
-        if len(negativePins) < 1:
-            self._messenger.add_error_message('No negative pins are present in net {} on component {}'.format(negativeNetName, component.GetName()))
-            return returnOnError
-
-        for pin in positivePins + negativePins:
-            if not component.RemoveMember(pin):
-                self._messenger.add_error_message('Failed to remove pin {} from component {}'.format(pin.GetName(), component.GetName()))
-
-        componentTransform = component.GetTransform()
-        component.Delete()
-
-        return positivePins, negativePins, componentTransform
-
-    @aedt_exception_handler
-    def create_divided_componenets(self, positivePins, negativePins, componentTransform, baseComponentName, layout):
-        """
-
-        Parameters
-        ----------
-        positivePins :
-            
-        negativePins :
-            
-        componentTransform :
-            
-        baseComponentName :
-            
-        layout :
-            
-
-        Returns
-        -------
-
-        """
-        returnOnError = (None, None)
-
-        if positivePins is None or len(positivePins) < 1:
-            self._messenger.add_error_message('No positive pins supplied for component')
-            return returnOnError
-
-        if negativePins is None or len(negativePins) < 1:
-            self._messenger.add_error_message('No negative pins supplied for component')
-            return returnOnError
-
-        if len(positivePins) < 2 and len(negativePins) < 2:
-            self._messenger.add_error_message('Less than two pins in both positive and negative pin lists')
-            return returnOnError
-
-        if any(map(lambda p: not p.GetComponent().IsNull(), positivePins)):
-            self._messenger.add_error_message('At least one positive pin already belongs to a component')
-            return returnOnError
-
-        if any(map(lambda p: not p.GetComponent().IsNull(), negativePins)):
-            self._messenger.add_error_message('At least one negative pin already belongs to a component')
-            return returnOnError
-
-        twoPinPositivePin = positivePins[0]
-        twoPinNegativePin = negativePins[0]
-
-        extraPinsPositivePins = positivePins[1:]
-        extraPinsNegativePins = negativePins[1:]
-
-        twoPinComponentName = '{}_two_pin'.format(baseComponentName)
-        twoPinComponent = self.create_component_from_pins([twoPinPositivePin, twoPinNegativePin], componentTransform, twoPinComponentName, layout)
-        if twoPinComponent is None or twoPinComponent.IsNull():
-            self._messenger.add_error_message('Failed to create two pin component of divided pair')
-            return returnOnError
-
-        extraPinsComponentName = '{}_extra_pins'.format(baseComponentName)
-        extraPinsComponent = self.create_component_from_pins(extraPinsPositivePins + extraPinsNegativePins, componentTransform, extraPinsComponentName, layout)
-        if extraPinsComponent is None or extraPinsComponent.IsNull():
-            self._messenger.add_error_message('Failed to create extra pins component of divided pair')
-            return returnOnError
-
-        return twoPinComponent, extraPinsComponent
+        if output_aedb_path:
+            db2 = self.edb.Database.Create(
+                output_aedb_path)  # Function input is the name of a .aedb folder inside which the edb.def will be created. Ex: 'D:/backedup/EDB/TEST PROJECTS/CUTOUT/N1.aedb'
+            _dbCells = convert_py_list_to_net_list(_dbCells)
+            db2.CopyCells(_dbCells)  # Copies cutout cell/design to db2 project
+            _success = db2.Save()
+            self._db = db2
+            self.edbpath = output_aedb_path
+            self._active_cell = _cutout
+        return True
 

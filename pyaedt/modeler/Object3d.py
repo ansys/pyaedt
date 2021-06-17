@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 """
 3D Object Property Manager
 -------------------------------
@@ -83,8 +84,9 @@ def _dim_arg(value, units):
     try:
         val = float(value)
         return str(val) + units
-    except ValueError:
+    except:
         return value
+
 
 
 class VertexPrimitive(object):
@@ -1294,6 +1296,7 @@ class CircuitComponent(object):
         self.usesymbolcolor = True
         self.units = "mm"
         self.tabname = tabname
+        self.InstanceName = None
 
     @aedt_exception_handler
     def set_location(self, x_location=None, y_location=None):

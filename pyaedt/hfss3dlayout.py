@@ -503,7 +503,7 @@ class Hfss3dLayout(FieldAnalysis3DLayout, object):
         return True
 
     @aedt_exception_handler
-    def set_export_touchstone(self, activate):
+    def set_export_touchstone(self, activate, export_dir=""):
         """Set automatic export of the Touchstone file after the simulation is ``True``.
 
         Parameters
@@ -520,16 +520,16 @@ class Hfss3dLayout(FieldAnalysis3DLayout, object):
 
         settings = []
         if activate:
-            settings.append("NAME:Design Settings Data")
-            settings.append("Export After Simulation:=")
+            settings.append("NAME:options")
+            settings.append("ExportAfterSolve:=")
             settings.append(True)
-            settings.append("Export Dir:=")
-            settings.append("")
+            settings.append("ExportDir:=")
+            settings.append(export_dir)
         elif not activate:
-            settings.append("NAME:Design Settings Data")
-            settings.append("Export After Simulation:=")
+            settings.append("NAME:options")
+            settings.append("ExportAfterSolve:=")
             settings.append(False)
-        self.odesign.SetDesignSettings(settings)
+        self.odesign.DesignOptions(settings, 0)
         return True
 
     @aedt_exception_handler

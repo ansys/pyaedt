@@ -241,10 +241,35 @@ class Test3DLayout:
             points = self.edbapp.core_primitives.get_polygon_points(poly)
             assert points
             
-    # def test_get_padstack(self):
-    #     for el in self.edbapp.padstacks:
-    #         assert self.edbapp.get_padstack_data_parameters(self.edbapp.padstacks[el]) != {}
+    def test_get_padstack(self):
+        for el in self.edbapp.core_padstack.padstacks:
+            out = self.edbapp.core_padstack.get_pad_parameters_value(self.edbapp.core_padstack.padstacks[el], "TOP",
+                                                                     self.edbapp.edb.Definition.PadType.RegularPad)
+            assert out
+            out = self.edbapp.core_padstack.get_pad_parameters_value(self.edbapp.core_padstack.padstacks[el], "TOP",
+                                                                     self.edbapp.edb.Definition.PadType.AntiPad)
+            assert out
 
     def test_save_edb_as(self):
         assert self.edbapp.save_edb_as(os.path.join(self.local_scratch.path, "Gelileo_new.aedb"))
         assert os.path.exists(os.path.join(self.local_scratch.path, "Gelileo_new.aedb", "edb.def"))
+
+    def test_parametrize_layout(self):
+        for el in self.edbapp.core_primitives.polygons:
+            if el.GetId() == 2647:
+                poly = el
+        for el in self.edbapp.core_primitives.polygons:
+            if el.GetId() == 2742:
+                selection_poly = el
+
+        assert self.edbapp.core_primitives.parametrize_polygon(poly, selection_poly)
+
+    def test_create_cutout(self):
+        output = os.path.join(self.local_scratch.path, "cutout.aedb")
+        assert self.edbapp.create_cutout(["A0_N", "A0_P"],["GND","V3P3_S0"], output_aedb_path=output)
+        assert os.path.exists(os.path.join(output, "edb.def"))
+
+
+
+
+

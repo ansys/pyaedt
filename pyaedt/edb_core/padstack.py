@@ -273,3 +273,28 @@ class EdbPadstacks(object):
         padstackDefinition.SetData(padstackData)
         self.messenger.add_info_message("Padstack {} create correctly".format(padstackname))
         return padstackname
+
+    @aedt_exception_handler
+    def get_pad_parameters_value(self, padstackdef, layername, padtype):
+        """Get Pad parameters values
+
+                Parameters
+                ----------
+                padstackdef : self.edb.Definition.PadstackDef
+                    Padstack Definition
+                layername : str
+                    str
+                padtype : self edb.Definition.PadType
+                    Pad Type
+
+                Returns
+                -------
+                dict
+                     Dictionary with properties
+                """
+        pad_values = self.padstack_methods.GetPadParametersValue(padstackdef, layername, padtype)
+        return {"PadType": pad_values.Item1,
+                "PadParameters": [i.ToString() for i in pad_values.Item2],
+                "OffsetX": pad_values.Item3.ToString(),
+                "OffsetY": pad_values.Item4.ToString(),
+                "Rotation": pad_values.Item5.ToString()}

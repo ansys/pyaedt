@@ -45,7 +45,8 @@ else:
         "desktopVersion": "2021.1",
         "NonGraphical": False,
         "NewThread": True,
-        "test_desktops": False
+        "test_desktops": False,
+        "build_machine": True
     }
 
 # Define desktopVersion explicitly since this is imported by other modules

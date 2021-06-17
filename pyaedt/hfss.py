@@ -1,19 +1,19 @@
 """
-This class contains all HFSS functionalities. It inherits all objects that belong to HFSS.
+This module contains all HFSS functionalities in the ``hfss`` class.
 
 
 Examples
 --------
 
-Create an ``Hfss`` object and connect to an existing HFSS design or create a new HFSS design if one does not exist:
+Create an instance of ``Hfss`` and connect to an existing HFSS design or create a new HFSS design if one does not exist.
 
 >>> hfss = Hfss()
 
-Create an ``Hfss`` object and link to a project named ``projectname``. If this project does not exist, create one with this name:
+Create an instance of ``Hfss`` and link to a project named ``projectname``. If this project does not exist, create one with this name.
 
 >>> hfss = Hfss(projectname)
 
-Create an ``Hfss`` object and link to a design named ``designname`` in a project named ``projectname``:
+Create an instance of ``Hfss`` and link to a design named ``"designname"`` in a project named ``"projectname"``.
 
 >>> hfss = Hfss(projectname,designame)
 
@@ -21,7 +21,7 @@ Create an ``Hfss`` object and open the specified project:
 
 >>> hfss = Hfss("myfile.aedt")
 
-Create a ``Desktop on 2021R1`` object and then create an ``Hfss`` object and open the specified project:
+Create an instance of ``Hfss`` using the 2021.1 release and open the specified project ``"myfile.aedt"``.
 
 >>> hfss = Hfss(specified_version="2021.1", projectname="myfile.aedt")
 
@@ -61,12 +61,12 @@ class Hfss(FieldAnalysis3D, object):
                 Name of the design to select. The default is ``None``. If ``None``, try to get an active design and, 
                 if no designs are present, create an empty design.
             solution_type : str, optional
-                Solution type to apply to design. The default is ``None``. If ``None`, the default type is applied.
+                Solution type to apply to the design. The default is ``None``. If ``None``, the default type is applied.
             setup_name : str, optional
-                The name of the setup to use as the nominal. The default is ``None``. If ``None``, the active setup 
+                Name of the setup to use as the nominal. The default is ``None``. If ``None``, the active setup 
                 is used or nothing is used.
             specified_version : str, optional
-                The version to use. The default is ``None``. If ``None``, the active setup is used or nothing is used.
+                Version to use. The default is ``None``. If ``None``, the active setup is used or the latest installed is used.
             NG : bool, optional
                 The default is ``False``.   
             AlwaysNew : bool, optional
@@ -218,12 +218,12 @@ class Hfss(FieldAnalysis3D, object):
                       cond=58000000, perm=1, usethickness=False, thickness="0.1mm", roughness="0um",
                       isinfgnd=False, istwoside=False, isInternal=True, issheelElement=False, usehuray=False,
                       radius="0.5um", ratio="2.9"):
-        """Assign finite conductivity to object ``obj`` with material ``mat``.
+        """Assign finite conductivity to the object ``obj`` with a material ``mat``.
 
         Parameters
         ----------
         obj : list or str
-            Object list.
+            Object or objects to which to assign finite conductivity.
         mat : str, optional
             Material to use. The default is ``None``.
         cond : float, optional
@@ -231,15 +231,15 @@ class Hfss(FieldAnalysis3D, object):
         perm : float, optional
             If no material is provided, a permittivity value must be supplied. The default is ``1``.
         usethickness : bool, optional
-            Indicates whether to use thickness. The default is ``False``.
+            Whether to use thickness. The default is ``False``.
         thickness : str, optional
             Thickness value if ``usethickness=True``. The default is ``"0.1mm"``.
         roughness : str, optional
             Roughness value. The default is ``"0um"``.
         isinfgnd : bool, optional
-            The default is ``False``.
+            Whether the finite conductivity is an infinite ground. The default is ``False``.
         istwoside : bool, optional
-            The default is ``False``.
+            Whether the object is two-sided. The default is ``False``.
         isInternal : bool, optional
             The default is ``True``.
         issheelElement : bool, optional
@@ -316,7 +316,7 @@ class Hfss(FieldAnalysis3D, object):
         setupname : str
             Name of the setup that is attached to the sweep.
         unit : str, optional
-            Unit, such as ``"MHz``, ``"GHz"``, and so on. The default is ``"GHz"``.
+            Unit of the frequency. For example, ``"MHz`` or ``"GHz"``. The default is ``"GHz"``.
         freqstart : float, optional
             Starting frequency of the sweep. The default is ``1e-3``.
         freqstop : float, optional
@@ -380,7 +380,7 @@ class Hfss(FieldAnalysis3D, object):
         setupname : str
             Name of the setup.
         unit : str
-            Unit, such as ``"MHz``, ``"GHz"``, and so on. The default is ``"GHz"``.
+            Unit of the frequency. For example, ``"MHz`` or ``"GHz"``. The default is ``"GHz"``.
         freqstart : float
             Starting frequency of the sweep,  such as ``1``.
         freqstop : float
@@ -390,9 +390,9 @@ class Hfss(FieldAnalysis3D, object):
         sweepname : str, optional
             Name of the sweep. The default is ``None``.
         save_fields : bool, optional
-            The default is ``True``.
+            Whether to save the fields. The default is ``True``.
         save_rad_fields : bool, optional
-           The default is ``False``.
+           Whether to save the radiating fields. The default is ``False``.
 
         Returns
         -------
@@ -436,7 +436,7 @@ class Hfss(FieldAnalysis3D, object):
         setupname : str
             Name of the setup.
         unit : str
-            Unit, such as ``"MHz``, ``"GHz"``, and so on. 
+            Unit of the frequency. For example, ``"MHz`` or ``"GHz"``. The default is ``"GHz"``. 
         freqstart : float
             Starting frequency of the sweep.
         freqstop : float
@@ -446,9 +446,9 @@ class Hfss(FieldAnalysis3D, object):
         sweepname : str, optional
             Name of the sweep. The default is ``None``.
         save_fields : bool, optional
-            The default is ``True``.
+            Whether to save the fields. The default is ``True``.
         save_rad_fields : bool, optional
-            The default is ``False``.
+            Whether to save the radiating fields. The default is ``False``.
 
         Returns
         -------
@@ -548,9 +548,9 @@ class Hfss(FieldAnalysis3D, object):
         freq : str, optional
             Sweep frequency including units. The default is ``"1GHz"``.
         save_field : bool, optional
-            The default is ``True``.
+            Whether to save the field. The default is ``True``.
         save_radiating_field : bool, optional
-            The default is ``False``.
+            Whether to save the radiating field. The default is ``False``.
 
         Returns
         -------
@@ -605,7 +605,7 @@ class Hfss(FieldAnalysis3D, object):
         portname : str, optional
             Name of the port. The default is ``None``.
         renorm : bool, optional
-            Renormalize mode. The default is ``True``.
+            Whether to renormalize the mode. The default is ``True``.
         renorm_impedance : float or str, optional
             Renormalize impedance. The default is ``50``.
         deemb : bool, optional
@@ -651,11 +651,11 @@ class Hfss(FieldAnalysis3D, object):
         portname : str, optional
             Name of the port. The default is ``None``.
         renorm : bool, optional
-            Renormalize mode. The default is ``True``.
+            Whether to renormalize the mode. The default is ``True``.
         deemb : bool, optional
             Whether to deembed the port. The default is ``False``.
         port_on_plane : bool, optional
-            Whether to create the source on the plane ortogonal to ``AxisDir``. 
+            Whether to create the source on the plane orthogonal to ``AxisDir``. 
             The default is ``True``.
 
         Returns
@@ -702,7 +702,7 @@ class Hfss(FieldAnalysis3D, object):
         sourcename : str, optional
             Name of the source. The default is ``None``.
         source_on_plane : bool, optional
-            Whether to create the source on the plane ortogonal to ``AxisDir``. The default is ``True``.
+            Whether to create the source on the plane orthogonal to ``AxisDir``. The default is ``True``.
 
         Returns
         -------
@@ -739,12 +739,12 @@ class Hfss(FieldAnalysis3D, object):
         endobject :
             Second (ending) object for the integration line.
         axisdir : optional
-            Position of the VS. It should be one of the values for ``Application.AxisDir``, which are:
+            Position of the voltage source. It should be one of the values for ``Application.AxisDir``, which are:
             ``"XNeg"``, ``"YNeg"``, ``"ZNeg"``, ``"XPos"``, ``"YPos"``, and ``"ZPos"``. The default is ``"0"``.
         sourcename : str, optional
             Name of the source. The default is ``None``.
         source_on_plane : bool, optional
-            Whether to create the source on the plane ortogonal to ``AxisDir``. The default is ``True``.
+            Whether to create the source on the plane orthogonal to ``AxisDir``. The default is ``True``.
 
         Returns
         -------
@@ -783,9 +783,10 @@ class Hfss(FieldAnalysis3D, object):
         point2 :
             
         sourcename : str
+            The name of the source.
             
         sourcetype : str, optional
-             The default is ``"Voltage"``.
+             The type of the source. The default is ``"Voltage"``.
 
         Returns
         -------
@@ -823,12 +824,12 @@ class Hfss(FieldAnalysis3D, object):
         portname : str, optional
             Name of the port. The default is ``None``.
         renorm : bool, optional
-            Renormalize mode. The default is ``True``.
+            Whether to renormalize the mode. The default is ``True``.
         deembed_dist : float, optional
             Deembed distance in model units, which is ``mm`` by default. The default is ``0``, 
             which means that deembed is disabled.
         port_on_plane : bool, optional
-            Whether to create the port on the plane ortogonal to ``AxisDir``. The default is ``True``.
+            Whether to create the port on the plane orthogonal to ``AxisDir``. The default is ``True``.
         add_pec_cap : bool, optional
              The default is ``False``.
 
@@ -896,13 +897,13 @@ class Hfss(FieldAnalysis3D, object):
         portname : str, optional
             Name of the port. The default is ``None``.
         renorm : bool, optional
-            Renormalize mode. The default is ``True``.
+            Whether to renormalize the mode. The default is ``True``.
         deembed_dist : float
             Deembed distance in model units, which is ``mm`` by default. The default is ``0``, 
             which means deembed is disabled.
-        vfactor : optional
+        vfactor : int, optional
             Port vertical factor. The default is ``3``.
-        hfactor : optional
+        hfactor : int, optional
             Port horizontal factor. The default is ``5``.
 
         Returns
@@ -947,7 +948,7 @@ class Hfss(FieldAnalysis3D, object):
     @aedt_exception_handler
     def create_perfecte_from_objects(self, startobj, endobject, axisdir=0, sourcename=None, is_infinite_gnd=False,
                                      bound_on_plane=True):
-        """Creates a Perfect E  taking the closest edges of two objects.
+        """Creates a Perfect E taking the closest edges of two objects.
 
         Parameters
         ----------
@@ -962,9 +963,9 @@ class Hfss(FieldAnalysis3D, object):
         sourcename : str, optional
             Perfect E name. The default is ``None``.
         is_infinite_gnd : bool, optional
-             The default is ``False``.
+            Whether the Perfect E is an infinite ground. The default is ``False``.
         bound_on_plane : bool, optional
-            Whether to create the Perfect E on the plane ortogonal to ``AxisDir``. The default is ``True``.
+            Whether to create the Perfect E on the plane orthogonal to ``AxisDir``. The default is ``True``.
         
         Returns
         -------
@@ -1004,7 +1005,7 @@ class Hfss(FieldAnalysis3D, object):
         sourcename : str, optional
             Perfect H name. The default is ``None``.
         bound_on_plane : bool, optional
-            Whether to create the Perfect H on the plane ortogonal to ``AxisDir``. The default is ``True``.
+            Whether to create the Perfect H on the plane orthogonal to ``AxisDir``. The default is ``True``.
 
         Returns
         -------
@@ -1068,7 +1069,9 @@ class Hfss(FieldAnalysis3D, object):
 
         Returns
         -------
-        Boolean
+        bool
+            ``True`` when successful, ``False`` when failed.
+        
         """
         vars = [
             "NAME:Settings",
@@ -1094,14 +1097,14 @@ class Hfss(FieldAnalysis3D, object):
             First (starting) object for the integration line.
         endobject :
             Second (ending) object for the integration line.
-        axisdir :
+        axisdir : str, optional
             Position of the port. It should be one of the values for ``Application.AxisDir``, 
             which are: ``"XNeg"``, ``"YNeg"``, ``"ZNeg"``, ``"XPos"``, ``"YPos"``, and ``"ZPos"``. 
             The default is ``"0"``.
         sourcename : str, optional
             Perfect H name. The default is ``None``.
         rlctype : str, optional
-            The type of RLC. Choices are ``"Parallel"" or ""Series"". The default is ``"Parallel"``.
+            The type of RLC. Choices are ``"Parallel"`` or ``"Series"``. The default is ``"Parallel"``.
         Rvalue : optional
             Resistance value in Ohm. None to disable. The default is ``None``.
         Lvalue : optional
@@ -1109,7 +1112,7 @@ class Hfss(FieldAnalysis3D, object):
         Cvalue : optional
             Capacitance value in F. None to disable. The default is ``None``.
         bound_on_plane : bool, optional
-            Whether to create the boundary on the plane ortogonal to ``AxisDir``.
+            Whether to create the boundary on the plane orthogonal to ``AxisDir``.
             The default is ``True``.
 
         Returns
@@ -1175,9 +1178,9 @@ class Hfss(FieldAnalysis3D, object):
         reactance : optional
             Reactance value in Ohm. None to disable. The default is ``0``.
         is_infground : bool, optional
-            The default is ``False``.
+            Whether the impendance is an infinite ground. The default is ``False``.
         bound_on_plane : bool, optional
-            Whether to create the impedance on the plane ortogonal to ``AxisDir``. The default is ``True``.
+            Whether to create the impedance on the plane orthogonal to ``AxisDir``. The default is ``True``.
         
 
         Returns
@@ -1223,7 +1226,7 @@ class Hfss(FieldAnalysis3D, object):
         boundary_name : str, optional
             Name of the boundary. The default is ``""``.
         is_infinite_gnd : bool
-            The default is ``False``.
+            Whether the boundary is an infinite ground. The default is ``False``.
 
         Returns
         -------
@@ -1302,7 +1305,7 @@ class Hfss(FieldAnalysis3D, object):
         Parameters
         ----------
         sheet : list
-            List of input sheets from which to create ports.
+            List of input sheets from which to create the waveport.
         deemb : float, optional
             Deembedding value distance in model units. The default is ``0``.
         axisdir : str, optional
@@ -1316,7 +1319,7 @@ class Hfss(FieldAnalysis3D, object):
         portname : str, optional
             Name of the port. The default is ``None``.
         renorm : bool, optional
-            Renormalize mode. The default is ``True``.
+            Whether to renormalize the mode. The default is ``True``.
         deembed_dist : float
             Deembed distance in model units, where the default units is ``"mm"``. The default is ``0``,
             which means that deembed is disabled.
@@ -1353,14 +1356,14 @@ class Hfss(FieldAnalysis3D, object):
     @aedt_exception_handler
     def create_lumped_port_to_sheet(self, sheet_name, axisdir=0, impedance=50, portname=None,
                                     renorm=True, deemb=False, reference_object_list=[]):
-        """Create a Lumped taking one sheet.
+        """Create a lumped port taking one sheet.
 
         Parameters
         ----------
         sheet_name : str
             Name of the sheet.
         axisdir : optional
-            Direction of port. It should be one of the values for ``Application.AxisDir``, 
+            Direction of the port. It should be one of the values for ``Application.AxisDir``, 
             which are: ``"XNeg"``, ``"YNeg"``, ``"ZNeg"``, ``"XPos"``, ``"YPos"``, and ``"ZPos"``. 
             The default is ``"0"`.
         impedance : optional
@@ -1368,7 +1371,7 @@ class Hfss(FieldAnalysis3D, object):
         portname : str, optional
             Name of the port. The default is ``None``.
         renorm : bool, optional
-            Renormalize mode. The default is ``True``.
+            Whether to renormalize the mode. The default is ``True``.
         deemb : bool, optional
             Whether to deembed the port. The default is ``False``.
         reference_object_list : list, optional
@@ -1419,7 +1422,7 @@ class Hfss(FieldAnalysis3D, object):
         sheet_name : str
             Name of the sheet on which to apply the boundary.
         axisdir : str, optional
-            Position of the VS. It should be one of the values for ``Application.AxisDir``, 
+            Position of the voltage source. It should be one of the values for ``Application.AxisDir``, 
             which are: ``"XNeg"``, ``"YNeg"``, ``"ZNeg"``, ``"XPos"``, ``"YPos"``, and ``"ZPos"``. 
             The default is ``"0"``.
         sourcename : str, optional
@@ -1454,7 +1457,7 @@ class Hfss(FieldAnalysis3D, object):
         sheet_name : str
             Name of the sheet on which to apply the boundary.
         axisdir : str, optional
-            Position of VS. It should be one of the values for ``Application.AxisDir``, 
+            Position of the voltage source. It should be one of the values for ``Application.AxisDir``, 
             which are: ``"XNeg"``, ``"YNeg"``, ``"ZNeg"``, ``"XPos"``, ``"YPos"``, and ``"ZPos"``. 
             The default is ``"0"``.
         sourcename : str, optional
@@ -1482,14 +1485,14 @@ class Hfss(FieldAnalysis3D, object):
 
     @aedt_exception_handler
     def assign_perfecte_to_sheets(self, sheet_list, sourcename=None, is_infinite_gnd=False):
-        """Create a Perfect E  taking one sheet.
+        """Create a Perfect E taking one sheet.
 
         Parameters
         ----------
         sheet_list : str or list
             Name of the sheet or list on which to apply the boundary.
         sourcename : str, optional
-            Perfect E name. The default is ``None``.
+            The name of the source. Perfect E name. The default is ``None``.
         is_infinite_gnd : bool, optional
             Whether the Perfect E is an infinite ground. The default is ``False``.
 
@@ -1520,7 +1523,7 @@ class Hfss(FieldAnalysis3D, object):
 
         Returns
         -------
-        type
+        BoundaryObject
             Boundary object
 
         """
@@ -1608,7 +1611,7 @@ class Hfss(FieldAnalysis3D, object):
         reactance : optional
             Reactance value in Ohm. None to disable. The default is ``0``.
         is_infground : bool, optional
-             The default is ``False``.
+            Whether the impedance is an infinite ground. The default is ``False``.
 
         Returns
         -------
@@ -1652,9 +1655,9 @@ class Hfss(FieldAnalysis3D, object):
         port_name : str, optional
             Name of the port. The default is ``""``.
         port_impedance : str, optional
-            Impedance. The default is ``50``.
-        renormalize : bool
-            The default is ``False``.
+            Impedance. The default is ``"50"``.
+        renormalize : bool, optional
+            Whether to renormalize the mode. The default is ``False``.
         renorm_impedance :  str, optional
             Impedance. The default is ``50``
         deembed : bool. optional
@@ -1686,8 +1689,8 @@ class Hfss(FieldAnalysis3D, object):
         Parameters
         ----------
         portandmode : str
-            Port name and mode. Example: ``"Port1:1"``
-        powerin :
+            Port name and mode, such as ``"Port1:1"``.
+        powerin : str
             Power (in Watts) or the project variable to be put as stored energy in the the project.
         phase : str, optional
             The default is ``"0deg"``.
@@ -1707,8 +1710,7 @@ class Hfss(FieldAnalysis3D, object):
 
     @aedt_exception_handler
     def thicken_port_sheets(self, inputlist, value, internalExtr=True, internalvalue=1):
-        """thicken_port_sheets: Create thicken sheets of value "mm" over the full list of 
-        input port faces inputlist.
+        """Create thickened sheets of value "mm" over the full list of input port faces ``inputlist``.
        
         Parameters
         ----------
@@ -1865,9 +1867,9 @@ class Hfss(FieldAnalysis3D, object):
         Parameters
         ----------
         dname : str,  optional
-            Name of the design to validate. The default is ``None``.
+            Name of the design to validate. The default is ``None`` and defaults to the current design name.
         outputdir : str, optional
-            Output directory to which to save the log file. The default is ``None``.
+            Directory in which to save the log file. The default is ``None`` and defaults to the current project path.
         ports : int, optional
             Number of excitations (sum of modes) that is expected. The default is ``None``.
 
@@ -1975,13 +1977,13 @@ class Hfss(FieldAnalysis3D, object):
     @aedt_exception_handler
     def create_scattering(self, plot_name="S Parameter Plot Nominal", sweep_name=None, port_names=None, port_excited=None,
                           variations=None):
-        """Create scattering report.
+        """Create a scattering report.
         
         
         Parameters
         ----------
         PlotName : str, optional
-             Name of the plot. The default is ``" S Parameter Plot Nominal"``.
+             Name of the plot. The default is ``"S Parameter Plot Nominal"``.
         sweep_name : str, optional
              Name of the sweep. The default is ``None``.
         PortNames : list, optional
@@ -2053,7 +2055,7 @@ class Hfss(FieldAnalysis3D, object):
         Parameters
         ----------
         project_dir : str
-            Output directory.
+            Directory in which to export the file.
         outputlist : list
             Output quantity. In this case, the Q-factor.
         setupname : str
@@ -2079,7 +2081,7 @@ class Hfss(FieldAnalysis3D, object):
 
     @aedt_exception_handler
     def export_touchstone(self, solutionname, sweepname, filename=None, variation=[], variations_value=[]):
-        """Synopsis: Export Touchston file to a local folder.
+        """Synopsis: Export Touchstone file to a local folder.
 
         Parameters
         ----------
@@ -2138,7 +2140,7 @@ class Hfss(FieldAnalysis3D, object):
         return True
 
     @aedt_exception_handler
-    def set_export_touchstone(self, activate):
+    def set_export_touchstone(self, activate, export_dir=""):
         """Set automatic export of the Touchstone file after simulation if set to ``True``.
 
         Parameters
@@ -2159,7 +2161,7 @@ class Hfss(FieldAnalysis3D, object):
             settings.append("Export After Simulation:=")
             settings.append(True)
             settings.append("Export Dir:=")
-            settings.append("")
+            settings.append(export_dir)
         elif not activate:
             settings.append("NAME:Design Settings Data")
             settings.append("Export After Simulation:=")
@@ -2169,7 +2171,7 @@ class Hfss(FieldAnalysis3D, object):
 
     @aedt_exception_handler
     def assign_radiation_boundary_to_objects(self, obj_names, boundary_name=""):
-        """
+        """Assign radiation boundary to one or more objects (usually airbox objects).
 
         Parameters
         ----------
@@ -2181,15 +2183,6 @@ class Hfss(FieldAnalysis3D, object):
         Returns
         -------
 
-        """
-        # TODO: to be tested
-
-        """
-        Assign radiation boundary to one or more objects (usually airbox objects).
-
-        :param obj_names: Object name or ID to which the boundary condition is assigned.
-        :param boundary_name: Optional. Name of the boundary.
-        :return: ``True`` if correctly assigned.
         """
         object_list = self.modeler.convert_to_selections(obj_names, return_list=True)
         if boundary_name:
@@ -2205,7 +2198,7 @@ class Hfss(FieldAnalysis3D, object):
         Parameters
         ----------
         faces_id :
-            Face ID to which the boundary condition is assigned.
+            Face ID to which to assign the boundary condition.
         boundary_name : str, optional
             Name of the boundary. The default is ``""``.
 

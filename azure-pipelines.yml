@@ -41,7 +41,7 @@ steps:
 
 - script: |
     '$(python.venv)\Scripts\activate.bat'
-    pytest -v --cov --cov-report=xml --cov-report=html
+    pytest -v --cov --cov-report=xml --cov-report=html --junitxml=junit/test-results.xml
   displayName: 'Unit testing'
 
 - script: |

@@ -742,7 +742,7 @@ class Design(object):
         activedes = des_name
         if des_name:
             if self._assert_consistent_design_type(des_name) == des_name:
-                self.insert_design(self._design_type, design_name=des_name, solution_type=self._solution_type)
+                self._insert_design(self._design_type, design_name=des_name, solution_type=self._solution_type)
         else:
             # self._odesign = self._oproject.GetActiveDesign()
             if self.design_list:
@@ -763,7 +763,7 @@ class Design(object):
 
             if warning_msg:
                 self.logger.debug(warning_msg)
-                self.insert_design(self._design_type, solution_type=self._solution_type)
+                self._insert_design(self._design_type, solution_type=self._solution_type)
         self.boundaries = self._get_boundaries_data()
 
     @property
@@ -1763,23 +1763,7 @@ class Design(object):
             True if the separator exists and can be deleted, False otherwise
 
         """
-        obj = [(self._odesign, "Local"),
-               (self.oproject, "Project")]
-
-        for object in obj:
-            desktop_object = object[0]
-            var_type = object[1]
-            try:
-                desktop_object.ChangeProperty(["NAME:AllTabs",
-                                               ["NAME:{0}VariableTab".format(var_type),
-                                                ["NAME:PropServers",
-                                                 "{0}Variables".format(var_type)],
-                                                ["NAME:DeletedProps",
-                                                 separator_name]]])
-                return True
-            except:
-                pass
-        return False
+        return self._variable_manager.delete_separator(separator_name)
 
     @aedt_exception_handler
     def delete_variable(self, sVarName):
@@ -1796,28 +1780,10 @@ class Design(object):
             none
 
         """
-        if sVarName[0] == "$":
-            var_type = "Project"
-            desktop_object = self.oproject
-        else:
-            var_type = "Local"
-            desktop_object = self._odesign
-
-        var_list = desktop_object.GetVariables()
-        lower_case_vars = [var_name.lower() for var_name in var_list]
-
-        if sVarName.lower() in lower_case_vars:
-            desktop_object.ChangeProperty(["NAME:AllTabs",
-                                           ["NAME:{0}VariableTab".format(var_type),
-                                            ["NAME:PropServers",
-                                             "{0}Variables".format(var_type)],
-                                            ["NAME:DeletedProps",
-                                             sVarName]]])
-            return True
-        return False
+        return  self.variable_manager.delete_variable(sVarName)
 
     @aedt_exception_handler
-    def insert_design(self, design_type, design_name=None, solution_type=None):
+    def insert_design(self, design_name=None):
         """Inserts a design of the specified design type. Default design type is taked from the derived application \
         class. If no design-name is given, the default design name is <Design-Type>Design<_index>. If the given or \
         default design name is in use, then an underscore + index is added            to ensure that the design name\
@@ -1825,17 +1791,18 @@ class Design(object):
 
         Parameters
         ----------
-        design_type :
-            Type of design to insert (eg. HFSS)
         design_name :
             optional design name (Default value = None)
-        solution_type :
-            optional solution_type. it can be a SolutionType object (Default value = None)
 
         Returns
         -------
 
-        """
+        """"Circuit Design"
+        if self.design_type == "Circuit Design" or self.design_type == "HFSS 3D Layout Design":
+            self.modeler.edb.close_edb()
+        self.__init__(projectname=self.project_name, designname=design_name)
+
+    def _insert_design(self, design_type, design_name=None, solution_type=None):
         assert design_type in design_solutions, "Invalid design type for insert: {}".format(design_type)
         # self.save_project() ## Commented because it saves a Projectxxx.aedt when launched on an empty Desktop
         unique_design_name = self._generate_unique_design_name(design_name)

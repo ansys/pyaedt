@@ -12,7 +12,7 @@ Basic support is given for EDB and Circuit (Nexxim)
 
 **Requirements**
 ________________________
-In addition to the runtime dependencies listed in the Installing section below, EDB Utilities requires ANSYS EM Suite 2019 R3 or later.
+In addition to the runtime dependencies listed in the Installing section below, EDB Utilities requires ANSYS EM Suite 2021 R1 or later.
 
 **Installing on CPython v3.7-v3.8**
 ________________________________________________

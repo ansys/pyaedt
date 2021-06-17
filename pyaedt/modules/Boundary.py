@@ -314,6 +314,8 @@ class BoundaryObject(BoundaryCommon, object):
         if "Faces" in self.props:
             faces = self.props["Faces"]
             faces_out = []
+            if type(faces) is not list:
+                faces = [faces]
             for f in faces:
                 if type(f) is EdgePrimitive or type(f) is FacePrimitive or type(f) is VertexPrimitive:
                     faces_out.append(f.id)

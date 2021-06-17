@@ -112,7 +112,6 @@ class FieldAnalysisIcepak(Analysis, object):
             val = ipk.get_property_value('BoundarySetup:Source1', 'Total Power')
 
         """
-        #TODO To be improved
         boundary = {"HFSS": "HfssTab", "Icepak": "Icepak", "Q3D": "Q3D", "Maxwell3D": "Maxwell3D"}
         excitation = {"HFSS": "HfssTab", "Icepak": "Icepak", "Q3D": "Q3D", "Maxwell3D": "Maxwell3D"}
         setup = {"HFSS": "HfssTab", "Icepak": "Icepak", "Q3D": "General", "Maxwell3D": "General"}
