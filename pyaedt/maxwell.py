@@ -730,7 +730,10 @@ class Maxwell2d(Maxwell, FieldAnalysis2D, object):
 
         """
         solid_bodies = self.modeler.solid_bodies
-        solid_ids = self.modeler.solid_ids(objectfilter)
+        if objectfilter:
+            solid_ids = [i for i,j in self.modeler.primitives.objects_names.items() if j.name in objectfilter]
+        else:
+            solid_ids = [i for i in list(self.modeler.primitives.objects_names.keys())]
         model_depth = self.get_model_depth()
         self.design_data = {
             "Project Directory": self.project_path,
@@ -775,7 +778,7 @@ class Maxwell2d(Maxwell, FieldAnalysis2D, object):
 
         Returns
         -------
-        :class: BoundaryObject
+        BoundaryObject
             boundary object
 
         """
@@ -808,7 +811,7 @@ class Maxwell2d(Maxwell, FieldAnalysis2D, object):
 
         Returns
         -------
-        type
+        BoundaryObject
             Vector Potential Object
 
         """

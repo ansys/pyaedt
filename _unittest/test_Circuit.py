@@ -39,7 +39,7 @@ class TestCircuit:
         self.local_scratch.remove()
         gc.collect()
 
-    def test_01_create_indulctor(self):
+    def test_01_create_inductor(self):
         myind, myname = self.aedtapp.modeler.components.create_inductor(value=1e-9, xpos=0.2, ypos=0.2)
         assert type(myind) is int
         assert self.aedtapp.modeler.components.components[myind].L == 1e-9

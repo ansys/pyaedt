@@ -2658,25 +2658,27 @@ class GeometryModeler(Modeler, object):
 
     @aedt_exception_handler
     def get_object_name_from_edge_id(self, edge_id):
-        """
+        """Return object name for a predefined edge id
 
         Parameters
         ----------
-        edge_id :
+        edge_id : int
+            Edge Id
             
 
         Returns
         -------
-
+        str
+            Object name if exists
         """
-        assert "Edge" in edge_id, "Invalid Edge {0}".format(edge_id)
-        edge_id = edge_id.replace("Edge", "")
-        all_objects = self.solid_bodies
-        for object in all_objects:
-            oEdgeIDs = self.oeditor.GetEdgeIDsFromObject(object)
-            if edge_id in oEdgeIDs:
-                return object
-        return None
+        for object in list(self.primitives.objects_names.keys()):
+            try:
+                oEdgeIDs = self.oeditor.GetEdgeIDsFromObject(object)
+                if str(edge_id) in oEdgeIDs:
+                    return object
+            except:
+                return False
+        return False
 
     @aedt_exception_handler
     def get_solving_volume(self):

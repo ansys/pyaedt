@@ -65,7 +65,7 @@ class MessageList:
         self.design_level = []
         global_label = "Project: *Global - Messages, "
         project_label = "Project: {}, ".format(project_name)
-        design_label = "Project: {}, Design: {} ({})".format(project_name, design_name, solution_type)
+        design_label = "Project: {}, Design: {} (".format(project_name, design_name)
         for line in msg_list:
             # Find the first instance of '[' to get the message context
             loc = line.find('[')
