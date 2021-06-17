@@ -50,7 +50,7 @@ class TestDesign:
         sweep1.props["Type"]="Fast"
         sweep1.props["SaveFields"]=True
         assert sweep1.update()
-        assert self.aedtapp.get_sweeps()
+        assert self.aedtapp.get_sweeps("My_HFSS_Setup")
 
     def test_02_create_circuit_setup(self):
         circuit = Circuit()
