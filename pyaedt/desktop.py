@@ -313,9 +313,9 @@ class Desktop:
 
         Parameters
         ----------
-        specified_version: str, optinal
+        specified_version: str, optional
             Version of AEDT to use. The default is ``None``. If ``None``, the active setup is used or the latest installed version is used.
-        NG: bool, optinal
+        NG: bool, optional
             Whether to launch AEDT in the non-graphical mode. The default is ``False``, which launches AEDT in the graphical mode.
         AlwaysNew: bool, optional
             Whether to launch an instance of AEDT in a new thread, even if another instance of the ``specified_version`` is active on the machine.
