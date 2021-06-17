@@ -915,7 +915,7 @@ class Primitives(object):
         return True
 
     @aedt_exception_handler
-    def _update_object(self, o, objtype=None):
+    def _update_object(self, o):
 
         # Store the new object infos
         self.objects[o.id] = o
@@ -1092,7 +1092,7 @@ class Primitives(object):
             varg2 = ['NAME:BodyFromEdgeToParameters']
             varg2.append('Edges:='), varg2.append([edgeID])
             o.name = self.oeditor.CreateObjectFromEdges(varg1, ['NAME:Parameters', varg2])[0]
-            id = self._update_object(o, "Line")
+            id = self._update_object(o)
         return id
 
     @aedt_exception_handler
@@ -1118,7 +1118,7 @@ class Primitives(object):
             varg2 = ['NAME:BodyFromFaceToParameters']
             varg2.append('FacesToDetach:='), varg2.append([faceId])
             o.name = self.oeditor.CreateObjectFromFaces(varg1, ['NAME:Parameters', varg2])[0]
-            id = self._update_object(o, "Sheet")
+            id = self._update_object(o)
         return id
 
     @aedt_exception_handler
@@ -2750,7 +2750,7 @@ class Primitives(object):
         return selected_edges
 
     @aedt_exception_handler
-    def get_edges_for_circuit_port_fromsheet(self, sheet, XY_plane=True, YZ_plane=True, XZ_plane=True,
+    def get_edges_for_circuit_port_from_sheet(self, sheet, XY_plane=True, YZ_plane=True, XZ_plane=True,
                                              allow_perpendicular=False, tol=1e-6):
         """Returns two edges ID suitable for the circuit port.
         One is belonging to the sheet passed in and the second one is the closest

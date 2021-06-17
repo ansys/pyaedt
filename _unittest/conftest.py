@@ -46,8 +46,13 @@ else:
         "NonGraphical": False,
         "NewThread": True,
         "test_desktops": False,
-        "build_machine": True
+        "build_machine": True,
+        "skip_space_claim": False,
+        "skip_circuits": False,
+        "skip_edb": False,
+        "skip_debug": False
     }
+    config["local"] = False
 
 # Define desktopVersion explicitly since this is imported by other modules
 desktop_version = config["desktopVersion"]

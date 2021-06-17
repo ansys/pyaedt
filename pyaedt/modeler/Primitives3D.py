@@ -179,8 +179,8 @@ class Primitives3D(Primitives, object):
         obj.solve_inside = True
         obj.transparency = 0
         obj.wireframe = True
+
         id = self._update_object(obj)
-        self.objects[id] = obj
         return id
 
     @aedt_exception_handler
@@ -228,7 +228,7 @@ class Primitives3D(Primitives, object):
         vArg2 = o.export_attributes(name)
 
         o.name = self.oeditor.CreateCircle(vArg1, vArg2)
-        id = self._update_object(o, "Sheet")
+        id = self._update_object(o)
         return id
 
     @aedt_exception_handler
@@ -370,10 +370,7 @@ class Primitives3D(Primitives, object):
 
         vArg2 = o.export_attributes(name)
         o.name = self.oeditor.CreateEllipse(vArg1, vArg2)
-        if bIsCovered:
-            id = self._update_object(o, "Sheet")
-        else:
-            id = self._update_object(o, "Line")
+        id = self._update_object(o)
 
         return id
 
@@ -404,7 +401,7 @@ class Primitives3D(Primitives, object):
         vArg2 = o.export_attributes(name)
 
         o.name = self.oeditor.CreateEquationCurve(vArg1, vArg2)
-        id = self._update_object(o, "Line")
+        id = self._update_object(o)
         return id
 
     @aedt_exception_handler
@@ -515,7 +512,7 @@ class Primitives3D(Primitives, object):
 
         vArg2 = o.export_attributes(name)
         o.name = self.oeditor.CreateRectangle(vArg1, vArg2)
-        id = self._update_object(o, "Sheet")
+        id = self._update_object(o)
         return id
 
     @aedt_exception_handler
@@ -580,9 +577,9 @@ class Primitives3D(Primitives, object):
                 if el in list(self.oeditor.GetObjectsInGroup("Solids")):
                     id = self._update_object(o)
                 elif el in list(self.oeditor.GetObjectsInGroup("Sheets")):
-                    id = self._update_object(o, "Sheet")
+                    id = self._update_object(o)
                 elif el in list(self.oeditor.GetObjectsInGroup("Lines")):
-                    id = self._update_object(o, "Line")
+                    id = self._update_object(o)
                 else:
                     id = self._update_object(o)
                 self.update_object_properties(o)

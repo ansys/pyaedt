@@ -59,7 +59,7 @@ class Primitives2D(Primitives, object):
         vArg2 = o.export_attributes(name)
 
         o.name = self.oeditor.CreateCircle(vArg1, vArg2)
-        id = self._update_object(o, "Sheet")
+        id = self._update_object(o)
         return id
 
     @aedt_exception_handler
@@ -109,9 +109,9 @@ class Primitives2D(Primitives, object):
         vArg2 = o.export_attributes(name)
         o.name = self.oeditor.CreateEllipse(vArg1, vArg2)
         if bIsCovered:
-            id = self._update_object(o, "Sheet")
+            id = self._update_object(o)
         else:
-            id = self._update_object(o, "Line")
+            id = self._update_object(o)
 
         return id
 
@@ -161,6 +161,6 @@ class Primitives2D(Primitives, object):
         vArg2 = o.export_attributes(name)
 
         o.name = self.oeditor.CreateRectangle(vArg1, vArg2)
-        id = self._update_object(o, "Sheet")
+        id = self._update_object(o)
 
         return id

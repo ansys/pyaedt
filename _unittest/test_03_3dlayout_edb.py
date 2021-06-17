@@ -2,6 +2,7 @@ import os
 # Setup paths for module imports
 from .conftest import local_path, scratch_path
 import gc
+import pytest
 
 # Import required modules
 from pyaedt import Hfss3dLayout

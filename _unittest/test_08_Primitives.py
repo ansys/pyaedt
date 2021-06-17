@@ -13,8 +13,6 @@ from .conftest import config
 scdoc = "input.scdoc"
 step = "input.stp"
 
-
-
 class TestPrimitives:
     def setup_class(self):
         with Scratch(scratch_path) as self.local_scratch:
@@ -625,8 +623,8 @@ class TestPrimitives:
         edges = self.prim.get_edges_on_bunding_box(['Port1', 'Port2'], return_colinear=False, tol=1e-6)
         assert edges == [5237, 5255, 5273, 5291]
 
-    @pytest.mark.skipif(config["build_machine"] == True,
-                        reason="Skipped because SpaceClaim is not installed on Build Machine")
+    @pytest.mark.skipif(config["skip_space_claim"],
+                        reason="Skipped because SpaceClaim is not installed on this Machine")
     def test_48_import_space_claim(self):
         self.aedtapp.insert_design("SCImport")
         assert self.aedtapp.modeler.import_spaceclaim_document(os.path.join(self.local_scratch.path, scdoc))

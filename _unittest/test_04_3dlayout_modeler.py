@@ -63,7 +63,6 @@ class Test3DLayout:
         a = self.aedtapp.modeler.primitives.geometries
         assert len(a) > 0
 
-
     def test_09_modify_padstack(self):
         pad_0 = self.aedtapp.modeler.primitives.padstacks["PlanarEMVia"]
         assert self.aedtapp.modeler.primitives.padstacks["PlanarEMVia"].plating != 55
