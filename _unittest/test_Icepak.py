@@ -84,6 +84,7 @@ class TestIcepak:
         pcb_mesh_region.MinGapZ = 1
         pcb_mesh_region.Objects = ["Component_Region"]
         assert pcb_mesh_region.create()
+        assert pcb_mesh_region.update()
 
     def test_04_ImportGroup(self):
         project_path = os.path.join(self.local_scratch.path, src_project_name + '.aedt')
@@ -238,6 +239,17 @@ class TestIcepak:
         self.aedtapp.modeler.primitives.delete("Region")
         assert type(self.aedtapp.modeler.primitives.create_region([100,100,100,100,100,100])) is int
 
+    def test_34_automatic_mesh_pcb(self):
+        assert self.aedtapp.mesh.automatic_mesh_pcb()
+
+    def test_35_automatic_mesh_3d(self):
+        self.aedtapp.set_active_design("IcepakDesign1")
+        assert self.aedtapp.mesh.automatic_mesh_3D(accuracy2=1)
+
+    def test_36_generate_mesh(self):
+        self.aedtapp.insert_design("MeshDesign")
+        self.aedtapp.create_setup("NewSetup")
+        assert self.aedtapp.mesh.generate_mesh("NewSetup") == 0 # succeeded
+
     def test_88_create_heat_sink(self):
         assert self.aedtapp.create_parametric_fin_heat_sink()
-

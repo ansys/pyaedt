@@ -366,7 +366,7 @@ class IcepakMesh(object):
 
     @aedt_exception_handler
     def generate_mesh(self, name):
-        """Generate Mesh for Setup name. Return 0 if mesh failed or 1 if passed
+        """Generate Mesh for Setup name. Return 0 if mesh succeeded or 1 if failed
 
         Parameters
         ----------
