@@ -55,7 +55,7 @@ class TestMaxwell2D:
         assert isinstance(id1, Polyline)
 
 
-    def test_03_create_setup(self):
+    def test_03_assign_initial_mesh_from_slider(self):
         assert self.aedtapp.mesh.assign_initial_mesh_from_slider(4)
 
     def test_04_create_winding(self):
@@ -80,6 +80,7 @@ class TestMaxwell2D:
         mysetup = self.aedtapp.create_setup()
         mysetup.props["SaveFields"] = True
         assert mysetup.update()
+
 
     @pytest.mark.parametrize("material", ["ceramic_material", # material not in library
                                           "steel_stainless"])  # material already in library

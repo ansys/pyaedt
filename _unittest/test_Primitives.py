@@ -14,12 +14,11 @@ scdoc = "input.scdoc"
 step = "input.stp"
 
 
-
 class TestPrimitives:
     def setup_class(self):
         with Scratch(scratch_path) as self.local_scratch:
             test_primitives_projectfile = os.path.join(self.local_scratch.path, 'test_primitives' + '.aedt')
-            self.aedtapp = Hfss()
+            self.aedtapp = Hfss(projectname="Primitives")
             self.aedtapp.save_project(project_file=test_primitives_projectfile)
             self.prim = self.aedtapp.modeler.primitives
             scdoc_file = os.path.join(local_path, 'example_models', scdoc)
@@ -45,6 +44,9 @@ class TestPrimitives:
         assert self.prim[id].object_type == "Solid"
         assert self.prim[id].is3d == True
 
+    def test_01_get_object_name_from_edge(self):
+        assert self.aedtapp.modeler.get_object_name_from_edge_id(self.prim[id].edges[0].id) == "Mybox"
+
     def test_01_get_faces_from_mat(self):
         faces = self.aedtapp.modeler.select_allfaces_from_mat("Copper")
         assert len(faces)==6
@@ -53,7 +55,6 @@ class TestPrimitives:
 
         if not self.prim["Mybox"]:
             self.test_01_create_box()
-
         face_list = self.prim["Mybox"].faces
         assert len(face_list) == 6
         f = self.prim["Mybox"].faces[0]
@@ -590,3 +591,4 @@ class TestPrimitives:
         self.aedtapp.insert_design("StepImport")
         assert self.aedtapp.modeler.import_3d_cad(os.path.join(self.local_scratch.path, step))
         assert len(self.aedtapp.modeler.primitives.objects) == 1
+        pass

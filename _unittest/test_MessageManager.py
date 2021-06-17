@@ -52,8 +52,8 @@ class TestMessage:
 
     @pytest.mark.skipif(config["build_machine"]==True, reason="Issue on Build machine")
     def test_01_get_messages(self, caplog):
-
         msg = self.aedtapp.messenger
+        msg.clear_messages(level=3)
         msg.add_info_message("Test Info design level")
         msg.add_info_message("Test Info project level", "Project")
         msg.add_info_message("Test Info", 'Global')

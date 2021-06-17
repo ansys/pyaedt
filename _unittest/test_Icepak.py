@@ -47,6 +47,7 @@ class TestIcepak:
 
     def teardown_class(self):
         assert self.aedtapp.close_project(self.aedtapp.project_name)
+        self.aedtapp.close_project(src_project_name)
         time.sleep(2)
         self.local_scratch.remove()
         gc.collect()
@@ -226,9 +227,6 @@ class TestIcepak:
 
     def test_29_create_sweep_material(self):
         assert self.aedtapp.materials.creatematerial_sweeps(["copper", "silver"], "My_Sweep", False)
-
-    def test_31_load_material_lib(self):
-        assert self.aedtapp.materials.load_from_xml_full()
 
     def test_32_load_material_lib(self):
         self.aedtapp.materials.py2xmlFull(os.path.join(self.local_scratch.path,"export.xml"))
