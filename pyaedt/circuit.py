@@ -1,5 +1,5 @@
 """
-This module contains all Circuit functionalities in the ``circuit`` class.
+This module contains all Circuit functionalities in the ``Circuit`` class.
 
 
 Examples
