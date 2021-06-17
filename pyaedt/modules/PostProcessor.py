@@ -844,7 +844,8 @@ class PostProcessor(object):
 
     @aedt_exception_handler
     def export_field_file(self, quantity_name, solution=None, variation_dict=None, filename=None,
-                          obj_list="AllObjects", obj_type="Vol", intrinsics=None, phase=None, sample_points_file=None, sample_points_lists=None):
+                          obj_list="AllObjects", obj_type="Vol", intrinsics=None, phase=None, sample_points_file=None,
+                          sample_points_lists=None, export_with_sample_points=True):
         """This function creates a new field file based on a specific solution and variation available. using Field Calculator
 
         Parameters
@@ -869,10 +870,12 @@ class PostProcessor(object):
              (Default value = None)
         sample_points_lists :
              (Default value = None)
+         export_with_sample_points : bool
+
 
         Returns
         -------
-        type
+        bool
             True (fld exported) | False
 
         """
@@ -929,7 +932,8 @@ class PostProcessor(object):
             with open(sample_points_file, "w") as f:
                 for point in sample_points_lists:
                     f.write(" ".join([str(i) for i in point])+"\n")
-            self.ofieldsreporter.ExportToFile(filename, sample_points_file, solution, variation_dict, True)
+            self.ofieldsreporter.ExportToFile(filename, sample_points_file, solution, variation_dict,
+                                              export_with_sample_points)
 
         return os.path.exists(filename)
 
