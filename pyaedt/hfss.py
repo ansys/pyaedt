@@ -262,11 +262,11 @@ class Hfss(FieldAnalysis3D, object):
         >>> coat = aedtapp.assigncoating([id1], "copper",usethickness=True, thickness="0.2mm")
         """
 
-        mat = mat.lower()
         listobj = self.modeler.convert_to_selections(obj, True)
         listobjname = "_".join(listobj)
         props = {"Objects": listobj}
         if mat:
+            mat = mat.lower()
             if mat in self.materials.material_keys:
                 Mat = self.materials.material_keys[mat]
                 Mat.update()
@@ -278,10 +278,12 @@ class Hfss(FieldAnalysis3D, object):
                 props['Material'] = mat
             else:
                 return False
+            debug_message = f"Assigned Coating {mat} to object {listobjname}"
         else:
             props['UseMaterial'] = False
             props['Conductivity'] = str(cond)
             props['Permeability'] = str(str(perm))
+            debug_message = f"Assigned Coating without material to object {listobjname}"
         props['UseThickness'] = usethickness
         if usethickness:
             props['Thickness'] = thickness
@@ -300,7 +302,7 @@ class Hfss(FieldAnalysis3D, object):
             props['IsInternal'] = isInternal
         bound = BoundaryObject(self, "Coating_" + listobjname[:32], props, "FiniteCond")
         if bound.create():
-            self._messenger.add_debug_message('Assigned Coating ' + mat + ' to object ' + listobjname)
+            self._messenger.add_debug_message(debug_message)
             self.boundaries.append(bound)
             return bound
         return True

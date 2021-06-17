@@ -42,6 +42,7 @@ class TestDesign:
 
     def test_01b_create_hfss_sweep(self):
         setup1 = self.aedtapp.get_setup("My_HFSS_Setup")
+        assert self.aedtapp.get_setups()
         sweep1 = setup1.add_sweep("MyFrequencySweep")
         sweep1.props["RangeStart"] = "1Hz"
         sweep1.props["RangeEnd"] = "2GHz"
@@ -49,6 +50,7 @@ class TestDesign:
         sweep1.props["Type"]="Fast"
         sweep1.props["SaveFields"]=True
         assert sweep1.update()
+        assert self.aedtapp.get_sweeps()
 
     def test_02_create_circuit_setup(self):
         circuit = Circuit()
