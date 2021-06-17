@@ -634,7 +634,7 @@ class Circuit(FieldAnalysisCircuit, object):
         filename : str
             The name of the Touuchstone file.
         solution_name : str, optional
-            The name of the solution. The default is ``"Imported_Data"``.
+            Name of the solution. The default is ``"Imported_Data"``.
         
         Returns
         -------
