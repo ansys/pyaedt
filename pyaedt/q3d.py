@@ -1,22 +1,22 @@
 """
-This module contains all Q3D functionalities in the ``q3d`` class. It inherits all objects that belong to Q3D.
+This module contains all Q3D functionalities in the ``Q3d`` class. 
 
 
 Examples:
 
-Create a ``Q3d`` object and connect to an existing Q3D design or create a new Q3D design if one does not exist.
+Create an instance of ``Q3d`` and connect to an existing Q3D design or create a new Q3D design if one does not exist.
 
 >>> app = Q3d()
 
-Create a ``Q2d`` object and link to a project named ``projectname``. If this project does not exist, create one with this name.
+Create an instance of ``Q2d`` and link to a project named ``projectname``. If this project does not exist, create one with this name.
 
 >>> app = Q2d(projectname)
 
-Create a ``Q2d`` object and link to a design named ``designname`` in a project named ``projectname``.
+Create an instance of ``Q2d`` and link to a design named ``designname`` in a project named ``projectname``.
 
 >>> app = Q2d(projectname,designame)
 
-Create a ``Q2d`` object and open the specified project.
+Create an instance of ``Q2d`` and open the specified project, which is named ``myfile.aedt``.
 
 >>> app = Q2d("myfile.aedt")
 
@@ -85,7 +85,7 @@ class Q3d(QExtractor, object):
         Name of the design to select. The default is ``None``. If ``None``, try to get an active design and, 
         if no designs are present, create an empty design.
     solution_type : str, optional
-        Solution type to apply to design. The default is ``None``. If ``None`, the default type is applied.
+        Solution type to apply to design. The default is ``None``. If ``None``, the default type is applied.
     setup_name : str, optional
         Name of the setup to use as the nominal. The default is ``None``. If ``None``, the active setup 
         is used or nothing is used.
@@ -101,7 +101,7 @@ class Q3d(QExtractor, object):
 
     @aedt_exception_handler
     def auto_identify_nets(self):
-        """Automatically Iddentify Nets
+        """Automatically identify Nets.
 
         Parameters
         ----------
@@ -115,7 +115,9 @@ class Q3d(QExtractor, object):
 
     @aedt_exception_handler
     def assign_source_to_objectface(self, object_name, axisdir=0, source_name=None, net_name=None):
-        """Generate a source on a face ID of an object. The face ID is selected based on ``axisdir``. It will 
+        """Generate a source on a face ID of an object. 
+        
+        The face ID is selected based on ``axisdir``. It will 
         be the face that has the maximum/minimum in this axis direction.
 
         Parameters
@@ -127,7 +129,7 @@ class Q3d(QExtractor, object):
         source_name : str, optional
             Name of the source. The default is ``None``.
         net_name : str, optional
-            Name of the net. The default is ``None`` in which case ``object_name`` will be considered.
+            Name of the net. The default is ``None``, in which case ``object_name`` is considered.
 
         Returns
         -------
@@ -192,19 +194,21 @@ class Q3d(QExtractor, object):
 
     @aedt_exception_handler
     def assign_sink_to_objectface(self, object_name, axisdir=0, sink_name=None, net_name=None):
-        """Generate a sink on a face ID of an object. The face ID is selected based on ``axisdir``. It will 
+        """Generate a sink on a face ID of an object.
+        
+        The face ID is selected based on ``axisdir``. It will 
         be the face that has the maximum/minimum in this axis direction.
 
         Parameters
         ----------
         object_name : str
             Name of the object.
-        axisdir : optional
-            The initial axis direction. Choices are ``0`` through ``5``. The default is ``None``.
+        axisdir : int, optional
+            The initial axis direction. Choices are ``0`` through ``5``. The default is ``0``.
         sink_name : str, optional
             Name of the sink. The default is ``None``.
         net_name : str, optional
-            Name of the net. The default is ``None`` in which case ``object_name`` will be considered.
+            Name of the net. The default is ``None``, in which case ``object_name`` is considered.
 
         Returns
         -------
@@ -229,8 +233,9 @@ class Q3d(QExtractor, object):
 
     @aedt_exception_handler
     def assign_sink_to_sheet(self, sheetname, objectname=None, netname=None, sinkname=None):
-        """Generate a sink on an object.  It will be the face that
-        has the maximum/minimum in this axis direction.
+        """Generate a sink on an object.  
+        
+        It will be the face that has the maximum/minimum in this axis direction.
 
         Parameters
         ----------
@@ -329,17 +334,17 @@ class Q3d(QExtractor, object):
         setupname : str
             Name of the setup to which the sweeps belongs.
         freqstart : float
-            Discrete frequency starting point.
+            Starting point for the discrete frequency.
         freqstop : float, optional
-            Discrete frequency stopping point. If ``None``, a single-point sweep will be performed.
+            Sstopping point for the discrete frequency. If ``None``, a single-point sweep will be performed.
         freqstep : float, optional
-            Discrete frequency step point. If ``None``, 11 points will be created.
+            Step point for the discrete frequency. If ``None``, 11 points will be created.
         units  : str, optional
             Unit of the discrete frequency. The default is ``"GHz"``.    
         sweepname : str, optional
             Name of the sweep.
         savefields : bool, optional
-            Whether to generate fields. The default is ``False``.
+            Whether to save fields. The default is ``False``.
 
         Returns
         -------
@@ -389,9 +394,9 @@ class Q2d(QExtractor, object):
         Name of the design to select. The default is ``None``. If ``None``, try to get an active design and, 
         if no designs are present, create an empty design.
     solution_type : str, optional
-        Solution type to apply to design. The default is ``None``. If ``None`, the default type is applied.
+        Solution type to apply to design. The default is ``None``. If ``None``, the default type is applied.
     setup_name : str, optional
-        The name of the setup to use as the nominal. The default is ``None``. If ``None``, the active setup 
+        Name of the setup to use as the nominal. The default is ``None``. If ``None``, the active setup 
         is used or nothing is used.
     
     Returns
