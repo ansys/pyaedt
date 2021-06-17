@@ -710,7 +710,7 @@ class Circuit(FieldAnalysisCircuit, object):
         error: float, optional
             Fitting error. The default is ``0.05``.
         poles: int, optional
-            Number of titting poles. The default is ``10000``.
+            Number of fitting poles. The default is ``10000``.
 
         Returns
         -------
