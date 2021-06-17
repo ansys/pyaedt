@@ -1,4 +1,5 @@
-"""The ``Desktop`` module is used to initialize AEDT.
+"""
+The ``Desktop`` module is used to initialize AEDT.
 
 This module initializes AEDT and MessageManager to manage AEDT.
 You can initialize the ``Desktop`` module before launching an app or 
@@ -7,13 +8,13 @@ have the app automatically initialize it to the latest installed AEDT version.
 
 Examples
 --------
-Launch AEDT 2020 R1 in non-graphical mode and initialize HFSS
+Launch AEDT 2020 R1 in non-graphical mode and initialize HFSS.
 
 >>> import pyaedt
 >>> desktop = pyaedt.Desktop("2021.1", NG=True)
 >>> hfss = pyaedt.Hfss()
 
-Launch AEDT 2021 R1 in graphical mode and initialize HFSS
+Launch AEDT 2021 R1 in graphical mode and initialize HFSS.
 
 >>> desktop = Desktop("2021.1")
 >>> hfss = pyaedt.Hfss()
@@ -112,14 +113,21 @@ def update_aedt_registry(key, value, desktop_version="193"):
     
     Examples
     --------
+    Update the HPC license type for HFSS in the AEDT registry.
     
-    updateAEDTRegistry("HFSS/HPCLicenseType",'"'12'"')
+    >>> updateAEDTRegistry("HFSS/HPCLicenseType",'"'12'"')
     
-    updateAEDTRegistry("Icepak/HPCLicenseType",'"'8'"')
+    Update the HPC license type for Icepak in the AEDT registry.
     
-    updateAEDTRegistry("HFSS/UseLegacyElectronicsHPC","0")
+    >>> updateAEDTRegistry("Icepak/HPCLicenseType",'"'8'"')
     
-    updateAEDTRegistry("HFSS/MPIVendor",'"'+"Intel"+'"')
+    Update the legacy HPC license type for HFSS in the AEDT registry.
+    
+    >>> updateAEDTRegistry("HFSS/UseLegacyElectronicsHPC","0")
+    
+    Update the MPI vendor for HFSS in the AEDT registry.
+    
+    >>> updateAEDTRegistry("HFSS/MPIVendor",'"'+"Intel"+'"')
 
     Parameters
     ----------
@@ -127,8 +135,8 @@ def update_aedt_registry(key, value, desktop_version="193"):
         
     value :
         
-    desktop_version :
-         (Default value = "193")
+    desktop_version : str, optional
+         The version of Electronics Desktop. The default is ``"193"``.
 
     Returns
     -------
@@ -153,10 +161,10 @@ def release_desktop(close_projects=True, close_desktop=True):
 
     Parameters
     ----------
-    close_projects :
-        Boolean. Close the projects opened in the session. The default value is ``True``.
-    close_desktop :
-        Boolean. Close the active AEDT session. The default value is ``True``.
+    close_projects : boolean, optional
+        Whether to close the projects opened in the session. The default is ``True``.
+    close_desktop : bool, optional
+        Whether to close the active AEDT session. The default is ``True``.
 
     Returns
     -------
@@ -272,7 +280,7 @@ def force_close_desktop():
 
 
 class Desktop:
-    """The core module that initializes AEDT based on inputs provided:"""
+    """The core module that initializes AEDT based on the inputs provided:"""
     @property
     def version_keys(self):
         """ """
@@ -301,13 +309,20 @@ class Desktop:
         return self.version_keys[0]
 
     def __init__(self, specified_version=None, NG=False, AlwaysNew=True, release_on_exit=True):
-        """
-        Initialize AEDT. On Windows, it works without limitations in IronPython and CPython. On Linux, it works only in embedded Ironpython in AEDT.
+        """Initialize AEDT. On Windows, it works without limitations in IronPython and CPython. On Linux, it works only in embedded Ironpython in AEDT.
 
-        :param specified_version: Version of AEDT to use. If ``None``, the latest version of AEDT is used.
-        :param NG: Non-graphical Boolean. If ``True``, launch AEDT in non-graphic mode.
-        :param AlwaysNew: New Thread Boolean. If ``True``, launch a new instance of AEDT even if another instance of the ``specified_version`` is active on the machine.
-        :param release_on_exit: Boolean. Release AEDT on exit.
+        Parameters
+        ----------
+        specified_version: str, optinal
+            Version of AEDT to use. The default is ``None``. If ``None``, the active setup is used or the latest installed version is used.
+        NG: bool, optinal
+            Whether to launch AEDT in the non-graphical mode. The default is ``False``, which launches AEDT in the graphical mode.
+        AlwaysNew: bool, optional
+            Whether to launch an instance of AEDT in a new thread, even if another instance of the ``specified_version`` is active on the machine.
+            The default is ``True``.
+        release_on_exit: bool, optional
+            Whether to release AEDT on exit. The default is ``True``.
+        
         """
         self._main = sys.modules['__main__']
         self._main.close_on_exit = False
@@ -380,7 +395,7 @@ class Desktop:
                             processID.append(m.group(1))
 
                 if NG or AlwaysNew or not processID:
-                    # Force new object in no non-graphical instance is running or if there is not an already existing process.
+                    # Force new object if no non-graphical instance is running or if there is not an already existing process.
                     App = StandalonePyScriptWrapper.CreateObjectNew(NG)
                 else:
                     App = StandalonePyScriptWrapper.CreateObject(version)
@@ -436,7 +451,7 @@ class Desktop:
             self._main.oMessenger = AEDTMessageManager()
         self._main.pyaedt_initialized = True
 
-        # Setup the log file in the AEDT project directory
+        # Set up the log file in the AEDT project directory
         self.logger = logging.getLogger(__name__)
         if not self.logger.handlers:
             project_dir = self._main.oDesktop.GetProjectDirectory()
@@ -487,7 +502,7 @@ class Desktop:
             self.release_desktop(close_projects=self._main.close_on_exit, close_on_exit=self._main.close_on_exit)
 
     def _exception(self, ex_value, tb_data):
-        """Writes the trace stack to the desktop when a python error occurs.
+        """Write the trace stack to the desktop when a python error occurs.
 
         Parameters
         ----------
@@ -527,10 +542,10 @@ class Desktop:
 
         Parameters
         ----------
-        close_projects :
-             (Default value = True)
-        close_on_exit :
-             (Default value = True)
+        close_projects : bool, optional
+            Whether to close the projects opened in the session. The default is ``True``.
+        close_on_exit : bool, optional
+            Whether to close the active AEDT session. The default is ``True``.
 
         Returns
         -------
