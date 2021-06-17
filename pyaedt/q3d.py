@@ -1,5 +1,5 @@
 """
-This module contains all Q3D functionalities in the ``q3d`` class. 
+This module contains all Q3D functionalities in the ``Q3d`` class. 
 
 
 Examples:
