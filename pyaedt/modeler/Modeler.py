@@ -1189,7 +1189,7 @@ class GeometryModeler(Modeler, object):
                 "SplitCrossingObjectsOnly:=", False,
                 "DeleteInvalidObjects:=", True
             ])
-        self.primitives._refresh_all_ids()
+        self.primitives.refresh_all_ids()
         return True
 
     @aedt_exception_handler
@@ -1228,7 +1228,7 @@ class GeometryModeler(Modeler, object):
         if self.oeditor is not None:
             objs = self.primitives.get_all_objects_names()
             idStr = self.oeditor.DuplicateMirror(vArg1, vArg2, vArg3)
-            self.primitives._refresh_all_ids()
+            self.primitives.refresh_all_ids()
             objs2 = self.primitives.get_all_objects_names()
             thelist = [i for i in objs2 if i not in objs]
             return True, thelist
@@ -1304,7 +1304,7 @@ class GeometryModeler(Modeler, object):
         id = []
         objs = self.primitives.get_all_objects_names()
         idList = self.oeditor.DuplicateAroundAxis(vArg1, vArg2, vArg3)
-        self.primitives._refresh_all_ids()
+        self.primitives.refresh_all_ids()
         objs2 = self.primitives.get_all_objects_names()
         thelist = [i for i in objs2 if i not in objs]
 
@@ -1344,7 +1344,7 @@ class GeometryModeler(Modeler, object):
         id = []
         objs = self.primitives.get_all_objects_names()
         idList = self.oeditor.DuplicateAlongLine(vArg1, vArg2, vArg3)
-        self.primitives._refresh_all_ids()
+        self.primitives.refresh_all_ids()
         objs2 = self.primitives.get_all_objects_names()
         thelist = [i for i in objs2 if i not in objs]
         return True, thelist
@@ -1528,7 +1528,7 @@ class GeometryModeler(Modeler, object):
         selections = self.convert_to_selections(object_list)
         self.oeditor.SeparateBody(["NAME:Selections", "Selections:=", selections,
                                    "NewPartsModelFlag:=", "Model"], ["CreateGroupsForNewObjects:=", create_group])
-        self.primitives._refresh_all_ids()
+        self.primitives.refresh_all_ids()
         return True
 
     @aedt_exception_handler
@@ -1805,7 +1805,7 @@ class GeometryModeler(Modeler, object):
         objs = self.primitives.get_all_objects_names()
         self.oeditor.Copy(vArg1)
         newObj = self.oeditor.Paste()
-        self.primitives._refresh_all_ids()
+        self.primitives.refresh_all_ids()
         objs2 = self.primitives.get_all_objects_names()
         thelist = [i for i in objs2 if i not in objs]
         return True, thelist[0]
@@ -2630,7 +2630,7 @@ class GeometryModeler(Modeler, object):
                 ])
             originals = self.primitives.get_all_objects_names()
             self.oeditor.Paste()
-            self.primitives._refresh_all_ids()
+            self.primitives.refresh_all_ids()
             added = self.primitives.get_all_objects_names()
             cloned = [i for i in added if i not in originals]
             solids = self.primitives.get_all_solids_names()
@@ -2838,7 +2838,7 @@ class GeometryModeler(Modeler, object):
         vArg1.append("SourceFile:="), vArg1.append(filename)
         self.oeditor.Import(vArg1)
         if refresh_all_ids:
-            self.primitives._refresh_all_ids()
+            self.primitives.refresh_all_ids()
         self.messenger.add_info_message("Step file {} imported".format(filename))
         return True
 
@@ -2987,7 +2987,7 @@ class GeometryModeler(Modeler, object):
                 "Version:=", "2.0",
                 "ConnectionID:=", ""
             ])
-        self.primitives._refresh_all_ids()
+        self.primitives.refresh_all_ids()
         return True
 
     @aedt_exception_handler
