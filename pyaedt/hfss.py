@@ -1493,7 +1493,7 @@ class Hfss(FieldAnalysis3D, object):
         sheet_list : str or list
             Name of the sheet or list on which to apply the boundary.
         sourcename : str, optional
-            Name of the source. Perfect E name. The default is ``None``.
+            Name of the Perfect E source. The default is ``None``.
         is_infinite_gnd : bool, optional
             Whether the Perfect E is an infinite ground. The default is ``False``.
 
@@ -1555,9 +1555,9 @@ class Hfss(FieldAnalysis3D, object):
         rlctype : str, optional
             The type of RLC. Choices are ``"Parallel"`` or ``"Series"``. The default is ``"Parallel"``.
         Rvalue : float, optional
-            Resistance value in Ohm. None to disable. The default is ``None``.
+            Resistance value in Ohm. ``None`` to disable. The default is ``None``.
         Lvalue : optional
-            Inductance value in H. None to disable. The default is ``None``.
+            Inductance value in H. ``None`` to disable. The default is ``None``.
         Cvalue : optional
             Capacitance value in F. None to disable. The default is ``None``.
        
@@ -1608,7 +1608,7 @@ class Hfss(FieldAnalysis3D, object):
         sourcename : str, optional
             Name of the impedance. The default is ``None``.
         resistance : optional
-            Resistance value in Ohm. None to disable. The default is ``50``.
+            Resistance value in Ohm. ``None`` to disable. The default is ``50``.
         reactance : optional
             Reactance value in Ohm. None to disable. The default is ``0``.
         is_infground : bool, optional
