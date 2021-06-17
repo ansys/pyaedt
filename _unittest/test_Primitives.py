@@ -31,16 +31,24 @@ class TestPrimitives:
         udp = self.aedtapp.modeler.Position(0, 0, 0)
         dimensions = [10, 10, 5]
         id = self.prim.create_box(udp, dimensions, "Mybox", "Copper")
+        id2 = self.prim.create_box(udp, dimensions)
         assert id > 0
         assert self.prim[id].name == "Mybox"
         assert self.prim[id].object_type == "Solid"
         assert self.prim[id].is3d == True
 
-    def test_01_get_faces_from_mat(self):
+        id2 = self.prim.create_box(udp, dimensions)
+        assert len(self.prim[id2].name) == 16
+        assert self.prim[id2]._material_name == "vacuum"
+
+
+    def test_01a_get_faces_from_mat(self):
+        if not self.prim["Mybox"]:
+            self.test_01_create_box()
         faces = self.aedtapp.modeler.select_allfaces_from_mat("Copper")
         assert len(faces)==6
 
-    def test_01_check_object_faces(self):
+    def test_01b_check_object_faces(self):
 
         if not self.prim["Mybox"]:
             self.test_01_create_box()
@@ -54,21 +62,21 @@ class TestPrimitives:
         assert self.prim["Mybox"].faces[0].move_with_vector([0,0,0.01])
         assert type(f.normal) is list
 
-    def test_01_check_object_edges(self):
+    def test_01c_check_object_edges(self):
         e = self.prim["Mybox"].edges[1]
         assert type(e.midpoint) is list and len(e.midpoint) == 3
         assert type(e.length) is float and e.length> 0
 
-    def test_01_check_object_vertices(self):
+    def test_01d_check_object_vertices(self):
         assert len(self.prim["Mybox"].vertices)==8
         v = self.prim["Mybox"].vertices[0]
         assert type(v.position) is list and len(v.position) == 3
 
-    def test_01_get_objects_in_group(self):
+    def test_02_get_objects_in_group(self):
         objs = self.aedtapp.modeler.get_objects_in_group("Solids")
         assert type(objs) is list
 
-    def test_02_create_circle(self):
+    def test_03_create_circle(self):
         udp = self.aedtapp.modeler.Position(5, 3, 8)
         plane = self.aedtapp.CoordinateSystemPlane.XYPlane
         id = self.prim.create_circle(plane, udp, 2, name="MyCircle", matname="Copper")
@@ -135,10 +143,14 @@ class TestPrimitives:
         udp3 = self.aedtapp.modeler.Position(5, 5, 0)
         udp4 = self.aedtapp.modeler.Position(2, 5, 3)
         arrofpos = [udp1, udp4, udp2, udp3, udp1]
-        P = self.aedtapp.modeler.primitives.draw_polyline(arrofpos, cover_surface=True, name="Poly1", matname="Copper")
-        assert isinstance(P, Polyline)
-        assert self.prim[P.id].object_type == "Sheet"
-        assert self.prim[P.id].is3d is False
+        P1 = self.aedtapp.modeler.primitives.create_polyline(arrofpos, cover_surface=True, name="Poly1", matname="Copper")
+        P2 = self.aedtapp.modeler.primitives.create_polyline(arrofpos, name="Poly2", matname="Copper")
+        assert isinstance(P1, Polyline)
+        assert isinstance(P2, Polyline)
+        assert self.prim[P1.id].object_type == "Sheet"
+        assert self.prim[P1.id].is3d is False
+        assert self.prim[P2.id].object_type == "Line"
+        assert self.prim[P2.id].is3d is False
 
     def test_10_create_polyline_with_crosssection(self):
         udp1 = self.aedtapp.modeler.Position(0, 0, 0)
@@ -146,7 +158,7 @@ class TestPrimitives:
         udp3 = self.aedtapp.modeler.Position(5, 5, 0)
         udp4 = self.aedtapp.modeler.Position(2, 5, 3)
         arrofpos = [udp1, udp2, udp3]
-        P = self.aedtapp.modeler.primitives.draw_polyline(arrofpos, name="Poly2", xsection_type="Rectangle")
+        P = self.aedtapp.modeler.primitives.create_polyline(arrofpos, name="Poly2", xsection_type="Rectangle")
         assert isinstance(P, Polyline)
         assert self.prim[P.id].object_type == "Solid"
         assert self.prim[P.id].is3d is True
@@ -156,7 +168,7 @@ class TestPrimitives:
         udp2 = [5, 0, 0]
         udp3 = [5, 5, 0]
         arrofpos = [udp1, udp2, udp3]
-        P = self.aedtapp.modeler.primitives.draw_polyline(arrofpos, name="poly_vector")
+        P = self.aedtapp.modeler.primitives.create_polyline(arrofpos, name="poly_vector")
         assert type(self.aedtapp.modeler.get_vertices_of_line("poly_vector")) is list
         rect = self.aedtapp.modeler.primitives.create_rectangle(self.aedtapp.CoordinateSystemPlane.YZPlane, [0,-2,-2],[4,3], name="rect_1")
         assert self.aedtapp.modeler.sweep_along_path(rect, P.id )
@@ -201,23 +213,45 @@ class TestPrimitives:
         udp = self.aedtapp.modeler.Position(5, 3, 8)
         plane = self.aedtapp.CoordinateSystemPlane.XYPlane
         id = self.prim.create_rectangle(plane, udp, [4, 5], name="MyRectangle5")
-        assert self.prim.get_obj_id("MyRectangle5") is id
+        assert self.prim.get_obj_id("MyRectangle5") == id
 
     def test_14_get_object_names(self):
+        if not self.prim["Mybox"]:
+            self.test_01_create_box()
+        if not self.prim["MyRectangle"]:
+            self.test_11_create_rectangle()
+        if not self.prim["Poly1"]:
+            self.test_09_create_polyline()
+
+        solid_list = self.prim.solids
+        sheet_list = self.prim.sheets
+        line_list = self.prim.lines
+        all_objects_list = self.prim.object_names
+
+        assert "Mybox" in solid_list
+        assert "MyRectangle" in sheet_list
+        assert "Poly1" in sheet_list
+        assert "Poly2" in line_list
+        assert "Mybox" in all_objects_list
+        assert "MyRectangle" in all_objects_list
+        assert "Poly1" in all_objects_list
+        assert "Poly2" in all_objects_list
+
         objnames = self.prim.get_all_objects_names()
         solidnames = self.prim.get_all_objects_names(get_lines=False, get_sheets=False)
-        for i in solidnames:
-            assert self.prim.objects[self.prim.get_obj_id(i)].is3d
-            assert self.prim.objects[self.prim.get_obj_id(i)].object_type is "Solid"
+        for solid in solidnames:
+            solid_object = self.prim[solid]
+            assert solid_object.is3d
+            assert solid_object.object_type is "Solid"
         sheetnames = self.prim.get_all_objects_names(get_lines=False, get_solids=False)
-        for i in sheetnames:
-            assert self.prim.objects[self.prim.get_obj_id(i)].is3d is False
-            assert self.prim.objects[self.prim.get_obj_id(i)].object_type is "Sheet"
+        for sheet in sheetnames:
+            assert self.prim[sheet].is3d is False
+            assert self.prim[sheet].object_type is "Sheet"
         listnames = self.prim.get_all_objects_names(get_sheets=False, get_solids=False)
-        for i in listnames:
-            assert self.prim.objects[self.prim.get_obj_id(i)].is3d is False
-            assert self.prim.objects[self.prim.get_obj_id(i)].object_type is "Line"
-        assert len(objnames) == len(solidnames)+len(listnames)+len(sheetnames)
+        for line in listnames:
+            assert self.prim[line].is3d is False
+            assert self.prim[line].object_type is "Line"
+        assert len(objnames) == len(solidnames) + len(listnames) + len(sheetnames)
 
     def test_15_get_object_by_material(self):
         listsobj = self.prim.get_objects_by_material("vacuum")
@@ -287,16 +321,22 @@ class TestPrimitives:
         assert edge_length == 7
 
     def test_25_get_face_area(self):
+        if not self.prim["rect_for_get"]:
+            self.test_22_get_face_vertices()
         listfaces = self.prim.get_object_faces("rect_for_get")
         area = self.prim.get_face_area(listfaces[0])
         assert area == 7*13
 
     def test_26_get_face_center(self):
+        if not self.prim["rect_for_get"]:
+            self.test_22_get_face_vertices()
         listfaces = self.prim.get_object_faces("rect_for_get")
         center = self.prim.get_face_center(listfaces[0])
         assert center == [4.5, 8.5, 3.0]
 
     def test_27_get_edge_midpoint(self):
+        if not self.prim["rect_for_get"]:
+            self.test_22_get_face_vertices()
         listedges = self.prim.get_object_edges("rect_for_get")
         point = self.prim.get_edge_midpoint(listedges[0])
         assert point == [4.5, 2.0, 3.0]
@@ -318,7 +358,7 @@ class TestPrimitives:
         udp3 = self.aedtapp.modeler.Position(-31, -31, 7)
         udp4 = self.aedtapp.modeler.Position(2, 5, 3)
         arrofpos = [udp1, udp2, udp3, udp4]
-        P = self.aedtapp.modeler.primitives.draw_polyline(arrofpos, cover_surface=False, name="bill")
+        P = self.aedtapp.modeler.primitives.create_polyline(arrofpos, cover_surface=False, name="bill")
         polyname = self.prim.get_bodynames_from_position([-27, -27, 11])
         assert "bill" in polyname
 
@@ -336,19 +376,14 @@ class TestPrimitives:
         assert len(list1) + len(list2) == len(list3)
 
     def test_31_create_rect_sheet_to_ground(self):
-        assert self.aedtapp.modeler.create_sheet_to_ground("Mybox") > 0
-        assert self.aedtapp.modeler.create_sheet_to_ground("Mybox", "MyRectangle",self.aedtapp.AxisDir.ZNeg)>0
+        if not self.prim["Mybox"]:
+            self.test_01_create_box()
+        if not self.prim["MyRectangle"]:
+            self.test_11_create_rectangle()
 
-    # def test_98_get_edges_for_circuit_port(self):
-    #     self.aedtapp.close_project(name=self.aedtapp.project_name, saveproject=False)
-    #     self.aedtapp.load_project(self.test_98_project)
-    #     self.prim.refresh_all_ids()
-    #     edges1 = self.prim.get_edges_for_circuit_port('Port1', XY_plane=False, YZ_plane=True, XZ_plane=False,
-    #                                                   allow_perpendicular=False, tol=1e-6)
-    #     assert edges1 == [5519, 5249]
-    #     edges2 = self.prim.get_edges_for_circuit_port('Port2', XY_plane=False, YZ_plane=True, XZ_plane=False,
-    #                                                   allow_perpendicular=False, tol=1e-6)
-    #     assert edges2 == [5530, 5477]
+        id = self.aedtapp.modeler.create_sheet_to_ground("Mybox")
+        assert id > 0
+        assert self.aedtapp.modeler.create_sheet_to_ground("Mybox", "MyRectangle",self.aedtapp.AxisDir.ZNeg)>0
 
     def test_32_chamfer(self):
 
@@ -387,34 +422,34 @@ class TestPrimitives:
                        ["-p1/2",   "-p1/2",  "0mm"],
                        ["0mm",     "0mm",    "0mm"]]
 
-        assert prim3D.draw_polyline(position_list=test_points[0:2], name="PL01_line")
-        assert prim3D.draw_polyline(position_list=test_points[0:3], segment_type="Arc", name="PL02_arc")
+        assert prim3D.create_polyline(position_list=test_points[0:2], name="PL01_line")
+        assert prim3D.create_polyline(position_list=test_points[0:3], segment_type="Arc", name="PL02_arc")
 
-        assert prim3D.draw_polyline(position_list=test_points,
-                                    segment_type=PolylineSegment("Spline", num_points=4),
-                                    name="PL03_spline_4pt")
-        assert prim3D.draw_polyline(position_list=test_points,
-                                    segment_type=PolylineSegment("Spline", num_points=3),
-                                    name="PL03_spline_3pt")
-        assert prim3D.draw_polyline(position_list=test_points[0:3],
-                                    segment_type="Spline",
-                                    name="PL03_spline_str_3pt")
-        assert prim3D.draw_polyline(position_list=test_points[0:2],
-                                    segment_type="Spline",
-                                    name="PL03_spline_str_2pt")
-        assert prim3D.draw_polyline(position_list=[[100, 100, 0]],
-                                    segment_type=PolylineSegment("AngularArc", arc_center=[0, 0, 0], arc_angle="30deg"),
-                                    name="PL04_center_point_arc")
+        assert prim3D.create_polyline(position_list=test_points,
+                                      segment_type=PolylineSegment("Spline", num_points=4),
+                                      name="PL03_spline_4pt")
+        assert prim3D.create_polyline(position_list=test_points,
+                                      segment_type=PolylineSegment("Spline", num_points=3),
+                                      name="PL03_spline_3pt")
+        assert prim3D.create_polyline(position_list=test_points[0:3],
+                                      segment_type="Spline",
+                                      name="PL03_spline_str_3pt")
+        assert prim3D.create_polyline(position_list=test_points[0:2],
+                                      segment_type="Spline",
+                                      name="PL03_spline_str_2pt")
+        assert prim3D.create_polyline(position_list=[[100, 100, 0]],
+                                      segment_type=PolylineSegment("AngularArc", arc_center=[0, 0, 0], arc_angle="30deg"),
+                                      name="PL04_center_point_arc")
 
     def test_35_create_circle_from_2_arc_segments(self):
         prim3D = self.aedtapp.modeler.primitives
-        assert prim3D.draw_polyline(position_list=[[34.1004, 14.1248, 0],
-                                                   [27.646, 16.7984, 0],
-                                                   [24.9725, 10.3439, 0],
-                                                   [31.4269, 7.6704, 0]],
-                                    segment_type=["Arc", "Arc"],
-                                    cover_surface=True, close_surface=True,
-                                    name="Rotor_Subtract_25_0", matname="vacuum")
+        assert prim3D.create_polyline(position_list=[[34.1004, 14.1248, 0],
+                                                     [27.646, 16.7984, 0],
+                                                     [24.9725, 10.3439, 0],
+                                                     [31.4269, 7.6704, 0]],
+                                      segment_type=["Arc", "Arc"],
+                                      cover_surface=True, close_surface=True,
+                                      name="Rotor_Subtract_25_0", matname="vacuum")
 
     def test_36_compound_polylines_segments(self):
         prim3D = self.aedtapp.modeler.primitives
@@ -425,15 +460,15 @@ class TestPrimitives:
                        ["-p1/2",   "-p1/2",  "0mm"],
                        ["0mm",     "0mm",    "0mm"]]
 
-        assert prim3D.draw_polyline(position_list=test_points, name="PL06_segmented_compound_line")
-        assert prim3D.draw_polyline(position_list=test_points, segment_type=["Line", "Arc"],
-                                    name="PL05_compound_line_arc")
-        assert prim3D.draw_polyline(position_list=test_points,
-                                    close_surface=True,
-                                    name="PL07_segmented_compound_line_closed")
-        assert prim3D.draw_polyline(position_list=test_points,
-                                    cover_surface=True,
-                                    name="SPL01_segmented_compound_line")
+        assert prim3D.create_polyline(position_list=test_points, name="PL06_segmented_compound_line")
+        assert prim3D.create_polyline(position_list=test_points, segment_type=["Line", "Arc"],
+                                      name="PL05_compound_line_arc")
+        assert prim3D.create_polyline(position_list=test_points,
+                                      close_surface=True,
+                                      name="PL07_segmented_compound_line_closed")
+        assert prim3D.create_polyline(position_list=test_points,
+                                      cover_surface=True,
+                                      name="SPL01_segmented_compound_line")
 
     def test_37_insert_polylines_segments_test1(self):
         prim3D = self.aedtapp.modeler.primitives
@@ -443,9 +478,9 @@ class TestPrimitives:
                        ["-p1",     "0mm",    "0mm"],
                        ["-p1/2",   "-p1/2",  "0mm"],
                        ["0mm",     "0mm",    "0mm"]]
-        P = prim3D.draw_polyline(position_list=test_points,
-                                 close_surface=True,
-                                 name="PL08_segmented_compound_insert_segment")
+        P = prim3D.create_polyline(position_list=test_points,
+                                   close_surface=True,
+                                   name="PL08_segmented_compound_insert_segment")
         assert P
         start_point = P.start_point
         insert_point = ["90mm", "20mm", "0mm"]
@@ -460,9 +495,9 @@ class TestPrimitives:
                        ["-p1/2",   "-p1/2",  "0mm"],
                        ["0mm",     "0mm",    "0mm"]]
 
-        P = prim3D.draw_polyline(position_list=test_points,
-                                 close_surface=False,
-                                 name="PL08_segmented_compound_insert_arc")
+        P = prim3D.create_polyline(position_list=test_points,
+                                   close_surface=False,
+                                   name="PL08_segmented_compound_insert_arc")
         start_point = P.vertex_positions[1]
         insert_point1 = ["90mm", "20mm", "0mm"]
         insert_point2 = [40, 40, 0]
@@ -472,11 +507,11 @@ class TestPrimitives:
     def test_39_modify_crossection(self):
 
         primitives = self.aedtapp.modeler.primitives
-        P = self.aedtapp.modeler.primitives.draw_polyline(position_list=[[34.1004, 14.1248, 0],
-                                                                         [27.646, 16.7984, 0],
-                                                                         [24.9725, 10.3439, 0]],
-                                                          name="Rotor_Subtract_25_0",
-                                                          matname="copper")
+        P = self.aedtapp.modeler.primitives.create_polyline(position_list=[[34.1004, 14.1248, 0],
+                                                                           [27.646, 16.7984, 0],
+                                                                           [24.9725, 10.3439, 0]],
+                                                            name="Rotor_Subtract_25_0",
+                                                            matname="copper")
         P1 = P.clone()
         P2 = P.clone()
         P3 = P.clone()
@@ -511,28 +546,28 @@ class TestPrimitives:
         P = primitives.get_existing_polyline(object_id=id)
         P.remove_vertex(test_points[2])
 
-        P1 = primitives.draw_polyline([[0, 1, 2], [0, 2, 3], [2, 1, 4]])
+        P1 = primitives.create_polyline([[0, 1, 2], [0, 2, 3], [2, 1, 4]])
         P1.remove_vertex([0, 1, 2])
 
-        P2 = primitives.draw_polyline([[0, 1, 2], [0, 2, 3], [2, 1, 4]])
+        P2 = primitives.create_polyline([[0, 1, 2], [0, 2, 3], [2, 1, 4]])
         P2.remove_vertex(["0mm", "1mm", "2mm"])
 
-        P3 = primitives.draw_polyline([[0, 1, 2], [0, 2, 3], [2, 1, 4]])
+        P3 = primitives.create_polyline([[0, 1, 2], [0, 2, 3], [2, 1, 4]])
         P3.remove_vertex(["0mm", "1mm", "2mm"], abstol=1e-6)
 
     def test_41_remove_edges_from_polyline(self):
 
         primitives = self.aedtapp.modeler.primitives
-        P = primitives.draw_polyline([[0, 1, 2], [0, 2, 3], [2, 1, 4]])
+        P = primitives.create_polyline([[0, 1, 2], [0, 2, 3], [2, 1, 4]])
         P.remove_edges(edge_id=0)
-        P = primitives.draw_polyline([[0, 1, 2], [0, 2, 3], [2, 1, 4]])
+        P = primitives.create_polyline([[0, 1, 2], [0, 2, 3], [2, 1, 4]])
         P.remove_edges(edge_id=[0, 1])
 
 
     def test_42_duplicate_polyline_and_manipulate(self):
 
         primitives = self.aedtapp.modeler.primitives
-        P1 = primitives.draw_polyline([[0, 1, 2], [0, 2, 3], [2, 1, 4]])
+        P1 = primitives.create_polyline([[0, 1, 2], [0, 2, 3], [2, 1, 4]])
         P2 = P1.clone()
 
         assert P2.id != P1.id
@@ -551,7 +586,7 @@ class TestPrimitives:
     def test_99_get_edges_on_bunding_box(self):
         self.aedtapp.close_project(name=self.aedtapp.project_name, saveproject=False)
         self.aedtapp.load_project(self.test_99_project)
-        self.prim.refresh_all_ids()
+        self.prim._refresh_all_ids()
         edges = self.prim.get_edges_on_bunding_box(['Port1', 'Port2'], return_colinear=True, tol=1e-6)
         assert edges == [5219, 5183]
         edges = self.prim.get_edges_on_bunding_box(['Port1', 'Port2'], return_colinear=False, tol=1e-6)

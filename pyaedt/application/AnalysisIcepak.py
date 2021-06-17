@@ -184,7 +184,7 @@ class FieldAnalysisIcepak(Analysis, object):
                 selection_list.append(body)
         design.modeler.oeditor.Copy(["NAME:Selections", "Selections:=", ','.join(selection_list)])
         self.modeler.oeditor.Paste()
-        self.modeler.primitives.refresh_all_ids()
+        self.modeler.primitives._refresh_all_ids()
         return True
 
     @aedt_exception_handler

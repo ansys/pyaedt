@@ -8,6 +8,7 @@ from .conftest import local_path, scratch_path
 # Import required modules
 from pyaedt import Hfss
 from pyaedt.generic.filesystem import Scratch
+from pyaedt.modeler.Object3d import _to_boolean
 
 import gc
 
@@ -83,5 +84,101 @@ class TestObject3D:
 
         pass
 
+    def test_05_object3d_properties_transparency(self):
+        if not self.prim["Mybox"]:
+            self.prim.create_box([0, 0, 0], [10, 10, 5], "Mybox", "Copper")
 
+        self.prim["Mybox"].transparency = 50
+        assert self.prim["Mybox"].transparency == 1.0
 
+        self.prim["Mybox"].transparency = 0.67
+        assert self.prim["Mybox"].transparency == 0.67
+
+        self.prim["Mybox"].transparency = 0.0
+        assert self.prim["Mybox"].transparency == 0.0
+
+        self.prim["Mybox"].transparency = 1.0
+        assert self.prim["Mybox"].transparency == 1.0
+
+        self.prim["Mybox"].transparency = -1
+        assert self.prim["Mybox"].transparency == 0.0
+
+    def test_06_object3d_properties_color(self):
+        if not self.prim["Mybox"]:
+            self.prim.create_box([0, 0, 0], [10, 10, 5], "Mybox", "Copper")
+
+        self.prim["Mybox"].color = (0, 0, 255)
+        assert self.prim["Mybox"].color == (0, 0, 255)
+
+    def test_07_object_clone_and_get_properties(self):
+        if not self.prim["Mybox"]:
+            self.prim.create_box([0, 0, 0], [10, 10, 5], "Mybox", "Copper")
+        initial_object = self.prim["Mybox"]
+        initial_object.transparency = 0.76
+        new_object = initial_object.clone()
+        assert new_object.name != initial_object.name
+        assert new_object.material_name == initial_object.material_name
+        assert new_object.solve_inside == initial_object.solve_inside
+        assert new_object.model == initial_object.model
+        assert new_object.display_wireframe == initial_object.display_wireframe
+        assert new_object.part_coordinate_system == initial_object.part_coordinate_system
+        assert new_object.transparency == 0.76
+        assert new_object.color == initial_object.color
+        assert new_object.bounding_box == initial_object.bounding_box
+        assert len(new_object.vertices) == 8
+        assert len(new_object.faces) == 6
+        assert len(new_object.edges) == 12
+        assert new_object.display_wireframe == initial_object.display_wireframe
+
+    def test_08_export_attributes(self):
+        if not self.prim["Mybox"]:
+            self.prim.create_box([0, 0, 0], [10, 10, 5], "Mybox", "Copper")
+        initial_object = self.prim["Mybox"]
+        attr_list = initial_object.export_attributes()
+        attr_legacy_list = initial_object.export_attributes_legacy()
+
+        attr_list_name = initial_object.export_attributes("some_name")
+        attr_legacy_list_name = initial_object.export_attributes_legacy("some_name")
+
+        assert "some_name" in attr_legacy_list_name
+        assert not None in attr_legacy_list
+        assert not None in attr_list
+        assert "some_name" in attr_list_name
+
+    def test_08_set_model(self):
+        if not self.prim["Mybox"]:
+            self.prim.create_box([0, 0, 0], [10, 10, 5], "Mybox", "Copper")
+        initial_object = self.prim["Mybox"]
+        initial_object.model = False
+        initial_object.draw_wireframe = True
+
+    def test_09_to_boolean(self):
+        assert _to_boolean(True)
+        assert not _to_boolean(False)
+        assert _to_boolean("d")
+        assert not _to_boolean("f")
+        assert not _to_boolean("no")
+
+    def test_10_chamfer(self):
+        id = self.prim.create_box([0, 0, 0], [10, 10, 5], "ChamferTest", "Copper")
+        initial_object = self.prim[id]
+        object_edges = initial_object.edges
+        assert len(object_edges) == 12
+        test = initial_object.edges[0].chamfer(left_distance=0.2)
+        assert test
+        test = initial_object.edges[1].chamfer(left_distance=0.2, right_distance=0.4, angle=34, chamfer_type=2)
+        assert test
+        test = initial_object.edges[2].chamfer(left_distance=0.2, right_distance=0.4, chamfer_type=1)
+        assert test
+        self.aedtapp.modeler.primitives.delete(initial_object)
+
+    def test_11_fillet(self):
+        id = self.prim.create_box([0, 0, 0], [10, 10, 5], "FilletTest", "Copper")
+        initial_object = self.prim[id]
+        object_edges = initial_object.edges
+        assert len(object_edges) == 12
+        test = initial_object.edges[0].fillet(radius=0.2)
+        assert test
+        test = initial_object.edges[1].fillet(radius=0.2, setback=0.1)
+        assert not test
+        self.aedtapp.modeler.primitives.delete(initial_object)

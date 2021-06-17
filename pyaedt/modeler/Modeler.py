@@ -768,10 +768,10 @@ class GeometryModeler(Modeler, object):
 
         Parameters
         ----------
-        objectname :
+        objectname : str
             Object name
-        groundname :
-            Ground Name if None it will connect to bounding box (Default value = None)
+        groundname : str, default=None
+            Ground Name - if not specified then use model bounding box
         axisdir :
             Axis Dir (Default value = 0)
         sheet_dim :
@@ -783,14 +783,13 @@ class GeometryModeler(Modeler, object):
             rectangle ID
 
         """
-        faces = self.primitives.get_object_faces(objectname)
         if axisdir>2:
             obj_cent=[-1e6,-1e6,-1e6]
         else:
             obj_cent=[1e6,1e6,1e6]
         face_ob=None
-        for face in faces:
-            center = self.primitives.get_face_center(face)
+        for face in self.primitives[objectname].faces:
+            center = face.center
             if not center:
                 continue
             if axisdir > 2 and center[axisdir-3] > obj_cent[axisdir-3]:
@@ -799,8 +798,8 @@ class GeometryModeler(Modeler, object):
             elif axisdir <= 2 and center[axisdir] < obj_cent[axisdir]:
                     obj_cent = center
                     face_ob = face
-        vertx = self.primitives.get_face_vertices(face_ob)
-        start = self.primitives.get_vertex_position(vertx[0])
+        vertx = face_ob.vertices
+        start = vertx[0].position
 
         if not groundname:
             gnd_cent = []
@@ -812,13 +811,14 @@ class GeometryModeler(Modeler, object):
                 for i in bounding[3:]:
                     gnd_cent.append(float(i))
         else:
+            ground_plate = self.primitives[groundname]
             if axisdir > 2:
                 gnd_cent = [1e6, 1e6, 1e6]
             else:
                 gnd_cent = [-1e6, -1e6, -1e6]
-            face_gnd = self.primitives.get_object_faces(groundname)
+            face_gnd = ground_plate.faces
             for face in face_gnd:
-                center = self.primitives.get_face_center(face)
+                center = face.center
                 if not center:
                     continue
                 if axisdir > 2 and center[axisdir-3] < gnd_cent[axisdir-3]:
@@ -834,22 +834,22 @@ class GeometryModeler(Modeler, object):
         offset = [i for i in start]
         if divmod(axisdir,3)[1] == 0:
             self.find_point_around(objectname,offset, sheet_dim, self._parent.CoordinateSystemPlane.YZPlane)
-            p1 = self.primitives.draw_polyline([self.Position(start), self.Position(offset)])
-            p2 = self.primitives.draw_polyline([self.Position(start), self.Position(offset)])
+            p1 = self.primitives.create_polyline([start, offset])
+            p2 = self.primitives.create_polyline([start, offset])
             self.translate(p2.id, [axisdist, 0, 0])
-            self.connect([p1.id,p2.id])
+            self.connect([p1.id, p2.id])
             #rect = self.primitives.create_rectangle(self._parent.CoordinateSystemPlane.XYPlane,  start,pos)
         elif divmod(axisdir,3)[1]== 1:
             self.find_point_around(objectname,offset, sheet_dim, self._parent.CoordinateSystemPlane.ZXPlane)
-            p1 = self.primitives.draw_polyline([self.Position(start), self.Position(offset)])
-            p2 = self.primitives.draw_polyline([self.Position(start), self.Position(offset)])
+            p1 = self.primitives.create_polyline([start, offset])
+            p2 = self.primitives.create_polyline([start, offset])
             self.translate(p2.id, [0, axisdist, 0])
             self.connect([p1.id, p2.id])
             #rect = self.primitives.create_rectangle(self._parent.CoordinateSystemPlane.YZPlane,start,pos)
         elif divmod(axisdir,3)[1] == 2:
             self.find_point_around(objectname,offset, sheet_dim, self._parent.CoordinateSystemPlane.XYPlane)
-            p1 = self.primitives.draw_polyline([self.Position(start), self.Position(offset)])
-            p2 = self.primitives.draw_polyline([self.Position(start), self.Position(offset)])
+            p1 = self.primitives.create_polyline([self.Position(start), self.Position(offset)])
+            p2 = self.primitives.create_polyline([self.Position(start), self.Position(offset)])
             self.translate(p2.id, [0,0,axisdist])
             self.connect([p1.id, p2.id])
             #rect = self.primitives.create_rectangle(self._parent.CoordinateSystemPlane.ZXPlane,start,pos)
@@ -1188,7 +1188,7 @@ class GeometryModeler(Modeler, object):
                 "SplitCrossingObjectsOnly:=", False,
                 "DeleteInvalidObjects:=", True
             ])
-        self.primitives.refresh_all_ids()
+        self.primitives._refresh_all_ids()
         return True
 
     @aedt_exception_handler
@@ -1227,7 +1227,7 @@ class GeometryModeler(Modeler, object):
         if self.oeditor is not None:
             objs = self.primitives.get_all_objects_names()
             idStr = self.oeditor.DuplicateMirror(vArg1, vArg2, vArg3)
-            self.primitives.refresh_all_ids()
+            self.primitives._refresh_all_ids()
             objs2 = self.primitives.get_all_objects_names()
             thelist = [i for i in objs2 if i not in objs]
             return True, thelist
@@ -1303,7 +1303,7 @@ class GeometryModeler(Modeler, object):
         id = []
         objs = self.primitives.get_all_objects_names()
         idList = self.oeditor.DuplicateAroundAxis(vArg1, vArg2, vArg3)
-        self.primitives.refresh_all_ids()
+        self.primitives._refresh_all_ids()
         objs2 = self.primitives.get_all_objects_names()
         thelist = [i for i in objs2 if i not in objs]
 
@@ -1343,7 +1343,7 @@ class GeometryModeler(Modeler, object):
         id = []
         objs = self.primitives.get_all_objects_names()
         idList = self.oeditor.DuplicateAlongLine(vArg1, vArg2, vArg3)
-        self.primitives.refresh_all_ids()
+        self.primitives._refresh_all_ids()
         objs2 = self.primitives.get_all_objects_names()
         thelist = [i for i in objs2 if i not in objs]
         return True, thelist
@@ -1527,7 +1527,7 @@ class GeometryModeler(Modeler, object):
         selections = self.convert_to_selections(object_list)
         self.oeditor.SeparateBody(["NAME:Selections", "Selections:=", selections,
                                    "NewPartsModelFlag:=", "Model"], ["CreateGroupsForNewObjects:=", create_group])
-        self.primitives.refresh_all_ids()
+        self.primitives._refresh_all_ids()
         return True
 
     @aedt_exception_handler
@@ -1804,7 +1804,7 @@ class GeometryModeler(Modeler, object):
         objs = self.primitives.get_all_objects_names()
         self.oeditor.Copy(vArg1)
         newObj = self.oeditor.Paste()
-        self.primitives.refresh_all_ids()
+        self.primitives._refresh_all_ids()
         objs2 = self.primitives.get_all_objects_names()
         thelist = [i for i in objs2 if i not in objs]
         return True, thelist[0]
@@ -1873,10 +1873,7 @@ class GeometryModeler(Modeler, object):
             self.odesign.Undo()
             self.messenger.add_error_message("Error in connection. Reverting Operation")
             return False
-        if type(object1) is str:
-            self.primitives.objects[self.primitives.objects_names[object1]].is3d = True
-        else:
-            self.primitives.objects[object1].is3d = True
+
         self.primitives._delete_object_from_dict(object2)
         self.messenger.add_info_message("Connection Correctly created")
         return True
@@ -2632,7 +2629,7 @@ class GeometryModeler(Modeler, object):
                 ])
             originals = self.primitives.get_all_objects_names()
             self.oeditor.Paste()
-            self.primitives.refresh_all_ids()
+            self.primitives._refresh_all_ids()
             added = self.primitives.get_all_objects_names()
             cloned = [i for i in added if i not in originals]
             solids = self.primitives.get_all_solids_names()
@@ -2840,7 +2837,7 @@ class GeometryModeler(Modeler, object):
         vArg1.append("SourceFile:="), vArg1.append(filename)
         self.oeditor.Import(vArg1)
         if refresh_all_ids:
-            self.primitives.refresh_all_ids()
+            self.primitives._refresh_all_ids()
         self.messenger.add_info_message("Step file {} imported".format(filename))
         return True
 
@@ -2989,7 +2986,7 @@ class GeometryModeler(Modeler, object):
                 "Version:=", "2.0",
                 "ConnectionID:=", ""
             ])
-        self.primitives.refresh_all_ids()
+        self.primitives._refresh_all_ids()
         return True
 
     @aedt_exception_handler

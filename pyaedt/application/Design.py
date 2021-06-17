@@ -2060,7 +2060,7 @@ class Design(object):
         else:
             self.oproject.Save()
         if refresh_obj_ids_after_save:
-            self.modeler.primitives.refresh_all_ids_from_aedt_file()
+            self.modeler.primitives._refresh_all_ids_from_aedt_file()
         return True
 
     @aedt_exception_handler

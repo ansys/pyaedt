@@ -29,7 +29,7 @@ class FieldAnalysis3D(Analysis, object):
         self._modeler = Modeler3D(self)
         self._mesh = Mesh(self)
         #self._post = PostProcessor(self)
-        self.modeler.primitives.refresh()
+        #self.modeler.primitives.refresh()
 
     @property
     def modeler(self):
@@ -199,7 +199,7 @@ class FieldAnalysis3D(Analysis, object):
                 selection_list.append(body)
         design.modeler.oeditor.Copy(["NAME:Selections", "Selections:=", ','.join(selection_list)])
         self.modeler.oeditor.Paste()
-        self.modeler.primitives.refresh_all_ids()
+        self.modeler.primitives._refresh_all_ids()
 
         return True
 
