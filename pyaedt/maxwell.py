@@ -185,6 +185,75 @@ class Maxwell(object):
         design_file = os.path.join(self.working_directory, "design_data.json")
         return design_file
 
+    @aedt_exception_handler
+    def setup_ctrlprog(self, setupname, file_str=None, keep_modifications=False, python_interpreter=None, aedt_lib_dir=None):
+        """Configure the transient design setup to run a specific control program.
+
+        Parameters
+        ----------
+        file_str : str, optional
+            The default value is ``None``.
+        keep_modifications : bool, optional
+            The default value is ``False``.
+        python_interpreter : optional
+             The default value is ``None``.
+        aedt_lib_dir : str, optional
+             The default value is ``None``.
+
+        Returns
+        -------
+<<<<<<< HEAD
+
+=======
+        bool
+            ``True`` when successful and ``False`` when failed.
+>>>>>>> main
+        """
+
+        self._py_file = setupname + ".py"
+        ctl_path = self.working_directory
+        ctl_file_compute = os.path.join(ctl_path, self._py_file)
+        ctl_file = os.path.join(self.working_directory, self._py_file)
+
+        if aedt_lib_dir:
+            source_dir = aedt_lib_dir
+        else:
+            source_dir = self.pyaedt_dir
+
+        if os.path.exists(ctl_file) and keep_modifications:
+            with open(ctl_file, "r") as fi:
+                existing_data = fi.readlines()
+            with open(ctl_file, "w") as fo:
+                first_line = True
+                for line in existing_data:
+                    if first_line:
+                        first_line = False
+                        if python_interpreter:
+                            fo.write("#!{0}\n".format(python_interpreter))
+                    if line.startswith("work_dir"):
+                        fo.write("work_dir = r'{0}'\n".format(ctl_path))
+                    elif line.startswith("lib_dir"):
+                        fo.write("lib_dir = r'{0}'\n".format(source_dir))
+                    else:
+                        fo.write(line)
+        else:
+            if file_str is not None:
+                with io.open(ctl_file, "w", newline='\n') as fo:
+                    fo.write(file_str)
+                assert os.path.exists(ctl_file), "Control Program file could not be created."
+
+        self.oanalysis_setup.EditSetup(setupname,
+                          [
+                              "NAME:" + setupname,
+                              "Enabled:=", True,
+                              "UseControlProgram:=", True,
+                              "ControlProgramName:=", ctl_file_compute,
+                              "ControlProgramArg:=", "",
+                              "CallCtrlProgAfterLastStep:=", True
+                          ])
+
+        return True
+
     # Set eddy effects
     @aedt_exception_handler
     def eddy_effects_on(self, object_list, activate=True):
