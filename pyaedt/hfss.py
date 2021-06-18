@@ -262,8 +262,9 @@ class Hfss(FieldAnalysis3D, object):
         >>> id1 = aedtapp.modeler.primitives.get_obj_id("inner")
         >>> coat = aedtapp.assigncoating([id1], "copper",usethickness=True, thickness="0.2mm")
         """
+        if mat:
 
-        mat = mat.lower()
+            mat = mat.lower()
         listobj = self.modeler.convert_to_selections(obj, True)
         listobjname = "_".join(listobj)
         props = {"Objects": listobj}

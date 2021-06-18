@@ -25,7 +25,7 @@ except ImportError:
 
 
 def resistor_value_parser(RValue):
-    """
+    """Convert Resistor value
 
     Parameters
     ----------

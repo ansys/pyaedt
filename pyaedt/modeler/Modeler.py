@@ -893,25 +893,13 @@ class GeometryModeler(Modeler, object):
 
     @aedt_exception_handler
     def _create_microstrip_sheet_from_object_closest_edge(self, startobj, endobject, axisdir, vfactor=3, hfactor=5):
-        """
+        def duplicate_and_unite(sheet_name, array1, array2, dup_factor):
+            status, list = self.duplicate_along_line(sheet_name, array1, dup_factor + 1)
+            status, list2 = self.duplicate_along_line(sheet_name, array2, dup_factor + 1)
+            list_unite.extend(list)
+            list_unite.extend(list2)
+            self.unite(list_unite)
 
-        Parameters
-        ----------
-        startobj :
-            
-        endobject :
-            
-        axisdir :
-            
-        vfactor :
-             (Default value = 3)
-        hfactor :
-             (Default value = 5)
-
-        Returns
-        -------
-
-        """
         tol = 1e-6
         out, parallel = self.primitives.find_closest_edges(startobj, endobject, axisdir)
         port_edges = self.primitives.get_equivalent_parallel_edges(out, True, axisdir, startobj, endobject)
@@ -937,42 +925,21 @@ class GeometryModeler(Modeler, object):
         list_unite = [sheet_name]
         dup_factor = divmod((hfactor + 1), 2)[0]
         coeff = (hfactor - 1) / 2 / dup_factor
+
+
         if divmod(axisdir, 3)[1] == 0 and abs(vect[1]) < tol:
-            status, list = self.duplicate_along_line(sheet_name, [0, len * coeff, 0], dup_factor + 1)
-            status, list2 = self.duplicate_along_line(sheet_name, [0, -len * coeff, 0], dup_factor + 1)
-            list_unite.extend(list)
-            list_unite.extend(list2)
-            self.unite(list_unite)
+            duplicate_and_unite(sheet_name, [0, len * coeff, 0],[0, -len * coeff, 0], dup_factor)
         elif divmod(axisdir, 3)[1] == 0 and abs(vect[2]) < tol:
-            status, list = self.duplicate_along_line(sheet_name, [0, 0, len * coeff], dup_factor + 1)
-            status, list2 = self.duplicate_along_line(sheet_name, [0, 0, -len * coeff], dup_factor + 1)
-            list_unite.extend(list)
-            list_unite.extend(list2)
-            self.unite(list_unite)
+            duplicate_and_unite(sheet_name, [0, 0, len * coeff], [0, 0, -len * coeff], dup_factor)
         elif divmod(axisdir, 3)[1] == 1 and abs(vect[0]) < tol:
-            status, list = self.duplicate_along_line(sheet_name, [len * coeff, 0, 0], dup_factor + 1)
-            status, list2 = self.duplicate_along_line(sheet_name, [-len * coeff, 0, 0], dup_factor + 1)
-            list_unite.extend(list)
-            list_unite.extend(list2)
-            self.unite(list_unite)
+            duplicate_and_unite(sheet_name, [len * coeff, 0, 0], [-len * coeff, 0, 0], dup_factor)
         elif divmod(axisdir, 3)[1] == 1 and abs(vect[2]) < tol:
-            status, list = self.duplicate_along_line(sheet_name, [0, 0, len * coeff], dup_factor + 1)
-            status, list2 = self.duplicate_along_line(sheet_name, [0, 0, -len * coeff], dup_factor + 1)
-            list_unite.extend(list)
-            list_unite.extend(list2)
-            self.unite(list_unite)
+            duplicate_and_unite(sheet_name, [0, 0, len * coeff], [0, 0, -len * coeff], dup_factor)
         elif divmod(axisdir, 3)[1] == 2 and abs(vect[0]) < tol:
-            status, list = self.duplicate_along_line(sheet_name, [len * coeff, 0, 0], dup_factor + 1)
-            status, list2 = self.duplicate_along_line(sheet_name, [-len * coeff, 0, 0], dup_factor + 1)
-            list_unite.extend(list)
-            list_unite.extend(list2)
-            self.unite(list_unite)
+            duplicate_and_unite(sheet_name, [len * coeff, 0, 0], [-len * coeff, 0, 0], dup_factor)
         elif divmod(axisdir, 3)[1] == 2 and abs(vect[1]) < tol:
-            status, list = self.duplicate_along_line(sheet_name, [0, len * coeff, 0], dup_factor + 1)
-            status, list2 = self.duplicate_along_line(sheet_name, [0, -len * coeff, 0], dup_factor + 1)
-            list_unite.extend(list)
-            list_unite.extend(list2)
-            self.unite(list_unite)
+            duplicate_and_unite(sheet_name,  [0, len * coeff, 0], [0, -len * coeff, 0], dup_factor)
+
 
         return sheet_name, point0, point1
 
@@ -2691,49 +2658,27 @@ class GeometryModeler(Modeler, object):
 
     @aedt_exception_handler
     def get_object_name_from_edge_id(self, edge_id):
-        """
+        """Return object name for a predefined edge id
 
         Parameters
         ----------
-        edge_id :
+        edge_id : int
+            Edge Id
             
 
         Returns
         -------
-
+        str
+            Object name if exists
         """
-        assert "Edge" in edge_id, "Invalid Edge {0}".format(edge_id)
-        edge_id = edge_id.replace("Edge", "")
-        all_objects = self.solid_bodies
-        for object in all_objects:
-            oEdgeIDs = self.oeditor.GetEdgeIDsFromObject(object)
-            if edge_id in oEdgeIDs:
-                return object
-        return None
-
-    @aedt_exception_handler
-    def solid_ids(self, txtfilter=None):
-        """Create a directory of object IDs with key as object name.
-
-        Parameters
-        ----------
-        txtfilter :
-             (Default value = None)
-
-        Returns
-        -------
-
-        """
-        objects = self.solid_bodies
-
-        # Apply text filter on object names.
-        if txtfilter is not None:
-            objects = [n for n in objects if txtfilter in n]
-
-        object_ids = {}
-        for o in objects:
-            object_ids[o] = str(self.oeditor.GetObjectIDByName(o))
-        return object_ids
+        for object in list(self.primitives.objects_names.keys()):
+            try:
+                oEdgeIDs = self.oeditor.GetEdgeIDsFromObject(object)
+                if str(edge_id) in oEdgeIDs:
+                    return object
+            except:
+                return False
+        return False
 
     @aedt_exception_handler
     def get_solving_volume(self):

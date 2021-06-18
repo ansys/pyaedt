@@ -63,6 +63,9 @@ class TestHFSS:
         coat = self.aedtapp.assigncoating([id1], "copper")
         assert coat
         assert coat.name
+        assert self.aedtapp.assigncoating([id1], usehuray=True, usethickness=True, istwoside=True)
+
+
 
     def test_05_create_wave_port_from_sheets(self):
         udp = self.aedtapp.modeler.Position(0, 0, 0)
@@ -165,6 +168,9 @@ class TestHFSS:
         self.aedtapp.assignmaterial("BoxLumped2", "Copper")
         port = self.aedtapp.create_lumped_port_between_objects("BoxLumped1", "BoxLumped2", self.aedtapp.AxisDir.XNeg, 50,
                                                             "Lump1", True, False)
+        assert not self.aedtapp.create_lumped_port_between_objects("BoxLumped1111", "BoxLumped2", self.aedtapp.AxisDir.XNeg, 50,
+                                                            "Lump1", True, False)
+        assert self.aedtapp.create_lumped_port_between_objects("BoxLumped1", "BoxLumped2", self.aedtapp.AxisDir.XPos, 50)
         assert port == "Lump1"
 
     def test_11_create_circuit_on_objects(self):
@@ -174,6 +180,9 @@ class TestHFSS:
         port = self.aedtapp.create_circuit_port_between_objects("BoxCircuit1", "BoxCircuit2", self.aedtapp.AxisDir.XNeg,
                                                                 50, "Circ1", True, 50, False)
         assert port == "Circ1"
+        assert not self.aedtapp.create_circuit_port_between_objects("BoxCircuit44", "BoxCircuit2", self.aedtapp.AxisDir.XNeg,
+                                                                50, "Circ1", True, 50, False)
+
 
     def test_12_create_perfects_on_objects(self):
         box1 = self.aedtapp.modeler.primitives.create_box([0,0,0], [10,10,5], "p1", "Copper")
@@ -323,6 +332,8 @@ class TestHFSS:
         sub = self.aedtapp.modeler.primitives.create_box([0,5,-2],[20,100,2],name="SUB1", matname="FR4_epoxy")
         gnd = self.aedtapp.modeler.primitives.create_box([0,5,-2.2],[20,100,0.2],name="GND1", matname="FR4_epoxy")
         port = self.aedtapp.create_wave_port_microstrip_between_objects("GND1", "MS1",   portname="MS1", axisdir=1)
+
+
         assert port.name == "MS1"
         assert port.update()
 
@@ -337,6 +348,7 @@ class TestHFSS:
         assert new_design.copy_solid_bodies_from(self.aedtapp)
         assert len(new_design.modeler.solid_bodies) == 41
         new_design.delete_design(design_name)
+        new_design.close_project()
 
     def test_34_object_material_properties(self):
         props = self.aedtapp.get_object_material_properties("MS1", "conductivity")
