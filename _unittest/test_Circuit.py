@@ -88,8 +88,8 @@ class TestCircuit:
 
     def test_09_import_touchstone(self):
         self.aedtapp.insert_design("Touchstone_import")
-        ports = self.aedtapp.import_touchsthone_solution(os.path.join(self.local_scratch.path, touchstone))
-        ports2 = self.aedtapp.import_touchsthone_solution(os.path.join(self.local_scratch.path, touchstone2))
+        ports = self.aedtapp.import_touchstone_solution(os.path.join(self.local_scratch.path, touchstone))
+        ports2 = self.aedtapp.import_touchstone_solution(os.path.join(self.local_scratch.path, touchstone2))
         numports = len(ports)
         assert numports == 6
         numports2 = len(ports2)
