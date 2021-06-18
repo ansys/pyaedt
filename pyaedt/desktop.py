@@ -8,7 +8,7 @@ have the app automatically initialize it to the latest installed AEDT version.
 
 Examples
 --------
-Launch AEDT 2020 R1 in non-graphical mode and initialize HFSS.
+Launch AEDT 2021 R1 in non-graphical mode and initialize HFSS.
 
 >>> import pyaedt
 >>> desktop = pyaedt.Desktop("2021.1", NG=True)
@@ -115,26 +115,26 @@ def update_aedt_registry(key, value, desktop_version="193"):
     --------
     Update the HPC license type for HFSS in the AEDT registry.
     
-    >>> updateAEDTRegistry("HFSS/HPCLicenseType",'"'12'"')
+    >>> updateAEDTRegistry("HFSS/HPCLicenseType", "12")
     
     Update the HPC license type for Icepak in the AEDT registry.
     
-    >>> updateAEDTRegistry("Icepak/HPCLicenseType",'"'8'"')
+    >>> updateAEDTRegistry("Icepak/HPCLicenseType", "8")
     
     Update the legacy HPC license type for HFSS in the AEDT registry.
     
-    >>> updateAEDTRegistry("HFSS/UseLegacyElectronicsHPC","0")
+    >>> updateAEDTRegistry("HFSS/UseLegacyElectronicsHPC", "0")
     
     Update the MPI vendor for HFSS in the AEDT registry.
     
-    >>> updateAEDTRegistry("HFSS/MPIVendor",'"'+"Intel"+'"')
+    >>> updateAEDTRegistry("HFSS/MPIVendor", "Intel")
 
     Parameters
     ----------
-    key :
-        
-    value :
-        
+    key : str
+        Registry key.
+    value : str
+        Value to set the registry key to.
     desktop_version : str, optional
          The version of Electronics Desktop. The default is ``"193"``.
 
@@ -161,7 +161,7 @@ def release_desktop(close_projects=True, close_desktop=True):
 
     Parameters
     ----------
-    close_projects : boolean, optional
+    close_projects : bool, optional
         Whether to close the projects opened in the session. The default is ``True``.
     close_desktop : bool, optional
         Whether to close the active AEDT session. The default is ``True``.
@@ -280,7 +280,8 @@ def force_close_desktop():
 
 
 class Desktop:
-    """The core module that initializes AEDT based on the inputs provided:"""
+    """Core class used to initialize AEDT based on the inputs provided."""
+
     @property
     def version_keys(self):
         """ """
