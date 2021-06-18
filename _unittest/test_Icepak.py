@@ -240,10 +240,5 @@ class TestIcepak:
         self.aedtapp.set_active_design("IcepakDesign1")
         assert self.aedtapp.mesh.automatic_mesh_3D(accuracy2=1)
 
-    def test_36_generate_mesh(self):
-        self.aedtapp.insert_design("MeshDesign")
-        self.aedtapp.create_setup("NewSetup")
-        assert self.aedtapp.mesh.generate_mesh("NewSetup")
-
     def test_88_create_heat_sink(self):
         assert self.aedtapp.create_parametric_fin_heat_sink()
