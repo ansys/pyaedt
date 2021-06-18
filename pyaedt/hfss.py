@@ -17,11 +17,11 @@ Create an instance of ``Hfss`` and link to a design named ``"designname"`` in a 
 
 >>> hfss = Hfss(projectname,designame)
 
-Create an ``Hfss`` object and open the specified project:
+Create an instance of ``Hfss`` and open the specified project:
 
 >>> hfss = Hfss("myfile.aedt")
 
-Create an instance of ``Hfss`` using the 2021.1 release and open the specified project ``"myfile.aedt"``.
+Create an instance of ``Hfss`` using the 2021 R1 release and open the specified project, which is ``"myfile.aedt"``.
 
 >>> hfss = Hfss(specified_version="2021.1", projectname="myfile.aedt")
 
@@ -66,13 +66,14 @@ class Hfss(FieldAnalysis3D, object):
                 Name of the setup to use as the nominal. The default is ``None``. If ``None``, the active setup 
                 is used or nothing is used.
             specified_version : str, optional
-                Version to use. The default is ``None``. If ``None``, the active setup is used or the latest installed is used.
+                Version of AEDT to use. The default is ``None``. If ``None``, the active setup is used or the latest installed version is used.
             NG : bool, optional
-                The default is ``False``.   
+                Whether to launch AEDT in the non-graphical mode. The default is ``False``, which launches AEDT in the graphical mode.   
             AlwaysNew : bool, optional
+                Whether to launch an instance of AEDT in a new thread, even if another instance of the ``specified_version`` is active on the machine.
                 The default is ``True``.
             release_on_exit : bool, optional
-                The default is ``True``.
+                Whether to release AEDT on exit. The default is ``True``.
               
 
             Returns
@@ -393,7 +394,7 @@ class Hfss(FieldAnalysis3D, object):
         save_fields : bool, optional
             Whether to save the fields. The default is ``True``.
         save_rad_fields : bool, optional
-           Whether to save the radiating fields. The default is ``False``.
+            Whether to save the radiating fields. The default is ``False``.
 
         Returns
         -------
@@ -601,7 +602,7 @@ class Hfss(FieldAnalysis3D, object):
             Position of the port. It should be one of the values for ``Application.AxisDir``, 
             which are:  ``"XNeg"``, ``"YNeg"``, ``"ZNeg"``, ``"XPos"``, ``"YPos"``, and ``"ZPos"``. 
             The default is ``"XYNeg"``.
-        impedance : optional
+        impedance : float, optional
             Port impedance. The default is ``50``.
         portname : str, optional
             Name of the port. The default is ``None``.
@@ -636,7 +637,7 @@ class Hfss(FieldAnalysis3D, object):
     @aedt_exception_handler
     def create_lumped_port_between_objects(self, startobj, endobject, axisdir=0, impedance=50, portname=None,
                                            renorm=True, deemb=False, port_on_plane=True):
-        """Create a lumped taking the closest edges of two objects.
+        """Create a lumped port taking the closest edges of two objects.
 
         Parameters
         ----------
@@ -647,7 +648,7 @@ class Hfss(FieldAnalysis3D, object):
         axisdir :
             Position of the port. It should be one of the values for ``Application.AxisDir``, which are:
             ``"XNeg"``, ``"YNeg"``, ``"ZNeg"``, ``"XPos"``, ``"YPos"``, and ``"ZPos"``. The default is ``"0"``.
-        impedance : optional
+        impedance : float, optional
             Port impedance. The default is ``50``.
         portname : str, optional
             Name of the port. The default is ``None``.
@@ -784,10 +785,10 @@ class Hfss(FieldAnalysis3D, object):
         point2 :
             
         sourcename : str
-            The name of the source.
+            Name of the source.
             
         sourcetype : str, optional
-             The type of the source. The default is ``"Voltage"``.
+            Type of the source. The default is ``"Voltage"``.
 
         Returns
         -------
@@ -818,7 +819,7 @@ class Hfss(FieldAnalysis3D, object):
             Position of the port. It should be one of the values for ``Application.AxisDir``, 
             which are: ``"XNeg"``, ``"YNeg"``, ``"ZNeg"``, ``"XPos"``, ``"YPos"``, and ``"ZPos"``. 
             The default is ``"0"``.
-        impedance : optional
+        impedance : float, optional
             Port impedance. The default is ``50``.
         nummodes : int, optional
             Number of modes. The default is ``1``.
@@ -891,7 +892,7 @@ class Hfss(FieldAnalysis3D, object):
             Position of the port. It should be one of the values for ``Application.AxisDir``, 
             which are: ``"XNeg"``, ``"YNeg"``, ``"ZNeg"``, ``"XPos"``, ``"YPos"``, and ``"ZPos"``. 
             The default is ``"0"``.
-        impedance : optional
+        impedance : float, optional
             Port impedance. The default is ``50``.
         nummodes : int, optional
             Number of modes. The default is ``1``.
@@ -1105,7 +1106,7 @@ class Hfss(FieldAnalysis3D, object):
         sourcename : str, optional
             Perfect H name. The default is ``None``.
         rlctype : str, optional
-            The type of RLC. Choices are ``"Parallel"`` or ``"Series"``. The default is ``"Parallel"``.
+            Type of RLC. Choices are ``"Parallel"`` or ``"Series"``. The default is ``"Parallel"``.
         Rvalue : optional
             Resistance value in Ohm. None to disable. The default is ``None``.
         Lvalue : optional
@@ -1174,7 +1175,7 @@ class Hfss(FieldAnalysis3D, object):
             The default is ``"0"``.
         sourcename : str, optional
             Name of the impedance. The default is ``None``.
-        resistance : optional
+        resistance : float, optional
             Resistance value in Ohm. None to disable. The default is ``50``.
         reactance : optional
             Reactance value in Ohm. None to disable. The default is ``0``.
@@ -1313,7 +1314,7 @@ class Hfss(FieldAnalysis3D, object):
             Position of the reference object. It should be one of the values for ``Application.AxisDir``, 
             which are: ``"XNeg"``, ``"YNeg"``, ``"ZNeg"``, ``"XPos"``, ``"YPos"``, and ``"ZPos"``. 
             The default is ``"0"``.
-        impedance : optional
+        impedance : float, optional
             Port impedance. The default is ``50``.
         nummodes : int, optional
             Number of modes. The default is ``1``.
@@ -1367,7 +1368,7 @@ class Hfss(FieldAnalysis3D, object):
             Direction of the port. It should be one of the values for ``Application.AxisDir``, 
             which are: ``"XNeg"``, ``"YNeg"``, ``"ZNeg"``, ``"XPos"``, ``"YPos"``, and ``"ZPos"``. 
             The default is ``"0"`.
-        impedance : optional
+        impedance : float, optional
             Port impedance. The default is ``50``.
         portname : str, optional
             Name of the port. The default is ``None``.
@@ -1462,7 +1463,7 @@ class Hfss(FieldAnalysis3D, object):
             which are: ``"XNeg"``, ``"YNeg"``, ``"ZNeg"``, ``"XPos"``, ``"YPos"``, and ``"ZPos"``. 
             The default is ``"0"``.
         sourcename : str, optional
-           Name of the source. The default is ``None``.
+            Name of the source. The default is ``None``.
 
         Returns
         -------
@@ -1493,7 +1494,7 @@ class Hfss(FieldAnalysis3D, object):
         sheet_list : str or list
             Name of the sheet or list on which to apply the boundary.
         sourcename : str, optional
-            The name of the source. Perfect E name. The default is ``None``.
+            Name of the Perfect E source. The default is ``None``.
         is_infinite_gnd : bool, optional
             Whether the Perfect E is an infinite ground. The default is ``False``.
 
@@ -1554,10 +1555,10 @@ class Hfss(FieldAnalysis3D, object):
             Perfect H name. The default is ``None``.
         rlctype : str, optional
             The type of RLC. Choices are ``"Parallel"`` or ``"Series"``. The default is ``"Parallel"``.
-        Rvalue : optional
-            Resistance value in Ohm. None to disable. The default is ``None``.
+        Rvalue : float, optional
+            Resistance value in Ohm. ``None`` to disable. The default is ``None``.
         Lvalue : optional
-            Inductance value in H. None to disable. The default is ``None``.
+            Inductance value in H. ``None`` to disable. The default is ``None``.
         Cvalue : optional
             Capacitance value in F. None to disable. The default is ``None``.
        
@@ -1606,9 +1607,9 @@ class Hfss(FieldAnalysis3D, object):
         sheet_name : str
             Name of the sheet on which to apply the boundary.
         sourcename : str, optional
-            Impedance name. The default is ``None``.
+            Name of the impedance. The default is ``None``.
         resistance : optional
-            Resistance value in Ohm. None to disable. The default is ``50``.
+            Resistance value in Ohm. ``None`` to disable. The default is ``50``.
         reactance : optional
             Reactance value in Ohm. None to disable. The default is ``0``.
         is_infground : bool, optional
@@ -2095,7 +2096,7 @@ class Hfss(FieldAnalysis3D, object):
         variation : list, optional
              List of all parameter variations, such as ``["$AmbientTemp", "$PowerIn"]``. The default is ``[]``.
         variations_value : list, optional
-             List of all parameter variation values), such as ``["22cel", "100"]``. The default is ``[]``.
+             List of all parameter variation values, such as ``["22cel", "100"]``. The default is ``[]``.
 
         Returns
         -------
@@ -2148,11 +2149,13 @@ class Hfss(FieldAnalysis3D, object):
         ----------
         activate : bool
             Whether to export the Touchstone file after the simulation finishes.
+        export_dir : str, optional
+            Directory to which to export the Touchstone file. The default is ``""``.
 
         Returns
         -------
-        type
-            ``True`` if operation succeeded.
+        bool
+            ``True`` when successful, ``False`` when failed.
 
         """
 

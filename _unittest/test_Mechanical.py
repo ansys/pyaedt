@@ -61,7 +61,7 @@ class TestMechanical:
         assert mysetup.update()
 
 
-    @pytest.mark.skipif(config["desktopVersion"]<"2021.2", reason="Skipped on versions lower than 2021.2")
+    @pytest.mark.skipif(config["desktopVersion"] < "2021.2", reason="Skipped on versions lower than 2021.2")
     def test_07_assign_thermal_loss(self):
         ipk = Icepak(solution_type=self.aedtapp.SolutionTypes.Icepak.SteadyTemperatureAndFlow)
         udp = self.aedtapp.modeler.Position(0, 0, 0)
@@ -82,7 +82,6 @@ class TestMechanical:
                                                "MyCylinder", "brass")
         assert mech.assign_fixed_support(mech.modeler.primitives["MyCylinder"].faces[0].id)
         assert mech.assign_frictionless_support(mech.modeler.primitives["MyCylinder"].faces[1].id)
-
 
 
 

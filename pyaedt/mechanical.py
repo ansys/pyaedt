@@ -311,8 +311,8 @@ class Mechanical(FieldAnalysis3D, object):
 
         """
 
-        if not (self.solution_type =="Structural" or self.solution_type =="Modal"):
-            self.messenger.add_error_message("This Method works only in Mechanical Structural Solution")
+        if not (self.solution_type == "Structural" or self.solution_type == "Modal"):
+            self.messenger.add_error_message("This method works only in Mechanical Structural Solution")
             return False
         props = {}
         objects_list = self.modeler._convert_list_to_ids(objects_list)
@@ -349,8 +349,8 @@ class Mechanical(FieldAnalysis3D, object):
             boundary object
 
         """
-        if not (self.solution_type =="Structural" or self.solution_type =="Modal"):
-            self.messenger.add_error_message("This Method works only in Mechanical Structural Solution")
+        if not (self.solution_type == "Structural" or self.solution_type == "Modal"):
+            self.messenger.add_error_message("This method works only in Mechanical Structural Solution")
             return False
         props = {}
         objects_list = self.modeler._convert_list_to_ids(objects_list)
