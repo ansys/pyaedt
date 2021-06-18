@@ -283,7 +283,7 @@ class Hfss(FieldAnalysis3D, object):
             props['UseMaterial'] = False
             props['Conductivity'] = str(cond)
             props['Permeability'] = str(str(perm))
-            debug_message = f"Assigned Coating without material to object {listobjname}"
+            debug_message = "Assigned Coating without material to object %s" % listobjname
         props['UseThickness'] = usethickness
         if usethickness:
             props['Thickness'] = thickness
