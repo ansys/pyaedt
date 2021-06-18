@@ -1647,7 +1647,8 @@ class Design(object):
         self._messenger.add_info_message("Cleanup folder from " + name + " project files")
         if os.path.exists(directory):
             shutil.rmtree(directory, True)
-            os.mkdir(directory)
+            if not os.path.exists(directory):
+                os.mkdir(directory)
         self._messenger.add_info_message("Project Directory cleaned")
         return True
 

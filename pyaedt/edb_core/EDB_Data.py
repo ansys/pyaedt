@@ -557,6 +557,7 @@ class EDBLayers(object):
         self._update_edb_objects()
         return True
 
+
 class EDBComponent(object):
     """ """
 
@@ -645,3 +646,5 @@ class EDBComponent(object):
             if pin_name not in self._nets:
                 self._nets[pin_name] = pin
         return self._nets
+
+

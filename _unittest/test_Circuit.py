@@ -132,3 +132,6 @@ class TestCircuit:
         assert data.data_real()
         assert data.data_imag()
         assert data.data_db()
+
+    def test_12_create_setup(self):
+        assert self.aedtapp.create_setup()

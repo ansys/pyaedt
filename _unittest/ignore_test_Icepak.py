@@ -48,6 +48,7 @@ class TestIcepak:
 
     def teardown_class(self):
         assert self.aedtapp.close_project(self.aedtapp.project_name)
+        self.aedtapp.close_project(src_project_name)
         time.sleep(2)
         self.local_scratch.remove()
         gc.collect()
@@ -189,29 +190,21 @@ class TestIcepak:
         self.aedtapp.post.export_field_file("Temp", self.aedtapp.nominal_sweep, [], filename=fld_file, obj_list=object_list)
         assert os.path.exists(fld_file)
 
-    @pytest.mark.skipif(config["skip_debug"],
-                        reason="Skipped because Desktop is crashing")
     def test_22_create_source_blocks_from_list(self):
         self.aedtapp.modeler.primitives.create_box([1,  1,1], [3, 3, 3], "box3", "copper")
         result = self.aedtapp.create_source_blocks_from_list([["box2", 2], ["box3", 3]])
         assert result[1].props["Total Power"] == "2W"
         assert result[3].props["Total Power"] == "3W"
 
-    @pytest.mark.skipif(config["skip_debug"],
-                        reason="Skipped because Desktop is crashing")
     def test_23_create_network_blocks(self):
         self.aedtapp.modeler.primitives.create_box([1, 2, 3], [10, 10, 10], "network_box", "copper")
         self.aedtapp.modeler.primitives.create_box([4, 5, 6], [5, 5, 5], "network_box2", "copper")
         result = self.aedtapp.create_network_blocks([["network_box", 20, 10, 3], ["network_box2", 4, 10, 3]], self.aedtapp.GravityDirection.ZNeg, 1.05918, False)
         assert len(result[0].props["Nodes"]) == 3 and len(result[1].props["Nodes"]) == 3 # two face nodes plus one internal
 
-    @pytest.mark.skipif(config["skip_debug"],
-                        reason="Skipped because Desktop is crashing")
     def test_24_get_boundary_property_value(self):
         assert self.aedtapp.get_property_value("BoundarySetup:box2", "Total Power", "Boundary") == "2W"
 
-    @pytest.mark.skipif(config["skip_debug"],
-                        reason="Skipped because Desktop is crashing")
     def test_25_copy_solid_bodies(self):
         project_name = "IcepakCopiedProject"
         design_name = "IcepakCopiedBodies"
@@ -233,24 +226,9 @@ class TestIcepak:
         surface_emissivity = self.aedtapp.materials.creatematerialsurface("my_surface", 0.5)
         assert surface_emissivity == 0.5
 
-    @pytest.mark.skipif(config["skip_debug"],
-                        reason="Skipped because Desktop is crashing")
     def test_29_create_sweep_material(self):
         assert self.aedtapp.materials.creatematerial_sweeps(["copper", "silver"], "My_Sweep", False)
 
-    @pytest.mark.skipif(config["skip_debug"],
-                        reason="Skipped because Desktop is crashing")
-    def test_31_load_material_lib(self):
-        assert self.aedtapp.materials.load_from_xml_full()
-
-    @pytest.mark.skipif(config["skip_debug"],
-                        reason="Skipped because Desktop is crashing")
-    def test_32_load_material_lib(self):
-        self.aedtapp.materials.py2xmlFull(os.path.join(self.local_scratch.path,"export.xml"))
-        assert os.path.exists(os.path.join(self.local_scratch.path,"export.xml"))
-
-    @pytest.mark.skipif(config["skip_debug"],
-                        reason="Skipped because Desktop is crashing")
     def test_33_create_region(self):
         self.aedtapp.modeler.primitives.delete("Region")
         assert type(self.aedtapp.modeler.primitives.create_region([100,100,100,100,100,100])) is int
