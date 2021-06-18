@@ -41,7 +41,7 @@ class TestPrimitives:
         assert id > 0
         assert self.aedtapp.modeler.primitives[id].name == "Mybox"
         assert self.aedtapp.modeler.primitives[id].object_type == "Solid"
-        assert self.aedtapp.modeler.primitives[id].is3d == True
+        assert self.aedtapp.modeler.primitives[id].is3d is True
 
     def test_01_get_object_name_from_edge(self):
         assert self.aedtapp.modeler.get_object_name_from_edge_id(
@@ -61,7 +61,7 @@ class TestPrimitives:
         assert type(f.center) is list and len(f.center) == 3
         assert type(f.area) is float and f.area > 0
         assert self.aedtapp.modeler.primitives["Mybox"].faces[0].move_with_offset(0.1)
-        assert self.aedtapp.modeler.primitives["Mybox"].faces[0].move_with_vector([0,0,0.01])
+        assert self.aedtapp.modeler.primitives["Mybox"].faces[0].move_with_vector([0, 0, 0.01])
         assert type(f.normal) is list
 
     def test_01_check_object_edges(self):
@@ -106,7 +106,6 @@ class TestPrimitives:
         assert self.aedtapp.modeler.primitives[id].name == "MyCyl"
         assert self.aedtapp.modeler.primitives[id].object_type == "Solid"
         assert self.aedtapp.modeler.primitives[id].is3d is True
-        pass
 
     def test_06_create_ellipse(self):
         udp = self.aedtapp.modeler.Position(5, 3, 8)
@@ -116,12 +115,11 @@ class TestPrimitives:
         assert self.aedtapp.modeler.primitives[id].name == "MyEllpise01"
         assert self.aedtapp.modeler.primitives[id].object_type == "Sheet"
         assert self.aedtapp.modeler.primitives[id].is3d is False
-        id = self.aedtapp.modeler.primitives.create_ellipse(plane, udp, 5,1.5,False, name="MyEllpise02")
+        id = self.aedtapp.modeler.primitives.create_ellipse(plane, udp, 5, 1.5, False, name="MyEllpise02")
         assert id > 0
         assert self.aedtapp.modeler.primitives[id].name == "MyEllpise02"
         assert self.aedtapp.modeler.primitives[id].object_type == "Line"
         assert self.aedtapp.modeler.primitives[id].is3d is False
-        pass
 
     def test_07_create_object_from_edge(self):
         edges = self.aedtapp.modeler.primitives.get_object_edges(self.aedtapp.modeler.primitives.get_obj_id("MyCyl"))
@@ -129,15 +127,13 @@ class TestPrimitives:
         assert id>0
         assert self.aedtapp.modeler.primitives[id].object_type == "Line"
         assert self.aedtapp.modeler.primitives[id].is3d is False
-        pass
 
     def test_08_create_object_from_face(self):
         faces = self.aedtapp.modeler.primitives.get_object_faces(self.aedtapp.modeler.primitives.get_obj_id("MyCyl"))
         id = self.aedtapp.modeler.primitives.create_object_from_face(faces[0])
-        assert id>0
+        assert id > 0
         assert self.aedtapp.modeler.primitives[id].object_type == "Sheet"
         assert self.aedtapp.modeler.primitives[id].is3d is False
-        pass
 
     def test_09_create_polyline(self):
         udp1 = self.aedtapp.modeler.Position(0, 0, 0)
@@ -195,7 +191,7 @@ class TestPrimitives:
     def test_12_create_cone(self):
         udp = self.aedtapp.modeler.Position(5, 3, 8)
         axis = self.aedtapp.CoordinateSystemAxis.ZAxis
-        id = self.aedtapp.modeler.primitives.create_cone(axis, udp, 20, 10 ,5 , name="MyCone", matname="Copper")
+        id = self.aedtapp.modeler.primitives.create_cone(axis, udp, 20, 10 , 5, name="MyCone", matname="Copper")
         assert id > 0
         assert self.aedtapp.modeler.primitives[id].name == "MyCone"
         assert self.aedtapp.modeler.primitives[id].object_type == "Solid"
@@ -581,9 +577,9 @@ class TestPrimitives:
         assert edges == [5237, 5255, 5273, 5291]
 
     def test_48_get_closest_edge_to_position(self):
-        self.aedtapp.modeler.primitives.get_closest_edgeid_to_position([0.2,0,0])
+        self.aedtapp.modeler.primitives.get_closest_edgeid_to_position([0.2, 0, 0])
 
-    @pytest.mark.skipif(config["build_machine"] == True,
+    @pytest.mark.skipif(config["build_machine"],
                         reason="Skipped because SpaceClaim is not installed on Build Machine")
     def test_48_import_space_claim(self):
         self.aedtapp.insert_design("SCImport")
