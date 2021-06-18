@@ -236,7 +236,7 @@ class Circuit(FieldAnalysisCircuit, object):
         Parameters
         ----------
         file_to_import : str
-            Full path to the spice file.
+            Full path to the HSpice file.
 
         Returns
         -------
