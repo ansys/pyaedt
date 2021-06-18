@@ -176,6 +176,10 @@ class Maxwell(object):
         return list(windings)
 
     @property
+    def o_maxwell_parameters(self):
+        return self.odesign.GetModule("MaxwellParameterSetup")
+
+    @property
     def design_file(self):
         """ """
         design_file = os.path.join(self.working_directory, "design_data.json")
@@ -198,8 +202,12 @@ class Maxwell(object):
 
         Returns
         -------
+<<<<<<< HEAD
+
+=======
         bool
             ``True`` when successful and ``False`` when failed.
+>>>>>>> main
         """
 
         self._py_file = setupname + ".py"
@@ -519,6 +527,105 @@ class Maxwell(object):
         return False
 
     @aedt_exception_handler
+    def assign_force(self, input_object, reference_cs="Global", is_virtual=True, force_name=None):
+        """
+        Assig Force to Selection
+
+        Parameters
+        ----------
+        input_object : str, list
+        reference_cs : str
+        is_virtual : bool
+        force_name : str, Optional
+
+        Returns
+        -------
+        bool
+        """
+
+        input_object = self.modeler._convert_list_to_ids(input_object, True)
+        if not force_name:
+            force_name = generate_unique_name("Force")
+        if self.design_type == "Maxwell 3D":
+            self.o_maxwell_parameters.AssignForce(
+                [
+                    "NAME:"+force_name,
+                    "Reference CS:=", reference_cs,
+                    "Is Virtual:="	, is_virtual,
+                    "Objects:="		, input_object
+                ])
+        else:
+            self.o_maxwell_parameters.AssignForce(
+                [
+                    "NAME:"+force_name,
+                    "Reference CS:=", reference_cs,
+                    "Objects:="		, input_object
+                ])
+        return True
+
+    @aedt_exception_handler
+    def assign_torque(self, input_object, reference_cs="Global", is_positive=True, is_virtual=True, axis="Z", torque_name=None):
+        """
+        Assig Torque to Selection
+
+        Parameters
+        ----------
+        input_object : str, list
+        reference_cs : str
+        is_virtual : bool
+        is_positive : bool
+        axis : str
+            Default "Z"
+        torque_name : str, Optional
+
+        Returns
+        -------
+        bool
+        """
+
+        input_object = self.modeler._convert_list_to_ids(input_object, True)
+        if not torque_name:
+            torque_name = generate_unique_name("Torque")
+        if self.design_type == "Maxwell 3D":
+            self.o_maxwell_parameters.AssignTorque(
+                ["NAME:" + torque_name, "Is Virtual:=", is_virtual, "Coordinate System:=", reference_cs, "Axis:=", axis,
+                 "Is Positive:=", is_positive, "Objects:=", input_object])
+        else:
+            self.o_maxwell_parameters.AssignTorque(
+                ["NAME:" + torque_name, "Coordinate System:=", reference_cs,
+                 "Is Positive:=", is_positive, "Objects:=", input_object])
+        return True
+
+    @aedt_exception_handler
+    def assign_force(self, input_object, reference_cs="Global", is_virtual=True, force_name=None):
+        """
+        Assig Force to Selection
+
+        Parameters
+        ----------
+        input_object : str, list
+        reference_cs : str
+        is_virtual : bool
+        force_name : str, Optional
+
+        Returns
+        -------
+        bool
+        """
+
+        input_object = self.modeler._convert_list_to_ids(input_object, True)
+        if not force_name:
+            force_name = generate_unique_name("Force")
+        self.o_maxwell_parameters.AssignForce(
+            [
+                "NAME:" + force_name,
+                "Reference CS:=", reference_cs,
+                "Is Virtual:=", is_virtual,
+                "Objects:="	, input_object
+            ])
+        return True
+
+    @aedt_exception_handler
     def solve_inside(self, name, activate=True):
         """
 
@@ -642,6 +749,7 @@ class Maxwell3d(Maxwell, FieldAnalysis3D, object):
         Maxwell.__init__(self)
 
 
+
 class Maxwell2d(Maxwell, FieldAnalysis2D, object):
     """Maxwell 2D Object
 
@@ -732,7 +840,7 @@ class Maxwell2d(Maxwell, FieldAnalysis2D, object):
         """
         solid_bodies = self.modeler.solid_bodies
         if objectfilter:
-            solid_ids = [i for i, j in self.modeler.primitives.objects_names.items() if j.name in objectfilter]
+            solid_ids = [i for i,j in self.modeler.primitives.objects_names.items() if j.name in objectfilter]
         else:
             solid_ids = [i for i in list(self.modeler.primitives.objects_names.keys())]
         model_depth = self.get_model_depth()

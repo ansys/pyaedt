@@ -38,6 +38,13 @@ class TestModeler:
     def test_01b_load_material_lib(self):
         assert self.aedtapp.materials.load_from_xml_full()
 
+    def test_01b_load_material_lib(self):
+        assert self.aedtapp.materials.load_from_file(os.path.join(local_path, "example_models","amat.xml"))
+
+    def test_01c_export_material_lib(self):
+        self.aedtapp.materials.py2xmlFull(os.path.join(self.local_scratch.path,"export.xml"))
+        assert os.path.exists(os.path.join(self.local_scratch.path,"export.xml"))
+
     def test_02_boundingbox(self):
         bounding = self.aedtapp.modeler.obounding_box
         assert len(bounding) == 6

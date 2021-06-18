@@ -3316,23 +3316,19 @@ class GeometryModeler(Modeler, object):
 
         Parameters
         ----------
-        groups :
+        groups : list
             list of group names
 
         Returns
         -------
-        type
+        bool
             True if succeeded, False otherwise
 
         """
         group_list = self.convert_to_selections(groups, return_list=True)
         arg = ["Groups:=", group_list]
-        try:
-            self.oeditor.Ungroup(arg)
-        except:
-            return False
-        else:
-            return True
+        self.oeditor.Ungroup(arg)
+        return True
 
     @aedt_exception_handler
     def flatten_assembly(self):
@@ -3340,21 +3336,15 @@ class GeometryModeler(Modeler, object):
 
         :return: True if succeeded, False otherwise
 
-        Parameters
-        ----------
 
         Returns
         -------
-
+        bool
         """
-        try:
-            self.oeditor.FlattenGroup(
-                [
-                    "Groups:=", ["Model"]
-                ])
-        except:
-            return False
-        else:
-            return True
+        self.oeditor.FlattenGroup(
+            [
+                "Groups:=", ["Model"]
+            ])
+        return True
 
 

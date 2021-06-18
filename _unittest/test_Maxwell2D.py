@@ -90,8 +90,18 @@ class TestMaxwell2D:
     def test_08_generate_design_data(self):
         assert self.aedtapp.generate_design_data()
 
+    def test_read_design_data(self):
+        self.aedtapp.read_design_data()
+
     @pytest.mark.parametrize("material", ["ceramic_material", # material not in library
                                           "steel_stainless"])  # material already in library
     def test_07_assign_material(self, material):
         self.aedtapp.assignmaterial(["Rectangle1"], material)
         assert self.aedtapp.modeler.primitives["Rectangle1"].material_name == material
+
+    def test_assign_torque(self):
+        self.aedtapp.solution_type = self.aedtapp.SolutionTypes.Maxwell2d.MagnetostaticXY
+        assert self.aedtapp.assign_torque("Rectangle1")
+
+    def test_assign_force(self):
+        assert self.aedtapp.assign_force("Rectangle1")

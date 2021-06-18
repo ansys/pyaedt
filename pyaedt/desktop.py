@@ -448,7 +448,7 @@ class Desktop:
                 datefmt='%Y/%m/%d %H.%M.%S',
                 filemode='w')
 
-        self.logger.info(launch_msg)
+
 
         info_msg1 = 'pyaedt v{}'.format(pyaedtversion.strip())
         info_msg2 = 'Python version {}'.format(sys.version)
