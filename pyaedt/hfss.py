@@ -278,7 +278,7 @@ class Hfss(FieldAnalysis3D, object):
                 props['Material'] = mat
             else:
                 return False
-            debug_message = f"Assigned Coating {mat} to object {listobjname}"
+            debug_message = "Assigned Coating %s to object %s" % (mat, listobjname)
         else:
             props['UseMaterial'] = False
             props['Conductivity'] = str(cond)
