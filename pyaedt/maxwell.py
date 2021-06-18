@@ -177,7 +177,7 @@ class Maxwell(object):
 
     @property
     def o_maxwell_parameters(self):
-        return self.oesign.GetModule("MaxwellParameterSetup")
+        return self.odesign.GetModule("MaxwellParameterSetup")
 
     @property
     def design_file(self):
