@@ -1,4 +1,5 @@
 import os
+import pytest
 # Setup paths for module imports
 from .conftest import scratch_path, module_path
 import gc
@@ -58,14 +59,26 @@ class TestHFSS:
         assert self.aedtapp.assignmaterial("outer", "Copper")
         pass
 
-    def test_04_assign_coating(self):
+    @pytest.mark.parametrize(
+        "object_name, kwargs",
+        [
+            ("inner", {"mat": "copper"}),
+            ("outer", {"mat": "aluminum", "usethickness": True, "thickness": "0.5mm", "istwoside": True, 
+                        "issheelElement": True, "usehuray": True, "radius": "0.75um", "ratio": "3"}),
+            ("die", {})
+        ]
+    )
+    def test_04a_assign_coating(self, object_name, kwargs):
+        id = self.aedtapp.modeler.primitives.get_obj_id(object_name)
+        coat = self.aedtapp.assigncoating([id], **kwargs)
+        material = coat.props.get("Material", "")
+        assert material == kwargs.get("mat", "")
+
+    def test_04b_assign_coating(self):
         id1 = self.aedtapp.modeler.primitives.get_obj_id("inner")
         coat = self.aedtapp.assigncoating([id1], "copper")
         assert coat
-        assert coat.name
         assert self.aedtapp.assigncoating([id1], usehuray=True, usethickness=True, istwoside=True)
-
-
 
     def test_05_create_wave_port_from_sheets(self):
         udp = self.aedtapp.modeler.Position(0, 0, 0)
@@ -346,7 +359,7 @@ class TestHFSS:
         assert new_design.copy_solid_bodies_from(self.aedtapp)
         assert len(new_design.modeler.solid_bodies) == 41
         new_design.delete_design(design_name)
-        new_design.close_project()
+        new_design.close_project(project_name)
 
     def test_34_object_material_properties(self):
         props = self.aedtapp.get_object_material_properties("MS1", "conductivity")
@@ -364,3 +377,4 @@ class TestHFSS:
         self.aedtapp.modeler.primitives.create_box([-100, -100, -100], [200, 200, 200], name="Rad_box2")
         ids = [i.id for i in self.aedtapp.modeler.primitives["Rad_box2"].faces]
         assert self.aedtapp.assign_radiation_boundary_to_faces(ids)
+

@@ -366,7 +366,7 @@ class IcepakMesh(object):
 
     @aedt_exception_handler
     def generate_mesh(self, name):
-        """Generate Mesh for Setup name. Return 0 if mesh failed or 1 if passed
+        """Generate Mesh for Setup name.
 
         Parameters
         ----------
@@ -379,7 +379,7 @@ class IcepakMesh(object):
             Boolean
 
         """
-        return self.odesign.GenerateMesh(name)
+        return self.odesign.GenerateMesh(name) == 0
 
     @aedt_exception_handler
     def assign_mesh_level_to_group(self, mesh_level, groupName, localMeshParamEn=False,
