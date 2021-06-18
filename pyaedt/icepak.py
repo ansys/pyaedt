@@ -1059,7 +1059,7 @@ class Icepak(FieldAnalysisIcepak):
         resolution : int
             Resolution of the mapping.
         PCB_CS : str, optional
-            Coordinate system for teh PCB. The default is ``"Global"``.
+            Coordinate system for the PCB. The default is ``"Global"``.
         rad : str, optional
             Radiating faces. The default is ``"Nothing"``.
         extenttype : str, optional
