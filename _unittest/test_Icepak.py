@@ -249,7 +249,7 @@ class TestIcepak:
     def test_36_generate_mesh(self):
         self.aedtapp.insert_design("MeshDesign")
         self.aedtapp.create_setup("NewSetup")
-        assert self.aedtapp.mesh.generate_mesh("NewSetup") == 0 # succeeded
+        assert self.aedtapp.mesh.generate_mesh("NewSetup")
 
     def test_88_create_heat_sink(self):
         assert self.aedtapp.create_parametric_fin_heat_sink()
