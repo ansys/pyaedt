@@ -122,7 +122,7 @@ class Rotor(RMXprtModule):
 
 
 class Rmxprt(FieldAnalysisRMxprt):
-    """RMxprt object
+    """RMxprt class.
 
     Parameters
     ----------
@@ -149,7 +149,6 @@ class Rmxprt(FieldAnalysisRMxprt):
     release_on_exit : bool, optional
     
 
-    Returns
     -------
 
     """
@@ -177,4 +176,3 @@ class Rmxprt(FieldAnalysisRMxprt):
 
     def __enter__(self):
         return self
-
