@@ -37,7 +37,7 @@ from collections import OrderedDict
 
 
 class Mechanical(FieldAnalysis3D, object):
-    """Mechanical Object
+    """Mechanical object
 
     Parameters
     ----------
@@ -49,7 +49,7 @@ class Mechanical(FieldAnalysis3D, object):
         Name of the design to select. The default is ``None``. If ``None``, try to get an active design and, 
         if no designs are present, create an empty design.
     solution_type : str, optional
-        Solution type to apply to the design. The default is ``None``. If ``None`, the default type is applied.
+        Solution type to apply to the design. The default is ``None``. If ``None``, the default type is applied.
     setup_name : str, optional
        Name of the setup to use as the nominal. The default is ``None``. If ``None``, the active setup 
        is used or nothing is used.
@@ -145,7 +145,9 @@ class Mechanical(FieldAnalysis3D, object):
     @aedt_exception_handler
     def assign_thermal_map(self, object_list, designname="IcepakDesign1", setupname="Setup1", sweepname="SteadyState",
                            source_project_name=None, paramlist=[]):
-        """Map thermal losses to a Mechanical design. This function works only coupled with Icepak in 2021 R2.
+        """Map thermal losses to a Mechanical design. 
+        
+        This function works only when coupled with Icepak in 2021 R2.
 
         Parameters
         ----------
@@ -169,7 +171,7 @@ class Mechanical(FieldAnalysis3D, object):
 
         """
 
-        assert self.solution_type == "Structural", "This Method works only in Mechanical Structural Solution"
+        assert self.solution_type == "Structural", "This method works only in a Mechanical structural solution."
 
         self._messenger.add_info_message("Mapping HFSS EM Lossess")
         oName = self.project_name
@@ -200,7 +202,7 @@ class Mechanical(FieldAnalysis3D, object):
         bound = BoundaryObject(self, name, props, "ThermalCondition")
         if bound.create():
             self.boundaries.append(bound)
-            self._messenger.add_info_message('Thermal Conditions Mapped from design {}'.format(designname))
+            self._messenger.add_info_message('Thermal conditions are mapped from design {}.'.format(designname))
             return bound
 
         return True
@@ -229,7 +231,7 @@ class Mechanical(FieldAnalysis3D, object):
             Boundary Object
 
         """
-        assert self.solution_type == "Thermal", "This Method works only in Mechanical Structural Solution"
+        assert self.solution_type == "Thermal", "This method works only in a Mechanical structural solution."
 
         props = {}
         objects_list = self.modeler._convert_list_to_ids(objects_list)
@@ -254,14 +256,16 @@ class Mechanical(FieldAnalysis3D, object):
 
     @aedt_exception_handler
     def assign_uniform_temperature(self, objects_list, temperature="AmbientTemp", boundary_name=""):
-        """Assign a uniform temperature boundary. This function works only in a Thermal analysis.
+        """Assign a uniform temperature boundary.
+        
+        This method works only in a Thermal analysis.
 
         Parameters
         ----------
         objects_list : list
             List of objects, faces, or both.
         temperature : str, optional.
-            Temperature. The default is ``"AmbientTemp"``.
+            Type of temperature. The default is ``"AmbientTemp"``.
         boundary_name : str, optional
             Name of the boundary. The default is ``""``.
 
@@ -295,14 +299,16 @@ class Mechanical(FieldAnalysis3D, object):
 
     @aedt_exception_handler
     def assign_frictionless_support(self, objects_list,  boundary_name=""):
-        """Assign a Mechanical frictionless support. This method works only in a structural analysis.
+        """Assign a Mechanical frictionless support. 
+        
+        This method works only in a Mechanical structural analysis.
 
         Parameters
         ----------
         objects_list : list
             List of faces to apply to the frictionless support.
         boundary_name : str, optional
-            Name of boundary. The default is ``""``.
+            Name of the boundary. The default is ``""``.
 
         Returns
         -------
@@ -334,7 +340,9 @@ class Mechanical(FieldAnalysis3D, object):
 
     @aedt_exception_handler
     def assign_fixed_support(self, objects_list,  boundary_name=""):
-        """Assign a Mechanical fixed support. This function works only in a Structural analysis.
+        """Assign a Mechanical fixed support. 
+        
+        This function works only in a Mechanical structural analysis.
 
         Parameters
         ----------
@@ -350,7 +358,7 @@ class Mechanical(FieldAnalysis3D, object):
 
         """
         if not (self.solution_type == "Structural" or self.solution_type == "Modal"):
-            self.messenger.add_error_message("This method works only in Mechanical Structural Solution")
+            self.messenger.add_error_message("This method works only in a Mechanical structural solution.")
             return False
         props = {}
         objects_list = self.modeler._convert_list_to_ids(objects_list)
@@ -369,9 +377,9 @@ class Mechanical(FieldAnalysis3D, object):
 
     @property
     def existing_analysis_sweeps(self):
-        """Get an existing analysis setup list.
+        """Get a list of existing analysis setups.
                 
-        :return: Return a list of all defined analysis setup names in the maxwell design.
+        :return: Return a list of all defined analysis setup names in the Maxwell design.
 
         Parameters
         ----------
