@@ -390,6 +390,18 @@ class FacePrimitive(object):
         return center
 
     @property
+    def centroid(self):
+        """Get the face center (in model units)
+
+        Returns
+        -------
+        list of float or False
+            Center position in [x, y, z] coordinates - only works for planar faces. otherwise return False
+        """
+        return GeometryOperators.get_polygon_centroid([pos.position for pos in self.vertices])
+
+
+    @property
     def area(self):
         """Get the face area (in model units)
 
