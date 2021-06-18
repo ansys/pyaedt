@@ -37,7 +37,7 @@ from collections import OrderedDict
 
 
 class Mechanical(FieldAnalysis3D, object):
-    """Mechanical object
+    """Mechanical class.
 
     Parameters
     ----------
@@ -147,7 +147,8 @@ class Mechanical(FieldAnalysis3D, object):
                            source_project_name=None, paramlist=[]):
         """Map thermal losses to a Mechanical design. 
         
-        This function works only when coupled with Icepak in 2021 R2.
+        .. note::
+           This function works only when coupled with Icepak in 2021 R2.
 
         Parameters
         ----------
@@ -377,7 +378,7 @@ class Mechanical(FieldAnalysis3D, object):
 
     @property
     def existing_analysis_sweeps(self):
-        """Get a list of existing analysis setups.
+        """Return a list of existing analysis setups.
                 
         :return: Return a list of all defined analysis setup names in the Maxwell design.
 
