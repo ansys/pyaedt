@@ -78,15 +78,11 @@ class TestCircuit:
                                                                     "usb_P_pcb"])
         assert type(my_model) is int
 
-    @pytest.mark.skipif(config["skip_circuits"],
-                        reason="Skipped because Desktop is crashing")
     def test_07_import_mentor_netlist(self):
         self.aedtapp.insert_design("MentorSchematicImport")
         assert self.aedtapp.create_schematic_from_mentor_netlist(os.path.join(self.local_scratch.path, netlist2))
         pass
 
-    @pytest.mark.skipif(config["skip_circuits"],
-                        reason="Skipped because Desktop is crashing")
     def test_08_import_netlist(self):
         self.aedtapp.insert_design("SchematicImport")
         assert self.aedtapp.create_schematic_from_netlist(os.path.join(self.local_scratch.path, netlist1))
