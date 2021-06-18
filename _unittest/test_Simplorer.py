@@ -58,7 +58,10 @@ class TestSimplorer:
         assert self.aedtapp.set_hmax("5ms")
 
     def test_09_set_hmin(self):
-        assert self.aedtapp.set_hmax("0.2ms")
+        assert self.aedtapp.set_hmin("0.2ms")
 
     def test_10_set_hmin(self):
-        assert self.aedtapp.set_hmax("2s")
+        assert self.aedtapp.set_hmin("2s")
+
+    def test_11_set_end_time(self):
+        assert self.aedtapp.set_end_time("5s")
