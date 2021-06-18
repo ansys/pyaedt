@@ -87,8 +87,6 @@ class TestCircuit:
         self.aedtapp.insert_design("SchematicImport")
         assert self.aedtapp.create_schematic_from_netlist(os.path.join(self.local_scratch.path, netlist1))
 
-    @pytest.mark.skipif(config["skip_circuits"],
-                        reason="Skipped because Desktop is crashing")
     def test_09_import_touchstone(self):
         self.aedtapp.insert_design("Touchstone_import")
         ports = self.aedtapp.import_touchstone_solution(os.path.join(self.local_scratch.path, touchstone))
@@ -102,15 +100,11 @@ class TestCircuit:
         insertions = ["dB(S({},{}))".format(i, j) for i, j in zip(tx, rx)]
         assert self.aedtapp.create_touchstone_report("Insertion Losses", insertions)
 
-    @pytest.mark.skipif(config["skip_circuits"],
-                        reason="Skipped because Desktop is crashing")
     def test_10_export_fullwave(self):
         output = self.aedtapp.export_fullwave_spice(os.path.join(self.local_scratch.path, touchstone), is_solution_file=True)
         assert output
         pass
 
-    @pytest.mark.skipif(config["skip_circuits"],
-                        reason="Skipped because Desktop is crashing")
     def test_11_connect_components(self):
 
         myindid, myind = self.aedtapp.modeler.components.create_inductor("L100", 1e-9, 0, 0)
@@ -121,24 +115,16 @@ class TestCircuit:
         assert self.aedtapp.modeler.connect_schematic_components(myresid, myindid, pinnum_second=2)
         assert self.aedtapp.modeler.connect_schematic_components(myresid, mycapid, pinnum_first=1)
 
-    @pytest.mark.skipif(config["skip_circuits"],
-                        reason="Skipped because Desktop is crashing")
     def test_12_properties(self):
         assert self.aedtapp.modeler.edb
         assert self.aedtapp.modeler.model_units
 
-    @pytest.mark.skipif(config["skip_circuits"],
-                        reason="Skipped because Desktop is crashing")
     def test_13_move(self):
         assert self.aedtapp.modeler.move("L100", 0.00508, 0.00508)
 
-    @pytest.mark.skipif(config["skip_circuits"],
-                        reason="Skipped because Desktop is crashing")
     def test_14_rotate(self):
         assert self.aedtapp.modeler.rotate("L100")
 
-    @pytest.mark.skipif(config["skip_circuits"],
-                        reason="Skipped because Desktop is crashing")
     def test_11_read_touchstone(self):
         from pyaedt.generic.TouchstoneParser import read_touchstone
         data = read_touchstone(os.path.join(self.local_scratch.path, touchstone))

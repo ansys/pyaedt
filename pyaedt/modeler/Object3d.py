@@ -18,6 +18,28 @@ from collections import defaultdict
 from .. import generate_unique_name, retry_ntimes, aedt_exception_handler
 from .GeometryOperators import GeometryOperators
 
+clamp = lambda n, minn, maxn: max(min(maxn, n), minn)
+
+rgb_color_codes = {
+    "Black": (0, 0, 0),
+    "Green": (0, 128, 0),
+    "White": (255, 255, 255),
+    "Red": (255, 0, 0),
+    "Lime": (0, 255, 0),
+    "Blue": (0, 0, 255),
+    "Yellow": (255, 255, 0),
+    "Cyan": (0, 255, 255),
+    "Magenta": (255, 0, 255),
+    "Silver": (192, 192, 192),
+    "Gray": (128, 128, 128),
+    "Maroon": (128, 0, 0),
+    "Olive": (128, 128, 0),
+    "Purple": (128, 0, 128),
+    "Teal": (0, 128, 128),
+    "Navy": (0, 0, 128),
+    "copper": (184, 115, 51),
+    "stainless steel": (224, 223, 219)
+}
 @aedt_exception_handler
 def _uname(name=None):
     """Appends a 6-digit hash code to a specified name
@@ -719,18 +741,34 @@ class Object3d(object):
         return "({} {} {})".format(self.color[0], self.color[1], self.color[2])
 
     @color.setter
-    def color(self, color_tuple):
-        if isinstance(color_tuple, str):
-            color_tuple = tuple([int(x) for x in color_tuple.replace(')', '').replace('(', '').split()])
-        R = color_tuple[0]
-        G = color_tuple[1]
-        B = color_tuple[2]
+    def color(self, color_value):
+        color_tuple = None
+        if isinstance(color_value, str):
+            try:
+                color_tuple = rgb_color_codes[color_value]
+            except KeyError:
+                parse_string = color_value.replace(')', '').replace('(', '').split()
+                if len(parse_string) == 3:
+                    color_tuple = tuple([int(x) for x in parse_string])
+        else:
+            color_tuple = color_value
 
-        vColor = ["NAME:Color", "R:=", str(R), "G:=", str(G), "B:=", str(B)]
+        if color_tuple:
 
-        self._change_property(vColor)
+            try:
+                R = clamp(color_tuple[0], 0, 255)
+                G = clamp(color_tuple[1], 0, 255)
+                B = clamp(color_tuple[2], 0, 255)
+                vColor = ["NAME:Color", "R:=", str(R), "G:=", str(G), "B:=", str(B)]
+                self._change_property(vColor)
+                self._color = (R, G, B)
+            except TypeError:
+                color_tuple = None
 
-        self._color = color_tuple
+        if not color_tuple:
+            msg_text = "Invalid color input {} for object {}".format(color_value, self._m_name)
+            self._parent.messenger.add_warning_message(msg_text)
+
 
     @property
     def transparency(self):

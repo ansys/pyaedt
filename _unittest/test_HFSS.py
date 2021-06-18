@@ -228,7 +228,6 @@ class TestHFSS:
         bound.props["Faces"].append(self.aedtapp.modeler.primitives["My_Box"].faces[1])
         assert bound.update_assignment()
 
-
     def test_18_create_sources_on_objects(self):
         box1 = self.aedtapp.modeler.primitives.create_box([30,0,0], [40,10,5], "BoxVolt1", "Copper")
         box2 = self.aedtapp.modeler.primitives.create_box([30, 0, 10], [40, 10, 5], "BoxVolt2", "Copper")
@@ -236,7 +235,6 @@ class TestHFSS:
         assert port in self.aedtapp.modeler.get_excitations_name()
         port = self.aedtapp.create_current_source_from_objects("BoxVolt1", "BoxVolt2", self.aedtapp.AxisDir.XPos, "Curr1")
         assert port in self.aedtapp.modeler.get_excitations_name()
-
 
     def test_19_create_lumped_on_sheet(self):
         rect = self.aedtapp.modeler.primitives.create_rectangle(self.aedtapp.CoordinateSystemPlane.XYPlane, [0, 0, 0],

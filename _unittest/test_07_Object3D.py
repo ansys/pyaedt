@@ -182,3 +182,31 @@ class TestObject3D:
         test = initial_object.edges[1].fillet(radius=0.2, setback=0.1)
         assert not test
         self.aedtapp.modeler.primitives.delete(initial_object)
+
+    def test_12_set_color(self):
+        id = self.prim.create_box([0, 0, 0], [10, 10, 5], "ColorTest")
+        initial_object = self.prim[id]
+        initial_object.color = "Red"
+        assert initial_object.color == (255, 0, 0)
+        initial_object.color = "Green"
+        assert initial_object.color == (0, 128, 0)
+        initial_object.color = "Blue"
+        assert initial_object.color == (0, 0, 255)
+        initial_object.color = (255, 0, 0)
+        assert initial_object.color == (255, 0, 0)
+        initial_object.color = '(255 0 0)'
+        assert initial_object.color == (255, 0, 0)
+
+        initial_object.color = '(300 0 0)'
+        assert initial_object.color == (255, 0, 0)
+
+        initial_object.color = '(123 0 0 55)'
+        assert initial_object.color == (255, 0, 0)
+
+        initial_object.color = 'InvalidString'
+        assert initial_object.color == (255, 0, 0)
+
+        initial_object.color = (255, "Invalid", 0)
+        assert initial_object.color == (255, 0, 0)
+
+        self.aedtapp.modeler.primitives.delete("ColorTest")
