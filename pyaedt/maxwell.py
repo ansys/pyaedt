@@ -1,5 +1,5 @@
 """
-This module contains all Maxwell 2D/3D functionalities in the ''maxwell`` class.
+This module contains all Maxwell 2D/3D functionalities in the ''Maxwell`` class.
 
 
 Examples
