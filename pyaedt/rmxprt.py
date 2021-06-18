@@ -1,10 +1,10 @@
 """
-This module contains all RMxprt functionalities in the ``rmxprt`` class.
+This module contains all RMxprt functionalities in the ``Rmxprt`` class.
 
 Examples
 --------
 
-Create a ``Rmxprt`` object and connect to an existing RMxprt design or create a new RMxprt design if one does not exist.
+Create an instance of ``Rmxprt`` and connect to an existing RMxprt design or create a new RMxprt design if one does not exist.
 
 >>> app = Rmxprt()
 
@@ -16,7 +16,7 @@ Create an instance of ``RMxprt`` and link to a design named ``"designname"`` in 
 
 >>> app = Rmxprt(projectname,designame)
 
-Create an instance of ``RMxprt`` and open the specified project.
+Create an instance of ``RMxprt`` and open the specified project, which is ``myfile.aedt``.
 
 >>> app = Rmxprt("myfile.aedt")
 
@@ -53,7 +53,7 @@ class RMXprtModule(object):
                 prop_server = key
                 break
         assert prop_server is not None,\
-            "Unknown parameter name {0} in component {1}!".format(prop_server, self.component)
+            "Unknown parameter name {0} exists in component {1}.".format(prop_server, self.component)
         return prop_server
 
     def __init__(self, oeditor):
@@ -73,6 +73,7 @@ class RMXprtModule(object):
         parameter_name : str
             Name of the parameter.  
         value :
+            Value to assign to the parameter.
             
 
         Returns
@@ -121,7 +122,7 @@ class Rotor(RMXprtModule):
 
 
 class Rmxprt(FieldAnalysisRMxprt):
-    """RMxprt Object
+    """RMxprt object
 
     Parameters
     ----------
@@ -133,10 +134,20 @@ class Rmxprt(FieldAnalysisRMxprt):
         Name of the design to select. The default is ``None``. If ``None``, try to get an active design and, 
         if no designs are present, create an empty design.
     solution_type : str, optional
-        Solution type to apply to the design. The default is ``None``. If ``None`, the default type is applied.
+        Solution type to apply to the design. The default is ``None``. If ``None``, the default type is applied.
+    model_units : optional
+    
     setup_name : str, optional
         Name of the setup to use as the nominal. The default is ``None``. If ``None``, the active setup 
         is used or nothing is used.
+    specified_version: str, optional
+        The default is ``None``.
+    NG : bool, optional
+        Whether to run AEDT in the non-graphical mode. The default is``False``.  
+    AlwaysNew : bool, optional
+    
+    release_on_exit : bool, optional
+    
 
     Returns
     -------
