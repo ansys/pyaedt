@@ -59,13 +59,6 @@ class TestHFSS:
         assert self.aedtapp.assignmaterial("outer", "Copper")
         pass
 
-    def test_04_assign_coating(self):
-        id1 = self.aedtapp.modeler.primitives.get_obj_id("inner")
-        coat = self.aedtapp.assigncoating([id1], "copper")
-        assert coat
-        assert coat.name
-        assert self.aedtapp.assigncoating([id1], usehuray=True, usethickness=True, istwoside=True)
-
     @pytest.mark.parametrize(
         "object_name, kwargs",
         [
@@ -75,12 +68,17 @@ class TestHFSS:
             ("die", {})
         ]
     )
-    def test_04b_assign_coating(self, object_name, kwargs):
+    def test_04a_assign_coating(self, object_name, kwargs):
         id = self.aedtapp.modeler.primitives.get_obj_id(object_name)
         coat = self.aedtapp.assigncoating([id], **kwargs)
-        assert coat
         material = coat.props.get("Material", "")
         assert material == kwargs.get("mat", "")
+
+    def test_04b_assign_coating(self):
+        id1 = self.aedtapp.modeler.primitives.get_obj_id("inner")
+        coat = self.aedtapp.assigncoating([id1], "copper")
+        assert coat
+        assert self.aedtapp.assigncoating([id1], usehuray=True, usethickness=True, istwoside=True)
 
     def test_05_create_wave_port_from_sheets(self):
         udp = self.aedtapp.modeler.Position(0, 0, 0)
