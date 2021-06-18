@@ -79,7 +79,7 @@ class TestMaxwell2D:
 
     def test_06_create_region(self):
         self.aedtapp.modeler.primitives.delete("Region")
-        assert self.aedtapp.modeler.primitives.create_region([100,100,100,100,100,100])
+        assert self.aedtapp.modeler.primitives.create_region([100, 100, 100, 100, 100, 100])
 
 
     def test_06a_create_setup(self):

@@ -272,11 +272,9 @@ class Test3DLayout:
 
     def test_rvalue(self):
         assert resistor_value_parser("100meg")
-        assert resistor_value_parser("100meg")
 
     def test_stackup_limits(self):
         assert self.edbapp.core_stackup.stackup_limits()
-
 
 
 

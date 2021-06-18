@@ -198,7 +198,8 @@ class Maxwell(object):
 
         Returns
         -------
-
+        bool
+            ``True`` when successful and ``False`` when failed.
         """
 
         self._py_file = setupname + ".py"
@@ -731,7 +732,7 @@ class Maxwell2d(Maxwell, FieldAnalysis2D, object):
         """
         solid_bodies = self.modeler.solid_bodies
         if objectfilter:
-            solid_ids = [i for i,j in self.modeler.primitives.objects_names.items() if j.name in objectfilter]
+            solid_ids = [i for i, j in self.modeler.primitives.objects_names.items() if j.name in objectfilter]
         else:
             solid_ids = [i for i in list(self.modeler.primitives.objects_names.keys())]
         model_depth = self.get_model_depth()
