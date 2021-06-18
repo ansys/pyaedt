@@ -5,7 +5,7 @@ This module contains all Maxwell 2D/3D functionalities in the ''maxwell`` class.
 Examples
 --------
 
-Create an instance of ``Maxwell2d`` and connect to an existing HFSS design or create a new HFSS design if one does not exist.
+Create an instance of ``Maxwell2d`` and connect to an existing Maxwell 2D design or create a new Maxwell 2D design if one does not exist.
 
 >>> aedtapp = Maxwell2d()
 
@@ -21,7 +21,7 @@ Create an instance of ``Maxwell3d`` and open the specified project.
 
 >>> aedtapp = Maxwell3d("myfile.aedt")
 
-Create an instance of Maxdwell using the 2021 R1 release and open the specified proejct, which is named ``myfile.aedt``.
+Create an instance of Maxwell using the 2021 R1 release and open the specified project, which is named ``myfile.aedt``.
 
 >>> aedtapp = Maxwell3d(specified_version="2021.1", projectname="myfile.aedt")
 
@@ -580,11 +580,11 @@ class Maxwell3d(Maxwell, FieldAnalysis3D, object):
         Parameters
         ----------
         setup : str
-            Name of the solution setup of the Maxwell design. For example, ``Setup1``.
+            Name of the solution setup of the Maxwell design. For example, ``"Setup1"``.
             
         py_file : str, optional
-            Name of the Python file that the Maxwell solver processes to copy to the temp directory and 
-            rename to ``setup + ".ctrlprog"``.  For example, assume that ``py_file`` is defined as 
+            Name of the Python file that the Maxwell solver process copies to the temp directory and 
+            renames to ``setup + ".ctrlprog"``.  For example, assume that ``py_file`` is defined as 
             ``"my_script.py"`` and that the solver setup is called ``"Setup1"``. The resulting file 
             in the temp directory is ``"Setup1.ctrlprog"``. For this reason, it is important to 
             instruct the operating system to use a python interpreter to run any file with the 
