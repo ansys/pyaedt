@@ -1,32 +1,27 @@
-# -*- coding: utf-8 -*-
 """
-Introduction
-------------------
-
-This class contains the link to the ``Circuit`` object. It includes all
-inherited classes and modules needed to create and edit circuit designs.
+This module contains all Circuit functionalities in the ``Circuit`` class.
 
 
 Examples
 --------
 
-Create an ``Circuit`` object and connect to an existing HFSS design or create a new HFSS design if one does not exist.
+Create an instance of ``Circuit`` and connect to an existing HFSS design or create a new HFSS design if one does not exist.
 
 >>> aedtapp = Circuit()
 
-Create an ``Circuit`` object and link to a project named ``projectname``. If this project does not exist, create one with this name.
+Create an instance of ``Circuit`` and link to a project named ``projectname``. If this project does not exist, create one with this name.
 
 >>> aedtapp = Circuit(projectname)
 
-Create an ``Circuit`` object and link to a design named ``designname`` in a project named ``projectname``.
+Create an instance of ``Circuit`` and link to a design named ``designname`` in a project named ``projectname``.
 
 >>> aedtapp = Circuit(projectname,designame)
 
-Create an ``Circuit`` object and open the specified project.
+Create an instance of ``Circuit`` and open the specified project.
 
 >>> aedtapp = Circuit("myfile.aedt")
 
-Create a ``Desktop on 2021R1`` object and then creates an ``Circuit`` object and open the specified project.
+Create an instance of ``Circuit`` using the 2021 R1 version and open the specified project, which is``myfie.aedt``.
 
 >>> aedtapp = Circuit(specified_version="2021.1", projectname="myfile.aedt")
 
@@ -190,17 +185,17 @@ class Circuit(FieldAnalysisCircuit, object):
     Parameters
     ----------
     projectname : str, optional
-        Name of the project to select or the full path to the project
-        or AEDTZ archive to open. If ``None``, try to get the
-        active project and, if no project is present, create an empty project.
+        Name of the project to select or the full path to the project or AEDTZ archive to open. 
+        The default is ``None``. If ``None``, try to get an active project and, if no projects are present, 
+        create an empty project.
     designname : str, optional
-        Name of the design to select. If ``None``, try to get the
-        active design and, if no design is present, create an empty design.
+        Name of the design to select. The default is ``None``. If ``None``, try to get an active design and, 
+        if no designs are present, create an empty design.
     solution_type : str, optional
-        Solution type to apply to the design. If ``None``, the default is used.
+        Solution type to apply to the design. The default is ``None``. If ``None``, the default type is applied.
     setup_name : str, optional
-        Setup_name to use as nominal. If ``None``, the active setup is
-        used or nothing is used.
+        Name of the setup to use as the nominal. The default is ``None``. If ``None``, the active setup 
+        is used or nothing is used.
 
     """
 
@@ -241,7 +236,7 @@ class Circuit(FieldAnalysisCircuit, object):
         Parameters
         ----------
         file_to_import : str
-            full path to spice file
+            Full path to the HSpice file.
 
         Returns
         -------
@@ -446,7 +441,7 @@ class Circuit(FieldAnalysisCircuit, object):
         Returns
         -------
         bool
-            ``True`` if successful.
+            ``True`` when successful, ``False`` when failed.
         """
 
         xpos = 0
@@ -594,14 +589,14 @@ class Circuit(FieldAnalysisCircuit, object):
         Parameters
         ----------
         source_project_name :str
-            source project name
+            Name of the source project.
         source_design_name : str
-            source design name
-        source_project_path : str
-            source project path if different than existsting one
-        port_selector : int
-             1 - Wave Port, 2  - Terminal, 3 - Circuit
-             (Default value = 3)
+            Name of the source design.
+        source_project_path : str, optional
+            Path to the source project path if different than the existsting path. The default is ``None``.
+        port_selector : int, optional
+             The type of port. Chocies are ``1``, ``2``, or ``3``, corresponding respectively to a wave port, terminal, or circuit.
+             The default is ``3``, which is a circuit.
 
         Returns
         -------
@@ -637,9 +632,10 @@ class Circuit(FieldAnalysisCircuit, object):
         Parameters
         ----------
         filename : str
-            sNp/ts filename
-        solution_name : str
-                solution name
+            Name of the Touchstone file.
+        solution_name : str, optional
+            Name of the solution. The default is ``"Imported_Data"``.
+        
         Returns
         -------
         list
@@ -694,23 +690,27 @@ class Circuit(FieldAnalysisCircuit, object):
 
         Parameters
         ----------
-        designname : str
-                Name of the design or the solution file full path if it is an imported file.
-        setupname : str
-                Name of setup if it is a design.
-        is_solution_file: bool
-                True if it is an imported solution.
-        filename: str
-                Full path to the exported sp file.
-        passivity: bool
-        causality: bool
-        renormalize: bool
-        impedance: float
-            impedance in case of renormalization
-        error: float
-            fitting error
-        poles: int
-            fitting poles
+        designname : str, optional
+            Name of the design or the full path to the solution file if it is an imported file.
+            The default is ``None``.    
+        setupname : str, optional
+            Name of the setup if it is a design. The default is ``None``.
+        is_solution_file: bool, optional
+            Whether it is an imported solution file. The default is ``False``. 
+        filename: str, optional
+            Full path to the exported spice file.  The default is ``None``.
+        passivity: bool, optional
+            The default is ``None``.
+        causality: bool, optional
+            The default is ``None``.
+        renormalize: bool, optional
+            Whether to renormalize. The default is ``False``.
+        impedance: float, optional
+            Impedance in case of renormalization. The default is ``False``.
+        error: float, optional
+            Fitting error. The default is ``0.05``.
+        poles: int, optional
+            Number of fitting poles. The default is ``10000``.
 
         Returns
         -------
@@ -765,15 +765,15 @@ class Circuit(FieldAnalysisCircuit, object):
             Name of the plot.
         curvenames : str
             List of the curves to plot.
-        solution_name : str
+        solution_name : str, optional
             Name of the solution. The default value is ``None``.
-        variation_dict : dict
+        variation_dict : dict, optional
             Names of the variations. The default value is ``None``.
 
         Returns
         -------
         bool
-            Boolean
+           ``True`` when successful, ``False`` when failed.
 
         """
         if not solution_name:
