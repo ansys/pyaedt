@@ -7,6 +7,7 @@ from .conftest import local_path, scratch_path
 from pyaedt import Hfss
 from pyaedt.generic.filesystem import Scratch
 from pyaedt.modeler.Primitives import Polyline, PolylineSegment
+from pyaedt.modeler.GeometryOperators import GeometryOperators
 import gc
 import pytest
 from .conftest import config
@@ -42,6 +43,12 @@ class TestPrimitives:
         assert self.aedtapp.modeler.primitives[id].name == "Mybox"
         assert self.aedtapp.modeler.primitives[id].object_type == "Solid"
         assert self.aedtapp.modeler.primitives[id].is3d == True
+
+    def test_center_and_centroid(self):
+        tol = 1e-9
+        assert GeometryOperators.v_norm(
+            self.aedtapp.modeler.primitives["Mybox"].faces[0].center) - GeometryOperators.v_norm(
+            self.aedtapp.modeler.primitives["Mybox"].faces[0].centroid) < tol
 
     def test_01_get_object_name_from_edge(self):
         assert self.aedtapp.modeler.get_object_name_from_edge_id(

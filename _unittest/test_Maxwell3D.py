@@ -171,3 +171,9 @@ class TestMaxwell3D:
 
         assert self.aedtapp.modeler.primitives.create_udm(udmfullname="Maxwell3D/OnDieSpiralInductor.py",
                                                           udm_params_list=my_udmPairs, udm_library='syslib')
+
+    def test_assign_torque(self):
+        assert self.aedtapp.assign_torque("Coil")
+
+    def test_assign_force(self):
+        assert self.aedtapp.assign_force("Coil")

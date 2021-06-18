@@ -228,10 +228,6 @@ class TestIcepak:
     def test_29_create_sweep_material(self):
         assert self.aedtapp.materials.creatematerial_sweeps(["copper", "silver"], "My_Sweep", False)
 
-    def test_32_load_material_lib(self):
-        self.aedtapp.materials.py2xmlFull(os.path.join(self.local_scratch.path,"export.xml"))
-        assert os.path.exists(os.path.join(self.local_scratch.path,"export.xml"))
-
     def test_33_create_region(self):
         self.aedtapp.modeler.primitives.delete("Region")
         assert type(self.aedtapp.modeler.primitives.create_region([100,100,100,100,100,100])) is int

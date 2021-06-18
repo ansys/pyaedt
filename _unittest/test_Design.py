@@ -30,11 +30,35 @@ class TestDesign:
         self.local_scratch.remove()
         gc.collect()
 
+    def test_app(self):
+        assert self.aedtapp
+
     def test_01_designname(self):
         assert self.aedtapp.design_name == "HFSSDesign"
         self.aedtapp.design_name = "myname"
         assert self.aedtapp.design_name == "myname"
         self.aedtapp.design_name = "HFSSDesign"
+
+    def test_version_id(self):
+        assert self.aedtapp.aedt_version_id
+
+    def test_vali_design(self):
+        assert self.aedtapp.valid_design
+
+    def test_clean_proj_folder(self):
+        assert self.aedtapp.clean_proj_folder()
+
+    def test_copy_project(self):
+        assert self.aedtapp.copy_project(self.local_scratch.path, "new_file")
+
+    def test_copy_project(self):
+        assert self.aedtapp.copy_project(self.local_scratch.path, "new_file")
+        assert self.aedtapp.copy_project(self.local_scratch.path, "Coax_HFSS")
+
+
+    def test_change_use_causalmaterial(self):
+        assert self.aedtapp.change_automatically_use_causal_materials(True)
+        assert self.aedtapp.change_automatically_use_causal_materials(False)
 
     def test_02_design_list(self):
         mylist = self.aedtapp.design_list
