@@ -748,48 +748,6 @@ class Maxwell3d(Maxwell, FieldAnalysis3D, object):
                                  specified_version, NG, AlwaysNew, release_on_exit)
         Maxwell.__init__(self)
 
-    @aedt_exception_handler
-    def setup_ctrlprog(self, setup, py_file, file_str=None):
-        """Configure the transient design setup to run a specific control program.
-
-        Parameters
-        ----------
-        setup : str
-            Name of the solution setup of the Maxwell design. For example, ``Setup1``.
-            
-        py_file : str
-            Name of the Python file that the Maxwell solver processes to copy to the temp directory and 
-            rename to ``setup + ".ctrlprog"``.  For example, if ``py_file`` is defined as ``"my_script.py"`` and the 
-            solver setup is called ``"Setup1"``, the resulting file in the temp directory is ``"Setup1.ctrlprog"``. 
-            For this reason, it is important to instruct the operating system to use a python interpreter to 
-            run any file with the extension ``".ctrlprog"``.
-            
-        file_str : str, optional
-            Name of the python file to run at each timestep. The default is ``None``.
-
-        Returns
-        -------
-
-        """
-        py_file = os.path.join(self.working_directory, py_file).replace('\\', '\\\\')
-        exe_file = r'C:\data\userlib\Toolkits\Maxwell3D\lib\PythonLauncher.exe'
-        self._py_file = py_file
-        oModule = self._odesign.GetModule("AnalysisSetup")
-        oModule.EditSetup(setup,
-                          [
-                              "NAME:" + setup,
-                              "Enabled:=", True,
-                              "UseControlProgram:=", True,
-                              "ControlProgramName:=", exe_file,
-                              "ControlProgramArg:=", py_file,
-                              "CallCtrlProgAfterLastStep:=", True
-                          ])
-        self.save_project()
-        if file_str is not None:
-            ctl_file = os.path.join(self.working_directory, self._py_file)
-            with open(ctl_file, "w") as fo:
-                fo.write(file_str)
-        return True
 
 
 class Maxwell2d(Maxwell, FieldAnalysis2D, object):

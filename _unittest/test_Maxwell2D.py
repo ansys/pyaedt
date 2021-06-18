@@ -100,6 +100,7 @@ class TestMaxwell2D:
         assert self.aedtapp.modeler.primitives["Rectangle1"].material_name == material
 
     def test_assign_torque(self):
+        self.aedtapp.solution_type = self.aedtapp.SolutionTypes.Maxwell2d.MagnetostaticXY
         assert self.aedtapp.assign_torque("Rectangle1")
 
     def test_assign_force(self):
