@@ -39,7 +39,7 @@ class TestCircuit:
         self.local_scratch.remove()
         gc.collect()
 
-    def test_01_create_indulctor(self):
+    def test_01_create_inductor(self):
         myind, myname = self.aedtapp.modeler.components.create_inductor(value=1e-9, xpos=0.2, ypos=0.2)
         assert type(myind) is int
         assert self.aedtapp.modeler.components.components[myind].L == 1e-9
@@ -88,8 +88,8 @@ class TestCircuit:
 
     def test_09_import_touchstone(self):
         self.aedtapp.insert_design("Touchstone_import")
-        ports = self.aedtapp.import_touchsthone_solution(os.path.join(self.local_scratch.path, touchstone))
-        ports2 = self.aedtapp.import_touchsthone_solution(os.path.join(self.local_scratch.path, touchstone2))
+        ports = self.aedtapp.import_touchstone_solution(os.path.join(self.local_scratch.path, touchstone))
+        ports2 = self.aedtapp.import_touchstone_solution(os.path.join(self.local_scratch.path, touchstone2))
         numports = len(ports)
         assert numports == 6
         numports2 = len(ports2)
@@ -131,3 +131,6 @@ class TestCircuit:
         assert data.data_real()
         assert data.data_imag()
         assert data.data_db()
+
+    def test_12_create_setup(self):
+        assert self.aedtapp.create_setup()

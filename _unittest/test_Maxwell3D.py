@@ -78,7 +78,9 @@ class TestMaxwell3D:
         Setup.props["Frequency"] = adaptive_frequency
         assert Setup.update()
         assert Setup.enable_expression_cache(['CoreLoss'], "Fields", "Phase=\'0deg\' ", True)
-
+        assert Setup.disable()
+        assert Setup.enable()
+        assert self.aedtapp.setup_ctrlprog(Setup.name)
 
     def test_22_create_length_mesh(self):
         assert self.aedtapp.mesh.assign_length_mesh(['Plate'])
@@ -169,3 +171,9 @@ class TestMaxwell3D:
 
         assert self.aedtapp.modeler.primitives.create_udm(udmfullname="Maxwell3D/OnDieSpiralInductor.py",
                                                           udm_params_list=my_udmPairs, udm_library='syslib')
+
+    def test_assign_torque(self):
+        assert self.aedtapp.assign_torque("Coil")
+
+    def test_assign_force(self):
+        assert self.aedtapp.assign_force("Coil")

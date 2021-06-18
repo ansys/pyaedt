@@ -631,7 +631,7 @@ class Circuit(FieldAnalysisCircuit, object):
 
 
     @aedt_exception_handler
-    def import_touchsthone_solution(self, filename, solution_name="Imported_Data"):
+    def import_touchstone_solution(self, filename, solution_name="Imported_Data"):
         """ Import Touchstone file as the solution.
 
         Parameters

@@ -5,6 +5,7 @@ import gc
 import time
 # Import required modules
 from pyaedt import Edb
+from pyaedt.edb_core.components import resistor_value_parser
 from pyaedt.generic.filesystem import Scratch
 from .conftest import desktop_version
 test_project_name = "Galileo"
@@ -269,7 +270,11 @@ class Test3DLayout:
         assert self.edbapp.create_cutout(["A0_N", "A0_P"],["GND","V3P3_S0"], output_aedb_path=output)
         assert os.path.exists(os.path.join(output, "edb.def"))
 
+    def test_rvalue(self):
+        assert resistor_value_parser("100meg")
 
+    def test_stackup_limits(self):
+        assert self.edbapp.core_stackup.stackup_limits()
 
 
 

@@ -176,10 +176,83 @@ class Maxwell(object):
         return list(windings)
 
     @property
+    def o_maxwell_parameters(self):
+        return self.odesign.GetModule("MaxwellParameterSetup")
+
+    @property
     def design_file(self):
         """ """
         design_file = os.path.join(self.working_directory, "design_data.json")
         return design_file
+
+    @aedt_exception_handler
+    def setup_ctrlprog(self, setupname, file_str=None, keep_modifications=False, python_interpreter=None, aedt_lib_dir=None):
+        """Configure the transient design setup to run a specific control program.
+
+        Parameters
+        ----------
+        file_str : str, optional
+            The default value is ``None``.
+        keep_modifications : bool, optional
+            The default value is ``False``.
+        python_interpreter : optional
+             The default value is ``None``.
+        aedt_lib_dir : str, optional
+             The default value is ``None``.
+
+        Returns
+        -------
+<<<<<<< HEAD
+
+=======
+        bool
+            ``True`` when successful and ``False`` when failed.
+>>>>>>> main
+        """
+
+        self._py_file = setupname + ".py"
+        ctl_path = self.working_directory
+        ctl_file_compute = os.path.join(ctl_path, self._py_file)
+        ctl_file = os.path.join(self.working_directory, self._py_file)
+
+        if aedt_lib_dir:
+            source_dir = aedt_lib_dir
+        else:
+            source_dir = self.pyaedt_dir
+
+        if os.path.exists(ctl_file) and keep_modifications:
+            with open(ctl_file, "r") as fi:
+                existing_data = fi.readlines()
+            with open(ctl_file, "w") as fo:
+                first_line = True
+                for line in existing_data:
+                    if first_line:
+                        first_line = False
+                        if python_interpreter:
+                            fo.write("#!{0}\n".format(python_interpreter))
+                    if line.startswith("work_dir"):
+                        fo.write("work_dir = r'{0}'\n".format(ctl_path))
+                    elif line.startswith("lib_dir"):
+                        fo.write("lib_dir = r'{0}'\n".format(source_dir))
+                    else:
+                        fo.write(line)
+        else:
+            if file_str is not None:
+                with io.open(ctl_file, "w", newline='\n') as fo:
+                    fo.write(file_str)
+                assert os.path.exists(ctl_file), "Control Program file could not be created."
+
+        self.oanalysis_setup.EditSetup(setupname,
+                          [
+                              "NAME:" + setupname,
+                              "Enabled:=", True,
+                              "UseControlProgram:=", True,
+                              "ControlProgramName:=", ctl_file_compute,
+                              "ControlProgramArg:=", "",
+                              "CallCtrlProgAfterLastStep:=", True
+                          ])
+
+        return True
 
     # Set eddy effects
     @aedt_exception_handler
@@ -454,6 +527,105 @@ class Maxwell(object):
         return False
 
     @aedt_exception_handler
+    def assign_force(self, input_object, reference_cs="Global", is_virtual=True, force_name=None):
+        """
+        Assig Force to Selection
+
+        Parameters
+        ----------
+        input_object : str, list
+        reference_cs : str
+        is_virtual : bool
+        force_name : str, Optional
+
+        Returns
+        -------
+        bool
+        """
+
+        input_object = self.modeler._convert_list_to_ids(input_object, True)
+        if not force_name:
+            force_name = generate_unique_name("Force")
+        if self.design_type == "Maxwell 3D":
+            self.o_maxwell_parameters.AssignForce(
+                [
+                    "NAME:"+force_name,
+                    "Reference CS:=", reference_cs,
+                    "Is Virtual:="	, is_virtual,
+                    "Objects:="		, input_object
+                ])
+        else:
+            self.o_maxwell_parameters.AssignForce(
+                [
+                    "NAME:"+force_name,
+                    "Reference CS:=", reference_cs,
+                    "Objects:="		, input_object
+                ])
+        return True
+
+    @aedt_exception_handler
+    def assign_torque(self, input_object, reference_cs="Global", is_positive=True, is_virtual=True, axis="Z", torque_name=None):
+        """
+        Assig Torque to Selection
+
+        Parameters
+        ----------
+        input_object : str, list
+        reference_cs : str
+        is_virtual : bool
+        is_positive : bool
+        axis : str
+            Default "Z"
+        torque_name : str, Optional
+
+        Returns
+        -------
+        bool
+        """
+
+        input_object = self.modeler._convert_list_to_ids(input_object, True)
+        if not torque_name:
+            torque_name = generate_unique_name("Torque")
+        if self.design_type == "Maxwell 3D":
+            self.o_maxwell_parameters.AssignTorque(
+                ["NAME:" + torque_name, "Is Virtual:=", is_virtual, "Coordinate System:=", reference_cs, "Axis:=", axis,
+                 "Is Positive:=", is_positive, "Objects:=", input_object])
+        else:
+            self.o_maxwell_parameters.AssignTorque(
+                ["NAME:" + torque_name, "Coordinate System:=", reference_cs,
+                 "Is Positive:=", is_positive, "Objects:=", input_object])
+        return True
+
+    @aedt_exception_handler
+    def assign_force(self, input_object, reference_cs="Global", is_virtual=True, force_name=None):
+        """
+        Assig Force to Selection
+
+        Parameters
+        ----------
+        input_object : str, list
+        reference_cs : str
+        is_virtual : bool
+        force_name : str, Optional
+
+        Returns
+        -------
+        bool
+        """
+
+        input_object = self.modeler._convert_list_to_ids(input_object, True)
+        if not force_name:
+            force_name = generate_unique_name("Force")
+        self.o_maxwell_parameters.AssignForce(
+            [
+                "NAME:" + force_name,
+                "Reference CS:=", reference_cs,
+                "Is Virtual:=", is_virtual,
+                "Objects:="	, input_object
+            ])
+        return True
+
+    @aedt_exception_handler
     def solve_inside(self, name, activate=True):
         """
 
@@ -576,48 +748,6 @@ class Maxwell3d(Maxwell, FieldAnalysis3D, object):
                                  specified_version, NG, AlwaysNew, release_on_exit)
         Maxwell.__init__(self)
 
-    @aedt_exception_handler
-    def setup_ctrlprog(self, setup, py_file, file_str=None):
-        """Configure the transient design setup to run a specific control program.
-
-        Parameters
-        ----------
-        setup : str
-            Name of the solution setup of the Maxwell design. For example, ``Setup1``.
-            
-        py_file : str
-            Name of the Python file that the Maxwell solver processes to copy to the temp directory and 
-            rename to ``setup + ".ctrlprog"``.  For example, if ``py_file`` is defined as ``"my_script.py"`` and the 
-            solver setup is called ``"Setup1"``, the resulting file in the temp directory is ``"Setup1.ctrlprog"``. 
-            For this reason, it is important to instruct the operating system to use a python interpreter to 
-            run any file with the extension ``".ctrlprog"``.
-            
-        file_str : str, optional
-            Name of the python file to run at each timestep. The default is ``None``.
-
-        Returns
-        -------
-
-        """
-        py_file = os.path.join(self.working_directory, py_file).replace('\\', '\\\\')
-        exe_file = r'C:\data\userlib\Toolkits\Maxwell3D\lib\PythonLauncher.exe'
-        self._py_file = py_file
-        oModule = self._odesign.GetModule("AnalysisSetup")
-        oModule.EditSetup(setup,
-                          [
-                              "NAME:" + setup,
-                              "Enabled:=", True,
-                              "UseControlProgram:=", True,
-                              "ControlProgramName:=", exe_file,
-                              "ControlProgramArg:=", py_file,
-                              "CallCtrlProgAfterLastStep:=", True
-                          ])
-        self.save_project()
-        if file_str is not None:
-            ctl_file = os.path.join(self.working_directory, self._py_file)
-            with open(ctl_file, "w") as fo:
-                fo.write(file_str)
-        return True
 
 
 class Maxwell2d(Maxwell, FieldAnalysis2D, object):
@@ -709,7 +839,10 @@ class Maxwell2d(Maxwell, FieldAnalysis2D, object):
 
         """
         solid_bodies = self.modeler.solid_bodies
-        solid_ids = self.modeler.solid_ids(objectfilter)
+        if objectfilter:
+            solid_ids = [i for i,j in self.modeler.primitives.objects_names.items() if j.name in objectfilter]
+        else:
+            solid_ids = [i for i in list(self.modeler.primitives.objects_names.keys())]
         model_depth = self.get_model_depth()
         self.design_data = {
             "Project Directory": self.project_path,
@@ -741,83 +874,6 @@ class Maxwell2d(Maxwell, FieldAnalysis2D, object):
         return design_data
 
     @aedt_exception_handler
-    def setup_ctrlprog(self, file_str=None, keep_modifications=False, python_interpreter=None,
-                       pymxwl_module_location=None, working_directory=None, aedt_lib_dir=None):
-        """Configure the transient design setup to run a specific control program.
-              
-        Parameters
-        ----------
-        file_str : str, optional
-            The default value is ``None``.
-        keep_modifications : bool, optional
-            The default value is ``False``.
-        python_interpreter : optional
-             The default value is ``None``.
-        pymxwl_module_location : optional
-             The default value is ``None``.
-        working_directory : str, optional
-             The default value is ``None``.
-        aedt_lib_dir : str, optional
-             The default value is ``None``.
-
-        Returns
-        -------
-
-        """
-        setup = self.analysis_setup
-        self._py_file = setup + ".py"
-        ctl_path = self.working_directory
-        ctl_file_compute = os.path.join(ctl_path, self._py_file)
-        ctl_file = os.path.join(self.working_directory, self._py_file)
-
-        if aedt_lib_dir:
-            source_dir = aedt_lib_dir
-        else:
-            source_dir = self.pyaedt_dir
-
-        if os.path.exists(ctl_file) and keep_modifications:
-            with open(ctl_file, "r") as fi:
-                existing_data = fi.readlines()
-            with open(ctl_file, "w") as fo:
-                first_line = True
-                for line in existing_data:
-                    if first_line:
-                        first_line = False
-                        if python_interpreter:
-                            fo.write("#!{0}\n".format(python_interpreter))
-                    if line.startswith("work_dir"):
-                        fo.write("work_dir = r'{0}'\n".format(ctl_path))
-                    elif line.startswith("lib_dir"):
-                        fo.write("lib_dir = r'{0}'\n".format(source_dir))
-                    else:
-                        fo.write(line)
-        else:
-            if file_str is not None:
-                with io.open(ctl_file, "w", newline='\n') as fo:
-                    fo.write(file_str)
-                assert os.path.exists(ctl_file), "Control Program file could not be created."
-
-        assert os.path.exists(ctl_file_compute), "Control Program {} does not exist.".format(ctl_file_compute)
-        oModule = self._odesign.GetModule("AnalysisSetup")
-        oModule.EditSetup(setup,
-                          [
-                              "NAME:" + setup,
-                              "Enabled:=", True,
-                              "UseControlProgram:=", True,
-                              "ControlProgramName:=", ctl_file_compute,
-                              "ControlProgramArg:=", "",
-                              "CallCtrlProgAfterLastStep:=", True
-                          ])
-
-        '''
-        self._messenger.add_info_message(
-            "Successfully set up the control program: {0}\nUsing pymxwl module located at:{1}".format(ctl_file,
-                                                                                                   pymxwl_module_location),
-            self.setup_des_name)
-        '''  # send an info message to give the user a feedback about the generaed user control program file
-        return True
-
-    @aedt_exception_handler
     def assign_balloon(self, edge_list, bound_name= None):
         """
         Assign a balloon boundary to a list of edges.
@@ -831,7 +887,7 @@ class Maxwell2d(Maxwell, FieldAnalysis2D, object):
 
         Returns
         -------
-        :class: BoundaryObject
+        BoundaryObject
             boundary object
 
         """
@@ -864,7 +920,7 @@ class Maxwell2d(Maxwell, FieldAnalysis2D, object):
 
         Returns
         -------
-        type
+        BoundaryObject
             Vector Potential Object
 
         """
