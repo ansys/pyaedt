@@ -321,30 +321,6 @@ class Materials(object):
         return False
 
     @aedt_exception_handler
-    def check_thermal_modifier_OLD(self, mat):
-        """
-
-        Parameters
-        ----------
-        mat :
-
-
-        Returns
-        -------
-
-        """
-        mat = mat.lower()
-        exists = True
-        if mat not in self.material_keys:
-            exists = self.checkifmaterialexists(mat)
-        if exists:
-            omat = self.material_keys[mat]
-            for el in omat.property:
-                if omat.property[el].property_value[0].thermalmodifier:
-                    return True
-        return False
-
-    @aedt_exception_handler
     def creatematerial(self, materialname):
         """The function create a new material named materialname and apply defaults value and return the material object
         that allows user to customize the material
@@ -801,9 +777,9 @@ class Materials(object):
                         dataset.set("XName", ds.namex)
                         if ds.type:
                             dataset.set("type", ds.type)
-                        if ds.unit:
-                            dataset.set("unit", ds.unit)
-                        if ds.namex:
+                        if ds.unitx:
+                            dataset.set("unit", ds.unitx)
+                        if ds.namey:
                             dataset.set("YName", ds.namey)
                         if ds.namez:
                             dataset.set("ZName", ds.namez)
@@ -821,7 +797,7 @@ class Materials(object):
                             if ds.type:
                                 dataset.set("type", ds.type)
                             if ds.unitx:
-                                dataset.set("unitx", ds.unit)
+                                dataset.set("unitx", ds.unitx)
                             if ds.unity:
                                 dataset.set("unity", ds.unity)
                             if ds.unitz:
