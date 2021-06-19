@@ -280,22 +280,39 @@ def force_close_desktop():
 
 
 class Desktop:
-    """Core class used to initialize AEDT based on the inputs provided."""
+    """Core class used to initialize AEDT based on the inputs provided.
     
-    def __init__(self, specified_version=None, NG=False, AlwaysNew=True, release_on_exit=True):
-        """Initialize AEDT. On Windows, it works without limitations in IronPython and CPython. On Linux, it works only in embedded Ironpython in AEDT.
+    On Windows, it works without limitations in IronPython and CPython.
+    On Linux, it works only in embedded Ironpython in AEDT.
 
-        Parameters
-        ----------
-        specified_version: str, optional
-            Version of AEDT to use. The default is ``None``. If ``None``, the active setup is used or the latest installed version is used.
-        NG: bool, optional
-            Whether to launch AEDT in the non-graphical mode. The default is ``False``, which launches AEDT in the graphical mode.
-        AlwaysNew: bool, optional
-            Whether to launch an instance of AEDT in a new thread, even if another instance of the ``specified_version`` is active on the machine.
-            The default is ``True``.
-        release_on_exit: bool, optional
-            Whether to release AEDT on exit. The default is ``True``.
+    Parameters
+    ----------
+    specified_version: str, optional
+        Version of AEDT to use. The default is ``None``. If ``None``, the
+        active setup is used or the latest installed version is used.
+    NG: bool, optional
+        Whether to launch AEDT in the non-graphical mode. The default 
+        is ``False``, which launches AEDT in the graphical mode.
+    AlwaysNew: bool, optional
+        Whether to launch an instance of AEDT in a new thread, even if 
+        another instance of the ``specified_version`` is active on the machine.
+        The default is ``True``.
+    release_on_exit: bool, optional
+        Whether to release AEDT on exit. The default is ``True``.
+
+    Examples
+    --------
+    Launch AEDT 2021 R1 in non-graphical mode and initialize HFSS.
+
+    >>> import pyaedt
+    >>> desktop = pyaedt.Desktop("2021.1", NG=True)
+    >>> hfss = pyaedt.Hfss()
+
+    Launch AEDT 2021 R1 in graphical mode and initialize HFSS.
+
+    >>> desktop = Desktop("2021.1")
+    >>> hfss = pyaedt.Hfss()
+    """
             
     @property
     def version_keys(self):
@@ -324,7 +341,8 @@ class Desktop:
         """ """
         return self.version_keys[0]
         
-        """
+    def __init__(self, specified_version=None, NG=False, AlwaysNew=True, release_on_exit=True):
+        """Initialize desktop."""
         self._main = sys.modules['__main__']
         self._main.close_on_exit = False
         self._main.isoutsideDesktop = False
