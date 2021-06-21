@@ -3,8 +3,8 @@
    You can adapt this file completely to your liking, but it should at least
    contain the root `toctree` directive.
 
-modeler 3DLayout
-===================================
+Modeler 3D Layout
+=================
 
 .. autoclass:: pyaedt.modeler.Model3DLayout.Modeler3DLayout
     :members:
