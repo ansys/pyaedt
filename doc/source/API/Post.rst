@@ -5,7 +5,7 @@
 
 
 
-PostProcessing
+Postprocessing
 ===================================
 
 **Diagram**
@@ -16,7 +16,7 @@ PostProcessing
 
 .. toctree::
    :maxdepth: 2
-   :caption: Classes:
+   :caption: The ``Postprocessing`` module includes these classes:
 
    PostProcessor
    AdvancedPostProcessing
