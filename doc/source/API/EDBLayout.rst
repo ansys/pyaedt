@@ -4,7 +4,7 @@
    contain the root `toctree` directive.
 
 EDB Layout
-===================================
+==========
 
 .. automodule:: pyaedt.edb_core.layout
     :members:
