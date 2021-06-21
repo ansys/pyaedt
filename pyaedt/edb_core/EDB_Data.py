@@ -1,6 +1,7 @@
 import warnings
 import sys
 from collections import OrderedDict, defaultdict
+from .general import convert_py_list_to_net_list, convert_net_list_to_py_list, convert_pydict_to_netdict, convert_netdict_to_pydict
 import time
 try:
     import clr
@@ -32,6 +33,7 @@ class EDBLayer(object):
         self._filling_material_name = None
         self._lower_elevation = None
         self._upper_elevation = None
+        self._top_bottom_association = None
         self._id = None
         self.edb = parent.edb
         self.active_layout = parent.active_layout
@@ -51,6 +53,7 @@ class EDBLayer(object):
             self._material_name = self._layer.GetMaterial()
             self._lower_elevation = self._layer.GetLowerElevation()
             self._upper_elevation = self._layer.GetUpperElevation()
+            self._top_bottom_association = self._layer.GetTopBottomAssociation()
         except:
             pass
 
@@ -175,6 +178,15 @@ class EDBLayer(object):
         if self._layer_type == 0 or self._layer_type == 2:
             self._filling_material_name = value
             self.update_layers()
+
+    @property
+    def top_bottom_association(self):
+        """ """
+        try:
+            self._top_bottom_association = self._layer.GetTopBottomAssociation()
+        except:
+            pass
+        return self._top_bottom_association
 
     @property
     def lower_elevation(self):
@@ -558,93 +570,304 @@ class EDBLayers(object):
         return True
 
 
-class EDBComponent(object):
+class EDBPadProperties(object):
+    @property
+    def _padstack_methods(self):
+        """ """
+        return self._parent._padstack_methods
+
+    @property
+    def _stackup_layers(self):
+        """ """
+        return self._parent._stackup_layers
+
+    @property
+    def _builder(self):
+        """ """
+        return self._parent._builder
+
+    @property
+    def _edb(self):
+        """ """
+        return self._parent._edb
+
+    @property
+    def _edb_value(self):
+        """ """
+        return self._parent._edb_value
+
+    def __init__(self, edb_padstack, layer_name, pad_type, parent):
+        self._edb_padstack = edb_padstack
+        self._parent = parent
+        self.layer_name = layer_name
+        self.pad_type = pad_type
+        pass
+
+    @property
+    def geometry_type(self):
+        padparams = self._padstack_methods.GetPadParametersValue(self._edb_padstack, self.layer_name, self.pad_type)
+        return padparams.Item1
+
+    @property
+    def parameters(self):
+        pad_values = self._padstack_methods.GetPadParametersValue(self._edb_padstack, self.layer_name, self.pad_type)
+        return [i.ToString() for i in pad_values.Item2]
+
+    @parameters.setter
+    def parameters(self, propertylist):
+        if not isinstance(propertylist, list):
+            propertylist =[self._edb_value(propertylist)]
+        else:
+            propertylist = [self._edb_value(i) for i in propertylist]
+        self._update_pad_parameters_parameters(params= propertylist)
+
+    @property
+    def offset_x(self):
+        pad_values = self._padstack_methods.GetPadParametersValue(self._edb_padstack, self.layer_name, self.pad_type)
+        return pad_values.Item3.ToString()
+
+    @offset_x.setter
+    def offset_x(self, offset_value):
+        self._update_pad_parameters_parameters(offsetx= offset_value)
+    @property
+    def offset_y(self):
+        pad_values = self._padstack_methods.GetPadParametersValue(self._edb_padstack, self.layer_name, self.pad_type)
+        return pad_values.Item4.ToString()
+
+    @offset_y.setter
+    def offset_y(self, offset_value):
+        self._update_pad_parameters_parameters(offsety = offset_value)
+
+    @property
+    def rotation(self):
+        pad_values = self._padstack_methods.GetPadParametersValue(self._edb_padstack, self.layer_name, self.pad_type)
+        return pad_values.Item5.ToString()
+
+    @rotation.setter
+    def rotation(self, rotation_value):
+        self._update_pad_parameters_parameters(rotation=rotation_value)
+
+
+    def _update_pad_parameters_parameters(self, layer_name=None, pad_type=None, geom_type=None, params=None, offsetx=None, offsety=None, rotation=None):
+        originalPadstackDefinitionData = self._edb_padstack.GetData()
+        newPadstackDefinitionData = self._edb.Definition.PadstackDefData(originalPadstackDefinitionData)
+        if not pad_type:
+            pad_type = self.pad_type
+        if not geom_type:
+            geom_type = self.geometry_type
+        if not params:
+            params = [self._edb_value(i) for i in self.parameters]
+        if not offsetx:
+            offsetx = self.offset_x
+        if not offsety:
+            offsety = self.offset_y
+        if not rotation:
+            rotation = self.rotation
+        if not layer_name:
+            layer_name = self.layer_name
+        newPadstackDefinitionData.SetPadParameters(layer_name, pad_type, geom_type, convert_py_list_to_net_list(params),
+                                                      self._edb_value(offsetx),
+                                                      self._edb_value(offsety),
+                                                      self._edb_value(rotation))
+        self._edb_padstack.SetData(newPadstackDefinitionData)
+
+class EDBPadstack(object):
     """ """
 
     @property
-    def component_methods(self):
+    def _padstack_methods(self):
         """ """
-        return self._parent.component_methods
+        return self._parent.padstack_methods
 
     @property
-    def builder(self):
+    def _stackup_layers(self):
+        """ """
+        return self._parent._stackup_layers
+
+    @property
+    def _builder(self):
         """ """
         return self._parent.builder
 
-    def __init__(self, edb_component, parent):
-        self.component = edb_component
-        self._refdes = None
-        self._type = None
-        self._placementlayer = None
-        self._pin_number = None
-        self._pins = {}
-        self._nets = {}
-        self.edb = parent.edb
-        self.active_layout = parent.active_layout
+    @property
+    def _edb(self):
+        """ """
+        return self._parent.edb
+
+    @property
+    def _edb_value(self):
+        """ """
+        return self._parent.edb_value
+
+    def __init__(self, edb_padstack, parent):
+        self.edb_padstack = edb_padstack
         self._parent = parent
-        self.init_vals()
+        self.pad_by_layer = {}
+        self.antipad_by_layer = {}
+        self.thermalpad_by_layer = {}
+        for layer in self.via_layers:
+            self.pad_by_layer[layer] = EDBPadProperties(edb_padstack, layer, 0, self)
+            self.antipad_by_layer[layer] = EDBPadProperties(edb_padstack, layer, 1, self)
+            self.thermalpad_by_layer[layer] = EDBPadProperties(edb_padstack, layer, 2, self)
+        pass
 
-    def init_vals(self):
-        """ """
-        self._refdes = self.component.GetName()
-        self._type = self.component.GetComponentType()
 
     @property
-    def messenger(self):
-        """ """
-        return self._parent._messenger
+    def via_layers(self):
+        return self.edb_padstack.GetData().GetLayerNames()
 
     @property
-    def name(self):
-        """ """
-        if not self._name:
-            self._name = self.layer.GetName()
-        return self._name
+    def via_start_layer(self):
+        return self.via_layers[0]
 
     @property
-    def placement_layer(self):
-        """ """
-        self._placementlayer = self.component.GetPlacementLayer()
-        return self._placementlayer
+    def via_stop_layer(self):
+        return self.via_layers[-1]
 
     @property
-    def pin_number(self):
-        """ """
-        self._pin_number = self.component.GetNumberOfPins()
-        return self._pin_number
-
-    @placement_layer.setter
-    def placement_layer(self, value):
-        """
-
-        Parameters
-        ----------
-        value :
-            
-
-        Returns
-        -------
-
-        """
-        self._placementlayer = value
-        return self._placementlayer
+    def _hole_params(self):
+        viaData = self.edb_padstack.GetData()
+        if "IronPython" in sys.version or ".NETFramework" in sys.version:
+            out = viaData.GetHoleParametersValue()
+        else:
+            value0 = self._edb_value("0.0")
+            ptype = self._edb.Definition.PadGeometryType.Circle
+            HoleParam = Array[type(value0)]([])
+            out = viaData.GetHoleParametersValue(ptype, HoleParam, value0, value0, value0)
+        return out
 
     @property
-    def pins(self):
-        """ """
-        pinlist = list(list(self.component.LayoutObjs).Where(lambda obj: obj.GetObjType() == self._parent.edb.Cell.LayoutObjType.PadstackInstance))
-        for pin in pinlist:
-            self._pins[pin.GetName()] = pin
-        return self._pins
+    def hole_parameters(self):
+        self._hole_parameters = self._hole_params[2]
+        return self._hole_parameters
+
+    def _update_hole_parameters(self, hole_type=None, params=None, offsetx=None, offsety=None, rotation=None):
+        originalPadstackDefinitionData = self.edb_padstack.GetData()
+        newPadstackDefinitionData = self._edb.Definition.PadstackDefData(originalPadstackDefinitionData)
+        if not hole_type:
+            hole_type = self.hole_type
+        if not params:
+            params = self.hole_parameters
+        if not offsetx:
+            offsetx = self.hole_offset_x
+        if not offsety:
+            offsety = self.hole_offset_y
+        if not rotation:
+            rotation = self.hole_rotation
+        newPadstackDefinitionData.SetHoleParameters(hole_type, convert_py_list_to_net_list(params),
+                                                      self._edb_value(offsetx),
+                                                      self._edb_value(offsety),
+                                                      self._edb_value(rotation))
+        self.edb_padstack.SetData(newPadstackDefinitionData)
 
     @property
-    def nets(self):
-        """ """
-        pins = self .get_pins()
-        for pin in pins:
-            pin_name = pin.GetNet().GetName()
-            if pin_name not in self._nets:
-                self._nets[pin_name] = pin
-        return self._nets
+    def hole_properties(self):
+        self._hole_properties = [i.ToDouble() for i in self._hole_params[2]]
+        return self._hole_properties
+
+    @hole_properties.setter
+    def hole_properties(self, propertylist):
+        if not isinstance(propertylist, list):
+            propertylist =[self._edb_value(propertylist)]
+        else:
+            propertylist = [self._edb_value(i) for i in propertylist]
+        self._update_hole_parameters(params= propertylist)
+
+    @property
+    def hole_type(self):
+        self._hole_type = self._hole_params[1]
+        return self._hole_type
+
+    @property
+    def hole_offset_x(self):
+        self._hole_offset_x = self._hole_params[3].ToString()
+        return self._hole_offset_x
+
+    @hole_offset_x.setter
+    def hole_offset_x(self, offset):
+        self._hole_offset_x = offset
+        self._update_hole_parameters(offsetx=offset)
+
+    @property
+    def hole_offset_y(self):
+        self._hole_offset_y = self._hole_params[4].ToString()
+        return self._hole_offset_y
+
+    @hole_offset_y.setter
+    def hole_offset_y(self, offset):
+        self._hole_offset_y = offset
+        self._update_hole_parameters(offsety=offset)
+
+    @property
+    def hole_rotation(self):
+        self._hole_rotation = self._hole_params[5].ToString()
+        return self._hole_rotation
+
+    @hole_rotation.setter
+    def hole_rotation(self, rotation):
+        self._hole_rotation= rotation
+        self._update_hole_parameters(rotation=rotation)
+
+    @property
+    def hole_plating_ratio(self):
+        return self.edb_padstack.GetData().GetHolePlatingPercentage()
+
+    @hole_plating_ratio.setter
+    def hole_plating_ratio(self, ratio):
+        originalPadstackDefinitionData = self.edb_padstack.GetData()
+        newPadstackDefinitionData = self._edb.Definition.PadstackDefData(originalPadstackDefinitionData)
+        newPadstackDefinitionData.SetHolePlatingPercentage(self._edb_value(ratio))
+        self.edb_padstack.SetData(newPadstackDefinitionData)
+
+    @property
+    def hole_plating_thickness(self):
+        if len(self.hole_properties)>0:
+            return (float(self.hole_properties[0]) * self.hole_plating_ratio/100)/2
+        else:
+            return 0
+
+    @property
+    def hole_finished_size(self):
+        if len(self.hole_properties)>0:
+            return float(self.hole_properties[0]) - (self.hole_plating_thickness * 2)
+        else:
+            return 0
+
+    @property
+    def material(self):
+        return self.edb_padstack.GetData().GetMaterial()
+
+    @material.setter
+    def material(self, materialname):
+        originalPadstackDefinitionData = self.edb_padstack.GetData()
+        newPadstackDefinitionData = self._edb.Definition.PadstackDefData(originalPadstackDefinitionData)
+        newPadstackDefinitionData.SetMaterial(materialname)
+        self.edb_padstack.SetData(newPadstackDefinitionData)
 
 
+class EDBComponent(object):
+    """ """
+
+    def __init__(self,parent, component, name):
+        self.parent = parent
+        self.edbcomponent = component
+        self.refdes = name
+        self.partname = component.PartName
+        self.numpins = component.NumPins
+        self.type = component.PartType
+        self.pinlist = self.parent.get_pin_from_component(self.refdes)
+        self.nets = self.parent.get_nets_from_pin_list(self.pinlist)
+        self.res_value = None
+
+        try:
+            self.res_value = self.parent.edb_value(component.Model.RValue).ToDouble()
+        except:
+            self.res_value = None
+        try:
+            self.cap_value = self.parent.edb_value(component.Model.CValue).ToDouble()
+        except:
+            self.cap_value = None
+        try:
+            self.ind_value = self.parent.edb_value(component.Model.LValue).ToDouble()
+        except:
+            self.ind_value = None

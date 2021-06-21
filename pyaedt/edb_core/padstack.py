@@ -9,7 +9,7 @@ This class manages Edb Padstacks and related methods
 import warnings
 from .general import *
 from ..generic.general_methods import get_filename_without_extension, generate_unique_name
-
+from .EDB_Data import EDBPadstack
 try:
     import clr
     from System import Convert, String
@@ -47,11 +47,6 @@ class EdbPadstacks(object):
         return self.parent.active_layout
 
     @property
-    def cell(self):
-        """ """
-        return self.parent.cell
-
-    @property
     def db(self):
         """ """
         return self.parent.db
@@ -66,6 +61,10 @@ class EdbPadstacks(object):
         """ """
         return self.parent.messenger
 
+    @property
+    def _layers(self):
+        """ """
+        return self.parent.core_stackup.stackup_layers
     @property
     def padstacks(self):
         """Get all via padstack definitions
@@ -84,57 +83,8 @@ class EdbPadstacks(object):
         for padstackdef in self.db.PadstackDefs:
             PadStackData = padstackdef.GetData()
             if len(PadStackData.GetLayerNames()) > 1:
-                viadefList[padstackdef.GetName()] = padstackdef
+                viadefList[padstackdef.GetName()] = EDBPadstack(padstackdef, self)
         return viadefList
-
-    @aedt_exception_handler
-    def get_padstack_info(self):
-        """Get All Via padstack definition
-
-        Parameters
-        ----------
-        vianame :
-            optional via name
-
-        Returns
-        -------
-        type
-            dictionary of vias
-
-        """
-        # Via padstack definition
-        ViaDefinition = self.padstacks
-        vias = {}
-        for name, via in ViaDefinition.items():
-            try:
-                viaDefName = name
-                viaData = via.GetData()
-
-                if "IronPython" in sys.version or ".NETFramework" in sys.version:
-                    out = viaData.GetHoleParametersValue()
-                    HoleParam = out[2]
-                else:
-                    value0 = self.parent.edb_value("0.0")
-                    ptype = self.edb.Definition.PadGeometryType.Circle
-                    HoleParam = Array[type(value0)]([])
-                    out = viaData.GetHoleParametersValue(ptype, HoleParam, value0, value0, value0)
-                    HoleParam = out[2]
-                HoleDiameter = HoleParam[0].ToDouble()
-                PlatingRatio = viaData.GetHolePlatingPercentage()
-                # PlatingRatio = 30.0
-                PlatingThickness = (HoleDiameter*PlatingRatio/100)/2
-                # PlatingThickness = 25.0 * 1e-6
-                FinishedHole = HoleDiameter - (PlatingThickness * 2)
-                viaLayers = viaData.GetLayerNames()
-                StartLay = viaLayers[0]
-                StopLay = viaLayers[len(viaLayers)-1]
-                vias[viaDefName] = {"Diameter": str(HoleDiameter * 1e6) + 'um', "Thickness": str(
-                    PlatingThickness * 1e6) + 'um', "FinishedHole": str(FinishedHole * 1e6) + 'um',
-                                    "StartLayer": StartLay, "StopLayer": StopLay}
-            except Exception:
-                pass
-
-        return vias
 
     @aedt_exception_handler
     def create_circular_padstack(self, padstackname=None, holediam='300um', paddiam='400um', antipaddiam='600um',
@@ -162,9 +112,8 @@ class EdbPadstacks(object):
             padstackname if operation is completed
 
         """
-        if self.builder:
-            return self.padstack_methods.CreateCircularPadStackDef(self.builder, padstackname, holediam, paddiam,
-                                                                   antipaddiam, startlayer, endlayer)
+        return self.padstack_methods.CreateCircularPadStackDef(self.builder, padstackname, holediam, paddiam,
+                                                               antipaddiam, startlayer, endlayer)
 
     @aedt_exception_handler
     def get_pinlist_from_component_and_net(self, refdes = None, netname = None):
@@ -273,28 +222,3 @@ class EdbPadstacks(object):
         padstackDefinition.SetData(padstackData)
         self.messenger.add_info_message("Padstack {} create correctly".format(padstackname))
         return padstackname
-
-    @aedt_exception_handler
-    def get_pad_parameters_value(self, padstackdef, layername, padtype):
-        """Get Pad parameters values
-
-                Parameters
-                ----------
-                padstackdef : self.edb.Definition.PadstackDef
-                    Padstack Definition
-                layername : str
-                    str
-                padtype : self edb.Definition.PadType
-                    Pad Type
-
-                Returns
-                -------
-                dict
-                     Dictionary with properties
-                """
-        pad_values = self.padstack_methods.GetPadParametersValue(padstackdef, layername, padtype)
-        return {"PadType": pad_values.Item1,
-                "PadParameters": [i.ToString() for i in pad_values.Item2],
-                "OffsetX": pad_values.Item3.ToString(),
-                "OffsetY": pad_values.Item4.ToString(),
-                "Rotation": pad_values.Item5.ToString()}

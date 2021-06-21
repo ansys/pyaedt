@@ -22,6 +22,8 @@ import sys
 import traceback
 import warnings
 
+import pyaedt.edb_core.EDB_Data
+
 try:
     import clr
     from System.Collections.Generic import List, Dictionary
