@@ -9,10 +9,12 @@ This class manages Edb Components and related methods
 """
 import re
 import random
-import warnings
+
+import pyaedt.edb_core.EDB_Data
+from .EDB_Data import EDBComponent
 
 from .general import *
-from ..generic.general_methods import get_filename_without_extension, generate_unique_name
+from ..generic.general_methods import get_filename_without_extension
 
 try:
     import clr
@@ -46,35 +48,6 @@ def resistor_value_parser(RValue):
         RValue = RValue.replace("M", "e6")
     RValue = float(RValue)
     return RValue
-
-
-
-class Component(object):
-    """ """
-
-    def __init__(self,parent, component, name):
-        self.parent = parent
-        self.edbcomponent = component
-        self.refdes = name
-        self.partname = component.PartName
-        self.numpins = component.NumPins
-        self.type = component.PartType
-        self.pinlist = self.parent.get_pin_from_component(self.refdes)
-        self.nets = self.parent.get_nets_from_pin_list(self.pinlist)
-        self.res_value = None
-
-        try:
-            self.res_value = self.parent.edb_value(component.Model.RValue).ToDouble()
-        except:
-            self.res_value = None
-        try:
-            self.cap_value = self.parent.edb_value(component.Model.CValue).ToDouble()
-        except:
-            self.cap_value = None
-        try:
-            self.ind_value = self.parent.edb_value(component.Model.LValue).ToDouble()
-        except:
-            self.ind_value = None
 
 
 class Components(object):
@@ -186,9 +159,10 @@ class Components(object):
             cmplist = self.get_component_list()
             self._cmp = {}
             for cmp in cmplist:
-                self._cmp[cmp.RefDes] = Component(self, cmp, cmp.RefDes)
+                self._cmp[cmp.RefDes] = EDBComponent(self, cmp, cmp.RefDes)
         except:
             pass
+
     @property
     def resistors(self):
         """
@@ -796,7 +770,7 @@ class Components(object):
             comptypecolumn = None
             valuecolumn = None
             for line in Lines:
-                content_line = line.split(delimiter)
+                content_line = [i.strip() for i in line.split(delimiter)]
                 if valuefield in content_line:
                     valuecolumn = content_line.index(valuefield)
                 if comptype in content_line:
