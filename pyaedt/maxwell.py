@@ -1,27 +1,27 @@
 """
-This module contains all Maxwell 2D/3D functionalities in the ''maxwell`` class. It inherits all objects that belong to Maxwell.
+This module contains all Maxwell 2D/3D functionalities in the ''Maxwell`` class.
 
 
 Examples
 --------
 
-Create a ``Maxwell2d`` object and connect to an existing HFSS design or create a new HFSS design if one does not exist.
+Create an instance of ``Maxwell2d`` and connect to an existing Maxwell 2D design or create a new Maxwell 2D design if one does not exist.
 
 >>> aedtapp = Maxwell2d()
 
-Create a ``Maxwell2d`` object and link to a project named ``projectname``. If this project does not exist, create one with this name.
+Create an instance of ``Maxwell2d`` and link to a project named ``projectname``. If this project does not exist, create one with this name.
 
 >>> aedtapp = Maxwell2d(projectname)
 
-Create a ``Maxwell2d`` object and link to a design named ``designname`` in a project named ``projectname``.
+Create an instance of ``Maxwell2d`` and link to a design named ``designname`` in a project named ``projectname``.
 
 >>> aedtapp = Maxwell2d(projectname,designame)
 
-Create a ``Maxwell3d`` object and open the specified project.
+Create an instance of ``Maxwell3d`` and open the specified project.
 
 >>> aedtapp = Maxwell3d("myfile.aedt")
 
-Create a ``Desktop on 2021R1`` object and then create a ``Maxwell3d`` object and open the specified project.
+Create an instance of Maxwell using the 2021 R1 release and open the specified project, which is named ``myfile.aedt``.
 
 >>> aedtapp = Maxwell3d(specified_version="2021.1", projectname="myfile.aedt")
 
@@ -121,21 +121,17 @@ class Maxwell(object):
     Parameters
     ----------
     projectname : str, optional
-        Name of the project to select or the full path to the project
-        to open.  The default is ``None``. If ``None``, try to get an
-        active project and, if no projects are present, create an
-        empty project.
+        Name of the project to select or the full path to the project or AEDTZ archive to open.
+        The default is ``None``. If ``None``, try to get an active project and, if no projects are present, 
+        create an empty project.
     designname : str, optional
-        Name of the design to select. The default is ``None``. If
-        ``None``, try to get an active design. If no designs are
-        present, create an empty design.
+        Name of the design to select. The default is ``None``. If ``None``, try to get an active design, and,
+        if no designs are present, create an empty design.
     solution_type : str, optional
-        Solution type to apply to the design.  The default is
-        ``None``. If ``None``, the default is used.
+        Solution type to apply to the design.  The default is ``None``. If ``None``, the default type is applied.
     setup_name : str, optional
-        The name of the setup to use as the nominal.  The default is
-        ``None``.  If ``None``, the active setup is used or nothing is
-        used.
+        Name of the setup to use as the nominal.  The default is ``None``.  If ``None``, the active setup 
+        is used or nothing is used.
 
     Returns
     -------
@@ -202,12 +198,9 @@ class Maxwell(object):
 
         Returns
         -------
-<<<<<<< HEAD
-
-=======
         bool
             ``True`` when successful and ``False`` when failed.
->>>>>>> main
+
         """
 
         self._py_file = setupname + ".py"
@@ -404,10 +397,11 @@ class Maxwell(object):
         Parameters
         ----------
         coil_terminals : list, optional
-            List of faces on which to create the coil terminal. The default is ``None``.
+            List of faces on which to create the coil terminal. 
+            The default is ``None``.
         winding_type : str, optional
-            Type of the winding. Options are ``"Current"``, ``"Voltage"``, and ``"External"``. 
-            The default is ``"Current"``.
+            Type of the winding. Options are ``"Current"``, ``"Voltage"``, 
+            and ``"External"``. The default is ``"Current"``.
         current_value : float, optional
             Value of the current in amperes. The default is ``1``.
         res : float, optional
@@ -458,7 +452,7 @@ class Maxwell(object):
         windingname : str
             Name of the winding.
         coil_names : list
-            List of the one or more coils.
+            List of the one or more coil names.
 
         Returns
         -------
@@ -748,6 +742,49 @@ class Maxwell3d(Maxwell, FieldAnalysis3D, object):
                                  specified_version, NG, AlwaysNew, release_on_exit)
         Maxwell.__init__(self)
 
+    @aedt_exception_handler
+    def setup_ctrlprog(self, setup, py_file, file_str=None):
+        """Configure the transient design setup to run a specific control program.
+
+        Parameters
+        ----------
+        setup : str
+            Name of the solution setup of the Maxwell design. For example, ``"Setup1"``.
+            
+        py_file : str, optional
+            Name of the Python file that the Maxwell solver process copies to the temp directory and 
+            renames to ``setup + ".ctrlprog"``.  For example, assume that ``py_file`` is defined as 
+            ``"my_script.py"`` and that the solver setup is called ``"Setup1"``. The resulting file 
+            in the temp directory is ``"Setup1.ctrlprog"``. For this reason, it is important to 
+            instruct the operating system to use a python interpreter to run any file with the 
+            extension ``".ctrlprog"``.
+            
+        file_str : str, optional
+            Name of the python file to run at each timestep. The default is ``None``.
+
+        Returns
+        -------
+
+        """
+        py_file = os.path.join(self.working_directory, py_file).replace('\\', '\\\\')
+        exe_file = r'C:\data\userlib\Toolkits\Maxwell3D\lib\PythonLauncher.exe'
+        self._py_file = py_file
+        oModule = self._odesign.GetModule("AnalysisSetup")
+        oModule.EditSetup(setup,
+                          [
+                              "NAME:" + setup,
+                              "Enabled:=", True,
+                              "UseControlProgram:=", True,
+                              "ControlProgramName:=", exe_file,
+                              "ControlProgramArg:=", py_file,
+                              "CallCtrlProgAfterLastStep:=", True
+                          ])
+        self.save_project()
+        if file_str is not None:
+            ctl_file = os.path.join(self.working_directory, self._py_file)
+            with open(ctl_file, "w") as fo:
+                fo.write(file_str)
+        return True
 
 
 class Maxwell2d(Maxwell, FieldAnalysis2D, object):
