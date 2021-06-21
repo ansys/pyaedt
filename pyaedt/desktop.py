@@ -117,7 +117,7 @@ def update_aedt_registry(key, value, desktop_version="193"):
     key : str
         Registry key.
     value : str
-        Value to wihch to set the registry key. Value includes "" if needed.
+        Value to which to set the registry key. Value includes "" if needed.
     desktop_version : str, optional
         Version of AEDT to use. The default is ``"193"``.
 
