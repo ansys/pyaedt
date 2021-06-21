@@ -4,7 +4,7 @@
    contain the root `toctree` directive.
 
 Design XPloration
-===================================
+=================
 
 .. automodule:: pyaedt.modules.DesignXPloration
     :members:
