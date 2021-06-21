@@ -4,7 +4,7 @@
    contain the root `toctree` directive.
 
 Application Objects
-===================================
+===================
 
 .. toctree::
    :maxdepth: 2
