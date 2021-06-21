@@ -2,8 +2,8 @@
 API Documentation
 ===================================
 
-Welcome to pyaedt API Documentation.
-Use the search button or click on any module.
+Welcome to PyAEDT API documentation.
+Use the search feature or click any module.
 
 
 
