@@ -5,7 +5,7 @@
 
 
 
-Advanced Post Processing (only Python 3.x)
+Advanced Postprocessing (only Python 3.x)
 =============================================
 .. automodule:: pyaedt.modules.AdvancedPostProcessing
     :members:
