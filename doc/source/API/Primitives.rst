@@ -10,7 +10,7 @@ Primitives
 
 .. toctree::
    :maxdepth: 2
-   :caption: The ``Primitives`` module includes these classes::
+   :caption: The ``Primitives`` module includes these classes:
 
    CommonPrimitives
    Primitives3D
