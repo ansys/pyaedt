@@ -210,7 +210,7 @@ class FieldAnalysis3D(Analysis, object):
         Returns
         -------
         list
-            Setup sources.
+            All setup sources.
         """
         return list(self.osolution.GetAllSources())
 
