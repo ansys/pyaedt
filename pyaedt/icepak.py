@@ -17,11 +17,11 @@ Create an instance of ``Icepak`` and link to a design named ``designname`` in a 
 
 >>> aedtapp = Icepak(projectname,designame)
 
-Create an instance of ``Icepak`` and open the specified project.
+Create an instance of ``Icepak`` and open the specified project, which is ``myfile.aedt``.
 
 >>> aedtapp = Icepak("myfile.aedt")
 
-Create an instance of ``Icepak``using the 2021 R1 release and open the specified project, which is ``myfile.aedt``.
+Create an instance of ``Icepak`` using the 2021 R1 release and open the specified project, which is ``myfile.aedt``.
 
 >>> aedtapp = Icepak(specified_version="2021.1", projectname="myfile.aedt")
 
@@ -56,11 +56,21 @@ class Icepak(FieldAnalysisIcepak):
     setup_name : str, optional
         Name of the setup to use as the nominal. The default is ``None``. If ``None``, the active setup 
         is used or nothing is used.
-
-    Returns
-    -------
-
+    specified_version : str, optional
+        Version of AEDT to use. The default is ``None``. If ``None``, the
+        active setup is used or the latest installed version is used.
+    NG: bool, optional
+        Whether to run AEDT in the non-graphical mode. The default 
+        is``False``, which launches AEDT in the graphical mode.
+    AlwaysNew : bool, optional
+        Whether to launch an instance of AEDT in a new thread, even if 
+        another instance of the ``specified_version`` is active on the machine.
+        The default is ``True``.
+    release_on_exit : bool, optional
+        Whether to release AEDT on exit. The default is ``True``.
+  
     """
+    
     def __init__(self, projectname=None, designname=None, solution_type=None, setup_name=None,
                  specified_version=None, NG=False, AlwaysNew=True, release_on_exit=True):
         FieldAnalysisIcepak.__init__(self, "Icepak", projectname, designname, solution_type, setup_name,
@@ -76,17 +86,13 @@ class Icepak(FieldAnalysisIcepak):
 
     @property
     def existing_analysis_sweeps(self):
-        """List the existing analysis setups.
-        
-        
-        :return: Return a list of all defined analysis setup names in the maxwell design.
-
-        Parameters
-        ----------
+        """List the existing analysis setups.       
 
         Returns
         -------
-
+        List
+            List of all defined analysis setup names in the Maxwell design.
+            
         """
         setup_list = self.existing_analysis_setups
         sweep_list=[]
