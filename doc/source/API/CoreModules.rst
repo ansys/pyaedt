@@ -5,7 +5,7 @@
 
 Application Modules
 ===================
-This section contains information about pyAEDT application modules:
+This section contains information about PyAEDT application modules:
 
 
 #. Design
@@ -42,11 +42,10 @@ The ``DesignXploration`` module contain all properties and methods needed to cre
 
 .. toctree::
    :maxdepth: 2
-   :caption: The AEDT application modules, listed alphabetically, include the classes shown:
+   :caption: The AEDT application modules, listed alphabetically, include the following classes:
 
    AnalysisCore
    ModelerCore
    Design
    Variables
    DesignXPlorer
-

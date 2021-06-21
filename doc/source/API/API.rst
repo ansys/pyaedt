@@ -3,7 +3,7 @@ API Documentation
 =================
 
 Welcome to PyAEDT API documentation.
-Use the search feature or click any module.
+Use the search feature or click any module to view the API documentation.
 
 
 
