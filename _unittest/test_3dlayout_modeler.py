@@ -172,6 +172,20 @@ class Test3DLayout:
         assert self.aedtapp.set_export_touchstone(True)
         assert self.aedtapp.set_export_touchstone(False)
 
+    def test_21_get_all_sparameter_list(self):
+        assert self.aedtapp.get_all_sparameter_list == ["S(Port1,Port1)", "S(Port1,Port2)", "S(Port2,Port2)"]
 
+    def test_22_get_all_return_loss_list(self):
+        assert self.aedtapp.get_all_return_loss_list() == ["S(Port1,Port1)", "S(Port2,Port2)"]
+
+    def test_23_get_all_insertion_loss_list(self):
+        assert self.aedtapp.get_all_insertion_loss_list() == ["S(Port1,Port1)", "S(Port2,Port2)"]
+
+    def test_24_get_next_xtalk_list(self):
+        assert self.aedtapp.get_next_xtalk_list() == ["S(Port1,Port2)"]
+
+    def test_25_get_fext_xtalk_list(self):
+        assert self.aedtapp.get_fext_xtalk_list() == ["S(Port1,Port2)", "S(Port2,Port1)"]
+        
 if __name__ == '__main__':
     pytest.main()

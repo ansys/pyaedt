@@ -945,15 +945,12 @@ class GeometryModeler(Modeler, object):
 
     @aedt_exception_handler
     def get_excitations_name(self):
-        """Get all the available excitation names
-        
-        :return: list of names. Excitations with multiple modes will produce one excitation for each mode
-
-        Parameters
-        ----------
+        """Get all the available excitation names.
 
         Returns
         -------
+        list
+            Excitation names. Excitations with multiple modes will produce one excitation for each mode.
 
         """
         list_names = list(self._parent.oboundary.GetExcitations())
@@ -962,16 +959,12 @@ class GeometryModeler(Modeler, object):
 
     @aedt_exception_handler
     def get_boundaries_name(self):
-
-        """Get all the available Boundaries names
-        
-        :return: list of names. Excitations with multiple modes will produce one excitation for each mode
-
-        Parameters
-        ----------
+        """Get all the available boundary names.
 
         Returns
         -------
+        list
+            Boundary names. Boundaries with multiple modes will produce one boundary for each mode.
 
         """
         list_names = list(self._parent.oboundary.GetBoundaries())
@@ -3346,5 +3339,4 @@ class GeometryModeler(Modeler, object):
                 "Groups:=", ["Model"]
             ])
         return True
-
 
