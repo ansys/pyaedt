@@ -2,6 +2,7 @@ import warnings
 import sys
 from collections import OrderedDict, defaultdict
 from .general import convert_py_list_to_net_list, convert_net_list_to_py_list, convert_pydict_to_netdict, convert_netdict_to_pydict
+from ..generic.general_methods import aedt_exception_handler
 import time
 try:
     import clr
@@ -40,7 +41,7 @@ class EDBLayer(object):
         self._parent = parent
         self.init_vals()
 
-
+    @aedt_exception_handler
     def init_vals(self):
         """ """
         try:
@@ -250,6 +251,7 @@ class EDBLayer(object):
             self._etch_factor = value
             self.update_layers()
 
+    @aedt_exception_handler
     def update_layer_vals(self, layerName, newLayer, etchMap, materialMap, fillMaterialMap, thicknessMap, layerTypeMap):
         """
 
@@ -297,6 +299,7 @@ class EDBLayer(object):
             newLayer.SetEtchFactor(self.edb.Utility.Value(etchVal))
         return newLayer
 
+    @aedt_exception_handler
     def set_elevation(self, layer, elev):
         """Set layer Elevation
 
@@ -316,6 +319,7 @@ class EDBLayer(object):
         layer.SetLowerElevation(self.edb.Utility.Value(elev))
         return layer
 
+    @aedt_exception_handler
     def update_layers(self):
         """update all layers
         
@@ -464,6 +468,7 @@ class EDBLayers(object):
         elif value == 2 or value == self.layer_collection_mode.MultiZone:
             self.layer_collection.SetMode(self.layer_collection_mode.MultiZone)
 
+    @aedt_exception_handler
     def _update_edb_objects(self):
         """ """
         self._edb_object = OrderedDict(defaultdict(EDBLayer))
@@ -472,6 +477,7 @@ class EDBLayers(object):
             self._edb_object[layers[i].GetName()] = EDBLayer(layers[i], self)
         return True
 
+    @aedt_exception_handler
     def add_layer(self, layerName, start_layer, material="copper", fillMaterial="", thickness="35um", layerType=0,
                   etchMap=None):
         """Add an additional layer after a specific layer
@@ -533,6 +539,7 @@ class EDBLayers(object):
         self._update_edb_objects()
         return True
 
+    @aedt_exception_handler
     def remove_layer(self, layername):
         """Remove a specific layer "layername"
 
@@ -647,7 +654,7 @@ class EDBPadProperties(object):
     def rotation(self, rotation_value):
         self._update_pad_parameters_parameters(rotation=rotation_value)
 
-
+    @aedt_exception_handler
     def _update_pad_parameters_parameters(self, layer_name=None, pad_type=None, geom_type=None, params=None, offsetx=None, offsety=None, rotation=None):
         originalPadstackDefinitionData = self._edb_padstack.GetData()
         newPadstackDefinitionData = self._edb.Definition.PadstackDefData(originalPadstackDefinitionData)
@@ -741,6 +748,7 @@ class EDBPadstack(object):
         self._hole_parameters = self._hole_params[2]
         return self._hole_parameters
 
+    @aedt_exception_handler
     def _update_hole_parameters(self, hole_type=None, params=None, offsetx=None, offsety=None, rotation=None):
         originalPadstackDefinitionData = self.edb_padstack.GetData()
         newPadstackDefinitionData = self._edb.Definition.PadstackDefData(originalPadstackDefinitionData)
@@ -845,10 +853,70 @@ class EDBPadstack(object):
         self.edb_padstack.SetData(newPadstackDefinitionData)
 
 
+class EDBPinInstances(object):
+
+    def __init__(self,parent, pin):
+        self.parent = parent
+        self.pin = pin
+
+
+    @property
+    def placement_layer(self):
+        return self.pin.GetGroup().GetPlacementLayer().GetName()
+
+    @property
+    def net(self):
+        return self.pin.GetNet().GetName()
+
+    @property
+    def pingroups(self):
+        return self.pin.GetPinGroups()
+
+    @property
+    def position(self):
+        self.parent._edb.Geometry.PointData(self.parent._edb_value(0.0), self.parent._edb_value(0.0))
+        out = self.pin.GetPositionAndRotationValue(
+            self.parent._edb.Geometry.PointData(self.parent._edb_value(0.0), self.parent._edb_value(0.0)),
+            self.parent._edb_value(0.0))
+        if out[0]:
+            return [out[1].X.ToDouble(), out[1].Y.ToDouble()]
+
+    @property
+    def rotation(self):
+        self.parent._edb.Geometry.PointData(self.parent._edb_value(0.0), self.parent._edb_value(0.0))
+        out = self.pin.GetPositionAndRotationValue(
+            self.parent._edb.Geometry.PointData(self.parent._edb_value(0.0), self.parent._edb_value(0.0)),
+            self.parent._edb_value(0.0))
+        if out[0]:
+            return out[2].ToDouble()
+
+    @property
+    def placement_layer(self):
+        return self.pin.GetGroup().GetPlacementLayer().GetName()
+
+    @property
+    def lower_elevation(self):
+        return self.pin.GetGroup().GetPlacementLayer().GetLowerElevation()
+
+    @property
+    def upper_elevation(self):
+        return self.pin.GetGroup().GetPlacementLayer().GetUpperElevation()
+
+    @property
+    def top_bottom_association(self):
+        return self.pin.GetGroup().GetPlacementLayer().GetTopBottomAssociation()
+
 class EDBComponent(object):
     """ """
+    @property
+    def _edb_value(self):
+        return self.parent.edb_value
 
-    def __init__(self,parent, component, name):
+    @property
+    def _edb(self):
+        return self.parent.edb
+
+    def __init__(self, parent, component, name):
         self.parent = parent
         self.edbcomponent = component
         self.refdes = name
@@ -858,6 +926,9 @@ class EDBComponent(object):
         self.pinlist = self.parent.get_pin_from_component(self.refdes)
         self.nets = self.parent.get_nets_from_pin_list(self.pinlist)
         self.res_value = None
+        self.pins = defaultdict(EDBPinInstances)
+        for el in self.pinlist:
+            self.pins[el.GetName()] = EDBPinInstances(self, el)
 
         try:
             self.res_value = self.parent.edb_value(component.Model.RValue).ToDouble()
@@ -871,3 +942,31 @@ class EDBComponent(object):
             self.ind_value = self.parent.edb_value(component.Model.LValue).ToDouble()
         except:
             self.ind_value = None
+
+    @property
+    def placement_layer(self):
+        return self.pinlist[0].GetGroup().GetPlacementLayer().GetName()
+
+    @property
+    def lower_elevation(self):
+        return self.pinlist[0].GetGroup().GetPlacementLayer().GetLowerElevation()
+
+    @property
+    def upper_elevation(self):
+        return self.pinlist[0].GetGroup().GetPlacementLayer().GetUpperElevation()
+
+    @property
+    def top_bottom_association(self):
+        """
+
+        Returns
+        -------
+        int
+            TopAssociated 0 Top associated.
+            NoTopBottomAssociated 1 No association.
+            BottomAssociated 2 Bottom associated.
+            TopBottomAssociationCount 4 Number of top/bottom association type.
+            InvalidTopBottomAssociation -1 Undefined.
+
+        """
+        return self.pinlist[0].GetGroup().GetPlacementLayer().GetTopBottomAssociation()
