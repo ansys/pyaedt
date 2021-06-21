@@ -232,7 +232,6 @@ class FieldAnalysis3D(Analysis, object):
         """
 
         contexts = []
-        i = 1
         for i in range(number_of_modes):
             contexts.append([s + ':' + str(i + 1) for s in sources])  # use one based indexing
         self.osolution.SetSourceContexts(contexts)
