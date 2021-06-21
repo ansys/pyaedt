@@ -148,7 +148,7 @@ class Mechanical(FieldAnalysis3D, object):
         """Map thermal losses to a Mechanical design. 
         
         .. note::
-           This function works only when coupled with Icepak in 2021 R2.
+           This method works only when coupled with Icepak in 2021 R2.
 
         Parameters
         ----------
@@ -259,7 +259,8 @@ class Mechanical(FieldAnalysis3D, object):
     def assign_uniform_temperature(self, objects_list, temperature="AmbientTemp", boundary_name=""):
         """Assign a uniform temperature boundary.
         
-        This method works only in a Thermal analysis.
+        .. note::	
+		This method works only in a Mechanical thermal analysis.
 
         Parameters
         ----------
@@ -343,7 +344,8 @@ class Mechanical(FieldAnalysis3D, object):
     def assign_fixed_support(self, objects_list,  boundary_name=""):
         """Assign a Mechanical fixed support. 
         
-        This function works only in a Mechanical structural analysis.
+      	.. note::	
+		This method works only in a Mechanical structural analysis.
 
         Parameters
         ----------
@@ -378,15 +380,16 @@ class Mechanical(FieldAnalysis3D, object):
 
     @property
     def existing_analysis_sweeps(self):
-        """Return a list of existing analysis setups.
+        """Return a list of existing analysis setups in the Mechanical design.
                 
-        :return: Return a list of all defined analysis setup names in the Mechanical design.
-
+        
         Parameters
         ----------
 
         Returns
         -------
+        List of existing analysis setups
+
 
         """
         setup_list = self.existing_analysis_setups
