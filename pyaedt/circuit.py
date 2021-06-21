@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 """
 This module contains all Circuit functionalities in the ``Circuit`` class.
 
