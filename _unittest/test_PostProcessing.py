@@ -8,8 +8,9 @@ from .conftest import local_path, scratch_path
 from pyaedt import Hfss
 from pyaedt.generic.filesystem import Scratch
 import gc
-
+from .conftest import config
 test_project_name = "coax_setup_solved"
+test_field_name = "Potter_Horn"
 
 
 class TestDesign:
@@ -19,7 +20,8 @@ class TestDesign:
             try:
                 example_project = os.path.join(local_path, 'example_models', test_project_name + '.aedtz')
                 self.test_project = self.local_scratch.copyfile(example_project)
-
+                example_project2 = os.path.join(local_path, 'example_models', test_field_name + '.aedtz')
+                self.test_project2 = self.local_scratch.copyfile(example_project2)
                 self.aedtapp = Hfss(self.test_project)
             except:
                 pass
@@ -31,6 +33,7 @@ class TestDesign:
         self.local_scratch.remove()
         gc.collect()
 
+    @pytest.mark.skipif(config["build_machine"]==True, reason="Not running in non-graphical mode")
     def test_01_Field_Ploton_cutplanedesignname(self):
         cutlist = ["Global:XY", "Global:XZ", "Global:YZ"]
         setup_name = self.aedtapp.existing_analysis_sweeps[0]
@@ -39,8 +42,24 @@ class TestDesign:
         plot1 = self.aedtapp.post.create_fieldplot_cutplane(cutlist, quantity_name, setup_name, intrinsic)
         plot1.IsoVal = "Tone"
         assert plot1.modify_folder()
+        image_file = self.aedtapp.post.plot_field_from_fieldplot(plot1.name, project_path=self.local_scratch.path, meshplot=False,
+                                              setup_name=setup_name, imageformat="jpg", view="iso", off_screen=True)
+        assert os.path.exists(image_file[0])
 
-    @pytest.mark.skip(reason="Not running in non-graphical mode")
+    @pytest.mark.skipif(config["build_machine"]==True, reason="Not running in non-graphical mode")
+    def test_01_Animate_plt(self):
+        cutlist = ["Global:XY"]
+        phases = [str(i * 5) + "deg" for i in range(2)]
+        gif_file=self.aedtapp.post.animate_fields_from_aedtplt_2(quantityname="Mag_E", object_list=cutlist, plottype="CutPlane",
+                                                   meshplot=False, setup_name=self.aedtapp.nominal_adaptive,
+                                                   intrinsic_dict={"Freq": "5GHz", "Phase": "0deg"},
+                                                   project_path=self.local_scratch.path, variation_variable="Phase",
+                                                   variation_list=phases, off_screen=True, export_gif=True)
+        assert os.path.exists(gif_file)
+
+
+
+    @pytest.mark.skipif(config["build_machine"]==True, reason="Not running in non-graphical mode")
     def test_02_export_fields(self):
         quantity_name2 = "ComplexMag_H"
         setup_name = "Setup1 : LastAdaptive"
@@ -57,11 +76,29 @@ class TestDesign:
         setup_name = "Setup2 : Sweep"
         assert not self.aedtapp.create_scattering("MyTestScattering2", setup_name, portnames, portnames)
 
+    def test_03_get_solution_data(self):
+        trace_names = []
+        portnames = ["1", "2"]
+        for el in portnames:
+            for el2 in portnames:
+                trace_names.append('S(' + el + ',' + el2 + ')')
+        cxt = ['Domain:=', 'Sweep']
+        families = ['Freq:=', ['All']]
+        my_data = self.aedtapp.post.get_report_data(expression=trace_names)
+        assert my_data
+        assert my_data.sweeps
+        assert my_data.expressions
+        assert my_data.data_db(trace_names[0])
+        assert my_data.data_imag(trace_names[0])
+        assert my_data.data_real(trace_names[0])
+        assert my_data.data_magnitude(trace_names[0])
+
+
     def test_04_export_touchstone(self):
         self.aedtapp.export_touchstone( "Setup1","Sweep", os.path.join(self.local_scratch.path, "Setup1_Sweep.S2p"))
         assert os.path.exists(os.path.join(self.local_scratch.path, "Setup1_Sweep.S2p"))
 
-    @pytest.mark.skip(reason="Not running in non-graphical mode")
+    @pytest.mark.skipif(config["build_machine"]==True, reason="Not running in non-graphical mode")
     def test_05_export_report_to_jpg(self):
 
         self.aedtapp.post.export_report_to_jpg(self.local_scratch.path, "MyTestScattering")
@@ -79,7 +116,7 @@ class TestDesign:
                                                     grid_stop=[5, 5, 5], grid_step=[0.5,0.5,0.5], isvector=True, intrinsics="5GHz")
         assert os.path.exists(os.path.join(self.local_scratch.path, "Efield.fld"))
 
-    @pytest.mark.skip("Skipped because it cannot run on build machine in non-graphical mode")
+    @pytest.mark.skipif(config["build_machine"], reason="Skipped because it cannot run on build machine in non-graphical mode")
     def test_07_copydata(self):
         assert self.aedtapp.post.copy_report_data("MyTestScattering")
 
@@ -92,10 +129,15 @@ class TestDesign:
     def test_10_delete_report(self):
         assert self.aedtapp.post.delete_report("MyNewScattering")
 
-    @pytest.mark.skip("Skipped because there is no Plotly on build machine")
-    def test_11_export_jpg_from_aedtflt(self):
-        intrinsic = {"Freq": "5GHz", "Phase": "180deg"}
-        cutlist = ["Global:XY"]
-        plot = self.aedtapp.post.create_fieldplot_cutplane(cutlist,"Mag_Jsurf",setup_name=self.aedtapp.nominal_adaptive, intrinsincDict=intrinsic)
-        fl = self.aedtapp.post.plot_field_from_fieldplot(plot.name, project_path=self.local_scratch.path, intrinsic_dict=intrinsic, meshplot=True, plot_after_export=False)
-        assert len(fl)>0
+    def test_12_steal_on_focus(self):
+        assert self.aedtapp.post.steal_focus_oneditor()
+
+    @pytest.mark.skipif(config["build_machine"], reason="Skipped because it cannot run on build machine in non-graphical mode" )
+    def test_13_export_model_picture(self):
+        assert self.aedtapp.post.export_model_picture(self.local_scratch.path, "images")
+
+    def test_11_get_efields(self):
+        app2 = Hfss(self.test_project2)
+        assert app2.post.get_efields_data(ff_setup="3D")
+        app2.close_project(saveproject=False)
+        pass

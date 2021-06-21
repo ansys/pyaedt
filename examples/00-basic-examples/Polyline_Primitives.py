@@ -9,21 +9,13 @@ This tutorial shows how you can create and manipulate polylines using pyaedt
 
 import os
 from IPython.display import Image, display
-from pyaedt import Desktop
 from pyaedt.maxwell import Maxwell3d
 from pyaedt.modeler.Primitives import Polyline, PolylineSegment
 
 #########################################################################
-# # Connect to the Electronics Desktop
-# To get a new instance of the desktop, set AlwaysNew=True
-# To run the desktop in non-graphical mode, use NG=True
-
-desktop = Desktop(specified_version="2021.1", AlwaysNew=False, NG=False)
-
-#########################################################################
 # ### Create a Maxwell3D object  and set the unit type to mm
 
-M3D = Maxwell3d(solution_type="Transient", designname="test_polyline_3D")
+M3D = Maxwell3d(solution_type="Transient", designname="test_polyline_3D", specified_version="2021.1")
 M3D.modeler.model_units = "mm"
 prim3D = M3D.modeler.primitives
 
@@ -105,13 +97,6 @@ P = prim3D.draw_polyline(position_list=[start_point],
                          segment_type=PolylineSegment("AngularArc", arc_center=center_point, arc_angle="30deg", arc_plane="ZX"),
                          name="PL04_center_point_arc_rot_ZX")
 
-#########################################################################
-# ##### Plot the polyline primitives
-
-store_path = r'C:\temp'
-M3D.post.export_model_picture(store_path, "temp", picturename="Model", ShowAxis=True, ShowGrid=True, ShowRuler=True)
-file_name = os.path.join(store_path, "temp", "Pictures", "Model.jpg")
-Image(file_name, width=500)
 
 #########################################################################
 # ### Compound polyline examples
@@ -258,7 +243,7 @@ project_file = os.path.join(project_dir, project_name + '.aedt')
 
 M3D.save_project(project_file)
 
-desktop.force_close_desktop()
+M3D.close_desktop()
 
 
 

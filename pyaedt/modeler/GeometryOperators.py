@@ -1098,3 +1098,27 @@ class GeometryOperators(object):
         """
         q1 = [q[0], -q[1], -q[2], -q[3]]
         return GeometryOperators.q_rotation(v, q1)
+
+    @staticmethod
+    @aedt_exception_handler
+    def get_polygon_centroid(pts):
+
+        first = pts[0]
+        last = pts[-1]
+        nPts = len(pts)
+        sx = sy = sz = sl = sl2 = 0
+        for i in range(len(pts)):  # counts from 0 to len(points)-1
+            x0, y0, z0 = pts[i - 1]  # in Python points[-1] is last element of points
+            x1, y1, z1 = pts[i]
+            L = ((x1 - x0) ** 2 + (y1 - y0) ** 2) ** 0.5
+            sx += (x0 + x1) / 2 * L
+            sy += (y0 + y1) / 2 * L
+            L2 = ((z1 - z0) ** 2 + (x1 - x0) ** 2) ** 0.5
+            sz += (z0 + z1) / 2 * L2
+            sl += L
+            sl2 += L2
+        xc = sx / sl
+        yc = sy / sl
+        zc = sz / sl2
+
+        return [xc, yc, zc]

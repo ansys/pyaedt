@@ -193,6 +193,7 @@ class Mesh(object):
             meshoperation object
 
         """
+        names = self.modeler.convert_to_selections(names, True)
         if meshop_name:
             for m in self.meshoperations:
                 if meshop_name == m.name:
@@ -236,6 +237,7 @@ class Mesh(object):
             meshoperation object
 
         """
+        names = self.modeler.convert_to_selections(names, True)
         if meshop_name:
             for m in self.meshoperations:
                 if meshop_name == m.name:
@@ -289,13 +291,17 @@ class Mesh(object):
             meshoperation object
 
         """
+        names = self.modeler.convert_to_selections(names, True)
         if meshop_name:
             for m in self.meshoperations:
                 if meshop_name == m.name:
                     meshop_name = generate_unique_name(meshop_name)
         else:
             meshop_name = generate_unique_name("ModelResolution")
-
+        for name in names:
+            if type(name) is int:
+                self.messenger.add_error_message("Mesh Operation Applies to Objects only")
+                return False
         if defeature_length is None:
             props = OrderedDict({"Objects": names, "UseAutoLength": True})
         else:
@@ -393,7 +399,7 @@ class Mesh(object):
 
     @aedt_exception_handler
     def generate_mesh(self, name):
-        """Generate Mesh for Setup name. Return 0 if mesh failed or 1 if passed
+        """Generate Mesh for Setup name.
 
         Parameters
         ----------
@@ -407,7 +413,7 @@ class Mesh(object):
 
         """
 
-        return self.odesign.GenerateMesh(name)
+        return self.odesign.GenerateMesh(name) == 0
 
 
     @aedt_exception_handler
@@ -469,6 +475,7 @@ class Mesh(object):
             meshoperation object
 
         """
+        names = self.modeler.convert_to_selections(names, True)
         if meshop_name:
             for m in self.meshoperations:
                 if meshop_name == m.name:
@@ -538,6 +545,8 @@ class Mesh(object):
             meshoperation object
 
         """
+        names = self.modeler.convert_to_selections(names, True)
+
         if self._parent.design_type != "HFSS" and self._parent.design_type != "Maxwell 3D":
             raise MethodNotSupportedError
         if meshop_name:
@@ -575,7 +584,7 @@ class Mesh(object):
 
 
     @aedt_exception_handler
-    def appy_curvilinear_elements(self, names, enable=True, meshop_name=None):
+    def assign_curvilinear_elements(self, names, enable=True, meshop_name=None):
         """
 
         Parameters
@@ -593,6 +602,8 @@ class Mesh(object):
             meshoperation object
 
         """
+        names = self.modeler.convert_to_selections(names, True)
+
         if self._parent.design_type != "HFSS" and self._parent.design_type != "Maxwell 3D":
             raise MethodNotSupportedError
         if meshop_name:
@@ -620,7 +631,7 @@ class Mesh(object):
 
 
     @aedt_exception_handler
-    def appy_curvature_extraction(self, names, disable_for_faceted_surf=True, meshop_name=None):
+    def assign_curvature_extraction(self, names, disable_for_faceted_surf=True, meshop_name=None):
         """
 
         Parameters
@@ -638,6 +649,8 @@ class Mesh(object):
             meshoperation object
 
         """
+        names = self.modeler.convert_to_selections(names, True)
+
         if self._parent.solution_type != "SBR+":
             raise MethodNotSupportedError
         if meshop_name:
@@ -685,6 +698,8 @@ class Mesh(object):
             meshoperation object
 
         """
+        names = self.modeler.convert_to_selections(names, True)
+
         if self._parent.design_type != "Maxwell 3D":
             raise MethodNotSupportedError
         if meshop_name:
@@ -722,6 +737,8 @@ class Mesh(object):
             meshoperation object
 
         """
+        names = self.modeler.convert_to_selections(names, True)
+
         if self._parent.design_type != "Maxwell 3D":
             raise MethodNotSupportedError
         if meshop_name:
@@ -762,6 +779,8 @@ class Mesh(object):
             meshoperation object
 
         """
+        names = self.modeler.convert_to_selections(names, True)
+
         if self._parent.design_type != "Maxwell 3D":
             raise MethodNotSupportedError
         if meshop_name:

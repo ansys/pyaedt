@@ -1,11 +1,32 @@
 """
-Mechanical Class
-----------------------------------------------------------------
+This module contains all Mechanical functionalities in the ``Mechanical`` class. 
 
-This class contains all Mechanical functionalities. It inherits all objects that belong to Mechanical.
 
+Examples
+--------
+
+Create an instance of ``Mechanical`` and connect to an existing HFSS design or create a new HFSS design if one does not exist.
+
+>>> aedtapp = Mechanical()
+
+Create an instance of ``Mechanical`` and link to a project named ``"projectname"``. If this project does not exist, create one with this name.
+
+>>> aedtapp = Mechanical(projectname)
+
+Create an instance of ``Mechanical`` and link to a design named ``"designname"`` in a project named ``projectname``.
+
+>>> aedtapp = Mechanical(projectname,designame)
+
+Create an instance of ``Mechanical`` and open the specified project, which is named ``myfile.aedt``.
+
+>>> aedtapp = Mechanical("myfile.aedt")
+
+Create a ``Desktop on 2021R1`` object and then creates an ``Mechanical`` object and open the specified project, which is named ``myfile.aedt``.
+
+>>> aedtapp = Mechanical(specified_version="2021.1", projectname="myfile.aedt")
 
 """
+
 from __future__ import absolute_import
 
 from .application.Analysis3D import FieldAnalysis3D
@@ -16,27 +37,31 @@ from collections import OrderedDict
 
 
 class Mechanical(FieldAnalysis3D, object):
-    """Mechanical Object
+    """Mechanical class.
 
     Parameters
     ----------
-    projectname :
-        name of the project to be selected or full path to the project to be opened  or to the AEDTZ archive. if None try to get active project and, if nothing present to create an empty one
-    designname :
-        name of the design to be selected. if None, try to get active design and, if nothing present to create an empty one
-    solution_type :
-        solution type to be applied to design. if None default is taken
-    setup_name :
-        setup_name to be used as nominal. if none active setup is taken or nothing
+    projectname : str, optional
+         Name of the project to select or the full path to the project or AEDTZ archive to open. 
+         The default is ``None``. If ``None``, try to get an active project and, if no projects are present, 
+         create an empty project.
+    designname : str, optional
+        Name of the design to select. The default is ``None``. If ``None``, try to get an active design and, 
+        if no designs are present, create an empty design.
+    solution_type : str, optional
+        Solution type to apply to the design. The default is ``None``. If ``None``, the default type is applied.
+    setup_name : str, optional
+       Name of the setup to use as the nominal. The default is ``None``. If ``None``, the active setup 
+       is used or nothing is used.
 
-    Returns
-    -------
 
     """
 
-    def __init__(self, projectname=None, designname=None, solution_type=None, setup_name=None):
+    def __init__(self, projectname=None, designname=None, solution_type=None, setup_name=None,
+                 specified_version=None, NG=False, AlwaysNew=True, release_on_exit=True):
 
-        FieldAnalysis3D.__init__(self, "Mechanical", projectname, designname, solution_type, setup_name)
+        FieldAnalysis3D.__init__(self, "Mechanical", projectname, designname, solution_type, setup_name,
+                                 specified_version, NG, AlwaysNew, release_on_exit)
     def __enter__(self):
         return self
 
@@ -48,26 +73,26 @@ class Mechanical(FieldAnalysis3D, object):
     @aedt_exception_handler
     def assign_em_losses(self, designname="HFSSDesign1", setupname="Setup1", sweepname="LastAdaptive", map_frequency=None,
                          surface_objects=[], source_project_name=None, paramlist=[], object_list=[]):
-        """Map EM losses to Mechanical Design
+        """Map EM losses to a Mechanical design.
 
         Parameters
         ----------
-        designname :
-            name of design of the source mapping (Default value = "HFSSDesign1")
-        map_frequency :
-            string containing Frequency to be mapped. It must be None for eigen mode analysis (Default value = None)
-        setupname :
-            Name of EM Setup (Default value = "Setup1")
-        sweepname :
-            Name of EM Sweep to be used for mapping. Default no sweep and LastAdaptive to be used
-        surface_objects :
-            list of objects in the source that are metals (Default value = [])
-        source_project_name :
-            Name of the source project: None to use source from the same project (Default value = None)
-        paramlist :
-            list of all params in EM to be mapped (Default value = [])
-        object_list :
-             (Default value = [])
+        designname : str, optional
+            Name of the design of the source mapping. The default is ``"HFSSDesign1"``.
+        setupname : str, optional
+            Name of the EM setup. The default is ``"Setup1"``.
+        sweepname : str, optional
+            Name of the EM sweep to use for the mapping. The default is no sweep and to use ``"LastAdaptive"``.
+        map_frequency : str, optional
+            Frequency to map. The default is ``None``. The value must be ``None`` for eigenmode analysis.
+        surface_objects : list, optional
+            List objects in the source that are metals. The default is ``[]``.
+        source_project_name : str, optional
+            Name of the source project. The default is ``None``, which uses the source from the same project.
+        paramlist : list, optional
+            List of all parameters in the EM to map. The default is ``[]``.
+        object_list : list, optional
+             The default is ``[]``.
 
         Returns
         -------
@@ -82,7 +107,7 @@ class Mechanical(FieldAnalysis3D, object):
         else:
             projname = source_project_name + ".aedt"
         #
-        # Generate a list of model objects from the lists made previously and use to map the HFSS losses into Icepak
+        # Generate a list of model objects from the lists made previously and use to map the HFSS losses into Icepak.
         #
         if not object_list:
             allObjects = self.modeler.primitives.get_all_objects_names(refresh_list=True)
@@ -113,28 +138,33 @@ class Mechanical(FieldAnalysis3D, object):
         bound = BoundaryObject(self, name, props, "EMLoss")
         if bound.create():
             self.boundaries.append(bound)
-            self._messenger.add_info_message('EM losses Mapped from design {}'.format(designname))
+            self._messenger.add_info_message('EM losses mapped from design {}'.format(designname))
             return bound
         return False
 
     @aedt_exception_handler
     def assign_thermal_map(self, object_list, designname="IcepakDesign1", setupname="Setup1", sweepname="SteadyState",
                            source_project_name=None, paramlist=[]):
-        """Map Thermal losses to Mechanical Design. It works only coupled with Icepak in 2021r2
+        """Map thermal losses to a Mechanical design. 
+        
+        .. note::
+           This method works only when coupled with Icepak in 2021 R2.
 
         Parameters
         ----------
-        designname :
-            name of design of the source mapping (Default value = "IcepakDesign1")
-        setupname :
-            Name of EM Setup (Default value = "Setup1")
-        sweepname :
-            Name of EM Sweep to be used for mapping. Default no sweep and LastAdaptive to be used
-        source_project_name :
-            Name of the source project: None to use source from the same project (Default value = None)
-        paramlist :
-            list of all params in EM to be mapped (Default value = [])
-        object_list :
+        object_list : list
+        
+        designname : str, optional
+            Name of the design of the source mapping. The default is ``"IcepakDesign1"``.
+        setupname : str, optional
+            Name of the EM setup. The default is ``"Setup1"``.
+        sweepname :str, optional
+            Name of the EM sweep to use for the mapping. The default is no sweep and to use ``"LastAdaptive"``.
+        source_project_name : str, optional
+            Name of the source project. The default is ``None``, which uses the source from the same project.
+        paramlist : list, optional
+            List of all parameters in the EM to map. The default is ``[]``.
+        
             
 
         Returns
@@ -142,7 +172,7 @@ class Mechanical(FieldAnalysis3D, object):
 
         """
 
-        assert self.solution_type == "Structural", "This Method works only in Mechanical Structural Solution"
+        assert self.solution_type == "Structural", "This method works only in a Mechanical structural solution."
 
         self._messenger.add_info_message("Mapping HFSS EM Lossess")
         oName = self.project_name
@@ -151,7 +181,7 @@ class Mechanical(FieldAnalysis3D, object):
         else:
             projname = source_project_name + ".aedt"
         #
-        # Generate a list of model objects from the lists made previously and use to map the HFSS losses into Icepak
+        # Generate a list of model objects from the lists made previously and use to map the HFSS losses into Icepak.
         #
         if not object_list:
             allObjects = self.modeler.primitives.get_all_objects_names(refresh_list=True)
@@ -173,7 +203,7 @@ class Mechanical(FieldAnalysis3D, object):
         bound = BoundaryObject(self, name, props, "ThermalCondition")
         if bound.create():
             self.boundaries.append(bound)
-            self._messenger.add_info_message('Thermal Conditions Mapped from design {}'.format(designname))
+            self._messenger.add_info_message('Thermal conditions are mapped from design {}.'.format(designname))
             return bound
 
         return True
@@ -181,20 +211,20 @@ class Mechanical(FieldAnalysis3D, object):
     @aedt_exception_handler
     def assign_uniform_convection(self, objects_list, convection_value, convection_unit="w_per_m2kel",
                                   temperature="AmbientTemp", boundary_name=""):
-        """Assign uniform convection to face list
+        """Assign uniform convection to the face list.
 
         Parameters
         ----------
-        objects_list :
-            list of objects/faces
+        objects_list : list
+            List of objects, faces, or both.
         convection_value :
-            convection value
-        convection_unit :
-            str optional convection units (Default value = "w_per_m2kel")
-        temperature :
-            optional Temperature (Default value = "AmbientTemp")
-        boundary_name :
-            optional boundary object name (Default value = "")
+            Convection value.
+        convection_unit : str, optional
+            Unit of the convection. The default is ``"w_per_m2kel"``.
+        temperature : str, optional
+            Temperature. The default is ``"AmbientTemp"``.
+        boundary_name : str, optional
+            Name of the boundary. The default is ``""``.
 
         Returns
         -------
@@ -202,7 +232,7 @@ class Mechanical(FieldAnalysis3D, object):
             Boundary Object
 
         """
-        assert self.solution_type == "Thermal", "This Method works only in Mechanical Structural Solution"
+        assert self.solution_type == "Thermal", "This method works only in a Mechanical structural solution."
 
         props = {}
         objects_list = self.modeler._convert_list_to_ids(objects_list)
@@ -227,16 +257,19 @@ class Mechanical(FieldAnalysis3D, object):
 
     @aedt_exception_handler
     def assign_uniform_temperature(self, objects_list, temperature="AmbientTemp", boundary_name=""):
-        """Assign Uniform Temperature Boundary. Works only in Thermal module
+        """Assign a uniform temperature boundary.
+        
+        .. note::	
+	     This method works only in a Mechanical thermal analysis.
 
         Parameters
         ----------
-        objects_list :
-            list of objects/faces
-        temperature :
-            Temperature Value (Default value = "AmbientTemp")
-        boundary_name :
-            str optional boundary name (Default value = "")
+        objects_list : list
+            List of objects, faces, or both.
+        temperature : str, optional.
+            Type of temperature. The default is ``"AmbientTemp"``.
+        boundary_name : str, optional
+            Name of the boundary. The default is ``""``.
 
         Returns
         -------
@@ -244,7 +277,7 @@ class Mechanical(FieldAnalysis3D, object):
             Boundary Object
 
         """
-        assert self.solution_type == "Thermal", "This Method works only in Mechanical Structural Solution"
+        assert self.solution_type == "Thermal", "This method works only in a Mechanical structural analysis."
 
         props = {}
         objects_list = self.modeler._convert_list_to_ids(objects_list)
@@ -268,14 +301,16 @@ class Mechanical(FieldAnalysis3D, object):
 
     @aedt_exception_handler
     def assign_frictionless_support(self, objects_list,  boundary_name=""):
-        """Assign Mechanical Frictionless Support. Works only in Structural Analysis
+        """Assign a Mechanical frictionless support. 
+        
+        This method works only in a Mechanical structural analysis.
 
         Parameters
         ----------
-        objects_list :
-            list of faces to apply Frictionless support
-        boundary_name :
-            optional name of boundary (Default value = "")
+        objects_list : list
+            List of faces to apply to the frictionless support.
+        boundary_name : str, optional
+            Name of the boundary. The default is ``""``.
 
         Returns
         -------
@@ -284,8 +319,9 @@ class Mechanical(FieldAnalysis3D, object):
 
         """
 
-        assert self.solution_type == "Structural", "This Method works only in Mechanical Structural Solution"
-
+        if not (self.solution_type == "Structural" or self.solution_type == "Modal"):
+            self.messenger.add_error_message("This method works only in Mechanical Structural Solution")
+            return False
         props = {}
         objects_list = self.modeler._convert_list_to_ids(objects_list)
 
@@ -303,16 +339,20 @@ class Mechanical(FieldAnalysis3D, object):
             self.boundaries.append(bound)
             return bound
         return False
+
     @aedt_exception_handler
     def assign_fixed_support(self, objects_list,  boundary_name=""):
-        """Assign Mechanical Fixed Support. Works only in Structural Analysis
+        """Assign a Mechanical fixed support. 
+        
+        .. note::	
+           This method works only in a Mechanical structural analysis.
 
         Parameters
         ----------
-        objects_list :
-            list of faces to apply Fixed support
-        boundary_name :
-            optional name of boundary (Default value = "")
+        objects_list : list
+            List of faces to apply to the fixed support.
+        boundary_name : str, optional
+            Name of the boundary. The default is ``""``.
 
         Returns
         -------
@@ -320,7 +360,9 @@ class Mechanical(FieldAnalysis3D, object):
             boundary object
 
         """
-        assert self.solution_type =="Structural", "This Method works only in Mechanical Structural Solution"
+        if not (self.solution_type == "Structural" or self.solution_type == "Modal"):
+            self.messenger.add_error_message("This method works only in a Mechanical structural solution.")
+            return False
         props = {}
         objects_list = self.modeler._convert_list_to_ids(objects_list)
 
@@ -338,16 +380,16 @@ class Mechanical(FieldAnalysis3D, object):
 
     @property
     def existing_analysis_sweeps(self):
-        """Existing Analysis Setup List
+        """Return a list of existing analysis setups in the Mechanical design.
+                
         
-        
-        :return: Return a list of all defined analysis setup names in the maxwell design.
-
-        Parameters
         ----------
 
         Returns
         -------
+        list
+            List of existing analysis setups.
+
 
         """
         setup_list = self.existing_analysis_setups

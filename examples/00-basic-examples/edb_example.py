@@ -4,7 +4,7 @@ EDB  Analysis
 --------------------------------------------
 This Example shows how to use EDB co to interact with a layout
 """
-
+# sphinx_gallery_thumbnail_path = 'Resources/edb.png'
 import os
 import sys
 import pathlib
@@ -108,6 +108,40 @@ edb.core_components.delete_component("C3B17")
 # User can still delete manually one or multiple net
 
 edb.core_nets.delete_nets("A0_N")
+
+
+
+
+#################################
+# Get the stackup limits, top and bottom layers and elevations
+
+print(edb.core_stackup.stackup_limits())
+
+#################################
+# Create a new Coaxial port for HFSS Simulation
+edb.core_hfss.create_coax_port_on_component("U2A5", "V1P0_S0")
+
+#################################
+# Edit stackup and material
+# User can change stackup properties with assignment
+# Materials can be created and assigned to layers
+
+
+edb.core_stackup.stackup_layers.layers['TOP'].thickness = "75um"
+edb.core_stackup.create_debye_material("My_Debye", 5, 3, 0.02, 0.05, 1e5, 1e9)
+edb.core_stackup.stackup_layers.layers['UNNAMED_002'].material_name = "My_Debye"
+
+
+#################################
+# Create a new Circuit Port for Siwave Simulation
+edb.core_siwave.create_circuit_port("U2A5", "DDR3_DM0")
+
+
+edb.core_siwave.add_siwave_ac_analysis()
+
+edb.core_siwave.add_siwave_dc_analysis()
+
+
 
 #################################
 # Save Modification

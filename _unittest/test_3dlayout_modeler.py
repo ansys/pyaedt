@@ -168,6 +168,9 @@ class Test3DLayout:
             assert setup.export_to_hfss(file_fullname=file_fullname)
             time.sleep(2)  # wait for the export operation to finish
 
+    def test_20_set_export_touchstone(self):
+        assert self.aedtapp.set_export_touchstone(True)
+        assert self.aedtapp.set_export_touchstone(False)
 
 
 if __name__ == '__main__':

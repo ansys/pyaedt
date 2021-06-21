@@ -1,26 +1,24 @@
 """
-RMxprt Class
--------------------
+This module contains all RMxprt functionalities in the ``Rmxprt`` class.
 
-This class contains all RMxprt functionalities. It inherits all objects that belong to RMxprt.
+Examples
+--------
 
+Create an instance of ``Rmxprt`` and connect to an existing RMxprt design or create a new RMxprt design if one does not exist.
 
-Examples:
+>>> app = Rmxprt()
 
-app = Rmxprt()     Creates a ``Rmxprt`` object and connects to an existing RMxprt design or creates a new RMxprt design if one is not present.
+Create an instance of ``Rmxprt`` and link to a project named ``"projectname"``. If this project does not exist, create one with this name.
 
+>>> app = Rmxprt(projectname)
 
-app = Rmxprt(projectname)     Creates a ``Rmxprt`` object and links to a project named projectname.
+Create an instance of ``RMxprt`` and link to a design named ``"designname"`` in a project named ``"projectname"``.
 
+>>> app = Rmxprt(projectname,designame)
 
-app = Rmxprt(projectname,designame)     Creates a ``RMxprt`` object and links to a design named designname in a project named projectname.
+Create an instance of ``RMxprt`` and open the specified project, which is ``myfile.aedt``.
 
-
-app = Rmxprt("myfile.aedt")     Creates a ``RMxprt`` object and opens the specified project.
-
-
-
-========================================================
+>>> app = Rmxprt("myfile.aedt")
 
 """
 from __future__ import absolute_import
@@ -41,7 +39,8 @@ class RMXprtModule(object):
 
         Parameters
         ----------
-        parameter_name :
+        parameter_name : str
+            Name of the parameter.
             
 
         Returns
@@ -54,7 +53,7 @@ class RMXprtModule(object):
                 prop_server = key
                 break
         assert prop_server is not None,\
-            "Unknown parameter name {0} in component {1}!".format(prop_server, self.component)
+            "Unknown parameter name {0} exists in component {1}.".format(prop_server, self.component)
         return prop_server
 
     def __init__(self, oeditor):
@@ -71,9 +70,10 @@ class RMXprtModule(object):
 
         Parameters
         ----------
-        parameter_name :
-            
+        parameter_name : str
+            Name of the parameter.  
         value :
+            Value to assign to the parameter.
             
 
         Returns
@@ -122,26 +122,41 @@ class Rotor(RMXprtModule):
 
 
 class Rmxprt(FieldAnalysisRMxprt):
-    """RMxprt Object
+    """RMxprt class.
 
     Parameters
     ----------
-    projectname :
-        name of the project to be selected or full path to the project to be opened  or to the AEDTZ  archive. if None try to get active project and, if nothing present to create an empty one
-    designname :
-        name of the design to be selected. if None, try to get active design and, if nothing present to create an empty one
-    solution_type :
-        solution type to be applied to design. if None default is taken
-    setup_name :
-        setup_name to be used as nominal. if none active setup is taken or nothing
+    projectname : str, optional
+        Name of the project to select or the full path to the project or AEDTZ archive to open. 
+        The default is ``None``. If ``None``, try to get an active project and, if no projects are present, 
+        create an empty project.
+    designname : str, optional
+        Name of the design to select. The default is ``None``. If ``None``, try to get an active design and, 
+        if no designs are present, create an empty design.
+    solution_type : str, optional
+        Solution type to apply to the design. The default is ``None``. If ``None``, the default type is applied.
+    model_units : optional
+    
+    setup_name : str, optional
+        Name of the setup to use as the nominal. The default is ``None``. If ``None``, the active setup 
+        is used or nothing is used.
+    specified_version: str, optional
+        The default is ``None``.
+    NG : bool, optional
+        Whether to run AEDT in the non-graphical mode. The default is``False``.  
+    AlwaysNew : bool, optional
+    
+    release_on_exit : bool, optional
+    
 
-    Returns
     -------
 
     """
 
-    def __init__(self, projectname=None, designname=None, solution_type=None, model_units=None, setup_name=None):
-        FieldAnalysisRMxprt.__init__(self, "RMxprtSolution", projectname, designname, solution_type, setup_name)
+    def __init__(self, projectname=None, designname=None, solution_type=None, model_units=None, setup_name=None,
+                 specified_version=None, NG=False, AlwaysNew=True, release_on_exit=True):
+        FieldAnalysisRMxprt.__init__(self, "RMxprtSolution", projectname, designname, solution_type, setup_name,
+                                     specified_version, NG, AlwaysNew, release_on_exit)
         if not model_units or model_units == "mm":
             model_units = "mm"
         else:
@@ -161,5 +176,3 @@ class Rmxprt(FieldAnalysisRMxprt):
 
     def __enter__(self):
         return self
-
-

@@ -21,8 +21,10 @@ class FieldAnalysisIcepak(Analysis, object):
     -------
 
     """
-    def __init__(self, application, projectname, designname, solutiontype, setup_name=None):
-        Analysis.__init__(self, application, projectname, designname, solutiontype, setup_name)
+    def __init__(self, application, projectname, designname, solutiontype, setup_name=None,
+                 specified_version=None, NG=False, AlwaysNew=True, release_on_exit=True):
+        Analysis.__init__(self, application, projectname, designname, solutiontype, setup_name,
+                          specified_version, NG, AlwaysNew, release_on_exit)
         self._modeler = Modeler3D(self)
         self._mesh = IcepakMesh(self)
         #self._post = PostProcessor(self)
@@ -110,7 +112,6 @@ class FieldAnalysisIcepak(Analysis, object):
             val = ipk.get_property_value('BoundarySetup:Source1', 'Total Power')
 
         """
-        #TODO To be improved
         boundary = {"HFSS": "HfssTab", "Icepak": "Icepak", "Q3D": "Q3D", "Maxwell3D": "Maxwell3D"}
         excitation = {"HFSS": "HfssTab", "Icepak": "Icepak", "Q3D": "Q3D", "Maxwell3D": "Maxwell3D"}
         setup = {"HFSS": "HfssTab", "Icepak": "Icepak", "Q3D": "General", "Maxwell3D": "General"}

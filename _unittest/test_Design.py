@@ -30,11 +30,35 @@ class TestDesign:
         self.local_scratch.remove()
         gc.collect()
 
+    def test_app(self):
+        assert self.aedtapp
+
     def test_01_designname(self):
         assert self.aedtapp.design_name == "HFSSDesign"
         self.aedtapp.design_name = "myname"
         assert self.aedtapp.design_name == "myname"
         self.aedtapp.design_name = "HFSSDesign"
+
+    def test_version_id(self):
+        assert self.aedtapp.aedt_version_id
+
+    def test_vali_design(self):
+        assert self.aedtapp.valid_design
+
+    def test_clean_proj_folder(self):
+        assert self.aedtapp.clean_proj_folder()
+
+    def test_copy_project(self):
+        assert self.aedtapp.copy_project(self.local_scratch.path, "new_file")
+
+    def test_copy_project(self):
+        assert self.aedtapp.copy_project(self.local_scratch.path, "new_file")
+        assert self.aedtapp.copy_project(self.local_scratch.path, "Coax_HFSS")
+
+
+    def test_change_use_causalmaterial(self):
+        assert self.aedtapp.change_automatically_use_causal_materials(True)
+        assert self.aedtapp.change_automatically_use_causal_materials(False)
 
     def test_02_design_list(self):
         mylist = self.aedtapp.design_list
@@ -99,7 +123,7 @@ class TestDesign:
         assert val == "1.0mm"
 
     def test_13_designs(self):
-        assert self.aedtapp.insert_design("HFSS", design_name="TestTransient", solution_type="Transient Network") == "TestTransient"
+        assert self.aedtapp._insert_design("HFSS", design_name="TestTransient", solution_type="Transient Network") == "TestTransient"
 
     def test_14_get_nominal_variation(self):
         assert (self.aedtapp.get_nominal_variation() != [] or self.aedtapp.get_nominal_variation() is not None)
@@ -171,4 +195,14 @@ class TestDesign:
         props = self.aedtapp.get_components3d_vars("Dipole_Antenna_DM")
         assert len(props) == 3
         pass
+
+    def test_21_generate_temp_project_directory(self):
+        proj_dir1 = self.aedtapp.generate_temp_project_directory("Example")
+        assert os.path.exists(proj_dir1)
+        proj_dir2 = self.aedtapp.generate_temp_project_directory("")
+        assert os.path.exists(proj_dir2)
+        proj_dir4 = self.aedtapp.generate_temp_project_directory(34)
+        assert os.path.exists(proj_dir4)
+        proj_dir5 = self.aedtapp.generate_temp_project_directory(":_34")
+        assert not proj_dir5
 

@@ -31,6 +31,7 @@ import json
 import string
 import random
 import time
+import logging
 from collections import OrderedDict
 from .MessageManager import AEDTMessageManager
 from .Variables import VariableManager, DataSet
@@ -39,11 +40,8 @@ from ..generic.LoadAEDTFile import load_entire_aedt_file
 from ..generic.general_methods import aedt_exception_handler
 from ..generic.list_handling import variation_string_to_dict
 from ..modules.Boundary import BoundaryObject
+from ..generic.general_methods import generate_unique_name
 
-try:
-    import webbrowser
-except ImportError:
-    warnings.warn("webbrowser not supported")
 
 design_solutions = {
     "Maxwell 2D": [
@@ -247,7 +245,8 @@ class Design(object):
         self.variable_manager[variable_name] = variable_value
         return True
 
-    def __init__(self, design_type, project_name=None, design_name=None, solution_type=None):
+    def __init__(self, design_type, project_name=None, design_name=None, solution_type=None,
+                 specified_version=None, NG=False, AlwaysNew=True, release_on_exit=True):
         # Get Desktop from global Desktop Environment
         self._project_dictionary = OrderedDict()
         self.boundaries = OrderedDict()
@@ -255,13 +254,14 @@ class Design(object):
         self.design_datasets = {}
         main_module = sys.modules['__main__']
         if "pyaedt_initialized" not in dir(main_module):
-            Desktop()
+            Desktop(specified_version, NG, AlwaysNew, release_on_exit)
         self._project_dictionary = {}
         self._mttime = None
         self._desktop = main_module.oDesktop
         self._aedt_version = main_module.AEDTVersion
         self._desktop_install_dir = main_module.sDesktopinstallDirectory
         self._messenger = AEDTMessageManager(self)
+        self.logger = logging.getLogger(__name__)
 
         assert design_type in design_solutions, "Invalid design type specified: {}".format(design_type)
         self._design_type = design_type
@@ -742,7 +742,7 @@ class Design(object):
         activedes = des_name
         if des_name:
             if self._assert_consistent_design_type(des_name) == des_name:
-                self.insert_design(self._design_type, design_name=des_name, solution_type=self._solution_type)
+                self._insert_design(self._design_type, design_name=des_name, solution_type=self._solution_type)
         else:
             # self._odesign = self._oproject.GetActiveDesign()
             if self.design_list:
@@ -762,8 +762,8 @@ class Design(object):
                 warning_msg = "No design present - inserting a new design"
 
             if warning_msg:
-                self._messenger.add_warning_message(warning_msg, level='Project')
-                self.insert_design(self._design_type, solution_type=self._solution_type)
+                self.logger.debug(warning_msg)
+                self._insert_design(self._design_type, solution_type=self._solution_type)
         self.boundaries = self._get_boundaries_data()
 
     @property
@@ -1299,38 +1299,57 @@ class Design(object):
         return True
 
     @aedt_exception_handler
-    def release_desktop(self):
-        """:return: Release the desktop by keeping it open"""
-        release_desktop()
+    def release_desktop(self, close_projects=True, close_desktop=True):
+        """
+
+        Parameters
+        ----------
+        close_projects: bool
+            close all projects
+        close_desktop: bool
+            close desktop after release it
+
+        Returns
+        -------
+        bool
+            True if desktop released
+        """
+        release_desktop(close_projects, close_desktop)
         return True
 
     @aedt_exception_handler
-    def help(self, modulename="index"):
+    def generate_temp_project_directory(self, subdir_name):
+        """Generate a unique directory string to store a project
+
+        Creates a directory name for storage of a project in a location which is guaranteed to exist (the temp
+        directory of the AEDT installation). If the 'name' parameter is defined, then add a sub-directory within
+        the temp directory and add a hash suffix to ensure that this directory is empty (unique name)
+
+        Parameters
+        ----------
+        subdir_name : str
+            Base name of the sub-directory to be created im self.tempdirectory
+
+        Returns
+        -------
+        str
+
+        Examples
+        --------
+        >>> m3d = Maxwell3d()
+        >>> proj_directory = m3d.generate_temp_project_directory("Example")
+
         """
-        Launch Online help. Works on Windows Only (for linux manually launch it from Documentation folder)
+        base_path = self.temp_directory
 
-
-        :param modulename: name of the module or search string
-        :return: open default browser
-        """
-
-        filename = os.path.join(os.path.dirname(__file__), "Documentation", modulename+".html")
-        if os.path.exists(filename):
-            filepath = filename.replace(":\\", ":/").replace("\\", "/")
-            networkpath = "file:///" + filepath
-        else:
-            filename = os.path.dirname(__file__)+"/Documentation/search.html?q={}&".format(modulename)
-            filepath = filename.replace(":\\", ":/").replace("\\", "/")
-            paths = [r"C:\Program Files\Google\Chrome\Application\chrome.exe",
-                     r"C:\Program Files (x86)\Google\Chrome\Application\chrome.exe"]
-            networkpath = "file:///" + filepath
-            for p in paths:
-                if os.path.exists(p):
-                    os.system("start chrome " + networkpath)
-                    return True
-
-        webbrowser.open_new(networkpath)
-        return True
+        assert isinstance(subdir_name, str), "Input argument 'subdir' must be a string"
+        dir_name = generate_unique_name(subdir_name)
+        project_dir = os.path.join(base_path, dir_name)
+        try:
+            if not os.path.exists(project_dir): os.makedirs(project_dir)
+            return project_dir
+        except OSError:
+            return False
 
 
     @aedt_exception_handler
@@ -1628,7 +1647,8 @@ class Design(object):
         self._messenger.add_info_message("Cleanup folder from " + name + " project files")
         if os.path.exists(directory):
             shutil.rmtree(directory, True)
-            os.mkdir(directory)
+            if not os.path.exists(directory):
+                os.mkdir(directory)
         self._messenger.add_info_message("Project Directory cleaned")
         return True
 
@@ -1675,14 +1695,14 @@ class Design(object):
 
     @aedt_exception_handler
     def close_project(self, name=None, saveproject=True):
-        """Close the specified project and release the Desktop
+        """Close the specified project
 
         Parameters
         ----------
         name :
-            name of the project (if none take active provect) (Default value = None)
+            name of the project (if none take active project) (Default value = None)
         saveproject : bool
-            Save Project before close (Default value = True)
+            Save project before close (Default value = True)
 
         Returns
         -------
@@ -1695,7 +1715,7 @@ class Design(object):
         else:
             name = self.project_name
             msg_txt = "active "+ self.project_name
-        self._messenger.add_info_message("Closing the {} AEDT Project".format(msg_txt))
+        self._messenger.add_info_message("Closing the {} AEDT Project".format(msg_txt), level="Global")
         if name != self.project_name:
             oproj = self.odesktop.SetActiveProject(name)
         else:
@@ -1744,23 +1764,7 @@ class Design(object):
             True if the separator exists and can be deleted, False otherwise
 
         """
-        obj = [(self._odesign, "Local"),
-               (self.oproject, "Project")]
-
-        for object in obj:
-            desktop_object = object[0]
-            var_type = object[1]
-            try:
-                desktop_object.ChangeProperty(["NAME:AllTabs",
-                                               ["NAME:{0}VariableTab".format(var_type),
-                                                ["NAME:PropServers",
-                                                 "{0}Variables".format(var_type)],
-                                                ["NAME:DeletedProps",
-                                                 separator_name]]])
-                return True
-            except:
-                pass
-        return False
+        return self._variable_manager.delete_separator(separator_name)
 
     @aedt_exception_handler
     def delete_variable(self, sVarName):
@@ -1777,28 +1781,10 @@ class Design(object):
             none
 
         """
-        if sVarName[0] == "$":
-            var_type = "Project"
-            desktop_object = self.oproject
-        else:
-            var_type = "Local"
-            desktop_object = self._odesign
-
-        var_list = desktop_object.GetVariables()
-        lower_case_vars = [var_name.lower() for var_name in var_list]
-
-        if sVarName.lower() in lower_case_vars:
-            desktop_object.ChangeProperty(["NAME:AllTabs",
-                                           ["NAME:{0}VariableTab".format(var_type),
-                                            ["NAME:PropServers",
-                                             "{0}Variables".format(var_type)],
-                                            ["NAME:DeletedProps",
-                                             sVarName]]])
-            return True
-        return False
+        return  self.variable_manager.delete_variable(sVarName)
 
     @aedt_exception_handler
-    def insert_design(self, design_type, design_name=None, solution_type=None):
+    def insert_design(self, design_name=None):
         """Inserts a design of the specified design type. Default design type is taked from the derived application \
         class. If no design-name is given, the default design name is <Design-Type>Design<_index>. If the given or \
         default design name is in use, then an underscore + index is added            to ensure that the design name\
@@ -1806,17 +1792,18 @@ class Design(object):
 
         Parameters
         ----------
-        design_type :
-            Type of design to insert (eg. HFSS)
         design_name :
             optional design name (Default value = None)
-        solution_type :
-            optional solution_type. it can be a SolutionType object (Default value = None)
 
         Returns
         -------
 
-        """
+        """"Circuit Design"
+        if self.design_type == "Circuit Design" or self.design_type == "HFSS 3D Layout Design":
+            self.modeler.edb.close_edb()
+        self.__init__(projectname=self.project_name, designname=design_name)
+
+    def _insert_design(self, design_type, design_name=None, solution_type=None):
         assert design_type in design_solutions, "Invalid design type for insert: {}".format(design_type)
         # self.save_project() ## Commented because it saves a Projectxxx.aedt when launched on an empty Desktop
         unique_design_name = self._generate_unique_design_name(design_name)

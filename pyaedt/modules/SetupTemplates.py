@@ -42,7 +42,7 @@ HFSSEigen = [("MinimumFrequency", "2GHz"), ("NumModes", 1), ("MaxDeltaFreq", 10)
 HFSSTransient = [("Frequency", "5GHz"), ("MaxDeltaS", 0.02), ("MaximumPasses", 20), ("UseImplicitSolver", True),
                  ("IsEnabled", True), ("MeshLink", meshlink), ("BasisOrder", -1), ("Transient", transienthfss)]
 HFSSSBR = [("IsEnabled", True), ("MeshLink", meshlink), ("IsSbrRangeDoppler", False),
-           ("RayDensityPerWavelength", 4), ("MaxNumberOfBounces", 5), ("InfiniteSphereSetup", ""),
+           ("RayDensityPerWavelength", 4), ("MaxNumberOfBounces", 5), ("RadiationSetup", ""),
            ("PTDUTDSimulationSettings", "None"), ("Sweeps", sweepssbr), ("ComputeFarFields", False)]
 MaxwellTransient = [("Enabled", True), ("MeshLink", meshlink), ("NonlinearSolverResidual", "0.005"),
                     ("ScalarPotential", "Second Order"), ("SmoothBHCurve", False), ("StopTime", "10000000ns"),

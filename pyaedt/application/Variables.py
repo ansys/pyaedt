@@ -816,8 +816,10 @@ class VariableManager(object):
                             ]
                         ]
                     ])
+                return True
             except:
                 pass
+        return False
 
 
 class Variable(object):

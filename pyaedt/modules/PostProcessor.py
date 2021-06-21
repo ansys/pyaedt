@@ -23,7 +23,7 @@ import math
 import itertools
 from collections import OrderedDict
 from ..modeler.Modeler import CoordinateSystem
-from ..generic.general_methods import aedt_exception_handler, generate_unique_name
+from ..generic.general_methods import aedt_exception_handler, generate_unique_name, retry_ntimes
 from ..application.Variables import AEDT_units
 
 report_type = {"DrivenModal": "Modal Solution Data", "DrivenTerminal": "Terminal Solution Data",
@@ -844,7 +844,8 @@ class PostProcessor(object):
 
     @aedt_exception_handler
     def export_field_file(self, quantity_name, solution=None, variation_dict=None, filename=None,
-                          obj_list="AllObjects", obj_type="Vol", intrinsics=None, phase=None, sample_points_file=None, sample_points_lists=None):
+                          obj_list="AllObjects", obj_type="Vol", intrinsics=None, phase=None,
+                          sample_points_file=None, sample_points_lists=None, export_with_sample_points=True):
         """This function creates a new field file based on a specific solution and variation available. using Field Calculator
 
         Parameters
@@ -869,10 +870,12 @@ class PostProcessor(object):
              (Default value = None)
         sample_points_lists :
              (Default value = None)
+         export_with_sample_points : bool
+
 
         Returns
         -------
-        type
+        bool
             True (fld exported) | False
 
         """
@@ -923,13 +926,13 @@ class PostProcessor(object):
             self.ofieldsreporter.CalculatorWrite(filename, ["Solution:="	, solution], variation_dict)
         elif sample_points_file:
 
-            self.ofieldsreporter.ExportToFile(filename, sample_points_file, solution, variation_dict, True)
+            self.ofieldsreporter.ExportToFile(filename, sample_points_file, solution, variation_dict, export_with_sample_points)
         else:
             sample_points_file = os.path.join(self._parent.project_path, "temp_points.pts")
             with open(sample_points_file, "w") as f:
                 for point in sample_points_lists:
                     f.write(" ".join([str(i) for i in point])+"\n")
-            self.ofieldsreporter.ExportToFile(filename, sample_points_file, solution, variation_dict, True)
+            self.ofieldsreporter.ExportToFile(filename, sample_points_file, solution, variation_dict, export_with_sample_points)
 
         return os.path.exists(filename)
 
@@ -1176,250 +1179,6 @@ class PostProcessor(object):
         return True
 
     @aedt_exception_handler
-    def export_convergence_to_jpg(self, output_dir, name, Xaxis, outputlist, setupname="Setup1 : LastAdaptive"):
-        """function that export JPG of Convergence Plot
-
-        Parameters
-        ----------
-        output_dir :
-            Output dir
-        name :
-            Project Name
-        Xaxis :
-            Independent Variable
-        outputlist :
-            List of Parameter to export
-        setupname :
-            Name of Setupt (Default value = "Setup1 : LastAdaptive")
-
-        Returns
-        -------
-        type
-            Boolean success of command
-
-        """
-
-        # Setup arguments list for createReport function
-        args = ["Pass:=", ["All"], Xaxis + ":=", ["All"]]
-        args2 = ["X Component:=", "Pass", "Y Component:=", outputlist]
-
-        # Add folder for outputs
-
-        if not os.path.exists(output_dir + "//" + name + "//Results"):
-            os.mkdir(output_dir + "//" + name + "//Results")
-        if not os.path.exists(output_dir + "//" + name + "//Pictures"):
-            os.mkdir(output_dir + "//" + name + "//Pictures")
-        self.oreportsetup.CreateReport("Solution Convergence Plot 1", "Eigenmode Parameters", "Rectangular Plot",
-                                       setupname, [], args, args2, [])
-
-        self.oreportsetup.ExportImageToFile("Solution Convergence Plot 1",
-                                            output_dir + "//" + name + "//Pictures//" + name + "_Convergence.jpg",
-                                            0,
-                                            0)
-        return True
-
-    @aedt_exception_handler
-    def export_convergence_to_csv(self, output_dir, name, Xaxis, outputlist, setupname="Setup1 : LastAdaptive"):
-        """function that export CSV of Convergence Plot
-
-        Parameters
-        ----------
-        output_dir :
-            Output dir
-        name :
-            Project Name
-        Xaxis :
-            independent Variable
-        outputlist :
-            List of Parameter to export
-        setupname :
-            Name of Setupt (Default value = "Setup1 : LastAdaptive")
-
-        Returns
-        -------
-        type
-            Boolean success of command
-
-        """
-
-        # Setup arguments list for createReport function
-        args = ["Pass:=", ["All"], Xaxis + ":=", ["All"]]
-        args2 = ["X Component:=", "Pass", "Y Component:=", outputlist]
-
-        # Add folder for outputs
-
-        if not os.path.exists(output_dir + "//" + name + "//Results"):
-            os.mkdir(output_dir + "//" + name + "//Results")
-        if not os.path.exists(output_dir + "//" + name + "//Pictures"):
-            os.mkdir(output_dir + "//" + name + "//Pictures")
-        self.oreportsetup.CreateReport("Solution Convergence Plot 1", "Eigenmode Parameters", "Rectangular Plot",
-                                       setupname, [], args, args2, [])
-
-        self.oreportsetup.ExportToFile("Solution Convergence Plot 1",
-                                       output_dir + "//" + name + "//Results//" + name + "_Convergence.csv")
-
-        return True
-
-    @aedt_exception_handler
-    def export_eigen_plot(self, projectdir, name, Xaxis, outputlist, setupname="Setup1 :  LastAdaptive"):
-        """TO BE REFACTORED
-        function that export CSV of eigenmode Plot
-        dir: Output dir
-        name: project name
-        Xaxis=
-        outputlist= output quantity, in this case, egienmode
-        :return:
-
-        Parameters
-        ----------
-        projectdir :
-            
-        name :
-            
-        Xaxis :
-            
-        outputlist :
-            
-        setupname :
-             (Default value = "Setup1 :  LastAdaptive")
-
-        Returns
-        -------
-
-        """
-
-        # Setup arguments list for createReport function
-        args = [Xaxis + ":=", ["All"]]
-
-        args2 = ["X Component:=", Xaxis, "Y Component:=", outputlist]
-
-        # Add folder for outputs
-        if not os.path.exists(projectdir + "//" + name + "//Results"):
-            os.mkdir(projectdir + "//" + name + "//Results")
-        if not os.path.exists(projectdir + "//" + name + "//Pictures"):
-            os.mkdir(projectdir + "//" + name + "//Pictures")
-        self.oreportsetup.CreateReport("Eigen Modes Plot 1", "Eigenmode Parameters", "Rectangular Plot",
-                                       setupname, [], args, args2, [])
-
-        self.oreportsetup.ExportImageToFile("Eigen Modes Plot 1",
-                                            projectdir + "//" + name + "//Pictures//" + name + "Eigen.jpg", 0,
-                                            0)
-
-        self.oreportsetup.ExportToFile("Eigen Modes Plot 1",
-                                       projectdir + "//" + name + "//Results//" + name + ".csv")
-        return True
-
-    @aedt_exception_handler
-    def export_mechanical_script(self, workingDir, name, aMats, aInside, aSurf, emissivity, convection, gravity,
-                                 ambienttemp="22", MechNumCores=2, discretesweep=False, WBSuppressSolids=None):
-        """export_mechanical_script Function write a PY function for Mechanical API.
-        It start from createMech.py file and integrates it with variables and lanuchers.
-        
-        - Added WBSuppressSolids option:
-            1. the objects names specified in the list are suppessed in Workbench
-            2. the list defaults to empty list
-
-        Parameters
-        ----------
-        workingDir :
-            
-        name :
-            
-        aMats :
-            
-        aInside :
-            
-        aSurf :
-            
-        emissivity :
-            
-        convection :
-            
-        gravity :
-            
-        ambienttemp :
-             (Default value = "22")
-        MechNumCores :
-             (Default value = 2)
-        discretesweep :
-             (Default value = False)
-        WBSuppressSolids :
-             (Default value = None)
-
-        Returns
-        -------
-
-        """
-
-        # USE this
-        # MechNumCores=oFilterProp.getKey("HFSSNumCores")
-
-        if WBSuppressSolids is None:
-            WBSuppressSolids = []
-        Filename = os.path.join(workingDir, '{0}.py'.format(name + "New"))
-        Filename = Filename.replace('\\', '/')
-        myfullpath = os.path.realpath(__file__).replace("\\", "/").replace("//", "/")
-        full_split = myfullpath.split("/")
-        mypath = full_split[0] + "/" + full_split[1]
-
-        i = 2
-        while i < len(full_split) - 2:
-            mypath = os.path.join(mypath, full_split[i])
-            i += 1
-        mypath = os.path.join(mypath, "WBLib", 'createMechandTherm.py')
-        shutil.copy2(mypath, Filename)
-        with open(Filename, 'a+') as f:
-            f.write('\nDesktopMat = { \n')
-            iMat = 0
-            for matName, tmpObjs in aMats.iteritems():
-                iObj = 0
-                for objName in tmpObjs:
-                    f.write('"{0}" : "{1}"'.format(objName, matName))
-                    iObj += 1
-                    if iObj < len(tmpObjs):
-                        f.write(',\n')
-                iMat += 1
-                if iMat < len(aMats):
-                    f.write(',\n')
-            f.write('}\n')
-            f.write('AmbientTemp=\"' + str(ambienttemp) + '\"')
-            f.write('\nDesktopSolveInside = { \n')
-            iObjI = 0
-            for objName in aInside:
-                f.write('"{0}" : 1'.format(objName))
-                iObjI += 1
-                if iObjI < len(aInside):
-                    f.write(',\n')
-            f.write('}\n')
-            f.write('\nDesktopSolveSurface = { \n')
-            iObjS = 0
-            for objName in aSurf:
-                f.write('"{0}" : 1'.format(objName))
-                iObjS += 1
-                if iObjS < len(aSurf):
-                    f.write(',\n')
-            f.write('}\n')
-            # create the list WBSuppressSolids in the script file
-            f.write('WBSuppressSolids = %s \n' % str(WBSuppressSolids))
-            # calls the createMech class
-            f.write('a=createMech()\n')
-            # calls the a.assignGeometry method
-            f.write('f=a.assignGeometry(DesktopMat,DesktopSolveSurface,DesktopSolveInside,WBSuppressSolids)\n')
-            f.write("emissivity={}\n")
-            for emi in emissivity:
-                f.write("emissivity[\"SYS\\\\" + emi + "\"]=" + emissivity[emi] + "\n")
-                f.write("emissivity[\"" + emi + "\"]=" + emissivity[emi] + "\n")
-            f.write("convection={}\n")
-            for c in convection:
-                f.write("convection[" + c + "]=" + convection[c] + "\n")
-            f.write('f=a.createThermalBoundaries(convection,emissivity,AmbientTemp)\n')
-            # f.write('f=a.importLoads()\n')
-            # f.write('f=a.createFrictionless(' + str(gravity) + ')\n')
-            # f.write("f=a.createStructuralSetup(True," + str(MechNumCores) + "," + sWorkbenchVersion[-3:] + ")" + "\n")
-            # f.write('f=a.setupSweep(' + str(discretesweep) + ')\n')
-        return True
-
-    @aedt_exception_handler
     def export_model_picture(self, dir, name, picturename="Model", ShowAxis=True, ShowGrid=True, ShowRuler=True):
         """Synopsis:
         function that export Model Snapshot. It works only in Graphical Mode
@@ -1479,46 +1238,8 @@ class PostProcessor(object):
             True (executed)
 
         """
-        # Copy the plot curves as data
         self.oreportsetup.CopyReportsData([PlotName])
         self.oreportsetup.PasteReports()
-        return True
-
-    @aedt_exception_handler
-    def create_field_exptression(self,expression_name, Quantity, obj_name, obj_type="Volume"):
-        """It create a new expression using Field Calculator given specified input
-
-        Parameters
-        ----------
-        expression_name :
-            Name of the output expression
-        Quantity :
-            Field Quantity to use in expression (eg. E)
-        obj_name :
-            name of objects on which compute the expression
-        obj_type :
-            Type of objects: Volume, Surface, Line, Point (Default value = "Volume")
-
-        Returns
-        -------
-        type
-            True if succeeedd
-
-        """
-
-        self.ofieldsreporter.EnterQty(Quantity)
-        if obj_type.lower=="volume":
-            self.ofieldsreporter.EnterVol(obj_name)
-        elif obj_type.lower=="surface":
-            self.ofieldsreporter.EnterSurf(obj_name)
-        elif obj_type.lower=="point":
-            self.ofieldsreporter.EnterPoint(obj_name)
-        elif obj_type.lower=="line":
-            self.ofieldsreporter.EnterLine(obj_name)
-        else:
-            return False
-        self.ofieldsreporter.CalcOp("Value")
-        self.ofieldsreporter.AddNamedExpression(expression_name, "Fields")
         return True
 
     @aedt_exception_handler
@@ -1646,7 +1367,7 @@ class PostProcessor(object):
         return solution_data
 
     @aedt_exception_handler
-    def get_report_data(self, expression="dB(S(1,1))", setup_sweep_name='', domain='Sweep', families_dict=None):
+    def get_report_data(self, expression="dB(S(1,1))", setup_sweep_name='', domain='Sweep', families_dict=None, report_input_type=None):
         """Generate Report Data using GetSolutionDataPerVariation function. it returns the data object, the solDataArray
         and the FreqVals Array.
         
@@ -1663,20 +1384,22 @@ class PostProcessor(object):
 
         Parameters
         ----------
-        setup_sweep_name :
+        setup_sweep_name : str
             Name of setup to compute report. if None, nominal sweep will be applied (Default value = '')
-        domain :
+        domain : str, list
             Context Type (Sweep or Time) (Default value = 'Sweep')
-        families_dict :
+        families_dict : dict
             Dictionary of variables and values. Default {"Freq": ["All"]}
-        expression :
+        expression : str, list
             string or list of traces to include (Default value = "dB(S(1)
         1))" :
-            
+        report_input_type : str, optional
+            string or list of traces to include (Default value = "dB(S(1)
+        1))" :
 
         Returns
         -------
-        type
+        SolutionData
             SolutionData object if successful
 
         """
@@ -1687,6 +1410,8 @@ class PostProcessor(object):
                 did = 1
             ctxt = ["NAME:Context", "SimValueContext:=",
                     [did, 0, 2, 0, False, False, -1, 1, 0, 1, 1, "", 0, 0, "IDIID", False, "1"]]
+        elif type(domain) is list:
+            ctxt = domain
         else:
             ctxt = ["Domain:=", domain]
 
@@ -1694,15 +1419,17 @@ class PostProcessor(object):
             expression = [expression]
         if not setup_sweep_name:
             setup_sweep_name = self._parent.nominal_sweep
-        if self.post_solution_type not in report_type:
-            print("Solution not supported")
-            return False
-        modal_data = report_type[self.post_solution_type]
+
+
+        if not report_input_type:
+            report_input_type = report_type[self.post_solution_type]
+
 
         if families_dict is None:
             families_dict = {"Freq": ["All"]}
 
-        solution_data = self.get_solution_data_per_variation(modal_data, setup_sweep_name, ctxt, families_dict, expression)
+        solution_data = self.get_solution_data_per_variation(report_input_type, setup_sweep_name, ctxt, families_dict, expression)
+
         if not solution_data:
             print("No Data Available. Check inputs")
             return False
@@ -1710,7 +1437,7 @@ class PostProcessor(object):
 
     @aedt_exception_handler
     def create_rectangular_plot(self, expression="dB(S(1,1))", setup_sweep_name='', families_dict={"Freq": ["All"]},
-                                primary_sweep_variable="Freq", context=None, plotname=None):
+                                primary_sweep_variable="Freq", context=None, plotname=None,plottype=None):
         """Create a 2D Rectangular plot in AEDT
 
         Parameters
@@ -1759,13 +1486,27 @@ class PostProcessor(object):
         if self.post_solution_type not in report_type:
             print("Solution not supported")
             return False
-        modal_data = report_type[self.post_solution_type]
+        if not plottype:
+            modal_data = report_type[self.post_solution_type]
+        else:
+            modal_data = plottype
         if not plotname:
             plotname = generate_unique_name("Plot")
         families_input = []
+        families_input.append(primary_sweep_variable+":=")
+        if type(families_dict[primary_sweep_variable]) is list:
+            families_input.append(families_dict[primary_sweep_variable])
+        else:
+            families_input.append([families_dict[primary_sweep_variable]])
         for el in families_dict:
+            if el == primary_sweep_variable:
+                continue
             families_input.append(el+":=")
-            families_input.append(families_dict[el])
+            if type(families_dict[el]) is list:
+                families_input.append(families_dict[el])
+            else:
+                families_input.append([families_dict[el]])
+
         self.oreportsetup.CreateReport(plotname, modal_data, "Rectangular Plot", setup_sweep_name, ctxt, families_input,
                                                        ["X Component:=", primary_sweep_variable, "Y Component:=",
                                                    expression])

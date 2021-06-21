@@ -22,8 +22,10 @@ class FieldAnalysis3D(Analysis, object):
     -------
 
     """
-    def __init__(self, application, projectname, designname, solutiontype, setup_name=None):
-        Analysis.__init__(self, application, projectname, designname, solutiontype, setup_name)
+    def __init__(self, application, projectname, designname, solutiontype, setup_name=None,
+                 specified_version=None, NG=False, AlwaysNew=True, release_on_exit=True):
+        Analysis.__init__(self, application, projectname, designname, solutiontype, setup_name,
+                          specified_version, NG, AlwaysNew, release_on_exit)
         self._modeler = Modeler3D(self)
         self._mesh = Mesh(self)
         #self._post = PostProcessor(self)

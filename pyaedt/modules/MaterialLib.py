@@ -63,18 +63,18 @@ class Materials(object):
     @property
     def messenger(self):
         """ """
-        return self._parent._messenger
+        return self._parent.messenger
 
     @property
     def oproject(self):
         """ """
-        return self._parent._oproject
+        return self._parent.oproject
 
     def __init__(self, parent):
         self._parent = parent
         self.material_keys = defaultdict(lambda: Material(parent))
         self._load_from_project()
-        self.messenger.add_info_message('Successfully loaded project materials !')
+        self.messenger.logger.info('Successfully loaded project materials !')
         pass
 
     def __len__(self):
@@ -321,30 +321,6 @@ class Materials(object):
         return False
 
     @aedt_exception_handler
-    def check_thermal_modifier_OLD(self, mat):
-        """
-
-        Parameters
-        ----------
-        mat :
-
-
-        Returns
-        -------
-
-        """
-        mat = mat.lower()
-        exists = True
-        if mat not in self.material_keys:
-            exists = self.checkifmaterialexists(mat)
-        if exists:
-            omat = self.material_keys[mat]
-            for el in omat.property:
-                if omat.property[el].property_value[0].thermalmodifier:
-                    return True
-        return False
-
-    @aedt_exception_handler
     def creatematerial(self, materialname):
         """The function create a new material named materialname and apply defaults value and return the material object
         that allows user to customize the material
@@ -375,18 +351,18 @@ class Materials(object):
             return self.material_keys[materialname]
 
     @aedt_exception_handler
-    def creatematerialsurface(self, material_name):
-        """The function create a new material surface named args
-        material args properties are loaded from the XML file database amat.xml
+    def creatematerialsurface(self, material_name, emissivity=None):
+        """The function create a new material surface in AEDT based properties are loaded from the XML file database amat.xml or from emissivity
 
         Parameters
         ----------
-        material_name :
+        material_name : str
             material name
-
+        emissivity : float, optional
+            Emissivity
         Returns
         -------
-        type
+        float
             Material emissivity
 
         """
@@ -397,12 +373,14 @@ class Materials(object):
             self.messenger.add_error_message("Error. XML not loaded. Run read_material_from_xml function")
             return
         matsurf = None
-        for mat in materials:
-            if material_name == mat.GetName():
+        for mat in list(materials.values()):
+            if material_name == mat.name:
                 matsurf = mat
-        defaultEmissivity = "0.8"
+        defaultEmissivity = 0.8
+        if emissivity:
+            defaultEmissivity = emissivity
         if matsurf:
-            defaultEmissivity = str(matsurf.GetParameter("emissivity"))
+            defaultEmissivity = matsurf.GetParameter("emissivity")
 
         arg = []
         arg.append("Name:" + material_name)
@@ -411,10 +389,9 @@ class Materials(object):
         arg.append("BulkOrSurfaceType:=")
         arg.append(2)
         arg.append(["NAME:PhysicsTypes", "set:=", ["Thermal"]])
-        arg.append(["NAME:PhysicsTypes", "set:=", ["Thermal"]])
         arg.append("surface_emissivity:=")
-        arg.append(defaultEmissivity)
-        self.omaterial_manager.AddSurfaceMaterial(arg)
+        arg.append(str(defaultEmissivity))
+        self.odefinition_manager.AddSurfaceMaterial(arg)
         return defaultEmissivity
 
 
@@ -622,41 +599,6 @@ class Materials(object):
             return None
 
     @aedt_exception_handler
-    def setup_air_properties(self):
-        """Setup Air properties
-
-        :return:
-
-        Parameters
-        ----------
-
-        Returns
-        -------
-
-        """
-        self.omaterial_manager.EditMaterial("AIR",
-                                                ["NAME:AIR", "CoordinateSystemType:=", "Cartesian",
-                                                 "BulkOrSurfaceType:=", 1,
-                                                 ["NAME:PhysicsTypes", "set:=", ["Thermal"]],
-                                                 ["NAME:AttachedData",
-                                                  ["NAME:MatAppearanceData", "property_data:=", "appearance_data",
-                                                   "Red:=", 230,
-                                                   "Green:=", 230,
-                                                   "Blue:=", 230,
-                                                   "Transparency:=", 0.949999988079071]
-                                                  ],
-                                                 "thermal_conductivity:=", "0.0261",
-                                                 "mass_density:=", "1.1614",
-                                                 "specific_heat:=", "1005",
-                                                 "thermal_expansion_coeffcient:=", "0.003333",
-                                                 ["NAME:thermal_material_type", "property_type:=", "ChoiceProperty",
-                                                  "Choice:=", "Fluid"],
-                                                 "diffusivity:=", "2.92e-05",
-                                                 "molecular_mass:=", "0.028966",
-                                                 "viscosity:=", "1.853e-05"])
-        return True
-
-    @aedt_exception_handler
     def load_from_xml_full(self, Filename=None):
         """New Function for loading materials from XML. Previous version didn't allow read/write on the same file.
 
@@ -835,9 +777,9 @@ class Materials(object):
                         dataset.set("XName", ds.namex)
                         if ds.type:
                             dataset.set("type", ds.type)
-                        if ds.unit:
-                            dataset.set("unit", ds.unit)
-                        if ds.namex:
+                        if ds.unitx:
+                            dataset.set("unit", ds.unitx)
+                        if ds.namey:
                             dataset.set("YName", ds.namey)
                         if ds.namez:
                             dataset.set("ZName", ds.namez)
@@ -850,25 +792,26 @@ class Materials(object):
                     if matdata.thermalmodifier:
                         ds = matdata.thermalmodifier
                         dataset = ET.SubElement(data, 'DataSets')
-                        dataset.set("XName", ds.namex)
-                        if ds.type:
-                            dataset.set("type", ds.type)
-                        if ds.unitx:
-                            dataset.set("unitx", ds.unit)
-                        if ds.unity:
-                            dataset.set("unity", ds.unity)
-                        if ds.unitz:
-                            dataset.set("unitz", ds.uniz)
-                        if ds.namex:
-                            dataset.set("YName", ds.namey)
-                        if ds.namez:
-                            dataset.set("ZName", ds.namez)
-                        for el in ds.ds:
-                            datasetvalues = ET.SubElement(dataset, 'DataSet')
-                            datasetvalues.set("X", str(el[0]))
-                            datasetvalues.set("Y", str(el[1]))
-                            if len(el) > 2:
-                                datasetvalues.set("Z", str(el[2]))
+                        if type(ds) is not str:
+                            dataset.set("XName", ds.namex)
+                            if ds.type:
+                                dataset.set("type", ds.type)
+                            if ds.unitx:
+                                dataset.set("unitx", ds.unitx)
+                            if ds.unity:
+                                dataset.set("unity", ds.unity)
+                            if ds.unitz:
+                                dataset.set("unitz", ds.uniz)
+                            if ds.namex:
+                                dataset.set("YName", ds.namey)
+                            if ds.namez:
+                                dataset.set("ZName", ds.namez)
+                            for el in ds.ds:
+                                datasetvalues = ET.SubElement(dataset, 'DataSet')
+                                datasetvalues.set("X", str(el[0]))
+                                datasetvalues.set("Y", str(el[1]))
+                                if len(el) > 2:
+                                    datasetvalues.set("Z", str(el[2]))
 
             i += 1
         indent(header)

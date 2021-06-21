@@ -511,7 +511,7 @@ class Polyline(object):
         return duplicate
 
     @aedt_exception_handler
-    def remove_vertex(self, position, abstol=0.0):
+    def remove_vertex(self, position, abstol=1e-9):
         """ Remove a vertex from an existing polyline by position
 
         Removes a vertex from a polyline object. The user must enter the exact position of the vertex as a list
@@ -551,7 +551,7 @@ class Polyline(object):
         for ind, vertex_pos in enumerate(self.vertex_positions):
             # compare the specified point with the vertex data using an absolute tolerance
             # (default of math.isclose is 1e-9 which should be ok in almost all cases)
-            found_vertex = math.isclose(vertex_pos, pos_xyz, abs_tol=abstol)
+            found_vertex = GeometryOperators.points_distance(vertex_pos, pos_xyz) <= abstol
             if found_vertex:
                 if ind == len(self.vertex_positions) - 1:
                     seg_id = ind-1
@@ -797,11 +797,19 @@ class Primitives(object):
 
     @aedt_exception_handler
     def __getitem__(self, partId):
+        """Return an Object3D object for a given object id or object name
+
+        Parameters
+        ----------
+        partId : int or str
+            Object ID or object name from the 3D modeler
+
+        Returns
+        -------
+        Object3d
+
         """
-        :param partId: if integer try to get the object from id. if string, trying to get object from Name
-        :return: part object details
-        """
-        if type(partId) is int and partId in self.objects:
+        if isinstance(partId, int) and partId in self.objects:
             return self.objects[partId]
         elif partId in self.objects_names:
             return self.objects[self.objects_names[partId]]
@@ -809,6 +817,20 @@ class Primitives(object):
 
     @aedt_exception_handler
     def __setitem__(self, partId, partName):
+        """Rename an existing part in the 3D modler
+
+        Parameters
+        ----------
+        partId : int
+            Known object id of the part to be renamed
+
+        partName : str
+            New name for the part
+
+        Returns
+        -------
+
+        """
         self.objects[partId].name = partName
         return True
 
@@ -821,6 +843,11 @@ class Primitives(object):
     def odesign(self):
         """ """
         return self._parent.odesign
+
+    @property
+    def materials(self):
+        """ """
+        return self._parent.materials
 
     @property
     def defaultmaterial(self):
@@ -1230,49 +1257,53 @@ class Primitives(object):
         return Polyline(self, object_id=object_id)
 
     @aedt_exception_handler
-    def create_udp(self, dllName, udpPairs, szLib=None, name=None, udptye=None):
+    def create_udp(self, udp_dll_name, udp_parameters_list, upd_library='syslib', name=None, udptye="Solid"):
         """Create User Defined Primitive
 
-        :param dllName: dll name
-        :param udpPairs: udp pairs object
-        :param szLib: udp library
-        :param name: component name
-        :param udptye: udpy type
-        :return: object ID
+        Parameters
+        ----------
+        udp_dll_name :
+            dll name
+        udp_parameters_list :
+            udp pairs object
+        upd_library :
+            udp library (Default value = 'syslib')
+        name :
+            component name (Default value = None)
+        udptye :
+            udpy type (Default value = "Solid")
+
+        Returns
+        -------
+        type
+            object ID
+
         """
         id = self._new_id()
 
-        if not szLib:
-            szLib ='syslib'
-
-        if not udptye:
-            udptye = "Solid"
-
         o = self.objects[id]
-
-        if ".dll" not in dllName:
-            varg1 = ["NAME:UserDefinedPrimitiveParameters", "DllName:=", dllName+".dll", "Library:=", szLib]
+        if ".dll" not in udp_dll_name:
+            vArg1 = ["NAME:UserDefinedPrimitiveParameters", "DllName:=", udp_dll_name + ".dll", "Library:=", upd_library]
         else:
-            varg1 = ["NAME:UserDefinedPrimitiveParameters", "DllName:=", dllName, "Library:=", szLib]
+            vArg1 = ["NAME:UserDefinedPrimitiveParameters", "DllName:=", udp_dll_name, "Library:=", upd_library]
 
         vArgParamVector = ["NAME:ParamVector"]
 
-        for pair in udpPairs:
+        for pair in udp_parameters_list:
             if type(pair) is list:
                 vArgParamVector.append(["NAME:Pair", "Name:=", pair[0], "Value:=", pair[1]])
 
             else:
                 vArgParamVector.append(["NAME:Pair", "Name:=", pair.Name, "Value:=", pair.Value])
 
-        varg1 += ["NoOfParameters:=", len(udpPairs), "Version:=", "12.1"]
-        varg1.append(vArgParamVector)
+        vArg1.append(vArgParamVector)
         namergs = name.replace(".dll", "").split("/")
-        varg2 = o.export_attributes(namergs[-1])
-        print(varg2)
-
-        self.oeditor.CreateUserDefinedPart(varg1, varg2)
+        o.name = name
+        vArg2 = o.export_attributes(namergs[-1])
+        self.oeditor.CreateUserDefinedPart(vArg1, vArg2)
         id = self._update_object(o, udptye)
         return id
+
 
     @aedt_exception_handler
     def get_obj_name(self, partId):
@@ -1310,7 +1341,7 @@ class Primitives(object):
             objtosplit = [objtosplit]
         objnames = []
         for el in objtosplit:
-            if type(el) is int:
+            if type(el) is int and el in list(self.objects.keys()):
                 objnames.append(self.get_obj_name(el))
             else:
                 objnames.append(el)
@@ -1336,6 +1367,7 @@ class Primitives(object):
         """
         if type(objects) is not list:
             objects = [objects]
+
         while len(objects) > 100:
             objs = objects[:100]
             objects_str = self.convert_to_selections(objs, return_list=False)
@@ -1349,16 +1381,20 @@ class Primitives(object):
 
 
             objects = objects[100:]
+
         objects_str = self.convert_to_selections(objects, return_list=False)
         arg = [
             "NAME:Selections",
             "Selections:="	, objects_str
             ]
         self.oeditor.Delete(arg)
+
         for el in objects:
             self._delete_object_from_dict(el)
 
-        self.messenger.add_info_message("Deleted {} Objects".format(len(objects)))
+        if len(objects) > 0:
+            self.messenger.add_info_message("Deleted {} Objects".format(len(objects)))
+
         return True
 
     @aedt_exception_handler
@@ -2021,11 +2057,11 @@ class Primitives(object):
                         continue
                     elif pd1 >= pd2 and not GeometryOperators.is_projection_inside(vertex1_j, vertex2_j, vertex1_i, vertex2_i):
                         continue
-                if GeometryOperators.is_between_points(end_midpoint, vertex1_i,
-                                                       vertex1_j) or GeometryOperators.is_between_points(start_midpoint,
-                                                                                                         vertex2_i,
-                                                                                                         vertex2_j):
-                    continue
+                # if GeometryOperators.is_between_points(end_midpoint, vertex1_i,
+                #                                        vertex1_j) or GeometryOperators.is_between_points(start_midpoint,
+                #                                                                                          vertex2_i,
+                #                                                                                          vertex2_j):
+                #     continue
                 if actual_point is None:
                     edge_list = [el, el1]
                     is_parallel = parallel_edges
@@ -2335,7 +2371,7 @@ class Primitives(object):
 
         Returns
         -------
-        type
+        list
             An array as list of float [x, y, z] containing planar face center position
 
         """
@@ -2783,7 +2819,7 @@ class Primitives(object):
         return selected_edges
 
     @aedt_exception_handler
-    def get_edges_for_circuit_port_fromsheet(self, sheet, XY_plane=True, YZ_plane=True, XZ_plane=True,
+    def get_edges_for_circuit_port_from_sheet(self, sheet, XY_plane=True, YZ_plane=True, XZ_plane=True,
                                              allow_perpendicular=False, tol=1e-6):
         """Returns two edges ID suitable for the circuit port.
         One is belonging to the sheet passed in and the second one is the closest
@@ -2955,8 +2991,7 @@ class Primitives(object):
 
         # find the bodies to exclude
         port_sheet_midpoint = self.get_face_center(face_id)
-        point = self._modeler.Position(*port_sheet_midpoint)
-        list_of_bodies = self.get_bodynames_from_position(point)
+        list_of_bodies = self.get_bodynames_from_position(port_sheet_midpoint)
 
         # select all edges
         all_edges = []

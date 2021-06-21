@@ -298,3 +298,6 @@ class TestVariable:
         assert math.isclose(result_6.numeric_value, 104.81975511965)
         assert result_6.units == "rad_per_sec"
         assert result_6.unit_system == "AngularSpeed"
+
+    def test_11_delete_variable(self):
+        assert self.aedtapp.variable_manager.delete_variable("Var1")

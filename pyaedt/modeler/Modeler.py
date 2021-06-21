@@ -286,7 +286,7 @@ class CoordinateSystem(object):
 
         Returns
         -------
-        type
+        CoordinateSystem
             CS object
 
         """
@@ -490,6 +490,12 @@ class GeometryModeler(Modeler, object):
         Modeler.__init__(self, parent)
         self.coordinate_systems = self._get_coordinates_data()
         self._is3d = is3d
+
+    @property
+    def materials(self):
+        """ """
+        return self._parent.materials
+
 
     @aedt_exception_handler
     def _convert_list_to_ids(self,input_list, convert_objects_ids_to_name=True):
@@ -1035,8 +1041,8 @@ class GeometryModeler(Modeler, object):
             self.find_point_around(objectname,offset, sheet_dim, self._parent.CoordinateSystemPlane.YZPlane)
             p1 = self.primitives.draw_polyline([self.Position(start), self.Position(offset)])
             p2 = self.primitives.draw_polyline([self.Position(start), self.Position(offset)])
-            self.translate(p2, [axisdist, 0, 0])
-            self.connect([p1,p2])
+            self.translate(p2.id, [axisdist, 0, 0])
+            self.connect([p1.id,p2.id])
             #rect = self.primitives.create_rectangle(self._parent.CoordinateSystemPlane.XYPlane,  start,pos)
         elif divmod(axisdir,3)[1]== 1:
             self.find_point_around(objectname,offset, sheet_dim, self._parent.CoordinateSystemPlane.ZXPlane)
@@ -1091,25 +1097,13 @@ class GeometryModeler(Modeler, object):
 
     @aedt_exception_handler
     def _create_microstrip_sheet_from_object_closest_edge(self, startobj, endobject, axisdir, vfactor=3, hfactor=5):
-        """
+        def duplicate_and_unite(sheet_name, array1, array2, dup_factor):
+            status, list = self.duplicate_along_line(sheet_name, array1, dup_factor + 1)
+            status, list2 = self.duplicate_along_line(sheet_name, array2, dup_factor + 1)
+            list_unite.extend(list)
+            list_unite.extend(list2)
+            self.unite(list_unite)
 
-        Parameters
-        ----------
-        startobj :
-            
-        endobject :
-            
-        axisdir :
-            
-        vfactor :
-             (Default value = 3)
-        hfactor :
-             (Default value = 5)
-
-        Returns
-        -------
-
-        """
         tol = 1e-6
         out, parallel = self.primitives.find_closest_edges(startobj, endobject, axisdir)
         port_edges = self.primitives.get_equivalent_parallel_edges(out, True, axisdir, startobj, endobject)
@@ -1135,42 +1129,21 @@ class GeometryModeler(Modeler, object):
         list_unite = [sheet_name]
         dup_factor = divmod((hfactor + 1), 2)[0]
         coeff = (hfactor - 1) / 2 / dup_factor
+
+
         if divmod(axisdir, 3)[1] == 0 and abs(vect[1]) < tol:
-            status, list = self.duplicate_along_line(sheet_name, [0, len * coeff, 0], dup_factor + 1)
-            status, list2 = self.duplicate_along_line(sheet_name, [0, -len * coeff, 0], dup_factor + 1)
-            list_unite.extend(list)
-            list_unite.extend(list2)
-            self.unite(list_unite)
+            duplicate_and_unite(sheet_name, [0, len * coeff, 0],[0, -len * coeff, 0], dup_factor)
         elif divmod(axisdir, 3)[1] == 0 and abs(vect[2]) < tol:
-            status, list = self.duplicate_along_line(sheet_name, [0, 0, len * coeff], dup_factor + 1)
-            status, list2 = self.duplicate_along_line(sheet_name, [0, 0, -len * coeff], dup_factor + 1)
-            list_unite.extend(list)
-            list_unite.extend(list2)
-            self.unite(list_unite)
+            duplicate_and_unite(sheet_name, [0, 0, len * coeff], [0, 0, -len * coeff], dup_factor)
         elif divmod(axisdir, 3)[1] == 1 and abs(vect[0]) < tol:
-            status, list = self.duplicate_along_line(sheet_name, [len * coeff, 0, 0], dup_factor + 1)
-            status, list2 = self.duplicate_along_line(sheet_name, [-len * coeff, 0, 0], dup_factor + 1)
-            list_unite.extend(list)
-            list_unite.extend(list2)
-            self.unite(list_unite)
+            duplicate_and_unite(sheet_name, [len * coeff, 0, 0], [-len * coeff, 0, 0], dup_factor)
         elif divmod(axisdir, 3)[1] == 1 and abs(vect[2]) < tol:
-            status, list = self.duplicate_along_line(sheet_name, [0, 0, len * coeff], dup_factor + 1)
-            status, list2 = self.duplicate_along_line(sheet_name, [0, 0, -len * coeff], dup_factor + 1)
-            list_unite.extend(list)
-            list_unite.extend(list2)
-            self.unite(list_unite)
+            duplicate_and_unite(sheet_name, [0, 0, len * coeff], [0, 0, -len * coeff], dup_factor)
         elif divmod(axisdir, 3)[1] == 2 and abs(vect[0]) < tol:
-            status, list = self.duplicate_along_line(sheet_name, [len * coeff, 0, 0], dup_factor + 1)
-            status, list2 = self.duplicate_along_line(sheet_name, [-len * coeff, 0, 0], dup_factor + 1)
-            list_unite.extend(list)
-            list_unite.extend(list2)
-            self.unite(list_unite)
+            duplicate_and_unite(sheet_name, [len * coeff, 0, 0], [-len * coeff, 0, 0], dup_factor)
         elif divmod(axisdir, 3)[1] == 2 and abs(vect[1]) < tol:
-            status, list = self.duplicate_along_line(sheet_name, [0, len * coeff, 0], dup_factor + 1)
-            status, list2 = self.duplicate_along_line(sheet_name, [0, -len * coeff, 0], dup_factor + 1)
-            list_unite.extend(list)
-            list_unite.extend(list2)
-            self.unite(list_unite)
+            duplicate_and_unite(sheet_name,  [0, len * coeff, 0], [0, -len * coeff, 0], dup_factor)
+
 
         return sheet_name, point0, point1
 
@@ -1342,7 +1315,7 @@ class GeometryModeler(Modeler, object):
             objtosplit = [objtosplit]
         objnames = []
         for el in objtosplit:
-            if type(el) is int:
+            if type(el) is int and el in list(self.primitives.objects.keys()):
                 objnames.append(self.primitives.get_obj_name(el))
             else:
                 objnames.append(el)
@@ -1640,7 +1613,7 @@ class GeometryModeler(Modeler, object):
 
 
     @aedt_exception_handler
-    def sweep_around_axis(self, objid, cs_axis, sweep_angle=0, draft_angle=0):
+    def sweep_around_axis(self, objid, cs_axis, sweep_angle=360, draft_angle=0):
         """Sweep selection aroun axis
 
         Parameters
@@ -1662,7 +1635,7 @@ class GeometryModeler(Modeler, object):
 
 
         vArg1 = ['NAME:Selections', 'Selections:=', selections, 'NewPartsModelFlag:=', 'Model']
-        vArg2 = ['NAME:AxisSweepParameters', 'CoordinateSystemID:=', -1, 'DraftAngle:=',
+        vArg2 = ['NAME:AxisSweepParameters', 'DraftAngle:=',
                  self.primitives.arg_with_dim(draft_angle, 'deg'),
                  'DraftType:=', 'Round', 'CheckFaceFaceIntersection:=', False, 'SweepAxis:=', GeometryOperators.cs_axis_str(cs_axis),
                  'SweepAngle:=', self.primitives.arg_with_dim(sweep_angle, 'deg'), 'NumOfSegments:=', '0']
@@ -2889,49 +2862,27 @@ class GeometryModeler(Modeler, object):
 
     @aedt_exception_handler
     def get_object_name_from_edge_id(self, edge_id):
-        """
+        """Return object name for a predefined edge id
 
         Parameters
         ----------
-        edge_id :
+        edge_id : int
+            Edge Id
             
 
         Returns
         -------
-
+        str
+            Object name if exists
         """
-        assert "Edge" in edge_id, "Invalid Edge {0}".format(edge_id)
-        edge_id = edge_id.replace("Edge", "")
-        all_objects = self.solid_bodies
-        for object in all_objects:
-            oEdgeIDs = self.oeditor.GetEdgeIDsFromObject(object)
-            if edge_id in oEdgeIDs:
-                return object
-        return None
-
-    @aedt_exception_handler
-    def solid_ids(self, txtfilter=None):
-        """Create a directory of object IDs with key as object name.
-
-        Parameters
-        ----------
-        txtfilter :
-             (Default value = None)
-
-        Returns
-        -------
-
-        """
-        objects = self.solid_bodies
-
-        # Apply text filter on object names.
-        if txtfilter is not None:
-            objects = [n for n in objects if txtfilter in n]
-
-        object_ids = {}
-        for o in objects:
-            object_ids[o] = str(self.oeditor.GetObjectIDByName(o))
-        return object_ids
+        for object in list(self.primitives.objects_names.keys()):
+            try:
+                oEdgeIDs = self.oeditor.GetEdgeIDsFromObject(object)
+                if str(edge_id) in oEdgeIDs:
+                    return object
+            except:
+                return False
+        return False
 
     @aedt_exception_handler
     def get_solving_volume(self):
@@ -3308,136 +3259,6 @@ class GeometryModeler(Modeler, object):
         return sel
 
     @aedt_exception_handler
-    def select_ext_faces(self, mats):
-        """This algorithm tries to select all external faces of a list of objects.
-
-        Parameters
-        ----------
-        mats :
-            list of materials to be included into the search. All objects with this materials will be included
-            :output sel: list of faces
-
-        Returns
-        -------
-
-        """
-        self.messenger.add_info_message("Selecting Outer Faces")
-
-        sel = []
-        if type(mats) is str:
-            mats=[mats]
-        for mat in mats:
-            objs = list(self.oeditor.GetObjectsByMaterial(mat))
-            objs.extend(list(self.oeditor.GetObjectsByMaterial(mat.lower())))
-            Id = []
-            aedt_bounding_box = self.get_model_bounding_box()
-            ObjName = []
-            for obj in objs:
-                oVertexIDs = self.oeditor.GetVertexIDsFromObject(obj)
-                found = False
-                for vertex in oVertexIDs:
-                    position = self.oeditor.GetVertexPosition(vertex)
-                    if not found and (
-                            position[0] == str(aedt_bounding_box[0]) or position[1] == str(aedt_bounding_box[1]) or
-                            position[2] == str(aedt_bounding_box[2]) or position[0] == str(aedt_bounding_box[3]) or
-                            position[1] == str(aedt_bounding_box[4]) or position[2] == str(aedt_bounding_box[5])):
-                        Id.append(self.oeditor.GetObjectIDByName(obj))
-                        ObjName.append(obj)
-                        found = True
-            for i in ObjName:
-                oVertexIDs = self.oeditor.GetVertexIDsFromObject(i)
-                bounding = [1e6, 1e6, 1e6, -1e6, -1e6, -1e6]
-
-                for vertex in oVertexIDs:
-                    pos = self.oeditor.GetVertexPosition(vertex)
-                    position = []
-                    position.append(float(pos[0]))
-                    position.append(float(pos[1]))
-                    position.append(float(pos[2]))
-
-                    if position[0] <= bounding[0]:
-                        bounding[0] = position[0]
-                    if position[1] <= bounding[1]:
-                        bounding[1] = position[1]
-                    if position[2] <= bounding[2]:
-                        bounding[2] = position[2]
-                    if position[0] >= bounding[3]:
-                        bounding[3] = position[0]
-                    if position[1] >= bounding[4]:
-                        bounding[4] = position[1]
-                    if position[2] >= bounding[5]:
-                        bounding[5] = position[2]
-
-                oFaceIDs = self.oeditor.GetFaceIDs(i)
-
-                for facce in oFaceIDs:
-                    for pos in bounding:
-                        fbounding = [1e6, 1e6, 1e6, -1e6, -1e6, -1e6]
-                        oFaceVertexIDs = self.oeditor.GetVertexIDsFromFace(facce)
-                        for fvertex in oFaceVertexIDs:
-                            fpos = self.oeditor.GetVertexPosition(fvertex)
-                            fposition = []
-                            fposition.append(float(fpos[0]))
-                            fposition.append(float(fpos[1]))
-                            fposition.append(float(fpos[2]))
-                            if fposition[0] < fbounding[0]:
-                                fbounding[0] = fposition[0]
-                            if fposition[1] < fbounding[1]:
-                                fbounding[1] = fposition[1]
-                            if fposition[2] < fbounding[2]:
-                                fbounding[2] = fposition[2]
-                            if fposition[0] > fbounding[3]:
-                                fbounding[3] = fposition[0]
-                            if fposition[1] > fbounding[4]:
-                                fbounding[4] = fposition[1]
-                            if fposition[2] > fbounding[5]:
-                                fbounding[5] = fposition[2]
-
-                        if fbounding[0] <= aedt_bounding_box[0] or fbounding[1] <= aedt_bounding_box[1] \
-                                or fbounding[2] <= aedt_bounding_box[2] or fbounding[3] >= aedt_bounding_box[3] \
-                                or fbounding[4] >= aedt_bounding_box[4] or fbounding[5] >= aedt_bounding_box[5]:
-                            fx1 = (fbounding[0] + fbounding[3]) / 2
-                            fx2 = (fbounding[1] + fbounding[4]) / 2
-                            fx3 = (fbounding[2] + fbounding[5]) / 2
-                            inside = False
-                            for k in ObjName:
-                                if i != k:
-                                    oVertexIDs2 = self.oeditor.GetVertexIDsFromObject(k)
-                                    bounding2 = [1e6, 1e6, 1e6, -1e6, -1e6, -1e6]
-                                    for vertex2 in oVertexIDs2:
-                                        pos = self.oeditor.GetVertexPosition(vertex2)
-                                        position = []
-                                        position.append(float(pos[0]))
-                                        position.append(float(pos[1]))
-                                        position.append(float(pos[2]))
-                                        if position[0] <= bounding2[0]:
-                                            bounding2[0] = position[0]
-                                        if position[1] <= bounding2[1]:
-                                            bounding2[1] = position[1]
-                                        if position[2] <= bounding2[2]:
-                                            bounding2[2] = position[2]
-                                        if position[0] >= bounding2[3]:
-                                            bounding2[3] = position[0]
-                                        if position[1] >= bounding2[4]:
-                                            bounding2[4] = position[1]
-                                        if position[2] >= bounding2[5]:
-                                            bounding2[5] = position[2]
-                                    if (bounding2[3] >= fx1 >= bounding2[0] and
-                                            bounding2[4] >= fx2 >= bounding2[1] and
-                                            bounding2[5] >= fx3 >= bounding2[2]):
-                                        if (bounding2[3] >= fbounding[0] >= bounding2[0] and
-                                                bounding2[4] >= fbounding[1] >= bounding2[1] and
-                                                bounding2[5] >= fbounding[2] >= bounding2[2]):
-                                            inside = True
-
-                            if not inside:
-                                for fpos in fbounding:
-                                    if fpos == pos:
-                                        if int(facce) not in sel:
-                                            sel.append(int(facce))
-        return sel
-
-    @aedt_exception_handler
     def setunassigned_mats(self):
         """It checks for unassagned objects and set them to unmodel"""
         oObjects = list(self.oeditor.GetObjectsInGroup("Solids"))
@@ -3448,14 +3269,15 @@ class GeometryModeler(Modeler, object):
         return True
 
     @aedt_exception_handler
-    def thicken_sheets(self, inputlist, value, internalExtr=True, internalvalue=1):
-        """thicken_sheets: create thicken sheets of value "mm" over the full list of input faces inputlist
+    def automatic_thicken_sheets(self, inputlist, value, internalExtr=True, internalvalue=1):
+        """thicken_sheets: create thicken sheets of value "mm" over the full list of input faces inputlist.
+        The method automatically check which direction the thicken sheet
 
         Parameters
         ----------
-        inputlist :
+        inputlist : list
             list of faces to thicken
-        value :
+        value : str
             value in mm to thicken
         internalExtr :
             define if the sheet must also be extruded internally (Default value = True)
@@ -3468,6 +3290,7 @@ class GeometryModeler(Modeler, object):
         """
         aedt_bounding_box = self.get_model_bounding_box()
         directions = {}
+        inputlist = self.convert_to_selections(inputlist, True)
         for el in inputlist:
             objID = self.oeditor.GetFaceIDs(el)
             faceCenter = self.oeditor.GetFaceCenter(int(objID[0]))
@@ -3642,7 +3465,6 @@ class GeometryModeler(Modeler, object):
         """Groups the objects or the groups into one group.
         It is not possible to choose the name.
         If objects is not specified it will reate a group with all the objects.
-        TODO: unit test
 
         Parameters
         ----------
@@ -3695,50 +3517,38 @@ class GeometryModeler(Modeler, object):
     @aedt_exception_handler
     def ungroup(self, groups):
         """ugroup one or more groups
-        TODO: unit test
 
         Parameters
         ----------
-        groups :
+        groups : list
             list of group names
 
         Returns
         -------
-        type
+        bool
             True if succeeded, False otherwise
 
         """
         group_list = self.convert_to_selections(groups, return_list=True)
         arg = ["Groups:=", group_list]
-        try:
-            self.oeditor.Ungroup(arg)
-        except:
-            return False
-        else:
-            return True
+        self.oeditor.Ungroup(arg)
+        return True
 
     @aedt_exception_handler
     def flatten_assembly(self):
         """flatten the entire assembly removing all group trees
-        TODO: unit test
-        
+
         :return: True if succeeded, False otherwise
 
-        Parameters
-        ----------
 
         Returns
         -------
-
+        bool
         """
-        try:
-            self.oeditor.FlattenGroup(
-                [
-                    "Groups:=", ["Model"]
-                ])
-        except:
-            return False
-        else:
-            return True
+        self.oeditor.FlattenGroup(
+            [
+                "Groups:=", ["Model"]
+            ])
+        return True
 
 

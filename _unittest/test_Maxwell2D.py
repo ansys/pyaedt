@@ -1,19 +1,7 @@
 #!/ekm/software/anaconda3/bin/python
-############################################################################
-##                                                                        ##
-## Copyright (c) 2019 by ANSYS Inc. All rights reserved.                  ##
-##                                                                        ##
-## This source file may be used and distributed without restriction       ##
-## provided that this copyright statement is not removed from the file    ##
-## and that any derivative work contains this copyright notice.           ##
-##                                                                        ##
-## Warranty                                                               ##
-## ANSYS Inc. makes no warranty of any kind with regard to the use of     ##
-## this Software, either expressed or implied, including, but not limited ##
-## to the fitness for a particular purpose.                               ##
-##                                                                        ##
-## #########################################################################
+
 import os
+import pytest
 # Setup paths for module imports
 from .conftest import local_path, scratch_path
 
@@ -67,7 +55,7 @@ class TestMaxwell2D:
         assert isinstance(id1, Polyline)
 
 
-    def test_03_create_setup(self):
+    def test_03_assign_initial_mesh_from_slider(self):
         assert self.aedtapp.mesh.assign_initial_mesh_from_slider(4)
 
     def test_04_create_winding(self):
@@ -87,11 +75,33 @@ class TestMaxwell2D:
         bound2 = self.aedtapp.assign_vector_potential("myline", 2)
         assert bound2
         assert bound2.props["Value"] == "2"
+        assert bound2.update()
+
+    def test_06_create_region(self):
+        self.aedtapp.modeler.primitives.delete("Region")
+        assert self.aedtapp.modeler.primitives.create_region([100, 100, 100, 100, 100, 100])
+
 
     def test_06a_create_setup(self):
         mysetup = self.aedtapp.create_setup()
         mysetup.props["SaveFields"] = True
         assert mysetup.update()
 
+    def test_08_generate_design_data(self):
+        assert self.aedtapp.generate_design_data()
 
+    def test_read_design_data(self):
+        self.aedtapp.read_design_data()
 
+    @pytest.mark.parametrize("material", ["ceramic_material", # material not in library
+                                          "steel_stainless"])  # material already in library
+    def test_07_assign_material(self, material):
+        self.aedtapp.assignmaterial(["Rectangle1"], material)
+        assert self.aedtapp.modeler.primitives["Rectangle1"].material_name == material
+
+    def test_assign_torque(self):
+        self.aedtapp.solution_type = self.aedtapp.SolutionTypes.Maxwell2d.MagnetostaticXY
+        assert self.aedtapp.assign_torque("Rectangle1")
+
+    def test_assign_force(self):
+        assert self.aedtapp.assign_force("Rectangle1")

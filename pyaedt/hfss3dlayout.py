@@ -1,5 +1,6 @@
 """
-HFSS 3D Layout Class.
+Introduction
+------------------
 
 This class contains all HFSS 3D Layout functionalities. It inherits
 all objects that belong to HFSS 3D Layout, including EDB API queries.
@@ -8,28 +9,25 @@ all objects that belong to HFSS 3D Layout, including EDB API queries.
 Examples
 --------
 
-Create an ``Hfss3dLayout`` object and connect to an existing HFSS
-design or create a new HFSS design if one does not exist.
+Create an ``Hfss3dLayout`` object and connect to an existing HFSS design or create a new HFSS design if one does not exist.
 
->>> hfss = Hfss3dLayout()
+>>> aedtapp = Hfss3dLayout()
 
-Create an ``Hfss3dLayout`` object and link to a project named
-``projectname``. If this project does not exist, create a new one with
-this name.
+Create an ``Hfss3dLayout`` object and link to a project named ``projectname``. If this project does not exist, create one with this name.
 
->>> hfss = Hfss3dLayout(projectname)
+>>> aedtapp = Hfss3dLayout(projectname)
 
-Create an ``Hfss3dLayout`` object and link to a design named
-``designname`` in a project named ``projectname``.
+Create an ``Hfss3dLayout`` object and link to a design named ``designname`` in a project named ``projectname``.
 
->>> hfss = Hfss3dLayout(projectname, designame)
+>>> aedtapp = Hfss3dLayout(projectname,designame)
 
-Create an ``Hfss3dLayout object`` and open the specified project.
+Create an ``Hfss3dLayout`` object and open the specified project.
 
->>> hfss = Hfss3dLayout("myfile.aedt")
+>>> aedtapp = Hfss3dLayout("myfile.aedt")
 
+Create a ``Desktop on 2021R1`` object and then creates an ``Hfss3dLayout`` object and open the specified project.
 
-========================================================
+>>> aedtapp = Hfss3dLayout(specified_version="2021.1", projectname="myfile.aedt")
 
 """
 
@@ -122,9 +120,10 @@ class Hfss3dLayout(FieldAnalysis3DLayout, object):
 
     """
 
-    def __init__(self, projectname=None, designname=None, solution_type=None, setup_name=None):
+    def __init__(self, projectname=None, designname=None, solution_type=None, setup_name=None,
+                 specified_version=None, NG=False, AlwaysNew=True, release_on_exit=True):
         FieldAnalysis3DLayout.__init__(self, "HFSS 3D Layout Design", projectname, designname, solution_type,
-                                       setup_name)
+                                       setup_name, specified_version, NG, AlwaysNew, release_on_exit)
 
     def __enter__(self):
         return self
@@ -393,14 +392,9 @@ class Hfss3dLayout(FieldAnalysis3DLayout, object):
         return val_list, validation_ok  # return all the info in a list for use later
 
     @aedt_exception_handler
-    def create_scattering(self, PlotName="S Parameter Plot Nominal", sweep_name=None, PortNames=None, PortExcited=None, variations=None ):
+    def create_scattering(self, plot_name="S Parameter Plot Nominal", sweep_name=None, port_names=None, port_excited=None, variations=None):
         """Create scattering Report
         
-        
-        sweeps = design eXploration variations (list or str)
-        PortNames = (list of str)
-        PortExcited = (str)
-        :return:
 
         Parameters
         ----------
@@ -419,8 +413,6 @@ class Hfss3dLayout(FieldAnalysis3DLayout, object):
         -------
 
         """
-        # set plot name
-        # Setup arguments list for CreateReport function
         Families = ["Freq:=", ["All"]]
         if variations:
             Families +=variations
@@ -428,11 +420,11 @@ class Hfss3dLayout(FieldAnalysis3DLayout, object):
             Families += self.get_nominal_variation()
         if not sweep_name:
             sweep_name = self.existing_analysis_sweeps[1]
-        if not PortNames:
-            PortNames = self.modeler.get_excitations_name()
-        if not PortExcited:
-            PortExcited= PortNames
-        Trace = ["X Component:=", "Freq", "Y Component:=", ["dB(S(" + p + "," + q + "))" for p,q in zip(list(PortNames), list(PortExcited))]]
+        if not port_names:
+            port_names = self.modeler.get_excitations_name()
+        if not port_excited:
+            port_excited= port_names
+        Trace = ["X Component:=", "Freq", "Y Component:=", ["dB(S(" + p + "," + q + "))" for p,q in zip(list(port_names), list(port_excited))]]
         solution_data = ""
         if self.solution_type == "DrivenModal":
             solution_data = "Modal Solution Data"
@@ -441,7 +433,7 @@ class Hfss3dLayout(FieldAnalysis3DLayout, object):
         if solution_data != "":
             # run CreateReport function
             self.post.oreportsetup.CreateReport(
-                PlotName,
+                plot_name,
                 solution_data,
                 "Rectangular Plot",
                 sweep_name,
@@ -452,8 +444,6 @@ class Hfss3dLayout(FieldAnalysis3DLayout, object):
             return True
         else:
             return False
-
-        # export the image
 
     @aedt_exception_handler
     def export_touchstone(self, solutionname, sweepname, filename, variation, variations_value):
@@ -513,7 +503,7 @@ class Hfss3dLayout(FieldAnalysis3DLayout, object):
         return True
 
     @aedt_exception_handler
-    def set_export_touchstone(self, activate):
+    def set_export_touchstone(self, activate, export_dir=""):
         """Set automatic export of the Touchstone file after the simulation is ``True``.
 
         Parameters
@@ -530,16 +520,16 @@ class Hfss3dLayout(FieldAnalysis3DLayout, object):
 
         settings = []
         if activate:
-            settings.append("NAME:Design Settings Data")
-            settings.append("Export After Simulation:=")
+            settings.append("NAME:options")
+            settings.append("ExportAfterSolve:=")
             settings.append(True)
-            settings.append("Export Dir:=")
-            settings.append("")
+            settings.append("ExportDir:=")
+            settings.append(export_dir)
         elif not activate:
-            settings.append("NAME:Design Settings Data")
-            settings.append("Export After Simulation:=")
+            settings.append("NAME:options")
+            settings.append("ExportAfterSolve:=")
             settings.append(False)
-        self.odesign.SetDesignSettings(settings)
+        self.odesign.DesignOptions(settings, 0)
         return True
 
     @aedt_exception_handler
