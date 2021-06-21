@@ -4,7 +4,7 @@
    contain the root `toctree` directive.
 
 Circuit Setup
-===================================
+=============
 
 .. autoclass:: pyaedt.modules.SolveSetup.SetupCircuit
     :members:
