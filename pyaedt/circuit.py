@@ -18,11 +18,11 @@ Create an instance of ``Circuit`` and link to a design named ``designname`` in a
 
 >>> aedtapp = Circuit(projectname,designame)
 
-Create an instance of ``Circuit`` and open the specified project.
+Create an instance of ``Circuit`` and open the specified project, which is ``myfie.aedt``.
 
 >>> aedtapp = Circuit("myfile.aedt")
 
-Create an instance of ``Circuit`` using the 2021 R1 version and open the specified project, which is``myfie.aedt``.
+Create an instance of ``Circuit`` using the 2021 R1 version and open the specified project, which is ``myfie.aedt``.
 
 >>> aedtapp = Circuit(specified_version="2021.1", projectname="myfile.aedt")
 
@@ -197,6 +197,18 @@ class Circuit(FieldAnalysisCircuit, object):
     setup_name : str, optional
         Name of the setup to use as the nominal. The default is ``None``. If ``None``, the active setup 
         is used or nothing is used.
+    specified_version: str, optional
+        Version of AEDT to use. The default is ``None``. If ``None``, the
+        active setup is used or the latest installed version is used.
+    NG: bool, optional
+        Whether to launch AEDT in the non-graphical mode. The default 
+        is ``False``, which launches AEDT in the graphical mode.
+    AlwaysNew: bool, optional
+        Whether to launch an instance of AEDT in a new thread, even if 
+        another instance of the ``specified_version`` is active on the machine.
+        The default is ``True``.
+    release_on_exit: bool, optional
+        Whether to release AEDT on exit. The default is ``True``.
 
     """
 
@@ -228,10 +240,12 @@ class Circuit(FieldAnalysisCircuit, object):
 
     @aedt_exception_handler
     def create_schematic_from_netlist(self, file_to_import):
-        """Create a circuit schematic from a spice netlist.
+        """Create a circuit schematic from a HSpice netlist.
 
-        Supported in this moment:
+        Supported currently:
+        
         -R, L, C, Diodes, Bjts
+        
         -Discrete components with syntax Uxxx net1 net2 ... netn modname
 
         Parameters
@@ -242,7 +256,7 @@ class Circuit(FieldAnalysisCircuit, object):
         Returns
         -------
         bool
-            True if completed
+             ``True`` when successful, ``False`` when failed.
         """
         xpos = 0
         ypos = 0
@@ -430,14 +444,17 @@ class Circuit(FieldAnalysisCircuit, object):
     @aedt_exception_handler
     def create_schematic_from_mentor_netlist(self, file_to_import):
         """Create a circuit schematic from a Mentor netlist.
+        
         Supported currently:
+        
         -R, L, C, Diodes, Bjts
+        
         -Discrete components with syntax Uxxx net1 net2 ... netn modname
 
         Parameters
         ----------
         file_to_import : str
-            Full path to the spice file.
+            Full path to the HSpice file.
 
         Returns
         -------
@@ -555,7 +572,7 @@ class Circuit(FieldAnalysisCircuit, object):
 
     @aedt_exception_handler
     def retrieve_mentor_comp(self, refid):
-        """Identifies from the reference ID the type of Mentor Netlist component.
+        """Retrieve the type of the Mentor Netlist component for the specified reference ID.
 
         Parameters
         ----------
@@ -565,7 +582,7 @@ class Circuit(FieldAnalysisCircuit, object):
         Returns
         -------
         str
-            refid Nexxim Type
+            Type of Mentor Netlist comoponet
         """
         if refid[1] == "R":
             return "resistor:RES."
@@ -582,27 +599,24 @@ class Circuit(FieldAnalysisCircuit, object):
 
     @aedt_exception_handler
     def get_source_pin_names(self, source_design_name, source_project_name=None, source_project_path=None, port_selector=3):
-        """Port_selector:
-        - 1 Wave Port
-        - 2 Terminal
-        - 3 Circuit Port
-
+        """Lists the pin names.
+        
         Parameters
         ----------
-        source_project_name :str
-            Name of the source project.
         source_design_name : str
             Name of the source design.
+        source_project_name :str, None
+            Name of the source project. The default is ``None``.
         source_project_path : str, optional
-            Path to the source project path if different than the existsting path. The default is ``None``.
+            Path to the source project if different than the existsting path. The default is ``None``.
         port_selector : int, optional
-             The type of port. Chocies are ``1``, ``2``, or ``3``, corresponding respectively to a wave port, terminal, or circuit.
+             The type of port. Choices are ``1``, ``2``, or ``3``, corresponding respectively to ``"Wave Port"``, ``"Terminal"``, or ``"Circuit Port"``.
              The default is ``3``, which is a circuit.
 
         Returns
         -------
         list
-            pin lists
+            List of pin names.
         """
 
         if not source_project_name or self.project_name == source_project_name:
@@ -628,7 +642,7 @@ class Circuit(FieldAnalysisCircuit, object):
 
     @aedt_exception_handler
     def import_touchstone_solution(self, filename, solution_name="Imported_Data"):
-        """ Import Touchstone file as the solution.
+        """ Import a Touchstone file as the solution.
 
         Parameters
         ----------
@@ -640,7 +654,7 @@ class Circuit(FieldAnalysisCircuit, object):
         Returns
         -------
         list
-            list of ports
+            List of ports.
         """
         if filename[-2:] == "ts":
             with open(filename, "r") as f:
@@ -687,7 +701,7 @@ class Circuit(FieldAnalysisCircuit, object):
                               poles=10000):
         """
         This method doesn't work.
-        Export Full Wave Spice using NDE.
+        Export Full Wave HSpice file using NDE.
 
         Parameters
         ----------
@@ -699,7 +713,7 @@ class Circuit(FieldAnalysisCircuit, object):
         is_solution_file: bool, optional
             Whether it is an imported solution file. The default is ``False``. 
         filename: str, optional
-            Full path to the exported spice file.  The default is ``None``.
+            Full path to the exported HSpice file.  The default is ``None``.
         passivity: bool, optional
             The default is ``None``.
         causality: bool, optional
@@ -716,7 +730,7 @@ class Circuit(FieldAnalysisCircuit, object):
         Returns
         -------
         str
-            The file name if the export is successful.
+            File name if the export is successful.
         """
         if not designname:
             designname = self.design_name
