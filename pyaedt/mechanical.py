@@ -17,11 +17,11 @@ Create an instance of ``Mechanical`` and link to a design named ``"designname"``
 
 >>> aedtapp = Mechanical(projectname,designame)
 
-Create an instance of ``Mechanical`` and open the specified project.
+Create an instance of ``Mechanical`` and open the specified project, which is named ``myfile.aedt``.
 
 >>> aedtapp = Mechanical("myfile.aedt")
 
-Create a ``Desktop on 2021R1`` object and then creates an ``Mechanical`` object and open the specified project.
+Create a ``Desktop on 2021R1`` object and then creates an ``Mechanical`` object and open the specified project, which is named ``myfile.aedt``.
 
 >>> aedtapp = Mechanical(specified_version="2021.1", projectname="myfile.aedt")
 
@@ -380,7 +380,7 @@ class Mechanical(FieldAnalysis3D, object):
     def existing_analysis_sweeps(self):
         """Return a list of existing analysis setups.
                 
-        :return: Return a list of all defined analysis setup names in the Maxwell design.
+        :return: Return a list of all defined analysis setup names in the Mechanical design.
 
         Parameters
         ----------
