@@ -191,7 +191,7 @@ class TestEDB:
     def test_delete_component(self):
         assert self.edbapp.core_components.delete_component("R1")
 
-    def test_create_coax_port(self):
+    def test_create_coax_port(self):c
         assert self.edbapp.core_hfss.create_coax_port_on_component("U2A5","V1P0_S0")
 
     def test_create_siwave_circuit_port(self):
