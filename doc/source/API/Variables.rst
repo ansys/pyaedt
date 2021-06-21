@@ -4,7 +4,7 @@
    contain the root `toctree` directive.
 
 Variables
-===================================
+=========
 
 .. automodule:: pyaedt.application.Variables
     :members:
