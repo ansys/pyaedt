@@ -57,7 +57,7 @@ Follow these practices when contributing directly to the PyAEDT repository.
 
 3. Test it. Because Python is an interperted language, if it's not tested, it's probably broken. At the minimum, include a unit test for each new feature within the ``tests`` directory. Ensure that each new method, class, or function has reasonable (>90% coverage).
 
-4. Do not include any data sets for which a license is not available or commercial use is prohibited.
+4. Do not include any datasets for which a license is not available or commercial use is prohibited.
 
 5. Review our Code of Conduct.
 
@@ -81,7 +81,7 @@ Creating a New Pull Request
 
 Once you have tested your branch locally, create a pull request on PyAEDT and target your merge to ``master``. This will automatically run continuous integration (CI) testing and verify your changes will work across all supported platforms.
 
-For code verification, someone from the PyAnsys developerment team will review your code to verify that it meets our standards. Once your code is approved, if you have write permission, you may merge the PR branch. If you don't have write permission, the reviewer or someone else with write permission will merge and delete the PR branch.
+For code verification, someone from the PyAnsys development team will review your code to verify that it meets our standards. Once your code is approved, if you have write permission, you may merge the PR branch. If you don't have write permission, the reviewer or someone else with write permission will merge and delete the PR branch.
 
 If your PR brnach is a ``fix/`` branch, do not delete it because it may be necessary to merge your PR branch with the current release branch. See the next section for branch naming conventions.
 
@@ -142,11 +142,11 @@ General usage and API descriptions should be placed within `docs/source` and met
 
 Documentation Style and Organization
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-Docstrings should follow the numpy guidelines. Documentation from `docs/` use reStructuredText format. Examples from `examples/` should be PEP8 compliant and will be compiled dynamically during the build process. Always ensure that they run properly locally as they will be verified through the continuous integration performed on GitHub Actions.
+Docstrings should follow the numpy guidelines. Documentation from `doc/` use reStructuredText format. Examples from `examples/` should be PEP8 compliant and will be compiled dynamically during the build process. Always ensure that they run properly locally as they will be verified through the continuous integration performed on GitHub Actions.
 
 Building the Documentation Locally
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-Documentation for PyAEDT is hosted at docs.pyansys.com and is automatically built and deployed using GitHub Actions. You can build and verify the HTML documentation locally by installing Sphinx and the other documentation build dependencies by running the following from the PyAEDT source directory.
+Documentation for PyAEDT is hosted at aedtdocs.pyansys.com and is automatically built and deployed using GitHub Actions. You can build and verify the HTML documentation locally by installing Sphinx and the other documentation build dependencies by running the following from the PyAEDT source directory.
 
 First, optionally install PyAEDT in development mode with:
 
@@ -192,7 +192,7 @@ Branching Model
 This project has a branching model that enables rapid development of features without sacrificing stability. This branching model closely follows the trunk-based development approach.
 
 - The master branch is the main development branch. All features, patches, and other branches should be merged here. While all PRs should pass all applicable CI checks, this branch may be functionally unstable as changes might have introduced unintended side-effects or bugs that were not caught through unit testing.
-- There will be one or many release/ branches based on minor releases (for example ``release/0.2``) that contain a stable version of the code base, which is also reflected on ``PyPi/``. Hotfixes from ``fix/`` branches should be merged both to ``master`` and to these branches. When create a new patch release is necessary, these release branches will have their `__version__.py` updated and be tagged with a patched semantic version (for example ``0.2.1``). This triggers CI to push to PyPi, and allows us to rapidly push hotfixes for past versions of PyAEDST without having to worry about untested features.
+- There will be one or many release/ branches based on minor releases (for example ``release/0.2``) that contain a stable version of the code base, which is also reflected on ``PyPi/``. Hotfixes from ``fix/`` branches should be merged both to ``master`` and to these branches. When create a new patch release is necessary, these release branches will have their `__version__.py` updated and be tagged with a patched semantic version (for example ``0.2.1``). This triggers CI to push to PyPi, and allows us to rapidly push hotfixes for past versions of PyAEDT without having to worry about untested features.
 - When a minor release candidate is ready, a new release branch will be created from ``master`` with the next incremented minor version (for example release/0.2), which will be thoroughly tested. When deemed stable, the release branch will be tagged with the version (``0.2.0`` in this case), and if necessary merged with ``master`` if any changes were pushed to it. Feature development then continues on ``master`` and any hotfixes will now be merged with this release. Older release branches should not be deleted so they can be patched if needed.
 
 Minor Release Steps
