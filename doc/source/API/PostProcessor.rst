@@ -6,7 +6,7 @@
 
 
 Postprocessing
-===================================
+==============
 .. automodule:: pyaedt.modules.PostProcessor
     :members:
 
