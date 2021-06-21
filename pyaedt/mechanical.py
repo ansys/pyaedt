@@ -383,7 +383,6 @@ class Mechanical(FieldAnalysis3D, object):
         """Return a list of existing analysis setups in the Mechanical design.
                 
         
-        Parameters
         ----------
 
         Returns
