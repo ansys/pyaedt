@@ -260,7 +260,7 @@ class Mechanical(FieldAnalysis3D, object):
         """Assign a uniform temperature boundary.
         
         .. note::	
-		This method works only in a Mechanical thermal analysis.
+	     This method works only in a Mechanical thermal analysis.
 
         Parameters
         ----------
@@ -344,8 +344,8 @@ class Mechanical(FieldAnalysis3D, object):
     def assign_fixed_support(self, objects_list,  boundary_name=""):
         """Assign a Mechanical fixed support. 
         
-      	.. note::	
-		This method works only in a Mechanical structural analysis.
+        .. note::	
+           This method works only in a Mechanical structural analysis.
 
         Parameters
         ----------
@@ -387,7 +387,8 @@ class Mechanical(FieldAnalysis3D, object):
 
         Returns
         -------
-        List of existing analysis setups
+        list
+            List of existing analysis setups.
 
 
         """
