@@ -964,7 +964,7 @@ class GeometryModeler(Modeler, object):
         Returns
         -------
         list
-            Boundary names. Boundaries with multiple modes will produce one boundary for each mode/
+            Boundary names. Boundaries with multiple modes will produce one boundary for each mode.
 
         """
         list_names = list(self._parent.oboundary.GetBoundaries())
@@ -3339,5 +3339,4 @@ class GeometryModeler(Modeler, object):
                 "Groups:=", ["Model"]
             ])
         return True
-
 
