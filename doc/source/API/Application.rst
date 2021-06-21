@@ -8,7 +8,7 @@ Application Objects
 
 .. toctree::
    :maxdepth: 2
-   :caption: Classes:
+   :caption: The PyAEDT API includes these classes:
 
    HFSS
    Q3D
