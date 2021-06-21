@@ -118,6 +118,23 @@ class TestEDB:
 
     def test_components(self):
         assert "R1" in list(self.edbapp.core_components.components.keys())
+        assert  self.edbapp.core_components.components["R1"].res_value
+        assert  self.edbapp.core_components.components["R1"].placement_layer
+        assert  self.edbapp.core_components.components["R1"].lower_elevation
+        assert  self.edbapp.core_components.components["R1"].upper_elevation
+        assert  self.edbapp.core_components.components["R1"].top_bottom_association == 0
+        assert  self.edbapp.core_components.components["R1"].pinlist
+        pinname = self.edbapp.core_components.components["R1"].pinlist[0].GetName()
+        assert self.edbapp.core_components.components["R1"].pins[pinname].lower_elevation == \
+               self.edbapp.core_components.components["R1"].lower_elevation
+        assert self.edbapp.core_components.components["R1"].pins[pinname].placement_layer == \
+               self.edbapp.core_components.components["R1"].placement_layer
+        assert self.edbapp.core_components.components["R1"].pins[pinname].upper_elevation == \
+               self.edbapp.core_components.components["R1"].upper_elevation
+        assert self.edbapp.core_components.components["R1"].pins[pinname].top_bottom_association == \
+               self.edbapp.core_components.components["R1"].top_bottom_association
+        assert self.edbapp.core_components.components["R1"].pins[pinname].position
+        assert self.edbapp.core_components.components["R1"].pins[pinname].rotation
 
     def test_components_from_net(self):
         assert self.edbapp.core_components.get_components_from_nets("A0_N")
