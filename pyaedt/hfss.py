@@ -333,7 +333,7 @@ class Hfss(FieldAnalysis3D, object):
         
         Returns
         -------
-        type
+        SweepHFSS
             Sweep object.
 
         """
@@ -393,7 +393,7 @@ class Hfss(FieldAnalysis3D, object):
 
         Returns
         -------
-        type
+        SweepHFSS
             Sweep object.
 
         """
@@ -449,7 +449,7 @@ class Hfss(FieldAnalysis3D, object):
 
         Returns
         -------
-        type
+        SweepHFSS
             Sweep object.
 
         """
@@ -551,7 +551,7 @@ class Hfss(FieldAnalysis3D, object):
 
         Returns
         -------
-        type
+        SweepHFSS
             Sweep object.
 
         """
