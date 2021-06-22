@@ -193,6 +193,3 @@ class Test3DLayout:
 
     def test_duplicate(self):
         assert self.aedtapp.modeler.duplicate("myrectangle",2, [1,1])
-
-if __name__ == '__main__':
-    pytest.main()
