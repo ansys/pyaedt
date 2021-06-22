@@ -9,9 +9,9 @@ from pyaedt.edb_core.components import resistor_value_parser
 from pyaedt.generic.filesystem import Scratch
 from .conftest import desktop_version
 test_project_name = "Galileo"
+bom_example = "bom_example.csv"
 
-
-class Test3DLayout:
+class TestEDB:
     def setup_class(self):
         with Scratch(scratch_path) as self.local_scratch:
             try:
@@ -50,6 +50,11 @@ class Test3DLayout:
     def test_get_stackup(self):
         stackup = self.edbapp.core_stackup.stackup_layers
         assert (len(stackup.layers)>2)
+        assert  self.edbapp.core_stackup.stackup_layers["TOP"].builder
+        assert  self.edbapp.core_stackup.stackup_layers["TOP"].id
+        assert  isinstance(self.edbapp.core_stackup.stackup_layers["TOP"].layer_type, int)
+
+
 
     def get_signal_layers(self):
         signal_layers = self.edbapp.core_stackup.signal_layers
@@ -61,10 +66,8 @@ class Test3DLayout:
 
     def test_vias_creation(self):
         self.edbapp.core_padstack.create_padstack(padstackname="myVia")
-        vias = self.edbapp.core_padstack.padstacks
-        viasinfo = self.edbapp.core_padstack.get_padstack_info()
-        assert (len(vias)>2)
-        assert ("myVia" in viasinfo)
+        assert ("myVia" in list(self.edbapp.core_padstack.padstacks.keys()))
+        assert self.edbapp.core_padstack.place_padstack([5e-3, 5e-3], "myVia")
 
     def test_nets_query(self):
         signalnets = self.edbapp.core_nets.signal_nets
@@ -104,6 +107,11 @@ class Test3DLayout:
         self.edbapp.core_stackup.stackup_layers['LYR_2'].material_name = "MyCond"
         time.sleep(2)
         assert self.edbapp.core_stackup.stackup_layers['LYR_2'].material_name == "MyCond"
+        assert self.edbapp.core_stackup.stackup_layers['LYR_1'].filling_material_name is not None or False
+        assert self.edbapp.core_stackup.stackup_layers['LYR_1'].top_bottom_association is not None or False
+        assert self.edbapp.core_stackup.stackup_layers['LYR_1'].lower_elevation is not None or False
+        assert self.edbapp.core_stackup.stackup_layers['LYR_1'].upper_elevation is not None or False
+        assert self.edbapp.core_stackup.stackup_layers['LYR_1'].etch_factor is not None or False
 
     def test_remove_layer(self):
         layers = self.edbapp.core_stackup.stackup_layers
@@ -111,6 +119,23 @@ class Test3DLayout:
 
     def test_components(self):
         assert "R1" in list(self.edbapp.core_components.components.keys())
+        assert  self.edbapp.core_components.components["R1"].res_value
+        assert  self.edbapp.core_components.components["R1"].placement_layer
+        assert  self.edbapp.core_components.components["R1"].lower_elevation
+        assert  self.edbapp.core_components.components["R1"].upper_elevation
+        assert  self.edbapp.core_components.components["R1"].top_bottom_association == 0
+        assert  self.edbapp.core_components.components["R1"].pinlist
+        pinname = self.edbapp.core_components.components["R1"].pinlist[0].GetName()
+        assert self.edbapp.core_components.components["R1"].pins[pinname].lower_elevation == \
+               self.edbapp.core_components.components["R1"].lower_elevation
+        assert self.edbapp.core_components.components["R1"].pins[pinname].placement_layer == \
+               self.edbapp.core_components.components["R1"].placement_layer
+        assert self.edbapp.core_components.components["R1"].pins[pinname].upper_elevation == \
+               self.edbapp.core_components.components["R1"].upper_elevation
+        assert self.edbapp.core_components.components["R1"].pins[pinname].top_bottom_association == \
+               self.edbapp.core_components.components["R1"].top_bottom_association
+        assert self.edbapp.core_components.components["R1"].pins[pinname].position
+        assert self.edbapp.core_components.components["R1"].pins[pinname].rotation
 
     def test_components_from_net(self):
         assert self.edbapp.core_components.get_components_from_nets("A0_N")
@@ -244,12 +269,47 @@ class Test3DLayout:
             
     def test_get_padstack(self):
         for el in self.edbapp.core_padstack.padstacks:
-            out = self.edbapp.core_padstack.get_pad_parameters_value(self.edbapp.core_padstack.padstacks[el], "TOP",
-                                                                     self.edbapp.edb.Definition.PadType.RegularPad)
-            assert out
-            out = self.edbapp.core_padstack.get_pad_parameters_value(self.edbapp.core_padstack.padstacks[el], "TOP",
-                                                                     self.edbapp.edb.Definition.PadType.AntiPad)
-            assert out
+            pad = self.edbapp.core_padstack.padstacks[el]
+            assert pad.hole_plating_thickness is not None or False
+            assert pad.hole_properties is not None or False
+            assert pad.hole_plating_thickness is not None or False
+            assert pad.hole_plating_ratio is not None or False
+            assert pad.via_start_layer is not None or False
+            assert pad.via_stop_layer is not None or False
+            assert pad.material is not None or False
+            assert pad.hole_finished_size is not None or False
+            assert pad.hole_rotation is not None or False
+            assert pad.hole_offset_x is not None or False
+            assert pad.hole_offset_y is not None or False
+            assert pad.hole_type is not None or False
+            assert pad.pad_by_layer[pad.via_stop_layer].parameters is not None or False
+            assert pad.pad_by_layer[pad.via_stop_layer].offset_x is not None or False
+            assert pad.pad_by_layer[pad.via_stop_layer].offset_y is not None or False
+            assert isinstance(pad.pad_by_layer[pad.via_stop_layer].geometry_type, int)
+
+
+    def test_set_padstack(self):
+        pad = self.edbapp.core_padstack.padstacks["C10N116"]
+        hole_pad = 8
+        tol = 1e-12
+        pad.hole_properties = hole_pad
+        pad.hole_offset_x = 0
+        pad.hole_offset_y = 1
+        pad.hole_rotation = 0
+        pad.hole_plating_ratio = 90
+        pad.material = "copper"
+        assert pad.hole_plating_ratio == 90
+        assert abs(pad.hole_properties[0]-hole_pad) < tol
+        offset_x = 7
+        offset_y = 1
+        param = 7
+        pad.pad_by_layer[pad.via_stop_layer].parameters = param
+        pad.pad_by_layer[pad.via_stop_layer].offset_x = offset_x
+        pad.pad_by_layer[pad.via_stop_layer].offset_y = offset_y
+        assert pad.pad_by_layer[pad.via_stop_layer].offset_x == str(offset_x)
+        assert pad.pad_by_layer[pad.via_stop_layer].offset_y == str(offset_y)
+        assert pad.pad_by_layer[pad.via_stop_layer].parameters[0] == str(param)
+
 
     def test_save_edb_as(self):
         assert self.edbapp.save_edb_as(os.path.join(self.local_scratch.path, "Gelileo_new.aedb"))
@@ -265,6 +325,16 @@ class Test3DLayout:
 
         assert self.edbapp.core_primitives.parametrize_polygon(poly, selection_poly)
 
+    def test_import_bom(self):
+        assert self.edbapp.core_components.update_rlc_from_bom(os.path.join(local_path, 'example_models', bom_example),
+                                                               delimiter=",", valuefield="Value", comptype="Prod name",
+                            refdes="RefDes")
+
+    def test_create_component_from_pins(self):
+        pins = self.edbapp.core_components.get_pin_from_component("R13")
+        assert self.edbapp.core_components.create_component_from_pins(pins, "newcomp")
+
+
     def test_create_cutout(self):
         output = os.path.join(self.local_scratch.path, "cutout.aedb")
         assert self.edbapp.create_cutout(["A0_N", "A0_P"],["GND","V3P3_S0"], output_aedb_path=output)
@@ -276,5 +346,60 @@ class Test3DLayout:
     def test_stackup_limits(self):
         assert self.edbapp.core_stackup.stackup_limits()
 
+    def test_create_polygon(self):
+        points = [
+            [-0.025, -0.02],
+            [0.025, -0.02],
+            [0.025, 0.02],
+            [-0.025, 0.02],
+            [-0.025, -0.02]
+        ]
+        plane = self.edbapp.core_primitives.Shape('polygon', points=points)
+        points = [[-0.001, -0.001], [0.001, -0.001, "ccw", 0.0, -0.0012], [0.001, 0.001], [-0.001, 0.001],
+                  [-0.001, -0.001]]
+        void1 = self.edbapp.core_primitives.Shape('polygon', points=points)
+        void2 = self.edbapp.core_primitives.Shape('rectangle', [-0.002, 0.0], [-0.015, 0.0005])
+        assert self.edbapp.core_primitives.create_polygon(plane, "TOP", [void1, void2])
+        points = [
+            [0, 0],
+
+        ]
+        plane = self.edbapp.core_primitives.Shape('polygon', points=points)
+        assert not self.edbapp.core_primitives.create_polygon(plane, "TOP")
+        points = [
+            [0.1, 0],
+
+        ]
+        plane = self.edbapp.core_primitives.Shape('polygon', points=points)
+        assert not self.edbapp.core_primitives.create_polygon(plane, "TOP")
+        points = [
+            [0.001, -0.001, "ccn", 0.0, -0.0012]
+        ]
+        plane = self.edbapp.core_primitives.Shape('polygon', points=points)
+        assert not self.edbapp.core_primitives.create_polygon(plane, "TOP")
+        points = [
+            [0.001, -0.001, "ccw", 0, -0.0012]
+        ]
+        plane = self.edbapp.core_primitives.Shape('polygon', points=points)
+        assert not self.edbapp.core_primitives.create_polygon(plane, "TOP")
+        points = [
+            [0.001, -0.001, "ccw", 0.0, -1]
+        ]
+        plane = self.edbapp.core_primitives.Shape('polygon', points=points)
+        assert not self.edbapp.core_primitives.create_polygon(plane, "TOP")
+
+    def test_create_path(self):
+        points = [
+            [-0.025, -0.02],
+            [0.025, -0.02],
+            [0.025, 0.02],
+        ]
+        path = self.edbapp.core_primitives.Shape('polygon', points=points)
+        assert self.edbapp.core_primitives.create_path(path, "TOP")
 
 
+    def test_create_edb(self):
+        edb = Edb(os.path.join(scratch_path, "temp.aedb"))
+        assert edb
+        assert edb.active_layout
+        edb.close_edb()

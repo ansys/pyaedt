@@ -4,7 +4,7 @@
    contain the root `toctree` directive.
 
 Analysis 2D
-===================================
+===========
 
 .. autoclass:: pyaedt.application.Analysis2D.FieldAnalysis2D
     :members:

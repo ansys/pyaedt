@@ -4,7 +4,7 @@
    contain the root `toctree` directive.
 
 3D Layout Setup
-===================================
+===============
 
 .. autoclass:: pyaedt.modules.SolveSetup.Setup3DLayout
     :members:

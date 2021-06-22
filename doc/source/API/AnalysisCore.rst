@@ -3,8 +3,8 @@
    You can adapt this file completely to your liking, but it should at least
    contain the root `toctree` directive.
 
-Analysis application modules
-===================================
+Analysis Application Modules
+============================
 
 
 **Diagram**
@@ -15,7 +15,7 @@ Analysis application modules
 
 .. toctree::
    :maxdepth: 2
-   :caption: Classes:
+   :caption: The ``Analysis`` application module includes these classes:
 
    Analysis
    Analysis3D

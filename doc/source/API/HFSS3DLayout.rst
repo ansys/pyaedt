@@ -3,8 +3,8 @@
    You can adapt this file completely to your liking, but it should at least
    contain the root `toctree` directive.
 
-HFSS3DLayout Objects
-===================================
+HFSS 3D Layout
+==============
 
 
 .. automodule:: pyaedt.hfss3dlayout

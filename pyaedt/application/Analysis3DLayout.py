@@ -257,7 +257,7 @@ class FieldAnalysis3DLayout(Analysis):
 
         Returns
         -------
-        type
+        Setup3DLayout
             setup object
 
         """

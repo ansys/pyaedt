@@ -4,7 +4,7 @@
    contain the root `toctree` directive.
 
 Layer Stackup
-===================================
+=============
 .. automodule:: pyaedt.modules.LayerStackup
     :members:
 

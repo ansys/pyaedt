@@ -74,11 +74,6 @@ class Hfss(FieldAnalysis3D, object):
                 The default is ``True``.
             release_on_exit : bool, optional
                 Whether to release AEDT on exit. The default is ``True``.
-              
-
-            Returns
-            -------
-            
 
         """
         FieldAnalysis3D.__init__(self, "HFSS", projectname, designname, solution_type, setup_name,

@@ -501,19 +501,30 @@ class Analysis(Design, object):
         def nominal_w_values(self):
             """ """
             families = []
-            variation = self._parent.odesign.GetNominalVariation()
-            for el in self.variables:
-                families.append(el+":=")
-                families.append([self._parent.odesign.GetVariationVariableValue(variation, el)])
+            if self._parent.design_type == "HFSS 3D Layout Design":
+                listvar = list(self._parent.odesign.GetVariables())
+                for el in listvar:
+                    families.append(el+":=")
+                    families.append([self._parent.odesign.GetVariableValue(el)])
+            else:
+                variation = self._parent.odesign.GetNominalVariation()
+                for el in self.variables:
+                    families.append(el+":=")
+                    families.append([self._parent.odesign.GetVariationVariableValue(variation, el)])
             return families
 
         @property
         def nominal_w_values_dict(self):
             """ """
             families = {}
-            variation = self._parent.odesign.GetNominalVariation()
-            for el in self.variables:
-                families[el] = self._parent.odesign.GetVariationVariableValue(variation, el)
+            if self._parent.design_type == "HFSS 3D Layout Design":
+                listvar = list(self._parent.odesign.GetVariables())
+                for el in listvar:
+                    families[el] = self._parent.odesign.GetVariableValue(el)
+            else:
+                variation = self._parent.odesign.GetNominalVariation()
+                for el in self.variables:
+                    families[el] = self._parent.odesign.GetVariationVariableValue(variation, el)
             return families
 
         @property

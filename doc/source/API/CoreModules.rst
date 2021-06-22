@@ -3,10 +3,9 @@
    You can adapt this file completely to your liking, but it should at least
    contain the root `toctree` directive.
 
-application modules
-===================================
-
-This Section contain info about all the application modules of pyaedt. In particular:
+Application Modules
+===================
+This section contains information about PyAEDT application modules:
 
 
 #. Design
@@ -19,21 +18,22 @@ This Section contain info about all the application modules of pyaedt. In partic
 
 **Design**
 
-Design Class contains all the properties and methods applicable to Project and Design
+The ``Design`` module contains all properties and methods applicable to projects and designs.
 
 **Variable**
 
-Variable Class contain all the methods for managing AEDT Variables (both Project and Design)
+The ``Variable`` module contains all methods for managing AEDT variables for both projects and designs.
 
 
 **Analysis**
 
-Analysis Classes contain all the properties and methods needed to setup and run AEDT Analysis
+The ``Analysis`` module contains all properties and methods needed to set up and run AEDT analyses.
 
 
 **Modeler**
 
-modeler Classeses contain all the properties and methods needed to edit a modeler, including all primitives methods and properties
+The ``Modeler`` module contains all properties and methods needed to edit a modeler, 
+including all primitives methods and properties.
 
 **Objects**
 
@@ -41,12 +41,13 @@ Object Classes contain all the properties and methods needed to edit geometric e
 
 **DesignXploration**
 
-Optimetrics Classeses contain all the properties and methods needed to create any optimetrics Setup
+The ``DesignXploration`` module contain all properties and methods needed to create any optimetrics setup.
 
+**Alphabetical Modules Listing**
 
 .. toctree::
    :maxdepth: 2
-   :caption: Classes:
+   :caption: The AEDT application modules, listed alphabetically, include the following classes:
 
    AnalysisCore
    ModelerCore
@@ -54,4 +55,3 @@ Optimetrics Classeses contain all the properties and methods needed to create an
    Design
    Variables
    DesignXPlorer
-

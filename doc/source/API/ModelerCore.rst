@@ -3,12 +3,15 @@
    You can adapt this file completely to your liking, but it should at least
    contain the root `toctree` directive.
 
-modeler
-===================================
+Modeler
+=======
+
+
+**Diagram**
 
 .. toctree::
    :maxdepth: 2
-   :caption: Classes:
+   :caption: The ``Modeler`` application module includes these classes:
 
    Modeler
    Modeler3D

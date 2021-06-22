@@ -4,11 +4,11 @@
    contain the root `toctree` directive.
 
 Application Objects
-===================================
+===================
 
 .. toctree::
    :maxdepth: 2
-   :caption: Classes:
+   :caption: The PyAEDT API includes these classes for application objects:
 
    HFSS
    Q3D

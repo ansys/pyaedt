@@ -3,13 +3,13 @@
    You can adapt this file completely to your liking, but it should at least
    contain the root `toctree` directive.
 
-Material & Stackup
-===================================
+Material and Stackup
+====================
 
 
 .. toctree::
    :maxdepth: 2
-   :caption: Classes:
+   :caption: The ``Material and Stackup`` module includes these classes:
 
    MaterialLib
    Material

@@ -4,7 +4,7 @@
    contain the root `toctree` directive.
 
 Analysis RMxprt
-===================================
+===============
 
 .. autoclass:: pyaedt.application.AnalysisRMxprt.FieldAnalysisRMxprt
     :members:

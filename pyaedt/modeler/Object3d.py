@@ -1542,29 +1542,18 @@ class CircuitComponent(object):
                 vPropServers.append(el)
         else:
             vPropServers = ["NAME:PropServers", self.composed_name]
-        try:
-            vGeo3dlayout = ["NAME:"+self.tabname, vPropServers, vChangedProps]
+        tabname = None
+        if vPropChange[0][5:] in list(self.m_Editor.GetProperties(self.tabname, self.composed_name)):
+            tabname = self.tabname
+        elif vPropChange[0][5:] in list(self.m_Editor.GetProperties("PassedParameterTab", self.composed_name)):
+            tabname = "PassedParameterTab"
+        elif vPropChange[0][5:] in list(self.m_Editor.GetProperties("BaseElementTab", self.composed_name)):
+            tabname = "BaseElementTab"
+        if tabname:
+            vGeo3dlayout = ["NAME:"+tabname, vPropServers, vChangedProps]
             vOut = ["NAME:AllTabs", vGeo3dlayout]
-            out= retry_ntimes(10, self.m_Editor.ChangeProperty, vOut)
-            if not out:
-                raise ValueError
-        except:
-            if self.tabname != "PassedParameterTab":
-                try:
-                    vGeo3dlayout = ["NAME:PassedParameterTab", vPropServers, vChangedProps]
-                    vOut = ["NAME:AllTabs", vGeo3dlayout]
-                    out = retry_ntimes(10, self.m_Editor.ChangeProperty, vOut)
-                    if not out:
-                        raise ValueError
-                except:
-                    vGeo3dlayout = ["NAME:BaseElementTab", vPropServers, vChangedProps]
-                    vOut = ["NAME:AllTabs", vGeo3dlayout]
-                    retry_ntimes(10, self.m_Editor.ChangeProperty, vOut)
-            else:
-                vGeo3dlayout = ["NAME:BaseElementTab", vPropServers, vChangedProps]
-                vOut = ["NAME:AllTabs", vGeo3dlayout]
-                retry_ntimes(10, self.m_Editor.ChangeProperty, vOut)
-        return True
+            return retry_ntimes(10, self.m_Editor.ChangeProperty, vOut)
+        return False
 
 
 class Objec3DLayout(object):

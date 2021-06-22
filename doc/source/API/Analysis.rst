@@ -4,7 +4,7 @@
    contain the root `toctree` directive.
 
 Analysis
-===================================
+========
 
 .. autoclass:: pyaedt.application.Analysis.Analysis
     :members:

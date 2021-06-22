@@ -4,7 +4,7 @@
    contain the root `toctree` directive.
 
 Maxwell3D/2D
-===================================
+============
 
 
 .. automodule:: pyaedt.maxwell
