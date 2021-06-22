@@ -489,29 +489,30 @@ class EdbLayout(object):
         return self.edb.Geometry.PolygonData.CreateFromBBox(points)
 
     class Shape(object):
+        """Shape class.
+                   
+        Parameters
+        ----------
+        type : str, optional
+            Type of the shape. Choices are ``"circle"``, ``"rectangle"``, and ``"polygon"``.
+            The default is ``"unknown``.
+        pointA : optional
+            Lower-left corner if a ``"rectangle"`` shape. The default is ``None``.
+        pointB : optional
+            Upper-right corner if a `"rectangle"`` shape. The default is ``None``.
+        centerPoint : optional
+            Center point if a ``"circle"`` shape. The default is ``None``.
+        radius : optional
+            Radius if a ``"circle" shape. The default is ``None``.
+        points : list, optional
+            List of points if a ``"polygon"`` shape. The default is ``None``.
+        properties -- dict, optional
+            Dictionary of properties associated with the shape. The default is ``{}``.
+        """
+
         def __init__(self, type='unknown', pointA=None, pointB=None, centerPoint=None, radius=None, points=None,
                      properties={}):
-            """Shape constructor class.
-            
-            Parameters
-            ----------
-            type : str, optional
-                Type of the shape. Choices are ``"circle"``, ``"rectangle"``, and ``"polygon"``.
-                The default is ``"unknown``.
-            pointA : optional
-                Lower-left corner if a ``"rectangle"`` shape. The default is ``None``.
-            pointB : optional
-                Upper-right corner if a `"rectangle"`` shape. The default is ``None``.
-            centerPoint : optional
-                Center point if a ``"circle"`` shape. The default is ``None``.
-            radius : optional
-                Radius if a ``"circle" shape. The default is ``None``.
-            points : list, optional
-                List of points if a ``"polygon"`` shape. The default is ``None``.
-            properties -- dict, optional
-                Dictionary of properties associated with the shape. The default is ``{}``.
-                
-            """
+            """Shape constructor."""
             self.type = type
             self.pointA = pointA
             self.pointB = pointB
