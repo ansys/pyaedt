@@ -1,5 +1,5 @@
 """
-This module contains all EDB functionalities in the ``HFSS 3D Layout`` class.
+This module contains all EDB functionalities in the ``EDB Layout`` class.
 
 """
 import warnings
@@ -23,7 +23,7 @@ class Primitive(object):
         self.paths = []
 
 class EdbLayout(object):
-    """HFSS 3DLayout class."""
+    """EDB Layout class."""
     @property
     def edb(self):
         """ """
@@ -506,5 +506,5 @@ class EdbLayout(object):
             Dictionary of properties associated with the shape. The default is ``{}``.
         """
 
-        def __init__(self, type='unknown', pointA=None, pointB=None, centerPoint=None, radius=None, points=None,
+    def __init__(self, type='unknown', pointA=None, pointB=None, centerPoint=None, radius=None, points=None,
                      properties={}):
