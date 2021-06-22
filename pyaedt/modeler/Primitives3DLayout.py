@@ -391,42 +391,24 @@ class Primitives3DLayout(object):
         return name
 
     @aedt_exception_handler
-    def create_rectangle(self, layername, ax, ay, bx, by, cr=0, ang=0, name=None, netname=None):
-        """Create a Rectangle on specific layer
+    def create_rectangle(self, layername, origin, dimensions, corner_radius=0, angle=0, name=None, netname=None):
+        """Create a Rectangle on specified layer
 
         Parameters
         ----------
-        layername :
-            layername
-        x :
-            x position float
-        y :
-            y position float
-        radius :
-            radius float
-        name :
-            Object Name (Default value = None)
-        netname :
-            optional Netname (Default value = None)
-        ax :
-            
-        ay :
-            
-        bx :
-            
-        by :
-            
-        cr :
-             (Default value = 0)
-        ang :
-             (Default value = 0)
+        layername
+        origin
+        dimensions
+        corner_radius
+        angle
+        name
+        netname
 
         Returns
         -------
-        type
-            Name of the created object, if successful
 
         """
+
         if not name:
             name = _uname()
         else:
@@ -439,12 +421,12 @@ class Primitives3DLayout(object):
         vArg2.append("Name:="), vArg2.append(name)
         vArg2.append("LayerName:="), vArg2.append(layername)
         vArg2.append("lw:="), vArg2.append("0")
-        vArg2.append("Ax:="), vArg2.append(self.arg_with_dim(ax))
-        vArg2.append("Ay:="), vArg2.append(self.arg_with_dim(ay))
-        vArg2.append("Bx:="), vArg2.append(self.arg_with_dim(bx))
-        vArg2.append("By:="), vArg2.append(self.arg_with_dim(by))
-        vArg2.append("cr:="), vArg2.append(self.arg_with_dim(cr))
-        vArg2.append("ang="), vArg2.append(self.arg_with_dim(ang))
+        vArg2.append("Ax:="), vArg2.append(self.arg_with_dim(origin[0]))
+        vArg2.append("Ay:="), vArg2.append(self.arg_with_dim(origin[1]))
+        vArg2.append("Bx:="), vArg2.append(self.arg_with_dim(dimensions[0]))
+        vArg2.append("By:="), vArg2.append(self.arg_with_dim(dimensions[1]))
+        vArg2.append("cr:="), vArg2.append(self.arg_with_dim(corner_radius))
+        vArg2.append("ang="), vArg2.append(self.arg_with_dim(angle))
         vArg1.append(vArg2)
         self.oeditor.CreateRectangle(vArg1)
         if self.isoutsideDesktop:
@@ -454,19 +436,17 @@ class Primitives3DLayout(object):
         return name
 
     @aedt_exception_handler
-    def create_line(self, layername, lw=1, x=[], y=[], start_style=0, end_style=0, name=None, netname=None):
+    def create_line(self, layername, center_line_list, lw=1, start_style=0, end_style=0, name=None, netname=None):
         """Create Line based on specific list of point
 
         Parameters
         ----------
-        layername :
+        layername : str
             layer name on which create the object
+        center_line_list : list
+            list of centerline points
         lw :
             line width (Default value = 1)
-        x :
-            array of float containing x point of each point of the line (Default value = [])
-        y :
-            array of float containing y point of each point of the line (Default value = [])
         start_style :
             start style of the line. 0 Flat, 1 Extended, 2 Round (Default value = 0)
         end_style :
@@ -490,12 +470,12 @@ class Primitives3DLayout(object):
                 name = _uname(name)
         arg = ["NAME:Contents", "lineGeometry:="]
         arg2 = ["Name:=", name, "LayerName:=", layername, "lw:=", self.arg_with_dim(lw), "endstyle:=", end_style,
-                "StartCap:=", start_style, "n:=", len(x), "U:=", self.model_units]
-        for a, b in zip(x, y):
+                "StartCap:=", start_style, "n:=", len(center_line_list), "U:=", self.model_units]
+        for a in center_line_list:
             arg2.append("x:=")
-            arg2.append(a)
+            arg2.append(a[0])
             arg2.append("y:=")
-            arg2.append(b)
+            arg2.append(a[1])
         arg.append(arg2)
         self.oeditor.CreateLine(arg)
         if self.isoutsideDesktop:
