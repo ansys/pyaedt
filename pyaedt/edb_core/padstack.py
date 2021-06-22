@@ -114,7 +114,7 @@ class EdbPadstacks(object):
                                                                antipaddiam, startlayer, endlayer)
 
     @aedt_exception_handler
-    def get_pinlist_from_component_and_net(self, refdes = None, netname = None):
+    def get_pinlist_from_component_and_net(self, refdes=None, netname=None):
         """Retrieve pins given a component's reference designator and net name.
 
         Parameters
