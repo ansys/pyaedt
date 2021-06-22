@@ -46,9 +46,6 @@ class Test3DLayout:
         n2 = self.aedtapp.modeler.primitives.create_rectangle("Signal1", [0, 0], [6, 8], 3, 2, "myrectangle")
         assert n2 == "myrectangle"
 
-    def test_duplicate(self):
-        assert self.aedtapp.modeler.duplicate("myrectangle",2, [1,1])
-
     def test_05_subtract(self):
         assert self.aedtapp.modeler.subtract("mycircle", "myrectangle")
 
@@ -193,6 +190,9 @@ class Test3DLayout:
 
     def test_25_get_fext_xtalk_list(self):
         assert self.aedtapp.get_fext_xtalk_list() == ["S(Port1,Port2)", "S(Port2,Port1)"]
+
+    def test_duplicate(self):
+        assert self.aedtapp.modeler.duplicate("myrectangle",2, [1,1])
 
 if __name__ == '__main__':
     pytest.main()
