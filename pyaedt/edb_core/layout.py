@@ -421,10 +421,10 @@ class EdbLayout(object):
 
     def _validatePoint(self, point, allowArcs=True):
         if len(point) == 2:
-            if not isinstance(point[0], float):
+            if not isinstance(point[0], (int,float)):
                 self.messenger.add_error_message('Point X value must be a float')
                 return False
-            if not isinstance(point[1], float):
+            if not isinstance(point[1], (int,float)):
                 self.messenger.add_error_message('Point Y value must be a float')
                 return False
             return True
@@ -432,19 +432,19 @@ class EdbLayout(object):
             if not allowArcs:
                 self.messenger.add_error_message('Arc found but arcs not allowed in _validatePoint')
                 return False
-            if not isinstance(point[0], float):
+            if not isinstance(point[0], (int,float)):
                 self.messenger.add_error_message('Point X value must be a float')
                 return False
-            if not isinstance(point[1], float):
+            if not isinstance(point[1], (int,float)):
                 self.messenger.add_error_message('Point Y value must be a float')
                 return False
             if not isinstance(point[2], str) or point[2] not in ['cw', 'ccw']:
                 self.messenger.add_error_message('Invalid rotation direction')
                 return False
-            if not isinstance(point[3], float):
+            if not isinstance(point[3], (int,float)):
                 self.messenger.add_error_message('Arc center point X value must be a float')
                 return False
-            if not isinstance(point[4], float):
+            if not isinstance(point[4], (int,float)):
                 self.messenger.add_error_message('Arc center point Y value must be a float')
                 return False
             return True

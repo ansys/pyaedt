@@ -123,6 +123,10 @@ class Test3DLayout:
         assert setup3.update()
         assert setup3.disable()
         assert setup3.enable()
+        sweep = setup3.add_sweep()
+        assert sweep
+        assert sweep.change_range("LinearCount", "1Hz", "10GHz", "100MHz")
+        assert sweep.add_subrange("LinearStep", "11GHz", "20GHz", 201)
 
     def test_17_get_setup(self):
         setup4 = self.aedtapp.get_setup(self.aedtapp.existing_analysis_setups[0])

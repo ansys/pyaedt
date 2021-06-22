@@ -222,3 +222,33 @@ class EdbPadstacks(object):
         padstackDefinition.SetData(padstackData)
         self.messenger.add_info_message("Padstack {} create correctly".format(padstackname))
         return padstackname
+
+    @aedt_exception_handler
+    def place_padstack(self, position, definition_name, net_name='',
+                       via_name="", rotation = 0, fromlayer = None, tolayer = None, solderlayer=None):
+        padstack = None
+        for pad in list(self.padstacks.keys()):
+            if pad == definition_name:
+                padstack = self.padstacks[pad].edb_padstack
+        position = self.edb.Geometry.PointData(self.edb_value(position[0]), self.edb_value(position[1]))
+        net = self.parent.core_nets.find_or_create_net(net_name)
+        rotation = self.edb_value(rotation)
+        sign_layers = list(self.parent.core_stackup.signal_layers.keys())
+        if not fromlayer:
+            fromlayer = self.parent.core_stackup.signal_layers[sign_layers[-1]]._layer
+        else:
+            fromlayer = self.parent.core_stackup.signal_layers[fromlayer]._layer
+
+        if not tolayer:
+            tolayer = self.parent.core_stackup.signal_layers[sign_layers[0]]._layer
+        else:
+            tolayer = self.parent.core_stackup.signal_layers[tolayer]._layer
+        if solderlayer:
+            solderlayer = self.parent.core_stackup.signal_layers[solderlayer]._layer
+        if padstack:
+            via = self.edb.Cell.Primitive.PadstackInstance.Create(self.active_layout, net, via_name, padstack,
+                                                                  position, rotation, fromlayer, tolayer, solderlayer,
+                                                                  None)
+            return via
+        else:
+            return False

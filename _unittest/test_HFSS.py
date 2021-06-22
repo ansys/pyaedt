@@ -117,6 +117,7 @@ class TestHFSS:
                                                    sweeptype="Fast")
         assert self.aedtapp.create_discrete_sweep("MySetup")
 
+
     def test_06B_setup_exists(self):
         assert self.aedtapp.analysis_setup is not None
         assert self.aedtapp.nominal_sweep is not None

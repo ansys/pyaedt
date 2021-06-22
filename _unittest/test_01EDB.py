@@ -67,6 +67,7 @@ class TestEDB:
     def test_vias_creation(self):
         self.edbapp.core_padstack.create_padstack(padstackname="myVia")
         assert ("myVia" in list(self.edbapp.core_padstack.padstacks.keys()))
+        assert self.edbapp.core_padstack.place_padstack([5e-3, 5e-3], "myVia")
 
     def test_nets_query(self):
         signalnets = self.edbapp.core_nets.signal_nets
@@ -395,3 +396,10 @@ class TestEDB:
         ]
         path = self.edbapp.core_primitives.Shape('polygon', points=points)
         assert self.edbapp.core_primitives.create_path(path, "TOP")
+
+
+    def test_create_edb(self):
+        edb = Edb(os.path.join(scratch_path, "temp.aedb"))
+        assert edb
+        assert edb.active_layout
+        edb.close_edb()
