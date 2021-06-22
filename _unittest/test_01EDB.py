@@ -345,4 +345,53 @@ class TestEDB:
     def test_stackup_limits(self):
         assert self.edbapp.core_stackup.stackup_limits()
 
+    def test_create_polygon(self):
+        points = [
+            [-0.025, -0.02],
+            [0.025, -0.02],
+            [0.025, 0.02],
+            [-0.025, 0.02],
+            [-0.025, -0.02]
+        ]
+        plane = self.edbapp.core_primitives.Shape('polygon', points=points)
+        points = [[-0.001, -0.001], [0.001, -0.001, "ccw", 0.0, -0.0012], [0.001, 0.001], [-0.001, 0.001],
+                  [-0.001, -0.001]]
+        void1 = self.edbapp.core_primitives.Shape('polygon', points=points)
+        void2 = self.edbapp.core_primitives.Shape('rectangle', [-0.002, 0.0], [-0.015, 0.0005])
+        assert self.edbapp.core_primitives.create_polygon(plane, "TOP", [void1, void2])
+        points = [
+            [0, 0],
 
+        ]
+        plane = self.edbapp.core_primitives.Shape('polygon', points=points)
+        assert not self.edbapp.core_primitives.create_polygon(plane, "TOP")
+        points = [
+            [0.1, 0],
+
+        ]
+        plane = self.edbapp.core_primitives.Shape('polygon', points=points)
+        assert not self.edbapp.core_primitives.create_polygon(plane, "TOP")
+        points = [
+            [0.001, -0.001, "ccn", 0.0, -0.0012]
+        ]
+        plane = self.edbapp.core_primitives.Shape('polygon', points=points)
+        assert not self.edbapp.core_primitives.create_polygon(plane, "TOP")
+        points = [
+            [0.001, -0.001, "ccw", 0, -0.0012]
+        ]
+        plane = self.edbapp.core_primitives.Shape('polygon', points=points)
+        assert not self.edbapp.core_primitives.create_polygon(plane, "TOP")
+        points = [
+            [0.001, -0.001, "ccw", 0.0, -1]
+        ]
+        plane = self.edbapp.core_primitives.Shape('polygon', points=points)
+        assert not self.edbapp.core_primitives.create_polygon(plane, "TOP")
+
+    def test_create_path(self):
+        points = [
+            [-0.025, -0.02],
+            [0.025, -0.02],
+            [0.025, 0.02],
+        ]
+        path = self.edbapp.core_primitives.Shape('polygon', points=points)
+        assert self.edbapp.core_primitives.create_path(path, "TOP")

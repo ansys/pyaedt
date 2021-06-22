@@ -274,3 +274,31 @@ class Modeler3DLayout(Modeler):
         else:
             self.messenger.add_error_message("Input list must contain at least 2 elements")
             return False
+
+    @aedt_exception_handler
+    def duplicate(self, objectlists, count, direction_vector):
+        """
+        Duplicate one or multiple element along vector
+        Parameters
+        ----------
+        objectlists : list
+        count : int
+        direction_vector : list
+            x, y direction vector
+
+        Returns
+        -------
+        bool
+        """
+        if isinstance(objectlists, str):
+            objectlists = [objectlists]
+        self.oeditor.Duplicate(
+            [
+                "NAME:options",
+                "count:="	, count
+            ],
+            [
+                "NAME:elements",
+                ",".join(objectlists)
+            ], direction_vector)
+        return True

@@ -12,7 +12,7 @@ from ..generic.general_methods import get_filename_without_extension, generate_u
 import math
 try:
     import clr
-    from System import Convert, String
+    from System import Convert, String, Tuple
     from System import Double, Array
     from System.Collections.Generic import List
 except ImportError:
@@ -266,3 +266,176 @@ class EdbLayout(object):
                 continue_iterate = False
         polygon.SetPolygonData(poligon_data)
         return True
+
+    @aedt_exception_handler
+    def create_path(self, path_list, layer_name, width=1, net_name="", start_cap_style="Round", end_cap_style="Round",
+                    corner_style="Round"):
+        net = self.parent.core_nets.find_or_create_net(net_name)
+        if start_cap_style.lower() == "round":
+            start_cap_style = 0
+        elif start_cap_style.lower() == "extended":
+            start_cap_style = 2
+        else:
+            start_cap_style = 1
+        if end_cap_style.lower() == "round":
+            end_cap_style = 0
+        elif end_cap_style.lower() == "extended":
+            end_cap_style = 2
+        else:
+            end_cap_style = 1
+        if corner_style.lower() == "round":
+            corner_style = 0
+        else:
+            corner_style = 1
+        pointlists = [self.edb.Geometry.PointData(self.edb_value(i[0]), self.edb_value(i[1])) for i in path_list.points]
+        polygonData =  self.edb.Geometry.PolygonData(convert_py_list_to_net_list(pointlists), False)
+        polygon = self.edb.Cell.Primitive.Path.Create(
+            self.active_layout,
+            layer_name,
+            net,
+            self.edb_value(width),
+            start_cap_style,
+            end_cap_style,
+            corner_style,
+            polygonData)
+        if polygon.IsNull():
+            self.messenger.add_error_message('Null path created')
+            return False
+        else:
+            return True
+
+    @aedt_exception_handler
+    def create_polygon(self, main_shape,  layer_name, voids=[], net_name=""):
+        net = self.parent.core_nets.find_or_create_net(net_name)
+        polygonData = self.shape_to_polygon_data(main_shape)
+        if polygonData is None or polygonData.IsNull():
+            self.messenger.add_error_message('Failed to create main shape polygon data')
+            return False
+        for void in voids:
+            voidPolygonData = self.shape_to_polygon_data(void)
+            if voidPolygonData is None or voidPolygonData.IsNull():
+                self.messenger.add_error_message('Failed to create void polygon data')
+                return False
+            polygonData.AddHole(voidPolygonData)
+        polygon = self.edb.Cell.Primitive.Polygon.Create(
+            self.active_layout,
+            layer_name,
+            net,
+            polygonData)
+        if polygon.IsNull():
+            self.messenger.add_error_message('Null polygon created')
+            return False
+        else:
+            return True
+
+    def shape_to_polygon_data(self, shape):
+        """Converts an edb_utilities.data.Shape to an self.edb.Geometry.PolygonData.
+
+        Keyword Arguments:
+        shape -- Shape to convert
+        """
+        if shape.type == 'polygon':
+            return self._createPolygonDataFromPolygon(shape)
+        elif shape.type == 'rectangle':
+            return self._createPolygonDataFromRectangle(shape)
+        else:
+            self.messenger.add_error_message('Unsupported shape type {} when creating polygon primitive'.format(shape.type))
+            return None
+
+    def _createPolygonDataFromPolygon(self, shape):
+        points = shape.points
+        if not self._validatePoint(points[0]):
+            self.messenger.add_error_message('Error validating point')
+            return None
+        arcs = []
+        for i in range(1, len(points)):
+            startPoint = points[i - 1]
+            endPoint = points[i]
+            if not self._validatePoint(endPoint):
+                return None
+            startPoint = [self.edb_value(i) for i in startPoint]
+            endPoint = [self.edb_value(i) for i in endPoint]
+            if len(endPoint) == 2:
+                arc = self.edb.Geometry.ArcData(
+                    self.edb.Geometry.PointData(startPoint[0], startPoint[1]),
+                    self.edb.Geometry.PointData(endPoint[0], endPoint[1]))
+                arcs.append(arc)
+            elif len(endPoint) == 5:
+                rotationDirection = self.edb.Geometry.RotationDirection.Colinear
+                if endPoint[2].ToString() == 'cw':
+                    rotationDirection = self.edb.Geometry.RotationDirection.CW
+                elif endPoint[2].ToString() == 'ccw':
+                    rotationDirection = self.edb.Geometry.RotationDirection.CCW
+                else:
+                    self.messenger.add_error_message('Invalid rotation direction {} specified'.format(endPoint[2]))
+                    return None
+                arc = self.edb.Geometry.ArcData(
+                    self.edb.Geometry.PointData(startPoint[0], startPoint[1]),
+                    self.edb.Geometry.PointData(endPoint[0], endPoint[1]),
+                    rotationDirection,
+                    self.edb.Geometry.PointData(endPoint[3], endPoint[4]))
+                arcs.append(arc)
+        return self.edb.Geometry.PolygonData.CreateFromArcs(convert_py_list_to_net_list(arcs), True)
+
+    def _validatePoint(self, point, allowArcs=True):
+        if len(point) == 2:
+            if not isinstance(point[0], float):
+                self.messenger.add_error_message('Point X value must be a float')
+                return False
+            if not isinstance(point[1], float):
+                self.messenger.add_error_message('Point Y value must be a float')
+                return False
+            return True
+        elif len(point) == 5:
+            if not allowArcs:
+                self.messenger.add_error_message('Arc found but arcs not allowed in _validatePoint')
+                return False
+            if not isinstance(point[0], float):
+                self.messenger.add_error_message('Point X value must be a float')
+                return False
+            if not isinstance(point[1], float):
+                self.messenger.add_error_message('Point Y value must be a float')
+                return False
+            if not isinstance(point[2], str) or point[2] not in ['cw', 'ccw']:
+                self.messenger.add_error_message('Invalid rotation direction')
+                return False
+            if not isinstance(point[3], float):
+                self.messenger.add_error_message('Arc center point X value must be a float')
+                return False
+            if not isinstance(point[4], float):
+                self.messenger.add_error_message('Arc center point Y value must be a float')
+                return False
+            return True
+        else:
+            self.messenger.add_error_message('Arc point descriptor has incorrect number of elements ({})'.format(len(point)))
+            return False
+
+    def _createPolygonDataFromRectangle(self, shape):
+        if not self._validatePoint(shape.pointA, False) or not self._validatePoint(shape.pointB, False):
+            return None
+        pointA = self.edb.Geometry.PointData(self.edb_value(shape.pointA[0]),self.edb_value(shape.pointA[1]))
+        pointB = self.edb.Geometry.PointData(self.edb_value(shape.pointB[0]), self.edb_value(shape.pointB[1]))
+        points = Tuple[self.edb.Geometry.PointData, self.edb.Geometry.PointData](pointA, pointB)
+        return self.edb.Geometry.PolygonData.CreateFromBBox(points)
+
+    class Shape(object):
+        def __init__(self, type='unknown', pointA=None, pointB=None, centerPoint=None, radius=None, points=None,
+                     properties={}):
+            """Shape constructor
+
+            Keyword Arguments:
+            type -- type of shape ('circle' or 'rectangle' or 'polygon')
+            pointA -- lower-left corner of 'rectangle' type shape
+            pointB -- upper-right corner of 'rectangle' type shape
+            centerPoint -- center point of 'circle' type shape
+            radius -- radius of 'circle' type shape
+            points -- list of point data lists for 'polygon' type shape
+            properties -- dictionary of properties associated with the shape
+            """
+            self.type = type
+            self.pointA = pointA
+            self.pointB = pointB
+            self.centerPoint = centerPoint
+            self.radius = radius
+            self.points = points
+            self.properties = properties
