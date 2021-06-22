@@ -249,7 +249,7 @@ class Hfss(FieldAnalysis3D, object):
 
         Returns
         -------
-        type
+        BoundaryObject
             Boundary object.
 
         Examples
@@ -832,8 +832,8 @@ class Hfss(FieldAnalysis3D, object):
 
         Returns
         -------
-       str
-            Port name.
+       BoundaryObject
+            Boundary object.
 
         """
         if not self.modeler.primitives.does_object_exists(startobj) or not self.modeler.primitives.does_object_exists(
@@ -905,7 +905,7 @@ class Hfss(FieldAnalysis3D, object):
 
         Returns
         -------
-        type
+        BoundaryObject
             Port object.
 
         Examples
@@ -966,7 +966,7 @@ class Hfss(FieldAnalysis3D, object):
         
         Returns
         -------
-        type
+        BoundaryObject
             Boundary object.
 
         """
@@ -1006,7 +1006,7 @@ class Hfss(FieldAnalysis3D, object):
 
         Returns
         -------
-        type
+        BoundaryObject
             Boundary object.
 
         """
@@ -1116,8 +1116,8 @@ class Hfss(FieldAnalysis3D, object):
 
         Returns
         -------
-        str
-            Boundary name.
+        BoundaryObject
+            Boundary object.
 
         """
         if not self.modeler.primitives.does_object_exists(startobj) or not self.modeler.primitives.does_object_exists(
@@ -1184,8 +1184,8 @@ class Hfss(FieldAnalysis3D, object):
 
         Returns
         -------
-        str
-            Boundary name.
+        BoundaryObject
+            Boundary object.
 
         """
         if not self.modeler.primitives.does_object_exists(startobj) or not self.modeler.primitives.does_object_exists(
@@ -1229,7 +1229,7 @@ class Hfss(FieldAnalysis3D, object):
 
         Returns
         -------
-        type
+        BoundaryObject
             Boundary object.
 
         """
@@ -1497,7 +1497,7 @@ class Hfss(FieldAnalysis3D, object):
 
         Returns
         -------
-        type
+        BoundaryObject
             Boundary object.
 
         """
@@ -1522,7 +1522,7 @@ class Hfss(FieldAnalysis3D, object):
 
         Returns
         -------
-        type
+        BoundaryObject
             Boundary object.
 
         """
