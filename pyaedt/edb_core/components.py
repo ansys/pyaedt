@@ -187,9 +187,6 @@ class Components(object):
     def capacitors(self):
         """
                 
-        Parameters
-        ----------
-
         Returns
         -------
         dict
@@ -211,12 +208,9 @@ class Components(object):
 
     @property
     def inductors(self):
-        """
+        """Dictionary of inductors.
         
         
-        Parameters
-        ----------
-
         Returns
         -------
         dict
@@ -240,9 +234,6 @@ class Components(object):
     @property
     def ICs(self):
         """Dictionary of capacitors.
-        Parameters
-        ----------
-
         Returns
         -------
         dict
@@ -265,10 +256,7 @@ class Components(object):
 
     @property
     def IOs(self):
-        """
-               
-        Parameters
-        ----------
+        """Dictionary of capacitors.
 
         Returns
         -------
@@ -344,11 +332,10 @@ class Components(object):
     def get_component_list(self):
         """Return a list of components EDB objects.
 
-
         Returns
         -------
         list
-            List of component setup  information.
+            List of component setup information.
 
         """
         cmp_setup_info_list = self.parent.edbutils.ComponentSetupInfo.GetFromLayout(
@@ -407,7 +394,7 @@ class Components(object):
 
     @aedt_exception_handler
     def create_component_from_pins(self, pins, component_name):
-        """
+        """Create a component from pins.
 
         Parameters
         ----------
@@ -539,16 +526,19 @@ class Components(object):
 
         Parameters
         ----------
-        pins :
-            Python list of EDB core pins.
+        pins : list
+            List of EDB core pins.
         group_name : str, optional
-            Name for the group. The default is ``None``. If ``None``, a default name is assigned as follows: `[component Name] [NetName]`
+            Name for the group. The default is ``None``. If ``None``,
+            a default name is assigned as follows: ``[component Name] [NetName]``
 
         Returns
         -------
         tuple
             (bool, pingroup)
 
+        Examples
+        --------
         >>> from pyaedt import EDB
         >>> edbapp = Edb("myaedbfolder")
         >>> edbapp.core_components.create_pingroup_from_pins(gndpinlist, "MyGNDPingroup")
@@ -572,8 +562,6 @@ class Components(object):
     def delete_single_pin_rlc(self):
         """Delete all RLC components having less than two pins.
 
-        Parameters
-        ----------
 
         Returns
         -------
@@ -615,7 +603,7 @@ class Components(object):
             ``True`` when successful, ``False`` when failed.
 
         Examples
-        -------
+        --------
         
         >>> from pyaedt import Edb
         >>> edbapp = Edb("myaedbfolder")
@@ -1055,4 +1043,3 @@ class Components(object):
                     through_comp_list.append(refdes)
 
         return through_comp_list
-

@@ -323,9 +323,6 @@ class EDBLayer(object):
     def update_layers(self):
         """Update all layers.
       
-        Parameters
-        ----------
-
         Returns
         -------
         bool
