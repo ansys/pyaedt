@@ -407,14 +407,14 @@ class Components(object):
         -------
         type
             python tuple<bool,the Edb.Cell.Hierarchy.Component> With Item1 = True when component has successfully been created and False if not
+       
+        Examples
+        --------
 
-        >>> from pyaedt import EDB
+    >>> from pyaedt import EDB
         >>> edbapp = Edb("myaedbfolder")
         >>> pins = edbapp.core_components.get_pin_from_component("A1")
         >>> edbapp.core_components.create_component_from_pins(pins, "A1New")
-        
-        Examples
-        --------
         
         """
         try:
