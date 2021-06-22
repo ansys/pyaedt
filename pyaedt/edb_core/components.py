@@ -239,7 +239,7 @@ class Components(object):
 
     @property
     def ICs(self):
-                       
+        """Dictionary of capacitors.
         Parameters
         ----------
 
@@ -1055,5 +1055,4 @@ class Components(object):
                     through_comp_list.append(refdes)
 
         return through_comp_list
-
 
