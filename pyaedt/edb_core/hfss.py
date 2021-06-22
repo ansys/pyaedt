@@ -1,8 +1,5 @@
 """
-EDB 3D Layout Class
--------------------
-
-This class manages EDB HFSS 3D Layout methods and related methods.
+This module contains all EDB functinalities for the ``HFSS 3D Layout`` class.
 
 
 """
