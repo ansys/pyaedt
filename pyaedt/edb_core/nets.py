@@ -86,30 +86,33 @@ class EdbNets(object):
 
         Parameters
         ----------
-        netname_list :
-            list of net names
+        netname_list : list
+            List of net names.
 
         Returns
         -------
-        type
-            True if one of net name is power or ground
+        bool
+            ``True`` if one of the net name is ``"power"`` or ``"ground"``.
 
         """
         if self.builder:
             return self.nets_methods.IsPowerGroundNetInList(self.builder, netname_list)
 
     def get_dcconnected_net_list(self, ground_nets=["GND"]):
-        """Get the Netlist of Nets connected to DC Through Inductors
-        only inductors are considered
+        """List the nets connected to DC through inductors.
+        
+        .. note::
+           Only inductors are considered.
 
         Parameters
         ----------
-        ground_nets :
-            list of ground nets
-            return: list of dcconnected nets (Default value = ["GND"])
+        ground_nets : list, optional
+            List of ground nets. The default is ``["GND"]``.
 
         Returns
         -------
+        list
+        List of dcconnected nets. 
 
         """
         temp_list = []
@@ -192,21 +195,23 @@ class EdbNets(object):
 
     @aedt_exception_handler
     def delete_nets(self, netlist):
-        """Delete Nets from Edb
-        
-        :examples:
-
+        """Delete nets from EDB.
+       
         Parameters
         ----------
-        netlist :
-            str or list of net to be deleted
+        netlist : str or list
+            The one or more nets to delete.
 
         Returns
         -------
-        type
-            list of nets effectively deleted
+        list
+            List of nets that were deleted.
 
+        Examples
+        --------
+        
         >>> deleted_nets = edb_core.core_nets.delete_nets(["Net1","Net2"])
+        
         """
         if type(netlist) is str:
             netlist=[netlist]
@@ -228,8 +233,8 @@ class EdbNets(object):
 
         Parameters
         ----------
-        net_name : str
-            net name to find or create
+        net_name : str, optional
+            Name of the net to find or create. The default is ``""``.
 
         Returns
         -------
