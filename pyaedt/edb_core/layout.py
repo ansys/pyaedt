@@ -104,7 +104,7 @@ class EdbLayout(object):
         ----------
         layer_name: str
             Name of the layer.
-        net_list: list
+        net_list: list, optional
             List of net names.
         
         Returns
@@ -166,7 +166,7 @@ class EdbLayout(object):
         Returns
         -------
         list
-            List of list of double
+            List of doubles.
 
         Examples
         --------
@@ -506,7 +506,7 @@ class EdbLayout(object):
             Radius when ``type="circle"``. The default is ``None``.
         points : list, optional
             List of points when ``type="polygon"``. The default is ``None``.
-        properties -- dict, optional
+        properties : dict, optional
             Dictionary of properties associated with the shape. The default is ``{}``.
         """
 
