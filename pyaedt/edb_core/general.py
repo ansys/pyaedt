@@ -2,7 +2,7 @@
 General Methods
 ---------------
 
-This class manages EDT general methods and related methods.
+This class manages EDB general methods and related methods.
 
 
 """
