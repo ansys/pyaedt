@@ -146,6 +146,7 @@ class Polyline(object):
 
             self._o.name = parent.oeditor.CreatePolyline(varg1, varg2)
 
+            self._parent._refresh_object_types()
             self._parent._update_object(self._o)
 
         else:
@@ -670,7 +671,10 @@ class Polyline(object):
         arg2.append(arg3)
         arg1.append(arg2)
         self._parent.oeditor.ChangeProperty(arg1)
+
+        self._parent._refresh_object_types()
         self._parent._update_object(self._o)
+        #self._parent._update_object(self._o)
         return True
 
     @aedt_exception_handler
@@ -921,9 +925,6 @@ class Primitives(object):
         self.objects[o.id] = o
         self.objects_names[o.name] = o.id
 
-        # update the list of objects, sheets and lines from the modeler
-        self._refresh_object_types()
-
         o.update_object_type()
         o.update_properties()
 
@@ -1077,9 +1078,7 @@ class Primitives(object):
         :return:
         """
 
-        id = self._new_id()
-
-        o = self.objects[id]
+        o = self._new_object()
 
         obj = self._find_object_from_edge_id(edgeID)
 
@@ -1092,7 +1091,10 @@ class Primitives(object):
             varg2 = ['NAME:BodyFromEdgeToParameters']
             varg2.append('Edges:='), varg2.append([edgeID])
             o.name = self.oeditor.CreateObjectFromEdges(varg1, ['NAME:Parameters', varg2])[0]
+
+            self._refresh_object_types()
             id = self._update_object(o)
+
         return id
 
     @aedt_exception_handler
@@ -1103,9 +1105,7 @@ class Primitives(object):
         :param faceId: face ID (int)
         :return:
         """
-        id = self._new_id()
-
-        o = self.objects[id]
+        o = self._new_object()
 
         obj = self._find_object_from_face_id(faceId)
 
@@ -1118,7 +1118,10 @@ class Primitives(object):
             varg2 = ['NAME:BodyFromFaceToParameters']
             varg2.append('FacesToDetach:='), varg2.append([faceId])
             o.name = self.oeditor.CreateObjectFromFaces(varg1, ['NAME:Parameters', varg2])[0]
+
+            self._refresh_object_types()
             id = self._update_object(o)
+
         return id
 
     @aedt_exception_handler
@@ -1253,15 +1256,13 @@ class Primitives(object):
         :param udptye: udpy type
         :return: object ID
         """
-        id = self._new_id()
+        o = self._new_object()
 
         if not szLib:
             szLib ='syslib'
 
         if not udptye:
             udptye = "Solid"
-
-        o = self.objects[id]
 
         if ".dll" not in dllName:
             varg1 = ["NAME:UserDefinedPrimitiveParameters", "DllName:=", dllName+".dll", "Library:=", szLib]
@@ -1284,7 +1285,9 @@ class Primitives(object):
         print(varg2)
 
         self.oeditor.CreateUserDefinedPart(varg1, varg2)
-        id = self._update_object(o, udptye)
+
+        self._refresh_object_types()
+        id = self._update_object(o)
         return id
 
     @aedt_exception_handler
@@ -1511,20 +1514,17 @@ class Primitives(object):
 
         for el in self._solids:
             if el not in all_object_names:
-                o = Object3d(self)
-                o.name = el
+                o = Object3d(self, name=el)
                 self._update_object(o)
 
         for el in self._sheets:
             if el not in all_object_names:
-                o = Object3d(self)
-                o.name = el
+                o = Object3d(self, name=el)
                 self._update_object(o)
 
         for el in self._lines:
             if el not in all_object_names:
-                o = Object3d(self)
-                o.name = el
+                o = Object3d(self, name=el)
                 self._update_object(o)
 
         for el in all_object_names:
@@ -1559,8 +1559,10 @@ class Primitives(object):
 
             o.update_object_type()
 
-            o.solve_inside = attribs['SolveInside']
-            o.material_name = attribs['MaterialValue'][1:-1]
+            if o.analysis_type:
+                o.solve_inside = attribs['SolveInside']
+                o.material_name = attribs['MaterialValue'][1:-1]
+
             o.part_coordinate_system = attribs['PartCoordinateSystem']
             if "NonModel" in attribs['Flags']:
                 o.model = False
@@ -1761,17 +1763,20 @@ class Primitives(object):
         -------
         Object3d
         """
-        id = self._new_id()
-        o = self.objects[id]
-        o.material_name, o.solve_inside = self._check_material(matname, o.material_name)
+        return self._new_object(matname=matname)
+
+    @aedt_exception_handler
+    def _new_object(self, matname=None):
+        """Deprecate this to _new_object """
+        o = Object3d(self)
+        self.objects[0] = o
+        o._material_name, o._solve_inside = self._check_material(matname, self.defaultmaterial)
         return o
 
     @aedt_exception_handler
     def _new_id(self):
-        """ """
-        # self._currentId = self._currentId + 1
+        """Deprecate this to _new_object """
         o = Object3d(self)
-        o.material_name = self.defaultmaterial
         self._currentId = 0
         self.objects[self._currentId] = o
         return self._currentId
@@ -1779,7 +1784,7 @@ class Primitives(object):
     @aedt_exception_handler
     def set_part_name(self, partName, partId):
         """Set Part name value
-
+        .. Deprecated
         Parameters
         ----------
         partName :

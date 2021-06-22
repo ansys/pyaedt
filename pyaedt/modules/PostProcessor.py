@@ -1154,10 +1154,10 @@ class PostProcessor(object):
             for el in names:
                 if not self._primitives[el].wireframe:
                     wireframes.append(el)
-                    self._primitives[el].display_wireframe(True)
+                    self._primitives[el].display_wireframe = True
         status = self.export_field_jpg(exportFilePath, plotName, coordinateSystemForExportPlot.name)
         for solid in wireframes:
-            self._primitives[solid].display_wireframe(False)
+            self._primitives[solid].display_wireframe = False
         coordinateSystemForExportPlot.delete()
         return status
 

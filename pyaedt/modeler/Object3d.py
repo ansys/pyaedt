@@ -426,8 +426,8 @@ class FacePrimitive(object):
 
         Returns
         -------
-        list of float or False
-            Center position in [x, y, z] coordinates - only works for planar faces. otherwise return False
+        list of float
+            Centroid of all vertices of the face.
         """
         return GeometryOperators.get_polygon_centroid([pos.position for pos in self.vertices])
 
@@ -583,14 +583,21 @@ class Object3d(object):
         self.flags = ""
         self._transparency = 0.3
         self._part_coordinate_system = "Global"
-        self._material_name = ""
         self._solve_inside = True
         self._wireframe = False
         self._model = True
         self._color = (132, 132, 193)
         self._bounding_box = None
         self._object_type = None
-        self._is3d = True
+        self._material_name = self._parent.defaultmaterial
+        self._solve_inside = None
+
+    @property
+    def analysis_type(self):
+        """Returns True for a 'Sheet' object in a 2D analysis or a 'Solid' object in a 3D analysis"""
+        solve_3d = self._parent.is3d and self.object_type == "Solid"
+        solve_2d = not self._parent.is3d and self.object_type == "Sheet"
+        return solve_3d or solve_2d
 
     @property
     def bounding_box(self):
@@ -606,14 +613,16 @@ class Object3d(object):
         -------
         list of [list of float]
         """
-        unique_design_name = generate_unique_name("bounding")
-        new_design = self._parent.oproject.InsertDesign("HFSS", unique_design_name, "", "")
-        self.m_Editor.Copy(["NAME:Selections", "Selections:=", self.name])
-        oeditor = new_design.SetActiveEditor("3D Modeler")
-        oeditor.Paste()
-        bb = list(oeditor.GetModelBoundingBox())
-        self._bounding_box = [float(b) for b in bb]
-        self._parent.oproject.DeleteDesign(unique_design_name)
+        if self.id >0:
+            origin_design_name = self._parent._parent.design_name
+            unique_design_name = generate_unique_name("bounding")
+            new_design = self._parent.oproject.InsertDesign("HFSS", unique_design_name, "", "")
+            self.m_Editor.Copy(["NAME:Selections", "Selections:=", self.name])
+            oeditor = new_design.SetActiveEditor("3D Modeler")
+            oeditor.Paste()
+            bb = list(oeditor.GetModelBoundingBox())
+            self._bounding_box = [float(b) for b in bb]
+            self._parent._parent.delete_design(name=unique_design_name, fallback_design=origin_design_name)
         return self._bounding_box
 
     @property
@@ -732,12 +741,13 @@ class Object3d(object):
 
     @name.setter
     def name(self, obj_name):
-        vName = []
-        vName.append("NAME:Name")
-        vName.append("Value:=")
-        vName.append(obj_name)
-        self._m_name = obj_name
-        self._change_property(obj_name)
+        if obj_name != self._m_name:
+            vName = []
+            vName.append("NAME:Name")
+            vName.append("Value:=")
+            vName.append(obj_name)
+            self._m_name = obj_name
+            self._change_property(obj_name)
 
     @property
     def color(self):
@@ -866,11 +876,24 @@ class Object3d(object):
         else:
             obj_name = self.name
 
-        args = ["NAME:Attributes", "Name:=", obj_name, "Flags:=", self.flags, "Color:=", self.color_string,
-                "Transparency:=", self.transparency, "PartCoordinateSystem:=", self.part_coordinate_system,
-                "UDMId:=", "", "MaterialValue:=", chr(34) + self.material_name + chr(34),
-                "SurfaceMaterialValue:=", chr(34) +"Steel-oxidised-surface"+ chr(34), "SolveInside:=", self.solve_inside,
-                "IsMaterialEditable:=", True, "UseMaterialAppearance:=", False, "IsLightweight:=", False]
+        args = ["NAME:Attributes",
+                "Name:=", obj_name,
+                "Flags:=", self.flags,
+                "Color:=", self.color_string,
+                "Transparency:=", self.transparency,
+                "PartCoordinateSystem:=", self.part_coordinate_system,
+                "UDMId:=", "",
+                "MaterialValue:=", chr(34) + self._material_name + chr(34),
+                "SurfaceMaterialValue:=", chr(34) +"Steel-oxidised-surface"+ chr(34),
+                "SolveInside:=", self.solve_inside]
+
+        if self._parent.version >= "2021.1":
+            args += ["ShellElement:="	, False,
+                     "ShellElementThickness:=", "0mm",
+                     "IsMaterialEditable:=", True,
+                     "UseMaterialAppearance:=", False,
+                     "IsLightweight:=", False]
+
         return args
 
     @property
@@ -945,19 +968,18 @@ class Object3d(object):
     def update_object_type(self):
         if self._m_name in self._parent.solids:
             self._object_type = "Solid"
-            self._is3d = True
         else:
             if self._m_name in self._parent.sheets:
                 self._object_type = "Sheet"
             elif self._m_name in self._parent.lines:
                 self._object_type = "Line"
-            self._is3d = False
 
     @aedt_exception_handler
     def update_properties(self):
 
         n = 10
         all_prop = retry_ntimes(n, self.m_Editor.GetProperties, "Geometry3DAttributeTab", self._m_name)
+
         if 'Solve Inside' in all_prop:
             solveinside = retry_ntimes(n, self.m_Editor.GetPropertyValue, "Geometry3DAttributeTab", self._m_name, 'Solve Inside')
             if solveinside == 'false' or solveinside == 'False':

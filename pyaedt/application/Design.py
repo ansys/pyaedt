@@ -218,6 +218,135 @@ model_names = {
 }
 
 
+def list_difference(list1, list2):
+    return list(set(list1) - set(list2))
+
+class DesignCache(object):
+    """Cache object to analyse the differences between the state of a design between two points in time.
+
+    At present the contents of the design to be tracked are:
+
+        * global-level messages in the message Manager
+        * project-level messages in the message Manager
+        * design-level messages in the message Manager
+    """
+    def __init__(self, parent):
+        self._parent = parent
+        self._allow_errors_local = []
+        self._allow_errors_global = []
+        self.clear()
+        self._snapshot = self.design_snapshot()
+
+    @property
+    def allowed_error_messages(self):
+        return self._allow_errors_global + self._allow_errors_local
+
+    def allow_error_message_local(self, msg):
+        self._allow_errors_local.append("[error] {}".format(msg))
+
+    def allow_error_message_global(self, msg):
+        self._allow_errors_local.append("[error] {}".format(msg))
+
+    @property
+    def no_change(self):
+        """True if the design snapshot has not changed between updates"""
+        return self._no_change
+
+    @property
+    def delta_global_messages(self):
+        """A list of any new or missing global-level messages since the last update"""
+        return self._delta_global_messages
+
+    @property
+    def delta_project_messages(self):
+        """A list of any new or missing project-level messages since the last update"""
+        return self._delta_global_messages
+
+    @property
+    def delta_design_messages(self):
+        """A list of any new or missing design-level messages since the last update"""
+        return self._delta_design_messages
+
+    @property
+    def delta_error_messages(self):
+        """A list of any new or missing error messages since the last update"""
+        return self._new_error_messages
+
+    @property
+    def no_new_messages(self):
+        """Returns True if new messages have appeared since the last update or the message manager was cleared"""
+        return not bool(self._delta_messages)
+
+    @property
+    def no_new_errors(self):
+        """Returns True if new error messages have appeared since the last update"""
+        return not bool(self._new_error_messages)
+
+    @property
+    def no_new_warnings(self):
+        """Returns True if new error messages have appeared since the last update"""
+        return not bool(self._new_warning_messages)
+
+    @property
+    def no_change(self):
+        """Returns True if the cache elements have not changed since the last update"""
+        return self.no_new_messages
+
+    def design_snapshot(self):
+        snapshot = {
+            "Solids:":  self._parent.modeler.primitives.solids,
+            "Lines:":  self._parent.modeler.primitives.lines,
+            "Sheets": self._parent.modeler.primitives.sheets,
+            "DesignName" : self._parent.design_name
+        }
+        return snapshot
+
+    def clear(self):
+        """Clear the cached values"""
+        self._messages_global_level = []
+        self._messages_project_level = []
+        self._messages_design_level = []
+
+    def update(self):
+        """Get the current state values from the design and perform a delta-calculation with the cached values.
+        Then replace the cached values with the current values. Note: this is done automatically when the property
+        'no_change' is accessed!"""
+        messages = self._parent.messenger.messages
+
+        # Check whether the design snapshot has changed since the last update
+        new_snapshot = self.design_snapshot()
+        if new_snapshot == self._snapshot:
+            self._no_change = True
+        else:
+            self._no_change = False
+
+        self._snapshot = new_snapshot
+
+        self._delta_global_messages = list_difference(messages.global_level, self._messages_global_level)
+        self._delta_project_messages = list_difference(messages.project_level, self._messages_project_level)
+        self._delta_design_messages = list_difference(messages.design_level, self._messages_design_level)
+        self._delta_messages_unfiltered = self._delta_global_messages + self._delta_project_messages + self._delta_design_messages
+
+        # filter out allowed messages
+        self._delta_messages = []
+        for msg in self._delta_messages_unfiltered:
+            allowed_errors = self._allow_errors_local + self._allow_errors_global
+            for allowed in allowed_errors:
+                if msg.find(allowed) != 0:
+                    self._delta_messages.append(msg)
+
+        self._new_error_messages = [msg for msg in self._delta_messages if msg.find("[error]") == 0]
+        self._new_warning_messages = [msg for msg in self._delta_messages if msg.find("[warning]") == 0]
+
+        self._messages_global_level = messages.global_level
+        self._messages_project_level = messages.project_level
+        self._messages_design_level = messages.design_level
+
+        self._allow_errors_local = []
+
+        return self
+
+
 class Design(object):
     """Class Design. Contains all functions and objects connected to the active Project and Design"""
     def __str__(self):
@@ -552,7 +681,10 @@ class Design(object):
         -------
 
         """
-        return self._oproject and self._odesign
+        if self._oproject and self._odesign:
+            return True
+        else:
+            return False
 
     @property
     def personallib(self):
@@ -1631,20 +1763,21 @@ class Design(object):
 
         Parameters
         ----------
-        directory :
-            project directory (Default value = None)
-        name :
-            project name (Default value = None)
+        directory : str, default=None
+            project directory, of not specified clear the .aedtresults directory of the active project
+        name : str, default=None
+            project name, if not specified clear the data for the active project
 
         Returns
         -------
-
+        bool
+            True if the clear operation is successful
         """
         if not name:
             name=self.project_name
         if not directory:
-            directory = os.path.join(self.project_path, self.project_name + ".aedtresults")
-        self._messenger.add_info_message("Cleanup folder from " + name + " project files")
+            directory = self.results_directory
+        self._messenger.add_info_message("Cleanup folder {} from project {}".format(directory, name))
         if os.path.exists(directory):
             shutil.rmtree(directory, True)
             if not os.path.exists(directory):
@@ -1730,22 +1863,32 @@ class Design(object):
         return True
 
     @aedt_exception_handler
-    def delete_design(self, name):
+    def delete_design(self, name=None, fallback_design=None):
         """Delete name Design from the current project (will not work from toolkit)
 
         Parameters
         ----------
-        name :
-
+        name : str, default=None
+            Design name to be deleted. If not specified then delete the active design
 
         Returns
         -------
         bool
             succeed status
-
         """
-
+        if not name:
+            name = self.design_name
         self.oproject.DeleteDesign(name)
+        try:
+            if fallback_design:
+                new_designname = fallback_design
+            else:
+                new_designname = self._oproject.GetActiveDesign().GetName()
+            self.set_active_design(new_designname)
+        except:
+            #TODO Handle the case when after delete_design no design is present
+            pass
+
         return True
 
 
