@@ -3,13 +3,13 @@
    You can adapt this file completely to your liking, but it should at least
    contain the root `toctree` directive.
 
-Desktop & Messenger
-===================================
+Desktop and Messenger
+=====================
 
 
 .. toctree::
    :maxdepth: 2
-   :caption: Classes:
+   :caption: The PyAEDT API includes these classes for Desktop and Messenger:
 
    Desktop
    Messenger

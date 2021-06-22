@@ -4,7 +4,7 @@
    contain the root `toctree` directive.
 
 EDB Stackup
-===================================
+===========
 
 .. automodule:: pyaedt.edb_core.stackup
     :members:

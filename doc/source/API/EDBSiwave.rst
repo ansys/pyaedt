@@ -4,7 +4,7 @@
    contain the root `toctree` directive.
 
 EDB Siwave
-===================================
+==========
 
 .. automodule:: pyaedt.edb_core.siwave
     :members:

@@ -4,7 +4,8 @@
    contain the root `toctree` directive.
 
 EDB HFSS
-===================================
+========
+
 **Diagram**
 
 .. automodule:: pyaedt.edb_core.hfss

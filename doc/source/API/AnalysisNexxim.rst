@@ -4,7 +4,7 @@
    contain the root `toctree` directive.
 
 Analysis Nexxim
-===================================
+===============
 
 .. autoclass:: pyaedt.application.AnalysisNexxim.FieldAnalysisCircuit
     :members:

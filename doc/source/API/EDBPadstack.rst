@@ -4,7 +4,7 @@
    contain the root `toctree` directive.
 
 EDB Padstacks
-===================================
+=============
 
 .. automodule:: pyaedt.edb_core.padstack
     :members:

@@ -4,7 +4,7 @@
    contain the root `toctree` directive.
 
 Common Primitives Classes
-===================================
+=========================
 
 .. automodule:: pyaedt.modeler.Primitives
     :members:

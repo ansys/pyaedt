@@ -4,7 +4,7 @@
    contain the root `toctree` directive.
 
 Analysis 3DLayout
-===================================
+=================
 
 .. autoclass:: pyaedt.application.Analysis3DLayout.FieldAnalysis3DLayout
     :members:
