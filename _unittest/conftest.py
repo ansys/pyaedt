@@ -114,15 +114,25 @@ def pyaedt_unittest_new_design(func):
 
 
 class BasisTest:
-    def setup_class(self, project_name=None):
+
+    def setup_class(self, project_name=None, design_name=None, application=None):
+
         with Scratch(scratch_path) as self.local_scratch:
             if project_name:
                 example_project = os.path.join(local_path, 'example_models', project_name + '.aedt')
                 self.test_project = self.local_scratch.copyfile(example_project)
             else:
                 self.test_project = None
-            self.aedtapp = Hfss(projectname=self.test_project, specified_version=desktop_version, AlwaysNew=new_thread, NG=non_graphical)
+            if not application:
+                application = Hfss
+
+            self.aedtapp = application(projectname=self.test_project, specified_version=desktop_version, AlwaysNew=new_thread, NG=non_graphical)
             self.aedtapp.save_project()
+
+            if project_name:
+                if design_name:
+                    self.aedtapp.design_name = design_name
+
             self.cache = DesignCache(self.aedtapp)
 
     def teardown_class(self):

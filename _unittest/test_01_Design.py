@@ -41,7 +41,7 @@ class TestDesign(BasisTest):
 
     @pyaedt_unittest_duplicate_design
     def test_01_designname(self):
-        assert self.aedtapp.design_name == "pytest"
+        assert self.aedtapp.design_name.startswith("pytest")
         self.aedtapp.design_name = "myname"
         assert self.aedtapp.design_name == "myname"
 

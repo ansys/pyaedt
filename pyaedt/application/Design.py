@@ -241,10 +241,10 @@ class DesignCache(object):
     def allowed_error_messages(self):
         return self._allow_errors_global + self._allow_errors_local
 
-    def allow_error_message_local(self, msg):
+    def ignore_error_message_local(self, msg):
         self._allow_errors_local.append("[error] {}".format(msg))
 
-    def allow_error_message_global(self, msg):
+    def ignore_error_message_global(self, msg):
         self._allow_errors_local.append("[error] {}".format(msg))
 
     @property

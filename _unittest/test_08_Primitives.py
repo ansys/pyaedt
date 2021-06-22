@@ -1,6 +1,7 @@
 # standard imports
 import os
 import pytest
+import math
 
 # Setup paths for module imports
 from .conftest import local_path, config
@@ -11,16 +12,16 @@ from .conftest import BasisTest
 from pyaedt.modeler.Primitives import Polyline, PolylineSegment
 from pyaedt.modeler.GeometryOperators import GeometryOperators
 
-test_project_name = "test_primitives"
-
 scdoc = "input.scdoc"
 step = "input.stp"
 
 class TestPrimitives(BasisTest):
 
     def setup_class(self):
-        BasisTest.setup_class(self, project_name=test_project_name)
-        self.cache.allow_error_message_global("Script macro error: Missing property name.")
+
+        BasisTest.setup_class(self, project_name="test_primitives", design_name="simple_primitives")
+
+        self.cache.ignore_error_message_global("Script macro error: Missing property name.")
 
         scdoc_file = os.path.join(local_path, 'example_models', scdoc)
         self.local_scratch.copyfile(scdoc_file)
@@ -343,19 +344,19 @@ class TestPrimitives(BasisTest):
     def test_25_get_face_area(self):
         listfaces = self.aedtapp.modeler.primitives.get_object_faces("MyRectangle")
         area = self.aedtapp.modeler.primitives.get_face_area(listfaces[0])
-        assert area == 7*13
+        assert area == 4.0*5.0
 
     @pyaedt_unittest_same_design
     def test_26_get_face_center(self):
         listfaces = self.aedtapp.modeler.primitives.get_object_faces("MyRectangle")
         center = self.aedtapp.modeler.primitives.get_face_center(listfaces[0])
-        assert center == [4.5, 8.5, 3.0]
+        assert center == [7.0, 5.5, 8.0]
 
     @pyaedt_unittest_same_design
     def test_27_get_edge_midpoint(self):
         listedges = self.aedtapp.modeler.primitives.get_object_edges("MyRectangle")
         point = self.aedtapp.modeler.primitives.get_edge_midpoint(listedges[0])
-        assert point == [4.5, 2.0, 3.0]
+        assert point == [7.0, 3.0, 8.0]
 
     @pyaedt_unittest_new_design
     def test_28_get_bodynames_from_position(self):
@@ -629,7 +630,7 @@ class TestPrimitives(BasisTest):
     @pyaedt_unittest_same_design
     def test_46_solving_volume(self):
         vol = self.aedtapp.modeler.get_solving_volume()
-        assert len(vol) == 5
+        assert math.isclose(float(vol), 62640.0)
 
     @pyaedt_unittest_same_design
     def test_46_lines(self):
