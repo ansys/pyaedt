@@ -270,6 +270,30 @@ class EdbLayout(object):
     @aedt_exception_handler
     def create_path(self, path_list, layer_name, width=1, net_name="", start_cap_style="Round", end_cap_style="Round",
                     corner_style="Round"):
+        """
+        Create a path based on a list of points
+
+        Parameters
+        ----------
+        path_list : Shape
+            list of points
+        layer_name : str
+            name of the layer on which path will be created
+        width : float
+            path width
+        net_name : str
+            net name
+        start_cap_style : str
+            Start Cap file. "Round", "Extended", "Flat"
+        end_cap_style : str
+            End Cap file. "Round", "Extended", "Flat"
+        corner_style : str
+            Corner Style: "Round" or "Flat"
+
+        Returns
+        -------
+        bool
+        """
         net = self.parent.core_nets.find_or_create_net(net_name)
         if start_cap_style.lower() == "round":
             start_cap_style = 0
@@ -306,6 +330,24 @@ class EdbLayout(object):
 
     @aedt_exception_handler
     def create_polygon(self, main_shape,  layer_name, voids=[], net_name=""):
+        """
+        Create a new polygon based on list of points and voids
+
+        Parameters
+        ----------
+        main_shape : Shape
+            shape main object
+        layer_name : str
+            layer on which polygon will be created
+        voids : list
+            list of Shape object for voids
+        net_name : str
+            name of the net
+
+        Returns
+        -------
+        bool
+        """
         net = self.parent.core_nets.find_or_create_net(net_name)
         polygonData = self.shape_to_polygon_data(main_shape)
         if polygonData is None or polygonData.IsNull():
