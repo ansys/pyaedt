@@ -1,8 +1,8 @@
 """
 General Methods
--------------------
+---------------
 
-This class manages Edb General Methods and related methods
+This class manages EDT general methods and related methods.
 
 
 """
