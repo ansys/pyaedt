@@ -1,5 +1,5 @@
 """
-This module contains all EDB functinalities for the ``HFSS 3D Layout`` class.
+This module contains all EDB functinalities for the ``EDB 3D Layout`` class.
 
 
 """
@@ -18,7 +18,7 @@ except ImportError:
 
 
 class Edb3DLayout(object):
-    """HFSS 3D Layout class."""
+    """EDB 3D Layout class."""
 
     @property
     def hfss_terminals(self):
