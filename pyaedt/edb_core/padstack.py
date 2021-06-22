@@ -1,5 +1,5 @@
 """
-This module contains all EDB functionalities in the ``Padstack`` class.
+This module contains all EDB functionalities in the ``EDB Padstack`` class.
 
 
 """
@@ -17,7 +17,7 @@ except ImportError:
 
 
 class EdbPadstacks(object):
-    """HFSS 3DLayout class."""
+    """EDB Padstacks class."""
 
 
     def __init__(self, parent):
