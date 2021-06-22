@@ -1,8 +1,5 @@
 """
-Components Class
-----------------
-
-This class manages EDB components and related methods.
+This module contains all EDB functionalities in the ``Layout`` class.
 
 
 """
@@ -27,7 +24,7 @@ class Primitive(object):
         self.paths = []
 
 class EdbLayout(object):
-    """HFSS 3DLayout object"""
+    """HFSS 3DLayout class."""
     @property
     def edb(self):
         """ """
