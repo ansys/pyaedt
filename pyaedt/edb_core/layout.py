@@ -1,7 +1,6 @@
 """
 This module contains all EDB functionalities in the ``Layout`` class.
 
-
 """
 import warnings
 from .general import *
