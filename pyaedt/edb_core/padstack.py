@@ -1,8 +1,8 @@
 """
-EdbPadstack Class
+EDB Padstack Class
 -------------------
 
-This class manages Edb Padstacks and related methods
+This class manages EDB padstacks and related methods.
 
 
 """
@@ -20,7 +20,7 @@ except ImportError:
 
 
 class EdbPadstacks(object):
-    """HFSS 3DLayout object"""
+    """HFSS 3DLayout class."""
 
 
     def __init__(self, parent):
@@ -67,16 +67,12 @@ class EdbPadstacks(object):
         return self.parent.core_stackup.stackup_layers
     @property
     def padstacks(self):
-        """Get all via padstack definitions
+        """List all padstacks via padstack definitions.
         
-        
-        :return: List of padstack definitions
-
-        Parameters
-        ----------
-
         Returns
         -------
+        list
+            List of padstack definitions.
 
         """
         viadefList = {}
@@ -89,27 +85,29 @@ class EdbPadstacks(object):
     @aedt_exception_handler
     def create_circular_padstack(self, padstackname=None, holediam='300um', paddiam='400um', antipaddiam='600um',
                         startlayer=None, endlayer=None):
-        """Create a new Padskack
+        """Create a new circular padstack.
 
         Parameters
         ----------
-        endlayer :
-            End Layer. If none is entered, default is bottom
-        startlayer :
-            Start Layer. If none is entered, default is top
-        padstackname :
-            name of the padstack (Default value = None)
-        holediam :
-            hole diameter with units (Default value = '300um')
-        paddiam :
-            pad diameter with units (Default value = '400um')
-        antipaddiam :
-            antipad diameter with units (Default value = '600um')
-
+        padstackname : str, optional
+            Name of the padstack. The default is ``None``.
+        holediam : str, optional
+           Diameter of the hole with units. The default is ``"300um"``.
+        paddiam : str, optional
+            Diameter of the pad with units. The default is ``"400um"``.
+        antipaddiam : str, optional
+            Diameter of the antipad with units. The default is``"600um"``.
+        startlayer : str, optional
+            Starting layer. The default is ``None``. If ``None``, the top
+            is the starting layer.
+        endlayer : str, optional
+            Ending layer. The default is ``None``. If ``None``, the bottom
+            is the ending layer.
+     
         Returns
         -------
-        type
-            padstackname if operation is completed
+        str
+            Name of the padstack if the operation is successful.
 
         """
         return self.padstack_methods.CreateCircularPadStackDef(self.builder, padstackname, holediam, paddiam,
@@ -117,21 +115,21 @@ class EdbPadstacks(object):
 
     @aedt_exception_handler
     def get_pinlist_from_component_and_net(self, refdes = None, netname = None):
-        """Get Pins from given component refdes and net name
+        """Retrieve pins given a component's reference designator and net name.
 
         Parameters
         ----------
-        Component :
-            refdes: Component name
-        netname :
-            the name of the nets to search for. Will return False if the net does not belong to the component (Default value = None)
-        refdes :
-             (Default value = None)
-
+        refdes : str, optional
+            Reference designator of the component. The default is ``None``.
+        netname : str optional
+            Name of the net for which to search. The default is ``None``.
+            .. note::
+               ``False`` is returned if the net does not belong to the component.
+        
         Returns
         -------
-        type
-            dictionary of vias
+        dict
+            Dictionary of vias.
 
         """
         if self.builder:
@@ -142,27 +140,29 @@ class EdbPadstacks(object):
     @aedt_exception_handler
     def create_padstack(self, padstackname=None, holediam='300um', paddiam='400um', antipaddiam='600um',
                         startlayer=None, endlayer=None):
-        """Create a new Padskack
+        """Create a new padstack.
 
         Parameters
         ----------
-        endlayer :
-            End Layer. If none is entered, default is bottom
-        startlayer :
-            Start Layer. If none is entered, default is top
-        padstackname :
-            name of the padstack (Default value = None)
-        holediam :
-            hole diameter with units (Default value = '300um')
-        paddiam :
-            pad diameter with units (Default value = '400um')
-        antipaddiam :
-            antipad diameter with units (Default value = '600um')
-
+        padstackname : str, optional
+            Name of the padstack. The default is ``None``.
+        holediam : str, optional
+           Diameter of the hole with units. The default is ``"300um"``.
+        paddiam : str, optional
+            Diameter of the pad with units. The default is ``"400um"``.
+        antipaddiam : str, optional
+            Diameter of the antipad with units. The default is``"600um"``.
+        startlayer : str, optional
+            Starting layer. The default is ``None``. If ``None``, the top
+            is the starting layer.
+        endlayer : str, optional
+            Ending layer. The default is ``None``. If ``None``, the bottom
+            is the ending layer.
+            
         Returns
         -------
-        type
-            padstackname if operation is completed
+        str
+            Name of the padstack if the operation is successful.
 
         """
         if not padstackname:
