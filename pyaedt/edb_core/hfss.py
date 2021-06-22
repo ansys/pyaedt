@@ -22,6 +22,7 @@ except ImportError:
 
 class Edb3DLayout(object):
     """HFSS 3D Layout class."""
+
     @property
     def hfss_terminals(self):
         """ """
@@ -165,4 +166,3 @@ class Edb3DLayout(object):
             return True
         else:
             return False
-
