@@ -1,8 +1,5 @@
 """
-EDB Padstack Class
--------------------
-
-This class manages EDB padstacks and related methods.
+This module contains all EDB functionalities in the ``Padstack`` class.
 
 
 """
@@ -129,7 +126,7 @@ class EdbPadstacks(object):
         Returns
         -------
         dict
-            Dictionary of vias.
+            Dictionary of pins.
 
         """
         if self.builder:
