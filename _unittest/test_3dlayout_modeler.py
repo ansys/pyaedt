@@ -173,8 +173,8 @@ class Test3DLayout:
         assert self.aedtapp.set_export_touchstone(False)
 
     def test_21_variables(self):
-        assert self.aedtapp.available_variations.nominal_w_values_dict
-        assert self.aedtapp.available_variations.nominal_w_values
+        assert isinstance(self.aedtapp.available_variations.nominal_w_values_dict, dict)
+        assert isinstance(self.aedtapp.available_variations.nominal_w_values, list)
 
     def test_21_get_all_sparameter_list(self):
         assert self.aedtapp.get_all_sparameter_list == ["S(Port1,Port1)", "S(Port1,Port2)", "S(Port2,Port2)"]
