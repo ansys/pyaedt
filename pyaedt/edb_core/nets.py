@@ -92,7 +92,7 @@ class EdbNets(object):
         Returns
         -------
         bool
-            ``True`` if one of the net name is ``"power"`` or ``"ground"``.
+            ``True`` if one of the net names is ``"power"`` or ``"ground"``.
 
         """
         if self.builder:
@@ -112,7 +112,7 @@ class EdbNets(object):
         Returns
         -------
         list
-        List of dcconnected nets. 
+            List of DC connected nets. 
 
         """
         temp_list = []
@@ -246,7 +246,6 @@ class EdbNets(object):
         if net.IsNull():
             net = self.edb.Cell.Net.Create(self.active_layout, net_name)
         return net
-
 
 
 
