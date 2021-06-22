@@ -739,7 +739,7 @@ class Components(object):
             Field header containing the value of the component. The default is ``"Func des"``.
             .. note::
                ``valuefield`` must contain the value of the component at beginning of the value 
-               followed by a space and then the rest of the value. For exaample, ``"eg. 22pF"``. 
+               followed by a space and then the rest of the value. For example, ``"22pF"``. 
         comptype : str, optional
             Field header containing the type of component. The default is ``"Prod name"``. For 
             example, you might enter ``"Inductor"``.
@@ -835,7 +835,7 @@ class Components(object):
 
         Parameters
         ----------
-        pin :
+        pin : str
             Name of the pin in EDB core.
 
         Returns
@@ -871,7 +871,7 @@ class Components(object):
         Returns
         -------
         list
-            Pin position [x, y] as a list of float values.
+            Pin position as a list of float values in the form ``[x, y]``.
 
         Examples
         --------
@@ -985,12 +985,12 @@ class Components(object):
         return data
 
     def get_rats(self):
-        """
+        """Return a list of dictionaries of the reference designator, pin names, and net names.
         
         Returns
         -------
         list
-            List of dictionaries of the dictionary of the reference designator, pin names, 
+            List of dictionaries of the reference designator, pin names, 
             and net names.
         
         Examples
@@ -1028,7 +1028,7 @@ class Components(object):
         >>> edbapp = Edb("myaedbfolder", "project name", "release version")
         >>> edbapp.core_components.get_through_resistor_list()
        
-       """
+        """
         through_comp_list = []
         for refdes, comp_obj in self.resistors.items():
 

@@ -2,7 +2,7 @@
 General Methods
 ---------------
 
-This class manages EDB general methods and related methods.
+This module contains EDB general methods and related methods.
 
 
 """
