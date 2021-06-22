@@ -832,7 +832,7 @@ class Hfss(FieldAnalysis3D, object):
 
         Returns
         -------
-       BoundaryObject
+        BoundaryObject
             Boundary object.
 
         """
