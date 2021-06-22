@@ -414,7 +414,7 @@ class Components(object):
         pins :
             List of EDB core pins.
         component_name : str
-            Name of the refrence designator for the component.
+            Name of the reference designator for the component.
 
         Returns
         -------
@@ -975,7 +975,7 @@ class Components(object):
         -------
         dict
             Dictionary of the reference designator, pin names, and net
-            names for the sepcified reference designator.
+            names for the specified reference designator.
 
         Examples
         --------
