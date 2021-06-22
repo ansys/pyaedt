@@ -1,5 +1,5 @@
 """
-This module contains all EDB functionalities in the ``Layout`` class.
+This module contains all EDB functionalities in the ``HFSS 3D Layout`` class.
 
 """
 import warnings
