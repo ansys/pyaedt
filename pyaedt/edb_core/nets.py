@@ -223,5 +223,25 @@ class EdbNets(object):
 
         return nets_deleted
 
+    def find_or_create_net(self, net_name=''):
+        """Return the net with the given name in the layout or create it and return it.
+
+        Parameters
+        ----------
+        net_name : str
+            net name to find or create
+
+        Returns
+        -------
+        object
+            Net Object
+        """
+
+        net = self.edb.Cell.Net.FindByName(self.active_layout, net_name)
+        if net.IsNull():
+            net = self.edb.Cell.Net.Create(self.active_layout, net_name)
+        return net
+
+
 
 
