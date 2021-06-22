@@ -110,7 +110,7 @@ def update_aedt_registry(key, value, desktop_version="193"):
     """Update AEDT registry key.
     
     .. note::
-       This method is for Windows only.
+       This method is only supported in Windows.
     
     Parameters
     ----------

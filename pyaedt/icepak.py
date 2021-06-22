@@ -90,7 +90,7 @@ class Icepak(FieldAnalysisIcepak):
 
         Returns
         -------
-        List
+        list
             List of all defined analysis setup names in the Maxwell design.
             
         """

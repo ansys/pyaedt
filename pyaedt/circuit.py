@@ -599,7 +599,7 @@ class Circuit(FieldAnalysisCircuit, object):
 
     @aedt_exception_handler
     def get_source_pin_names(self, source_design_name, source_project_name=None, source_project_path=None, port_selector=3):
-        """Lists the pin names.
+        """List the pin names.
         
         Parameters
         ----------
@@ -608,7 +608,7 @@ class Circuit(FieldAnalysisCircuit, object):
         source_project_name :str, None
             Name of the source project. The default is ``None``.
         source_project_path : str, optional
-            Path to the source project if different than the existsting path. The default is ``None``.
+            Path to the source project if different than the existing path. The default is ``None``.
         port_selector : int, optional
              The type of port. Choices are ``1``, ``2``, or ``3``, corresponding respectively to ``"Wave Port"``, ``"Terminal"``, or ``"Circuit Port"``.
              The default is ``3``, which is a circuit.
@@ -642,7 +642,7 @@ class Circuit(FieldAnalysisCircuit, object):
 
     @aedt_exception_handler
     def import_touchstone_solution(self, filename, solution_name="Imported_Data"):
-        """ Import a Touchstone file as the solution.
+        """Import a Touchstone file as the solution.
 
         Parameters
         ----------
