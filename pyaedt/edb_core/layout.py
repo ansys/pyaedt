@@ -497,15 +497,15 @@ class EdbLayout(object):
             Type of the shape. Choices are ``"circle"``, ``"rectangle"``, and ``"polygon"``.
             The default is ``"unknown``.
         pointA : optional
-            Lower-left corner if a ``"rectangle"`` shape. The default is ``None``.
+            Lower-left corner when ``type="rectangle"``. The default is ``None``.
         pointB : optional
-            Upper-right corner if a `"rectangle"`` shape. The default is ``None``.
+            Upper-right corner when ``type="rectangle"``. The default is ``None``.
         centerPoint : optional
-            Center point if a ``"circle"`` shape. The default is ``None``.
+            Center point when ``type="circle"``. The default is ``None``.
         radius : optional
-            Radius if a ``"circle" shape. The default is ``None``.
+            Radius when ``type="circle"``. The default is ``None``.
         points : list, optional
-            List of points if a ``"polygon"`` shape. The default is ``None``.
+            List of points when ``type="polygon"``. The default is ``None``.
         properties -- dict, optional
             Dictionary of properties associated with the shape. The default is ``{}``.
         """
