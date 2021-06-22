@@ -205,30 +205,37 @@ class FieldAnalysis3D(Analysis, object):
 
     @aedt_exception_handler
     def get_all_sources(self):
-        """:return:List of all Setup Sources"""
-        return list(self.osolution.GetAllSources())
-
-    @aedt_exception_handler
-    def set_source_context(self, listofsources, nummodes=1):
-        """
-
-        Parameters
-        ----------
-        listofsources :
-            
-        nummodes :
-             (Default value = 1)
+        """Get list of all setup sources.
 
         Returns
         -------
-
+        list
+            All setup sources.
         """
-        listforcontext = []
-        i = 1
-        while i <= nummodes:
-            listforcontext.append([s+':'+str(i) for s in listofsources])
-            i += 1
-        return self.osolution.SetSourceContexts(listforcontext)
+        return list(self.osolution.GetAllSources())
+
+    @aedt_exception_handler
+    def set_source_context(self, sources, number_of_modes=1):
+        """Set source context.
+
+        Parameters
+        ----------
+        sources : list
+            Source names.
+        number_of_modes : int, optional
+            Number of modes, by default 1
+
+        Returns
+        -------
+        bool
+            True if successful, False otherwise. 
+        """
+
+        contexts = []
+        for i in range(number_of_modes):
+            contexts.append([s + ':' + str(i + 1) for s in sources])  # use one based indexing
+        self.osolution.SetSourceContexts(contexts)
+        return True
 
     @aedt_exception_handler
     def assignmaterial(self, obj, mat):
