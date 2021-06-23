@@ -110,14 +110,14 @@ class EdbStackup(object):
         name : str
             Name of the dielectic.
         permittivity : float, optional
-            Permittivity of the dielectric.
-        loss_tangent : float
-            Loss tangent for the material. 
+            Permittivity of the dielectric. The default is ``1``.
+        loss_tangent : float, optional
+            Loss tangent for the material. The default is ``01``.
 
         Returns
         -------
         type
-        Material definition.
+            Material definition.
         
         """
         if self.edb.Definition.MaterialDef.FindByName(self.db, name).IsNull():
@@ -142,7 +142,7 @@ class EdbStackup(object):
         Returns
         -------
         type
-        Material definition.
+            Material definition.
         
         """
         if self.edb.Definition.MaterialDef.FindByName(self.db, name).IsNull():
@@ -180,7 +180,7 @@ class EdbStackup(object):
         Returns
         -------
         type
-        Material definition.
+            Material definition.
         
         """
         material_def = self.edb.Definition.DebyeModel()
@@ -205,12 +205,12 @@ class EdbStackup(object):
         loss_tangent : float
             Loss tangent for the material.
         test_frequency : float
-            Test frequency for the dielectric in GHz.
+            Test frequency in GHz for the dielectric.
 
         Returns
         -------
         type
-        Material definition.
+            Material definition.
         
         """
         material_def = self.edb.Definition.DjordjecvicSarkarModel()
