@@ -334,7 +334,7 @@ class Hfss(FieldAnalysis3D, object):
         Returns
         -------
         SweepHFSS
-            Sweep object
+            Sweep object.
 
         """
 
@@ -394,7 +394,7 @@ class Hfss(FieldAnalysis3D, object):
         Returns
         -------
         SweepHFSS
-            Sweep object
+            Sweep object.
 
         """
         if sweepname is None:
@@ -450,7 +450,7 @@ class Hfss(FieldAnalysis3D, object):
         Returns
         -------
         SweepHFSS
-            Sweep object
+            Sweep object.
 
         """
         if sweepname is None:
@@ -552,7 +552,7 @@ class Hfss(FieldAnalysis3D, object):
         Returns
         -------
         SweepHFSS
-            Sweep object
+            Sweep object.
 
         """
         if sweepname is None:
@@ -611,7 +611,7 @@ class Hfss(FieldAnalysis3D, object):
         Returns
         -------
         str
-            Port name
+            Port name.
 
         """
         if not self.modeler.primitives.does_object_exists(startobj) or not self.modeler.primitives.does_object_exists(
@@ -657,7 +657,7 @@ class Hfss(FieldAnalysis3D, object):
 
         Returns
         -------
-        type
+        str
             Port name
 
         """
@@ -703,7 +703,7 @@ class Hfss(FieldAnalysis3D, object):
 
         Returns
         -------
-        type
+        str
            Source name
 
         """
@@ -745,7 +745,7 @@ class Hfss(FieldAnalysis3D, object):
 
         Returns
         -------
-        type
+        str
             Source name
 
         """
@@ -832,8 +832,8 @@ class Hfss(FieldAnalysis3D, object):
 
         Returns
         -------
-        :class: BoundaryObject
-            Port name
+        BoundaryObject
+            Boundary object.
 
         """
         if not self.modeler.primitives.does_object_exists(startobj) or not self.modeler.primitives.does_object_exists(
@@ -906,7 +906,7 @@ class Hfss(FieldAnalysis3D, object):
         Returns
         -------
         BoundaryObject
-            Port object
+            Port object.
 
         Examples
         --------
@@ -966,8 +966,8 @@ class Hfss(FieldAnalysis3D, object):
         
         Returns
         -------
-        :class: BoundaryObject
-            Boundary object
+        BoundaryObject
+            Boundary object.
 
         """
         if not self.modeler.primitives.does_object_exists(startobj) or not self.modeler.primitives.does_object_exists(
@@ -1114,8 +1114,8 @@ class Hfss(FieldAnalysis3D, object):
 
         Returns
         -------
-        :class: BoundaryObject
-            Boundary name
+        BoundaryObject
+            Boundary object.
 
         """
         if not self.modeler.primitives.does_object_exists(startobj) or not self.modeler.primitives.does_object_exists(
@@ -1182,8 +1182,8 @@ class Hfss(FieldAnalysis3D, object):
 
         Returns
         -------
-        :class: BoundaryObject
-            Boundary name
+        BoundaryObject
+            Boundary object.
 
         """
         if not self.modeler.primitives.does_object_exists(startobj) or not self.modeler.primitives.does_object_exists(
@@ -1227,8 +1227,8 @@ class Hfss(FieldAnalysis3D, object):
 
         Returns
         -------
-        :class: BoundaryObject
-            Boundary object if successful
+        BoundaryObject
+            Boundary object. 
 
         """
 
@@ -1376,8 +1376,8 @@ class Hfss(FieldAnalysis3D, object):
 
         Returns
         -------
-        type
-            Object name
+        str
+            Object name.
 
         """
 
@@ -1427,7 +1427,7 @@ class Hfss(FieldAnalysis3D, object):
 
         Returns
         -------
-        type
+        str
             Object name
 
         """
@@ -1462,7 +1462,7 @@ class Hfss(FieldAnalysis3D, object):
 
         Returns
         -------
-        type
+        str
             Object name
 
         """
@@ -1495,8 +1495,8 @@ class Hfss(FieldAnalysis3D, object):
 
         Returns
         -------
-        type
-            Boundary object
+        BoundaryObject
+            Boundary object.
 
         """
         if self.solution_type in ["DrivenModal", "DrivenTerminal", "Transient Network", "SBR+"]:
@@ -1521,7 +1521,7 @@ class Hfss(FieldAnalysis3D, object):
         Returns
         -------
         BoundaryObject
-            Boundary object
+            Boundary object.
 
         """
         if self.solution_type in ["DrivenModal", "DrivenTerminal", "Transient Network", "SBR+"]:
@@ -1559,8 +1559,8 @@ class Hfss(FieldAnalysis3D, object):
        
         Returns
         -------
-        type
-            Object name
+        str
+            Object name.
 
         """
 
@@ -1612,7 +1612,7 @@ class Hfss(FieldAnalysis3D, object):
 
         Returns
         -------
-        type
+        str
             Object name
 
         """
@@ -1662,8 +1662,8 @@ class Hfss(FieldAnalysis3D, object):
 
         Returns
         -------
-        type
-            Boolean
+        bool
+            ``True`` when successful, ``False`` when failed.
 
         """
         edge_list = [edge_signal, edge_gnd]
@@ -1872,7 +1872,7 @@ class Hfss(FieldAnalysis3D, object):
 
         Returns
         -------
-        type
+        list
             All the information in a list for later use.
 
         """
@@ -2054,13 +2054,13 @@ class Hfss(FieldAnalysis3D, object):
         project_dir : str
             Directory in which to export the file.
         outputlist : list
-            Output quantity. In this case, the Q-factor.
+            Output quantity, which in this case is the Q-factor.
         setupname : str
             Name of the setup from which to generate the report.
         plotname : str
             Name of the plot.
         Xaxis : str, optional
-            X-axis value. The default is ``"X"``.
+            Value for the X axis. The default is ``"X"``.
 
         Returns
         -------
@@ -2203,8 +2203,8 @@ class Hfss(FieldAnalysis3D, object):
 
         Returns
         -------
-        Type
-            ``True`` if correctly assigned.
+        bool
+             ``True`` when successful, ``False`` when failed.
 
         """
         if type(faces_id) is not list:
