@@ -361,13 +361,13 @@ class TestEDB:
         void2 = self.edbapp.core_primitives.Shape('rectangle', [-0.002, 0.0], [-0.015, 0.0005])
         assert self.edbapp.core_primitives.create_polygon(plane, "TOP", [void1, void2])
         points = [
-            [0, 0],
+            [0, 0,1],
 
         ]
         plane = self.edbapp.core_primitives.Shape('polygon', points=points)
         assert not self.edbapp.core_primitives.create_polygon(plane, "TOP")
         points = [
-            [0.1, 0],
+            [0.1, "s"],
 
         ]
         plane = self.edbapp.core_primitives.Shape('polygon', points=points)
@@ -377,16 +377,7 @@ class TestEDB:
         ]
         plane = self.edbapp.core_primitives.Shape('polygon', points=points)
         assert not self.edbapp.core_primitives.create_polygon(plane, "TOP")
-        points = [
-            [0.001, -0.001, "ccw", 0, -0.0012]
-        ]
-        plane = self.edbapp.core_primitives.Shape('polygon', points=points)
-        assert not self.edbapp.core_primitives.create_polygon(plane, "TOP")
-        points = [
-            [0.001, -0.001, "ccw", 0.0, -1]
-        ]
-        plane = self.edbapp.core_primitives.Shape('polygon', points=points)
-        assert not self.edbapp.core_primitives.create_polygon(plane, "TOP")
+
 
     def test_create_path(self):
         points = [
