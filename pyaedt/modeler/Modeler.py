@@ -150,7 +150,6 @@ class CoordinateSystem(object):
         self._change_property(self.name, props)
         return True
 
-
     @aedt_exception_handler
     def change_cs_mode(self, mode_type=0):
         """Change CS Mode

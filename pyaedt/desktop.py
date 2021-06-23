@@ -406,8 +406,8 @@ class Desktop:
                 if IsWindows:
                     username = getpass.getuser()
                     process = "ansysedt.exe"
-                    output = os.popen('tasklist /FI "IMAGENAME eq ansysedt.exe" /v').readlines()
-                    pattern = r'^(?i)(?:{})\s+?(\d+)\s+.+[\s|\\](?:{})\s+'.format(process, username)
+                    output = os.popen('tasklist /FI "IMAGENAME eq {}" /v'.format(process)).readlines()
+                    pattern = r'(?i)^(?:{})\s+?(\d+)\s+.+[\s|\\](?:{})\s+'.format(process, username)
                     for l in output:
                         m = re.search(pattern, l)
                         if m:
@@ -423,8 +423,8 @@ class Desktop:
                     module_logger.debug("Info: Using Windows TaskManager to Load processes")
                     username = getpass.getuser()
                     process = "ansysedt.exe"
-                    output = os.popen('tasklist /FI "IMAGENAME eq ansysedt.exe" /v').readlines()
-                    pattern = r'^(?i)(?:{})\s+?(\d+)\s+.+[\s|\\](?:{})\s+'.format(process, username)
+                    output = os.popen('tasklist /FI "IMAGENAME eq {}" /v'.format(process)).readlines()
+                    pattern = r'(?i)^(?:{})\s+?(\d+)\s+.+[\s|\\](?:{})\s+'.format(process, username)
                     for l in output:
                         m = re.search(pattern, l)
                         if m:

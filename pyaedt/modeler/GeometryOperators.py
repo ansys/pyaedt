@@ -345,7 +345,7 @@ class GeometryOperators(object):
 
         Parameters
         ----------
-        a :
+        a :type: list
             input vector [x, y, z]
 
         Returns
@@ -388,7 +388,7 @@ class GeometryOperators(object):
 
         Returns
         -------
-        type [vx, vy, vz]
+        :type: list [vx, vy, vz]
         """
         return GeometryOperators.v_sub(p2, p1)
     
@@ -415,7 +415,7 @@ class GeometryOperators(object):
     @staticmethod
     @aedt_exception_handler
     def find_point_on_plane(pointlists, direction=0):
-        """
+        """ADD DESCRIPTION
 
         Parameters
         ----------
@@ -432,21 +432,21 @@ class GeometryOperators(object):
         if direction <= 2:
             point = 1e6
             for p in pointlists:
-                if p[direction]<point:
+                if p[direction] < point:
                     point = p[direction]
         else:
             point = -1e6
             for p in pointlists:
-                if p[direction-3]>point:
+                if p[direction-3] > point:
                     point = p[direction-3]
         return point
     
     @staticmethod
     @aedt_exception_handler
     def distance_vector(p, a, b):
-        """return the vector distance between a point p and a line defined by two points a1 and a2
+        """return the vector distance between a point p and a line defined by two points a and b
         The used formula is   d = (a-p)-((a-p)dot p)n
-        where a is a point of the line (either a1 or a2) and n is the unit vector in the direction of the line.
+        where a is a point of the line (either a or b) and n is the unit vector in the direction of the line.
 
         Parameters
         ----------
@@ -488,7 +488,8 @@ class GeometryOperators(object):
 
         Returns
         -------
-
+        :type: bool
+            True or False
         """
         v1 = GeometryOperators.v_points(a, b)
         v2 = GeometryOperators.v_points(a, p)
@@ -504,7 +505,7 @@ class GeometryOperators(object):
     @staticmethod
     @aedt_exception_handler
     def is_parallel(a1, a2, b1, b2, tol=1e-6):
-        """
+        """ Check if the segment defined by points a1 and a2 is parallel to segment defined by points b1 and b2
 
         Parameters
         ----------
@@ -521,11 +522,11 @@ class GeometryOperators(object):
 
         Returns
         -------
-        type
+        :type: bool
             True if it is parallel, False otherwise
 
         """
-        if 1. - GeometryOperators.parallel_coeff(a1,a2,b1,b2) < tol*tol:
+        if 1. - GeometryOperators.parallel_coeff(a1, a2, b1, b2) < tol*tol:
             return True
         else:
             return False
@@ -537,13 +538,13 @@ class GeometryOperators(object):
 
         Parameters
         ----------
-        a1 :
+        a1 :type: list
             first point of segment a
-        a2 :
+        a2 :type: list
             second point of segment a
-        b1 :
+        b1 :type: list
             first point of segment b
-        b2 :
+        b2 :type: list
             second point of segment b
 
         Returns
@@ -559,7 +560,6 @@ class GeometryOperators(object):
         var = GeometryOperators._v_dot(va, vb) / (an * bn)
         return abs(var)
 
-    
     @staticmethod
     @aedt_exception_handler
     def is_projection_inside(a1, a2, b1, b2):
@@ -597,7 +597,7 @@ class GeometryOperators(object):
     @staticmethod
     @aedt_exception_handler
     def arrays_positions_sum(vertlist1, vertlist2):
-        """
+        """ADD DESCRIPTION
 
         Parameters
         ----------
@@ -610,11 +610,11 @@ class GeometryOperators(object):
         -------
 
         """
-        sum = 0
+        s = 0
         for el in vertlist1:
             for el1 in vertlist2:
-                sum += GeometryOperators.points_distance(el, el1)
-        return sum/(len(vertlist1)+len(vertlist2))
+                s += GeometryOperators.points_distance(el, el1)
+        return s/(len(vertlist1)+len(vertlist2))
 
     @staticmethod
     @aedt_exception_handler
@@ -1102,10 +1102,18 @@ class GeometryOperators(object):
     @staticmethod
     @aedt_exception_handler
     def get_polygon_centroid(pts):
+        """ evaluate the centroid of a polygon defined by its points
 
-        first = pts[0]
-        last = pts[-1]
-        nPts = len(pts)
+        Parameters
+        ----------
+        pts :type: list
+            list of points, each point is defined as [x,y,z]
+
+        Returns
+        -------
+        :type: list
+            centroid coordinates as [x,y,z]
+        """
         sx = sy = sz = sl = sl2 = 0
         for i in range(len(pts)):  # counts from 0 to len(points)-1
             x0, y0, z0 = pts[i - 1]  # in Python points[-1] is last element of points
