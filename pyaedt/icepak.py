@@ -599,15 +599,16 @@ class Icepak(FieldAnalysisIcepak):
         self.modeler.split(list, self.CoordinateSystemPlane.ZXPlane, "PositiveOnly")
         all_names = self.modeler.primitives.get_all_objects_names()
         list = [i for i in all_names if "Fin" in i]
-        self.modeler.coordinate_system.create(self.Position(0, 'HSHeight', 0), view="XY", name="TopRight")
+        self.modeler.create_coordinate_system(self.Position(0, 'HSHeight', 0), mode="view", view="XY", name="TopRight")
         self.modeler.split(list, self.CoordinateSystemPlane.ZXPlane, "NegativeOnly")
 
         if symmetric:
 
-            self.modeler.coordinate_system.create(self.Position('(HSWidth-SymSeparation)/2', 0, 0), view="XY",
-                                                  name="CenterRightSep")
+            self.modeler.create_coordinate_system(self.Position('(HSWidth-SymSeparation)/2', 0, 0), mode="view",
+                                                  view="XY", name="CenterRightSep")
             self.modeler.split(list, self.CoordinateSystemPlane.YZPlane, "NegativeOnly")
-            self.modeler.coordinate_system.create(self.Position('SymSeparation/2', 0, 0), view="XY", name="CenterRight")
+            self.modeler.create_coordinate_system(self.Position('SymSeparation/2', 0, 0),
+                                                  mode="view", view="XY", name="CenterRight")
             self.modeler.duplicate_and_mirror(list, self.Position(0, 0, 0), self.Position(1, 0, 0))
             Center_Line = []
             Center_Line.append(self.Position('-SymSeparation', 'Tolerance','-Tolerance'))
@@ -621,7 +622,7 @@ class Icepak(FieldAnalysisIcepak):
             list = [i for i in all_names if "Fin" in i]
             self.modeler.subtract(list, "Center", False)
         else:
-            self.modeler.coordinate_system.create(self.Position('HSWidth', 0, 0), view="XY",
+            self.modeler.create_coordinate_system(self.Position('HSWidth', 0, 0), mode="view", view="XY",
                                                   name="BottomRight")
             self.modeler.split(list, self.CoordinateSystemPlane.YZPlane, "NegativeOnly")
         all_objs2 = self.modeler.primitives.get_all_objects_names()
