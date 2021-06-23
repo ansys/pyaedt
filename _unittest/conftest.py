@@ -82,7 +82,9 @@ def pyaedt_unittest_same_design(func):
 def pyaedt_unittest_duplicate_design(func):
     @wraps(func)
     def inner_function(*args, **kwargs):
+        time.sleep(0.5)
         args[0].aedtapp.duplicate_design(label=generate_unique_name("pytest"))
+        time.sleep(0.5)
         args[0].cache.update()
         func(*args, **kwargs)
         try:
