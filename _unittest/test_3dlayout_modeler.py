@@ -214,13 +214,13 @@ class Test3DLayout:
 
     def test_29_sweep_string_log_scale(self):
         sweep_string = SweepString()
-        sweep_string.add_sweep([7,13,17,19,23], "single", "GHz")
+        sweep_string.add_sweep([7, 13, 17, 19, 23], "single", "GHz")
         result = sweep_string.get_string()
         assert result == "7GHz 13GHz 17GHz 19GHz 23GHz"
 
     def test_30_sweep_not_supported_type(self):
         sweep_string = SweepString()
-        assert not sweep_string.add_sweep([7,13,17,19,23], "not_supported", "GHz")
+        assert not sweep_string.add_sweep([7, 13, 17, 19, 23], "not_supported", "GHz")
         
     def test_31_create_pin_port(self):
         assert self.aedtapp.create_pin_port("PinPort1")
