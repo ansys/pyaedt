@@ -278,13 +278,9 @@ class EDBLayer(object):
         """
         newLayer.SetName(layerName)
 
-        if layerTypeMap == 0 or layerTypeMap == self.edb.Cell.LayerType.SignalLayer:
-            newLayer.SetLayerType(self.edb.Cell.LayerType.SignalLayer)
-        elif layerTypeMap == 2 or layerTypeMap == self.edb.Cell.LayerType.ConductingLayer:
-            newLayer.SetLayerType(self.edb.Cell.LayerType.ConductingLayer)
-        elif layerTypeMap == 1 or layerTypeMap == self.edb.Cell.LayerType.DielectricLayer:
-            newLayer.SetLayerType(self.edb.Cell.LayerType.DielectricLayer)
-        else:
+        try:
+            newLayer.SetLayerType(layerTypeMap)
+        except:
             self.messenger.add_error_message('Layer {0} has unknown type {1}'.format(layerName, layerTypeMap))
             return False
         newLayer.SetThickness(self.edb.Utility.Value(thicknessMap))
@@ -444,11 +440,6 @@ class EDBLayers(object):
         self._stackup_mode = self.layer_collection.GetMode()
         return self._stackup_mode
 
-    @property
-    def messenger(self):
-        """ """
-        return self._parent._messenger
-
     @stackup_mode.setter
     def stackup_mode(self, value):
         """
@@ -511,8 +502,8 @@ class EDBLayers(object):
         layers.reverse()
         newLayers = List[self._parent.edb.Cell.Layer]()
         el = 0.0
-        if not layers:
-            newLayer = self._parent.edb.Cell.StackupLayer(layerName, self.layer_types.SignalLayer,
+        if not layers or not start_layer:
+            newLayer = self._parent.edb.Cell.StackupLayer(layerName, layerType,
                                                           self._parent.edb.Utility.Value(0),
                                                           self._parent.edb.Utility.Value(0), '')
             newLayers.Add(newLayer)
@@ -530,7 +521,7 @@ class EDBLayers(object):
                     newLayer = lyr.Clone()
                     el += newLayer.GetThickness()
                     newLayers.Add(newLayer)
-                    newLayer = self._parent.edb.Cell.StackupLayer(layerName, self.layer_types.SignalLayer,
+                    newLayer = self._parent.edb.Cell.StackupLayer(layerName, layerType,
                                                                   self._parent.edb.Utility.Value(0),
                                                                   self._parent.edb.Utility.Value(0), '')
                     self._edb_object[layerName] = EDBLayer(newLayer, self._parent)
@@ -550,6 +541,21 @@ class EDBLayers(object):
             return False
         self._update_edb_objects()
         return True
+
+    def add_outline_layer(self):
+        """
+        Adds an Outline Layer named "Outline" if not present
+
+        Returns
+        -------
+        bool
+            "True" if succeeded
+        """
+        outlineLayer = self.edb.Cell.Layer.FindByName(self.active_layout.GetLayerCollection(), 'Outline2')
+        if outlineLayer.IsNull():
+            return self.add_layer("OutLine", layerType=self.layer_types.OutlineLayer, material="", thickness="",)
+        else:
+            return False
 
     @aedt_exception_handler
     def remove_layer(self, layername):

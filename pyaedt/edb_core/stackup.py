@@ -80,7 +80,6 @@ class EdbStackup(object):
             self._layer_dict = EDBLayers(self)
         return self._layer_dict
 
-
     @property
     def signal_layers(self):
         """
@@ -95,8 +94,6 @@ class EdbStackup(object):
 
         """
         return self.stackup_layers.signal_layers
-
-
 
     @property
     def materials(self):
@@ -185,8 +182,6 @@ class EdbStackup(object):
                                                               self.edb_value(relative_permittivity_high))
         return self._add_dielectric_material_model(name, material_def)
 
-
-
     @aedt_exception_handler
     def create_djordjevicsarkar_material(self, name, relative_permittivity, loss_tangent, test_frequency):
         """Create a new Djordjevic_Sarkar Dielectric
@@ -222,7 +217,6 @@ class EdbStackup(object):
             if succeeded:
                 return DieDef
             return False
-
 
     @aedt_exception_handler
     def stackup_limits(self, only_metals=False):

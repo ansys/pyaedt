@@ -287,7 +287,6 @@ class TestEDB:
             assert pad.pad_by_layer[pad.via_stop_layer].offset_y is not None or False
             assert isinstance(pad.pad_by_layer[pad.via_stop_layer].geometry_type, int)
 
-
     def test_set_padstack(self):
         pad = self.edbapp.core_padstack.padstacks["C10N116"]
         hole_pad = 8
@@ -309,7 +308,6 @@ class TestEDB:
         assert pad.pad_by_layer[pad.via_stop_layer].offset_x == str(offset_x)
         assert pad.pad_by_layer[pad.via_stop_layer].offset_y == str(offset_y)
         assert pad.pad_by_layer[pad.via_stop_layer].parameters[0] == str(param)
-
 
     def test_save_edb_as(self):
         assert self.edbapp.save_edb_as(os.path.join(self.local_scratch.path, "Gelileo_new.aedb"))
@@ -333,7 +331,6 @@ class TestEDB:
     def test_create_component_from_pins(self):
         pins = self.edbapp.core_components.get_pin_from_component("R13")
         assert self.edbapp.core_components.create_component_from_pins(pins, "newcomp")
-
 
     def test_create_cutout(self):
         output = os.path.join(self.local_scratch.path, "cutout.aedb")
@@ -377,7 +374,6 @@ class TestEDB:
         ]
         plane = self.edbapp.core_primitives.Shape('polygon', points=points)
         assert not self.edbapp.core_primitives.create_polygon(plane, "TOP")
-
 
     def test_create_path(self):
         points = [
