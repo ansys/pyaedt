@@ -3,14 +3,12 @@
    You can adapt this file completely to your liking, but it should at least
    contain the root `toctree` directive.
 
-Q3D/Q2D Extractor
-=================
+EDB Data Classes
+===================================
 
-.. automodule:: pyaedt.q3d
+
+.. automodule:: pyaedt.edb_core.EDB_Data
     :members:
-
-
-
 
 .. toctree::
    :maxdepth: 2

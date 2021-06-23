@@ -1,5 +1,5 @@
 """
-This module contains all HFSS functionalities in the ``hfss`` class.
+This module contains all HFSS functionalities in the ``Hfss`` class.
 
 
 Examples
@@ -17,11 +17,11 @@ Create an instance of ``Hfss`` and link to a design named ``"designname"`` in a 
 
 >>> hfss = Hfss(projectname,designame)
 
-Create an instance of ``Hfss`` and open the specified project:
+Create an instance of ``Hfss`` and open the specified project, which is named ``"myfile.aedt"``.
 
 >>> hfss = Hfss("myfile.aedt")
 
-Create an instance of ``Hfss`` using the 2021 R1 release and open the specified project, which is ``"myfile.aedt"``.
+Create an instance of ``Hfss`` using the 2021 R1 release and open the specified project, which is named ``"myfile.aedt"``.
 
 >>> hfss = Hfss(specified_version="2021.1", projectname="myfile.aedt")
 
@@ -49,7 +49,7 @@ class Hfss(FieldAnalysis3D, object):
 
     def __init__(self, projectname=None, designname=None, solution_type=None, setup_name=None,
                  specified_version=None, NG=False, AlwaysNew=True, release_on_exit=True):
-        """HFSS Object
+        """HFSS class.
 
             Parameters
             ----------
@@ -75,11 +75,6 @@ class Hfss(FieldAnalysis3D, object):
             release_on_exit : bool, optional
                 Whether to release AEDT on exit. The default is ``True``.
               
-
-            Returns
-            -------
-            
-
         """
         FieldAnalysis3D.__init__(self, "HFSS", projectname, designname, solution_type, setup_name,
                                  specified_version, NG, AlwaysNew, release_on_exit)
@@ -254,8 +249,8 @@ class Hfss(FieldAnalysis3D, object):
 
         Returns
         -------
-        :class: BoundaryObject
-            Boundary object
+        BoundaryObject
+            Boundary object.
 
         Examples
         --------
@@ -339,7 +334,7 @@ class Hfss(FieldAnalysis3D, object):
         Returns
         -------
         SweepHFSS
-            Sweep object
+            Sweep object.
 
         """
 
@@ -399,7 +394,7 @@ class Hfss(FieldAnalysis3D, object):
         Returns
         -------
         SweepHFSS
-            Sweep object
+            Sweep object.
 
         """
         if sweepname is None:
@@ -455,7 +450,7 @@ class Hfss(FieldAnalysis3D, object):
         Returns
         -------
         SweepHFSS
-            Sweep object
+            Sweep object.
 
         """
         if sweepname is None:
@@ -557,7 +552,7 @@ class Hfss(FieldAnalysis3D, object):
         Returns
         -------
         SweepHFSS
-            Sweep object
+            Sweep object.
 
         """
         if sweepname is None:
@@ -616,7 +611,7 @@ class Hfss(FieldAnalysis3D, object):
         Returns
         -------
         str
-            Port name
+            Port name.
 
         """
         if not self.modeler.primitives.does_object_exists(startobj) or not self.modeler.primitives.does_object_exists(
@@ -662,8 +657,8 @@ class Hfss(FieldAnalysis3D, object):
 
         Returns
         -------
-        type
-            Port name
+        str
+            Port name.
 
         """
         if not self.modeler.primitives.does_object_exists(startobj) or not self.modeler.primitives.does_object_exists(
@@ -708,8 +703,8 @@ class Hfss(FieldAnalysis3D, object):
 
         Returns
         -------
-        type
-           Source name
+        str
+           Source name.
 
         """
         if not self.modeler.primitives.does_object_exists(startobj) or not self.modeler.primitives.does_object_exists(
@@ -750,8 +745,8 @@ class Hfss(FieldAnalysis3D, object):
 
         Returns
         -------
-        type
-            Source name
+        str
+            Source name.
 
         """
         if not self.modeler.primitives.does_object_exists(startobj) or not self.modeler.primitives.does_object_exists(
@@ -837,8 +832,8 @@ class Hfss(FieldAnalysis3D, object):
 
         Returns
         -------
-        :class: BoundaryObject
-            Port name
+        BoundaryObject
+            Boundary object.
 
         """
         if not self.modeler.primitives.does_object_exists(startobj) or not self.modeler.primitives.does_object_exists(
@@ -911,7 +906,7 @@ class Hfss(FieldAnalysis3D, object):
         Returns
         -------
         BoundaryObject
-            Port object
+            Port object.
 
         Examples
         --------
@@ -971,8 +966,8 @@ class Hfss(FieldAnalysis3D, object):
         
         Returns
         -------
-        :class: BoundaryObject
-            Boundary object
+        BoundaryObject
+            Boundary object.
 
         """
         if not self.modeler.primitives.does_object_exists(startobj) or not self.modeler.primitives.does_object_exists(
@@ -1011,8 +1006,8 @@ class Hfss(FieldAnalysis3D, object):
 
         Returns
         -------
-        :class: BoundaryObject
-            Boundary object
+        BoundaryObject
+            Boundary object.
 
         """
         if not self.modeler.primitives.does_object_exists(startobj) or not self.modeler.primitives.does_object_exists(
@@ -1032,7 +1027,7 @@ class Hfss(FieldAnalysis3D, object):
 
     @aedt_exception_handler
     def SARSetup(self, Tissue_object_List_ID, TissueMass=1, MaterialDensity=1, voxel_size=1, Average_SAR_method=0):
-        """Set SAR settings.
+        """Define SAR settings.
 
         Parameters
         ----------
@@ -1049,7 +1044,9 @@ class Hfss(FieldAnalysis3D, object):
 
         Returns
         -------
-        Boolean
+        bool
+            ``True`` when successful, ``False`` when failed.
+        
         """
         self.odesign.SARSetup(TissueMass, MaterialDensity, Tissue_object_List_ID, voxel_size, Average_SAR_method)
         return True
@@ -1066,7 +1063,7 @@ class Hfss(FieldAnalysis3D, object):
             Type of boundary. The default is ``"Radition"``.
         ApplyInfiniteGP : bool, optional
             Whether to apply an infinite ground plane. The default is ``False``.
-        GPAXis : st, optional
+        GPAXis : str, optional
             The default is``"-z"``.
 
         Returns
@@ -1119,8 +1116,8 @@ class Hfss(FieldAnalysis3D, object):
 
         Returns
         -------
-        :class: BoundaryObject
-            Boundary name
+        BoundaryObject
+            Boundary object.
 
         """
         if not self.modeler.primitives.does_object_exists(startobj) or not self.modeler.primitives.does_object_exists(
@@ -1187,8 +1184,8 @@ class Hfss(FieldAnalysis3D, object):
 
         Returns
         -------
-        :class: BoundaryObject
-            Boundary name
+        BoundaryObject
+            Boundary object.
 
         """
         if not self.modeler.primitives.does_object_exists(startobj) or not self.modeler.primitives.does_object_exists(
@@ -1232,8 +1229,8 @@ class Hfss(FieldAnalysis3D, object):
 
         Returns
         -------
-        :class: BoundaryObject
-            Boundary object if successful
+        BoundaryObject
+            Boundary object.
 
         """
 
@@ -1381,8 +1378,8 @@ class Hfss(FieldAnalysis3D, object):
 
         Returns
         -------
-        type
-            Object name
+        str
+            Object name.
 
         """
 
@@ -1432,7 +1429,7 @@ class Hfss(FieldAnalysis3D, object):
 
         Returns
         -------
-        type
+        str
             Object name
 
         """
@@ -1467,7 +1464,7 @@ class Hfss(FieldAnalysis3D, object):
 
         Returns
         -------
-        type
+        str
             Object name
 
         """
@@ -1500,8 +1497,8 @@ class Hfss(FieldAnalysis3D, object):
 
         Returns
         -------
-        type
-            Boundary object
+        BoundaryObject
+            Boundary object.
 
         """
         if self.solution_type in ["DrivenModal", "DrivenTerminal", "Transient Network", "SBR+"]:
@@ -1526,7 +1523,7 @@ class Hfss(FieldAnalysis3D, object):
         Returns
         -------
         BoundaryObject
-            Boundary object
+            Boundary object.
 
         """
         if self.solution_type in ["DrivenModal", "DrivenTerminal", "Transient Network", "SBR+"]:
@@ -1564,8 +1561,8 @@ class Hfss(FieldAnalysis3D, object):
        
         Returns
         -------
-        type
-            Object name
+        str
+            Object name.
 
         """
 
@@ -1617,7 +1614,7 @@ class Hfss(FieldAnalysis3D, object):
 
         Returns
         -------
-        type
+        str
             Object name
 
         """
@@ -1667,8 +1664,8 @@ class Hfss(FieldAnalysis3D, object):
 
         Returns
         -------
-        type
-            Boolean
+        bool
+            ``True`` when successful, ``False`` when failed.
 
         """
         edge_list = [edge_signal, edge_gnd]
@@ -1877,7 +1874,7 @@ class Hfss(FieldAnalysis3D, object):
 
         Returns
         -------
-        type
+        list
             All the information in a list for later use.
 
         """
@@ -2059,13 +2056,13 @@ class Hfss(FieldAnalysis3D, object):
         project_dir : str
             Directory in which to export the file.
         outputlist : list
-            Output quantity. In this case, the Q-factor.
+            Output quantity, which in this case is the Q-factor.
         setupname : str
             Name of the setup from which to generate the report.
         plotname : str
             Name of the plot.
         Xaxis : str, optional
-            X-axis value. The default is ``"X"``.
+            Value for the X axis. The default is ``"X"``.
 
         Returns
         -------
@@ -2208,8 +2205,8 @@ class Hfss(FieldAnalysis3D, object):
 
         Returns
         -------
-        Type
-            ``True`` if correctly assigned.
+        bool
+             ``True`` when successful, ``False`` when failed.
 
         """
         if type(faces_id) is not list:

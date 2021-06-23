@@ -4,7 +4,7 @@
    contain the root `toctree` directive.
 
 Messenger
-===================================
+=========
 
 .. automodule:: pyaedt.application.MessageManager
     :members:

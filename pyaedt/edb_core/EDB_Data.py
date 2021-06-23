@@ -9,7 +9,7 @@ try:
     from System import Double, Array
     from System.Collections.Generic import List
 except ImportError:
-    warnings.warn("The clr is missing. Install Pythonnet or use Ironpython version if you want to use EDB Module")
+    warnings.warn("The clr is missing. Install Pythonnet or use an Ironpython version if you want to use the EDB module.")
 
 
 class EDBLayer(object):
@@ -306,9 +306,9 @@ class EDBLayer(object):
         Parameters
         ----------
         layer :
-            layer object
+            Layer object.
         elev :
-            float Elevation
+            Float elevation.
 
         Returns
         -------
@@ -321,15 +321,12 @@ class EDBLayer(object):
 
     @aedt_exception_handler
     def update_layers(self):
-        """update all layers
-        
-        :return: bool
-
-        Parameters
-        ----------
-
+        """Update all layers.
+      
         Returns
         -------
+        bool
+            ``True`` when successful, ``False`` when failed.
 
         """
         thisLC = self.edb.Cell.LayerCollection(self.active_layout.GetLayerCollection())
@@ -366,8 +363,12 @@ class EDBLayer(object):
 
 
 class EDBLayers(object):
-    """Class for management of all Primitives."""
+    """Manage all primitives."""
 
+
+    @property
+    def messenger(self):
+        return self._parent._messenger
 
     def __init__(self, parent):
         self._stackup_mode = None
@@ -478,31 +479,31 @@ class EDBLayers(object):
         return True
 
     @aedt_exception_handler
-    def add_layer(self, layerName, start_layer, material="copper", fillMaterial="", thickness="35um", layerType=0,
+    def add_layer(self, layerName, start_layer=None, material="copper", fillMaterial="", thickness="35um", layerType=0,
                   etchMap=None):
-        """Add an additional layer after a specific layer
+        """Add an additional layer after a specific layer.
 
         Parameters
         ----------
-        layerName :
-            name of new layer
-        start_layer :
-            name of layer after which the new layer will be placed
-        material :
-            name of material (Default value = "copper")
-        fillMaterial :
-            name of fillmaterial (Default value = "")
-        thickness :
-            thickness value (Default value = "35um")
+        layerName : str
+            Name of the new layer.
+        start_layer : str
+            Name of the layer after which to place the new layer.
+        material : str, optional
+            Name of the material. The default is ``"copper"``.
+        fillMaterial : str, optional
+            Name of the fill material. The default is ``""``.)
+        thickness : str, optional
+            Thickness value, including units. The default is ``"35um"``.
         layerType :
-            layer type default signal layer
-        etchMap :
-            etch value if any (Default value = None)
+            Type of the layer. The default is ``0``, which is a signal layer.
+        etchMap : optional
+            Etch value if any. The default is ``None``.
 
         Returns
         -------
-        type
-            True if successful
+        bool
+            ``True`` when successful, ``False`` when failed.
 
         """
         thisLC = self._parent.edb.Cell.LayerCollection(self._parent.active_layout.GetLayerCollection())
@@ -510,27 +511,38 @@ class EDBLayers(object):
         layers.reverse()
         newLayers = List[self._parent.edb.Cell.Layer]()
         el = 0.0
-        for lyr in layers:
-            if not lyr.IsStackupLayer():
-                newLayers.Add(lyr.Clone())
-                continue
-            if lyr.GetName() == start_layer:
-                newLayer = lyr.Clone()
-                el += newLayer.GetThickness()
-                newLayers.Add(newLayer)
-                newLayer = self._parent.edb.Cell.StackupLayer(layerName, self.layer_types.SignalLayer,
-                                                              self._parent.edb.Utility.Value(0),
-                                                              self._parent.edb.Utility.Value(0), '')
-                self._edb_object[layerName] = EDBLayer(newLayer, self._parent)
-                newLayer = self._edb_object[layerName].update_layer_vals(layerName, newLayer, etchMap, material,
-                                                                        fillMaterial, thickness, layerType)
-                newLayer = self._edb_object[layerName].set_elevation(newLayer, el)
-                el += newLayer.GetThickness()
-            else:
-                newLayer = lyr.Clone()
-                newLayer = self._edb_object[lyr.GetName()].set_elevation(newLayer, el)
-                el += newLayer.GetThickness()
+        if not layers:
+            newLayer = self._parent.edb.Cell.StackupLayer(layerName, self.layer_types.SignalLayer,
+                                                          self._parent.edb.Utility.Value(0),
+                                                          self._parent.edb.Utility.Value(0), '')
             newLayers.Add(newLayer)
+            self._edb_object[layerName] = EDBLayer(newLayer, self._parent)
+            newLayer = self._edb_object[layerName].update_layer_vals(layerName, newLayer, etchMap, material,
+                                                                     fillMaterial, thickness, layerType)
+            newLayer = self._edb_object[layerName].set_elevation(newLayer, el)
+            el += newLayer.GetThickness()
+        else:
+            for lyr in layers:
+                if not lyr.IsStackupLayer():
+                    newLayers.Add(lyr.Clone())
+                    continue
+                if lyr.GetName() == start_layer:
+                    newLayer = lyr.Clone()
+                    el += newLayer.GetThickness()
+                    newLayers.Add(newLayer)
+                    newLayer = self._parent.edb.Cell.StackupLayer(layerName, self.layer_types.SignalLayer,
+                                                                  self._parent.edb.Utility.Value(0),
+                                                                  self._parent.edb.Utility.Value(0), '')
+                    self._edb_object[layerName] = EDBLayer(newLayer, self._parent)
+                    newLayer = self._edb_object[layerName].update_layer_vals(layerName, newLayer, etchMap, material,
+                                                                            fillMaterial, thickness, layerType)
+                    newLayer = self._edb_object[layerName].set_elevation(newLayer, el)
+                    el += newLayer.GetThickness()
+                else:
+                    newLayer = lyr.Clone()
+                    newLayer = self._edb_object[lyr.GetName()].set_elevation(newLayer, el)
+                    el += newLayer.GetThickness()
+                newLayers.Add(newLayer)
         lcNew = self._parent.edb.Cell.LayerCollection()
         newLayers.Reverse()
         if not lcNew.AddLayers(newLayers) or not self._parent.active_layout.SetLayerCollection(lcNew):
@@ -541,17 +553,17 @@ class EDBLayers(object):
 
     @aedt_exception_handler
     def remove_layer(self, layername):
-        """Remove a specific layer "layername"
+        """Remove a specific layer.
 
         Parameters
         ----------
-        layername :
-            name of the layer to remove
+        layername : str
+            Name of the layer to remove.
 
         Returns
         -------
-        type
-            True if operation successfully complete
+        bool
+            ``True`` when successful, ``False`` when failed.
 
         """
         thisLC = self._parent.edb.Cell.LayerCollection(self._parent.active_layout.GetLayerCollection())

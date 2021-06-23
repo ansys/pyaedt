@@ -1466,8 +1466,8 @@ class PostProcessor(object):
         ctxt=[]
         if not setup_sweep_name:
             setup_sweep_name = self._parent.nominal_sweep
-        if self.post_solution_type == "3DLayout" or self.post_solution_type == "NexximLNA" or self.post_solution_type == "NexximTransient":
-            if "Sweep" in setup_sweep_name:
+        if self.post_solution_type == "HFSS 3D Layout Design" or self.post_solution_type == "NexximLNA" or self.post_solution_type == "NexximTransient":
+            if "Freq" == primary_sweep_variable or "Freq" in list(families_dict.keys()):
                 did = 3
             else:
                 did = 1
@@ -1494,7 +1494,9 @@ class PostProcessor(object):
             plotname = generate_unique_name("Plot")
         families_input = []
         families_input.append(primary_sweep_variable+":=")
-        if type(families_dict[primary_sweep_variable]) is list:
+        if not primary_sweep_variable in list(families_dict.keys()):
+            families_input.append(["All"])
+        elif type(families_dict[primary_sweep_variable]) is list:
             families_input.append(families_dict[primary_sweep_variable])
         else:
             families_input.append([families_dict[primary_sweep_variable]])
@@ -1506,6 +1508,8 @@ class PostProcessor(object):
                 families_input.append(families_dict[el])
             else:
                 families_input.append([families_dict[el]])
+
+
 
         self.oreportsetup.CreateReport(plotname, modal_data, "Rectangular Plot", setup_sweep_name, ctxt, families_input,
                                                        ["X Component:=", primary_sweep_variable, "Y Component:=",

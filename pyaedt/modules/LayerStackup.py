@@ -111,7 +111,7 @@ class Layer(object):
                 visflag += 16
         return visflag
 
-    def __init__(self, editor, type="signal", layerunits="mm", roughunit="um"):
+    def __init__(self, editor, type="signal", layerunits="mm", roughunit="um", negative=False):
         self.LengthUnit = layerunits
         self.LengthUnitRough = roughunit
         self.oeditor = editor
@@ -157,6 +157,7 @@ class Layer(object):
         self.hfssSp = {"Sn": "HFSS", "Sv": None}
         self.planaremSp = {"Sn": "PlanarEM", "Sv": None}
         self.index = 1
+        self.IsNegative = negative
 
     @aedt_exception_handler
     def set_layer_color(self, r, g, b):
@@ -218,6 +219,7 @@ class Layer(object):
                     "Material:=", self.arg_with_dim(self.material),
                     "FillMaterial:=", self.arg_with_dim(self.fillmaterial)
                 ],
+                "Neg:="		, self.IsNegative,
                 "Usp:=", self.usp,
                 "Etch:=", str(self.etch),
                 "UseEtch:=", self.useetch,
@@ -496,7 +498,7 @@ class Layers(object):
         return len(self.layers)
 
     @aedt_exception_handler
-    def add_layer(self, layername, layertype="signal", thickness="0mm", elevation="0mm", material="copper"):
+    def add_layer(self, layername, layertype="signal", thickness="0mm", elevation="0mm", material="copper", isnegative=False):
         """Add a new layer
 
         Parameters
@@ -518,7 +520,7 @@ class Layers(object):
             layer object
 
         """
-        newlayer = Layer(self.oeditor, layertype, self.LengthUnit, self.lengthUnitRough)
+        newlayer = Layer(self.oeditor, layertype, self.LengthUnit, self.lengthUnitRough, isnegative)
         newlayer.name = layername
         newlayer.thickness = thickness
         newlayer.lowerelevation = elevation

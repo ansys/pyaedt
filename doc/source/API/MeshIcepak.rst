@@ -4,7 +4,7 @@
    contain the root `toctree` directive.
 
 Mesh Icepak
-===================================
+===========
 .. autoclass:: pyaedt.modules.MeshIcepak.IcepakMesh
     :members:
 

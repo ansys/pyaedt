@@ -257,3 +257,10 @@ class ModelerSimplorer(ModelerCircuit):
         self._parent = parent
         ModelerCircuit.__init__(self, parent)
         self.components = SimplorerComponents(parent, self)
+
+class ModelerEmit(ModelerCircuit):
+    """ """
+
+    def __init__(self, parent):
+        self._parent = parent
+        ModelerCircuit.__init__(self, parent)

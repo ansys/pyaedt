@@ -159,6 +159,31 @@ class Edb(object):
         print("active cell set")
         return self.builder
 
+    @aedt_exception_handler
+    def create_edb(self, init_dlls=False):
+        """
+
+        Parameters
+        ----------
+        init_dlls :
+             Whether to initialize DLLs. The default is ``False``.
+
+        Returns
+        -------
+
+        """
+        if init_dlls:
+            self._init_dlls()
+        self.edb.Database.SetRunAsStandAlone(True)
+        self._db = self.edb.Database.Create(self.edbpath)
+        if not self.cellname:
+            self.cellname = generate_unique_name("Cell")
+
+        self._active_cell = self.edb.Cell.Cell.Create(self._db,  self.edb.Cell.CellType.CircuitCell, self.cellname)
+
+        self.builder = self.layout_methods.GetBuilder(self.db, self._active_cell)
+        print("active cell set")
+        return self.builder
 
     @aedt_exception_handler
     def import_layout_pcb(self, input_file, working_dir, init_dlls=False):
@@ -198,10 +223,12 @@ class Edb(object):
                 self._main = sys.modules['__main__']
                 self._messenger = self._main.oMessenger
             else:
-                if not edbpath:
+                if not edbpath or not os.path.exists(edbpath):
                     self._messenger = EDBMessageManager(r'C:\Temp')
-                else:
+                elif os.path.exists(edbpath):
                     self._messenger = EDBMessageManager(edbpath)
+
+
             self._messenger.add_info_message("Messenger Initialized in EDB")
             self.edbversion = edbversion
             self.isaedtowned = isaedtowned
@@ -213,8 +240,9 @@ class Edb(object):
             self.isreadonly = isreadonly
             self.cellname = cellname
             self.edbpath = edbpath
-
-            if ".aedb" in edbpath:
+            if not os.path.exists(self.edbpath):
+                self.create_edb()
+            elif ".aedb" in edbpath:
                 self.edbpath = edbpath
                 if isaedtowned and "isoutsideDesktop" in dir(self._main) and not self._main.isoutsideDesktop:
                     self.open_edb_inside_aedt()

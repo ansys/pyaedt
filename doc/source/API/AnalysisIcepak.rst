@@ -4,7 +4,7 @@
    contain the root `toctree` directive.
 
 Analysis Icepak
-===================================
+===============
 
 .. autoclass:: pyaedt.application.AnalysisIcepak.FieldAnalysisIcepak
     :members:

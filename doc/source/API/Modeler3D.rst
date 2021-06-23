@@ -3,8 +3,8 @@
    You can adapt this file completely to your liking, but it should at least
    contain the root `toctree` directive.
 
-modeler 3D
-===================================
+Modeler 3D
+==========
 
 .. autoclass:: pyaedt.modeler.Model3D.Modeler3D
     :members:

@@ -107,9 +107,23 @@ def exception_to_desktop(self, ex_value, tb_data):
 
 
 def update_aedt_registry(key, value, desktop_version="193"):
-    """Windows Only
+    """Update AEDT registry key.
     
-    Update AEDT options registry keys. Value includes "" if needed.
+    .. note::
+       This method is only supported in Windows.
+    
+    Parameters
+    ----------
+    key : str
+        Registry key.
+    value : str
+        Value to which to set the registry key. Value includes "" if needed.
+    desktop_version : str, optional
+        Version of AEDT to use. The default is ``"193"``.
+
+    Returns
+    -------
+    
     
     Examples
     --------
@@ -129,17 +143,7 @@ def update_aedt_registry(key, value, desktop_version="193"):
     
     >>> updateAEDTRegistry("HFSS/MPIVendor", "Intel")
 
-    Parameters
-    ----------
-    key : str
-        Registry key.
-    value : str
-        Value to set the registry key to.
-    desktop_version : str, optional
-         The version of Electronics Desktop. The default is ``"193"``.
-
-    Returns
-    -------
+   
 
     """
     import subprocess
@@ -231,13 +235,14 @@ def release_desktop(close_projects=True, close_desktop=True):
 def force_close_desktop():
     """Close all AEDT projects and shut down AEDT.
     
-    :return: True (Closed) | False (Failed to Close)
 
     Parameters
     ----------
 
     Returns
     -------
+    bool
+        ``True`` when successful, ``False`` when failed.
 
     """
     Module = sys.modules['__main__']
@@ -280,10 +285,11 @@ def force_close_desktop():
 
 
 class Desktop:
-    """Core class used to initialize AEDT based on the inputs provided.
+    """Initialize AEDT based on the inputs provided.
     
-    On Windows, it works without limitations in IronPython and CPython.
-    On Linux, it works only in embedded Ironpython in AEDT.
+    .. note::
+       On Windows, it works without limitations in IronPython and CPython.
+       On Linux, it works only in embedded IronPython in AEDT.
 
     Parameters
     ----------
@@ -521,7 +527,7 @@ class Desktop:
             self.release_desktop(close_projects=self._main.close_on_exit, close_on_exit=self._main.close_on_exit)
 
     def _exception(self, ex_value, tb_data):
-        """Write the trace stack to the desktop when a python error occurs.
+        """Write the trace stack to the desktop when a Python error occurs.
 
         Parameters
         ----------
@@ -562,9 +568,11 @@ class Desktop:
         Parameters
         ----------
         close_projects : bool, optional
-            Whether to close the projects opened in the session. The default is ``True``.
+            Whether to close the projects opened in the session. 
+            The default is ``True``.
         close_on_exit : bool, optional
-            Whether to close the active AEDT session. The default is ``True``.
+            Whether to close the active AEDT session. 
+            The default is ``True``.
 
         Returns
         -------

@@ -113,7 +113,8 @@ design_solutions = {
         "Thermal",
         "Modal",
         "Structural"
-    ]
+    ],
+    "EMIT": ["EMIT"]
 }
 
 solutions_settings = {
@@ -351,6 +352,8 @@ class Design(object):
         >>> hfss.design_name = 'new_design'
 
         """
+        if not self.odesign:
+            return None
         name = self.odesign.GetName()
         if ";" in name:
             return name.split(";")[1]
@@ -364,6 +367,7 @@ class Design(object):
 
         :return: Change the name of the parent AEDT Design
         """
+
         if ";" in new_name:
             new_name = new_name.split(";")[1]
         # src_dir = self.working_directory
@@ -413,7 +417,10 @@ class Design(object):
         -------
 
         """
-        return self._oproject.GetName()
+        if self._oproject:
+            return self._oproject.GetName()
+        else:
+            return None
 
     @property
     def project_list(self):

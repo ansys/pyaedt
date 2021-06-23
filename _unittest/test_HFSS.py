@@ -117,6 +117,7 @@ class TestHFSS:
                                                    sweeptype="Fast")
         assert self.aedtapp.create_discrete_sweep("MySetup")
 
+
     def test_06B_setup_exists(self):
         assert self.aedtapp.analysis_setup is not None
         assert self.aedtapp.nominal_sweep is not None
@@ -272,6 +273,7 @@ class TestHFSS:
                                                                 [10, 2], "lump_volt", "Copper")
         port = self.aedtapp.assig_voltage_source_to_sheet("lump_volt", self.aedtapp.AxisDir.XNeg,  "LumpVolt1")
         assert port in self.aedtapp.modeler.get_excitations_name()
+        assert self.aedtapp.get_property_value("BoundarySetup:LumpVolt1", "VoltageMag", "Excitation") == "1V"
 
     def test_21_create_open_region(self):
         assert self.aedtapp.create_open_region("1GHz")
@@ -284,7 +286,6 @@ class TestHFSS:
         assert mesh
         mesh.props["NumMaxElem"] = "10000"
         assert mesh.update()
-
 
     def test_23_create_skin_depth(self):
         mesh = self.aedtapp.mesh.assign_skin_depth(["BoxCircuit2"], "1mm")
@@ -380,3 +381,9 @@ class TestHFSS:
         ids = [i.id for i in self.aedtapp.modeler.primitives["Rad_box2"].faces]
         assert self.aedtapp.assign_radiation_boundary_to_faces(ids)
 
+    def test_38_get_all_sources(self):
+        sources = self.aedtapp.get_all_sources()
+        assert len(sources) == 17
+
+    def test_39_set_source_contexts(self):
+        assert self.aedtapp.set_source_context(["port10", "port11"])

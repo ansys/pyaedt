@@ -6,7 +6,7 @@ to allow reuse of existing code, sharing of best practices, and increased
 collaboration. PyAEDT is licensed under the `MIT License
 <https://github.com/pyansys/PyAEDT/blob/main/LICENSE>`_.
 
-This tool includes functionality to interact the following AEDT tools and Ansys products:
+PyAEDT includes functionality for interacting with the following AEDT tools and Ansys products:
 
 - HFSS and HFSS 3D Layout
 - Icepak
@@ -30,7 +30,7 @@ possible across the API.
 
 Documentation and Issues
 ------------------------
-See the `Documentation <https://aedtdocs.pyansys.com>`_ page for more
+See the `API Documentation <https://aedtdocs.pyansys.com/API/API.html>`_ page for more
 details and the `Examples gallery
 <https://aedtdocs.pyansys.com/examples/index.html>`_ for some
 examples.
@@ -44,6 +44,7 @@ Project Transition - Legacy Support
 This project was formerly known as AEDTLib.
 Thanks to all early adopters, contributors, and users who submitted issues,
 gave feedback, and contributed code through the years.
+
 With PyAEDT, Ansys is leveraging its ability to create new Pythonic,
 cross-platform, and multi-language service-based interfaces for Ansys products.
 Your contributions to PyAEDT will help shape PyAEDT into a better solution.
@@ -51,16 +52,16 @@ Your contributions to PyAEDT will help shape PyAEDT into a better solution.
 
 Dependencies
 ------------
-You must have a local licenced copy of AEDT to run PyAEDT.
+To run PyAEDT, you must have a local licenced copy of AEDT.
 PyAEDT supports AEDT versions prior to and including 2021 R1.
 
 Why PyAEDT?
 -----------
-Recording and reusing script is a quick and easy approach for
-automating simple operations in the AEDT UI.
-However, disadvantages of this approach are:
+A quick and easy approach for automating a simple operation in the 
+AEDT UI is to record and reuse a scripts. However, disadvantages of 
+this approach are:
 
-- The code recorded is dirty and difficult to read and understand.
+- Recorded code is dirty and difficult to read and understand.
 - Recorded scripts are difficult to reuse and adapt.
 - Complex coding is required by many global users of AEDT.
 
@@ -76,7 +77,7 @@ The main advantages of PyAEDT are:
   maintaining PEP8 compliance.
 - Code reusability across different solvers
 - Clear documentation on functions and API
-- Unit test of code to increase quality across different AEDT versions
+- Unit tests of code to increase quality across different AEDT versions
 
 
 Example Workflow
@@ -87,7 +88,7 @@ Example Workflow
 
 Connect to Desktop from Python IDE
 ----------------------------------
-PyAEDT works inside AEDT and as a standalone application.
+PyAEDT works both inside AEDT and as a standalone application.
 It automatically detects whether it is running in an IronPython or CPython
 environment and initializes the Desktop accordingly. PyAEDT also provides
 advanced error management. Usage examples follow.
@@ -97,7 +98,7 @@ Explicit Desktop declaration and error management
 
 .. code:: python
 
-    AEDT 2021R1 in Non-Graphical mode will be launched
+    Launch AEDT 2021 R1 in Non-Graphical mode
 
     from pyaedt import Desktop, Circuit
     with Desktop("2021.1", NG=True):
@@ -153,10 +154,9 @@ License
 PyAEDT is licensed under the MIT license.
 
 This PyAEDT module makes no commercial claim over Ansys
-whatsoever. This tool extends the functionality of AEDT by adding
+whatsoever. PyAEDT extends the functionality of AEDT by adding
 an additional Python interface to AEDT without changing the core
 behavior or license of the original software. The use of the
 interactive APDL control of PyAEDT requires a legally licensed
-local copy of Ansys Electronics Desktop.
-
-For more information about AEDT, visit `Ansys <https://www.ansys.com/products/electronics>`_.
+local copy of AEDT. For more information about AEDT, 
+visit `Ansys <https://www.ansys.com/products/electronics>`_.

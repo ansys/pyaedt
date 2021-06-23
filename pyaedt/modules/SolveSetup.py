@@ -19,7 +19,7 @@ import os.path
 
 from ..generic.general_methods import aedt_exception_handler, generate_unique_name
 
-from .SetupTemplates import SweepHFSS, SweepQ3D, SetupKeys
+from .SetupTemplates import SweepHFSS, SweepQ3D, SetupKeys, SweepHFSS3DLayout
 from ..application.DataHandlers import tuple2dict, dict2arg
 
 
@@ -876,7 +876,7 @@ class Setup3DLayout(object):
                         app = setup_data["Data"]
                         for el in app:
                             if type(app[el]) is OrderedDict:
-                                self.sweeps.append(SweepHFSS(self.omodule, setupname, el, props=app[el]))
+                                self.sweeps.append(SweepHFSS3DLayout(self.omodule, setupname, el, props=app[el]))
 
                     self.props = OrderedDict(setup_data)
             except:
@@ -1008,12 +1008,14 @@ class Setup3DLayout(object):
 
         Returns
         -------
-        type
+        SweeHFSS3DLayout
             sweep object
 
         """
         if not sweepname:
             sweepname = generate_unique_name("Sweep")
-        sweep_n = SweepHFSS(self.omodule, self.name, sweepname, sweeptype)
-        self.sweeps.append(sweep_n)
-        return sweep_n
+        sweep_n = SweepHFSS3DLayout(self.omodule, self.name, sweepname, sweeptype)
+        if sweep_n.create():
+            self.sweeps.append(sweep_n)
+            return sweep_n
+        return False

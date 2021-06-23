@@ -4,7 +4,7 @@
    contain the root `toctree` directive.
 
 Setup for 3D Tools
-===================================
+==================
 
 .. autoclass:: pyaedt.modules.SolveSetup.Setup
     :members:

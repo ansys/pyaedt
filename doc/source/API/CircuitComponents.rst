@@ -4,7 +4,7 @@
    contain the root `toctree` directive.
 
 Primitives Circuit Components
-===================================
+=============================
 .. autoclass:: pyaedt.modeler.PrimitivesNexxim.NexximComponents
     :members:
 

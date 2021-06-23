@@ -43,7 +43,7 @@ class Test3DLayout:
         assert n1 == "mycircle"
 
     def test_04_create_create_rectangle(self):
-        n2 = self.aedtapp.modeler.primitives.create_rectangle("Signal1", 0, 0, 6, 8, 3, 2, "myrectangle")
+        n2 = self.aedtapp.modeler.primitives.create_rectangle("Signal1", [0, 0], [6, 8], 3, 2, "myrectangle")
         assert n2 == "myrectangle"
 
     def test_05_subtract(self):
@@ -51,12 +51,12 @@ class Test3DLayout:
 
     def test_06_unite(self):
         n1 = self.aedtapp.modeler.primitives.create_circle("Signal1", 0, 5, 8, "mycircle2")
-        n2 = self.aedtapp.modeler.primitives.create_rectangle("Signal1", 0, 0, 6, 8, 3, 2, "myrectangle2")
+        n2 = self.aedtapp.modeler.primitives.create_rectangle("Signal1", [0, 0], [6, 8], 3, 2, "myrectangle2")
         assert self.aedtapp.modeler.unite([n1, n2])
 
     def test_07_intersect(self):
         n1 = self.aedtapp.modeler.primitives.create_circle("Signal1", 0, 5, 8, "mycircle3")
-        n2 = self.aedtapp.modeler.primitives.create_rectangle("Signal1", 0, 0, 6, 8, 3, 2, "myrectangle3")
+        n2 = self.aedtapp.modeler.primitives.create_rectangle("Signal1", [0, 0], [6, 8], 3, 2, "myrectangle3")
         assert self.aedtapp.modeler.intersect([n1, n2])
 
     def test_08_objectlist(self):
@@ -90,7 +90,7 @@ class Test3DLayout:
         assert via == "Via123"
 
     def test_12_create_line(self):
-        line = self.aedtapp.modeler.primitives.create_line("Signal3",lw=1,x=[0,10,20],y=[0,30,30],name="line1", netname="VCC")
+        line = self.aedtapp.modeler.primitives.create_line("Signal3",[[0,0],[10,30],[20,30]],lw=1,name="line1", netname="VCC")
         assert line == "line1"
 
     def test_13a_create_edge_port(self):
@@ -123,6 +123,10 @@ class Test3DLayout:
         assert setup3.update()
         assert setup3.disable()
         assert setup3.enable()
+        sweep = setup3.add_sweep()
+        assert sweep
+        assert sweep.change_range("LinearCount", "1Hz", "10GHz", "100MHz")
+        assert sweep.add_subrange("LinearStep", "11GHz", "20GHz", 201)
 
     def test_17_get_setup(self):
         setup4 = self.aedtapp.get_setup(self.aedtapp.existing_analysis_setups[0])
@@ -172,6 +176,24 @@ class Test3DLayout:
         assert self.aedtapp.set_export_touchstone(True)
         assert self.aedtapp.set_export_touchstone(False)
 
+    def test_21_variables(self):
+        assert isinstance(self.aedtapp.available_variations.nominal_w_values_dict, dict)
+        assert isinstance(self.aedtapp.available_variations.nominal_w_values, list)
 
-if __name__ == '__main__':
-    pytest.main()
+    def test_21_get_all_sparameter_list(self):
+        assert self.aedtapp.get_all_sparameter_list == ["S(Port1,Port1)", "S(Port1,Port2)", "S(Port2,Port2)"]
+
+    def test_22_get_all_return_loss_list(self):
+        assert self.aedtapp.get_all_return_loss_list() == ["S(Port1,Port1)", "S(Port2,Port2)"]
+
+    def test_23_get_all_insertion_loss_list(self):
+        assert self.aedtapp.get_all_insertion_loss_list() == ["S(Port1,Port1)", "S(Port2,Port2)"]
+
+    def test_24_get_next_xtalk_list(self):
+        assert self.aedtapp.get_next_xtalk_list() == ["S(Port1,Port2)"]
+
+    def test_25_get_fext_xtalk_list(self):
+        assert self.aedtapp.get_fext_xtalk_list() == ["S(Port1,Port2)", "S(Port2,Port1)"]
+
+    def test_duplicate(self):
+        assert self.aedtapp.modeler.duplicate("myrectangle",2, [1,1])

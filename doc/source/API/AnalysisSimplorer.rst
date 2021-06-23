@@ -4,7 +4,7 @@
    contain the root `toctree` directive.
 
 Analysis Simplorer
-===================================
+==================
 
 .. autoclass:: pyaedt.application.AnalysisSimplorer.FieldAnalysisSimplorer
     :members:

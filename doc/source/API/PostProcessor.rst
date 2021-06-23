@@ -5,12 +5,11 @@
 
 
 
-PostProcessing
-===================================
+PostProcessor
+=============
 .. automodule:: pyaedt.modules.PostProcessor
     :members:
 
 
 .. toctree::
    :maxdepth: 2
-
