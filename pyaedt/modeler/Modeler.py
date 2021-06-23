@@ -110,6 +110,23 @@ class CoordinateSystem(object):
         self._parent.oeditor.ChangeProperty(arguments)
 
     @aedt_exception_handler
+    def rename(self, newname):
+        """Rename CS
+
+        :return: bool
+
+        Parameters
+        ----------
+
+        Returns
+        -------
+
+        """
+        self._change_property(self.name, ["NAME:ChangedProps", ["NAME:Name", "Value:=", newname]])
+        self.name = newname
+        return True
+
+    @aedt_exception_handler
     def update(self):
         """Update CS
         
@@ -236,19 +253,19 @@ class CoordinateSystem(object):
                 del self.props["YAxisZvec"]
                 self.update()
         else:
-            ValueError('mode_type=0 for "Axis/Position", =1 for "Euler Angle ZXZ", =2 for "Euler Angle ZYZ"')
+            raise ValueError('mode_type=0 for "Axis/Position", =1 for "Euler Angle ZXZ", =2 for "Euler Angle ZYZ"')
         return True
 
     @aedt_exception_handler
     def create(self, origin=None, reference_cs='Global', name=None,
                mode='axis', view='iso',
                x_pointing=None, y_pointing=None,
-               psi=0, theta=0, phi=0, u=None):
+               phi=0, theta=0, psi=0, u=None):
         """Create a Coordinate system
         Specify the mode = 'view', 'axis', 'zxz', 'zyz', 'axisrotation'. Default = 'axis'
         If mode = 'view', specify view = 'XY', 'XZ', 'XY', 'iso', 'rotate' (obsolete)
         If mode = 'axis', specify x_pointing and y_pointing
-        If mode = 'zxz' or 'zyz', specify psi, theta, phi
+        If mode = 'zxz' or 'zyz', specify phi, theta, psi
         If mode = 'axisrotation', specify u, theta
 
         Parameters not needed by the specified mode are ignored.
@@ -274,12 +291,12 @@ class CoordinateSystem(object):
         y_pointing :
             if mode="axis", this is a 3 elements list specifying the Y axis pointing in the global CS
             (Default value = [0, 1, 0])
-        psi :
-            Euler angle psi in degrees (Default value = 0)
-        theta :
-            Euler angle theta in degrees, or orataion angle in degrees (Default value = 0)
         phi :
             Euler angle phi in degrees (Default value = 0)
+        theta :
+            Euler angle theta in degrees, or orataion angle in degrees (Default value = 0)
+        psi :
+            Euler angle psi in degrees (Default value = 0)
         u :
             rotation axis in format [ux, uy, uz] (Default value = [1, 0, 0])
 
@@ -365,43 +382,39 @@ class CoordinateSystem(object):
             self.quaternion = GeometryOperators.euler_zyz_to_quaternion(a, b, g)
         elif mode == "zxz":
             orientationParameters["Mode"] = "Euler Angle ZXZ"
-            orientationParameters["Psi"] = self._dim_arg(psi, 'deg')
-            orientationParameters["Theta"] = self._dim_arg(theta, 'deg')
             orientationParameters["Phi"] = self._dim_arg(phi, 'deg')
-            a = GeometryOperators.deg2rad(psi)
+            orientationParameters["Theta"] = self._dim_arg(theta, 'deg')
+            orientationParameters["Psi"] = self._dim_arg(psi, 'deg')
+            a = GeometryOperators.deg2rad(phi)
             b = GeometryOperators.deg2rad(theta)
-            g = GeometryOperators.deg2rad(phi)
+            g = GeometryOperators.deg2rad(psi)
             self.quaternion = GeometryOperators.euler_zxz_to_quaternion(a, b, g)
         elif mode == "zyz":
             orientationParameters["Mode"] = "Euler Angle ZYZ"
-            orientationParameters["Psi"] = self._dim_arg(psi, 'deg')
-            orientationParameters["Theta"] = self._dim_arg(theta, 'deg')
             orientationParameters["Phi"] = self._dim_arg(phi, 'deg')
-            a = GeometryOperators.deg2rad(psi)
+            orientationParameters["Theta"] = self._dim_arg(theta, 'deg')
+            orientationParameters["Psi"] = self._dim_arg(psi, 'deg')
+            a = GeometryOperators.deg2rad(phi)
             b = GeometryOperators.deg2rad(theta)
-            g = GeometryOperators.deg2rad(phi)
+            g = GeometryOperators.deg2rad(psi)
             self.quaternion = GeometryOperators.euler_zyz_to_quaternion(a, b, g)
         elif mode == "axisrotation":
             th = GeometryOperators.deg2rad(theta)
             q = GeometryOperators.axis_angle_to_quaternion(u, th)
             a, b, c = GeometryOperators.quaternion_to_euler_zyz(q)
-            psi = GeometryOperators.rad2deg(a)
+            phi = GeometryOperators.rad2deg(a)
             theta = GeometryOperators.rad2deg(b)
-            phi = GeometryOperators.rad2deg(c)
+            psi = GeometryOperators.rad2deg(c)
             orientationParameters["Mode"] = "Euler Angle ZYZ"
-            orientationParameters["Psi"] = self._dim_arg(psi, 'deg')
-            orientationParameters["Theta"] = self._dim_arg(theta, 'deg')
             orientationParameters["Phi"] = self._dim_arg(phi, 'deg')
+            orientationParameters["Theta"] = self._dim_arg(theta, 'deg')
+            orientationParameters["Psi"] = self._dim_arg(psi, 'deg')
             self.quaternion = q
         else:
             raise ValueError("Specify the mode = 'view', 'axis', 'zxz', 'zyz', 'axisrotation' ")
 
         self.props = orientationParameters
         self._parent.oeditor.CreateRelativeCS(self.orientation, self.attributes)
-
-        x, y, z = GeometryOperators.pointing_to_axis(x_pointing, y_pointing)
-        a, b, g = GeometryOperators.axis_to_euler_zyz(x, y, z)
-        self.quaternion = GeometryOperators.euler_zyz_to_quaternion(a, b, g)
 
         self.ref_cs = reference_cs
         self.update()
@@ -683,7 +696,7 @@ class GeometryModeler(Modeler, object):
         Specify the mode = 'view', 'axis', 'zxz', 'zyz', 'axisrotation'. Default = 'axis'
         If mode = 'view', specify view = 'XY', 'XZ', 'XY', 'iso', 'rotate' (obsolete)
         If mode = 'axis', specify x_pointing and y_pointing
-        If mode = 'zxz' or 'zyz', specify psi, theta, phi
+        If mode = 'zxz' or 'zyz', specify phi, theta, psi
         If mode = 'axisrotation', specify u, theta
 
         Parameters not needed by the specified mode are ignored.
@@ -709,12 +722,12 @@ class GeometryModeler(Modeler, object):
         y_pointing :
             if mode="axis", this is a 3 elements list specifying the Y axis pointing in the global CS
             (Default value = [0, 1, 0])
-        psi :
-            Euler angle psi in degrees (Default value = 0)
-        theta :
-            Euler angle theta in degrees, or orataion angle in degrees (Default value = 0)
         phi :
             Euler angle phi in degrees (Default value = 0)
+        theta :
+            Euler angle theta in degrees, or orataion angle in degrees (Default value = 0)
+        psi :
+            Euler angle psi in degrees (Default value = 0)
         u :
             rotation axis in format [ux, uy, uz] (Default value = [1, 0, 0])
 
@@ -734,7 +747,7 @@ class GeometryModeler(Modeler, object):
             result = cs.create(origin=origin, reference_cs=reference_cs, name=name,
                                mode=mode, view=view,
                                x_pointing=x_pointing, y_pointing=y_pointing,
-                               psi=psi, theta=theta, phi=phi, u=u)
+                               phi=phi, theta=theta, psi=psi, u=u)
             if result:
                 self.coordinate_systems.append(cs)
                 return cs
