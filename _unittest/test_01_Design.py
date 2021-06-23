@@ -30,11 +30,12 @@ class TestDesign(BasisTest):
         self.local_scratch.remove()
         gc.collect()
 
+    @pyaedt_unittest_same_design
     def test_app(self):
         assert self.aedtapp
 
     #TODO: Clean up close-project so it doesn't crash
-    @pytest.mark.skip(reason="Skipped because Desktop is crashing")
+    @pytest.mark.skip(reason="Skipped because project management needs revisiting")
     @pyaedt_unittest_duplicate_design
     def test_01_close_project(self):
         self.aedtapp.close_project()
@@ -49,16 +50,16 @@ class TestDesign(BasisTest):
     def test_version_id(self):
         assert self.aedtapp.aedt_version_id
 
-    @pyaedt_unittest_same_design
+    @pyaedt_unittest_duplicate_design
     def test_valid_design(self):
         assert self.aedtapp.valid_design
 
-    @pytest.mark.skip(reason="Skipped because Desktop is crashing")
-    @pyaedt_unittest_same_design
+    @pytest.mark.skip(reason="Skipped because project management needs revisiting")
+    @pyaedt_unittest_new_design
     def test_clean_proj_folder(self):
         assert self.aedtapp.clean_proj_folder()
 
-    @pytest.mark.skip(reason="Skipped because Desktop is crashing")
+    @pytest.mark.skip(reason="Skipped because project management needs revisiting")
     def test_copy_project(self):
         assert self.aedtapp.copy_project(self.local_scratch.path, "new_file")
         assert self.aedtapp.copy_project(self.local_scratch.path, "Coax_HFSS")
@@ -68,12 +69,13 @@ class TestDesign(BasisTest):
         assert self.aedtapp.change_automatically_use_causal_materials(True)
         assert self.aedtapp.change_automatically_use_causal_materials(False)
 
-    @pyaedt_unittest_same_design
+
+    @pyaedt_unittest_new_design
     def test_02_design_list(self):
         mylist = self.aedtapp.design_list
-        assert len(mylist) == 1
+        assert len(mylist) == 2
 
-    @pyaedt_unittest_same_design
+    @pyaedt_unittest_duplicate_design
     def test_03_design_type(self):
         assert self.aedtapp.design_type == "HFSS"
 
@@ -85,6 +87,7 @@ class TestDesign(BasisTest):
     def test_05_lock(self):
         assert os.path.exists(self.aedtapp.lock_file)
 
+    @pytest.mark.skip(reason="Skipped because project management needs revisiting")
     @pyaedt_unittest_same_design
     def test_05_resultsfolder(self):
         assert os.path.exists(self.aedtapp.results_directory)
@@ -95,6 +98,7 @@ class TestDesign(BasisTest):
         self.aedtapp.solution_type = "DrivenTerminal"
         assert self.aedtapp.solution_type == "DrivenTerminal"
         self.aedtapp.solution_type = "DrivenModal"
+
 
     @pyaedt_unittest_same_design
     def test_06_libs(self):
@@ -149,12 +153,13 @@ class TestDesign(BasisTest):
     def test_14_get_nominal_variation(self):
         assert (self.aedtapp.get_nominal_variation() != [] or self.aedtapp.get_nominal_variation() is not None)
 
-    @pyaedt_unittest_same_design
+    @pyaedt_unittest_duplicate_design
     def test_15a_duplicate_design(self):
         self.aedtapp.duplicate_design("myduplicateddesign")
         assert "myduplicateddesign" in self.aedtapp.design_list
         self.aedtapp.delete_design("myduplicateddesign")
 
+    @pytest.mark.skip(reason="Skipped because project management needs revisiting")
     @pyaedt_unittest_same_design
     def test_15b_copy_design_from(self):
         origin = os.path.join(self.local_scratch.path, 'origin.aedt')
@@ -178,6 +183,7 @@ class TestDesign(BasisTest):
         self.aedtapp.export_variables_to_csv(os.path.join(self.local_scratch.path,"my_variables.csv"))
         assert os.path.exists(os.path.join(self.local_scratch.path,"my_variables.csv"))
 
+    @pytest.mark.skip(reason="Skipped because project management needs revisiting")
     @pyaedt_unittest_same_design
     def test_18_reload_project(self):
         #self.aedtapp.close_project(test_project_name, saveproject=False)
@@ -195,7 +201,7 @@ class TestDesign(BasisTest):
         assert self.aedtapp.dataset_exists("Test_DataSet", is_project_dataset=False)
         assert not self.aedtapp.dataset_exists("Test_DataSet", is_project_dataset=True)
 
-    @pyaedt_unittest_same_design
+    @pyaedt_unittest_new_design
     def test_19_create_project_dataset(self):
         x = [1, 100]
         y = [1000, 980]
@@ -205,7 +211,7 @@ class TestDesign(BasisTest):
         assert ds2.delete()
         assert not self.aedtapp.dataset_exists("Test_DataSet", is_project_dataset=True)
 
-    @pyaedt_unittest_same_design
+    @pyaedt_unittest_new_design
     def test_19_create_3dproject_dataset(self):
         x = [1, 100]
         y = [1000, 980]
