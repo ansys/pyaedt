@@ -385,5 +385,5 @@ class TestHFSS:
     def test_40_assign_current_source_to_sheet(self):
         sheet_name = "RectangleForSource"
         self.aedtapp.modeler.primitives.create_rectangle(self.aedtapp.CoordinateSystemPlane.XYPlane, [0, 0, 0], 
-                                                        [5, 1], sheet_name, "Copper")
+                                                         [5, 1], sheet_name, "Copper")
         assert self.aedtapp.assign_current_source_to_sheet(sheet_name)
