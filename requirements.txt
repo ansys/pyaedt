@@ -1,7 +1,25 @@
+# #############################################################################
+# requirements
+# #############################################################################
 pywin32 >= 2.2.7; python_version > '2.7'
+# https://github.com/mhammond/pywin32
+# License: PSF
+
 pythonnet >= 2.4.0; python_version > '2.7'
+# https://github.com/pythonnet/pythonnet
+# License: MIT
+
+
+# #############################################################################
+# optional
+# #############################################################################
+
 pyvista
+# License: MIT
+
 matplotlib
+# License: https://github.com/matplotlib/matplotlib/blob/master/LICENSE/LICENSE
+# License: PSF
+
 numpy
-
-
+# License: BSD-3-Clause License
