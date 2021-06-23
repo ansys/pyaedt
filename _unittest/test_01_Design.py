@@ -33,11 +33,6 @@ class TestDesign(BasisTest):
     def test_app(self):
         assert self.aedtapp
 
-    #TODO: Clean up close-project so it doesn't crash
-    @pytest.mark.skip(reason="Skipped because project management needs revisiting")
-    def test_01_close_project(self):
-        self.aedtapp.close_project()
-
     def test_01_designname(self):
         self.aedtapp.design_name = "myname"
         assert self.aedtapp.design_name == "myname"
