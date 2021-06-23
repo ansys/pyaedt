@@ -278,7 +278,7 @@ class EdBSiwave(object):
         impedance_value : float, optional
             Port impedance value. The default is ``50``.
         port_name: str, optional
-            Name of the circuit port.
+            Name of the port.
         
         Returns
         -------
@@ -500,7 +500,7 @@ class EdBSiwave(object):
         Parameters
         ----------
         accuracy_level : int, optional
-           The level of accuracy. The default is ``1``.
+           Level of accuracy. The default is ``1``.
         decade_count : int
             The default is ``10``.    
         sweeptype : int, optional
@@ -532,10 +532,10 @@ class EdBSiwave(object):
         """Add a SIwave SYZ analysis.
 
        Parameters
-        ----------
+       ----------
         accuracy_level : int, optional
-           The level of accuracy. The default is ``1``.
-        decade_count : int
+           Level of accuracy. The default is ``1``.
+        decade_count : int, optional
             Number of points to calculate in each decade. The default is ``10``.    
         sweeptype : int, optional
             Type of the sweep. The default is ``1``.
@@ -570,7 +570,7 @@ class EdBSiwave(object):
         Parameters
         ----------
         accuracy_level : int, optional
-           The level of accuracy. The default is ``1``.accuracy_level :
+           Level of accuracy. The default is ``1``.
 
         Returns
         -------
