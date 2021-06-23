@@ -390,6 +390,7 @@ class Analysis(Design, object):
 
         """
         setups = self.oanalysis.GetSetups()
+
         return setups
 
 
