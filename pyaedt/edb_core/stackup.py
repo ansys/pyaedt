@@ -1,11 +1,5 @@
 """
-EdbStackup Class
--------------------
-
-This class manages Edb Stackup and related methods
-
-
-
+This module contains the ``EdbStackup`` class.
 
 """
 from __future__ import absolute_import
@@ -22,9 +16,8 @@ except ImportError:
 from .EDB_Data import EDBLayers, EDBLayer
 
 
-
 class EdbStackup(object):
-    """Stackup object"""
+    """EdbStackup class."""
 
     def __init__(self, parent):
         self.parent = parent
@@ -67,13 +60,15 @@ class EdbStackup(object):
 
     @property
     def stackup_layers(self):
-        """Get all stackup layers
+        """List all stackup layers.
         
         Parameters
         ----------
 
         Returns
         -------
+        dict
+            Dictionary of stackup layers.
 
         """
         if not self._layer_dict:
@@ -90,8 +85,8 @@ class EdbStackup(object):
 
         Returns
         -------
-        type
-            :return:list of signal layers
+        list
+            List of signal layers.
 
         """
         return self.stackup_layers.signal_layers
@@ -108,20 +103,22 @@ class EdbStackup(object):
 
     @aedt_exception_handler
     def create_dielectric(self, name, permittivity=1, loss_tangent=0):
-        """Create a new dielectric with simple properties
+        """Create a new dielectric with simple properties.
 
         Parameters
         ----------
-        name: str
-            name of dielectic
-        permittivity: float
-            dielectric permittivity
-        loss_tangent: float
-            dielectric loss tangent
+        name : str
+            Name of the dielectic.
+        permittivity : float, optional
+            Permittivity of the dielectric.
+        loss_tangent : float
+            Loss tangent for the material. 
 
         Returns
         -------
-        Material Definition
+        type
+        Material definition.
+        
         """
         if self.edb.Definition.MaterialDef.FindByName(self.db, name).IsNull():
             material_def = self.edb.Definition.MaterialDef.Create(self.db,name)
@@ -133,18 +130,20 @@ class EdbStackup(object):
 
     @aedt_exception_handler
     def create_conductor(self, name, conductivity=1e6):
-        """Create a new conductor with simple properties
+        """Create a new conductor with simple properties.
 
         Parameters
         ----------
         name: str
-            name of conductor
-        conductivity: float
-            conductor conductivity
+            Name of the conductor.
+        conductivity : float, optional
+            Conductivity of the conductor. The default is ``1e6``.
 
         Returns
         -------
-        Material Definition
+        type
+        Material definition.
+        
         """
         if self.edb.Definition.MaterialDef.FindByName(self.db, name).IsNull():
             material_def = self.edb.Definition.MaterialDef.Create(self.db, name)
@@ -155,28 +154,33 @@ class EdbStackup(object):
 
     @aedt_exception_handler
     def create_debye_material(self, name, relative_permittivity_low, relative_permittivity_high, loss_tangent_low, loss_tangent_high, lower_freqency, higher_frequency):
-        """Create a new dielectric with Debye Model
+        """Create a new dielectric with the Debye model.
 
         Parameters
         ----------
-        name: str
-            name of dielectic
-        relative_permittivity_low: float
-            dielectric permittivity at lower frequency
-        relative_permittivity_high: float
-            dielectric permittivity at higher frequency
-        loss_tangent_low: float
-            dielectric loss tangent at lower frequency
-        loss_tangent_high: float
-            dielectric loss tangent  at higher frequency
-        lower_freqency: float
-            dielectric lower frequency
+        name : str
+            Name of the dielectic.
+        relative_permittivity_low : float
+            Relative permittivity of the dielectric at the frequency specified
+            for ``lower_frequency``.
+        relative_permittivity_high : float
+            Relative ermittivity of the dielectric at the frequency specified
+            for ``higher_frequency``.
+        loss_tangent_low : float
+            Loss tangent for the material at the frequency specified
+            for ``lower_frequency``.
+        loss_tangent_high : float
+            Loss tangent for the material at the frequncy specified
+            for ``higher_frequency``.
+        lower_freqency : float
+            Value to use for lower frequency.
         higher_frequency: float
-            dielectric higher frequency
+            Value to use for higher frequency.
 
         Returns
         -------
-        Material Definition
+        type
+        Material definition.
         """
         material_def = self.edb.Definition.DebyeModel()
         material_def.SetFrequencyRange(lower_freqency, higher_frequency)
@@ -189,24 +193,24 @@ class EdbStackup(object):
 
     @aedt_exception_handler
     def create_djordjevicsarkar_material(self, name, relative_permittivity, loss_tangent, test_frequency):
-        """Create a new Djordjevic_Sarkar Dielectric
+        """Create a new Djordjevic_Sarkar dielectric.
 
         Parameters
         ----------
-        name: str
-            name of dielectic
-        relative_permittivity: float
-            dielectric permittivity
-
-        loss_tangent: float
-            dielectric loss tangent
-        test_frequency: float
-            dielectric test frequency in GHz
-
+        name : str
+            Name of the dielectic.
+        relative_permittivity : float
+            Relative permittivity of the dielectric.
+        loss_tangent : float
+            Loss tangent for the material.
+        test_frequency : float
+            Test frequency for the dielectric in GHz.
 
         Returns
         -------
-        Material Definition
+        type
+        Material definition.
+        
         """
         material_def = self.edb.Definition.DjordjecvicSarkarModel()
         material_def.SetFrequency(test_frequency)
@@ -230,8 +234,8 @@ class EdbStackup(object):
 
         Parameters
         ----------
-        only_metals :
-             (Default value = False)
+        only_metals : bool, optional
+            The default is ``False``.
 
         Returns
         -------
