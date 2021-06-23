@@ -2101,6 +2101,7 @@ class Design(object):
 
         self.save_project()
         active_design = self.design_name
+        design_list = self.design_list
         self._oproject.CopyDesign(active_design)
         self._oproject.Paste()
         newname = label
@@ -2108,10 +2109,9 @@ class Design(object):
         while newname in self.design_list:
             newname = label + '_' + str(ind)
             ind += 1
+        actual_name = [i for i in self.design_list if i not in design_list]
+        self.odesign = actual_name
         self.design_name = newname
-        self.odesign = newname
-
-        assert os.path.exists(self.working_directory)
         return True
 
     @aedt_exception_handler
