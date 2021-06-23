@@ -540,7 +540,9 @@ class Design(object):
         -------
 
         """
-        return self._odesign.GetDesignType()
+        #return self._odesign.GetDesignType()
+        return self. _design_type
+
 
     @property
     def project_name(self):
@@ -1490,7 +1492,9 @@ class Design(object):
         """
         base_path = self.temp_directory
 
-        assert isinstance(subdir_name, str), "Input argument 'subdir' must be a string"
+        if not isinstance(subdir_name, str):
+            self.messenger.add_error_message("Input argument 'subdir' must be a string")
+            return False
         dir_name = generate_unique_name(subdir_name)
         project_dir = os.path.join(base_path, dir_name)
         try:
@@ -1899,11 +1903,15 @@ class Design(object):
             if fallback_design:
                 new_designname = fallback_design
             else:
-                new_designname = self._oproject.GetActiveDesign().GetName()
-            self.set_active_design(new_designname)
+                if not self._oproject.GetActiveDesign():
+                    new_designname = None
+                    self.odesign = None
+                else:
+                    new_designname = self._oproject.GetActiveDesign().GetName()
+                    self.set_active_design(new_designname)
         except:
-            #TODO Handle the case when after delete_design no design is present
             pass
+        self.__init__(self.project_name, self.design_name)
 
         return True
 
@@ -2081,6 +2089,8 @@ class Design(object):
         # reset the active design (very important)
         self._oproject.SetActiveDesign(active_design)
         self.save_project()
+        self.__init__(self.project_name, new_designname)
+
         # return the pasted design name
         return new_designname
 
@@ -2099,7 +2109,6 @@ class Design(object):
 
         """
 
-        self.save_project()
         active_design = self.design_name
         design_list = self.design_list
         self._oproject.CopyDesign(active_design)
@@ -2112,6 +2121,8 @@ class Design(object):
         actual_name = [i for i in self.design_list if i not in design_list]
         self.odesign = actual_name
         self.design_name = newname
+        self.__init__(self.project_name, self.design_name)
+
         return True
 
     @aedt_exception_handler
@@ -2226,6 +2237,7 @@ class Design(object):
         """
         self.oproject.SetActiveDesign(name)
         self.odesign = name
+        self.__init__(self.project_name, self.design_name)
         return True
 
     @aedt_exception_handler
