@@ -11,7 +11,8 @@ class GeometryOperators(object):
 
         Parameters
         ----------
-        input_list :
+        input_list : list
+            List of inputs.
             
 
         Returns
@@ -303,7 +304,7 @@ class GeometryOperators(object):
         pointlists :
             
         direction :
-             (Default value = 0)
+             The default is `0`.
 
         Returns
         -------
@@ -325,18 +326,18 @@ class GeometryOperators(object):
     @staticmethod
     @aedt_exception_handler
     def distance_vector(p, a, b):
-        """return the vector distance between a point p and a line defined by two points a1 and a2
-        The used formula is   d = (a-p)-((a-p)dot p)n
+        """Retrieve the vector distance between a point p and a line defined by two points, a1 and a2.
+        The formula used is d = (a-p)-((a-p)dot p)n,
         where a is a point of the line (either a1 or a2) and n is the unit vector in the direction of the line.
 
         Parameters
         ----------
         p :
-            reference point
+            Reference point.
         a :
-            first point of the segment
+            First point of the segment.
         b :
-            second point of the segment
+            Second point of the segment
 
         Returns
         -------
@@ -359,13 +360,13 @@ class GeometryOperators(object):
         Parameters
         ----------
         p :
-            reference point
+            Reference point.
         a :
-            first point of the segment
+            First point of the segment.
         b :
-            second point of the segment
-        tol :
-            set the linear tolerance (Default value = 1e-6)
+            Second point of the segment.
+        tol : float, optional
+            Linear tolerance. The default is ``1e-6``.
 
         Returns
         -------
@@ -390,20 +391,21 @@ class GeometryOperators(object):
         Parameters
         ----------
         a1 :
-            first point of segment a
+            First point of segment a.
         a2 :
-            second point of segment a
+            Second point of segment a.
         b1 :
-            first point of segment b
+            First point of segment b.
         b2 :
-            second point of segment b
-        tol :
-            set the linear tolerance (Default value = 1e-6)
+            Second point of segment b.
+        tol : float, optional
+            Linear tolerance. The default is ``1e-6``.
 
         Returns
         -------
-        type
-            True if it is parallel, False otherwise
+        bool
+            ``True`` when it is parallel, ``False`` otherwise.
+              
 
         """
         if 1. - GeometryOperators.parallel_coeff(a1,a2,b1,b2) < tol*tol:
@@ -419,13 +421,13 @@ class GeometryOperators(object):
         Parameters
         ----------
         a1 :
-            first point of segment a
+            First point of segment a.
         a2 :
-            second point of segment a
+            Second point of segment a.
         b1 :
-            first point of segment b
+            First point of segment b.
         b2 :
-            second point of segment b
+            Second point of segment b.
 
         Returns
         -------
@@ -460,8 +462,8 @@ class GeometryOperators(object):
 
         Returns
         -------
-        type
-            True if it is inside, False otherwise
+        bool
+            ``True`` when it is inside, ``False`` otherwise.
 
         """
         if not GeometryOperators.is_parallel(a1, a2, b1, b2):
@@ -482,9 +484,9 @@ class GeometryOperators(object):
 
         Parameters
         ----------
-        vertlist1 :
+        vertlist1 : list
             
-        vertlist2 :
+        vertlist2 : list
             
 
         Returns
