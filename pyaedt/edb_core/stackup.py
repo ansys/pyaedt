@@ -170,7 +170,7 @@ class EdbStackup(object):
             Loss tangent for the material at the frequency specified
             for ``lower_frequency``.
         loss_tangent_high : float
-            Loss tangent for the material at the frequncy specified
+            Loss tangent for the material at the frequency specified
             for ``higher_frequency``.
         lower_freqency : float
             Value to use for lower frequency.
