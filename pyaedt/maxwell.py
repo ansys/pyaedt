@@ -1,5 +1,5 @@
 """
-This module contains these ``Maxwell`` classes: ``Maxwell``, ``Maxwell2d``, and ``Maxwell3d``.
+This module contains these Maxwell classes: ``Maxwell``, ``Maxwell2d``, and ``Maxwell3d``.
 
 
 Examples
@@ -135,7 +135,7 @@ class Maxwell(object):
     setup_name : str, optional
          The name of the setup to use as the nominal. The default is ``None``. If ``None``, the active setup 
          is used or nothing is used.
-     specified_version: str, optional
+     specified_version : str, optional
         Version of AEDT to use. The default is ``None``. If ``None``, the
         active setup is used or the latest installed version is used.
      NG : bool, optional
@@ -202,10 +202,10 @@ class Maxwell(object):
 
         Parameters
         ----------
-        setupname : 
+        setupname : str
             Name of the setup
         file_str : str, optional
-            The default value is ``None``.
+            Name of the file. The default value is ``None``.
         keep_modifications : bool, optional
             Whether to save changes. The default value is ``False``.
         python_interpreter : optional
@@ -272,9 +272,9 @@ class Maxwell(object):
         Parameters
         ----------
         object_list : list
-            
+            List of objects.    
         activate : bool, optional
-             The default is ``True``.
+            The default is ``True``.
 
         Returns
         -------
@@ -475,7 +475,7 @@ class Maxwell(object):
         Returns
         -------
         bool
-          ``True`` when successful, ``False`` when failed.   
+            ``True`` when successful, ``False`` when failed.   
 
         """
         if self.modeler._is3d:
@@ -627,13 +627,17 @@ class Maxwell(object):
         Parameters
         ----------
         input_object : str, list
-        reference_cs : str
-        is_virtual : bool
-        force_name : str, Optional
+        reference_cs : str, optional
+        is_virtual : bool, optional
+            Whether the force is virtual. The default is ``True``.
+        force_name : str, optional
+            Name of the force. The default is ``None``.
 
         Returns
         -------
         bool
+            ``True`` when successful, ``False`` when failed.
+        
         """
 
         input_object = self.modeler._convert_list_to_ids(input_object, True)
@@ -698,7 +702,8 @@ class Maxwell(object):
         ----------
         motion_setup : str
             Name of the motion setup.
-        val : Value of the angle.
+        val : 
+            Value of the angle.
             
 
         Returns
@@ -751,7 +756,7 @@ class Maxwell3d(Maxwell, FieldAnalysis3D, object):
      setup_name : str, optional
          The name of the setup to use as the nominal. The default is ``None``. If ``None``, the active setup 
          is used or nothing is used.
-     specified_version: str, optional
+     specified_version : str, optional
         Version of AEDT to use. The default is ``None``. If ``None``, the
         active setup is used or the latest installed version is used.
      NG : bool, optional
@@ -801,7 +806,7 @@ class Maxwell2d(Maxwell, FieldAnalysis2D, object):
      setup_name : str, optional
          Name of the setup to use as the nominal. The default is ``None``. If ``None``, the active setup 
          is used or nothing is used.
-     specified_version: str, optional
+     specified_version : str, optional
         Version of AEDT to use. The default is ``None``. If ``None``, the
         active setup is used or the latest installed version is used.
      NG : bool, optional
