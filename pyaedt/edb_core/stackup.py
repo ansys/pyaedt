@@ -112,7 +112,7 @@ class EdbStackup(object):
         permittivity : float, optional
             Permittivity of the dielectric. The default is ``1``.
         loss_tangent : float, optional
-            Loss tangent for the material. The default is ``01``.
+            Loss tangent for the material. The default is ``0``.
 
         Returns
         -------
