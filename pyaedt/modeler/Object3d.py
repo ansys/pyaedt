@@ -795,7 +795,7 @@ class Object3d(object):
     @property
     def transparency(self):
         """Get or set part transparency as a value between 0.0 and 1.0
-        If the value is outside the range, then apply a limit. If the valu eis not a valid number, set to 0.0
+        If the value is outside the range, then apply a limit. If the value is not a valid number, set to 0.0
         """
         return self._transparency
 
