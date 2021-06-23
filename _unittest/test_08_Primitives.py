@@ -5,7 +5,7 @@ import math
 
 # Setup paths for module imports
 from .conftest import local_path, config
-from .conftest import pyaedt_unittest_same_design, pyaedt_unittest_duplicate_design, pyaedt_unittest_new_design
+from .conftest import pyaedt_unittest_same_design, pyaedt_unittest_same_design, pyaedt_unittest_same_design
 from .conftest import BasisTest
 
 # Import required modules
@@ -34,33 +34,32 @@ class TestPrimitives(BasisTest):
         self.test_99_project = self.local_scratch.copyfile(test_99_project)
 
 
-    @pyaedt_unittest_new_design
+    
     def test_01_create_box(self):
         id = self.aedtapp.modeler.primitives.create_box([0, 0, 0], [10, 10, 5], "Mybox", "Copper")
-
         assert id > 0
         assert self.aedtapp.modeler.primitives[id].name == "Mybox"
         assert self.aedtapp.modeler.primitives[id].object_type == "Solid"
         assert self.aedtapp.modeler.primitives[id].is3d
 
-    @pyaedt_unittest_duplicate_design
+    
     def test_center_and_centroid(self):
         tol = 1e-9
         center = self.aedtapp.modeler.primitives["Mybox"].faces[0].center
         centroid = self.aedtapp.modeler.primitives["Mybox"].faces[0].centroid
         assert GeometryOperators.v_norm(center) - GeometryOperators.v_norm(centroid) < tol
 
-    @pyaedt_unittest_same_design
+    
     def test_01_get_object_name_from_edge(self):
         assert self.aedtapp.modeler.get_object_name_from_edge_id(
             self.aedtapp.modeler.primitives["Mybox"].edges[0].id) == "Mybox"
 
-    @pyaedt_unittest_duplicate_design
+    
     def test_01a_get_faces_from_mat(self):
         faces = self.aedtapp.modeler.select_allfaces_from_mat("Copper")
         assert len(faces)==6
 
-    @pyaedt_unittest_duplicate_design
+    
     def test_01b_check_object_faces(self):
 
         face_list = self.aedtapp.modeler.primitives["Mybox"].faces
@@ -72,24 +71,24 @@ class TestPrimitives(BasisTest):
         assert self.aedtapp.modeler.primitives["Mybox"].faces[0].move_with_vector([0,0,0.01])
         assert type(f.normal) is list
 
-    @pyaedt_unittest_same_design
+    
     def test_01_check_object_edges(self):
         e = self.aedtapp.modeler.primitives["Mybox"].edges[1]
         assert type(e.midpoint) is list and len(e.midpoint) == 3
         assert type(e.length) is float and e.length> 0
 
-    @pyaedt_unittest_same_design
+    
     def test_01_check_object_vertices(self):
         assert len(self.aedtapp.modeler.primitives["Mybox"].vertices)==8
         v = self.aedtapp.modeler.primitives["Mybox"].vertices[0]
         assert type(v.position) is list and len(v.position) == 3
 
-    @pyaedt_unittest_same_design
+    
     def test_02_get_objects_in_group(self):
         objs = self.aedtapp.modeler.get_objects_in_group("Solids")
         assert type(objs) is list
 
-    @pyaedt_unittest_new_design
+    
     def test_03_create_circle(self):
         udp = self.aedtapp.modeler.Position(5, 3, 8)
         plane = self.aedtapp.CoordinateSystemPlane.XYPlane
@@ -99,7 +98,7 @@ class TestPrimitives(BasisTest):
         assert self.aedtapp.modeler.primitives[id].object_type == "Sheet"
         assert self.aedtapp.modeler.primitives[id].is3d is False
 
-    @pyaedt_unittest_new_design
+    
     def test_04_create_sphere(self):
         udp = self.aedtapp.modeler.Position(20,20, 0)
         radius = 5
@@ -109,7 +108,7 @@ class TestPrimitives(BasisTest):
         assert self.aedtapp.modeler.primitives[id].object_type == "Solid"
         assert self.aedtapp.modeler.primitives[id].is3d is True
 
-    @pyaedt_unittest_new_design
+    
     def test_05_create_cylinder(self):
         udp = self.aedtapp.modeler.Position(20,20, 0)
         axis = self.aedtapp.CoordinateSystemAxis.YAxis
@@ -122,7 +121,7 @@ class TestPrimitives(BasisTest):
         assert self.aedtapp.modeler.primitives[id].is3d is True
         pass
 
-    @pyaedt_unittest_new_design
+    
     def test_06_create_ellipse(self):
         udp = self.aedtapp.modeler.Position(5, 3, 8)
         plane = self.aedtapp.CoordinateSystemPlane.XYPlane
@@ -138,7 +137,7 @@ class TestPrimitives(BasisTest):
         assert self.aedtapp.modeler.primitives[id].is3d is False
         pass
 
-    @pyaedt_unittest_duplicate_design
+    
     def test_07_create_object_from_edge(self):
         edges = self.aedtapp.modeler.primitives.get_object_edges(self.aedtapp.modeler.primitives.get_obj_id("MyCyl"))
         id = self.aedtapp.modeler.primitives.create_object_from_edge(edges[0])
@@ -147,7 +146,7 @@ class TestPrimitives(BasisTest):
         assert self.aedtapp.modeler.primitives[id].is3d is False
         pass
 
-    @pyaedt_unittest_duplicate_design
+    
     def test_08_create_object_from_face(self):
         faces = self.aedtapp.modeler.primitives.get_object_faces(self.aedtapp.modeler.primitives.get_obj_id("MyCyl"))
         id = self.aedtapp.modeler.primitives.create_object_from_face(faces[0])
@@ -156,7 +155,7 @@ class TestPrimitives(BasisTest):
         assert self.aedtapp.modeler.primitives[id].is3d is False
         pass
 
-    @pyaedt_unittest_new_design
+    
     def test_09_create_polyline(self):
         udp1 = self.aedtapp.modeler.Position(0, 0, 0)
         udp2 = self.aedtapp.modeler.Position(5, 0, 0)
@@ -172,7 +171,7 @@ class TestPrimitives(BasisTest):
         assert self.aedtapp.modeler.primitives[P2.id].object_type == "Sheet"
         assert self.aedtapp.modeler.primitives[P2.id].is3d is False
 
-    @pyaedt_unittest_new_design
+    
     def test_10_create_polyline_with_crosssection(self):
         udp1 = self.aedtapp.modeler.Position(0, 0, 0)
         udp2 = self.aedtapp.modeler.Position(5, 0, 0)
@@ -184,7 +183,7 @@ class TestPrimitives(BasisTest):
         assert self.aedtapp.modeler.primitives[P.id].object_type == "Solid"
         assert self.aedtapp.modeler.primitives[P.id].is3d is True
 
-    @pyaedt_unittest_new_design
+    
     def test_10_sweep_along_path(self):
         udp1 = [0, 0, 0]
         udp2 = [5, 0, 0]
@@ -195,7 +194,7 @@ class TestPrimitives(BasisTest):
         rect = self.aedtapp.modeler.primitives.create_rectangle(self.aedtapp.CoordinateSystemPlane.YZPlane, [0,-2,-2],[4,3], name="rect_1")
         assert self.aedtapp.modeler.sweep_along_path(rect, P.id )
 
-    @pyaedt_unittest_new_design
+    
     def test_10_sweep_around_axis(self):
         udp1 = [0, 0, 0]
         udp2 = [5, 0, 0]
@@ -203,12 +202,12 @@ class TestPrimitives(BasisTest):
         self.aedtapp.modeler.primitives.create_polyline(arrofpos, name="poly_vector_2")
         assert self.aedtapp.modeler.sweep_around_axis("poly_vector_2", self.aedtapp.CoordinateSystemAxis.YAxis)
 
-    @pyaedt_unittest_new_design
+    
     def test_10_sweep_along_vector(self):
         rect2 = self.aedtapp.modeler.primitives.create_rectangle(self.aedtapp.CoordinateSystemPlane.YZPlane, [0,-2,-2],[4,3], name="rect_2")
         assert self.aedtapp.modeler.sweep_along_vector(rect2, [10,20,20] )
 
-    @pyaedt_unittest_new_design
+    
     def test_11_create_rectangle(self):
         udp = self.aedtapp.modeler.Position(5, 3, 8)
         plane = self.aedtapp.CoordinateSystemPlane.XYPlane
@@ -218,7 +217,7 @@ class TestPrimitives(BasisTest):
         assert self.aedtapp.modeler.primitives[id].object_type == "Sheet"
         assert self.aedtapp.modeler.primitives[id].is3d is False
 
-    @pyaedt_unittest_new_design
+    
     def test_12_create_cone(self):
         udp = self.aedtapp.modeler.Position(5, 3, 8)
         axis = self.aedtapp.CoordinateSystemAxis.ZAxis
@@ -228,21 +227,21 @@ class TestPrimitives(BasisTest):
         assert self.aedtapp.modeler.primitives[id].object_type == "Solid"
         assert self.aedtapp.modeler.primitives[id].is3d is True
 
-    @pyaedt_unittest_new_design
+    
     def test_13_get_object_name(self):
         udp = self.aedtapp.modeler.Position(5, 3, 8)
         axis = self.aedtapp.CoordinateSystemAxis.ZAxis
         id = self.aedtapp.modeler.primitives.create_cone(axis, udp, 20, 10, 5, name="MyCone2")
         assert self.aedtapp.modeler.primitives.get_obj_name(id) == "MyCone2"
 
-    @pyaedt_unittest_new_design
+    
     def test_13_get_object_id(self):
         udp = self.aedtapp.modeler.Position(5, 3, 8)
         plane = self.aedtapp.CoordinateSystemPlane.XYPlane
         id = self.aedtapp.modeler.primitives.create_rectangle(plane, udp, [4, 5], name="MyRectangle5")
         assert self.aedtapp.modeler.primitives.get_obj_id("MyRectangle5") == id
 
-    @pyaedt_unittest_duplicate_design
+    
     def test_14_get_object_names(self):
         solid_list = self.aedtapp.modeler.primitives.solids
         sheet_list = self.aedtapp.modeler.primitives.sheets
@@ -273,29 +272,29 @@ class TestPrimitives(BasisTest):
             assert self.aedtapp.modeler.primitives[line].object_type is "Line"
         assert len(objnames) == len(solidnames) + len(listnames) + len(sheetnames)
 
-    @pyaedt_unittest_same_design
+    
     def test_15_get_object_by_material(self):
         listsobj = self.aedtapp.modeler.primitives.get_objects_by_material("vacuum")
         assert len(listsobj) > 0
         listsobj = self.aedtapp.modeler.primitives.get_objects_by_material("FR4")
         assert len(listsobj) == 0
 
-    @pyaedt_unittest_same_design
+    
     def test_16_get_object_faces(self):
         listsobj = self.aedtapp.modeler.primitives.get_object_faces("MyRectangle")
         assert len(listsobj) == 1
 
-    @pyaedt_unittest_same_design
+    
     def test_17_get_object_edges(self):
         listsobj = self.aedtapp.modeler.primitives.get_object_edges("MyRectangle")
         assert len(listsobj) == 4
 
-    @pyaedt_unittest_same_design
+    
     def test_18_get_object_vertex(self):
         listsobj = self.aedtapp.modeler.primitives.get_object_vertices("MyRectangle")
         assert len(listsobj) == 4
 
-    @pyaedt_unittest_same_design
+    
     def test_19_get_edges_from_position(self):
         udp = self.aedtapp.modeler.Position(5, 3, 8)
         edge_id = self.aedtapp.modeler.primitives.get_edgeid_from_position(udp, "MyRectangle")
@@ -303,7 +302,7 @@ class TestPrimitives(BasisTest):
         edge_id = self.aedtapp.modeler.primitives.get_edgeid_from_position(udp)
         assert edge_id > 0
 
-    @pyaedt_unittest_same_design
+    
     def test_20_get_faces_from_position(self):
         udp = self.aedtapp.modeler.Position(5, 3, 8)
         edge_id = self.aedtapp.modeler.primitives.get_faceid_from_position(udp, "MyRectangle")
@@ -312,25 +311,20 @@ class TestPrimitives(BasisTest):
         edge_id = self.aedtapp.modeler.primitives.get_faceid_from_position(udp)
         assert edge_id==-1
 
-    @pyaedt_unittest_duplicate_design
-    def test_21_delete_object(self):
-        deleted = self.aedtapp.modeler.primitives.delete("MyRectangle")
-        assert deleted
-        assert "MyRectangle" not in self.aedtapp.modeler.primitives.get_all_objects_names()
 
-    @pyaedt_unittest_same_design
+
     def test_22_get_face_vertices(self):
         listfaces = self.aedtapp.modeler.primitives.get_object_faces("MyRectangle")
         vertices = self.aedtapp.modeler.primitives.get_face_vertices(listfaces[0])
         assert len(vertices) == 4
 
-    @pyaedt_unittest_same_design
+    
     def test_23_get_edge_vertices(self):
         listedges = self.aedtapp.modeler.primitives.get_object_edges("MyRectangle")
         vertices = self.aedtapp.modeler.primitives.get_edge_vertices(listedges[0])
         assert len(vertices) == 2
 
-    @pyaedt_unittest_same_design
+    
     def test_24_get_vertex_position(self):
         listedges = self.aedtapp.modeler.primitives.get_object_edges("MyRectangle")
         vertices = self.aedtapp.modeler.primitives.get_edge_vertices(listedges[0])
@@ -341,25 +335,24 @@ class TestPrimitives(BasisTest):
         edge_length = ( (pos1[0]-pos2[0])**2 + (pos1[1]-pos2[1])**2 + (pos1[2]-pos2[2])**2 )**0.5
         assert edge_length == 4.0
 
-    @pyaedt_unittest_same_design
+    
     def test_25_get_face_area(self):
         listfaces = self.aedtapp.modeler.primitives.get_object_faces("MyRectangle")
         area = self.aedtapp.modeler.primitives.get_face_area(listfaces[0])
         assert area == 4.0*5.0
 
-    @pyaedt_unittest_same_design
+    
     def test_26_get_face_center(self):
         listfaces = self.aedtapp.modeler.primitives.get_object_faces("MyRectangle")
         center = self.aedtapp.modeler.primitives.get_face_center(listfaces[0])
         assert center == [7.0, 5.5, 8.0]
 
-    @pyaedt_unittest_same_design
+    
     def test_27_get_edge_midpoint(self):
         listedges = self.aedtapp.modeler.primitives.get_object_edges("MyRectangle")
         point = self.aedtapp.modeler.primitives.get_edge_midpoint(listedges[0])
         assert point == [7.0, 3.0, 8.0]
 
-    @pyaedt_unittest_new_design
     def test_28_get_bodynames_from_position(self):
         center = [20, 20, 0]
         radius = 1
@@ -381,7 +374,7 @@ class TestPrimitives(BasisTest):
         polyname = self.aedtapp.modeler.primitives.get_bodynames_from_position([-27, -27, 11])
         assert "bill" in polyname
 
-    @pyaedt_unittest_same_design
+    
     def test_29_getobjects_with_strings(self):
         list1 = self.aedtapp.modeler.primitives.get_objects_w_string("MyCone")
         list2 = self.aedtapp.modeler.primitives.get_objects_w_string("my", False)
@@ -389,20 +382,20 @@ class TestPrimitives(BasisTest):
         assert len(list1) > 0
         assert len(list2) > 0
 
-    @pyaedt_unittest_same_design
+    
     def test_30_getmodel_objects(self):
         list1 = self.aedtapp.modeler.primitives.get_model_objects()
         list2 = self.aedtapp.modeler.primitives.get_model_objects(False)
         list3 = self.aedtapp.modeler.primitives.get_all_objects_names()
         assert len(list1) + len(list2) == len(list3)
 
-    @pyaedt_unittest_duplicate_design
+    
     def test_31_create_rect_sheet_to_ground(self):
         id = self.aedtapp.modeler.create_sheet_to_ground("Mybox")
         assert id > 0
         assert self.aedtapp.modeler.create_sheet_to_ground("Mybox", "MyRectangle",self.aedtapp.AxisDir.ZNeg)>0
 
-    @pyaedt_unittest_duplicate_design
+    
     def test_31b_get_edges_for_circuit_port(self):
         udp = self.aedtapp.modeler.Position(0, 0, 8)
         plane = self.aedtapp.CoordinateSystemPlane.XYPlane
@@ -413,7 +406,7 @@ class TestPrimitives(BasisTest):
         edges2 = self.aedtapp.modeler.primitives.get_edges_for_circuit_port_from_sheet("MyRectangle", XY_plane=True, YZ_plane=False, XZ_plane=False,
                                                       allow_perpendicular=True, tol=1e-6)
 
-    @pyaedt_unittest_duplicate_design
+    
     def test_32_chamfer(self):
 
         assert self.aedtapp.modeler.chamfer("Mybox", self.aedtapp.modeler.primitives["Mybox"].edges[0])
@@ -435,7 +428,7 @@ class TestPrimitives(BasisTest):
         self.aedtapp.odesign.Undo()
         assert not self.aedtapp.modeler.primitives["Mybox"].edges[0].chamfer(chamfer_type=5)
 
-    @pyaedt_unittest_duplicate_design
+    
     def test_33_fillet(self):
 
         assert self.aedtapp.modeler.fillet("Mybox", self.aedtapp.modeler.primitives["Mybox"].edges[0])
@@ -443,7 +436,7 @@ class TestPrimitives(BasisTest):
         assert self.aedtapp.modeler.primitives["Mybox"].edges[0].fillet()
         self.aedtapp.odesign.Undo()
 
-    @pyaedt_unittest_new_design
+    
     def test_34_create_polyline_basic_segments(self):
         prim3D = self.aedtapp.modeler.primitives
         self.aedtapp["p1"] = "100mm"
@@ -472,7 +465,7 @@ class TestPrimitives(BasisTest):
                                       segment_type=PolylineSegment("AngularArc", arc_center=[0, 0, 0], arc_angle="30deg"),
                                       name="PL04_center_point_arc")
 
-    @pyaedt_unittest_new_design
+    
     def test_35_create_circle_from_2_arc_segments(self):
         prim3D = self.aedtapp.modeler.primitives
         assert prim3D.create_polyline(position_list=[[34.1004, 14.1248, 0],
@@ -483,7 +476,7 @@ class TestPrimitives(BasisTest):
                                       cover_surface=True, close_surface=True,
                                       name="Rotor_Subtract_25_0", matname="vacuum")
 
-    @pyaedt_unittest_new_design
+    
     def test_36_compound_polylines_segments(self):
         prim3D = self.aedtapp.modeler.primitives
         self.aedtapp["p1"] = "100mm"
@@ -503,7 +496,7 @@ class TestPrimitives(BasisTest):
                                       cover_surface=True,
                                       name="SPL01_segmented_compound_line")
 
-    @pyaedt_unittest_new_design
+    
     def test_37_insert_polylines_segments_test1(self):
         prim3D = self.aedtapp.modeler.primitives
         self.aedtapp["p1"] = "100mm"
@@ -520,7 +513,7 @@ class TestPrimitives(BasisTest):
         insert_point = ["90mm", "20mm", "0mm"]
         assert P.insert_segment(position_list=[start_point, insert_point])
 
-    @pyaedt_unittest_new_design
+    
     def test_38_insert_polylines_segments_test2(self):
         prim3D = self.aedtapp.modeler.primitives
         self.aedtapp["p1"] = "100mm"
@@ -539,7 +532,7 @@ class TestPrimitives(BasisTest):
 
         P.insert_segment(position_list=[start_point, insert_point1, insert_point2], segment="Arc")
 
-    @pyaedt_unittest_new_design
+    
     def test_39_modify_crossection(self):
 
         P = self.aedtapp.modeler.primitives.create_polyline(position_list=[[34.1004, 14.1248, 0],
@@ -566,7 +559,7 @@ class TestPrimitives(BasisTest):
         assert self.aedtapp.modeler.primitives.objects[P3.id].object_type == "Solid"
         assert self.aedtapp.modeler.primitives.objects[P4.id].object_type == "Solid"
 
-    @pyaedt_unittest_duplicate_design
+    
     def test_40_remove_vertex_from_polyline(self):
 
         primitives = self.aedtapp.modeler.primitives
@@ -589,7 +582,7 @@ class TestPrimitives(BasisTest):
         P3 = primitives.create_polyline([[0, 1, 2], [0, 2, 3], [2, 1, 4]])
         P3.remove_vertex(["0mm", "1mm", "2mm"], abstol=1e-6)
 
-    @pyaedt_unittest_new_design
+    
     def test_41_remove_edges_from_polyline(self):
 
         primitives = self.aedtapp.modeler.primitives
@@ -598,7 +591,7 @@ class TestPrimitives(BasisTest):
         P = primitives.create_polyline([[0, 1, 2], [0, 2, 3], [2, 1, 4]])
         P.remove_edges(edge_id=[0, 1])
 
-    @pyaedt_unittest_new_design
+    
     def test_42_duplicate_polyline_and_manipulate(self):
 
         primitives = self.aedtapp.modeler.primitives
@@ -607,7 +600,7 @@ class TestPrimitives(BasisTest):
 
         assert P2.id != P1.id
 
-    @pyaedt_unittest_new_design
+    
     def test_43_create_bond_wires(self):
 
         b1 = self.aedtapp.modeler.primitives.create_bondwire([0,0,0], [10,10,2], h1=0.15, h2=0, diameter=0.034, facets=8, matname="copper", name="jedec51")
@@ -619,28 +612,33 @@ class TestPrimitives(BasisTest):
         b2 = self.aedtapp.modeler.primitives.create_bondwire([0,0,0], [10,10,2], h1=0.15, h2=0, diameter=0.034, bond_type=3,  matname="copper", name="jedec41")
         assert b2 == False
 
-    @pyaedt_unittest_duplicate_design
+    
     def test_44_create_group(self):
         assert self.aedtapp.modeler.create_group(["MyBox","MyCone"],"mygroup")
         assert self.aedtapp.modeler.ungroup("mygroup")
 
-    @pyaedt_unittest_duplicate_design
+    
     def test_45_flatten_assembly(self):
         assert self.aedtapp.modeler.flatten_assembly()
 
-    @pyaedt_unittest_same_design
+    
     def test_46_solving_volume(self):
         vol = self.aedtapp.modeler.get_solving_volume()
-        assert math.isclose(float(vol), 62640.0)
+        assert float(vol)>= 62640.0
 
-    @pyaedt_unittest_same_design
+    
     def test_46_lines(self):
         assert self.aedtapp.modeler.vertex_data_of_lines()
 
-    @pyaedt_unittest_same_design
+    
     def test_48_get_closest_edge_to_position(self):
         a = self.aedtapp.modeler.primitives.get_closest_edgeid_to_position([0.2,0,0])
         assert a
+
+    def test_49_delete_object(self):
+        deleted = self.aedtapp.modeler.primitives.delete("MyRectangle")
+        assert deleted
+        assert "MyRectangle" not in self.aedtapp.modeler.primitives.get_all_objects_names()
 
     @pytest.mark.skipif(config["build_machine"] == True,
                         reason="Skipped because SpaceClaim is not installed on Build Machine")
@@ -649,7 +647,7 @@ class TestPrimitives(BasisTest):
         assert self.aedtapp.modeler.import_spaceclaim_document(os.path.join(self.local_scratch.path, scdoc))
         assert len(self.aedtapp.modeler.primitives.objects) == 1
 
-    @pyaedt_unittest_new_design
+    
     def test_49_import_step(self):
         self.aedtapp.insert_design("StepImport")
         assert self.aedtapp.modeler.import_3d_cad(os.path.join(self.local_scratch.path, step))

@@ -24,7 +24,7 @@ import shutil
 import pathlib
 import json
 import gc
-
+import time
 
 from functools import wraps
 from .launch_desktop_tests import run_desktop_tests
@@ -122,14 +122,20 @@ class BasisTest:
         with Scratch(scratch_path) as self.local_scratch:
             if project_name:
                 example_project = os.path.join(local_path, 'example_models', project_name + '.aedt')
-                self.test_project = self.local_scratch.copyfile(example_project)
+                if os.path.exists(example_project):
+                    self.test_project = self.local_scratch.copyfile(example_project)
+                else:
+                    self.test_project = None
             else:
                 self.test_project = None
             if not application:
                 application = Hfss
+            if self.test_project:
+                self.aedtapp = application(projectname=self.test_project, specified_version=desktop_version, AlwaysNew=new_thread, NG=non_graphical)
+            else:
+                self.aedtapp = application(projectname=project_name, specified_version=desktop_version, AlwaysNew=new_thread, NG=non_graphical)
 
-            self.aedtapp = application(projectname=self.test_project, specified_version=desktop_version, AlwaysNew=new_thread, NG=non_graphical)
-            self.aedtapp.save_project()
+            #self.aedtapp.save_project()
 
             if project_name:
                 if design_name:
