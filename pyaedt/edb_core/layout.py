@@ -24,6 +24,7 @@ class Primitive(object):
 
 class EdbLayout(object):
     """EDB Layout class."""
+
     @property
     def edb(self):
         """ """
