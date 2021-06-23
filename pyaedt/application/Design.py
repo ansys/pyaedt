@@ -507,7 +507,7 @@ class Design(object):
         self.odesign.RenameDesignInstance(self.design_name, new_name)
         timeout = 5.0
         timestep = 0.1
-        while self.design_name != new_name:
+        while new_name not in [i.GetName() for i in list(self._oproject.GetDesigns())]:
             time.sleep(timestep)
             timeout -= timestep
             assert timeout >= 0

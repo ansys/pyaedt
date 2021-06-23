@@ -150,7 +150,7 @@ non_graphical = config["NonGraphical"]
 @pytest.fixture(scope='session', autouse=True)
 def desktop_init():
     desktop = Desktop(desktop_version, non_graphical, new_thread)
-
+    desktop.disable_autosave()
     yield desktop
 
     # If new_thread is set to false by a local_config, then don't close the desktop.
