@@ -2,7 +2,7 @@ import os
 # Setup paths for module imports
 from .conftest import local_path, scratch_path
 import gc
-
+import time
 # Import required modules
 from pyaedt import Hfss3dLayout
 from pyaedt.generic.filesystem import Scratch
@@ -29,6 +29,7 @@ class Test3DLayoutEDB:
         gc.collect()
 
     def test_get_components(self):
+        time.sleep(3)
         comp = self.aedtapp.modeler.primitives.components
         assert len(comp) > 0
         assert comp['L3A1'].object_units == "mm"
