@@ -334,7 +334,7 @@ class TestEDB:
 
     def test_create_cutout(self):
         output = os.path.join(self.local_scratch.path, "cutout.aedb")
-        assert self.edbapp.create_cutout(["A0_N", "A0_P"],["GND","V3P3_S0"], output_aedb_path=output)
+        assert self.edbapp.create_cutout(["A0_N", "A0_P"],["GND"], output_aedb_path=output)
         assert os.path.exists(os.path.join(output, "edb.def"))
 
     def test_rvalue(self):
@@ -384,6 +384,9 @@ class TestEDB:
         path = self.edbapp.core_primitives.Shape('polygon', points=points)
         assert self.edbapp.core_primitives.create_path(path, "TOP")
 
+    def test_create_path(self):
+        assert self.edbapp.core_stackup.stackup_layers.add_outline_layer("Outline1")
+        assert not self.edbapp.core_stackup.stackup_layers.add_outline_layer("Outline1")
 
     def test_create_edb(self):
         edb = Edb(os.path.join(scratch_path, "temp.aedb"))

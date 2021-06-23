@@ -503,15 +503,19 @@ class EDBLayers(object):
         newLayers = List[self._parent.edb.Cell.Layer]()
         el = 0.0
         if not layers or not start_layer:
-            newLayer = self._parent.edb.Cell.StackupLayer(layerName, layerType,
-                                                          self._parent.edb.Utility.Value(0),
-                                                          self._parent.edb.Utility.Value(0), '')
-            newLayers.Add(newLayer)
-            self._edb_object[layerName] = EDBLayer(newLayer, self._parent)
-            newLayer = self._edb_object[layerName].update_layer_vals(layerName, newLayer, etchMap, material,
-                                                                     fillMaterial, thickness, layerType)
-            newLayer = self._edb_object[layerName].set_elevation(newLayer, el)
-            el += newLayer.GetThickness()
+            if layerType != self.layer_types.SignalLayer and layerType != self.layer_types.DielectricLayer and layerType != self.layer_types.ConductingLayer:
+                newLayer = self._parent.edb.Cell.Layer(layerName, layerType)
+                newLayers.Add(newLayer)
+            else:
+                newLayer = self._parent.edb.Cell.StackupLayer(layerName, layerType,
+                                                              self._parent.edb.Utility.Value(0),
+                                                              self._parent.edb.Utility.Value(0), '')
+                newLayers.Add(newLayer)
+                self._edb_object[layerName] = EDBLayer(newLayer, self._parent)
+                newLayer = self._edb_object[layerName].update_layer_vals(layerName, newLayer, etchMap, material,
+                                                                         fillMaterial, thickness, layerType)
+                newLayer = self._edb_object[layerName].set_elevation(newLayer, el)
+                el += newLayer.GetThickness()
         else:
             for lyr in layers:
                 if not lyr.IsStackupLayer():
@@ -542,7 +546,7 @@ class EDBLayers(object):
         self._update_edb_objects()
         return True
 
-    def add_outline_layer(self):
+    def add_outline_layer(self, outline_name="Outline"):
         """
         Adds an Outline Layer named "Outline" if not present
 
@@ -551,9 +555,9 @@ class EDBLayers(object):
         bool
             "True" if succeeded
         """
-        outlineLayer = self.edb.Cell.Layer.FindByName(self.active_layout.GetLayerCollection(), 'Outline2')
+        outlineLayer = self.edb.Cell.Layer.FindByName(self.active_layout.GetLayerCollection(), outline_name)
         if outlineLayer.IsNull():
-            return self.add_layer("OutLine", layerType=self.layer_types.OutlineLayer, material="", thickness="",)
+            return self.add_layer(outline_name, layerType=self.layer_types.OutlineLayer, material="", thickness="",)
         else:
             return False
 
