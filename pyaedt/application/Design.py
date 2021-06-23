@@ -506,6 +506,12 @@ class Design(object):
         # src_dir = self.working_directory
         old_name = self.design_name
         self.odesign.RenameDesignInstance(old_name, new_name)
+        timeout = 5.0
+        timestep = 0.1
+        while self.design_name != new_name:
+            time.sleep(timestep)
+            timeout -= timestep
+            assert timeout >= 0
 
     @property
     def design_list(self):
@@ -2103,9 +2109,9 @@ class Design(object):
         while newname in self.design_list:
             newname = label + '_' + str(ind)
             ind += 1
-        oDesign = self._oproject.GetActiveDesign()
-        oDesign.RenameDesignInstance(oDesign.GetName(), newname)
+        self.design_name = newname
         self.odesign = newname
+
         assert os.path.exists(self.working_directory)
         return True
 

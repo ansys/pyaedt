@@ -69,7 +69,6 @@ class TestDesign(BasisTest):
         assert self.aedtapp.change_automatically_use_causal_materials(True)
         assert self.aedtapp.change_automatically_use_causal_materials(False)
 
-
     @pyaedt_unittest_new_design
     def test_02_design_list(self):
         mylist = self.aedtapp.design_list
@@ -87,7 +86,6 @@ class TestDesign(BasisTest):
     def test_05_lock(self):
         assert os.path.exists(self.aedtapp.lock_file)
 
-    @pytest.mark.skip(reason="Skipped because project management needs revisiting")
     @pyaedt_unittest_same_design
     def test_05_resultsfolder(self):
         assert os.path.exists(self.aedtapp.results_directory)
@@ -98,7 +96,6 @@ class TestDesign(BasisTest):
         self.aedtapp.solution_type = "DrivenTerminal"
         assert self.aedtapp.solution_type == "DrivenTerminal"
         self.aedtapp.solution_type = "DrivenModal"
-
 
     @pyaedt_unittest_same_design
     def test_06_libs(self):

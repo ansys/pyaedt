@@ -181,8 +181,10 @@ class Primitives3D(Primitives, object):
                 "Transparency:=", 0, "PartCoordinateSystem:=", "Global", "UDMId:=", "", "MaterialValue:=",
                 "\"air\"", "SurfaceMaterialValue:=", "\"\"", "SolveInside:=", True, "IsMaterialEditable:=", True,
                 "UseMaterialAppearance:=", False, "IsLightweight:=", False]
+
         self.oeditor.CreateRegion(arg, arg2)
-        o.name = "Region"
+        #TODO put this into Object3d Constructor?
+        o._m_name = "Region"
         o.solve_inside = True
         o.transparency = 0
         o.wireframe = True
