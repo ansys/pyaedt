@@ -68,17 +68,11 @@ class TestHFSS:
             ("die", {})
         ]
     )
-    def test_04a_assign_coating(self, object_name, kwargs):
+    def test_04_assign_coating(self, object_name, kwargs):
         id = self.aedtapp.modeler.primitives.get_obj_id(object_name)
         coat = self.aedtapp.assigncoating([id], **kwargs)
         material = coat.props.get("Material", "")
         assert material == kwargs.get("mat", "")
-
-    def test_04b_assign_coating(self):
-        id1 = self.aedtapp.modeler.primitives.get_obj_id("inner")
-        coat = self.aedtapp.assigncoating([id1], "copper")
-        assert coat
-        assert self.aedtapp.assigncoating([id1], usehuray=True, usethickness=True, istwoside=True)
 
     def test_05_create_wave_port_from_sheets(self):
         udp = self.aedtapp.modeler.Position(0, 0, 0)
@@ -387,3 +381,9 @@ class TestHFSS:
 
     def test_39_set_source_contexts(self):
         assert self.aedtapp.set_source_context(["port10", "port11"])
+
+    def test_40_assign_current_source_to_sheet(self):
+        sheet_name = "RectangleForSource"
+        self.aedtapp.modeler.primitives.create_rectangle(self.aedtapp.CoordinateSystemPlane.XYPlane, [0, 0, 0], 
+                                                        [5, 1], sheet_name, "Copper")
+        assert self.aedtapp.assign_current_source_to_sheet(sheet_name)
