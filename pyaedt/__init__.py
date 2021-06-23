@@ -12,4 +12,5 @@ from .mechanical import Mechanical
 from .rmxprt import Rmxprt
 from .simplorer import Simplorer
 from .desktop import Desktop
+from .emit import Emit
 
