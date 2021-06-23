@@ -49,7 +49,7 @@ class PolylineSegment():
         arc_center : list, optional
             List of values in model units or value string. For example, ``[x, y, z]`` or ``"Specific 
             to type AngularArc"``.
-        arc_plane : str, optinal
+        arc_plane : str, optional
             Plane in which the arc sweep is performed in the active coordinate system ``XY``, ``YZ`` 
             or ``ZX``. The default is ``None``. If ``None``, the plane is determined automatically 
             by the first coordinate for which start-point and center-point have the same value.
@@ -640,7 +640,7 @@ class Polyline(object):
             ``Rectangle`` or ``Isosceles Trapezoid``. The default is ``0``. The
             value ust be ``0`` or greater than ``2``.
         bend_type : str, optional
-            Type of the bend. The defaut is ``None``, which sets the bend type
+            Type of the bend. The default is ``None``, which sets the bend type
             to ``Corner.`` For the type ``Circle,`` the bend type should be 
             set to ``Curved``.
 
@@ -1210,7 +1210,7 @@ class Primitives(object):
             Choices are "X", "Y", "Z", or "Auto. The default is ``None``, which 
             sets the direction to ``Auto``.
         xsection_width : float or str, optional
-            The width or diamater of the cross-section for all  types. The 
+            The width or diameter of the cross-section for all  types. The 
             default is ``1``.
         xsection_topwidth : float or str, optional
             Top width of the cross-section for type ``"Isosceles Trapezoid"`` only.
@@ -1223,7 +1223,7 @@ class Primitives(object):
             ``"Rectangle"``, or ``"Isosceles Trapezoid"``. The default is ``0``. The
             value must be ``0`` or greater than ``2``.
         xsection_bend_type : str, optional
-            Type of the cross-section bend. The defaut is ``None``, which sets the bend type
+            Type of the bend for the cross-section. The default is ``None``, which sets the bend type
             to ``Corner.`` For the type ``Circle,`` the bend type should be 
             set to ``Curved``.
         
