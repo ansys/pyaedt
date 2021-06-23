@@ -503,9 +503,8 @@ class Design(object):
 
         if ";" in new_name:
             new_name = new_name.split(";")[1]
-        # src_dir = self.working_directory
-        old_name = self.design_name
-        self.odesign.RenameDesignInstance(old_name, new_name)
+
+        self.odesign.RenameDesignInstance(self.design_name, new_name)
         timeout = 5.0
         timestep = 0.1
         while self.design_name != new_name:

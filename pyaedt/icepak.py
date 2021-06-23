@@ -1376,7 +1376,7 @@ class Icepak(FieldAnalysisIcepak):
         mesh_box = self.modeler.primitives.create_box(min_position,[dis_x+"mm",dis_y+"mm",dis_z+"mm"], "Component_Region")
 
 
-        self.modeler.primitives["Component_Region"].set_model(False)
+        self.modeler.primitives["Component_Region"].model = False
 
         self.modeler.edit_region_dimensions(restore_padding_values)
         return dis_x, dis_y, dis_z
