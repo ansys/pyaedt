@@ -181,6 +181,7 @@ class EdbStackup(object):
         -------
         type
         Material definition.
+        
         """
         material_def = self.edb.Definition.DebyeModel()
         material_def.SetFrequencyRange(lower_freqency, higher_frequency)
