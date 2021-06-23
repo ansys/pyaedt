@@ -262,7 +262,7 @@ class EdBSiwave(object):
     def create_circuit_port(self, positive_component_name, positive_net_name, negative_component_name=None,
                               negative_net_name="GND", impedance_value=50, port_name=""):
         """
-        Create a  circuit port.
+        Create a circuit port.
         
         Parameters
         ----------
@@ -461,7 +461,7 @@ class EdBSiwave(object):
         
         >>> from pyaedt import Edb
         >>> edbapp = Edb("myaedbfolder", "project name", "release version")
-        >>> edb.core_siwave.create_resistor("U2A5","V1P5_S3","U2A5","GND",1,"resistor_name")
+        >>> edb.core_siwave.create_resistor("U2A5", "V1P5_S3", "U2A5", "GND", 1, "resistor_name")
                
         """
         resistor = ResistorSource()
@@ -531,8 +531,8 @@ class EdBSiwave(object):
                                step_freq=1e6, discrete_sweep=False):
         """Add a SIwave SYZ analysis.
 
-       Parameters
-       ----------
+        Parameters
+        ----------
         accuracy_level : int, optional
            Level of accuracy. The default is ``1``.
         decade_count : int, optional
