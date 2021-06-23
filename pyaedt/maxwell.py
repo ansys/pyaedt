@@ -1,5 +1,5 @@
 """
-This module contains these ''Maxwell`` classes: ``Maxwell``, ``Maxwell2d``, and ``Maxwell3d``.
+This module contains these ``Maxwell`` classes: ``Maxwell``, ``Maxwell2d``, and ``Maxwell3d``.
 
 
 Examples
@@ -132,6 +132,21 @@ class Maxwell(object):
     setup_name : str, optional
         Name of the setup to use as the nominal.  The default is ``None``.  If ``None``, the active setup 
         is used or nothing is used.
+    setup_name : str, optional
+         The name of the setup to use as the nominal. The default is ``None``. If ``None``, the active setup 
+         is used or nothing is used.
+     specified_version: str, optional
+        Version of AEDT to use. The default is ``None``. If ``None``, the
+        active setup is used or the latest installed version is used.
+     NG : bool, optional
+        Whether to launch AEDT in the non-graphical mode. The default 
+        is ``False``, which launches AEDT in the graphical mode.
+     AlwaysNew : bool, optional
+        Whether to launch an instance of AEDT in a new thread, even if 
+        another instance of the ``specified_version`` is active on the machine.
+        The default is ``True``.
+     release_on_exit : bool, optional
+        Whether to release AEDT on exit. The default is ``True``.
 
     Returns
     -------
