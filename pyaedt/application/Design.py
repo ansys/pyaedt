@@ -245,7 +245,7 @@ class DesignCache(object):
         self._allow_errors_local.append("[error] {}".format(msg))
 
     def ignore_error_message_global(self, msg):
-        self._allow_errors_local.append("[error] {}".format(msg))
+        self._allow_errors_global.append("[error] {}".format(msg))
 
     @property
     def no_change(self):
@@ -330,10 +330,14 @@ class DesignCache(object):
         # filter out allowed messages
         self._delta_messages = []
         for msg in self._delta_messages_unfiltered:
+            mask = False
             allowed_errors = self._allow_errors_local + self._allow_errors_global
             for allowed in allowed_errors:
-                if msg.find(allowed) != 0:
-                    self._delta_messages.append(msg)
+                if msg.find(allowed) == 0:
+                    mask = True
+                    break
+            if not mask:
+                self._delta_messages.append(msg)
 
         self._new_error_messages = [msg for msg in self._delta_messages if msg.find("[error]") == 0]
         self._new_warning_messages = [msg for msg in self._delta_messages if msg.find("[warning]") == 0]
