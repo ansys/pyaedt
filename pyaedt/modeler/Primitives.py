@@ -1246,48 +1246,53 @@ class Primitives(object):
         return Polyline(self, object_id=object_id)
 
     @aedt_exception_handler
-    def create_udp(self, dllName, udpPairs, szLib=None, name=None, udptye=None):
+    def create_udp(self, udp_dll_name, udp_parameters_list, upd_library='syslib', name=None, udptye="Solid"):
         """Create User Defined Primitive
 
-        :param dllName: dll name
-        :param udpPairs: udp pairs object
-        :param szLib: udp library
-        :param name: component name
-        :param udptye: udpy type
-        :return: object ID
+        Parameters
+        ----------
+        udp_dll_name :
+            dll name
+        udp_parameters_list :
+            udp pairs object
+        upd_library :
+            udp library (Default value = 'syslib')
+        name :
+            component name (Default value = None)
+        udptye :
+            udpy type (Default value = "Solid")
+
+        Returns
+        -------
+        type
+            object ID
+
         """
         o = self._new_object()
 
-        if not szLib:
-            szLib ='syslib'
-
-        if not udptye:
-            udptye = "Solid"
-
-        if ".dll" not in dllName:
-            varg1 = ["NAME:UserDefinedPrimitiveParameters", "DllName:=", dllName+".dll", "Library:=", szLib]
+        if ".dll" not in udp_dll_name:
+            vArg1 = ["NAME:UserDefinedPrimitiveParameters", "DllName:=", udp_dll_name + ".dll", "Library:=", upd_library]
         else:
-            varg1 = ["NAME:UserDefinedPrimitiveParameters", "DllName:=", dllName, "Library:=", szLib]
+            vArg1 = ["NAME:UserDefinedPrimitiveParameters", "DllName:=", udp_dll_name, "Library:=", upd_library]
 
         vArgParamVector = ["NAME:ParamVector"]
 
-        for pair in udpPairs:
+        for pair in udp_parameters_list:
             if type(pair) is list:
                 vArgParamVector.append(["NAME:Pair", "Name:=", pair[0], "Value:=", pair[1]])
 
             else:
                 vArgParamVector.append(["NAME:Pair", "Name:=", pair.Name, "Value:=", pair.Value])
 
-        varg1 += ["NoOfParameters:=", len(udpPairs), "Version:=", "12.1"]
-        varg1.append(vArgParamVector)
+        vArg1.append(vArgParamVector)
         namergs = name.replace(".dll", "").split("/")
-        varg2 = o.export_attributes(namergs[-1])
-        print(varg2)
-
-        self.oeditor.CreateUserDefinedPart(varg1, varg2)
+        o.name = name
+        vArg2 = o.export_attributes(namergs[-1])
+        self.oeditor.CreateUserDefinedPart(vArg1, vArg2)
 
         self._refresh_object_types()
         id = self._update_object(o)
+
         return id
 
     @aedt_exception_handler

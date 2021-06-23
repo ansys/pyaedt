@@ -22,6 +22,7 @@ class TestPrimitives(BasisTest):
         BasisTest.setup_class(self, project_name="test_primitives", design_name="simple_primitives")
 
         self.cache.ignore_error_message_global("Script macro error: Missing property name.")
+        self.cache.ignore_error_message_global("Script macro error: Can't find face by name and position.")
 
         scdoc_file = os.path.join(local_path, 'example_models', scdoc)
         self.local_scratch.copyfile(scdoc_file)
