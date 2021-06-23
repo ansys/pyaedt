@@ -30,74 +30,60 @@ class TestDesign(BasisTest):
         self.local_scratch.remove()
         gc.collect()
 
-    @pyaedt_unittest_same_design
     def test_app(self):
         assert self.aedtapp
 
     #TODO: Clean up close-project so it doesn't crash
     @pytest.mark.skip(reason="Skipped because project management needs revisiting")
-    @pyaedt_unittest_duplicate_design
     def test_01_close_project(self):
         self.aedtapp.close_project()
 
-    @pyaedt_unittest_duplicate_design
     def test_01_designname(self):
-        assert self.aedtapp.design_name.startswith("pytest")
         self.aedtapp.design_name = "myname"
         assert self.aedtapp.design_name == "myname"
 
-    @pyaedt_unittest_same_design
     def test_version_id(self):
         assert self.aedtapp.aedt_version_id
 
-    @pyaedt_unittest_duplicate_design
     def test_valid_design(self):
         assert self.aedtapp.valid_design
 
-    @pytest.mark.skip(reason="Skipped because project management needs revisiting")
-    @pyaedt_unittest_new_design
     def test_clean_proj_folder(self):
         assert self.aedtapp.clean_proj_folder()
 
-    @pytest.mark.skip(reason="Skipped because project management needs revisiting")
     def test_copy_project(self):
         assert self.aedtapp.copy_project(self.local_scratch.path, "new_file")
         assert self.aedtapp.copy_project(self.local_scratch.path, "Coax_HFSS")
 
-    @pyaedt_unittest_duplicate_design
     def test_change_use_causalmaterial(self):
         assert self.aedtapp.change_automatically_use_causal_materials(True)
         assert self.aedtapp.change_automatically_use_causal_materials(False)
 
-    @pyaedt_unittest_new_design
     def test_02_design_list(self):
         mylist = self.aedtapp.design_list
-        assert len(mylist) == 2
+        assert len(mylist) == 1
 
-    @pyaedt_unittest_duplicate_design
     def test_03_design_type(self):
         assert self.aedtapp.design_type == "HFSS"
 
-    @pyaedt_unittest_duplicate_design
     def test_04_projectname(self):
         assert self.aedtapp.project_name == "Coax_HFSS"
 
-    @pyaedt_unittest_same_design
+
     def test_05_lock(self):
         assert os.path.exists(self.aedtapp.lock_file)
 
-    @pyaedt_unittest_same_design
+
     def test_05_resultsfolder(self):
         assert os.path.exists(self.aedtapp.results_directory)
 
-    @pyaedt_unittest_duplicate_design
     def test_05_solution_type(self):
         assert self.aedtapp.solution_type == "DrivenModal"
         self.aedtapp.solution_type = "DrivenTerminal"
         assert self.aedtapp.solution_type == "DrivenTerminal"
         self.aedtapp.solution_type = "DrivenModal"
 
-    @pyaedt_unittest_same_design
+
     def test_06_libs(self):
         assert os.path.exists(self.aedtapp.personallib)
         assert os.path.exists(self.aedtapp.userlib)
@@ -106,7 +92,7 @@ class TestDesign(BasisTest):
         assert os.path.exists(self.aedtapp.toolkit_directory)
         assert os.path.exists(self.aedtapp.working_directory)
 
-    @pyaedt_unittest_same_design
+
     def test_08_objects(self):
         print(self.aedtapp.oboundary)
         print(self.aedtapp.oanalysis)
@@ -115,28 +101,23 @@ class TestDesign(BasisTest):
         print(self.aedtapp.variable_manager)
         print(self.aedtapp.materials)
 
-    @pyaedt_unittest_duplicate_design
     def test_09_add_workbench_link(self):
         assert self.aedtapp.modeler.add_workbench_link(["inner"], "25")
 
-    @pyaedt_unittest_duplicate_design
     def test_09_set_objects_temperature(self):
         ambient_temp = 22
         objects = [o for o in self.aedtapp.modeler.primitives.get_all_solids_names()
                     if self.aedtapp.modeler.primitives[o].model]
         assert self.aedtapp.modeler.set_objects_temperature(objects, ambient_temp=ambient_temp, create_project_var=True)
 
-    @pyaedt_unittest_duplicate_design
     def test_10_change_material_override(self):
         assert self.aedtapp.change_material_override(True)
         assert self.aedtapp.change_material_override(False)
 
-    @pyaedt_unittest_duplicate_design
     def test_11_change_validation_settings(self):
         assert self.aedtapp.change_validation_settings()
         assert self.aedtapp.change_validation_settings(ignore_unclassified=True, skip_intersections= True)
 
-    @pyaedt_unittest_duplicate_design
     def test_12_variables(self):
         self.aedtapp["test"] = "1mm"
         val = self.aedtapp["test"]
@@ -146,18 +127,16 @@ class TestDesign(BasisTest):
         assert self.aedtapp._insert_design("HFSS", design_name="TestTransient", solution_type="Transient Network") == "TestTransient"
         self.aedtapp.delete_design("TestTransient")
 
-    @pyaedt_unittest_same_design
+
     def test_14_get_nominal_variation(self):
         assert (self.aedtapp.get_nominal_variation() != [] or self.aedtapp.get_nominal_variation() is not None)
 
-    @pyaedt_unittest_duplicate_design
     def test_15a_duplicate_design(self):
         self.aedtapp.duplicate_design("myduplicateddesign")
         assert "myduplicateddesign" in self.aedtapp.design_list
         self.aedtapp.delete_design("myduplicateddesign")
 
-    @pytest.mark.skip(reason="Skipped because project management needs revisiting")
-    @pyaedt_unittest_same_design
+
     def test_15b_copy_design_from(self):
         origin = os.path.join(self.local_scratch.path, 'origin.aedt')
         destin = os.path.join(self.local_scratch.path, 'destin.aedt')
@@ -170,23 +149,20 @@ class TestDesign(BasisTest):
         assert new_design in self.aedtapp.design_list
         self.aedtapp.load_project(project_file=self.test_project, close_active_proj=True)
 
-    @pyaedt_unittest_duplicate_design
     def test_16_renamedesign(self):
         self.aedtapp.rename_design("mydesign")
         assert self.aedtapp.design_name == "mydesign"
 
-    @pyaedt_unittest_same_design
+
     def test_17_export_proj_var(self):
         self.aedtapp.export_variables_to_csv(os.path.join(self.local_scratch.path,"my_variables.csv"))
         assert os.path.exists(os.path.join(self.local_scratch.path,"my_variables.csv"))
 
-    @pytest.mark.skip(reason="Skipped because project management needs revisiting")
-    @pyaedt_unittest_same_design
+
     def test_18_reload_project(self):
         #self.aedtapp.close_project(test_project_name, saveproject=False)
         assert self.aedtapp.load_project(self.test_project, design_name="HFSSDesign",close_active_proj=True)
 
-    @pyaedt_unittest_duplicate_design
     def test_19_create_design_dataset(self):
         x = [1, 100]
         y = [1000, 980]
@@ -198,7 +174,7 @@ class TestDesign(BasisTest):
         assert self.aedtapp.dataset_exists("Test_DataSet", is_project_dataset=False)
         assert not self.aedtapp.dataset_exists("Test_DataSet", is_project_dataset=True)
 
-    @pyaedt_unittest_new_design
+
     def test_19_create_project_dataset(self):
         x = [1, 100]
         y = [1000, 980]
@@ -208,7 +184,7 @@ class TestDesign(BasisTest):
         assert ds2.delete()
         assert not self.aedtapp.dataset_exists("Test_DataSet", is_project_dataset=True)
 
-    @pyaedt_unittest_new_design
+
     def test_19_create_3dproject_dataset(self):
         x = [1, 100]
         y = [1000, 980]
@@ -219,20 +195,19 @@ class TestDesign(BasisTest):
         assert ds3.name == "$Test_DataSet3D"
 
 
-    @pyaedt_unittest_duplicate_design
     def test_19_edit_existing_dataset(self):
         ds = self.aedtapp.project_datasets['$AluminumconductivityTH0']
         xl = len(ds.x)
         assert ds.add_point(300, 0.8)
         assert len(ds.x) == xl + 1
 
-    @pyaedt_unittest_same_design
+
     def test_20_get_3dComponents_properties(self):
         assert len(self.aedtapp.components3d)>0
         props = self.aedtapp.get_components3d_vars("Dipole_Antenna_DM")
         assert len(props) == 3
 
-    @pyaedt_unittest_same_design
+
     def test_21_generate_temp_project_directory(self):
         proj_dir1 = self.aedtapp.generate_temp_project_directory("Example")
         assert os.path.exists(proj_dir1)
