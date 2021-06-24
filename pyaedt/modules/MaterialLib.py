@@ -464,25 +464,24 @@ class Materials(object):
 
     @aedt_exception_handler
     def duplicate_material(self, material, new_name):
-        """Duplicate Material
+        """Duplicate a material.
 
         Parameters
         ----------
-        material :
-            material original name
-        new_name :
-            target name
+        material : Material
+            Material to duplicate.
+        new_name : str
+            Name for the new material.
 
         Returns
         -------
-        type
-            new material object
-
+        Material
+            Duplicated material.
         """
-        newMat = material
-        newMat.name = new_name.lower()
-        self.material_keys[new_name] = newMat
-        return newMat
+        new_material = material
+        new_material.name = new_name.lower()
+        self.material_keys[new_name] = new_material
+        return new_material
 
     @aedt_exception_handler
     def GetConductors(self):
@@ -524,53 +523,42 @@ class Materials(object):
 
     @aedt_exception_handler
     def get_material_list(self):
-        """Get List of material database
-
-        :return:list of string
-
-        Parameters
-        ----------
+        """Get list of materials.
 
         Returns
         -------
-
+        list
+            Names of all materials.
         """
-        data = list(self.material_keys.keys())
-        return data
+        return list(self.material_keys.keys())
 
     @aedt_exception_handler
     def get_material_count(self):
-        """Get number of materials
-
-        :return:number of materials
-
-        Parameters
-        ----------
+        """Get the number of materials.
 
         Returns
         -------
-
+        int
+            Number of materials.
         """
         return len(self.material_keys)
 
     @aedt_exception_handler
-    def get_material(self, szMat):
-        """Get material object
+    def get_material(self, material_name):
+        """Get a specific material.
 
         Parameters
         ----------
-        szMat :
-            material name
+        material_name : str
+            Name of the material.
 
         Returns
         -------
-        type
-            Material object if exists
-
+        Material
         """
-        szMat = szMat.lower()
-        if szMat in self.material_keys:
-            return self.material_keys[szMat]
+        material_name = material_name.lower()
+        if material_name in self.material_keys:
+            return self.material_keys[material_name]
         else:
             return None
 
