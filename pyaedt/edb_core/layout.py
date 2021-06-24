@@ -100,11 +100,18 @@ class EdbLayout(object):
     @aedt_exception_handler
     def get_polygons_by_layer(self, layer_name, net_list=None):
         """
-        return
 
-        :param layer_name: str layer name
-        :param net_list: list of net name
-        :return: list of Primitive object
+        Parameters
+        ----------
+        layer_name : str
+            layer name
+        net_list : list
+            List of net names
+
+        Returns
+        -------
+        list
+            list of Primitive object
         """
         objinst=[]
         for el in self.polygons:
@@ -119,7 +126,6 @@ class EdbLayout(object):
     def get_polygon_bounding_box(self, polygon):
         """Return the polygon bounding box
         
-        :examples:
 
         Parameters
         ----------
@@ -146,8 +152,6 @@ class EdbLayout(object):
     def get_polygon_points(self, polygon):
         """Return Polygon Points list. for Arcs, 1 point will be returned
         
-        :examples:
-
         Parameters
         ----------
         polygon :
@@ -371,11 +375,6 @@ class EdbLayout(object):
             return True
 
     def shape_to_polygon_data(self, shape):
-        """Converts an edb_utilities.data.Shape to an self.edb.Geometry.PolygonData.
-
-        Keyword Arguments:
-        shape -- Shape to convert
-        """
         if shape.type == 'polygon':
             return self._createPolygonDataFromPolygon(shape)
         elif shape.type == 'rectangle':
