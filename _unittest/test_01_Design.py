@@ -5,7 +5,7 @@ import pytest
 
 # Setup paths for module imports
 from .conftest import local_path, scratch_path, desktop_version, new_thread, non_graphical
-from .conftest import BasisTest, pyaedt_unittest_duplicate_design, pyaedt_unittest_new_design, pyaedt_unittest_same_design
+from .conftest import BasisTest
 
 # Import required modules
 from pyaedt import Hfss

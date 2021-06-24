@@ -5,7 +5,6 @@ import math
 
 # Setup paths for module imports
 from .conftest import local_path, config
-from .conftest import pyaedt_unittest_same_design, pyaedt_unittest_same_design, pyaedt_unittest_same_design
 from .conftest import BasisTest
 
 # Import required modules
