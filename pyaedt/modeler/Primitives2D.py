@@ -62,7 +62,7 @@ class Primitives2D(Primitives, object):
 
         vArg2 = o.export_attributes(name)
 
-        o.name = self.oeditor.CreateCircle(vArg1, vArg2)
+        o._m_name =self.oeditor.CreateCircle(vArg1, vArg2)
         self._refresh_object_types()
         id = self._update_object(o)
         return id
@@ -109,7 +109,7 @@ class Primitives2D(Primitives, object):
         vArg1.append("WhichAxis:="), vArg1.append(szAxis)
 
         vArg2 = o.export_attributes(name)
-        o.name = self.oeditor.CreateEllipse(vArg1, vArg2)
+        o._m_name =self.oeditor.CreateEllipse(vArg1, vArg2)
 
         self._refresh_object_types()
         id = self._update_object(o)
@@ -157,7 +157,7 @@ class Primitives2D(Primitives, object):
 
         vArg2 = o.export_attributes(name)
 
-        o.name = self.oeditor.CreateRectangle(vArg1, vArg2)
+        o._m_name =self.oeditor.CreateRectangle(vArg1, vArg2)
 
         self._refresh_object_types()
         id = self._update_object(o)

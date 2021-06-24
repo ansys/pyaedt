@@ -144,7 +144,7 @@ class Polyline(object):
 
             varg2 = self._o.export_attributes(obj_name)
 
-            self._o.name = parent.oeditor.CreatePolyline(varg1, varg2)
+            self._o._m_name = parent.oeditor.CreatePolyline(varg1, varg2)
 
             self._parent._refresh_object_types()
             self._parent._update_object(self._o)
@@ -1060,7 +1060,7 @@ class Primitives(object):
                 "\"air\"", "SurfaceMateriaobjidue:=", "\"\"", "SolveInside:=", True, "IsMaterialEditable:=", True,
                 "UseMaterialAppearance:=", False, "IsLightweight:=", False]
         self.oeditor.CreateRegion(arg, arg2)
-        obj.name = "Region"
+        obj._m_name = "Region"
         obj.solve_inside = True
         obj.transparency = 0
         obj.wireframe = True
@@ -1090,7 +1090,7 @@ class Primitives(object):
 
             varg2 = ['NAME:BodyFromEdgeToParameters']
             varg2.append('Edges:='), varg2.append([edgeID])
-            o.name = self.oeditor.CreateObjectFromEdges(varg1, ['NAME:Parameters', varg2])[0]
+            o._m_name =self.oeditor.CreateObjectFromEdges(varg1, ['NAME:Parameters', varg2])[0]
 
             self._refresh_object_types()
             id = self._update_object(o)
@@ -1117,7 +1117,7 @@ class Primitives(object):
 
             varg2 = ['NAME:BodyFromFaceToParameters']
             varg2.append('FacesToDetach:='), varg2.append([faceId])
-            o.name = self.oeditor.CreateObjectFromFaces(varg1, ['NAME:Parameters', varg2])[0]
+            o._m_name =self.oeditor.CreateObjectFromFaces(varg1, ['NAME:Parameters', varg2])[0]
 
             self._refresh_object_types()
             id = self._update_object(o)
@@ -1286,7 +1286,7 @@ class Primitives(object):
 
         vArg1.append(vArgParamVector)
         namergs = name.replace(".dll", "").split("/")
-        o.name = name
+        o._m_name =name
         vArg2 = o.export_attributes(namergs[-1])
         self.oeditor.CreateUserDefinedPart(vArg1, vArg2)
 
@@ -3059,5 +3059,6 @@ class Primitives(object):
                 selected_edge = edge
                 distance = d
         return selected_edge
+
 
 
