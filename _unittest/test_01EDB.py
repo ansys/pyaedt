@@ -334,10 +334,9 @@ class TestEDB:
         pins = self.edbapp.core_components.get_pin_from_component("R13")
         assert self.edbapp.core_components.create_component_from_pins(pins, "newcomp")
 
-
     def test_create_cutout(self):
         output = os.path.join(self.local_scratch.path, "cutout.aedb")
-        assert self.edbapp.create_cutout(["A0_N", "A0_P"],["GND","V3P3_S0"], output_aedb_path=output)
+        assert self.edbapp.create_cutout(["A0_N", "A0_P"], ["GND"], output_aedb_path=output)
         assert os.path.exists(os.path.join(output, "edb.def"))
 
     def test_rvalue(self):

@@ -72,7 +72,7 @@ class Icepak(FieldAnalysisIcepak):
     """
     
     def __init__(self, projectname=None, designname=None, solution_type=None, setup_name=None,
-                 specified_version=None, NG=False, AlwaysNew=True, release_on_exit=True):
+                 specified_version=None, NG=False, AlwaysNew=False, release_on_exit=False):
         FieldAnalysisIcepak.__init__(self, "Icepak", projectname, designname, solution_type, setup_name,
                                      specified_version, NG, AlwaysNew, release_on_exit)
 
@@ -568,7 +568,7 @@ class Icepak(FieldAnalysisIcepak):
         Fin_Line.append(self.Position('FinLength', 'FinThickness + FinLength*sin(PatternAngle*3.14/180)', 0))
         Fin_Line.append(self.Position('FinLength', 'FinLength*sin(PatternAngle*3.14/180)', 0))
         Fin_Line.append(self.Position(0, 0, 0))
-        self.modeler.primitives.draw_polyline(Fin_Line, cover_surface=True, name="Fin")
+        self.modeler.primitives.create_polyline(Fin_Line, cover_surface=True, name="Fin")
         Fin_Line2 = []
         Fin_Line2.append(self.Position(0, 'sin(DraftAngle*3.14/180)*FinThickness', 'FinHeight'))
         Fin_Line2.append(self.Position(0, 'FinThickness-sin(DraftAngle*3.14/180)*FinThickness', 'FinHeight'))
@@ -578,7 +578,7 @@ class Icepak(FieldAnalysisIcepak):
         Fin_Line2.append(
             self.Position('FinLength', 'FinLength*sin(PatternAngle*3.14/180)+sin(DraftAngle*3.14/180)*FinThickness', 'FinHeight'))
         Fin_Line2.append(self.Position(0, 'sin(DraftAngle*3.14/180)*FinThickness', 'FinHeight'))
-        self.modeler.primitives.draw_polyline(Fin_Line2, cover_surface=True, name="Fin_top")
+        self.modeler.primitives.create_polyline(Fin_Line2, cover_surface=True, name="Fin_top")
         self.modeler.connect(["Fin", "Fin_top"])
         self.assignmaterial("Fin", matname)
         # self.modeler.thicken_sheet("Fin",'-FinHeight')
@@ -615,7 +615,7 @@ class Icepak(FieldAnalysisIcepak):
             Center_Line.append(self.Position('VerticalSeparation', '-HSHeight-Tolerance', '-Tolerance'))
             Center_Line.append(self.Position('-VerticalSeparation', '-HSHeight-Tolerance', '-Tolerance'))
             Center_Line.append(self.Position('-SymSeparation', 'Tolerance', '-Tolerance'))
-            self.modeler.primitives.draw_polyline(Center_Line, cover_surface=True, name="Center")
+            self.modeler.primitives.create_polyline(Center_Line, cover_surface=True, name="Center")
             self.modeler.thicken_sheet("Center", '-FinHeight-2*Tolerance')
             all_names = self.modeler.primitives.get_all_objects_names()
             list = [i for i in all_names if "Fin" in i]
@@ -640,7 +640,7 @@ class Icepak(FieldAnalysisIcepak):
             self.modeler.rotate(list_to_move, self.CoordinateSystemAxis.YAxis, 90)
             self.modeler.rotate(list_to_move, self.CoordinateSystemAxis.ZAxis, rotation)
         self.modeler.unite(list_to_move)
-        self.modeler.primitives["HSBase"].set_name("HeatSink1")
+        self.modeler.primitives["HSBase"].name = "HeatSink1"
         return True
 
     @aedt_exception_handler
@@ -1376,7 +1376,7 @@ class Icepak(FieldAnalysisIcepak):
         mesh_box = self.modeler.primitives.create_box(min_position,[dis_x+"mm",dis_y+"mm",dis_z+"mm"], "Component_Region")
 
 
-        self.modeler.primitives["Component_Region"].set_model(False)
+        self.modeler.primitives["Component_Region"].model = False
 
         self.modeler.edit_region_dimensions(restore_padding_values)
         return dis_x, dis_y, dis_z

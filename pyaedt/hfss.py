@@ -48,7 +48,7 @@ class Hfss(FieldAnalysis3D, object):
             return "HFSS Module"
 
     def __init__(self, projectname=None, designname=None, solution_type=None, setup_name=None,
-                 specified_version=None, NG=False, AlwaysNew=True, release_on_exit=True):
+                 specified_version=None, NG=False, AlwaysNew=False, release_on_exit=False):
         """HFSS class.
 
             Parameters
@@ -74,7 +74,7 @@ class Hfss(FieldAnalysis3D, object):
                 The default is ``True``.
             release_on_exit : bool, optional
                 Whether to release AEDT on exit. The default is ``True``.
-              
+
         """
         FieldAnalysis3D.__init__(self, "HFSS", projectname, designname, solution_type, setup_name,
                                  specified_version, NG, AlwaysNew, release_on_exit)
@@ -1046,7 +1046,7 @@ class Hfss(FieldAnalysis3D, object):
         -------
         bool
             ``True`` when successful, ``False`` when failed.
-        
+
         """
         self.odesign.SARSetup(TissueMass, MaterialDensity, Tissue_object_List_ID, voxel_size, Average_SAR_method)
         return True

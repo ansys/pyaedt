@@ -8,6 +8,7 @@ import warnings
 
 import pyvista
 import numpy as np
+import json
 from sphinx_gallery.sorting import FileNameSortKey
 
 
@@ -22,6 +23,15 @@ project = 'PyAEDT'
 copyright = '(c) 2021 ANSYS, Inc. All rights reserved'
 author = 'Ansys Inc.'
 
+# Check for the local config file, otherwise use default desktop configuration
+local_config_file = os.path.join(local_path, "local_config.json")
+if os.path.exists(local_config_file):
+    with open(local_config_file) as f:
+        config = json.load(f)
+else:
+    config = {
+        "run_examples": True
+    }
 
 # read in version from file
 with open(os.path.join(root_path, "pyaedt", "version.txt"), "r") as f:
@@ -85,8 +95,6 @@ source_suffix = {
     '.md': 'markdown'
 }
 
-
-
 # The master toctree document.
 master_doc = 'index'
 
@@ -113,10 +121,6 @@ if not os.path.exists(pyvista.FIGURE_PATH):
 
 # gallery build requires AEDT install
 if os.name != 'posix':
-    extensions.append('sphinx_gallery.gen_gallery')
-
-    # necessary for pyvista when building the sphinx gallery
-    pyvista.BUILDING_GALLERY = True
 
     # suppress annoying matplotlib bug
     warnings.filterwarnings(
@@ -125,30 +129,36 @@ if os.name != 'posix':
         message='Matplotlib is currently using agg, which is a non-GUI backend, so cannot show the figure.',
     )
 
-    sphinx_gallery_conf = {
-        # convert rst to md for ipynb
-        'pypandoc': True,
-        # path to your examples scripts
-        "examples_dirs": ["../../examples/"],
-        # path where to save gallery generated examples
-        "gallery_dirs": ["examples"],
-        # Patter to search for examples files
-        "filename_pattern": r"\.py",
-        # Remove the "Download all examples" button from the top level gallery
-        "download_all_examples": False,
-        # Sort gallery examples by file name instead of number of lines (default)
-        "within_subsection_order": FileNameSortKey,
-        # directory where function granular galleries are stored
-        "backreferences_dir": None,
-        # Modules for which function level galleries are created.  In
-        "doc_module": "ansys-mapdl-core",
-        "image_scrapers": ('pyvista', 'matplotlib'),
-        'ignore_pattern': 'flycheck*',
-        "thumbnail_size": (350, 350),
-        # 'first_notebook_cell': ("%matplotlib inline\n"
-        #                         "from pyvista import set_plot_theme\n"
-        #                         "set_plot_theme('document')"),
-    }
+    # necessary for pyvista when building the sphinx gallery
+    pyvista.BUILDING_GALLERY = True
+
+    if config["run_examples"]:
+        extensions.append('sphinx_gallery.gen_gallery')
+
+        sphinx_gallery_conf = {
+            # convert rst to md for ipynb
+            'pypandoc': True,
+            # path to your examples scripts
+            "examples_dirs": ["../../examples/"],
+            # path where to save gallery generated examples
+            "gallery_dirs": ["examples"],
+            # Patter to search for examples files
+            "filename_pattern": r"\.py",
+            # Remove the "Download all examples" button from the top level gallery
+            "download_all_examples": False,
+            # Sort gallery examples by file name instead of number of lines (default)
+            "within_subsection_order": FileNameSortKey,
+            # directory where function granular galleries are stored
+            "backreferences_dir": None,
+            # Modules for which function level galleries are created.  In
+            "doc_module": "ansys-mapdl-core",
+            "image_scrapers": ('pyvista', 'matplotlib'),
+            'ignore_pattern': 'flycheck*',
+            "thumbnail_size": (350, 350),
+            # 'first_notebook_cell': ("%matplotlib inline\n"
+            #                         "from pyvista import set_plot_theme\n"
+            #                         "set_plot_theme('document')"),
+        }
 
 
 # -- Options for HTML output -------------------------------------------------

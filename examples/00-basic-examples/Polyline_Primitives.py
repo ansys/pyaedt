@@ -52,7 +52,7 @@ test_points = [ ["0mm",       "p1",    "0mm"],
 # <li>Spline</li>    
 # </ul>
 
-P = prim3D.draw_polyline(position_list=test_points[0:2], name="PL01_line")
+P = prim3D.create_polyline(position_list=test_points[0:2], name="PL01_line")
 
 print("Created Polyline with name: {}".format(prim3D.objects[P.id].name))
 print("Segment types : {}".format(P._segment_types))
@@ -62,7 +62,7 @@ print("primitive id = {}".format(P.id))
 # #### Arc (3-point) primitive
 # position_list must contain at least 3 positions. The first 3 are taken
 
-P = prim3D.draw_polyline(position_list=test_points[0:3], segment_type="Arc", name="PL02_arc")
+P = prim3D.create_polyline(position_list=test_points[0:3], segment_type="Arc", name="PL02_arc")
 
 print("Created new object with id {} and name {}".format(P.id, prim3D.objects[P.id].name))
 
@@ -70,8 +70,8 @@ print("Created new object with id {} and name {}".format(P.id, prim3D.objects[P.
 # #### Spline primitive 
 # Here we define the segment using a PolylineSegment object. This gives us additional input parameters such as the number of points to define the spline (in this case 4). The input position_list must contain at least 4 position values
 
-P = prim3D.draw_polyline(position_list=test_points, segment_type=PolylineSegment("Spline", num_points=4),
-                     name="PL03_spline_4pt")
+P = prim3D.create_polyline(position_list=test_points, segment_type=PolylineSegment("Spline", num_points=4),
+                           name="PL03_spline_4pt")
 
 #########################################################################
 # #### center-point arc primitive
@@ -81,21 +81,21 @@ P = prim3D.draw_polyline(position_list=test_points, segment_type=PolylineSegment
 
 start_point = [100, 100, 0]
 center_point = [0, 0, 0]
-P = prim3D.draw_polyline(position_list=[start_point],
-                         segment_type=PolylineSegment("AngularArc", arc_center=center_point, arc_angle="30deg"),
-                         name="PL04_center_point_arc")
+P = prim3D.create_polyline(position_list=[start_point],
+                           segment_type=PolylineSegment("AngularArc", arc_center=center_point, arc_angle="30deg"),
+                           name="PL04_center_point_arc")
 
 #########################################################################
 # Here the start point and center point have the same values in y and z, so the plane or rotation could be either XY or ZX. For these special cases when the rotation plane is ambiguous, the plane can be specified explicitly. 
 
 start_point = [100, 0, 0]
 center_point = [0, 0, 0]
-P = prim3D.draw_polyline(position_list=[start_point],
-                         segment_type=PolylineSegment("AngularArc", arc_center=center_point, arc_angle="30deg", arc_plane="XY"),
-                         name="PL04_center_point_arc_rot_XY")
-P = prim3D.draw_polyline(position_list=[start_point],
-                         segment_type=PolylineSegment("AngularArc", arc_center=center_point, arc_angle="30deg", arc_plane="ZX"),
-                         name="PL04_center_point_arc_rot_ZX")
+P = prim3D.create_polyline(position_list=[start_point],
+                           segment_type=PolylineSegment("AngularArc", arc_center=center_point, arc_angle="30deg", arc_plane="XY"),
+                           name="PL04_center_point_arc_rot_XY")
+P = prim3D.create_polyline(position_list=[start_point],
+                           segment_type=PolylineSegment("AngularArc", arc_center=center_point, arc_angle="30deg", arc_plane="ZX"),
+                           name="PL04_center_point_arc_rot_ZX")
 
 
 #########################################################################
@@ -104,34 +104,34 @@ P = prim3D.draw_polyline(position_list=[start_point],
 # 
 # By default, if no specification of the type of segments is given, then all the points will be connected by line segments. 
 
-P = prim3D.draw_polyline(position_list=test_points, name="PL06_segmented_compound_line")
+P = prim3D.create_polyline(position_list=test_points, name="PL06_segmented_compound_line")
 
 #########################################################################
 # We can specify the segment types with the input variable segment_type. In this case we specify that the four input points in position_list are to be connected as a "Line" segment followed ba a 3-point "Arc segment
 
-P = prim3D.draw_polyline(position_list=test_points, segment_type=["Line", "Arc"], name="PL05_compound_line_arc")
+P = prim3D.create_polyline(position_list=test_points, segment_type=["Line", "Arc"], name="PL05_compound_line_arc")
 
 #########################################################################
 # The input argument close_surface ensures that the polyline start-point and end-point are the same. If necessary an additional line-segment is added to achieve this.
 
-P = prim3D.draw_polyline(position_list=test_points,
-                         close_surface=True,
-                         name="PL07_segmented_compound_line_closed")
+P = prim3D.create_polyline(position_list=test_points,
+                           close_surface=True,
+                           name="PL07_segmented_compound_line_closed")
 
 #########################################################################
 # The input argument cover_surface=True performs the modeler command cover_surface additionally. Note that specifying cover_surface=True autmatically results in the polyline being closed. 
 
-P = prim3D.draw_polyline(position_list=test_points,
-                     cover_surface=True,
-                     name="SPL01_segmented_compound_line")
+P = prim3D.create_polyline(position_list=test_points,
+                           cover_surface=True,
+                           name="SPL01_segmented_compound_line")
 
 #########################################################################
 # #### Compound line - insert a line segment
 # Here we define a line segment starting at vertex 1 ["100mm", "0mm", "0mm"] of an existing polyline, and ending at some new point ["90mm", "20mm", "0mm"]. By numerical comparison of the start point with the existing vertices of the original polyline object it is determined automatically that the segment is inserted after the first segment of the original polyline.
 
-P = prim3D.draw_polyline(position_list=test_points,
-                         close_surface=True,
-                         name="PL08_segmented_compound_insert_segment")
+P = prim3D.create_polyline(position_list=test_points,
+                           close_surface=True,
+                           name="PL08_segmented_compound_insert_segment")
 
 start_point = P.start_point
 insert_point = ["90mm", "20mm", "0mm"]
@@ -144,7 +144,7 @@ P.insert_segment(position_list=[start_point, insert_point])
 # Here we define a line segment starting at vertex 1 ["100mm", "0mm", "0mm"] of an existing polyline, and ending at some new point ["90mm", "20mm", "0mm"]. By numerical comparison of the start oint it is determined automatically that the segment is inserted after the first segment of the original polyline.
 # 
 
-P = prim3D.draw_polyline(position_list=test_points,
+P = prim3D.create_polyline(position_list=test_points,
                            close_surface=False,
                            name="PL08_segmented_compound_insert_arc")
 
@@ -163,9 +163,9 @@ start_point = [2200.0,0.0,1200.0]
 arc_center_1 = [1400 ,0 ,800]
 arc_angle_1 = "43.47deg"
 
-P = prim3D.draw_polyline(name="First_Arc",
-                         position_list=[start_point],
-                         segment_type=PolylineSegment(type='AngularArc', 
+P = prim3D.create_polyline(name="First_Arc",
+                           position_list=[start_point],
+                           segment_type=PolylineSegment(type='AngularArc',
                                                       arc_angle=arc_angle_1, 
                                                       arc_center=arc_center_1))
 
@@ -191,22 +191,22 @@ P.insert_segment(position_list=[end_of_line_segment],
 #########################################################################
 # Here we show how to complete all three steps in one using a compound polyline definition
 
-prim3D.draw_polyline(position_list=[start_point, end_of_line_segment],
-                          segment_type=[PolylineSegment(type='AngularArc', arc_angle="43.47deg", arc_center=arc_center_1),
+prim3D.create_polyline(position_list=[start_point, end_of_line_segment],
+                       segment_type=[PolylineSegment(type='AngularArc', arc_angle="43.47deg", arc_center=arc_center_1),
                                         PolylineSegment(type="Line"),
                                         PolylineSegment(type='AngularArc', arc_angle=arc_angle_2, arc_center=arc_center_2)],
-                          name="Compound_Polyline_One_Command")
+                       name="Compound_Polyline_One_Command")
 
 #########################################################################
 # Two 3-point arcs forming a circle and covered. Note that the last point of the second Arc segment is not defined in the position list
 
-P = prim3D.draw_polyline(position_list=[[34.1004, 14.1248, 0],
-                                    [27.646, 16.7984, 0],
-                                    [24.9725, 10.3439, 0],
-                                    [31.4269, 7.6704, 0]],
-                     segment_type=["Arc", "Arc"],
-                     cover_surface=True, close_surface=True,
-                     name="Rotor_Subtract_25_0", matname="vacuum")
+P = prim3D.create_polyline(position_list=[[34.1004, 14.1248, 0],
+                                          [27.646, 16.7984, 0],
+                                          [24.9725, 10.3439, 0],
+                                          [31.4269, 7.6704, 0]],
+                           segment_type=["Arc", "Arc"],
+                           cover_surface=True, close_surface=True,
+                           name="Rotor_Subtract_25_0", matname="vacuum")
 
 #########################################################################
 # Another example of a complex polyline where the number of points is insufficient to populate the requested segments. This results in an IndexError which is caught silently within AEDTLib. The return value of the command is False, which can be caught at the application level. Maybe not so useful ina jupyter notebook but important for the unit tests
@@ -224,7 +224,7 @@ MDL_points = [["67.1332mm", "2.9901mm", "0mm"],
 MDL_segments = [
     "Line", "Arc", "Line", "Arc", "Line"
 ]
-return_value = prim3D.draw_polyline(MDL_points, segment_type=MDL_segments, name="MDL_Polyline")
+return_value = prim3D.create_polyline(MDL_points, segment_type=MDL_segments, name="MDL_Polyline")
 assert return_value   # triggers an error at the application error
 
 #########################################################################
@@ -232,7 +232,7 @@ assert return_value   # triggers an error at the application error
 
 MDL_segments = ["Line", "Arc", "Line", "Arc"]
 
-P = prim3D.draw_polyline(MDL_points, segment_type=MDL_segments, name="MDL_Polyline")
+P = prim3D.create_polyline(MDL_points, segment_type=MDL_segments, name="MDL_Polyline")
 
 #########################################################################
 # #### Save the project file
