@@ -64,56 +64,6 @@ else:
     }
     config["local"] = False
 
-def pyaedt_unittest_same_design(func):
-    @wraps(func)
-    def inner_function(*args, **kwargs):
-        args[0].cache.update()
-        func(*args, **kwargs)
-        try:
-            args[0].aedtapp.design_name
-        except Exception as e:
-            pytest.exit("Desktop Crashed - Aborting the test!")
-        args[0].cache.update()
-        assert args[0].cache.no_new_errors
-        assert args[0].cache.no_change
-
-    return inner_function
-
-def pyaedt_unittest_duplicate_design(func):
-    @wraps(func)
-    def inner_function(*args, **kwargs):
-        time.sleep(0.5)
-        args[0].aedtapp.duplicate_design(label=generate_unique_name("pytest"))
-        time.sleep(0.5)
-        args[0].cache.update()
-        func(*args, **kwargs)
-        try:
-            if args[0].aedtapp.design_name:
-                args[0].aedtapp.delete_design()
-        except Exception as e:
-            pytest.exit("Desktop Crashed - Aborting the test!")
-        args[0].cache.update()
-        assert args[0].cache.no_new_errors
-
-    return inner_function
-
-def pyaedt_unittest_new_design(func):
-    @wraps(func)
-    def inner_function(*args, **kwargs):
-        args[0].aedtapp.insert_design(design_name=generate_unique_name("pytest"))
-        args[0].cache.update()
-        func(*args, **kwargs)
-        try:
-            if args[0].aedtapp.design_name:
-                args[0].aedtapp.delete_design()
-        except Exception as e:
-            pytest.exit("Desktop Crashed - Aborting the test!")
-        args[0].cache.update()
-        assert args[0].cache.no_new_errors
-
-    return inner_function
-
-
 
 class BasisTest:
 
@@ -149,7 +99,6 @@ class BasisTest:
         gc.collect()
 
 
-
 # Define desktopVersion explicitly since this is imported by other modules
 desktop_version = config["desktopVersion"]
 new_thread = config["NewThread"]
@@ -172,3 +121,52 @@ def desktop_init():
 
     if config["test_desktops"]:
         run_desktop_tests()
+
+# def pyaedt_unittest_same_design(func):
+#     @wraps(func)
+#     def inner_function(*args, **kwargs):
+#         args[0].cache.update()
+#         func(*args, **kwargs)
+#         try:
+#             args[0].aedtapp.design_name
+#         except Exception as e:
+#             pytest.exit("Desktop Crashed - Aborting the test!")
+#         args[0].cache.update()
+#         assert args[0].cache.no_new_errors
+#         assert args[0].cache.no_change
+#
+#     return inner_function
+#
+# def pyaedt_unittest_duplicate_design(func):
+#     @wraps(func)
+#     def inner_function(*args, **kwargs):
+#         time.sleep(0.5)
+#         args[0].aedtapp.duplicate_design(label=generate_unique_name("pytest"))
+#         time.sleep(0.5)
+#         args[0].cache.update()
+#         func(*args, **kwargs)
+#         try:
+#             if args[0].aedtapp.design_name:
+#                 args[0].aedtapp.delete_design()
+#         except Exception as e:
+#             pytest.exit("Desktop Crashed - Aborting the test!")
+#         args[0].cache.update()
+#         assert args[0].cache.no_new_errors
+#
+#     return inner_function
+#
+# def pyaedt_unittest_new_design(func):
+#     @wraps(func)
+#     def inner_function(*args, **kwargs):
+#         args[0].aedtapp.insert_design(design_name=generate_unique_name("pytest"))
+#         args[0].cache.update()
+#         func(*args, **kwargs)
+#         try:
+#             if args[0].aedtapp.design_name:
+#                 args[0].aedtapp.delete_design()
+#         except Exception as e:
+#             pytest.exit("Desktop Crashed - Aborting the test!")
+#         args[0].cache.update()
+#         assert args[0].cache.no_new_errors
+#
+#     return inner_function

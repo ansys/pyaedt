@@ -22,7 +22,6 @@ sys.path.append(os.path.join(module_path))
 sys.path.append(os.path.join(aedt_lib_path))
 sys.path.append(os.path.join(pdf_path1))
 from pyaedt import generate_unique_name
-from pyaedt.application.Design import DesignCache
 
 project_dir = os.path.join(os.environ["TEMP"], generate_unique_name("Example"))
 if not os.path.exists(project_dir): os.makedirs(project_dir)
@@ -61,8 +60,6 @@ project_file = os.path.join(project_dir, project_name + ".aedt")
 # If there is a running HFSS Design the aedtapp will be linked to it, otherwise a new design will be run.
 
 aedtapp = Hfss(specified_version=desktopVersion)
-app_cache = DesignCache(aedtapp)
-app_cache.ignore_error_message_global("Script macro error: Missing property name.")
 
 ################################################################
 # Variables Settings
