@@ -100,7 +100,7 @@ class CoordinateSystem(object):
         Returns
         -------
         bool
-            True if succeded, Flase otherwise
+            True if succeeded, Flase otherwise
         """
         self._change_property(self.name, ["NAME:ChangedProps", ["NAME:Name", "Value:=", newname]])
         self.name = newname
@@ -116,7 +116,7 @@ class CoordinateSystem(object):
         Returns
         -------
         bool
-            True if succeded, Flase otherwise
+            True if succeeded, Flase otherwise
         """
         self._change_property(self.name, ["NAME:ChangedProps", ["NAME:Reference CS", "Value:=", self.ref_cs]])
 
@@ -158,7 +158,7 @@ class CoordinateSystem(object):
         Returns
         -------
         bool
-            True if succeded, Flase otherwise
+            True if succeeded, Flase otherwise
         """
         if mode_type == 0:  # "Axis/Position"
             if self.props and (self.props["Mode"] == "Euler Angle ZXZ" or self.props["Mode"] == "Euler Angle ZYZ"):
@@ -435,7 +435,7 @@ class CoordinateSystem(object):
         Returns
         -------
         bool
-            True if succeded, Flase otherwise
+            True if succeeded, Flase otherwise
         """
         self._parent.oeditor.Delete([
             "NAME:Selections",
@@ -453,7 +453,7 @@ class CoordinateSystem(object):
         Returns
         -------
         bool
-            True if succeded, Flase otherwise
+            True if succeeded, Flase otherwise
         """
         self._parent.oeditor.SetWCS([
             "NAME:SetWCS Parameter",
@@ -824,7 +824,7 @@ class GeometryModeler(Modeler, object):
         Returns
         -------
         bool
-            True if operation succeded, False otherwise
+            True if operation succeeded, False otherwise
         """
         self.oeditor.SetWCS([
             "NAME:SetWCS Parameter",
