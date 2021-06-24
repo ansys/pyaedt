@@ -82,7 +82,7 @@ ipk.create_pcb_from_3dlayout(component_name, odb_path, aedt_odb_design_name,exte
 # create an offset Coordinate system to match odb++ with sherlock step file
 
 
-ipk.modeler.coordinate_system.create([0,0,stackup_thickness/2],view="XY")
+ipk.modeler.create_coordinate_system([0, 0, stackup_thickness/2], mode="view", view="XY")
 
 ######################################
 # import cad

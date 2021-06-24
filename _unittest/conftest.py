@@ -104,6 +104,7 @@ desktop_version = config["desktopVersion"]
 new_thread = config["NewThread"]
 non_graphical = config["NonGraphical"]
 
+
 @pytest.fixture(scope='session', autouse=True)
 def desktop_init():
     desktop = Desktop(desktop_version, non_graphical, new_thread)

@@ -28,38 +28,21 @@ import math
 from ..application.DataHandlers import dict2arg
 from .Object3d import EdgePrimitive, FacePrimitive, VertexPrimitive
 
+
 class CoordinateSystem(object):
     """CS Data and execution class"""
     def __init__(self, parent, props=None, name=None):
         self._parent = parent
+        self.model_units = self._parent.model_units
         self.name = name
         self.props = props
-        self.model_units = self._parent.model_units
+        self.ref_cs = None
+        self.quaternion = None
         try:
             if "KernelVersion" in self.props:
                 del self.props["KernelVersion"]
         except:
             pass
-
-    @aedt_exception_handler
-    def setWorkingCoordinateSystem(self, name=None):
-        """Set active CS to name
-
-        Parameters
-        ----------
-        name :
-            name of CS to become active (Default value = None)
-
-        Returns
-        -------
-
-        """
-        if name is not None:
-            self.name = name
-        self._parent.oeditor.SetWCS([
-            "NAME:SetWCS Parameter",
-            "Working Coordinate System:=", self.name,
-            "RegionDepCSOk:=", False])
 
     @aedt_exception_handler
     def _dim_arg(self, Value, sUnits=None):
@@ -90,13 +73,14 @@ class CoordinateSystem(object):
 
     @aedt_exception_handler
     def _change_property(self, name, arg):
-        """Update property of coordinate system
+        """ Updates the properties of coordinate system.
 
         Parameters
         ----------
-        name :
+        name : str
             name of the coordinate system
-        arg :
+
+        arg : list
             list with parameters about what to change, e.g. ["NAME:ChangedProps", ["NAME:Mode", "Value:=", "Axis/Position"]]
 
         Returns
@@ -107,19 +91,34 @@ class CoordinateSystem(object):
         self._parent.oeditor.ChangeProperty(arguments)
 
     @aedt_exception_handler
-    def update(self):
-        """Update CS
-        
-        :return: bool
+    def rename(self, newname):
+        """ Renames the Coordinate System.
 
         Parameters
         ----------
 
         Returns
         -------
-
+        bool
+            True if succeeded, Flase otherwise
         """
-        self._change_property(self.name, ["NAME:ChangedProps", ["NAME:Reference CS", "Value:=", self.props["Reference CS"]]])
+        self._change_property(self.name, ["NAME:ChangedProps", ["NAME:Name", "Value:=", newname]])
+        self.name = newname
+        return True
+
+    @aedt_exception_handler
+    def update(self):
+        """ Updates the Coordinate System properties.
+        
+        Parameters
+        ----------
+
+        Returns
+        -------
+        bool
+            True if succeeded, Flase otherwise
+        """
+        self._change_property(self.name, ["NAME:ChangedProps", ["NAME:Reference CS", "Value:=", self.ref_cs]])
 
         try:
             self._change_property(self.name, ["NAME:ChangedProps", ["NAME:Mode", "Value:=", self.props["Mode"]]])
@@ -147,63 +146,53 @@ class CoordinateSystem(object):
         self._change_property(self.name, props)
         return True
 
-
     @aedt_exception_handler
     def change_cs_mode(self, mode_type=0):
-        """Change CS Mode
+        """ Changes the Coordinate System mode.
 
         Parameters
         ----------
-        mode_type :
-            0 for "Axis/Position", 1 for "Euler Angle ZYZ", 2 for "Euler Angle ZXZ" (Default value = 0)
+        mode_type : int
+            0 for "Axis/Position", 1 for "Euler Angle ZXZ", 2 for "Euler Angle ZYZ" (Default value = 0)
 
         Returns
         -------
-        type
-            bool
-
+        bool
+            True if succeeded, Flase otherwise
         """
-        if mode_type == 0:
-            if self.props and self.props["Mode"] == "Euler Angle ZXZ":
+        if mode_type == 0:  # "Axis/Position"
+            if self.props and (self.props["Mode"] == "Euler Angle ZXZ" or self.props["Mode"] == "Euler Angle ZYZ"):
                 self.props["Mode"] = "Axis/Position"
-                xaxis=[1,0,0]
-                ypoint=[0,1,0]
-                self.props["XAxisXvec"]=xaxis[0]
-                self.props["XAxisYvec"]=xaxis[1]
-                self.props["XAxisZvec"]=xaxis[2]
-                self.props["YAxisXvec"]=ypoint[0]
-                self.props["YAxisYvec"]=ypoint[1]
-                self.props["YAxisZvec"]=ypoint[2]
+                x, y, z = GeometryOperators.quaternion_to_axis(self.quaternion)
+                xaxis = x
+                ypoint = y
+                self.props["XAxisXvec"] = xaxis[0]
+                self.props["XAxisYvec"] = xaxis[1]
+                self.props["XAxisZvec"] = xaxis[2]
+                self.props["YAxisXvec"] = ypoint[0]
+                self.props["YAxisYvec"] = ypoint[1]
+                self.props["YAxisZvec"] = ypoint[2]
                 del self.props['Phi']
                 del self.props['Theta']
                 del self.props['Psi']
-            elif self.props and self.props["Mode"] == "Euler Angle ZYZ":
-                self.props["Mode"] = "Axis/Position"
-                xaxis=[1,0,0]
-                ypoint=[0,1,0]
-                self.props["XAxisXvec"]=xaxis[0]
-                self.props["XAxisYvec"]=xaxis[1]
-                self.props["XAxisZvec"]=xaxis[2]
-                self.props["YAxisXvec"]=ypoint[0]
-                self.props["YAxisYvec"]=ypoint[1]
-                self.props["YAxisZvec"]=ypoint[2]
-                del self.props['Phi']
-                del self.props['Theta']
-                del self.props['Psi']
-        elif mode_type == 1:
+                self.update()
+        elif mode_type == 1:  # "Euler Angle ZXZ"
             if self.props and self.props["Mode"] == "Euler Angle ZYZ":
                 self.props["Mode"] = "Euler Angle ZXZ"
-                phi = 0
-                theta = 0
-                psi = 0
+                a, b, g = GeometryOperators.quaternion_to_euler_zxz(self.quaternion)
+                phi = GeometryOperators.rad2deg(a)
+                theta = GeometryOperators.rad2deg(b)
+                psi = GeometryOperators.rad2deg(g)
                 self.props["Phi"] = "{}deg".format(phi)
                 self.props["Theta"] = "{}deg".format(theta)
                 self.props["Psi"] = "{}deg".format(psi)
+                self.update()
             elif self.props and self.props["Mode"] == "Axis/Position":
                 self.props["Mode"] = "Euler Angle ZXZ"
-                phi = 0
-                theta = 0
-                psi = 0
+                a, b, g = GeometryOperators.quaternion_to_euler_zxz(self.quaternion)
+                phi = GeometryOperators.rad2deg(a)
+                theta = GeometryOperators.rad2deg(b)
+                psi = GeometryOperators.rad2deg(g)
                 self.props["Phi"] = "{}deg".format(phi)
                 self.props["Theta"] = "{}deg".format(theta)
                 self.props["Psi"] = "{}deg".format(psi)
@@ -213,20 +202,24 @@ class CoordinateSystem(object):
                 del self.props["YAxisXvec"]
                 del self.props["YAxisYvec"]
                 del self.props["YAxisZvec"]
-        elif mode_type == 2:
+                self.update()
+        elif mode_type == 2:  # "Euler Angle ZYZ"
             if self.props and self.props["Mode"] == "Euler Angle ZXZ":
                 self.props["Mode"] = "Euler Angle ZYZ"
-                phi = 0
-                theta = 0
-                psi = 0
+                a, b, g = GeometryOperators.quaternion_to_euler_zyz(self.quaternion)
+                phi = GeometryOperators.rad2deg(a)
+                theta = GeometryOperators.rad2deg(b)
+                psi = GeometryOperators.rad2deg(g)
                 self.props["Phi"] = "{}deg".format(phi)
                 self.props["Theta"] = "{}deg".format(theta)
                 self.props["Psi"] = "{}deg".format(psi)
+                self.update()
             elif self.props and self.props["Mode"] == "Axis/Position":
                 self.props["Mode"] = "Euler Angle ZYZ"
-                phi = 0
-                theta = 0
-                psi = 0
+                a, b, g = GeometryOperators.quaternion_to_euler_zyz(self.quaternion)
+                phi = GeometryOperators.rad2deg(a)
+                theta = GeometryOperators.rad2deg(b)
+                psi = GeometryOperators.rad2deg(g)
                 self.props["Phi"] = "{}deg".format(phi)
                 self.props["Theta"] = "{}deg".format(theta)
                 self.props["Psi"] = "{}deg".format(psi)
@@ -236,150 +229,236 @@ class CoordinateSystem(object):
                 del self.props["YAxisXvec"]
                 del self.props["YAxisYvec"]
                 del self.props["YAxisZvec"]
+                self.update()
         else:
-            return False
-        return self.update()
+            raise ValueError('mode_type=0 for "Axis/Position", =1 for "Euler Angle ZXZ", =2 for "Euler Angle ZYZ"')
+        return True
 
     @aedt_exception_handler
-    def create(self, origin=[0, 0, 0], view="iso", x_pointing=[1, 0, 0], y_pointing=[0, 1, 0], reference_cs="Global", name=None):
-        """Create a Coordinate system
+    def create(self, origin=None, reference_cs='Global', name=None,
+               mode='axis', view='iso',
+               x_pointing=None, y_pointing=None,
+               phi=0, theta=0, psi=0, u=None):
+        """ Creates a Coordinate system.
+        Specify the mode = 'view', 'axis', 'zxz', 'zyz', 'axisrotation'. Default = 'axis'
+        If mode = 'view', specify view = 'XY', 'XZ', 'XY', 'iso', 'rotate' (obsolete)
+        If mode = 'axis', specify x_pointing and y_pointing
+        If mode = 'zxz' or 'zyz', specify phi, theta, psi
+        If mode = 'axisrotation', specify u, theta
+
+        Parameters not needed by the specified mode are ignored.
+        For back compatibility, view='rotate' is the same as mode='axis'.
+        Default is a coordinate system parallel to the Global centered in the Global origin.
 
         Parameters
         ----------
-        origin :
-            origin of the CS (Default value = [0)
-        view :
-            View. Default "iso". possible "XY", "XZ", "XY", "rotate"
-        x_pointing :
-            if view="rotate", this is a 3 elements list specifying the X axis pointing in the global CS (Default value = [1)
-        y_pointing :
-            if view="rotate", this is a 3 elements list specifying the Y axis pointing in the global CS (Default value = [0)
-        name :
+        origin : list
+            origin of the CS (Default value = [0, 0, 0])
+
+        name : str
             name of the CS (Default value = None)
-        0 :
-            
-        0] :
-            
-        1 :
-            
-        reference_cs :
-             (Default value = "Global")
+
+        reference_cs : str
+             Reference coordinate system name (Default value = "Global")
+
+        mode: str
+            Definition mode. 'view', 'axis', 'zxz', 'zyz', 'axisrotation'. Default = 'axis'
+
+        view : str
+            View. Default "iso". possible "XY", "XZ", "XY", None, "rotate"
+            "rotate" is obsolete, simply specify mode = 'axis'.
+
+        x_pointing : list
+            if mode="axis", this is a 3 elements list specifying the X axis pointing in the global CS
+            (Default value = [1, 0, 0])
+
+        y_pointing : list
+            if mode="axis", this is a 3 elements list specifying the Y axis pointing in the global CS
+            (Default value = [0, 1, 0])
+
+        phi : float
+            Euler angle phi in degrees (Default value = 0)
+
+        theta : float
+            Euler angle theta in degrees, or orataion angle in degrees (Default value = 0)
+
+        psi : float
+            Euler angle psi in degrees (Default value = 0)
+
+        u : list
+            rotation axis in format [ux, uy, uz] (Default value = [1, 0, 0])
 
         Returns
         -------
         CoordinateSystem
             CS object
-
         """
         if not origin:
-            originX = "0" + self.model_units
-            originY = "0" + self.model_units
-            originZ = "0" + self.model_units
-        else:
-            originX = self._dim_arg(origin[0], self.model_units)
-            originY = self._dim_arg(origin[1], self.model_units)
-            originZ = self._dim_arg(origin[2], self.model_units)
+            origin = [0, 0, 0]
+        if not x_pointing:
+            x_pointing = [1, 0, 0]
+        if not y_pointing:
+            y_pointing = [0, 1, 0]
+        if not u:
+            u = [1, 0, 0]
+        if view == "rotate":
+            # legacy compatibility
+            mode = "axis"
 
         if name:
             self.name = name
         else:
-            self.name = generate_unique_name("CS_")
-        pointing = []
-        if not view:
-            self.view = "iso"
-        elif view == "rotate":
-            self.view = "rotate"
-            pointing.append(self._dim_arg((x_pointing[0] - origin[0]), self.model_units))
-            pointing.append(self._dim_arg((x_pointing[1] - origin[1]), self.model_units))
-            pointing.append(self._dim_arg((x_pointing[2] - origin[2]), self.model_units))
-            pointing.append(self._dim_arg((y_pointing[0] - origin[0]), self.model_units))
-            pointing.append(self._dim_arg((y_pointing[1] - origin[1]), self.model_units))
-            pointing.append(self._dim_arg((y_pointing[2] - origin[2]), self.model_units))
+            self.name = generate_unique_name("CS")
+
+        originX = self._dim_arg(origin[0], self.model_units)
+        originY = self._dim_arg(origin[1], self.model_units)
+        originZ = self._dim_arg(origin[2], self.model_units)
+        orientationParameters = OrderedDict({"OriginX": originX, "OriginY": originY, "OriginZ": originZ})
+
+        if mode == "view":
+            orientationParameters["Mode"] = "Axis/Position"
+            if view == "YZ":
+                orientationParameters["XAxisXvec"] = "0mm"
+                orientationParameters["XAxisYvec"] = "0mm"
+                orientationParameters["XAxisZvec"] = "-1mm"
+                orientationParameters["YAxisXvec"] = "0mm"
+                orientationParameters["YAxisYvec"] = "1mm"
+                orientationParameters["YAxisZvec"] = "0mm"
+            elif view == "XZ":
+                orientationParameters["XAxisXvec"] = "1mm"
+                orientationParameters["XAxisYvec"] = "0mm"
+                orientationParameters["XAxisZvec"] = "0mm"
+                orientationParameters["YAxisXvec"] = "0mm"
+                orientationParameters["YAxisYvec"] = "-1mm"
+                orientationParameters["YAxisZvec"] = "0mm"
+            elif view == "XY":
+                orientationParameters["XAxisXvec"] = "1mm"
+                orientationParameters["XAxisYvec"] = "0mm"
+                orientationParameters["XAxisZvec"] = "0mm"
+                orientationParameters["YAxisXvec"] = "0mm"
+                orientationParameters["YAxisYvec"] = "1mm"
+                orientationParameters["YAxisZvec"] = "0mm"
+            elif view == "iso":
+                orientationParameters["XAxisXvec"] = "1mm"
+                orientationParameters["XAxisYvec"] = "1mm"
+                orientationParameters["XAxisZvec"] = "-2mm"
+                orientationParameters["YAxisXvec"] = "-1mm"
+                orientationParameters["YAxisYvec"] = "1mm"
+                orientationParameters["YAxisZvec"] = "0mm"
+            else:
+                raise ValueError("With mode = 'view', specify view = 'XY', 'XZ', 'XY', 'iso' ")
+            x1 = GeometryOperators.parse_dim_arg(orientationParameters['XAxisXvec'])
+            x2 = GeometryOperators.parse_dim_arg(orientationParameters['XAxisYvec'])
+            x3 = GeometryOperators.parse_dim_arg(orientationParameters['XAxisZvec'])
+            y1 = GeometryOperators.parse_dim_arg(orientationParameters['YAxisXvec'])
+            y2 = GeometryOperators.parse_dim_arg(orientationParameters['YAxisYvec'])
+            y3 = GeometryOperators.parse_dim_arg(orientationParameters['YAxisZvec'])
+            x, y, z = GeometryOperators.pointing_to_axis([x1, x2, x3], [y1, y2, y3])
+            a, b, g = GeometryOperators.axis_to_euler_zyz(x, y, z)
+            self.quaternion = GeometryOperators.euler_zyz_to_quaternion(a, b, g)
+        elif mode == "axis":
+            orientationParameters["Mode"] = "Axis/Position"
+            orientationParameters["XAxisXvec"] = self._dim_arg((x_pointing[0] - origin[0]), self.model_units)
+            orientationParameters["XAxisYvec"] = self._dim_arg((x_pointing[1] - origin[1]), self.model_units)
+            orientationParameters["XAxisZvec"] = self._dim_arg((x_pointing[2] - origin[2]), self.model_units)
+            orientationParameters["YAxisXvec"] = self._dim_arg((y_pointing[0] - origin[0]), self.model_units)
+            orientationParameters["YAxisYvec"] = self._dim_arg((y_pointing[1] - origin[1]), self.model_units)
+            orientationParameters["YAxisZvec"] = self._dim_arg((y_pointing[2] - origin[2]), self.model_units)
+            x, y, z = GeometryOperators.pointing_to_axis(x_pointing, y_pointing)
+            a, b, g = GeometryOperators.axis_to_euler_zyz(x, y, z)
+            self.quaternion = GeometryOperators.euler_zyz_to_quaternion(a, b, g)
+        elif mode == "zxz":
+            orientationParameters["Mode"] = "Euler Angle ZXZ"
+            orientationParameters["Phi"] = self._dim_arg(phi, 'deg')
+            orientationParameters["Theta"] = self._dim_arg(theta, 'deg')
+            orientationParameters["Psi"] = self._dim_arg(psi, 'deg')
+            a = GeometryOperators.deg2rad(phi)
+            b = GeometryOperators.deg2rad(theta)
+            g = GeometryOperators.deg2rad(psi)
+            self.quaternion = GeometryOperators.euler_zxz_to_quaternion(a, b, g)
+        elif mode == "zyz":
+            orientationParameters["Mode"] = "Euler Angle ZYZ"
+            orientationParameters["Phi"] = self._dim_arg(phi, 'deg')
+            orientationParameters["Theta"] = self._dim_arg(theta, 'deg')
+            orientationParameters["Psi"] = self._dim_arg(psi, 'deg')
+            a = GeometryOperators.deg2rad(phi)
+            b = GeometryOperators.deg2rad(theta)
+            g = GeometryOperators.deg2rad(psi)
+            self.quaternion = GeometryOperators.euler_zyz_to_quaternion(a, b, g)
+        elif mode == "axisrotation":
+            th = GeometryOperators.deg2rad(theta)
+            q = GeometryOperators.axis_angle_to_quaternion(u, th)
+            a, b, c = GeometryOperators.quaternion_to_euler_zyz(q)
+            phi = GeometryOperators.rad2deg(a)
+            theta = GeometryOperators.rad2deg(b)
+            psi = GeometryOperators.rad2deg(c)
+            orientationParameters["Mode"] = "Euler Angle ZYZ"
+            orientationParameters["Phi"] = self._dim_arg(phi, 'deg')
+            orientationParameters["Theta"] = self._dim_arg(theta, 'deg')
+            orientationParameters["Psi"] = self._dim_arg(psi, 'deg')
+            self.quaternion = q
         else:
-            self.view = view
+            raise ValueError("Specify the mode = 'view', 'axis', 'zxz', 'zyz', 'axisrotation' ")
 
-        orientationParameters = OrderedDict(
-            {"Reference CS": reference_cs, "Mode": "Axis/Position", "OriginX": originX, "OriginY": originY, "OriginZ": originZ})
-        if self.view == "YZ":
-            orientationParameters["XAxisXvec"] = "0mm"
-            orientationParameters["XAxisYvec"] = "0mm"
-            orientationParameters["XAxisZvec"] = "-1mm"
-            orientationParameters["YAxisXvec"] = "0mm"
-            orientationParameters["YAxisYvec"] = "1mm"
-            orientationParameters["YAxisZvec"] = "0mm"
-
-        elif self.view == "XZ":
-            orientationParameters["XAxisXvec"] = "1mm"
-            orientationParameters["XAxisYvec"] = "0mm"
-            orientationParameters["XAxisZvec"] = "0mm"
-            orientationParameters["YAxisXvec"] = "0mm"
-            orientationParameters["YAxisYvec"] = "-1mm"
-            orientationParameters["YAxisZvec"] = "0mm"
-
-        elif self.view == "XY":
-            orientationParameters["XAxisXvec"] = "1mm"
-            orientationParameters["XAxisYvec"] = "0mm"
-            orientationParameters["XAxisZvec"] = "0mm"
-            orientationParameters["YAxisXvec"] = "0mm"
-            orientationParameters["YAxisYvec"] = "1mm"
-            orientationParameters["YAxisZvec"] = "0mm"
-
-
-        elif self.view == "iso":
-            orientationParameters["XAxisXvec"] = "1mm"
-            orientationParameters["XAxisYvec"] = "1mm"
-            orientationParameters["XAxisZvec"] = "-2mm"
-            orientationParameters["YAxisXvec"] = "-1mm"
-            orientationParameters["YAxisYvec"] = "1mm"
-            orientationParameters["YAxisZvec"] = "0mm"
-
-
-        elif self.view == "rotate":
-            orientationParameters["XAxisXvec"] = pointing[0]
-            orientationParameters["XAxisYvec"] = pointing[1]
-            orientationParameters["XAxisZvec"] = pointing[2]
-            orientationParameters["YAxisXvec"] = pointing[3]
-            orientationParameters["YAxisYvec"] = pointing[4]
-            orientationParameters["YAxisZvec"] = pointing[5]
-
-
-        self.props=OrderedDict(orientationParameters)
-
-
+        self.props = orientationParameters
         self._parent.oeditor.CreateRelativeCS(self.orientation, self.attributes)
-        self._parent.coordinate_systems.append(self)
-        return self
+
+        self.ref_cs = reference_cs
+        self.update()
+
+        return True
 
     @property
     def orientation(self):
-        """ """
-        arg=["Name:RelativeCSParameters"]
+        """
+        Construct the internal Named Array for orientation
+        """
+        arg = ["Name:RelativeCSParameters"]
         dict2arg(self.props, arg)
         return arg
 
     @property
     def attributes(self):
-        """ """
+        """
+        Construct the internal Named Array for the attributes
+        """
         coordinateSystemAttributes = ["NAME:Attributes", "Name:=", self.name]
         return coordinateSystemAttributes
 
     @aedt_exception_handler
     def delete(self):
-        """Delete active CS
+        """ Deletes the CS
         
-        :return:
+        Parameters
+        ----------
+
+        Returns
+        -------
+        bool
+            True if succeeded, Flase otherwise
+        """
+        self._parent.oeditor.Delete([
+            "NAME:Selections",
+            "Selections:=", self.name])
+        self._parent.coordinate_systems.remove(self)
+        return True
+
+    @aedt_exception_handler
+    def set_as_working_cs(self):
+        """ Sets the cs as working coordinate system.
 
         Parameters
         ----------
 
         Returns
         -------
-
+        bool
+            True if succeeded, Flase otherwise
         """
-        self._parent.oeditor.Delete([
-            "NAME:Selections",
-            "Selections:=", self.name])
-        self._parent.coordinate_systems.remove(self)
+        self._parent.oeditor.SetWCS([
+            "NAME:SetWCS Parameter",
+            "Working Coordinate System:=", self.name,
+            "RegionDepCSOk:=", False])
         return True
 
 
@@ -425,9 +504,8 @@ class GeometryModeler(Modeler, object):
         """
         self._parent = parent
         Modeler.__init__(self, parent)
-        self.coordinate_system = CoordinateSystem(self)
         self.coordinate_systems = self._get_coordinates_data()
-        self._is3d=is3d
+        self._is3d = is3d
 
     @property
     def materials(self):
@@ -465,25 +543,59 @@ class GeometryModeler(Modeler, object):
                 output_list.append(el)
         return output_list
 
-
-
     @aedt_exception_handler
     def _get_coordinates_data(self):
         """ """
         coord = []
+        id2name = {1: 'Global'}
+        name2refid = {}
         if self._parent.design_properties and 'ModelSetup' in self._parent.design_properties:
             cs = self._parent.design_properties['ModelSetup']["GeometryCore"]["GeometryOperations"]["CoordinateSystems"]
             for ds in cs:
                 try:
                     if type(cs[ds]) is OrderedDict:
-                        coord.append(CoordinateSystem(self, cs[ds]['RelativeCSParameters'], cs[ds]["Attributes"]["Name"]))
+                        props = cs[ds]['RelativeCSParameters']
+                        name = cs[ds]["Attributes"]["Name"]
+                        cs_id = cs[ds]["ID"]
+                        id2name[cs_id] = name
+                        name2refid[name] = cs[ds]['ReferenceCoordSystemID']
+                        coord.append(CoordinateSystem(self, props, name))
                     elif type(cs[ds]) is list:
                         for el in cs[ds]:
-                            coord.append(CoordinateSystem(self, el['RelativeCSParameters'], el["Attributes"]["Name"]))
+                            props = el['RelativeCSParameters']
+                            name = el["Attributes"]["Name"]
+                            cs_id = el["ID"]
+                            id2name[cs_id] = name
+                            name2refid[name] = el['ReferenceCoordSystemID']
+                            coord.append(CoordinateSystem(self, props, name))
+                except:
+                    pass
+            for cs in coord:
+                try:
+                    cs.ref_cs = id2name[name2refid[cs.name]]
+                    if cs.props['Mode'] == 'Axis/Position':
+                        x1 = GeometryOperators.parse_dim_arg(cs.props['XAxisXvec'])
+                        x2 = GeometryOperators.parse_dim_arg(cs.props['XAxisYvec'])
+                        x3 = GeometryOperators.parse_dim_arg(cs.props['XAxisZvec'])
+                        y1 = GeometryOperators.parse_dim_arg(cs.props['YAxisXvec'])
+                        y2 = GeometryOperators.parse_dim_arg(cs.props['YAxisYvec'])
+                        y3 = GeometryOperators.parse_dim_arg(cs.props['YAxisZvec'])
+                        x, y, z = GeometryOperators.pointing_to_axis([x1, x2, x3], [y1, y2, y3])
+                        a, b, g = GeometryOperators.axis_to_euler_zyz(x, y, z)
+                        cs.quaternion = GeometryOperators.euler_zyz_to_quaternion(a, b, g)
+                    elif cs.props['Mode'] == 'Euler Angle ZXZ':
+                        a = GeometryOperators.parse_dim_arg(cs.props['Phi'])
+                        b = GeometryOperators.parse_dim_arg(cs.props['Theta'])
+                        g = GeometryOperators.parse_dim_arg(cs.props['Psi'])
+                        cs.quaternion = GeometryOperators.euler_zxz_to_quaternion(a, b, g)
+                    elif cs.props['Mode'] == 'Euler Angle ZYZ':
+                        a = GeometryOperators.parse_dim_arg(cs.props['Phi'])
+                        b = GeometryOperators.parse_dim_arg(cs.props['Theta'])
+                        g = GeometryOperators.parse_dim_arg(cs.props['Psi'])
+                        cs.quaternion = GeometryOperators.euler_zyz_to_quaternion(a, b, g)
                 except:
                     pass
         return coord
-
 
     def __get__(self, instance, owner):
         self._parent = instance
@@ -498,8 +610,6 @@ class GeometryModeler(Modeler, object):
     def model_units(self):
         """ """
         return retry_ntimes(10, self.oeditor.GetModelUnits)
-
-
 
     @model_units.setter
     def model_units(self, units):
@@ -582,8 +692,149 @@ class GeometryModeler(Modeler, object):
         return list(objects)
 
     @aedt_exception_handler
+    def create_coordinate_system(self, origin=None, reference_cs='Global', name=None,
+                                 mode='axis', view='iso',
+                                 x_pointing=None, y_pointing=None,
+                                 psi=0, theta=0, phi=0, u=None):
+        """ Creates a Coordinate system.
+        Specify the mode = 'view', 'axis', 'zxz', 'zyz', 'axisrotation'. Default = 'axis'
+        If mode = 'view', specify view = 'XY', 'XZ', 'XY', 'iso', 'rotate' (obsolete)
+        If mode = 'axis', specify x_pointing and y_pointing
+        If mode = 'zxz' or 'zyz', specify phi, theta, psi
+        If mode = 'axisrotation', specify u, theta
+
+        Parameters not needed by the specified mode are ignored.
+        For back compatibility, view='rotate' is the same as mode='axis'.
+        Default is a coordinate system parallel to the Global centered in the Global origin.
+
+        Parameters
+        ----------
+        origin : list
+            origin of the CS (Default value = [0, 0, 0])
+
+        name : str
+            name of the CS (Default value = None)
+
+        reference_cs : str
+             Reference coordinate system name (Default value = "Global")
+
+        mode: str
+            Definition mode. 'view', 'axis', 'zxz', 'zyz', 'axisrotation'. Default = 'axis'
+
+        view : str
+            View. Default "iso". possible "XY", "XZ", "XY", None, "rotate"
+            "rotate" is obsolete, simply specify mode = 'axis'.
+
+        x_pointing : list
+            if mode="axis", this is a 3 elements list specifying the X axis pointing in the global CS
+            (Default value = [1, 0, 0])
+
+        y_pointing : list
+            if mode="axis", this is a 3 elements list specifying the Y axis pointing in the global CS
+            (Default value = [0, 1, 0])
+
+        phi : float
+            Euler angle phi in degrees (Default value = 0)
+
+        theta : float
+            Euler angle theta in degrees, or orataion angle in degrees (Default value = 0)
+
+        psi : float
+            Euler angle psi in degrees (Default value = 0)
+
+        u : list
+            rotation axis in format [ux, uy, uz] (Default value = [1, 0, 0])
+
+        Returns
+        -------
+        CoordinateSystem
+            CS object
+        """
+        if name:
+            cs_names = [i.name for i in self.coordinate_systems]
+            if name in cs_names:
+                raise AttributeError('A coordinate system with the specified name already exists!')
+
+        cs = CoordinateSystem(self)
+        if cs:
+            result = cs.create(origin=origin, reference_cs=reference_cs, name=name,
+                               mode=mode, view=view,
+                               x_pointing=x_pointing, y_pointing=y_pointing,
+                               phi=phi, theta=theta, psi=psi, u=u)
+            if result:
+                self.coordinate_systems.append(cs)
+                return cs
+        return False
+
+    @aedt_exception_handler
+    def global_to_cs(self, point, ref_cs):
+        """ Transforms a point from the global coordinate system to the specified coordinate system.
+
+        Parameters
+        ----------
+        point : list
+            point in format [x, y, z]
+
+        ref_cs : name
+            name of the destination reference system
+
+        Returns
+        -------
+        list
+            transformed point coordinates [x, y, z]
+        """
+        if type(point) is not list or len(point) != 3:
+            raise AttributeError('point must be in format [x, y, z]')
+        try:
+            point = [float(i) for i in point]
+        except:
+            raise AttributeError('point must be in format [x, y, z]')
+        if ref_cs == 'Global':
+            return point
+        cs_names = [i.name for i in self.coordinate_systems]
+        if ref_cs not in cs_names:
+            raise AttributeError('Specified coordinate system does not exist in the design!')
+
+        def get_total_transformation(p, cs):
+            idx = cs_names.index(cs)
+            q = self.coordinate_systems[idx].quaternion
+            ox = GeometryOperators.parse_dim_arg(self.coordinate_systems[idx].props['OriginX'], self.model_units)
+            oy = GeometryOperators.parse_dim_arg(self.coordinate_systems[idx].props['OriginY'], self.model_units)
+            oz = GeometryOperators.parse_dim_arg(self.coordinate_systems[idx].props['OriginZ'], self.model_units)
+            o = [ox, oy, oz]
+            refcs = self.coordinate_systems[idx].ref_cs
+            if refcs == 'Global':
+                p1 = p
+            else:
+                p1 = get_total_transformation(p, refcs)
+            p2 = GeometryOperators.q_rotation_inv(GeometryOperators.v_sub(p1, o), q)
+            return p2
+
+        return get_total_transformation(point, ref_cs)
+
+    @aedt_exception_handler
+    def set_working_coordinate_system(self, name):
+        """ Set the working coordinate system to name.
+
+        Parameters
+        ----------
+        name : str
+            name of CS to become active
+
+        Returns
+        -------
+        bool
+            True if operation succeeded, False otherwise
+        """
+        self.oeditor.SetWCS([
+            "NAME:SetWCS Parameter",
+            "Working Coordinate System:=", name,
+            "RegionDepCSOk:=", False])
+        return True
+
+    @aedt_exception_handler
     def add_workbench_link(self, objects, ambient_temp=22, create_project_var=False, enable_deformation=True):
-        """Assign Temperature and Deformation Objects for WorkBench Link. From 2020R2 Material needs to have Thermal Modifierl
+        """Assign Temperature and Deformation Objects for WorkBench Link. From 2020R2 Material needs to have Thermal Modifier
 
         Parameters
         ----------
