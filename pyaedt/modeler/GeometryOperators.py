@@ -15,8 +15,8 @@ class GeometryOperators(object):
 
         Parameters
         ----------
-        input_list :
-            List to be converted in Python list
+        input_list : List
+            List to be converted in Python list.
 
         Returns
         -------
@@ -319,7 +319,7 @@ class GeometryOperators(object):
         Returns
         -------
         list
-            result vector. Same lenght as input vector v.
+            result vector. Same length as input vector v.
         """
         r = [s * i for i in v]
         return r
@@ -460,7 +460,7 @@ class GeometryOperators(object):
         pointlists : list
             
         direction : int
-             (Default value = 0)
+             The default is `0`
 
         Returns
         -------
@@ -482,20 +482,20 @@ class GeometryOperators(object):
     @staticmethod
     @aedt_exception_handler
     def distance_vector(p, a, b):
-        """Evaluates the vector distance between a point p and a line defined by two points a and b.
-        The used formula is   d = (a-p)-((a-p)dot p)n
+        """Evaluates the vector distance between a point p and a line defined by two points, a and b.
+        The formula used is  d = (a-p)-((a-p)dot p)n,
         where a is a point of the line (either a or b) and n is the unit vector in the direction of the line.
 
         Parameters
         ----------
         p : list
-            reference point [x, y, z]
+            Reference point [x, y, z]
 
         a : list
-            first point of the segment [x, y, z]
+            First point of the segment [x, y, z]
 
         b : list
-            second point of the segment [x, y, z]
+            Second point of the segment [x, y, z]
 
         Returns
         -------
@@ -513,21 +513,21 @@ class GeometryOperators(object):
     @staticmethod
     @aedt_exception_handler
     def is_between_points(p, a, b, tol=1e-6):
-        """Returns True if p lies on the segment defined by points a1 and a2, False otherwise.
+        """ Returns True if p lies on the segment defined by points a1 and a2, False otherwise.
 
         Parameters
         ----------
         p : list
-            reference point [x, y, z]
+            Reference point [x, y, z]
 
         a : list
-            first point of the segment [x, y, z]
+            First point of the segment [x, y, z]
 
         b : list
-            second point of the segment [x, y, z]
+            Second point of the segment [x, y, z]
 
         tol : float
-            set the linear tolerance (Default value = 1e-6)
+            Linear tolerance. The default value is ``1e-6``.
 
         Returns
         -------
@@ -552,19 +552,19 @@ class GeometryOperators(object):
         Parameters
         ----------
         a1 : list
-            first point of segment a [x, y, z]
+            First point of segment a [x, y, z]
 
         a2 : list
-            second point of segment a [x, y, z]
+            Second point of segment a [x, y, z]
 
         b1 : list
-            first point of segment b [x, y, z]
+            First point of segment b [x, y, z]
 
         b2 : list
-            second point of segment b [x, y, z]
+            Second point of segment b [x, y, z]
 
         tol : float
-            set the linear tolerance (Default value = 1e-6)
+            Linear tolerance. The default value is ``1e-6``.
 
         Returns
         -------
