@@ -4,7 +4,7 @@ Coordinate Sytems creation example
 ----------------------------------
 This tutorial shows how you can use PyAedt to create and modify the coordinate systems in the modeler.
 """
-# sphinx_gallery_thumbnail_path = 'Resources/Dipole.png'
+# sphinx_gallery_thumbnail_path = 'Resources/coordinate_system.png'
 
 import os
 from pyaedt import Hfss
