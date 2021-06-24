@@ -68,17 +68,11 @@ class TestHFSS:
             ("die", {})
         ]
     )
-    def test_04a_assign_coating(self, object_name, kwargs):
+    def test_04_assign_coating(self, object_name, kwargs):
         id = self.aedtapp.modeler.primitives.get_obj_id(object_name)
         coat = self.aedtapp.assigncoating([id], **kwargs)
         material = coat.props.get("Material", "")
         assert material == kwargs.get("mat", "")
-
-    def test_04b_assign_coating(self):
-        id1 = self.aedtapp.modeler.primitives.get_obj_id("inner")
-        coat = self.aedtapp.assigncoating([id1], "copper")
-        assert coat
-        assert self.aedtapp.assigncoating([id1], usehuray=True, usethickness=True, istwoside=True)
 
     def test_05_create_wave_port_from_sheets(self):
         udp = self.aedtapp.modeler.Position(0, 0, 0)
@@ -251,7 +245,6 @@ class TestHFSS:
         bound.props["Faces"].append(self.aedtapp.modeler.primitives["My_Box"].faces[1])
         assert bound.update_assignment()
 
-
     def test_18_create_sources_on_objects(self):
         box1 = self.aedtapp.modeler.primitives.create_box([30,0,0], [40,10,5], "BoxVolt1", "Copper")
         box2 = self.aedtapp.modeler.primitives.create_box([30, 0, 10], [40, 10, 5], "BoxVolt2", "Copper")
@@ -259,7 +252,6 @@ class TestHFSS:
         assert port in self.aedtapp.modeler.get_excitations_name()
         port = self.aedtapp.create_current_source_from_objects("BoxVolt1", "BoxVolt2", self.aedtapp.AxisDir.XPos, "Curr1")
         assert port in self.aedtapp.modeler.get_excitations_name()
-
 
     def test_19_create_lumped_on_sheet(self):
         rect = self.aedtapp.modeler.primitives.create_rectangle(self.aedtapp.CoordinateSystemPlane.XYPlane, [0, 0, 0],
@@ -387,3 +379,9 @@ class TestHFSS:
 
     def test_39_set_source_contexts(self):
         assert self.aedtapp.set_source_context(["port10", "port11"])
+
+    def test_40_assign_current_source_to_sheet(self):
+        sheet_name = "RectangleForSource"
+        self.aedtapp.modeler.primitives.create_rectangle(self.aedtapp.CoordinateSystemPlane.XYPlane, [0, 0, 0], 
+                                                         [5, 1], sheet_name, "Copper")
+        assert self.aedtapp.assign_current_source_to_sheet(sheet_name)

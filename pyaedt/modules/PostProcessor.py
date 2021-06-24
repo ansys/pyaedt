@@ -1074,29 +1074,6 @@ class PostProcessor(object):
         return plot
 
     @aedt_exception_handler
-    def createRelativeCoordinateSystemForExport(self, coordinateSystem, origin=None, view=None):
-        """
-
-        Parameters
-        ----------
-        coordinateSystem :
-            input coordinate system object
-        origin :
-            origin of the coordinate system (Default value = None)
-        view :
-            view type ("iso", "XY", "XZ", "YZ") (Default value = None)
-
-        Returns
-        -------
-        type
-            True
-
-        """
-        coordinateSystem.create(origin=origin, view=view)
-        coordinateSystem.setWorkingCoordinateSystem()
-        return True
-
-    @aedt_exception_handler
     def export_field_jpg(self, fileName, plotName, coordinateSystemName):
         """Given a specific plotname and coordinate system name it export the plot to jpg
 
@@ -1120,7 +1097,6 @@ class PostProcessor(object):
         self.ofieldsreporter.ExportPlotImageToFile(fileName, "", plotName, coordinateSystemName)
         return True
 
-
     @aedt_exception_handler
     def export_field_image_with_View(self, plotName, exportFilePath, view="iso", wireframe=True):
         """NOTE: on AEDT 2019.3 it works only on ISO view due to a bug in API. It woks fine from 2021R1
@@ -1142,22 +1118,21 @@ class PostProcessor(object):
             True
 
         """
-        coordinateSystemForExportPlot = CoordinateSystem(self.modeler)
         bound = self.modeler.get_model_bounding_box()
         center = [(float(bound[0]) + float(bound[3])) / 2,
                   (float(bound[1]) + float(bound[4])) / 2,
                   (float(bound[2]) + float(bound[5])) / 2]
-        self.createRelativeCoordinateSystemForExport(coordinateSystemForExportPlot, center, view)
+        coordinateSystemForExportPlot = self.modeler.create_coordinate_system(origin=center, mode='view', view=view)
         wireframes = []
         if wireframe:
             names = self._primitives.get_all_objects_names()
             for el in names:
                 if not self._primitives[el].wireframe:
                     wireframes.append(el)
-                    self._primitives[el].display_wireframe(True)
+                    self._primitives[el].display_wireframe = True
         status = self.export_field_jpg(exportFilePath, plotName, coordinateSystemForExportPlot.name)
         for solid in wireframes:
-            self._primitives[solid].display_wireframe(False)
+            self._primitives[solid].display_wireframe = False
         coordinateSystemForExportPlot.delete()
         return status
 

@@ -121,7 +121,7 @@ class Hfss3dLayout(FieldAnalysis3DLayout, object):
     """
 
     def __init__(self, projectname=None, designname=None, solution_type=None, setup_name=None,
-                 specified_version=None, NG=False, AlwaysNew=True, release_on_exit=True):
+                 specified_version=None, NG=False, AlwaysNew=False, release_on_exit=False):
         FieldAnalysis3DLayout.__init__(self, "HFSS 3D Layout Design", projectname, designname, solution_type,
                                        setup_name, specified_version, NG, AlwaysNew, release_on_exit)
 
@@ -421,7 +421,7 @@ class Hfss3dLayout(FieldAnalysis3DLayout, object):
         if not sweep_name:
             sweep_name = self.existing_analysis_sweeps[1]
         if not port_names:
-            port_names = self.modeler.get_excitations_name()
+            port_names = self.get_excitations_name
         if not port_excited:
             port_excited= port_names
         Trace = ["X Component:=", "Freq", "Y Component:=", ["dB(S(" + p + "," + q + "))" for p,q in zip(list(port_names), list(port_excited))]]
@@ -430,6 +430,8 @@ class Hfss3dLayout(FieldAnalysis3DLayout, object):
             solution_data = "Modal Solution Data"
         elif self.solution_type == "DrivenTerminal":
             solution_data = "Terminal Solution Data"
+        elif self.solution_type == "HFSS3DLayout":
+            solution_data = "Standard"
         if solution_data != "":
             # run CreateReport function
             self.post.oreportsetup.CreateReport(

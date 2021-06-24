@@ -14,3 +14,7 @@ Modeler
 
 .. autoclass:: pyaedt.modeler.Modeler.CoordinateSystem
     :members:
+
+.. automodule:: pyaedt.modeler.GeometryOperators
+    :members:
+

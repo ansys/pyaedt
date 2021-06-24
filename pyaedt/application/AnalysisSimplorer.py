@@ -59,7 +59,7 @@ class FieldAnalysisSimplorer(Analysis):
 
 
     def __init__(self, application, projectname, designname, solution_type, setup_name=None,
-                 specified_version=None, NG=False, AlwaysNew=True, release_on_exit=True):
+                 specified_version=None, NG=False, AlwaysNew=False, release_on_exit=False):
         self.solution_type = solution_type
         Analysis.__init__(self, application, projectname, designname, solution_type, setup_name,
                           specified_version, NG, AlwaysNew, release_on_exit)

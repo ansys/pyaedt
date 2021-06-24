@@ -7,6 +7,7 @@ import gc
 
 # Import required modules
 from pyaedt import Hfss3dLayout
+from pyaedt.hfss3dlayout import SweepString
 from pyaedt.generic.filesystem import Scratch
 
 # Input Data and version for the test
@@ -62,7 +63,6 @@ class Test3DLayout:
     def test_08_objectlist(self):
         a = self.aedtapp.modeler.primitives.geometries
         assert len(a) > 0
-
 
     def test_09_modify_padstack(self):
         pad_0 = self.aedtapp.modeler.primitives.padstacks["PlanarEMVia"]
@@ -197,3 +197,32 @@ class Test3DLayout:
 
     def test_duplicate(self):
         assert self.aedtapp.modeler.duplicate("myrectangle",2, [1,1])
+
+    def test_sweep_string_linear_step(self):
+        sweep_string = SweepString()
+        assert sweep_string.get_string() == None
+        sweep_string.add_sweep([10, 20, 1], "linear_step", "MHz")
+        result = sweep_string.get_string()
+        assert result == "LIN 10MHz 20MHz 1MHz"
+
+    def test_sweep_string_log_scale(self):
+        sweep_string = SweepString()
+        sweep_string.add_sweep([1, 1000, 100], "log_scale", "kHz")
+        result = sweep_string.get_string()
+        assert result == "DEC 1kHz 1000kHz 100"
+
+    def test_sweep_string_log_scale(self):
+        sweep_string = SweepString()
+        sweep_string.add_sweep([7, 13, 17, 19, 23], "single", "GHz")
+        result = sweep_string.get_string()
+        assert result == "7GHz 13GHz 17GHz 19GHz 23GHz"
+
+    def test_sweep_not_supported_type(self):
+        sweep_string = SweepString()
+        assert not sweep_string.add_sweep([7, 13, 17, 19, 23], "not_supported", "GHz")
+        
+    def test_create_pin_port(self):
+        assert self.aedtapp.create_pin_port("PinPort1")
+
+    def test_create_scattering(self):
+        assert self.aedtapp.create_scattering()

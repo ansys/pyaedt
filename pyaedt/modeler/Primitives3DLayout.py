@@ -8,7 +8,7 @@ from .Primitives import _ironpython, default_materials
 from .GeometryOperators import GeometryOperators
 import pkgutil
 modules = [tup[1] for tup in pkgutil.iter_modules()]
-if 'clr' in modules:
+if 'clr' in modules or _ironpython:
     import clr
     from System import String
 
@@ -54,7 +54,7 @@ class Primitives3DLayout(object):
     def geometries(self):
         """:return: Geometries List from EDB. If no EDB is present none is returned"""
         try:
-            prims = self.modeler.edb.active_layout.Primitives
+            prims = self.modeler.edb.core_primitives.primitives
         except:
             prims = []
         for el in prims:

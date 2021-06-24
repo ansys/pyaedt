@@ -46,6 +46,15 @@ class TestEDB:
         assert len(self.edbapp.core_components.IOs)>0
         assert len(self.edbapp.core_components.Others)>0
 
+    def test_get_primitives(self):
+        assert len(self.edbapp.core_primitives.polygons)>0
+        assert len(self.edbapp.core_primitives.paths)>0
+        assert len(self.edbapp.core_primitives.rectangles)>0
+        assert len(self.edbapp.core_primitives.circles)>0
+        assert len(self.edbapp.core_primitives.bondwires) == 0
+        assert len(self.edbapp.core_primitives.polygons_by_layer["TOP"])>0
+        assert len(self.edbapp.core_primitives.polygons_by_layer["UNNAMED_000"]) == 0
+
 
     def test_get_stackup(self):
         stackup = self.edbapp.core_stackup.stackup_layers
@@ -334,10 +343,9 @@ class TestEDB:
         pins = self.edbapp.core_components.get_pin_from_component("R13")
         assert self.edbapp.core_components.create_component_from_pins(pins, "newcomp")
 
-
     def test_create_cutout(self):
         output = os.path.join(self.local_scratch.path, "cutout.aedb")
-        assert self.edbapp.create_cutout(["A0_N", "A0_P"],["GND","V3P3_S0"], output_aedb_path=output)
+        assert self.edbapp.create_cutout(["A0_N", "A0_P"], ["GND"], output_aedb_path=output)
         assert os.path.exists(os.path.join(output, "edb.def"))
 
     def test_rvalue(self):
@@ -361,13 +369,13 @@ class TestEDB:
         void2 = self.edbapp.core_primitives.Shape('rectangle', [-0.002, 0.0], [-0.015, 0.0005])
         assert self.edbapp.core_primitives.create_polygon(plane, "TOP", [void1, void2])
         points = [
-            [0, 0],
+            [0, 0,1],
 
         ]
         plane = self.edbapp.core_primitives.Shape('polygon', points=points)
         assert not self.edbapp.core_primitives.create_polygon(plane, "TOP")
         points = [
-            [0.1, 0],
+            [0.1, "s"],
 
         ]
         plane = self.edbapp.core_primitives.Shape('polygon', points=points)
@@ -377,16 +385,7 @@ class TestEDB:
         ]
         plane = self.edbapp.core_primitives.Shape('polygon', points=points)
         assert not self.edbapp.core_primitives.create_polygon(plane, "TOP")
-        points = [
-            [0.001, -0.001, "ccw", 0, -0.0012]
-        ]
-        plane = self.edbapp.core_primitives.Shape('polygon', points=points)
-        assert not self.edbapp.core_primitives.create_polygon(plane, "TOP")
-        points = [
-            [0.001, -0.001, "ccw", 0.0, -1]
-        ]
-        plane = self.edbapp.core_primitives.Shape('polygon', points=points)
-        assert not self.edbapp.core_primitives.create_polygon(plane, "TOP")
+
 
     def test_create_path(self):
         points = [

@@ -1,7 +1,8 @@
 import os
 # Setup paths for module imports
-from .conftest import local_path, scratch_path
+from .conftest import local_path, scratch_path, config
 import gc
+import pytest
 
 # Import required modules
 from pyaedt import Circuit
