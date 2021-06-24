@@ -16,12 +16,10 @@ class EDBLayer(object):
     """ """
     @property
     def stackup_methods(self):
-        """ """
         return self._parent.stackup_methods
 
     @property
     def builder(self):
-        """ """
         return self._parent.builder
 
     def __init__(self, edblayer, parent):
@@ -43,7 +41,6 @@ class EDBLayer(object):
 
     @aedt_exception_handler
     def init_vals(self):
-        """ """
         try:
             self._name = self._layer.GetName()
             self._layer_type = self._layer.GetLayerType()
@@ -60,41 +57,59 @@ class EDBLayer(object):
 
     @property
     def messenger(self):
-        """ """
         return self._parent._messenger
 
     @property
     def name(self):
-        """ """
+        """
+
+        Returns
+        -------
+        str
+            Layer Name
+        """
         if not self._name:
             self._name = self._layer.GetName()
         return self._name
 
     @property
     def id(self):
-        """ """
+        """
+
+        Returns
+        -------
+        int
+            Layer ID
+        """
         if not self._id:
             self._id = self._layer.GetLayerId()
         return self._id
 
     @property
     def layer_type(self):
-        """ """
+        """
+
+        Parameters
+        ----------
+        self
+
+        Returns
+        -------
+        int
+            Layer Type
+        """
         if not self._layer_type:
             self._layer_type = self._layer.GetLayerType()
         return self._layer_type
 
     @layer_type.setter
     def layer_type(self, value):
-        """
+        """Change Layer Type
 
         Parameters
         ----------
-        value :
-            
-
-        Returns
-        -------
+        value : int
+            layer type
 
         """
         self._layer_type = value
@@ -102,7 +117,13 @@ class EDBLayer(object):
 
     @property
     def material_name(self):
-        """ """
+        """
+
+        Returns
+        -------
+        str
+            material name
+        """
         try:
             self._material_name = self._layer.GetMaterial()
         except:
@@ -111,16 +132,12 @@ class EDBLayer(object):
 
     @material_name.setter
     def material_name(self, value):
-        """
+        """Set the material name
 
         Parameters
         ----------
-        value :
-            
-
-        Returns
-        -------
-
+        value : str
+            Material name
         """
         #self.stackup_methods.EditLayerName(self.builder, self._name, value)
         self._material_name = value
@@ -128,7 +145,13 @@ class EDBLayer(object):
 
     @property
     def thickness_value(self):
-        """ """
+        """
+
+        Returns
+        -------
+        str
+            thickness value
+        """
         try:
             self._thickness = self._layer.GetThicknessValue().ToString()
         except:
@@ -141,12 +164,8 @@ class EDBLayer(object):
 
         Parameters
         ----------
-        value :
-            
-
-        Returns
-        -------
-
+        value : str, float
+            thickness
         """
         #self.stackup_methods.SetLayerThickness(self.builder, self.name, value)
         self._thickness = value
@@ -154,7 +173,13 @@ class EDBLayer(object):
 
     @property
     def filling_material_name(self):
-        """ """
+        """
+
+        Returns
+        -------
+        str
+            Filling material name if exists
+        """
         if self._layer_type == 0 or self._layer_type == 2:
             try:
                 self._filling_material_name = self._layer.GetFillMaterial()
@@ -165,16 +190,12 @@ class EDBLayer(object):
 
     @filling_material_name.setter
     def filling_material_name(self, value):
-        """
+        """Set the filling material
 
         Parameters
         ----------
-        value :
-            
-
-        Returns
-        -------
-
+        value : str
+            Filling material
         """
         if self._layer_type == 0 or self._layer_type == 2:
             self._filling_material_name = value
@@ -182,7 +203,13 @@ class EDBLayer(object):
 
     @property
     def top_bottom_association(self):
-        """ """
+        """
+
+        Returns
+        -------
+        int
+            Top Bottom Association layer
+        """
         try:
             self._top_bottom_association = self._layer.GetTopBottomAssociation()
         except:
@@ -191,7 +218,13 @@ class EDBLayer(object):
 
     @property
     def lower_elevation(self):
-        """ """
+        """
+
+        Returns
+        -------
+        float
+            lower elevation
+        """
         try:
             self._lower_elevation = self._layer.GetLowerElevation()
         except:
@@ -201,22 +234,23 @@ class EDBLayer(object):
     @lower_elevation.setter
     def lower_elevation(self, value):
         """
-
         Parameters
         ----------
-        value :
-            
-
-        Returns
-        -------
-
+        value : float
+            Lower Elevation
         """
         self._lower_elevation = value
         self.update_layers()
 
     @property
     def upper_elevation(self):
-        """ """
+        """
+
+        Returns
+        -------
+        float
+            upper elevation
+        """
         try:
             self._upper_elevation = self._layer.GetUpperElevation()
         except:
@@ -225,7 +259,13 @@ class EDBLayer(object):
 
     @property
     def etch_factor(self):
-        """ """
+        """
+
+        Returns
+        -------
+        float
+            etch factor if exists, otherwise 0
+        """
         if self._layer_type == 0 or self._layer_type == 2:
             try:
                 self._etch_factor = self._layer.GetEtchFactor().ToString()
@@ -240,11 +280,8 @@ class EDBLayer(object):
 
         Parameters
         ----------
-        value :
-            
-
-        Returns
-        -------
+        value : float
+            Sets the etch factor
 
         """
         if self._layer_type == 0 or self._layer_type==2:
@@ -253,29 +290,6 @@ class EDBLayer(object):
 
     @aedt_exception_handler
     def update_layer_vals(self, layerName, newLayer, etchMap, materialMap, fillMaterialMap, thicknessMap, layerTypeMap):
-        """
-
-        Parameters
-        ----------
-        layerName :
-            
-        newLayer :
-            
-        etchMap :
-            
-        materialMap :
-            
-        fillMaterialMap :
-            
-        thicknessMap :
-            
-        layerTypeMap :
-            
-
-        Returns
-        -------
-
-        """
         newLayer.SetName(layerName)
 
         if layerTypeMap == 0 or layerTypeMap == self.edb.Cell.LayerType.SignalLayer:
@@ -312,8 +326,7 @@ class EDBLayer(object):
 
         Returns
         -------
-        type
-            layer
+        layer
 
         """
         layer.SetLowerElevation(self.edb.Utility.Value(elev))
@@ -379,36 +392,52 @@ class EDBLayers(object):
 
     def __getitem__(self, layername):
         """
-        :return: part object details
+
+        Parameters
+        ----------
+        layername : str
+
+        Returns
+        -------
+        EDBLayer
         """
+
         return self.layers[layername]
 
 
     @property
     def edb(self):
-        """ """
         return self._parent.edb
 
     @property
     def builder(self):
-        """ """
         return self._parent.builder
 
     @property
     def active_layout(self):
-        """ """
         return self._parent.active_layout
 
     @property
     def layers(self):
-        """ """
+        """
+
+        Returns
+        -------
+        dict
+            Dictionary of layers
+        """
         if not self._edb_object:
             self._update_edb_objects()
         return self._edb_object
 
     @property
     def edb_layers(self):
-        """ """
+        """
+
+        Returns
+        -------
+        list
+        """
         allLayers = list(list(self.layer_collection.Layers(self.edb.Cell.LayerTypeSet.AllLayerSet)))
         allStckuplayers = filter(lambda lyr: (lyr.GetLayerType() == self.edb.Cell.LayerType.DielectricLayer) or (
                 lyr.GetLayerType() == self.edb.Cell.LayerType.SignalLayer or lyr.GetLayerType() == self.edb.Cell.LayerType.ConductingLayer), allLayers)
@@ -416,6 +445,13 @@ class EDBLayers(object):
 
     @property
     def signal_layers(self):
+        """
+
+        Returns
+        -------
+        dict
+            Dictionary of Signal Layers
+        """
         self._signal_layers = {}
         for layer, edblayer in self.layers.items():
             if edblayer._layer_type == self.edb.Cell.LayerType.SignalLayer or edblayer._layer_type == self.edb.Cell.LayerType.ConductingLayer:
@@ -425,28 +461,45 @@ class EDBLayers(object):
 
     @property
     def layer_collection(self):
-        """ """
+        """
+
+        Returns
+        -------
+        Edb Layer Collection
+        """
         return self.edb.Cell.LayerCollection(self.active_layout.GetLayerCollection())
 
     @property
     def layer_collection_mode(self):
-        """ """
         return self._parent.edb.Cell.LayerCollectionMode
 
     @property
     def layer_types(self):
-        """ """
+        """
+
+        Returns
+        -------
+        LayerType
+        """
         return self._parent.edb.Cell.LayerType
 
     @property
     def stackup_mode(self):
-        """ """
+        """
+
+        Returns
+        -------
+        int
+            Stackup Mode.
+            0 - Laminate
+            1 - Overlapping
+            2 - Multizone
+        """
         self._stackup_mode = self.layer_collection.GetMode()
         return self._stackup_mode
 
     @property
     def messenger(self):
-        """ """
         return self._parent._messenger
 
     @stackup_mode.setter
@@ -471,7 +524,6 @@ class EDBLayers(object):
 
     @aedt_exception_handler
     def _update_edb_objects(self):
-        """ """
         self._edb_object = OrderedDict(defaultdict(EDBLayer))
         layers = self.edb_layers
         for i in range(len(layers)):
@@ -592,27 +644,22 @@ class EDBLayers(object):
 class EDBPadProperties(object):
     @property
     def _padstack_methods(self):
-        """ """
         return self._parent._padstack_methods
 
     @property
     def _stackup_layers(self):
-        """ """
         return self._parent._stackup_layers
 
     @property
     def _builder(self):
-        """ """
         return self._parent._builder
 
     @property
     def _edb(self):
-        """ """
         return self._parent._edb
 
     @property
     def _edb_value(self):
-        """ """
         return self._parent._edb_value
 
     def __init__(self, edb_padstack, layer_name, pad_type, parent):
@@ -624,16 +671,37 @@ class EDBPadProperties(object):
 
     @property
     def geometry_type(self):
+        """
+
+        Returns
+        -------
+        int
+            Geometry Type
+        """
         padparams = self._padstack_methods.GetPadParametersValue(self._edb_padstack, self.layer_name, self.pad_type)
         return padparams.Item1
 
     @property
     def parameters(self):
+        """
+
+        Returns
+        -------
+        list
+            List of values
+        """
         pad_values = self._padstack_methods.GetPadParametersValue(self._edb_padstack, self.layer_name, self.pad_type)
         return [i.ToString() for i in pad_values.Item2]
 
     @parameters.setter
     def parameters(self, propertylist):
+        """
+
+        Parameters
+        ----------
+        propertylist : list
+            parameters list to update
+        """
         if not isinstance(propertylist, list):
             propertylist =[self._edb_value(propertylist)]
         else:
@@ -642,28 +710,70 @@ class EDBPadProperties(object):
 
     @property
     def offset_x(self):
+        """
+
+        Returns
+        -------
+        str
+            Offset X
+        """
         pad_values = self._padstack_methods.GetPadParametersValue(self._edb_padstack, self.layer_name, self.pad_type)
         return pad_values.Item3.ToString()
 
     @offset_x.setter
     def offset_x(self, offset_value):
+        """
+
+        Parameters
+        ----------
+        offset_value : float, str
+            New Offset X Value
+        """
         self._update_pad_parameters_parameters(offsetx= offset_value)
     @property
     def offset_y(self):
+        """
+
+        Returns
+        -------
+        str
+            Offset Y
+        """
         pad_values = self._padstack_methods.GetPadParametersValue(self._edb_padstack, self.layer_name, self.pad_type)
         return pad_values.Item4.ToString()
 
     @offset_y.setter
     def offset_y(self, offset_value):
+        """
+
+        Parameters
+        ----------
+        offset_value : float, str
+            New Offset Y Value
+        """
         self._update_pad_parameters_parameters(offsety = offset_value)
 
     @property
     def rotation(self):
+        """
+
+        Returns
+        -------
+        str
+            Rotation Value
+        """
         pad_values = self._padstack_methods.GetPadParametersValue(self._edb_padstack, self.layer_name, self.pad_type)
         return pad_values.Item5.ToString()
 
     @rotation.setter
     def rotation(self, rotation_value):
+        """
+
+        Parameters
+        ----------
+        rotation_value : float, str
+            New Rotation Value
+        """
         self._update_pad_parameters_parameters(rotation=rotation_value)
 
     @aedt_exception_handler
@@ -695,27 +805,22 @@ class EDBPadstack(object):
 
     @property
     def _padstack_methods(self):
-        """ """
         return self._parent.padstack_methods
 
     @property
     def _stackup_layers(self):
-        """ """
         return self._parent._stackup_layers
 
     @property
     def _builder(self):
-        """ """
         return self._parent.builder
 
     @property
     def _edb(self):
-        """ """
         return self._parent.edb
 
     @property
     def _edb_value(self):
-        """ """
         return self._parent.edb_value
 
     def __init__(self, edb_padstack, parent):
@@ -733,14 +838,35 @@ class EDBPadstack(object):
 
     @property
     def via_layers(self):
+        """
+
+        Returns
+        -------
+        list
+            List of Layer Names
+        """
         return self.edb_padstack.GetData().GetLayerNames()
 
     @property
     def via_start_layer(self):
+        """
+
+        Returns
+        -------
+        str
+            Start Layer
+        """
         return self.via_layers[0]
 
     @property
     def via_stop_layer(self):
+        """
+
+        Returns
+        -------
+        str
+            Stop Layer
+        """
         return self.via_layers[-1]
 
     @property
@@ -757,6 +883,13 @@ class EDBPadstack(object):
 
     @property
     def hole_parameters(self):
+        """
+
+        Returns
+        -------
+        list
+            List of EDB.Value Hole Parameters
+        """
         self._hole_parameters = self._hole_params[2]
         return self._hole_parameters
 
@@ -782,11 +915,25 @@ class EDBPadstack(object):
 
     @property
     def hole_properties(self):
+        """
+
+        Returns
+        -------
+        list
+            List of float Hole Properties
+        """
         self._hole_properties = [i.ToDouble() for i in self._hole_params[2]]
         return self._hole_properties
 
     @hole_properties.setter
     def hole_properties(self, propertylist):
+        """
+
+        Parameters
+        ----------
+        propertylist : list
+            List of values to update
+        """
         if not isinstance(propertylist, list):
             propertylist =[self._edb_value(propertylist)]
         else:
@@ -795,41 +942,94 @@ class EDBPadstack(object):
 
     @property
     def hole_type(self):
+        """
+
+        Returns
+        -------
+        int
+            Hole Type
+        """
         self._hole_type = self._hole_params[1]
         return self._hole_type
 
     @property
     def hole_offset_x(self):
+        """
+
+        Returns
+        -------
+        str
+            Hole Offset X Value
+        """
         self._hole_offset_x = self._hole_params[3].ToString()
         return self._hole_offset_x
 
     @hole_offset_x.setter
     def hole_offset_x(self, offset):
+        """
+
+        Parameters
+        ----------
+        offset : float, str
+        """
         self._hole_offset_x = offset
         self._update_hole_parameters(offsetx=offset)
 
     @property
     def hole_offset_y(self):
+        """
+
+        Returns
+        -------
+        str
+            Hole Offset Y Value
+        """
         self._hole_offset_y = self._hole_params[4].ToString()
         return self._hole_offset_y
 
     @hole_offset_y.setter
     def hole_offset_y(self, offset):
+        """
+
+        Parameters
+        ----------
+        offset : str, float
+        """
         self._hole_offset_y = offset
         self._update_hole_parameters(offsety=offset)
 
     @property
     def hole_rotation(self):
+        """
+
+        Returns
+        -------
+        str
+            Hole Rotation Value
+        """
         self._hole_rotation = self._hole_params[5].ToString()
         return self._hole_rotation
 
     @hole_rotation.setter
     def hole_rotation(self, rotation):
+        """
+
+        Parameters
+        ----------
+        rotation : float, str
+        """
         self._hole_rotation= rotation
         self._update_hole_parameters(rotation=rotation)
 
     @property
     def hole_plating_ratio(self):
+        """
+
+        Returns
+        -------
+        float
+            Hole Plating Percentage
+        """
         return self.edb_padstack.GetData().GetHolePlatingPercentage()
 
     @hole_plating_ratio.setter
@@ -841,6 +1041,13 @@ class EDBPadstack(object):
 
     @property
     def hole_plating_thickness(self):
+        """
+
+        Returns
+        -------
+        float
+            Hole Plating Thickness if present
+        """
         if len(self.hole_properties)>0:
             return (float(self.hole_properties[0]) * self.hole_plating_ratio/100)/2
         else:
@@ -848,6 +1055,13 @@ class EDBPadstack(object):
 
     @property
     def hole_finished_size(self):
+        """
+
+        Returns
+        -------
+        float
+            Hole Finished Size based  (Total Size + PlatingThickess*2)
+        """
         if len(self.hole_properties)>0:
             return float(self.hole_properties[0]) - (self.hole_plating_thickness * 2)
         else:
@@ -855,10 +1069,23 @@ class EDBPadstack(object):
 
     @property
     def material(self):
+        """
+
+        Returns
+        -------
+        str
+            Hole Material
+        """
         return self.edb_padstack.GetData().GetMaterial()
 
     @material.setter
     def material(self, materialname):
+        """
+
+        Parameters
+        ----------
+        materialname : str
+        """
         originalPadstackDefinitionData = self.edb_padstack.GetData()
         newPadstackDefinitionData = self._edb.Definition.PadstackDefData(originalPadstackDefinitionData)
         newPadstackDefinitionData.SetMaterial(materialname)
@@ -878,14 +1105,34 @@ class EDBPinInstances(object):
 
     @property
     def net(self):
+        """
+
+        Returns
+        -------
+        str
+        """
         return self.pin.GetNet().GetName()
 
     @property
     def pingroups(self):
+        """
+
+        Returns
+        -------
+        list
+            List of Pingroups to which Pin belongs
+        """
         return self.pin.GetPinGroups()
 
     @property
     def position(self):
+        """
+
+        Returns
+        -------
+        list
+            [X, Y] position
+        """
         self.parent._edb.Geometry.PointData(self.parent._edb_value(0.0), self.parent._edb_value(0.0))
         out = self.pin.GetPositionAndRotationValue(
             self.parent._edb.Geometry.PointData(self.parent._edb_value(0.0), self.parent._edb_value(0.0)),
@@ -895,6 +1142,12 @@ class EDBPinInstances(object):
 
     @property
     def rotation(self):
+        """
+
+        Returns
+        -------
+        float
+        """
         self.parent._edb.Geometry.PointData(self.parent._edb_value(0.0), self.parent._edb_value(0.0))
         out = self.pin.GetPositionAndRotationValue(
             self.parent._edb.Geometry.PointData(self.parent._edb_value(0.0), self.parent._edb_value(0.0)),
@@ -904,18 +1157,48 @@ class EDBPinInstances(object):
 
     @property
     def placement_layer(self):
+        """
+
+        Returns
+        -------
+        str
+        """
         return self.pin.GetGroup().GetPlacementLayer().GetName()
 
     @property
     def lower_elevation(self):
+        """
+
+        Returns
+        -------
+        float
+        """
         return self.pin.GetGroup().GetPlacementLayer().GetLowerElevation()
 
     @property
     def upper_elevation(self):
+        """
+
+        Returns
+        -------
+        float
+        """
         return self.pin.GetGroup().GetPlacementLayer().GetUpperElevation()
 
     @property
     def top_bottom_association(self):
+        """
+
+        Returns
+        -------
+        int
+            0 Top associated.
+            1 No association.
+            2 Bottom associated.
+            4 Number of top/bottom association type.
+            -1 Undefined.
+
+        """
         return self.pin.GetGroup().GetPlacementLayer().GetTopBottomAssociation()
 
 class EDBComponent(object):
@@ -957,14 +1240,33 @@ class EDBComponent(object):
 
     @property
     def placement_layer(self):
+        """
+
+        Returns
+        -------
+        str
+        """
         return self.pinlist[0].GetGroup().GetPlacementLayer().GetName()
 
     @property
     def lower_elevation(self):
+        """
+
+        Returns
+        -------
+        float
+        """
         return self.pinlist[0].GetGroup().GetPlacementLayer().GetLowerElevation()
 
     @property
     def upper_elevation(self):
+        """
+
+        Returns
+        -------
+        float
+
+        """
         return self.pinlist[0].GetGroup().GetPlacementLayer().GetUpperElevation()
 
     @property

@@ -10,13 +10,11 @@ This class contains all the functionalities to create and edit design and projec
 
 :Example:
 
-hfss = HFSS()
-hfss["$d"] = "5mm"   create a project variable
-
-
-hfss["d"] = "5mm"   create a local variable
-pip install sphinx-adc-theme
-hfss["postd"] = "1W"   create a postprocessing variable
+>>> from pyaedt import Hfss
+>>> hfss = Hfss()
+>>> hfss["$d"] = "5mm"
+>>> hfss["d"] = "5mm"
+>>> hfss["postd"] = "1W"
 
 
 ================

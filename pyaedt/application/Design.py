@@ -11,7 +11,8 @@ simple call from it
 Examples
 --------
 
->>> hfss = HFSS()
+>>> from pyaedt import Hfss
+>>> hfss = Hfss()
 
 Return the oProject object
 
@@ -481,7 +482,8 @@ class Design(object):
         --------
         Set the design name.
 
-        >>> hfss = HFSS()
+        >>> from pyaedt import Hfss
+        >>> hfss = Hfss()
         >>> hfss.design_name = 'new_design'
 
         """

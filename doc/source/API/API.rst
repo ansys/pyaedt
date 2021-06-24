@@ -8,7 +8,7 @@ Use the search feature or click any module to view the API documentation.
 
 
 .. toctree::
-   :maxdepth: 2
+   :maxdepth: 3
 
    Application
    DesktopMessenger
