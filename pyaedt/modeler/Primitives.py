@@ -802,7 +802,7 @@ class Polyline(object):
         return True
 
 class Primitives(object):
-    """Primitives class.
+    """Common primitives class."""
     def __init__(self, parent, modeler):
         self._modeler = modeler
         self._parent = parent
@@ -3165,5 +3165,4 @@ class Primitives(object):
                 selected_edge = edge
                 distance = d
         return selected_edge
-
 
