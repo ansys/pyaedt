@@ -294,7 +294,7 @@ class Maxwell(object):
 
     @aedt_exception_handler
     def assign_current(self, object_list, amplitude=1, phase="0deg", solid=True, swap_direction=False,
-                       name=None)  
+                       name=None):
         """Assign the source of the current.
         
         Parameters
