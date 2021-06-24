@@ -39,20 +39,22 @@ class Modeler2D(GeometryModeler):
 
     @aedt_exception_handler
     def calculate_radius_2D(self, object_name, inner=False):
-        """Calculate the extremity of an object in radial direction. If inner is True, then return
-            the maximum, else return the minimum)
+        """Calculate the extremity of an object in the radial direction. 
 
         Parameters
         ----------
-        object_name :
-            object from which calculate radius
-        inner :
-             (Default value = False)
+        object_name : str
+            name of the object from which to calculate the radius.
+        inner : bool, optional
+             The default is ``False``.
 
         Returns
         -------
         type
-            radius
+            Radius.
+            .. note::
+                If ``inner=True``, then the maximum is returned; otherwise,
+                the minimum is returned.
 
         """
         oVertexIDs = self.oeditor.GetVertexIDsFromObject(object_name)
@@ -76,7 +78,7 @@ class Modeler2D(GeometryModeler):
 
     @aedt_exception_handler
     def radial_split_2D(self, radius, name):
-        """Split Stator and rotor for Mesh Refinement
+        """Split the stator and rotor for mesh refinement.
 
         Parameters
         ----------
