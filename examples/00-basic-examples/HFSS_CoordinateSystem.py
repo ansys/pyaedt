@@ -1,8 +1,8 @@
 """
 
 Coordinate Sytems creation example
---------------------------------------------
-This tutorial shows how you can use PyAedt to create and modify the coordinate systems in the modeler
+----------------------------------
+This tutorial shows how you can use PyAedt to create and modify the coordinate systems in the modeler.
 """
 # sphinx_gallery_thumbnail_path = 'Resources/Dipole.png'
 
@@ -13,29 +13,30 @@ from pyaedt import generate_unique_name
 temp_folder = os.path.join(os.environ["TEMP"], generate_unique_name("Example"))
 if not os.path.exists(temp_folder):
     os.mkdir(temp_folder)
+
 #####################################################
 # Start Desktop in Graphical mode
-# ---------------------------------
+# -------------------------------
 # This examples will use AEDT 2021.1 in Graphical mode
 nongraphical = False
 d = Desktop("2021.1", NG=nongraphical)
 
 #####################################################
 # Insert HFSS design
-# ---------------------------------
+# ------------------
 # This command insert an hfss design with a default name.
 hfss = Hfss()
 
 #####################################################
 # Create a Coordinate System
-# ---------------------------------
+# --------------------------
 # The coordinate system is centered on Global origin and has the axis aligned to Global
 # the coordinate system is saved in the object cs1
 cs1 = hfss.modeler.create_coordinate_system()
 
 #####################################################
 # Edit the Coordinate System
-# ---------------------------------
+# --------------------------
 # The cs1 object expose properties and methods to manipulate the coordinate system.
 # The origin can be changed
 cs1.props["OriginX"] = 10
@@ -77,7 +78,7 @@ cs1.delete()
 
 #####################################################
 # Create a new Coordinate System defining the axis
-# ---------------------------------
+# ------------------------------------------------
 # All the coordinate system properties can be specified at the creation
 cs2 = hfss.modeler.create_coordinate_system(name='CS2',
                                             origin=[1, 2, 3.5],
@@ -86,7 +87,7 @@ cs2 = hfss.modeler.create_coordinate_system(name='CS2',
 
 #####################################################
 # Create a new Coordinate System defining the Euler angles
-# ---------------------------------
+# --------------------------------------------------------
 # All the coordinate system properties can be specified at the creation.
 # Here we specify the Euler angles
 cs3 = hfss.modeler.create_coordinate_system(name='CS3',
@@ -96,7 +97,7 @@ cs3 = hfss.modeler.create_coordinate_system(name='CS3',
 
 #####################################################
 # Create a new Coordinate System defining the view
-# ---------------------------------
+# ------------------------------------------------
 # A convenient creation option lets specify the view ( "iso", "XY", "XZ", "XY").
 # The axis are set automatically
 cs4 = hfss.modeler.create_coordinate_system(name='CS4',
@@ -107,7 +108,7 @@ cs4 = hfss.modeler.create_coordinate_system(name='CS4',
 
 #####################################################
 # Create a new Coordinate System defining the axis/angle
-# ---------------------------------
+# ------------------------------------------------------
 # Axis/angle rotation can be also used. It is automatically translated in Euler angles.
 cs5 = hfss.modeler.create_coordinate_system(name='CS5',
                                             mode='axisrotation',
@@ -115,7 +116,7 @@ cs5 = hfss.modeler.create_coordinate_system(name='CS5',
 
 #####################################################
 # Get the Coordinate Systems
-# ---------------------------------
+# --------------------------
 # Coordinate Systems can be retrieved
 css = hfss.modeler.coordinate_systems
 names = [i.name for i in css]
@@ -123,7 +124,7 @@ print(names)
 
 #####################################################
 # Select a Coordinate system
-# ---------------------------------
+# --------------------------
 # select a previously created coordinate system
 css = hfss.modeler.coordinate_systems
 cs_selected = css[0]
@@ -131,7 +132,7 @@ cs_selected.delete()
 
 #####################################################
 # Get a point coordinate under another coordinate system
-# ---------------------------------
+# ------------------------------------------------------
 # A point coordinate can be translated respect any coordinate system
 hfss.modeler.primitives.create_box([-10, -10, -10], [20, 20, 20], "Box1")
 p = hfss.modeler.primitives['Box1'].faces[0].vertices[0].position
@@ -141,6 +142,6 @@ print('CS5 :', p2)
 
 #####################################################
 # Close Desktop
-#
+# -------------
 d.force_close_desktop()
 

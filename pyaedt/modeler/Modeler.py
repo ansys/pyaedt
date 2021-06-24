@@ -45,26 +45,6 @@ class CoordinateSystem(object):
             pass
 
     @aedt_exception_handler
-    def setWorkingCoordinateSystem(self, name=None):
-        """Set active CS to name
-
-        Parameters
-        ----------
-        name :
-            name of CS to become active (Default value = None)
-
-        Returns
-        -------
-
-        """
-        if name is not None:
-            self.name = name
-        self._parent.oeditor.SetWCS([
-            "NAME:SetWCS Parameter",
-            "Working Coordinate System:=", self.name,
-            "RegionDepCSOk:=", False])
-
-    @aedt_exception_handler
     def _dim_arg(self, Value, sUnits=None):
         """
 
@@ -93,13 +73,14 @@ class CoordinateSystem(object):
 
     @aedt_exception_handler
     def _change_property(self, name, arg):
-        """Update property of coordinate system
+        """ Updates the properties of coordinate system.
 
         Parameters
         ----------
-        name :
+        name : str
             name of the coordinate system
-        arg :
+
+        arg : list
             list with parameters about what to change, e.g. ["NAME:ChangedProps", ["NAME:Mode", "Value:=", "Axis/Position"]]
 
         Returns
@@ -111,16 +92,15 @@ class CoordinateSystem(object):
 
     @aedt_exception_handler
     def rename(self, newname):
-        """Rename CS
-
-        :return: bool
+        """ Renames the Coordinate System.
 
         Parameters
         ----------
 
         Returns
         -------
-
+        bool
+            True if succeded, Flase otherwise
         """
         self._change_property(self.name, ["NAME:ChangedProps", ["NAME:Name", "Value:=", newname]])
         self.name = newname
@@ -128,16 +108,15 @@ class CoordinateSystem(object):
 
     @aedt_exception_handler
     def update(self):
-        """Update CS
+        """ Updates the Coordinate System properties.
         
-        :return: bool
-
         Parameters
         ----------
 
         Returns
         -------
-
+        bool
+            True if succeded, Flase otherwise
         """
         self._change_property(self.name, ["NAME:ChangedProps", ["NAME:Reference CS", "Value:=", self.ref_cs]])
 
@@ -169,18 +148,17 @@ class CoordinateSystem(object):
 
     @aedt_exception_handler
     def change_cs_mode(self, mode_type=0):
-        """Change CS Mode
+        """ Changes the Coordinate System mode.
 
         Parameters
         ----------
-        mode_type :
+        mode_type : int
             0 for "Axis/Position", 1 for "Euler Angle ZXZ", 2 for "Euler Angle ZYZ" (Default value = 0)
 
         Returns
         -------
-        type
-            bool
-
+        bool
+            True if succeded, Flase otherwise
         """
         if mode_type == 0:  # "Axis/Position"
             if self.props and (self.props["Mode"] == "Euler Angle ZXZ" or self.props["Mode"] == "Euler Angle ZYZ"):
@@ -261,7 +239,7 @@ class CoordinateSystem(object):
                mode='axis', view='iso',
                x_pointing=None, y_pointing=None,
                phi=0, theta=0, psi=0, u=None):
-        """Create a Coordinate system
+        """ Creates a Coordinate system.
         Specify the mode = 'view', 'axis', 'zxz', 'zyz', 'axisrotation'. Default = 'axis'
         If mode = 'view', specify view = 'XY', 'XZ', 'XY', 'iso', 'rotate' (obsolete)
         If mode = 'axis', specify x_pointing and y_pointing
@@ -269,42 +247,51 @@ class CoordinateSystem(object):
         If mode = 'axisrotation', specify u, theta
 
         Parameters not needed by the specified mode are ignored.
-        For back compatibility, view='rotate' is the same as mode='axis'
-        Default is coordinate system parallel to the Global centered in the Global origin.
+        For back compatibility, view='rotate' is the same as mode='axis'.
+        Default is a coordinate system parallel to the Global centered in the Global origin.
 
         Parameters
         ----------
-        origin :
+        origin : list
             origin of the CS (Default value = [0, 0, 0])
-        name :
+
+        name : str
             name of the CS (Default value = None)
-        reference_cs :
+
+        reference_cs : str
              Reference coordinate system name (Default value = "Global")
-        mode:
+
+        mode: str
             Definition mode. 'view', 'axis', 'zxz', 'zyz', 'axisrotation'. Default = 'axis'
-        view :
+
+        view : str
             View. Default "iso". possible "XY", "XZ", "XY", None, "rotate"
             "rotate" is obsolete, simply specify mode = 'axis'.
-        x_pointing :
+
+        x_pointing : list
             if mode="axis", this is a 3 elements list specifying the X axis pointing in the global CS
             (Default value = [1, 0, 0])
-        y_pointing :
+
+        y_pointing : list
             if mode="axis", this is a 3 elements list specifying the Y axis pointing in the global CS
             (Default value = [0, 1, 0])
-        phi :
+
+        phi : float
             Euler angle phi in degrees (Default value = 0)
-        theta :
+
+        theta : float
             Euler angle theta in degrees, or orataion angle in degrees (Default value = 0)
-        psi :
+
+        psi : float
             Euler angle psi in degrees (Default value = 0)
-        u :
+
+        u : list
             rotation axis in format [ux, uy, uz] (Default value = [1, 0, 0])
 
         Returns
         -------
         CoordinateSystem
             CS object
-
         """
         if not origin:
             origin = [0, 0, 0]
@@ -440,21 +427,38 @@ class CoordinateSystem(object):
 
     @aedt_exception_handler
     def delete(self):
-        """Delete active CS
+        """ Deletes the CS
         
-        :return:
+        Parameters
+        ----------
+
+        Returns
+        -------
+        bool
+            True if succeded, Flase otherwise
+        """
+        self._parent.oeditor.Delete([
+            "NAME:Selections",
+            "Selections:=", self.name])
+        self._parent.coordinate_systems.remove(self)
+        return True
+
+    @aedt_exception_handler
+    def set_as_working_cs(self):
+        """ Sets the cs as working coordinate system.
 
         Parameters
         ----------
 
         Returns
         -------
-
+        bool
+            True if succeded, Flase otherwise
         """
-        self._parent.oeditor.Delete([
-            "NAME:Selections",
-            "Selections:=", self.name])
-        self._parent.coordinate_systems.remove(self)
+        self._parent.oeditor.SetWCS([
+            "NAME:SetWCS Parameter",
+            "Working Coordinate System:=", self.name,
+            "RegionDepCSOk:=", False])
         return True
 
 
@@ -692,7 +696,7 @@ class GeometryModeler(Modeler, object):
                                  mode='axis', view='iso',
                                  x_pointing=None, y_pointing=None,
                                  psi=0, theta=0, phi=0, u=None):
-        """Create a Coordinate system
+        """ Creates a Coordinate system.
         Specify the mode = 'view', 'axis', 'zxz', 'zyz', 'axisrotation'. Default = 'axis'
         If mode = 'view', specify view = 'XY', 'XZ', 'XY', 'iso', 'rotate' (obsolete)
         If mode = 'axis', specify x_pointing and y_pointing
@@ -700,42 +704,51 @@ class GeometryModeler(Modeler, object):
         If mode = 'axisrotation', specify u, theta
 
         Parameters not needed by the specified mode are ignored.
-        For back compatibility, view='rotate' is the same as mode='axis'
-        Default is coordinate system parallel to the Global centered in the Global origin.
+        For back compatibility, view='rotate' is the same as mode='axis'.
+        Default is a coordinate system parallel to the Global centered in the Global origin.
 
         Parameters
         ----------
-        origin :
+        origin : list
             origin of the CS (Default value = [0, 0, 0])
-        name :
+
+        name : str
             name of the CS (Default value = None)
-        reference_cs :
+
+        reference_cs : str
              Reference coordinate system name (Default value = "Global")
-        mode:
+
+        mode: str
             Definition mode. 'view', 'axis', 'zxz', 'zyz', 'axisrotation'. Default = 'axis'
-        view :
+
+        view : str
             View. Default "iso". possible "XY", "XZ", "XY", None, "rotate"
             "rotate" is obsolete, simply specify mode = 'axis'.
-        x_pointing :
+
+        x_pointing : list
             if mode="axis", this is a 3 elements list specifying the X axis pointing in the global CS
             (Default value = [1, 0, 0])
-        y_pointing :
+
+        y_pointing : list
             if mode="axis", this is a 3 elements list specifying the Y axis pointing in the global CS
             (Default value = [0, 1, 0])
-        phi :
+
+        phi : float
             Euler angle phi in degrees (Default value = 0)
-        theta :
+
+        theta : float
             Euler angle theta in degrees, or orataion angle in degrees (Default value = 0)
-        psi :
+
+        psi : float
             Euler angle psi in degrees (Default value = 0)
-        u :
+
+        u : list
             rotation axis in format [ux, uy, uz] (Default value = [1, 0, 0])
 
         Returns
         -------
-        type
+        CoordinateSystem
             CS object
-
         """
         if name:
             cs_names = [i.name for i in self.coordinate_systems]
@@ -755,18 +768,20 @@ class GeometryModeler(Modeler, object):
 
     @aedt_exception_handler
     def global_to_cs(self, point, ref_cs):
-        """ Transform a point from the global coordinate system to the specified coordinate system
+        """ Transforms a point from the global coordinate system to the specified coordinate system.
 
         Parameters
         ----------
-        point :
-            opint in format [x, y, z]
-        ref_cs :
+        point : list
+            point in format [x, y, z]
+
+        ref_cs : name
             name of the destination reference system
 
         Returns
         -------
-        transformed point coordinates [x, y, z]
+        list
+            transformed point coordinates [x, y, z]
         """
         if type(point) is not list or len(point) != 3:
             raise AttributeError('point must be in format [x, y, z]')
@@ -796,6 +811,26 @@ class GeometryModeler(Modeler, object):
             return p2
 
         return get_total_transformation(point, ref_cs)
+
+    @aedt_exception_handler
+    def set_working_coordinate_system(self, name):
+        """ Set the working coordinate system to name.
+
+        Parameters
+        ----------
+        name : str
+            name of CS to become active
+
+        Returns
+        -------
+        bool
+            True if operation succeded, False otherwise
+        """
+        self.oeditor.SetWCS([
+            "NAME:SetWCS Parameter",
+            "Working Coordinate System:=", name,
+            "RegionDepCSOk:=", False])
+        return True
 
     @aedt_exception_handler
     def add_workbench_link(self, objects, ambient_temp=22, create_project_var=False, enable_deformation=True):

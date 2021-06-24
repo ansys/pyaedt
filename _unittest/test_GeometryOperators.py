@@ -17,10 +17,7 @@ def is_vector_equal(v, r):
         d = a - b
         t += d * d
     n = math.sqrt(t)
-    if n < 1e-12:
-        return True
-    else:
-        return False
+    return n < 1e-12
 
 
 class TestGeometryOperators:
@@ -44,7 +41,7 @@ class TestGeometryOperators:
         List_float.Add(2.)
         List_float.Add(3.)
         lf = go.List2list(List_float)
-        assert type(lf) is list
+        assert isinstance(ls, list)
         assert len(lf) == 3
 
     def test_parse_dim_arg(self):
@@ -239,7 +236,7 @@ class TestGeometryOperators:
         th = 0.8695437956599169
         q = go.axis_angle_to_quaternion(u, th)
         assert is_vector_equal(q, [0.9069661433330367, -0.17345092325178477, -0.3823030778615049, -0.03422789400943274])
-        assert abs(q[0] ** 2 + q[1] ** 2 + q[2] ** 2 + q[3] ** 2 - 1.) < tol
+        assert abs(q[0]**2 + q[1]**2 + q[2]**2 + q[3]**2 - 1.) < tol
 
     def test_quaternion_to_euler_zxz(self):
         q = [0.9069661433330367, -0.17345092325178477, -0.3823030778615049, -0.03422789400943274]
@@ -254,7 +251,7 @@ class TestGeometryOperators:
         psi = 1.9590019609437583
         q = go.euler_zxz_to_quaternion(phi, theta, psi)
         assert is_vector_equal(q, [0.9069661433330367, -0.17345092325178468, -0.38230307786150497, -0.03422789400943264])
-        assert abs(q[0] ** 2 + q[1] ** 2 + q[2] ** 2 + q[3] ** 2 - 1.) < tol
+        assert abs(q[0]**2 + q[1]**2 + q[2]**2 + q[3]**2 - 1.) < tol
 
     def test_quaternion_to_euler_zyz(self):
         q = [0.9069661433330367, -0.17345092325178477, -0.3823030778615049, -0.03422789400943274]
@@ -269,7 +266,7 @@ class TestGeometryOperators:
         psi = -2.7533870194409316
         q = go.euler_zyz_to_quaternion(phi, theta, psi)
         assert is_vector_equal(q, [0.9069661433330367, -0.17345092325178477, -0.3823030778615049, -0.03422789400943274])
-        assert abs(q[0] ** 2 + q[1] ** 2 + q[2] ** 2 + q[3] ** 2 - 1.) < tol
+        assert abs(q[0]**2 + q[1]**2 + q[2]**2 + q[3]**2 - 1.) < tol
 
     def test_deg2rad(self):
         assert abs(go.deg2rad(180.) - math.pi) < tol
@@ -290,7 +287,7 @@ class TestGeometryOperators:
         q2 = [0.9238795325112867, 0.0, -0.3826834323650898, 0.0]
         q = go.q_prod(q1, q2)
         assert is_vector_equal(q, [0.6916264024663118, -0.1733462058496682, -0.7002829056219277, 0.03475434394060616])
-        assert abs(q[0] ** 2 + q[1] ** 2 + q[2] ** 2 + q[3] ** 2 - 1.) < tol
+        assert abs(q[0]**2 + q[1]**2 + q[2]**2 + q[3]**2 - 1.) < tol
 
     def test_q_rotation(self):
         q2 = [0.9238795325112867, 0.0, -0.3826834323650898, 0.0]

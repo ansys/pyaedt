@@ -630,8 +630,8 @@ class Icepak(FieldAnalysisIcepak):
         center[0] -= hs_width/2
         center[1] -= hs_height/2
         center[2] += hs_basethick
-        self.modeler.coordinate_system.setWorkingCoordinateSystem("Global")
-        self.modeler.translate(list_to_move,center)
+        self.modeler.set_working_coordinate_system("Global")
+        self.modeler.translate(list_to_move, center)
         if plane_enum == self.CoordinateSystemPlane.XYPlane:
             self.modeler.rotate(list_to_move, self.CoordinateSystemAxis.XAxis, rotation)
         elif plane_enum == self.CoordinateSystemPlane.ZXPlane:
