@@ -1040,7 +1040,7 @@ class Variable(object):
 
         """
         assert isinstance(other, Variable), "Can only add Variable with Variable"
-        # assert self.unit_system == other.unit_system, "Only Variable objects with the same unit system can be added"
+        assert self.unit_system == other.unit_system, "Only Variable objects with the same unit system can be added"
         result_value = self.value + other.value
         result_units = SI_units[self.unit_system]
         # If the units of the two operands are different, return SI-Units
