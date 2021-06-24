@@ -934,17 +934,6 @@ class Primitives(object):
 
     @aedt_exception_handler
     def _update_object(self, o):
-    """
-
-        Parameters
-        ----------
-        o :
-
-
-        Returns
-        -------
-
-        """
 
 
         # Store the new object infos
