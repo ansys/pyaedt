@@ -1334,7 +1334,7 @@ class Primitives(object):
             Name of the UPD DLL.
         udp_parameters_list :
             List of the UDP paraemters.
-        upd_library : str, optinal
+        upd_library : str, optional
             Name of the UPP library. The default is ``"syslib"``.
         name : str, coptional
             Name of the component. The default is ``None``.
@@ -1401,7 +1401,7 @@ class Primitives(object):
         return_list : bool, optional
             How to return the objects in the selection. The default is ''False``.
             When ``False``, the objects in the selection are returned as a string.
-            When ``True``, the objects in teh selection are returned as a list.
+            When ``True``, the objects in the selection are returned as a list.
         
         Returns
         -------
@@ -1799,7 +1799,7 @@ class Primitives(object):
         Parameters
         ----------
         refresh_list : bool, optional
-            Whethe to forcibly refresh the list objects. 
+            Whether to forcibly refresh the list objects. 
             The default is ``False``.
             
         Returns
@@ -2227,7 +2227,7 @@ class Primitives(object):
         Returns
         -------
         list
-            List of float values indicating postion. 
+            List of float values indicating the position. 
             For example, ``[x, y, z]``.
         """
         try:
@@ -2258,7 +2258,7 @@ class Primitives(object):
 
     @aedt_exception_handler
     def get_face_center(self, face_id):
-        """Retrive the center position for a given planar face ID.
+        """Retrieve the center position for a given planar face ID.
 
         Parameters
         ----------
@@ -2325,7 +2325,7 @@ class Primitives(object):
         -------
         list
             List of midpoint coordinates. If the edge is not a segment with
-            two vertices, an empty lsit is returned.
+            two vertices, an empty list is returned.
         """
 
         if type(partID) is str and partID in self.objects_names:
@@ -2350,7 +2350,7 @@ class Primitives(object):
 
     @aedt_exception_handler
     def get_bodynames_from_position(self, position, units=None):
-        """Retrive the names of the objects that are in contact with the given point.
+        """Retrieve the names of the objects that are in contact with the given point.
 
         Parameters
         ----------
