@@ -608,12 +608,12 @@ class Icepak(FieldAnalysisIcepak):
         if symmetric:
 
             self.modeler.create_coordinate_system(self.Position('(HSWidth-SymSeparation)/2', 0, 0), mode="view",
-                                                  view="XY", name="CenterRightSep")
+                                                  view="XY", name="CenterRightSep",reference_cs="TopRight")
             self.modeler.set_working_coordinate_system("CenterRightSep")
 
             self.modeler.split(list, self.CoordinateSystemPlane.YZPlane, "NegativeOnly")
             self.modeler.create_coordinate_system(self.Position('SymSeparation/2', 0, 0),
-                                                  mode="view", view="XY", name="CenterRight")
+                                                  mode="view", view="XY", name="CenterRight",reference_cs="CenterRightSep")
             self.modeler.set_working_coordinate_system("CenterRight")
             self.modeler.duplicate_and_mirror(list, self.Position(0, 0, 0), self.Position(1, 0, 0))
             Center_Line = []
@@ -629,7 +629,7 @@ class Icepak(FieldAnalysisIcepak):
             self.modeler.subtract(list, "Center", False)
         else:
             self.modeler.create_coordinate_system(self.Position('HSWidth', 0, 0), mode="view", view="XY",
-                                                  name="BottomRight")
+                                                  name="BottomRight",reference_cs="TopRight")
             self.modeler.set_working_coordinate_system("BottomRight")
             self.modeler.split(list, self.CoordinateSystemPlane.YZPlane, "NegativeOnly")
         all_objs2 = self.modeler.primitives.get_all_objects_names()

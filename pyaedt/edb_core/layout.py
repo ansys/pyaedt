@@ -30,7 +30,6 @@ class EdbLayout(object):
     """HFSS 3DLayout object"""
     @property
     def edb(self):
-        """ """
         return self.parent.edb
 
     @property
@@ -47,67 +46,97 @@ class EdbLayout(object):
 
     @property
     def builder(self):
-        """ """
         return self.parent.builder
 
-    @property
-    def edb(self):
-        """ """
-        return self.parent.edb
 
     @property
     def edb_value(self):
-        """ """
         return self.parent.edb_value
 
     @property
     def edbutils(self):
-        """ """
         return self.parent.edbutils
 
     @property
     def active_layout(self):
-        """ """
         return self.parent.active_layout
 
     @property
     def cell(self):
-        """ """
         return self.parent.cell
 
     @property
     def db(self):
-        """ """
         return self.parent.db
 
     @property
     def layers(self):
-        """ """
+        """
+
+        Returns
+        -------
+        dict
+            Dictionary of Layers
+        """
         return self.parent.core_stackup.stackup_layers.layers
 
     @aedt_exception_handler
     def update_primitives(self):
+        """
+        Update Primitives list from Edb Database
+
+        Returns
+        -------
+        bool
+            ``True`` if succeeded
+        """
+
         layoutInstance = self.active_layout.GetLayoutInstance()
         layoutObjectInstances = layoutInstance.GetAllLayoutObjInstances()
         for el in layoutObjectInstances.Items:
             self._prims.append(el.GetLayoutObj())
         for lay in self.layers:
             self._primitives_by_layer[lay] = self.get_polygons_by_layer(lay)
+        return True
 
     @property
     def primitives(self):
+        """
+
+        Returns
+        -------
+        list
+            list of all primitives
+
+        """
         if not self._prims:
             self.update_primitives()
         return self._prims
 
     @property
     def polygons_by_layer(self):
+        """
+
+        Returns
+        -------
+        dict
+            Dictionary of primitives with Layer Name as keys
+
+        """
         if not self._primitives_by_layer:
             self.update_primitives()
         return self._primitives_by_layer
 
     @property
     def rectangles(self):
+        """
+
+        Returns
+        -------
+        list
+            list of all rectangles
+
+        """
         prims = []
         for el in self.primitives:
             if "Rectangle" in el.ToString():
@@ -116,6 +145,14 @@ class EdbLayout(object):
 
     @property
     def circles(self):
+        """
+
+        Returns
+        -------
+        list
+            list of all circles
+
+        """
         prims = []
         for el in self.primitives:
             if "Circle" in el.ToString():
@@ -124,6 +161,14 @@ class EdbLayout(object):
 
     @property
     def paths(self):
+        """
+
+        Returns
+        -------
+        list
+            list of all paths
+
+        """
         prims = []
         for el in self.primitives:
             if "Path" in el.ToString():
@@ -132,6 +177,14 @@ class EdbLayout(object):
 
     @property
     def bondwires(self):
+        """
+
+        Returns
+        -------
+        list
+            list of all bondwires
+
+        """
         prims = []
         for el in self.primitives:
             if "Bondwire" in el.ToString():
@@ -140,7 +193,14 @@ class EdbLayout(object):
 
     @property
     def polygons(self):
-        """:return: list of polygons"""
+        """
+
+        Returns
+        -------
+        list
+            list of all polygons
+
+        """
         prims = []
         for el in self.primitives:
             if "Polygon" in el.ToString():
