@@ -959,7 +959,7 @@ class EDBPadstack(object):
         Returns
         -------
         str
-            Hole Offset X Vaue
+            Hole Offset X Value
         """
         self._hole_offset_x = self._hole_params[3].ToString()
         return self._hole_offset_x
@@ -982,7 +982,7 @@ class EDBPadstack(object):
         Returns
         -------
         str
-            Hole Offset Y Vaue
+            Hole Offset Y Value
         """
         self._hole_offset_y = self._hole_params[4].ToString()
         return self._hole_offset_y
@@ -1005,7 +1005,7 @@ class EDBPadstack(object):
         Returns
         -------
         str
-            Hole Rotation Vaue
+            Hole Rotation Value
         """
         self._hole_rotation = self._hole_params[5].ToString()
         return self._hole_rotation
