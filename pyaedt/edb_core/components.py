@@ -219,7 +219,7 @@ class Components(object):
         Examples
         --------
 
-        >>> from pyaedt import EDB
+        >>> from pyaedt import Edb
         >>> edbapp = Edb("myaedbfolder")
         >>> edbapp.core_components.inductors
         
@@ -411,7 +411,7 @@ class Components(object):
         Examples
         --------
 
-    >>> from pyaedt import EDB
+    >>> from pyaedt import Edb
         >>> edbapp = Edb("myaedbfolder")
         >>> pins = edbapp.core_components.get_pin_from_component("A1")
         >>> edbapp.core_components.create_component_from_pins(pins, "A1New")
@@ -455,7 +455,7 @@ class Components(object):
         Examples
         --------    
 
-        >>> from pyaedt import EDB
+        >>> from pyaedt import Edb
         >>> edbapp = Edb("myaedbfolder")
         >>> edbapp.core_components.set_component_model("A1", model_type="Spice", modelpath="pathtospfile", modelname="spicemodelname")
         """
@@ -539,7 +539,7 @@ class Components(object):
 
         Examples
         --------
-        >>> from pyaedt import EDB
+        >>> from pyaedt import Edb
         >>> edbapp = Edb("myaedbfolder")
         >>> edbapp.core_components.create_pingroup_from_pins(gndpinlist, "MyGNDPingroup")
         
@@ -636,7 +636,7 @@ class Components(object):
         Examples
         --------
 
-        >>> from pyaedt import EDB
+        >>> from pyaedt import Edb
         >>> edbapp = Edb("myaedbfolder")
         >>> edbapp.core_components.disable_rlc_component("A1")
         
@@ -680,7 +680,7 @@ class Components(object):
         Examples
         --------
         
-        >>> from pyaedt import EDB
+        >>> from pyaedt import Edb
         >>> edbapp = Edb("myaedbfolder")
         >>> edbapp.core_components.set_component_rlc("R1", res_value=50, ind_value=1e-9, cap_value=1e-12, isparallel=False)
 
@@ -728,18 +728,16 @@ class Components(object):
         
         Parameters
         ----------
-        bom_file :
+        bom_file : str
             Full path to the BOM file.
-            .. note::
-               The BOM file is a delimited text file. Header values needed inside the BOM reader must 
-               be explicitly set if different from the defaults.
+            The BOM file is a delimited text file. Header values needed inside the BOM reader must
+            be explicitly set if different from the defaults.
         delimiter : str, optional
             Value to use for the delimiter. The default is ``";"``.
         valuefield : str, optional
             Field header containing the value of the component. The default is ``"Func des"``.
-            .. note::
-               ``valuefield`` must contain the value of the component at beginning of the value 
-               followed by a space and then the rest of the value. For example, ``"22pF"``. 
+            ``valuefield`` must contain the value of the component at beginning of the value
+             followed by a space and then the rest of the value. For example, ``"22pF"``.
         comptype : str, optional
             Field header containing the type of component. The default is ``"Prod name"``. For 
             example, you might enter ``"Inductor"``.
@@ -750,9 +748,8 @@ class Components(object):
         Returns
         -------
         bool
-            ``True`` if the file contains the header and it is correctly parsed. The method 
+            ``True`` if the file contains the header and it is correctly parsed. The method
             returns ``True`` even if no values are assigned.
-
         """
         with open(bom_file, 'r') as f:
             Lines = f.readlines()
@@ -804,8 +801,7 @@ class Components(object):
 
         >>> from pyaedt import Edb
         >>> edbapp = Edb("myaedbfolder", "project name", "release version")
-        >>> edbapp.core_components.get_pin_from_component("R1", refdes, optional:str nets, optional: str pins)
-
+        >>> edbapp.core_components.get_pin_from_component("R1", refdes)
         """
 
         cmp = self.edb.Cell.Hierarchy.Component.FindByName(self.active_layout, cmpName)

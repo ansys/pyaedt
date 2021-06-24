@@ -1,5 +1,5 @@
 """
-This class contains all Emit functionalities.
+This class contains Emit functionalities. At the moment this object has very limited functionalities.
 
 
 Examples
@@ -7,19 +7,19 @@ Examples
 
 Create an instance of ``Emit`` and connect to an existing Maxwell design or create a new Emit design if one does not exist.
 
->>> app = Simplorer()
+>>> app = Emit()
 
 Create a instance of ``Emit`` and link to a project named ``"projectname"``. If this project does not exist, create one with this name.
 
->>> app = Simplorer(projectname)
+>>> app = Emit(projectname)
 
 Create an instance of ``Emit`` and link to a design named ``"designname"`` in a project named ``"projectname"``.
 
->>> app = Simplorer(projectname,designame)
+>>> app = Emit(projectname,designame)
 
 Create an instance of ``Emit`` and open the specified project.
 
->>> app = Simplorer("myfile.aedt")
+>>> app = Emit("myfile.aedt")
 
 """
 
@@ -34,7 +34,8 @@ from .generic.general_methods import aedt_exception_handler, generate_unique_nam
 
 
 class Emit(FieldAnalysisEmit, object):
-    """Emit Object. This is an alpha implementation of Emit object. it contains only skeleton to create empty design.
+    """Emit Object. This is an alpha implementation of Emit object.
+    It contains only skeleton to create empty design.
     No methods implemented at this stage
 
     Parameters

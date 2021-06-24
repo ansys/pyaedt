@@ -22,52 +22,42 @@ class Edb3DLayout(object):
 
     @property
     def hfss_terminals(self):
-        """ """
         return self.parent.edblib.HFSS3DLayout.HFSSTerminalMethods
 
     @property
     def hfss_ic_methods(self):
-        """ """
         return self.parent.edblib.HFSS3DLayout.ICMethods
 
     @property
     def hfss_setup(self):
-        """ """
         return self.parent.edblib.HFSS3DLayout.HFSSSetup
 
     @property
     def hfss_mesh_setup(self):
-        """ """
         return self.parent.edblib.HFSS3DLayout.Meshing
 
     @property
     def sweep_methods(self):
-        """ """
         return self.parent.edblib.SimulationSetup.SweepMethods
 
     @property
     def edb(self):
-        """ """
         return self.parent.edb
 
     @property
     def active_layout(self):
-        """ """
         return self.parent.active_layout
 
     @property
     def cell(self):
-        """ """
         return self.parent.cell
 
     @property
     def db(self):
-        """ """
         return self.parent.db
 
     @property
     def builder(self):
-        """ """
         return self.parent.builder
 
     def __init__(self, parent):
@@ -141,13 +131,14 @@ class Edb3DLayout(object):
 
         Parameters
         ----------
-        pinpos :
+        pinpos : pin
             
         portname : str, optional
              Name of the port. The default is ``None``.
 
         Returns
         -------
+        bool
 
         """
         if "IronPython" in sys.version or ".NETFramework" in sys.version:
