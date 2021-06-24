@@ -59,7 +59,7 @@ project_file = os.path.join(project_dir, project_name + ".aedt")
 # Initializes the HFSS Design in AEDT.
 # If there is a running HFSS Design the aedtapp will be linked to it, otherwise a new design will be run.
 
-aedtapp = Hfss(specified_version=desktopVersion)
+aedtapp = Hfss(specified_version=desktopVersion,AlwaysNew=True)
 
 ################################################################
 # Variables Settings
@@ -143,12 +143,6 @@ sweepname = aedtapp.create_frequency_sweep("MySetup", "GHz", 0.8, 1.2)
 
 
 ################################################################
-# Check for errors since last update
-# Stop the script if error messages are found
-app_cache.update()
-assert app_cache.no_new_errors
-
-################################################################
 # ICEPAK Model Creation. After HFSS Setup is ready it will be linked to an icepak project to run a coupled physics analysis
 # ipkapp.copy_solid_bodies_from(aedtapp) will import model from HFSS with all material settings
 
@@ -188,11 +182,7 @@ ipkapp.modeler.primitives[airbox].display_wireframe = True
 airfaces = ipkapp.modeler.primitives.get_object_faces(airbox)
 ipkapp.assign_openings(airfaces)
 
-################################################################
-# Check for errors since last update
-# Stop the script if error messages are found
-app_cache.update()
-assert app_cache.no_new_errors
+
 
 ################################################################
 # Close and Open Projects
@@ -207,8 +197,7 @@ ipkapp = Icepak()
 ipkapp.solution_type = ipkapp.SolutionTypes.Icepak.SteadyTemperatureAndFlow
 ipkapp.modeler.fit_all()
 
-app_cache = DesignCache(aedtapp)
-app_cache.ignore_error_message_global("Script macro error: Missing property name.")
+
 
 ################################################################
 # Solve Icepak
@@ -298,8 +287,6 @@ plt.show()
 ################################################################
 # Close AEDT and Closed Project
 
-app_cache.update()
-assert app_cache.no_new_errors
 
 aedtapp.close_project(aedtapp.project_name)
 aedtapp.close_desktop()
