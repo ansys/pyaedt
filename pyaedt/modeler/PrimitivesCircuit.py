@@ -7,7 +7,7 @@ from .Object3d import CircuitComponent
 class CircuitComponents(object):
     """CircutComponents class. 
     
-    This is the common class for managing all circuit components for Nexxim and Simplorer.
+     This is the common class for managing all circuit components for Nexxim and Simplorer.
      """
 
     @property
@@ -99,11 +99,11 @@ class CircuitComponents(object):
 
     @aedt_exception_handler
     def create_wire(self, points_array):
-        """
+        """Create a wire.
         Parameters
         ----------
-        points_array :
-            A list of a list of point coordinates. For example, ``[[x1,y1], [x2,y2]....]``.
+        points_array : list
+            A nested list of point coordinates. For example, ``[[x1, y1], [x2, y2]....]``.
 
         Returns
         -------
@@ -135,7 +135,7 @@ class CircuitComponents(object):
             Position of the X axis. The default is ``0.1``.
         posy : float, optional
             Position of the Y axis. The default is ``0.1``.
-        angle : optional
+        angle : float, optional
             Angle rotation in degrees. The default is ``0``.
 
         Returns
@@ -249,6 +249,8 @@ class CircuitComponents(object):
 
         Returns
         -------
+        bool
+             ``True`` when successful, ``False`` when failed.     
 
         """
         if not model_name:
@@ -295,7 +297,7 @@ class CircuitComponents(object):
 
     @aedt_exception_handler
     def create_component_from_touchstonmodel(self, modelname,xpos=0.1, ypos=0.1, angle=0,):
-        """Create a comonent from a Touchstone model.
+        """Create a component from a Touchstone model.
 
         Parameters
         ----------
@@ -305,7 +307,7 @@ class CircuitComponents(object):
             Position of the X axis. The default is ``0.1``.
         ypos : float, optional
             Position of the Y axis. The default is ``0.1``.
-        angle : optional
+        angle : float, optional
             Angle rotation in degrees. The default is ``0``.
 
         Returns
@@ -554,9 +556,9 @@ class CircuitComponents(object):
             List of the pins.
         Refbase : str, optional
             Reference base. The default is ``"U"``.
-        parameter_list : list
+        parameter_list : list, optional
             List of the parameters. The default is ``[]``.
-        parameter_value :
+        parameter_value : list, optional
             List of the parameter values. The default is ``[]``.
 
         Returns
