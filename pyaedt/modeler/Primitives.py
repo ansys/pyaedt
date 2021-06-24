@@ -2973,5 +2973,3 @@ class Primitives(object):
                 selected_edge = edge
                 distance = d
         return selected_edge
-
-=======
