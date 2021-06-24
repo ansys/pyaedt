@@ -1,5 +1,5 @@
 """
-This module contains all HFSS functionalities in the ``hfss`` class.
+This module contains all HFSS functionalities in the ``Hfss`` class.
 
 
 Examples
@@ -17,11 +17,11 @@ Create an instance of ``Hfss`` and link to a design named ``"designname"`` in a 
 
 >>> hfss = Hfss(projectname,designame)
 
-Create an instance of ``Hfss`` and open the specified project:
+Create an instance of ``Hfss`` and open the specified project, which is named ``"myfile.aedt"``.
 
 >>> hfss = Hfss("myfile.aedt")
 
-Create an instance of ``Hfss`` using the 2021 R1 release and open the specified project, which is ``"myfile.aedt"``.
+Create an instance of ``Hfss`` using the 2021 R1 release and open the specified project, which is named ``"myfile.aedt"``.
 
 >>> hfss = Hfss(specified_version="2021.1", projectname="myfile.aedt")
 
@@ -49,7 +49,7 @@ class Hfss(FieldAnalysis3D, object):
 
     def __init__(self, projectname=None, designname=None, solution_type=None, setup_name=None,
                  specified_version=None, NG=False, AlwaysNew=False, release_on_exit=False):
-        """HFSS Object
+        """HFSS class.
 
             Parameters
             ----------
@@ -249,8 +249,8 @@ class Hfss(FieldAnalysis3D, object):
 
         Returns
         -------
-        :class: BoundaryObject
-            Boundary object
+        BoundaryObject
+            Boundary object.
 
         Examples
         --------
@@ -658,7 +658,7 @@ class Hfss(FieldAnalysis3D, object):
         Returns
         -------
         str
-            Port name
+            Port name.
 
         """
         if not self.modeler.primitives.does_object_exists(startobj) or not self.modeler.primitives.does_object_exists(
@@ -704,7 +704,7 @@ class Hfss(FieldAnalysis3D, object):
         Returns
         -------
         str
-           Source name
+           Source name.
 
         """
         if not self.modeler.primitives.does_object_exists(startobj) or not self.modeler.primitives.does_object_exists(
@@ -746,7 +746,7 @@ class Hfss(FieldAnalysis3D, object):
         Returns
         -------
         str
-            Source name
+            Source name.
 
         """
         if not self.modeler.primitives.does_object_exists(startobj) or not self.modeler.primitives.does_object_exists(
@@ -1006,8 +1006,8 @@ class Hfss(FieldAnalysis3D, object):
 
         Returns
         -------
-        :class: BoundaryObject
-            Boundary object
+        BoundaryObject
+            Boundary object.
 
         """
         if not self.modeler.primitives.does_object_exists(startobj) or not self.modeler.primitives.does_object_exists(
@@ -1027,7 +1027,7 @@ class Hfss(FieldAnalysis3D, object):
 
     @aedt_exception_handler
     def SARSetup(self, Tissue_object_List_ID, TissueMass=1, MaterialDensity=1, voxel_size=1, Average_SAR_method=0):
-        """Set SAR settings.
+        """Define SAR settings.
 
         Parameters
         ----------
@@ -1044,7 +1044,9 @@ class Hfss(FieldAnalysis3D, object):
 
         Returns
         -------
-        Boolean
+        bool
+            ``True`` when successful, ``False`` when failed.
+
         """
         self.odesign.SARSetup(TissueMass, MaterialDensity, Tissue_object_List_ID, voxel_size, Average_SAR_method)
         return True
@@ -1061,7 +1063,7 @@ class Hfss(FieldAnalysis3D, object):
             Type of boundary. The default is ``"Radition"``.
         ApplyInfiniteGP : bool, optional
             Whether to apply an infinite ground plane. The default is ``False``.
-        GPAXis : st, optional
+        GPAXis : str, optional
             The default is``"-z"``.
 
         Returns
@@ -1228,7 +1230,7 @@ class Hfss(FieldAnalysis3D, object):
         Returns
         -------
         BoundaryObject
-            Boundary object. 
+            Boundary object.
 
         """
 
