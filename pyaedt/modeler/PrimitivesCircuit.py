@@ -107,6 +107,8 @@ class CircuitComponents(object):
 
         Returns
         -------
+        bool
+            ``True`` when successful, ``False`` when failed.
 
         """
         pointlist = [str(tuple(i)) for i in points_array]
@@ -141,7 +143,9 @@ class CircuitComponents(object):
         Returns
         -------
         type
-            port object, port_name
+            Port object.
+        str
+           Port name.
 
         """
         id = self.create_unique_id()
@@ -174,7 +178,9 @@ class CircuitComponents(object):
         Returns
         -------
         type
-            port id, port_name
+            Port ID.
+        str
+            Port name.
 
         """
         id = self.create_unique_id()
@@ -211,7 +217,9 @@ class CircuitComponents(object):
         Returns
         -------
         type
-            gnd object, gnd name
+            Ground object.
+        str
+            Ground name.
 
         """
         id = self.create_unique_id()
@@ -250,7 +258,7 @@ class CircuitComponents(object):
         Returns
         -------
         bool
-             ``True`` when successful, ``False`` when failed.     
+            ``True`` when successful, ``False`` when failed.     
 
         """
         if not model_name:
@@ -312,6 +320,8 @@ class CircuitComponents(object):
 
         Returns
         -------
+        bool
+            ``True`` when successful, ``False`` when failed.
 
         """
         id = self.create_unique_id()
@@ -352,7 +362,9 @@ class CircuitComponents(object):
         Returns
         -------
         type
-            id , composed_name
+            Component ID.
+         str
+            Component name.
 
         """
         id = self.create_unique_id()
@@ -718,7 +730,8 @@ class CircuitComponents(object):
 
         Returns
         -------
-
+        bool
+            ``True`` when successful, ``False`` when failed.
         """
         for el in self.components:
             if self.components[el].name == objname:
@@ -808,6 +821,8 @@ class CircuitComponents(object):
 
         Returns
         -------
+        bool
+            ``True`` when successful, ``False`` when failed.
 
         """
         if type(Value) is str:
