@@ -22,7 +22,7 @@ from .GeometryOperators import GeometryOperators
 from .Object3d import Object3d, EdgePrimitive, FacePrimitive, VertexPrimitive, _dim_arg
 from ..generic.general_methods import aedt_exception_handler, retry_ntimes
 from ..application.Variables import Variable
-
+from collections import OrderedDict
 if "IronPython" in sys.version or ".NETFramework" in sys.version:
     _ironpython = True
 else:
@@ -1061,9 +1061,9 @@ class Primitives(object):
                 "UseMaterialAppearance:=", False, "IsLightweight:=", False]
         self.oeditor.CreateRegion(arg, arg2)
         obj._m_name = "Region"
-        obj.solve_inside = True
-        obj.transparency = 0
-        obj.wireframe = True
+        obj._solve_inside = True
+        obj._transparency = 0
+        obj._wireframe = True
         id = self._update_object(obj)
         self.objects[id] = obj
         return id
@@ -1558,32 +1558,37 @@ class Primitives(object):
         except KeyError:
             return 0
         for el in self._parent.design_properties['ModelSetup']['GeometryCore']['GeometryOperations']['ToplevelParts']['GeometryPart']:
+            if isinstance(el, OrderedDict):
+                attribs = el['Attributes']
+            else:
+                attribs = \
+                self._parent.design_properties['ModelSetup']['GeometryCore']['GeometryOperations']['ToplevelParts'][
+                    'GeometryPart']['Attributes']
 
-            attribs = el['Attributes']
             o = Object3d(self, name=attribs['Name'])
 
             o.update_object_type()
 
             if o.analysis_type:
-                o.solve_inside = attribs['SolveInside']
-                o.material_name = attribs['MaterialValue'][1:-1]
+                o._solve_inside = attribs['SolveInside']
+                o._material_name = attribs['MaterialValue'][1:-1]
 
             o.part_coordinate_system = attribs['PartCoordinateSystem']
             if "NonModel" in attribs['Flags']:
-                o.model = False
+                o._model = False
             else:
-                o.model = True
+                o._model = True
             if "Wireframe" in attribs['Flags']:
-                o.wireframe = True
+                o._wireframe = True
             else:
-                o.wireframe = False
+                o._wireframe = False
             groupname = ""
             for group in groups:
                 if attribs['GroupId'] == group['GroupID']:
                     groupname = group['Attributes']['Name']
 
             o._m_groupName = groupname
-            o.color = attribs['Color']
+            o._color = attribs['Color']
             o.m_surfacematerial = attribs['SurfaceMaterialValue']
 
             # Store the new object infos

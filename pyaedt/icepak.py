@@ -96,8 +96,9 @@ class Icepak(FieldAnalysisIcepak):
         """
         setup_list = self.existing_analysis_setups
         sweep_list=[]
+        s_type = self.solution_type
         for el in setup_list:
-                sweep_list.append(el + " : " + self.solution_type)
+                sweep_list.append(el + " : " +s_type)
         return sweep_list
 
     @aedt_exception_handler
@@ -600,15 +601,20 @@ class Icepak(FieldAnalysisIcepak):
         all_names = self.modeler.primitives.get_all_objects_names()
         list = [i for i in all_names if "Fin" in i]
         self.modeler.create_coordinate_system(self.Position(0, 'HSHeight', 0), mode="view", view="XY", name="TopRight")
+        self.modeler.set_working_coordinate_system("TopRight")
+
         self.modeler.split(list, self.CoordinateSystemPlane.ZXPlane, "NegativeOnly")
 
         if symmetric:
 
             self.modeler.create_coordinate_system(self.Position('(HSWidth-SymSeparation)/2', 0, 0), mode="view",
                                                   view="XY", name="CenterRightSep")
+            self.modeler.set_working_coordinate_system("CenterRightSep")
+
             self.modeler.split(list, self.CoordinateSystemPlane.YZPlane, "NegativeOnly")
             self.modeler.create_coordinate_system(self.Position('SymSeparation/2', 0, 0),
                                                   mode="view", view="XY", name="CenterRight")
+            self.modeler.set_working_coordinate_system("CenterRight")
             self.modeler.duplicate_and_mirror(list, self.Position(0, 0, 0), self.Position(1, 0, 0))
             Center_Line = []
             Center_Line.append(self.Position('-SymSeparation', 'Tolerance','-Tolerance'))
@@ -624,6 +630,7 @@ class Icepak(FieldAnalysisIcepak):
         else:
             self.modeler.create_coordinate_system(self.Position('HSWidth', 0, 0), mode="view", view="XY",
                                                   name="BottomRight")
+            self.modeler.set_working_coordinate_system("BottomRight")
             self.modeler.split(list, self.CoordinateSystemPlane.YZPlane, "NegativeOnly")
         all_objs2 = self.modeler.primitives.get_all_objects_names()
         list_to_move=[i for i in all_objs2 if i not in all_objs]
