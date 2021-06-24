@@ -961,6 +961,8 @@ class Object3d(object):
         vGeo3d = ["NAME:Geometry3DAttributeTab", vPropServers, vChangedProps]
 
         vOut = ["NAME:AllTabs", vGeo3d]
+        if vPropChange == ['NAME:Solve Inside', 'Value:=', True]:
+            print(1)
         self.m_Editor.ChangeProperty(vOut)
         return True
 

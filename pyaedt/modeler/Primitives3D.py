@@ -185,9 +185,9 @@ class Primitives3D(Primitives, object):
         self.oeditor.CreateRegion(arg, arg2)
         #TODO put this into Object3d Constructor?
         o._m_name = "Region"
-        o.solve_inside = True
-        o.transparency = 0
-        o.wireframe = True
+        o._solve_inside = True
+        o._transparency = 0
+        o._wireframe = True
 
         self._refresh_object_types()
         id = self._update_object(o)

@@ -673,6 +673,8 @@ class VariableManager(object):
             # Handle input type int/float, etc (including numeric 0)
             variable = str(expression)
         # Handle None, "" as Separator
+        elif isinstance(expression, list):
+            variable = str(expression)
         elif not expression:
             prop_type = "SeparatorProp"
             variable = ""
