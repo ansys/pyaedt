@@ -629,7 +629,8 @@ class GeometryOperators(object):
         Returns
         -------
         bool
-            True if it is inside, False otherwise
+            ``True`` when it is inside, ``False`` otherwise.
+
         """
         if not GeometryOperators.is_parallel(a1, a2, b1, b2):
             return False
