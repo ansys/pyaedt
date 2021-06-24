@@ -1,10 +1,12 @@
 # standard imports
 import os
-from .conftest import local_path, scratch_path
+from .conftest import local_path, scratch_path, config
 
 from pyaedt import Circuit
 from pyaedt.generic.filesystem import Scratch
 import gc
+import pytest
+
 # Access the desktop
 test_project_name = "Dynamic_Link"
 src_design_name = "uUSB"
@@ -54,6 +56,8 @@ class TestCircuitDL:
     def test_01_save(self):
         assert os.path.exists(self.aedtapp.project_path)
 
+    @pytest.mark.skipif(config["skip_circuits"],
+                        reason="Skipped because Desktop is crashing")
     def test_02_add_subcircuits(self):
         source_project_path = os.path.join(self.local_scratch.path, src_project_name + '.aedt')
         layout_design = "Galileo_G87173_205_cutout3"
@@ -100,6 +104,8 @@ class TestCircuitDL:
 
         pass
 
+    @pytest.mark.skipif(config["skip_circuits"],
+                        reason="Skipped because Desktop is crashing")
     def test_03_assign_excitations(self):
         excitation_settings = ["nan V", "0deg", "0V", "25V", "1V", "2.5GHz", "0s", "0", "0deg", "0Hz"]
         ports_list = ["Excitation_1", "Excitation_2"]
@@ -107,6 +113,8 @@ class TestCircuitDL:
 
         pass
 
+    @pytest.mark.skipif(config["skip_circuits"],
+                        reason="Skipped because Desktop is crashing")
     def test_04_setup(self):
         setup_name = "Dom_LNA"
         LNA_setup = self.aedtapp.create_setup(setup_name)

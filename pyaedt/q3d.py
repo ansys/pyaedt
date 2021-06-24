@@ -56,7 +56,7 @@ class QExtractor(FieldAnalysis3D, FieldAnalysis2D, object):
         return design_file
 
     def __init__(self, Q3DType, projectname=None, designname=None, solution_type=None, setup_name=None,
-                 specified_version=None, NG=False, AlwaysNew=True, release_on_exit=True):
+                 specified_version=None, NG=False, AlwaysNew=False, release_on_exit=False):
         if Q3DType == "Q3D Extractor":
             FieldAnalysis3D.__init__(self, "Q3D Extractor", projectname, designname, solution_type, setup_name,
                                      specified_version, NG, AlwaysNew, release_on_exit)
@@ -95,7 +95,7 @@ class Q3d(QExtractor, object):
 
     """
     def __init__(self, projectname=None, designname=None, solution_type=None, setup_name=None,
-                 specified_version=None, NG=False, AlwaysNew=True, release_on_exit=True):
+                 specified_version=None, NG=False, AlwaysNew=False, release_on_exit=False):
         QExtractor.__init__(self, "Q3D Extractor", projectname, designname, solution_type, setup_name,
                             specified_version, NG, AlwaysNew, release_on_exit)
 
@@ -411,6 +411,6 @@ class Q2d(QExtractor, object):
 
 
     def __init__(self, projectname=None, designname=None, solution_type=None, setup_name=None,
-                 specified_version=None, NG=False, AlwaysNew=True, release_on_exit=True):
+                 specified_version=None, NG=False, AlwaysNew=False, release_on_exit=False):
         QExtractor.__init__(self, "2D Extractor", projectname, designname, solution_type, setup_name,
                             specified_version, NG, AlwaysNew, release_on_exit)

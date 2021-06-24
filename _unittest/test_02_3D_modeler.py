@@ -111,7 +111,7 @@ class TestModeler:
         udp3 = self.aedtapp.modeler.Position(5, 5, 0)
         udp4 = self.aedtapp.modeler.Position(2, 5, 3)
         arrofpos = [udp1, udp2, udp3]
-        id5 = self.aedtapp.modeler.primitives.draw_polyline(arrofpos, name="Poly1", xsection_type="Rectangle")
+        id5 = self.aedtapp.modeler.primitives.create_polyline(arrofpos, name="Poly1", xsection_type="Rectangle")
         assert self.aedtapp.modeler.split("Poly1", self.aedtapp.CoordinateSystemPlane.XYPlane, )
 
     def test_12_separate_Bodies(self):

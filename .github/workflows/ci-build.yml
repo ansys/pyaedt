@@ -29,11 +29,3 @@ jobs:
           name: Documentation
           path: doc/_build/html
           retention-days: 7
-
-      - name: Deploy
-        uses: JamesIves/github-pages-deploy-action@3.7.1
-        with:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          BRANCH: gh-pages
-          FOLDER: doc/_build/html
-          CLEAN: true
