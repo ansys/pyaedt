@@ -2,7 +2,6 @@
 This module contains these Primitives classes: ``Polyline`` and ``Primitives``.
 
 
-========================================================
 
 """
 from __future__ import absolute_import
@@ -181,7 +180,7 @@ class Polyline(object):
 
     @property
     def start_point(self):
-        """ Position of the first point in the polyline object in [x, y, z] in the object coordinate system.
+        """Position of the first point in the polyline object in ``[x, y, z]`` in the object coordinate system.
 
         Returns
         -------
@@ -193,7 +192,7 @@ class Polyline(object):
 
     @property
     def end_point(self):
-        """ Position of the end point in the polyline object in [x, y, z] in the object coordinate system.
+        """Position of the end point in the polyline object in ``[x, y, z]`` in the object coordinate system.
 
         Returns
         -------
@@ -205,7 +204,7 @@ class Polyline(object):
 
     @property
     def vertex_positions(self):
-        """ List of all vertex positions in the polyline object in [x, y, z] in the object coordinate system.
+        """A list of all vertex positions in the polyline object in ``[x, y, z]`` in the object coordinate system.
 
         Returns
         -------
@@ -218,7 +217,7 @@ class Polyline(object):
 
     @aedt_exception_handler
     def _crosssection(self, type=None, orient=None, width=0, topwidth=0, height=0, num_seg=0, bend_type=None):
-        """ Generate the properties array for the polyline cross-section.
+        """Generate the properties array for the polyline cross-section.
         """
         arg_str = ["NAME:PolylineXSection"]
 
@@ -254,7 +253,7 @@ class Polyline(object):
 
     @aedt_exception_handler
     def _pl_point(self, pt):
-        """ Property array data for a polyline point.
+        """Property array data for a polyline point.
 
         Generate the XYZ point data property array for AEDT. The X, Y, and Z coordinates are taken
         from the first three elements of the point. Numeric values are converted to strings with model units.
@@ -509,7 +508,7 @@ class Polyline(object):
     def remove_vertex(self, position, abstol=1e-9):
         """ Remove a vertex from an existing polyline by position.
 
-        Removes a vertex from a polyline object.You must enter the exact position of the vertex as a list
+        Removes a vertex from a polyline object. You must enter the exact position of the vertex as a list
         of [x, y, z] coordinates in the object coordinate system
 
         Parameters
@@ -571,7 +570,7 @@ class Polyline(object):
         """ Remove a vertex from an existing polyline by position
 
         Removes a vertex from a polyline object. You must enter the exact position of 
-        the vertex as a list of [x, y, z] coordinates in the object coordinate system.
+        the vertex as a list of ``[x, y, z]`` coordinates in the object coordinate system.
 
         Parameters
         ----------
@@ -985,7 +984,8 @@ class Primitives(object):
 
     @aedt_exception_handler
     def value_in_object_units(self, value):
-        '''
+        '''Convert a numerical length string, such as ``10mm`` to a floating point value.
+
             Convert a numerical length string, such as ``10mm`` to a floating point value 
             in the defined object units ``self.object_units``. If a list of such objects is 
             given, convert the entire list.
@@ -1169,7 +1169,7 @@ class Primitives(object):
         of the polyline.
 
         Parameters
-        -------
+        ---------
         position_list : list
             Array of positions of each point of the polyline.
             A position is a list of 2D or 3D coordinates. Position coordinate values
@@ -1223,7 +1223,6 @@ class Primitives(object):
 
         Examples
         -------
-        
         Set up the desktop environment
         
         >>> from pyaedt.desktop import Desktop
@@ -1251,13 +1250,13 @@ class Primitives(object):
         using ``PolylineSegment``.
         
         >>> P3 = primitives.create_polyline(test_points[1:],
-        ...                          segment_type=PolylineSegment(type="Arc", num_seg=7),
-        ...                          name = "PL_segmented_arc")
+        ...                               segment_type=PolylineSegment(type="Arc", num_seg=7),
+        ...                               name="PL_segmented_arc")
 
         Specify that the four points form a spline and add a circular cross-section of diameter 1mm.
         
         >>> P4 = primitives.create_polyline(test_points, segment_type="Spline", name="PL_spline",
-        ...                          xsection_type="Circle", xsection_width="1mm")
+        ...                               xsection_type="Circle", xsection_width="1mm")
 
         Now use the ``PolylineSegment`` object to specify more detail about the individual segments.
         Create a center-point arc starting from the position test_points[1], rotating about the
