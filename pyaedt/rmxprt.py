@@ -154,7 +154,7 @@ class Rmxprt(FieldAnalysisRMxprt):
     """
 
     def __init__(self, projectname=None, designname=None, solution_type=None, model_units=None, setup_name=None,
-                 specified_version=None, NG=False, AlwaysNew=True, release_on_exit=True):
+                 specified_version=None, NG=False, AlwaysNew=False, release_on_exit=False):
         FieldAnalysisRMxprt.__init__(self, "RMxprtSolution", projectname, designname, solution_type, setup_name,
                                      specified_version, NG, AlwaysNew, release_on_exit)
         if not model_units or model_units == "mm":
