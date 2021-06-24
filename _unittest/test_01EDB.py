@@ -46,6 +46,15 @@ class TestEDB:
         assert len(self.edbapp.core_components.IOs)>0
         assert len(self.edbapp.core_components.Others)>0
 
+    def test_get_primitives(self):
+        assert len(self.edbapp.core_primitives.polygons)>0
+        assert len(self.edbapp.core_primitives.paths)>0
+        assert len(self.edbapp.core_primitives.rectangles)>0
+        assert len(self.edbapp.core_primitives.circles)>0
+        assert len(self.edbapp.core_primitives.bondwires) == 0
+        assert len(self.edbapp.core_primitives.polygons_by_layer["TOP"])>0
+        assert len(self.edbapp.core_primitives.polygons_by_layer["UNNAMED_000"]) == 0
+
 
     def test_get_stackup(self):
         stackup = self.edbapp.core_stackup.stackup_layers

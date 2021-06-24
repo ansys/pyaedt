@@ -85,8 +85,6 @@ def _exception(ex_info, func, args, kwargs, message="Type Error"):
     print("************************************************************")
 
 
-
-
 def aedt_exception_handler(func):
     """Decorator for pyaedt Exception Management
 

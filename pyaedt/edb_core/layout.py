@@ -40,8 +40,9 @@ class EdbLayout(object):
 
     def __init__(self,parent):
         self.parent = parent
-        self._primitives = {}
-        self.init_primitives()
+        self._primitives_by_layer = {}
+        self._prims = []
+        self.update_primitives()
 
 
     @property
@@ -85,17 +86,66 @@ class EdbLayout(object):
         return self.parent.core_stackup.stackup_layers.layers
 
     @aedt_exception_handler
-    def init_primitives(self):
+    def update_primitives(self):
+        layoutInstance = self.active_layout.GetLayoutInstance()
+        layoutObjectInstances = layoutInstance.GetAllLayoutObjInstances()
+        for el in layoutObjectInstances.Items:
+            self._prims.append(el.GetLayoutObj())
         for lay in self.layers:
-            self._primitives[lay] = self.get_polygons_by_layer(lay)
+            self._primitives_by_layer[lay] = self.get_polygons_by_layer(lay)
+
+    @property
+    def primitives(self):
+        if not self._prims:
+            self.update_primitives()
+        return self._prims
+
+    @property
+    def polygons_by_layer(self):
+        if not self._primitives_by_layer:
+            self.update_primitives()
+        return self._primitives_by_layer
+
+    @property
+    def rectangles(self):
+        prims = []
+        for el in self.primitives:
+            if "Rectangle" in el.ToString():
+                prims.append(el)
+        return prims
+
+    @property
+    def circles(self):
+        prims = []
+        for el in self.primitives:
+            if "Circle" in el.ToString():
+                prims.append(el)
+        return prims
+
+    @property
+    def paths(self):
+        prims = []
+        for el in self.primitives:
+            if "Path" in el.ToString():
+                prims.append(el)
+        return prims
+
+    @property
+    def bondwires(self):
+        prims = []
+        for el in self.primitives:
+            if "Bondwire" in el.ToString():
+                prims.append(el)
+        return prims
 
     @property
     def polygons(self):
         """:return: list of polygons"""
-        layoutInstance = self.active_layout.GetLayoutInstance()
-        layoutObjectInstances = layoutInstance.GetAllLayoutObjInstances()
-        objs = [el.GetLayoutObj() for el in layoutObjectInstances.Items if el.GetLayoutObj().GetType().Name == "Polygon"]
-        return objs
+        prims = []
+        for el in self.primitives:
+            if "Polygon" in el.ToString():
+                prims.append(el)
+        return prims
 
     @aedt_exception_handler
     def get_polygons_by_layer(self, layer_name, net_list=None):
@@ -330,6 +380,7 @@ class EdbLayout(object):
             self.messenger.add_error_message('Null path created')
             return False
         else:
+            self.update_primitives()
             return True
 
     @aedt_exception_handler
@@ -372,6 +423,7 @@ class EdbLayout(object):
             self.messenger.add_error_message('Null polygon created')
             return False
         else:
+            self.update_primitives()
             return True
 
     def shape_to_polygon_data(self, shape):
