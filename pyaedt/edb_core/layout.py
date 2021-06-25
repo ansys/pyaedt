@@ -1,9 +1,5 @@
 """
-Components Class
--------------------
-
-This class manages Edb Components and related methods
-
+This module contains all EDB functionalities in the ``EDB Layout`` class.
 
 """
 import warnings
@@ -27,7 +23,8 @@ class Primitive(object):
         self.paths = []
 
 class EdbLayout(object):
-    """HFSS 3DLayout object"""
+    """EDB Layout class."""
+
     @property
     def edb(self):
         return self.parent.edb
@@ -42,7 +39,6 @@ class EdbLayout(object):
         self.parent = parent
         self._primitives_by_layer = {}
         self.update_primitives()
-
 
     @property
     def builder(self):
@@ -209,19 +205,19 @@ class EdbLayout(object):
 
     @aedt_exception_handler
     def get_polygons_by_layer(self, layer_name, net_list=None):
-        """
-
+        """Retrieve polygons by a layer.
+        
         Parameters
         ----------
-        layer_name : str
-            layer name
-        net_list : list
-            List of net names
-
+        layer_name: str
+            Name of the layer.
+        net_list : list, optional
+            List of net names.
+        
         Returns
         -------
         list
-            list of Primitive object
+            List of primitive objects.
         """
         objinst=[]
         for el in self.polygons:
@@ -234,21 +230,23 @@ class EdbLayout(object):
 
     @aedt_exception_handler
     def get_polygon_bounding_box(self, polygon):
-        """Return the polygon bounding box
+        """Retrieve a polygon bounding box.
         
-
         Parameters
         ----------
-        polygon :
+        polygon : 
             edb_core polygon
 
         Returns
         -------
         list
-            bounding box [-x,-y,+x,+y]
+            Bounding box ``[-x, -y, +x, +y]``.
 
+        Examples
+        --------
         >>> poly = edb_core.core_primitives.get_polygons_by_layer("GND")
         >>> bounding = edb_core.core_primitives.get_polygon_bounding_box(poly[0])
+        
         """
         bounding = []
         try:
@@ -260,7 +258,10 @@ class EdbLayout(object):
 
     @aedt_exception_handler
     def get_polygon_points(self, polygon):
-        """Return Polygon Points list. for Arcs, 1 point will be returned
+        """List polygon points. 
+        
+        .. note::
+           For arcs, one point is returned.
         
         Parameters
         ----------
@@ -269,11 +270,15 @@ class EdbLayout(object):
 
         Returns
         -------
-        type
-            list of list of double
+        list
+            List of doubles.
 
+        Examples
+        --------
+        
         >>> poly = edb_core.core_primitives.get_polygons_by_layer("GND")
         >>> points  = edb_core.core_primitives.get_polygon_points(poly[0])
+        
         """
         points = []
         i=0
@@ -297,25 +302,27 @@ class EdbLayout(object):
 
     @aedt_exception_handler
     def parametrize_polygon(self, polygon,selection_polygon, offset_name="offsetx", origin=None):
-        """Parametrize pieces of polygon based on another polygon.
+        """Parametrize pieces of a polygon based on another polygon.
 
         Parameters
         ----------
-        polygon : Polygon
+        polygon : 
             Polygon to parametrize.
-        selection_polygon : Polygon
-            Polygon to use as filter.
+        selection_polygon : 
+            Polygon to use as a filter.
         offset_name : str, optional
-            Name of the variable to create.  Defaults to ``"offsetx"``.
+            Name of the variable to create.  The default is ``"offsetx"``.
         origin : list, optional
-            List of x and y origin. Default is ``[0, 0]``. It impacts the vector 
-            computation and is needed to determine expansion direction. If 
-            ``None``, it will be computed from the polygon's center.
+            List of the X and Y origins, which impacts the vector 
+            computation and is needed to determine expansion direction. 
+            The default is ``None``. If ``None``, the vector is
+            computed from the polygon's center.
 
         Returns
         -------
         bool
-            Returns ``True`` when successful.
+            ``True`` when successful, ``False`` when failed.
+            
         """
         def calc_slope(point, origin):
             if point[0] - origin[0] != 0:
@@ -385,28 +392,35 @@ class EdbLayout(object):
     def create_path(self, path_list, layer_name, width=1, net_name="", start_cap_style="Round", end_cap_style="Round",
                     corner_style="Round"):
         """
-        Create a path based on a list of points
+        Create a path based on a list of points.
 
         Parameters
         ----------
-        path_list : Shape
-            list of points
+        path_list : list
+            List of points.
         layer_name : str
-            name of the layer on which path will be created
-        width : float
-            path width
-        net_name : str
-            net name
-        start_cap_style : str
-            Start Cap file. "Round", "Extended", "Flat"
-        end_cap_style : str
-            End Cap file. "Round", "Extended", "Flat"
-        corner_style : str
-            Corner Style: "Round" or "Flat"
+            Name of the layer on which to create the path.
+        width : float, optional
+            Width of the path. The default is ``1``.
+        net_name : str, optional
+            Name of the net. The default is ``""``.
+        start_cap_style : str, optional
+            Style of the cap at its start. Choices are ``"Round"``, 
+            ``"Extended",`` and ``"Flat"``. The default is 
+            ``"Round"``.
+        end_cap_style : str, optional
+            Style of the cap at its end. Choices are ``"Round"``, 
+            ``"Extended",`` and ``"Flat"``. The default is 
+            ``"Round"``.
+        corner_style : str, optional
+            Style of the corner. Choices are ``"Round"`` and 
+            ``"Flat"``. The default is ``"Round"``.
 
         Returns
         -------
         bool
+            ``True`` when successful, ``False`` when failed.
+            
         """
         net = self.parent.core_nets.find_or_create_net(net_name)
         if start_cap_style.lower() == "round":
@@ -446,22 +460,24 @@ class EdbLayout(object):
     @aedt_exception_handler
     def create_polygon(self, main_shape,  layer_name, voids=[], net_name=""):
         """
-        Create a new polygon based on list of points and voids
+        Create a new polygon based on list of points and voids.
 
         Parameters
         ----------
-        main_shape : Shape
-            shape main object
+        main_shape : 
+            Shape of the main object.
         layer_name : str
-            layer on which polygon will be created
-        voids : list
-            list of Shape object for voids
-        net_name : str
-            name of the net
+            Name of the layer on which to create the polygon.
+        voids : list, optional
+            List of shape objects for voids. The default is``[]``.
+        net_name : str, optional
+            Name of the net. The default is ``""``.
 
         Returns
         -------
         bool
+            ``True`` when successful, ``False`` when failed.
+             
         """
         net = self.parent.core_nets.find_or_create_net(net_name)
         polygonData = self.shape_to_polygon_data(main_shape)
@@ -487,18 +503,25 @@ class EdbLayout(object):
             return True
 
     def shape_to_polygon_data(self, shape):
+        """Convert a shape to polygon data.
+
+        Parameters
+        ----------
+        shape : str
+            Type of the shape to convert. Choices are ``"rectangle"`` and ``"polygon"``.
+        """
         if shape.type == 'polygon':
             return self._createPolygonDataFromPolygon(shape)
         elif shape.type == 'rectangle':
             return self._createPolygonDataFromRectangle(shape)
         else:
-            self.messenger.add_error_message('Unsupported shape type {} when creating polygon primitive'.format(shape.type))
+            self.messenger.add_error_message('Unsupported shape type {} when creating a polygon primitive.'.format(shape.type))
             return None
 
     def _createPolygonDataFromPolygon(self, shape):
         points = shape.points
         if not self._validatePoint(points[0]):
-            self.messenger.add_error_message('Error validating point')
+            self.messenger.add_error_message('Error validating point.')
             return None
         arcs = []
         for i in range(1, len(points)):
@@ -520,7 +543,7 @@ class EdbLayout(object):
                 elif endPoint[2].ToString() == 'ccw':
                     rotationDirection = self.edb.Geometry.RotationDirection.CCW
                 else:
-                    self.messenger.add_error_message('Invalid rotation direction {} specified'.format(endPoint[2]))
+                    self.messenger.add_error_message('Invalid rotation direction {} is specified.'.format(endPoint[2]))
                     return None
                 arc = self.edb.Geometry.ArcData(
                     self.edb.Geometry.PointData(startPoint[0], startPoint[1]),
@@ -533,30 +556,30 @@ class EdbLayout(object):
     def _validatePoint(self, point, allowArcs=True):
         if len(point) == 2:
             if not isinstance(point[0], (int,float)):
-                self.messenger.add_error_message('Point X value must be a float')
+                self.messenger.add_error_message('Point X value must be a float.')
                 return False
             if not isinstance(point[1], (int,float)):
-                self.messenger.add_error_message('Point Y value must be a float')
+                self.messenger.add_error_message('Point Y value must be a float.')
                 return False
             return True
         elif len(point) == 5:
             if not allowArcs:
-                self.messenger.add_error_message('Arc found but arcs not allowed in _validatePoint')
+                self.messenger.add_error_message('Arc found but arcs are not allowed in _validatePoint.')
                 return False
             if not isinstance(point[0], (int,float)):
-                self.messenger.add_error_message('Point X value must be a float')
+                self.messenger.add_error_message('Point X value must be a float.')
                 return False
             if not isinstance(point[1], (int,float)):
-                self.messenger.add_error_message('Point Y value must be a float')
+                self.messenger.add_error_message('Point Y value must be a float.')
                 return False
             if not isinstance(point[2], str) or point[2] not in ['cw', 'ccw']:
-                self.messenger.add_error_message('Invalid rotation direction')
+                self.messenger.add_error_message('Invalid rotation direction {} is specified.')
                 return False
             if not isinstance(point[3], (int,float)):
-                self.messenger.add_error_message('Arc center point X value must be a float')
+                self.messenger.add_error_message('Arc center point X value must be a float.')
                 return False
             if not isinstance(point[4], (int,float)):
-                self.messenger.add_error_message('Arc center point Y value must be a float')
+                self.messenger.add_error_message('Arc center point Y value must be a float.')
                 return False
             return True
         else:
@@ -572,19 +595,29 @@ class EdbLayout(object):
         return self.edb.Geometry.PolygonData.CreateFromBBox(points)
 
     class Shape(object):
-        def __init__(self, type='unknown', pointA=None, pointB=None, centerPoint=None, radius=None, points=None,
-                     properties={}):
-            """Shape constructor
+        """Shape class.
+                   
+        Parameters
+        ----------
+        type : str, optional
+            Type of the shape. Choices are ``"circle"``, ``"rectangle"``, and ``"polygon"``.
+            The default is ``"unknown``.
+        pointA : optional
+            Lower-left corner when ``type="rectangle"``. The default is ``None``.
+        pointB : optional
+            Upper-right corner when ``type="rectangle"``. The default is ``None``.
+        centerPoint : optional
+            Center point when ``type="circle"``. The default is ``None``.
+        radius : optional
+            Radius when ``type="circle"``. The default is ``None``.
+        points : list, optional
+            List of points when ``type="polygon"``. The default is ``None``.
+        properties : dict, optional
+            Dictionary of properties associated with the shape. The default is ``{}``.
+        """
 
-            Keyword Arguments:
-            type -- type of shape ('circle' or 'rectangle' or 'polygon')
-            pointA -- lower-left corner of 'rectangle' type shape
-            pointB -- upper-right corner of 'rectangle' type shape
-            centerPoint -- center point of 'circle' type shape
-            radius -- radius of 'circle' type shape
-            points -- list of point data lists for 'polygon' type shape
-            properties -- dictionary of properties associated with the shape
-            """
+    def __init__(self, type='unknown', pointA=None, pointB=None, centerPoint=None, radius=None, points=None,
+                     properties={}):
             self.type = type
             self.pointA = pointA
             self.pointB = pointB
