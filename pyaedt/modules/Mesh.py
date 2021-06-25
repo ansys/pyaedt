@@ -99,14 +99,10 @@ class MeshOperation(object):
 class Mesh(object):
     """
     Mesh class.   
-    """
-
+    
     Parameters
     ----------
-
-    Returns
-    -------
-
+    
     """
 
     def __init__(self, parent):
