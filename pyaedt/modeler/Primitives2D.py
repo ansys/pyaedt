@@ -3,7 +3,7 @@ from .Primitives import Primitives
 
 
 class Primitives2D(Primitives, object):
-    """Primitives2D class. 
+    """Primitives2D class."""
 
     @aedt_exception_handler
     def is3d(self):
