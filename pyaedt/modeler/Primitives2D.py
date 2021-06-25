@@ -43,7 +43,7 @@ class Primitives2D(Primitives, object):
         Returns
         -------
         type
-            ID
+            ID of the created circle.
 
         """
         o = self._new_object(matname=matname)
@@ -79,7 +79,7 @@ class Primitives2D(Primitives, object):
         major_raidus : float
             
         ratio : float
-            
+            Ratio between major and minor radius.
         bIsCovered : bool, optional
             The default is ``True``.
         name : str, optional
@@ -91,7 +91,7 @@ class Primitives2D(Primitives, object):
         Returns
         -------
         type
-           ID
+           ID of the created ellipse.
 
         """
         o = self._new_object(matname=matname)
@@ -138,7 +138,7 @@ class Primitives2D(Primitives, object):
         Returns
         -------
         type
-            ID
+            ID of the created rectangle.
 
         """
         o = self._new_object(matname=matname)
