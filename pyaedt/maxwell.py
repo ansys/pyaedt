@@ -1,31 +1,4 @@
-"""
-This module contains these Maxwell classes: ``Maxwell``, ``Maxwell2d``, and ``Maxwell3d``.
-
-
-Examples
---------
-
-Create an instance of ``Maxwell2d`` and connect to an existing Maxwell 2D design or create a new Maxwell 2D design if one does not exist.
-
->>> aedtapp = Maxwell2d()
-
-Create an instance of ``Maxwell2d`` and link to a project named ``projectname``. If this project does not exist, create one with this name.
-
->>> aedtapp = Maxwell2d(projectname)
-
-Create an instance of ``Maxwell2d`` and link to a design named ``designname`` in a project named ``projectname``.
-
->>> aedtapp = Maxwell2d(projectname,designame)
-
-Create an instance of ``Maxwell3d`` and open the specified project, which is named ``myfile.aedt``.
-
->>> aedtapp = Maxwell3d("myfile.aedt")
-
-Create an instance of Maxwell using the 2021 R1 release and open the specified project, which is named ``myfile.aedt``.
-
->>> aedtapp = Maxwell3d(specified_version="2021.1", projectname="myfile.aedt")
-
-"""
+"""This module contains these Maxwell classes: ``Maxwell``, ``Maxwell2d``, and ``Maxwell3d``."""
 
 from __future__ import absolute_import
 import math
@@ -740,37 +713,55 @@ class Maxwell(object):
 
 
 class Maxwell3d(Maxwell, FieldAnalysis3D, object):
-    """Maxwell 3D class.
+    """Maxwell 3D instance interface.
+
+    Allows you to connect to an existing Maxwell 3D design or create a
+    new Maxwell 3D design if one does not exist.
 
     Parameters
     ----------
     projectname : str, optional
-        Name of the project to select or the full path to the project or AEDTZ archive to open. 
-        The default is ``None``. If ``None``, try to get an active project and, if no projects are present, 
-        create an empty project.
+        Name of the project to select or the full path to the project
+        or AEDTZ archive to open.  The default is ``None``. If
+        ``None``, try to get an active project and, if no projects are
+        present, create an empty project.
      designname : str, optional
-         Name of the design to select. The default is ``None``. If ``None``, try to get an active design and, 
-         if no designs are present, create an empty design.
+         Name of the design to select. The default is ``None``. If
+         ``None``, try to get an active design and, if no designs are
+         present, create an empty design.
      solution_type : str, optional
-         Solution type to apply to the design. The default is ``None``. If ``None`, the default type is applied.
+         Solution type to apply to the design. The default is
+         ``None``. If ``None`, the default type is applied.
      setup_name : str, optional
-         The name of the setup to use as the nominal. The default is ``None``. If ``None``, the active setup 
-         is used or nothing is used.
+         The name of the setup to use as the nominal. The default is
+         ``None``. If ``None``, the active setup is used or nothing is
+         used.
      specified_version : str, optional
-        Version of AEDT to use. The default is ``None``. If ``None``, the
-        active setup is used or the latest installed version is used.
+        Version of AEDT to use. The default is ``None``. If ``None``,
+        the active setup is used or the latest installed version is
+        used.
      NG : bool, optional
-        Whether to launch AEDT in the non-graphical mode. The default 
+        Whether to launch AEDT in the non-graphical mode. The default
         is ``False``, which launches AEDT in the graphical mode.
      AlwaysNew : bool, optional
-        Whether to launch an instance of AEDT in a new thread, even if 
-        another instance of the ``specified_version`` is active on the machine.
-        The default is ``True``.
+        Whether to launch an instance of AEDT in a new thread, even if
+        another instance of the ``specified_version`` is active on the
+        machine.  The default is ``True``.
      release_on_exit : bool, optional
         Whether to release AEDT on exit. The default is ``True``.
-   
-    Returns
-    -------
+
+    Examples
+    --------
+    Create an instance of ``Maxwell3d`` and open the specified
+    project, which is named ``myfile.aedt``.
+
+    >>> from pyaedt import Maxwell3d
+    >>> aedtapp = Maxwell3d("myfile.aedt")
+
+    Create an instance of Maxwell using the 2021 R1 release and open
+    the specified project, which is named ``myfile.aedt``.
+
+    >>> aedtapp = Maxwell3d(specified_version="2021.1", projectname="myfile.aedt")
 
     """
 
@@ -790,37 +781,62 @@ class Maxwell3d(Maxwell, FieldAnalysis3D, object):
 
 
 class Maxwell2d(Maxwell, FieldAnalysis2D, object):
-    """Maxwell 2D class.
+    """Maxwell 2D instance interface.
+
+    Allows you to connect to an existing Maxwell 2D design or create a
+    new Maxwell 2D design if one does not exist.
 
     Parameters
     ----------
     projectname : str, optional
-        Name of the project to select or the full path to the project or AEDTZ archive to open. 
-        The default is ``None``. If ``None``, try to get an active project and, if no projects are present, 
-        create an empty project.
+        Name of the project to select or the full path to the project
+        or AEDTZ archive to open.  The default is ``None``. If
+        ``None``, try to get an active project and, if no projects are
+        present, create an empty project.
      designname : str, optional
-         Name of the design to select. The default is ``None``. If ``None``, try to get an active design and, 
-         if no designs are present, create an empty design.
+         Name of the design to select. The default is ``None``. If
+         ``None``, try to get an active design and, if no designs are
+         present, create an empty design.
      solution_type : str, optional
-         Solution type to apply to the design. The default is ``None``. If ``None``, the default type is applied.
+         Solution type to apply to the design. The default is
+         ``None``. If ``None``, the default type is applied.
      setup_name : str, optional
-         Name of the setup to use as the nominal. The default is ``None``. If ``None``, the active setup 
-         is used or nothing is used.
+         Name of the setup to use as the nominal. The default is
+         ``None``. If ``None``, the active setup is used or nothing is
+         used.
      specified_version : str, optional
-        Version of AEDT to use. The default is ``None``. If ``None``, the
-        active setup is used or the latest installed version is used.
+        Version of AEDT to use. The default is ``None``. If ``None``,
+        the active setup is used or the latest installed version is
+        used.
      NG : bool, optional
-        Whether to launch AEDT in the non-graphical mode. The default 
+        Whether to launch AEDT in the non-graphical mode. The default
         is ``False``, which launches AEDT in the graphical mode.
      AlwaysNew : bool, optional
-        Whether to launch an instance of AEDT in a new thread, even if 
-        another instance of the ``specified_version`` is active on the machine.
-        The default is ``True``.
+        Whether to launch an instance of AEDT in a new thread, even if
+        another instance of the ``specified_version`` is active on the
+        machine.  The default is ``True``.
      release_on_exit : bool, optional
         Whether to release AEDT on exit. The default is ``True``.
 
-    Returns
-    -------
+    Examples
+    --------
+    Create an instance of ``Maxwell2d`` and connect to an existing
+    Maxwell 2D design or create a new Maxwell 2D design if one does
+    not exist.
+
+    >>> from pyaedt import Maxwell2d
+    >>> aedtapp = Maxwell2d()
+
+    Create an instance of ``Maxwell2d`` and link to a project named
+    ``projectname``. If this project does not exist, create one with
+    this name.
+
+    >>> aedtapp = Maxwell2d(projectname)
+
+    Create an instance of ``Maxwell2d`` and link to a design named
+    ``designname`` in a project named ``projectname``.
+
+    >>> aedtapp = Maxwell2d(projectname,designame)
 
     """
 

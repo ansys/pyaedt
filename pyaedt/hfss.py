@@ -1,31 +1,4 @@
-"""
-This module contains all HFSS functionalities in the ``Hfss`` class.
-
-
-Examples
---------
-
-Create an instance of ``Hfss`` and connect to an existing HFSS design or create a new HFSS design if one does not exist.
-
->>> hfss = Hfss()
-
-Create an instance of ``Hfss`` and link to a project named ``projectname``. If this project does not exist, create one with this name.
-
->>> hfss = Hfss(projectname)
-
-Create an instance of ``Hfss`` and link to a design named ``"designname"`` in a project named ``"projectname"``.
-
->>> hfss = Hfss(projectname,designame)
-
-Create an instance of ``Hfss`` and open the specified project, which is named ``"myfile.aedt"``.
-
->>> hfss = Hfss("myfile.aedt")
-
-Create an instance of ``Hfss`` using the 2021 R1 release and open the specified project, which is named ``"myfile.aedt"``.
-
->>> hfss = Hfss(specified_version="2021.1", projectname="myfile.aedt")
-
-"""
+"""This module contains the ``Hfss`` class."""
 from __future__ import absolute_import
 import os
 from .application.Analysis3D import FieldAnalysis3D
@@ -38,7 +11,74 @@ from .application.DataHandlers import random_string
 
 
 class Hfss(FieldAnalysis3D, object):
-    """HFSS object"""
+    """HFSS instance interface.
+
+    Allows you to create an interactive instance of ``Hfss`` and
+    connect to an existing HFSS design or create a new HFSS design if
+    one does not exist.
+
+    Parameters
+    ----------
+    projectname : str, optional
+        Name of the project to select or the full path to the project
+        or AEDTZ archive to open.  The default is ``None``. If
+        ``None``, try to get an active project and, if no projects are
+        present, create an empty project.
+    designname : str, optional
+        Name of the design to select. The default is ``None``. If
+        ``None``, try to get an active design and, if no designs are
+        present, create an empty design.
+    solution_type : str, optional
+        Solution type to apply to the design. The default is
+        ``None``. If ``None``, the default type is applied.
+    setup_name : str, optional
+        Name of the setup to use as the nominal. The default is
+        ``None``. If ``None``, the active setup is used or nothing is
+        used.
+    specified_version : str, optional
+        Version of AEDT to use. The default is ``None``. If ``None``,
+        the active setup is used or the latest installed version is
+        used.
+    NG : bool, optional
+        Whether to launch AEDT in the non-graphical mode. The default
+        is ``False``, which launches AEDT in the graphical mode.
+    AlwaysNew : bool, optional
+        Whether to launch an instance of AEDT in a new thread, even if
+        another instance of the ``specified_version`` is active on the
+        machine.  The default is ``True``.
+    release_on_exit : bool, optional
+        Whether to release AEDT on exit. The default is ``True``.
+
+    Examples
+    --------
+
+    Create an instance of ``Hfss`` and connect to an existing HFSS
+    design or create a new HFSS design if one does not exist.
+
+    >>> hfss = Hfss()
+
+    Create an instance of ``Hfss`` and link to a project named
+    ``projectname``. If this project does not exist, create one with
+    this name.
+
+    >>> hfss = Hfss(projectname)
+
+    Create an instance of ``Hfss`` and link to a design named
+    ``"designname"`` in a project named ``"projectname"``.
+
+    >>> hfss = Hfss(projectname,designame)
+
+    Create an instance of ``Hfss`` and open the specified project,
+    which is named ``"myfile.aedt"``.
+
+    >>> hfss = Hfss("myfile.aedt")
+
+    Create an instance of ``Hfss`` using the 2021 R1 release and open
+    the specified project, which is named ``"myfile.aedt"``.
+
+    >>> hfss = Hfss(specified_version="2021.1", projectname="myfile.aedt")
+
+    """
 
     def __repr__(self):
         try:
@@ -49,33 +89,6 @@ class Hfss(FieldAnalysis3D, object):
 
     def __init__(self, projectname=None, designname=None, solution_type=None, setup_name=None,
                  specified_version=None, NG=False, AlwaysNew=False, release_on_exit=False):
-        """HFSS class.
-
-            Parameters
-            ----------
-            projectname : str, optional
-                Name of the project to select or the full path to the project or AEDTZ archive to open. 
-                The default is ``None``. If ``None``, try to get an active project and, if no projects are present, 
-                create an empty project.
-            designname : str, optional
-                Name of the design to select. The default is ``None``. If ``None``, try to get an active design and, 
-                if no designs are present, create an empty design.
-            solution_type : str, optional
-                Solution type to apply to the design. The default is ``None``. If ``None``, the default type is applied.
-            setup_name : str, optional
-                Name of the setup to use as the nominal. The default is ``None``. If ``None``, the active setup 
-                is used or nothing is used.
-            specified_version : str, optional
-                Version of AEDT to use. The default is ``None``. If ``None``, the active setup is used or the latest installed version is used.
-            NG : bool, optional
-                Whether to launch AEDT in the non-graphical mode. The default is ``False``, which launches AEDT in the graphical mode.   
-            AlwaysNew : bool, optional
-                Whether to launch an instance of AEDT in a new thread, even if another instance of the ``specified_version`` is active on the machine.
-                The default is ``True``.
-            release_on_exit : bool, optional
-                Whether to release AEDT on exit. The default is ``True``.
-
-        """
         FieldAnalysis3D.__init__(self, "HFSS", projectname, designname, solution_type, setup_name,
                                  specified_version, NG, AlwaysNew, release_on_exit)
 
