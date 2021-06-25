@@ -22,7 +22,8 @@ steps:
 
 - script: |
     python -m venv $(python.venv)
-    '$(python.venv)\Scripts\activate.bat'
+    echo $(python.venv)\Scripts\activate.bat
+    $(python.venv)\Scripts\activate.bat
     pip install pip -U
     python -c "import sys; print(sys.executable)"
   displayName: 'Create virtual env'
