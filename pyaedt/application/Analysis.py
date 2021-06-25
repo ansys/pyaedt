@@ -87,7 +87,7 @@ class Analysis(Design, object):
         Returns
         -------
         type
-            Postition object.
+            Position object.
 
         """
         return self.modeler.Position
@@ -788,7 +788,7 @@ class Analysis(Design, object):
 
     @aedt_exception_handler
     def get_object_material_properties(self, object_list=None, prop_names=None):
-        """Retrive the material properties for a list of given objects and return them in a dictionary.
+        """Retrieve the material properties for a list of given objects and return them in a dictionary.
         
         This high-level function ignores objects with no defined material properties.
 
@@ -798,7 +798,7 @@ class Analysis(Design, object):
             List of objects for which to get material_properties. The dfault is ``None``. 
             If ``None``, all objects are considered. 
         prop_names : str or list
-            The property or list of poperties to export.  The dfault is ``None``. 
+            The property or list of properties to export.  The default is ``None``. 
             If ``None``, all properties are exported. 
 
         Returns
