@@ -22,8 +22,7 @@ steps:
 
 - powershell: |
     python -m venv $(python.venv)
-    echo $(python.venv)\Scripts\Activate.ps1
-    $(python.venv)\Scripts\activate.bat
+    $(python.venv)\Scripts\Activate.ps1
     pip install pip -U
     python -c "import sys; print(sys.executable)"
   displayName: 'Create virtual env'
