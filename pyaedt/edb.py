@@ -125,6 +125,7 @@ class Edb(object):
         if not self.isreadonly:
             print(self.edbpath)
             print(self.edbversion)
+            self.edb.Database.SetRunAsStandAlone(True)
             self._db = self.edb.Database.Open(self.edbpath, self.isreadonly)
             self._active_cell =  list(self._db.TopCircuitCells)[0]
             self.builder = self.layout_methods.GetBuilder(self._db, self._active_cell)
