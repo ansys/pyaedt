@@ -3,12 +3,11 @@ API Documentation
 =================
 
 Welcome to PyAEDT API documentation.
-Use the search feature or click any module to view the API documentation.
-
-
+Use the search feature or click on the following links to view the API
+documentation.
 
 .. toctree::
-   :maxdepth: 1
+   :maxdepth: 2
 
    Application
    DesktopMessenger

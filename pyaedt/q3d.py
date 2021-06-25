@@ -53,7 +53,7 @@ class QExtractor(FieldAnalysis3D, FieldAnalysis2D, object):
 
 
 class Q3d(QExtractor, object):
-    """Q3D instance interface.
+    """Q3D application interface.
 
     Allows you to create an instance of Q3D and link to an
     existing project or create a new one.
@@ -375,7 +375,7 @@ class Q3d(QExtractor, object):
 
 
 class Q2d(QExtractor, object):
-    """Q2D instance interface.
+    """Q2D application interface.
 
     Allows you to create an instance of Q2D and link to an
     existing project or create a new one.

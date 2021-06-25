@@ -216,8 +216,17 @@ class ResistorSource(Source):
     def source_type(self):
         return self.source_type
 
+
 class EdBSiwave(object):
-    """EdbSiwave class."""
+    """EdbSiwave class.
+
+    Examples
+    --------
+    >>> from pyaedt import Edb
+    >>> edbapp = Edb("myaedbfolder", "project name", "release version")
+    >>> edbapp.core_siwave
+
+    """
 
     @property
     def siwave_source(self):

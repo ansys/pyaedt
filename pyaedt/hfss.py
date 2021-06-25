@@ -11,7 +11,7 @@ from .application.DataHandlers import random_string
 
 
 class Hfss(FieldAnalysis3D, object):
-    """HFSS instance interface.
+    """HFSS application interface.
 
     Allows you to create an interactive instance of ``Hfss`` and
     connect to an existing HFSS design or create a new HFSS design if
@@ -55,6 +55,7 @@ class Hfss(FieldAnalysis3D, object):
     Create an instance of ``Hfss`` and connect to an existing HFSS
     design or create a new HFSS design if one does not exist.
 
+    >>> from pyaedt import Hfss
     >>> hfss = Hfss()
 
     Create an instance of ``Hfss`` and link to a project named

@@ -1,6 +1,6 @@
-Application Objects
-===================
-The PyAEDT API includes these classes for application classes and modules
+Application
+===========
+The PyAEDT API includes these classes for application classes and modules.
 
 .. currentmodule:: pyaedt
 
@@ -11,15 +11,17 @@ The PyAEDT API includes these classes for application classes and modules
    Hfss
    Q3d
    Q2d
+   Edb
    Maxwell2d
    Maxwell3d
    Icepak   
-   Circuit
-   Edb
    Hfss3dLayout
    Mechanical
    Rmxprt
    Emit
+   Circuit
+   Simplorer
+
 
 Inheritance Diagram
 ~~~~~~~~~~~~~~~~~~~

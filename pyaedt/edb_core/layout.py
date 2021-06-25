@@ -14,6 +14,7 @@ try:
 except ImportError:
     warnings.warn('This module requires pythonnet.')
 
+
 class EdbLayout(object):
     """EDB Layout class."""
 

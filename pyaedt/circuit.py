@@ -153,7 +153,7 @@ def from_rkm_to_aedt(code):
 
 
 class Circuit(FieldAnalysisCircuit, object):
-    """Circuit object.
+    """Circuit interface.
 
     Parameters
     ----------

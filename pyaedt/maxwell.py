@@ -713,7 +713,7 @@ class Maxwell(object):
 
 
 class Maxwell3d(Maxwell, FieldAnalysis3D, object):
-    """Maxwell 3D instance interface.
+    """Maxwell 3D application interface.
 
     Allows you to connect to an existing Maxwell 3D design or create a
     new Maxwell 3D design if one does not exist.
@@ -734,7 +734,7 @@ class Maxwell3d(Maxwell, FieldAnalysis3D, object):
          present, create an empty design.
      solution_type : str, optional
          Solution type to apply to the design. The default is
-         ``None``. If ``None`, the default type is applied.
+         ``None``. If ``None``, the default type is applied.
      setup_name : str, optional
          The name of the setup to use as the nominal. The default is
          ``None``. If ``None``, the active setup is used or nothing is
@@ -784,7 +784,7 @@ class Maxwell3d(Maxwell, FieldAnalysis3D, object):
 
 
 class Maxwell2d(Maxwell, FieldAnalysis2D, object):
-    """Maxwell 2D instance interface.
+    """Maxwell 2D application interface.
 
     Allows you to connect to an existing Maxwell 2D design or create a
     new Maxwell 2D design if one does not exist.

@@ -13,7 +13,7 @@ from  collections import OrderedDict
 
 
 class Icepak(FieldAnalysisIcepak):
-    """Icepak instance interface.
+    """Icepak application interface.
 
     Allows you to connect to an existing Icepack design or create a
     new Icepak design if one does not exist.
@@ -31,7 +31,7 @@ class Icepak(FieldAnalysisIcepak):
         present, create an empty design.
     solution_type : str, optional
         Solution type to apply to design. The default is ``None``. If
-        ``None`, the default type is applied.
+        ``None``, the default type is applied.
     setup_name : str, optional
         Name of the setup to use as the nominal. The default is
         ``None``. If ``None``, the active setup is used or nothing is

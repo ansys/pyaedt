@@ -40,10 +40,10 @@ from .generic.general_methods import get_filename_without_extension, generate_un
 
 
 class Edb(object):
-    """EDB instance interface
+    """EDB instance interface.
 
-    This class exposes all EDB functionalities pythonically the and
-    inherits all objects that belong to EDB.
+    This module contains all functionalities in EDB. It inherits all
+    objects that belong to EDB.
 
     Parameters
     ----------
@@ -72,6 +72,55 @@ class Edb(object):
     >>> app = Edb("myfile.aedb")
 
     """
+
+    def __init__(self, edbpath=None, cellname=None, isreadonly=False, edbversion="2021.1", isaedtowned=False, oproject=None):
+        if edb_initialized:
+            self.oproject = oproject
+            if isaedtowned:
+                self._main = sys.modules['__main__']
+                self._messenger = self._main.oMessenger
+            else:
+                if not edbpath or not os.path.exists(edbpath):
+                    self._messenger = EDBMessageManager(r'C:\Temp')
+                elif os.path.exists(edbpath):
+                    self._messenger = EDBMessageManager(edbpath)
+
+
+            self._messenger.add_info_message("Messenger Initialized in EDB")
+            self.edbversion = edbversion
+            self.isaedtowned = isaedtowned
+
+
+            self._init_dlls()
+            self._db = None
+            # self._edb.Database.SetRunAsStandAlone(not isaedtowned)
+            self.isreadonly = isreadonly
+            self.cellname = cellname
+            self.edbpath = edbpath
+            if not os.path.exists(self.edbpath):
+                self.create_edb()
+            elif ".aedb" in edbpath:
+                self.edbpath = edbpath
+                if isaedtowned and "isoutsideDesktop" in dir(self._main) and not self._main.isoutsideDesktop:
+                    self.open_edb_inside_aedt()
+                else:
+                    self.open_edb()
+            elif edbpath[-3:] in ["brd", "gds", "xml", "dxf"]:
+                self.edbpath = edbpath[-3:] + ".aedb"
+                working_dir = os.path.dirname(edbpath)
+                self.import_layout_pcb(edbpath, working_dir)
+            self._components = None
+            self._core_primitives = None
+            self._stackup = None
+            self._padstack = None
+            self._siwave = None
+            self._hfss = None
+            self._nets = None
+        else:
+            self._db = None
+            self._edb = None
+            pass
+
     @aedt_exception_handler
     def _init_dlls(self):
         """ """
@@ -236,55 +285,6 @@ class Edb(object):
         self._db = self.builder.EdbHandler.dB
         self._active_cell = self.builder.EdbHandler.cell
         return self.builder
-
-
-    def __init__(self, edbpath=None, cellname=None, isreadonly=False, edbversion="2021.1", isaedtowned=False, oproject=None):
-        if edb_initialized:
-            self.oproject = oproject
-            if isaedtowned:
-                self._main = sys.modules['__main__']
-                self._messenger = self._main.oMessenger
-            else:
-                if not edbpath or not os.path.exists(edbpath):
-                    self._messenger = EDBMessageManager(r'C:\Temp')
-                elif os.path.exists(edbpath):
-                    self._messenger = EDBMessageManager(edbpath)
-
-
-            self._messenger.add_info_message("Messenger Initialized in EDB")
-            self.edbversion = edbversion
-            self.isaedtowned = isaedtowned
-
-
-            self._init_dlls()
-            self._db = None
-            # self._edb.Database.SetRunAsStandAlone(not isaedtowned)
-            self.isreadonly = isreadonly
-            self.cellname = cellname
-            self.edbpath = edbpath
-            if not os.path.exists(self.edbpath):
-                self.create_edb()
-            elif ".aedb" in edbpath:
-                self.edbpath = edbpath
-                if isaedtowned and "isoutsideDesktop" in dir(self._main) and not self._main.isoutsideDesktop:
-                    self.open_edb_inside_aedt()
-                else:
-                    self.open_edb()
-            elif edbpath[-3:] in ["brd", "gds", "xml", "dxf"]:
-                self.edbpath = edbpath[-3:] + ".aedb"
-                working_dir = os.path.dirname(edbpath)
-                self.import_layout_pcb(edbpath, working_dir)
-            self._components = None
-            self._core_primitives = None
-            self._stackup = None
-            self._padstack = None
-            self._siwave = None
-            self._hfss = None
-            self._nets = None
-        else:
-            self._db = None
-            self._edb = None
-            pass
 
     def __enter__(self):
         return self
