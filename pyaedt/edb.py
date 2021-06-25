@@ -1,19 +1,6 @@
-# -*- coding: utf-8 -*-
-"""
-This module contains all EDB functionalities in the ``Edb`` class. It inherits all objects that belong to EDB.
+"""This module contains all EDB functionalities in the ``Edb`` class. It inherits all objects that belong to EDB.
 
 This module is implicitily loaded in HFSS 3D Layout when launched.
-
-
-Examples
---------
-Create an ``Edb`` object and a new EDB cell.
-
->>> app = Edb()     
-
-Create an ``Edb`` object and open the specified project.
-
->>> app = Edb("myfile.aedb")
 
 """
 
@@ -53,7 +40,10 @@ from .generic.general_methods import get_filename_without_extension, generate_un
 
 
 class Edb(object):
-    """EDB object
+    """EDB instance interface
+
+    This class exposes all EDB functionalities pythonically the and
+    inherits all objects that belong to EDB.
 
     Parameters
     ----------
@@ -62,14 +52,24 @@ class Edb(object):
     cellname : str
         Name of the cell to select.
     isreadonly : bool, optional
-        Whether to open ``edb_core`` in read-only mode when it is owned by HFSS 3D Layout. The default is ``False``.
+        Whether to open ``edb_core`` in read-only mode when it is
+        owned by HFSS 3D Layout. The default is ``False``.
     edbversion : str, optional
         Version of ``edb_core`` to use. The default is ``"2021.1"``.
     isaedtowned : bool, optional
-        Whether to launch ``edb_core`` from HFSS 3D Layout. The default is ``False``.
+        Whether to launch ``edb_core`` from HFSS 3D Layout. The
+        default is ``False``.
 
-    Returns
-    -------
+    Examples
+    --------
+    Create an ``Edb`` object and a new EDB cell.
+
+    >>> from pyaedt import Edb
+    >>> app = Edb()     
+
+    Create an ``Edb`` object and open the specified project.
+
+    >>> app = Edb("myfile.aedb")
 
     """
     @aedt_exception_handler

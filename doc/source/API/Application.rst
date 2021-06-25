@@ -14,6 +14,10 @@ The PyAEDT API includes these classes for application classes and modules
    Maxwell2d
    Maxwell3d
    Icepak   
+   Circuit
+   Edb
+   Hfss3dLayout
+
 
 Inheritance Diagram
 ~~~~~~~~~~~~~~~~~~~
@@ -22,9 +26,6 @@ Inheritance Diagram
     :parts: 1
 
 ..
-   Circuit
-   EDB
-   HFSS3DLayout
    Mechanical
    RMxprt
    Emit

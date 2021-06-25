@@ -718,6 +718,9 @@ class Maxwell3d(Maxwell, FieldAnalysis3D, object):
     Allows you to connect to an existing Maxwell 3D design or create a
     new Maxwell 3D design if one does not exist.
 
+    This class exposes all Ansys Maxwell 3d application
+    functionalities pythonically.
+
     Parameters
     ----------
     projectname : str, optional
