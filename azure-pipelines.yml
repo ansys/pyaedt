@@ -44,7 +44,8 @@ steps:
     pytest -v --cov --cov-report=xml --cov-report=html --junitxml=junit/test-results.xml
   displayName: 'Unit testing'
 
-- script: |
+- powershell: |
+   $(python.venv)\Scripts\Activate.ps1
    coverage xml
   displayName: 'Coverage'
 
