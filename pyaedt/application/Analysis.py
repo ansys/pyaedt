@@ -1,15 +1,8 @@
 """
-Analysis Classes
-----------------
+This module contains the ``analysis`` class.
 
-Description
-===========
-
-This module contains all the Common classes of PyAEDT, including file
-management, messaging, and all the calls to AEDT modules like modeler,
-mesh, postprocessing, setup.
-
-
+It includes common classes for file management and messaging and all 
+calls to AEDT modules like the modeler, mesh, postprocessing, and setup.
 """
 from __future__ import absolute_import
 import os
@@ -33,19 +26,16 @@ else:
 
 
 class Analysis(Design, object):
-    """**Class Analysis**
+    """Analysis class.
     
-    Main lower level Analysis Class.
-    Container of all Common Functions.
+    This is the main class, serving as a container for all common functions.
     
-    It is automatically initialized by Application call (like HFSS, Q3D...). Refer to Application function for inputs definition
+    It is automatically initialized by a call from an application, such as HFSS or Q3D. 
+    See the application function for its parameter descriptions.
 
     Parameters
     ----------
-
-    Returns
-    -------
-
+    
     """
 
     def __init__(self, application, projectname, designname, solution_type, setup_name,
@@ -75,28 +65,29 @@ class Analysis(Design, object):
     def materials(self):
         """Property
         
-        :return: Material Manager that is used to manage materials in the project
-
         Parameters
         ----------
 
         Returns
         -------
+        type
+            Material Manager that is used to manage materials in the project.
+           
 
         """
         return self._materials
 
     @property
     def Position(self):
-        """Position Object
+        """Retrieve the position of the object.
         
-        :return: Position object
-
         Parameters
         ----------
 
         Returns
         -------
+        type
+            Postition object.
 
         """
         return self.modeler.Position
@@ -540,7 +531,10 @@ class Analysis(Design, object):
 
 
     class AxisDir(object):
-        """Data Class containing Axis directions constants"""
+        """AxisDir class.
+        
+        This data class contains constants for the axis directions.
+        """
         (XNeg, YNeg, ZNeg, XPos, YPos, ZPos) = range(0, 6)
 
     @aedt_exception_handler
@@ -552,8 +546,8 @@ class Analysis(Design, object):
 
         Returns
         -------
-        type
-            :return: List of all Setup names
+        list
+            List of all setup names.
 
         """
         setups = self.oanalysis.GetSetups()
@@ -566,17 +560,17 @@ class Analysis(Design, object):
 
     @aedt_exception_handler
     def get_sweeps(self, name):
-        """
+        """Retrieve all sweep for a setup.
 
         Parameters
         ----------
-        name :
+        name : str
+        Name of the setup.
             
-
         Returns
         -------
-        type
-            :return: list of all available sweep names of specific setup
+        list
+            List of all sweep names for the setup.
 
         """
         sweeps=[]
@@ -587,22 +581,22 @@ class Analysis(Design, object):
 
     @aedt_exception_handler
     def export_parametric_results(self, sweepname, filename, exportunits=True):
-        """Given a specific sweep, it export the list of all available parametric variation solved to a file
+        """Export a list of all parametric variations solved to a CSV file for a sweep.
 
         Parameters
         ----------
         sweepname : str
-            optimetrics sweep name
+            Name of the optimetrics sweep.
         filename : str
-            full path filename  (.csv)
-        exportunits : bool
-            True (export units with value) | False (export only value) (Default value = True)
+            Full path to the CSV file.
+        exportunits : bool, optional
+            Whether to export units with the value. The default is ``True`. When ``False``, 
+            only the value is exported.
 
         Returns
         -------
-        type
-            True (succeeded) | False (Failed)
-
+        bool
+            ``True`` when successful, ``False`` when failed.
         """
 
         self.ooptimetrics.ExportParametricResults(sweepname, filename, exportunits)
@@ -611,17 +605,15 @@ class Analysis(Design, object):
 
     @aedt_exception_handler
     def analyse_from_initial_mesh(self):
-        """Revert solution to initial mesh and re-run it
-        
-        
-        :return: True (succeeded) | False (Failed)
-
+        """Revert the solution to the initial mesh and re-run the solve.
+                
         Parameters
         ----------
 
         Returns
         -------
-
+        bool
+           ``True`` when successful, ``False`` when failed.
         """
         self.oanalysis.RevertSetupToInitial(self._setup)
         self.analyse_nominal()
@@ -630,38 +622,33 @@ class Analysis(Design, object):
 
     @aedt_exception_handler
     def analyse_nominal(self):
-        """Revert solution to initial mesh and re-run it
-        
-        
-        :return: True (succeeded) | False (Failed)
-
+        """Revert the solution to the initial mesh and re-run the solve.
+       
         Parameters
         ----------
 
         Returns
         -------
-
+        bool
+            ``True`` when successful, ``False`` when failed.
         """
-
         self.odesign.Analyze(self.analysis_setup)
         return True
 
 
     @aedt_exception_handler
     def generate_unique_setup_name(self, setup_name=None):
-        """Generate a new, unique design name
+        """Generate a new setup with an unique name.
         
-        
-        :return: setup_name
-
         Parameters
         ----------
-        setup_name :
-             (Default value = None)
+        setup_name : str, optional
+            Name of the setup. The default is ``None``.
 
         Returns
         -------
-
+        str
+        Name of the setup.
         """
         if not setup_name:
             setup_name = "Setup"
@@ -673,21 +660,22 @@ class Analysis(Design, object):
 
     @aedt_exception_handler
     def create_setup(self, setupname="MySetupAuto", setuptype=None, props={}):
-        """Create a new Setup.
+        """Create a new setup.
 
         Parameters
         ----------
-        setupname :
-            optional, name of the new setup (Default value = "MySetupAuto")
-        setuptype :
-            optional, setup type. if None, default type will be applied
-        props :
-            optional dictionary of properties with values (Default value = {})
+        setupname : str, optional
+            Name of the setup. The default is ``"MySetupAuto"``.
+        setuptype : optional
+            Type of the setup. The default is ``None``, which means that the
+            default type is applied.
+        props : dict, optional
+            Dictionary of properties with values. The default is ``{}``.
 
         Returns
         -------
-        Setup
-            setup object
+        type
+            Setup object.
 
         """
         if setuptype is None:
@@ -708,20 +696,19 @@ class Analysis(Design, object):
 
     @aedt_exception_handler
     def edit_setup(self, setupname, properties_dict):
-        """Edit current Setup.
+        """Edit the current setup.
 
         Parameters
         ----------
         setupname : str
-            name of the setup
-        properties_dict : dict: dict
-            dictionary containing the property to update with the value
+            Name of the setup.
+        properties_dict : dict 
+            Dictionary containing the property to update with the value.
 
         Returns
         -------
         type
-            setup object
-
+            Setup object.
         """
         setuptype = SetupKeys.defaultSetups[self.solution_type]
         setup = Setup(self, setuptype, setupname, isnewsetup=False)
@@ -732,18 +719,17 @@ class Analysis(Design, object):
 
     @aedt_exception_handler
     def get_setup(self, setupname):
-        """Get Setup from current design.
+        """Get the setup from a current design.
 
         Parameters
         ----------
         setupname : str
-            name of the setup
+            Name of the setup.
 
         Returns
         -------
-        :class: Setup
-            setup object
-
+        type
+            Setup object
         """
 
         setuptype = SetupKeys.defaultSetups[self.solution_type]
@@ -754,20 +740,19 @@ class Analysis(Design, object):
 
     @aedt_exception_handler
     def create_output_variable(self, variable, expression):
-        """Create or modify the output variable
+        """Create or modify the output variable.
 
         Parameters
         ----------
-        variable :
-            name of the variable
+        variable : str
+            Name of the variable.
         expression :
-            value
+            New value for the variable.
 
         Returns
         -------
-        type
-            True  object
-
+        bool
+           ``True`` when successful, ``False`` when failed.
         """
         oModule = self.odesign.GetModule("OutputVariable")
         if variable in self.output_variables:
@@ -778,22 +763,21 @@ class Analysis(Design, object):
 
     @aedt_exception_handler
     def get_output_variable(self, variable, solution_name=None, report_type_name=None):
-        """Get output variable value
+        """Retrieve the value of the output variable.
 
         Parameters
         ----------
-        variable :
-            name of the variable
-        solution_name :
-            optional Solution Name (Default value = None)
-        report_type_name :
-            optional report type name (Default value = None)
+        variable : str
+            Name of the variable.
+        solution_name : str, optional
+            Name of the solution. The default is ``None``.
+        report_type_name : str, optional
+            Name of the report type. The default is ``None``.
 
         Returns
         -------
         type
-            Value
-
+            Value of the output variable.
         """
         oModule = self.odesign.GetModule("OutputVariable")
         assert variable in self.output_variables, "Output Variable {} does not exist".format(variable)
@@ -804,22 +788,24 @@ class Analysis(Design, object):
 
     @aedt_exception_handler
     def get_object_material_properties(self, object_list=None, prop_names=None):
-        """High  level function to return the conductivities of a list of specified objects as a dictionary.  Objects with no defined conductivity property will be ignored
+        """Retrive the material properties for a list of given objects and return them in a dictionary.
+        
+        This high-level function ignores objects with no defined material properties.
 
         Parameters
         ----------
-        object_list :
-            list) objects for which get material_properties. if None, all objects will be considered (Default value = None)
-        prop_names :
-            str or list) property to be exported. If None, all properties will be exported. Objects with no defined property will be ignored (Default value = None)
+        object_list : list
+            List of objects for which to get material_properties. The dfault is ``None``. 
+            If ``None``, all objects are considered. 
+        prop_names : str or list
+            The property or list of poperties to export.  The dfault is ``None``. 
+            If ``None``, all properties are exported. 
 
         Returns
         -------
-        type
-            dictionary of object with material properties
-
+        dict
+            Dictionary of objects with material properties.
         """
-
         if object_list:
             if not isinstance(object_list, list):
                 object_list = [object_list]
@@ -844,16 +830,17 @@ class Analysis(Design, object):
 
     @aedt_exception_handler
     def analyze_setup(self, name):
-        """Analyze a specific design setup
+        """Analyze a specific design setup.
 
         Parameters
         ----------
-        name :
-            name of the setup. it can be an optimetric setup or a simple setup
+        name : str
+            Name of the setup, which can be an optimetric setup or a simple setup.
 
         Returns
         -------
-
+        bool
+           ``True`` when successful, ``False`` when failed.
         """
         if name in self.existing_analysis_setups:
             self._messenger.add_info_message("Solving design setup {}".format(name))
@@ -869,20 +856,26 @@ class Analysis(Design, object):
 
     @aedt_exception_handler
     def solve_in_batch(self, filename=None, machine="local", run_in_thread=False):
-        """Analyze a specific design setup in batch mode. AEDT project needs to be closed
+        """Analyze a design setup in batch mode. 
+        
+        .. note::
+           To use this function, the AEDT project must be closed.
 
         Parameters
         ----------
-        filename :
-            Optional name of the setup. if none the active project will be solved (Default value = None)
-        machine :
-            optional remote machine name (Default value = "local")
-        run_in_thread :
-            bool if true the batch command is submitted as thread (Default value = False)
+        filename : str, optional
+            Name of the setup. The default is ``None``, which means that the active project 
+            is to be solved.
+        machine : str, optional
+            Name of the machine if remote.  The default is ``"local"``. 
+        run_in_thread : bool, optional
+            Whether the batch command is to be submitted as a thread. The default is
+            ``False``. 
 
         Returns
         -------
-
+         bool
+           ``True`` when successful, ``False`` when failed.
         """
         if not filename:
             filename = self.project_file
@@ -922,27 +915,28 @@ class Analysis(Design, object):
 
     @aedt_exception_handler
     def submit_job(self, clustername, aedt_full_exe_path=None, numnodes=1, numcores=32, wait_for_license=True, setting_file=None):
-        """
+        """Submit a job to be solved on a cluster.
 
         Parameters
         ----------
-        clustername :
-            name of the cluster to which submit the job
-        aedt_full_exe_path :
-            if None it will be \\clustername\AnsysEM\AnsysEM2x.x\Win64\ansysedt(.exe) (Default value = None)
-        numnodes :
-            number of nodes (Default value = 1)
-        numcores :
-            number of cores (Default value = 32)
-        setting_file :
-            Optional if provided it will be used as template (Default value = None)
-        wait_for_license :
-             (Default value = True)
-
+        clustername : str
+            Name of the cluster to which to submit the job.
+        aedt_full_exe_path : str, optional
+            Full path to the AEDT executable file. The default is ``None``, which uses
+            ``\\clustername\AnsysEM\AnsysEM2x.x\Win64\ansysedt(.exe)``.
+        numnodes : int, optional
+            Number of nodes. The default is ``1``.
+        numcores : int, optional
+            Number of cores. The default is ``32``.
+        wait_for_license : bool, option
+             Whether to wait for the license to be validated. The default is ``True``.
+        setting_file : str, optional
+            Name of the file to use as a template. The default value is ``None``.
+        
         Returns
         -------
         type
-            Job Id
+            ID of the job.
 
         """
         project_file=self.project_file
