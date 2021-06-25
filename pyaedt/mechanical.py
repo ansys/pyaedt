@@ -1,31 +1,4 @@
-"""
-This module contains all Mechanical functionalities in the ``Mechanical`` class. 
-
-
-Examples
---------
-
-Create an instance of ``Mechanical`` and connect to an existing HFSS design or create a new HFSS design if one does not exist.
-
->>> aedtapp = Mechanical()
-
-Create an instance of ``Mechanical`` and link to a project named ``"projectname"``. If this project does not exist, create one with this name.
-
->>> aedtapp = Mechanical(projectname)
-
-Create an instance of ``Mechanical`` and link to a design named ``"designname"`` in a project named ``projectname``.
-
->>> aedtapp = Mechanical(projectname,designame)
-
-Create an instance of ``Mechanical`` and open the specified project, which is named ``myfile.aedt``.
-
->>> aedtapp = Mechanical("myfile.aedt")
-
-Create a ``Desktop on 2021R1`` object and then creates an ``Mechanical`` object and open the specified project, which is named ``myfile.aedt``.
-
->>> aedtapp = Mechanical(specified_version="2021.1", projectname="myfile.aedt")
-
-"""
+"""This module contains the ``Mechanical`` class."""
 
 from __future__ import absolute_import
 
@@ -37,23 +10,58 @@ from collections import OrderedDict
 
 
 class Mechanical(FieldAnalysis3D, object):
-    """Mechanical class.
+    """Mechanical instance interface.
+
+    This class exposes Mechanical functionalities pythonically.
 
     Parameters
     ----------
     projectname : str, optional
-         Name of the project to select or the full path to the project or AEDTZ archive to open. 
-         The default is ``None``. If ``None``, try to get an active project and, if no projects are present, 
-         create an empty project.
+         Name of the project to select or the full path to the project
+         or AEDTZ archive to open.  The default is ``None``. If
+         ``None``, try to get an active project and, if no projects
+         are present, create an empty project.
     designname : str, optional
-        Name of the design to select. The default is ``None``. If ``None``, try to get an active design and, 
-        if no designs are present, create an empty design.
+        Name of the design to select. The default is ``None``. If
+        ``None``, try to get an active design and, if no designs are
+        present, create an empty design.
     solution_type : str, optional
-        Solution type to apply to the design. The default is ``None``. If ``None``, the default type is applied.
+        Solution type to apply to the design. The default is
+        ``None``. If ``None``, the default type is applied.
     setup_name : str, optional
-       Name of the setup to use as the nominal. The default is ``None``. If ``None``, the active setup 
-       is used or nothing is used.
+       Name of the setup to use as the nominal. The default is
+       ``None``. If ``None``, the active setup is used or nothing is
+       used.
 
+    Examples
+    --------
+    Create an instance of ``Mechanical`` and connect to an existing
+    HFSS design or create a new HFSS design if one does not exist.
+
+    >>> from pyaedt import Mechanical
+    >>> aedtapp = Mechanical()
+
+    Create an instance of ``Mechanical`` and link to a project named
+    ``"projectname"``. If this project does not exist, create one with
+    this name.
+
+    >>> aedtapp = Mechanical(projectname)
+
+    Create an instance of ``Mechanical`` and link to a design named
+    ``"designname"`` in a project named ``projectname``.
+
+    >>> aedtapp = Mechanical(projectname,designame)
+
+    Create an instance of ``Mechanical`` and open the specified
+    project, which is named ``myfile.aedt``.
+
+    >>> aedtapp = Mechanical("myfile.aedt")
+
+    Create a ``Desktop on 2021R1`` object and then creates an
+    ``Mechanical`` object and open the specified project, which is
+    named ``myfile.aedt``.
+
+    >>> aedtapp = Mechanical(specified_version="2021.1", projectname="myfile.aedt")
 
     """
 

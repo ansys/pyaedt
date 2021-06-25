@@ -17,15 +17,12 @@ The PyAEDT API includes these classes for application classes and modules
    Circuit
    Edb
    Hfss3dLayout
-
+   Mechanical
+   Rmxprt
+   Emit
 
 Inheritance Diagram
 ~~~~~~~~~~~~~~~~~~~
 
 .. inheritance-diagram:: pyaedt.hfss pyaedt.q3d pyaedt.icepak pyaedt.circuit pyaedt.edb pyaedt.hfss3dlayout  pyaedt.maxwell pyaedt.mechanical pyaedt.simplorer pyaedt.rmxprt
     :parts: 1
-
-..
-   Mechanical
-   RMxprt
-   Emit
