@@ -30,10 +30,6 @@ steps:
   displayName: 'Create virtual env'
 
 - powershell: |
-    python -m pip install pyvista
-    python -c "import pyvista; pyvista.Sphere().plot(off_screen=True)"
-
-- powershell: |
     $(python.venv)\Scripts\Activate.ps1
     pip install . --use-feature=in-tree-build
     pip install -r requirements_test.txt
@@ -68,9 +64,10 @@ steps:
 
 - powershell: |
     '$(python.venv)\Scripts\Activate.ps1'
-    del /F /Q dist\*.*
+    python -m pip install twine
     python setup.py sdist
-  displayName: 'Build sdist Package'
+    python -m twine check dist/*
+  displayName: 'Build sdist Package and validate it'
 
 - task: PublishBuildArtifacts@1
   displayName: 'Publish Artifact: dist'
