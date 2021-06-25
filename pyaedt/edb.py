@@ -275,7 +275,7 @@ class Edb(object):
                 working_dir = os.path.dirname(edbpath)
                 self.import_layout_pcb(edbpath, working_dir)
             self._components = None
-            self._primitives = None
+            self._core_primitives = None
             self._stackup = None
             self._padstack = None
             self._siwave = None
@@ -418,9 +418,9 @@ class Edb(object):
     @property
     def core_primitives(self):
         """ """
-        if not self._primitives:
-            self._primitives = EdbLayout(self)
-        return self._primitives
+        if not self._core_primitives:
+            self._core_primitives = EdbLayout(self)
+        return self._core_primitives
 
     @property
     def active_layout(self):
