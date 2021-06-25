@@ -295,7 +295,7 @@ class Setup(object):
         Returns
         -------
         bool
-            True if successful, False otherwise.
+            ``True`` if successful, ``False`` otherwise.
         """
         if not setup_name:
             setup_name = self.name
