@@ -14,96 +14,118 @@ try:
 except ImportError:
     warnings.warn('This module requires pythonnet.')
 
-class Primitive(object):
-
-    def __init__(self,parent, id):
-        self.parent = parent
-        self.id = id
-        self.poly = []
-        self.paths = []
-
 class EdbLayout(object):
     """EDB Layout class."""
 
     @property
     def edb(self):
-        """ """
-        return self.parent.edb
+        return self._parent.edb
 
     @property
     def messenger(self):
         """ """
-        return self.parent.messenger
+        return self._parent.messenger
 
-    def __init__(self,parent):
-        self.parent = parent
-        self._primitives_by_layer = {}
+    def __init__(self, parent):
         self._prims = []
-        self.update_primitives()
+        self._parent = parent
+        self._primitives_by_layer = {}
+        #self.update_primitives()
 
     @property
     def builder(self):
-        """ """
-        return self.parent.builder
+        return self._parent.builder
 
-    @property
-    def edb(self):
-        """ """
-        return self.parent.edb
 
     @property
     def edb_value(self):
-        """ """
-        return self.parent.edb_value
+        return self._parent.edb_value
 
     @property
     def edbutils(self):
-        """ """
-        return self.parent.edbutils
+        return self._parent.edbutils
 
     @property
     def active_layout(self):
-        """ """
-        return self.parent.active_layout
+        return self._parent.active_layout
 
     @property
     def cell(self):
-        """ """
-        return self.parent.cell
+        return self._parent.cell
 
     @property
     def db(self):
-        """ """
-        return self.parent.db
+        return self._parent.db
 
     @property
     def layers(self):
-        """ """
-        return self.parent.core_stackup.stackup_layers.layers
+        """
+
+        Returns
+        -------
+        dict
+            Dictionary of Layers
+        """
+        return self._parent.core_stackup.stackup_layers.layers
 
     @aedt_exception_handler
     def update_primitives(self):
+        """
+        Update Primitives list from Edb Database
+
+        Returns
+        -------
+        bool
+            ``True`` if succeeded
+        """
+
         layoutInstance = self.active_layout.GetLayoutInstance()
         layoutObjectInstances = layoutInstance.GetAllLayoutObjInstances()
         for el in layoutObjectInstances.Items:
             self._prims.append(el.GetLayoutObj())
         for lay in self.layers:
             self._primitives_by_layer[lay] = self.get_polygons_by_layer(lay)
+        print("Primitives Updated")
+        return True
 
     @property
     def primitives(self):
+        """
+
+        Returns
+        -------
+        list
+            list of all primitives
+
+        """
         if not self._prims:
             self.update_primitives()
         return self._prims
 
     @property
     def polygons_by_layer(self):
+        """
+
+        Returns
+        -------
+        dict
+            Dictionary of primitives with Layer Name as keys
+
+        """
         if not self._primitives_by_layer:
             self.update_primitives()
         return self._primitives_by_layer
 
     @property
     def rectangles(self):
+        """
+
+        Returns
+        -------
+        list
+            list of all rectangles
+
+        """
         prims = []
         for el in self.primitives:
             if "Rectangle" in el.ToString():
@@ -112,6 +134,14 @@ class EdbLayout(object):
 
     @property
     def circles(self):
+        """
+
+        Returns
+        -------
+        list
+            list of all circles
+
+        """
         prims = []
         for el in self.primitives:
             if "Circle" in el.ToString():
@@ -120,6 +150,14 @@ class EdbLayout(object):
 
     @property
     def paths(self):
+        """
+
+        Returns
+        -------
+        list
+            list of all paths
+
+        """
         prims = []
         for el in self.primitives:
             if "Path" in el.ToString():
@@ -128,6 +166,14 @@ class EdbLayout(object):
 
     @property
     def bondwires(self):
+        """
+
+        Returns
+        -------
+        list
+            list of all bondwires
+
+        """
         prims = []
         for el in self.primitives:
             if "Bondwire" in el.ToString():
@@ -136,7 +182,14 @@ class EdbLayout(object):
 
     @property
     def polygons(self):
-        """:return: list of polygons"""
+        """
+
+        Returns
+        -------
+        list
+            list of all polygons
+
+        """
         prims = []
         for el in self.primitives:
             if "Polygon" in el.ToString():
@@ -302,7 +355,7 @@ class EdbLayout(object):
         if not origin:
             origin = [center[0] + float(x1)*10000, center[1] + float(y1)*10000]
 
-        var_server = self.parent.active_cell.GetVariableServer()
+        var_server = self._parent.active_cell.GetVariableServer()
         var_server.AddVariable(offset_name,self.edb_value(0.0), True)
         i = 0
         continue_iterate = True
@@ -362,7 +415,7 @@ class EdbLayout(object):
             ``True`` when successful, ``False`` when failed.
             
         """
-        net = self.parent.core_nets.find_or_create_net(net_name)
+        net = self._parent.core_nets.find_or_create_net(net_name)
         if start_cap_style.lower() == "round":
             start_cap_style = 0
         elif start_cap_style.lower() == "extended":
@@ -419,7 +472,7 @@ class EdbLayout(object):
             ``True`` when successful, ``False`` when failed.
              
         """
-        net = self.parent.core_nets.find_or_create_net(net_name)
+        net = self._parent.core_nets.find_or_create_net(net_name)
         polygonData = self.shape_to_polygon_data(main_shape)
         if polygonData is None or polygonData.IsNull():
             self.messenger.add_error_message('Failed to create main shape polygon data')
@@ -555,13 +608,12 @@ class EdbLayout(object):
         properties : dict, optional
             Dictionary of properties associated with the shape. The default is ``{}``.
         """
-
-    def __init__(self, type='unknown', pointA=None, pointB=None, centerPoint=None, radius=None, points=None,
-                     properties={}):
-            self.type = type
-            self.pointA = pointA
-            self.pointB = pointB
-            self.centerPoint = centerPoint
-            self.radius = radius
-            self.points = points
-            self.properties = properties
+        def __init__(self, type='unknown', pointA=None, pointB=None, centerPoint=None, radius=None, points=None,
+                         properties={}):
+                self.type = type
+                self.pointA = pointA
+                self.pointB = pointB
+                self.centerPoint = centerPoint
+                self.radius = radius
+                self.points = points
+                self.properties = properties
