@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 from ..generic.general_methods import aedt_exception_handler
 from .modeler_constants import CoordinateSystemPlane, CoordinateSystemAxis, SweepDraftType
 import math

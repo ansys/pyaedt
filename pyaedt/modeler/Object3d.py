@@ -746,8 +746,9 @@ class Object3d(object):
             vName.append("NAME:Name")
             vName.append("Value:=")
             vName.append(obj_name)
-            self._m_name = obj_name
             self._change_property(vName)
+            self._m_name = obj_name
+
 
     @property
     def color(self):
