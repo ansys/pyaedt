@@ -44,7 +44,8 @@ steps:
     pytest -v --cov --cov-report=xml --cov-report=html --junitxml=junit/test-results.xml
   displayName: 'Unit testing'
 
-- script: |
+- powershell: |
+   $(python.venv)\Scripts\Activate.ps1
    coverage xml
   displayName: 'Coverage'
 
@@ -64,9 +65,10 @@ steps:
 
 - powershell: |
     '$(python.venv)\Scripts\Activate.ps1'
-    del /F /Q dist\*.*
     python setup.py sdist
-  displayName: 'Build sdist Package'
+    python -m pip install twine
+    python -m twine check dist/*
+  displayName: 'Build and validate source distribution'
 
 - task: PublishBuildArtifacts@1
   displayName: 'Publish Artifact: dist'
