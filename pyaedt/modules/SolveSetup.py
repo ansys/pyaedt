@@ -290,7 +290,7 @@ class Setup(object):
         Parameters
         ----------
         setup_name : str, optional
-            Name of the setup, by default None
+            Name of the setup, by default ``None``
 
         Returns
         -------
@@ -300,10 +300,13 @@ class Setup(object):
         if not setup_name:
             setup_name = self.name
 
-        self.omodule.EditSetup(setup_name,
-                                [
-                                    "NAME:" + setup_name,
-                                    "IsEnabled:="		, True])
+        self.omodule.EditSetup(
+            setup_name,
+            [
+                "NAME:" + setup_name,
+                "IsEnabled:=", True
+            ]
+        )
         return True
 
     @aedt_exception_handler
@@ -313,20 +316,23 @@ class Setup(object):
         Parameters
         ----------
         setup_name : str, optional
-            Name of the setup, by default None
+            Name of the setup, by default ``None``
 
         Returns
         -------
         bool
-            True if successful, False otherwise.
+            ``True`` if successful, ``False`` otherwise.
         """
         if not setup_name:
             setup_name = self.name
 
-        self.omodule.EditSetup(setup_name,
-                                [
-                                    "NAME:" + setup_name,
-                                    "IsEnabled:="		, False])
+        self.omodule.EditSetup(
+            setup_name,
+            [
+                "NAME:" + setup_name,
+                "IsEnabled:", False
+            ]
+        )
         return True
 
     @aedt_exception_handler
@@ -722,12 +728,12 @@ class SetupCircuit(object):
         Parameters
         ----------
         setup_name : str, optional
-            Name of the setup, by default None
+            Name of the setup, by default ``None``
 
         Returns
         -------
         bool
-            True if successful, False otherwise.
+            ``True`` if successful, ``False`` otherwise.
         """
         if not setup_name:
             setup_name = self.name
@@ -741,12 +747,12 @@ class SetupCircuit(object):
         Parameters
         ----------
         setup_name : str, optional
-            Name of the setup, by default None
+            Name of the setup, by default ``None``
 
         Returns
         -------
         bool
-            True if successful, False otherwise.
+            ``True`` if successful, ``False`` otherwise.
         """
         if not setup_name:
             setup_name = self.name
