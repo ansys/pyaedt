@@ -301,7 +301,7 @@ class Mesh(object):
 
         Parameters
         ----------
-        level : int, optinal
+        level : int, optional
             Level of the surface mesh. Chocies are ``1`` through ``10``. The default is ``5.``
         method : str, optional
             Meshing method. Choices are ``"Auto"``, ``"AnsoftTAU"``, and ``"AnsoftClassic"`` 
@@ -403,7 +403,7 @@ class Mesh(object):
         Parameters
         ----------
         mesh_type : optional
-           Type of mesh operation to delete. The default is ``None``, wihch removes all
+           Type of the mesh operation to delete. The default is ``None``, which removes all
            mesh operations.
 
         Returns
@@ -434,7 +434,7 @@ class Mesh(object):
 
     @aedt_exception_handler
     def assign_length_mesh(self, names, isinside=True, maxlength=1, maxel=1000, meshop_name=None):
-        """Assign lenth for the model resolution.
+        """Assign length for the model resolution.
 
         Parameters
         ----------
@@ -615,7 +615,7 @@ class Mesh(object):
 
     @aedt_exception_handler
     def assign_curvature_extraction(self, names, disable_for_faceted_surf=True, meshop_name=None):
-        """Assign curvature extration.
+        """Assign curvature extraction.
 
         Parameters
         ----------
