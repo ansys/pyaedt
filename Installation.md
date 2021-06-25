@@ -1,48 +1,42 @@
-Installation
-=====================
+# Installation
 
-**Summary**
-________________________
+## Summary
 
-PyAedt is intended to consolidate and extend all existing capital around AEDT-based scripting to allow re-use of existing code, sharing of best-practice adn collaboration.
+PyAEDT is intended to consolidate and extend all existing capital around AEDT-based scripting to allow re-use of existing code, sharing of best practices, and collaboration.
 
-This tool has actually been tested on HFSS, Icepak and Maxwell 3D.
+This tool has been tested on HFSS, Icepak, and Maxwell 3D. Basic support is available for EDB and Circuit (Nexxim).
 
-Basic support is given for EDB and Circuit (Nexxim)
+## Requirements
 
-**Requirements**
-________________________
-In addition to the runtime dependencies listed in the Installing section below, EDB Utilities requires ANSYS EM Suite 2019 R3 or later.
+In addition to the runtime dependencies listed in the installation information, EDB Utilities requires ANSYS EM Suite 2019 R3 or later.
 
-**Installing on CPython v3.7-v3.8**
-________________________________________________
+## Installing on CPython v3.7-v3.8
 
-Install Prerequisite packages: pythonnet >=2.5 pywin32
+Install the prerequisite packages: pythonnet >=2.5 pywin32
 
 .. code:: python
 
     pip install pyaedt
 
 
-**Using IronPython in AEDT**
-________________________________________________
-Download PyAedt from the following link
+## Using IronPython in AEDT
 
-[PyAedt](https://dev.azure.com/EMEA-FES-E/Public-Releases/_packaging?_a=package&feed=PyAedt_Public&package=PyAedt&protocolType=PyPI#)
+1. Download PyAEDT from this link:
 
-Extract files in AEDT PersonalLib folder
-Run install command described below
+   [PyAedt](https://dev.azure.com/EMEA-FES-E/Public-Releases/_packaging?_a=package&feed=PyAedt_Public&package=PyAedt&protocolType=PyPI#)
 
-Install command
+2. Extract files in the ``AEDT PersonalLib`` folder
 
-The below command uses the Python user-site convention for package storage. You may substitute an alternative location convention, such as the --home option instead of --user, and add the installed folder to IRONPYTHONPATH.
+3. Run the ``install`` command.
+   Note:This command uses the Python user-site convention for package storage. You may substitute an alternative location convention, such as the ``--home`` option rather than the ``--user`` option. You may also a path to the installation folder: ``IRONPYTHONPATH``
 
 .. code:: python
 
     ipy64 setup.py install --user
 
-**Using Standalone IronPython**
-________________________________________________
+## Using Standalone IronPython
+
+Run this command:
 
 .. code:: python
 
