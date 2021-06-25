@@ -56,7 +56,7 @@ else:
         "NonGraphical": False,
         "NewThread": True,
         "test_desktops": False,
-        "build_machine": True,
+        "build_machine": False,
         "skip_space_claim": False,
         "skip_circuits": False,
         "skip_edb": False,

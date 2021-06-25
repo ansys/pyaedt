@@ -1,7 +1,8 @@
 trigger:
   branches:
     include:
-    - '*'
+    - releases/*
+    - master
     exclude:
     - 'gh-pages'
   tags:
