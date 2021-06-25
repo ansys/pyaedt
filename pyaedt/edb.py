@@ -125,11 +125,17 @@ class Edb(object):
         if not self.isreadonly:
             print(self.edbpath)
             print(self.edbversion)
-            self.builder = self.layout_methods.OpenEdbStandAlone(self.edbpath, self.edbversion)
+            self._db = self.edb.Database.Open(r"C:\temp\galileo.aedb", self.isreadonly)
+            self._active_cell =  list(self._db.TopCircuitCells)[0]
+            self.builder = self.layout_methods.GetBuilder(self._db, self._active_cell)
+            #self.builder = self.layout_methods.OpenEdbStandAlone(self.edbpath, self.edbversion)
         else:
-            self.builder = self.layout_methods.OpenEdbInAedt(self.edbpath, self.edbversion)
-        self._db = self.builder.EdbHandler.dB
-        self._active_cell = self.builder.EdbHandler.cell
+            self._db = self.edb.Database.Open(r"C:\temp\galileo.aedb", self.isreadonly)
+            self._active_cell =  list(self._db.TopCircuitCells)[0]
+            self.builder = self.layout_methods.GetBuilder(self._db, self._active_cell)
+            #self.builder = self.layout_methods.OpenEdbInAedt(self.edbpath, self.edbversion)
+        #self._db = self.builder.EdbHandler.dB
+        #self._active_cell = self.builder.EdbHandler.cell
         return self.builder
 
     @aedt_exception_handler
@@ -216,7 +222,6 @@ class Edb(object):
 
 
     def __init__(self, edbpath=None, cellname=None, isreadonly=False, edbversion="2021.1", isaedtowned=False, oproject=None):
-
         if edb_initialized:
             self.oproject = oproject
             if isaedtowned:
