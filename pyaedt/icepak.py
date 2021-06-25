@@ -601,20 +601,17 @@ class Icepak(FieldAnalysisIcepak):
         all_names = self.modeler.primitives.get_all_objects_names()
         list = [i for i in all_names if "Fin" in i]
         self.modeler.create_coordinate_system(self.Position(0, 'HSHeight', 0), mode="view", view="XY", name="TopRight")
-        self.modeler.set_working_coordinate_system("TopRight")
 
         self.modeler.split(list, self.CoordinateSystemPlane.ZXPlane, "NegativeOnly")
 
         if symmetric:
 
             self.modeler.create_coordinate_system(self.Position('(HSWidth-SymSeparation)/2', 0, 0), mode="view",
-                                                  view="XY", name="CenterRightSep")
-            self.modeler.set_working_coordinate_system("CenterRightSep")
+                                                  view="XY", name="CenterRightSep",reference_cs="TopRight")
 
             self.modeler.split(list, self.CoordinateSystemPlane.YZPlane, "NegativeOnly")
             self.modeler.create_coordinate_system(self.Position('SymSeparation/2', 0, 0),
-                                                  mode="view", view="XY", name="CenterRight")
-            self.modeler.set_working_coordinate_system("CenterRight")
+                                                  mode="view", view="XY", name="CenterRight",reference_cs="CenterRightSep")
             self.modeler.duplicate_and_mirror(list, self.Position(0, 0, 0), self.Position(1, 0, 0))
             Center_Line = []
             Center_Line.append(self.Position('-SymSeparation', 'Tolerance','-Tolerance'))
@@ -629,8 +626,7 @@ class Icepak(FieldAnalysisIcepak):
             self.modeler.subtract(list, "Center", False)
         else:
             self.modeler.create_coordinate_system(self.Position('HSWidth', 0, 0), mode="view", view="XY",
-                                                  name="BottomRight")
-            self.modeler.set_working_coordinate_system("BottomRight")
+                                                  name="BottomRight",reference_cs="TopRight")
             self.modeler.split(list, self.CoordinateSystemPlane.YZPlane, "NegativeOnly")
         all_objs2 = self.modeler.primitives.get_all_objects_names()
         list_to_move=[i for i in all_objs2 if i not in all_objs]
@@ -648,7 +644,7 @@ class Icepak(FieldAnalysisIcepak):
             self.modeler.rotate(list_to_move, self.CoordinateSystemAxis.YAxis, 90)
             self.modeler.rotate(list_to_move, self.CoordinateSystemAxis.ZAxis, rotation)
         self.modeler.unite(list_to_move)
-        self.modeler.primitives["HSBase"].name = "HeatSink1"
+        self.modeler.primitives[list_to_move[0]].name = "HeatSink1"
         return True
 
     @aedt_exception_handler

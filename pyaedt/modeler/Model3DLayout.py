@@ -18,6 +18,7 @@ class Modeler3DLayout(Modeler):
         self._primitivesDes = self._parent.project_name + self._parent.design_name
         edb_folder = os.path.join(self._parent.project_path, self._parent.project_name + ".aedb")
         edb_file = os.path.join(edb_folder, "edb.def")
+        self._edb = None
         if os.path.exists(edb_file):
             self._mttime = os.path.getmtime(edb_file)
             self._edb = Edb(edb_folder, self._parent.design_name, True, self._parent._aedt_version, isaedtowned=True,
