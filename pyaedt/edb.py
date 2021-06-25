@@ -23,7 +23,12 @@ import traceback
 import warnings
 
 import pyaedt.edb_core.EDB_Data
-
+try:
+    import ScriptEnv
+    ScriptEnv.Initialize("Ansoft.ElectronicsDesktop")
+    inside_desktop = True
+except:
+    inside_desktop = False
 try:
     import clr
     from System.Collections.Generic import List, Dictionary
@@ -122,14 +127,32 @@ class Edb(object):
         """
         if init_dlls:
             self._init_dlls()
+
         if not self.isreadonly:
             print(self.edbpath)
             print(self.edbversion)
-            self.builder = self.layout_methods.OpenEdbStandAlone(self.edbpath, self.edbversion)
+            print(_ironpython)
+            print(dir())
+
+            if _ironpython and  inside_desktop:
+                print("opening from DB")
+                self._db = self.edb.Database.Open(self.edbpath, self.isreadonly)
+                self._active_cell =  list(self._db.TopCircuitCells)[0]
+                self.builder = self.layout_methods.GetBuilder(self._db, self._active_cell)
+            else:
+                print("opening from EDBLib")
+                self.builder = self.layout_methods.OpenEdbStandAlone(self.edbpath, self.edbversion)
+                self._db = self.builder.EdbHandler.dB
+                self._active_cell = self.builder.EdbHandler.cell
         else:
-            self.builder = self.layout_methods.OpenEdbInAedt(self.edbpath, self.edbversion)
-        self._db = self.builder.EdbHandler.dB
-        self._active_cell = self.builder.EdbHandler.cell
+            if _ironpython and  inside_desktop:
+                self._db = self.edb.Database.Open(self.edbpath, self.isreadonly)
+                self._active_cell =  list(self._db.TopCircuitCells)[0]
+                self.builder = self.layout_methods.GetBuilder(self._db, self._active_cell)
+            else:
+                self.builder = self.layout_methods.OpenEdbInAedt(self.edbpath, self.edbversion)
+                self._db = self.builder.EdbHandler.dB
+                self._active_cell = self.builder.EdbHandler.cell
         return self.builder
 
     @aedt_exception_handler
@@ -159,6 +182,31 @@ class Edb(object):
         print("active cell set")
         return self.builder
 
+    @aedt_exception_handler
+    def create_edb(self, init_dlls=False):
+        """
+
+        Parameters
+        ----------
+        init_dlls :
+             Whether to initialize DLLs. The default is ``False``.
+
+        Returns
+        -------
+
+        """
+        if init_dlls:
+            self._init_dlls()
+        self.edb.Database.SetRunAsStandAlone(True)
+        self._db = self.edb.Database.Create(self.edbpath)
+        if not self.cellname:
+            self.cellname = generate_unique_name("Cell")
+
+        self._active_cell = self.edb.Cell.Cell.Create(self._db,  self.edb.Cell.CellType.CircuitCell, self.cellname)
+
+        self.builder = self.layout_methods.GetBuilder(self.db, self._active_cell)
+        print("active cell set")
+        return self.builder
 
     @aedt_exception_handler
     def import_layout_pcb(self, input_file, working_dir, init_dlls=False):
@@ -191,17 +239,18 @@ class Edb(object):
 
 
     def __init__(self, edbpath=None, cellname=None, isreadonly=False, edbversion="2021.1", isaedtowned=False, oproject=None):
-
         if edb_initialized:
             self.oproject = oproject
             if isaedtowned:
                 self._main = sys.modules['__main__']
                 self._messenger = self._main.oMessenger
             else:
-                if not edbpath:
+                if not edbpath or not os.path.exists(edbpath):
                     self._messenger = EDBMessageManager(r'C:\Temp')
-                else:
+                elif os.path.exists(edbpath):
                     self._messenger = EDBMessageManager(edbpath)
+
+
             self._messenger.add_info_message("Messenger Initialized in EDB")
             self.edbversion = edbversion
             self.isaedtowned = isaedtowned
@@ -213,8 +262,9 @@ class Edb(object):
             self.isreadonly = isreadonly
             self.cellname = cellname
             self.edbpath = edbpath
-
-            if ".aedb" in edbpath:
+            if not os.path.exists(self.edbpath):
+                self.create_edb()
+            elif ".aedb" in edbpath:
                 self.edbpath = edbpath
                 if isaedtowned and "isoutsideDesktop" in dir(self._main) and not self._main.isoutsideDesktop:
                     self.open_edb_inside_aedt()
@@ -225,7 +275,7 @@ class Edb(object):
                 working_dir = os.path.dirname(edbpath)
                 self.import_layout_pcb(edbpath, working_dir)
             self._components = None
-            self._primitives = None
+            self._core_primitives = None
             self._stackup = None
             self._padstack = None
             self._siwave = None
@@ -368,9 +418,9 @@ class Edb(object):
     @property
     def core_primitives(self):
         """ """
-        if not self._primitives:
-            self._primitives = EdbLayout(self)
-        return self._primitives
+        if not self._core_primitives:
+            self._core_primitives = EdbLayout(self)
+        return self._core_primitives
 
     @property
     def active_layout(self):

@@ -11,7 +11,8 @@ simple call from it
 Examples
 --------
 
->>> hfss = HFSS()
+>>> from pyaedt import Hfss
+>>> hfss = Hfss()
 
 Return the oProject object
 
@@ -113,7 +114,8 @@ design_solutions = {
         "Thermal",
         "Modal",
         "Structural"
-    ]
+    ],
+    "EMIT": ["EMIT"]
 }
 
 solutions_settings = {
@@ -218,6 +220,139 @@ model_names = {
 }
 
 
+def list_difference(list1, list2):
+    return list(set(list1) - set(list2))
+
+class DesignCache(object):
+    """Cache object to analyse the differences between the state of a design between two points in time.
+
+    At present the contents of the design to be tracked are:
+
+        * global-level messages in the message Manager
+        * project-level messages in the message Manager
+        * design-level messages in the message Manager
+    """
+    def __init__(self, parent):
+        self._parent = parent
+        self._allow_errors_local = []
+        self._allow_errors_global = []
+        self.clear()
+        self._snapshot = self.design_snapshot()
+
+    @property
+    def allowed_error_messages(self):
+        return self._allow_errors_global + self._allow_errors_local
+
+    def ignore_error_message_local(self, msg):
+        self._allow_errors_local.append("[error] {}".format(msg))
+
+    def ignore_error_message_global(self, msg):
+        self._allow_errors_global.append("[error] {}".format(msg))
+
+    @property
+    def no_change(self):
+        """True if the design snapshot has not changed between updates"""
+        return self._no_change
+
+    @property
+    def delta_global_messages(self):
+        """A list of any new or missing global-level messages since the last update"""
+        return self._delta_global_messages
+
+    @property
+    def delta_project_messages(self):
+        """A list of any new or missing project-level messages since the last update"""
+        return self._delta_global_messages
+
+    @property
+    def delta_design_messages(self):
+        """A list of any new or missing design-level messages since the last update"""
+        return self._delta_design_messages
+
+    @property
+    def delta_error_messages(self):
+        """A list of any new or missing error messages since the last update"""
+        return self._new_error_messages
+
+    @property
+    def no_new_messages(self):
+        """Returns True if new messages have appeared since the last update or the message manager was cleared"""
+        return not bool(self._delta_messages)
+
+    @property
+    def no_new_errors(self):
+        """Returns True if new error messages have appeared since the last update"""
+        return not bool(self._new_error_messages)
+
+    @property
+    def no_new_warnings(self):
+        """Returns True if new error messages have appeared since the last update"""
+        return not bool(self._new_warning_messages)
+
+    @property
+    def no_change(self):
+        """Returns True if the cache elements have not changed since the last update"""
+        return self.no_new_messages
+
+    def design_snapshot(self):
+        snapshot = {
+            "Solids:":  self._parent.modeler.primitives.solids,
+            "Lines:":  self._parent.modeler.primitives.lines,
+            "Sheets": self._parent.modeler.primitives.sheets,
+            "DesignName" : self._parent.design_name
+        }
+        return snapshot
+
+    def clear(self):
+        """Clear the cached values"""
+        self._messages_global_level = []
+        self._messages_project_level = []
+        self._messages_design_level = []
+
+    def update(self):
+        """Get the current state values from the design and perform a delta-calculation with the cached values.
+        Then replace the cached values with the current values. Note: this is done automatically when the property
+        'no_change' is accessed!"""
+        messages = self._parent.messenger.messages
+
+        # Check whether the design snapshot has changed since the last update
+        new_snapshot = self.design_snapshot()
+        if new_snapshot == self._snapshot:
+            self._no_change = True
+        else:
+            self._no_change = False
+
+        self._snapshot = new_snapshot
+
+        self._delta_global_messages = list_difference(messages.global_level, self._messages_global_level)
+        self._delta_project_messages = list_difference(messages.project_level, self._messages_project_level)
+        self._delta_design_messages = list_difference(messages.design_level, self._messages_design_level)
+        self._delta_messages_unfiltered = self._delta_global_messages + self._delta_project_messages + self._delta_design_messages
+
+        # filter out allowed messages
+        self._delta_messages = []
+        for msg in self._delta_messages_unfiltered:
+            mask = False
+            allowed_errors = self._allow_errors_local + self._allow_errors_global
+            for allowed in allowed_errors:
+                if msg.find(allowed) == 0:
+                    mask = True
+                    break
+            if not mask:
+                self._delta_messages.append(msg)
+
+        self._new_error_messages = [msg for msg in self._delta_messages if msg.find("[error]") == 0]
+        self._new_warning_messages = [msg for msg in self._delta_messages if msg.find("[warning]") == 0]
+
+        self._messages_global_level = messages.global_level
+        self._messages_project_level = messages.project_level
+        self._messages_design_level = messages.design_level
+
+        self._allow_errors_local = []
+
+        return self
+
+
 class Design(object):
     """Class Design. Contains all functions and objects connected to the active Project and Design"""
     def __str__(self):
@@ -246,7 +381,7 @@ class Design(object):
         return True
 
     def __init__(self, design_type, project_name=None, design_name=None, solution_type=None,
-                 specified_version=None, NG=False, AlwaysNew=True, release_on_exit=True):
+                 specified_version=None, NG=False, AlwaysNew=False, release_on_exit=False):
         # Get Desktop from global Desktop Environment
         self._project_dictionary = OrderedDict()
         self.boundaries = OrderedDict()
@@ -347,10 +482,13 @@ class Design(object):
         --------
         Set the design name.
 
-        >>> hfss = HFSS()
+        >>> from pyaedt import Hfss
+        >>> hfss = Hfss()
         >>> hfss.design_name = 'new_design'
 
         """
+        if not self.odesign:
+            return None
         name = self.odesign.GetName()
         if ";" in name:
             return name.split(";")[1]
@@ -364,11 +502,17 @@ class Design(object):
 
         :return: Change the name of the parent AEDT Design
         """
+
         if ";" in new_name:
             new_name = new_name.split(";")[1]
-        # src_dir = self.working_directory
-        old_name = self.design_name
-        self.odesign.RenameDesignInstance(old_name, new_name)
+
+        self.odesign.RenameDesignInstance(self.design_name, new_name)
+        timeout = 5.0
+        timestep = 0.1
+        while new_name not in [i.GetName() for i in list(self._oproject.GetDesigns())]:
+            time.sleep(timestep)
+            timeout -= timestep
+            assert timeout >= 0
 
     @property
     def design_list(self):
@@ -398,7 +542,9 @@ class Design(object):
         -------
 
         """
-        return self._odesign.GetDesignType()
+        #return self._odesign.GetDesignType()
+        return self. _design_type
+
 
     @property
     def project_name(self):
@@ -413,7 +559,10 @@ class Design(object):
         -------
 
         """
-        return self._oproject.GetName()
+        if self._oproject:
+            return self._oproject.GetName()
+        else:
+            return None
 
     @property
     def project_list(self):
@@ -552,7 +701,10 @@ class Design(object):
         -------
 
         """
-        return self._oproject and self._odesign
+        if self._oproject and self._odesign:
+            return True
+        else:
+            return False
 
     @property
     def personallib(self):
@@ -1342,7 +1494,9 @@ class Design(object):
         """
         base_path = self.temp_directory
 
-        assert isinstance(subdir_name, str), "Input argument 'subdir' must be a string"
+        if not isinstance(subdir_name, str):
+            self.messenger.add_error_message("Input argument 'subdir' must be a string")
+            return False
         dir_name = generate_unique_name(subdir_name)
         project_dir = os.path.join(base_path, dir_name)
         try:
@@ -1631,20 +1785,21 @@ class Design(object):
 
         Parameters
         ----------
-        directory :
-            project directory (Default value = None)
-        name :
-            project name (Default value = None)
+        directory : str, default=None
+            project directory, of not specified clear the .aedtresults directory of the active project
+        name : str, default=None
+            project name, if not specified clear the data for the active project
 
         Returns
         -------
-
+        bool
+            True if the clear operation is successful
         """
         if not name:
             name=self.project_name
         if not directory:
-            directory = os.path.join(self.project_path, self.project_name + ".aedtresults")
-        self._messenger.add_info_message("Cleanup folder from " + name + " project files")
+            directory = self.results_directory
+        self._messenger.add_info_message("Cleanup folder {} from project {}".format(directory, name))
         if os.path.exists(directory):
             shutil.rmtree(directory, True)
             if not os.path.exists(directory):
@@ -1730,22 +1885,36 @@ class Design(object):
         return True
 
     @aedt_exception_handler
-    def delete_design(self, name):
+    def delete_design(self, name=None, fallback_design=None):
         """Delete name Design from the current project (will not work from toolkit)
 
         Parameters
         ----------
-        name :
-
+        name : str, default=None
+            Design name to be deleted. If not specified then delete the active design
 
         Returns
         -------
         bool
             succeed status
-
         """
-
+        if not name:
+            name = self.design_name
         self.oproject.DeleteDesign(name)
+        try:
+            if fallback_design:
+                new_designname = fallback_design
+            else:
+                if not self._oproject.GetActiveDesign():
+                    new_designname = None
+                    self.odesign = None
+                else:
+                    new_designname = self._oproject.GetActiveDesign().GetName()
+                    self.set_active_design(new_designname)
+        except:
+            pass
+        self.__init__(self.project_name, self.design_name)
+
         return True
 
 
@@ -1922,6 +2091,8 @@ class Design(object):
         # reset the active design (very important)
         self._oproject.SetActiveDesign(active_design)
         self.save_project()
+        self.__init__(self.project_name, new_designname)
+
         # return the pasted design name
         return new_designname
 
@@ -1940,8 +2111,8 @@ class Design(object):
 
         """
 
-        self.save_project()
         active_design = self.design_name
+        design_list = self.design_list
         self._oproject.CopyDesign(active_design)
         self._oproject.Paste()
         newname = label
@@ -1949,10 +2120,11 @@ class Design(object):
         while newname in self.design_list:
             newname = label + '_' + str(ind)
             ind += 1
-        oDesign = self._oproject.GetActiveDesign()
-        oDesign.RenameDesignInstance(oDesign.GetName(), newname)
-        self.odesign = newname
-        assert os.path.exists(self.working_directory)
+        actual_name = [i for i in self.design_list if i not in design_list]
+        self.odesign = actual_name
+        self.design_name = newname
+        self.__init__(self.project_name, self.design_name)
+
         return True
 
     @aedt_exception_handler
@@ -2028,7 +2200,7 @@ class Design(object):
         else:
             self.oproject.Save()
         if refresh_obj_ids_after_save:
-            self.modeler.primitives.refresh_all_ids_from_aedt_file()
+            self.modeler.primitives._refresh_all_ids_from_aedt_file()
         return True
 
     @aedt_exception_handler
@@ -2067,6 +2239,7 @@ class Design(object):
         """
         self.oproject.SetActiveDesign(name)
         self.odesign = name
+        self.__init__(self.project_name, self.design_name)
         return True
 
     @aedt_exception_handler

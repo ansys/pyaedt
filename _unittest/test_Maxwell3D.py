@@ -44,9 +44,8 @@ class TestMaxwell3D:
         p_coil = self.aedtapp.post.volumetric_loss("Coil")
         assert type(p_coil) is str
 
-
     def test_03_coordinate_system(self):
-        assert self.aedtapp.modeler.coordinate_system.create([200, 100, 0], view="XY", name="Coil_CS")
+        assert self.aedtapp.modeler.create_coordinate_system([200, 100, 0], mode="view", view="XY", name="Coil_CS")
 
     def test_04_coil_terminal(self):
         self.aedtapp.modeler.section(["Coil"], self.aedtapp.CoordinateSystemPlane.ZXPlane)

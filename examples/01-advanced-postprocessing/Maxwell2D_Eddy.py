@@ -28,7 +28,6 @@ M3D = Maxwell3d(solution_type="EddyCurrent", specified_version="2021.1", NG=NonG
 project_dir = M3D.generate_temp_project_directory("Example")
 project_name = os.path.join(project_dir, 'test.aedt')
 M3D.modeler.model_units = "mm"
-CS = M3D.modeler.coordinate_system
 
 #############################
 # Create the Model
@@ -64,7 +63,7 @@ p_coil = M3D.post.volumetric_loss("Coil")
 ########################################
 # Create relative coordinate system
 
-CS.create([200, 100, 0], view="XY", name="Coil_CS")
+M3D.modeler.create_coordinate_system(origin=[200, 100, 0], mode="view", view="XY", name="Coil_CS")
 
 ##############################
 # Create coil terminal

@@ -4,7 +4,7 @@
    contain the root `toctree` directive.
 
 Q3D/Q2D Extractor
-===================================
+=================
 
 .. automodule:: pyaedt.q3d
     :members:

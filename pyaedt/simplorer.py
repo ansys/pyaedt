@@ -17,7 +17,7 @@ Create an instance of ``Simplorer`` and link to a design named ``"designname"`` 
 
 >>> app = Simplorer(projectname,designame)
 
-Create an instance of ``Simplorer`` and open the specified project.
+Create an instance of ``Simplorer`` and open the specified project, which is named ``"myfile.aedt"``.
 
 >>> app = Simplorer("myfile.aedt")
 
@@ -34,7 +34,7 @@ from .generic.general_methods import aedt_exception_handler, generate_unique_nam
 
 
 class Simplorer(FieldAnalysisSimplorer, object):
-    """Simplorer Object
+    """Simplorer object.
 
     Parameters
     ----------
@@ -50,6 +50,18 @@ class Simplorer(FieldAnalysisSimplorer, object):
     setup_name : str, optional
        Name of the setup to use as the nominal. The default is ``None``. If ``None``, the active setup 
        is used or nothing is used.
+    specified_version: str, optional
+        Version of AEDT to use. The default is ``None``. If ``None``, the
+        active setup is used or the latest installed version is used.
+    NG: bool, optional
+        Whether to launch AEDT in the non-graphical mode. The default 
+        is ``False``, which launches AEDT in the graphical mode.
+    AlwaysNew: bool, optional
+        Whether to launch an instance of AEDT in a new thread, even if 
+        another instance of the ``specified_version`` is active on the machine.
+        The default is ``True``.
+    release_on_exit: bool, optional
+        Whether to release AEDT on exit. The default is ``True``.
 
     Returns
     -------
@@ -57,7 +69,7 @@ class Simplorer(FieldAnalysisSimplorer, object):
     """
 
     def __init__(self, projectname=None, designname=None, solution_type=None, setup_name=None,
-                 specified_version=None, NG=False, AlwaysNew=True, release_on_exit=True):
+                 specified_version=None, NG=False, AlwaysNew=False, release_on_exit=False):
         """
         :param projectname: name of the project to be selected or full path to the project to be opened. if None try to
          get active project and, if nothing present to create an empty one
@@ -72,15 +84,18 @@ class Simplorer(FieldAnalysisSimplorer, object):
 
     @aedt_exception_handler
     def create_schematic_from_netlist(self, file_to_import):
-        """Create a circuit schematic from a spice netlist.
-        Supported in this moment:
+        """Create a circuit schematic from an HSpice netlist.
+        
+        Supported currently:
+        
         -R, L, C, Diodes, Bjts
+        
         -Discrete components with syntax Uxxx net1 net2 ... netn modname
 
         Parameters
         ----------
         file_to_import : str
-            Full path to the spice file.
+            Full path to the HSpice file.
 
         Returns
         -------
@@ -199,7 +214,7 @@ class Simplorer(FieldAnalysisSimplorer, object):
         expression :
             
         analysis_name : str, optional
-             The name of the analysis. The default is ``"TR"``.
+             Name of the analysis. The default is ``"TR"``.
 
         Returns
         -------

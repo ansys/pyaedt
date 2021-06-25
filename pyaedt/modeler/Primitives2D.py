@@ -4,6 +4,12 @@ from .Primitives import Primitives
 
 class Primitives2D(Primitives, object):
     """Class for management of all Primitives of 2D Tools"""
+
+    @aedt_exception_handler
+    def is3d(self):
+        """Returns False always to indicate a 3D analysis type"""
+        return False
+
     @property
     def plane2d(self):
         """ """
@@ -39,9 +45,7 @@ class Primitives2D(Primitives, object):
             id
 
         """
-        id = self._new_id()
-
-        o = self.objects[id]
+        o = self._new_object(matname=matname)
 
         szAxis = self.plane2d
         XCenter, YCenter, ZCenter = self.pos_with_arg(position)
@@ -58,8 +62,9 @@ class Primitives2D(Primitives, object):
 
         vArg2 = o.export_attributes(name)
 
-        o.name = self.oeditor.CreateCircle(vArg1, vArg2)
-        id = self._update_object(o, "Sheet")
+        o._m_name =self.oeditor.CreateCircle(vArg1, vArg2)
+        self._refresh_object_types()
+        id = self._update_object(o)
         return id
 
     @aedt_exception_handler
@@ -85,9 +90,7 @@ class Primitives2D(Primitives, object):
         -------
 
         """
-        id = self._new_id()
-
-        o = self.objects[id]
+        o = self._new_object(matname=matname)
 
         szAxis = self.plane2d
         XStart, YStart, ZStart = self.pos_with_arg(position)
@@ -95,7 +98,6 @@ class Primitives2D(Primitives, object):
         MajorRadius = self.arg_with_dim(major_raidus)
         # Ratio = self.arg_with_dim(ratio)
         Ratio = ratio
-        o.material_name, o.solve_inside = self._check_material(matname, self.defaultmaterial)
 
         vArg1 = ["NAME:EllipseParameters"]
         vArg1.append("IsCovered:="), vArg1.append(bIsCovered)
@@ -107,12 +109,10 @@ class Primitives2D(Primitives, object):
         vArg1.append("WhichAxis:="), vArg1.append(szAxis)
 
         vArg2 = o.export_attributes(name)
-        o.name = self.oeditor.CreateEllipse(vArg1, vArg2)
-        if bIsCovered:
-            id = self._update_object(o, "Sheet")
-        else:
-            id = self._update_object(o, "Line")
+        o._m_name =self.oeditor.CreateEllipse(vArg1, vArg2)
 
+        self._refresh_object_types()
+        id = self._update_object(o)
         return id
 
     @aedt_exception_handler
@@ -136,10 +136,7 @@ class Primitives2D(Primitives, object):
             id
 
         """
-        id = self._new_id()
-
-        o = self.objects[id]
-        o.material_name, o.solve_inside = self._check_material(matname, self.defaultmaterial)
+        o = self._new_object(matname=matname)
 
         szAxis = self.plane2d
         XStart, YStart, ZStart = self.pos_with_arg(position)
@@ -160,7 +157,8 @@ class Primitives2D(Primitives, object):
 
         vArg2 = o.export_attributes(name)
 
-        o.name = self.oeditor.CreateRectangle(vArg1, vArg2)
-        id = self._update_object(o, "Sheet")
+        o._m_name =self.oeditor.CreateRectangle(vArg1, vArg2)
 
+        self._refresh_object_types()
+        id = self._update_object(o)
         return id

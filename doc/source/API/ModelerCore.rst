@@ -3,17 +3,15 @@
    You can adapt this file completely to your liking, but it should at least
    contain the root `toctree` directive.
 
-modeler
-===================================
-
-.. inheritance-diagram:: pyaedt.modeler.Modeler pyaedt.modeler.Model3D pyaedt.modeler.Model2D pyaedt.modeler.Model3DLayout
-   :parts: 1
+Modeler
+=======
 
 
+**Diagram**
 
 .. toctree::
    :maxdepth: 2
-   :caption: Classes:
+   :caption: The ``Modeler`` application module includes these classes:
 
    Modeler
    Modeler3D

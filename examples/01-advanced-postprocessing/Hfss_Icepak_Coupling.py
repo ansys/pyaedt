@@ -22,6 +22,7 @@ sys.path.append(os.path.join(module_path))
 sys.path.append(os.path.join(aedt_lib_path))
 sys.path.append(os.path.join(pdf_path1))
 from pyaedt import generate_unique_name
+
 project_dir = os.path.join(os.environ["TEMP"], generate_unique_name("Example"))
 if not os.path.exists(project_dir): os.makedirs(project_dir)
 print(project_dir)
@@ -50,7 +51,7 @@ desktopVersion = "2021.1"
 
 NonGraphical = True
 NewThread = False
-project_name = "Test_Jupyter_NG"
+project_name = "HFSS_Icepak_Coupling"
 project_file = os.path.join(project_dir, project_name + ".aedt")
 
 ################################################################
@@ -58,7 +59,7 @@ project_file = os.path.join(project_dir, project_name + ".aedt")
 # Initializes the HFSS Design in AEDT.
 # If there is a running HFSS Design the aedtapp will be linked to it, otherwise a new design will be run.
 
-aedtapp = Hfss(specified_version=desktopVersion)
+aedtapp = Hfss(specified_version=desktopVersion,AlwaysNew=True)
 
 ################################################################
 # Variables Settings
@@ -140,6 +141,7 @@ setup.update()
 
 sweepname = aedtapp.create_frequency_sweep("MySetup", "GHz", 0.8, 1.2)
 
+
 ################################################################
 # ICEPAK Model Creation. After HFSS Setup is ready it will be linked to an icepak project to run a coupled physics analysis
 # ipkapp.copy_solid_bodies_from(aedtapp) will import model from HFSS with all material settings
@@ -176,13 +178,16 @@ setup_ipk.update()
 # After created, a mesh operation is accessible for edit or review of parameters
 
 airbox = ipkapp.modeler.primitives.get_obj_id("Region")
-ipkapp.modeler.primitives[airbox].display_wireframe(True)
+ipkapp.modeler.primitives[airbox].display_wireframe = True
 airfaces = ipkapp.modeler.primitives.get_object_faces(airbox)
 ipkapp.assign_openings(airfaces)
 
+
+
 ################################################################
-# Cloase and Open Projects
-# This command shows how to save, close and load projects.
+# Close and Open Projects
+# This is necessary to ensure the HFSS - Icepak coupling works correctly in AEDT versions
+# 2019 R3 - 2021 R1
 # This can be helpful in case of operations on multiple projects.
 
 aedtapp.save_project()
@@ -191,6 +196,8 @@ aedtapp.load_project(project_file)
 ipkapp = Icepak()
 ipkapp.solution_type = ipkapp.SolutionTypes.Icepak.SteadyTemperatureAndFlow
 ipkapp.modeler.fit_all()
+
+
 
 ################################################################
 # Solve Icepak
@@ -283,6 +290,4 @@ plt.show()
 
 aedtapp.close_project(aedtapp.project_name)
 aedtapp.close_desktop()
-
-
 

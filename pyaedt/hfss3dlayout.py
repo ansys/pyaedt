@@ -36,7 +36,7 @@ import os
 
 from .application.Analysis3DLayout import FieldAnalysis3DLayout
 from .desktop import exception_to_desktop
-
+from .modules.SolveSetup import Setup3DLayout
 from .generic.general_methods import generate_unique_name, aedt_exception_handler
 
 
@@ -121,7 +121,7 @@ class Hfss3dLayout(FieldAnalysis3DLayout, object):
     """
 
     def __init__(self, projectname=None, designname=None, solution_type=None, setup_name=None,
-                 specified_version=None, NG=False, AlwaysNew=True, release_on_exit=True):
+                 specified_version=None, NG=False, AlwaysNew=False, release_on_exit=False):
         FieldAnalysis3DLayout.__init__(self, "HFSS 3D Layout Design", projectname, designname, solution_type,
                                        setup_name, specified_version, NG, AlwaysNew, release_on_exit)
 
@@ -421,7 +421,7 @@ class Hfss3dLayout(FieldAnalysis3DLayout, object):
         if not sweep_name:
             sweep_name = self.existing_analysis_sweeps[1]
         if not port_names:
-            port_names = self.modeler.get_excitations_name()
+            port_names = self.get_excitations_name
         if not port_excited:
             port_excited= port_names
         Trace = ["X Component:=", "Freq", "Y Component:=", ["dB(S(" + p + "," + q + "))" for p,q in zip(list(port_names), list(port_excited))]]
@@ -430,6 +430,8 @@ class Hfss3dLayout(FieldAnalysis3DLayout, object):
             solution_data = "Modal Solution Data"
         elif self.solution_type == "DrivenTerminal":
             solution_data = "Terminal Solution Data"
+        elif self.solution_type == "HFSS3DLayout":
+            solution_data = "Standard"
         if solution_data != "":
             # run CreateReport function
             self.post.oreportsetup.CreateReport(
@@ -575,11 +577,11 @@ class Hfss3dLayout(FieldAnalysis3DLayout, object):
         """
         if sweepname is None:
             sweepname = generate_unique_name("Sweep")
+        interpolation = False
         if sweeptype == "interpolating":
             interpolation = True
             save_fields = False
-        elif sweeptype == "discrete":
-            interpolation = False
+
         if not save_fields:
             save_rad_fields_only = False
         interpolation_tol = interpolation_tol_percent / 100.
@@ -590,46 +592,58 @@ class Hfss3dLayout(FieldAnalysis3DLayout, object):
         #   sweep.add_sweep([1, 1000, 100], "log_scale", "kHz")
         #   sweep.add_sweep([7,13,17,19,23], "single", unit)
         sweep_string = sweep.get_string()
-
-        arg = ["NAME:" + sweepname,
-               [
-                "NAME:Properties",
-                "Enable:=", "true"
-               ],
-               [
-                "NAME:Sweeps",
-                "Variable:=", sweepname,
-                "Data:=", sweep_string,
-                "OffsetF1:=", False,
-                "Synchronize:=", 0
-               ],
-               "GenerateSurfaceCurrent:=", save_fields,
-               "SaveRadFieldsOnly:=", save_rad_fields_only,
-               "FastSweep:=", interpolation,
-               "ZoSelected:=", False,
-               "SAbsError:=", interpolation_tol,
-               "ZoPercentError:=", 1,
-               "GenerateStateSpace:=", False,
-               "EnforcePassivity:=", interpolation,
-               "PassivityTolerance:=", 0.0001,
-               "UseQ3DForDC:=", use_q3d_for_dc,
-               "ResimulateDC:=", False,
-               "MaxSolutions:=", interpolation_max_solutions,
-               "InterpUseSMatrix:=", True,
-               "InterpUsePortImpedance:=", True,
-               "InterpUsePropConst:=", True,
-               "InterpUseFullBasis:=", True,
-               "CustomFrequencyString:=", "",
-               "AllEntries:=", False,
-               "AllDiagEntries:=", False,
-               "AllOffDiagEntries:=", False,
-               "MagMinThreshold:=", 0.01
-               ]
-
-        self.oanalysis.AddSweep(setupname, arg)
+        setup = self.get_setup(setupname)
+        if sweepname in [name.name for name in setup.sweeps]:
+            sweepname = generate_unique_name(sweepname)
+        sweep= setup.add_sweep(sweepname=sweepname)
+        sweep.change_range("LinearCount", freqstart,freqstop, num_of_freq_points )
+        setup.props["GenerateSurfaceCurrent"]=save_fields
+        setup.props["SaveRadFieldsOnly"] = save_rad_fields_only
+        setup.props["FastSweep"] = interpolation
+        setup.props["SAbsError"] = interpolation_tol
+        setup.props["EnforcePassivity"] = interpolation
+        setup.props["UseQ3DForDC"] = use_q3d_for_dc
+        setup.props["MaxSolutions"] = interpolation_max_solutions
+        setup.update()
+        # arg = ["NAME:" + sweepname,
+        #        [
+        #         "NAME:Properties",
+        #         "Enable:=", "true"
+        #        ],
+        #        [
+        #         "NAME:Sweeps",
+        #         "Variable:=", sweepname,
+        #         "Data:=", sweep_string,
+        #         "OffsetF1:=", False,
+        #         "Synchronize:=", 0
+        #        ],
+        #        "GenerateSurfaceCurrent:=", save_fields,
+        #        "SaveRadFieldsOnly:=", save_rad_fields_only,
+        #        "FastSweep:=", interpolation,
+        #        "ZoSelected:=", False,
+        #        "SAbsError:=", interpolation_tol,
+        #        "ZoPercentError:=", 1,
+        #        "GenerateStateSpace:=", False,
+        #        "EnforcePassivity:=", interpolation,
+        #        "PassivityTolerance:=", 0.0001,
+        #        "UseQ3DForDC:=", use_q3d_for_dc,
+        #        "ResimulateDC:=", False,
+        #        "MaxSolutions:=", interpolation_max_solutions,
+        #        "InterpUseSMatrix:=", True,
+        #        "InterpUsePortImpedance:=", True,
+        #        "InterpUsePropConst:=", True,
+        #        "InterpUseFullBasis:=", True,
+        #        "CustomFrequencyString:=", "",
+        #        "AllEntries:=", False,
+        #        "AllDiagEntries:=", False,
+        #        "AllOffDiagEntries:=", False,
+        #        "MagMinThreshold:=", 0.01
+        #        ]
+        #
+        # self.oanalysis.AddSweep(setupname, arg)
         # self.oanalysis_setup.AddSweep(setupname, arg)
         # self._messenger.add_debug_message("Sweep Setup created correctly")
-        return sweepname
+        return setup
 
 
 

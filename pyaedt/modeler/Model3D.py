@@ -4,7 +4,7 @@ from .Modeler import GeometryModeler
 from  .Primitives3D import Primitives3D
 
 class Modeler3D(GeometryModeler):
-    """AEDT 3D Modeler"""
+    """Modeler 3D class."""
     def __init__(self, application):
         GeometryModeler.__init__(self, application, is3d=True)
         self._primitives = Primitives3D(self._parent, self)
@@ -24,23 +24,23 @@ class Modeler3D(GeometryModeler):
 
     @aedt_exception_handler
     def create_3dcomponent(self, component_file, component_name=None, variables_to_include=[], exclude_region=False):
-        """Create 3D Component file
+        """Create 3D component file.
 
         Parameters
         ----------
-        component_file :
-            full path to the a3dcomp file
-        component_name :
-            Component name (Default value = None)
-        variables_to_include :
-             (Default value = [])
+        component_file : str
+            Full path to the A3DCOMP file.
+        component_name : str, optional
+            Name of the component. The default is ``None``.
+        variables_to_include : list
+             List of variables to include. The default is ``[]``.
         exclude_region :
-             (Default value = False)
+             Whether to exclude the region. The default is ``False``.
 
         Returns
         -------
-        type
-            Bool
+        bool
+            ``True`` when successful, ``False`` when failed.
 
         """
         if self._parent.design_type == "Icepak":

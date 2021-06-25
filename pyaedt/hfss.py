@@ -1,5 +1,5 @@
 """
-This module contains all HFSS functionalities in the ``hfss`` class.
+This module contains all HFSS functionalities in the ``Hfss`` class.
 
 
 Examples
@@ -17,11 +17,11 @@ Create an instance of ``Hfss`` and link to a design named ``"designname"`` in a 
 
 >>> hfss = Hfss(projectname,designame)
 
-Create an instance of ``Hfss`` and open the specified project:
+Create an instance of ``Hfss`` and open the specified project, which is named ``"myfile.aedt"``.
 
 >>> hfss = Hfss("myfile.aedt")
 
-Create an instance of ``Hfss`` using the 2021 R1 release and open the specified project, which is ``"myfile.aedt"``.
+Create an instance of ``Hfss`` using the 2021 R1 release and open the specified project, which is named ``"myfile.aedt"``.
 
 >>> hfss = Hfss(specified_version="2021.1", projectname="myfile.aedt")
 
@@ -48,8 +48,8 @@ class Hfss(FieldAnalysis3D, object):
             return "HFSS Module"
 
     def __init__(self, projectname=None, designname=None, solution_type=None, setup_name=None,
-                 specified_version=None, NG=False, AlwaysNew=True, release_on_exit=True):
-        """HFSS Object
+                 specified_version=None, NG=False, AlwaysNew=False, release_on_exit=False):
+        """HFSS class.
 
             Parameters
             ----------
@@ -74,11 +74,6 @@ class Hfss(FieldAnalysis3D, object):
                 The default is ``True``.
             release_on_exit : bool, optional
                 Whether to release AEDT on exit. The default is ``True``.
-              
-
-            Returns
-            -------
-            
 
         """
         FieldAnalysis3D.__init__(self, "HFSS", projectname, designname, solution_type, setup_name,
@@ -97,6 +92,15 @@ class Hfss(FieldAnalysis3D, object):
         (PerfectE, PerfectH, Aperture, Radiation, Impedance, LayeredImp, LumpedRLC, FiniteCond) = range(0, 8)
 
     @aedt_exception_handler
+    def _create_boundary(self, name, props, boundary_type):
+        bound = BoundaryObject(self, name, props, boundary_type)
+        result = bound.create()
+        if result:
+            self.boundaries.append(bound)
+            return bound
+        return result
+
+    @aedt_exception_handler
     def _create_lumped_driven(self, objectname, int_line_start, int_line_stop, impedance, portname, renorm, deemb):
         start = [str(i) + self.modeler.primitives.model_units for i in int_line_start]
         stop = [str(i) + self.modeler.primitives.model_units for i in int_line_stop]
@@ -109,11 +113,8 @@ class Hfss(FieldAnalysis3D, object):
                              "ShowReporterFilter": False,
                              "ReporterFilter": [True],
                              "Impedance": str(impedance) + "ohm"})
-        bound = BoundaryObject(self, portname, props, "LumpedPort")
-        if bound.create():
-            self.boundaries.append(bound)
-            return bound
-        return False
+        return self._create_boundary(portname, props, "LumpedPort")
+
 
     @aedt_exception_handler
     def _create_port_terminal(self, objectname, int_line_stop, portname, iswaveport=False):
@@ -123,11 +124,7 @@ class Hfss(FieldAnalysis3D, object):
         props["IsWavePort"] = iswaveport
         props["ReferenceConductors"] = ref_conductors
         props["RenormalizeModes"] = True
-        bound = BoundaryObject(self, portname, props, "AutoIdentify")
-        if bound.create():
-            self.boundaries.append(bound)
-            return bound
-        return True
+        return self._create_boundary(portname, props, "AutoIdentify")
 
     @aedt_exception_handler
     def _create_circuit_port(self, edgelist, impedance, name, renorm, deemb, renorm_impedance=""):
@@ -147,11 +144,7 @@ class Hfss(FieldAnalysis3D, object):
             props["RenormImp"] = renorm_imp
         else:
             props["TerminalIDList"] = []
-        bound = BoundaryObject(self, name, props, "CircuitPort")
-        if bound.create():
-            self.boundaries.append(bound)
-            return bound
-        return False
+        return self._create_boundary(name, props, "CircuitPort")
 
     @aedt_exception_handler
     def _create_waveport_driven(self, objectname, int_line_start=None, int_line_stop=None, impedance=50, portname="",
@@ -208,11 +201,7 @@ class Hfss(FieldAnalysis3D, object):
         props["ShowReporterFilter"] = False
         props["ReporterFilter"] = report_filter
         props["UseAnalyticAlignment"] = False
-        bound = BoundaryObject(self, portname, props, "WavePort")
-        if bound.create():
-            self.boundaries.append(bound)
-            return bound
-        return False
+        return self._create_boundary(portname, props, "WavePort")
 
     @aedt_exception_handler
     def assigncoating(self, obj, mat=None,
@@ -254,8 +243,8 @@ class Hfss(FieldAnalysis3D, object):
 
         Returns
         -------
-        :class: BoundaryObject
-            Boundary object
+        BoundaryObject
+            Boundary object.
 
         Examples
         --------
@@ -278,12 +267,10 @@ class Hfss(FieldAnalysis3D, object):
                 props['Material'] = mat
             else:
                 return False
-            debug_message = "Assigned Coating %s to object %s" % (mat, listobjname)
         else:
             props['UseMaterial'] = False
             props['Conductivity'] = str(cond)
             props['Permeability'] = str(str(perm))
-            debug_message = "Assigned Coating without material to object %s" % listobjname
         props['UseThickness'] = usethickness
         if usethickness:
             props['Thickness'] = thickness
@@ -300,12 +287,7 @@ class Hfss(FieldAnalysis3D, object):
             props['IsShellElement'] = issheelElement
         else:
             props['IsInternal'] = isInternal
-        bound = BoundaryObject(self, "Coating_" + listobjname[:32], props, "FiniteCond")
-        if bound.create():
-            self._messenger.add_debug_message(debug_message)
-            self.boundaries.append(bound)
-            return bound
-        return True
+        return self._create_boundary("Coating_" + listobjname[:32], props, "FiniteCond")
 
     @aedt_exception_handler
     def create_frequency_sweep(self, setupname, unit="GHz", freqstart=1e-3, freqstop=10, sweepname=None,
@@ -339,7 +321,7 @@ class Hfss(FieldAnalysis3D, object):
         Returns
         -------
         SweepHFSS
-            Sweep object
+            Sweep object.
 
         """
 
@@ -399,7 +381,7 @@ class Hfss(FieldAnalysis3D, object):
         Returns
         -------
         SweepHFSS
-            Sweep object
+            Sweep object.
 
         """
         if sweepname is None:
@@ -455,7 +437,7 @@ class Hfss(FieldAnalysis3D, object):
         Returns
         -------
         SweepHFSS
-            Sweep object
+            Sweep object.
 
         """
         if sweepname is None:
@@ -557,7 +539,7 @@ class Hfss(FieldAnalysis3D, object):
         Returns
         -------
         SweepHFSS
-            Sweep object
+            Sweep object.
 
         """
         if sweepname is None:
@@ -616,7 +598,7 @@ class Hfss(FieldAnalysis3D, object):
         Returns
         -------
         str
-            Port name
+            Port name.
 
         """
         if not self.modeler.primitives.does_object_exists(startobj) or not self.modeler.primitives.does_object_exists(
@@ -662,8 +644,8 @@ class Hfss(FieldAnalysis3D, object):
 
         Returns
         -------
-        type
-            Port name
+        str
+            Port name.
 
         """
         if not self.modeler.primitives.does_object_exists(startobj) or not self.modeler.primitives.does_object_exists(
@@ -708,8 +690,8 @@ class Hfss(FieldAnalysis3D, object):
 
         Returns
         -------
-        type
-           Source name
+        str
+           Source name.
 
         """
         if not self.modeler.primitives.does_object_exists(startobj) or not self.modeler.primitives.does_object_exists(
@@ -750,8 +732,8 @@ class Hfss(FieldAnalysis3D, object):
 
         Returns
         -------
-        type
-            Source name
+        str
+            Source name.
 
         """
         if not self.modeler.primitives.does_object_exists(startobj) or not self.modeler.primitives.does_object_exists(
@@ -797,12 +779,7 @@ class Hfss(FieldAnalysis3D, object):
 
         props = OrderedDict({"Objects": [sheet_name],
                              "Direction": OrderedDict({"Start": point1, "End": point2})})
-
-        bound = BoundaryObject(self, sourcename, props, sourcetype)
-        if bound.create():
-            self.boundaries.append(bound)
-            return bound
-        return False
+        return self._create_boundary(sourcename, props, sourcetype)
 
     @aedt_exception_handler
     def create_wave_port_between_objects(self, startobj, endobject, axisdir=0, impedance=50, nummodes=1, portname=None,
@@ -837,8 +814,8 @@ class Hfss(FieldAnalysis3D, object):
 
         Returns
         -------
-        :class: BoundaryObject
-            Port name
+        BoundaryObject
+            Boundary object.
 
         """
         if not self.modeler.primitives.does_object_exists(startobj) or not self.modeler.primitives.does_object_exists(
@@ -911,7 +888,7 @@ class Hfss(FieldAnalysis3D, object):
         Returns
         -------
         BoundaryObject
-            Port object
+            Port object.
 
         Examples
         --------
@@ -971,8 +948,8 @@ class Hfss(FieldAnalysis3D, object):
         
         Returns
         -------
-        :class: BoundaryObject
-            Boundary object
+        BoundaryObject
+            Boundary object.
 
         """
         if not self.modeler.primitives.does_object_exists(startobj) or not self.modeler.primitives.does_object_exists(
@@ -1011,8 +988,8 @@ class Hfss(FieldAnalysis3D, object):
 
         Returns
         -------
-        :class: BoundaryObject
-            Boundary object
+        BoundaryObject
+            Boundary object.
 
         """
         if not self.modeler.primitives.does_object_exists(startobj) or not self.modeler.primitives.does_object_exists(
@@ -1032,7 +1009,7 @@ class Hfss(FieldAnalysis3D, object):
 
     @aedt_exception_handler
     def SARSetup(self, Tissue_object_List_ID, TissueMass=1, MaterialDensity=1, voxel_size=1, Average_SAR_method=0):
-        """Set SAR settings.
+        """Define SAR settings.
 
         Parameters
         ----------
@@ -1049,7 +1026,9 @@ class Hfss(FieldAnalysis3D, object):
 
         Returns
         -------
-        Boolean
+        bool
+            ``True`` when successful, ``False`` when failed.
+
         """
         self.odesign.SARSetup(TissueMass, MaterialDensity, Tissue_object_List_ID, voxel_size, Average_SAR_method)
         return True
@@ -1066,7 +1045,7 @@ class Hfss(FieldAnalysis3D, object):
             Type of boundary. The default is ``"Radition"``.
         ApplyInfiniteGP : bool, optional
             Whether to apply an infinite ground plane. The default is ``False``.
-        GPAXis : st, optional
+        GPAXis : str, optional
             The default is``"-z"``.
 
         Returns
@@ -1119,8 +1098,8 @@ class Hfss(FieldAnalysis3D, object):
 
         Returns
         -------
-        :class: BoundaryObject
-            Boundary name
+        BoundaryObject
+            Boundary object.
 
         """
         if not self.modeler.primitives.does_object_exists(startobj) or not self.modeler.primitives.does_object_exists(
@@ -1152,10 +1131,8 @@ class Hfss(FieldAnalysis3D, object):
             if Cvalue:
                 props["UseCap"] = True
                 props["Capacitance"] = str(Cvalue) + "F"
-            bound = BoundaryObject(self, sourcename, props, "LumpedRLC")
-            if bound.create():
-                self.boundaries.append(bound)
-                return bound
+            
+            return self._create_boundary(sourcename, props, "LumpedRLC")
         return False
 
     @aedt_exception_handler
@@ -1187,8 +1164,8 @@ class Hfss(FieldAnalysis3D, object):
 
         Returns
         -------
-        :class: BoundaryObject
-            Boundary name
+        BoundaryObject
+            Boundary object.
 
         """
         if not self.modeler.primitives.does_object_exists(startobj) or not self.modeler.primitives.does_object_exists(
@@ -1205,11 +1182,7 @@ class Hfss(FieldAnalysis3D, object):
                 sourcename = generate_unique_name(sourcename)
             props = OrderedDict({"Objects": [sheet_name], "Resistance": str(resistance), "Reactance": str(reactance),
                                  "InfGroundPlane": is_infground})
-            bound = BoundaryObject(self, sourcename, props, 'Impedance')
-            if bound.create():
-                self.boundaries.append(bound)
-                return bound
-
+            return self._create_boundary(sourcename, props, "Impedance")
         return False
 
     @aedt_exception_handler
@@ -1232,8 +1205,8 @@ class Hfss(FieldAnalysis3D, object):
 
         Returns
         -------
-        :class: BoundaryObject
-            Boundary object if successful
+        BoundaryObject
+            Boundary object.
 
         """
 
@@ -1247,21 +1220,18 @@ class Hfss(FieldAnalysis3D, object):
 
         if boundary_type == self.BoundaryType.PerfectE:
             props['InfGroundPlane'] = is_infinite_gnd
-            bound = BoundaryObject(self, boundary_name, props, 'PerfectE')
+            boundary_type = "PerfectE"
         elif boundary_type == self.BoundaryType.PerfectH:
-            bound = BoundaryObject(self, boundary_name, props, 'PerfectH')
+            boundary_type = "PerfectH"
         elif boundary_type == self.BoundaryType.Aperture:
-            bound = BoundaryObject(self, boundary_name, props, 'Aperture')
+            boundary_type = "Aperture"
         elif boundary_type == self.BoundaryType.Radiation:
             props['IsFssReference'] = False
             props['IsForPML'] = False
-            bound = BoundaryObject(self, boundary_name, props, 'Radiation')
+            boundary_type = "Radiation"
         else:
             return None
-        if bound.create():
-            self.boundaries.append(bound)
-            return bound
-        return False
+        return self._create_boundary(boundary_name, props, boundary_type)
 
     @aedt_exception_handler
     def _get_reference_and_integration_points(self, sheet, axisdir):
@@ -1381,8 +1351,8 @@ class Hfss(FieldAnalysis3D, object):
 
         Returns
         -------
-        type
-            Object name
+        str
+            Object name.
 
         """
 
@@ -1432,7 +1402,7 @@ class Hfss(FieldAnalysis3D, object):
 
         Returns
         -------
-        type
+        str
             Object name
 
         """
@@ -1446,8 +1416,6 @@ class Hfss(FieldAnalysis3D, object):
             status = self.create_source_excitation(sheet_name, point0, point1, sourcename, sourcetype="Voltage")
             if status:
                 return sourcename
-            else:
-                return False
         return False
 
     @aedt_exception_handler
@@ -1467,7 +1435,7 @@ class Hfss(FieldAnalysis3D, object):
 
         Returns
         -------
-        type
+        str
             Object name
 
         """
@@ -1481,8 +1449,6 @@ class Hfss(FieldAnalysis3D, object):
             status = self.create_source_excitation(sheet_name, point0, point1, sourcename, sourcetype="Current")
             if status:
                 return sourcename
-            else:
-                return False
         return False
 
     @aedt_exception_handler
@@ -1500,8 +1466,8 @@ class Hfss(FieldAnalysis3D, object):
 
         Returns
         -------
-        type
-            Boundary object
+        BoundaryObject
+            Boundary object.
 
         """
         if self.solution_type in ["DrivenModal", "DrivenTerminal", "Transient Network", "SBR+"]:
@@ -1526,7 +1492,7 @@ class Hfss(FieldAnalysis3D, object):
         Returns
         -------
         BoundaryObject
-            Boundary object
+            Boundary object.
 
         """
         if self.solution_type in ["DrivenModal", "DrivenTerminal", "Transient Network", "SBR+"]:
@@ -1564,8 +1530,8 @@ class Hfss(FieldAnalysis3D, object):
        
         Returns
         -------
-        type
-            Object name
+        str
+            Object name.
 
         """
 
@@ -1592,10 +1558,7 @@ class Hfss(FieldAnalysis3D, object):
             if Cvalue:
                 props["UseCap"] = True
                 props["Capacitance"] = str(Cvalue) + "F"
-            bound = BoundaryObject(self, sourcename, props, "LumpedRLC")
-            if bound.create():
-                self.boundaries.append(bound)
-                return bound
+            return self._create_boundary(sourcename, props, "LumpedRLC")
         return False
 
     @aedt_exception_handler
@@ -1617,7 +1580,7 @@ class Hfss(FieldAnalysis3D, object):
 
         Returns
         -------
-        type
+        str
             Object name
 
         """
@@ -1630,10 +1593,7 @@ class Hfss(FieldAnalysis3D, object):
                 sourcename = generate_unique_name(sourcename)
             props = OrderedDict({"Objects": [sheet_name], "Resistance": str(resistance), "Reactance": str(reactance),
                                  "InfGroundPlane": is_infground})
-            bound = BoundaryObject(self, sourcename, props, "Impedance")
-            if bound.create():
-                self.boundaries.append(bound)
-                return bound
+            return self._create_boundary(sourcename, props, "Impedance")
         return False
 
 
@@ -1667,8 +1627,8 @@ class Hfss(FieldAnalysis3D, object):
 
         Returns
         -------
-        type
-            Boolean
+        bool
+            ``True`` when successful, ``False`` when failed.
 
         """
         edge_list = [edge_signal, edge_gnd]
@@ -1681,8 +1641,7 @@ class Hfss(FieldAnalysis3D, object):
                                            deembed, renorm_impedance=renorm_impedance)
         if result:
             return port_name
-        else:
-            return False
+        return False
 
     @aedt_exception_handler
     def edit_source(self, portandmode, powerin, phase="0deg"):
@@ -1877,7 +1836,7 @@ class Hfss(FieldAnalysis3D, object):
 
         Returns
         -------
-        type
+        list
             All the information in a list for later use.
 
         """
@@ -2059,13 +2018,13 @@ class Hfss(FieldAnalysis3D, object):
         project_dir : str
             Directory in which to export the file.
         outputlist : list
-            Output quantity. In this case, the Q-factor.
+            Output quantity, which in this case is the Q-factor.
         setupname : str
             Name of the setup from which to generate the report.
         plotname : str
             Name of the plot.
         Xaxis : str, optional
-            X-axis value. The default is ``"X"``.
+            Value for the X axis. The default is ``"X"``.
 
         Returns
         -------
@@ -2208,8 +2167,8 @@ class Hfss(FieldAnalysis3D, object):
 
         Returns
         -------
-        Type
-            ``True`` if correctly assigned.
+        bool
+             ``True`` when successful, ``False`` when failed.
 
         """
         if type(faces_id) is not list:

@@ -1,7 +1,7 @@
 from ..generic.general_methods import aedt_exception_handler
-from .Object3d import Object3d
 from .Primitives import Primitives, Polyline
 from .GeometryOperators import GeometryOperators
+from .Object3d import Object3d
 import os
 
 class Primitives3D(Primitives, object):
@@ -9,6 +9,11 @@ class Primitives3D(Primitives, object):
 
     def __init__(self, parent, modeler):
         Primitives.__init__(self, parent, modeler)
+
+    @aedt_exception_handler
+    def is3d(self):
+        """Returns True always to indicate a 3D analysis type"""
+        return True
 
     @aedt_exception_handler
     def create_box(self, position, dimensions_list, name=None, matname=None):
@@ -40,15 +45,14 @@ class Primitives3D(Primitives, object):
         >>> #Material and name are not mandatory fields
         >>> object_id = hfss.modeler.primivites.create_box(origin, dimensions, name="mybox", matname="copper")
         """
-        id = self._new_id()
-        o = self.objects[id]
+        o = self._new_object(matname=matname)
+
         XPosition, YPosition, ZPosition = self.pos_with_arg(position)
         if XPosition is None or YPosition is None or ZPosition is None:
             raise AttributeError("Position Argument must be a valid 3 Element List")
         XSize, YSize, ZSize = self.pos_with_arg(dimensions_list)
         if XSize is None or YSize is None or YSize is None:
             raise AttributeError("Dimension Argument must be a valid 3 Element List")
-        o.material_name, o.solve_inside = self._check_material(matname, self.defaultmaterial)
         vArg1 = ["NAME:BoxParameters"]
         vArg1.append("XPosition:="), vArg1.append(XPosition)
         vArg1.append("YPosition:="), vArg1.append(YPosition)
@@ -61,7 +65,9 @@ class Primitives3D(Primitives, object):
             vArg2 = o.export_attributes(name)
         else:
             vArg2 = o.export_attributes_legacy(name)
-        o.name = self.oeditor.CreateBox(vArg1, vArg2)
+        o._m_name = self.oeditor.CreateBox(vArg1, vArg2)
+
+        self._refresh_object_types()
         id = self._update_object(o)
         return id
 
@@ -109,15 +115,14 @@ class Primitives3D(Primitives, object):
         >>> #Material and name are not mandatory fields
         >>> object_id = hfss.modeler.primivites.create_bondwire(origin, endpos,h1=0.5, h2=0.1, alpha=75, beta=4,bond_type=0, name="mybox", matname="copper")
         """
-        id = self._new_id()
-        o = self.objects[id]
+        o = self._new_object(matname=matname)
+
         XPosition, YPosition, ZPosition = self.pos_with_arg(start_position)
         if XPosition is None or YPosition is None or ZPosition is None:
             raise AttributeError("Position Argument must be a valid 3 Element List")
         XSize, YSize, ZSize = self.pos_with_arg(end_position)
         if XSize is None or YSize is None or YSize is None:
             raise AttributeError("Dimension Argument must be a valid 3 Element List")
-        o.material_name, o.solve_inside = self._check_material(matname, self.defaultmaterial)
         if bond_type==0:
             bondwire = "JEDEC_5Points"
         elif bond_type==1:
@@ -147,7 +152,9 @@ class Primitives3D(Primitives, object):
         vArg1.append("WhichAxis:="), vArg1.append("Z")
         vArg1.append("ReverseDirection:="), vArg1.append(False)
         vArg2 = o.export_attributes(name)
-        o.name = self.oeditor.CreateBondwire(vArg1, vArg2)
+        o._m_name =self.oeditor.CreateBondwire(vArg1, vArg2)
+
+        self._refresh_object_types()
         id = self._update_object(o)
         return id
 
@@ -157,8 +164,8 @@ class Primitives3D(Primitives, object):
     def create_region(self, pad_percent):
         if "Region" in self.get_all_objects_names():
             return None
-        id = self._new_id()
-        obj = self.objects[id]
+        o = self._new_object()
+
         arg = ["NAME:RegionParameters"]
         p = ["+X", "+Y", "+Z", "-X", "-Y", "-Z"]
         i = 0
@@ -171,16 +178,19 @@ class Primitives3D(Primitives, object):
             arg.append(str(pad_percent[i]))
             i += 1
         arg2 = ["NAME:Attributes", "Name:=", "Region", "Flags:=", "Wireframe#", "Color:=", "(143 175 143)",
-                "Transparency:=", 0, "PartCoordinateSystem:=", "Global", "UDMId:=", "", "Materiaobjidue:=",
-                "\"air\"", "SurfaceMateriaobjidue:=", "\"\"", "SolveInside:=", True, "IsMaterialEditable:=", True,
+                "Transparency:=", 0, "PartCoordinateSystem:=", "Global", "UDMId:=", "", "MaterialValue:=",
+                "\"air\"", "SurfaceMaterialValue:=", "\"\"", "SolveInside:=", True, "IsMaterialEditable:=", True,
                 "UseMaterialAppearance:=", False, "IsLightweight:=", False]
+
         self.oeditor.CreateRegion(arg, arg2)
-        obj.name = "Region"
-        obj.solve_inside = True
-        obj.transparency = 0
-        obj.wireframe = True
-        id = self._update_object(obj)
-        self.objects[id] = obj
+        #TODO put this into Object3d Constructor?
+        o._m_name = "Region"
+        o._solve_inside = True
+        o._transparency = 0
+        o._wireframe = True
+
+        self._refresh_object_types()
+        id = self._update_object(o)
         return id
 
     @aedt_exception_handler
@@ -208,14 +218,12 @@ class Primitives3D(Primitives, object):
             id
 
         """
-        id = self._new_id()
-
-        o = self.objects[id]
+        o = self._new_object(matname=matname)
 
         szAxis = GeometryOperators.cs_plane_str(cs_plane)
         XCenter, YCenter, ZCenter = self.pos_with_arg(position)
         Radius = self.arg_with_dim(radius)
-        o.material_name, o.solve_inside = self._check_material(matname, self.defaultmaterial)
+
 
         vArg1 = ["NAME:CircleParameters"]
         vArg1.append("XCenter:="), vArg1.append(XCenter)
@@ -227,8 +235,10 @@ class Primitives3D(Primitives, object):
 
         vArg2 = o.export_attributes(name)
 
-        o.name = self.oeditor.CreateCircle(vArg1, vArg2)
-        id = self._update_object(o, "Sheet")
+        o._m_name =self.oeditor.CreateCircle(vArg1, vArg2)
+
+        self._refresh_object_types()
+        id = self._update_object(o)
         return id
 
     @aedt_exception_handler
@@ -250,11 +260,9 @@ class Primitives3D(Primitives, object):
         -------
 
         """
-        id = self._new_id()
+        o = self._new_object(matname=matname)
 
-        o = self.objects[id]
         XCenter, YCenter, ZCenter = self.pos_with_arg(position)
-        o.material_name, o.solve_inside = self._check_material(matname, self.defaultmaterial)
 
         Radius = self.arg_with_dim(radius)
 
@@ -266,7 +274,9 @@ class Primitives3D(Primitives, object):
 
         vArg2 = o.export_attributes(name)
 
-        o.name = self.oeditor.CreateSphere(vArg1, vArg2)
+        o._m_name =self.oeditor.CreateSphere(vArg1, vArg2)
+
+        self._refresh_object_types()
         id = self._update_object(o)
         return id
 
@@ -295,11 +305,7 @@ class Primitives3D(Primitives, object):
         -------
 
         """
-        id = self._new_id()
-
-        o = self.objects[id]
-        o = Object3d(self)
-        o.material_name, o.solve_inside = self._check_material(matname, self.defaultmaterial)
+        o = self._new_object(matname=matname)
 
         szAxis = GeometryOperators.cs_axis_str(cs_axis)
         XCenter, YCenter, ZCenter = self.pos_with_arg(position)
@@ -318,7 +324,9 @@ class Primitives3D(Primitives, object):
 
         vArg2 = o.export_attributes(name)
 
-        o.name = self.oeditor.CreateCylinder(vArg1, vArg2)
+        o._m_name =self.oeditor.CreateCylinder(vArg1, vArg2)
+
+        self._refresh_object_types()
         id = self._update_object(o)
         return id
 
@@ -347,9 +355,7 @@ class Primitives3D(Primitives, object):
         -------
 
         """
-        id = self._new_id()
-
-        o = self.objects[id]
+        o = self._new_object(matname=matname)
 
         szAxis = GeometryOperators.cs_plane_str(cs_plane)
         XStart, YStart, ZStart = self.pos_with_arg(position)
@@ -357,7 +363,6 @@ class Primitives3D(Primitives, object):
         MajorRadius = self.arg_with_dim(major_raidus)
         # Ratio = self.arg_with_dim(ratio)
         Ratio = ratio
-        o.material_name, o.solve_inside = self._check_material(matname, self.defaultmaterial)
 
         vArg1 = ["NAME:EllipseParameters"]
         vArg1.append("IsCovered:="), vArg1.append(bIsCovered)
@@ -369,12 +374,11 @@ class Primitives3D(Primitives, object):
         vArg1.append("WhichAxis:="), vArg1.append(szAxis)
 
         vArg2 = o.export_attributes(name)
-        o.name = self.oeditor.CreateEllipse(vArg1, vArg2)
-        if bIsCovered:
-            id = self._update_object(o, "Sheet")
-        else:
-            id = self._update_object(o, "Line")
+        assert vArg2
+        o._m_name =self.oeditor.CreateEllipse(vArg1, vArg2)
 
+        self._refresh_object_types()
+        id = self._update_object(o)
         return id
 
     @aedt_exception_handler
@@ -394,17 +398,15 @@ class Primitives3D(Primitives, object):
         -------
 
         """
-        # TODO Test
-        id = self._new_id()
-
-        o = self.objects[id]
-        o.material_name, o.solve_inside = self._check_material(matname, self.defaultmaterial)
+        o = self._new_object(matname=matname)
 
         vArg1 = udpequationbasedcurveddefinition.toScript()
         vArg2 = o.export_attributes(name)
 
-        o.name = self.oeditor.CreateEquationCurve(vArg1, vArg2)
-        id = self._update_object(o, "Line")
+        o._m_name =self.oeditor.CreateEquationCurve(vArg1, vArg2)
+
+        self._refresh_object_types()
+        id = self._update_object(o)
         return id
 
     @aedt_exception_handler
@@ -432,6 +434,7 @@ class Primitives3D(Primitives, object):
         vArg2 = udphelixdefinition.toScript(self.model_units)
 
         self.oeditor.CreateHelix(vArg1, vArg2)
+        self._refresh_object_types()
         id = self._update_object(o)
         return id
 
@@ -514,8 +517,9 @@ class Primitives3D(Primitives, object):
         vArg1.append("WhichAxis:="), vArg1.append(szAxis)
 
         vArg2 = o.export_attributes(name)
-        o.name = self.oeditor.CreateRectangle(vArg1, vArg2)
-        id = self._update_object(o, "Sheet")
+        o._m_name =self.oeditor.CreateRectangle(vArg1, vArg2)
+        self._refresh_object_types()
+        id = self._update_object(o)
         return id
 
     @aedt_exception_handler
@@ -537,7 +541,7 @@ class Primitives3D(Primitives, object):
             object ID
 
         """
-        #id = self._new_id()
+
 
         vArg1 = ["NAME:UserDefinedModelParameters",["NAME:Definition"], ["NAME:Options"]]
         vArgParamVector = ["NAME:GeometryParams"]
@@ -573,16 +577,14 @@ class Primitives3D(Primitives, object):
         if oname:
             object_lists = self.oeditor.GetPartsForUserDefinedModel(oname)
             for el in object_lists:
-                id = self._new_id()
-                o = self.objects[id]
-                o.name = el
-                obj = list(self.oeditor.GetObjectsInGroup("Solids"))
+                o = self._new_object()
+                o._m_name =el
                 if el in list(self.oeditor.GetObjectsInGroup("Solids")):
                     id = self._update_object(o)
                 elif el in list(self.oeditor.GetObjectsInGroup("Sheets")):
-                    id = self._update_object(o, "Sheet")
+                    id = self._update_object(o)
                 elif el in list(self.oeditor.GetObjectsInGroup("Lines")):
-                    id = self._update_object(o, "Line")
+                    id = self._update_object(o)
                 else:
                     id = self._update_object(o)
                 self.update_object_properties(o)
@@ -617,10 +619,7 @@ class Primitives3D(Primitives, object):
             id
 
         """
-        id = self._new_id()
-
-        o = self.objects[id]
-        o.material_name, o.solve_inside = self._check_material(matname, self.defaultmaterial)
+        o = self._new_object(matname=matname)
 
         XCenter, YCenter, ZCenter = self.pos_with_arg(position)
         szAxis = GeometryOperators.cs_axis_str(cs_axis)
@@ -639,7 +638,12 @@ class Primitives3D(Primitives, object):
 
         vArg2 = o.export_attributes(name)
 
-        o.name = self.oeditor.CreateCone(vArg1, vArg2)
+        o._m_name =self.oeditor.CreateCone(vArg1, vArg2)
+
+        if o.analysis_type:
+            o.material_name, o.solve_inside = self._check_material(matname, self.defaultmaterial)
+
+        self._refresh_object_types()
         id = self._update_object(o)
         return id
 
@@ -664,9 +668,7 @@ class Primitives3D(Primitives, object):
         -------
 
         """
-        id = self._new_id()
-
-        o = self.objects[id]
+        o = self._new_object()
 
         vArg1 = ["NAME:InsertComponentData"]
 
@@ -692,9 +694,8 @@ class Primitives3D(Primitives, object):
         vArg1.append(compFile)
 
         if self.oeditor is not None:
-            o.name = self.oeditor.Insert3DComponent(vArg1)
+            o._m_name =self.oeditor.Insert3DComponent(vArg1)
             self.refresh_all_ids()
-            # id = self._update_object(o)
         return id
 
     @aedt_exception_handler

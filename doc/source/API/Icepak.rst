@@ -4,7 +4,7 @@
    contain the root `toctree` directive.
 
 Icepak
-===================================
+======
 
 .. automodule:: pyaedt.icepak
     :members:

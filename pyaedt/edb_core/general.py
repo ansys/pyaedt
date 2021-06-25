@@ -1,8 +1,8 @@
 """
 General Methods
--------------------
+---------------
 
-This class manages Edb General Methods and related methods
+This module contains EDB general methods and related methods.
 
 
 """
@@ -92,7 +92,7 @@ def convert_py_list_to_net_list(pylist):
         return net_list
 
 @aedt_exception_handler
-def convert_net_list_to_py_list(self, netlist):
+def convert_net_list_to_py_list(netlist):
     """
 
     Parameters

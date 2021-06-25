@@ -2,12 +2,13 @@
 import os
 import time
 # Setup paths for module imports
-from .conftest import local_path, scratch_path
+from .conftest import local_path, scratch_path, config
 
 # Import required modules
 from pyaedt import Icepak
 from pyaedt.generic.filesystem import Scratch
 import gc
+import pytest
 
 # Access the desktop
 

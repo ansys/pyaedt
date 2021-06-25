@@ -10,13 +10,11 @@ This class contains all the functionalities to create and edit design and projec
 
 :Example:
 
-hfss = HFSS()
-hfss["$d"] = "5mm"   create a project variable
-
-
-hfss["d"] = "5mm"   create a local variable
-pip install sphinx-adc-theme
-hfss["postd"] = "1W"   create a postprocessing variable
+>>> from pyaedt import Hfss
+>>> hfss = Hfss()
+>>> hfss["$d"] = "5mm"
+>>> hfss["d"] = "5mm"
+>>> hfss["postd"] = "1W"
 
 
 ================
@@ -675,6 +673,8 @@ class VariableManager(object):
             # Handle input type int/float, etc (including numeric 0)
             variable = str(expression)
         # Handle None, "" as Separator
+        elif isinstance(expression, list):
+            variable = str(expression)
         elif not expression:
             prop_type = "SeparatorProp"
             variable = ""

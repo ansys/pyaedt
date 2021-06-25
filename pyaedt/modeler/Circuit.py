@@ -13,7 +13,7 @@ from ..modules.LayerStackup import Layers
 
 
 class ModelerCircuit(Modeler):
-    """ """
+    """ModelerCircuit class."""
 
     def __init__(self, parent):
         self._parent = parent
@@ -55,9 +55,9 @@ class ModelerCircuit(Modeler):
         secondcomponent :
             
         pinnum_first :
-             (Default value = 2)
+             The default is ``2``.
         pinnum_second :
-             (Default value = 1)
+             The default is ``1``.
 
         Returns
         -------
@@ -87,7 +87,7 @@ class ModelerCircuit(Modeler):
 
 
 class ModelerNexxim(ModelerCircuit):
-    """ """
+    """ModelerNexxim class."""
 
     def __init__(self, parent):
         self._parent = parent
@@ -116,7 +116,7 @@ class ModelerNexxim(ModelerCircuit):
         Returns
         -------
         Edb
-            edb_core object if exists
+            edb_core object if it exists.
         """
         if self._parent.design_type == "Twin Builder":
             return
@@ -156,12 +156,12 @@ class ModelerNexxim(ModelerCircuit):
 
     @model_units.setter
     def model_units(self, units):
-        """Set Circuit Model Units
+        """Set circuit model units.
 
         Parameters
         ----------
         units : str
-            units
+            Units for the circuit model.
             
         """
         assert units in AEDT_units["Length"], "Invalid units string {0}".format(units)
@@ -175,21 +175,21 @@ class ModelerNexxim(ModelerCircuit):
 
     @aedt_exception_handler
     def move(self, selections, posx, posy):
-        """Move selection by x, y
+        """Move the selections by x, y.
 
         Parameters
         ----------
-        selections :
-            list of selection
+        selections : list
+            List of the selections.
         posx :
-            x offset
+            Offset for the X axis.
         posy :
-            yoffset
+            Offset for the Y axis.
 
         Returns
         -------
         bool
-            True if succeeded
+            ``True`` when successful, ``False`` when failed.
 
         """
         if type(selections) is str:
@@ -216,19 +216,19 @@ class ModelerNexxim(ModelerCircuit):
 
     @aedt_exception_handler
     def rotate(self, selections, degrees=90):
-        """Rotate selection by degrees
+        """Rotate the selections by degrees.
 
         Parameters
         ----------
-        selections :
-            list of selection
-        degrees :
-            rotation angle (Default value = 90)
+        selections : list
+            List of the selections.
+        degrees : optional
+            Rotation angle. The default is ``90``.
 
         Returns
         -------
         bool
-            True if succeeded
+            ``True`` when successful, ``False`` when failed.
 
         """
         sels = []
@@ -257,3 +257,10 @@ class ModelerSimplorer(ModelerCircuit):
         self._parent = parent
         ModelerCircuit.__init__(self, parent)
         self.components = SimplorerComponents(parent, self)
+
+class ModelerEmit(ModelerCircuit):
+    """ModelerEmit class. """
+
+    def __init__(self, parent):
+        self._parent = parent
+        ModelerCircuit.__init__(self, parent)

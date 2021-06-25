@@ -1,5 +1,6 @@
 from ..generic.general_methods import aedt_exception_handler, generate_unique_name
 from ..application.DataHandlers import dict2arg
+from collections import OrderedDict
 
 meshlink = [("ImportMesh", False)]
 autosweep = [("RangeType", "LinearStep"), ("RangeStart", "1GHz"), ("RangeEnd", "10GHz"), ("RangeStep", "1GHz")]
@@ -73,154 +74,154 @@ ElectricTransient = [("Enabled",), ("MeshLink", meshlink), ("Tolerance", 0.005),
                      ("Data", transientelectrostatic),
                      ("Initial Voltage", "0mV")]
 SteadyTemperatureAndFlow = [("Enabled", True), ("Flow Regime", "Laminar"), ("Include Temperature", True),
-                      ("Include Flow", True), ("Include Gravity", False),
-                      ("Solution Initialization - X Velocity", "0m_per_sec"),
-                      ("Solution Initialization - Y Velocity", "0m_per_sec"),
-                      ("Solution Initialization - Z Velocity", "0m_per_sec"),
-                      ("Solution Initialization - Temperature", "AmbientTemp"),
-                      ("Solution Initialization - Turbulent Kinetic Energy", "1m2_per_s2"),
-                      ("Solution Initialization - Turbulent Dissipation Rate", "1m2_per_s3"),
-                      ("Solution Initialization - Specific Dissipation Rate", "1diss_per_s"),
-                      ("Convergence Criteria - Flow", "0.001"),
-                      ("Convergence Criteria - Energy", "1e-07"),
-                      ("Convergence Criteria - Turbulent Kinetic Energy", "0.001"),
-                      ("Convergence Criteria - Turbulent Dissipation Rate", "0.001"),
-                      ("Convergence Criteria - Specific Dissipation Rate", "0.001"),
-                      ("Convergence Criteria - Discrete Ordinates", "1e-06"),
-                      ("IsEnabled", False), ("Radiation Model", "Off"),
-                      ("Under-relaxation - Pressure", "0.7"), ("Under-relaxation - Momentum", "0.3"),
-                      ("Under-relaxation - Temperature", "1"),
-                      ("Under-relaxation - Turbulent Kinetic Energy", "0.8"),
-                      ("Under-relaxation - Turbulent Dissipation Rate", "0.8"),
-                      ("Under-relaxation - Specific Dissipation Rate", "0.8"),
-                      ("Discretization Scheme - Pressure", "Standard"),
-                      ("Discretization Scheme - Momentum", "First"),
-                      ("Discretization Scheme - Temperature", "Second"), ("Secondary Gradient", False),
-                      ("Discretization Scheme - Turbulent Kinetic Energy", "First"),
-                      ("Discretization Scheme - Turbulent Dissipation Rate", "First"),
-                      ("Discretization Scheme - Specific Dissipation Rate", "First"),
-                      ("Discretization Scheme - Discrete Ordinates", "First"),
-                      ("Linear Solver Type - Pressure", "V"),
-                      ("Linear Solver Type - Momentum", "flex"),
-                      ("Linear Solver Type - Temperature", "F"),
-                      ("Linear Solver Type - Turbulent Kinetic Energy", "flex"),
-                      ("Linear Solver Type - Turbulent Dissipation Rate", "flex"),
-                      ("Linear Solver Type - Specific Dissipation Rate", "flex"),
-                      ("Linear Solver Termination Criterion - Pressure", "0.1"),
-                      ("Linear Solver Termination Criterion - Momentum", "0.1"),
-                      ("Linear Solver Termination Criterion - Temperature", "0.1"),
-                      ("Linear Solver Termination Criterion - Turbulent Kinetic Energy", "0.1"),
-                      ("Linear Solver Termination Criterion - Turbulent Dissipation  Rate", "0.1"),
-                      ("Linear Solver Termination Criterion - Specific Dissipation Rate", "0.1"),
-                      ("Linear Solver Residual Reduction Tolerance - Pressure", "0.1"),
-                      ("Linear Solver Residual Reduction Tolerance - Momentum", "0.1"),
-                      ("Linear Solver Residual Reduction Tolerance - Temperature", "0.1"),
-                      ("Linear Solver Residual Reduction Tolerance - Turbulent Kinetic Energy", "0.1"),
-                      ("Linear Solver Residual Reduction Tolerance - Turbulent Dissipation Rate", "0.1"),
-                      ("Linear Solver Residual Reduction Tolerance - Specific Dissipation Rate", "0.1"),
-                      ("Linear Solver Stabilization - Pressure", "None"),
-                      ("Linear Solver Stabilization - Temperature", "None"),
-                      ("Frozen Flow Simulation", False),
-                      ("Sequential Solve of Flow and Energy Equations", False),
-                      ("Convergence Criteria - Max Iterations", 100)]
+                            ("Include Flow", True), ("Include Gravity", False),
+                            ("Solution Initialization - X Velocity", "0m_per_sec"),
+                            ("Solution Initialization - Y Velocity", "0m_per_sec"),
+                            ("Solution Initialization - Z Velocity", "0m_per_sec"),
+                            ("Solution Initialization - Temperature", "AmbientTemp"),
+                            ("Solution Initialization - Turbulent Kinetic Energy", "1m2_per_s2"),
+                            ("Solution Initialization - Turbulent Dissipation Rate", "1m2_per_s3"),
+                            ("Solution Initialization - Specific Dissipation Rate", "1diss_per_s"),
+                            ("Convergence Criteria - Flow", "0.001"),
+                            ("Convergence Criteria - Energy", "1e-07"),
+                            ("Convergence Criteria - Turbulent Kinetic Energy", "0.001"),
+                            ("Convergence Criteria - Turbulent Dissipation Rate", "0.001"),
+                            ("Convergence Criteria - Specific Dissipation Rate", "0.001"),
+                            ("Convergence Criteria - Discrete Ordinates", "1e-06"),
+                            ("IsEnabled", False), ("Radiation Model", "Off"),
+                            ("Under-relaxation - Pressure", "0.7"), ("Under-relaxation - Momentum", "0.3"),
+                            ("Under-relaxation - Temperature", "1"),
+                            ("Under-relaxation - Turbulent Kinetic Energy", "0.8"),
+                            ("Under-relaxation - Turbulent Dissipation Rate", "0.8"),
+                            ("Under-relaxation - Specific Dissipation Rate", "0.8"),
+                            ("Discretization Scheme - Pressure", "Standard"),
+                            ("Discretization Scheme - Momentum", "First"),
+                            ("Discretization Scheme - Temperature", "Second"), ("Secondary Gradient", False),
+                            ("Discretization Scheme - Turbulent Kinetic Energy", "First"),
+                            ("Discretization Scheme - Turbulent Dissipation Rate", "First"),
+                            ("Discretization Scheme - Specific Dissipation Rate", "First"),
+                            ("Discretization Scheme - Discrete Ordinates", "First"),
+                            ("Linear Solver Type - Pressure", "V"),
+                            ("Linear Solver Type - Momentum", "flex"),
+                            ("Linear Solver Type - Temperature", "F"),
+                            ("Linear Solver Type - Turbulent Kinetic Energy", "flex"),
+                            ("Linear Solver Type - Turbulent Dissipation Rate", "flex"),
+                            ("Linear Solver Type - Specific Dissipation Rate", "flex"),
+                            ("Linear Solver Termination Criterion - Pressure", "0.1"),
+                            ("Linear Solver Termination Criterion - Momentum", "0.1"),
+                            ("Linear Solver Termination Criterion - Temperature", "0.1"),
+                            ("Linear Solver Termination Criterion - Turbulent Kinetic Energy", "0.1"),
+                            ("Linear Solver Termination Criterion - Turbulent Dissipation  Rate", "0.1"),
+                            ("Linear Solver Termination Criterion - Specific Dissipation Rate", "0.1"),
+                            ("Linear Solver Residual Reduction Tolerance - Pressure", "0.1"),
+                            ("Linear Solver Residual Reduction Tolerance - Momentum", "0.1"),
+                            ("Linear Solver Residual Reduction Tolerance - Temperature", "0.1"),
+                            ("Linear Solver Residual Reduction Tolerance - Turbulent Kinetic Energy", "0.1"),
+                            ("Linear Solver Residual Reduction Tolerance - Turbulent Dissipation Rate", "0.1"),
+                            ("Linear Solver Residual Reduction Tolerance - Specific Dissipation Rate", "0.1"),
+                            ("Linear Solver Stabilization - Pressure", "None"),
+                            ("Linear Solver Stabilization - Temperature", "None"),
+                            ("Frozen Flow Simulation", False),
+                            ("Sequential Solve of Flow and Energy Equations", False),
+                            ("Convergence Criteria - Max Iterations", 100)]
 SteadyTemperatureOnly = [("Enabled", True), ("Flow Regime", "Laminar"), ("Include Temperature", True),
-                   ("Include Gravity", False),
-                   ("Solution Initialization - X Velocity", "0m_per_sec"),
-                   ("Solution Initialization - Y Velocity", "0m_per_sec"),
-                   ("Solution Initialization - Z Velocity", "0m_per_sec"),
-                   ("Solution Initialization - Temperature", "AmbientTemp"),
-                   ("Solution Initialization - Turbulent Kinetic Energy", "1m2_per_s2"),
-                   ("Solution Initialization - Turbulent Dissipation Rate", "1m2_per_s3"),
-                   ("Solution Initialization - Specific Dissipation Rate", "1diss_per_s"),
-                   ("Convergence Criteria - Flow", "0.001"),
-                   ("Convergence Criteria - Energy", "1e-07"),
-                   ("Convergence Criteria - Turbulent Kinetic Energy", "0.001"),
-                   ("Convergence Criteria - Turbulent Dissipation Rate", "0.001"),
-                   ("Convergence Criteria - Specific Dissipation Rate", "0.001"),
-                   ("Convergence Criteria - Discrete Ordinates", "1e-06"),
-                   ("IsEnabled", False), ("Radiation Model", "Off"),
-                   ("Under-relaxation - Pressure", "0.7"), ("Under-relaxation - Momentum", "0.3"),
-                   ("Under-relaxation - Temperature", "1"),
-                   ("Under-relaxation - Turbulent Kinetic Energy", "0.8"),
-                   ("Under-relaxation - Turbulent Dissipation Rate", "0.8"),
-                   ("Under-relaxation - Specific Dissipation Rate", "0.8"),
-                   ("Discretization Scheme - Pressure", "Standard"),
-                   ("Discretization Scheme - Momentum", "First"),
-                   ("Discretization Scheme - Temperature", "Second"), ("Secondary Gradient", False),
-                   ("Discretization Scheme - Turbulent Kinetic Energy", "First"),
-                   ("Discretization Scheme - Turbulent Dissipation Rate", "First"),
-                   ("Discretization Scheme - Specific Dissipation Rate", "First"),
-                   ("Discretization Scheme - Discrete Ordinates", "First"),
-                   ("Linear Solver Type - Pressure", "V"),
-                   ("Linear Solver Type - Momentum", "flex"),
-                   ("Linear Solver Type - Temperature", "F"),
-                   ("Linear Solver Type - Turbulent Kinetic Energy", "flex"),
-                   ("Linear Solver Type - Turbulent Dissipation Rate", "flex"),
-                   ("Linear Solver Type - Specific Dissipation Rate", "flex"),
-                   ("Linear Solver Termination Criterion - Pressure", "0.1"),
-                   ("Linear Solver Termination Criterion - Momentum", "0.1"),
-                   ("Linear Solver Termination Criterion - Temperature", "0.1"),
-                   ("Linear Solver Termination Criterion - Turbulent Kinetic Energy", "0.1"),
-                   ("Linear Solver Termination Criterion - Turbulent Dissipation  Rate", "0.1"),
-                   ("Linear Solver Termination Criterion - Specific Dissipation Rate", "0.1"),
-                   ("Linear Solver Residual Reduction Tolerance - Pressure", "0.1"),
-                   ("Linear Solver Residual Reduction Tolerance - Momentum", "0.1"),
-                   ("Linear Solver Residual Reduction Tolerance - Temperature", "0.1"),
-                   ("Linear Solver Residual Reduction Tolerance - Turbulent Kinetic Energy", "0.1"),
-                   ("Linear Solver Residual Reduction Tolerance - Turbulent Dissipation Rate", "0.1"),
-                   ("Linear Solver Residual Reduction Tolerance - Specific Dissipation Rate", "0.1"),
-                   ("Linear Solver Stabilization - Pressure", "None"),
-                   ("Linear Solver Stabilization - Temperature", "None"),
-                   ("Sequential Solve of Flow and Energy Equations", False),
-                   ("Convergence Criteria - Max Iterations", 100)]
+                         ("Include Gravity", False),
+                         ("Solution Initialization - X Velocity", "0m_per_sec"),
+                         ("Solution Initialization - Y Velocity", "0m_per_sec"),
+                         ("Solution Initialization - Z Velocity", "0m_per_sec"),
+                         ("Solution Initialization - Temperature", "AmbientTemp"),
+                         ("Solution Initialization - Turbulent Kinetic Energy", "1m2_per_s2"),
+                         ("Solution Initialization - Turbulent Dissipation Rate", "1m2_per_s3"),
+                         ("Solution Initialization - Specific Dissipation Rate", "1diss_per_s"),
+                         ("Convergence Criteria - Flow", "0.001"),
+                         ("Convergence Criteria - Energy", "1e-07"),
+                         ("Convergence Criteria - Turbulent Kinetic Energy", "0.001"),
+                         ("Convergence Criteria - Turbulent Dissipation Rate", "0.001"),
+                         ("Convergence Criteria - Specific Dissipation Rate", "0.001"),
+                         ("Convergence Criteria - Discrete Ordinates", "1e-06"),
+                         ("IsEnabled", False), ("Radiation Model", "Off"),
+                         ("Under-relaxation - Pressure", "0.7"), ("Under-relaxation - Momentum", "0.3"),
+                         ("Under-relaxation - Temperature", "1"),
+                         ("Under-relaxation - Turbulent Kinetic Energy", "0.8"),
+                         ("Under-relaxation - Turbulent Dissipation Rate", "0.8"),
+                         ("Under-relaxation - Specific Dissipation Rate", "0.8"),
+                         ("Discretization Scheme - Pressure", "Standard"),
+                         ("Discretization Scheme - Momentum", "First"),
+                         ("Discretization Scheme - Temperature", "Second"), ("Secondary Gradient", False),
+                         ("Discretization Scheme - Turbulent Kinetic Energy", "First"),
+                         ("Discretization Scheme - Turbulent Dissipation Rate", "First"),
+                         ("Discretization Scheme - Specific Dissipation Rate", "First"),
+                         ("Discretization Scheme - Discrete Ordinates", "First"),
+                         ("Linear Solver Type - Pressure", "V"),
+                         ("Linear Solver Type - Momentum", "flex"),
+                         ("Linear Solver Type - Temperature", "F"),
+                         ("Linear Solver Type - Turbulent Kinetic Energy", "flex"),
+                         ("Linear Solver Type - Turbulent Dissipation Rate", "flex"),
+                         ("Linear Solver Type - Specific Dissipation Rate", "flex"),
+                         ("Linear Solver Termination Criterion - Pressure", "0.1"),
+                         ("Linear Solver Termination Criterion - Momentum", "0.1"),
+                         ("Linear Solver Termination Criterion - Temperature", "0.1"),
+                         ("Linear Solver Termination Criterion - Turbulent Kinetic Energy", "0.1"),
+                         ("Linear Solver Termination Criterion - Turbulent Dissipation  Rate", "0.1"),
+                         ("Linear Solver Termination Criterion - Specific Dissipation Rate", "0.1"),
+                         ("Linear Solver Residual Reduction Tolerance - Pressure", "0.1"),
+                         ("Linear Solver Residual Reduction Tolerance - Momentum", "0.1"),
+                         ("Linear Solver Residual Reduction Tolerance - Temperature", "0.1"),
+                         ("Linear Solver Residual Reduction Tolerance - Turbulent Kinetic Energy", "0.1"),
+                         ("Linear Solver Residual Reduction Tolerance - Turbulent Dissipation Rate", "0.1"),
+                         ("Linear Solver Residual Reduction Tolerance - Specific Dissipation Rate", "0.1"),
+                         ("Linear Solver Stabilization - Pressure", "None"),
+                         ("Linear Solver Stabilization - Temperature", "None"),
+                         ("Sequential Solve of Flow and Energy Equations", False),
+                         ("Convergence Criteria - Max Iterations", 100)]
 SteadyFlowOnly = [("Enabled", True), ("Flow Regime", "Laminar"), ("Include Flow", True), ("Include Gravity", False),
-            ("Solution Initialization - X Velocity", "0m_per_sec"),
-            ("Solution Initialization - Y Velocity", "0m_per_sec"),
-            ("Solution Initialization - Z Velocity", "0m_per_sec"),
-            ("Solution Initialization - Temperature", "AmbientTemp"),
-            ("Solution Initialization - Turbulent Kinetic Energy", "1m2_per_s2"),
-            ("Solution Initialization - Turbulent Dissipation Rate", "1m2_per_s3"),
-            ("Solution Initialization - Specific Dissipation Rate", "1diss_per_s"),
-            ("Convergence Criteria - Flow", "0.001"),
-            ("Convergence Criteria - Energy", "1e-07"),
-            ("Convergence Criteria - Turbulent Kinetic Energy", "0.001"),
-            ("Convergence Criteria - Turbulent Dissipation Rate", "0.001"),
-            ("Convergence Criteria - Specific Dissipation Rate", "0.001"),
-            ("Convergence Criteria - Discrete Ordinates", "1e-06"),
-            ("IsEnabled", False), ("Radiation Model", "Off"),
-            ("Under-relaxation - Pressure", "0.7"), ("Under-relaxation - Momentum", "0.3"),
-            ("Under-relaxation - Temperature", "1"), ("Under-relaxation - Turbulent Kinetic Energy", "0.8"),
-            ("Under-relaxation - Turbulent Dissipation Rate", "0.8"),
-            ("Under-relaxation - Specific Dissipation Rate", "0.8"),
-            ("Discretization Scheme - Pressure", "Standard"), ("Discretization Scheme - Momentum", "First"),
-            ("Discretization Scheme - Temperature", "First"), ("Secondary Gradient", False),
-            ("Discretization Scheme - Turbulent Kinetic Energy", "First"),
-            ("Discretization Scheme - Turbulent Dissipation Rate", "First"),
-            ("Discretization Scheme - Specific Dissipation Rate", "First"),
-            ("Discretization Scheme - Discrete Ordinates", "First"),
-            ("Linear Solver Type - Pressure", "V"),
-            ("Linear Solver Type - Momentum", "flex"),
-            ("Linear Solver Type - Temperature", "F"),
-            ("Linear Solver Type - Turbulent Kinetic Energy", "flex"),
-            ("Linear Solver Type - Turbulent Dissipation Rate", "flex"),
-            ("Linear Solver Type - Specific Dissipation Rate", "flex"),
-            ("Linear Solver Termination Criterion - Pressure", "0.1"),
-            ("Linear Solver Termination Criterion - Momentum", "0.1"),
-            ("Linear Solver Termination Criterion - Temperature", "0.1"),
-            ("Linear Solver Termination Criterion - Turbulent Kinetic Energy", "0.1"),
-            ("Linear Solver Termination Criterion - Turbulent Dissipation  Rate", "0.1"),
-            ("Linear Solver Termination Criterion - Specific Dissipation Rate", "0.1"),
-            ("Linear Solver Residual Reduction Tolerance - Pressure", "0.1"),
-            ("Linear Solver Residual Reduction Tolerance - Momentum", "0.1"),
-            ("Linear Solver Residual Reduction Tolerance - Temperature", "0.1"),
-            ("Linear Solver Residual Reduction Tolerance - Turbulent Kinetic Energy", "0.1"),
-            ("Linear Solver Residual Reduction Tolerance - Turbulent Dissipation Rate", "0.1"),
-            ("Linear Solver Residual Reduction Tolerance - Specific Dissipation Rate", "0.1"),
-            ("Linear Solver Stabilization - Pressure", "None"),
-            ("Linear Solver Stabilization - Temperature", "None"),
-            ("Frozen Flow Simulation", False),
-            ("Sequential Solve of Flow and Energy Equations", False),
-            ("Convergence Criteria - Max Iterations", 100)]
+                  ("Solution Initialization - X Velocity", "0m_per_sec"),
+                  ("Solution Initialization - Y Velocity", "0m_per_sec"),
+                  ("Solution Initialization - Z Velocity", "0m_per_sec"),
+                  ("Solution Initialization - Temperature", "AmbientTemp"),
+                  ("Solution Initialization - Turbulent Kinetic Energy", "1m2_per_s2"),
+                  ("Solution Initialization - Turbulent Dissipation Rate", "1m2_per_s3"),
+                  ("Solution Initialization - Specific Dissipation Rate", "1diss_per_s"),
+                  ("Convergence Criteria - Flow", "0.001"),
+                  ("Convergence Criteria - Energy", "1e-07"),
+                  ("Convergence Criteria - Turbulent Kinetic Energy", "0.001"),
+                  ("Convergence Criteria - Turbulent Dissipation Rate", "0.001"),
+                  ("Convergence Criteria - Specific Dissipation Rate", "0.001"),
+                  ("Convergence Criteria - Discrete Ordinates", "1e-06"),
+                  ("IsEnabled", False), ("Radiation Model", "Off"),
+                  ("Under-relaxation - Pressure", "0.7"), ("Under-relaxation - Momentum", "0.3"),
+                  ("Under-relaxation - Temperature", "1"), ("Under-relaxation - Turbulent Kinetic Energy", "0.8"),
+                  ("Under-relaxation - Turbulent Dissipation Rate", "0.8"),
+                  ("Under-relaxation - Specific Dissipation Rate", "0.8"),
+                  ("Discretization Scheme - Pressure", "Standard"), ("Discretization Scheme - Momentum", "First"),
+                  ("Discretization Scheme - Temperature", "First"), ("Secondary Gradient", False),
+                  ("Discretization Scheme - Turbulent Kinetic Energy", "First"),
+                  ("Discretization Scheme - Turbulent Dissipation Rate", "First"),
+                  ("Discretization Scheme - Specific Dissipation Rate", "First"),
+                  ("Discretization Scheme - Discrete Ordinates", "First"),
+                  ("Linear Solver Type - Pressure", "V"),
+                  ("Linear Solver Type - Momentum", "flex"),
+                  ("Linear Solver Type - Temperature", "F"),
+                  ("Linear Solver Type - Turbulent Kinetic Energy", "flex"),
+                  ("Linear Solver Type - Turbulent Dissipation Rate", "flex"),
+                  ("Linear Solver Type - Specific Dissipation Rate", "flex"),
+                  ("Linear Solver Termination Criterion - Pressure", "0.1"),
+                  ("Linear Solver Termination Criterion - Momentum", "0.1"),
+                  ("Linear Solver Termination Criterion - Temperature", "0.1"),
+                  ("Linear Solver Termination Criterion - Turbulent Kinetic Energy", "0.1"),
+                  ("Linear Solver Termination Criterion - Turbulent Dissipation  Rate", "0.1"),
+                  ("Linear Solver Termination Criterion - Specific Dissipation Rate", "0.1"),
+                  ("Linear Solver Residual Reduction Tolerance - Pressure", "0.1"),
+                  ("Linear Solver Residual Reduction Tolerance - Momentum", "0.1"),
+                  ("Linear Solver Residual Reduction Tolerance - Temperature", "0.1"),
+                  ("Linear Solver Residual Reduction Tolerance - Turbulent Kinetic Energy", "0.1"),
+                  ("Linear Solver Residual Reduction Tolerance - Turbulent Dissipation Rate", "0.1"),
+                  ("Linear Solver Residual Reduction Tolerance - Specific Dissipation Rate", "0.1"),
+                  ("Linear Solver Stabilization - Pressure", "None"),
+                  ("Linear Solver Stabilization - Temperature", "None"),
+                  ("Frozen Flow Simulation", False),
+                  ("Sequential Solve of Flow and Energy Equations", False),
+                  ("Convergence Criteria - Max Iterations", 100)]
 Q3DCond = [("MaxPass", 10), ("MinPass", 1), ("MinConvPass", 1), ("PerError", 1), ("PerRefine", 30)]
 Q3DMult = [("MaxPass", 1), ("MinPass", 1), ("MinConvPass", 1), ("PerError", 1), ("PerRefine", 30)]
 Q3DDC = [("SolveResOnly", False), ("Cond", Q3DCond), ("Mult", Q3DMult)]
@@ -232,8 +233,8 @@ Matrix = [("AdaptiveFreq", "1GHz"), ("SaveFields", False), ("Enabled", True), ("
           ("AC", Q3DAC)]
 OutputQuantities = []
 NoiseOutputQuantities = []
-SweepDefinition = [("Variable"		, "Freq"), ("Data"		, "LINC 1GHz 5GHz 501"), ("OffsetF1"		, False),
-                   ("Synchronize"		, 0)]
+SweepDefinition = [("Variable", "Freq"), ("Data", "LINC 1GHz 5GHz 501"), ("OffsetF1", False),
+                   ("Synchronize", 0)]
 NexximLNA = [("DataBlockID", 16), ("OptionName", "(Default Options)"), ("AdditionalOptions", ""),
              ("AlterBlockName", ""), ("FilterText", ""), ("AnalysisEnabled", 1), ("OutputQuantities", OutputQuantities),
              ("NoiseOutputQuantities", NoiseOutputQuantities), ("Name", "LinearFrequency"),
@@ -340,11 +341,12 @@ RLDataBlock = [("MaxPass", 10),
                ("UseLossyParamConv", False),
                ("PerErrorParamConv", 1),
                ("UseLossConv", True)]
-Open =[("AdaptiveFreq"	, "1GHz"), ("SaveFields"		, True), ("Enabled"		, True),("MeshLink", meshlink),
-       ("CGDataBlock", CGDataBlock), ("RLDataBlock", RLDataBlock),("CacheSaveKind"	, "Delta"),("ConstantDelta"	, "0s")]
+Open = [("AdaptiveFreq", "1GHz"), ("SaveFields", True), ("Enabled", True), ("MeshLink", meshlink),
+        ("CGDataBlock", CGDataBlock), ("RLDataBlock", RLDataBlock), ("CacheSaveKind", "Delta"), ("ConstantDelta", "0s")]
 
-Close =[("AdaptiveFreq"	, "1GHz"), ("SaveFields"		, True), ("Enabled"		, True),("MeshLink", meshlink),
-       ("CGDataBlock", CGDataBlock), ("RLDataBlock", RLDataBlock),("CacheSaveKind"	, "Delta"),("ConstantDelta"	, "0s")]
+Close = [("AdaptiveFreq", "1GHz"), ("SaveFields", True), ("Enabled", True), ("MeshLink", meshlink),
+         ("CGDataBlock", CGDataBlock), ("RLDataBlock", RLDataBlock), ("CacheSaveKind", "Delta"),
+         ("ConstantDelta", "0s")]
 
 TransientTemperatureAndFlow = [("Enabled", True), ("Flow Regime", "Laminar"), ("Include Temperature", True),
                                ("Include Flow", True), ("Include Gravity", False), ("Include Solar", False),
@@ -412,134 +414,135 @@ TransientTemperatureAndFlow = [("Enabled", True), ("Flow Regime", "Laminar"), ("
                                ("N Steps:=", "10s"), ("Enable Control Program", False), ("Control Program Name", "")]
 
 TransientTemperatureOnly = [("Enabled", True), ("Flow Regime", "Laminar"), ("Include Temperature", True),
-                               ("Include Flow", False), ("Include Gravity", False), ("Include Solar", False),
-                               ("Solution Initialization - X Velocity", "0m_per_sec"),
-                               ("Solution Initialization - Y Velocity", "0m_per_sec"),
-                               ("Solution Initialization - Z Velocity", "0m_per_sec"),
-                               ("Solution Initialization - Temperature", "AmbientTemp"),
-                               ("Solution Initialization - Turbulent Kinetic Energy", "1m2_per_s2"),
-                               ("Solution Initialization - Turbulent Dissipation Rate", "1m2_per_s3"),
-                               ("Solution Initialization - Specific Dissipation Rate", "1diss_per_s"),
-                               ("Solution Initialization - Use Model Based Flow Initialization", False),
-                               ("Convergence Criteria - Flow", "0.001"),
-                               ("Convergence Criteria - Energy", "1e-07"),
-                               ("Convergence Criteria - Turbulent Kinetic Energy", "0.001"),
-                               ("Convergence Criteria - Turbulent Dissipation Rate", "0.001"),
-                               ("Convergence Criteria - Specific Dissipation Rate", "0.001"),
-                               ("Convergence Criteria - Discrete Ordinates", "1e-06"), ("IsEnabled:=", False),
-                               ("Radiation Model", "Off"),
-                               ("Solar Radiation Model", "Solar Radiation Calculator"),
-                               ("Solar Radiation - Scattering Fraction", "0"),
-                               ("Solar Radiation - Day", 1), ("Solar Radiation - Month", 1),
-                               ("Solar Radiation - Hours", 0),
-                               ("Solar Radiation - Minutes", 0), ("Solar Radiation - GMT", "0"),
-                               ("Solar Radiation - Latitude", "0"),
-                               ("Solar Radiation - Latitude Direction", "East"), ("Solar Radiation - Longitude", "0"),
-                               ("Solar Radiation - Longitude Direction", "North"),
-                               ("Solar Radiation - Ground Reflectance", "0"),
-                               ("Solar Radiation - Sunshine Fraction", "0"), ("Solar Radiation - North X", "0"),
-                               ("Solar Radiation - North Y", "0"), ("Solar Radiation - North Z", "1"),
-                               ("Under-relaxation - Pressure", "0.3"),
-                               ("Under-relaxation - Momentum", "0.7"), ("Under-relaxation - Temperature", "1"),
-                               ("Under-relaxation - Turbulent Kinetic Energy", "0.8"),
-                               ("Under-relaxation - Turbulent Dissipation Rate", "0.8"),
-                               ("Under-relaxation - Specific Dissipation Rate", "0.8"),
-                               ("Discretization Scheme - Pressure", "Standard"),
-                               ("Discretization Scheme - Momentum", "First"),
-                               ("Discretization Scheme - Temperature", "First"), ("Secondary Gradient", False),
-                               ("Discretization Scheme - Turbulent Kinetic Energy", "First"),
-                               ("Discretization Scheme - Turbulent Dissipation Rate", "First"),
-                               ("Discretization Scheme - Specific Dissipation Rate", "First"),
-                               ("Discretization Scheme - Discrete Ordinates", "First"),
-                               ("Linear Solver Type - Pressure", "V"), ("Linear Solver Type - Momentum", "flex"),
-                               ("Linear Solver Type - Temperature", "F"),
-                               ("Linear Solver Type - Turbulent Kinetic Energy", "flex"),
-                               ("Linear Solver Type - Turbulent Dissipation Rate", "flex"),
-                               ("Linear Solver Type - Specific Dissipation Rate", "flex"),
-                               ("Linear Solver Termination Criterion - Pressure", "0.1"),
-                               ("Linear Solver Termination Criterion - Momentum", "0.1"),
-                               ("Linear Solver Termination Criterion - Temperature", "0.1"),
-                               ("Linear Solver Termination Criterion - Turbulent Kinetic Energy", "0.1"),
-                               ("Linear Solver Termination Criterion - Turbulent Dissipation Rate", "0.1"),
-                               ("Linear Solver Termination Criterion - Specific Dissipation Rate", "0.1"),
-                               ("Linear Solver Residual Reduction Tolerance - Pressure", "0.1"),
-                               ("Linear Solver Residual Reduction Tolerance - Momentum", "0.1"),
-                               ("Linear Solver Residual Reduction Tolerance - Temperature", "0.1"),
-                               ("Linear Solver Residual Reduction Tolerance - Turbulent Kinetic Energy", "0.1"),
-                               ("Linear Solver Residual Reduction Tolerance - Turbulent Dissipation Rate", "0.1"),
-                               ("Linear Solver Residual Reduction Tolerance - Specific Dissipation Rate", "0.1"),
-                               ("Linear Solver Stabilization - Pressure", "None"),
-                               ("Linear Solver Stabilization - Temperature", "None"),
-                               ("Coupled pressure-velocity formulation", False),
-                               ("Frozen Flow Simulation", False), ("Start Time:=", "0s"), ("Stop Time:=", "20s"),
-                               ("Time Step:=", "1s"), ("Iterations per Time Step", 20), ("Import Start Time", False),
-                               ("Copy Fields From Source", False), ("SaveFieldsType", "Every N Steps"),
-                               ("N Steps:=", "10s"), ("Enable Control Program", False), ("Control Program Name", "")]
+                            ("Include Flow", False), ("Include Gravity", False), ("Include Solar", False),
+                            ("Solution Initialization - X Velocity", "0m_per_sec"),
+                            ("Solution Initialization - Y Velocity", "0m_per_sec"),
+                            ("Solution Initialization - Z Velocity", "0m_per_sec"),
+                            ("Solution Initialization - Temperature", "AmbientTemp"),
+                            ("Solution Initialization - Turbulent Kinetic Energy", "1m2_per_s2"),
+                            ("Solution Initialization - Turbulent Dissipation Rate", "1m2_per_s3"),
+                            ("Solution Initialization - Specific Dissipation Rate", "1diss_per_s"),
+                            ("Solution Initialization - Use Model Based Flow Initialization", False),
+                            ("Convergence Criteria - Flow", "0.001"),
+                            ("Convergence Criteria - Energy", "1e-07"),
+                            ("Convergence Criteria - Turbulent Kinetic Energy", "0.001"),
+                            ("Convergence Criteria - Turbulent Dissipation Rate", "0.001"),
+                            ("Convergence Criteria - Specific Dissipation Rate", "0.001"),
+                            ("Convergence Criteria - Discrete Ordinates", "1e-06"), ("IsEnabled:=", False),
+                            ("Radiation Model", "Off"),
+                            ("Solar Radiation Model", "Solar Radiation Calculator"),
+                            ("Solar Radiation - Scattering Fraction", "0"),
+                            ("Solar Radiation - Day", 1), ("Solar Radiation - Month", 1),
+                            ("Solar Radiation - Hours", 0),
+                            ("Solar Radiation - Minutes", 0), ("Solar Radiation - GMT", "0"),
+                            ("Solar Radiation - Latitude", "0"),
+                            ("Solar Radiation - Latitude Direction", "East"), ("Solar Radiation - Longitude", "0"),
+                            ("Solar Radiation - Longitude Direction", "North"),
+                            ("Solar Radiation - Ground Reflectance", "0"),
+                            ("Solar Radiation - Sunshine Fraction", "0"), ("Solar Radiation - North X", "0"),
+                            ("Solar Radiation - North Y", "0"), ("Solar Radiation - North Z", "1"),
+                            ("Under-relaxation - Pressure", "0.3"),
+                            ("Under-relaxation - Momentum", "0.7"), ("Under-relaxation - Temperature", "1"),
+                            ("Under-relaxation - Turbulent Kinetic Energy", "0.8"),
+                            ("Under-relaxation - Turbulent Dissipation Rate", "0.8"),
+                            ("Under-relaxation - Specific Dissipation Rate", "0.8"),
+                            ("Discretization Scheme - Pressure", "Standard"),
+                            ("Discretization Scheme - Momentum", "First"),
+                            ("Discretization Scheme - Temperature", "First"), ("Secondary Gradient", False),
+                            ("Discretization Scheme - Turbulent Kinetic Energy", "First"),
+                            ("Discretization Scheme - Turbulent Dissipation Rate", "First"),
+                            ("Discretization Scheme - Specific Dissipation Rate", "First"),
+                            ("Discretization Scheme - Discrete Ordinates", "First"),
+                            ("Linear Solver Type - Pressure", "V"), ("Linear Solver Type - Momentum", "flex"),
+                            ("Linear Solver Type - Temperature", "F"),
+                            ("Linear Solver Type - Turbulent Kinetic Energy", "flex"),
+                            ("Linear Solver Type - Turbulent Dissipation Rate", "flex"),
+                            ("Linear Solver Type - Specific Dissipation Rate", "flex"),
+                            ("Linear Solver Termination Criterion - Pressure", "0.1"),
+                            ("Linear Solver Termination Criterion - Momentum", "0.1"),
+                            ("Linear Solver Termination Criterion - Temperature", "0.1"),
+                            ("Linear Solver Termination Criterion - Turbulent Kinetic Energy", "0.1"),
+                            ("Linear Solver Termination Criterion - Turbulent Dissipation Rate", "0.1"),
+                            ("Linear Solver Termination Criterion - Specific Dissipation Rate", "0.1"),
+                            ("Linear Solver Residual Reduction Tolerance - Pressure", "0.1"),
+                            ("Linear Solver Residual Reduction Tolerance - Momentum", "0.1"),
+                            ("Linear Solver Residual Reduction Tolerance - Temperature", "0.1"),
+                            ("Linear Solver Residual Reduction Tolerance - Turbulent Kinetic Energy", "0.1"),
+                            ("Linear Solver Residual Reduction Tolerance - Turbulent Dissipation Rate", "0.1"),
+                            ("Linear Solver Residual Reduction Tolerance - Specific Dissipation Rate", "0.1"),
+                            ("Linear Solver Stabilization - Pressure", "None"),
+                            ("Linear Solver Stabilization - Temperature", "None"),
+                            ("Coupled pressure-velocity formulation", False),
+                            ("Frozen Flow Simulation", False), ("Start Time:=", "0s"), ("Stop Time:=", "20s"),
+                            ("Time Step:=", "1s"), ("Iterations per Time Step", 20), ("Import Start Time", False),
+                            ("Copy Fields From Source", False), ("SaveFieldsType", "Every N Steps"),
+                            ("N Steps:=", "10s"), ("Enable Control Program", False), ("Control Program Name", "")]
 
 TransientFlowOnly = [("Enabled", True), ("Flow Regime", "Laminar"), ("Include Temperature", False),
-                               ("Include Flow", True), ("Include Gravity", False), ("Include Solar", False),
-                               ("Solution Initialization - X Velocity", "0m_per_sec"),
-                               ("Solution Initialization - Y Velocity", "0m_per_sec"),
-                               ("Solution Initialization - Z Velocity", "0m_per_sec"),
-                               ("Solution Initialization - Temperature", "AmbientTemp"),
-                               ("Solution Initialization - Turbulent Kinetic Energy", "1m2_per_s2"),
-                               ("Solution Initialization - Turbulent Dissipation Rate", "1m2_per_s3"),
-                               ("Solution Initialization - Specific Dissipation Rate", "1diss_per_s"),
-                               ("Solution Initialization - Use Model Based Flow Initialization", False),
-                               ("Convergence Criteria - Flow", "0.001"),
-                               ("Convergence Criteria - Energy", "1e-07"),
-                               ("Convergence Criteria - Turbulent Kinetic Energy", "0.001"),
-                               ("Convergence Criteria - Turbulent Dissipation Rate", "0.001"),
-                               ("Convergence Criteria - Specific Dissipation Rate", "0.001"),
-                               ("Convergence Criteria - Discrete Ordinates", "1e-06"), ("IsEnabled:=", False),
-                               ("Radiation Model", "Off"),
-                               ("Solar Radiation Model", "Solar Radiation Calculator"),
-                               ("Solar Radiation - Scattering Fraction", "0"),
-                               ("Solar Radiation - Day", 1), ("Solar Radiation - Month", 1),
-                               ("Solar Radiation - Hours", 0),
-                               ("Solar Radiation - Minutes", 0), ("Solar Radiation - GMT", "0"),
-                               ("Solar Radiation - Latitude", "0"),
-                               ("Solar Radiation - Latitude Direction", "East"), ("Solar Radiation - Longitude", "0"),
-                               ("Solar Radiation - Longitude Direction", "North"),
-                               ("Solar Radiation - Ground Reflectance", "0"),
-                               ("Solar Radiation - Sunshine Fraction", "0"), ("Solar Radiation - North X", "0"),
-                               ("Solar Radiation - North Y", "0"), ("Solar Radiation - North Z", "1"),
-                               ("Under-relaxation - Pressure", "0.3"),
-                               ("Under-relaxation - Momentum", "0.7"), ("Under-relaxation - Temperature", "1"),
-                               ("Under-relaxation - Turbulent Kinetic Energy", "0.8"),
-                               ("Under-relaxation - Turbulent Dissipation Rate", "0.8"),
-                               ("Under-relaxation - Specific Dissipation Rate", "0.8"),
-                               ("Discretization Scheme - Pressure", "Standard"),
-                               ("Discretization Scheme - Momentum", "First"),
-                               ("Discretization Scheme - Temperature", "First"), ("Secondary Gradient", False),
-                               ("Discretization Scheme - Turbulent Kinetic Energy", "First"),
-                               ("Discretization Scheme - Turbulent Dissipation Rate", "First"),
-                               ("Discretization Scheme - Specific Dissipation Rate", "First"),
-                               ("Discretization Scheme - Discrete Ordinates", "First"),
-                               ("Linear Solver Type - Pressure", "V"), ("Linear Solver Type - Momentum", "flex"),
-                               ("Linear Solver Type - Temperature", "F"),
-                               ("Linear Solver Type - Turbulent Kinetic Energy", "flex"),
-                               ("Linear Solver Type - Turbulent Dissipation Rate", "flex"),
-                               ("Linear Solver Type - Specific Dissipation Rate", "flex"),
-                               ("Linear Solver Termination Criterion - Pressure", "0.1"),
-                               ("Linear Solver Termination Criterion - Momentum", "0.1"),
-                               ("Linear Solver Termination Criterion - Temperature", "0.1"),
-                               ("Linear Solver Termination Criterion - Turbulent Kinetic Energy", "0.1"),
-                               ("Linear Solver Termination Criterion - Turbulent Dissipation Rate", "0.1"),
-                               ("Linear Solver Termination Criterion - Specific Dissipation Rate", "0.1"),
-                               ("Linear Solver Residual Reduction Tolerance - Pressure", "0.1"),
-                               ("Linear Solver Residual Reduction Tolerance - Momentum", "0.1"),
-                               ("Linear Solver Residual Reduction Tolerance - Temperature", "0.1"),
-                               ("Linear Solver Residual Reduction Tolerance - Turbulent Kinetic Energy", "0.1"),
-                               ("Linear Solver Residual Reduction Tolerance - Turbulent Dissipation Rate", "0.1"),
-                               ("Linear Solver Residual Reduction Tolerance - Specific Dissipation Rate", "0.1"),
-                               ("Linear Solver Stabilization - Pressure", "None"),
-                               ("Linear Solver Stabilization - Temperature", "None"),
-                               ("Coupled pressure-velocity formulation", False),
-                               ("Frozen Flow Simulation", False), ("Start Time:=", "0s"), ("Stop Time:=", "20s"),
-                               ("Time Step:=", "1s"), ("Iterations per Time Step", 20), ("Import Start Time", False),
-                               ("Copy Fields From Source", False), ("SaveFieldsType", "Every N Steps"),
-                               ("N Steps:=", "10s"), ("Enable Control Program", False), ("Control Program Name", "")]
+                     ("Include Flow", True), ("Include Gravity", False), ("Include Solar", False),
+                     ("Solution Initialization - X Velocity", "0m_per_sec"),
+                     ("Solution Initialization - Y Velocity", "0m_per_sec"),
+                     ("Solution Initialization - Z Velocity", "0m_per_sec"),
+                     ("Solution Initialization - Temperature", "AmbientTemp"),
+                     ("Solution Initialization - Turbulent Kinetic Energy", "1m2_per_s2"),
+                     ("Solution Initialization - Turbulent Dissipation Rate", "1m2_per_s3"),
+                     ("Solution Initialization - Specific Dissipation Rate", "1diss_per_s"),
+                     ("Solution Initialization - Use Model Based Flow Initialization", False),
+                     ("Convergence Criteria - Flow", "0.001"),
+                     ("Convergence Criteria - Energy", "1e-07"),
+                     ("Convergence Criteria - Turbulent Kinetic Energy", "0.001"),
+                     ("Convergence Criteria - Turbulent Dissipation Rate", "0.001"),
+                     ("Convergence Criteria - Specific Dissipation Rate", "0.001"),
+                     ("Convergence Criteria - Discrete Ordinates", "1e-06"), ("IsEnabled:=", False),
+                     ("Radiation Model", "Off"),
+                     ("Solar Radiation Model", "Solar Radiation Calculator"),
+                     ("Solar Radiation - Scattering Fraction", "0"),
+                     ("Solar Radiation - Day", 1), ("Solar Radiation - Month", 1),
+                     ("Solar Radiation - Hours", 0),
+                     ("Solar Radiation - Minutes", 0), ("Solar Radiation - GMT", "0"),
+                     ("Solar Radiation - Latitude", "0"),
+                     ("Solar Radiation - Latitude Direction", "East"), ("Solar Radiation - Longitude", "0"),
+                     ("Solar Radiation - Longitude Direction", "North"),
+                     ("Solar Radiation - Ground Reflectance", "0"),
+                     ("Solar Radiation - Sunshine Fraction", "0"), ("Solar Radiation - North X", "0"),
+                     ("Solar Radiation - North Y", "0"), ("Solar Radiation - North Z", "1"),
+                     ("Under-relaxation - Pressure", "0.3"),
+                     ("Under-relaxation - Momentum", "0.7"), ("Under-relaxation - Temperature", "1"),
+                     ("Under-relaxation - Turbulent Kinetic Energy", "0.8"),
+                     ("Under-relaxation - Turbulent Dissipation Rate", "0.8"),
+                     ("Under-relaxation - Specific Dissipation Rate", "0.8"),
+                     ("Discretization Scheme - Pressure", "Standard"),
+                     ("Discretization Scheme - Momentum", "First"),
+                     ("Discretization Scheme - Temperature", "First"), ("Secondary Gradient", False),
+                     ("Discretization Scheme - Turbulent Kinetic Energy", "First"),
+                     ("Discretization Scheme - Turbulent Dissipation Rate", "First"),
+                     ("Discretization Scheme - Specific Dissipation Rate", "First"),
+                     ("Discretization Scheme - Discrete Ordinates", "First"),
+                     ("Linear Solver Type - Pressure", "V"), ("Linear Solver Type - Momentum", "flex"),
+                     ("Linear Solver Type - Temperature", "F"),
+                     ("Linear Solver Type - Turbulent Kinetic Energy", "flex"),
+                     ("Linear Solver Type - Turbulent Dissipation Rate", "flex"),
+                     ("Linear Solver Type - Specific Dissipation Rate", "flex"),
+                     ("Linear Solver Termination Criterion - Pressure", "0.1"),
+                     ("Linear Solver Termination Criterion - Momentum", "0.1"),
+                     ("Linear Solver Termination Criterion - Temperature", "0.1"),
+                     ("Linear Solver Termination Criterion - Turbulent Kinetic Energy", "0.1"),
+                     ("Linear Solver Termination Criterion - Turbulent Dissipation Rate", "0.1"),
+                     ("Linear Solver Termination Criterion - Specific Dissipation Rate", "0.1"),
+                     ("Linear Solver Residual Reduction Tolerance - Pressure", "0.1"),
+                     ("Linear Solver Residual Reduction Tolerance - Momentum", "0.1"),
+                     ("Linear Solver Residual Reduction Tolerance - Temperature", "0.1"),
+                     ("Linear Solver Residual Reduction Tolerance - Turbulent Kinetic Energy", "0.1"),
+                     ("Linear Solver Residual Reduction Tolerance - Turbulent Dissipation Rate", "0.1"),
+                     ("Linear Solver Residual Reduction Tolerance - Specific Dissipation Rate", "0.1"),
+                     ("Linear Solver Stabilization - Pressure", "None"),
+                     ("Linear Solver Stabilization - Temperature", "None"),
+                     ("Coupled pressure-velocity formulation", False),
+                     ("Frozen Flow Simulation", False), ("Start Time:=", "0s"), ("Stop Time:=", "20s"),
+                     ("Time Step:=", "1s"), ("Iterations per Time Step", 20), ("Import Start Time", False),
+                     ("Copy Fields From Source", False), ("SaveFieldsType", "Every N Steps"),
+                     ("N Steps:=", "10s"), ("Enable Control Program", False), ("Control Program Name", "")]
+
 
 def HFSS3DLayout_AdaptiveFrequencyData(freq):
     """
@@ -637,7 +640,7 @@ HFSS3DLayout = [
     ("InclBBoxOption", 1),
     ("AuxBlock", []),
     ("DoAdaptive", True),
-    ("Color", ["R:=", 0, "G:=", 0, "B:=", 0], None),   # TODO: create something smart for color arrays, like a class
+    ("Color", ["R:=", 0, "G:=", 0, "B:=", 0], None),  # TODO: create something smart for color arrays, like a class
     ("AdvancedSettings", HFSS3DLayout_AdvancedSettings),
     ("CurveApproximation", HFSS3DLayout_CurveApproximation),
     ("Q3D_DCSettings", HFSS3DLayout_Q3D_DCSettings),
@@ -662,11 +665,13 @@ GRM = [("Enabled", True), ("MeshLink", meshlink),
 
 TR = []
 
+
 class SweepHFSS(object):
     """ """
+
     def __init__(self, oanalysis, setupname, sweepname, sweeptype="Interpolating", props=None):
         self.oanalysis = oanalysis
-        self.props={}
+        self.props = {}
         self.setupname = setupname
         self.name = sweepname
         if props:
@@ -700,7 +705,7 @@ class SweepHFSS(object):
             self.props["PassivityErrorTolerance"] = 0.0001
             self.props["EnforceCausality"] = False
             self.props["UseQ3DForDCSolve"] = False
-            self.props["SMatrixOnlySolveMode"]= "Auto"
+            self.props["SMatrixOnlySolveMode"] = "Auto"
             self.props["SMatrixOnlySolveAbove"] = "1MHz"
             self.props["SweepRanges"] = []
 
@@ -725,7 +730,7 @@ class SweepHFSS(object):
             bool
 
         """
-        range={}
+        range = {}
         range["RangeType"] = rangetype
         range["RangeStart"] = start
         range["RangeEnd"] = end
@@ -756,7 +761,6 @@ class SweepHFSS(object):
         self.oanalysis.InsertFrequencySweep(self.setupname, self._get_args())
         return True
 
-
     @aedt_exception_handler
     def update(self):
         """Update Sweep
@@ -773,6 +777,166 @@ class SweepHFSS(object):
         self.oanalysis.EditFrequencySweep(self.setupname, self.name, self._get_args())
         return True
 
+    @aedt_exception_handler
+    def _get_args(self, props=None):
+        """
+
+        Parameters
+        ----------
+        props :
+             (Default value = None)
+
+        Returns
+        -------
+
+        """
+        if props is None:
+            props = self.props
+        arg = ["NAME:" + self.name]
+        dict2arg(props, arg)
+        return arg
+
+
+class SweepHFSS3DLayout(object):
+    """ """
+
+    def __init__(self, oanalysis, setupname, sweepname, sweeptype="Interpolating", props=None):
+        self.oanalysis = oanalysis
+        self.props = {}
+        self.setupname = setupname
+        self.name = sweepname
+        if props:
+            self.props = props
+        else:
+            self.setupname = setupname
+            self.name = sweepname
+
+            self.props["Properties"] = OrderedDict({"Enable":True})
+            self.props["Sweeps"] = OrderedDict(
+                {"Variable": "Sweep 1", "Data": "LIN 1Hz 20GHz 0.05GHz", "OffsetF1": False, "Synchronize": 0})
+            self.props["GenerateSurfaceCurrent"] = False
+            self.props["SaveRadFieldsOnly"] = False
+            if sweeptype == "Interpolating":
+                self.props["FastSweep"] = True
+            else:
+                self.props["FastSweep"] = True
+
+            self.props["SaveSingleField"] = False
+            self.props["ZoSelected"] = False
+            self.props["SAbsError"] = 0.005
+            self.props["ZoPercentError"] = 1
+            self.props["GenerateStateSpace"] = False
+            self.props["EnforcePassivity"] = False
+            self.props["PassivityTolerance"] = 0.0001
+            self.props["UseQ3DForDC"] = False
+            self.props["ResimulateDC"] = False
+            self.props["MaxSolutions"] = 250
+            self.props["InterpUseSMatrix"] = True
+            self.props["InterpUsePortImpedance"] = True
+            self.props["InterpUsePropConst"] = True
+            self.props["InterpUseFullBasis"] = True
+            self.props["AdvDCExtrapolation"] = False
+            self.props["MinSolvedFreq"] = "0.01GHz"
+            self.props["CustomFrequencyString"] = ""
+            self.props["AllEntries"] = False
+            self.props["AllDiagEntries"] = False
+            self.props["AllOffDiagEntries"] = False
+            self.props["MagMinThreshold"] = 0.01
+
+
+    @aedt_exception_handler
+    def add_subrange(self, rangetype, start, end, count):
+        """Add Subrange to sweep
+
+        Parameters
+        ----------
+        rangetype :
+            subrange type
+        start :
+            freq start
+        end :
+            freq end
+        count :
+            freq count or freq step
+
+        Returns
+        -------
+        type
+            bool
+
+        """
+        range = ""
+        if rangetype == "LinearCount":
+            range = " LINC "+str(start)+" "+str(end) + " "+str(count)
+        elif rangetype == "LinearStep":
+            range = " LIN "+str(start)+" "+str(end) + " "+str(count)
+        elif rangetype == "LogScale":
+            range = " DEC "+str(start)+" "+str(end) + " "+str(count)
+        self.props["Sweeps"]["Data"] += range
+        return self.update()
+
+    @aedt_exception_handler
+    def change_range(self, rangetype, start, end, count):
+        """Change Range of the sweep
+
+        Parameters
+        ----------
+        rangetype :
+            subrange type
+        start :
+            freq start
+        end :
+            freq end
+        count :
+            freq count or freq step
+
+        Returns
+        -------
+        type
+            bool
+
+        """
+        range = ""
+        if rangetype == "LinearCount":
+            range = "LINC "+str(start)+" "+str(end) + " "+str(count)
+        elif rangetype == "LinearStep":
+            range = "LIN "+str(start)+" "+str(end) + " "+str(count)
+        elif rangetype == "LogScale":
+            range = "DEC "+str(start)+" "+str(end) + " "+str(count)
+        self.props["Sweeps"]["Data"] = range
+        return self.update()
+
+    @aedt_exception_handler
+    def create(self):
+        """Create Sweep
+
+        :return:Bool
+
+        Parameters
+        ----------
+
+        Returns
+        -------
+
+        """
+        self.oanalysis.AddSweep(self.setupname, self._get_args())
+        return True
+
+    @aedt_exception_handler
+    def update(self):
+        """Update Sweep
+
+        :return:Bool
+
+        Parameters
+        ----------
+
+        Returns
+        -------
+
+        """
+        self.oanalysis.EditSweep(self.setupname, self.name, self._get_args())
+        return True
 
     @aedt_exception_handler
     def _get_args(self, props=None):
@@ -799,11 +963,11 @@ class SweepQ3D(object):
 
     def __init__(self, oanalysis, setupname, sweepname, sweeptype="Interpolating", props=None):
         self.oanalysis = oanalysis
-        self.setupname=setupname
+        self.setupname = setupname
         self.name = sweepname
         self.props = {}
         if props:
-            self.props=props
+            self.props = props
         else:
             self.props["Type"] = sweeptype
             self.props["isenabled"] = True
@@ -840,7 +1004,7 @@ class SweepQ3D(object):
             bool
 
         """
-        range={}
+        range = {}
         range["RangeType"] = type
         range["RangeStart"] = start
         range["RangeEnd"] = end
@@ -907,14 +1071,13 @@ class SweepQ3D(object):
         return arg
 
 
-
-
 class SetupKeys(object):
     """ """
     defaultSetups = {"DrivenModal": 1, "DrivenTerminal": 1, "Eigenmode": 2,
                      "Transient Network": 3, "SBR+": 4, "Transient": 5, "Magnetostatic": 6, "EddyCurrent": 7,
                      "Electrostatic": 8, "ElectroDCConduction": 9,
-                     "ElectricTransient": 10, "SteadyTemperatureAndFlow": 11, "SteadyTemperatureOnly": 12, "SteadyFlowOnly": 13,
+                     "ElectricTransient": 10, "SteadyTemperatureAndFlow": 11, "SteadyTemperatureOnly": 12,
+                     "SteadyFlowOnly": 13,
                      "SteadyState": 11,
                      "Matrix": 14, "NexximLNA": 15, "NexximDC": 16, "NexximTransient": 17, "NexximQuickEye": 18,
                      "NexximVerifEye": 19, "NexximAMI": 20, "NexximOscillatorRSF": 21, "NexximOscillator1T": 22,
@@ -923,7 +1086,7 @@ class SetupKeys(object):
                      "Thermal": 32, "Modal": 33, "IRIM": 34, "ORIM": 34, "SRIM": 34, "WRIM": 34,
                      "DFIG": 34, "AFIM": 34, "HM": 34, "RFSM": 34, "RASM": 34, "RSM": 34,
                      "ISM": 34, "APSM": 34, "IBDM": 34,
-                     "ABDM": 34, "TPIM": 34, "SPIM": 34, "TPSM":34, "BLDC": 34, "ASSM": 34,
+                     "ABDM": 34, "TPIM": 34, "SPIM": 34, "TPSM": 34, "BLDC": 34, "ASSM": 34,
                      "PMDC": 34, "SRM": 34, "LSSM": 34, "UNIM": 34, "DCM": 34, "CPSM": 34, "NSSM": 34, "TR": 35,
                      "TransientTemperatureAndFlow": 36, "TransientTemperatureOnly": 37, "TransientFlowOnly": 38,
                      "Structural": 39}
@@ -931,7 +1094,8 @@ class SetupKeys(object):
     SetupTemplates = {0: HFSSDrivenAuto, 1: HFSSDrivenDefault, 2: HFSSEigen, 3: HFSSTransient, 4: HFSSSBR,
                       5: MaxwellTransient, 6: Magnetostatic, 7: EddyCurrent, 8: Electrostatic, 9: Electrostatic,
                       10: ElectricTransient, 11: SteadyTemperatureAndFlow, 12: SteadyTemperatureOnly,
-                      13: SteadyFlowOnly, 14: Matrix, 15: NexximLNA,  16: NexximDC, 17: NexximTransient, 18: NexximQuickEye,
+                      13: SteadyFlowOnly, 14: Matrix, 15: NexximLNA, 16: NexximDC, 17: NexximTransient,
+                      18: NexximQuickEye,
                       19: NexximVerifEye, 20: NexximAMI, 21: NexximOscillatorRSF, 22: NexximOscillator1T,
                       23: NexximOscillatorNT, 24: NexximHarmonicBalance1T, 25: NexximHarmonicBalanceNT,
                       26: NexximSystem, 27: NexximTVNoise, 28: HSPICE, 29: HFSS3DLayout, 30: Open, 31: Close,
@@ -945,7 +1109,7 @@ class SetupKeys(object):
                   "NexximVerifEye", "NexximAMI", "NexximOscillatorRSF", "NexximOscillator1T",
                   "NexximOscillatorNT", "NexximHarmonicBalance1T", "NexximHarmonicBalanceNT",
                   "NexximSystem", "NexximTVNoise", "HSPICE", "HFSS3DLayout", "2DMatrix", "2DMatrix", "MechThermal",
-                  "MechModal", "GRM", "TR","IcepakTransient", "IcepakTransient", "IcepakTransient", "MechStructural"]
+                  "MechModal", "GRM", "TR", "IcepakTransient", "IcepakTransient", "IcepakTransient", "MechStructural"]
 
     defaultAdaptive = {"DrivenModal": "LastAdaptive", "DrivenTerminal": "LastAdaptive", "Eigenmode": "LastAdaptive",
                        "Transient Network": "Transient", "SBR+": None, "Transient": "Transient",
@@ -961,5 +1125,6 @@ class SetupKeys(object):
                        "NexximOscillatorNT": None, "NexximHarmonicBalance1T": None, "NexximHarmonicBalanceNT": None,
                        "NexximSystem": None, "NexximTVNoise": None, "HSPICE": None, "HFSS3DLayout": None,
                        "2DMatrix": "LastAdaptive", "MechThermal": "Solution", "MechModal": "Solution",
-                       "GRM": "LastAdaptive", "TR":None, "TransientTemperatureAndFlow": "SteadyState",
-                       "TransientTemperatureOnly": "Transient", "TransientFlowOnly": "Transient", "Structural" : "Solution"}
+                       "GRM": "LastAdaptive", "TR": None, "TransientTemperatureAndFlow": "SteadyState",
+                       "TransientTemperatureOnly": "Transient", "TransientFlowOnly": "Transient",
+                       "Structural": "Solution"}

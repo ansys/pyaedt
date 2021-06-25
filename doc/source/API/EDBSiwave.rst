@@ -3,8 +3,8 @@
    You can adapt this file completely to your liking, but it should at least
    contain the root `toctree` directive.
 
-EDB Siwave
-===================================
+EDB SIwave
+==========
 
 .. automodule:: pyaedt.edb_core.siwave
     :members:

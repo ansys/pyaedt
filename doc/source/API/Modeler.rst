@@ -3,8 +3,8 @@
    You can adapt this file completely to your liking, but it should at least
    contain the root `toctree` directive.
 
-modeler
-===================================
+Modeler
+=======
 
 .. autoclass:: pyaedt.modeler.Modeler.Modeler
     :members:
@@ -14,3 +14,7 @@ modeler
 
 .. autoclass:: pyaedt.modeler.Modeler.CoordinateSystem
     :members:
+
+.. automodule:: pyaedt.modeler.GeometryOperators
+    :members:
+

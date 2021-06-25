@@ -17,11 +17,11 @@ Create an instance of ``Icepak`` and link to a design named ``designname`` in a 
 
 >>> aedtapp = Icepak(projectname,designame)
 
-Create an instance of ``Icepak`` and open the specified project.
+Create an instance of ``Icepak`` and open the specified project, which is ``myfile.aedt``.
 
 >>> aedtapp = Icepak("myfile.aedt")
 
-Create an instance of ``Icepak``using the 2021 R1 release and open the specified project, which is ``myfile.aedt``.
+Create an instance of ``Icepak`` using the 2021 R1 release and open the specified project, which is ``myfile.aedt``.
 
 >>> aedtapp = Icepak(specified_version="2021.1", projectname="myfile.aedt")
 
@@ -56,13 +56,23 @@ class Icepak(FieldAnalysisIcepak):
     setup_name : str, optional
         Name of the setup to use as the nominal. The default is ``None``. If ``None``, the active setup 
         is used or nothing is used.
-
-    Returns
-    -------
-
+    specified_version : str, optional
+        Version of AEDT to use. The default is ``None``. If ``None``, the
+        active setup is used or the latest installed version is used.
+    NG: bool, optional
+        Whether to run AEDT in the non-graphical mode. The default 
+        is``False``, which launches AEDT in the graphical mode.
+    AlwaysNew : bool, optional
+        Whether to launch an instance of AEDT in a new thread, even if 
+        another instance of the ``specified_version`` is active on the machine.
+        The default is ``True``.
+    release_on_exit : bool, optional
+        Whether to release AEDT on exit. The default is ``True``.
+  
     """
+    
     def __init__(self, projectname=None, designname=None, solution_type=None, setup_name=None,
-                 specified_version=None, NG=False, AlwaysNew=True, release_on_exit=True):
+                 specified_version=None, NG=False, AlwaysNew=False, release_on_exit=False):
         FieldAnalysisIcepak.__init__(self, "Icepak", projectname, designname, solution_type, setup_name,
                                      specified_version, NG, AlwaysNew, release_on_exit)
 
@@ -76,22 +86,19 @@ class Icepak(FieldAnalysisIcepak):
 
     @property
     def existing_analysis_sweeps(self):
-        """List the existing analysis setups.
-        
-        
-        :return: Return a list of all defined analysis setup names in the maxwell design.
-
-        Parameters
-        ----------
+        """List the existing analysis setups.       
 
         Returns
         -------
-
+        list
+            List of all defined analysis setup names in the Maxwell design.
+            
         """
         setup_list = self.existing_analysis_setups
         sweep_list=[]
+        s_type = self.solution_type
         for el in setup_list:
-                sweep_list.append(el + " : " + self.solution_type)
+                sweep_list.append(el + " : " +s_type)
         return sweep_list
 
     @aedt_exception_handler
@@ -562,7 +569,7 @@ class Icepak(FieldAnalysisIcepak):
         Fin_Line.append(self.Position('FinLength', 'FinThickness + FinLength*sin(PatternAngle*3.14/180)', 0))
         Fin_Line.append(self.Position('FinLength', 'FinLength*sin(PatternAngle*3.14/180)', 0))
         Fin_Line.append(self.Position(0, 0, 0))
-        self.modeler.primitives.draw_polyline(Fin_Line, cover_surface=True, name="Fin")
+        self.modeler.primitives.create_polyline(Fin_Line, cover_surface=True, name="Fin")
         Fin_Line2 = []
         Fin_Line2.append(self.Position(0, 'sin(DraftAngle*3.14/180)*FinThickness', 'FinHeight'))
         Fin_Line2.append(self.Position(0, 'FinThickness-sin(DraftAngle*3.14/180)*FinThickness', 'FinHeight'))
@@ -572,7 +579,7 @@ class Icepak(FieldAnalysisIcepak):
         Fin_Line2.append(
             self.Position('FinLength', 'FinLength*sin(PatternAngle*3.14/180)+sin(DraftAngle*3.14/180)*FinThickness', 'FinHeight'))
         Fin_Line2.append(self.Position(0, 'sin(DraftAngle*3.14/180)*FinThickness', 'FinHeight'))
-        self.modeler.primitives.draw_polyline(Fin_Line2, cover_surface=True, name="Fin_top")
+        self.modeler.primitives.create_polyline(Fin_Line2, cover_surface=True, name="Fin_top")
         self.modeler.connect(["Fin", "Fin_top"])
         self.assignmaterial("Fin", matname)
         # self.modeler.thicken_sheet("Fin",'-FinHeight')
@@ -593,15 +600,18 @@ class Icepak(FieldAnalysisIcepak):
         self.modeler.split(list, self.CoordinateSystemPlane.ZXPlane, "PositiveOnly")
         all_names = self.modeler.primitives.get_all_objects_names()
         list = [i for i in all_names if "Fin" in i]
-        self.modeler.coordinate_system.create(self.Position(0, 'HSHeight', 0), view="XY", name="TopRight")
+        self.modeler.create_coordinate_system(self.Position(0, 'HSHeight', 0), mode="view", view="XY", name="TopRight")
+
         self.modeler.split(list, self.CoordinateSystemPlane.ZXPlane, "NegativeOnly")
 
         if symmetric:
 
-            self.modeler.coordinate_system.create(self.Position('(HSWidth-SymSeparation)/2', 0, 0), view="XY",
-                                                  name="CenterRightSep")
+            self.modeler.create_coordinate_system(self.Position('(HSWidth-SymSeparation)/2', 0, 0), mode="view",
+                                                  view="XY", name="CenterRightSep",reference_cs="TopRight")
+
             self.modeler.split(list, self.CoordinateSystemPlane.YZPlane, "NegativeOnly")
-            self.modeler.coordinate_system.create(self.Position('SymSeparation/2', 0, 0), view="XY", name="CenterRight")
+            self.modeler.create_coordinate_system(self.Position('SymSeparation/2', 0, 0),
+                                                  mode="view", view="XY", name="CenterRight",reference_cs="CenterRightSep")
             self.modeler.duplicate_and_mirror(list, self.Position(0, 0, 0), self.Position(1, 0, 0))
             Center_Line = []
             Center_Line.append(self.Position('-SymSeparation', 'Tolerance','-Tolerance'))
@@ -609,22 +619,22 @@ class Icepak(FieldAnalysisIcepak):
             Center_Line.append(self.Position('VerticalSeparation', '-HSHeight-Tolerance', '-Tolerance'))
             Center_Line.append(self.Position('-VerticalSeparation', '-HSHeight-Tolerance', '-Tolerance'))
             Center_Line.append(self.Position('-SymSeparation', 'Tolerance', '-Tolerance'))
-            self.modeler.primitives.draw_polyline(Center_Line, cover_surface=True, name="Center")
+            self.modeler.primitives.create_polyline(Center_Line, cover_surface=True, name="Center")
             self.modeler.thicken_sheet("Center", '-FinHeight-2*Tolerance')
             all_names = self.modeler.primitives.get_all_objects_names()
             list = [i for i in all_names if "Fin" in i]
             self.modeler.subtract(list, "Center", False)
         else:
-            self.modeler.coordinate_system.create(self.Position('HSWidth', 0, 0), view="XY",
-                                                  name="BottomRight")
+            self.modeler.create_coordinate_system(self.Position('HSWidth', 0, 0), mode="view", view="XY",
+                                                  name="BottomRight",reference_cs="TopRight")
             self.modeler.split(list, self.CoordinateSystemPlane.YZPlane, "NegativeOnly")
         all_objs2 = self.modeler.primitives.get_all_objects_names()
         list_to_move=[i for i in all_objs2 if i not in all_objs]
         center[0] -= hs_width/2
         center[1] -= hs_height/2
         center[2] += hs_basethick
-        self.modeler.coordinate_system.setWorkingCoordinateSystem("Global")
-        self.modeler.translate(list_to_move,center)
+        self.modeler.set_working_coordinate_system("Global")
+        self.modeler.translate(list_to_move, center)
         if plane_enum == self.CoordinateSystemPlane.XYPlane:
             self.modeler.rotate(list_to_move, self.CoordinateSystemAxis.XAxis, rotation)
         elif plane_enum == self.CoordinateSystemPlane.ZXPlane:
@@ -634,7 +644,7 @@ class Icepak(FieldAnalysisIcepak):
             self.modeler.rotate(list_to_move, self.CoordinateSystemAxis.YAxis, 90)
             self.modeler.rotate(list_to_move, self.CoordinateSystemAxis.ZAxis, rotation)
         self.modeler.unite(list_to_move)
-        self.modeler.primitives["HSBase"].set_name("HeatSink1")
+        self.modeler.primitives[list_to_move[0]].name = "HeatSink1"
         return True
 
     @aedt_exception_handler
@@ -1370,7 +1380,7 @@ class Icepak(FieldAnalysisIcepak):
         mesh_box = self.modeler.primitives.create_box(min_position,[dis_x+"mm",dis_y+"mm",dis_z+"mm"], "Component_Region")
 
 
-        self.modeler.primitives["Component_Region"].set_model(False)
+        self.modeler.primitives["Component_Region"].model = False
 
         self.modeler.edit_region_dimensions(restore_padding_values)
         return dis_x, dis_y, dis_z

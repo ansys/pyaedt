@@ -1,8 +1,5 @@
 """
-EdbSiwave Class
--------------------
-
-This class manages Edb Siwave and related methods
+This module contains the ``EdbSiwave`` class.
 
 
 """
@@ -220,7 +217,7 @@ class ResistorSource(Source):
         return self.source_type
 
 class EdBSiwave(object):
-    """EdbSiwave Object"""
+    """EdbSiwave class."""
 
     @property
     def siwave_source(self):
@@ -265,21 +262,36 @@ class EdBSiwave(object):
     def create_circuit_port(self, positive_component_name, positive_net_name, negative_component_name=None,
                               negative_net_name="GND", impedance_value=50, port_name=""):
         """
-        Create a  Circuit Port
+        Create a circuit port.
+        
+        Parameters
+        ----------
+        positive_component_name : str
+            Name of the positive component.
+        positive_net_name : str
+            Name of the positive net.
+        negative_component_name : str, optional
+            Name of the negative component. The default is ``None``. If ``None``, the name of 
+            the positive net is assigned.
+        negative_net_name : str, optional
+            Name of the negative net name. The default is ``"GND"``.
+        impedance_value : float, optional
+            Port impedance value. The default is ``50``.
+        port_name: str, optional
+            Name of the port.
+        
+        Returns
+        -------
+        bool
+            ``True`` when successful, ``False`` when failed.
 
-        :example:
+        Examples
+        --------
 
         >>> from pyaedt import Edb
         >>> edbapp = Edb("myaedbfolder", "project name", "release version")
         >>> edbapp.core_siwave.create_circuit_port("U2A5","V1P5_S3","U2A5","GND",50,"port_name")
 
-        :param positive_component_name: Name of the positive component
-        :param positive_net_name: Name of positive net name
-        :param negative_component_name:  Name of the negative component. if None, it will be the positive name
-        :param negative_net_name: Name of negative net name
-        :param impedance_value: port impedance value
-        :param port_name: optional port name
-        :return: Bool
         """
         circuit_port = CircuitPort()
         circuit_port.positive_node.net = positive_net_name
@@ -307,22 +319,38 @@ class EdBSiwave(object):
     @aedt_exception_handler
     def create_voltage_source(self, positive_component_name, positive_net_name, negative_component_name=None,
                               negative_net_name="GND", voltage_value=3.3, phase_value=0,source_name=""):
-        """Create a Voltage Source
-
-        :example:
+        """Create a voltage source.
+        
+        Parameters
+        ----------
+        positive_component_name : str
+            Name of the positive component.
+        positive_net_name : str
+            Name of the positive net.
+        negative_component_name : str, optional 
+            Name of the negative component. The default is ``None``. If ``None``, the name of 
+            the positive net is assigned.
+        negative_net_name : str, optional
+            Name of the negative net. The default is ``"GND"``.
+        voltage_value : float, optional
+            Value for the voltage. The default is ``3.3``.
+        phase_value: optional
+            Value for the phase. The default is ``0``.
+        source_name : str, optional
+            Name of the source. The default is ``""``.
+        
+        Returns
+        -------
+        bool
+            ``True`` when successful, ``False`` when failed.
+            
+        Examples
+        --------
 
         >>> from pyaedt import Edb
         >>> edbapp = Edb("myaedbfolder", "project name", "release version")
         >>> edb.core_siwave.create_voltage_source("U2A5","V1P5_S3","U2A5","GND",3.3,0,"source_name")
 
-        :param positive_component_name: Name of the positive component
-        :param positive_net_name: Name of positive net name
-        :param negative_component_name:  Name of the negative component. if None, it will be the positive name
-        :param negative_net_name: Name of negative net name
-        :param current_value: Voltage Value
-        :param phase_value: Optional Phase Value
-        :param source_name: optional port name
-        :return: Bool
         """
         voltage_source = VoltageSource()
         voltage_source.positive_node.net = positive_net_name
@@ -348,20 +376,38 @@ class EdBSiwave(object):
     @aedt_exception_handler
     def create_current_source(self, positive_component_name, positive_net_name, negative_component_name=None,
                               negative_net_name="GND", current_value=0.1, phase_value=0, source_name=""):
-        """Create a Current Source
+        """Create a current source.
+        
+        Parameters
+        ----------
+        positive_component_name : str
+            Name of the positive component.
+        positive_net_name : str
+            Name of the positive net.
+        negative_component_name : str, optional 
+            Name of the negative component. The default is ``None``. If ``None``, the name of 
+            the positive net is assigned.
+        negative_net_name : str, optional
+            Name of the negative net. The default is ``"GND"``.
+        current_value : float, optional
+            Value for the current. The default is ``0.1``.
+        phase_value: optional
+            Value for the phase. The default is ``0``.
+        source_name : str, optional
+            Name of the source. The default is ``""``.
+        
+        Returns
+        -------
+        bool
+            ``True`` when successful, ``False`` when failed.
+        
+        Examples
+        --------
 
         >>> from pyaedt import Edb
         >>> edbapp = Edb("myaedbfolder", "project name", "release version")
         >>> edb.core_siwave.create_current_source("U2A5","V1P5_S3","U2A5","GND",0.1,0,"source_name")
-
-        :param positive_component_name: Name of the positive component
-        :param positive_net_name: Name of positive net name
-        :param negative_component_name:  Name of the negative component. if None, it will be the positive name
-        :param negative_net_name: Name of negative net name
-        :param current_value: Current Value
-        :param phase_value: Optional Phase Value
-        :param source_name: optional source name
-        :return: Bool
+        
         """
         current_source = CurrentSource()
         current_source.positive_node.net = positive_net_name
@@ -387,20 +433,36 @@ class EdBSiwave(object):
     @aedt_exception_handler
     def create_resistor(self, positive_component_name, positive_net_name, negative_component_name=None,
                               negative_net_name="GND", rvalue=1, resistor_name=""):
-        """Create a Voltage Source
-
+        """Create a voltage source.
+        
+        Parameters
+        ----------
+        positive_component_name : str
+            Name of the positive component.
+        positive_net_name : str
+            Name of the positive net.
+        negative_component_name : str, optional 
+            Name of the negative component. The default is ``None``. If ``None``, the name of 
+            the positive net is assigned.
+        negative_net_name : str, optional
+            Name of the negative net. The default is ``"GND"``.
+        rvalue : float, optional
+            Value for the resistance. The default is ``1``.
+        resistor_name : str, optional
+            Name of the resistor. The default is ``""``.
+        
+        Returns
+        -------
+        bool
+            ``True`` when successful, ``False`` when failed.
+        
+        Examples
+        --------
+        
         >>> from pyaedt import Edb
         >>> edbapp = Edb("myaedbfolder", "project name", "release version")
-        >>> edb.core_siwave.create_resistor("U2A5","V1P5_S3","U2A5","GND",1,"resistor_name")
-
-        :param positive_component_name: Name of the positive component
-        :param positive_net_name: Name of positive net name
-        :param negative_component_name:  Name of the negative component. if None, it will be the positive name
-        :param negative_net_name: Name of negative net name
-        :param current_value: Current Value
-        :param phase_value: Optional Phase Value
-        :param source_name: optional source name
-        :return: Bool
+        >>> edb.core_siwave.create_resistor("U2A5", "V1P5_S3", "U2A5", "GND", 1, "resistor_name")
+               
         """
         resistor = ResistorSource()
         resistor.positive_node.net = positive_net_name
@@ -433,24 +495,30 @@ class EdBSiwave(object):
 
     @aedt_exception_handler
     def add_siwave_ac_analysis(self, accuracy_level=1, decade_count=10, sweeptype=1, start_freq=1, stop_freq=1e9, step_freq=1e6, discrete_sweep=False):
-        """
-        Add SIWave AC Analysis to EDB
+        """Add a SIwave AC analysis to EDB.
 
         Parameters
         ----------
-        accuracy_level : int
-
+        accuracy_level : int, optional
+           Level of accuracy. The default is ``1``.
         decade_count : int
-
-        sweeptype : int
-        start_freq : float
-        stop_freq : float
-        step_freq : float
-        discrete_sweep: bool
+            The default is ``10``.    
+        sweeptype : int, optional
+            Type of the sweep. The default is ``1``.
+        start_freq : float, optional
+            Starting frequency. The default is ``1``. 
+        stop_freq : float, optional
+            Stopping frequency. The default is ``1``.
+        step_freq : float, optional
+            Frequency size of the step. The default is ``1e9``.
+        discrete_sweep: bool, optonal
+            Whether the sweep is discrete. The default is ``False``.
 
         Returns
         -------
         bool
+            ``True`` when successful, ``False`` when failed.
+        
         """
         self.siwave_setup.AddACSimSetup(self.builder, accuracy_level, str(decade_count), sweeptype, str(start_freq), str(stop_freq), str(step_freq), discrete_sweep)
         exec_file = self.create_exec_file()
@@ -461,22 +529,30 @@ class EdBSiwave(object):
     @aedt_exception_handler
     def add_siwave_syz_analysis(self, accuracy_level=1, decade_count=10, sweeptype=1, start_freq=1, stop_freq=1e9,
                                step_freq=1e6, discrete_sweep=False):
-        """Add Siwave SYZ Analysis
-
+        """Add a SIwave SYZ analysis.
 
         Parameters
         ----------
-        accuracy_level : 1
-        decade_count : int
-        sweeptype : int
-        start_freq : float
-        stop_freq : float
-        step_freq : float
-        discrete_sweep: bool
+        accuracy_level : int, optional
+           Level of accuracy. The default is ``1``.
+        decade_count : int, optional
+            Number of points to calculate in each decade. The default is ``10``.    
+        sweeptype : int, optional
+            Type of the sweep. The default is ``1``.
+        start_freq : float, optional
+            Starting frequency. The default is ``1``. 
+        stop_freq : float, optional
+            Stopping frequency. The default is ``1``.
+        step_freq : float, optional
+            Frequency size of the step. The default is ``1e6``.
+        discrete_sweep: bool, optonal
+            Whether the sweep is discrete. The default is ``False``.
 
         Returns
         -------
-
+        bool
+            ``True`` when successful, ``False`` when failed.
+        
         """
 
         self.siwave_setup.AddSYZSimSetup(self.builder, accuracy_level, str(decade_count), sweeptype, str(start_freq),
@@ -489,17 +565,17 @@ class EdBSiwave(object):
 
     @aedt_exception_handler
     def add_siwave_dc_analysis(self, accuracy_level=1):
-        """Add Siwave DC Analysis
+        """Add a SIwave DC analysis.
 
         Parameters
         ----------
-        accuracy_level :
-            Accuracy Level (Default value = 1)
+        accuracy_level : int, optional
+           Level of accuracy. The default is ``1``.
 
         Returns
         -------
-        type
-            Bool
+        bool
+            ``True`` when successful, ``False`` when failed.
 
         """
 

@@ -4,7 +4,7 @@
    contain the root `toctree` directive.
 
 Mesh 3D
-===================================
+=======
 
 .. autoclass:: pyaedt.modules.Mesh.Mesh
     :members:
