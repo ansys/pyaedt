@@ -30,6 +30,10 @@ steps:
   displayName: 'Create virtual env'
 
 - powershell: |
+    python -m pip install pyvista
+    python -c "import pyvista; pyvista.Sphere().plot(off_screen=True)"
+
+- powershell: |
     $(python.venv)\Scripts\Activate.ps1
     pip install . --use-feature=in-tree-build
     pip install -r requirements_test.txt
