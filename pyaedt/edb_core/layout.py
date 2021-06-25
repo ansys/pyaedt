@@ -38,9 +38,9 @@ class EdbLayout(object):
         return self.parent.messenger
 
     def __init__(self,parent):
+        self._prims = []
         self.parent = parent
         self._primitives_by_layer = {}
-        self._prims = []
         self.update_primitives()
 
 
