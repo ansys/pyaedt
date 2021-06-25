@@ -40,6 +40,27 @@ except ImportError:
                   "Install with \n\npip install matplotlib\n\nRequires CPython")
 
 
+def is_float(istring):
+    """Convert a string to a float, and if unable, return 0.
+
+    Parameters
+    ----------
+    istring : str
+        String to convert to float.
+
+
+    Returns
+    -------
+    float
+        Converted float or zero.
+
+    """
+    try:
+        return float(istring.strip())
+    except Exception:
+        return 0
+
+
 class PostProcessor(Post):
     """ """
     def __init__(self, parent):
@@ -254,7 +275,8 @@ class PostProcessor(Post):
             aedtplt_files = [aedtplt_files]
 
         plot = pv.Plotter(off_screen=off_screen)
-        plot.enable_anti_aliasing()
+        if not off_screen:
+            plot.enable_anti_aliasing()
         plot.enable_fly_to_right_click()
         lines = []
         for file in aedtplt_files:
@@ -316,11 +338,10 @@ class PostProcessor(Post):
                     nodes_list = l[l.find("(") + 1:-2].split(",")
                     nodes_list = [float(i.strip()) for i in nodes_list]
                 if "ElemSolution(" in l:
+                    # convert list of strings to list of floats
                     sols = l[l.find("(") + 1:-2].split(",")
-                    s = []
-                    for i in sols:
-                        s.append(self.is_float(i))
-                    sols = s
+                    sols = [is_float(value) for value in sols]
+
                     # sols = [float(i.strip()) for i in sols]
                     num_solution_per_element = int(sols[2])
                     sols = sols[3:]
@@ -504,6 +525,7 @@ class PostProcessor(Post):
                     show(filename + "." + imageformat, False)
             for f in aedtplt_files:
                 os.remove(os.path.join(f))
+
         return files_list
 
 
@@ -542,7 +564,8 @@ class PostProcessor(Post):
         if type(aedtplt_files) is str:
             aedtplt_files = [aedtplt_files]
         plot = pv.Plotter(notebook=False, off_screen=off_screen)
-        plot.enable_anti_aliasing()
+        if not off_screen:
+            plot.enable_anti_aliasing()
         plot.enable_fly_to_right_click()
         lines = []
         for file in aedtplt_files:
@@ -599,12 +622,10 @@ class PostProcessor(Post):
                     nodes_list = l[l.find("(") + 1:-2].split(",")
                     nodes_list = [float(i.strip()) for i in nodes_list]
                 if "ElemSolution(" in l:
+                    # convert list of strings to list of floats
                     sols = l[l.find("(") + 1:-2].split(",")
-                    s = []
-                    for i in sols:
-                        s.append(self.is_float(i))
-                    sols = s
-                    # sols = [float(i.strip()) for i in sols]
+                    sols = [is_float(value) for value in sols]
+
                     num_solution_per_element = int(sols[2])
                     sols = sols[3:]
                     sols = [sols[i:i + num_solution_per_element] for i in range(0, len(sols), num_solution_per_element)]
@@ -677,15 +698,20 @@ class PostProcessor(Post):
         plot.show_axes()
         plot.show_grid()
         cpos = plot.show(interactive=False, auto_close=False,
-                  interactive_update=not off_screen)
+                         interactive_update=not off_screen)
 
 
-        sargs = dict(title_font_size=10, label_font_size=10, shadow=True, n_labels=9, italic=True, fmt="%.1f",
+        sargs = dict(title_font_size=10, label_font_size=10,
+                     shadow=True, n_labels=9, italic=True, fmt="%.1f",
                      font_family="arial")
-        plot.add_mesh(surfs[0], scalars=plot_label, log_scale=log, scalar_bar_args=sargs, cmap='rainbow', clim=[mins, maxs],
-                      show_edges=False, pickable=True, smooth_shading=True, name="FieldPlot")
+        plot.add_mesh(surfs[0], scalars=plot_label, log_scale=log,
+                      scalar_bar_args=sargs, cmap='rainbow',
+                      clim=[mins, maxs], show_edges=False,
+                      pickable=True, smooth_shading=True,
+                      name="FieldPlot")
         plot.isometric_view()
         start = time.time()
+
         plot.update(1, force_redraw=True)
         first_loop = True
         if export_gif:
@@ -700,7 +726,7 @@ class PostProcessor(Post):
                 plot.update(1, force_redraw=True)
                 continue
             #p.remove_actor("FieldPlot")
-            if i>=len(surfs):
+            if i >= len(surfs):
                 if off_screen:
                     break
                 i=0
@@ -863,25 +889,6 @@ class PostProcessor(Post):
             endt = time.time() - start
             print("Field Generation, export and plot time: ", endt)
         return file_list
-
-    @staticmethod
-    def is_float(istring):
-        """
-
-        Parameters
-        ----------
-        istring :
-            
-
-        Returns
-        -------
-
-        """
-        try:
-            return float(istring.strip())
-        except Exception:
-            return 0
-
 
     @aedt_exception_handler
     def animate_fields_from_aedtplt(self, plotname, plot_folder=None, meshplot=False, setup_name=None,
