@@ -23,7 +23,12 @@ import traceback
 import warnings
 
 import pyaedt.edb_core.EDB_Data
-
+try:
+    import ScriptEnv
+    ScriptEnv.Initialize("Ansoft.ElectronicsDesktop")
+    inside_desktop = True
+except:
+    inside_desktop = False
 try:
     import clr
     from System.Collections.Generic import List, Dictionary
@@ -122,19 +127,25 @@ class Edb(object):
         """
         if init_dlls:
             self._init_dlls()
+
         if not self.isreadonly:
             print(self.edbpath)
             print(self.edbversion)
-            if _ironpython and  "oDesktop" in dir():
+            print(_ironpython)
+            print(dir())
+
+            if _ironpython and  inside_desktop:
+                print("opening from DB")
                 self._db = self.edb.Database.Open(self.edbpath, self.isreadonly)
                 self._active_cell =  list(self._db.TopCircuitCells)[0]
                 self.builder = self.layout_methods.GetBuilder(self._db, self._active_cell)
             else:
+                print("opening from EDBLib")
                 self.builder = self.layout_methods.OpenEdbStandAlone(self.edbpath, self.edbversion)
                 self._db = self.builder.EdbHandler.dB
                 self._active_cell = self.builder.EdbHandler.cell
         else:
-            if _ironpython and  "oDesktop" in dir():
+            if _ironpython and  inside_desktop:
                 self._db = self.edb.Database.Open(self.edbpath, self.isreadonly)
                 self._active_cell =  list(self._db.TopCircuitCells)[0]
                 self.builder = self.layout_methods.GetBuilder(self._db, self._active_cell)
