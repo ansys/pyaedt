@@ -1,16 +1,16 @@
 Installation
 ============
 
-pyAEDT consolidates and extends all existing capital around scripting for Ansys Electronics Desktop (AEDT), allowing re-use of existing code, sharing of best practices, and collaboration.
+PyAEDT consolidates and extends all existing capital around scripting for Ansys Electronics Desktop (AEDT), allowing re-use of existing code, sharing of best practices, and collaboration.
 
 This tool has been tested on HFSS, Icepak, and Maxwell 3D. It also provides basic support for EDB and Circuit (Nexxim).
 
 Requirements
-____________
+~~~~~~~~~~~~
 In addition to the runtime dependencies listed in the installation information, EDB Utilities requires ANSYS EM Suite 2021 R1 or later.
 
 Installing on CPython v3.7-v3.8
-_______________________________
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 To install the prerequisite packages ``pythonnet`` and ``pywin32``, run this ``install`` command:
 
 .. code:: python
@@ -19,10 +19,10 @@ To install the prerequisite packages ``pythonnet`` and ``pywin32``, run this ``i
 
 
 Using IronPython in AEDT
-________________________
+~~~~~~~~~~~~~~~~~~~~~~~~
 To use IronPython in AEDT:
 
-1. Download the pyAEDT package.
+1. Download the PyAEDT package.
 2. Extract the files to the ``PersonalLib`` folder in the AEDT framework.
 3. Run the ``install`` command.
    
@@ -35,7 +35,7 @@ the ``--user`` option. Additonally, you may add the installed folder to ``IRONPY
     ipy64 setup.py install --user
 
 Using Standalone IronPython
-___________________________
+~~~~~~~~~~~~~~~~~~~~~~~~~~~
 To use standalone IronPython, run this ``install`` command:
 
 .. code:: python
