@@ -97,9 +97,9 @@ class MeshOperation(object):
 
 
 class Mesh(object):
-    """
-    Mesh class.   
+    """Mesh class.   
     
+    Manages AEDT Mesh Functions.
     Parameters
     ----------
     
@@ -165,7 +165,7 @@ class Mesh(object):
         ----------
         names :
             Names of the objects.
-        level :
+        level : int
             Level of the surface mesh.
         meshop_name : str, optional
             Name of the mesh operation. The default is ``None``.
@@ -202,13 +202,13 @@ class Mesh(object):
 
         Parameters
         ----------
-        Names :
+        names : list
             List of faces to which to apply the surface mesh.
         surf_dev : float, optional
             Surface deviation. The default is ``None``.
         normal_dev : float, optional
             Normal deviation. The default is ``None``.
-        aspect_ratio : int
+        aspect_ratio : int, optional
             Aspect ratio. The default is ``None``.
         meshop_name : str, optional
             Name of the mesh operation. The default is ``None``.
@@ -261,7 +261,7 @@ class Mesh(object):
         ----------
         names : list
             List of objects to defeature.
-        defeature_length : optional
+        defeature_length : float, optional
             Defeaturing length in mm. The default is ``None``, which is for automatic defeaturing.
         meshop_name : str, optional
             Name of the mesh operation. The default is ``None``.
@@ -319,7 +319,7 @@ class Mesh(object):
             The default is ``True``.
         automodelresolution : bool, optional
             Whether to automatically calculate the resolution length
-            based on each objects effective thickness. The default is ``True``.  
+            based on each object's effective thickness. The default is ``True``.  
         modelresolutionlength : float, optional
              Resolution thickness with units to use when ``automodelresolution=False``.
              The default ``"0.0001mm``.
@@ -363,7 +363,7 @@ class Mesh(object):
         ----------
         object_lists : list
             List of objects to which to apply a surface priority
-        surfpriority : int
+        surfpriority : int, optional
             Surface representation priority. The default is ``0``.
 
         Returns
@@ -668,7 +668,7 @@ class Mesh(object):
         ----------
         names : list
             List of objects.
-        num_layers : str or int, optional
+        num_layers : int, optional
             Number of layers  to create in the radial direction, starting from
             the faces most adjacenet to t he band. The default is ``3``, which is the maximum.
         total_thickness : str, optional
@@ -750,9 +750,9 @@ class Mesh(object):
         refine_inside : bool, optional
             The default is ``True``.
         maxelementlength : str, optional
-            Maximum element length with units. The default is ``None``, which means that
-            this parameter is disabled.
-        layerNum : int
+            Maximum element length with units. The default is ``None``,
+            disabling this parameter.
+        layerNum : int, optional
             Number of layers. The default is ``None``, which means that
             this parameter is disabled.
         meshop_name : str, optional
