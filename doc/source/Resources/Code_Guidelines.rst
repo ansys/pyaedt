@@ -3,87 +3,222 @@ Code Guidelines
 
 All contributors must adhere to the following guidelines to: 
 
-1. Prevent against common programming errors
-1. Limit program complexity
-1. Provide an easily readable, understandable, and maintainable product
-1. Establish a consistent style  
-1. Implement an objective basis for code review
+#. Prevent against common programming errors
+#. Limit program complexity
+#. Provide an easily readable, understandable, and maintainable product
+#. Establish a consistent style  
+#. Implement an objective basis for code review
 
 To ensure program homogeneity and code stability, be sure to follow
 the guidelines presented in the subsequent sections. 
 
-Cross-cutting Coding Language Rules
------------------------------------
+General Guidelines
+------------------
 
-""Reading the Windows Registry**
+Reading the Windows Registry
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Never read the Windows registry because doing so is really danagerous
-if the cade can be used in a different operating system.
+Never read the Windows registry because doing so is danagerous
+and makes it difficult to on different enviornments or operating systems.
 
-Example 1
+Bad practice - Example 1
 
-```    
-    ...
-    self.sDesktopinstallDirectory = Registry.GetValue("HKEY_LOCAL_MACHINE\Software\Ansoft\ElectronicsDesktop\{}\Desktop".format(self.sDesktopVersion), "InstallationDirectory", '')
-    ...
-```
+.. code:: python
 
-Example 2
+   self.sDesktopinstallDirectory = Registry.GetValue("HKEY_LOCAL_MACHINE\Software\Ansoft\ElectronicsDesktop\{}\Desktop".format(self.sDesktopVersion), "InstallationDirectory", '')
 
-```
+Bad practice - Example 2
+
+.. code:: python
+
     EMInstall = (string)Registry.GetValue(string.Format(@"HKEY_LOCAL_MACHINE\SOFTWARE\Ansoft\ElectronicsDesktop{0}\Desktop", AnsysEmInstall.DesktopVersion), "InstallationDirectory", null);
-```
-
-**Hard-Coding Values**
-Do not write to the registry hard-coded values that the code is to use. Instead, use the
-Configuration service. 
 
 
-**Duplicated Code**
-To be documented.
-
-**File/Folder Management Service**
-
-To be documented.
-
-**Nested Blocks**
-
-Nest block structures (conditional blocks, loops, ...) too deeply is often a bad idea.
-
-**Conditional Blocks**
-
-For a conditional block, the maximum depth recommended is four. If you think you need 
-more for the algorithm, create small functions that are reusable and unit-testable.
-
-**Loops**
-
-While there is nothing inherently wrong with nested loops, to avoid certain pitfalls, 
-avoid having loops with more than two levels. In some cases, you can rely on coding 
-mechanisms to avoid nested loops. Otherwise, you should create small functions.
+Hard-Coding Values
+~~~~~~~~~~~~~~~~~~
+Do not write to the registry hard-coded values that the code is to
+use. Instead, use the Configuration service.
 
 
-**Logging Errors**
+Duplicated Code
+~~~~~~~~~~~~~~~
+Follow the DRY principle, which states that "Every piece of knowledge
+must have a single, unambiguous, authoritative representation within a
+system".  Attempt to follow this unless it overly complicates code.
+For example, the follwing example converts Fahrenheit to Celsius
+twice.  This now requires the developer to maintain two seperate lines
+that do the same thing:
 
-AEDTLib automatically has an internal logging tool named ``Messenger`` and a log file
-that is automatically generated in the project folder. This examples demonstreates
-how you can use both:
+.. code:: python
 
-```
+   temp = 55
+   new_temp = ((temp - 32) * (5 / 9)) + 273.15
+
+   temp2 = 46 
+   new_temp_k = ((temp2 - 32) * (5 / 9)) + 273.15
+
+Instead, write a simple method that converts Fahrenheit to Celsius:
+
+.. code:: python
+
+   def fahr_to_kelvin(fahr) 
+       """Convert temperature in Fahrenheit to kelvin.
+
+       Parameters:
+       -----------
+       fahr: int or float
+           The temperature in Fahrenheit.
+    
+       Returns:
+       -----------
+       kelvin : float
+           The temperature in kelvin.
+       """
+       return ((fahr - 32) * (5 / 9)) + 273.15
+
+Now, you can exectue get the exact same output with:
+
+.. code:: python
+
+   new_temp = fahr_to_kelvin(55)
+   new_temp_k = fahr_to_kelvin(46)
+
+This is a trivial example, but the approach can be applied for a
+variety of both simple and complex algorthims and workflows.  Another
+advantage of this approach is that you can now implement unit testing
+for this method.  For example:
+
+.. code:: python
+
+   import numpy as np
+
+   def test_fahr_to_kelvin():
+       assert np.isclose(12.7778, fahr_to_kelvin(55))
+
+Now, not only do we only have one line of code to verify, but using a
+testing framework such as ``pytest``, we can verify that the method is
+correct.
+
+
+Nested Blocks
+~~~~~~~~~~~~~
+
+Avoid deeply nested block structures (conditional blocks, loops, ...)
+within one single code block.  For example:
+
+.. code:: python
+
+   def validate_something(self, a, b, c):
+       if a > b:
+           if a*2 > b:
+               if a*3 < b:
+                   raise ValueError
+           else:
+               for i in range(10):
+                   c += self.validate_something_else(a, b, c)
+                   if c > b:
+                       raise ValueError
+                   else:
+                       d = self.foo(b, c)
+                       # recursive
+                       e = self.validate_something(a, b, d)
+
+
+Aside from the lack of comments, this complex nested validation method
+will be difficult to debug (and validate with unit testing).  It would
+be far better to implement more validation methods, join conditionals,
+etc.
+
+For a conditional block, the maximum depth recommended is four. If you
+think you need more for the algorithm, create small functions that are
+reusable and unit-testable.
+
+Loops
+~~~~~
+While there is nothing inherently wrong with nested loops, to avoid
+certain pitfalls, avoid having loops with more than two levels. In
+some cases, you can rely on coding mechanisms to avoid nested loops
+like list comprehensions.  For example, rather than:
+
+.. code::
+
+   >>> squares = []
+   >>> for i in range(10):
+   ...    squares.append(i * i)
+   >>> squares
+   [0, 1, 4, 9, 16, 25, 36, 49, 64, 81]
+
+
+Implement a list comprehension with:
+
+.. code::
+
+   >>> squares = [i*i for i in range(10)]
+   >>> squares
+   [0, 1, 4, 9, 16, 25, 36, 49, 64, 81]
+
+
+If the loop is too complicated to create a list comprehension for,
+consider create small functions and calling those instead.  For
+example, extracting all the consonants in a sentence:
+
+.. code:: python
+
+   >>> sentence = 'This is a sample sentence.'
+   >>> vowels = 'aeiou'
+   >>> consonants = []
+   >>> for letter in sentence:
+   ...     if letter.isalpha() and letter.lower() not in vowels:
+   ...         consonants.append(letter)
+   >>> consonants
+   ['T', 'h', 's', 's', 's', 'm', 'p', 'l', 's', 'n', 't', 'n', 'c']
+
+
+This is better implemented by creating a simple method to return if a
+letter is a consonant.
+
+   >>> def is_consonant(letter):
+   ...     """Return True when a letter is a consonant."""
+   ...     vowels = 'aeiou'
+   ...     return letter.isalpha() and letter.lower() not in vowels
+   ...
+   >>> sentence = 'This is a sample sentence.'
+   >>> consonants = [letter for letter in sentence if is_consonant(letter)]
+   >>> consonants
+   ['T', 'h', 's', 's', 's', 'm', 'p', 'l', 's', 'n', 't', 'n', 'c']
+
+The advantage of the second approach is it is more readable and better
+documented.  Additionally, while it's a trivial example, we could
+implement a unit test for ``is_consonant``.
+
+AEDT Specific Coding Guidelines
+-------------------------------
+These guidelines are specific to PyAEDT.
+
+Logging Errors
+~~~~~~~~~~~~~~
+
+PyAEDT automatically has an internal logging tool named ``Messenger``
+and a log file that is automatically generated in the project
+folder. The following examples demonstrates how the Messenger is used
+to write both to the internal logger and log file:
+
+.. code:: python
+
     self.messenger.add_error_message("This is an error message.")
     self.messenger.add_warning_message("This is a warning message.")
     self.messenger.add_info_message("This is an info message.")
 
-``` 
+The above messages are written to both AEDT message windows and the
+log file.  If you want the message to be written only to the log file,
+use:
 
-The above messages are written to both AEDT Message windows and the log file.
-If you want the message to be written only to the log file, use:
+.. code:: python
 
-```
     self.logger.error("This is an error message.")
     self.messenger.warning("This is a warning message.")
     self.messenger.info("This is an info message.")
 
-``` 
 
 **Exceptions Handling**
 
