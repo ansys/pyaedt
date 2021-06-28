@@ -241,7 +241,7 @@ class NexximComponents(CircuitComponents):
         xpos : float, optional
             Position on the X axis. The default is ``0``.    
         ypos: float, optional
-            Position on the Y axis. The default is ``0``.
+            Position on the X axis. The default is ``0``.    
         angle : float, optional
             Angle rotation in degrees. The default is ``0``.
         use_instance_id_netlist : bool, optional
@@ -308,7 +308,6 @@ class NexximComponents(CircuitComponents):
         xpos : float, optional
             Position on the X axis. The default is ``0``.    
         ypos: float, optional
-            Position on the Y axis. The default is ``0``.
         angle : float, optional
             Angle rotation in degrees. The default is ``0``.
         use_instance_id_netlist : bool, optional
@@ -681,7 +680,7 @@ class NexximComponents(CircuitComponents):
         Parameters
         ----------
         o :
-            Objectto update.
+            Object to update.
 
         Returns
         -------
