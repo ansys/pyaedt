@@ -99,7 +99,8 @@ class MeshOperation(object):
 class Mesh(object):
     """Mesh class.   
     
-    Manages AEDT Mesh Functions.
+    Manages AEDT mesh functions.
+    
     Parameters
     ----------
     
