@@ -5,7 +5,10 @@ from ..generic.general_methods import aedt_exception_handler, retry_ntimes
 from .Object3d import CircuitComponent
 
 class CircuitComponents(object):
-    """Common Class for management of all CircuitComponents for Nexxim and Simplorer"""
+    """CircutComponents class. 
+    
+     This is the common class for managing all circuit components for Nexxim and Simplorer.
+     """
 
     @property
     def oeditor(self):
@@ -60,8 +63,16 @@ class CircuitComponents(object):
     @aedt_exception_handler
     def __getitem__(self, partname):
         """
-        :param partname: if integer try to get the object id. if string, trying to get object Name
-        :return: part object details
+        Parameters
+        ----------
+        partname : int or str
+           Name of the part. If an integer is entered, try to get the object ID.
+           If a string is entered, try to get the object name.
+        
+        Returns
+        -------
+        type
+            Part object details.
         """
         if type(partname) is int:
             return self.components[partname]
@@ -88,15 +99,16 @@ class CircuitComponents(object):
 
     @aedt_exception_handler
     def create_wire(self, points_array):
-        """
-
+        """Create a wire.
         Parameters
         ----------
-        points_array :
-            list of list of points coordinate [[x1,y1], [x2,y2]....]
+        points_array : list
+            A nested list of point coordinates. For example, ``[[x1, y1], [x2, y2]....]``.
 
         Returns
         -------
+        bool
+            ``True`` when successful, ``False`` when failed.
 
         """
         pointlist = [str(tuple(i)) for i in points_array]
@@ -115,23 +127,25 @@ class CircuitComponents(object):
 
     @aedt_exception_handler
     def create_iport(self, name, posx=0.1, posy=0.1, angle=0):
-        """Create new port
+        """Create a new port.
 
         Parameters
         ----------
-        name :
-            port name
-        posx :
-            x position (Default value = 0.1)
-        posy :
-            y position (Default value = 0.1)
-        angle :
-            angle rotation (Default value = 0)
+        name : str
+            Name of the port.
+        posx : float, optional
+            Position of the X axis. The default is ``0.1``.
+        posy : float, optional
+            Position of the Y axis. The default is ``0.1``.
+        angle : float, optional
+            Angle rotation in degrees. The default is ``0``.
 
         Returns
         -------
         type
-            port object,  port_name
+            Port object.
+        str
+           Port name.
 
         """
         id = self.create_unique_id()
@@ -148,23 +162,25 @@ class CircuitComponents(object):
 
     @aedt_exception_handler
     def create_page_port(self, name, posx=0.1, posy=0.1, angle=0):
-        """Create new Page port
+        """Create a new page port.
 
         Parameters
         ----------
-        name :
-            port name
-        posx :
-            x position (Default value = 0.1)
-        posy :
-            y position (Default value = 0.1)
-        angle :
-            angle rotation (Default value = 0)
+        name : str
+            Name of the port.
+        posx : float, optional
+            Position of the X axis. The default is ``0.1``.
+        posy : float, optional
+            Position of the Y axis. The default is ``0.1``.
+        angle : optional
+            Angle rotation in degrees. The default is ``0``.
 
         Returns
         -------
         type
-            port id,  port_name
+            Port ID.
+        str
+            Port name.
 
         """
         id = self.create_unique_id()
@@ -189,19 +205,21 @@ class CircuitComponents(object):
 
     @aedt_exception_handler
     def create_gnd(self, posx, posy):
-        """Create GNDt
+        """Create a ground.
 
         Parameters
         ----------
-        posx :
-            x position
-        posy :
-            y position
-
+        posx : float, optional
+            Position of the X axis. The default is ``0.1``.
+        posy : float, optional
+            Position of the Y axis. The default is ``0.1``.
+       
         Returns
         -------
         type
-            gnd object,  gnd name
+            Ground object.
+        str
+            Ground name.
 
         """
         id = self.create_unique_id()
@@ -228,17 +246,19 @@ class CircuitComponents(object):
 
     @aedt_exception_handler
     def create_model_from_touchstone(self, touchstone_full_path, model_name=None):
-        """
+        """Create a model from a Touchstone file.
 
         Parameters
         ----------
-        touchstone_full_path :
-            
-        model_name :
-             (Default value = None)
+        touchstone_full_path : str
+            Full path to the Touchstone file.
+        model_name : str, optional
+            Name of the model. The default is ``None``.
 
         Returns
         -------
+        bool
+            ``True`` when successful, ``False`` when failed.     
 
         """
         if not model_name:
@@ -285,21 +305,23 @@ class CircuitComponents(object):
 
     @aedt_exception_handler
     def create_component_from_touchstonmodel(self, modelname,xpos=0.1, ypos=0.1, angle=0,):
-        """
+        """Create a component from a Touchstone model.
 
         Parameters
         ----------
-        modelname :
-            
-        xpos :
-             (Default value = 0.1)
-        ypos :
-             (Default value = 0.1)
-        angle :
-             (Default value = 0)
+        modelname : str
+            Name of the Touchstone model.
+        xpos : float, optional
+            Position of the X axis. The default is ``0.1``.
+        ypos : float, optional
+            Position of the Y axis. The default is ``0.1``.
+        angle : float, optional
+            Angle rotation in degrees. The default is ``0``.
 
         Returns
         -------
+        bool
+            ``True`` when successful, ``False`` when failed.
 
         """
         id = self.create_unique_id()
@@ -315,31 +337,34 @@ class CircuitComponents(object):
     def create_component(self, inst_name=None, component_library="Resistors",
                          component_name="RES_", xpos=0.1, ypos=0.1, angle=0, use_instance_id_netlist=False,
                          global_netlist_list=[]):
-        """Create new component from Library
+        """Create a new component from a library.
 
         Parameters
         ----------
-        inst_name :
-            Instance Name (Default value = None)
-        component_library :
-            Component Library (Default Resistors)
-        component_name :
-            Component name in library Default RES
-        xpos :
-            x position (Default value = 0.1)
-        ypos :
-            y position (Default value = 0.1)
-        angle :
-            component angle (Default value = 0)
-        use_instance_id_netlist :
-            bool to enable instance id in netlist (Default value = False)
-        global_netlist_list :
-             (Default value = [])
+        inst_name : str, optional
+            Name of the instance. The default is ``None.``
+        component_library : str, optional
+            Name of the component library. The default is ``"Resistors"``.
+        component_name : str, optional
+            Name of component in the library. The default is ``"RES"``.
+        xpos : float, optional
+            Position of the X axis. The default is ``0.1``.
+        yos : float, optional
+            Position of the Y axis. The default is ``0.1``.
+        angle : optional
+            Angle rotation in degrees. The default is ``0``.
+        use_instance_id_netlist : bool, optional
+            Whether to enable the instance ID in the net list.
+            The default is ``False``.
+        global_netlist_list : list, optional
+             The default is``[]``.
 
         Returns
         -------
         type
-            id , composed_name
+            Component ID.
+         str
+            Component name.
 
         """
         id = self.create_unique_id()
@@ -374,17 +399,17 @@ class CircuitComponents(object):
 
     @aedt_exception_handler
     def disable_data_netlist(self, component_name):
-        """Disable Nexxim Global Netlist
+        """Disable Nexxim global net list.
 
         Parameters
         ----------
-        component_name :
-            Name of Component
+        component_name : str
+            Name of the component.
 
         Returns
         -------
-        type
-            Bool
+        bool
+            ``True`` when successful, ``False`` when failed.
 
         """
         name = component_name
@@ -403,19 +428,19 @@ class CircuitComponents(object):
 
     @aedt_exception_handler
     def enable_global_netlist(self, component_name, global_netlist_list=[]):
-        """Enable Nexxim Global Netlist
+        """Enable Nexxim global net list.
 
         Parameters
         ----------
-        component_name :
-            Name of Component
-        global_netlist_list :
-            List of line to be included (Default value = [])
+        component_name : str
+            Name of the component.
+        global_netlist_list : list
+            A list of lines to include. The default is ``[]``.
 
         Returns
         -------
-        type
-            Bool
+        bool
+            ``True`` when successful, ``False`` when failed.
 
         """
         name = component_name
@@ -434,19 +459,19 @@ class CircuitComponents(object):
 
     @aedt_exception_handler
     def create_symbol(self, symbol_name, pin_lists):
-        """Create new symbol
+        """Create a new symbol.
 
         Parameters
         ----------
-        symbol_name :
-            symbol name
-        pin_lists :
-            name of pins
+        symbol_name : str
+            Name of the symbol.
+        pin_lists : list
+            List of the pins.
 
         Returns
         -------
-        type
-            Bool
+        bool
+            ``True`` when successful, ``False`` when failed.
 
         """
 
@@ -533,24 +558,25 @@ class CircuitComponents(object):
     @aedt_exception_handler
     def create_new_component_from_symbol(self, symbol_name, pin_lists, Refbase="U", parameter_list=[],
                                          parameter_value=[]):
-        """Create new Component from Symbol
+        """Create a new component from a symbol.
 
         Parameters
         ----------
-        symbol_name :
-            Symbol Name
-        pin_lists :
-            Pin Lists
-        Refbase :
-            Reference Base (Default value = "U")
-        parameter_list :
-            Parameter Lists (Default value = [])
-        parameter_value :
-            Parameter Value Lists (Default value = [])
+        symbol_name : str
+            Name of the symbol.
+        pin_lists : list
+            List of the pins.
+        Refbase : str, optional
+            Reference base. The default is ``"U"``.
+        parameter_list : list, optional
+            List of the parameters. The default is ``[]``.
+        parameter_value : list, optional
+            List of the parameter values. The default is ``[]``.
 
         Returns
         -------
-
+        bool
+            ``True`` when successful, ``False`` when failed.
         """
         arg = ["NAME:" + symbol_name, "Info:=",
                ["Type:=", 0, "NumTerminals:=", 5, "DataSource:=", "", "ModifiedOn:=", 1591858313, "Manufacturer:=", "",
@@ -611,14 +637,15 @@ class CircuitComponents(object):
 
         Parameters
         ----------
-        component_library :
-             (Default value = "Resistors")
-        component_name :
-             (Default value = "RES_")
+        component_library : str, optional
+             Name of the component library. The default is ``"Resistors"``.
+        component_name : str, optional
+             Name of the component. The default is ``"RES_"``.
 
         Returns
         -------
-
+        bool
+            ``True`` when successful, ``False`` when failed.
         """
         if component_library:
             name = self.design_libray + "\\" + component_library + ":" + component_name
@@ -645,7 +672,7 @@ class CircuitComponents(object):
 
     @aedt_exception_handler
     def refresh_all_ids(self):
-        """:return: Refresh all Ids and return number of components"""
+        """Refresh all IDs and return the number of components."""
         obj = self.oeditor.GetAllComponents()
         for el in obj:
             if not self.get_obj_id(el):
@@ -665,11 +692,13 @@ class CircuitComponents(object):
 
         Parameters
         ----------
-        id :
-            return:
+        id : 
+            ID for the component.
 
         Returns
         -------
+        int
+            Number of components.
 
         """
         obj = retry_ntimes(10, self.oeditor.GetAllElements)
@@ -696,12 +725,13 @@ class CircuitComponents(object):
 
         Parameters
         ----------
-        objname :
-            
+        objname : str
+            Name of the object.
 
         Returns
         -------
-
+        bool
+            ``True`` when successful, ``False`` when failed.
         """
         for el in self.components:
             if self.components[el].name == objname:
@@ -710,17 +740,17 @@ class CircuitComponents(object):
 
     @aedt_exception_handler
     def update_object_properties(self, o):
-        """
+        """Update the properties of an object.
 
         Parameters
         ----------
         o :
-            object
+            Object to update.
 
         Returns
         -------
         type
-            object with properties
+            Object with properties.
 
         """
         name = o.composed_name
@@ -736,13 +766,13 @@ class CircuitComponents(object):
 
         Parameters
         ----------
-        partid :
-            component ID (int) or component full name (str)
+        partid : int or str
+            ID or full name of the component.
 
         Returns
         -------
         type
-            object with properties
+            Object with properties.
 
         """
         if type(partid) is str:
@@ -759,15 +789,15 @@ class CircuitComponents(object):
 
         Parameters
         ----------
-        partid :
-            component ID
+        partid : 
+            ID of the component.
         pinname :
-            Name of the Pin
+            Name of the pin.
 
         Returns
         -------
-        type
-            x, y] list
+        List
+            List of axis values ``[x, y]``.
 
         """
         if type(partid) is str:
@@ -784,13 +814,15 @@ class CircuitComponents(object):
 
         Parameters
         ----------
-        Value :
+        Value : str
             
         sUnits :
-             (Default value = None)
+            The default is ``None``.
 
         Returns
         -------
+        bool
+            ``True`` when successful, ``False`` when failed.
 
         """
         if type(Value) is str:
