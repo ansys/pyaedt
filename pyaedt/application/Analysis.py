@@ -63,7 +63,7 @@ class Analysis(Design, object):
 
     @property
     def materials(self):
-        """Property
+        """Material Manager that is used to manage materials in the project.
         
         Parameters
         ----------
@@ -79,7 +79,7 @@ class Analysis(Design, object):
 
     @property
     def Position(self):
-        """Retrieve the position of the object.
+        """Position of the object.
         
         Parameters
         ----------
@@ -565,7 +565,7 @@ class Analysis(Design, object):
         Parameters
         ----------
         name : str
-        Name of the setup.
+            Name of the setup.
             
         Returns
         -------
@@ -607,9 +607,6 @@ class Analysis(Design, object):
     def analyse_from_initial_mesh(self):
         """Revert the solution to the initial mesh and re-run the solve.
                 
-        Parameters
-        ----------
-
         Returns
         -------
         bool
@@ -624,9 +621,6 @@ class Analysis(Design, object):
     def analyse_nominal(self):
         """Revert the solution to the initial mesh and re-run the solve.
        
-        Parameters
-        ----------
-
         Returns
         -------
         bool
@@ -719,7 +713,7 @@ class Analysis(Design, object):
 
     @aedt_exception_handler
     def get_setup(self, setupname):
-        """Get the setup from a current design.
+        """Get the setup from the current design.
 
         Parameters
         ----------
@@ -729,7 +723,7 @@ class Analysis(Design, object):
         Returns
         -------
         type
-            Setup object
+            Setup object.
         """
 
         setuptype = SetupKeys.defaultSetups[self.solution_type]
@@ -794,8 +788,8 @@ class Analysis(Design, object):
 
         Parameters
         ----------
-        object_list : list
-            List of objects for which to get material_properties. The dfault is ``None``. 
+        object_list : list, optional
+            List of objects for which to get material_properties. The default is ``None``. 
             If ``None``, all objects are considered. 
         prop_names : str or list
             The property or list of properties to export.  The default is ``None``. 
@@ -923,7 +917,7 @@ class Analysis(Design, object):
             Name of the cluster to which to submit the job.
         aedt_full_exe_path : str, optional
             Full path to the AEDT executable file. The default is ``None``, which uses
-            ``\\clustername\AnsysEM\AnsysEM2x.x\Win64\ansysedt(.exe)``.
+            ``"/clustername/AnsysEM/AnsysEM2x.x/Win64/ansysedt.exe"``.
         numnodes : int, optional
             Number of nodes. The default is ``1``.
         numcores : int, optional
