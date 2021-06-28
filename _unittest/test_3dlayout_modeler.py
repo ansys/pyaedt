@@ -30,6 +30,7 @@ class Test3DLayout:
         assert mymat.set_property_value("Conductivity", 100)
         assert mymat.set_property_value("Young's Modulus", 1e10)
         assert mymat.update()
+        assert  self.aedtapp.materials.get_material_count() == 3
 
     def test_02_add_layer_to_stackup(self):
         s1 = self.aedtapp.modeler.layers.add_layer("Signal3", "signal", "0.035mm", "0mm")
@@ -104,6 +105,7 @@ class Test3DLayout:
         setup_name = "RFBoardSetup"
         setup = self.aedtapp.create_setup(setupname=setup_name)
         assert setup.name == self.aedtapp.existing_analysis_setups[0]
+        assert setup.setup_type == "HFSS"
 
     def test_15_edit_setup(self):
         setup_name = "RFBoardSetup2"
@@ -226,3 +228,21 @@ class Test3DLayout:
 
     def test_create_scattering(self):
         assert self.aedtapp.create_scattering()
+
+    def test_duplicate_material(self):
+        material = self.aedtapp.materials.creatematerial("FirstMaterial")
+        assert material.set_property_value(material.PropName.Permittivity, 4.1)
+        assert material.set_property_value("Conductivity", 100)
+        assert material.set_property_value("Young's Modulus", 1e10)
+        assert material.update()
+        
+        new_material = self.aedtapp.materials.duplicate_material(material, "SecondMaterial")
+        assert new_material.name == "secondmaterial"
+        
+    def test_get_materials(self):
+        material_name = "NewMaterial"
+        self.aedtapp.materials.creatematerial(material_name)
+        materials = self.aedtapp.materials.get_material_list()
+        assert "newmaterial" in materials
+        material = self.aedtapp.materials.get_material(material_name)
+        assert material.name == "newmaterial"
