@@ -195,13 +195,24 @@ class BasicValue(object):
 class MatProperty(object):
     """type: simple, anisotropic, tensor"""
 
-    def __init__(self):
-        self.type = "simple"
-        self.property_value = [BasicValue()]
-        self.unit = None
+    @property
+    def _messenger(self):
+        return self._parent._messenger
 
-    @aedt_exception_handler
-    def set_type(self, type):
+    def __init__(self, parent, val=None):
+        self._parent = parent
+        self._type = "simple"
+        self._property_value = [BasicValue()]
+        self._unit = None
+        if val:
+            self.value = val
+
+    @property
+    def type(self):
+        return self._type
+
+    @type.setter
+    def type(self, type):
         """Set Material Property Type
 
         Parameters
@@ -213,277 +224,101 @@ class MatProperty(object):
         -------
 
         """
-        self.type = type
-        if self.type == "simple":
-            self.property_value = [BasicValue()]
-        elif self.type == "anisotropic":
-            self.property_value = [BasicValue() for i in range(3)]
-        elif self.type == "tensor":
-            self.property_value = [BasicValue() for i in range(9)]
-        elif self.type == "nonlinear":
-            self.property_value = [BasicValue()]
-
-
-
-class Material(object):
-    """Class for Frequency Dependence Datasets"""
-
-    class PropName(object):
-        """list of constants of all possible materials constant names and how they are mapped to XML
-        internalame=named used in script
-        xmlname=named used in XML syntax
-
-        Parameters
-        ----------
-
-        Returns
-        -------
-
-        """
-        (Permittivity, Permeability, Conductivity, DielectricLossTangent, MagneticLossTangent,
-         ThermalConductivity, MassDensity, SpecificHeat, ThermalExpCoeff,
-         YoungsModulus, PoissonsRatio, Emissivity, Diffusivity, MolecularMass, Viscosity) = (
-            'permittivity', 'permeability', 'conductivity', 'dielectric_loss_tangent', 'magnetic_loss_tangent',
-            'thermal_conductivity', 'mass_density', 'specific_heat', 'thermal_expansion_coefficient',
-            'youngs_modulus', 'poissons_ratio', 'emissivity', 'diffusivity', 'molecular_mass', 'viscosity')
+        self._type = type
+        if self._type == "simple":
+            self._property_value = [BasicValue()]
+        elif self._type == "anisotropic":
+            self._property_value = [BasicValue() for i in range(3)]
+        elif self._type == "tensor":
+            self._property_value = [BasicValue() for i in range(9)]
+        elif self._type == "nonlinear":
+            self._property_value = [BasicValue()]
 
     @property
-    def odefinition_manager(self):
-        """:return: Definition Manager"""
-        return self._parent._oproject.GetDefinitionManager()
-
-    @property
-    def _omaterial_manager(self):
-        """:return:Material Manager"""
-        return self.odefinition_manager.GetManager("Material")
-
-    @property
-    def messenger(self):
-        """ """
-        return self._parent._messenger
-
-    @property
-    def oproject(self):
-        """ """
-        return self._parent._oproject
-
-    @property
-    def desktop(self):
-        """ """
-        return self._parent._desktop
-
-    def __init__(self, parent):
-        self._parent = parent
-        self.name = ""
-        self.origin = ""
-        self.property = defaultdict(MatProperty)
-        self.thermal_material_type="Solid"
-        for el in MatProperties.aedtname:
-            self.property[el].property_value[0].value = MatProperties.get_defaultvalue(aedtname=el)
-            self.property[el].unit = MatProperties.get_defaultunit(aedtname=el)
-            self.property[el].type = "simple"
-
-
-    def get_number(self, fullname):
-        """
-
-        Parameters
-        ----------
-        fullname :
-            
-
-        Returns
-        -------
-
-        """
-        if fullname in self.property:
-            try:
-                return float(self.property[fullname].property_value[0].value)
-            except:
-                ds = self.property[fullname].property_value[0].dataset
-                if ds:
-                    try:
-                        return float(ds.ds[0][1])
-                    except:
-                        return 0
-                return 0
-
-    @aedt_exception_handler
-    def get_data(self, fullname):
-        """
-
-        Parameters
-        ----------
-        fullname :
-            
-
-        Returns
-        -------
-
-        """
-        if fullname in self.property:
-            return self.property[fullname].type, self.property[fullname].property_value[0].value
-
-    def is_conductor(self):
-        """:return: Bool if material is conductor. Material is defined as conductor if cond>=100000"""
-        cond = self.get_number('conductivity')
-        if cond >= 100000:
-            return True
-        elif cond == 0:
-            try:
-                if "Freq" in self.property['conductivity'].property_value[0].value:
-                    return True
-            except:
-                return False
+    def value(self):
+        if len(self._property_value) == 1:
+            return self._property_value[0].value
         else:
-            return False
+            return [i.value for i in self._property_value]
 
-    @aedt_exception_handler
-    def is_dielectric(self):
-        """:return: Bool if material is dielectric. Material is defined as conductor if cond<100000"""
-        return not self.is_conductor()
+    @value.setter
+    def value(self, val):
+        if isinstance(val, list):
+            i = 0
+            for el in val:
+                if i >= len(self._property_value):
+                    self._property_value.append(BasicValue())
 
-    @aedt_exception_handler
-    def get_unit(self, propertyname):
-        """
-
-        Parameters
-        ----------
-        propertyname :
-            str property
-
-        Returns
-        -------
-        type
-            property unit
-
-        """
-        if propertyname in self.property:
-            return self.property[propertyname].unit
-        return None
-
-    @aedt_exception_handler
-    def set_property_value(self, PropName, propvalue, idx=0):
-        """Set Material Property Value
-
-        Parameters
-        ----------
-        PropName :
-            property
-        propvalue :
-            value
-        idx :
-            index. in case of tensor or anysotropic (0 by default)
-
-        Returns
-        -------
-        type
-            True
-
-        """
-        prop_conv = PropName.lower().replace(" ","_").replace("'","")
-        self.property[prop_conv].property_value[idx].value = propvalue
-        return True
-
-    @aedt_exception_handler
-    def get_property_value(self, PropertyConstant, idx=0):
-        """Get Material Property Value
-
-        Parameters
-        ----------
-        PropertyConstant :
-            property
-        idx :
-            index. in case of tensor or anysotropic (0 by default)
-
-        Returns
-        -------
-        type
-            property value
-
-        """
-        return self.property[PropertyConstant].property_value[idx].value
-
-    @aedt_exception_handler
-    def set_property_dataset(self, PropName, dataset, idx=0):
-        """Set Material Dataset Value
-
-        Parameters
-        ----------
-        PropName :
-            property
-        dataset :
-            dataset object
-        idx :
-            index. in case of tensor or anysotropic (0 by default)
-
-        Returns
-        -------
-
-        """
-        self.property[PropName].property_value[idx].dataset = dataset
-        return True
-
-    @aedt_exception_handler
-    def get_property_dataset(self, PropertyConstant, idx=0):
-        """Get Material Property Dataset
-
-        Parameters
-        ----------
-        PropertyConstant :
-            property
-        idx :
-            index. in case of tensor or anysotropic (0 by default)
-
-        Returns
-        -------
-        type
-            dataset object
-
-        """
-        return self.property[PropertyConstant].property_value[idx].dataset
-
-    @aedt_exception_handler
-    def set_property_therm_modifier(self, PropName, dataset, idx=0):
-        """Set Material Property Thermal Modifier
-
-        Parameters
-        ----------
-        PropName :
-            property
-        dataset :
-            dataset object or list of values. in case list of values is provided, the dataset will be automatically created
-        idx :
-            index. in case of tensor or anysotropic (0 by default)
-
-        Returns
-        -------
-
-        """
-        if type(dataset) is list:
-            ds = self.create_thermal_modifier(dataset)
+                self._property_value[i] = el
+                i += 1
         else:
-            ds = dataset
-        self.property[PropName].property_value[idx].thermalmodifier = ds
+            self._property_value[0] = val
 
-    @aedt_exception_handler
-    def get_property_therm_modifier(self, PropertyConstant, idx=0):
-        """Get Material Property Thermal Modifier Dataset
+    @property
+    def unit(self):
+        return self._unit
 
-        Parameters
-        ----------
-        PropertyConstant :
-            property
-        idx :
-            index. in case of tensor or anysotropic (0 by default)
+    @unit.setter
+    def unit(self, unit):
+        self._unit = unit
 
-        Returns
-        -------
-        type
-            thermal modifier object
 
-        """
-        return self.property[PropertyConstant].property_value[idx].thermalmodifier
+    @property
+    def data_set(self):
+        if len(self._property_value) == 1:
+            return self._property_value[0].dataset
+        else:
+            return [i.dataset for i in self._property_value]
+
+    def add_data_set(self, listtemp_val, unitx="Hz", unity="", is_linear=True):
+        if not is_linear:
+            self.type = "nonlinear"
+        if self.type == "simple" or self.type == "nonlinear":
+            tm = Dataset()
+            tm.type = "Absolute"
+            tm.namex = "Frequency"
+            tm.unitx = unitx
+            tm.unity = unity
+            tm.ds = listtemp_val
+            self._property_value[0].dataset = tm
+        else:
+            i=0
+            for el in listtemp_val:
+                tm = Dataset()
+                tm.type = "Absolute"
+                tm.namex = "Frequency"
+                tm.unitx = unitx
+                tm.unity = unity
+                tm.ds = el
+                self._property_value[i].dataset = tm
+                i+=1
+
+    @property
+    def thermal_modifier(self):
+        if len(self._property_value) == 1:
+            return self._property_value[0].thermalmodifier
+        else:
+            return [i.thermalmodifier for i in self._property_value]
+
+
+    @thermal_modifier.setter
+    def thermal_modifier(self, listtemp_val):
+        if self.type == "simple" or self.type == "nonlinear":
+            tm = Dataset()
+            tm.type = "Relative"
+            tm.namex = "Temperature"
+            tm.ds = listtemp_val
+            self._property_value[0].thermalmodifier = tm
+        else:
+            i=0
+            for el in listtemp_val:
+                tm = Dataset()
+                tm.type = "Relative"
+                tm.namex = "Temperature"
+                tm.ds = el
+                self._property_value[i].thermalmodifier = tm
+                i+=1
+
 
     @aedt_exception_handler
     def create_thermal_modifier(self, listtemp_val):
@@ -506,66 +341,145 @@ class Material(object):
         tm.ds = listtemp_val
         return tm
 
-    @aedt_exception_handler
-    def create_frequency_dataset(self, listtemp_val, unitx="Hz", unity=""):
-        """Create a new frequency data set based on a list of values
 
-        Parameters
-        ----------
-        listtemp_val :
-            list of frequency modifiers. Example [[1e9, 58e6], [1.1e9, 57e6], [1.2e9,55e6]]
-        unitx :
-            unit type. Default Hertz
-        unity :
-            unit type. Default ""
+class Material(object):
+    """Class for Frequency Dependence Datasets"""
 
-        Returns
-        -------
-        type
-            tm obhect
+    @property
+    def odefinition_manager(self):
+        """:return: Definition Manager"""
+        return self._parent._oproject.GetDefinitionManager()
 
-        """
-        tm = Dataset()
-        tm.type = "Absolute"
-        tm.namex = "Frequency"
-        tm.unitx = unitx
-        tm.unity = unity
-        tm.ds = listtemp_val
-        return tm
+    @property
+    def _omaterial_manager(self):
+        """:return:Material Manager"""
+        return self.odefinition_manager.GetManager("Material")
 
-    @aedt_exception_handler
-    def set_nonlinear_dataset(self, propertyname, listtemp_val, unitx="A_per_meter", unity="tesla"):
-        """Create a new nonlinear data set based on a list of values
+    @property
+    def _messenger(self):
+        """ """
+        return self._parent._messenger
 
-        Parameters
-        ----------
-        listtemp_val :
-            list of frequency modifiers. Example [[1e9, 58e6], [1.1e9, 57e6], [1.2e9,55e6]]
-        unitx :
-            unit type. Default A_per_meter
-        unity :
-            unit type. Default tesla
-        propertyname :
-            
+    @property
+    def oproject(self):
+        """ """
+        return self._parent._oproject
 
-        Returns
-        -------
-        type
-            Bool
+    @property
+    def desktop(self):
+        """ """
+        return self._parent._desktop
 
-        """
-        if len(listtemp_val)<3:
-            self.messenger.add_error_message("Dataset has to start from 0 or negative and has to contain at least 3 points")
+    def __init__(self, parent):
+        self._parent = parent
+        self.name = ""
+        self.origin = ""
+        self.property = defaultdict(MatProperty)
+        self.thermal_material_type="Solid"
+        self._permittivity = MatProperty(MatProperties.get_defaultvalue(aedtname="permittivity"))
+        self._permeability = MatProperty(MatProperties.get_defaultvalue(aedtname="permeability"))
+        self._conductivity = MatProperty(MatProperties.get_defaultvalue(aedtname="conductivity"))
+        self._dielectric_loss_tangent = MatProperty(MatProperties.get_defaultvalue(aedtname="dielectric_loss_tangent"))
+        self._magnetic_loss_tangent = MatProperty(MatProperties.get_defaultvalue(aedtname="magnetic_loss_tangent"))
+        self._mass_density = MatProperty(MatProperties.get_defaultvalue(aedtname="mass_density"))
+        self._specific_heat = MatProperty(MatProperties.get_defaultvalue(aedtname="specific_heat"))
+        self._thermal_expansion_coefficient = MatProperty(MatProperties.get_defaultvalue(aedtname="thermal_expansion_coefficient"))
+        self._youngs_modulus = MatProperty(MatProperties.get_defaultvalue(aedtname="youngs_modulus"))
+        self._poissons_ratio = MatProperty(MatProperties.get_defaultvalue(aedtname="poissons_ratio"))
+        self._emissivity = MatProperty(MatProperties.get_defaultvalue(aedtname="emissivity"))
+        self._diffusivity = MatProperty(MatProperties.get_defaultvalue(aedtname="diffusivity"))
+        self._molecular_mass = MatProperty(MatProperties.get_defaultvalue(aedtname="molecular_mass"))
+        self._viscosity = MatProperty(MatProperties.get_defaultvalue(aedtname="viscosity"))
+        self._core_loss_kh = MatProperty(MatProperties.get_defaultvalue(aedtname="core_loss_kh"))
+        self._core_loss_kc = MatProperty(MatProperties.get_defaultvalue(aedtname="core_loss_kc"))
+        self._core_loss_ke = MatProperty(MatProperties.get_defaultvalue(aedtname="core_loss_ke"))
+
+    @property
+    def permittivity(self):
+        return self._permittivity
+
+    @property
+    def permeability(self):
+        return self._permeability
+
+    @property
+    def conductivity(self):
+        return self._conductivity
+
+    @property
+    def dielectric_loss_tangent(self):
+        return self._dielectric_loss_tangent
+
+    @property
+    def magnetic_loss_tangent(self):
+        return self._magnetic_loss_tangent
+
+    @property
+    def mass_density(self):
+        return self._mass_density
+
+    @property
+    def specific_heat(self):
+        return self._specific_heat
+
+    @property
+    def thermal_expansion_coefficient(self):
+        return self._thermal_expansion_coefficient
+
+    @property
+    def youngs_modulus(self):
+        return self._youngs_modulus
+
+    @property
+    def poissons_ratio(self):
+        return self._poissons_ratio
+
+    @property
+    def emissivity(self):
+        return self._emissivity
+
+    @property
+    def diffusivity(self):
+        return self._diffusivity
+
+    @property
+    def molecular_mass(self):
+        return self._molecular_mass
+
+    @property
+    def viscosity(self):
+        return self._viscosity
+
+    @property
+    def core_loss_kh(self):
+        return self._core_loss_kh
+
+    @property
+    def core_loss_kc(self):
+        return self._core_loss_kc
+
+    @property
+    def core_loss_ke(self):
+        return self._core_loss_ke
+
+    def is_conductor(self):
+        """:return: Bool if material is conductor. Material is defined as conductor if cond>=100000"""
+        cond = self.conductivity.value
+        if cond >= 100000:
+            return True
+        elif cond == 0:
+            try:
+                if "Freq" in self.conductivity.value:
+                    return True
+            except:
+                return False
+        else:
             return False
-        self.property[propertyname].set_type("nonlinear")
-        tm = Dataset()
-        tm.type = "Absolute"
-        tm.namex = "Frequency"
-        tm.unitx = unitx
-        tm.unity = unity
-        tm.ds = listtemp_val
-        self.property[propertyname].property_value[0].dataset = tm
-        return True
+
+    @aedt_exception_handler
+    def is_dielectric(self):
+        """:return: Bool if material is dielectric. Material is defined as conductor if cond<100000"""
+        return not self.is_conductor()
 
     @aedt_exception_handler
     def update(self, enableTM=True, enableFM=True):
@@ -589,11 +503,11 @@ class Material(object):
         tms = {}
         # create the thermal modifier portion for the material definition if its
         # present in the amat xml file
-        for props in self.property:
+        for mat in MatProperties.aedtname:
             id = 0
-            for vals in self.property[props].property_value:
+            for vals in self.__dict__[mat]._property_value:
                 if vals.thermalmodifier:
-                    tms[self.name.replace("-","_") + props + "TH" + str(id)] = [id, props, vals.thermalmodifier]
+                    tms[self.name.replace("-","_") + mat + "TH" + str(id)] = [id, mat, vals.thermalmodifier]
             id += 1
 
         if tms and enableTM:
@@ -612,7 +526,7 @@ class Material(object):
             if fds[fd][2].namex == "Frequency" and not enableFM:
                 print("Skipping Frequency modifier because disabled")
             elif not self._parent.dataset_exists(fd):
-                self.createdatasets(fd, fds[fd][2])
+                self._create_dataset_in_aedt(fd, fds[fd][2])
 
         for sKey in MatProperties.aedtname:
             if self.property[sKey].type == "simple":
@@ -660,33 +574,21 @@ class Material(object):
             #arg.append("viscosity:="), arg.append(self.property["viscosity"].property_value[0].value)
             # add a material without freq dependent properties
 
-        if self.does_material_exists(args):
+        if self._does_material_exists(args):
             self.odefinition_manager.EditMaterial(args,arg)
         else:
             self.odefinition_manager.AddMaterial(arg)
         return True
 
-
     @aedt_exception_handler
     def _createTM(self, tms):
-        """
-
-        Parameters
-        ----------
-        tms :
-            
-
-        Returns
-        -------
-
-        """
         arg2 = ["NAME:ModifierData"]
         arg3 = ["NAME:ThermalModifierData", "modifier_data:=", "thermal_modifier_data"]
         arg4 = ["NAME:all_thermal_modifiers"]
         for tm in tms:
             if type(tms[tm][2]) is Dataset:
                 if not self._parent.dataset_exists(tm):
-                    self.createdatasets(tm, tms[tm][2])
+                    self._create_dataset_in_aedt(tm, tms[tm][2])
                 # print name_temp
                 arg4.append(["NAME:one_thermal_modifier", "Property::=", tms[tm][1], "Index::=", tms[tm][0],
                              "prop_modifier:=", "thermal_modifier", "use_free_form:=", True, "free_form_value:=",
@@ -713,40 +615,13 @@ class Material(object):
         arg2.append(arg3)
         return arg2
 
-
     @aedt_exception_handler
     def _createnonlinear(self,sKey, dataset):
-        """
-
-        Parameters
-        ----------
-        sKey :
-            
-        dataset :
-            
-
-        Returns
-        -------
-
-        """
         #TODO Support nonlinear
         return []
 
     @aedt_exception_handler
     def _creatematrix(self, sKey, mat):
-        """
-
-        Parameters
-        ----------
-        sKey :
-            
-        mat :
-            
-
-        Returns
-        -------
-
-        """
         arg2 = ["NAME:" + sKey]
         if mat.property[sKey].type == "anisotropic":
             arg2.append("property_type:=")
@@ -775,73 +650,27 @@ class Material(object):
         return arg2
 
     @aedt_exception_handler
-    def createdatasets(self, name, tm, suffix=""):
-        """createdataset(material name, property name, dataset)
-        createDataset for material matname with property name
-
-        Parameters
-        ----------
-        name :
-            name of datase to create in aedt
-        tm :
-            dataset object
-        suffix :
-            suffix to apply to name (Default value = "")
-
-        Returns
-        -------
-        type
-            Bool
-
-        """
-
-        #arg = []
+    def _create_dataset_in_aedt(self, name, tm, suffix=""):
         name_tmp = name
         if name_tmp == "dielectric_loss_tangent":
             name_tmp = "er_tand"
         if suffix:
-            #arg.append("Name:$" + name_tmp.replace(" ", "") + "_" + suffix)
             name_ds = name_tmp.replace(" ", "") + "_" + suffix
         else:
-            #arg.append("Name:$" + name_tmp.replace(" ", "") )
             name_ds = name_tmp.replace(" ", "")
-        self.messenger.add_info_message('Property Data Set: ' + name_tmp)
-        #arg2 = []
+        self._messenger.add_info_message('Property Data Set: ' + name_tmp)
         x = []
         y = []
         for ds in tm.ds:
-            # arg3 = []
-            # arg3.append("NAME:Coordinate")
-            # arg3.append("X:="), arg3.append(float(ds[0]))
-            # arg3.append("Y:="), arg3.append(float(ds[1]))
-            # arg2.append(arg3)
             x.append(float(ds[0]))
             y.append(float(ds[1]))
         i = 1
         x, y = (list(t) for t in zip(*sorted(zip(x, y))))
-        # import operator
-        # arg2 = sorted(arg2, key=operator.itemgetter(2))
-        # arg2.insert(0, "Name:Coordinates")
-        # arg.append(arg2)
-        # self.oproject.AddDataset(arg)
         self._parent.create_dataset(name_ds, x, y, is_project_dataset=True)
         return True
 
     @aedt_exception_handler
-    def does_material_exists(self, szMat):
-        """Check if a material is already defined in the Project
-
-        Parameters
-        ----------
-        szMat :
-            material name
-
-        Returns
-        -------
-        type
-            Bool
-
-        """
+    def _does_material_exists(self, szMat):
         listmatprj = [i.lower() for i in list(self.odefinition_manager.GetProjectMaterialNames())]
         if szMat.lower() in listmatprj:
             return True

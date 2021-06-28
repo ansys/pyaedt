@@ -24,7 +24,7 @@ class EdbLayout(object):
     @property
     def messenger(self):
         """ """
-        return self._parent.messenger
+        return self._parent._messenger
 
     def __init__(self, parent):
         self._prims = []

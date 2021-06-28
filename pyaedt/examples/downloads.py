@@ -15,7 +15,7 @@ def delete_downloads():
 
 def _get_file_url(directory, filename):
     if not filename:
-        return EXAMPLE_REPO + '/'.join([directory])
+        return EXAMPcoordinateLE_REPO + '/'.join([directory])
     else:
         return EXAMPLE_REPO + '/'.join([directory, filename])
 

@@ -63,7 +63,7 @@ class Materials(object):
     @property
     def messenger(self):
         """ """
-        return self._parent.messenger
+        return self._parent._messenger
 
     @property
     def oproject(self):
@@ -394,7 +394,7 @@ class Materials(object):
         self.odefinition_manager.AddSurfaceMaterial(arg)
         return defaultEmissivity
 
-
+    @aedt_exception_handler
     def create_mat_project_vars(self, matlist):
         """Create Material Properties variables based on a material list
 
@@ -732,7 +732,6 @@ class Materials(object):
 
                         i += 1
         return o_mat_xml
-
 
     @aedt_exception_handler
     def py2xmlFull(self, filename):

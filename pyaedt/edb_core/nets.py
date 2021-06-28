@@ -52,7 +52,7 @@ class EdbNets(object):
     @property
     def messenger(self):
         """ """
-        return self.parent.messenger
+        return self.parent._messenger
 
     def __init__(self, parent):
         self.parent = parent
@@ -222,7 +222,7 @@ class EdbNets(object):
                 if edb_net is not None:
                     edb_net.Delete()
                     nets_deleted.append(net)
-                    self.parent.messenger.add_info_message("Net {} Deleted".format(net))
+                    self.parent._messenger.add_info_message("Net {} Deleted".format(net))
             except:
                 pass
 
