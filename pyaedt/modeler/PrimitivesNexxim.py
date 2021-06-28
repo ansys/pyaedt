@@ -89,7 +89,6 @@ class NexximComponents(CircuitComponents):
         -------
         bool
             ``True`` when successful, ``False`` when failed.
-
         """
         id = self.create_unique_id()
         component_name = design_name + "_" + str(id)
@@ -583,6 +582,7 @@ class NexximComponents(CircuitComponents):
         use_instance_id_netlist : bool, optional
             Whether to use the instance ID in the net list. 
             The default is ``False``.
+        
         Returns
         -------
         type
@@ -724,7 +724,6 @@ class NexximComponents(CircuitComponents):
         -------
         type
             Custom settings for the resistor.
-
         """
         if toolNum == 1:
             custom = "NAME:DesignerCustomization"
@@ -762,13 +761,13 @@ class NexximComponents(CircuitComponents):
         source_design_name : str
             Name of the design.
         solution_name: str, optional
-            Name of the solution and sweep. The default is ``"Setup1 : Sweep"``.
+            Name of the solution and sweep. The 
+            default is ``"Setup1 : Sweep"``.
         
         Returns
         -------
         bool
             ``True`` when successful, ``False`` when failed.
-
         """
         designer_customization = self.get_comp_custom_settings(1, 0, 0, 1, 0, 0, "False", "", 1)
         nexxim_customization = self.get_comp_custom_settings(2, 3, 1, 3, 0, 0, "False", "", 2)
@@ -865,7 +864,7 @@ class NexximComponents(CircuitComponents):
         Parameters
         ----------
         component : str
-            CompInst@Galileo_cutout3;87;1
+            Address of the component instance. For example, ``"Inst@Galileo_cutout3;87;1"``.
 
         Returns
         -------
@@ -897,7 +896,8 @@ class NexximComponents(CircuitComponents):
 
         Parameters
         ----------
-        component_name :
+        component_name : str
+            Name of the dynamic link.
             
 
         Returns
@@ -916,7 +916,7 @@ class NexximComponents(CircuitComponents):
         instance_name : str
             Name of the instance.
         thevenin_calculation : bool, optional
-             Whether to perform the Thevenin equivalent calculation. The default is ``False``.
+            Whether to perform the Thevenin equivalent calculation. The default is ``False``.
 
         Returns
         -------
@@ -939,18 +939,28 @@ class NexximComponents(CircuitComponents):
         ports : list
             List of circuit ports to assign to the excitation.
         settings : list
-            List of parameter values to use in voltage sinusoidal excitation creation,
-            given in this order:
+            List of parameter values to use in voltage sinusoidal excitation creation.
+            
+            Valures are given in this order:
         
             0: AC magnitude for small-signal analysis
+            
             1: AC phase for small-signal analysis
+            
             2: DC voltage
+            
             3: Voltage offset from zero
+            
             4: Voltage amplitude
+            
             5: Frequency
+            
             6: Delay to start of sine wave
+            
             7: Damping factor
+            
             8: Phase delay
+            
             9: Frequency to use for harmonic balance analysis
 
         Returns
