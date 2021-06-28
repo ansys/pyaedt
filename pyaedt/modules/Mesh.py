@@ -752,10 +752,10 @@ class Mesh(object):
             The default is ``True``.
         maxelementlength : str, optional
             Maximum element length with units. The default is ``None``,
-            disabling this parameter.
+            which disables this parameter.
         layerNum : int, optional
-            Number of layers. The default is ``None``, which means that
-            this parameter is disabled.
+            Number of layers. The default is ``None``, which disables
+            this parameter.
         meshop_name : str, optional
             Name of the mesh operation. The default is ``None``.
 
