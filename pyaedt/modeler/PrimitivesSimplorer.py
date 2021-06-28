@@ -68,7 +68,7 @@ class SimplorerComponents(CircuitComponents):
         angle : float, optional
             Angle value. The default is ``0``.
         use_instance_id_netlist : bool, optional
-            Whether to use the instance ID in the net list. The defaut is ``False``.
+            Whether to use the instance ID in the net list. The default is ``False``.
 
         Returns
         -------
@@ -102,7 +102,7 @@ class SimplorerComponents(CircuitComponents):
         angle : float, optional
             Angle value. The default is ``0``.
         use_instance_id_netlist : bool, optional
-            Whether to use the instance ID in the net list. The defaut is ``False``.
+            Whether to use the instance ID in the net list. The default is ``False``.
 
         Returns
         -------
@@ -135,7 +135,7 @@ class SimplorerComponents(CircuitComponents):
         angle : float, optional
             Angle value. The default is ``0``.
         use_instance_id_netlist : bool, optional
-            Whether to use the instance ID in the net list. The defaut is ``False``.
+            Whether to use the instance ID in the net list. The default is ``False``.
 
         Returns
         -------
@@ -169,7 +169,7 @@ class SimplorerComponents(CircuitComponents):
         angle : float, optional
             Angle value. The default is ``0``.
         use_instance_id_netlist : bool, optional
-            Whether to use the instance ID in the net list. The defaut is ``False``.
+            Whether to use the instance ID in the net list. The default is ``False``.
 
         Returns
         -------
@@ -201,7 +201,7 @@ class SimplorerComponents(CircuitComponents):
         angle : float, optional
             Angle value. The default is ``0``.
         use_instance_id_netlist : bool, optional
-            Whether to use the instance ID in the net list. The defaut is ``False``.
+            Whether to use the instance ID in the net list. The default is ``False``.
 
         Returns
         -------
@@ -233,7 +233,7 @@ class SimplorerComponents(CircuitComponents):
         angle : float, optional
             Angle value. The default is ``0``.
         use_instance_id_netlist : bool, optional
-            Whether to use the instance ID in the net list. The defaut is ``False``.
+            Whether to use the instance ID in the net list. The default is ``False``.
 
         Returns
         -------
