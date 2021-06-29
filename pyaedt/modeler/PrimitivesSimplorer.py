@@ -23,7 +23,7 @@ class SimplorerComponents(CircuitComponents):
 
     @aedt_exception_handler
     def __getitem__(self, partname):
-        """
+        """Get object id from a string or integer.
         
         Parameters
         ----------
@@ -61,9 +61,9 @@ class SimplorerComponents(CircuitComponents):
             Name of the resistor. The default is ``None``.
         value : float, optional
             Value for the resistor. The default is ``50``.
-        xpos : optional
+        xpos : float, optional
             X-axis position. The default is ``0``.
-        ypos : optional
+        ypos : float, optional
             Y-axis position. The default is ``0``.
         angle : float, optional
             Angle value. The default is ``0``.
@@ -95,9 +95,9 @@ class SimplorerComponents(CircuitComponents):
             Name of the inductor. The default is ``None``.
         value : float, optional
             Value for the inductor. The default is ``50``.
-        xpos : optional
+        xpos : float, optional
             X-axis position. The default is ``0``.
-        ypos : optional
+        ypos : float, optional
             Y-axis position. The default is ``0``.
         angle : float, optional
             Angle value. The default is ``0``.
@@ -128,9 +128,9 @@ class SimplorerComponents(CircuitComponents):
             Name of the capacitor. The default is ``None``.
         value : float, optional
             Value for the capacitor. The default is ``50``.
-        xpos : optional
+        xpos : float, optional
             X-axis position. The default is ``0``.
-        ypos : optional
+        ypos : float, optional
             Y-axis position. The default is ``0``.
         angle : float, optional
             Angle value. The default is ``0``.
@@ -158,13 +158,13 @@ class SimplorerComponents(CircuitComponents):
 
         Parameters
         ----------
-        compname : str
+        compname : str, optional
             Name of the diode. The default is ``None``.
         model_name : str, optional
             Name of the model.  The default is ``"required"``.
-        xpos : optional
+        xpos : float, optional
             X-axis position. The default is ``0``.
-        ypos : optional
+        ypos : float, optional
             Y-axis position. The default is ``0``.
         angle : float, optional
             Angle value. The default is ``0``.
@@ -186,17 +186,17 @@ class SimplorerComponents(CircuitComponents):
 
     @aedt_exception_handler
     def create_npn(self, compname=None, value=None, xpos=0, ypos=0, angle=0, use_instance_id_netlist=False):
-        """Create a new transistor NPN.
+        """Create a new NPN transistor.
 
         Parameters
         ----------
         compname : str, optional
-            Name of the transistor NPN. The default is ``None``.
+            Name of the NPN transistor. The default is ``None``.
         value : float, optional
-            Value for the transistor NPN. The default is ``50``.
-        xpos : optional
+            Value for the NPN transistor. The default is ``50``.
+        xpos : float, optional
             X-axis position. The default is ``0``.
-        ypos : optional
+        ypos : float, optional
             Y-axis position. The default is ``0``.
         angle : float, optional
             Angle value. The default is ``0``.
@@ -206,9 +206,9 @@ class SimplorerComponents(CircuitComponents):
         Returns
         -------
         type
-            ID of the transistor NPN.
+            ID of the NPN transistor.
         str
-            Name of the transistor NPN.
+            Name of the NPN transistor.
         """
         id, name = self.create_component(compname,
                                          component_library="Basic Elements\\Circuit\\Semiconductors System Level",
@@ -218,17 +218,17 @@ class SimplorerComponents(CircuitComponents):
 
     @aedt_exception_handler
     def create_pnp(self, compname=None,value=50, xpos=0, ypos=0, angle=0, use_instance_id_netlist=False):
-        """Create a new transistor PNP.
+        """Create a new PNP transistor.
 
         Parameters
         ----------
         compname : str, optional
-            Name of the transistor PNP. The default is ``None``.
+            Name of the PNP transistor. The default is ``None``.
         value : float, optional
-            Value for the transistor PNP. The default is ``50``.
-        xpos : optional
+            Value for the PNP transistor. The default is ``50``.
+        xpos : float, optional
             X-axis position. The default is ``0``.
-        ypos : optional
+        ypos : float, optional
             Y-axis position. The default is ``0``.
         angle : float, optional
             Angle value. The default is ``0``.
@@ -238,9 +238,9 @@ class SimplorerComponents(CircuitComponents):
         Returns
         -------
         type
-            ID of the transistor PNP.
+            ID of the PNP transistor.
         str
-            Name of the transistor PNP.
+            Name of the PNP transistor.
 
         """
         id, name = self.create_component(compname,
