@@ -68,9 +68,6 @@ class BoundaryObject(BoundaryCommon, object):
     def create(self):
         """Create a boundary.
         
-        Parameters
-        ----------
-
         Returns
         -------
         bool
@@ -193,9 +190,6 @@ class BoundaryObject(BoundaryCommon, object):
     def update(self):
         """Update the current boundary.
                 
-        Parameters
-        ----------
-
         Returns
         -------
         bool
@@ -317,4 +311,3 @@ class BoundaryObject(BoundaryCommon, object):
             return False
         return True
     
-
