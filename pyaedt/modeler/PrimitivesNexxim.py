@@ -17,7 +17,7 @@ class NexximComponents(CircuitComponents):
 
     @aedt_exception_handler
     def __getitem__(self, partname):
-        """
+        """Get the object ID if partname is an integer or object name if a string.
         Parameters
         ----------
         partname: int or str
@@ -26,7 +26,7 @@ class NexximComponents(CircuitComponents):
         Returns
         -------
         type
-            Part object details
+            Part object details.
         """
         if type(partname) is int:
             return self.components[partname]
@@ -80,9 +80,9 @@ class NexximComponents(CircuitComponents):
             List of the pins.
         model_type: str, optional
             Type of the model. The default is ``"hfss"``.
-        posx :
+        posx : float, optional
             Position on the X axis. The default is ``0``.    
-        posy: 
+        posy : float, optional.
             Position on the Y axis. The default is ``1``.
 
         Returns
@@ -464,10 +464,10 @@ class NexximComponents(CircuitComponents):
         ----------
         compname : str
             Name of the coupling inductor.
-        l1 :
-            
-        l2 :
-        
+        l1 : float, optional
+            Value of inductor 1.
+        l2 : float, optional
+            Value of inductor 2.
         value : float, optional
             Value for the coupling inductor. The default is ``1``.
         xpos : float, optional
