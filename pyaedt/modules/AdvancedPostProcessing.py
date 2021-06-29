@@ -1,15 +1,7 @@
-# -*- coding: utf-8 -*-
 """
-Advanced PostProcessing Class
-================================
+This module contains the ``PostProcessor`` class.
 
-
-**Description**
-
-This class contains all the advanced post processing functionalities which requires python 3.x packages like numpy or matplotlib
-
-
-
+It contains all advanced postprocessing functionalities that require Python 3.x packages like NumPy and Matplotlib.
 """
 from __future__ import absolute_import
 import os
@@ -23,37 +15,35 @@ import warnings
 try:
     import numpy as np
 except ImportError:
-    warnings.warn("The numpy module required to run some functionalities of PostProcess.\n"
+    warnings.warn("The NumPy module is required to run some functionalities of PostProcess.\n"
                   "Install with \n\npip install numpy\n\nRequires CPython")
 
 try:
     import pyvista as pv
     pyvista_available = True
 except ImportError:
-    warnings.warn("The pyvista module required to run some functionalities of PostProcess.\n"
+    warnings.warn("The PyVista module required to run some functionalities of PostProcess.\n"
                   "Install with \n\npip install pyvista\n\nRequires CPython")
 
 try:
     import matplotlib.pyplot as plt
 except ImportError:
-    warnings.warn("The matplotlib module required to run some functionalities of PostProcess.\n"
+    warnings.warn("The Matplotlib module required to run some functionalities of PostProcess.\n"
                   "Install with \n\npip install matplotlib\n\nRequires CPython")
 
 
 def is_float(istring):
-    """Convert a string to a float, and if unable, return 0.
+    """Convert a string to a float.
 
     Parameters
     ----------
     istring : str
-        String to convert to float.
-
+        String to convert to a float.
 
     Returns
     -------
     float
-        Converted float or zero.
-
+        Converted float when successful, ``0`` when when failed. 
     """
     try:
         return float(istring.strip())
@@ -68,23 +58,26 @@ class PostProcessor(Post):
 
     @aedt_exception_handler
     def get_efields_data(self, setup_sweep_name='', ff_setup="Infinite Sphere1", freq='All'):
-        """WARNING this functions requires Numpy installed on your machine
-        this function compute Etheta and EPhi and return and returns an array of [theta_range, phi_range, Etheta, Ephi]
+        """Compute ``Etheta`` and ``EPhi`` and returns an array of ``[theta_range, phi_range, Etheta, Ephi]``.
+        
+        .. warning::
+           This method requires NumPy to be installed on your machine.
+        
 
         Parameters
         ----------
-        setup_sweep_name :
-            Name of setup to compute report. if None, nominal adaptive will be applied (Default value = '')
-        ff_setup :
-            Far Field Setup (Default value = "Infinite Sphere1")
-        freq :
-            return: [theta_range, phi_range, Etheta, Ephi] (Default value = 'All')
+        setup_sweep_name : str, optional
+            Name of the setup on which to compute the report. The default is ``""``, which means that
+            the nominal adaptive is to be applied.
+        ff_setup : str, optional
+            Far field setup. The default is ``"Infinite Sphere1"``.
+        freq : str, optional
+            The default is ``"All"``.
 
         Returns
         -------
-        type
-            theta_range, phi_range, Etheta, Ephi]
-
+        np.ndarray
+            ``numpy`` array containing ``[theta_range, phi_range, Etheta, Ephi]``.
         """
         if not setup_sweep_name:
             setup_sweep_name = self._parent.nominal_adaptive
@@ -147,14 +140,15 @@ class PostProcessor(Post):
         ----------
         ff_data :
             
-        xphase :
-             (Default value = 0)
-        yphase :
-             (Default value = 0)
+        xphase : float, optional
+            Phase in x the direction.  The default is ``0``.
+        yphase : float, optional
+            Phase in the y direction.  The default is ``0``.
 
         Returns
         -------
-
+        bool
+            ``True`` when successful, ``False`` when failed.
         """
         array_size = [4, 4]
         loc_offset = 2
@@ -180,8 +174,8 @@ class PostProcessor(Post):
             
         num_nodes_per_element :
             
-        take_all_nodes :
-             (Default value = True)
+        take_all_nodes : bool, optional
+            The default is ``True``.
 
         Returns
         -------
@@ -242,34 +236,38 @@ class PostProcessor(Post):
     @aedt_exception_handler
     def _plot_from_aedtplt(self, aedtplt_files=None, imageformat="jpg", view="iso", plot_type="Full",
                            plot_label="Temperature", model_color="#8faf8f", show_model_edge=False, off_screen=False):
-        """This function exports the 3D Field Solver Mesh &/or fields as images using Python Plotly. This is currently
-        supported only on Windows using CPython
+        """Export the 3D field solver mesh, fields, or both mesh and field as images using Python Plotly. 
+        
+        .. note::
+           This function is currently supported only on Windows using CPython.
 
         Parameters
         ----------
-        aedtplt_files :
-            str or list of aedtplt files generated by AEDT (Default value = None)
-        imageformat :
-            str default output format (jpg, png, svg, webp)
-        view :
-            str default output view ( iso, x , y, z, all). all option export all the views files
-        plot_type :
-            Full" (Default value = "Full")
-        plot_label :
-            Plot Color Label (Default value = "Temperature")
-        model_color :
-            3D Model Color. Default "silver"
-        show_model_edge :
-            boolean
-            return: list of files generated (Default value = False)
-        off_screen :
-             (Default value = False)
+        aedtplt_files : str or list, optional
+            Names of the one or more AEDTPLT files generated by AEDT. The default is ``None``.
+        imageformat : str, optional
+            Format of the image file. Options are ``"jpg"``, ``"png"``, ``"svg"``, and 
+            ``"webp"``. The default is ``"jpg"``.
+        view : str, optional
+            View to export. Options are ``"iso"``, ``"x"`` , ``"y"``, ``"z"``, and ``"all"``. 
+            The default is ``"iso"``. The ``"all"`` option exports all views.
+        plot_type : str, optional
+            Type of the plot. The default is ``"Full"``.
+        plot_label : str, optional
+            Label for the plot. The default is ``"Temperature"``.
+        model_color : str, optional
+            Color scheme for the 3D model. The default is ``"#8faf8f"``, which is silver.
+        show_model_edge : bool, optional
+            Whether to return a list of the files that are generated. The default
+            is ``False``.
+        off_screen : bool, optional
+             The default is ``False``.
 
         Returns
         -------
-
+        list
+            List of exported files.
         """
-
         start = time.time()
         if type(aedtplt_files) is str:
             aedtplt_files = [aedtplt_files]
@@ -302,7 +300,7 @@ class PostProcessor(Post):
                 mesh = pv.read(file)
 
                 def create_object_mesh(opacity):
-                    """
+                    """Create the mesh.
 
                     Parameters
                     ----------
@@ -504,10 +502,10 @@ class PostProcessor(Post):
 
                     Parameters
                     ----------
-                    screen :
-                         (Default value = None)
-                    interactive :
-                         (Default value = True)
+                    screen : optional
+                        The default is ``None``.
+                    interactive : bool, optional
+                        The default is ``True``.
 
                     Returns
                     -------
@@ -532,32 +530,32 @@ class PostProcessor(Post):
     @aedt_exception_handler
     def _animation_from_aedtflt(self, aedtplt_files=None, variation_var="Time", variation_list=[],
                                 plot_label="Temperature", model_color="#8faf8f", export_gif=False, off_screen=False):
-        """This function exports the 3D Field Solver Mesh &/or fields as images using Python Plotly. This is currently
-        supported only on Windows using CPython
+        """Export the 3D field solver mesh, fields, or both mesh and fields as images using Python Plotly. 
+        
+          .. note::
+           This function is currently supported only on Windows using CPython.
 
         Parameters
         ----------
-        aedtplt_files :
-            str or list of aedtplt files generated by AEDT (Default value = None)
-        plot_label :
-            Plot Color Label (Default value = "Temperature")
-        model_color :
-            3D Model Color. Default "silver"
-            return: list of files generated
-        variation_var :
-             (Default value = "Time")
-        variation_list :
-             (Default value = [])
-        export_gif :
-             (Default value = False)
-        off_screen :
-             (Default value = False)
-        autoclose :
-             (Default value = False)
+        aedtplt_files : str or list, optional
+            Names of the one or more AEDTPLT files generated by AEDT. The default is ``None``.
+        variation_var : str, optional
+             Variable to vary. The default is ``"Time"``.
+        variation_list : list, optional
+             List of variation values. The default is ``[]``.
+        plot_label : str, optional
+            Label for the plot. The default is ``"Temperature"``.
+        model_color : str, optional
+            Color scheme for the 3D model. The default is ``"#8faf8f"``, which is silver.
+        export_gif : bool, optional
+             Whether to export the animation as a GIF file. The default is ``False``.
+        off_screen : bool, optional
+             The default is ``False``.
 
         Returns
         -------
-
+        str
+            Name of the GIF file.
         """
         frame_per_seconds = 0.5
         start = time.time()
@@ -758,7 +756,7 @@ class PostProcessor(Post):
 
     @aedt_exception_handler
     def export_model_obj(self):
-        """ """
+        """Export the model."""
         assert self._parent._aedt_version >= "2021.2", self.messenger.add_error_message("Obj supported from AEDT 2021R2")
         project_path = self._parent.project_path
         obj_list = self._parent.modeler.primitives.get_all_objects_names()
@@ -774,15 +772,16 @@ class PostProcessor(Post):
 
     @aedt_exception_handler
     def export_mesh_obj(self, setup_name=None, intrinsic_dict={}):
-        """
+        """Export the mesh.
 
         Parameters
         ----------
-        setup_name :
-             (Default value = None)
-        intrinsic_dict :
-             (Default value = {})
-
+        setup_name : str, optional
+            Name of the setup. The default is ``None``.
+        intrinsic_dict : dict, optipnal.
+            Intrinsic dictionary needed for the export. 
+            The default is ``{}``. 
+          
         Returns
         -------
 
@@ -808,18 +807,19 @@ class PostProcessor(Post):
 
     @aedt_exception_handler
     def plot_model_obj(self, export_afterplot=True, jupyter=False):
-        """
+        """Plot the model.
 
         Parameters
         ----------
-        export_afterplot :
-             (Default value = True)
-        jupyter :
-             (Default value = False)
+        export_afterplot : bool, optional
+             Whether to export the plot. The default is ``True``.
+        jupyter : bool, optional
+             Plot using jupyter.  The default is ``False``.
 
         Returns
         -------
-
+        list
+            List of AEDTPLT files.
         """
         assert self._parent._aedt_version >= "2021.2", self.messenger.add_error_message("Obj supported from AEDT 2021R2")
         files = [self.export_model_obj()]
@@ -833,34 +833,39 @@ class PostProcessor(Post):
     @aedt_exception_handler
     def plot_field_from_fieldplot(self, plotname, project_path="", meshplot=False, setup_name=None,
                                   intrinsic_dict={}, imageformat="jpg", view="iso", plot_label="Temperature", plot_folder=None, off_screen=False):
-        """Export Field Plot to picture format (jpg, png) using PLOTLY method which rebuilds the mesh and overlap fields on it
+        """Export a field plot to an image file (JPG or PNG) using Python Plotly.
+        
+        .. note::
+           The Plotly method rebuilds the mesh and overlap fields on the mesh.
 
         Parameters
         ----------
-        plotname :
-            name of the plot to export
-        project_path :
-            path where to save the image (Default value = "")
-        meshplot :
-            create and plot the mesh over the fields (Default value = False)
-        setup_name :
-            name of the setup - sweep to use for the export (Default value = None)
-        intrinsic_dict :
-            intrinsic dictionary needed for export of the mesh. Valid only if meshplot is True (Default value = {})
-        imageformat :
-            image format. Defalult jpg (Default value = "jpg")
-        view :
-            image view. Default iso
+        plotname : str
+            Name of the plot to export.
+        project_path : str, optional
+            Path where the image file is to be saved. The default value = ``""``.
+        meshplot : bool, optional
+            Whether to create and plot the mesh over the fields. The default is ``False``.
+        setup_name : str, optional
+            Name of the setup or sweep to use for the export. The default is ``None``.
+        intrinsic_dict : dict, optional
+            Intrinsic dictionary needed for the export when ``meshplot="True"``. 
+            The default is ``{}``. 
+        imageformat : str, optional
+            Format of the image file. Options are ``"jpg"``, ``"png"``, ``"svg"``, and 
+            ``"webp"``. The default is ``"jpg"``.
+        view : str, optional
+            View to export. Options are ``"iso"``, ``"x"`` , ``"y"``, ``"z"``, and ``"all"``. 
+            The default is ``"iso"``. The ``"all"" option exports all views.
         plot_label :
-            Plot Type. Default Temperature
+            Type of the plot. The default is ``"Temperature"``.
         plot_folder :
-            Plot Folder to force update before export the field. If none all the plots will be updated (Default value = None)
+            Plot folder to forcibly update before exporting the field. The default is ``None``, which updates all of the plots.
 
         Returns
         -------
         type
-            list of the files exported
-
+            List of exported files.
         """
         if not plot_folder:
             self.ofieldsreporter.UpdateAllFieldsPlots()
@@ -894,36 +899,42 @@ class PostProcessor(Post):
     def animate_fields_from_aedtplt(self, plotname, plot_folder=None, meshplot=False, setup_name=None,
                                     intrinsic_dict={}, variation_variable="Phi", variation_list=['0deg'],
                                     project_path="", export_gif=False, off_screen=False):
-        """Generate  Field Plot to picture format (jpg, png) using PYVISTA method which rebuilds the mesh and overlap fields on it
+        """Generate a field plot to an image file (JPG or PNG) using PyVista.
+        
+        .. note::
+           The PyVista method rebuilds the mesh and overlap fields on the mesh.
 
         Parameters
         ----------
-        plotname :
-            name of the plot to use or name o
-        plot_folder :
-            optional name of the plot_folder (Default value = None)
-        setup_name :
-            name of the setup - sweep to use for the export (Default value = None)
-        intrinsic_dict :
-            intrinsic dictionary needed for export (Default value = {})
-        variation_variable :
-            variation variable. Default "Phi"
-        variation_list :
-            list of variation values (Default value = ['0deg'])
-        project_path :
-            path for the export (Default value = "")
-        meshplot :
-             (Default value = False)
-        export_gif :
-             (Default value = False)
-        off_screen :
-             (Default value = False)
+        plotname : str
+            Name of the plot or the name of the object.
+        plot_folder : str, optional
+            Name of the folder in which the plot resides. The default 
+            is ``None``.
+        setup_name : str, optional
+            Name of the setup (sweep) to use for the export. The 
+            default is ``None``.
+        intrinsic_dict : dict, optional
+            Intrinsic dictionary needed for the export. The default 
+            is ``{}``. 
+        variation_variable : str, optional
+            Variable to vary. The default is ``"Phi"``.
+        variation_list : list, optional
+            List of variation values with units. The default is 
+            ``['0deg']``.
+        project_path : str, optional
+            Path for the export. The default is ``""``.
+        meshplot : bool, optional
+             The default is ``False``.
+        export_gif : bool, optional
+             The default is ``False``.
+        off_screen : bool, optional
+             Generate the animation without showing an interactive plot.  The default is ``False``.
 
         Returns
         -------
-        type
-            Boolean
-
+        bool
+            ``True`` when successful, ``False`` when failed.
         """
         if not plot_folder:
             self.ofieldsreporter.UpdateAllFieldsPlots()
@@ -965,39 +976,47 @@ class PostProcessor(Post):
     def animate_fields_from_aedtplt_2(self, quantityname, object_list, plottype, meshplot=False, setup_name=None,
                                     intrinsic_dict={}, variation_variable="Phi", variation_list=['0deg'],
                                     project_path="", export_gif=False, off_screen=False):
-        """Generate  Field Plot to picture format (jpg, png) using PYVISTA method which rebuilds the mesh and overlap fields on it.
-        This method creates the plot and export it. This is alternative to animate_fields_from_aedtplt which uses existing plot
+        """Generate a field plot to an image file (JPG or PNG) using PyVista.
+        
+         .. note::
+            The PyVista method rebuilds the mesh and overlap fields on the mesh.
+            
+        This method creates the plot and exports it. It is alternative to the method ``animate_fields_from_aedtplt``, 
+        which uses an existing plot.
 
         Parameters
         ----------
-        quantityname :
-            name of the plot to use or name o
-        object_list :
-            optional name of the plot_folder
-        plottype :
-            Plot Type. "Surface", "Volume" or "CutPlane"
-        setup_name :
-            name of the setup - sweep to use for the export (Default value = None)
-        intrinsic_dict :
-            intrinsic dictionary needed for export (Default value = {})
-        variation_variable :
-            variation variable. Default "Phi"
-        variation_list :
-            list of variation values (Default value = ['0deg'])
-        project_path :
-            path for the export (Default value = "")
-        meshplot :
-             (Default value = False)
-        export_gif :
-             (Default value = False)
-        off_screen :
-             (Default value = False)
+        quantityname : str
+            Name of the plot or the name of the object.
+        object_list : list, optional
+            Name of the folderplot_folder
+        plottype : str 
+            Type of the plot. Options are ``"Surface"``, ``"Volume"``, and 
+            ``"CutPlane"``.
+        meshplot : bool, optional
+            The default is ``False``.
+        setup_name : str, optional
+            Name of the setup (sweep) to use for the export. The default is 
+            ``None``.
+        intrinsic_dict : dict, optional
+            Intrinsic dictionary needed for the export. 
+            The default is ``{}``. 
+        variation_variable : str, optional
+            Variable to vary. The default is ``"Phi"``.
+        variation_list : list, option
+            List of variation values with units. The default is 
+            ``['0deg']``.
+        project_path : str, optional
+            Path for the export. The default is ``""``.
+        export_gif : bool, optional
+             The default is ``False``.
+        off_screen : bool, optional
+             The default is ``False``.
 
         Returns
         -------
-        type
-            Boolean
-
+        bool
+            ``True`` when successful, ``False`` when failed.
         """
         if not project_path:
             project_path = self._parent.project_path
@@ -1036,24 +1055,22 @@ class PostProcessor(Post):
         ----------
         ff_data :
             
-        x :
-             (Default value = 0)
-        y :
-             (Default value = 0)
-        qty :
-             (Default value = 'rETotal')
-        dB :
-             (Default value = True)
-        array_size :
-             (Default value = [4)
-        4] :
-            
+        x : float, optional
+            The default is ``0``.
+        y : float, optional
+            The default is ``0``.
+        qty : str, optional
+            The default is ``"rETotal"``.
+        dB : bool, optional
+            The default is ``True``.
+        array_size : list
+            List for the array size. The default is ``[4, 4]``.          
 
         Returns
         -------
-
+        bool
+            ``True`` when successful, ``False`` when failed.
         """
-
         loc_offset = 2  # if array index is not starting at [1,1]
         xphase = float(y)
         yphase = float(x)
@@ -1140,24 +1157,25 @@ class PostProcessor(Post):
     @aedt_exception_handler
     def create_3d_plot(self, solution_data, nominal_sweep="Freq", nominal_value=1, primary_sweep="Theta",
                        secondary_sweep="Phi"):
-        """Create 3D Plot with matplotlib.
+        """Create a 3D plot with Matplotlib.
 
         Parameters
         ----------
         solution_data :
-            Solution Data Input
-        nominal_sweep :
-            Nominal Sweep Name (Default value = "Freq")
-        nominal_value :
-            Nominal Sweep Value (Default value = 1)
-        primary_sweep :
-            Primary Sweep. Default Theta
-        secondary_sweep :
-            Secondary Sweep. Default Phi
+            Input data for the solution.
+        nominal_sweep : str, optional
+            Name of the nominal sweep. The default is ``"Freq"``.
+        nominal_value : str, optional
+            Value for the nominal sweep. The default is ``1``.
+        primary_sweep : str, optional
+            Primary sweep. The default is ``"Theta"``.
+        secondary_sweep : str, optional
+            Secondary sweep. The default is ``"Phi"``.
 
         Returns
         -------
-
+         bool
+             ``True`` when successful, ``False`` when failed.
         """
         legend = []
         Freq = nominal_value
