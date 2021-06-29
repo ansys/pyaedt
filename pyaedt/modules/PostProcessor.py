@@ -590,7 +590,6 @@ class PostProcessor(object):
         provide the members ``_modeler``, ``_desktop``, ``_odesign``, and ``_messenger``.
     """
     def __init__(self, parent):
-        """ """"
         self._parent = parent
         self.FieldsPlot = {}
 
