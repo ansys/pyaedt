@@ -1152,7 +1152,7 @@ class PostProcessor(object):
         
         ..note::
           For AEDT 2019.3, this function works only on the ISO view due to a bug in the API.
-          The funtion works properly in 2021 R1.
+          The function works properly in 2021 R1.
 
         Parameters
         ----------
