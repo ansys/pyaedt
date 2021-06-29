@@ -40,7 +40,6 @@ def is_float(istring):
     istring : str
         String to convert to a float.
 
-
     Returns
     -------
     float
@@ -59,8 +58,11 @@ class PostProcessor(Post):
 
     @aedt_exception_handler
     def get_efields_data(self, setup_sweep_name='', ff_setup="Infinite Sphere1", freq='All'):
-        """WARNING: This function requires NumPy to be installed on your machine.
-        It computes Etheta and EPhi and returns an array of [theta_range, phi_range, Etheta, Ephi].
+        """Compute ``Etheta`` and ``EPhi`` and returns an array of ``[theta_range, phi_range, Etheta, Ephi]``.
+        
+        .. warning::
+           This method requires NumPy to be installed on your machine.
+        
 
         Parameters
         ----------
@@ -68,14 +70,14 @@ class PostProcessor(Post):
             Name of the setup on which to compute the report. The default is ``""``, which means that
             the nominal adaptive is to be applied.
         ff_setup : str, optional
-            Far field setup. The default is ``"Infinite Sphere1``.
+            Far field setup. The default is ``"Infinite Sphere1"``.
         freq : str, optional
             The default is ``"All"``.
 
         Returns
         -------
-        array
-            [theta_range, phi_range, Etheta, Ephi]
+        np.ndarray
+            ``numpy`` array containing ``[theta_range, phi_range, Etheta, Ephi]``.
         """
         if not setup_sweep_name:
             setup_sweep_name = self._parent.nominal_adaptive
@@ -138,10 +140,10 @@ class PostProcessor(Post):
         ----------
         ff_data :
             
-        xphase :
-            The default is ``0``.
-        yphase :
-            The default is ``0``.
+        xphase : float, optional
+            Phase in x the direction.  The default is ``0``.
+        yphase : float, optional
+            Phase in the y direction.  The default is ``0``.
 
         Returns
         -------
@@ -812,7 +814,7 @@ class PostProcessor(Post):
         export_afterplot : bool, optional
              Whether to export the plot. The default is ``True``.
         jupyter : bool, optional
-             The default is ``False``.
+             Plot using jupyter.  The default is ``False``.
 
         Returns
         -------
@@ -834,7 +836,7 @@ class PostProcessor(Post):
         """Export a field plot to an image file (JPG or PNG) using Python Plotly.
         
         .. note::
-        The Plotly method rebuilds the mesh and overlap fields on the mesh.
+           The Plotly method rebuilds the mesh and overlap fields on the mesh.
 
         Parameters
         ----------
@@ -927,7 +929,7 @@ class PostProcessor(Post):
         export_gif : bool, optional
              The default is ``False``.
         off_screen : bool, optional
-             The default is ``False``.
+             Generate the animation without showing an interactive plot.  The default is ``False``.
 
         Returns
         -------
@@ -979,7 +981,7 @@ class PostProcessor(Post):
          .. note::
             The PyVista method rebuilds the mesh and overlap fields on the mesh.
             
-        This method creates the plot and exports it. It is is alternative to the method ``animate_fields_from_aedtplt``, 
+        This method creates the plot and exports it. It is alternative to the method ``animate_fields_from_aedtplt``, 
         which uses an existing plot.
 
         Parameters
@@ -999,7 +1001,7 @@ class PostProcessor(Post):
         intrinsic_dict : dict, optional
             Intrinsic dictionary needed for the export. 
             The default is ``{}``. 
-        variation_variable :
+        variation_variable : str, optional
             Variable to vary. The default is ``"Phi"``.
         variation_list : list, option
             List of variation values with units. The default is 
@@ -1053,13 +1055,13 @@ class PostProcessor(Post):
         ----------
         ff_data :
             
-        x :
+        x : float, optional
             The default is ``0``.
-        y :
+        y : float, optional
             The default is ``0``.
         qty : str, optional
             The default is ``"rETotal"``.
-        dB :
+        dB : bool, optional
             The default is ``True``.
         array_size : list
             List for the array size. The default is ``[4, 4]``.          
@@ -1163,7 +1165,7 @@ class PostProcessor(Post):
             Input data for the solution.
         nominal_sweep : str, optional
             Name of the nominal sweep. The default is ``"Freq"``.
-        nominal_value :
+        nominal_value : str, optional
             Value for the nominal sweep. The default is ``1``.
         primary_sweep : str, optional
             Primary sweep. The default is ``"Theta"``.
