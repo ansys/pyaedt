@@ -134,9 +134,9 @@ class CircuitComponents(object):
         name : str
             Name of the port.
         posx : float, optional
-            Position of the X axis. The default is ``0.1``.
+            Position on the X axis. The default is ``0.1``.
         posy : float, optional
-            Position of the Y axis. The default is ``0.1``.
+            Position on the Y axis. The default is ``0.1``.
         angle : float, optional
             Angle rotation in degrees. The default is ``0``.
 
@@ -169,9 +169,9 @@ class CircuitComponents(object):
         name : str
             Name of the port.
         posx : float, optional
-            Position of the X axis. The default is ``0.1``.
+            Position on the X axis. The default is ``0.1``.
         posy : float, optional
-            Position of the Y axis. The default is ``0.1``.
+            Position on the Y axis. The default is ``0.1``.
         angle : optional
             Angle rotation in degrees. The default is ``0``.
 
@@ -210,9 +210,9 @@ class CircuitComponents(object):
         Parameters
         ----------
         posx : float, optional
-            Position of the X axis. The default is ``0.1``.
+            Position on the X axis. The default is ``0.1``.
         posy : float, optional
-            Position of the Y axis. The default is ``0.1``.
+            Position on the Y axis. The default is ``0.1``.
        
         Returns
         -------
@@ -312,9 +312,9 @@ class CircuitComponents(object):
         modelname : str
             Name of the Touchstone model.
         xpos : float, optional
-            Position of the X axis. The default is ``0.1``.
+            Position on the X axis. The default is ``0.1``.
         ypos : float, optional
-            Position of the Y axis. The default is ``0.1``.
+            Position on the Y axis. The default is ``0.1``.
         angle : float, optional
             Angle rotation in degrees. The default is ``0``.
 
@@ -348,9 +348,9 @@ class CircuitComponents(object):
         component_name : str, optional
             Name of component in the library. The default is ``"RES"``.
         xpos : float, optional
-            Position of the X axis. The default is ``0.1``.
+            Position on the X axis. The default is ``0.1``.
         yos : float, optional
-            Position of the Y axis. The default is ``0.1``.
+            Position on the Y axis. The default is ``0.1``.
         angle : optional
             Angle rotation in degrees. The default is ``0``.
         use_instance_id_netlist : bool, optional
