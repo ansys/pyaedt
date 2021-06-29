@@ -248,7 +248,7 @@ class PostProcessor(Post):
             ``"webp"``. The default is ``"jpg"``.
         view : str, optional
             View to export. Options are ``"iso"``, ``"x"`` , ``"y"``, ``"z"``, and ``"all"``. 
-            The default is ``"iso"``. The ``"all"" option exports all views.
+            The default is ``"iso"``. The ``"all"`` option exports all views.
         plot_type : str, optional
             Type of the plot. The default is ``"Full"``.
         plot_label : str, optional
@@ -810,7 +810,7 @@ class PostProcessor(Post):
         Parameters
         ----------
         export_afterplot : bool, optional
-             Whether to export the plotted model. The default is ``True``.
+             Whether to export the plot. The default is ``True``.
         jupyter : bool, optional
              The default is ``False``.
 
@@ -856,9 +856,9 @@ class PostProcessor(Post):
             View to export. Options are ``"iso"``, ``"x"`` , ``"y"``, ``"z"``, and ``"all"``. 
             The default is ``"iso"``. The ``"all"" option exports all views.
         plot_label :
-            Type of the plot. Default Temperature
+            Type of the plot. The default is ``"Temperature"``.
         plot_folder :
-            Plot Folder to force update before export the field. If none all the plots will be updated (Default value = None)
+            Plot folder to forcibly update before exporting the field. The default is ``None``, which updates all of the plots.
 
         Returns
         -------
