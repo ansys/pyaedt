@@ -206,9 +206,9 @@ class NexximComponents(CircuitComponents):
             Name of the resistor. The default is ``None``.
         value : float, optional
             Resistance in ohms. The default is ``50``.
-        xpos :
+        xpos : float, optional
             Position on the X axis. The default is ``0``.    
-        ypos: 
+        ypos: float, optional
             Position on the Y axis. The default is ``0``.
         angle : float, optional
             Angle rotation in degrees. The default is ``0``.
@@ -238,10 +238,10 @@ class NexximComponents(CircuitComponents):
             Name of the inductor. The default is ``None``.
         value : float, optional
             The default is ``50``.
-        xpos :
+        xpos : float, optional
             Position on the X axis. The default is ``0``.    
-        ypos: 
-            Position on the Y axis. The default is ``0``.
+        ypos: float, optional
+            Position on the X axis. The default is ``0``.    
         angle : float, optional
             Angle rotation in degrees. The default is ``0``.
         use_instance_id_netlist : bool, optional
@@ -272,12 +272,12 @@ class NexximComponents(CircuitComponents):
             Name of the capacitor. The default is ``None``.
         value : float, optional
             The default is ``50``.
-        xpos :
+        xpos : float, optional
             Position on the X axis. The default is ``0``.    
-        ypos: 
-            Position on the Y axis position. The default is ``0``.
+        ypos: float, optional
+            Position on the Y axis. The default is ``0``.
         angle : float, optional
-            \ The default is ``0``.
+            Angle rotation in degrees. The default is ``0``.
         use_instance_id_netlist : bool, optional
             Whether to use the instance ID in the net list. 
             The default is ``False``.
@@ -305,10 +305,9 @@ class NexximComponents(CircuitComponents):
             Name of the voltage DC source. The default is ``None``.
         value : float, optional
             The default is ``50``.
-        xpos :
+        xpos : float, optional
             Position on the X axis. The default is ``0``.    
-        ypos: 
-            Position on the Y axis position. The default is ``0``.
+        ypos: float, optional
         angle : float, optional
             Angle rotation in degrees. The default is ``0``.
         use_instance_id_netlist : bool, optional
@@ -338,10 +337,10 @@ class NexximComponents(CircuitComponents):
             Name of the current pulse. The default is ``None``.
         value_lists : list, optional
             List of values for the current pulse. The default is ``[]``.
-        xpos :
+        xpos : float, optional
             Position on the X axis. The default is ``0``.    
-        ypos: 
-            Position on the Y axis position. The default is ``0``.
+        ypos: float, optional
+            Position on the Y axis. The default is ``0``.
         angle : float, optional
             Angle rotation in degrees. The default is ``0``.
         use_instance_id_netlist : bool, optional
@@ -386,10 +385,10 @@ class NexximComponents(CircuitComponents):
             Name of the voltage pulse. The default is ``None``.
         value_lists : list, optional
             List of values for the voltage pulse. The default is ``[]``.
-        xpos :
+        xpos : float, optional
             Position on the X axis. The default is ``0``.    
-        ypos: 
-            Position on the Y axis position. The default is ``0``.
+        ypos: float, optional
+            Position on the Y axis. The default is ``0``.
         angle : float, optional
             Angle rotation in degrees. The default is ``0``.
         use_instance_id_netlist : bool, optional
@@ -435,10 +434,10 @@ class NexximComponents(CircuitComponents):
             Name of the current DC source. The default is ``None``.
         value : float, optional
             Value for the current DC source. The default is ``1``.
-        xxpos :
+        xpos : float, optional
             Position on the X axis. The default is ``0``.    
-        ypos: 
-            Position on the Y axis position. The default is ``0``.
+        ypos: float, optional
+            Position on the Y axis. The default is ``0``.
         angle : float, optional
             Angle rotation in degrees. The default is ``0``.
         use_instance_id_netlist : bool, optional
@@ -471,10 +470,10 @@ class NexximComponents(CircuitComponents):
         
         value : float, optional
             Value for the coupling inductor. The default is ``1``.
-        xpos :
+        xpos : float, optional
             Position on the X axis. The default is ``0``.    
-        ypos: 
-            Position on the Y axis position. The default is ``0``.
+        ypos: float, optional
+            Position on the Y axis. The default is ``0``.
         angle : float, optional
             Angle rotation in degrees. The default is ``0``.
         use_instance_id_netlist : bool, optional
@@ -506,10 +505,10 @@ class NexximComponents(CircuitComponents):
             Name of the diode. The default is ``None``.
         model_name : str, optional
             Name of the model. The default is ``"required"``.
-        xpos :
+        xpos : float, optional
             Position on the X axis. The default is ``0``.    
-        ypos: 
-            Position on the Y axis position. The default is ``0``.
+        ypos: float, optional
+            Position on the Y axis. The default is ``0``.
         angle : float, optional
             Angle rotation in degrees. The default is ``0``.
         use_instance_id_netlist : bool, optional
@@ -539,13 +538,12 @@ class NexximComponents(CircuitComponents):
             Name of the transistor NPN. The default is ``None``.
         value : float, optional
             Value for the transistor NPN. The default is ``None``.
-        xpos :
+        xpos : float, optional
             Position on the X axis. The default is ``0``.    
-        ypos: 
-            Position on the Y axis position. The default is ``0``.
+        ypos: float, optional
+            Position on the Y axis. The default is ``0``.
         angle : float, optional
             Angle rotation in degrees. The default is ``0``.
-            Angle value. The default is ``0``.
         use_instance_id_netlist : bool, optional
             Whether to use the instance ID in the net list. 
             The default is ``False``.
@@ -574,10 +572,10 @@ class NexximComponents(CircuitComponents):
             Name of the transistor PNP. The default is ``None``.
         value : float, optional
             Value for the transistor PPP. The default is ``None``.
-        xpos :
+        xpos : float, optional
             Position on the X axis. The default is ``0``.    
-        ypos: 
-            Position on the Y axis position. The default is ``0``.
+        ypos: float, optional
+            Position on the Y axis. The default is ``0``.
         angle : float, optional
             Angle rotation in degrees. The default is ``0``.
         use_instance_id_netlist : bool, optional
@@ -687,7 +685,7 @@ class NexximComponents(CircuitComponents):
         Returns
         -------
         type
-            Object with properties
+            Object with properties.
         """
         name = o.composed_name
         proparray = self.oeditor.GetProperties("PassedParameterTab", name)
@@ -904,7 +902,7 @@ class NexximComponents(CircuitComponents):
         Returns
         -------
         bool
-        ``True`` when successful, ``False`` when failed.
+            ``True`` when successful, ``False`` when failed.
         """
         self.o_component_manager.UpdateDynamicLink(component_name)
 
