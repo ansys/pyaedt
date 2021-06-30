@@ -11,6 +11,7 @@ from collections import OrderedDict, defaultdict
 
 class Mesh3DOperation(object):
     """Mesh3DOperation class."""
+
     def __init__(self, parent, hfss_setup_name, name, props):
         self._parent = parent
         self.name = name
@@ -158,15 +159,14 @@ class Mesh(object):
            Name of the net.
         isinside : bool, optional
             Whether the mesh length is inside the selection. The default is ``True``.
-        maxlength : optional
+        maxlength : float, optional
             Maximum length of the element. The default is ``1`` When ``None``, this 
             parameter is disabled. 
-        maxel : optional
+        maxel : int, optional
             Maximum number of elements. The default is ``1000`` When ``None``, this 
             parameter is disabled. 
-        meshop_name :str, optional
+        meshop_name : str, optional
             Name of the mesh operation. The default is ``None``
-       
         Returns
         -------
         type
@@ -226,9 +226,9 @@ class Mesh(object):
             Name of the layer.
         net_name : str
             Name of the net.
-        skindepth : optional
+        skindepth : int, optional
             Depth of the skin. The default is ``1``.
-        maxelements : optional
+        maxelements : float, optional
             Maximum element length. The default is ``None``, which disables this parameter.
         triangulation_max_length : float, optional
             Maximum surface triangulation length. The default is ``0.1``.
