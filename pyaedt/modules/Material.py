@@ -27,9 +27,9 @@ class MatProperties(object):
     -------
 
     """
-    aedtname =     ['permittivity', 'permeability', 'conductivity', 'dielectric_loss_tangent', 'magnetic_loss_tangent', 'thermal_conductivity', 'mass_density', 'specific_heat', 'thermal_expansion_coefficient', 'youngs_modulus',   'poissons_ratio',   'emissivity', 'diffusivity', 'molecular_mass', 'viscosity', 'core_loss_kh', 'core_loss_kc', 'core_loss_ke']
-    fullname =     ['Permittivity', 'Permeability', 'Conductivity', 'Dielectric Loss Tangent', 'Magnetic Loss Tangent', 'Thermal Conductivity', 'Mass Density', 'Specific Heat', 'Thermal Expansion Coefficient', 'Young\'s Modulus', 'Poisson\'s Ratio', 'Emissivity', 'Diffusivity', 'Molecular Mmass', 'Viscosity', 'Hysteresis application Loss', 'Eddy-Current application Loss', 'Excess application Loss']
-    catname =      ['Permittivity', 'Permeability', 'Conductivity', 'Dielectric Loss Tangent', 'Magnetic Loss Tangent', 'Thermal Conductivity', 'Mass Density', 'Specific Heat', 'Thermal Expansion Coefficient', 'Elasticity',       'Elasticity',       'Emissivity', 'Fluid Properties', 'Fluid Properties', 'Fluid Properties', 'Hysteresis application Loss', 'Eddy-Current application Loss', 'Excess application Loss']
+    aedtname =     ['permittivity', 'permeability', 'conductivity', 'dielectric_loss_tangent', 'magnetic_loss_tangent', 'thermal_conductivity', 'mass_density', 'specific_heat', 'thermal_expansion_coefficient', 'youngs_modulus',   'poissons_ratio',   'diffusivity', 'molecular_mass', 'viscosity', 'core_loss_kh', 'core_loss_kc', 'core_loss_ke']
+    fullname =     ['Permittivity', 'Permeability', 'Conductivity', 'Dielectric Loss Tangent', 'Magnetic Loss Tangent', 'Thermal Conductivity', 'Mass Density', 'Specific Heat', 'Thermal Expansion Coefficient', 'Young\'s Modulus', 'Poisson\'s Ratio', 'Diffusivity', 'Molecular Mmass', 'Viscosity', 'Hysteresis application Loss', 'Eddy-Current application Loss', 'Excess application Loss']
+    catname =      ['Permittivity', 'Permeability', 'Conductivity', 'Dielectric Loss Tangent', 'Magnetic Loss Tangent', 'Thermal Conductivity', 'Mass Density', 'Specific Heat', 'Thermal Expansion Coefficient', 'Elasticity',       'Elasticity',       'Fluid Properties', 'Fluid Properties', 'Fluid Properties', 'Hysteresis application Loss', 'Eddy-Current application Loss', 'Excess application Loss']
     defaultvalue = [1.0,             1.0,            0,              0,                         0,                       0.01,                      0,              0,               0,                               0,                  0,                  0.8,         0,                   0,                 0,                   0,                      0,                          0]
     defaultunit  = [None,            None,          '[siemens m^-1]', None,                     None,                   '[W m^-1 C^-1]',        '[Kg m^-3]',    '[J Kg^-1 C^-1]', '[C^-1]',                       '[Pa]',             None,               None,               None,               None,               None,           None,                  None,                       None]
     diel_order =   [3, 0, 1, 4, 5, 6, 7, 8, 9, 10, 11, 1]
@@ -335,10 +335,10 @@ class Dataset(object):
     namez = None
 
 class BasicValue(object):
-    """ """
     value = None
     dataset = None
     thermalmodifier = None
+
 
 
 class MatProperty(object):
@@ -443,6 +443,206 @@ class MatProperty(object):
         else:
             return [i.thermalmodifier for i in self._property_value]
 
+    def _add_thermal_modifier(self,formula, index):
+        if "ModifierData" not in self._parent._props:
+            tm = OrderedDict({'Property:': self.name, 'Index:': index, "prop_modifier": "thermal_modifier",
+                              "use_free_form": True, "free_form_value": formula})
+            self._parent._props["ModifierData"] = OrderedDict({"ThermalModifierData": OrderedDict(
+                {"modifier_data": 'thermal_modifier_data',
+                 "all_thermal_modifiers": OrderedDict({"one_thermal_modifier": tm})})})
+        else:
+            for tmname in self._parent._props["ModifierData"]["ThermalModifierData"]["all_thermal_modifiers"]:
+                if isinstance(self._parent._props["ModifierData"]["ThermalModifierData"]["all_thermal_modifiers"][tmname], list):
+                    found = False
+                    for tm in self._parent._props["ModifierData"]["ThermalModifierData"]["all_thermal_modifiers"][tmname]:
+                        if self.name == tm['Property:'] and index == tm['Index:']:
+                            found = True
+                            tm['use_free_form'] = True
+                            tm['free_form_value'] = formula
+                            tm.pop("Tref", None)
+                            tm.pop("C1", None)
+                            tm.pop("C2", None)
+                            tm.pop("TL", None)
+                            tm.pop("TU", None)
+                    if not found:
+                        tm = OrderedDict({'Property:': self.name, 'Index:': index, "prop_modifier": "thermal_modifier",
+                                          "use_free_form": True, "free_form_value": formula})
+                        self._parent._props["ModifierData"]["ThermalModifierData"]["all_thermal_modifiers"][tmname].append(tm)
+                elif self.name ==self._parent._props["ModifierData"]["ThermalModifierData"]["all_thermal_modifiers"][tmname][
+                            'Property:'] and index ==self._parent._props["ModifierData"]["ThermalModifierData"]["all_thermal_modifiers"][tmname][
+                            'Index:']:
+                    self._parent._props["ModifierData"]["ThermalModifierData"]["all_thermal_modifiers"][tmname]['use_free_form'] = True
+                    self._parent._props["ModifierData"]["ThermalModifierData"]["all_thermal_modifiers"][tmname]['free_form_value'] = formula
+                    self._parent._props["ModifierData"]["ThermalModifierData"]["all_thermal_modifiers"][tmname].pop("Tref", None)
+                    self._parent._props["ModifierData"]["ThermalModifierData"]["all_thermal_modifiers"][tmname].pop("C1", None)
+                    self._parent._props["ModifierData"]["ThermalModifierData"]["all_thermal_modifiers"][tmname].pop("C2", None)
+                    self._parent._props["ModifierData"]["ThermalModifierData"]["all_thermal_modifiers"][tmname].pop("TL", None)
+                    self._parent._props["ModifierData"]["ThermalModifierData"]["all_thermal_modifiers"][tmname].pop("TU", None)
+
+                else:
+                    self._parent._props["ModifierData"]["ThermalModifierData"]["all_thermal_modifiers"][tmname] = [
+                        self._parent._props["ModifierData"]["ThermalModifierData"]["all_thermal_modifiers"][tmname]]
+                    tm = OrderedDict({'Property:': self.name, 'Index:': index, "prop_modifier": "thermal_modifier",
+                                      "use_free_form": True, "free_form_value": formula})
+                    self._parent._props["ModifierData"]["ThermalModifierData"]["all_thermal_modifiers"][tmname].append(tm)
+        return self._parent.update()
+
+    def add_thermal_modifier_free_form(self, formula, index=0):
+        """
+        Add a Thermal modifier to a material Property using an free Form formula
+
+        Parameters
+        ----------
+        formula : str
+            Full Formula to apply
+        index : int, Default ``0``
+
+        Returns
+        -------
+        bool
+
+        Examples
+        --------
+
+        >>> from pyaedt import Hfss
+        >>> hfss = Hfss(specified_version="2021.1")
+        >>> mat1 = hfss.materials.add_material("new_copper2")
+        >>> mat1.aadd_thermal_modifier_free_form("if(Temp > 1000cel, 1, if(Temp < -273.15cel, 1, 1))")
+        """
+        self._property_value[index].thermalmodifier = formula
+        return self._add_thermal_modifier(formula, index)
+
+
+    def add_thermal_modifier_dataset(self, dataset_name, index=0):
+        """
+        Add a Thermal modifier to a material Property using an existing Dataset
+
+        Parameters
+        ----------
+        dataset_name : str
+            Project Dataset name
+        index : int, Default ``0``
+
+        Returns
+        -------
+        bool
+
+        Examples
+        --------
+
+        >>> from pyaedt import Hfss
+        >>> hfss = Hfss(specified_version="2021.1")
+        >>> mat1 = hfss.materials.add_material("new_copper2")
+        >>> mat1.add_thermal_modifier_dataset("$ds1")
+        """
+
+        formula = "pwl({}, Temp)".format(dataset_name)
+        self._property_value[index].thermalmodifier = formula
+        self._add_thermal_modifier(formula,index)
+
+    def add_thermal_modifier_closed_form(self, tref=22, c1=0.0001, c2=1e-6, tl=-273.15, tu=1000, units="cel",
+                                         auto_calc=True, tml=1000, tmu=1000, index=0):
+        """
+        Add a Thermal modifier to a material Property using Closed Form
+
+        Parameters
+        ----------
+        tref : float
+            Reference Temperature
+        c1 : float
+        c2 : float
+        tl : float
+        tu : float
+        units : str, Default ``cel``
+        auto_calc : bool, Default ``True``
+        tml : float
+        tmu : float
+        index : int, Default ``0``
+
+        Returns
+        -------
+        bool
+
+        Examples
+        --------
+
+        >>> from pyaedt import Hfss
+        >>> hfss = Hfss(specified_version="2021.1")
+        >>> mat1 = hfss.materials.add_material("new_copper2")
+        >>> mat1.permittivity.add_thermal_modifier_closed_form(c1 = 1e-3)
+        """
+
+        if index> len(self._property_value):
+            self._messenger.add_error_message(
+                "Wrong index number. Index must be 0 for simple or nonlinear properties, <=2 for anisotropic materials, <=9 for Tensors")
+            return False
+        self._property_value[index].thermalmodifier = ClosedFormTM()
+        self._property_value[index].thermalmodifier.Tref = str(tref)+units
+        self._property_value[index].thermalmodifier.C1 = str(c1)
+        self._property_value[index].thermalmodifier.C2 = str(c2)
+        self._property_value[index].thermalmodifier.TL = str(tl)+units
+        self._property_value[index].thermalmodifier.TU = str(tu)+units
+        self._property_value[index].thermalmodifier.autocalculation = auto_calc
+        if not auto_calc:
+            self._property_value[index].thermalmodifier.TML = tml
+            self._property_value[index].thermalmodifier.TMU = tmu
+        if auto_calc:
+            tm_new = OrderedDict({'Property:': self.name, 'Index:': index, "prop_modifier": "thermal_modifier",
+                              "use_free_form": False, "Tref": str(tref) + units,
+                              "C1": str(c1), "C2": str(c2), "TL": str(tl) + units, "TU": str(tu) + units,
+                              "auto_calculation": True})
+        else:
+            tm_new = OrderedDict({'Property:': self.name, 'Index:': index, "prop_modifier": "thermal_modifier",
+                              "use_free_form": False, "Tref": str(tref) + units,
+                              "C1": str(c1), "C2": str(c2), "TL": str(tl) + units, "TU": str(tu) + units,
+                              "auto_calculation": False, "TML":str(tml), "TMU":str(tmu)})
+        if "ModifierData" not in self._parent._props:
+            self._parent._props["ModifierData"] = OrderedDict({"ThermalModifierData": OrderedDict(
+                {"modifier_data": 'thermal_modifier_data',
+                 "all_thermal_modifiers": OrderedDict({"one_thermal_modifier": tm_new})})})
+        else:
+            for tmname in self._parent._props["ModifierData"]["ThermalModifierData"]["all_thermal_modifiers"]:
+                tml = self._parent._props["ModifierData"]["ThermalModifierData"]["all_thermal_modifiers"][tmname]
+                if isinstance(tml,  list):
+                    found = False
+                    for tm in tml:
+                        if self.name == tm['Property:'] and index == tm['Index:']:
+                            found = True
+                            tm['use_free_form'] = False
+                            tm.pop("free_form_value", None)
+                            tm['Tref'] = str(tref)+units
+                            tm['C1'] = str(c1)
+                            tm['C2'] = str(c2)
+                            tm['TL'] = str(tl)+units
+                            tm['TU'] = str(tu)+units
+                            tm["auto_calculation"] = auto_calc
+                            if auto_calc:
+                                tm["TML"] = tml
+                                tm["TMU"] = tmu
+                            else:
+                                tm.pop("TML", None)
+                                tm.pop("TMU", None)
+                    if not found:
+                        tml.append(tm_new)
+                elif self.name == tml['Property:'] and index == tml['Index:']:
+                    tml['use_free_form'] = False
+                    tml.pop("free_form_value", None)
+                    tml['Tref'] = str(tref)+units
+                    tml['C1'] = str(c1)
+                    tml['C2'] = str(c1)
+                    tml['TL'] = str(tl)+units
+                    tml['TU'] = str(tl)+units
+                    tml['auto_calculation'] = auto_calc
+                    if not auto_calc:
+                        tml["TML"] = str(tml)
+                        tml["TMU"] = str(tmu)
+                    else:
+                        tml.pop("TML", None)
+                        tml.pop("TMU", None)
+                else:
+                    tml = [tml]
+                    tml.append(tm_new)
+        return self._parent.update()
 
 class CommonMaterial(object):
     """Class for Frequency Dependence Datasets"""
@@ -485,8 +685,9 @@ class CommonMaterial(object):
             self.coordinate_system = self._props["CoordinateSystemType"]
         else:
             self._props["CoordinateSystemType"] = "Cartesian"
+            self.coordinate_system = "Cartesian"
         if "BulkOrSurfaceType" in self._props:
-            self.coordinate_system = self._props["BulkOrSurfaceType"]
+            self.bulkorsurface = self._props["BulkOrSurfaceType"]
         else:
             self._props["BulkOrSurfaceType"] = 1
         if "ModTime" in self._props:
@@ -498,7 +699,6 @@ class CommonMaterial(object):
         if "ModSinceLib" in self._props:
             self.mod_since_lib = self._props["ModSinceLib"]
             del self._props["ModSinceLib"]
-
 
 
     @aedt_exception_handler
@@ -526,7 +726,7 @@ class CommonMaterial(object):
 
 
 class Material(CommonMaterial, object):
-    """Class for Frequency Dependence Datasets"""
+    """Class for Material Properties"""
 
     def __init__(self, parent, name, props=None):
         CommonMaterial.__init__(self, parent, name, props)
@@ -558,9 +758,9 @@ class Material(CommonMaterial, object):
                             if self._props["ModifierData"]["ThermalModifierData"]["all_thermal_modifiers"][mod][
                                 "Property:"] == property:
                                 mods = self._props["ModifierData"]["ThermalModifierData"]["all_thermal_modifiers"][mod]
-                self.__dict__["_" + property] = MatProperty(self, self.name, self._props[property], mods)
+                self.__dict__["_" + property] = MatProperty(self, property, self._props[property], mods)
             else:
-                self.__dict__["_" + property] = MatProperty(self, self.name,
+                self.__dict__["_" + property] = MatProperty(self, property,
                                                             MatProperties.get_defaultvalue(aedtname=property), None)
         pass
 
@@ -570,7 +770,7 @@ class Material(CommonMaterial, object):
 
         Returns
         -------
-        float, str
+        MatProperty
             Permittivity Value of the material
         """
         return self._permittivity
@@ -587,7 +787,7 @@ class Material(CommonMaterial, object):
 
         Returns
         -------
-        float, str
+        MatProperty
             Permeability Value of the material
         """
         return self._permeability
@@ -604,7 +804,7 @@ class Material(CommonMaterial, object):
 
         Returns
         -------
-        float, str
+        MatProperty
             Conductivity Value of the material
         """
         return self._conductivity
@@ -620,7 +820,7 @@ class Material(CommonMaterial, object):
 
         Returns
         -------
-        float, str
+        MatProperty
             Dielectric Loss Tangent Value of the material
         """
         return self._dielectric_loss_tangent
@@ -633,7 +833,13 @@ class Material(CommonMaterial, object):
 
     @property
     def magnetic_loss_tangent(self):
+        """
 
+        Returns
+        -------
+        MatProperty
+            Magnetic Loss Tangent Value of the material
+        """
         return self._magnetic_loss_tangent
 
     @magnetic_loss_tangent.setter
@@ -641,9 +847,34 @@ class Material(CommonMaterial, object):
 
         self._magnetic_loss_tangent.value = value
         self._update_props("magnetic_loss_tangent", value)
+    @property
+    def thermal_conductivity(self):
+        """
+
+        Returns
+        -------
+        MatProperty
+            Thermal Conductivity Value of the material
+
+        """
+        return self._thermal_conductivity
+
+    @thermal_conductivity.setter
+    def thermal_conductivity(self, value):
+
+        self._thermal_conductivity.value = value
+        self._update_props("thermal_conductivity", value)
 
     @property
     def mass_density(self):
+        """
+
+        Returns
+        -------
+        MatProperty
+            Mass Density Value of the material
+
+        """
         return self._mass_density
 
     @mass_density.setter
@@ -654,6 +885,14 @@ class Material(CommonMaterial, object):
 
     @property
     def specific_heat(self):
+        """
+
+        Returns
+        -------
+        MatProperty
+            Specific Heat Value of the material
+
+        """
         return self._specific_heat
 
     @specific_heat.setter
@@ -664,6 +903,14 @@ class Material(CommonMaterial, object):
 
     @property
     def thermal_expansion_coefficient(self):
+        """
+
+        Returns
+        -------
+        MatProperty
+            Thermal Expansion Coefficient  of the material
+
+        """
         return self._thermal_expansion_coefficient
 
     @thermal_expansion_coefficient.setter
@@ -674,6 +921,14 @@ class Material(CommonMaterial, object):
 
     @property
     def youngs_modulus(self):
+        """
+
+        Returns
+        -------
+        MatProperty
+            Youngs Modulus  of the material
+
+        """
         return self._youngs_modulus
 
     @youngs_modulus.setter
@@ -683,21 +938,19 @@ class Material(CommonMaterial, object):
 
     @property
     def poissons_ratio(self):
+        """
+
+        Returns
+        -------
+        MatProperty
+            Poisson Ratio's of the material
+        """
         return self._poissons_ratio
 
     @poissons_ratio.setter
     def poissons_ratio(self, value):
         self._poissons_ratio.value = value
         self._update_props("poissons_ratio", value)
-
-    @property
-    def emissivity(self):
-        return self._emissivity
-
-    @emissivity.setter
-    def emissivity(self, value):
-        self._emissivity.value = value
-        self._update_props("emissivity", value)
 
     @property
     def diffusivity(self):
@@ -712,7 +965,7 @@ class Material(CommonMaterial, object):
     def molecular_mass(self):
         return self._molecular_mass
 
-    @diffusivity.setter
+    @molecular_mass.setter
     def molecular_mass(self, value):
         self._molecular_mass.value = value
         self._update_props("molecular_mass", value)
@@ -752,7 +1005,6 @@ class Material(CommonMaterial, object):
     def core_loss_ke(self, value):
         self._core_loss_ke.value = value
         self._update_props("core_loss_ke", value)
-
 
     def is_conductor(self, threshold=100000):
         """Check if material is conductor
@@ -824,6 +1076,7 @@ class Material(CommonMaterial, object):
             return False
 
 
+
 class SurfaceMaterial(CommonMaterial, object):
 
     def __init__(self, parent, name, props=None):
@@ -854,9 +1107,9 @@ class SurfaceMaterial(CommonMaterial, object):
                             if self._props["ModifierData"]["ThermalModifierData"]["all_thermal_modifiers"][mod][
                                 "Property:"] == property:
                                 mods = self._props["ModifierData"]["ThermalModifierData"]["all_thermal_modifiers"][mod]
-                self.__dict__["_" + property] = MatProperty(self, self.name, self._props[property], mods)
+                self.__dict__["_" + property] = MatProperty(self, property, self._props[property], mods)
             else:
-                self.__dict__["_" + property] = MatProperty(self, self.name, SurfMatProperties.get_defaultvalue(aedtname=property))
+                self.__dict__["_" + property] = MatProperty(self, property, SurfMatProperties.get_defaultvalue(aedtname=property))
         pass
 
     @property

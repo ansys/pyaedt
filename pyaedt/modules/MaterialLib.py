@@ -73,16 +73,22 @@ class Materials(object):
     def __init__(self, parent):
         self._parent = parent
         self.messenger.logger.info('Successfully loaded project materials !')
-        self.materials_keys = self._get_materials()
-        self.surface_materials_keys = self._get_surface_materials()
+        self.material_keys = self._get_materials()
+        self.surface_material_keys = self._get_surface_materials()
         self._load_from_project()
         pass
 
     def __len__(self):
-        return len(self.materials_keys)
+        return len(self.material_keys)
 
     def __iter__(self):
-        return self.materials_keys.itervalues()
+        return self.material_keys.itervalues()
+
+    def __getitem__(self, item):
+        if item in list(self.material_keys.keys()):
+            return self.material_keys[item]
+        elif item in list(self.surface_material_keys.keys()):
+            return self.surface_material_keys[item]
 
 
     @aedt_exception_handler
@@ -107,37 +113,6 @@ class Materials(object):
             pass
         return mats
 
-    @aedt_exception_handler
-    def _read_dataset(self, prop):
-        """
-
-        Parameters
-        ----------
-        prop :
-
-
-        Returns
-        -------
-
-        """
-        start = prop.find("$")
-        stop = prop.find(",")
-        dsname = prop[start:stop - len(prop)]
-        filename = "C:\\Temp\\ds.tab"
-        self.oproject.ExportDataset(dsname, filename)
-        with open(filename) as f:
-            lines = f.readlines()
-        i = 1
-        dsdata = []
-        while i < len(lines):
-            a = lines[i].split(' \t')
-            dsdata.append([a[0], a[1]])
-            i += 1
-        fddataset = Dataset()
-        fddataset.namex = "Frequency"
-        fddataset.unitx = lines[0][2:]
-        fddataset.ds = dsdata
-        return fddataset
 
     @aedt_exception_handler
     def checkifmaterialexists(self, mat):
@@ -190,8 +165,8 @@ class Materials(object):
             exists = True
         if exists:
             omat = self.material_keys[mat]
-            for el in omat.property:
-                if omat.property[el].property_value[0].thermalmodifier:
+            for el in MatProperties.aedtname:
+                if omat.__dict__["_"+el].thermalmodifier:
                     return True
         return False
 
@@ -214,16 +189,16 @@ class Materials(object):
         """
         materialname = materialname.lower()
         self.messenger.add_info_message('Adding New Material material to Project Library: ' + materialname)
-        if materialname in self.materials_keys:
+        if materialname in self.material_keys:
             self.messenger.add_warning_message(
                 "Warning. The material is already in database. Please change name or edit it")
-            return self.materials_keys[materialname]
+            return self.material_keys[materialname]
         else:
             material = Material(self._parent, materialname)
             material.update()
             self.messenger.add_info_message("Material added. Please edit it to update in Desktop")
-            self.materials_keys[materialname] = material
-            return self.materials_keys[materialname]
+            self.material_keys[materialname] = material
+            return self.material_keys[materialname]
 
     @aedt_exception_handler
     def add_surface_material(self, material_name, emissivity=None):
@@ -237,23 +212,24 @@ class Materials(object):
             Emissivity
         Returns
         -------
-        float
+        SurfaceMaterial
             Material emissivity
 
         """
         materialname = material_name.lower()
         self.messenger.add_info_message('Adding New Surface Material material to Project Library: ' + materialname)
-        if materialname in self.surface_materials_keys:
+        if materialname in self.surface_material_keys:
             self.messenger.add_warning_message(
                 "Warning. The material is already in database. Please change name or edit it")
-            return self.surface_materials_keys[materialname]
+            return self.surface_material_keys[materialname]
         else:
             material = SurfaceMaterial(self._parent, materialname)
-            material.emissivity = emissivity
-            material.update()
+            if emissivity:
+                material.emissivity = emissivity
+                material.update()
             self.messenger.add_info_message("Material added. Please edit it to update in Desktop")
-            self.surface_materials_keys[materialname] = material
-            return self.surface_materials_keys[materialname]
+            self.surface_material_keys[materialname] = material
+            return self.surface_material_keys[materialname]
 
 
 
@@ -302,11 +278,11 @@ class Materials(object):
         matsweep = []
         matname = matname.lower()
         for args in swargs:
-            if args.lower() in [i.lower() for i in self.materials_keys.keys()]:
-                matsweep.append(self.materials_keys[args.lower()])
+            if args.lower() in [i.lower() for i in self.material_keys.keys()]:
+                matsweep.append(self.material_keys[args.lower()])
             elif self.checkifmaterialexists(args):
                 self._aedmattolibrary(args)
-                matsweep.append(self.materials_keys[args.lower()])
+                matsweep.append(self.material_keys[args.lower()])
 
         mat_dict = self._create_mat_project_vars(matsweep)
 
@@ -320,7 +296,7 @@ class Materials(object):
                 newmat._update_props(el, "$"+matname+el+"["+ index + "]", False)
 
         newmat.update()
-
+        self.material_keys[matname] = newmat
         return index
 
     @aedt_exception_handler
@@ -340,11 +316,12 @@ class Materials(object):
             new material object
 
         """
-        if material not in list(self.materials_keys.keys()):
+        if material.lower() not in list(self.material_keys.keys()):
             self.messenger.add_error_message("Material {} is not present".format(material))
-        newmat = Material(self, new_name, self.materials_keys[material]._props)
+            return False
+        newmat = Material(self, new_name.lower(), self.material_keys[material.lower()]._props)
         newmat.update()
-        self.materials_keys[new_name] = newmat
+        self.material_keys[new_name.lower()] = newmat
         return newmat
 
     @aedt_exception_handler
@@ -364,11 +341,12 @@ class Materials(object):
             new Surface Material object
 
         """
-        if material not in list(self.surface_materials_keys.keys()):
+        if not material.lower() in list(self.surface_material_keys.keys()):
             self.messenger.add_error_message("Material {} is not present".format(material))
-        newmat = SurfaceMaterial(self, new_name, self.surface_materials_keys[material]._props)
+            return False
+        newmat = SurfaceMaterial(self, new_name.lower(), self.surface_material_keys[material.lower()]._props)
         newmat.update()
-        self.surface_materials_keys[new_name] = newmat
+        self.surface_material_keys[new_name.lower()] = newmat
         return newmat
 
     @aedt_exception_handler
@@ -387,8 +365,11 @@ class Materials(object):
             ``True`` if succeeded
 
         """
+        if material not in list(self.material_keys.keys()):
+            self.messenger.add_error_message("Material {} is not present".format(material))
+            return False
         self.odefinition_manager.RemoveMaterial(material, True, "", library)
-        del self.materials_keys[material]
+        del self.material_keys[material]
         return True
 
     @property
@@ -405,7 +386,7 @@ class Materials(object):
 
         """
         data = []
-        for key, mat in self.materials_keys.items():
+        for key, mat in self.material_keys.items():
             if mat.is_conductor():
                 data.append(key)
         return data
@@ -424,7 +405,7 @@ class Materials(object):
 
         """
         data = []
-        for key, mat in self.materials_keys.items():
+        for key, mat in self.material_keys.items():
             if mat.is_dielectric():
                 data.append(key)
         return data
@@ -433,7 +414,7 @@ class Materials(object):
         """Load materials from project"""
         mats = self.odefinition_manager.GetProjectMaterialNames()
         for el in mats:
-            if el not in list(self.materials_keys.keys()):
+            if el not in list(self.material_keys.keys()):
                 try:
                     self._aedmattolibrary(el)
                 except Exception as e:
@@ -444,9 +425,12 @@ class Materials(object):
         matname = matname.lower()
         props = {}
         arg2dict(list(self.omaterial_manager.GetData(matname)), props)
-        newmat = Material(self._parent, matname, props[matname])
+        values_view = props.values()
+        value_iterator = iter(values_view)
+        first_value = next(value_iterator)
+        newmat = Material(self, matname, first_value)
 
-        self.materials_keys[matname] = newmat
+        self.material_keys[matname] = newmat
         return True
 
     def export_materials_to_file(self, full_json_path):
@@ -460,7 +444,7 @@ class Materials(object):
                         out_list.append(v[v.find("$"):v.find(",")])
         # Data to be written
         output_dict = OrderedDict()
-        for el, val in self.materials_keys.items():
+        for el, val in self.material_keys.items():
             output_dict[el] = val._props
         out_list = []
         find_datasets(output_dict, out_list)
@@ -505,16 +489,17 @@ class Materials(object):
                 if numcol>2:
                     zunit = val["Coordinates"]["DimUnits"][0]
                     zval = new_list[2]
-                self._parent.create_dataset(el,xunit=xunit, yunit=yunit, zunit=zunit, xval=xval, yval=yval, zval=zval)
+                self._parent.create_dataset(el[1:],xunit=xunit, yunit=yunit, zunit=zunit, xlist=xval, ylist=yval, zlist=zval)
 
         for el, val in data["materials"].items():
-            if el.lower() in list(self.materials_keys.keys()):
+            if el.lower() in list(self.material_keys.keys()):
                 newname =generate_unique_name(el)
                 self.messenger.add_warning_message("Material {} already exists. Renaming to {}".format(el, newname))
             else:
                 newname = el
             newmat = Material(self, newname, val)
             newmat.update()
+            self.material_keys[newname] = newmat
 
 
         return True

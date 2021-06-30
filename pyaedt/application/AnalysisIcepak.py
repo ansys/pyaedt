@@ -354,7 +354,7 @@ class FieldAnalysisIcepak(Analysis, object):
         -------
 
         """
-        cond = [i.lower() for i in list(self.materials.GetConductors())]
+        cond = [i.lower() for i in list(self.materials.conductors)]
         obj_names = []
         for el in self.modeler.primitives.objects:
             if self.modeler.primitives.objects[el].material_name in cond:
@@ -375,7 +375,7 @@ class FieldAnalysisIcepak(Analysis, object):
         -------
 
         """
-        diel = [i.lower() for i in list(self.materials.GetDielectrics())]
+        diel = [i.lower() for i in list(self.materials.dielectrics)]
         obj_names = []
         for el in self.modeler.primitives.objects:
             if self.modeler.primitives.objects[el].material_name in diel:

@@ -331,7 +331,7 @@ class FieldAnalysis3D(Analysis, object):
         -------
 
         """
-        diel = self.materials.GetDielectrics()
+        diel = self.materials.dielectrics
         diel = [i.lower() for i in diel]
         obj_names = []
         for el in self.modeler.primitives.objects:
