@@ -89,7 +89,7 @@ class EdbLayout(object):
 
     @property
     def primitives(self):
-        """Retrieve all prmitives.
+        """Retrieve all primitives.
 
         Returns
         -------
@@ -147,7 +147,7 @@ class EdbLayout(object):
 
     @property
     def paths(self):
-        """Retrive all paths.
+        """Retrieve all paths.
 
         Returns
         -------
@@ -162,7 +162,7 @@ class EdbLayout(object):
 
     @property
     def bondwires(self):
-        """Retrive all bondwires.
+        """Retrieve all bondwires.
 
         Returns
         -------
