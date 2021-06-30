@@ -13,7 +13,7 @@ trigger:
 pool:
   name: Ansys
 variables:
-  python.version: '3.7.7'
+  python.version: 3.7.7
   python.venv: 'testvenv'
 
 steps:
@@ -22,15 +22,16 @@ steps:
   inputs:
     versionSpec: '$(python.version)'
 
-- script: |
-    python -venv '$(python.venv)'
-    '$(python.venv)\Scripts\activate.bat'
-    pip install pip -U
+- powershell: |
+    python -m venv $(python.venv)
+    $(python.venv)\Scripts\Activate.ps1
+    python -m pip install pip -U
+    python -m pip install wheel setuptools -U
     python -c "import sys; print(sys.executable)"
   displayName: 'Create virtual env'
 
-- script: |
-    '$(python.venv)\Scripts\activate.bat'
+- powershell: |
+    $(python.venv)\Scripts\Activate.ps1
     pip install . --use-feature=in-tree-build
     pip install -r requirements_test.txt
     pip install pytest-azurepipelines
@@ -39,12 +40,13 @@ steps:
     python -c "import pyaedt; print('Imported pyaedt')"
   displayName: 'Install pyaedt'
 
-- script: |
-    '$(python.venv)\Scripts\activate.bat'
+- powershell: |
+    $(python.venv)\Scripts\Activate.ps1
     pytest -v --cov --cov-report=xml --cov-report=html --junitxml=junit/test-results.xml
   displayName: 'Unit testing'
 
-- script: |
+- powershell: |
+   $(python.venv)\Scripts\Activate.ps1
    coverage xml
   displayName: 'Coverage'
 
@@ -62,11 +64,12 @@ steps:
     summaryFileLocation: '$(System.DefaultWorkingDirectory)/coverage.xml'
   condition: succeededOrFailed()
 
-- script: |
-    '$(python.venv)\Scripts\activate.bat'
-    del /F /Q dist\*.*
+- powershell: |
+    '$(python.venv)\Scripts\Activate.ps1'
     python setup.py sdist
-  displayName: 'Build sdist Package'
+    python -m pip install twine
+    python -m twine check dist/*
+  displayName: 'Build and validate source distribution'
 
 - task: PublishBuildArtifacts@1
   displayName: 'Publish Artifact: dist'

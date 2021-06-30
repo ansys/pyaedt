@@ -155,8 +155,8 @@ class TestIcepak:
         self.aedtapp.modeler.primitives.create_box([9,9,9], [5,5,5],"box2", "copper")
         self.aedtapp.create_source_block("box", "1W", False)
         setup=self.aedtapp.create_setup("SetupIPK")
-        setup.props["Convergence Criteria - Max Iterations"] = 3
-        assert setup.update()
+        new_props = {"Convergence Criteria - Max Iterations": 3}
+        assert setup.update(update_dictionary=new_props)
         airfaces = [i.id for i in self.aedtapp.modeler.primitives["Region"].faces]
         self.aedtapp.assign_openings(airfaces)
 
