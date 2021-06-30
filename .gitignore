@@ -354,3 +354,7 @@ dist/
 
 # mypi cache
 .mypy_cache/
+/doc/source/API/_autosummary/
+/htmlcov/
+/coverage.xml
+/_unittest/local_config.json

@@ -70,7 +70,7 @@ class Analysis(Design, object):
 
         Returns
         -------
-        type
+        Materials
             Material Manager that is used to manage materials in the project.
            
 
@@ -813,12 +813,13 @@ class Analysis(Design, object):
         dict = {}
         for entry in object_list:
             mat_name = self.modeler.primitives[entry].material_name
-            mat_props = self.materials.get_material_properties(mat_name)
+            mat_props = self._materials[mat_name]
             if prop_names is None:
-                dict[entry] = mat_props
+                dict[entry] = mat_props._props
             else:
+                dict[entry] = {}
                 for prop_name in prop_names:
-                    dict[entry] = mat_props[prop_name]
+                    dict[entry][prop_name] = mat_props._props[prop_name]
         return dict
 
 
