@@ -47,7 +47,7 @@ def resistor_value_parser(RValue):
 
 
 class Components(object):
-    """Commponents class."""
+    """Components class."""
     @property
     def edb(self):
         """ """
@@ -883,7 +883,7 @@ class Components(object):
 
     @aedt_exception_handler
     def get_pins_name_from_net(self, pin_list, net_name):
-        """Retrive pins belonging to a net.
+        """Retrieve pins belonging to a net.
 
         Parameters
         ----------
