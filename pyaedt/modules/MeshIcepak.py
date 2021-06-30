@@ -6,7 +6,6 @@ from .Mesh import meshers, MeshOperation
 
 class IcepakMesh(object):
     """IcepakMesh class."""
-    
     def __init__(self, parent):
         self._parent = parent
         self.id = 0
@@ -218,7 +217,7 @@ class IcepakMesh(object):
 
         Parameters
         ----------
-        accuracy : optional
+        accuracy : int, optional
             Type of mesh. Options are ``1``, ``2``, and ``3``, which represent respectively 
             a coarse, standard, or very accurate mesh. The default is ``2``.
 
@@ -251,10 +250,10 @@ class IcepakMesh(object):
 
         Parameters
         ----------
-        accuracy2 :
+        accuracy2 : int
             Type of mesh. Options are ``1``, ``2``, and ``3``, which represent respectively 
             a coarse, standard, or very accurate mesh. 
-        stairStep :bool, optional
+        stairStep : bool, optional
             Whether to enable a stair step. The default is ``True``.
 
         Returns
@@ -282,14 +281,14 @@ class IcepakMesh(object):
 
         Parameters
         ----------
-        entity_type :
+        entity_type : int
             Type of the entity. Options are 1 and 2, which represent respectively
             an object and a component.
         obj_list : list
             List of objects, which can include conductors and dielctrics.
         comp_name : str, optional
             Name of the component. The default is ``None``.
-        priority : optional
+        priority : int, optional
             Level of priority. The default is ``3``.
 
         Returns
@@ -364,7 +363,7 @@ class IcepakMesh(object):
         Parameters
         ----------
         name : str
-            N name of design to mesh,
+            Name of design to mesh.
 
         Returns
         -------
