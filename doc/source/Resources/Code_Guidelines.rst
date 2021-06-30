@@ -350,7 +350,7 @@ readability.
 Comments
 --------
 Because PyAEDT is about multiple physics domains, the people reading
-its source code does not have the same background as the person who
+its source code do not have the same background as the person who
 writes it. This is why it is important for this library to have well
 commented and documented source code. Comments that contradict the
 code are worse than no comments. Always make a priority of keeping
