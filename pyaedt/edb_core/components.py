@@ -299,12 +299,10 @@ class Components(object):
     def components_by_partname(self):
         """Return components by part name.
         
-
         Returns
         -------
         dict
             Dictionary of components by part name.
-        
 
         Examples
         --------
@@ -324,7 +322,7 @@ class Components(object):
 
     @aedt_exception_handler
     def get_component_list(self):
-        """Retrieve a list of a component;s EDB objects.
+        """Retrieve a list of a component's EDB objects.
 
         Returns
         -------
