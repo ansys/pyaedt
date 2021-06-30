@@ -797,7 +797,7 @@ class EDBPadProperties(object):
         self._update_pad_parameters_parameters(offsetx= offset_value)
     @property
     def offset_y(self):
-        """Retrieve the offest for the Y axis.
+        """Retrieve the offset for the Y axis.
 
         Returns
         -------
@@ -1329,7 +1329,7 @@ class EDBPinInstances(object):
 
     @property
     def lower_elevation(self):
-        """Retreive the lower elevation of the placement layer.
+        """Retrieve the lower elevation of the placement layer.
 
         Returns
         -------
@@ -1351,7 +1351,7 @@ class EDBPinInstances(object):
 
     @property
     def top_bottom_association(self):
-        """Retrieve the top/bottom assocation of the placement layer.
+        """Retrieve the top/bottom association of the placement layer.
 
         Returns
         -------
@@ -1444,7 +1444,7 @@ class EDBComponent(object):
         Returns
         -------
         int
-            Top/bottom assocation of the placment layer, where:
+            Top/bottom association of the placement layer, where:
                       
             0 - Top associated
             
