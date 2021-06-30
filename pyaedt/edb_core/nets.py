@@ -116,7 +116,7 @@ class EdbNets(object):
             return self.nets_methods.IsPowerGroundNetInList(self.builder, netname_list)
 
     def get_dcconnected_net_list(self, ground_nets=["GND"]):
-        """Retrive the nets connected to DC through inductors.
+        """Retrieve the nets connected to DC through inductors.
         
         .. note::
            Only inductors are considered.
@@ -261,6 +261,5 @@ class EdbNets(object):
         if net.IsNull():
             net = self.edb.Cell.Net.Create(self.active_layout, net_name)
         return net
-
 
 
