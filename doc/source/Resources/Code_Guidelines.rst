@@ -271,10 +271,6 @@ installing from PyPi.
 
    pip install package
 
-.. code::
-
-   pip install package
-
 
 Class Naming Conventions
 ~~~~~~~~~~~~~~~~~~~~~~~~
@@ -560,12 +556,6 @@ Bad practice - Example 2
     EMInstall = (string)Registry.GetValue(string.Format(@"HKEY_LOCAL_MACHINE\SOFTWARE\Ansoft\ElectronicsDesktop{0}\Desktop", AnsysEmInstall.DesktopVersion), "InstallationDirectory", null);
 
 
-Hard-Coding Values
-~~~~~~~~~~~~~~~~~~
-Do not write to the registry hard-coded values that the code is to
-use. Instead, use the Configuration service.
-
-
 Duplicated Code
 ~~~~~~~~~~~~~~~
 Follow the DRY principle, which states that "Every piece of knowledge
@@ -789,3 +779,9 @@ log file. Here is an example of an error:
    Parameters
    ----------
    ...
+
+
+Hard-Coding Values
+~~~~~~~~~~~~~~~~~~
+Do not write to the registry hard-coded values that the code is to
+use. Instead, use the Configuration service.
