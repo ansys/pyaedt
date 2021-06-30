@@ -63,7 +63,7 @@ class EdbPadstacks(object):
         return self.parent.core_stackup.stackup_layers
     @property
     def padstacks(self):
-        """Retrive all padstacks.
+        """Retrieve all padstacks.
         
         Returns
         -------
@@ -230,7 +230,7 @@ class EdbPadstacks(object):
         via_name : str, optional
             The default is ``""``.
         rotation : 
-            Rotation of the padstack in degress. The default  
+            Rotation of the padstack in degrees. The default  
             is ``0``.
         fromlayer :
             The default is ``None``.
