@@ -42,7 +42,7 @@ steps:
 
 - powershell: |
     $(python.venv)\Scripts\Activate.ps1
-    pytest -v --cov --cov-report=xml --cov-report=html --junitxml=junit/test-results.xml
+    pytest -v --cov --cov-config=.coveragerc -cov-report=xml --cov-report=html --junitxml=junit/test-results.xml
   displayName: 'Unit testing'
 
 - powershell: |
