@@ -500,7 +500,9 @@ Instead:
     if not my_list:
        raise ValueError('List is empty')
 
-In ``if`` statements use ``is not`` rather than ``not ...``. For example, instead of:
+In ``if`` statements, use ``is not`` rather than ``not ...``. 
+
+Rather than:
 
 .. code:: python
 
@@ -521,7 +523,7 @@ especially important when parsing arguments.
 Handling Strings
 ~~~~~~~~~~~~~~~~
 Use ``.startswith()`` and ``.endswith()`` instead of slicing.
-example, avoid:
+Rather than:
 
 .. code:: python
 
@@ -617,7 +619,7 @@ for this method.  For example:
        assert np.isclose(12.7778, fahr_to_kelvin(55))
 
 Now, not only do you have one line of code to verify, but using a
-testing framework such as ``pytest``, we can verify that the method is
+testing framework such as ``pytest``, you can verify that the method is
 correct.
 
 
@@ -748,7 +750,7 @@ use:
 Exception Handling
 ~~~~~~~~~~~~~~~~~~
 PyAEDT uses a specific decorator to handle exceptions caused by
-methods and by AEDT API. The exception handler decorator is
+methods and by AEDT API. This exception handler decorator,  
 ``@aedt_exception_handler``, makes PyAEDT fault tolerant to
 errors that can occur in any method.  For example:
 
