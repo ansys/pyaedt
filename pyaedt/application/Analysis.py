@@ -70,7 +70,7 @@ class Analysis(Design, object):
 
         Returns
         -------
-        type
+        Materials
             Material Manager that is used to manage materials in the project.
            
 

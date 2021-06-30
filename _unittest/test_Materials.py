@@ -74,7 +74,7 @@ class TestMaterial:
         assert self.aedtapp.materials["new_copper2"].mass_density.add_thermal_modifier_free_form("if(Temp > 1000cel, 1, if(Temp < -273.15cel, 1, 1))")
         assert self.aedtapp.materials["new_copper2"].permittivity.add_thermal_modifier_closed_form()
         assert self.aedtapp.materials["new_copper2"].permeability.add_thermal_modifier_closed_form(auto_calc=False)
-        assert self.aedtapp.materials["new_copper2"].permittivity.add_thermal_modifier_closed_form(auto_calc=False)
+        assert self.aedtapp.materials["new_copper2"].permittivity.add_thermal_modifier_closed_form(auto_calc=True)
 
     def test_duplicate_material(self):
         assert self.aedtapp.materials.duplicate_material("new_copper2", "copper3")

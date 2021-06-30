@@ -309,7 +309,7 @@ class FieldAnalysis3D(Analysis, object):
         -------
 
         """
-        cond = self.materials.GetConductors()
+        cond = self.materials.conductors
         cond = [i.lower() for i in cond]
         obj_names = []
         for el in self.modeler.primitives.objects:

@@ -415,7 +415,7 @@ class FacePrimitive(object):
         try:
             c = self._parent.m_Editor.GetFaceCenter(self.id)
         except:
-            self._parent._messenger.add_warning_message("Non Planar Faces doesn't provide any Face Center")
+            self._parent.messenger.add_warning_message("Non Planar Faces doesn't provide any Face Center")
             return False
         center = [float(i) for i in c]
         return center
@@ -510,7 +510,7 @@ class FacePrimitive(object):
         """
         vertices_ids = self.vertices
         if len(vertices_ids) < 2 or not self.center:
-            self._parent._messenger.add_warning_message("Not enough vertices or non-planar face")
+            self._parent.messenger.add_warning_message("Not enough vertices or non-planar face")
             return None
         # elif len(vertices_ids)<2:
         #     v1 = vertices_ids[0].position
@@ -691,7 +691,7 @@ class Object3d(object):
         -------
         AEDTMessageManager
         """
-        return self._parent._messenger
+        return self._parent.messenger
 
     @property
     def material_name(self):
@@ -790,7 +790,7 @@ class Object3d(object):
 
         if not color_tuple:
             msg_text = "Invalid color input {} for object {}".format(color_value, self._m_name)
-            self._parent._messenger.add_warning_message(msg_text)
+            self._parent.messenger.add_warning_message(msg_text)
 
 
     @property

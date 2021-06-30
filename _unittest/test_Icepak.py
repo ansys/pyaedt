@@ -224,8 +224,8 @@ class TestIcepak:
         assert dielectrics == ["Region"]
 
     def test_28_assign_surface_material(self):
-        surface_emissivity = self.aedtapp.materials.add_surface_material("my_surface", 0.5)
-        assert surface_emissivity == 0.5
+        mats = self.aedtapp.materials.add_surface_material("my_surface", 0.5)
+        assert mats.emissivity.value == 0.5
 
     def test_33_create_region(self):
         self.aedtapp.modeler.primitives.delete("Region")

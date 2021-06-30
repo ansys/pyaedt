@@ -28,25 +28,19 @@ class MatProperties(object):
 
     """
     aedtname =     ['permittivity', 'permeability', 'conductivity', 'dielectric_loss_tangent', 'magnetic_loss_tangent', 'thermal_conductivity', 'mass_density', 'specific_heat', 'thermal_expansion_coefficient', 'youngs_modulus',   'poissons_ratio',   'diffusivity', 'molecular_mass', 'viscosity', 'core_loss_kh', 'core_loss_kc', 'core_loss_ke']
-    fullname =     ['Permittivity', 'Permeability', 'Conductivity', 'Dielectric Loss Tangent', 'Magnetic Loss Tangent', 'Thermal Conductivity', 'Mass Density', 'Specific Heat', 'Thermal Expansion Coefficient', 'Young\'s Modulus', 'Poisson\'s Ratio', 'Diffusivity', 'Molecular Mmass', 'Viscosity', 'Hysteresis application Loss', 'Eddy-Current application Loss', 'Excess application Loss']
-    catname =      ['Permittivity', 'Permeability', 'Conductivity', 'Dielectric Loss Tangent', 'Magnetic Loss Tangent', 'Thermal Conductivity', 'Mass Density', 'Specific Heat', 'Thermal Expansion Coefficient', 'Elasticity',       'Elasticity',       'Fluid Properties', 'Fluid Properties', 'Fluid Properties', 'Hysteresis application Loss', 'Eddy-Current application Loss', 'Excess application Loss']
     defaultvalue = [1.0,             1.0,            0,              0,                         0,                       0.01,                      0,              0,               0,                               0,                  0,                  0.8,         0,                   0,                 0,                   0,                      0,                          0]
     defaultunit  = [None,            None,          '[siemens m^-1]', None,                     None,                   '[W m^-1 C^-1]',        '[Kg m^-3]',    '[J Kg^-1 C^-1]', '[C^-1]',                       '[Pa]',             None,               None,               None,               None,               None,           None,                  None,                       None]
     diel_order =   [3, 0, 1, 4, 5, 6, 7, 8, 9, 10, 11, 1]
     cond_order =   [2, 0, 1, 4, 5, 6, 7, 8, 9, 10, 11, 3]
 
     @classmethod
-    def get_defaultunit(cls, fullname=None, catname=None, aedtname=None):
+    def get_defaultunit(cls, aedtname=None):
         """Get the defaultunit for a given fullname or catname
 
         Parameters
         ----------
-        fullname :
-            optiona full name of the property (Default value = None)
-        catname :
-            optional Category name (Default value = None)
-        aedtname :
-            optional aedtname (Default value = None)
+        aedtname : str
+            aedtname (Default value = None)
 
         Returns
         -------
@@ -54,100 +48,20 @@ class MatProperties(object):
             defaultunit if exists
 
         """
-        if fullname:
-            return cls.defaultunit[cls.fullname.index(fullname)]
-        elif catname:
-            return cls.defaultunit[cls.catname.index(catname)]
-        elif aedtname:
+        if aedtname:
             return cls.defaultunit[cls.aedtname.index(aedtname)]
         else:
             raise TypeError("get_defaultunit: either fullname or catname MUST be defined")
 
+
     @classmethod
-    def get_aedtname(cls, fullname=None, catname=None):
+    def get_defaultvalue(cls, aedtname):
         """Get the defaultunit for a given fullname or catname
 
         Parameters
         ----------
-        fullname :
-            optiona full name of the property (Default value = None)
-        catname :
-            optional Category name (Default value = None)
-
-        Returns
-        -------
-        str
-            aedtname
-
-        """
-        if fullname:
-            return cls.aedtname[cls.fullname.index(fullname)]
-        elif catname:
-            return cls.aedtname[cls.catname.index(catname)]
-        else:
-            raise TypeError("get_aedtname: either fullname or catname MUST be defined")
-
-    @classmethod
-    def get_catname(cls, fullname=None, aedtname=None):
-        """Get the defaultunit for a given fullname or catname
-
-        Parameters
-        ----------
-        fullname :
-            optiona full name of the property (Default value = None)
-        aedtname :
-            optional aedtname (Default value = None)
-
-        Returns
-        -------
-        str
-            catname
-
-        """
-        if fullname:
-            return cls.catname[cls.fullname.index(fullname)]
-        elif aedtname:
-            return cls.catname[cls.aedtname.index(aedtname)]
-        else:
-            raise TypeError("get_aedtname: either fullname or aedtname MUST be defined")
-
-    @classmethod
-    def get_fullname(cls, catname=None, aedtname=None):
-        """Get the defaultunit for a given fullname or catname
-
-        Parameters
-        ----------
-        catname :
-            optional Category name (Default value = None)
-        aedtname :
-            optional aedtname (Default value = None)
-
-        Returns
-        -------
-        str
-            catname
-
-        """
-        if catname:
-            return cls.fullname[cls.catname.index(catname)]
-        elif aedtname:
-            return cls.fullname[cls.aedtname.index(aedtname)]
-        else:
-            raise TypeError("get_aedtname: either fullname or aedtname MUST be defined")
-
-
-    @classmethod
-    def get_defaultvalue(cls, fullname=None, catname=None, aedtname=None):
-        """Get the defaultunit for a given fullname or catname
-
-        Parameters
-        ----------
-        fullname :
-            optiona full name of the property (Default value = None)
-        catname :
-            optional Category name (Default value = None)
-        aedtname :
-            optional aedtname (Default value = None)
+        aedtname : str
+             aedtname (Default value = None)
 
         Returns
         -------
@@ -155,11 +69,7 @@ class MatProperties(object):
             defaultunit
 
         """
-        if fullname:
-            return cls.defaultvalue[cls.fullname.index(fullname)]
-        elif catname:
-            return cls.defaultvalue[cls.catname.index(catname)]
-        elif aedtname:
+        if aedtname:
             return cls.defaultvalue[cls.aedtname.index(aedtname)]
         else:
             raise TypeError("get_defaultunit: either fullname or catname MUST be defined")
@@ -177,22 +87,16 @@ class SurfMatProperties(object):
 
     """
     aedtname =     ['surface_emissivity', 'surface_roughness', 'surface_diffuse_absorptance', 'surface_incident_absorptance']
-    fullname =     ['Surface Emissivity', 'Surface Roughness', 'Surface Diffuse Absorptance', 'Surface Incident Absorptance']
-    catname =      ['Surface Emissivity', 'Surface Roughness', 'Surface Diffuse Absorptance', 'Surface Incident Absorptance']
     defaultvalue = [1.0,             0,            0.4,              0.4]
     defaultunit  = [None,            '[m]',          None, None]
 
     @classmethod
-    def get_defaultunit(cls, fullname=None, catname=None, aedtname=None):
+    def get_defaultunit(cls, aedtname=None):
         """Get the defaultunit for a given fullname or catname
 
         Parameters
         ----------
-        fullname :
-            optiona full name of the property (Default value = None)
-        catname :
-            optional Category name (Default value = None)
-        aedtname :
+        aedtname : str
             optional aedtname (Default value = None)
 
         Returns
@@ -201,99 +105,19 @@ class SurfMatProperties(object):
             defaultunit if exists
 
         """
-        if fullname:
-            return cls.defaultunit[cls.fullname.index(fullname)]
-        elif catname:
-            return cls.defaultunit[cls.catname.index(catname)]
-        elif aedtname:
+        if aedtname:
             return cls.defaultunit[cls.aedtname.index(aedtname)]
         else:
             raise TypeError("get_defaultunit: either fullname or catname MUST be defined")
 
+
     @classmethod
-    def get_aedtname(cls, fullname=None, catname=None):
+    def get_defaultvalue(cls, aedtname=None):
         """Get the defaultunit for a given fullname or catname
 
         Parameters
         ----------
-        fullname :
-            optiona full name of the property (Default value = None)
-        catname :
-            optional Category name (Default value = None)
-
-        Returns
-        -------
-        str
-            aedtname
-
-        """
-        if fullname:
-            return cls.aedtname[cls.fullname.index(fullname)]
-        elif catname:
-            return cls.aedtname[cls.catname.index(catname)]
-        else:
-            raise TypeError("get_aedtname: either fullname or catname MUST be defined")
-
-    @classmethod
-    def get_catname(cls, fullname=None, aedtname=None):
-        """Get the defaultunit for a given fullname or catname
-
-        Parameters
-        ----------
-        fullname :
-            optiona full name of the property (Default value = None)
-        aedtname :
-            optional aedtname (Default value = None)
-
-        Returns
-        -------
-        str
-            catname
-
-        """
-        if fullname:
-            return cls.catname[cls.fullname.index(fullname)]
-        elif aedtname:
-            return cls.catname[cls.aedtname.index(aedtname)]
-        else:
-            raise TypeError("get_aedtname: either fullname or aedtname MUST be defined")
-
-    @classmethod
-    def get_fullname(cls, catname=None, aedtname=None):
-        """Get the defaultunit for a given fullname or catname
-
-        Parameters
-        ----------
-        catname :
-            optional Category name (Default value = None)
-        aedtname :
-            optional aedtname (Default value = None)
-
-        Returns
-        -------
-        str
-            catname
-
-        """
-        if catname:
-            return cls.fullname[cls.catname.index(catname)]
-        elif aedtname:
-            return cls.fullname[cls.aedtname.index(aedtname)]
-        else:
-            raise TypeError("get_aedtname: either fullname or aedtname MUST be defined")
-
-
-    @classmethod
-    def get_defaultvalue(cls, fullname=None, catname=None, aedtname=None):
-        """Get the defaultunit for a given fullname or catname
-
-        Parameters
-        ----------
-        fullname :
-            optiona full name of the property (Default value = None)
-        catname :
-            optional Category name (Default value = None)
-        aedtname :
+        aedtname : str
             optional aedtname (Default value = None)
 
         Returns
@@ -302,11 +126,7 @@ class SurfMatProperties(object):
             defaultunit
 
         """
-        if fullname:
-            return cls.defaultvalue[cls.fullname.index(fullname)]
-        elif catname:
-            return cls.defaultvalue[cls.catname.index(catname)]
-        elif aedtname:
+        if aedtname:
             return cls.defaultvalue[cls.aedtname.index(aedtname)]
         else:
             raise TypeError("get_defaultunit: either fullname or catname MUST be defined")
