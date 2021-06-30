@@ -1,25 +1,551 @@
 Code Guidelines
 ===============
 
-All contributors must adhere to the following guidelines to: 
+All contributors must adhere to the following guidelines to:
 
 #. Prevent against common programming errors
 #. Limit program complexity
 #. Provide an easily readable, understandable, and maintainable product
-#. Establish a consistent style  
+#. Establish a consistent style
 #. Implement an objective basis for code review
 
 To ensure program homogeneity and code stability, be sure to follow
-the guidelines presented in the subsequent sections. 
+the guidelines presented in the subsequent sections.
 
-General Guidelines
+
+PyAEDT Python Coding Guidelines
+-------------------------------
+The following sections summarize the key points from `PEP8
+<https://www.python.org/dev/peps/pep-0008/>`_ and how they apply to
+PyAEDT or any other PyAnsys module.  PyAnsys libraries will attempt to
+be as consistent in style and formatting with the "big three" data science
+libraries: `numpy <https://numpy.org/>`_, `scipy
+<https://www.scipy.org/>`_, and `pandas <https://pandas.pydata.org/>`_.
+
+
+Imports
+~~~~~~~
+Imports should always be placed at the top of the file, just after any
+module comments and docstrings and before module globals and
+constants.  This reduces the likelihood ``ImportError`` that may only
+be discovered during runtime.
+
+Avoid this:
+
+.. code:: python
+
+   def compute_logbase8(x):
+       import math
+       return math.log(8, x)
+
+Instead:
+
+.. code:: python
+
+    import math
+
+    def compute_logbase8(x):
+      return math.log(8, x)
+
+
+For better readability, you should group the imports following this order:
+
+#. Standard library
+#. Related third-party imports
+#. Local application/library-specific imports
+
+Not recommended:
+
+.. code:: python
+
+   from System import uri
+   import sys
+   import subprocess
+   from mypackage import mymodule
+   import math
+
+   def compute_logbase8(x):
+      return math.log(8, x)
+
+
+Recommended:
+
+.. code:: python
+
+   import sys
+   import subprocess
+   import math
+   from System import uri
+   from mypackage import mymodule
+
+   def compute_logbase8(x):
+       return math.log(8, x)
+
+
+You should also place imports in separate lines unless they are
+modules from the same package.
+
+Not recommended:
+
+.. code:: python
+
+   import sys, math
+   from my_package import my_module
+   from my_package import my_other_module
+
+   def compute_logbase8(x):
+       return math.log(8, x)
+
+Recommended:
+
+.. code:: python
+
+   import sys
+   import math
+   from my_package import my_module, my_other_module
+
+   def compute_logbase8(x):
+       return math.log(8, x)
+
+
+You should generally avoid using wild cards in imports because it
+can cause confusion on which names are present in the namespaces.
+
+Avoid:
+
+.. code:: python
+
+    from my_package.mymodule import *
+
+Instead:
+
+.. code:: python
+
+    from my_package.my_module import myclass
+
+
+Indentation and Line Breaks
+---------------------------
+Proper and consistent indentation is important in producing
+easy-to-read and maintainable code. In Python, use four spaces per
+indentation level and avoid tabs. Indentation should be used to:
+
+ - Emphasize the body of a control statement such as a loop or a select statement.
+ - Emphasize the body of a conditional statement.
+ - Emphasize a new scope block.
+ - Add blank lines or wrapping lines.
+ - Add two blank lines before and after all function and class definitions.
+
+
+.. code:: python
+
+   class MyFirstClass:
+       """MyFirstClass docstring"""
+
+   class MySecondClass:
+       """MySecondClass docstring"""
+
+   def top_level_function():
+       """Top level function docstring"""
+       return
+
+
+Inside a class, use a single line before any method definition.
+
+.. code:: python
+
+   class MyClass:
+       """MyClass docstring"""
+
+   def first_method(self):
+       """First method docstring"""
+       return
+
+   def second_method(self):
+       """Second method docstring"""
+       return
+
+
+Use blank line to separate the logical sections.  For example:
+
+Instead of:
+
+.. code::
+
+   if x < y:
+
+       STATEMENTS_A
+
+   else:
+
+       if x > y:
+
+           STATEMENTS_B
+
+       else:
+
+           STATEMENTS_C
+
+   if x > 0 and x < 10:
+
+       print("x is a positive single digit.")
+
+Use:
+
+.. code::
+
+   if x < y:
+       STATEMENTS_A
+   else:
+       if x > y:
+           STATEMENTS_B
+       else:
+           STATEMENTS_C
+
+   if x > 0 and x < 10:
+       print("x is a positive single digit.")
+   elif x < 0:
+       print("x is less than zero.")
+
+
+This way, it's clear when a "paragraph" of code is complete and you
+are ready for a new section.
+
+
+Maximum Line Length
+-------------------
+For source code lines, best practice is to keep the length at or below
+79 characters.  For docstrings and comments, best practice is to keep
+the length at or below 72 characters.
+
+Lines longer than this may not display properly on some terminals and tools or may be difficult to follow.  For example, the following line is difficult to follow.
+
+.. code:: python
+
+   employee_hours = [schedule.earliest_hour for employee in self.public_employees for schedule in employee.schedules]
+
+This can be rewritten as:
+
+.. code:: python
+
+   employee_hours = [schedule.earliest_hour for employee in
+                     self.public_employees for schedule in employee.schedules]
+
+Alternatively, instead of writing a list comprehension you could use a
+classic loop.
+
+
+Naming Conventions
 ------------------
+It is important to use concise and descriptive names of classes,
+methods, functions, constants to write readable and maintainable
+code. Regardless of the programming language, you must follow these
+global rules to determine the right name:
+
+#. Choose descriptive and unambiguous names.
+#. Make meaningful distinctions.
+#. Use pronounceable names.
+#. Use searchable names.
+#. Replace magic numbers with named constants.
+#. Avoid encodings. Do not append prefixes or type information.
+
+
+Names to Avoid
+~~~~~~~~~~~~~~
+Do not use the characters ``'l'``, ``'O'`` , or ``'I'`` as
+single-character variable names. In some fonts, these characters are
+indistinguishable from the numerals one and zero.
+
+
+Package and Module Naming Conventions
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Use short, lowercase word or words for module names. Separate words
+with underscores to improve readability.  For example ``module.py`` or
+``my_module.py``.
+
+For a package, use a short, lowercase word or words.  Avoid
+underscores as these will have to be represented as dashes when
+installing from PyPi.
+
+.. code::
+
+   pip install package
+
+.. code::
+
+   pip install package
+
+
+Class Naming Conventions
+~~~~~~~~~~~~~~~~~~~~~~~~
+Use camel case when naming classes.  Do not separate words
+with underscores.  For example:
+
+.. code:: python
+
+   class MyClass():
+       """Docstring for MyClass"""
+       pass
+
+
+Function and Method Naming Conventions
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Use a lowercase word or words for Python function or methods. Separate
+words with underscores to improve readability.  Class methods
+
+.. code:: python
+
+   class MyClass():
+       """Docstring for MyClass"""
+
+       def __init__(self, value):
+           """Constructor.
+
+           Methods with double underscores on either side are called
+           "dunder" methods and are special Python methods.
+
+           """
+           self._value = value
+
+       def __private_method(self):
+           """This method can only be called from ``MyClass``."""
+           self._value = 0
+
+       def _protected_method(self):
+           """This method should only be called from ``MyClass``.
+
+           Protected methods can be called from inherited classes,
+           unlike private methods, which names are "mangled" to avoid
+           these methods from being called from inherited classes.
+
+           """
+           # note how we can call private methods here
+           self.__private_method()
+
+       def public_method(self):
+           """This method can be called external to this class."""
+           self._value += 2
+
+
+Variable Naming Conventions
+~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Use a lowercase single letter, word, or words when naming
+variables. Separate words with underscores to improve readability.
+
+.. code:: python
+
+    my_variable = 5
+
+
+Constants are variables that are set at the module level and are used
+by one or more methods within that module. Use an uppercase word, or
+words for constants. Separate words with underscores to improve
+readability.
+
+.. code:: python
+
+    PI = 3.141592653589793
+    CONSTANT = 4
+    MY_CONSTANT = 8
+    MY_OTHER_CONSTANT = 1000
+
+
+Comments
+--------
+Because PyAEDT is about multiple physics domains, the those reading
+its source code does not have the same background as the person who
+writes it. This is why it is important for this library to have well
+commented and documented source code. Comments that contradict the
+code are worse than no comments. Always make a priority of keeping
+comments up-to-date with the code.
+
+Comments should be complete sentences. The first word should be
+capitalized, unless it is an identifier that begins with a lowercase
+letter.
+
+Here general guidelines for writing comments:
+
+#. Always try to explain yourself in code by making it
+   self-documenting with clear variable names.
+#. Don't be redundant.
+#. Don't add obvious noise.
+#. Don't use closing brace comments.
+#. Don't comment out code, instead remove it if it unused.
+#. Use explanation of intent.
+#. Clarify the code.
+#. Warn of consequences.
+
+Obvious portions of the source that are not aided with a comment
+should not be commented.  For example:
+
+.. code:: python
+
+   # increment the counter
+   i += 1
+
+However, important portions of the behavior that is self-apparent
+should include a note from the developer writing it.  Otherwise,
+future developers may remove what they see as unnecessary.
+
+.. code:: python
+
+   # Be sure to reset the object's cache prior to exporting, otherwise
+   # some portions of the database in memory will not be written.
+   obj.update_cache()
+   obj.write(filename)
+
+
+Inline Comments
+~~~~~~~~~~~~~~~
+Inline comments should be used sparingly.
+
+An inline comment is a comment on the same line as a statement. Inline
+comments should be separated by two spaces from the statement.  For
+example:
+
+.. code:: python
+
+    x = 5  # This is an inline comment
+
+Inline comments that are  unnecessary are distracting if they state
+the obvious. Again, avoid:
+
+.. code:: python
+
+    x = x + 1  # Increment x
+
+
+Focus on writing self-documenting code and using short, but
+descriptive variable names.  Rather than:
+
+.. code:: python
+
+   x = 'John Smith'  # Student Name
+
+Use:
+
+.. code:: python
+
+    user_name = 'John Smith'
+
+
+Documentation Convention
+------------------------
+A docstring is a string literal that occurs as the first statement in
+a module, function, class, or method definition.  A docstring becomes
+the doc special attribute of the object.
+
+Write docstrings for all public modules, functions, classes, and
+methods. Docstrings are not necessary for non-public methods, but you
+should have a comment that describes what the method does
+
+To create a docstring, surround the comments with three double quotes
+on either side.
+
+For a one-line docstring, keep both the starting and ending """ on the
+same line. For example, """This is a docstring.""".  For a multi-line
+docstring, put the ending """ on a line by itself.
+
+PyAEDT follows the `numpydoc
+<https://numpydoc.readthedocs.io/en/latest/format.html>`_
+documentation style, which is used by `numpy <https://numpy.org/>`_,
+`scipy <https://www.scipy.org/>`_, `pandas
+<https://pandas.pydata.org/>`_, and a variety of other python open
+source projects.  For a full description of the code style, reference
+`PyAnsys sphinxdocs <https://sphinxdocs.pyansys.com/style.html>`_.
+
+
+Programming Recommendations
+---------------------------
+This section provides some of the PEP8 suggestions for removing
+ambiguity and preserving consistency.  These are just a handful of
+common pitfalls when writing Python.
+
+
+Booleans and Comparisons
+~~~~~~~~~~~~~~~~~~~~~~~~
+Don't compare boolean values to ``True`` or ``False`` using the
+equivalence operator.
+
+Rather than:
+
+.. code:: python
+
+   if my_bool == True:
+       return result
+
+Use:
+
+.. code:: python
+
+   if my_bool:
+       return result
+
+Knowing that empty sequences are evaluated to False, don't compare the
+length of these objects but rather consider how they would evaluate
+with ``bool(<object>)``  For example, avoid:
+
+.. code:: python
+
+   my_list = []
+   if not len(my_list):
+       raise ValueError('List is empty')
+
+Instead:
+
+.. code:: python
+
+    my_list = []
+    if not my_list:
+       raise ValueError('List is empty')
+
+In ``if`` statements use ``is not`` rather than ``not ...``. For example, instead of:
+
+.. code:: python
+
+    if not x is None:
+        return x
+
+Use
+
+.. code:: python
+
+   if x is not None:
+       return 'x exists!'
+
+Also, avoid ``if x:`` when you mean ``if x is not None:``.  This is
+especially important when parsing arguments.
+
+
+Handling Strings
+~~~~~~~~~~~~~~~~
+Use ``.startswith()`` and ``.endswith()`` instead of slicing.  For
+example, avoid:
+
+.. code:: python
+
+   if word[:3] == 'cat':
+       print('The word starts with "cat"')
+
+   if file_name[-3:] == 'jpg':
+       print('The file is a JPEG')
+
+Instead:
+
+.. code:: python
+
+   if word.startswith('cat'):
+       print('The word starts with "cat"')
+
+   if file_name.endswith('jpg'):
+       print('The file is a JPEG')
+
 
 Reading the Windows Registry
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-Never read the Windows registry because doing so is danagerous
-and makes it difficult to on different enviornments or operating systems.
+Never read/write the Windows registry as this is dangerous and makes
+it difficult to deploy libraries on different environments or operating
+systems.
 
 Bad practice - Example 1
 
@@ -45,8 +571,8 @@ Duplicated Code
 Follow the DRY principle, which states that "Every piece of knowledge
 must have a single, unambiguous, authoritative representation within a
 system".  Attempt to follow this unless it overly complicates code.
-For example, the follwing example converts Fahrenheit to Celsius
-twice.  This now requires the developer to maintain two seperate lines
+For example, the following example converts Fahrenheit to Celsius
+twice.  This now requires the developer to maintain two separate lines
 that do the same thing:
 
 .. code:: python
@@ -54,21 +580,21 @@ that do the same thing:
    temp = 55
    new_temp = ((temp - 32) * (5 / 9)) + 273.15
 
-   temp2 = 46 
+   temp2 = 46
    new_temp_k = ((temp2 - 32) * (5 / 9)) + 273.15
 
 Instead, write a simple method that converts Fahrenheit to Celsius:
 
 .. code:: python
 
-   def fahr_to_kelvin(fahr) 
+   def fahr_to_kelvin(fahr)
        """Convert temperature in Fahrenheit to kelvin.
 
        Parameters:
        -----------
        fahr: int or float
            The temperature in Fahrenheit.
-    
+
        Returns:
        -----------
        kelvin : float
@@ -76,7 +602,7 @@ Instead, write a simple method that converts Fahrenheit to Celsius:
        """
        return ((fahr - 32) * (5 / 9)) + 273.15
 
-Now, you can exectue get the exact same output with:
+Now, you can execute get the exact same output with:
 
 .. code:: python
 
@@ -84,7 +610,7 @@ Now, you can exectue get the exact same output with:
    new_temp_k = fahr_to_kelvin(46)
 
 This is a trivial example, but the approach can be applied for a
-variety of both simple and complex algorthims and workflows.  Another
+variety of both simple and complex algorithms and workflows.  Another
 advantage of this approach is that you can now implement unit testing
 for this method.  For example:
 
@@ -132,6 +658,7 @@ etc.
 For a conditional block, the maximum depth recommended is four. If you
 think you need more for the algorithm, create small functions that are
 reusable and unit-testable.
+
 
 Loops
 ~~~~~
@@ -191,13 +718,14 @@ The advantage of the second approach is it is more readable and better
 documented.  Additionally, while it's a trivial example, we could
 implement a unit test for ``is_consonant``.
 
+
 AEDT Specific Coding Guidelines
 -------------------------------
 These guidelines are specific to PyAEDT.
 
+
 Logging Errors
 ~~~~~~~~~~~~~~
-
 PyAEDT automatically has an internal logging tool named ``Messenger``
 and a log file that is automatically generated in the project
 folder. The following examples demonstrates how the Messenger is used
@@ -220,494 +748,44 @@ use:
     self.messenger.info("This is an info message.")
 
 
-**Exceptions Handling**
-
-AEDTLib uses a specific decorator to handle exceptions caused by methods and 
-by AEDT API. The eception handler decorator is @aedt_exception_handler. 
-It makes AEDTLib fault tolerant to errors that can happear in any method.
-This example shows how to use it:
-
-```
-    @aedt_exception_handler
-    def my_method(self, var):
-        pass
-``` 
-Every method may return a value of ``True`` in case of success and ``False`` in case of failure. 
-When a failure occurs, the error handler returns information about the error in both the
-console and log file. Here is an example of an error:
-
-```
-    ---------------------------------------------------------------------------------------
-    AEDTLib error on method create_box:  General or AEDT error. Check again
-    the arguments provided: 
-        position = [0, 0, 0] 
-        dimensions_list = [0, 10, 10] 
-        name = None 
-        matname = None 
-    ---------------------------------------------------------------------------------------
-    
-    (-2147352567, 'Exception occurred.', (0, None, None, None, 0, -2147024381), None)
-      File "C:\GIT\repos\AnsysAutomation\AEDTLib\Primitives.py", line 1930, in create_box
-        o.name = self.oeditor.CreateBox(vArg1, vArg2)
-    
-    ************************************************************
-    Method Docstring: 
-    
-    Create a Box
-    
-            :param position: ApplicationName.modeler.Position(x,y,z) object
-            :param dimensions_list: list of dimensions of X, Y, Z
-            :param name: box name. Optional, if nothing default name will be assigned
-            :param matname: material name. Optional, if nothing default material will be assigned
-            :return: Box ID
-            
-    ************************************************************
-
-``` 
-
-Python Coding Guidelines
-========================
-
-Imports
--------
-
-Imports must always be placed at the top of the file, just after any module comments and docstrings and before module globals and constants.
-
-Never do this:
-
-```
-    def compute_logBase8(x):
-    import math
-    return math.log(8, x)
-```
-
-Recommended:
-
-```
-    import math
-
-    def compute_logBase8(x):
-    return math.log(8, x)
-```
-
-For better readability, you should group the imports following this order:
-
-1. Standard library
-2. Related third-party imports
-3. Local application/library-specific imports
-
-Not recommended:
-
-```
-    from System import Uri
-    import sys
-    import subprocess
-    from MyPackage import MyModule
-    import math
-
-    def compute_logBase8(x):
-    return math.log(8, x)
-```
-
-Recommended:
-
-```
-    import sys
-    import subprocess
-    import math
-    from System import Uri
-    from MyPackage import MyModule
-    
-    def compute_logBase8(x):
-    return math.log(8, x)
-```
-
-You shoulod place imports in separate lines unless they are related to modules from the same package.
-
-Not recommended:
-
-```    
-    import sys, math
-    from MyPackage import MyModule1
-    from MyPackage import MyModule2
-    
-    def compute_logBase8(x):
-    return math.log(8, x)
-```
-
-Recommended:
- 
-```    
-    import sys
-    import math
-    from MyPackage import MyModule1, MyModule2
-    
-    def compute_logBase8(x):
-    return math.log(8, x)
-```
-
-You should generally avoid using wild cards in imports because it 
-can cause confusion on which names are present in the namespaces.
-
-Not recommended:
-
-``` 
-    from MyPackage.MyModule import *
-```     
-
-Recommended:
-
-``` 
-    from MyPackage.MyModule import MyClass
-``` 
-
-Indentation
------------
-
-Proper and consistent indentation is important in producing easy-to-read 
-and maintainable code. In Python, use four spaces per indentation level 
-and avoid tabs. Indentation should be used to:
-
-- Emphasize the body of a control statement such as a loop or a select statement.
-- Emphasize the body of a conditional statement.
-- Emphasize a new scope block.
-- Add blank lines or wrapping lines.
-- Add two blank lines before and after all function and class definitions.
-
-```
-    class MyFirstClass:
-    pass
-    
-    class MySecondClass:
-    pass
-    
-    def top_level_function():
-    return None
-    Inside a class, put a single line before any method definition.
-    
-    class MyClass:
-    def first_method(self):
-    return None
-    
-    def second_method(self):
-        return None
-```
-        
-To structure well the code inside a function, use a blank line to separate the logical sections.
-
-Maximum Line Length
--------------------
-
-For source code lines, best practice is to keep the length at or below 79 characters.
-For docstrings and comments, best pratice is to keep the lenght at or below 72 characters.
-
-Lines longer than this may not display properly on some terminals and tools.
-
-Naming Conventions
-------------------
-
-To produce code that is easy to maintain, naming of classes, methods, functions, constants, 
-and more is critical. Regardless of the programming language, you must follow these global 
-rules to determine the right name:
-
-1. Choose descriptive and unambiguous names.
-1. Make meaningful distinctions.
-1. Use pronounceable names.
-1. Use searchable names.
-1. Replace magic numbers with named constants.
-1. Avoid encodings. Do not append prefixes or type information.
-
-
-**Names to Avoid**
-
-Never use the characters 'l' (lowercase letter el), 'O' (uppercase letter oh), or 'I' 
-(uppercase letter ie) as single-character variable names. In some fonts, these characters 
-are indistinguishable from the numerals one and zero.
-
-**Package and Module Naming**
-
-To create a module, use a short, lowercase word or words to name it. Separate words 
-with underscores to improve readability.
-
-```
-    module.py, my_module.py
-```
-
-For a package, use a short, lowercase word or words. Do not separate words 
-with underscores.
-
-```
-    package, mypackage
-```
-
-**Class Naming**
-
-To name a class, use the CapWords or camel case convention. It means that you must 
-start each word with a capital letter. Do not separate words with underscores.
-
-Not recommended:
-
-```
-    class myclass():
-    def init(self): # Our ctor method
-    
-    class my_class():
-    def init(self): # Our ctor method
-```
-
-Recommended:
-
-```
-    class MyClass():
-    def init(self): # Our ctor method
-```
-
-**Function and Method Naming**
-
-For a method name, use a lowercase word or words. Separate words with 
-underscores to improve readability.
-
-```
-    class MyClass():
-    def init(self): # ctor()
-    
-    def my_class_method():
-    my_function
-```
-
-**Variable Naming**
-
-For a vairable, use a lowercase single letter, word, or words. Separate words 
-with underscores to improve readability.
-
-```
-    my_variable=5
-```
-
-**Constants naming**
-
-For a constant, use an uppercase single letter, word, or words. Separate words 
-with underscores to improve readability.
-
-```    
-    CONSTANT=4
-    MY_CONSTANT=8
-    MY_LONG_CONSTANT=1000
-```
-
-Comments
---------
-
-Because AEDTLib is about multiple physics domains, many times the person interacting with the code 
-does not have the same background as the person who produces it. This is why it is very important 
-for this product to produce commented and documented source code. Comments that contradict the code 
-are worse than no comments. Always make a priority of keeping comments up-to-date with the code.
-
-Comments should be complete sentences. The first word should be capitalized, unless it is an identifier 
-that begins with a lowercase letter. In multi-sentence comments, use two spaces after a sentence-ending 
-period, except after the final sentence.
-
-Here are additional guidelinse for using comments:
-
-1. Always try to explain yourself in code.
-1. Don't be redundant.
-1. Don't add obvious noise.
-1. Don't use closing brace comments.
-1. Don't comment out code, but rather remove it.
-1. Use as explanation of intent.
-1. Use to clarify the code.
-1. Use to warn of consequences.
-
-**Inline Comments**
-
-Inline comments should be used sparingly.
-
-An inline comment is a comment on the same line as a statement. Inline comments should be separated 
-by at least two spaces from the statement. They should start with a # and a single space.
-
-```
-    x = 5 # This is an inline comment
-```
-
-Inline comments are unnecessary and in fact distracting if they state the obvious. Do not do this:
-
-```
-    x = x + 1 # Increment x
-```
-
-To provide understanding, use better naming conventions instead of inline comments.
-
-Not recommended:
-
-```
-    x = 'John Smith' # Student Name
-```
-
-Recommended:
-
-```
-    user_name = 'John Smith'
-```
-
-**Block Comments**
-
-Block comments generally apply to some (or all) code that follows them and are indented to the same level as this code. 
-Each line of a block comment starts with a # and a single space (unless it is indented text inside the comment).
-
-Paragraphs inside a block comment are separated by a line containing a single #. Indent block comments to the same 
-level as the code they describe.
-
-```
-    for i in range(0, 10):
-    print(i, '\n')
-```
-
-Documentation strings
----------------------
-
-A docstring is a string literal that occurs as the first statement in a module, function, class, or method definition. 
-A docstring becomes the doc special attribute of the object.
-
-Write docstrings for all public modules, functions, classes, and methods. Docstrings are not necessary for non-public 
-methods, but you should have a comment that describes what the method does. This comment should appear after the ``def`` line.
-
-To create a docstring, surround the comments with three double quotes on either side. 
-
-For a one-line docstring, keep both 
-the starting and ending """ on the same line. For example, """This is a docstring.""". 
-
-For a multiline docstring, put the ending """ on a line by itself: 
-
-```
-    def quadratic(a, b, c, x):
-    """Solve quadratic equation via the quadratic formula.
-    
-    A quadratic equation has the following form:
-    ax**2 + bx + c = 0
-    
-    There always two solutions to a quadratic equation: x_1 & x_2.
-    
-    :param a: a description
-    :type a: float
-    :param b: b description
-    :param c: c description
-    :param x: x description
-    :return: x1 and x2 description
-    
-    """
-    x_1 = (- b+(b**2-4*a*c)**(1/2)) / (2*a)
-    x_2 = (- b-(b**2-4*a*c)**(1/2)) / (2*a)
-    
-    return x_1, x_2
-```
-
-Programming Recommendations
----------------------------
-
-This section provides some of the PEP 8 suggestions for removing ambiguity and preserving consistency.
-
-Don’t compare Boolean values to ``True`` or ``False`` using the equivalence operator:
-
-```
-    my_bool = 6 > 5
-```
-
-Not recommended:
-
-```
-    if my_bool == True:
-         return '6 is bigger than 5'
-```
-
-Recommended:
-
-```
-    if my_bool:
-    return '6 is bigger than 5'
-```
-
-Use the fact that empty sequences are false in if statements. 
-
-In Python, any empty list, string, or tuple is false.
-
-Not recommended:
-
-```
-    my_list = []
-    if not len(my_list):
-    print('List is empty!')
-```
-
-Recommended:
-
-```
-    my_list = []
-    if not my_list:
-    print('List is empty!')
-```
-
-In ``if`` statements, use ``is not`` rather than ``not ...``.
-
-Not recommended:
-
-```    
-    if not x is None:
-    return 'x exists!'
-```
-
-Recommended:
- 
-```    
-    if x is not None:
-    return 'x exists!'
-```
-Don’t use ``if x:`` when you mean ``if x is not None:``.
-
-Not Recommended:
-
-```
-    if arg:
-```
-
-Recommended:
-
-```
-    if arg is not None:
-```
-    
-Use ``.startswith()`` and ``.endswith()`` instead of slicing.
-
-Not recommended:
-
-```    
-    if word[:3] == 'cat':
-    print('The word starts with "cat"')
-```
-
-Not recommended:
-
-```
-    if file_name[-3:] == 'jpg':
-    print('The file is a JPEG')
-```
-
-Recommended:
-
-```    
-    if word.startswith('cat'):
-    print('The word starts with "cat"')
-```
-
-Recommended:
-
-```    
-    if file_name.endswith('jpg'):
-    print('The file is a JPEG')
-```
-
-References
-----------
-
-- [PEP 8 ](https://www.python.org/dev/peps/pep-0008/)
-
-- [Clean Code - R. C. Martin ](https://www.amazon.com/Robert-Martin-Clean-Code-Collection-ebook/dp/B00666M59G)
+Exception Handling
+~~~~~~~~~~~~~~~~~~
+PyAEDT uses a specific decorator to handle exceptions caused by
+methods and by AEDT API. The exception handler decorator is
+``@aedt_exception_handler`` and it makes PyAEDT fault tolerant to
+errors that can occur in any method.  For example:
+
+.. code:: python
+
+   @aedt_exception_handler
+   def my_method(self, var):
+       pass
+
+Every method may return a value of ``True`` in case of success and
+``False`` in case of failure.  When a failure occurs, the error
+handler returns information about the error in both the console and
+log file. Here is an example of an error:
+
+.. code::
+
+   ----------------------------------------------------------------------------------
+   PyAEDT error on method create_box:  General or AEDT error. Check again
+   the arguments provided:
+       position = [0, 0, 0]
+       dimensions_list = [0, 10, 10]
+       name = None
+       matname = None
+   ----------------------------------------------------------------------------------
+
+   (-2147352567, 'Exception occurred.', (0, None, None, None, 0, -2147024381), None)
+     File "C:\GIT\repos\AnsysAutomation\PyAEDT\Primitives.py", line 1930, in create_box
+       o.name = self.oeditor.createbox(vArg1, vArg2)
+
+   ************************************************************
+   Method Docstring:
+
+   Create a Box
+
+   Parameters
+   ----------
+   ...
