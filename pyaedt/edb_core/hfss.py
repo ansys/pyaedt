@@ -1,8 +1,7 @@
 """
-This module contains all EDB functinalities for the ``EDB 3D Layout`` class.
-
-
+This module contains the ``Edb3DLayout`` class.
 """
+
 import warnings
 from .general import *
 from ..generic.general_methods import get_filename_without_extension, generate_unique_name
@@ -18,7 +17,7 @@ except ImportError:
 
 
 class Edb3DLayout(object):
-    """EDB 3D Layout class."""
+    """Edb3DLayout class."""
 
     @property
     def hfss_terminals(self):
@@ -65,13 +64,12 @@ class Edb3DLayout(object):
 
     @aedt_exception_handler
     def get_trace_width_for_traces_with_ports(self):
-        """
+        """Retrieve the trace width for traces with ports.
 
         Returns
         -------
         dict
-            Dictionary of data.
-
+            Dictionary of trace width data.
         """
         mesh =  self.hfss_mesh_setup.GetMeshOperation(self.builder)
         if mesh.Item1:
@@ -81,7 +79,7 @@ class Edb3DLayout(object):
 
     @aedt_exception_handler
     def create_circuit_port(self, pin_list):
-        """
+        """Create a circuit port.
 
         Parameters
         ----------
@@ -91,7 +89,7 @@ class Edb3DLayout(object):
         Returns
         -------
         list
-        List of names of created ports.
+           List of names of the created ports.
         
         """
         pinList = convert_py_list_to_net_list(pin_list)
@@ -100,7 +98,7 @@ class Edb3DLayout(object):
 
     @aedt_exception_handler
     def create_coax_port_on_component(self, ref_des_list, net_list):
-        """Create a coaxial port on a component or component list on a net or netlist.
+        """Create a coaxial port on a component or component list on a net or net list.
         
         .. note::
            The name of the new coaxial port is automatically assigned.
@@ -108,11 +106,10 @@ class Edb3DLayout(object):
         Parameters
         ----------
         ref_des_list : list
-            List of reference designators. It can be a single reference designator
-            or a list of reference designators.
+            List of one or more reference designators.
             
         net_list : list
-            List of nets. It can be a single net or a list of nets.    
+            List of one or more nets.  
 
         Returns
         -------
@@ -127,11 +124,12 @@ class Edb3DLayout(object):
 
     @aedt_exception_handler
     def create_hfss_ports_on_padstack(self, pinpos, portname=None):
-        """
+        """Create a HFSS port on a padstack.
 
         Parameters
         ----------
-        pinpos : pin
+        pinpos : 
+            Position of the pin.
             
         portname : str, optional
              Name of the port. The default is ``None``.
@@ -139,7 +137,7 @@ class Edb3DLayout(object):
         Returns
         -------
         bool
-
+            ``True`` when successful, ``False`` when failed.
         """
         if "IronPython" in sys.version or ".NETFramework" in sys.version:
             res, fromLayer_pos, toLayer_pos = pinpos.GetLayerRange()
