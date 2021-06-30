@@ -1,8 +1,7 @@
 """
-This module contains all EDB functionalities in the ``EDB Padstack`` class.
-
-
+This module contains the ``EdbPadstack`` class.
 """
+
 import warnings
 from .general import *
 from ..generic.general_methods import get_filename_without_extension, generate_unique_name
@@ -17,7 +16,7 @@ except ImportError:
 
 
 class EdbPadstacks(object):
-    """EDB Padstacks class."""
+    """EdbPadstacks class."""
 
 
     def __init__(self, parent):
@@ -64,7 +63,7 @@ class EdbPadstacks(object):
         return self.parent.core_stackup.stackup_layers
     @property
     def padstacks(self):
-        """List all padstacks via padstack definitions.
+        """Retrive all padstacks.
         
         Returns
         -------
@@ -95,17 +94,16 @@ class EdbPadstacks(object):
         antipaddiam : str, optional
             Diameter of the antipad with units. The default is``"600um"``.
         startlayer : str, optional
-            Starting layer. The default is ``None``. If ``None``, the top
+            Starting layer. The default is ``None``, in which case the top
             is the starting layer.
         endlayer : str, optional
-            Ending layer. The default is ``None``. If ``None``, the bottom
+            Ending layer. The default is ``None``, in which case the bottom
             is the ending layer.
      
         Returns
         -------
         str
             Name of the padstack if the operation is successful.
-
         """
         return self.padstack_methods.CreateCircularPadStackDef(self.builder, padstackname, holediam, paddiam,
                                                                antipaddiam, startlayer, endlayer)
@@ -119,14 +117,13 @@ class EdbPadstacks(object):
         refdes : str, optional
             Reference designator of the component. The default is ``None``.
         netname : str optional
-            Name of the net for which to search. The default is ``None``.
-            .. note::
-               ``False`` is returned if the net does not belong to the component.
+            Name of the net. The default is ``None``.
         
         Returns
         -------
         dict
-            Dictionary of pins.
+            Dictionary of pins if the operation is successful. 
+            ``False`` is returned if the net does not belong to the component.
 
         """
         if self.builder:
@@ -150,17 +147,16 @@ class EdbPadstacks(object):
         antipaddiam : str, optional
             Diameter of the antipad with units. The default is``"600um"``.
         startlayer : str, optional
-            Starting layer. The default is ``None``. If ``None``, the top
+            Starting layer. The default is ``None``, in which case the top
             is the starting layer.
         endlayer : str, optional
-            Ending layer. The default is ``None``. If ``None``, the bottom
+            Ending layer. The default is ``None``, in which case the bottom
             is the ending layer.
             
         Returns
         -------
         str
             Name of the padstack if the operation is successful.
-
         """
         if not padstackname:
             padstackname = generate_unique_name("VIA")
@@ -223,6 +219,30 @@ class EdbPadstacks(object):
     @aedt_exception_handler
     def place_padstack(self, position, definition_name, net_name='',
                        via_name="", rotation = 0, fromlayer = None, tolayer = None, solderlayer=None):
+        """Place the padstack.
+        
+        Parameters
+        ----------
+        position :
+        definition_name :
+        net_name : str, optional
+            Name of the net. The default is ``""``.
+        via_name : str, optional
+            The default is ``""``.
+        rotation : 
+            Rotation of the padstack in degress. The default  
+            is ``0``.
+        fromlayer :
+            The default is ``None``.
+        tolayer :
+            The default is ``None``.
+        solderlayer :
+            The default is ``None``.
+            
+        Returns
+        -------
+        
+        """    
         padstack = None
         for pad in list(self.padstacks.keys()):
             if pad == definition_name:
