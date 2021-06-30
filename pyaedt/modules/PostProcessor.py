@@ -33,7 +33,7 @@ report_type = {"DrivenModal": "Modal Solution Data", "DrivenTerminal": "Terminal
 class SolutionData(object):
     """SolutionData class.
     
-    This class contains information from a  call to the ``GetSolutionfromVariation`` function.
+    This data class contains information from the ``GetSolutionfromVariation`` AEDT call.
     """
     @property
     def sweeps(self):
@@ -203,7 +203,7 @@ class SolutionData(object):
 
     @aedt_exception_handler
     def to_degrees(self, input_list):
-        """Convert input list to degrees from radians.
+        """Convert input list from radians to degrees.
 
         Parameters
         ----------
@@ -212,7 +212,7 @@ class SolutionData(object):
 
         Returns
         -------
-        type
+        list
             List of inputs in degrees.
 
         """
@@ -220,7 +220,7 @@ class SolutionData(object):
 
     @aedt_exception_handler
     def to_radians(self, input_list):
-        """Convert input list to radians from degrees.
+        """Convert input list from degrees to radians.
 
         Parameters
         ----------
@@ -276,8 +276,8 @@ class SolutionData(object):
         return sol
 
     @aedt_exception_handler
-    def _convert_list_to_SI(self,datalist, dataunits, units):
-        """Convert a data list to the SI sysstem.
+    def _convert_list_to_SI(self, datalist, dataunits, units):
+        """Convert a data list to the SI unit system.
 
         Parameters
         ----------
@@ -308,11 +308,11 @@ class SolutionData(object):
         expression : str, optional
             Name of the expression. The default is ``None,`` in which case the first expression is used.
         convert_to_SI : bool, optional
-            Whether to convert the data to the SI system. The default is ``False``.
+            Whether to convert the data to the SI unit system. The default is ``False``.
 
         Returns
         -------
-        List
+        list
             List of data in the database.
 
         """
@@ -327,14 +327,14 @@ class SolutionData(object):
 
         Parameters
         ----------
-        expression :
-            Name of the expression. The default is ``None,`` in which case the first expression is used.
+        expression : str, None
+            Name of the expression. The default is ``None``, in which case the first expression is used.
         convert_to_SI : bool, optional
-            Whether to convert the data to the SI system. The default is ``False``.
+            Whether to convert the data to the SI unit system. The default is ``False``.
 
         Returns
         -------
-        type
+        list
             List of real data.
 
         """
@@ -366,14 +366,14 @@ class SolutionData(object):
 
         Parameters
         ----------
-         expression :
+        expression : str, optional
             Name of the expression. The default is ``None,`` in which case the first expression is used.
         convert_to_SI : bool, optional
-            Whether to convert the data to the SI system. The default is ``False``.
+            Whether to convert the data to the SI unit system. The default is ``False``.
 
         Returns
         -------
-        type
+        list
             List of imaginary data.
 
         """
@@ -595,27 +595,25 @@ class PostProcessor(object):
 
     @property
     def _primitives(self):
-        """
-        Returns
-        -------
-        str
-           Model units, such as ``"mm"``.
+        """Parameters.
         """
         return self._parent._modeler.primitives
 
     @property
     def model_units(self):
-        """
+        """Model units.
+
         Returns
         -------
-         str
+        str
            Model units, such as ``"mm"``.
         """
         return retry_ntimes(10, self.oeditor.GetModelUnits)
 
     @property
     def post_osolution(self):
-        """
+        """Solutions module.
+
         Returns
         -------
         type
@@ -625,17 +623,19 @@ class PostProcessor(object):
 
     @property
     def ofieldsreporter(self):
-        """
+        """Fields Reporter module.
+
         Returns
         -------
         type
-        Fields Reporter module.
+            Fields Reporter module.
         """
         return self.odesign.GetModule("FieldsReporter")
 
     @property
     def oreportsetup(self):
-        """
+        """Report Setup module.
+
         Returns
         -------
         type
@@ -645,12 +645,13 @@ class PostProcessor(object):
 
     @property
     def post_solution_type(self):
-        """
+        """Design solution type.
+
         Return
         ------
         type
             Design solution type.
-            """
+        """
         try:
             return self.odesign.GetSolutionType()
         except:
@@ -734,7 +735,7 @@ class PostProcessor(object):
 
     @aedt_exception_handler
     def change_field_property(self,plotname, propertyname, propertyval):
-        """Edt a field property.
+        """Edit a field property.
 
         Parameters
         ----------
@@ -889,15 +890,15 @@ class PostProcessor(object):
         ----------
         quantity_name :
             Name of the quantity to export. For example, ``"Temp"``.
-        solution :
-            Name of the solution  in the format ``solution: sweep``. The default is ``None``.
+        solution : str, optional
+            Name of the solution in the format ``"solution: sweep"``. The default is ``None``.
         variation_dict : dict, optional
             Dictionary of all variation variables with their values,
             The default is ``None``.
         filename : str, optional
             Full path and file name to which to save the file. 
             The default is ``None``.
-        obj_list : list, optional
+        obj_list : str, optional
             List of objects to export. The default is ``"AllObjects"``.
         obj_type : str, optional
             Type of objects to export. Options are ``"Vol"`` for volume and 
@@ -1055,10 +1056,10 @@ class PostProcessor(object):
             List of surfaces to include in the plot.
         quantityName : str
             Name of the quantity to plot.
-        setup_name :
+        setup_name : str, optional
             Name of the setup in the format ``"setupName : sweepName"``. The default 
             is ``None``.
-        intrinsincDict :
+        intrinsincDict : dict, optional
             Dictionary containing all intrinsic variables. The default 
             is ``{}``.
 
@@ -1068,8 +1069,7 @@ class PostProcessor(object):
             Plot object.
 
         """
-        plot = self._create_fieldplot(objlist, quantityName, setup_name, intrinsincDict, "Surface", "FacesList")
-        return plot
+        return self._create_fieldplot(objlist, quantityName, setup_name, intrinsincDict, "Surface", "FacesList")
 
     @aedt_exception_handler
     def create_fieldplot_cutplane(self, objlist, quantityName, setup_name=None, intrinsincDict={}):
@@ -1094,17 +1094,16 @@ class PostProcessor(object):
             Plot object.
 
         """
-        plot = self._create_fieldplot(objlist, quantityName, setup_name, intrinsincDict, "Surface", "CutPlane")
-        return plot
+        return self._create_fieldplot(objlist, quantityName, setup_name, intrinsincDict, "Surface", "CutPlane")
 
     @aedt_exception_handler
     def create_fieldplot_volume(self, objlist, quantityName, setup_name=None, intrinsincDict={}):
-        """Create field plot of volumes.
+        """Create a field plot of volumes.
 
         Parameters
         ----------
         objlist : list
-            list of volumnes to include in the plot.
+            List of volumes to include in the plot.
         quantityName :
             Name of the quantity to plot.
         setup_name : str, optional
@@ -1119,8 +1118,7 @@ class PostProcessor(object):
         type
             Plot object
         """
-        plot = self._create_fieldplot(objlist, quantityName, setup_name, intrinsincDict, "Volume", "ObjList")
-        return plot
+        return self._create_fieldplot(objlist, quantityName, setup_name, intrinsincDict, "Volume", "ObjList")
 
     @aedt_exception_handler
     def export_field_jpg(self, fileName, plotName, coordinateSystemName):
@@ -1149,16 +1147,16 @@ class PostProcessor(object):
     def export_field_image_with_View(self, plotName, exportFilePath, view="iso", wireframe=True):
         """Export a field plot image with a view.
         
-        ..note::
-          For AEDT 2019.3, this function works only on the ISO view due to a bug in the API.
-          The function works properly in 2021 R1.
+        .. note::
+           For AEDT 2019.3, this function works only on the ISO view due to a bug in the API.
+           The function works properly in 2021 R1.
 
         Parameters
         ----------
         plotName : str
             Name of the plot.
         exportFilePath :
-            Path to where to export the image file.
+            Path to export the image file.
         view : str, optional
             View to export. Options are``"iso"``, ``"XZ"``, ``"XY"``, and ``"YZ"``. 
             The default is ``"iso"``.
@@ -1210,13 +1208,13 @@ class PostProcessor(object):
     def export_model_picture(self, dir, name, picturename="Model", ShowAxis=True, ShowGrid=True, ShowRuler=True):
         """Export a snapshot of the model to a JPG file. 
         
-        ..note::
-        The function works only in graphical mode.
+        .. note::
+           The function works only in graphical mode.
         
         Parameters
         ----------
         dir : str
-            Path to where the JPG file is to be exported.
+            Path to export the JPG file.
         name : str
             Name of the project, which is used to compose the directory path.
         picturename : str, optional
@@ -1340,7 +1338,7 @@ class PostProcessor(object):
 
     @aedt_exception_handler
     def export_report_to_jpg(self, ProjectDir, PlotName):
-        """Export the SParameter plot as an image
+        """Export the SParameter plot as an image.
 
         Parameters
         ----------
@@ -1379,7 +1377,7 @@ class PostProcessor(object):
         domain : str, optional
             Context type (sweep or time). The default is ``"Infinite Sphere1"``.
         families_dict : dict, optional
-            Dictionary of variables and values. The default is``None``.  {"Freq": ["All"]}
+            Dictionary of variables and values. The default is ``{"Freq": ["All"]}``
         
         Returns
         -------
@@ -1409,16 +1407,16 @@ class PostProcessor(object):
         Parameters
         ----------
         expression : str or list
-            One or more formulas to add to the report. The default is ``dB(S(1,1))"``.
-        setup_sweep_name : str
+            One or more formulas to add to the report. The default is ``"dB(S(1,1))"``.
+        setup_sweep_name : str, optional
             Name of setup to use to compute the report. The default is ``""``, which means that the
             nominal sweep is to be applied.
         domain : str or list, optional
             Context type. The options are ``"Sweep"`` or ``"Time"``. The default is ``"Sweep".``
         families_dict : dict, optional
-            Dictionary of all families including the primary sweep. The default is ``{"Freq": ["All"]}`.
-        report_input_type :  optional
-             Type of data :
+            Dictionary of all families including the primary sweep. The default is ``{"Freq": ["All"]}``.
+        report_input_type :  str
+             Type of data.
 
         Returns
         -------
@@ -1427,17 +1425,15 @@ class PostProcessor(object):
 
        Examples
        --------
-            >>>hfss Sparameters
-            >>>hfss = HFSS()
-            >>>hfss.post.get_report_data("S(1,1)")   # it will take default sweep and default variation
-        
-        
-            >>>m3d = Maxwell3D()
-            >>>m3d.post.get_report_data("SurfaceLoss")   #Eddy Current examples
-            >>>m3d.post.get_report_data("Wind(LoadA,LaodA)")    #TransientAnalsysis
+        >>> hfss = HFSS()
+        >>> hfss.post.get_report_data("S(1,1)")   # it will take default sweep and default variation
+
+        >>> m3d = Maxwell3D()
+        >>> m3d.post.get_report_data("SurfaceLoss")   # Eddy Current examples
+        >>> m3d.post.get_report_data("Wind(LoadA,LaodA)")    # TransientAnalsysis
 
         """
-        if self.post_solution_type == "3DLayout" or self.post_solution_type == "NexximLNA" or self.post_solution_type == "NexximTransient":
+        if self.post_solution_type in ["3DLayout", "NexximLNA", "NexximTransient"]:
             if domain == "Sweep":
                 did = 3
             else:
@@ -1478,16 +1474,16 @@ class PostProcessor(object):
         ----------
         expression : str or list, optional
             One or more formulas to add to the report. The default is value = ``"dB(S(1,1))"``.
-        setup_sweep_name :
-            setup name with sweep (Default value = '')
+        setup_sweep_name : str, optional
+            setup name with sweep. The default is ``""``.
         families_dict : dict, optional
-            Dictionary of all families including the primary sweep. The default is ``{"Freq": ["All"]}`.
+            Dictionary of all families including the primary sweep. The default is ``{"Freq": ["All"]}``.
         primary_sweep_variable : str, optional
             Name of the primary sweep. The default is ``"Freq"``.
         context : str, optional
             The default is ``None``.
         plotname : str, optional
-            Name of the plot. The The default is ``None``. 
+            Name of the plot. The default is ``None``. 
 
         Returns
         -------
