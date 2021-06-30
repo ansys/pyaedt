@@ -60,7 +60,7 @@ class EdbStackup(object):
 
     @property
     def stackup_layers(self):
-        """Retrive all stackup layers.
+        """Retrieve all stackup layers.
        
         Returns
         -------
@@ -86,7 +86,7 @@ class EdbStackup(object):
 
     @property
     def materials(self):
-        """Retrive all materials.
+        """Retrieve all materials.
         
         Returns
         -------
@@ -230,7 +230,7 @@ class EdbStackup(object):
         Parameters
         ----------
         only_metals : bool, optional
-            Whether to retrive only metals. The default is ``False``.
+            Whether to retrieve only metals. The default is ``False``.
 
         Returns
         -------
