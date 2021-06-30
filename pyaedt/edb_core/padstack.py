@@ -1,5 +1,5 @@
 """
-This module contains the ``EdbPadstack`` class.
+This module contains the ``EdbPadstacks`` class.
 """
 
 import warnings
