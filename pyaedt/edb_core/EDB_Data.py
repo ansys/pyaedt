@@ -726,7 +726,7 @@ class EDBPadProperties(object):
 
     @property
     def geometry_type(self):
-        """Retrieve the geometry type.
+        """Geometry type.
         
         Returns
         -------
