@@ -57,7 +57,7 @@ def convert_pydict_to_netdict(dict):
 
     Parameters
     ----------
-    dict : dic
+    dict : dict
         Python dictionary to convert.
         
 
@@ -80,7 +80,7 @@ def convert_py_list_to_net_list(pylist):
         
     Returns
     -------
-    List
+    list
         List converted to Net.
     """
     if type(pylist) is not list and type(pylist) is not tuple:
