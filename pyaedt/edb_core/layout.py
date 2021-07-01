@@ -59,7 +59,7 @@ class EdbLayout(object):
 
     @property
     def layers(self):
-        """Retrieve layers.
+        """Dictionary of layers.
 
         Returns
         -------
@@ -89,7 +89,7 @@ class EdbLayout(object):
 
     @property
     def primitives(self):
-        """Retrieve all primitives.
+        """List of primitives.
 
         Returns
         -------
@@ -102,7 +102,7 @@ class EdbLayout(object):
 
     @property
     def polygons_by_layer(self):
-        """Retrieve polygons by layer.
+        """Dictionary of primitives with layer names as keys.
 
         Returns
         -------
@@ -115,7 +115,7 @@ class EdbLayout(object):
 
     @property
     def rectangles(self):
-        """Retrieve all rectangles.
+        """List of rectangles.
 
         Returns
         -------
@@ -131,7 +131,7 @@ class EdbLayout(object):
 
     @property
     def circles(self):
-        """Retrieve all circles.
+        """List of circles.
 
         Returns
         -------
@@ -147,7 +147,7 @@ class EdbLayout(object):
 
     @property
     def paths(self):
-        """Retrieve all paths.
+        """List of paths.
 
         Returns
         -------
@@ -162,12 +162,12 @@ class EdbLayout(object):
 
     @property
     def bondwires(self):
-        """Retrieve all bondwires.
+        """List of bondwires.
 
         Returns
         -------
         list
-            List of all bondwires.
+            List of bondwires.
 
         """
         prims = []
@@ -178,7 +178,7 @@ class EdbLayout(object):
 
     @property
     def polygons(self):
-        """Retrieve all polygons.
+        """List of polygons.
 
         Returns
         -------
