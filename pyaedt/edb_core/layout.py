@@ -15,7 +15,7 @@ except ImportError:
     warnings.warn('This module requires pythonnet.')
 
 class EdbLayout(object):
-    """edbLayout class."""
+    """EdbLayout class."""
 
     @property
     def edb(self):
@@ -76,7 +76,7 @@ class EdbLayout(object):
         Returns
         -------
         bool
-             ``True`` when successful, ``False`` when failed.
+            ``True`` when successful, ``False`` when failed.
         """
         layoutInstance = self.active_layout.GetLayoutInstance()
         layoutObjectInstances = layoutInstance.GetAllLayoutObjInstances()
@@ -294,7 +294,7 @@ class EdbLayout(object):
         Parameters
         ----------
         polygon : 
-            Name of the plygon.
+            Name of the polygon.
         selection_polygon : 
             Polygon to use as a filter.
         offset_name : str, optional
