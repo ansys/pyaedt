@@ -15,7 +15,7 @@ except ImportError:
     warnings.warn('This module requires pythonnet.')
 
 class EdbLayout(object):
-    """edbLayout class."""
+    """EdbLayout class."""
 
     @property
     def edb(self):
