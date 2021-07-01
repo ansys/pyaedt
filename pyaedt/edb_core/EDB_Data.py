@@ -1119,7 +1119,7 @@ class EDBPinInstances(object):
         Returns
         -------
         list
-            List of the pin position in the format [X, Y].
+            List of the pin position in the format ``[x, y]``.
         """
         self.parent._edb.Geometry.PointData(self.parent._edb_value(0.0), self.parent._edb_value(0.0))
         out = self.pin.GetPositionAndRotationValue(
