@@ -71,12 +71,12 @@ class EdbLayout(object):
     @aedt_exception_handler
     def update_primitives(self):
         """
-        Update primitives list from the EDB database.
+        Update a primitives list from the EDB database.
 
         Returns
         -------
         bool
-             ``True`` when successful, ``False`` when failed.
+            ``True`` when successful, ``False`` when failed.
         """
         layoutInstance = self.active_layout.GetLayoutInstance()
         layoutObjectInstances = layoutInstance.GetAllLayoutObjInstances()
@@ -102,7 +102,7 @@ class EdbLayout(object):
 
     @property
     def polygons_by_layer(self):
-        """Dictionary of primitives with layer names as keys,
+        """Dictionary of primitives with layer names as keys.
 
         Returns
         -------
@@ -115,7 +115,7 @@ class EdbLayout(object):
 
     @property
     def rectangles(self):
-        """Retrieve all rectangles.
+        """List of rectangles.
 
         Returns
         -------
@@ -167,8 +167,7 @@ class EdbLayout(object):
         Returns
         -------
         list
-            List of all bondwires.
-
+            List of bondwires.
         """
         prims = []
         for el in self.primitives:
@@ -294,7 +293,7 @@ class EdbLayout(object):
         Parameters
         ----------
         polygon : 
-            Name of the plygon.
+            Name of the polygon.
         selection_polygon : 
             Polygon to use as a filter.
         offset_name : str, optional
