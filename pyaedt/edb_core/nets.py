@@ -64,7 +64,7 @@ class EdbNets(object):
 
     @property
     def nets(self):
-        """Retrieve all nets.
+        """Nets.
         
         Returns
         -------
@@ -76,7 +76,7 @@ class EdbNets(object):
 
     @property
     def signal_nets(self):
-        """Retrieve all signal nets.
+        """Signal nets.
         
         Return
         ------
@@ -88,7 +88,7 @@ class EdbNets(object):
 
     @property
     def power_nets(self):
-        """Retrieve all power nets.
+        """Power nets.
         
         Returns
         -------
