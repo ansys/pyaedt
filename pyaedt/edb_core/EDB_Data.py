@@ -695,7 +695,7 @@ class EDBLayers(object):
 
 
 class EDBPadProperties(object):
-    """EDBPadProperties class.""
+    """EDBPadProperties class."""
     
     @property
     def _padstack_methods(self):
