@@ -61,6 +61,7 @@ class EdbPadstacks(object):
     def _layers(self):
         """ """
         return self.parent.core_stackup.stackup_layers
+
     @property
     def padstacks(self):
         """Retrieve all padstacks.
@@ -218,18 +219,19 @@ class EdbPadstacks(object):
 
     @aedt_exception_handler
     def place_padstack(self, position, definition_name, net_name='',
-                       via_name="", rotation = 0, fromlayer = None, tolayer = None, solderlayer=None):
+                       via_name="", rotation=0, fromlayer=None, tolayer=None, solderlayer=None):
         """Place the padstack.
         
         Parameters
         ----------
-        position :
+        position : list
+            list of [x,y] position where the via will be placed. x, y are float
         definition_name :
         net_name : str, optional
             Name of the net. The default is ``""``.
         via_name : str, optional
             The default is ``""``.
-        rotation : 
+        rotation : float, optional
             Rotation of the padstack in degrees. The default  
             is ``0``.
         fromlayer :
