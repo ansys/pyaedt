@@ -14,8 +14,8 @@ class Emit(FieldAnalysisEmit, object):
     """Emit class.
 
     .. note::
-       At the moment, this object has very limited functionalities.  It
-       contains only a skeleton for creating an empty design.  No methods
+       At the moment, this object has very limited functionalities. It
+       contains only a skeleton for creating an empty design. No methods
        are implemented yet.
 
     Parameters
