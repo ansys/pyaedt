@@ -1186,7 +1186,7 @@ class EDBPadstack(object):
         -------
         bool
             ``True`` when successful, ``False`` when failed.
-        """"
+        """
         originalPadstackDefinitionData = self.edb_padstack.GetData()
         newPadstackDefinitionData = self._edb.Definition.PadstackDefData(originalPadstackDefinitionData)
         newPadstackDefinitionData.SetHolePlatingPercentage(self._edb_value(ratio))
