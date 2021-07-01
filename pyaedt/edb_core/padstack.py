@@ -64,7 +64,7 @@ class EdbPadstacks(object):
 
     @property
     def padstacks(self):
-        """Retrieve all padstacks.
+        """List of padstacks via padstack definitions.
         
         Returns
         -------
