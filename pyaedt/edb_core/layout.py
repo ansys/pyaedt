@@ -71,7 +71,7 @@ class EdbLayout(object):
     @aedt_exception_handler
     def update_primitives(self):
         """
-        Update primitives list from the EDB database.
+        Update a primitives list from the EDB database.
 
         Returns
         -------
@@ -168,7 +168,6 @@ class EdbLayout(object):
         -------
         list
             List of bondwires.
-
         """
         prims = []
         for el in self.primitives:
