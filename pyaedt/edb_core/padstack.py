@@ -225,8 +225,9 @@ class EdbPadstacks(object):
         Parameters
         ----------
         position : list
-            list of [x,y] position where the via will be placed. x, y are float
-        definition_name :
+            List of float values for the [x,y] positions where the via is to be placed. 
+        definition_name : str
+        
         net_name : str, optional
             Name of the net. The default is ``""``.
         via_name : str, optional
