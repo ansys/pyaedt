@@ -124,16 +124,6 @@ class EDBLayer(object):
     def material_name(self, value):
         """ """
 
-        Parameters
-        ----------
-        value : str
-            Name of the material.
-        
-        Returns
-        -------
-        bool
-            ``True`` when successful, ``False`` when failed.
-        """
         #self.stackup_methods.EditLayerName(self.builder, self._name, value)
         self._material_name = value
         self.update_layers()
