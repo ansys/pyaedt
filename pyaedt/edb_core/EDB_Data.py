@@ -815,8 +815,6 @@ class EDBPadProperties(object):
         ----------
         offset_value : float, str
            Offset value for the Y axis.
-        """
-        self._update_pad_parameters_parameters(offsety = offset_value)
         
         Returns
         -------
