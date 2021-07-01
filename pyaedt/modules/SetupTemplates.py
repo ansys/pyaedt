@@ -550,7 +550,7 @@ def HFSS3DLayout_AdaptiveFrequencyData(freq):
     Parameters
     ----------
     freq : float
-        Frequncy value.
+        Frequency value.
         
 
     Returns
