@@ -89,7 +89,7 @@ class EdbLayout(object):
 
     @property
     def primitives(self):
-        """Retrieve all primitives.
+        """List of primitives.
 
         Returns
         -------
@@ -102,7 +102,7 @@ class EdbLayout(object):
 
     @property
     def polygons_by_layer(self):
-        """Retrieve polygons by layer.
+        """Dictionary of primitives with layer names as keys,
 
         Returns
         -------
@@ -131,7 +131,7 @@ class EdbLayout(object):
 
     @property
     def circles(self):
-        """Retrieve all circles.
+        """List of circles.
 
         Returns
         -------
@@ -147,7 +147,7 @@ class EdbLayout(object):
 
     @property
     def paths(self):
-        """Retrieve all paths.
+        """List of paths.
 
         Returns
         -------
