@@ -823,6 +823,8 @@ class EDBPadProperties(object):
         bool
             ``True`` when successful, ``False`` when failed.
         """
+        self._update_pad_parameters_parameters(offsety=offset_value)
+
     @property
     def rotation(self):
         """Retrieve the rotation.
