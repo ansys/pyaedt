@@ -59,7 +59,7 @@ class EdbLayout(object):
 
     @property
     def layers(self):
-        """Retrieve layers.
+        """Dictionary of layers.
 
         Returns
         -------
@@ -178,7 +178,7 @@ class EdbLayout(object):
 
     @property
     def polygons(self):
-        """Retrieve all polygons.
+        """List of polygons.
 
         Returns
         -------
