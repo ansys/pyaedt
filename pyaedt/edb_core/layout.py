@@ -162,7 +162,7 @@ class EdbLayout(object):
 
     @property
     def bondwires(self):
-        """Retrieve all bondwires.
+        """List of bondwires.
 
         Returns
         -------
