@@ -69,7 +69,7 @@ class EdbPadstacks(object):
         Returns
         -------
         list
-            List of padstack definitions.
+            List of padstacks via padstack definitions.
 
         """
         viadefList = {}
@@ -227,7 +227,7 @@ class EdbPadstacks(object):
         position : list
             List of float values for the [x,y] positions where the via is to be placed. 
         definition_name : str
-        
+            Name of the padstack definition.
         net_name : str, optional
             Name of the net. The default is ``""``.
         via_name : str, optional
