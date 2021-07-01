@@ -62,7 +62,7 @@ class EDBLayer(object):
 
     @property
     def name(self):
-        """Retrieve the layer name.
+        """Layer name.
 
         Returns
         -------
@@ -75,7 +75,7 @@ class EDBLayer(object):
 
     @property
     def id(self):
-        """Retrieve the layer ID.
+        """Layer ID.
 
         Returns
         -------
@@ -88,7 +88,7 @@ class EDBLayer(object):
 
     @property
     def layer_type(self):
-        """Retrieve or update the layer type.
+        """Layer type.
 
         Returns
         -------
@@ -174,7 +174,7 @@ class EDBLayer(object):
 
     @property
     def top_bottom_association(self):
-        """Retrieve the top/bottom association layer.
+        """Top/bottom association layer.
 
         Returns
         -------
@@ -216,7 +216,7 @@ class EDBLayer(object):
 
     @property
     def upper_elevation(self):
-        """Retrieve the upper elevation.
+        """Upper elevation.
 
         Returns
         -------
@@ -388,12 +388,12 @@ class EDBLayers(object):
 
     @property
     def layers(self):
-        """Retrieve all layers.
+        """Dictionary of layers.
 
         Returns
         -------
         dict
-            Dictionary of all layers.
+            Dictionary of layers.
         """
         if not self._edb_object:
             self._update_edb_objects()
@@ -401,12 +401,12 @@ class EDBLayers(object):
 
     @property
     def edb_layers(self):
-        """Retrieve all EDB layers.
+        """List of EDB layers.
 
         Returns
         -------
         list
-            List of all EDB layers
+            List of EDB layers
         """
         allLayers = list(list(self.layer_collection.Layers(self.edb.Cell.LayerTypeSet.AllLayerSet)))
         allStckuplayers = filter(lambda lyr: (lyr.GetLayerType() == self.edb.Cell.LayerType.DielectricLayer) or (
@@ -415,12 +415,12 @@ class EDBLayers(object):
 
     @property
     def signal_layers(self):
-        """Retrieve all signal layers.
+        """Dictionry of signal layers.
 
         Returns
         -------
         dict
-            Dictionary of all signal layers.
+            Dictionary of signal layers.
         """
         self._signal_layers = {}
         for layer, edblayer in self.layers.items():
@@ -431,7 +431,7 @@ class EDBLayers(object):
 
     @property
     def layer_collection(self):
-        """Retrieve layer collection.
+        """Collection of layers.
 
         Returns
         -------
@@ -446,7 +446,7 @@ class EDBLayers(object):
 
     @property
     def layer_types(self):
-        """Retrieve layer types.
+        """Layer types.
 
         Returns
         -------
@@ -520,7 +520,6 @@ class EDBLayers(object):
         -------
         bool
             ``True`` when successful, ``False`` when failed.
-
         """
         thisLC = self._parent.edb.Cell.LayerCollection(self._parent.active_layout.GetLayerCollection())
         layers = list(list(thisLC.Layers(self._parent.edb.Cell.LayerTypeSet.AllLayerSet)))
@@ -636,7 +635,7 @@ class EDBPadProperties(object):
 
     @property
     def geometry_type(self):
-        """Retrieve the geometry type.
+        """Geometry type.
         
         Returns
         -------
@@ -702,7 +701,7 @@ class EDBPadProperties(object):
 
     @property
     def rotation(self):
-        """Retrieve or update the rotation.
+        """Rotation.
 
         Returns
         -------
@@ -803,18 +802,18 @@ class EDBPadstack(object):
 
     @property
     def via_layers(self):
-        """Retrieve the layers.
+        """List of layers.
 
         Returns
         -------
         list
-            List of layer names.
+            List of layers.
         """
         return self.edb_padstack.GetData().GetLayerNames()
 
     @property
     def via_start_layer(self):
-        """Retrieve the starting layer.
+        """Starting layer.
 
         Returns
         -------
@@ -825,7 +824,7 @@ class EDBPadstack(object):
 
     @property
     def via_stop_layer(self):
-        """Retrieve the stopping layer.
+        """Stopping layer.
 
         Returns
         -------
@@ -848,7 +847,7 @@ class EDBPadstack(object):
 
     @property
     def hole_parameters(self):
-        """Retrieve the hole parameters.
+        """Hole parameters.
 
         Returns
         -------
@@ -921,7 +920,7 @@ class EDBPadstack(object):
 
     @property
     def hole_type(self):
-        """Retrieve the hole type.
+        """Hole type.
 
         Returns
         -------
@@ -1006,7 +1005,7 @@ class EDBPadstack(object):
 
     @property
     def hole_plating_thickness(self):
-        """Retrieve the hole plating thickness.
+        """Hole plating thickness.
 
         Returns
         -------
@@ -1020,7 +1019,7 @@ class EDBPadstack(object):
 
     @property
     def hole_finished_size(self):
-        """Retrieve the finished size of the hole.
+        """Finished hole size.
 
         Returns
         -------
@@ -1076,7 +1075,7 @@ class EDBPinInstances(object):
 
     @property
     def pingroups(self):
-        """Retrieve the pin groups to which the pin belongs.
+        """Pin groups to which the pin belongs.
 
         Returns
         -------
@@ -1087,7 +1086,7 @@ class EDBPinInstances(object):
 
     @property
     def position(self):
-        """Retrieve the pin position.
+        """Pin position.
 
         Returns
         -------
@@ -1103,7 +1102,7 @@ class EDBPinInstances(object):
 
     @property
     def rotation(self):
-        """Retrieve the rotation of the pin.
+        """Pin rotation.
 
         Returns
         -------
@@ -1119,7 +1118,7 @@ class EDBPinInstances(object):
 
     @property
     def placement_layer(self):
-        """Retrieve the placement layer.
+        """Placement layer.
 
         Returns
         -------
@@ -1130,7 +1129,7 @@ class EDBPinInstances(object):
 
     @property
     def lower_elevation(self):
-        """Retrieve the lower elevation of the placement layer.
+        """Lower elevation of the placement layer.
 
         Returns
         -------
@@ -1141,7 +1140,7 @@ class EDBPinInstances(object):
 
     @property
     def upper_elevation(self):
-        """Retrieve the upper elevation of the placement layer.
+        """Upper elevation of the placement layer.
 
         Returns
         -------
@@ -1152,7 +1151,7 @@ class EDBPinInstances(object):
 
     @property
     def top_bottom_association(self):
-        """Retrieve the top/bottom association of the placement layer.
+        """Top/bottom association of the placement layer.
 
         Returns
         -------
@@ -1207,7 +1206,7 @@ class EDBComponent(object):
 
     @property
     def placement_layer(self):
-        """Retrieve the placement layer.
+        """Placement layer.
 
         Returns
         -------
@@ -1218,7 +1217,7 @@ class EDBComponent(object):
 
     @property
     def lower_elevation(self):
-        """Retrieve the lower elevation of the placement layer.
+        """Lower elevation of the placement layer.
 
         Returns
         -------
@@ -1229,7 +1228,7 @@ class EDBComponent(object):
 
     @property
     def upper_elevation(self):
-        """Retrieve the upper elevation of the placement layer.
+        """Upper elevation of the placement layer.
 
         Returns
         -------
@@ -1241,7 +1240,7 @@ class EDBComponent(object):
 
     @property
     def top_bottom_association(self):
-        """Retrieve the top/bottom association of the placement layer. 
+        """Top/bottom association of the placement layer. 
         
         Returns
         -------
