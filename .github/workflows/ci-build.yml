@@ -23,7 +23,7 @@ jobs:
           pip install -r requirements_docs.txt
           make -C doc html
           touch doc/_build/html/.nojekyll
-          echo "dev.aedtdocs.pyvista.org" >> doc/_build/html/CNAME
+          echo "dev.aedtdocs.pyansys.com" >> doc/_build/html/CNAME
   
       - name: Upload Documentation
         uses: actions/upload-artifact@v2.2.3
