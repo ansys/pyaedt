@@ -3,17 +3,12 @@
    You can adapt this file completely to your liking, but it should at least
    contain the root `toctree` directive.
 
-Primitives
-==========
+Simplorer
+=========
 
+.. automodule:: pyaedt.simplorer
+    :members:
 
 
 .. toctree::
    :maxdepth: 2
-   :caption: The ``Primitives`` module includes these classes:
-
-   CommonPrimitives
-   Primitives3D
-   Primitives2D
-   Primitives3DLayout
-   CircuitComponents

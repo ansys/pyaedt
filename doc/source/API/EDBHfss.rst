@@ -3,17 +3,13 @@
    You can adapt this file completely to your liking, but it should at least
    contain the root `toctree` directive.
 
-Primitives
-==========
+EDB HFSS
+========
 
+**Diagram**
 
+.. automodule:: pyaedt.edb_core.hfss
+    :members:
 
 .. toctree::
    :maxdepth: 2
-   :caption: The ``Primitives`` module includes these classes:
-
-   CommonPrimitives
-   Primitives3D
-   Primitives2D
-   Primitives3DLayout
-   CircuitComponents

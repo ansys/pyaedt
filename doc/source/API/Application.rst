@@ -1,30 +1,28 @@
-Application
-===========
-The PyAEDT API includes these classes for application classes and modules.
+.. pyaedt documentation master file, created by
+   sphinx-quickstart on Fri Jun 12 11:39:54 2020.
+   You can adapt this file completely to your liking, but it should at least
+   contain the root `toctree` directive.
 
-.. currentmodule:: pyaedt
+Application Objects
+===================
 
-.. autosummary::
-   :toctree: _autosummary
-   :template: custom-class-template.rst
+.. toctree::
+   :maxdepth: 2
+   :caption: The PyAEDT API includes these classes for application objects:
 
-   Hfss
-   Q3d
-   Q2d
-   Edb
-   Maxwell2d
-   Maxwell3d
-   Icepak   
-   Hfss3dLayout
-   Mechanical
-   Rmxprt
-   Emit
+   HFSS
+   Q3D
+   Maxwell
+   Icepak
    Circuit
-   Simplorer
+   EDB
+   HFSS3DLayout
+   Mechanical
+   RMxprt
+   Emit
 
 
-Inheritance Diagram
-~~~~~~~~~~~~~~~~~~~
+**Diagram**
 
 .. inheritance-diagram:: pyaedt.hfss pyaedt.q3d pyaedt.icepak pyaedt.circuit pyaedt.edb pyaedt.hfss3dlayout  pyaedt.maxwell pyaedt.mechanical pyaedt.simplorer pyaedt.rmxprt
     :parts: 1

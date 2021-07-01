@@ -11,7 +11,6 @@ This section contains information about PyAEDT application modules:
 #. Design
 #. Variables
 #. Analysis
-#. Edb
 #. Modeler
 #. Objects
 #. DesignXPloration
@@ -53,7 +52,6 @@ The ``DesignXploration`` module contain all properties and methods needed to cre
    AnalysisCore
    ModelerCore
    ObjectCore
-   Edb
    Design
    Variables
    DesignXPlorer
