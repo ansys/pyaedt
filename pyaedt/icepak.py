@@ -249,6 +249,47 @@ class Icepak(FieldAnalysisIcepak):
         return None
 
     @aedt_exception_handler
+    def create_source_power(self, face_id, input_power="0W", thermal_condtion="Total Power", surface_heat="0irrad_W_per_m2", temperature="AmbientTemp", radiate=False, source_name=None):
+        """Create a source power for an face.
+
+        Parameters
+        ----------
+        face_id : int
+            Face Id
+        input_power : str or var
+            Input power.
+        surface_heat : str, optional
+            Surface Heat
+        temperature : str, optional
+            Temperature
+        radiate : bool
+            ``True`` if radiatinon enabled
+        source_name : str, optional
+            Source Name
+
+
+        Returns
+        -------
+        BoundaryObject
+            bound object or None
+
+        """
+        if not source_name:
+            source_name = generate_unique_name("Source")
+        props={}
+        props["Faces"] = [face_id]
+        props["Thermal Condition"] = thermal_condtion
+        props["Total Power"] = input_power
+        props["Surface Heat"] = surface_heat
+        props["Temperature"] = temperature
+        props["Radiation"] = OrderedDict({"Radiate" : radiate})
+        bound = BoundaryObject(self, source_name, props, 'SourceIcepak')
+        if bound.create():
+            self.boundaries.append(bound)
+            return bound
+        return None
+
+    @aedt_exception_handler
     def create_network_block(self, object_name, power, rjc, rjb, gravity_dir, top, assign_material=True,
                              default_material="Ceramic_material", use_object_for_name=True):
         """Create a network block.
@@ -370,6 +411,30 @@ class Icepak(FieldAnalysisIcepak):
                     networks.append(out)
         return networks
 
+    @aedt_exception_handler
+    def assign_surface_monitor(self, face_name, monitor_type="Temperature", monitor_name=None):
+        """Assign a Surface monitor
+
+        Parameters
+        ----------
+        face_name : str
+        monitor_type : str, optional
+        monitor_name : str, optional
+
+        Returns
+        -------
+        bool
+        """
+        if not monitor_name:
+            monitor_name =generate_unique_name("Monitor")
+        oModule = self.odesign.GetModule("Monitor")
+        oModule.AssignFaceMonitor(
+            [
+                "NAME:"+ monitor_name,
+                "Quantities:="	, [monitor_type],
+                "Objects:="		, [face_name]
+            ])
+        return True
 
     @aedt_exception_handler
     def assign_block_from_sherlock_file(self, csv_name):
@@ -1055,7 +1120,7 @@ class Icepak(FieldAnalysisIcepak):
 
     @aedt_exception_handler
     def create_ipk_3dcomponent_pcb(self, compName, setupLinkInfo, solutionFreq, resolution, PCB_CS="Global",
-                                   rad="Nothing", extenttype="Bounding Box", outlinepolygon="", powerin="0W"):
+                                   rad="Nothing", extenttype="Bounding Box", outlinepolygon="", powerin="0W", custom_x_resolution=None, custom_y_resolution=None):
         """Create a PCB component in Icepak that is linked to an HFSS 3D Layout object.
 
         Parameters
@@ -1110,12 +1175,19 @@ class Icepak(FieldAnalysisIcepak):
         compDefinition += ["Resolution:=", int(resolution),
                            ["NAME:LowSide", "Radiate:=", lowRad],
                            ["NAME:HighSide", "Radiate:=", highRad]]
-        if solutionFreq:
-            compDefinition += ["UseThermalLink:=", True,
-                               "CustomResolution:=", False, "Frequency:=", solutionFreq, hfssLinkInfo]
+
+
+        if custom_x_resolution and custom_y_resolution:
+            compDefinition += ["UseThermalLink:=", solutionFreq!="",
+                               "CustomResolution:=", True, "CustomResolutionRow:=", custom_x_resolution,
+                               "CustomResolutionCol:=", 600]
         else:
-            compDefinition += ["UseThermalLink:=", False,
-                               "CustomResolution:=", False, "Power:=", powerin, hfssLinkInfo]
+            compDefinition += ["UseThermalLink:=", solutionFreq != "",
+                               "CustomResolution:=", False]
+        if solutionFreq:
+                compDefinition += ["Frequency:=", solutionFreq, hfssLinkInfo]
+        else:
+            compDefinition += ["Power:=", powerin, hfssLinkInfo]
 
         compInstancePar = ["NAME:InstanceParameters",
                            "GeometryParameters:="	, "",
@@ -1151,7 +1223,7 @@ class Icepak(FieldAnalysisIcepak):
 
     @aedt_exception_handler
     def create_pcb_from_3dlayout(self, component_name, project_name, design_name, resolution=2,
-                                 extenttype="Bounding Box", outlinepolygon="", close_linked_project_after_import=True):
+                                 extenttype="Bounding Box", outlinepolygon="", close_linked_project_after_import=True, custom_x_resolution=None, custom_y_resolution=None):
         """Create a PCB component in Icepak that is linked to an HFSS 3D Layout object linking only to the geometry file (no solution linked)
 
         Parameters
@@ -1177,9 +1249,11 @@ class Icepak(FieldAnalysisIcepak):
              ``True`` when successful, ``False`` when failed.
 
         """
+        if project_name == self.project_name:
+            project_name = "This Project*"
         link_data = [project_name, design_name,  "<--EDB Layout Data-->", False, False]
         status = self.create_ipk_3dcomponent_pcb(component_name, link_data, "", resolution, extenttype=extenttype,
-                                                 outlinepolygon=outlinepolygon)
+                                                 outlinepolygon=outlinepolygon, custom_x_resolution=custom_x_resolution, custom_y_resolution=custom_y_resolution)
 
         if close_linked_project_after_import and ".aedt" in project_name:
                 prjname = os.path.splitext(os.path.basename(project_name))[0]

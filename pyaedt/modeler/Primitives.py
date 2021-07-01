@@ -822,6 +822,11 @@ class Primitives(object):
         self.refresh()
 
     @property
+    def non_models(self):
+        """List of all objects of type 'Solid'"""
+        return self._nonmodels
+
+    @property
     def solids(self):
         """List of all objects of type 'Solid'"""
         return self._solids
@@ -1133,7 +1138,7 @@ class Primitives(object):
             
         Returns
         -------
-        type
+        int
             Object ID.
         """
         o = self._new_object()
@@ -1152,7 +1157,7 @@ class Primitives(object):
 
             self._refresh_object_types()
             id = self._update_object(o)
-
+            self.objects[id] = o
         return id
 
     @aedt_exception_handler
@@ -1166,7 +1171,7 @@ class Primitives(object):
         
         Returns
         -------
-        type
+        int
             Object ID.
         """
         o = self._new_object()
@@ -1185,7 +1190,7 @@ class Primitives(object):
 
             self._refresh_object_types()
             id = self._update_object(o)
-
+            self.objects[id] = o
         return id
 
     @aedt_exception_handler
@@ -1585,6 +1590,7 @@ class Primitives(object):
 
     @aedt_exception_handler
     def _refresh_object_types(self):
+        self._nonmodels = list(self.oeditor.GetObjectsInGroup("Non Model"))
         self._solids = list(self.oeditor.GetObjectsInGroup("Solids"))
         self._sheets = list(self.oeditor.GetObjectsInGroup("Sheets"))
         self._lines = list(self.oeditor.GetObjectsInGroup("Lines"))

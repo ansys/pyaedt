@@ -66,6 +66,8 @@ class TestObject3D:
         assert non_planar_face.move_with_offset(1)
         assert math.isclose(non_planar_face.area, 50.26548245743669)
         assert not non_planar_face.normal
+        assert self.prim["Mybox"].top_face != self.prim["Mybox"].bottom_face
+
 
     def test_04_object_material_property(self):
         id1 = self.prim.create_box([0, 0, 0], [10, 10, 5], "Mybox", "Copper1234Invalid")

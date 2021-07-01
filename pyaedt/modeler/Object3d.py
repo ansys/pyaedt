@@ -644,6 +644,36 @@ class Object3d(object):
         return faces
 
     @property
+    def top_face(self):
+        """
+        Return the Top Face on the Z Direction of the object
+
+        Returns
+        -------
+        FacePrimitive
+        """
+        result = []
+        for i in self.faces:
+            result.append((float(i.center[2]), i))
+        result = sorted(result, key=lambda tup: tup[0])
+        return result[-1][1]
+
+    @property
+    def bottom_face(self):
+        """
+        Return the Bottom Face on the Z Direction of the object
+
+        Returns
+        -------
+        FacePrimitive
+        """
+        result = []
+        for i in self.faces:
+            result.append((float(i.center[2]), i))
+        result = sorted(result, key=lambda tup: tup[0])
+        return result[0][1]
+
+    @property
     def edges(self):
         """Returns the information for each edge in the given part
 
