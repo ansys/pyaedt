@@ -39,3 +39,4 @@ jobs:
           repository-name: pyansys/pyaedt-dev-docs
           branch: gh-pages
           folder: doc/_build/html/
+          token: ${{ secrets.PYANSYS_CI_BOT_TOKEN }}
