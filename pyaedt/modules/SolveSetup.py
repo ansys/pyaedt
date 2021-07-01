@@ -97,37 +97,6 @@ class Setup(object):
             except:
                 self.props = OrderedDict()
 
-
-    @aedt_exception_handler
-    def check_dict(self, listin, name, out):
-        """
-
-        Parameters
-        ----------
-        listin :
-            
-        name :
-            
-        out :
-            
-
-        Returns
-        -------
-
-        """
-        arg = ["Name:" + name.replace("__", " ")]
-        for a in listin:
-            if type(a) is tuple:
-                if type(a[1]) is list and type(a[1][0]) is tuple:
-                    arg = self.check_dict(a[1], a[0], arg)
-                else:
-                    arg.append(a[0].replace("__", " ") + ":=")
-                    arg.append(a[1])
-            else:
-                arg.append(a)
-        out.append(arg)
-        return out
-
     @aedt_exception_handler
     def create(self):
         """Insert a new Setup based on Class settings into the AEDT Application
@@ -316,57 +285,54 @@ class Setup(object):
 
     @aedt_exception_handler
     def enable(self, setup_name=None):
-        """Enable specific Setup
+        """Enable a specific setup.
 
         Parameters
         ----------
-        setup_name :
-            optional setup name (Default value = None)
+        setup_name : str, optional
+            Name of the setup, by default ``None``
 
         Returns
         -------
-        type
-            none
-
+        bool
+            ``True`` if successful, ``False`` otherwise.
         """
         if not setup_name:
-            self.omodule.EditSetup(self.name,
-                                   [
-                                       "NAME:" + self.name,
-                                       "IsEnabled:="		, True])
-        else:
-            self.omodule.EditSetup(setup_name,
-                                   [
-                                       "NAME:" + setup_name,
-                                       "IsEnabled:="		, True])
+            setup_name = self.name
+
+        self.omodule.EditSetup(
+            setup_name,
+            [
+                "NAME:" + setup_name,
+                "IsEnabled:=", True
+            ]
+        )
         return True
 
     @aedt_exception_handler
     def disable(self, setup_name=None):
-        """Disable specific Setup
+        """Disable a specific setup.
 
         Parameters
         ----------
-        setup_name :
-            optional setup name (Default value = None)
+        setup_name : str, optional
+            Name of the setup, by default ``None``
 
         Returns
         -------
-        type
-            none
-
+        bool
+            ``True`` if successful, ``False`` otherwise.
         """
         if not setup_name:
-            self.omodule.EditSetup(self.name,
-                                   [
-                                       "NAME:" + self.name,
-                                       "IsEnabled:="		, False])
+            setup_name = self.name
 
-        else:
-            self.omodule.EditSetup(setup_name,
-                                   [
-                                       "NAME:" + setup_name,
-                                       "IsEnabled:="		, False])
+        self.omodule.EditSetup(
+            setup_name,
+            [
+                "NAME:" + setup_name,
+                "IsEnabled:", False
+            ]
+        )
         return True
 
     @aedt_exception_handler
@@ -530,41 +496,6 @@ class SetupCircuit(object):
             except:
                 self.props = {}
         self.name = setupname
-
-    @aedt_exception_handler
-    def check_dict(self, listin, name, out):
-        """
-
-        Parameters
-        ----------
-        listin :
-            
-        name :
-            
-        out :
-            
-
-        Returns
-        -------
-
-        """
-        arg = ["Name:" + name.replace("__", " ")]
-        for a in listin:
-            if type(a) is tuple:
-                if type(a[1]) is list and type(a[1][0]) is tuple:
-                    arg = self.check_dict(a[1], a[0], arg)
-                else:
-                    arg.append(a[0].replace("__", " ") + ":=")
-                    arg.append(a[1])
-            else:
-                arg =name.replace("__", " ")+ ":="
-                out.append(arg)
-                arg = None
-                out.append(listin)
-                break
-        if arg:
-            out.append(arg)
-        return out
 
     @aedt_exception_handler
     def create(self):
@@ -792,44 +723,40 @@ class SetupCircuit(object):
 
     @aedt_exception_handler
     def enable(self, setup_name=None):
-        """Enable specific Setup
+        """Enable a specific setup.
 
         Parameters
         ----------
-        setup_name :
-            optional setup name (Default value = None)
+        setup_name : str, optional
+            Name of the setup, by default ``None``
 
         Returns
         -------
-        type
-            none
-
+        bool
+            ``True`` if successful, ``False`` otherwise.
         """
         if not setup_name:
-            self.odesign.EnableSolutionSetup(self.name, True)
-        else:
-            self.odesign.EnableSolutionSetup(setup_name, True)
+            setup_name = self.name
+        self.odesign.EnableSolutionSetup(setup_name, True)
         return True
 
     @aedt_exception_handler
     def disable(self, setup_name=None):
-        """Disable specific Setup
+        """Disable a specific setup.
 
         Parameters
         ----------
-        setup_name :
-            optional setup name (Default value = None)
+        setup_name : str, optional
+            Name of the setup, by default ``None``
 
         Returns
         -------
-        type
-            none
-
+        bool
+            ``True`` if successful, ``False`` otherwise.
         """
         if not setup_name:
-            self.odesign.EnableSolutionSetup(self.name, False)
-        else:
-            self.odesign.EnableSolutionSetup(setup_name, False)
+            setup_name = self.name
+        self.odesign.EnableSolutionSetup(setup_name, False)
         return True
 
 

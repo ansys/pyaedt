@@ -56,7 +56,7 @@ class EdbNets(object):
     @property
     def messenger(self):
         """ """
-        return self.parent.messenger
+        return self.parent._messenger
 
     @property
     def nets_methods(self):
@@ -223,7 +223,7 @@ class EdbNets(object):
                 if edb_net is not None:
                     edb_net.Delete()
                     nets_deleted.append(net)
-                    self.parent.messenger.add_info_message("Net {} Deleted".format(net))
+                    self.parent._messenger.add_info_message("Net {} Deleted".format(net))
             except:
                 pass
 

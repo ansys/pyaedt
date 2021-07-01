@@ -2068,7 +2068,7 @@ class GeometryModeler(Modeler, object):
 
         Returns
         -------
-        type
+        bool
             True if succeeded
 
         """

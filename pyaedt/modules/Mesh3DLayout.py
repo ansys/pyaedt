@@ -1,19 +1,8 @@
 """
-Mesh Library Class
-----------------------------------------------------------------
+This module contains these classes: ``Mesh`` and ``Mesh3DOperation``.
 
-
-Description
-==================================================
-
-This class contains all the functionalities to create and edit mesh in all the 3D Tools
-
-
-
-========================================================
-
+They contain all functionalities for creating and editing the mesh in the 3D tools.
 """
-
 from __future__ import absolute_import
 
 from ..generic.general_methods import aedt_exception_handler, generate_unique_name, MethodNotSupportedError
@@ -21,7 +10,8 @@ from ..application.DataHandlers import dict2arg
 from collections import OrderedDict, defaultdict
 
 class Mesh3DOperation(object):
-    """ """
+    """Mesh3DOperation class."""
+
     def __init__(self, parent, hfss_setup_name, name, props):
         self._parent = parent
         self.name = name
@@ -35,11 +25,12 @@ class Mesh3DOperation(object):
         Parameters
         ----------
         props :
-             (Default value = None)
+             The default is ``None``.
 
         Returns
         -------
-
+        bool
+            ``True`` when successful, ``False`` when failed.
         """
         if not props:
             props = self.props
@@ -69,13 +60,14 @@ class Mesh3DOperation(object):
 
 
 class Mesh(object):
-    """""
-    Manage Main AEDT Mesh Functions
-    AEDTConfig Class Inherited contains all the _desktop Hierarchical calls needed to the class
-    ""
-
+    """Mesh class.
+    
+    This class provides the main AEDT mesh functionaility. The inherited class
+    ``AEDTConfig`` contains all ``_desktop`` hierarchical calls needed by this class.
+   
     Parameters
     ----------
+    parent :
 
     Returns
     -------
@@ -113,19 +105,18 @@ class Mesh(object):
     @aedt_exception_handler
     def delete_mesh_operations(self, setup_name, mesh_name):
         """Remove mesh operations from a setup.
-        
-        :return: Boolean
-
+       
         Parameters
         ----------
-        setup_name :
-            
-        mesh_name :
-            
+        setup_name : str
+            Name of the setup.
+        mesh_name :str
+            Name of the mesh.
 
         Returns
         -------
-
+        bool
+            ``True`` when successful, ``False`` when failed.
         """
         for el in self.meshoperations:
             if el.hfss_setup_name == setup_name and el.name == mesh_name:
@@ -136,7 +127,13 @@ class Mesh(object):
 
     @aedt_exception_handler
     def _get_design_mesh_operations(self):
-        """ """
+        """Get design mesh operations.
+        
+        Returns
+        -------
+        bool
+            ``True`` when successful, ``False`` when failed.
+        """
         meshops = []
         try:
             for ds in self._parent.design_properties['Setup']['Data']:
@@ -150,32 +147,30 @@ class Mesh(object):
 
     @aedt_exception_handler
     def assign_length_mesh(self, setupname, layer_name, net_name, isinside=True, maxlength=1, maxel=1000, meshop_name=None):
-        """
+        """Assign mesh length.
 
         Parameters
         ----------
-        setupname :
-            name of HFSS setup to be applied
-        names :
-            net lists.
-        isinside :
-            True if length mesh is inside selection, False if outside (Default value = True)
-        maxlength :
-            maxlength maximum element length. None to disable (Default value = 1)
-        maxel :
-            max number of element. None to disable (Default value = 1000)
-        meshop_name :
-            optional mesh operation name (Default value = None)
-        layer_name :
-            
-        net_name :
-            
-
+        setupname : str
+            Name of the HFSS setup to apply.
+        layer_name : str
+           Name of the layer.   
+        net_name : str
+           Name of the net.
+        isinside : bool, optional
+            Whether the mesh length is inside the selection. The default is ``True``.
+        maxlength : float, optional
+            Maximum length of the element. The default is ``1`` When ``None``, this 
+            parameter is disabled. 
+        maxel : int, optional
+            Maximum number of elements. The default is ``1000`` When ``None``, this 
+            parameter is disabled. 
+        meshop_name : str, optional
+            Name of the mesh operation. The default is ``None``
         Returns
         -------
         type
-            meshoperation object
-
+            Mesh operation object.
         """
         if meshop_name:
             for el in self.meshoperations:
@@ -221,32 +216,31 @@ class Mesh(object):
     @aedt_exception_handler
     def assign_skin_depth(self, setupname, layer_name, net_name, skindepth=1, maxelements=None, triangulation_max_length=0.1, numlayers="2",
                           meshop_name=None):
-        """
+        """Assign skin depth.
 
         Parameters
         ----------
-        layer_name :
-            name of the layer
-        net_name :
-            name of the net
-        skindepth :
-            Skin Depth length (Default value = 1)
-        maxelements :
-            maxlength maximum element length. None to disable (Default value = None)
-        triangulation_max_length :
-            maximum surface triangulation length (Default value = 0.1)
-        numlayers :
-            number of layers (Default value = "2")
-        setupname :
-            
-        meshop_name :
-             (Default value = None)
+        setupname : str
+            Name of the setup.
+        layer_name : str
+            Name of the layer.
+        net_name : str
+            Name of the net.
+        skindepth : int, optional
+            Depth of the skin. The default is ``1``.
+        maxelements : float, optional
+            Maximum element length. The default is ``None``, which disables this parameter.
+        triangulation_max_length : float, optional
+            Maximum surface triangulation length. The default is ``0.1``.
+        numlayers : str, optional
+            Number of layers. The default is ``"2"``.
+        meshop_name : str, optional
+             Name of the mesh operation. The default is ``None``.
 
         Returns
         -------
         type
-            meshoperation object
-
+            Mesh operation object.
         """
         if meshop_name:
             for el in self.meshoperations:

@@ -155,8 +155,8 @@ class TestIcepak:
         self.aedtapp.modeler.primitives.create_box([9,9,9], [5,5,5],"box2", "copper")
         self.aedtapp.create_source_block("box", "1W", False)
         setup=self.aedtapp.create_setup("SetupIPK")
-        setup.props["Convergence Criteria - Max Iterations"] = 3
-        assert setup.update()
+        new_props = {"Convergence Criteria - Max Iterations": 3}
+        assert setup.update(update_dictionary=new_props)
         airfaces = [i.id for i in self.aedtapp.modeler.primitives["Region"].faces]
         self.aedtapp.assign_openings(airfaces)
 
@@ -224,11 +224,8 @@ class TestIcepak:
         assert dielectrics == ["Region"]
 
     def test_28_assign_surface_material(self):
-        surface_emissivity = self.aedtapp.materials.creatematerialsurface("my_surface", 0.5)
-        assert surface_emissivity == 0.5
-
-    def test_29_create_sweep_material(self):
-        assert self.aedtapp.materials.creatematerial_sweeps(["copper", "silver"], "My_Sweep", False)
+        mats = self.aedtapp.materials.add_surface_material("my_surface", 0.5)
+        assert mats.emissivity.value == 0.5
 
     def test_33_create_region(self):
         self.aedtapp.modeler.primitives.delete("Region")

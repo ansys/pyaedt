@@ -313,7 +313,7 @@ class DesignCache(object):
         """Get the current state values from the design and perform a delta-calculation with the cached values.
         Then replace the cached values with the current values. Note: this is done automatically when the property
         'no_change' is accessed!"""
-        messages = self._parent.messenger.messages
+        messages = self._parent._messenger.messages
 
         # Check whether the design snapshot has changed since the last update
         new_snapshot = self.design_snapshot()

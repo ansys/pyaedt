@@ -69,6 +69,11 @@ class Components(object):
         self.init_parts()
 
     @property
+    def messenger(self):
+        """ """
+        return self.parent._messenger
+
+    @property
     def edb(self):
         """ """
         return self.parent.edb
@@ -588,7 +593,7 @@ class Components(object):
                 if edb_cmp is not None:
                     edb_cmp.Delete()
                     deleted_comps.append(comp)
-                    self.parent.messenger.add_info_message("Component {} deleted".format(comp))
+                    self.parent._messenger.add_info_message("Component {} deleted".format(comp))
         for el in deleted_comps:
             del self.components[el]
         return deleted_comps

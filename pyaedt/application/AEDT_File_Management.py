@@ -7,14 +7,14 @@ from ..generic.general_methods import aedt_exception_handler, generate_unique_na
 
 @aedt_exception_handler
 def read_info_fromcsv(projdir, name):
-    """Read information from CSV file and return a list
+    """Read information from a CSV file and return a list.
 
     Parameters
     ----------
     projdir : str
-        project directory
+        Full path to the file. 
     name : str
-        File name
+        Name of the file,
 
     Returns
     -------
@@ -33,18 +33,19 @@ def read_info_fromcsv(projdir, name):
 
 @aedt_exception_handler
 def clean_proj_folder(dir, name):
-    """Delete all project name related folder
+    """Delete all project name-related folders.
 
     Parameters
     ----------
-    dir :
-        project directory
-    name :
-        project name
+    dir : str
+        Full path to the project directory
+    name : str
+        Name of the project.
 
     Returns
     -------
-
+    bool
+        ``True`` when successful, ``False`` when failed.
     """
     if os.path.exists(dir):
         shutil.rmtree(dir, True)
@@ -54,12 +55,12 @@ def clean_proj_folder(dir, name):
 
 @aedt_exception_handler
 def create_output_folder(ProjectDir):
-    """Create the Output folders starting from the project dir
+    """Create the output folders starting from the project directory.
 
     Parameters
     ----------
-    ProjectDir :
-        project directory
+    ProjectDir : str
+        Name of the project directory.
 
     Returns
     -------
@@ -88,20 +89,19 @@ def create_output_folder(ProjectDir):
 
 @aedt_exception_handler
 def change_objects_visibility(origfile, solid_list):
-    """Edit the project file (extension .aedt) to make only the specified solids visible
+    """Edit the project file to make only the solids that are specified visible.
 
     Parameters
     ----------
-    origfile :
-        str) = full path of the project file
-    SolidList :
-        list) = list of the solid names to make visible (hide all the others)
-    solid_list :
-        
-
+    origfile : str
+        Full path to the project file, which has an ``.aedt``  extension.
+    solid_list : list
+        List of names for the solid to make visible. All other solides are hidden.
+   
     Returns
     -------
-
+    bool
+        ``True`` when successful, ``False`` when failed.
     """
     path, filename = os.path.split(origfile)
     newfile = os.path.join(path, "aedttmp.tmp")
@@ -137,20 +137,19 @@ def change_objects_visibility(origfile, solid_list):
 
 @aedt_exception_handler
 def change_model_orientation(origfile, bottom_dir):
-    """Edit the project file (extension .aedt) to change the model orientation
+    """Edit the project file to change the model orientation.
 
     Parameters
     ----------
-    origfile :
-        str) = full path of the project file
-    BottomDir :
-        str) = bottom direction as specified in the properties file
-    bottom_dir :
-        
+    origfile : str
+        Full path to the project file, which has an ``.aedt``  extension.
+    bottom_dir : str
+        Bottom direction as specified in the properties file.    
 
     Returns
     -------
-
+    bool
+        ``True`` when successful, ``False`` when failed.
     """
     path, filename = os.path.split(origfile)
     newfile = os.path.join(path, "aedttmp.tmp")

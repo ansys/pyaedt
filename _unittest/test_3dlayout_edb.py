@@ -69,4 +69,6 @@ class Test3DLayoutEDB:
         setup2 = self.aedtapp.mesh.assign_skin_depth("HFSS", "PWR", "GND")
         assert setup1
         assert setup2
+        setup1.props["Enabled"] = False
+        assert setup1.update()
         assert self.aedtapp.mesh.delete_mesh_operations("HFSS", setup1.name)

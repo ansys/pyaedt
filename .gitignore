@@ -346,6 +346,8 @@ healthchecksdb
 # sphinx build
 doc/_build/
 doc/source/examples
+_autosummary/
+
 
 # pip files
 *.egg-info/*
@@ -355,5 +357,7 @@ dist/
 # mypi cache
 .mypy_cache/
 
-# sphinx autosummary
-_autosummary/
+# coverage and testing
+/htmlcov/
+/coverage.xml
+/_unittest/local_config.json
