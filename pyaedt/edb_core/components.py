@@ -351,8 +351,6 @@ class Components(object):
         bool
             ``True`` when successful, ``False`` when failed.
         """
-        self.edb.Cell.Hierarchy.Component
-            Edb component (Edb.Cell.Hierarchy.Component) object if exists
         edbcmp = self.edb.Cell.Hierarchy.Component.FindByName(self.active_layout, name)
         if edbcmp is not None:
             return edbcmp
