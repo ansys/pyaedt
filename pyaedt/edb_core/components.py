@@ -44,7 +44,7 @@ def resistor_value_parser(RValue):
 
 
 class Components(object):
-    """HFSS 3D Layout class.
+    """HFSS 3D application interface.
 
     This class manages EDB components and related methods.
 
