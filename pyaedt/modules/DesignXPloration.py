@@ -250,7 +250,7 @@ class CommonOptimetrics(object):
         solution : str, optional
             Type of the solution. The default is ``None``.
         domain : str, optional
-            TYpe of the doman. The default is ``"Sweep"''.
+            Type of the domain. The default is ``"Sweep"''.
         calculation : str, optional
             Name of the calculation. The default is ``""``.
         calculation_type : str, optional
