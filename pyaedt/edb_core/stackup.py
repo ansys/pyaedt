@@ -60,7 +60,7 @@ class EdbStackup(object):
 
     @property
     def stackup_layers(self):
-        """Retrieve all stackup layers.
+        """Dictionary of all the stackup layers.
        
         Returns
         -------
@@ -74,7 +74,7 @@ class EdbStackup(object):
 
     @property
     def signal_layers(self):
-        """Retrieve all signal layers.
+        """List of all signal layers.
         
         Returns
         -------
@@ -86,7 +86,7 @@ class EdbStackup(object):
 
     @property
     def materials(self):
-        """Retrieve all materials.
+        """Dictionary of materials.
         
         Returns
         -------
@@ -98,7 +98,6 @@ class EdbStackup(object):
             mats[el.Name] = el
         return mats
 
-    
     @aedt_exception_handler
     def create_dielectric(self, name, permittivity=1, loss_tangent=0):
         """Create a new dielectric with simple properties.
