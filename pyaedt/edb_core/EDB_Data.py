@@ -88,7 +88,7 @@ class EDBLayer(object):
 
     @property
     def layer_type(self):
-        """Retrieve the layer type.
+        """Retrieve or update the layer type.
 
         Returns
         -------
@@ -101,24 +101,13 @@ class EDBLayer(object):
 
     @layer_type.setter
     def layer_type(self, value):
-        """Update the layer type.
-
-        Parameters
-        ----------
-        value : int
-            Type of the layer.
-        
-        Returns
-        -------
-        bool
-            ``True`` when successful, ``False`` when failed.
-        """
+        """ """
         self._layer_type = value
         self.update_layers()
 
     @property
     def material_name(self):
-        """Retrieve the material name.
+        """Retrieve or update the material name.
 
         Returns
         -------
@@ -133,7 +122,7 @@ class EDBLayer(object):
 
     @material_name.setter
     def material_name(self, value):
-        """Update the material name.
+        """ """
 
         Parameters
         ----------
@@ -151,7 +140,7 @@ class EDBLayer(object):
 
     @property
     def thickness_value(self):
-        """Retrieve the thickness value.
+        """Retrieveor update the thickness value.
 
         Returns
         -------
@@ -166,25 +155,15 @@ class EDBLayer(object):
 
     @thickness_value.setter
     def thickness_value(self, value):
-        """Update the thickness value.
+        """ """
 
-        Parameters
-        ----------
-        value : str or float
-            Thickness value.
-        
-        Returns
-        -------
-        bool
-            ``True`` when successful, ``False`` when failed.
-        """
         #self.stackup_methods.SetLayerThickness(self.builder, self.name, value)
         self._thickness = value
         self.update_layers()
 
     @property
     def filling_material_name(self):
-        """Retrieve the filling material.
+        """Retrieve or update the filling material.
 
         Returns
         -------
@@ -201,18 +180,8 @@ class EDBLayer(object):
 
     @filling_material_name.setter
     def filling_material_name(self, value):
-        """Update the filling material.
-
-        Parameters
-        ----------
-        value : str
-            Name of the filling material.
-            
-        Returns
-        -------
-        bool
-            ``True`` when successful, ``False`` when failed.    
-        """
+        """ """
+        
         if self._layer_type == 0 or self._layer_type == 2:
             self._filling_material_name = value
             self.update_layers()
@@ -226,15 +195,11 @@ class EDBLayer(object):
         int
             Top/bottom association layer, where:
                       
-            0 - Top associated
-            
-            1 - No association
-            
-            2 - Bottom associated
-            
-            4 - Number of top/bottom associations.
-            
-            -1 -  Undefined.
+            * 0 - Top associated
+            * 1 - No association
+            * 2 - Bottom associated
+            * 4 - Number of top/bottom associations
+            * -1 -  Undefined.
         """
         try:
             self._top_bottom_association = self._layer.GetTopBottomAssociation()
@@ -244,7 +209,7 @@ class EDBLayer(object):
 
     @property
     def lower_elevation(self):
-        """Retrieve the lower elevation.
+        """Retrieve or update the lower elevation.
 
         Returns
         -------
@@ -259,18 +224,8 @@ class EDBLayer(object):
 
     @lower_elevation.setter
     def lower_elevation(self, value):
-        """Update the lower elevation.
+        """ """
         
-        Parameters
-        ----------
-        value : float
-            Lower elevation.
-            
-        Returns
-        -------
-        bool
-            ``True`` when successful, ``False`` when failed.
-        """
         self._lower_elevation = value
         self.update_layers()
 
@@ -291,7 +246,7 @@ class EDBLayer(object):
 
     @property
     def etch_factor(self):
-        """Retrieve the etch factor.
+        """Retrieve or update the etch factor.
 
         Returns
         -------
@@ -308,18 +263,8 @@ class EDBLayer(object):
 
     @etch_factor.setter
     def etch_factor(self, value):
-        """Update the etch factor.
-
-        Parameters
-        ----------
-        value : float
-            Etch factor.
-            
-        Returns
-        -------
-        bool
-            ``True`` when successful, ``False`` when failed.    
-        """
+        """ """
+        
         if self._layer_type == 0 or self._layer_type==2:
             self._etch_factor = value
             self.update_layers()
@@ -414,7 +359,7 @@ class EDBLayer(object):
 class EDBLayers(object):
     """EDBLayers object.
     
-    This class manage all primitives.
+    This class manages all primitives.
     """
 
     @property
@@ -528,18 +473,16 @@ class EDBLayers(object):
 
     @property
     def stackup_mode(self):
-        """Retrieve the stackup mode.
+        """Retrieve or update the stackup mode.
         
         Returns    
         -------
         int
             Stackup mode, where:
             
-            0 - Laminate
-            
-            1 - Overlapping
-            
-            2 - Multizone
+            * 0 - Laminate
+            * 1 - Overlapping
+            * 2 - Multizone
         """
         self._stackup_mode = self.layer_collection.GetMode()
         return self._stackup_mode
@@ -550,24 +493,8 @@ class EDBLayers(object):
 
     @stackup_mode.setter
     def stackup_mode(self, value):
-        """Update the stackup mode.
+        """ """
 
-        Parameters
-        ----------
-        value : int
-            Stackup mode. Options are:
-             
-            0 - Laminate
-            
-            1 - Overlapping
-            
-            2 - Multizone
-
-        Returns
-        -------
-        bool
-            ``True`` when successful, ``False`` when failed.
-        """
         if value == 0 or value == self.layer_collection_mode.Laminate:
             self.layer_collection.SetMode(self.layer_collection_mode.Laminate)
         elif value == 1 or value == self.layer_collection_mode.Overlapping:
@@ -726,7 +653,7 @@ class EDBPadProperties(object):
 
     @property
     def geometry_type(self):
-        """Geometry type.
+        """Retrieve the geometry type.
         
         Returns
         -------
@@ -738,7 +665,7 @@ class EDBPadProperties(object):
 
     @property
     def parameters(self):
-        """Retrieve a list of parameters.
+        """Retrieve or update a list of parameters.
 
         Returns
         -------
@@ -750,18 +677,8 @@ class EDBPadProperties(object):
 
     @parameters.setter
     def parameters(self, propertylist):
-        """Update parameters.
+        """ """"
 
-        Parameters
-        ----------
-        propertylist : list
-            List of parameters to update.
-        
-        Returns
-        -------
-        bool
-            ``True`` when successful, ``False`` when failed.
-        """
         if not isinstance(propertylist, list):
             propertylist =[self._edb_value(propertylist)]
         else:
@@ -770,7 +687,7 @@ class EDBPadProperties(object):
 
     @property
     def offset_x(self):
-        """Retrieve the offset for the X axis.
+        """Retrieve or update the offset for the X axis.
 
         Returns
         -------
@@ -782,22 +699,12 @@ class EDBPadProperties(object):
 
     @offset_x.setter
     def offset_x(self, offset_value):
-        """Update the offset for the X axis.
+        """ """
 
-        Parameters
-        ----------
-        offset_value : float, str
-            Offset value for the X axis.
-        
-        Returns
-        -------
-        bool
-            ``True`` when successful, ``False`` when failed.
-        """
         self._update_pad_parameters_parameters(offsetx= offset_value)
     @property
     def offset_y(self):
-        """Retrieve the offset for the Y axis.
+        """Retrieve or update the offset for the Y axis.
 
         Returns
         -------
@@ -809,23 +716,13 @@ class EDBPadProperties(object):
 
     @offset_y.setter
     def offset_y(self, offset_value):
-        """Update the offset for the Y axis.
+        """ """
 
-        Parameters
-        ----------
-        offset_value : float, str
-           Offset value for the Y axis.
-        
-        Returns
-        -------
-        bool
-            ``True`` when successful, ``False`` when failed.
-        """
         self._update_pad_parameters_parameters(offsety=offset_value)
 
     @property
     def rotation(self):
-        """Retrieve the rotation.
+        """Retrieve or update the rotation.
 
         Returns
         -------
@@ -837,18 +734,8 @@ class EDBPadProperties(object):
 
     @rotation.setter
     def rotation(self, rotation_value):
-        """Update the rotation.
+        """ """
 
-        Parameters
-        ----------
-        rotation_value : float, str
-           Value for the rotation.
-            
-        Returns
-        -------
-        bool
-            ``True`` when successful, ``False`` when failed.
-        """
         self._update_pad_parameters_parameters(rotation=rotation_value)
 
     @aedt_exception_handler
@@ -1034,7 +921,7 @@ class EDBPadstack(object):
 
     @property
     def hole_properties(self):
-        """Retrieve the hole properties.
+        """Retrieve or update the hole properties.
 
         Returns
         -------
@@ -1046,17 +933,8 @@ class EDBPadstack(object):
 
     @hole_properties.setter
     def hole_properties(self, propertylist):
-        """Update the hole properties.
+        """ """
 
-        Parameters
-        ----------
-        propertylist : list
-            List of the hole properties to update.
-        Returns
-        -------
-        bool
-            ``True`` when successful, ``False`` when failed.
-        """
         if not isinstance(propertylist, list):
             propertylist =[self._edb_value(propertylist)]
         else:
@@ -1077,7 +955,7 @@ class EDBPadstack(object):
 
     @property
     def hole_offset_x(self):
-        """Retrieve the hole offset for the X axis.
+        """Retrieve or update the hole offset for the X axis.
 
         Returns
         -------
@@ -1089,23 +967,14 @@ class EDBPadstack(object):
 
     @hole_offset_x.setter
     def hole_offset_x(self, offset):
-        """Update the hole offset for the X axis.
+        """ """
 
-        Parameters
-        ----------
-        offset : float, str
-            Hole ofset value for the X axis.
-        Returns
-        -------
-        bool
-            ``True`` when successful, ``False`` when failed.
-        """
         self._hole_offset_x = offset
         self._update_hole_parameters(offsetx=offset)
 
     @property
     def hole_offset_y(self):
-        """Retrieve the hole offset for the Y axis.
+        """Retrieve or update the hole offset for the Y axis.
 
         Returns
         -------
@@ -1117,24 +986,14 @@ class EDBPadstack(object):
 
     @hole_offset_y.setter
     def hole_offset_y(self, offset):
-        """Update the hole offset for the Y axis.
-
-        Parameters
-        ----------
-        offset : str, float
-           Hole offset value for the Y axis.
+        """ """
         
-        Returns
-        -------
-        bool
-            ``True`` when successful, ``False`` when failed.
-        """
         self._hole_offset_y = offset
         self._update_hole_parameters(offsety=offset)
 
     @property
     def hole_rotation(self):
-        """Retrieve the hole rotation.
+        """Retrieve or update the hole rotation.
 
         Returns
         -------
@@ -1146,25 +1005,14 @@ class EDBPadstack(object):
 
     @hole_rotation.setter
     def hole_rotation(self, rotation):
-        """Update the hole rotation.
-
-        Parameters
-        ----------
-        rotation : float, str
-            Hole rotation.
-        
-        Returns
-        -------
-        bool
-            ``True`` when successful, ``False`` when failed.
-        """
+        """ """
         
         self._hole_rotation= rotation
         self._update_hole_parameters(rotation=rotation)
 
     @property
     def hole_plating_ratio(self):
-        """Retrieve the hole plating ratio.
+        """Retrieve or update the hole plating ratio.
 
         Returns
         -------
@@ -1175,18 +1023,8 @@ class EDBPadstack(object):
 
     @hole_plating_ratio.setter
     def hole_plating_ratio(self, ratio):
-        """Update the hole plating ratio.
+        """ """
         
-        Parameters
-        ----------
-        ratio : float
-            Ratio value for the hole plating.
-        
-        Returns
-        -------
-        bool
-            ``True`` when successful, ``False`` when failed.
-        """
         originalPadstackDefinitionData = self.edb_padstack.GetData()
         newPadstackDefinitionData = self._edb.Definition.PadstackDefData(originalPadstackDefinitionData)
         newPadstackDefinitionData.SetHolePlatingPercentage(self._edb_value(ratio))
@@ -1222,7 +1060,7 @@ class EDBPadstack(object):
 
     @property
     def material(self):
-        """Retrieve the hole material
+        """Retrieve or update the hole material
 
         Returns
         -------
@@ -1233,18 +1071,8 @@ class EDBPadstack(object):
 
     @material.setter
     def material(self, materialname):
-        """Update the material.
-
-        Parameters
-        ----------
-        materialname : str
-            Name of the material.
+        """ """
         
-        Returns
-        -------
-        bool
-            ``True`` when successful, ``False`` when failed.    
-        """
         originalPadstackDefinitionData = self.edb_padstack.GetData()
         newPadstackDefinitionData = self._edb.Definition.PadstackDefData(originalPadstackDefinitionData)
         newPadstackDefinitionData.SetMaterial(materialname)
@@ -1357,11 +1185,12 @@ class EDBPinInstances(object):
         -------
         int
             Top/bottom association of the placement layer.
-            0 Top associated.
-            1 No association.
-            2 Bottom associated.
-            4 Number of top/bottom association type.
-            -1 Undefined.
+            
+            * 0 Top associated.
+            * 1 No association.
+            * 2 Bottom associated.
+            * 4 Number of top/bottom association type.
+            * -1 Undefined.
         """
         return self.pin.GetGroup().GetPlacementLayer().GetTopBottomAssociation()
 
@@ -1446,14 +1275,10 @@ class EDBComponent(object):
         int
             Top/bottom association of the placement layer, where:
                       
-            0 - Top associated
-            
-            1 - No association
-            
-            2 - Bottom associated
-            
-            4 - Number of top/bottom associations.
-            
-            -1 -  Undefined
+            * 0 - Top associated
+            * 1 - No association
+            * 2 - Bottom associated
+            * 4 - Number of top/bottom associations.
+            * -1 - Undefined
         """
         return self.pinlist[0].GetGroup().GetPlacementLayer().GetTopBottomAssociation()
