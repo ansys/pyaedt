@@ -667,7 +667,7 @@ class EDBPadProperties(object):
 
     @parameters.setter
     def parameters(self, propertylist):
-        """ """"
+        """ """
 
         if not isinstance(propertylist, list):
             propertylist =[self._edb_value(propertylist)]
