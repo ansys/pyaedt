@@ -1252,7 +1252,7 @@ class EDBPadstack(object):
 
 
 class EDBPinInstances(object):
-    """EDBPinInstances class.
+    """EDBPinInstances class."""
 
     def __init__(self,parent, pin):
         self.parent = parent
