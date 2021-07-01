@@ -122,7 +122,6 @@ class EDBLayer(object):
 
     @material_name.setter
     def material_name(self, value):
-        """ """
 
         #self.stackup_methods.EditLayerName(self.builder, self._name, value)
         self._material_name = value
@@ -130,7 +129,7 @@ class EDBLayer(object):
 
     @property
     def thickness_value(self):
-        """Retrieveor update the thickness value.
+        """Retrieve or update the thickness value.
 
         Returns
         -------
@@ -145,8 +144,6 @@ class EDBLayer(object):
 
     @thickness_value.setter
     def thickness_value(self, value):
-        """ """
-
         #self.stackup_methods.SetLayerThickness(self.builder, self.name, value)
         self._thickness = value
         self.update_layers()
