@@ -101,7 +101,7 @@ class EDBLayer(object):
 
     @layer_type.setter
     def layer_type(self, value):
-        """ """
+        
         self._layer_type = value
         self.update_layers()
 
@@ -167,8 +167,7 @@ class EDBLayer(object):
 
     @filling_material_name.setter
     def filling_material_name(self, value):
-        """ """
-        
+                
         if self._layer_type == 0 or self._layer_type == 2:
             self._filling_material_name = value
             self.update_layers()
@@ -211,8 +210,7 @@ class EDBLayer(object):
 
     @lower_elevation.setter
     def lower_elevation(self, value):
-        """ """
-        
+                
         self._lower_elevation = value
         self.update_layers()
 
@@ -250,8 +248,7 @@ class EDBLayer(object):
 
     @etch_factor.setter
     def etch_factor(self, value):
-        """ """
-        
+                
         if self._layer_type == 0 or self._layer_type==2:
             self._etch_factor = value
             self.update_layers()
@@ -480,8 +477,7 @@ class EDBLayers(object):
 
     @stackup_mode.setter
     def stackup_mode(self, value):
-        """ """
-
+       
         if value == 0 or value == self.layer_collection_mode.Laminate:
             self.layer_collection.SetMode(self.layer_collection_mode.Laminate)
         elif value == 1 or value == self.layer_collection_mode.Overlapping:
@@ -664,8 +660,7 @@ class EDBPadProperties(object):
 
     @parameters.setter
     def parameters(self, propertylist):
-        """ """
-
+       
         if not isinstance(propertylist, list):
             propertylist =[self._edb_value(propertylist)]
         else:
@@ -686,8 +681,7 @@ class EDBPadProperties(object):
 
     @offset_x.setter
     def offset_x(self, offset_value):
-        """ """
-
+        
         self._update_pad_parameters_parameters(offsetx= offset_value)
     @property
     def offset_y(self):
@@ -703,8 +697,7 @@ class EDBPadProperties(object):
 
     @offset_y.setter
     def offset_y(self, offset_value):
-        """ """
-
+       
         self._update_pad_parameters_parameters(offsety=offset_value)
 
     @property
@@ -721,8 +714,7 @@ class EDBPadProperties(object):
 
     @rotation.setter
     def rotation(self, rotation_value):
-        """ """
-
+       
         self._update_pad_parameters_parameters(rotation=rotation_value)
 
     @aedt_exception_handler
@@ -920,8 +912,7 @@ class EDBPadstack(object):
 
     @hole_properties.setter
     def hole_properties(self, propertylist):
-        """ """
-
+        
         if not isinstance(propertylist, list):
             propertylist =[self._edb_value(propertylist)]
         else:
@@ -954,8 +945,7 @@ class EDBPadstack(object):
 
     @hole_offset_x.setter
     def hole_offset_x(self, offset):
-        """ """
-
+        
         self._hole_offset_x = offset
         self._update_hole_parameters(offsetx=offset)
 
@@ -973,8 +963,7 @@ class EDBPadstack(object):
 
     @hole_offset_y.setter
     def hole_offset_y(self, offset):
-        """ """
-        
+               
         self._hole_offset_y = offset
         self._update_hole_parameters(offsety=offset)
 
@@ -992,8 +981,7 @@ class EDBPadstack(object):
 
     @hole_rotation.setter
     def hole_rotation(self, rotation):
-        """ """
-        
+                
         self._hole_rotation= rotation
         self._update_hole_parameters(rotation=rotation)
 
@@ -1010,8 +998,7 @@ class EDBPadstack(object):
 
     @hole_plating_ratio.setter
     def hole_plating_ratio(self, ratio):
-        """ """
-        
+                
         originalPadstackDefinitionData = self.edb_padstack.GetData()
         newPadstackDefinitionData = self._edb.Definition.PadstackDefData(originalPadstackDefinitionData)
         newPadstackDefinitionData.SetHolePlatingPercentage(self._edb_value(ratio))
@@ -1058,8 +1045,7 @@ class EDBPadstack(object):
 
     @material.setter
     def material(self, materialname):
-        """ """
-        
+               
         originalPadstackDefinitionData = self.edb_padstack.GetData()
         newPadstackDefinitionData = self._edb.Definition.PadstackDefData(originalPadstackDefinitionData)
         newPadstackDefinitionData.SetMaterial(materialname)
