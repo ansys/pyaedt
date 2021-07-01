@@ -135,14 +135,14 @@ Documentation
 Documentation for PyAEDT is generated from three sources:
 
 - Docstrings from the classes, functions, and modules of PyAEDT using `sphinx.ext.autodoc`.
-- reStructuredText (RST) files from `doc/`
+- reStructuredText (RST) files from ``doc/``
 - Examples from `examples/`
 
-General usage and API descriptions should be placed within `doc/source` and method docstrings. Full examples should be placed in `examples/`.
+General usage and API descriptions should be placed within ``doc/source`` and method docstrings. Full examples should be placed in ``examples/``.
 
 Documentation Style and Organization
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-Docstrings should follow the numpy guidelines. Documentation from `doc/` use reStructuredText format. Examples from `examples/` should be PEP8 compliant and will be compiled dynamically during the build process. Always ensure that they run properly locally as they will be verified through the continuous integration performed on GitHub Actions.
+Docstrings should follow the numpy guidelines. Documentation from ``doc/`` use reStructuredText format. Examples from ``examples/`` should be PEP8 compliant and will be compiled dynamically during the build process. Always ensure that they run properly locally as they will be verified through the continuous integration performed on GitHub Actions.
 
 Documentation for the latest stable release of PyAEDT is hosted at
 `PyAEDT Documentation <https://aedtdocs.pyansys.com>`_.  The latest development version tracking the `main` branch can be found found at `Development PyAEDT Documentation <https://dev.aedtdocs.pyansys.com/>`_, which is kept up-to-date automatically via GitHub actions.
@@ -151,8 +151,7 @@ Documentation for the latest stable release of PyAEDT is hosted at
 Building the Documentation Locally
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 You can build and verify the HTML documentation locally by installing
-Sphinx and the other documentation build dependencies by running the
-following from the PyAEDT source directory.
+Sphinx and the other documentation build dependencies.
 
 First, optionally install PyAEDT in development mode with:
 

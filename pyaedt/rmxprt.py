@@ -1,4 +1,4 @@
-"""This module contains the ``Rmxprt`` and RMXprtModule classes."""
+"""This module contains these classes: ``Rmxprt`` and ``RMXprtModule``."""
 from __future__ import absolute_import
 from .application.Design import Design
 from .application.AnalysisRMxprt import FieldAnalysisRMxprt
@@ -100,9 +100,9 @@ class Rotor(RMXprtModule):
 
 
 class Rmxprt(FieldAnalysisRMxprt):
-    """RMxprt instance interface.
+    """RMxprt application interface.
 
-    Exposes functionality from RMxprt pythonically.
+    This class exposes functionality from RMxprt.
 
     Parameters
     ----------

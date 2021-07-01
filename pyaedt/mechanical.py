@@ -10,9 +10,9 @@ from collections import OrderedDict
 
 
 class Mechanical(FieldAnalysis3D, object):
-    """Mechanical instance interface.
+    """Mechanical application interface.
 
-    This class exposes Mechanical functionalities pythonically.
+    This class exposes features from the mechanical application.
 
     Parameters
     ----------

@@ -1120,7 +1120,7 @@ class GeometryOperators(object):
     @staticmethod
     @aedt_exception_handler
     def q_rotation(v, q):
-        """Evaluates the rotation of a vector v defined by the quaternion q
+        """Evaluates the rotation of a vector ``v`` defined by the quaternion ``q``.
 
         Evaluated as:
         ``q = q0 + q' = q0 + iq1 + jq2 + kq3``

@@ -1,4 +1,4 @@
-"""This module contain the```Components`` class."""
+"""This module contain the ``Components`` class."""
 import re
 import random
 

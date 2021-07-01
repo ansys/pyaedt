@@ -1,4 +1,4 @@
-"""This module contains all EDB functionalities in the ``Edb`` class. It inherits all objects that belong to EDB.
+"""This module contains the ``Edb`` class.
 
 This module is implicitily loaded in HFSS 3D Layout when launched.
 
@@ -634,4 +634,3 @@ class Edb(object):
             self.edbpath = output_aedb_path
             self._active_cell = _cutout
         return True
-

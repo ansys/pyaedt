@@ -1,4 +1,4 @@
-"""This class contains Emit functionalities."""
+"""This module contains the ``Emit`` class."""
 
 from __future__ import absolute_import
 
@@ -11,12 +11,12 @@ from .generic.general_methods import aedt_exception_handler, generate_unique_nam
 
 
 class Emit(FieldAnalysisEmit, object):
-    """Emit class to that exposes Emit functionalities.
+    """Emit class.
 
     .. note::
-       At the moment this object has very limited functionalities.  It
-       contains only skeleton to create empty design.  No methods
-       implemented at this stage
+       At the moment, this object has very limited functionalities.  It
+       contains only a skeleton for creating an empty design.  No methods
+       are implemented yet.
 
     Parameters
     ----------
@@ -76,4 +76,3 @@ class Emit(FieldAnalysisEmit, object):
         """ Push exit up to parent object Design """
         if ex_type:
             exception_to_desktop(self, ex_value, ex_traceback)
-

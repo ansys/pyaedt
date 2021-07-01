@@ -84,7 +84,6 @@ class Q3d(QExtractor, object):
 
     >>> from pyaedt import Q3d
     >>> app = Q3d()
-
     """
     def __init__(self, projectname=None, designname=None, solution_type=None, setup_name=None,
                  specified_version=None, NG=False, AlwaysNew=False, release_on_exit=False):

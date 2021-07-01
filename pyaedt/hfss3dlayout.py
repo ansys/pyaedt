@@ -1,4 +1,4 @@
-"""This module contains the ``Hfss3dLayout`` and ``SweepString`` classes."""
+"""This module contains these classes: ``Hfss3dLayout`` and ``SweepString``."""
 
 from __future__ import absolute_import
 import os
@@ -115,7 +115,7 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
 
     >>> aedtapp = Hfss3dLayout("myfile.aedt")
 
-    Create a ``Desktop on 2021R1`` object and then creates an
+    Create a ``Desktop on 2021R1`` object and then create a
     ``Hfss3dLayout`` object and open the specified project.
 
     >>> aedtapp = Hfss3dLayout(specified_version="2021.1", projectname="myfile.aedt")
@@ -645,6 +645,5 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
         # self.oanalysis_setup.AddSweep(setupname, arg)
         # self._messenger.add_debug_message("Sweep Setup created correctly")
         return setup
-
 
 
