@@ -431,7 +431,7 @@ class Components(object):
         componentname : str
             Name of the component.
         model_type : str, optional
-            Type of the model. Choices are ``"Spice"`` and `"Touchstone"``. "`The default is ``"Spice"``.
+            Type of the model. Choices are ``"Spice"`` and ``"Touchstone"``. "`The default is ``"Spice"``.
         modelpath : str, optional
             Full path to the model file. The default is ``None``.
         modelname : str, optional
@@ -725,7 +725,7 @@ class Components(object):
         valuefield : str, optional
             Field header containing the value of the component. The default is ``"Func des"``.
             The value for this parameter must being with the value of the component 
-             followed by a space and then the rest of the value. For example, ``"22pF"``.
+            followed by a space and then the rest of the value. For example, ``"22pF"``.
         comptype : str, optional
             Field header containing the type of component. The default is ``"Prod name"``. For 
             example, you might enter ``"Inductor"``.
