@@ -1,16 +1,7 @@
 """
-Layer Stackup Class
-----------------------------------------------------------------
+This module contains these classes: ''Layer'' and ''Layers''.  
 
-
-Description
-==================================================
-
-This class contains all the layer stackup functionalities of AEDT. it is used by Circuit and HFSS3DLayout
-
-
-========================================================
-
+Layer stackup functionalities are used by the Circuit and HFSS 3D Layout tools.
 """
 from __future__ import absolute_import
 import random
@@ -30,7 +21,8 @@ def str2bool(str0):
 
     Returns
     -------
-
+    bool
+        ``True`` when successful, ``False`` when failed.
     """
     if str0.lower() == "false":
         return False
@@ -44,10 +36,10 @@ def conv_number(number, typen=float):
 
     Parameters
     ----------
-    number :
+    number : float
         
-    typen :
-         (Default value = float)
+    typen : 
+         The default is ``float``.
 
     Returns
     -------
@@ -86,7 +78,7 @@ def getIfromRGB(rgb):
 
 
 class Layer(object):
-    """description of class"""
+    """Layer class."""
 
     @property
     def visflag(self):
@@ -161,19 +153,21 @@ class Layer(object):
 
     @aedt_exception_handler
     def set_layer_color(self, r, g, b):
-        """
+        """Update the color of the layer.
 
         Parameters
         ----------
-        r :
-            
-        g :
-            
-        b :
-            
+        r : int
+            Red color value.
+        g : int
+            Green color value.
+        b :  int
+            Blue color value.
 
         Returns
         -------
+        bool
+            ``True`` when successful, ``False`` when failed.
 
         """
         rgb = [r, g, b]
@@ -183,17 +177,15 @@ class Layer(object):
 
     @aedt_exception_handler
     def create_stackup_layer(self):
-        """Create a new stackup layer
+        """Create a new stackup layer.
         
-        
-        :return:
-
         Parameters
         ----------
 
         Returns
         -------
-
+        bool
+            ``True`` when successful, ``False`` when failed.
         """
         self.remove_stackup_layer()
         if self.type == "signal":
@@ -273,7 +265,7 @@ class Layer(object):
         Value :
             
         sUnits :
-             (Default value = None)
+             The default is ``None``.
 
         Returns
         -------
@@ -291,14 +283,14 @@ class Layer(object):
     @aedt_exception_handler
     def update_stackup_layer(self):
         """Works from 2021R1
-        :return:
-
+        
         Parameters
         ----------
 
         Returns
         -------
-
+        bool
+            ``True`` when successful, ``False`` when failed.
         """
         if self.type == "signal":
             self.oeditor.ChangeLayer([
@@ -376,7 +368,7 @@ class Layer(object):
 
 
 class Layers(object):
-    """ """
+    """Layers class."""
 
     @property
     def messenger(self):
@@ -405,7 +397,12 @@ class Layers(object):
 
     @property
     def all_signal_layers(self):
-        """:return:All signal Layers"""
+        """Signal layers.
+        
+        Returns
+        -------
+        List of signal Layers.
+        """
         a = self.all_layers
         sig = []
         for lay in a:
@@ -418,7 +415,13 @@ class Layers(object):
 
     @property
     def all_diel_layers(self):
-        """:return:All dielectric Layers"""
+        """List of dielectric layers.
+        
+        Returns
+        -------
+        list
+            List of dielectric layers.
+        """
         a = self.all_layers
         die = []
         for lay in a:
@@ -439,16 +442,17 @@ class Layers(object):
 
     @aedt_exception_handler
     def layer_id(self, name):
-        """:return:Layer ID if name exists
+        """Retrieve a layer ID.
 
         Parameters
         ----------
-        name :
-            
+        name :  str
+            Name of the layer. 
 
         Returns
         -------
-
+        type
+            Layer ID if the layer name exists.
         """
         for el in self.layers:
             if self.layers[el].name == name:
@@ -457,7 +461,12 @@ class Layers(object):
 
     @aedt_exception_handler
     def refresh_all_layers(self):
-        """:return:Refresh all layers in current stackup"""
+        """Refresh all layers in the current stackup.
+       
+        Returns
+        -------
+        
+        """
         layernames = self.oeditor.GetStackupLayerNames()
         for el in layernames:
             o = Layer(self.oeditor, "signal", self.LengthUnit, self.lengthUnitRough)
@@ -499,26 +508,25 @@ class Layers(object):
 
     @aedt_exception_handler
     def add_layer(self, layername, layertype="signal", thickness="0mm", elevation="0mm", material="copper", isnegative=False):
-        """Add a new layer
+        """Add a new layer.
 
         Parameters
         ----------
-        layername :
-            name of the layer
-        layertype :
-            type of the layer (Default value = "signal")
-        thickness :
-            thickness with units (Default value = "0mm")
-        elevation :
-            elevation with units (Default value = "0mm")
-        material :
-            material (Default value = "copper")
+        layername : str
+            Name of the layer
+        layertype : str, optional
+            Type of the layer. The default is ``"signal"``.
+        thickness : str, optional
+            Thickness with units. The default is ``"0mm"``.
+        elevation : str, optional
+            Elevation with units. The default is ``"0mm"``.
+        material : str, optional
+            Name of the material. The default is ``"copper"``.
 
         Returns
         -------
         type
-            layer object
-
+            Layer object.
         """
         newlayer = Layer(self.oeditor, layertype, self.LengthUnit, self.lengthUnitRough, isnegative)
         newlayer.name = layername
