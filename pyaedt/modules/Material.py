@@ -557,7 +557,7 @@ class Material(CommonMaterial, object):
             self.physics_type = self._props["PhysicsTypes"]["set"]
         else:
             self.physics_type = ['Electromagnetic', 'Thermal', 'Structural']
-            self._props["PhysicsTypes"]=OrderedDict({"set":['Electromagnetic', 'Thermal', 'Structural']})
+            self._props["PhysicsTypes"] = OrderedDict({"set":['Electromagnetic', 'Thermal', 'Structural']})
 
         for property in MatProperties.aedtname:
             if property in self._props:
