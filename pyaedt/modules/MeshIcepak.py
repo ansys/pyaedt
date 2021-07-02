@@ -294,7 +294,7 @@ class IcepakMesh(object):
         Parameters
         ----------
         entity_type : int
-            Type of the entity. Options are 1 and 2, which represent respectively
+            Type of the entity. Options are ``1`` and ``2``, which represent respectively
             an object and a component.
         obj_list : list
             List of objects, which can include conductors and dielctrics.
@@ -397,7 +397,7 @@ class IcepakMesh(object):
         Parameters
         ----------
         mesh_level : int
-            Level of mesh to apply. Options are ``1`` through ``5``.   
+            Level of mesh to assign. Options are ``1`` through ``5``.   
         groupName : str
             Name of the group.
         localMeshParamEn : bool, optional
