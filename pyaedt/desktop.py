@@ -1,26 +1,9 @@
 """
-The ``Desktop`` module is used to initialize AEDT.
+The `Desktop` module contains the `Desktop` class.
 
-This module initializes AEDT and MessageManager to manage AEDT.
-You can initialize the ``Desktop`` module before launching an app or 
+The class is used to initialize AEDT and Message Manager to manage AEDT.
+You can initialize the `Desktop` module before launching an app or 
 have the app automatically initialize it to the latest installed AEDT version.
-
-
-Examples
---------
-Launch AEDT 2021 R1 in non-graphical mode and initialize HFSS.
-
->>> import pyaedt
->>> desktop = pyaedt.Desktop("2021.1", NG=True)
->>> hfss = pyaedt.Hfss()
-
-Launch AEDT 2021 R1 in graphical mode and initialize HFSS.
-
->>> desktop = Desktop("2021.1")
->>> hfss = pyaedt.Hfss()
-
-The previous example initializes the ``Desktop`` module to the latest AEDT version 
-installed on your machine in graphical mode and initializes HFSS.
 
 """
 from __future__ import absolute_import
@@ -71,9 +54,9 @@ elif IsWindows:
 
 
 def exception_to_desktop(self, ex_value, tb_data):
-    """Writes the trace stack to the desktop when a python error occurs.
+    """Writes the trace stack to the desktop when a Python error occurs.
     
-    It adds the message to the AEDT global message manager and to the log file (if present).
+    The  message is added to the AEDT global Message Manager and to the log file (if present).
 
     Parameters
     ----------
@@ -81,7 +64,6 @@ def exception_to_desktop(self, ex_value, tb_data):
         
     tb_data :
         
-
     Returns
     -------
 
@@ -107,19 +89,20 @@ def exception_to_desktop(self, ex_value, tb_data):
 
 
 def update_aedt_registry(key, value, desktop_version="193"):
-    """Update AEDT registry key.
+    """Update the AEDT registry key.
     
     .. note::
-       This method is only supported in Windows.
+       This method is only supported on Windows.
     
     Parameters
     ----------
     key : str
         Registry key.
     value : str
-        Value to which to set the registry key. Value includes "" if needed.
+        Value for the registry key. The value includes "" if needed.
     desktop_version : str, optional
-        Version of AEDT to use. The default is ``"193"``.
+        Version of AEDT to use. The default is ``"193"`` 
+        to use 2019 R3.
 
     Returns
     -------
@@ -288,17 +271,17 @@ class Desktop:
     """Initialize AEDT based on the inputs provided.
     
     .. note::
-       On Windows, it works without limitations in IronPython and CPython.
-       On Linux, it works only in embedded IronPython in AEDT.
+       On Windows, this class works without limitations in IronPython and CPython.
+       On Linux, this class works only in embedded IronPython in AEDT.
 
     Parameters
     ----------
     specified_version: str, optional
-        Version of AEDT to use. The default is ``None``. If ``None``, the
-        active setup is used or the latest installed version is used.
+        Version of AEDT to use. The default is ``None``, in which case the
+        active setup or latest installed version is used.
     NG: bool, optional
         Whether to launch AEDT in the non-graphical mode. The default 
-        is ``False``, which launches AEDT in the graphical mode.
+        is ``False``, in which case AEDT launches in the graphical mode.
     AlwaysNew: bool, optional
         Whether to launch an instance of AEDT in a new thread, even if 
         another instance of the ``specified_version`` is active on the machine.
@@ -318,6 +301,9 @@ class Desktop:
 
     >>> desktop = Desktop("2021.1")
     >>> hfss = pyaedt.Hfss()
+    
+    The previous example initializes the `Desktop` module to the latest AEDT version 
+    installed on your machine in graphical mode and initializes HFSS.
     """
             
     @property
@@ -501,7 +487,7 @@ class Desktop:
         logger.info(info_msg4)
 
         if _com == 'pywin32' and (AlwaysNew or NG):
-            info_msg5 = 'The ``AlwaysNew`` or ``NG`` option is not available for a pywin32 connection only. Install Pythonnet to support these options.'
+            info_msg5 = 'The ``AlwaysNew`` or ``NG`` option is not available for a pywin32 connection only. Install Python.NET to support these options.'
             self._main.oMessenger.add_info_message(info_msg5, 'Global')
         elif _com == 'pythonnet':
             dll_path = os.path.join(base_path,"common","IronPython", "dlls")
