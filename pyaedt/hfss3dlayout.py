@@ -251,7 +251,7 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
             layer is assigned automatically.
         bot_layer : str
             Bottom layer of the pin. The default is ``None``, in which case the
-            botton is assigned automatically.
+            bottom is assigned automatically.
 
         Returns
         -------
@@ -714,5 +714,4 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
         if close_active_project:
             self.odesktop.CloseProject(active_project)
         return True
-
 
