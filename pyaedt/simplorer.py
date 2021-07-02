@@ -1,27 +1,4 @@
-"""
-This class contains all Simplorer functionalities.
-
-
-Examples
---------
-
-Create an instance of ``Simplorer`` and connect to an existing Maxwell design or create a new Maxwell design if one does not exist.
-
->>> app = Simplorer()
-
-Create a instance of ``Simplorer`` and link to a project named ``"projectname"``. If this project does not exist, create one with this name.
-
->>> app = Simplorer(projectname)
-
-Create an instance of ``Simplorer`` and link to a design named ``"designname"`` in a project named ``"projectname"``.
-
->>> app = Simplorer(projectname,designame)
-
-Create an instance of ``Simplorer`` and open the specified project, which is named ``"myfile.aedt"``.
-
->>> app = Simplorer("myfile.aedt")
-
-"""
+"""This module contains the ``Simplorer`` class"""
 
 from __future__ import absolute_import
 
@@ -39,45 +16,64 @@ class Simplorer(FieldAnalysisSimplorer, object):
     Parameters
     ----------
     projectname : str, optional
-        Name of the project to select or the full path to the project or AEDTZ archive to open. 
-        The default is ``None``. If ``None``, try to get an active project and, if no projects are present, 
-        create an empty project.
+        Name of the project to select or the full path to the project
+        or AEDTZ archive to open.  The default is ``None``. If
+        ``None``, try to get an active project and, if no projects are
+        present, create an empty project.
     designname : str, optional
-        Name of the design to select. The default is ``None``. If ``None``, try to get an active design and, 
-        if no designs are present, create an empty design.
+        Name of the design to select. The default is ``None``. If
+        ``None``, try to get an active design and, if no designs are
+        present, create an empty design.
     solution_type : str, optional
-        Solution type to apply to design. The default is ``None``. If ``None`, the default type is applied.
+        Solution type to apply to design. The default is ``None``. If
+        ``None``, the default type is applied.
     setup_name : str, optional
-       Name of the setup to use as the nominal. The default is ``None``. If ``None``, the active setup 
-       is used or nothing is used.
+       Name of the setup to use as the nominal. The default is
+       ``None``. If ``None``, the active setup is used or nothing is
+       used.
     specified_version: str, optional
-        Version of AEDT to use. The default is ``None``. If ``None``, the
-        active setup is used or the latest installed version is used.
+        Version of AEDT to use. The default is ``None``. If ``None``,
+        the active setup is used or the latest installed version is
+        used.
     NG: bool, optional
-        Whether to launch AEDT in the non-graphical mode. The default 
+        Whether to launch AEDT in the non-graphical mode. The default
         is ``False``, which launches AEDT in the graphical mode.
     AlwaysNew: bool, optional
-        Whether to launch an instance of AEDT in a new thread, even if 
-        another instance of the ``specified_version`` is active on the machine.
-        The default is ``True``.
+        Whether to launch an instance of AEDT in a new thread, even if
+        another instance of the ``specified_version`` is active on the
+        machine.  The default is ``True``.
     release_on_exit: bool, optional
         Whether to release AEDT on exit. The default is ``True``.
 
-    Returns
-    -------
+    Examples
+    --------
+    Create an instance of ``Simplorer`` and connect to an existing
+    Maxwell design or create a new Maxwell design if one does not
+    exist.
 
+    >>> from pyaedt import Simplorer
+    >>> app = Simplorer()
+
+    Create a instance of ``Simplorer`` and link to a project named
+    ``"projectname"``. If this project does not exist, create one with
+    this name.
+
+    >>> app = Simplorer(projectname)
+
+    Create an instance of ``Simplorer`` and link to a design named
+    ``"designname"`` in a project named ``"projectname"``.
+
+    >>> app = Simplorer(projectname, designame)
+
+    Create an instance of ``Simplorer`` and open the specified
+    project, which is named ``"myfile.aedt"``.
+
+    >>> app = Simplorer("myfile.aedt")
     """
 
     def __init__(self, projectname=None, designname=None, solution_type=None, setup_name=None,
                  specified_version=None, NG=False, AlwaysNew=False, release_on_exit=False):
-        """
-        :param projectname: name of the project to be selected or full path to the project to be opened. if None try to
-         get active project and, if nothing present to create an empty one
-        :param designname: name of the design to be selected. if None, try to get active design and, if nothing present
-        to create an empty one
-        :param solution_type: solution type to be applied to design. if None default is taken
-        :param setup_name: setup_name to be used as nominal. if none active setup is taken or nothing
-        """
+        """Constructor."""
         FieldAnalysisSimplorer.__init__(self, "Twin Builder", projectname, designname, solution_type, setup_name,
                                         specified_version, NG, AlwaysNew, release_on_exit)
 

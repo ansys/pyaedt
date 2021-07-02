@@ -1,32 +1,4 @@
-"""
-This module contains all Icepak functionalities in the ``Icepak`` class.
-
-
-Examples
---------
-
-Create an instance of ``Icepak`` and connect to an existing Icepak design or create a new Icepak design if one does not exist.
-
->>> aedtapp = Icepak()
-
-Create an instance of ``Icepak`` and link to a project named ``projectname``. If this project does not exist, create one with this name.
-
->>> aedtapp = Icepak(projectname)
-
-Create an instance of ``Icepak`` and link to a design named ``designname`` in a project named ``projectname``.
-
->>> aedtapp = Icepak(projectname,designame)
-
-Create an instance of ``Icepak`` and open the specified project, which is ``myfile.aedt``.
-
->>> aedtapp = Icepak("myfile.aedt")
-
-Create an instance of ``Icepak`` using the 2021 R1 release and open the specified project, which is ``myfile.aedt``.
-
->>> aedtapp = Icepak(specified_version="2021.1", projectname="myfile.aedt")
-
-"""
-
+"""This module contains the ``Icepak`` class."""
 
 from __future__ import absolute_import
 import csv
@@ -39,36 +11,74 @@ from .generic.general_methods import generate_unique_name, aedt_exception_handle
 from .modules.Boundary import BoundaryObject
 from  collections import OrderedDict
 
+
 class Icepak(FieldAnalysisIcepak):
-    """Icepak object
+    """Icepak application interface.
+
+    Allows you to connect to an existing Icepack design or create a
+    new Icepak design if one does not exist.
 
     Parameters
     ----------
     projectname : str, optional
-         Name of the project to select or the full path to the project or AEDTZ archive to open. 
-         The default is ``None``. If ``None``, try to get an active project and, if no projects are present, 
-         create an empty project.
+         Name of the project to select or the full path to the project
+         or AEDTZ archive to open.  The default is ``None``. If
+         ``None``, try to get an active project and, if no projects
+         are present, create an empty project.
     designname : str, optional
-        Name of the design to select. The default is ``None``. If ``None``, try to get an active design and, 
-        if no designs are present, create an empty design.
+        Name of the design to select. The default is ``None``. If
+        ``None``, try to get an active design and, if no designs are
+        present, create an empty design.
     solution_type : str, optional
-        Solution type to apply to design. The default is ``None``. If ``None`, the default type is applied.
+        Solution type to apply to design. The default is ``None``. If
+        ``None``, the default type is applied.
     setup_name : str, optional
-        Name of the setup to use as the nominal. The default is ``None``. If ``None``, the active setup 
-        is used or nothing is used.
+        Name of the setup to use as the nominal. The default is
+        ``None``. If ``None``, the active setup is used or nothing is
+        used.
     specified_version : str, optional
-        Version of AEDT to use. The default is ``None``. If ``None``, the
-        active setup is used or the latest installed version is used.
+        Version of AEDT to use. The default is ``None``. If ``None``,
+        the active setup is used or the latest installed version is
+        used.
     NG: bool, optional
-        Whether to run AEDT in the non-graphical mode. The default 
+        Whether to run AEDT in the non-graphical mode. The default
         is``False``, which launches AEDT in the graphical mode.
     AlwaysNew : bool, optional
-        Whether to launch an instance of AEDT in a new thread, even if 
-        another instance of the ``specified_version`` is active on the machine.
-        The default is ``True``.
+        Whether to launch an instance of AEDT in a new thread, even if
+        another instance of the ``specified_version`` is active on the
+        machine.  The default is ``True``.
     release_on_exit : bool, optional
         Whether to release AEDT on exit. The default is ``True``.
-  
+
+    Examples
+    --------
+    Create an instance of ``Icepak`` and connect to an existing Icepak
+    design or create a new Icepak design if one does not exist.
+
+    >>> from pyaedt import Icepak
+    >>> aedtapp = Icepak()
+
+    Create an instance of ``Icepak`` and link to a project named
+    ``projectname``. If this project does not exist, create one with
+    this name.
+
+    >>> aedtapp = Icepak(projectname)
+
+    Create an instance of ``Icepak`` and link to a design named
+    ``designname`` in a project named ``projectname``.
+
+    >>> aedtapp = Icepak(projectname,designame)
+
+    Create an instance of ``Icepak`` and open the specified project,
+    which is ``myfile.aedt``.
+
+    >>> aedtapp = Icepak("myfile.aedt")
+
+    Create an instance of ``Icepak`` using the 2021 R1 release and
+    open the specified project, which is ``myfile.aedt``.
+
+    >>> aedtapp = Icepak(specified_version="2021.1", projectname="myfile.aedt")
+
     """
     
     def __init__(self, projectname=None, designname=None, solution_type=None, setup_name=None,
@@ -249,6 +259,46 @@ class Icepak(FieldAnalysisIcepak):
         return None
 
     @aedt_exception_handler
+    def create_source_power(self, face_id, input_power="0W", thermal_condtion="Total Power",
+                            surface_heat="0irrad_W_per_m2", temperature="AmbientTemp", 
+                            radiate=False, source_name=None):
+        """Create a source power for a face.
+
+        Parameters
+        ----------
+        face_id : int
+            Face ID.
+        input_power : str, float, or int, optional
+            Input power.
+        surface_heat : str, optional
+            Surface Heat.  Default value is ``"0irrad_W_per_m2"``.
+        temperature : str, optional
+            Temperature.  Default value is ``"AmbientTemp"``.
+        radiate : bool
+            Enable radiation when ``True``.
+        source_name : str, optional
+            Source Name
+        Returns
+        -------
+        BoundaryObject
+            Boundary object or ``None``.
+
+        """
+        if not source_name:
+            source_name = generate_unique_name("Source")
+        props={}
+        props["Faces"] = [face_id]
+        props["Thermal Condition"] = thermal_condtion
+        props["Total Power"] = input_power
+        props["Surface Heat"] = surface_heat
+        props["Temperature"] = temperature
+        props["Radiation"] = OrderedDict({"Radiate" : radiate})
+        bound = BoundaryObject(self, source_name, props, 'SourceIcepak')
+        if bound.create():
+            self.boundaries.append(bound)
+            return bound
+
+    @aedt_exception_handler
     def create_network_block(self, object_name, power, rjc, rjb, gravity_dir, top, assign_material=True,
                              default_material="Ceramic_material", use_object_for_name=True):
         """Create a network block.
@@ -369,6 +419,61 @@ class Icepak(FieldAnalysisIcepak):
                 if out:
                     networks.append(out)
         return networks
+
+    @aedt_exception_handler
+    def assign_surface_monitor(self, face_name, monitor_type="Temperature", monitor_name=None):
+        """Assign a Surface monitor
+
+        Parameters
+        ----------
+        face_name : str
+            Name of the face.
+        monitor_type : str, optional
+            Type of the monitor.  Default value is ``"Temperature"``.
+        monitor_name : str, optional
+            Name of the monitor.  By default a random unique name is generated.
+
+        Returns
+        -------
+        bool
+            ``True`` when successful, ``False`` when failed.
+        """
+        if not monitor_name:
+            monitor_name = generate_unique_name("Monitor")
+        oModule = self.odesign.GetModule("Monitor")
+        oModule.AssignFaceMonitor(["NAME:" + monitor_name, "Quantities:=", [monitor_type], "Objects:=", [face_name]])
+        return True
+
+    @aedt_exception_handler
+    def assign_point_monitor(self, point_position, monitor_type="Temperature", monitor_name=None):
+        """Create and Assign a Point monitor
+
+        Parameters
+        ----------
+        point_position : str
+            Name of the point.
+        monitor_type : str, optional
+            Type of the monitor.  Default value is ``"Temperature"``.
+        monitor_name : str, optional
+            Name of the monitor.  By default a random unique name is generated.
+
+        Returns
+        -------
+        bool
+            ``True`` when successful, ``False`` when failed.
+        """
+        point_name = generate_unique_name("Point")
+        self.modeler.oeditor.CreatePoint(
+            ["NAME:PointParameters", "PointX:=", self.modeler.primitives.arg_with_dim(point_position[0]), "PointY:=",
+             self.modeler.primitives.arg_with_dim(point_position[1]), "PointZ:=",
+             self.modeler.primitives.arg_with_dim(point_position[2])],
+            ["NAME:Attributes", "Name:=", point_name, "Color:=", "(143 175 143)"])
+        if not monitor_name:
+            monitor_name = generate_unique_name("Monitor")
+        oModule = self.odesign.GetModule("Monitor")
+        oModule.AssignPointMonitor(["NAME:" + monitor_name, "Quantities:=", [monitor_type], "Points:=", [point_name]])
+        return True
+
 
 
     @aedt_exception_handler
@@ -1055,7 +1160,8 @@ class Icepak(FieldAnalysisIcepak):
 
     @aedt_exception_handler
     def create_ipk_3dcomponent_pcb(self, compName, setupLinkInfo, solutionFreq, resolution, PCB_CS="Global",
-                                   rad="Nothing", extenttype="Bounding Box", outlinepolygon="", powerin="0W"):
+                                   rad="Nothing", extenttype="Bounding Box", outlinepolygon="", powerin="0W",
+                                   custom_x_resolution=None, custom_y_resolution=None):
         """Create a PCB component in Icepak that is linked to an HFSS 3D Layout object.
 
         Parameters
@@ -1110,12 +1216,19 @@ class Icepak(FieldAnalysisIcepak):
         compDefinition += ["Resolution:=", int(resolution),
                            ["NAME:LowSide", "Radiate:=", lowRad],
                            ["NAME:HighSide", "Radiate:=", highRad]]
-        if solutionFreq:
-            compDefinition += ["UseThermalLink:=", True,
-                               "CustomResolution:=", False, "Frequency:=", solutionFreq, hfssLinkInfo]
+
+
+        if custom_x_resolution and custom_y_resolution:
+            compDefinition += ["UseThermalLink:=", solutionFreq!="",
+                               "CustomResolution:=", True, "CustomResolutionRow:=", custom_x_resolution,
+                               "CustomResolutionCol:=", 600]
         else:
-            compDefinition += ["UseThermalLink:=", False,
-                               "CustomResolution:=", False, "Power:=", powerin, hfssLinkInfo]
+            compDefinition += ["UseThermalLink:=", solutionFreq != "",
+                               "CustomResolution:=", False]
+        if solutionFreq:
+                compDefinition += ["Frequency:=", solutionFreq, hfssLinkInfo]
+        else:
+            compDefinition += ["Power:=", powerin, hfssLinkInfo]
 
         compInstancePar = ["NAME:InstanceParameters",
                            "GeometryParameters:="	, "",
@@ -1151,7 +1264,8 @@ class Icepak(FieldAnalysisIcepak):
 
     @aedt_exception_handler
     def create_pcb_from_3dlayout(self, component_name, project_name, design_name, resolution=2,
-                                 extenttype="Bounding Box", outlinepolygon="", close_linked_project_after_import=True):
+                                 extenttype="Bounding Box", outlinepolygon="", close_linked_project_after_import=True,
+                                 custom_x_resolution=None, custom_y_resolution=None):
         """Create a PCB component in Icepak that is linked to an HFSS 3D Layout object linking only to the geometry file (no solution linked)
 
         Parameters
@@ -1177,9 +1291,12 @@ class Icepak(FieldAnalysisIcepak):
              ``True`` when successful, ``False`` when failed.
 
         """
+        if project_name == self.project_name:
+            project_name = "This Project*"
         link_data = [project_name, design_name,  "<--EDB Layout Data-->", False, False]
         status = self.create_ipk_3dcomponent_pcb(component_name, link_data, "", resolution, extenttype=extenttype,
-                                                 outlinepolygon=outlinepolygon)
+                                                 outlinepolygon=outlinepolygon, custom_x_resolution=custom_x_resolution,
+                                                 custom_y_resolution=custom_y_resolution)
 
         if close_linked_project_after_import and ".aedt" in project_name:
                 prjname = os.path.splitext(os.path.basename(project_name))[0]

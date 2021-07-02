@@ -155,8 +155,8 @@ class TestIcepak:
         self.aedtapp.modeler.primitives.create_box([9,9,9], [5,5,5],"box2", "copper")
         self.aedtapp.create_source_block("box", "1W", False)
         setup=self.aedtapp.create_setup("SetupIPK")
-        setup.props["Convergence Criteria - Max Iterations"] = 3
-        assert setup.update()
+        new_props = {"Convergence Criteria - Max Iterations": 3}
+        assert setup.update(update_dictionary=new_props)
         airfaces = [i.id for i in self.aedtapp.modeler.primitives["Region"].faces]
         self.aedtapp.assign_openings(airfaces)
 
@@ -224,11 +224,8 @@ class TestIcepak:
         assert dielectrics == ["Region"]
 
     def test_28_assign_surface_material(self):
-        surface_emissivity = self.aedtapp.materials.creatematerialsurface("my_surface", 0.5)
-        assert surface_emissivity == 0.5
-
-    def test_29_create_sweep_material(self):
-        assert self.aedtapp.materials.creatematerial_sweeps(["copper", "silver"], "My_Sweep", False)
+        mats = self.aedtapp.materials.add_surface_material("my_surface", 0.5)
+        assert mats.emissivity.value == 0.5
 
     def test_33_create_region(self):
         self.aedtapp.modeler.primitives.delete("Region")
@@ -241,5 +238,18 @@ class TestIcepak:
         self.aedtapp.set_active_design("IcepakDesign1")
         assert self.aedtapp.mesh.automatic_mesh_3D(accuracy2=1)
 
+    def test_create_source(self):
+        self.aedtapp.modeler.primitives.create_box([0,0,0], [20,20,20], name="boxSource")
+        assert self.aedtapp.create_source_power(self.aedtapp.modeler.primitives["boxSource"].top_face.id, input_power="2W")
+        assert self.aedtapp.create_source_power(self.aedtapp.modeler.primitives["boxSource"].bottom_face.id, thermal_condtion="Fixed Temperature", temperature="28cel")
+
+    def test_surface_monitor(self):
+        self.aedtapp.modeler.primitives.create_rectangle(self.aedtapp.CoordinateSystemPlane.XYPlane, [0,0,0], [10,20], "surf1")
+        assert self.aedtapp.assign_surface_monitor("surf1")
+
+    def test_poin_monitor(self):
+        assert self.aedtapp.assign_point_monitor([0,0,0])
+
     def test_88_create_heat_sink(self):
         assert self.aedtapp.create_parametric_fin_heat_sink()
+

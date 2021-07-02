@@ -43,10 +43,6 @@ class TestHFSS:
         assert isinstance(id2, int)
         assert self.aedtapp.modeler.subtract(id2, id1, True)
 
-    def test_03_1_load_material(self):
-        material_database = os.path.join(module_path, 'pyaedt', 'misc', 'amat.xml')
-        assert self.aedtapp.materials.load_from_file(material_database)
-
     def test_03_2_assign_material(self):
         udp = self.aedtapp.modeler.Position(0, 0, 0)
         coax_dimension = 150

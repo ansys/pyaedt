@@ -13,7 +13,11 @@ except ImportError:
 
 
 class EdbNets(object):
-    """Edb Net object"""
+    """EdbNets class"""
+
+    def __init__(self, parent):
+        self.parent = parent
+
     @property
     def builder(self):
         """ """
@@ -52,10 +56,7 @@ class EdbNets(object):
     @property
     def messenger(self):
         """ """
-        return self.parent.messenger
-
-    def __init__(self, parent):
-        self.parent = parent
+        return self.parent._messenger
 
     @property
     def nets_methods(self):
@@ -64,25 +65,43 @@ class EdbNets(object):
 
     @property
     def nets(self):
-        """:return: Dictionary of Nets"""
+        """Nets.
+        
+        Returns
+        -------
+        dict
+            Dictionary of nets.
+        """
         if self.builder:
             return convert_netdict_to_pydict(self.nets_methods.GetNetDict(self.builder))
 
     @property
     def signal_nets(self):
-        """:return:Dictionary of Signal Nets"""
+        """Signal nets.
+        
+        Return
+        ------
+        dict
+            Dictionary of signal nets.
+        """
         if self.builder:
             return convert_netdict_to_pydict(self.nets_methods.GetSignalNetDict(self.builder))
 
     @property
     def power_nets(self):
-        """:return:Dictionary of Power Nets"""
+        """Power nets.
+        
+        Returns
+        -------
+        dict
+            Dictionary of power nets.
+        """
         if self.builder:
             return convert_netdict_to_pydict(self.nets_methods.GetPowerNetDict(self.builder))
 
     @aedt_exception_handler
     def is_power_gound_net(self, netname_list):
-        """Return a True if one of the net in the list is power or ground
+        """Determine if one of the  nets in a list is power or ground.
 
         Parameters
         ----------
@@ -92,14 +111,13 @@ class EdbNets(object):
         Returns
         -------
         bool
-            ``True`` if one of the net names is ``"power"`` or ``"ground"``.
-
+            ``True`` when one of the net names is ``"power"`` or ``"ground"``, ``False`` otherwise.
         """
         if self.builder:
             return self.nets_methods.IsPowerGroundNetInList(self.builder, netname_list)
 
     def get_dcconnected_net_list(self, ground_nets=["GND"]):
-        """List the nets connected to DC through inductors.
+        """Retrieve the nets connected to DC through inductors.
         
         .. note::
            Only inductors are considered.
@@ -112,8 +130,7 @@ class EdbNets(object):
         Returns
         -------
         list
-            List of DC connected nets. 
-
+            List of nets connected to DC through inductors. 
         """
         temp_list = []
         for refdes, comp_obj in self.parent.core_components.inductors.items():
@@ -143,12 +160,12 @@ class EdbNets(object):
         return dcconnected_net_list
 
     def get_powertree(self, power_net_name, ground_nets):
-        """
+        """Retrieve the power tree.
 
         Parameters
         ----------
-        power_net_name :
-            
+        power_net_name : str
+            Name of the power net.
         ground_nets :
             
 
@@ -195,12 +212,12 @@ class EdbNets(object):
 
     @aedt_exception_handler
     def delete_nets(self, netlist):
-        """Delete nets from EDB.
+        """Delete one or more nets from EDB.
        
         Parameters
         ----------
         netlist : str or list
-            The one or more nets to delete.
+            One or more nets to delete.
 
         Returns
         -------
@@ -211,7 +228,6 @@ class EdbNets(object):
         --------
         
         >>> deleted_nets = edb_core.core_nets.delete_nets(["Net1","Net2"])
-        
         """
         if type(netlist) is str:
             netlist=[netlist]
@@ -222,14 +238,14 @@ class EdbNets(object):
                 if edb_net is not None:
                     edb_net.Delete()
                     nets_deleted.append(net)
-                    self.parent.messenger.add_info_message("Net {} Deleted".format(net))
+                    self.parent._messenger.add_info_message("Net {} Deleted".format(net))
             except:
                 pass
 
         return nets_deleted
 
     def find_or_create_net(self, net_name=''):
-        """Return the net with the given name in the layout or create it and return it.
+        """Find or create the net with the given name in the layout.
 
         Parameters
         ----------
@@ -246,6 +262,5 @@ class EdbNets(object):
         if net.IsNull():
             net = self.edb.Cell.Net.Create(self.active_layout, net_name)
         return net
-
 
 
