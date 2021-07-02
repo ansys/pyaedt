@@ -11,7 +11,7 @@ class FieldAnalysisEmit(Design):
     """FieldAnaysisEmit class.
 
     The class is for setting up an EMIT analysis in AEDT.
-    It is automatically initialized by an application call (like HFSS,
+    It is automatically initialized by an application call (like for HFSS,
     Q3D, and ...). Refer to the Application function for input definitions.
 
     Parameters
