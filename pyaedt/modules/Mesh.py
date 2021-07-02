@@ -319,7 +319,7 @@ class Mesh(object):
             Whether to automatically calculate the resolution length
             based on each object's effective thickness. The default is ``True``.  
         modelresolutionlength : float, optional
-             Resolution thickness with units when ``automodelresolution=False``.
+             Resolution thickness with units if ``automodelresolution=False``.
              The default ``"0.0001mm"``.
 
         Returns
