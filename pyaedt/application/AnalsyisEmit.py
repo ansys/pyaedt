@@ -8,7 +8,7 @@ from ..modules.SolveSetup import SetupCircuit
 
 
 class FieldAnalysisEmit(Design):
-    """FieldAnaysisEmit  class.
+    """FieldAnaysisEmit class.
 
     The class is for setting up an EMIT analysis in AEDT.
     It is automatically initialized by an application call (like HFSS,
@@ -83,4 +83,3 @@ class FieldAnalysisEmit(Design):
            Design module ``"SimSetup"``
         """
         return None
-
