@@ -1,35 +1,4 @@
-"""
-Introduction
-------------------
-
-This class contains all HFSS 3D Layout functionalities. It inherits
-all objects that belong to HFSS 3D Layout, including EDB API queries.
-
-
-Examples
---------
-
-Create an ``Hfss3dLayout`` object and connect to an existing HFSS design or create a new HFSS design if one does not exist.
-
->>> aedtapp = Hfss3dLayout()
-
-Create an ``Hfss3dLayout`` object and link to a project named ``projectname``. If this project does not exist, create one with this name.
-
->>> aedtapp = Hfss3dLayout(projectname)
-
-Create an ``Hfss3dLayout`` object and link to a design named ``designname`` in a project named ``projectname``.
-
->>> aedtapp = Hfss3dLayout(projectname,designame)
-
-Create an ``Hfss3dLayout`` object and open the specified project.
-
->>> aedtapp = Hfss3dLayout("myfile.aedt")
-
-Create a ``Desktop on 2021R1`` object and then creates an ``Hfss3dLayout`` object and open the specified project.
-
->>> aedtapp = Hfss3dLayout(specified_version="2021.1", projectname="myfile.aedt")
-
-"""
+"""This module contains these classes: ``Hfss3dLayout`` and ``SweepString``."""
 
 from __future__ import absolute_import
 import os
@@ -100,24 +69,56 @@ class SweepString(object):
             return None
 
 
-class Hfss3dLayout(FieldAnalysis3DLayout, object):
-    """HFSS 3D Layout Object
+class Hfss3dLayout(FieldAnalysis3DLayout):
+    """HFSS 3D Layout instance interface.
+
+    This class contains all HFSS 3D Layout functionalities. It
+    inherits all objects that belong to HFSS 3D Layout, including EDB
+    API queries.
 
     Parameters
     ----------
     projectname : str
-        Name of the project to select or the full path to the project or AEDTZ archive to open. 
-        If ``None``, try to get the active project and, if none exists, create an empty project.
+        Name of the project to select or the full path to the project
+        or AEDTZ archive to open.  If ``None``, try to get the active
+        project and, if none exists, create an empty project.
     designname : str
-        Name of the design to select. If ``None``, try to get the active design and, if none exists, create an empty design.
+        Name of the design to select. If ``None``, try to get the
+        active design and, if none exists, create an empty design.
     solution_type : str
-        Solution type to apply to the design. If ``None``, use the default.
+        Solution type to apply to the design. If ``None``, use the
+        default.
     setup_name :
-        Name of the setup to use as the nominal. If ``None``, the active setup is used or nothing is used.
+        Name of the setup to use as the nominal. If ``None``, the
+        active setup is used or nothing is used.
 
-    Returns
-    -------
+    Examples
+    --------
+    Create an ``Hfss3dLayout`` object and connect to an existing HFSS
+    design or create a new HFSS design if one does not exist.
 
+    >>> from pyaedt import Hfss3dLayout
+    >>> aedtapp = Hfss3dLayout()
+
+    Create an ``Hfss3dLayout`` object and link to a project named
+    ``projectname``. If this project does not exist, create one with
+    this name.
+
+    >>> aedtapp = Hfss3dLayout(projectname)
+
+    Create an ``Hfss3dLayout`` object and link to a design named
+    ``designname`` in a project named ``projectname``.
+
+    >>> aedtapp = Hfss3dLayout(projectname,designame)
+
+    Create an ``Hfss3dLayout`` object and open the specified project.
+
+    >>> aedtapp = Hfss3dLayout("myfile.aedt")
+
+    Create a ``Desktop on 2021R1`` object and then create a
+    ``Hfss3dLayout`` object and open the specified project.
+
+    >>> aedtapp = Hfss3dLayout(specified_version="2021.1", projectname="myfile.aedt")
     """
 
     def __init__(self, projectname=None, designname=None, solution_type=None, setup_name=None,
@@ -644,6 +645,5 @@ class Hfss3dLayout(FieldAnalysis3DLayout, object):
         # self.oanalysis_setup.AddSweep(setupname, arg)
         # self._messenger.add_debug_message("Sweep Setup created correctly")
         return setup
-
 
 

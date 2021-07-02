@@ -1,32 +1,4 @@
-"""
-This module contains all Icepak functionalities in the ``Icepak`` class.
-
-
-Examples
---------
-
-Create an instance of ``Icepak`` and connect to an existing Icepak design or create a new Icepak design if one does not exist.
-
->>> aedtapp = Icepak()
-
-Create an instance of ``Icepak`` and link to a project named ``projectname``. If this project does not exist, create one with this name.
-
->>> aedtapp = Icepak(projectname)
-
-Create an instance of ``Icepak`` and link to a design named ``designname`` in a project named ``projectname``.
-
->>> aedtapp = Icepak(projectname,designame)
-
-Create an instance of ``Icepak`` and open the specified project, which is ``myfile.aedt``.
-
->>> aedtapp = Icepak("myfile.aedt")
-
-Create an instance of ``Icepak`` using the 2021 R1 release and open the specified project, which is ``myfile.aedt``.
-
->>> aedtapp = Icepak(specified_version="2021.1", projectname="myfile.aedt")
-
-"""
-
+"""This module contains the ``Icepak`` class."""
 
 from __future__ import absolute_import
 import csv
@@ -39,36 +11,74 @@ from .generic.general_methods import generate_unique_name, aedt_exception_handle
 from .modules.Boundary import BoundaryObject
 from  collections import OrderedDict
 
+
 class Icepak(FieldAnalysisIcepak):
-    """Icepak object
+    """Icepak application interface.
+
+    Allows you to connect to an existing Icepack design or create a
+    new Icepak design if one does not exist.
 
     Parameters
     ----------
     projectname : str, optional
-         Name of the project to select or the full path to the project or AEDTZ archive to open. 
-         The default is ``None``. If ``None``, try to get an active project and, if no projects are present, 
-         create an empty project.
+         Name of the project to select or the full path to the project
+         or AEDTZ archive to open.  The default is ``None``. If
+         ``None``, try to get an active project and, if no projects
+         are present, create an empty project.
     designname : str, optional
-        Name of the design to select. The default is ``None``. If ``None``, try to get an active design and, 
-        if no designs are present, create an empty design.
+        Name of the design to select. The default is ``None``. If
+        ``None``, try to get an active design and, if no designs are
+        present, create an empty design.
     solution_type : str, optional
-        Solution type to apply to design. The default is ``None``. If ``None`, the default type is applied.
+        Solution type to apply to design. The default is ``None``. If
+        ``None``, the default type is applied.
     setup_name : str, optional
-        Name of the setup to use as the nominal. The default is ``None``. If ``None``, the active setup 
-        is used or nothing is used.
+        Name of the setup to use as the nominal. The default is
+        ``None``. If ``None``, the active setup is used or nothing is
+        used.
     specified_version : str, optional
-        Version of AEDT to use. The default is ``None``. If ``None``, the
-        active setup is used or the latest installed version is used.
+        Version of AEDT to use. The default is ``None``. If ``None``,
+        the active setup is used or the latest installed version is
+        used.
     NG: bool, optional
-        Whether to run AEDT in the non-graphical mode. The default 
+        Whether to run AEDT in the non-graphical mode. The default
         is``False``, which launches AEDT in the graphical mode.
     AlwaysNew : bool, optional
-        Whether to launch an instance of AEDT in a new thread, even if 
-        another instance of the ``specified_version`` is active on the machine.
-        The default is ``True``.
+        Whether to launch an instance of AEDT in a new thread, even if
+        another instance of the ``specified_version`` is active on the
+        machine.  The default is ``True``.
     release_on_exit : bool, optional
         Whether to release AEDT on exit. The default is ``True``.
-  
+
+    Examples
+    --------
+    Create an instance of ``Icepak`` and connect to an existing Icepak
+    design or create a new Icepak design if one does not exist.
+
+    >>> from pyaedt import Icepak
+    >>> aedtapp = Icepak()
+
+    Create an instance of ``Icepak`` and link to a project named
+    ``projectname``. If this project does not exist, create one with
+    this name.
+
+    >>> aedtapp = Icepak(projectname)
+
+    Create an instance of ``Icepak`` and link to a design named
+    ``designname`` in a project named ``projectname``.
+
+    >>> aedtapp = Icepak(projectname,designame)
+
+    Create an instance of ``Icepak`` and open the specified project,
+    which is ``myfile.aedt``.
+
+    >>> aedtapp = Icepak("myfile.aedt")
+
+    Create an instance of ``Icepak`` using the 2021 R1 release and
+    open the specified project, which is ``myfile.aedt``.
+
+    >>> aedtapp = Icepak(specified_version="2021.1", projectname="myfile.aedt")
+
     """
     
     def __init__(self, projectname=None, designname=None, solution_type=None, setup_name=None,
@@ -601,20 +611,17 @@ class Icepak(FieldAnalysisIcepak):
         all_names = self.modeler.primitives.get_all_objects_names()
         list = [i for i in all_names if "Fin" in i]
         self.modeler.create_coordinate_system(self.Position(0, 'HSHeight', 0), mode="view", view="XY", name="TopRight")
-        self.modeler.set_working_coordinate_system("TopRight")
 
         self.modeler.split(list, self.CoordinateSystemPlane.ZXPlane, "NegativeOnly")
 
         if symmetric:
 
             self.modeler.create_coordinate_system(self.Position('(HSWidth-SymSeparation)/2', 0, 0), mode="view",
-                                                  view="XY", name="CenterRightSep")
-            self.modeler.set_working_coordinate_system("CenterRightSep")
+                                                  view="XY", name="CenterRightSep",reference_cs="TopRight")
 
             self.modeler.split(list, self.CoordinateSystemPlane.YZPlane, "NegativeOnly")
             self.modeler.create_coordinate_system(self.Position('SymSeparation/2', 0, 0),
-                                                  mode="view", view="XY", name="CenterRight")
-            self.modeler.set_working_coordinate_system("CenterRight")
+                                                  mode="view", view="XY", name="CenterRight",reference_cs="CenterRightSep")
             self.modeler.duplicate_and_mirror(list, self.Position(0, 0, 0), self.Position(1, 0, 0))
             Center_Line = []
             Center_Line.append(self.Position('-SymSeparation', 'Tolerance','-Tolerance'))
@@ -629,8 +636,7 @@ class Icepak(FieldAnalysisIcepak):
             self.modeler.subtract(list, "Center", False)
         else:
             self.modeler.create_coordinate_system(self.Position('HSWidth', 0, 0), mode="view", view="XY",
-                                                  name="BottomRight")
-            self.modeler.set_working_coordinate_system("BottomRight")
+                                                  name="BottomRight",reference_cs="TopRight")
             self.modeler.split(list, self.CoordinateSystemPlane.YZPlane, "NegativeOnly")
         all_objs2 = self.modeler.primitives.get_all_objects_names()
         list_to_move=[i for i in all_objs2 if i not in all_objs]
@@ -648,7 +654,7 @@ class Icepak(FieldAnalysisIcepak):
             self.modeler.rotate(list_to_move, self.CoordinateSystemAxis.YAxis, 90)
             self.modeler.rotate(list_to_move, self.CoordinateSystemAxis.ZAxis, rotation)
         self.modeler.unite(list_to_move)
-        self.modeler.primitives["HSBase"].name = "HeatSink1"
+        self.modeler.primitives[list_to_move[0]].name = "HeatSink1"
         return True
 
     @aedt_exception_handler

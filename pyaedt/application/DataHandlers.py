@@ -60,13 +60,13 @@ def dict2arg(d, arg_out):
 
     """
     for k, v in d.items():
-        if isinstance(v, OrderedDict):
+        if type(v) is OrderedDict or type(v) is dict:
             arg = ["NAME:" + k]
             dict2arg(v, arg)
             arg_out.append(arg)
         elif v is None:
             arg_out.append(["NAME:" + k])
-        elif type(v) is list and len(v)>0 and type(v[0]) is OrderedDict:
+        elif type(v) is list and len(v)>0 and (type(v[0]) is OrderedDict or type(v[0]) is dict):
             for el in v:
                 arg = ["NAME:" + k]
                 dict2arg(el, arg)

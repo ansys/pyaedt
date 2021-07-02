@@ -1,7 +1,7 @@
 """
-This module contains all EDB functionalities in the ``EDB Layout`` class.
-
+This module contains these classes: ``EdbLayout`` and ''Shape``.
 """
+
 import warnings
 from .general import *
 from ..generic.general_methods import get_filename_without_extension, generate_unique_name
@@ -14,96 +14,116 @@ try:
 except ImportError:
     warnings.warn('This module requires pythonnet.')
 
-class Primitive(object):
-
-    def __init__(self,parent, id):
-        self.parent = parent
-        self.id = id
-        self.poly = []
-        self.paths = []
 
 class EdbLayout(object):
-    """EDB Layout class."""
+    """EdbLayout class."""
 
     @property
     def edb(self):
-        """ """
-        return self.parent.edb
+        return self._parent.edb
 
     @property
     def messenger(self):
         """ """
-        return self.parent.messenger
+        return self._parent._messenger
 
-    def __init__(self,parent):
-        self.parent = parent
-        self._primitives_by_layer = {}
+    def __init__(self, parent):
         self._prims = []
-        self.update_primitives()
+        self._parent = parent
+        self._primitives_by_layer = {}
+        #self.update_primitives()
 
     @property
     def builder(self):
-        """ """
-        return self.parent.builder
+        return self._parent.builder
 
-    @property
-    def edb(self):
-        """ """
-        return self.parent.edb
 
     @property
     def edb_value(self):
-        """ """
-        return self.parent.edb_value
+        return self._parent.edb_value
 
     @property
     def edbutils(self):
-        """ """
-        return self.parent.edbutils
+        return self._parent.edbutils
 
     @property
     def active_layout(self):
-        """ """
-        return self.parent.active_layout
+        return self._parent.active_layout
 
     @property
     def cell(self):
-        """ """
-        return self.parent.cell
+        return self._parent.cell
 
     @property
     def db(self):
-        """ """
-        return self.parent.db
+        return self._parent.db
 
     @property
     def layers(self):
-        """ """
-        return self.parent.core_stackup.stackup_layers.layers
+        """Dictionary of layers.
+
+        Returns
+        -------
+        dict
+            Dictionary of layers.
+        """
+        return self._parent.core_stackup.stackup_layers.layers
 
     @aedt_exception_handler
     def update_primitives(self):
+        """
+        Update a primitives list from the EDB database.
+
+        Returns
+        -------
+        bool
+            ``True`` when successful, ``False`` when failed.
+        """
         layoutInstance = self.active_layout.GetLayoutInstance()
         layoutObjectInstances = layoutInstance.GetAllLayoutObjInstances()
         for el in layoutObjectInstances.Items:
             self._prims.append(el.GetLayoutObj())
         for lay in self.layers:
             self._primitives_by_layer[lay] = self.get_polygons_by_layer(lay)
+        print("Primitives Updated")
+        return True
 
     @property
     def primitives(self):
+        """List of primitives.
+
+        Returns
+        -------
+        list
+            List of primitives.
+        """
         if not self._prims:
             self.update_primitives()
         return self._prims
 
     @property
     def polygons_by_layer(self):
+        """Dictionary of primitives with layer names as keys.
+
+        Returns
+        -------
+        dict
+            Dictionary of primitives with layer names as keys.
+        """
         if not self._primitives_by_layer:
             self.update_primitives()
         return self._primitives_by_layer
 
     @property
     def rectangles(self):
+        """List of rectangles.
+
+        Returns
+        -------
+        list
+            List of rectangles.
+
+        """
         prims = []
         for el in self.primitives:
             if "Rectangle" in el.ToString():
@@ -112,6 +132,14 @@ class EdbLayout(object):
 
     @property
     def circles(self):
+        """List of circles.
+
+        Returns
+        -------
+        list
+            List of circles.
+
+        """
         prims = []
         for el in self.primitives:
             if "Circle" in el.ToString():
@@ -120,6 +148,13 @@ class EdbLayout(object):
 
     @property
     def paths(self):
+        """List of paths.
+
+        Returns
+        -------
+        list
+            List of paths.
+        """
         prims = []
         for el in self.primitives:
             if "Path" in el.ToString():
@@ -128,6 +163,13 @@ class EdbLayout(object):
 
     @property
     def bondwires(self):
+        """List of bondwires.
+
+        Returns
+        -------
+        list
+            List of bondwires.
+        """
         prims = []
         for el in self.primitives:
             if "Bondwire" in el.ToString():
@@ -136,7 +178,13 @@ class EdbLayout(object):
 
     @property
     def polygons(self):
-        """:return: list of polygons"""
+        """List of polygons.
+
+        Returns
+        -------
+        list
+            List of polygons.
+        """
         prims = []
         for el in self.primitives:
             if "Polygon" in el.ToString():
@@ -175,18 +223,17 @@ class EdbLayout(object):
         Parameters
         ----------
         polygon : 
-            edb_core polygon
+            Name of the polygon.
 
         Returns
         -------
         list
-            Bounding box ``[-x, -y, +x, +y]``.
+            List of bounding box coordinates in the format ``[-x, -y, +x, +y]``.
 
         Examples
         --------
         >>> poly = edb_core.core_primitives.get_polygons_by_layer("GND")
         >>> bounding = edb_core.core_primitives.get_polygon_bounding_box(poly[0])
-        
         """
         bounding = []
         try:
@@ -198,7 +245,7 @@ class EdbLayout(object):
 
     @aedt_exception_handler
     def get_polygon_points(self, polygon):
-        """List polygon points. 
+        """Retrieve polygon points. 
         
         .. note::
            For arcs, one point is returned.
@@ -206,7 +253,7 @@ class EdbLayout(object):
         Parameters
         ----------
         polygon :
-            edb_core polygon
+            Name of the polygon.
 
         Returns
         -------
@@ -247,22 +294,21 @@ class EdbLayout(object):
         Parameters
         ----------
         polygon : 
-            Polygon to parametrize.
+            Name of the polygon.
         selection_polygon : 
             Polygon to use as a filter.
         offset_name : str, optional
-            Name of the variable to create.  The default is ``"offsetx"``.
+            Name of the offset to create.  The default is ``"offsetx"``.
         origin : list, optional
             List of the X and Y origins, which impacts the vector 
             computation and is needed to determine expansion direction. 
-            The default is ``None``. If ``None``, the vector is
+            The default is ``None``, in which case the vector is
             computed from the polygon's center.
 
         Returns
         -------
         bool
-            ``True`` when successful, ``False`` when failed.
-            
+            ``True`` when successful, ``False`` when failed.   
         """
         def calc_slope(point, origin):
             if point[0] - origin[0] != 0:
@@ -302,7 +348,7 @@ class EdbLayout(object):
         if not origin:
             origin = [center[0] + float(x1)*10000, center[1] + float(y1)*10000]
 
-        var_server = self.parent.active_cell.GetVariableServer()
+        var_server = self._parent.active_cell.GetVariableServer()
         var_server.AddVariable(offset_name,self.edb_value(0.0), True)
         i = 0
         continue_iterate = True
@@ -345,24 +391,23 @@ class EdbLayout(object):
         net_name : str, optional
             Name of the net. The default is ``""``.
         start_cap_style : str, optional
-            Style of the cap at its start. Choices are ``"Round"``, 
+            Style of the cap at its start. Options are ``"Round"``, 
             ``"Extended",`` and ``"Flat"``. The default is 
             ``"Round"``.
         end_cap_style : str, optional
-            Style of the cap at its end. Choices are ``"Round"``, 
+            Style of the cap at its end. Options are ``"Round"``, 
             ``"Extended",`` and ``"Flat"``. The default is 
             ``"Round"``.
         corner_style : str, optional
-            Style of the corner. Choices are ``"Round"`` and 
+            Style of the corner. Options are ``"Round"`` and 
             ``"Flat"``. The default is ``"Round"``.
 
         Returns
         -------
         bool
             ``True`` when successful, ``False`` when failed.
-            
         """
-        net = self.parent.core_nets.find_or_create_net(net_name)
+        net = self._parent.core_nets.find_or_create_net(net_name)
         if start_cap_style.lower() == "round":
             start_cap_style = 0
         elif start_cap_style.lower() == "extended":
@@ -399,8 +444,7 @@ class EdbLayout(object):
 
     @aedt_exception_handler
     def create_polygon(self, main_shape,  layer_name, voids=[], net_name=""):
-        """
-        Create a new polygon based on list of points and voids.
+        """Create a new polygon based on a list of points and voids.
 
         Parameters
         ----------
@@ -417,9 +461,8 @@ class EdbLayout(object):
         -------
         bool
             ``True`` when successful, ``False`` when failed.
-             
         """
-        net = self.parent.core_nets.find_or_create_net(net_name)
+        net = self._parent.core_nets.find_or_create_net(net_name)
         polygonData = self.shape_to_polygon_data(main_shape)
         if polygonData is None or polygonData.IsNull():
             self.messenger.add_error_message('Failed to create main shape polygon data')
@@ -448,7 +491,7 @@ class EdbLayout(object):
         Parameters
         ----------
         shape : str
-            Type of the shape to convert. Choices are ``"rectangle"`` and ``"polygon"``.
+            Type of the shape to convert. Options are ``"rectangle"`` and ``"polygon"``.
         """
         if shape.type == 'polygon':
             return self._createPolygonDataFromPolygon(shape)
@@ -540,7 +583,7 @@ class EdbLayout(object):
         Parameters
         ----------
         type : str, optional
-            Type of the shape. Choices are ``"circle"``, ``"rectangle"``, and ``"polygon"``.
+            Type of the shape. Options are ``"circle"``, ``"rectangle"``, and ``"polygon"``.
             The default is ``"unknown``.
         pointA : optional
             Lower-left corner when ``type="rectangle"``. The default is ``None``.
@@ -555,13 +598,12 @@ class EdbLayout(object):
         properties : dict, optional
             Dictionary of properties associated with the shape. The default is ``{}``.
         """
-
-    def __init__(self, type='unknown', pointA=None, pointB=None, centerPoint=None, radius=None, points=None,
-                     properties={}):
-            self.type = type
-            self.pointA = pointA
-            self.pointB = pointB
-            self.centerPoint = centerPoint
-            self.radius = radius
-            self.points = points
-            self.properties = properties
+        def __init__(self, type='unknown', pointA=None, pointB=None, centerPoint=None, radius=None, points=None,
+                         properties={}):
+                self.type = type
+                self.pointA = pointA
+                self.pointB = pointB
+                self.centerPoint = centerPoint
+                self.radius = radius
+                self.points = points
+                self.properties = properties

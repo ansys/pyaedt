@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 from ..generic.general_methods import aedt_exception_handler
 from .modeler_constants import CoordinateSystemPlane, CoordinateSystemAxis, SweepDraftType
 import math
@@ -1119,10 +1120,11 @@ class GeometryOperators(object):
     @staticmethod
     @aedt_exception_handler
     def q_rotation(v, q):
-        """ Evaluates the rotation of a vector v defined by the quaternion q, evaluated as:
+        """Evaluates the rotation of a vector ``v`` defined by the quaternion ``q``.
 
-            q = q0 + q' = q0 + iq1 + jq2 + kq3
-            w = qvq* = (q0^2 - |q'|^2)v + 2(q' • v)q' + 2q0(q' x v)
+        Evaluated as:
+        ``q = q0 + q' = q0 + iq1 + jq2 + kq3``
+        ``w = qvq* = (q0^2 - |q'|^2)v + 2(q' • v)q' + 2q0(q' x v)``
 
         Parameters
         ----------

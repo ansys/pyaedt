@@ -1,17 +1,5 @@
 """
-Mesh Library Class
-----------------------------------------------------------------
-
-
-Description
-==================================================
-
-This class contains all the functionalities to create and edit mesh in all the 3D Tools
-
-
-
-========================================================
-
+This module contains the ``Mesh`` class.
 """
 
 from __future__ import absolute_import
@@ -109,17 +97,13 @@ class MeshOperation(object):
 
 
 class Mesh(object):
-    """""
-    Manage Main AEDT Mesh Functions
-    AEDTConfig Class Inherited contains all the _desktop Hierarchical calls needed to the class
-    ""
-
+    """Mesh class.   
+    
+    Manages AEDT mesh functions.
+    
     Parameters
     ----------
-
-    Returns
-    -------
-
+    
     """
 
     def __init__(self, parent):
@@ -176,22 +160,21 @@ class Mesh(object):
 
     @aedt_exception_handler
     def assign_surface_mesh(self, names, level, meshop_name=None):
-        """Assign a predefined surface mesh level to an object
+        """Assign a predefined surface mesh level to an object.
 
         Parameters
         ----------
         names :
-            name of the objects
-        level :
-            level of surface mesh
-        meshop_name :
-            optional name (Default value = None)
+            Names of the objects.
+        level : int
+            Level of the surface mesh.
+        meshop_name : str, optional
+            Name of the mesh operation. The default is ``None``.
 
         Returns
         -------
         type
-            meshoperation object
-
+            Mesh operation object.
         """
         names = self.modeler.convert_to_selections(names, True)
         if meshop_name:
@@ -216,26 +199,25 @@ class Mesh(object):
 
     @aedt_exception_handler
     def assign_surface_mesh_manual(self, names, surf_dev=None, normal_dev=None, aspect_ratio=None, meshop_name=None):
-        """Assign Surface mesh to list of faces
+        """Assign a surface mesh to a list of faces.
 
         Parameters
         ----------
-        names :
-            list of objects to apply surface mesh
-        surf_dev :
-            float surface deviation (Default value = None)
-        normal_dev :
-            float normal deviation (Default value = None)
-        aspect_ratio :
-            int aspoect ration (Default value = None)
-        meshop_name :
-            label to apply to boundary (Default value = None)
+        names : list
+            List of faces to which to apply the surface mesh.
+        surf_dev : float, optional
+            Surface deviation. The default is ``None``.
+        normal_dev : float, optional
+            Normal deviation. The default is ``None``.
+        aspect_ratio : int, optional
+            Aspect ratio. The default is ``None``.
+        meshop_name : str, optional
+            Name of the mesh operation. The default is ``None``.
 
         Returns
         -------
         type
-            meshoperation object
-
+            Mesh operation object.
         """
         names = self.modeler.convert_to_selections(names, True)
         if meshop_name:
@@ -274,22 +256,21 @@ class Mesh(object):
 
     @aedt_exception_handler
     def assign_model_resolution(self, names, defeature_length=None, meshop_name=None):
-        """Assign Model Resolution
+        """Assign the model resolution.
 
         Parameters
         ----------
-        names :
-            list of objects to defeature
-        defeature_length :
-            defeaturing length in mm. None for automatic defeature (Default value = None)
-        meshop_name :
-            optional name of meshoperation (Default value = None)
+        names : list
+            List of objects to defeature.
+        defeature_length : float, optional
+            Defeaturing length in mm. The default is ``None``, which is for automatic defeaturing.
+        meshop_name : str, optional
+            Name of the mesh operation. The default is ``None``.
 
         Returns
         -------
         type
-            meshoperation object
-
+            Mesh operation object.
         """
         names = self.modeler.convert_to_selections(names, True)
         if meshop_name:
@@ -317,34 +298,37 @@ class Mesh(object):
     @aedt_exception_handler
     def assign_initial_mesh_from_slider(self, level=5, method='Auto', usedynamicsurface=True, useflexmesh=False,
                                         applycurvilinear=False, usefallback=True, usephi=True, automodelresolution=True, modelresolutionlength="0.0001mm"):
-        """Assign a predefined surface mesh level to an object
+        """Assign a predefined surface mesh level to an object.
 
         Parameters
         ----------
-        level :
-            level of surface mesh (integer 1 - 10) (Default value = 5)
-        method :
-            mesher setting "Auto", "AnsoftTAU", "AnsoftClassic" (Default value = 'Auto')
-        usedynamicsurface :
-            Boolean (Default value = True)
-        useflexmesh :
-            Boolean (Default value = False)
-        applycurvilinear :
-            Boolean (Default value = False)
-        usefallback :
-            Boolean (Default value = True)
-        usephi :
-            Boolean (Default value = True)
-        automodelresolution :
-             (Default value = True)
-        modelresolutionlength :
-             (Default value = "0.0001mm")
+        level : int, optional
+            Level of the surface mesh. Chocies are ``1`` through ``10``. The default is ``5.``
+        method : str, optional
+            Meshing method. Choices are ``"Auto"``, ``"AnsoftTAU"``, and ``"AnsoftClassic"`` 
+            The default is ``"Auto:``.
+        usedynamicsurface : bool, optional
+            Whether to use a dynamic surface. The default is ``True``.
+        useflexmesh : bool, optional
+            Whether to use a flexible mesh. The default is ``False``.
+        applycurvilinear : bool, optional
+            Whether to apply curvilinear elements. The default is ``False``.
+        usefallback : bool, optional
+            Whether to retain as a fallback. The default is ``True``.
+        usephi : bool, optional
+            Whether to use the Phi mesher for layered geometry. 
+            The default is ``True``.
+        automodelresolution : bool, optional
+            Whether to automatically calculate the resolution length
+            based on each object's effective thickness. The default is ``True``.  
+        modelresolutionlength : float, optional
+             Resolution thickness with units to use when ``automodelresolution=False``.
+             The default ``"0.0001mm``.
 
         Returns
         -------
-        type
-            Boolean
-
+        bool
+            ``True`` when successful, ``False`` when failed
         """
         if self._parent.design_type == "2D Extractor" or self._parent.design_type == "Maxwell 2D":
             mesh_methods = ["Auto", "AnsoftClassic"]
@@ -374,20 +358,19 @@ class Mesh(object):
 
     @aedt_exception_handler
     def assign_surf_priority_for_tau(self, object_lists, surfpriority=0):
-        """Assign Surface Priority for Tau Mesheron object lists
+        """Assign a surface representation priority for the TAU mesh.
 
         Parameters
         ----------
-        object_lists :
-            list of objects to apply it
-        surfpriority :
-            int Surface Priority. Default 0
+        object_lists : list
+            List of objects to which to apply a surface priority
+        surfpriority : int, optional
+            Surface representation priority. The default is ``0``.
 
         Returns
         -------
         type
-            meshoperation object
-
+            Mesh operation object.
         """
         meshop_name = generate_unique_name("SurfaceRepPriority")
         props = OrderedDict({"Type": "SurfaceRepPriority", "Objects": object_lists, "SurfaceRepPriority": surfpriority})
@@ -399,37 +382,35 @@ class Mesh(object):
 
     @aedt_exception_handler
     def generate_mesh(self, name):
-        """Generate Mesh for Setup name.
+        """Generate the mesh for a design.
 
         Parameters
         ----------
-        name :
-            name of design to be meshed
+        name : str
+            Name of the design.
 
         Returns
         -------
-        type
-            Bool
-
+        bool
+            ``True`` when successful, ``False`` when failed
         """
-
         return self.odesign.GenerateMesh(name) == 0
 
 
     @aedt_exception_handler
     def delete_mesh_operations(self, mesh_type=None):
-        """Remove mesh operations from a design. If type is None, remove all mesh operations
+        """Remove mesh operations from a design. 
 
         Parameters
         ----------
-        mesh_type :
-            mesh operation type (Default value = None)
+        mesh_type : optional
+           Type of the mesh operation to delete. The default is ``None``, which removes all
+           mesh operations.
 
         Returns
         -------
-        type
-            Boolean
-
+        bool
+            ``True`` when successful, ``False`` when failed
         """
         # Type "Area Based" not included since the delete command causes
         # desktop to crash
@@ -454,25 +435,27 @@ class Mesh(object):
 
     @aedt_exception_handler
     def assign_length_mesh(self, names, isinside=True, maxlength=1, maxel=1000, meshop_name=None):
-        """
+        """Assign length for the model resolution.
 
         Parameters
         ----------
-        names :
-            object lists. it can be a list of objects names or faces ids
-        isinside :
-            True if length mesh is inside selection, False if outside (Default value = True)
-        maxlength :
-            maxlength maximum element length. None to disable (Default value = 1)
-        maxel :
-            max number of element. None to disable (Default value = 1000)
-        meshop_name :
-            optional mesh operation name (Default value = None)
+        names : list
+            List of object names or face IDs.
+        isinside : bool, optional
+            Whether the length mesh is inside the selection. The default is ``True``.
+        maxlength : int, optional
+            Maximum element length. The default is ``1``. When ``None``, 
+            this parameter is disabled.
+        maxel : int, optional
+            Maximum number of elements. The default is ``1000``. When ``None``, this parameter
+            is disabled.
+        meshop_name : str, optional
+            Name of the mesh operation. The default is ``None``.
 
         Returns
         -------
         type
-            meshoperation object
+            Mesh operation object.
 
         """
         names = self.modeler.convert_to_selections(names, True)
@@ -526,24 +509,26 @@ class Mesh(object):
 
         Parameters
         ----------
-        names :
-            object lists. it can be a list of objects names or faces ids
-        skindepth :
-            True if length mesh is inside selection, False if outside
-        maxelements :
-            maxlength maximum element length. None to disable (Default value = None)
-        triangulation_max_length :
-            maximum surface triangulation length (Default value = "0.1mm")
-        numlayers :
-            number of layers (Default value = "2")
-        meshop_name :
-             (Default value = None)
+        names : list
+           List of object names or face IDs.
+        skindepth : bool
+            Whether the length mesh is inside the selection. When ``True``, 
+            it is inside the selection. 
+        maxelements : int, optional
+            Maximum number of elements. The default is ``None``, which means
+            this parameter is disabled.
+        triangulation_max_length : str, optional
+            Maximum surface triangulation length with units. The default 
+            is ``"0.1mm"`.
+        numlayers : str, optional
+            Number of layers. The default is ``"2"``.
+        meshop_name : str, optional
+            Name of the mesh operation. The default is ``None``.
 
         Returns
         -------
         type
-            meshoperation object
-
+            Mesh operation object.
         """
         names = self.modeler.convert_to_selections(names, True)
 
@@ -585,22 +570,21 @@ class Mesh(object):
 
     @aedt_exception_handler
     def assign_curvilinear_elements(self, names, enable=True, meshop_name=None):
-        """
+        """Assign curvilinear elements.
 
         Parameters
         ----------
-        names :
-            object lists. it can be a list of objects or faces
-        enable :
-            True if enabled (Default value = True)
-        meshop_name :
-            optional mesh operation name (Default value = None)
+        names : list
+            List of objects or faces.
+        enable : bool, optional
+            The default is ``True``.
+         meshop_name : str, optional
+            Name of the mesh operation. The default is ``None``.
 
         Returns
         -------
         type
-            meshoperation object
-
+            Mesh operation object.
         """
         names = self.modeler.convert_to_selections(names, True)
 
@@ -632,22 +616,22 @@ class Mesh(object):
 
     @aedt_exception_handler
     def assign_curvature_extraction(self, names, disable_for_faceted_surf=True, meshop_name=None):
-        """
+        """Assign curvature extraction.
 
         Parameters
         ----------
-        names :
-            object lists. it can be a list of objects or faces
-        disable_for_faceted_surf :
-            True if enabled (Default value = True)
-        meshop_name :
-            optional mesh operation name (Default value = None)
+        names : list
+            List of objects or faces.
+        disable_for_faceted_surf : bool, optional
+            Whether curvature extraction is enabled for faceted surfaces. 
+            The default is ``True``.
+        meshop_name : str, optional
+            Name of the mesh operation. The default is ``None``.
 
         Returns
         -------
         type
-            meshoperation object
-
+            Mesh operation object.
         """
         names = self.modeler.convert_to_selections(names, True)
 
@@ -679,24 +663,25 @@ class Mesh(object):
 
     @aedt_exception_handler
     def assign_rotational_layer(self, names, num_layers=3, total_thickness="1mm", meshop_name=None):
-        """
+        """Assign a rotational layer mesh.
 
         Parameters
         ----------
-        names :
-            object lists.
-        num_layers :
-            str or int (Default value = 3)
-        total_thickness :
-            thickness with units (Default value = "1mm")
-        meshop_name :
-            optional mesh operation name (Default value = None)
+        names : list
+            List of objects.
+        num_layers : int, optional
+            Number of layers  to create in the radial direction, starting from
+            the faces most adjacenet to t he band. The default is ``3``, which is the maximum.
+        total_thickness : str, optional
+            Total thickness of all layers combined with units. The default is ``"1mm"``.
+        meshop_name : str, optional
+            Name of the mesh operation. The default is ``None``.
+
 
         Returns
         -------
         type
-            meshoperation object
-
+            Mesh operation object.
         """
         names = self.modeler.convert_to_selections(names, True)
 
@@ -720,22 +705,21 @@ class Mesh(object):
 
     @aedt_exception_handler
     def assign_edge_cut(self, names, layer_thickness="1mm", meshop_name=None):
-        """
+        """Assign an edge cut layer mesh.
 
         Parameters
         ----------
-        names :
-            object lists.
+        names : list
+            List of objects.
         layer_thickness :
-            thickness with units (Default value = "1mm")
-        meshop_name :
-            optional mesh operation name (Default value = None)
+            Thickness of the layer with units. The default is ``"1mm"``.
+        meshop_name : str, optional
+            Name of the mesh operation. The default is ``None``.
 
         Returns
         -------
         type
-            meshoperation object
-
+            Mesh operation object.
         """
         names = self.modeler.convert_to_selections(names, True)
 
@@ -762,22 +746,23 @@ class Mesh(object):
 
         Parameters
         ----------
-        names :
-            object lists.
-        refine_inside :
-            Boolean (Default value = True)
-        maxelementlength :
-            dim with units. None to disable (Default value = None)
-        layerNum :
-            Number. None to disable (Default value = None)
-        meshop_name :
-            optional mesh operation name (Default value = None)
+        names : list
+            List of objects.
+        refine_inside : bool, optional
+            The default is ``True``.
+        maxelementlength : str, optional
+            Maximum element length with units. The default is ``None``,
+            which disables this parameter.
+        layerNum : int, optional
+            Number of layers. The default is ``None``, which disables
+            this parameter.
+        meshop_name : str, optional
+            Name of the mesh operation. The default is ``None``.
 
         Returns
         -------
         type
-            meshoperation object
-
+            Mesh operation object.
         """
         names = self.modeler.convert_to_selections(names, True)
 

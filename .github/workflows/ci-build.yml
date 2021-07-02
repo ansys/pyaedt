@@ -22,6 +22,8 @@ jobs:
         run: |
           pip install -r requirements_docs.txt
           make -C doc html
+          touch doc/_build/html/.nojekyll
+          echo "dev.aedtdocs.pyansys.com" >> doc/_build/html/CNAME
   
       - name: Upload Documentation
         uses: actions/upload-artifact@v2.2.3
@@ -29,3 +31,13 @@ jobs:
           name: Documentation
           path: doc/_build/html
           retention-days: 7
+
+      - name: Deploy
+        if: github.event_name == 'push' && startsWith(github.event.ref, 'refs/heads/main')
+        uses: JamesIves/github-pages-deploy-action@4.1.4
+        with:
+          repository-name: pyansys/pyaedt-dev-docs
+          branch: gh-pages
+          folder: doc/_build/html/
+          token: ${{ secrets.PYANSYS_CI_BOT_TOKEN }}
+          clean: true
