@@ -647,27 +647,28 @@ class Hfss3dLayout(FieldAnalysis3DLayout, object):
 
     @aedt_exception_handler
     def import_gds(self, gds_path, aedb_path=None, xml_path=None, set_as_active=True, close_active_project=False):
-        """Import Gds into HFSS3DLayout and assign stackup from xml if present
+        """Import Gds into HFSS3DLayout and assign stackup from xml if present.
 
         Parameters
         ----------
         gds_path : str
-            full path to .gds file
+            Full path to .gds file
         aedb_path : str, optional
-            full path to aedb file
+            Full path to aedb file
         xml_path : str, optional
         set_as_active : bool
             Set Gds as active project
         close_active_project : bool
-            Close active project after loaded the gds
+            Close active project after loading the gds.
         Returns
         -------
         bool
+            ``True`` when successful, ``False`` when failed.
         """
-        active_project =  self.project_name
+        active_project = self.project_name
         project_name = os.path.basename(gds_path)[:-4]
         if not aedb_path:
-            aedb_path= gds_path.replace('.gds', '.aedb')
+            aedb_path = gds_path.replace('.gds', '.aedb')
         if os.path.exists(aedb_path):
             old_name = project_name
             project_name = generate_unique_name(project_name)
@@ -685,7 +686,6 @@ class Hfss3dLayout(FieldAnalysis3DLayout, object):
         if close_active_project:
             self.odesktop.CloseProject(active_project)
         return True
-
 
 
 
