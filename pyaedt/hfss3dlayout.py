@@ -19,7 +19,7 @@ class SweepString(object):
     Parameters
     ----------
     unit : str, optional
-        Units for the sweep string. Thedefault is ``"GHz"``.
+        Units for the sweep string. The default is ``"GHz"``.
      """
         
     def __init__(self, unit='GHz'):
@@ -112,7 +112,7 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
         another instance of the ``specified_version`` is active on the
         machine.  The default is ``True``.
     release_on_exit : bool, optional
-        Whether to release  AEDT on exit. 
+        Whether to release AEDT on exit. 
 
     Examples
     --------
@@ -167,7 +167,7 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
         edgenumber :
             Edge number to create the port on.
         iscircuit : bool, optional
-            Whethher the edge port is a circuit port. The default is ``False``.
+            Whether the edge port is a circuit port. The default is ``False``.
 
         Returns
         -------
@@ -204,11 +204,11 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
             Starting position of the pin on the Y axis.
         yend :
             Ending postiion of the pin on the Y axis.
-        archeight :
+        archeight : float, optional
             Arc height. The default is ``0``.
-        arcrad :
+        arcrad : float, optional
             Rotation of the pin in radians. The default is ``0``.
-        isexternal : bool
+        isexternal : bool, optional
             Whether the pin is external. The default is ``True``.
 
         Returns
@@ -244,7 +244,7 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
             X-axis position of the pin. The default is ``0``.
         ypos : float, optional
             Y-axis position of the pin. The default is ``0``.
-        rotation : float
+        rotation : float, optional
             Rotation of the pin in degrees. The default is ``0``.
         top_layer : str, optional
             Top layer of the pin. The default is ``None``, in which case the top 
@@ -336,7 +336,7 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
         Returns
         -------
         list
-            List of all information for later use.
+            List of validation messages.
 
         """
         if name is None:
@@ -591,7 +591,7 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
         save_fields : bool, optional
             Whether to save the fields for a discrete sweep only. The default is ``True``.
         save_rad_fields_only : bool, optional
-            Whether to save only the radiated fields if ``save_fields = True``. The default is ``False``.
+            Whether to save only the radiated fields if ``save_fields=True``. The default is ``False``.
         use_q3d_for_dc : bool, optional
             Whether to use Q3D to solve the DC point. The default is ``False``.
 
@@ -714,4 +714,3 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
         if close_active_project:
             self.odesktop.CloseProject(active_project)
         return True
-
