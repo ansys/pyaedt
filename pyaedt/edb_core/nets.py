@@ -13,7 +13,11 @@ except ImportError:
 
 
 class EdbNets(object):
-    """EdbNets object"""
+    """EdbNets class"""
+
+    def __init__(self, parent):
+        self.parent = parent
+
     @property
     def builder(self):
         """ """
@@ -53,9 +57,6 @@ class EdbNets(object):
     def messenger(self):
         """ """
         return self.parent._messenger
-
-    def __init__(self, parent):
-        self.parent = parent
 
     @property
     def nets_methods(self):

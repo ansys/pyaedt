@@ -1,26 +1,4 @@
-"""
-This module contains all Q3D functionalities in the ``Q3d`` class. 
-
-
-Examples:
-
-Create an instance of ``Q3d`` and connect to an existing Q3D design or create a new Q3D design if one does not exist.
-
->>> app = Q3d()
-
-Create an instance of ``Q2d`` and link to a project named ``projectname``. If this project does not exist, create one with this name.
-
->>> app = Q2d(projectname)
-
-Create an instance of ``Q2d`` and link to a design named ``designname`` in a project named ``projectname``.
-
->>> app = Q2d(projectname,designame)
-
-Create an instance of ``Q2d`` and open the specified project, which is named ``myfile.aedt``.
-
->>> app = Q2d("myfile.aedt")
-
-"""
+"""This module contains the ``Q3d`` and ``Q2d`` classes."""
 from __future__ import absolute_import
 
 from .application.Analysis2D import FieldAnalysis2D
@@ -30,6 +8,7 @@ from .generic.general_methods import aedt_exception_handler, generate_unique_nam
 from collections import OrderedDict
 from .modules.Boundary import BoundaryObject
 import os
+
 
 class QExtractor(FieldAnalysis3D, FieldAnalysis2D, object):
     @property
@@ -72,27 +51,39 @@ class QExtractor(FieldAnalysis3D, FieldAnalysis2D, object):
         if ex_type:
             exception_to_desktop(self, ex_value, ex_traceback)
 
+
 class Q3d(QExtractor, object):
-    """Q3D Object
+    """Q3D application interface.
+
+    Allows you to create an instance of Q3D and link to an
+    existing project or create a new one.
 
     Parameters
     ----------
     projectname : str, optional
-        Name of the project to select or the full path to the project or AEDTZ archive to open. 
-        The default is ``None``. If ``None``, try to get an active project and, if no projects are present, 
-        create an empty project.
+        Name of the project to select or the full path to the project
+        or AEDTZ archive to open.  The default is ``None``. If
+        ``None``, try to get an active project and, if no projects are
+        present, create an empty project.
     designname : str, optional
-        Name of the design to select. The default is ``None``. If ``None``, try to get an active design and, 
-        if no designs are present, create an empty design.
+        Name of the design to select. The default is ``None``. If
+        ``None``, try to get an active design and, if no designs are
+        present, create an empty design.
     solution_type : str, optional
-        Solution type to apply to design. The default is ``None``. If ``None``, the default type is applied.
+        Solution type to apply to design. The default is ``None``. If
+        ``None``, the default type is applied.
     setup_name : str, optional
-        Name of the setup to use as the nominal. The default is ``None``. If ``None``, the active setup 
-        is used or nothing is used.
-    
-    Returns
-    -------
+        Name of the setup to use as the nominal. The default is
+        ``None``. If ``None``, the active setup is used or nothing is
+        used.
 
+    Examples
+    --------
+    Create an instance of ``Q3d`` and connect to an existing Q3D
+    design or create a new Q3D design if one does not exist.
+
+    >>> from pyaedt import Q3d
+    >>> app = Q3d()
     """
     def __init__(self, projectname=None, designname=None, solution_type=None, setup_name=None,
                  specified_version=None, NG=False, AlwaysNew=False, release_on_exit=False):
@@ -381,26 +372,50 @@ class Q3d(QExtractor, object):
                 return sweepdata
         return False
 
+
 class Q2d(QExtractor, object):
-    """Q2D Object
+    """Q2D application interface.
+
+    Allows you to create an instance of Q2D and link to an
+    existing project or create a new one.
 
     Parameters
     ----------
     projectname : str, optional
-        Name of the project to select or the full path to the project or AEDTZ archive to open. 
-        The default is ``None``. If ``None``, try to get an active project and, if no projects are present, 
-        create an empty project.
+        Name of the project to select or the full path to the project
+        or AEDTZ archive to open.  The default is ``None``. If
+        ``None``, try to get an active project and, if no projects are
+        present, create an empty project.
     designname : str, optional
-        Name of the design to select. The default is ``None``. If ``None``, try to get an active design and, 
-        if no designs are present, create an empty design.
+        Name of the design to select. The default is ``None``. If
+        ``None``, try to get an active design and, if no designs are
+        present, create an empty design.
     solution_type : str, optional
-        Solution type to apply to design. The default is ``None``. If ``None``, the default type is applied.
+        Solution type to apply to design. The default is ``None``. If
+        ``None``, the default type is applied.
     setup_name : str, optional
-        Name of the setup to use as the nominal. The default is ``None``. If ``None``, the active setup 
-        is used or nothing is used.
-    
-    Returns
-    -------
+        Name of the setup to use as the nominal. The default is
+        ``None``. If ``None``, the active setup is used or nothing is
+        used.
+
+    Examples
+    --------
+    Create an instance of ``Q2d`` and link to a project named
+    ``projectname``. If this project does not exist, create one with
+    this name.
+
+    >>> from pyaedt import Q2d
+    >>> app = Q2d(projectname)
+
+    Create an instance of ``Q2d`` and link to a design named
+    ``designname`` in a project named ``projectname``.
+
+    >>> app = Q2d(projectname,designame)
+
+    Create an instance of ``Q2d`` and open the specified project,
+    which is named ``myfile.aedt``.
+
+    >>> app = Q2d("myfile.aedt")
 
     """
 

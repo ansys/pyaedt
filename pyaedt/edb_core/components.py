@@ -1,7 +1,4 @@
-"""
-This module contain the```Components`` class.
-
-"""
+"""This module contain the ``Components`` class."""
 import re
 import random
 
@@ -47,16 +44,17 @@ def resistor_value_parser(RValue):
 
 
 class Components(object):
-    """Components class."""
-    @property
-    def edb(self):
-        """ """
-        return self.parent.edb
+    """HFSS 3D application interface.
 
-    @property
-    def messenger(self):
-        """ """
-        return self.parent._messenger
+    This class manages EDB components and related methods.
+
+    Examples
+    --------
+    >>> from pyaedt import Edb
+    >>> edbapp = Edb("myaedbfolder")
+    >>> edbapp.core_components
+
+    """
 
     def __init__(self, parent):
         self.parent = parent
@@ -71,6 +69,20 @@ class Components(object):
         self._comps_by_part = {}
         self.init_parts()
 
+    @property
+    def messenger(self):
+        """ """
+        return self.parent._messenger
+
+    @property
+    def edb(self):
+        """ """
+        return self.parent.edb
+
+    @property
+    def messenger(self):
+        """ """
+        return self.parent.messenger
 
     @aedt_exception_handler
     def init_parts(self):
@@ -986,8 +998,6 @@ class Components(object):
             df = self.get_component_net_connection_info(refdes)
             df_list.append(df)
         return df_list
-
-
 
     def get_through_resistor_list(self, threshold=1):
         """Retrieve through resistors.
