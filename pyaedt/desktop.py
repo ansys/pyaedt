@@ -56,7 +56,7 @@ elif IsWindows:
 def exception_to_desktop(self, ex_value, tb_data):
     """Writes the trace stack to the desktop when a Python error occurs.
     
-    The  message is added to the AEDT global Message Manager and to the log file (if present).
+    The message is added to the AEDT global Message Manager and to the log file (if present).
 
     Parameters
     ----------
@@ -302,8 +302,6 @@ class Desktop:
     >>> desktop = Desktop("2021.1")
     >>> hfss = pyaedt.Hfss()
     
-    The previous example initializes the `Desktop` module to the latest AEDT version 
-    installed on your machine in graphical mode and initializes HFSS.
     """
             
     @property
