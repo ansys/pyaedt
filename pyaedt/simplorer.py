@@ -32,7 +32,7 @@ class Simplorer(FieldAnalysisSimplorer, object):
         ``None``, in which case the active setup is used or 
         nothing is used.
     specified_version: str, optional
-        Version of AEDT  to use. The default is ``None``, in which case
+        Version of AEDT to use. The default is ``None``, in which case
         the active version or latest installed version is  used.
     NG : bool, optional
         Whether to run AEDT in the non-graphical mode. The default 
@@ -42,8 +42,8 @@ class Simplorer(FieldAnalysisSimplorer, object):
         another instance of the ``specified_version`` is active on the
         machine.  The default is ``True``.
     release_on_exit : bool, optional
-        Whether to release  AEDT on exit. 
-    
+        Whether to release AEDT on exit. 
+
     Examples
     --------
     Create an instance of `Simplorer` and connect to an existing
@@ -253,4 +253,3 @@ class Simplorer(FieldAnalysisSimplorer, object):
         """ Push exit up to parent object Design """
         if ex_type:
             exception_to_desktop(self, ex_value, ex_traceback)
-
