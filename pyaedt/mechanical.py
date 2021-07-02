@@ -43,7 +43,7 @@ class Mechanical(FieldAnalysis3D, object):
         another instance of the ``specified_version`` is active on the
         machine.  The default is ``True``.
     release_on_exit : bool, optional
-        Whether to release  AEDT on exit. 
+        Whether to release AEDT on exit. 
 
     Examples
     --------
@@ -105,12 +105,12 @@ class Mechanical(FieldAnalysis3D, object):
             Name of the EM sweep to use for the mapping. The default is ``"LastAdaptive"``.
         map_frequency : str, optional
             Frequency to map. The default is ``None``. The value must be ``None`` for 
-	    Eigenmode analysis.
+	      Eigenmode analysis.
         surface_objects : list, optional
             List objects in the source that are metals. The default is ``[]``.
         source_project_name : str, optional
             Name of the source project. The default is ``None``, in which case  
-	    the source from the same project is used.
+	      the source from the same project is used.
         paramlist : list, optional
             List of all parameters in the EM to map. The default is ``[]``.
         object_list : list, optional
@@ -184,7 +184,7 @@ class Mechanical(FieldAnalysis3D, object):
             Name of the EM sweep to use for the mapping. The default is ``"SteadyState"``.
         source_project_name : str, optional
             Name of the source project. The default is ``None``, in which case the 
-	    source from the same project is used.
+	      source from the same project is used.
         paramlist : list, optional
             List of all parameters in the EM to map. The default is ``[]``.
         
@@ -245,7 +245,7 @@ class Mechanical(FieldAnalysis3D, object):
         convection_unit : str, optional
             Units for the convection value. The default is ``"w_per_m2kel"``.
         temperature : str, optional
-            Type of temperature. The default is ``"AmbientTemp"``.
+            Type of the temperature. The default is ``"AmbientTemp"``.
         boundary_name : str, optional
             Name of the boundary. The default is ``""``.
 
@@ -327,7 +327,7 @@ class Mechanical(FieldAnalysis3D, object):
         """Assign a Mechanical frictionless support. 
         
         .. note::
-	   This method works only in a Mechanical structural analysis.
+	     This method works only in a Mechanical structural analysis.
 
         Parameters
         ----------
@@ -406,8 +406,6 @@ class Mechanical(FieldAnalysis3D, object):
     def existing_analysis_sweeps(self):
         """List of existing analysis setups in the Mechanical design.
                 
-        
-        ----------
 
         Returns
         -------
