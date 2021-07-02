@@ -239,9 +239,9 @@ class TestIcepak:
         assert self.aedtapp.mesh.automatic_mesh_3D(accuracy2=1)
 
     def test_create_source(self):
-
-        assert self.aedtapp.create_source_power(self.aedtapp.modeler.primitives["box3"].top_face.id, input_power="2W")
-        assert self.aedtapp.create_source_power(self.aedtapp.modeler.primitives["box3"].bottom_face.id, thermal_condtion="Fixed Temperature", temperature="28cel")
+        self.aedtapp.modeler.primitives.create_box([0,0,0], [20,20,20], name="boxSource")
+        assert self.aedtapp.create_source_power(self.aedtapp.modeler.primitives["boxSource"].top_face.id, input_power="2W")
+        assert self.aedtapp.create_source_power(self.aedtapp.modeler.primitives["boxSource"].bottom_face.id, thermal_condtion="Fixed Temperature", temperature="28cel")
 
     def test_surface_monitor(self):
         self.aedtapp.modeler.primitives.create_rectangle(self.aedtapp.CoordinateSystemPlane.XYPlane, [0,0,0], [10,20], "surf1")
