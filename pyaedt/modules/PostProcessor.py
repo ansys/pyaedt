@@ -747,7 +747,7 @@ class PostProcessor(object):
         propertyname : str
             Name of the property to edit.   
         propertyval :
-           Value for the property.
+            Value for the property.
 
         Returns
         -------
@@ -1410,7 +1410,7 @@ class PostProcessor(object):
         expression : str or list
             One or more formulas to add to the report. The default is ``"dB(S(1,1))"``.
         setup_sweep_name : str, optional
-            Name of setup to use to compute the report. The default is ``""``, 
+            Name of the setup to use to compute the report. The default is ``""``, 
             in which case the nominal sweep is used.
         domain : str or list, optional
             Context type. The options are ``"Sweep"`` or ``"Time"``. The default is ``"Sweep".``
@@ -1418,12 +1418,10 @@ class PostProcessor(object):
             Dictionary of all families including the primary sweep. The default is ``{"Freq": ["All"]}``.
         report_input_type :  str
              Type of input data for the report.
-        
         Returns
         -------
         SolutionData
             SolutionData object if successful.
-       
        Examples
        --------
         >>> hfss = HFSS()
