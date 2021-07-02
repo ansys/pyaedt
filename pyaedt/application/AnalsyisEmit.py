@@ -8,34 +8,31 @@ from ..modules.SolveSetup import SetupCircuit
 
 
 class FieldAnalysisEmit(Design):
-    """**AEDT Emit Analysis**
+    """FieldAnaysisEmit  class.
 
-    Class for Emit Analysis Setup (Emit)
-
-    It is automatically initialized by Application call (like HFSS,
-    Q3D...). Refer to Application function for inputs definition
+    The class is for setting up an EMIT analysis in AEDT.
+    It is automatically initialized by an application call (like HFSS,
+    Q3D, and ...). Refer to the Application function for input definitions.
 
     Parameters
     ----------
 
-    Returns
-    -------
-
+    
     """
     @property
     def solution_type(self):
-        """ """
+        """Solution type."""
         return self._solution_type
 
 
     @solution_type.setter
     def solution_type(self, soltype):
-        """Solution Type
+        """Solution type.
 
         Parameters
         ----------
         soltype :
-            SolutionType object
+            SolutionType object.
 
         Returns
         -------
@@ -48,12 +45,12 @@ class FieldAnalysisEmit(Design):
 
     @property
     def existing_analysis_setups(self):
-        """ """
+        """Existing analysis setups."""
         return []
 
     @property
     def setup_names(self):
-        """ """
+        """Setup names."""
         return []
 
 
@@ -67,12 +64,23 @@ class FieldAnalysisEmit(Design):
 
     @property
     def modeler(self):
-        """:return: Design oModeler"""
+        """Modeler.
+        
+        Return
+        ------
+        type
+            Design oModeler
+        """
         return self._modeler
 
     @property
     def oanalysis(self):
-        """:return: Design Module "SimSetup"
+        """Analysis object.
+        
+        Returns
+        -------
+        type: 
+           Design module ``"SimSetup"``
         """
         return None
 
