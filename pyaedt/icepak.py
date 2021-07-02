@@ -431,12 +431,7 @@ class Icepak(FieldAnalysisIcepak):
         if not monitor_name:
             monitor_name = generate_unique_name("Monitor")
         oModule = self.odesign.GetModule("Monitor")
-        oModule.AssignFaceMonitor(
-            [
-                "NAME:"+ monitor_name,
-                "Quantities:="	, [monitor_type],
-                "Objects:="		, [face_name]
-            ])
+        oModule.AssignFaceMonitor(["NAME:" + monitor_name, "Quantities:=", [monitor_type], "Objects:=", [face_name]])
         return True
 
     @aedt_exception_handler
