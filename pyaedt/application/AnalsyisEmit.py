@@ -12,10 +12,7 @@ class FieldAnalysisEmit(Design):
 
     The class is for setting up an EMIT analysis in AEDT.
     It is automatically initialized by an application call (like for HFSS,
-    Q3D, and ...). Refer to the Application function for input definitions.
-
-    Parameters
-    ----------
+    Q3D, and other tools). Refer to the Application function for input definitions.
 
     
     """
@@ -27,7 +24,7 @@ class FieldAnalysisEmit(Design):
 
     @solution_type.setter
     def solution_type(self, soltype):
-        """Solution type.
+        """ """
 
         Parameters
         ----------
@@ -66,8 +63,8 @@ class FieldAnalysisEmit(Design):
     def modeler(self):
         """Modeler.
         
-        Return
-        ------
+        Returns
+        -------
         type
             Design oModeler
         """
