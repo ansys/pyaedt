@@ -644,6 +644,30 @@ class Object3d(object):
         return faces
 
     @property
+    def top_face(self):
+        """The top face in the Z direction of the object.
+
+        Returns
+        -------
+        FacePrimitive
+        """
+        result = [(float(face.center[2]), face) for face in self.faces]
+        result = sorted(result, key=lambda tup: tup[0])
+        return result[-1][1]
+
+    @property
+    def bottom_face(self):
+        """The bottom face in the Z direction of the object.
+
+        Returns
+        -------
+        FacePrimitive
+        """
+        result = [(float(face.center[2]), face) for face in self.faces]
+        result = sorted(result, key=lambda tup: tup[0])
+        return result[0][1]
+
+    @property
     def edges(self):
         """Returns the information for each edge in the given part
 
@@ -1796,5 +1820,4 @@ class Geometries3DLayout(Objec3DLayout, object):
         """
         vMaterial = ["NAME:Net", "Value:=", netname]
         return self.change_property(vMaterial)
-
 

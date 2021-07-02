@@ -48,13 +48,25 @@ class IcepakMesh(object):
             self.Objects = ["Region"]
             self.Enable = True
 
+        @aedt_exception_handler
+        def _dim_arg(self, value):
+            if type(value) is str:
+                try:
+                    float(value)
+                    val = "{0}{1}".format(value,  self.model_units)
+                except:
+                    val = value
+            else:
+                val = "{0}{1}".format(value,  self.model_units)
+            return val
+
         @property
         def autosettings(self):
             """ """
             arg = ["MeshMethod:=", "MesherHD", "UserSpecifiedSettings:=", self.UserSpecifiedSettings, "ComputeGap:=",
                    self.ComputeGap, "MeshRegionResolution:=", self.Level, "MinGapX:=",
-                   str(self.MinGapX) + self.model_units, "MinGapY:=",
-                   str(self.MinGapY) + self.model_units, "MinGapZ:=", str(self.MinGapZ) + self.model_units, "Objects:=",
+                   self._dim_arg(self.MinGapX), "MinGapY:=",
+                   self._dim_arg(self.MinGapY) , "MinGapZ:=", self._dim_arg(self.MinGapZ), "Objects:=",
                    self.Objects]
             return arg
 
@@ -62,18 +74,18 @@ class IcepakMesh(object):
         def manualsettings(self):
             """ """
             arg = ["MeshMethod:=", "MesherHD", "UserSpecifiedSettings:=", self.UserSpecifiedSettings, "ComputeGap:=",
-                   self.ComputeGap, "MaxElementSizeX:=", str(self.MaxElementSizeX) + self.model_units,
+                   self.ComputeGap, "MaxElementSizeX:=", self._dim_arg(self.MaxElementSizeX),
                    "MaxElementSizeY:=",
-                   str(self.MaxElementSizeY) + self.model_units, "MaxElementSizeZ:=",
-                   str(self.MaxElementSizeZ) + self.model_units, "MinElementsInGap:=",
+                   self._dim_arg(self.MaxElementSizeY) , "MaxElementSizeZ:=",
+                   self._dim_arg(self.MaxElementSizeZ), "MinElementsInGap:=",
                    self.MinElementsInGap,
                    "MinElementsOnEdge:=", self.MinElementsOnEdge, "MaxSizeRatio:=",
                    self.MaxSizeRatio, "NoOGrids:=", self.NoOGrids, "EnableMLM:=", self.EnableMLM, "EnforeMLMType:=",
                    self.EnforeMLMType, "MaxLevels:=", self.MaxLevels, "BufferLayers:=", self.BufferLayers,
                    "UniformMeshParametersType:=", self.UniformMeshParametersType, "StairStepMeshing:=",
                    self.StairStepMeshing, "MinGapX:=",
-                   str(self.MinGapX) + self.model_units, "MinGapY:=", str(self.MinGapY) + self.model_units,
-                   "MinGapZ:=", str(self.MinGapZ) + self.model_units, "Objects:=", self.Objects]
+                   self._dim_arg(self.MinGapX) , "MinGapY:=", self._dim_arg(self.MinGapY),
+                   "MinGapZ:=", self._dim_arg(self.MinGapZ), "Objects:=", self.Objects]
             return arg
 
         @property
@@ -339,18 +351,23 @@ class IcepakMesh(object):
 
         Returns
         -------
-        type
+        IcepakMesh.MeshRegion
             Mesh region object.
         """
         meshregion = self.MeshRegion(self.omeshmodule, self.boundingdimension, self.modeler.model_units)
         meshregion.UserSpecifiedSettings = False
         meshregion.Level = level
         meshregion.name = name
+        self.modeler.primitives._refresh_object_types()
+        all_nonmodels = self.modeler.primitives.non_models
         if not objectlist:
             objectlist = self.modeler.primitives.get_all_objects_names()
+        meshregion.Objects = objectlist
+
         meshregion.create()
-        objectlist2 = self.modeler.primitives.get_all_objects_names()
-        added_obj = [i for i in objectlist2 if i not in objectlist]
+        self.modeler.primitives._refresh_object_types()
+        all_objs2 = self.modeler.primitives.non_models
+        added_obj = [i for i in all_objs2 if i not in all_nonmodels]
         meshregion.Objects = added_obj
         self.meshregions.append(meshregion)
 

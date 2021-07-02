@@ -496,7 +496,6 @@ class CommonMaterial(object):
         self._parent = parent
         self.name = name
         self.coordinate_system = ""
-
         if props:
             self._props = props
         else:
@@ -557,7 +556,7 @@ class Material(CommonMaterial, object):
             self.physics_type = self._props["PhysicsTypes"]["set"]
         else:
             self.physics_type = ['Electromagnetic', 'Thermal', 'Structural']
-            self._props["PhysicsTypes"]=OrderedDict({"set":['Electromagnetic', 'Thermal', 'Structural']})
+            self._props["PhysicsTypes"] = OrderedDict({"set":['Electromagnetic', 'Thermal', 'Structural']})
 
         for property in MatProperties.aedtname:
             if property in self._props:
@@ -683,6 +682,8 @@ class Material(CommonMaterial, object):
     def thermal_conductivity(self, value):
 
         self._thermal_conductivity.value = value
+        self.physics_type = ['Electromagnetic', 'Thermal', 'Structural']
+        self._props["PhysicsTypes"] = OrderedDict({"set": ['Electromagnetic', 'Thermal', 'Structural']})
         self._update_props("thermal_conductivity", value)
 
     @property
@@ -754,6 +755,8 @@ class Material(CommonMaterial, object):
     @youngs_modulus.setter
     def youngs_modulus(self, value):
         self._youngs_modulus.value = value
+        self.physics_type = ['Electromagnetic', 'Thermal', 'Structural']
+        self._props["PhysicsTypes"] = OrderedDict({"set": ['Electromagnetic', 'Thermal', 'Structural']})
         self._update_props("youngs_modulus", value)
 
     @property
@@ -770,6 +773,8 @@ class Material(CommonMaterial, object):
     @poissons_ratio.setter
     def poissons_ratio(self, value):
         self._poissons_ratio.value = value
+        self.physics_type = ['Electromagnetic', 'Thermal', 'Structural']
+        self._props["PhysicsTypes"] = OrderedDict({"set": ['Electromagnetic', 'Thermal', 'Structural']})
         self._update_props("poissons_ratio", value)
 
     @property

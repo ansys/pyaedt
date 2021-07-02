@@ -646,4 +646,47 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
         # self._messenger.add_debug_message("Sweep Setup created correctly")
         return setup
 
+    @aedt_exception_handler
+    def import_gds(self, gds_path, aedb_path=None, xml_path=None, set_as_active=True, close_active_project=False):
+        """Import Gds into HFSS3DLayout and assign stackup from xml if present.
+
+        Parameters
+        ----------
+        gds_path : str
+            Full path to .gds file
+        aedb_path : str, optional
+            Full path to aedb file
+        xml_path : str, optional
+            path to stackup information. If not provided, the stackup will not be edited
+        set_as_active : bool
+            Set Gds as active project
+        close_active_project : bool
+            Close active project after loading the gds.
+        Returns
+        -------
+        bool
+            ``True`` when successful, ``False`` when failed.
+        """
+        active_project = self.project_name
+        project_name = os.path.basename(gds_path)[:-4]
+        if not aedb_path:
+            aedb_path = gds_path.replace('.gds', '.aedb')
+        if os.path.exists(aedb_path):
+            old_name = project_name
+            project_name = generate_unique_name(project_name)
+            aedb_path = gds_path.replace(old_name + '.gds', project_name + '.aedb')
+            self.messenger.add_warning_message("aedb_exists. Renaming it to {}".format(project_name))
+
+        oTool = self.odesktop.GetTool("ImportExport")
+        oTool.ImportGDSII(gds_path, aedb_path, "", "")
+        project = self.odesktop.SetActiveProject(project_name)
+        oeditor = project.GetActiveDesign().SetActiveEditor("Layout")
+        if xml_path:
+            oeditor.ImportStackupXML(xml_path)
+        if set_as_active:
+            self.__init__(project_name)
+        if close_active_project:
+            self.odesktop.CloseProject(active_project)
+        return True
+
 

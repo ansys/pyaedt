@@ -668,7 +668,7 @@ class Analysis(Design, object):
 
         Returns
         -------
-        type
+        Setup
             Setup object.
 
         """
