@@ -668,8 +668,7 @@ TR = []
 
 
 class SweepHFSS(object):
-    """SweepHFSS class.
-    """
+    """SweepHFSS class."""
 
     def __init__(self, oanalysis, setupname, sweepname, sweeptype="Interpolating", props=None):
         self.oanalysis = oanalysis
@@ -723,7 +722,7 @@ class SweepHFSS(object):
             Starting frequency.
         end : float
             Stopping frequency.
-        count :
+        count : int or float
             Frequency count or frequency step.
 
         Returns
@@ -751,9 +750,6 @@ class SweepHFSS(object):
         """Create a sweep.
         
         
-        Parameters
-        ----------
-
         Returns
         -------
         bool
@@ -767,9 +763,6 @@ class SweepHFSS(object):
         """Update a sweep.
         
         
-        Parameters
-        ----------
-
         Returns
         -------
         bool
@@ -805,14 +798,14 @@ class SweepHFSS3DLayout(object):
     ----------
     oanaysis :
     
-    setupname :str
+    setupname : str
         Name of the setup.
-    sweepname: str
+    sweepname : str
         Name of the sweep.
     sweeptype : str, optional
         Type of the sweep. The default is ``"Interpolating"``.
-    props :
-        The default is ``None``.
+    props : dict, optional
+        Dictionary of properties.  The default is ``None``, which uses default properties.
     """
     def __init__(self, oanalysis, setupname, sweepname, sweeptype="Interpolating", props=None):
         self.oanalysis = oanalysis
@@ -860,12 +853,16 @@ class SweepHFSS3DLayout(object):
 
     @aedt_exception_handler
     def add_subrange(self, rangetype, start, end, count):
-        """Add A Subrange to the sweep.
+        """Add a Subrange to the sweep.
 
         Parameters
         ----------
-        rangetype :
-            Type of the subrange.
+        rangetype : str
+            Type of the subrange.  One of the following:
+            
+            * ``"LinearCount"``
+            * ``"LinearStep"``
+            * ``"LogScale"``
         start : float
             Starting frequency.
         end : float
@@ -895,7 +892,11 @@ class SweepHFSS3DLayout(object):
         Parameters
         ----------
         rangetype :
-            Type of the subrange.
+            Type of the subrange.  One of the following:
+            
+            * ``"LinearCount"``
+            * ``"LinearStep"``
+            * ``"LogScale"``
         start : float
             Starting frequency.
         end : float
@@ -922,7 +923,7 @@ class SweepHFSS3DLayout(object):
     def create(self):
         """Create a sweep.
 
-       Parameters
+        Parameters
         ----------
 
         Returns
@@ -937,12 +938,9 @@ class SweepHFSS3DLayout(object):
     def update(self):
         """Update the sweep.
 
-        Parameters
-        ----------
-
         Returns
         -------
-         bool
+        bool
             ``True`` when successful, ``False`` when failed.
         """
         self.oanalysis.EditSweep(self.setupname, self.name, self._get_args())
@@ -954,7 +952,7 @@ class SweepHFSS3DLayout(object):
 
         Parameters
         ----------
-        props :
+        props : dict
              The default is ``None``.
 
         Returns
@@ -981,8 +979,8 @@ class SweepQ3D(object):
         Name of the sweep.
     sweeptype : str, optional
         Type of the sweep. The default is ``"Interpolating"``.
-    props :
-        The default is ``None``.
+    props : dict
+        Dictionary of properties.  The default is ``None``.
     """
     def __init__(self, oanalysis, setupname, sweepname, sweeptype="Interpolating", props=None):
         self.oanalysis = oanalysis
@@ -1013,7 +1011,11 @@ class SweepQ3D(object):
         Parameters
         ----------
         type :
-            Type of the subrange.
+            Type of the subrange.  One of the following:
+            
+            * ``"LinearCount"``
+            * ``"LinearStep"``
+            * ``"LogScale"``
         start : float
             Starting frequency.
         end : float
@@ -1044,9 +1046,6 @@ class SweepQ3D(object):
     def create(self):
         """Create a sweep.
         
-        Parameters
-        ----------
-
         Returns
         -------
         bool
@@ -1059,9 +1058,6 @@ class SweepQ3D(object):
     def update(self):
         """Update the sweep.
         
-       Parameters
-        ----------
-
         Returns
         -------
         bool
@@ -1077,7 +1073,7 @@ class SweepQ3D(object):
 
         Parameters
         ----------
-        props :
+        props : dict
              The default is ``None``.
 
         Returns
