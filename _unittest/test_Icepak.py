@@ -247,6 +247,9 @@ class TestIcepak:
         self.aedtapp.modeler.primitives.create_rectangle(self.aedtapp.CoordinateSystemPlane.XYPlane, [0,0,0], [10,20], "surf1")
         assert self.aedtapp.assign_surface_monitor("surf1")
 
+    def test_poin_monitor(self):
+        assert self.aedtapp.assign_point_monitor([0,0,0])
+
     def test_88_create_heat_sink(self):
         assert self.aedtapp.create_parametric_fin_heat_sink()
 

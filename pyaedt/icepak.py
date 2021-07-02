@@ -435,6 +435,38 @@ class Icepak(FieldAnalysisIcepak):
         return True
 
     @aedt_exception_handler
+    def assign_point_monitor(self, point_position, monitor_type="Temperature", monitor_name=None):
+        """Create and Assign a Point monitor
+
+        Parameters
+        ----------
+        point_position : str
+            Name of the point.
+        monitor_type : str, optional
+            Type of the monitor.  Default value is ``"Temperature"``.
+        monitor_name : str, optional
+            Name of the monitor.  By default a random unique name is generated.
+
+        Returns
+        -------
+        bool
+            ``True`` when successful, ``False`` when failed.
+        """
+        point_name = generate_unique_name("Point")
+        self.modeler.oeditor.CreatePoint(
+            ["NAME:PointParameters", "PointX:=", self.modeler.primitives.arg_with_dim(point_position[0]), "PointY:=",
+             self.modeler.primitives.arg_with_dim(point_position[1]), "PointZ:=",
+             self.modeler.primitives.arg_with_dim(point_position[2])],
+            ["NAME:Attributes", "Name:=", point_name, "Color:=", "(143 175 143)"])
+        if not monitor_name:
+            monitor_name = generate_unique_name("Monitor")
+        oModule = self.odesign.GetModule("Monitor")
+        oModule.AssignPointMonitor(["NAME:" + monitor_name, "Quantities:=", [monitor_type], "Points:=", [point_name]])
+        return True
+
+
+
+    @aedt_exception_handler
     def assign_block_from_sherlock_file(self, csv_name):
         """Assign block power to components based on a Sherlock file.
 
