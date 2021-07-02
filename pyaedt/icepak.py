@@ -249,29 +249,29 @@ class Icepak(FieldAnalysisIcepak):
         return None
 
     @aedt_exception_handler
-    def create_source_power(self, face_id, input_power="0W", thermal_condtion="Total Power", surface_heat="0irrad_W_per_m2", temperature="AmbientTemp", radiate=False, source_name=None):
-        """Create a source power for an face.
+    def create_source_power(self, face_id, input_power="0W", thermal_condtion="Total Power",
+                            surface_heat="0irrad_W_per_m2", temperature="AmbientTemp", 
+                            radiate=False, source_name=None):
+        """Create a source power for a face.
 
         Parameters
         ----------
         face_id : int
-            Face Id
-        input_power : str or var
+            Face ID.
+        input_power : str, float, or int, optional
             Input power.
         surface_heat : str, optional
-            Surface Heat
+            Surface Heat.  Default value is ``"0irrad_W_per_m2"``.
         temperature : str, optional
-            Temperature
+            Temperature.  Default value is ``"AmbientTemp"``.
         radiate : bool
-            ``True`` if radiatinon enabled
+            Enable radiation when ``True``.
         source_name : str, optional
             Source Name
-
-
         Returns
         -------
         BoundaryObject
-            bound object or None
+            Boundary object or ``None``.
 
         """
         if not source_name:
@@ -287,7 +287,6 @@ class Icepak(FieldAnalysisIcepak):
         if bound.create():
             self.boundaries.append(bound)
             return bound
-        return None
 
     @aedt_exception_handler
     def create_network_block(self, object_name, power, rjc, rjb, gravity_dir, top, assign_material=True,
@@ -418,15 +417,19 @@ class Icepak(FieldAnalysisIcepak):
         Parameters
         ----------
         face_name : str
+            Name of the face.
         monitor_type : str, optional
+            Type of the monitor.  Default value is ``"Temperature"``.
         monitor_name : str, optional
+            Name of the monitor.  By default a random unique name is generated.
 
         Returns
         -------
         bool
+            ``True`` when successful, ``False`` when failed.
         """
         if not monitor_name:
-            monitor_name =generate_unique_name("Monitor")
+            monitor_name = generate_unique_name("Monitor")
         oModule = self.odesign.GetModule("Monitor")
         oModule.AssignFaceMonitor(
             [
@@ -1120,7 +1123,8 @@ class Icepak(FieldAnalysisIcepak):
 
     @aedt_exception_handler
     def create_ipk_3dcomponent_pcb(self, compName, setupLinkInfo, solutionFreq, resolution, PCB_CS="Global",
-                                   rad="Nothing", extenttype="Bounding Box", outlinepolygon="", powerin="0W", custom_x_resolution=None, custom_y_resolution=None):
+                                   rad="Nothing", extenttype="Bounding Box", outlinepolygon="", powerin="0W",
+                                   custom_x_resolution=None, custom_y_resolution=None):
         """Create a PCB component in Icepak that is linked to an HFSS 3D Layout object.
 
         Parameters
@@ -1223,7 +1227,8 @@ class Icepak(FieldAnalysisIcepak):
 
     @aedt_exception_handler
     def create_pcb_from_3dlayout(self, component_name, project_name, design_name, resolution=2,
-                                 extenttype="Bounding Box", outlinepolygon="", close_linked_project_after_import=True, custom_x_resolution=None, custom_y_resolution=None):
+                                 extenttype="Bounding Box", outlinepolygon="", close_linked_project_after_import=True,
+                                 custom_x_resolution=None, custom_y_resolution=None):
         """Create a PCB component in Icepak that is linked to an HFSS 3D Layout object linking only to the geometry file (no solution linked)
 
         Parameters
@@ -1253,7 +1258,8 @@ class Icepak(FieldAnalysisIcepak):
             project_name = "This Project*"
         link_data = [project_name, design_name,  "<--EDB Layout Data-->", False, False]
         status = self.create_ipk_3dcomponent_pcb(component_name, link_data, "", resolution, extenttype=extenttype,
-                                                 outlinepolygon=outlinepolygon, custom_x_resolution=custom_x_resolution, custom_y_resolution=custom_y_resolution)
+                                                 outlinepolygon=outlinepolygon, custom_x_resolution=custom_x_resolution,
+                                                 custom_y_resolution=custom_y_resolution)
 
         if close_linked_project_after_import and ".aedt" in project_name:
                 prjname = os.path.splitext(os.path.basename(project_name))[0]
