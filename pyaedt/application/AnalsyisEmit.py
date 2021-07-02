@@ -8,39 +8,29 @@ from ..modules.SolveSetup import SetupCircuit
 
 
 class FieldAnalysisEmit(Design):
-    """**AEDT Emit Analysis**
+    """FieldAnaysisEmit class.
 
-    Class for Emit Analysis Setup (Emit)
+    The class is for setting up an EMIT analysis in AEDT.
+    It is automatically initialized by an application call (like for HFSS,
+    Q3D, and other tools). Refer to the Application function for input definitions.
 
-    It is automatically initialized by Application call (like HFSS,
-    Q3D...). Refer to Application function for inputs definition
-
-    Parameters
-    ----------
-
-    Returns
-    -------
-
+    
     """
     @property
     def solution_type(self):
-        """ """
+        """Solution type.
+          
+       Parameters
+        ----------
+        soltype :
+            SolutionType object.
+        """
         return self._solution_type
-
 
     @solution_type.setter
     def solution_type(self, soltype):
-        """Solution Type
+        """ """
 
-        Parameters
-        ----------
-        soltype :
-            SolutionType object
-
-        Returns
-        -------
-
-        """
         if soltype:
             self._solution_type = "EMIT"
         else:
@@ -48,12 +38,12 @@ class FieldAnalysisEmit(Design):
 
     @property
     def existing_analysis_setups(self):
-        """ """
+        """Existing analysis setups."""
         return []
 
     @property
     def setup_names(self):
-        """ """
+        """Setup names."""
         return []
 
 
@@ -67,12 +57,22 @@ class FieldAnalysisEmit(Design):
 
     @property
     def modeler(self):
-        """:return: Design oModeler"""
+        """Modeler.
+        
+        Returns
+        -------
+        type
+            Design oModeler
+        """
         return self._modeler
 
     @property
     def oanalysis(self):
-        """:return: Design Module "SimSetup"
+        """Analysis object.
+        
+        Returns
+        -------
+        type: 
+           Design module ``"SimSetup"``
         """
         return None
-
