@@ -656,6 +656,7 @@ class Hfss3dLayout(FieldAnalysis3DLayout, object):
         aedb_path : str, optional
             full path to aedb file
         xml_path : str, optional
+            path to stackup information. If not provided, the stackup will not be edited
         set_as_active : bool
             Set Gds as active project
         close_active_project : bool
