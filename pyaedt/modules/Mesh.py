@@ -503,7 +503,7 @@ class Mesh(object):
     @aedt_exception_handler
     def assign_skin_depth(self, names, skindepth, maxelements=None, triangulation_max_length="0.1mm", numlayers="2",
                           meshop_name=None):
-        """Assign skin depth for mesh  refinement.
+        """Assign skin depth for mesh refinement.
 
         Parameters
         ----------
