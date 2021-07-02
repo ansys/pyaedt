@@ -282,11 +282,11 @@ class Layer(object):
 
     @aedt_exception_handler
     def update_stackup_layer(self):
-        """Works from 2021R1
+        """Update the stackup layer.
         
-        Parameters
-        ----------
-
+        .. note::
+           This method is valid for release 2021R1 and newer.
+        
         Returns
         -------
         bool
@@ -401,7 +401,8 @@ class Layers(object):
         
         Returns
         -------
-        List of signal Layers.
+        list
+            List of signal Layers.
         """
         a = self.all_layers
         sig = []
@@ -465,7 +466,8 @@ class Layers(object):
        
         Returns
         -------
-        
+        int
+            Number of layers in the current stackup.
         """
         layernames = self.oeditor.GetStackupLayerNames()
         for el in layernames:
