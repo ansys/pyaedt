@@ -1126,7 +1126,7 @@ class Icepak(FieldAnalysisIcepak):
         Parameters
         ----------
         linkData : list
-            List of the data to retrive for links. Options are:
+            List of the data to retrieve for links. Options are:
             
             * Project name, if None => Use Active Project
             * Design name
@@ -1543,7 +1543,7 @@ class Icepak(FieldAnalysisIcepak):
 
     @aedt_exception_handler
     def delete_em_losses(self, bound_name):
-        """Delete EM losses bounday.
+        """Delete EM losses boundary.
 
         Parameters
         ----------
