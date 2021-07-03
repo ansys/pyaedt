@@ -1098,6 +1098,13 @@ class Icepak(FieldAnalysisIcepak):
 
         Parameters
         ----------
+        radiation : str
+            One of the following:
+            
+            * ``"Nothing"``
+            * ``"Low"``
+            * ``"High"``
+            * ``"Both"``
         radiation :
             
 
