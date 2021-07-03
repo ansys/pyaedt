@@ -333,7 +333,6 @@ class DXSetups(object):
         """
         def __init__(self, parent, name, dictinputs=None):
             CommonOptimetrics.__init__(self, parent, name, dictinputs=dictinputs, optimtype="OptiDesignExplorer")
-            pass
 
         @aedt_exception_handler
         def add_calculation(self, calculation="", calculation_value="", reporttype="Modal Solution Data", solution=None, domain="Sweep",  calculation_name=None):
@@ -341,9 +340,9 @@ class DXSetups(object):
 
             Parameters
             ----------
-            calculation : str
+            calculation : str, optional
                 Expression for the calculation, such as ``"dB(S(1,1,))"``. The default is ``""``.
-            calculation_value : str
+            calculation_value : str, optional
                 Value for the calculation, such as ``"1GHz"`` if a sweep. The default is ``""``.
             reporttype : str, optional
                 Name of the report to which to add the calculation. The default 
@@ -371,7 +370,7 @@ class DXSetups(object):
 
             Parameters
             ----------
-            calculation : str
+            calculation : str, optional
                 Expression for the calculation, such as ``"dB(S(1,1,))"``. The default is ``""``.
             calculation_value : str, optional
                 Value for the calculation, such as ``"1GHz"`` if a sweep. The default is ``""``.
@@ -489,6 +488,7 @@ class DXSetups(object):
 class ParametericsSetups(object):
     """ParametricsSetups class."""
     class Setup(CommonOptimetrics, object):
+
         """Setup class.
         
         Parameters
@@ -538,9 +538,9 @@ class ParametericsSetups(object):
             
             Parameters
             ----------
-            calculation : str
+            calculation : str, optional
                 Expression for the calculation, such as ``"dB(S(1,1,))"``. The default is ``""``.
-            calculation_value : str
+            calculation_value : str, optional
                 Value for the calculation, such as ``"1GHz"`` if a sweep. The default is ``""``.
             reporttype : str, optional
                 Name of the report to which to add the calculation. The default 
@@ -644,7 +644,6 @@ class SensitivitySetups(object):
         """
         def __init__(self, parent, name, dictinputs=None):
             CommonOptimetrics.__init__(self, parent, name, dictinputs=dictinputs, optimtype="OptiSensitivity")
-            pass
 
         @aedt_exception_handler
         def add_calculation(self, calculation="", calculation_value="", reporttype="Modal Solution Data", solution=None,
@@ -653,9 +652,9 @@ class SensitivitySetups(object):
 
             Parameters
             ----------
-            calculation : str
+            calculation : str, optional
                 Expression for the calculation, such as ``"dB(S(1,1,))"``. The default is ``""``.
-            calculation_value : str
+            calculation_value : str, optional
                 Value for the calculation, such as ``"1GHz"`` if a sweep. The default is ``""``.
             reporttype : str, optional
                 Name of the report to which to add the calculation. The default 
@@ -706,9 +705,9 @@ class SensitivitySetups(object):
 
         Parameters
         ----------
-        calculation : str
+        calculation : str, optional
             Expression for the calculation, such as ``"dB(S(1,1,))"``. The default is ``""``.
-        calculation_value : str
+        calculation_value : str, optional
             Value for the calculation, such as ``"1GHz"`` if a sweep. The default is ``""``.
         calculation_type : str, optional
             Type of variation. The default is ``"Freq:``.
@@ -773,9 +772,9 @@ class StatisticalSetups(object):
 
             Parameters
             ----------
-            calculation : str
+            calculation : str, optional
                 Expression for the calculation, such as ``"dB(S(1,1,))"``. The default is ``""``.
-            calculation_value : str
+            calculation_value : str, optional
                 Value for the calculation, such as ``"1GHz"`` if a sweep. The default is ``""``.
             reporttype : str, optional
                 Name of the report to which to add the calculation. The default 
@@ -826,9 +825,9 @@ class StatisticalSetups(object):
 
         Parameters
         ----------
-        calculation_name : str
+        calculation_name : str, optional
             Name of the calculation.
-        calc_variation_value : str
+        calc_variation_value : str, optional
             Variation value, such as``"1GHz"``.
         calculation_type : str, optional
             Variation type. The default is ``"Freq"``.
@@ -893,9 +892,9 @@ class DOESetups(object):
 
             Parameters
             ----------
-            calculation : str
+            calculation : str, optional
                Expression for the calculation, such as ``"dB(S(1,1,))"``. The default is ``""``.
-            calculation_value : str
+            calculation_value : str, optional
                 Value for the calculation, such as ``"1GHz"`` if a sweep. The default is ``""``.
             reporttype : str, optional
                 Name of the report to which to add the calculation. The default 
@@ -923,7 +922,7 @@ class DOESetups(object):
 
             Parameters
             ----------
-            calculation : str
+            calculation : str, optional
                 Expression for the calculation, such as ``"dB(S(1,1,))"``. The default is ``""``.
             calculation_value : str, optional
                 Value for the calculation, such as ``"1GHz"`` if a sweep. The default is ``""``.
@@ -992,9 +991,9 @@ class DOESetups(object):
 
         Parameters
         ----------
-        calculation : str
+        calculation : str, optional
             Expression for the calculation, such as ``"dB(S(1,1,))"``. The default is ``""``.
-        calculation_value : str
+        calculation_value : str, optional
             Variation value, such as ``"1GHz"``.
         calculation_type : str, optional
             Type of the calculation. The default is ``"Freq"``.
@@ -1052,8 +1051,10 @@ class DOESetups(object):
 
 class OptimizationSetups(object):
     """OptimizationSetups class."""
+
     class Setup(CommonOptimetrics, object):
         """Setup class."""
+
         def __init__(self, parent, name, dictinputs=None):
             CommonOptimetrics.__init__(self, parent, name, dictinputs=dictinputs, optimtype="OptiOptimization")
             pass
@@ -1066,7 +1067,7 @@ class OptimizationSetups(object):
 
             Parameters
             ----------
-            calculation : str
+            calculation : str, optional
                 Expression for the calculation, such as ``"dB(S(1,1,))"``. The default is ``""``.
             calculation_value : str, optional
                 Value for the calculation, such as ``"1GHz"`` if a sweep. The default is ``""``.
@@ -1136,9 +1137,9 @@ class OptimizationSetups(object):
 
         Parameters
         ----------
-        calculation : str
+        calculation : str, optional
             Name of the calculation.
-        calculation_value : str
+        calculation_value : str, optional
             Variation value, such as ``"1GHz"``.
         calculation_type : str, optional
             Type of the calculation. The default is ``"Freq"``.
