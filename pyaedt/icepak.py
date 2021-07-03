@@ -47,7 +47,7 @@ class Icepak(FieldAnalysisIcepak):
         another instance of the ``specified_version`` is active on the
         machine.  The default is ``True``.
     release_on_exit : bool, optional
-        Whether to release  AEDT on exit. 
+        Whether to release AEDT on exit. 
 
     Examples
     --------
@@ -613,15 +613,15 @@ class Icepak(FieldAnalysisIcepak):
         length: optional
             The default is ``40``.
         height : optional
-            The default is ``40``.
+            Height of the heatsink.  The default is ``40``.
         draftangle : optional
-            The default is ``0``.
+            Draft angle.  The default is ``0``.
         patternangle : optional
-            The default is ``10``.
+            Pattern angle.  The default is ``10``.
         separation : optional
             The default is ``5``.
         symmetric : bool, optional
-            The default is ``True``.
+            Whether the heatsink is symmetric.  The default is ``True``.
         symmetric_separation: optional
             The default is ``20``.
         numcolumn_perside : int, optional
@@ -631,7 +631,7 @@ class Icepak(FieldAnalysisIcepak):
         matname : str, optional
             Name of the material. The default is ``Al-Extruded``.
         center : list, optional
-           The default is ``[0,0,0]``.
+           Center of the heatsink.  The default is ``[0, 0, 0]``.
         plane_enum : optional
             The default is ``0``.
         rotation : optional
@@ -1134,11 +1134,11 @@ class Icepak(FieldAnalysisIcepak):
         linkData : list
             List of the data to retrieve for links. Options are:
             
-            * Project name, if None => Use Active Project
+            * Project name, if ``None`` use the active project.
             * Design name
             * HFSS solution name, such as ``"HFSS Setup 1 : Last Adaptive"``
-            * Force source design simulation, True or False
-            * Preserve source design solution, True or False
+            * Force source design simulation, ``True`` or ``False``.
+            * Preserve source design solution, ``True`` or ``False``.
 
         Returns
         -------
@@ -1474,7 +1474,8 @@ class Icepak(FieldAnalysisIcepak):
 
         Returns
         -------
-        
+        tuple
+            Tuple containing the ``(x, y, z)`` distances of the region.
         """
         self.modeler.edit_region_dimensions([0,0,0,0,0,0])
 
@@ -1521,7 +1522,7 @@ class Icepak(FieldAnalysisIcepak):
         point_name : str
             Name of the temperature monitor.
         point_coord : list, optional
-            Point coordinates for the temperature monitor. The default is ``[0,0,0]``.
+            Point coordinates for the temperature monitor. The default is ``[0, 0, 0]``.
         
         Returns
         -------
