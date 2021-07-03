@@ -1105,7 +1105,6 @@ class Icepak(FieldAnalysisIcepak):
             * ``"Low"``
             * ``"High"``
             * ``"Both"``
-        radiation :
             
 
         Returns
