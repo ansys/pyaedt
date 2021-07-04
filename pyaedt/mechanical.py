@@ -245,7 +245,7 @@ class Mechanical(FieldAnalysis3D, object):
         convection_unit : str, optional
             Units for the convection value. The default is ``"w_per_m2kel"``.
         temperature : str, optional
-            Type of the temperature. The default is ``"AmbientTemp"``.
+            Temperature. The default is ``"AmbientTemp"``.
         boundary_name : str, optional
             Name of the boundary. The default is ``""``.
 
