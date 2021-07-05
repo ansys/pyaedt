@@ -17,47 +17,59 @@ class Mechanical(FieldAnalysis3D, object):
     Parameters
     ----------
     projectname : str, optional
-         Name of the project to select or the full path to the project
-         or AEDTZ archive to open.  The default is ``None``. If
-         ``None``, try to get an active project and, if no projects
-         are present, create an empty project.
+        Name of the project to select or the full path to the project
+        or AEDTZ archive to open.  The default is ``None``, in which
+        case an attempt is made to get an active project. If no 
+        projects are present, an empty project is created.
     designname : str, optional
-        Name of the design to select. The default is ``None``. If
-        ``None``, try to get an active design and, if no designs are
-        present, create an empty design.
+        Name of the design to select. The default is ``None``, in 
+        which case an attempt is made to get an active design. If no
+        designs are present, an empty design is created.
     solution_type : str, optional
         Solution type to apply to the design. The default is
-        ``None``. If ``None``, the default type is applied.
+        ``None``, which applies the default type.
     setup_name : str, optional
-       Name of the setup to use as the nominal. The default is
-       ``None``. If ``None``, the active setup is used or nothing is
-       used.
+        Name of the setup to use as the nominal. The default is
+        ``None``, in which case the active setup is used or 
+        nothing is used.
+    specified_version: str, optional
+        Version of AEDT  to use. The default is ``None``, in which case
+        the active version or latest installed version is  used.
+    NG : bool, optional
+        Whether to run AEDT in the non-graphical mode. The default 
+        is``False``, which launches AEDT in the graphical mode.  
+    AlwaysNew : bool, optional
+        Whether to launch an instance of AEDT in a new thread, even if
+        another instance of the ``specified_version`` is active on the
+        machine.  The default is ``True``.
+    release_on_exit : bool, optional
+        Whether to release AEDT on exit. 
 
     Examples
     --------
-    Create an instance of ``Mechanical`` and connect to an existing
+    Create an instance of `Mechanical` and connect to an existing
     HFSS design or create a new HFSS design if one does not exist.
 
     >>> from pyaedt import Mechanical
     >>> aedtapp = Mechanical()
 
-    Create an instance of ``Mechanical`` and link to a project named
+    Create an instance of `Mechanical` and link to a project named
     ``"projectname"``. If this project does not exist, create one with
     this name.
 
     >>> aedtapp = Mechanical(projectname)
 
-    Create an instance of ``Mechanical`` and link to a design named
+    Create an instance of `Mechanical` and link to a design named
     ``"designname"`` in a project named ``projectname``.
 
     >>> aedtapp = Mechanical(projectname,designame)
 
-    Create an instance of ``Mechanical`` and open the specified
+    Create an instance of `Mechanical` and open the specified
     project, which is named ``myfile.aedt``.
 
     >>> aedtapp = Mechanical("myfile.aedt")
 
-    Create a ``Desktop on 2021R1`` object and then creates an
+    Create a ``Desktop on 2021R1`` object and then create an
     ``Mechanical`` object and open the specified project, which is
     named ``myfile.aedt``.
 
@@ -90,13 +102,15 @@ class Mechanical(FieldAnalysis3D, object):
         setupname : str, optional
             Name of the EM setup. The default is ``"Setup1"``.
         sweepname : str, optional
-            Name of the EM sweep to use for the mapping. The default is no sweep and to use ``"LastAdaptive"``.
+            Name of the EM sweep to use for the mapping. The default is ``"LastAdaptive"``.
         map_frequency : str, optional
-            Frequency to map. The default is ``None``. The value must be ``None`` for eigenmode analysis.
+            Frequency to map. The default is ``None``. The value must be ``None`` for 
+	      Eigenmode analysis.
         surface_objects : list, optional
             List objects in the source that are metals. The default is ``[]``.
         source_project_name : str, optional
-            Name of the source project. The default is ``None``, which uses the source from the same project.
+            Name of the source project. The default is ``None``, in which case  
+	      the source from the same project is used.
         paramlist : list, optional
             List of all parameters in the EM to map. The default is ``[]``.
         object_list : list, optional
@@ -156,7 +170,7 @@ class Mechanical(FieldAnalysis3D, object):
         """Map thermal losses to a Mechanical design. 
         
         .. note::
-           This method works only when coupled with Icepak in 2021 R2.
+           This method works in 2021 R2 only when coupled with Icepak.
 
         Parameters
         ----------
@@ -167,9 +181,10 @@ class Mechanical(FieldAnalysis3D, object):
         setupname : str, optional
             Name of the EM setup. The default is ``"Setup1"``.
         sweepname :str, optional
-            Name of the EM sweep to use for the mapping. The default is no sweep and to use ``"LastAdaptive"``.
+            Name of the EM sweep to use for the mapping. The default is ``"SteadyState"``.
         source_project_name : str, optional
-            Name of the source project. The default is ``None``, which uses the source from the same project.
+            Name of the source project. The default is ``None``, in which case the 
+	      source from the same project is used.
         paramlist : list, optional
             List of all parameters in the EM to map. The default is ``[]``.
         
@@ -228,7 +243,7 @@ class Mechanical(FieldAnalysis3D, object):
         convection_value :
             Convection value.
         convection_unit : str, optional
-            Unit of the convection. The default is ``"w_per_m2kel"``.
+            Units for the convection value. The default is ``"w_per_m2kel"``.
         temperature : str, optional
             Temperature. The default is ``"AmbientTemp"``.
         boundary_name : str, optional
@@ -311,7 +326,8 @@ class Mechanical(FieldAnalysis3D, object):
     def assign_frictionless_support(self, objects_list,  boundary_name=""):
         """Assign a Mechanical frictionless support. 
         
-        This method works only in a Mechanical structural analysis.
+        .. note::
+	     This method works only in a Mechanical structural analysis.
 
         Parameters
         ----------
@@ -388,10 +404,8 @@ class Mechanical(FieldAnalysis3D, object):
 
     @property
     def existing_analysis_sweeps(self):
-        """Return a list of existing analysis setups in the Mechanical design.
+        """List of existing analysis setups in the Mechanical design.
                 
-        
-        ----------
 
         Returns
         -------
