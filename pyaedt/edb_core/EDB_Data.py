@@ -31,7 +31,7 @@ class EDBLayer(object):
         self._edb = parent._edb
         self._active_layout = parent._active_layout
         self._parent = parent
-        #self.init_vals()
+        self.init_vals()
 
     @property
     def _stackup_methods(self):
@@ -259,7 +259,7 @@ class EDBLayer(object):
         try:
             newLayer.SetLayerType(layerTypeMap)
         except:
-            self.messenger.add_error_message('Layer {0} has unknown type {1}'.format(layerName, layerTypeMap))
+            self._messenger.add_error_message('Layer {0} has unknown type {1}'.format(layerName, layerTypeMap))
             return False
         newLayer.SetThickness(self._edb.Utility.Value(thicknessMap))
         newLayer.SetMaterial(materialMap)
@@ -440,7 +440,7 @@ class EDBLayers(object):
 
     @property
     def layer_collection_mode(self):
-        return self._parent._edb.Cell.LayerCollectionMode
+        return self._edb.Cell.LayerCollectionMode
 
     @property
     def layer_types(self):
@@ -451,7 +451,7 @@ class EDBLayers(object):
         type
             Types of layers.
         """
-        return self._parent._edb.Cell.LayerType
+        return self._edb.Cell.LayerType
 
     @property
     def stackup_mode(self):
@@ -519,19 +519,19 @@ class EDBLayers(object):
         bool
             ``True`` when successful, ``False`` when failed.
         """
-        thisLC = self._parent._edb.Cell.LayerCollection(self._parent._active_layout.GetLayerCollection())
-        layers = list(list(thisLC.Layers(self._parent._edb.Cell.LayerTypeSet.AllLayerSet)))
+        thisLC = self._edb.Cell.LayerCollection(self._parent._active_layout.GetLayerCollection())
+        layers = list(list(thisLC.Layers(self._edb.Cell.LayerTypeSet.AllLayerSet)))
         layers.reverse()
-        newLayers = List[self._parent._edb.Cell.Layer]()
+        newLayers = List[self._edb.Cell.Layer]()
         el = 0.0
         if not layers or not start_layer:
             if layerType != self.layer_types.SignalLayer and layerType != self.layer_types.DielectricLayer and layerType != self.layer_types.ConductingLayer:
-                newLayer = self._parent.edb.Cell.Layer(layerName, layerType)
+                newLayer = self._edb.Cell.Layer(layerName, layerType)
                 newLayers.Add(newLayer)
             else:
-                newLayer = self._parent._edb.Cell.StackupLayer(layerName, layerType,
-                                                              self._parent._edb.Utility.Value(0),
-                                                              self._parent._edb.Utility.Value(0), '')
+                newLayer = self._edb.Cell.StackupLayer(layerName, layerType,
+                                                              self._edb.Utility.Value(0),
+                                                              self._edb.Utility.Value(0), '')
                 newLayers.Add(newLayer)
                 self._edb_object[layerName] = EDBLayer(newLayer, self._parent)
                 newLayer = self._edb_object[layerName].update_layer_vals(layerName, newLayer, etchMap, material,
@@ -547,9 +547,9 @@ class EDBLayers(object):
                     newLayer = lyr.Clone()
                     el += newLayer.GetThickness()
                     newLayers.Add(newLayer)
-                    newLayer = self._parent._edb.Cell.StackupLayer(layerName, layerType,
-                                                                  self._parent._edb.Utility.Value(0),
-                                                                  self._parent._edb.Utility.Value(0), '')
+                    newLayer = self._edb.Cell.StackupLayer(layerName, layerType,
+                                                                  self._edb.Utility.Value(0),
+                                                                  self._edb.Utility.Value(0), '')
                     self._edb_object[layerName] = EDBLayer(newLayer, self._parent)
                     newLayer = self._edb_object[layerName].update_layer_vals(layerName, newLayer, etchMap, material,
                                                                             fillMaterial, thickness, layerType)
@@ -560,9 +560,9 @@ class EDBLayers(object):
                     newLayer = self._edb_object[lyr.GetName()].set_elevation(newLayer, el)
                     el += newLayer.GetThickness()
                 newLayers.Add(newLayer)
-        lcNew = self._parent._edb.Cell.LayerCollection()
+        lcNew = self._edb.Cell.LayerCollection()
         newLayers.Reverse()
-        if not lcNew.AddLayers(newLayers) or not self._parent._active_layout.SetLayerCollection(lcNew):
+        if not lcNew.AddLayers(newLayers) or not self._active_layout.SetLayerCollection(lcNew):
             self._messenger.add_error_message('Failed to set new layers when updating the stackup information.')
             return False
         self._update_edb_objects()
@@ -577,7 +577,7 @@ class EDBLayers(object):
         bool
             "True" if succeeded
         """
-        outlineLayer = self.edb.Cell.Layer.FindByName(self.active_layout.GetLayerCollection(), outline_name)
+        outlineLayer = self._edb.Cell.Layer.FindByName(self._active_layout.GetLayerCollection(), outline_name)
         if outlineLayer.IsNull():
             return self.add_layer(outline_name, layerType=self.layer_types.OutlineLayer, material="", thickness="",)
         else:
@@ -597,10 +597,10 @@ class EDBLayers(object):
         bool
             ``True`` when successful, ``False`` when failed.
         """
-        thisLC = self._parent._edb.Cell.LayerCollection(self._parent._active_layout.GetLayerCollection())
-        layers = list(list(thisLC.Layers(self._parent._edb.Cell.LayerTypeSet.AllLayerSet)))
+        thisLC = self._edb.Cell.LayerCollection(self._parent._active_layout.GetLayerCollection())
+        layers = list(list(thisLC.Layers(self._edb.Cell.LayerTypeSet.AllLayerSet)))
         layers.reverse()
-        newLayers = List[self._parent._edb.Cell.Layer]()
+        newLayers = List[self._edb.Cell.Layer]()
         el = 0.0
         for lyr in layers:
             if not lyr.IsStackupLayer():
@@ -611,7 +611,7 @@ class EDBLayers(object):
                 newLayer = self._edb_object[lyr.GetName()].set_elevation(newLayer, el)
                 el += newLayer.GetThickness()
                 newLayers.Add(newLayer)
-        lcNew = self._parent._edb.Cell.LayerCollection()
+        lcNew = self._edb.Cell.LayerCollection()
         newLayers.Reverse()
         if not lcNew.AddLayers(newLayers) or not self._parent._active_layout.SetLayerCollection(lcNew):
             self._messenger.add_error_message('Failed to set new layers when updating the stackup information.')
