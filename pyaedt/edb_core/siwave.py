@@ -21,6 +21,7 @@ class SourceType(object):
 
 
 class PinGroup():
+
     def __init__(self):
         self._name = ""
         self._component = ""
@@ -40,7 +41,7 @@ class PinGroup():
         return self._component
 
     @component.setter
-    def component_mode(self, value):
+    def component(self, value):
         self._component = value
 
     @property
@@ -60,6 +61,7 @@ class PinGroup():
         self._net = value
 
 class Source():
+
     def __init__(self):
         self._name = ""
         self._type = SourceType.Port
@@ -109,7 +111,7 @@ class Source():
 
 class CircuitPort(Source):
     def __init(self):
-        super().__init__()
+        Source.__init__(self)
         self._impedance = "50"
         self._type = SourceType.Port
 
@@ -125,9 +127,10 @@ class CircuitPort(Source):
     def get_type(self):
         return self.type
 
+
 class VoltageSource(Source):
     def __init__(self):
-        super().__init__()
+        Source.__init__(self)
         self._magnitude = "1V"
         self._phase = "0Deg"
         self._impedance = "0.05"
@@ -161,9 +164,10 @@ class VoltageSource(Source):
     def source_type(self):
         return self.source_type
 
+
 class CurrentSource(Source):
     def __init__(self):
-        super().__init__()
+        Source.__init__(self)
         self._magnitude = "0.1A"
         self._phase = "0Deg"
         self._impedance = "1e7"
@@ -197,9 +201,10 @@ class CurrentSource(Source):
     def source_type(self):
         return self.source_type
 
+
 class ResistorSource(Source):
     def __init__(self):
-        super().__init__()
+        Source.__init__(self)
         self._rvalue = "50"
         self._type = SourceType.Resistor
 
@@ -216,7 +221,7 @@ class ResistorSource(Source):
         return self.source_type
 
 
-class EdBSiwave(object):
+class EdbSiwave(object):
     """EdbSiwave class.
 
     Examples
@@ -227,44 +232,44 @@ class EdBSiwave(object):
 
     """
 
+    def __init__(self, parent):
+        self.parent = parent
+
     @property
-    def siwave_source(self):
+    def _siwave_source(self):
         """ """
         return self.parent.edblib.SIwave.SiwaveSourceMethods
 
     @property
-    def siwave_setup(self):
+    def _siwave_setup(self):
         """ """
         return self.parent.edblib.SIwave.SiwaveSimulationSetupMethods
 
     @property
-    def builder(self):
+    def _builder(self):
         """ """
         return self.parent.builder
 
     @property
-    def edb(self):
+    def _edb(self):
         """ """
         return self.parent.edb
 
     @property
-    def active_layout(self):
+    def _active_layout(self):
         """ """
         return self.parent.active_layout
 
     @property
-    def cell(self):
+    def _cell(self):
         """ """
         return self.parent.cell
 
     @property
-    def db(self):
+    def _db(self):
         """ """
         return self.parent.db
 
-
-    def __init__(self, parent):
-        self.parent = parent
 
     @aedt_exception_handler
     def create_circuit_port(self, positive_component_name, positive_net_name, negative_component_name=None,
@@ -523,7 +528,7 @@ class EdBSiwave(object):
         bool
             ``True`` when successful, ``False`` when failed.  
         """
-        self.siwave_setup.AddACSimSetup(self.builder, accuracy_level, str(decade_count), sweeptype, str(start_freq), str(stop_freq), str(step_freq), discrete_sweep)
+        self._siwave_setup.AddACSimSetup(self._builder, accuracy_level, str(decade_count), sweeptype, str(start_freq), str(stop_freq), str(step_freq), discrete_sweep)
         exec_file = self.create_exec_file()
         exec_file.write("ExecAcSim\n")
         exec_file.close()
@@ -557,7 +562,7 @@ class EdBSiwave(object):
             ``True`` when successful, ``False`` when failed.       
         """
 
-        self.siwave_setup.AddSYZSimSetup(self.builder, accuracy_level, str(decade_count), sweeptype, str(start_freq),
+        self._siwave_setup.AddSYZSimSetup(self._builder, accuracy_level, str(decade_count), sweeptype, str(start_freq),
                                         str(stop_freq), str(step_freq), discrete_sweep)
         exec_file = self.create_exec_file()
         exec_file.write("ExecSyzSim\n")
@@ -579,7 +584,7 @@ class EdBSiwave(object):
         bool
             ``True`` when successful, ``False`` when failed.
         """
-        self.siwave_setup.AddDCSimSetup(self.builder, accuracy_level)
+        self._siwave_setup.AddDCSimSetup(self._builder, accuracy_level)
         exec_file = self.create_exec_file()
         exec_file.write("ExecDcSim\n")
         exec_file.close()
@@ -593,43 +598,43 @@ class EdBSiwave(object):
         neg_node_net = self.parent.core_nets.get_net_by_name(source.negative_node.net)
         pos_pingroup_term_name = "{}_{}".format(source.positive_node.net,source.name)
         neg_pingroup_term_name = "{}_{}".format(source.negative_node.net,source.name)
-        pos_pingroup_terminal = self.edb.Cell.Terminal.PinGroupTerminal.Create(self.active_layout,pos_node_net,pos_pingroup_term_name , pos_pin_group[1], False)
-        neg_pingroup_terminal = self.edb.Cell.Terminal.PinGroupTerminal.Create(self.active_layout,neg_node_net,neg_pingroup_term_name , neg_pin_group[1], False)
+        pos_pingroup_terminal = self._edb.Cell.Terminal.PinGroupTerminal.Create(self._active_layout,pos_node_net,pos_pingroup_term_name , pos_pin_group[1], False)
+        neg_pingroup_terminal = self._edb.Cell.Terminal.PinGroupTerminal.Create(self._active_layout,neg_node_net,neg_pingroup_term_name , neg_pin_group[1], False)
 
         if source.type == SourceType.Port:
-            pos_pingroup_terminal.SetBoundaryType(self.edb.Cell.Terminal.BoundaryType.PortBoundary)
-            neg_pingroup_terminal.SetBoundaryType(self.edb.Cell.Terminal.BoundaryType.PortBoundary)
-            pos_pingroup_terminal.SetSourceAmplitude(self.edb.Utility.Value(source.impedance))
+            pos_pingroup_terminal.SetBoundaryType(self._edb.Cell.Terminal.BoundaryType.PortBoundary)
+            neg_pingroup_terminal.SetBoundaryType(self._edb.Cell.Terminal.BoundaryType.PortBoundary)
+            pos_pingroup_terminal.SetSourceAmplitude(self._edb.Utility.Value(source.impedance))
             pos_pingroup_terminal.SetIsCircuitPort(True)
             neg_pingroup_terminal.SetIsCircuitPort(True)
             pos_pingroup_terminal.SetReferenceTerminal(neg_pingroup_terminal)
 
         elif source.type == SourceType.CurrentSource:
-            pos_pingroup_terminal.SetBoundaryType(self.edb.Cell.Terminal.BoundaryType.kCurrentSource)
-            neg_pingroup_terminal.SetBoundaryType(self.edb.Cell.Terminal.BoundaryType.kCurrentSource)
-            pos_pingroup_terminal.SetSourceAmplitude(self.edb.Utility.Value(source.magnitude))
-            pos_pingroup_terminal.SetSourcePhase(self.edb.Utility.Value(source.phase))
+            pos_pingroup_terminal.SetBoundaryType(self._edb.Cell.Terminal.BoundaryType.kCurrentSource)
+            neg_pingroup_terminal.SetBoundaryType(self._edb.Cell.Terminal.BoundaryType.kCurrentSource)
+            pos_pingroup_terminal.SetSourceAmplitude(self._edb.Utility.Value(source.magnitude))
+            pos_pingroup_terminal.SetSourcePhase(self._edb.Utility.Value(source.phase))
             pos_pingroup_terminal.SetIsCircuitPort(True)
             neg_pingroup_terminal.SetIsCircuitPort(True)
             pos_pingroup_terminal.SetReferenceTerminal(neg_pingroup_terminal)
 
         elif source.type == SourceType.VoltageSource:
-            pos_pingroup_terminal.SetBoundaryType(self.edb.Cell.Terminal.BoundaryType.kVoltageSource)
-            neg_pingroup_terminal.SetBoundaryType(self.edb.Cell.Terminal.BoundaryType.kVoltageSource)
-            pos_pingroup_terminal.SetSourceAmplitude(self.edb.Utility.Value(source.magnitude))
-            pos_pingroup_terminal.SetSourcePhase(self.edb.Utility.Value(source.phase))
+            pos_pingroup_terminal.SetBoundaryType(self._edb.Cell.Terminal.BoundaryType.kVoltageSource)
+            neg_pingroup_terminal.SetBoundaryType(self._edb.Cell.Terminal.BoundaryType.kVoltageSource)
+            pos_pingroup_terminal.SetSourceAmplitude(self._edb.Utility.Value(source.magnitude))
+            pos_pingroup_terminal.SetSourcePhase(self._edb.Utility.Value(source.phase))
             pos_pingroup_terminal.SetIsCircuitPort(True)
             neg_pingroup_terminal.SetIsCircuitPort(True)
             pos_pingroup_terminal.SetReferenceTerminal(neg_pingroup_terminal)
 
         elif source.type == SourceType.Resistor:
-            pos_pingroup_terminal.SetBoundaryType(self.edb.Cell.Terminal.BoundaryType.RlcBoundary)
-            neg_pingroup_terminal.SetBoundaryType(self.edb.Cell.Terminal.BoundaryType.RlcBoundary)
+            pos_pingroup_terminal.SetBoundaryType(self._edb.Cell.Terminal.BoundaryType.RlcBoundary)
+            neg_pingroup_terminal.SetBoundaryType(self._edb.Cell.Terminal.BoundaryType.RlcBoundary)
             pos_pingroup_terminal.SetReferenceTerminal(neg_pingroup_terminal)
-            pos_pingroup_terminal.SetSourceAmplitude(self.edb.Utility.Value(source.rvalue))
+            pos_pingroup_terminal.SetSourceAmplitude(self._edb.Utility.Value(source.rvalue))
             pos_pingroup_terminal.SetIsCircuitPort(True)
             neg_pingroup_terminal.SetIsCircuitPort(True)
-            Rlc = self.edb.Utility.Rlc()
+            Rlc = self._edb.Utility.Rlc()
             Rlc.CEnabled = False
             Rlc.LEnabled = False
             Rlc.REnabled = True

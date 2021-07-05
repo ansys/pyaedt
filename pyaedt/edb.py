@@ -398,7 +398,7 @@ class Edb(object):
     def core_siwave(self):
         """ """
         if not self._siwave:
-            self._siwave = EdBSiwave(self)
+            self._siwave = EdbSiwave(self)
         return self._siwave
 
     @property

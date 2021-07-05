@@ -59,7 +59,7 @@ class TestEDB:
     def test_get_stackup(self):
         stackup = self.edbapp.core_stackup.stackup_layers
         assert (len(stackup.layers)>2)
-        assert  self.edbapp.core_stackup.stackup_layers["TOP"].builder
+        assert  self.edbapp.core_stackup.stackup_layers["TOP"]._builder
         assert  self.edbapp.core_stackup.stackup_layers["TOP"].id
         assert  isinstance(self.edbapp.core_stackup.stackup_layers["TOP"].layer_type, int)
 

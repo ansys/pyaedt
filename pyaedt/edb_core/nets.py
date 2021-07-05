@@ -19,27 +19,27 @@ class EdbNets(object):
         self.parent = parent
 
     @property
-    def builder(self):
+    def _builder(self):
         """ """
         return self.parent.builder
 
     @property
-    def edb(self):
+    def _edb(self):
         """ """
         return self.parent.edb
 
     @property
-    def edb_value(self):
+    def _edb_value(self):
         """ """
         return self.parent.edb_value
 
     @property
-    def active_layout(self):
+    def _active_layout(self):
         """ """
         return self.parent.active_layout
 
     @property
-    def cell(self):
+    def _cell(self):
         """ """
         return self.parent.cell
 
@@ -49,17 +49,17 @@ class EdbNets(object):
         return self.parent.db
 
     @property
-    def padstack_methods(self):
+    def _padstack_methods(self):
         """ """
         return self.parent.edblib.Layout.PadStackMethods
 
     @property
-    def messenger(self):
+    def _messenger(self):
         """ """
         return self.parent._messenger
 
     @property
-    def nets_methods(self):
+    def _nets_methods(self):
         """ """
         return self.parent.edblib.Layout.NetsMethods
 
@@ -72,8 +72,8 @@ class EdbNets(object):
         dict
             Dictionary of nets.
         """
-        if self.builder:
-            return convert_netdict_to_pydict(self.nets_methods.GetNetDict(self.builder))
+        if self._builder:
+            return convert_netdict_to_pydict(self._nets_methods.GetNetDict(self._builder))
 
     @property
     def signal_nets(self):
@@ -84,8 +84,8 @@ class EdbNets(object):
         dict
             Dictionary of signal nets.
         """
-        if self.builder:
-            return convert_netdict_to_pydict(self.nets_methods.GetSignalNetDict(self.builder))
+        if self._builder:
+            return convert_netdict_to_pydict(self._nets_methods.GetSignalNetDict(self._builder))
 
     @property
     def power_nets(self):
@@ -96,8 +96,8 @@ class EdbNets(object):
         dict
             Dictionary of power nets.
         """
-        if self.builder:
-            return convert_netdict_to_pydict(self.nets_methods.GetPowerNetDict(self.builder))
+        if self._builder:
+            return convert_netdict_to_pydict(self._nets_methods.GetPowerNetDict(self._builder))
 
     @aedt_exception_handler
     def is_power_gound_net(self, netname_list):
@@ -113,8 +113,8 @@ class EdbNets(object):
         bool
             ``True`` when one of the net names is ``"power"`` or ``"ground"``, ``False`` otherwise.
         """
-        if self.builder:
-            return self.nets_methods.IsPowerGroundNetInList(self.builder, netname_list)
+        if self._builder:
+            return self._nets_methods.IsPowerGroundNetInList(self._builder, netname_list)
 
     def get_dcconnected_net_list(self, ground_nets=["GND"]):
         """Retrieve the nets connected to DC through inductors.
@@ -206,7 +206,7 @@ class EdbNets(object):
 
     @aedt_exception_handler
     def get_net_by_name(self, net_name):
-        edb_net = self.parent.edb.Cell.Net.FindByName(self.active_layout, net_name)
+        edb_net = self._edb.Cell.Net.FindByName(self._active_layout, net_name)
         if edb_net is not None:
             return edb_net
 
@@ -234,11 +234,11 @@ class EdbNets(object):
         nets_deleted =[]
         for net in netlist:
             try:
-                edb_net = self.edb.Cell.Net.FindByName(self.active_layout, net)
+                edb_net = self._edb.Cell.Net.FindByName(self._active_layout, net)
                 if edb_net is not None:
                     edb_net.Delete()
                     nets_deleted.append(net)
-                    self.parent._messenger.add_info_message("Net {} Deleted".format(net))
+                    self._messenger.add_info_message("Net {} Deleted".format(net))
             except:
                 pass
 
@@ -258,9 +258,9 @@ class EdbNets(object):
             Net Object
         """
 
-        net = self.edb.Cell.Net.FindByName(self.active_layout, net_name)
+        net = self._edb.Cell.Net.FindByName(self._active_layout, net_name)
         if net.IsNull():
-            net = self.edb.Cell.Net.Create(self.active_layout, net_name)
+            net = self._edb.Cell.Net.Create(self._active_layout, net_name)
         return net
 
 
