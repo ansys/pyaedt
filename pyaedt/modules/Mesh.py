@@ -1,5 +1,5 @@
 """
-This module contains the ``Mesh`` class.
+This module contains the `Mesh` class.
 """
 
 from __future__ import absolute_import
@@ -17,7 +17,7 @@ meshers = {"HFSS": "MeshSetup",
 
 
 class MeshOperation(object):
-    """ """
+    """MeshOperation class."""
     def __init__(self, parent, name, props, meshoptype):
         self._parent = parent
         self.name = name
@@ -99,11 +99,7 @@ class MeshOperation(object):
 class Mesh(object):
     """Mesh class.   
     
-    Manages AEDT mesh functions.
-    
-    Parameters
-    ----------
-    
+    This class manages AEDT mesh functions.
     """
 
     def __init__(self, parent):
@@ -263,7 +259,8 @@ class Mesh(object):
         names : list
             List of objects to defeature.
         defeature_length : float, optional
-            Defeaturing length in mm. The default is ``None``, which is for automatic defeaturing.
+            Defeaturing length in mm. The default is ``None``, in which case automatic 
+            defeaturing is used.
         meshop_name : str, optional
             Name of the mesh operation. The default is ``None``.
 
@@ -303,10 +300,10 @@ class Mesh(object):
         Parameters
         ----------
         level : int, optional
-            Level of the surface mesh. Chocies are ``1`` through ``10``. The default is ``5.``
+            Level of the surface mesh. Options are ``1`` through ``10``. The default is ``5.``
         method : str, optional
-            Meshing method. Choices are ``"Auto"``, ``"AnsoftTAU"``, and ``"AnsoftClassic"`` 
-            The default is ``"Auto:``.
+            Meshing method. Options are ``"Auto"``, ``"AnsoftTAU"``, and ``"AnsoftClassic"`` 
+            The default is ``"Auto"``.
         usedynamicsurface : bool, optional
             Whether to use a dynamic surface. The default is ``True``.
         useflexmesh : bool, optional
@@ -322,8 +319,8 @@ class Mesh(object):
             Whether to automatically calculate the resolution length
             based on each object's effective thickness. The default is ``True``.  
         modelresolutionlength : float, optional
-             Resolution thickness with units to use when ``automodelresolution=False``.
-             The default ``"0.0001mm``.
+             Resolution thickness with units if ``automodelresolution=False``.
+             The default ``"0.0001mm"``.
 
         Returns
         -------
@@ -363,7 +360,8 @@ class Mesh(object):
         Parameters
         ----------
         object_lists : list
-            List of objects to which to apply a surface priority
+            List of objects to which to apply a surface representation
+            priority.
         surfpriority : int, optional
             Surface representation priority. The default is ``0``.
 
@@ -404,8 +402,8 @@ class Mesh(object):
         Parameters
         ----------
         mesh_type : optional
-           Type of the mesh operation to delete. The default is ``None``, which removes all
-           mesh operations.
+           Type of the mesh operation to delete. The default is ``None``, in which
+           case all mesh operations are deleted.
 
         Returns
         -------
@@ -505,12 +503,12 @@ class Mesh(object):
     @aedt_exception_handler
     def assign_skin_depth(self, names, skindepth, maxelements=None, triangulation_max_length="0.1mm", numlayers="2",
                           meshop_name=None):
-        """
+        """Assign skin depth for mesh refinement.
 
         Parameters
         ----------
         names : list
-           List of object names or face IDs.
+           List of the object names or face IDs.
         skindepth : bool
             Whether the length mesh is inside the selection. When ``True``, 
             it is inside the selection. 
@@ -670,13 +668,12 @@ class Mesh(object):
         names : list
             List of objects.
         num_layers : int, optional
-            Number of layers  to create in the radial direction, starting from
-            the faces most adjacenet to t he band. The default is ``3``, which is the maximum.
+            Number of layers to create in the radial direction, starting from
+            the faces most adjacent to the band. The default is ``3``, which is the maximum.
         total_thickness : str, optional
-            Total thickness of all layers combined with units. The default is ``"1mm"``.
+            Total thickness of all layers with units. The default is ``"1mm"``.
         meshop_name : str, optional
             Name of the mesh operation. The default is ``None``.
-
 
         Returns
         -------
@@ -742,14 +739,14 @@ class Mesh(object):
 
     @aedt_exception_handler
     def assign_density_control(self, names, refine_inside=True, maxelementlength=None, layerNum=None, meshop_name=None):
-        """
+        """Assign density control.
 
         Parameters
         ----------
         names : list
             List of objects.
         refine_inside : bool, optional
-            The default is ``True``.
+            Whether to refine inside objects. The default is ``True``.
         maxelementlength : str, optional
             Maximum element length with units. The default is ``None``,
             which disables this parameter.

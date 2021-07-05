@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*
-"""This module contains the ``Circuit`` class."""
+"""This module contains the `Circuit` class."""
 
 from __future__ import absolute_import
 import math
@@ -55,7 +55,7 @@ AEDT_MAPS = {
 
 
 def from_rkm(code):
-    """Convert a RKM code string to a string with a decimal point.
+    """Convert an RKM code string to a string with a decimal point.
 
     Parameters
     ----------
@@ -160,59 +160,58 @@ class Circuit(FieldAnalysisCircuit, object):
     ----------
     projectname : str, optional
         Name of the project to select or the full path to the project
-        or AEDTZ archive to open.  The default is ``None``. If
-        ``None``, try to get an active project and, if no projects are
-        present, create an empty project.
+        or AEDTZ archive to open.  The default is ``None``, in which
+        case an attempt is made to get an active project. If no
+        projects are present, an empty project is created.
     designname : str, optional
-        Name of the design to select. The default is ``None``. If
-        ``None``, try to get an active design and, if no designs are
-        present, create an empty design.
+        Name of the design to select. The default is ``None``, in
+        which case an attempt is made to get an active design. If no
+        designs are present, an empty design is created.
     solution_type : str, optional
         Solution type to apply to the design. The default is
-        ``None``. If ``None``, the default type is applied.
+        ``None``, which applies the default type.
     setup_name : str, optional
         Name of the setup to use as the nominal. The default is
-        ``None``. If ``None``, the active setup is used or nothing is
-        used.
+        ``None``, in which case the active setup is used or
+        nothing is used.
     specified_version: str, optional
-        Version of AEDT to use. The default is ``None``. If ``None``,
-        the active setup is used or the latest installed version is
-        used.
-    NG: bool, optional
-        Whether to launch AEDT in the non-graphical mode. The default
-        is ``False``, which launches AEDT in the graphical mode.
-    AlwaysNew: bool, optional
+        Version of AEDT to use. The default is ``None``, in which case
+        the active version or latest installed version is  used.
+    NG : bool, optional
+        Whether to run AEDT in the non-graphical mode. The default
+        is``False``, which launches AEDT in the graphical mode.
+    AlwaysNew : bool, optional
         Whether to launch an instance of AEDT in a new thread, even if
         another instance of the ``specified_version`` is active on the
         machine.  The default is ``True``.
-    release_on_exit: bool, optional
-        Whether to release AEDT on exit. The default is ``True``.
+    release_on_exit : bool, optional
+        Whether to release AEDT on exit.
 
     Examples
     --------
-    Create an instance of ``Circuit`` and connect to an existing HFSS
+    Create an instance of `Circuit` and connect to an existing HFSS
     design or create a new HFSS design if one does not exist.
 
     >>> from pyaedt import Circuit
     >>> aedtapp = Circuit()
 
-    Create an instance of ``Circuit`` and link to a project named
+    Create an instance of `Circuit` and link to a project named
     ``projectname``. If this project does not exist, create one with
     this name.
 
     >>> aedtapp = Circuit(projectname)
 
-    Create an instance of ``Circuit`` and link to a design named
+    Create an instance of `Circuit` and link to a design named
     ``designname`` in a project named ``projectname``.
 
     >>> aedtapp = Circuit(projectname,designame)
 
-    Create an instance of ``Circuit`` and open the specified project,
+    Create an instance of `Circuit` and open the specified project,
     which is ``myfie.aedt``.
 
     >>> aedtapp = Circuit("myfile.aedt")
 
-    Create an instance of ``Circuit`` using the 2021 R1 version and
+    Create an instance of `Circuit` using the 2021 R1 version and
     open the specified project, which is ``myfie.aedt``.
 
     >>> aedtapp = Circuit(specified_version="2021.1", projectname="myfile.aedt")
@@ -247,18 +246,21 @@ class Circuit(FieldAnalysisCircuit, object):
 
     @aedt_exception_handler
     def create_schematic_from_netlist(self, file_to_import):
-        """Create a circuit schematic from a HSpice netlist.
+        """Create a circuit schematic from an HSpice netlist.
 
         Supported currently:
         
-        -R, L, C, Diodes, Bjts
-        
-        -Discrete components with syntax Uxxx net1 net2 ... netn modname
+        * R
+        * L
+        * C
+        * Diodes
+        * Bjts
+        * Discrete components with syntax ``Uxxx net1 net2 ... netn modname``
 
         Parameters
         ----------
         file_to_import : str
-            Full path to the HSpice file.
+            Full path to the HSpice file to import.
 
         Returns
         -------
@@ -450,25 +452,27 @@ class Circuit(FieldAnalysisCircuit, object):
 
     @aedt_exception_handler
     def create_schematic_from_mentor_netlist(self, file_to_import):
-        """Create a circuit schematic from a Mentor netlist.
+        """Create a circuit schematic from a Mentor net list.
         
         Supported currently:
         
-        -R, L, C, Diodes, Bjts
-        
-        -Discrete components with syntax Uxxx net1 net2 ... netn modname
+        * R
+        * L
+        * C
+        * Diodes
+        * Bjts
+        * Discrete components with syntax ``Uxxx net1 net2 ... netn modname``
 
         Parameters
         ----------
         file_to_import : str
-            Full path to the HSpice file.
+            Full path to the HSpice file to import.
 
         Returns
         -------
         bool
             ``True`` when successful, ``False`` when failed.
         """
-
         xpos = 0
         ypos = 0
         delta = 0.0508
@@ -579,7 +583,7 @@ class Circuit(FieldAnalysisCircuit, object):
 
     @aedt_exception_handler
     def retrieve_mentor_comp(self, refid):
-        """Retrieve the type of the Mentor Netlist component for the specified reference ID.
+        """Retrieve the type of the Mentor net list component for a given reference ID.
 
         Parameters
         ----------
@@ -589,7 +593,7 @@ class Circuit(FieldAnalysisCircuit, object):
         Returns
         -------
         str
-            Type of Mentor Netlist comoponet
+            Type of Mentor net list comoponet.
         """
         if refid[1] == "R":
             return "resistor:RES."
@@ -612,13 +616,13 @@ class Circuit(FieldAnalysisCircuit, object):
         ----------
         source_design_name : str
             Name of the source design.
-        source_project_name :str, None
+        source_project_name :str, optional
             Name of the source project. The default is ``None``.
         source_project_path : str, optional
             Path to the source project if different than the existing path. The default is ``None``.
         port_selector : int, optional
-             The type of port. Choices are ``1``, ``2``, or ``3``, corresponding respectively to ``"Wave Port"``, ``"Terminal"``, or ``"Circuit Port"``.
-             The default is ``3``, which is a circuit.
+             Type of the port. Options are ``1``, ``2``, or ``3``, corresponding respectively to ``"Wave Port"``, ``"Terminal"``, or ``"Circuit Port"``.
+             The default is ``3``, which is a circuit port.
 
         Returns
         -------
@@ -707,8 +711,10 @@ class Circuit(FieldAnalysisCircuit, object):
                               passivity=False, causality=False, renormalize=False, impedance=50, error=0.5,
                               poles=10000):
         """
-        This method doesn't work.
-        Export Full Wave HSpice file using NDE.
+        Export a full wave HSpice file using NDE.
+
+        .. warning::
+          This method doesn't work.
 
         Parameters
         ----------
@@ -720,15 +726,16 @@ class Circuit(FieldAnalysisCircuit, object):
         is_solution_file: bool, optional
             Whether it is an imported solution file. The default is ``False``. 
         filename: str, optional
-            Full path to the exported HSpice file.  The default is ``None``.
+            Full path and name for exporting the HSpice file. The default is ``None``.
         passivity: bool, optional
-            The default is ``None``.
+            Whether to compute the passivity. The default is ``False``.
         causality: bool, optional
-            The default is ``None``.
+            Whether to compute the causality. The default is ``False``.
         renormalize: bool, optional
-            Whether to renormalize. The default is ``False``.
+            Whether to renormalize the S-matrix to a specific port impedance.
+            The default is ``False``.
         impedance: float, optional
-            Impedance in case of renormalization. The default is ``False``.
+            Impedance value if ``renormalize=True``. The default is ``50``.
         error: float, optional
             Fitting error. The default is ``0.05``.
         poles: int, optional
@@ -779,7 +786,7 @@ class Circuit(FieldAnalysisCircuit, object):
 
     @aedt_exception_handler
     def create_touchstone_report(self,plot_name, curvenames, solution_name=None, variation_dict=None):
-        """Create a touchstone plot.
+        """Create a Touchstone plot.
 
         Parameters
         ----------
@@ -790,7 +797,7 @@ class Circuit(FieldAnalysisCircuit, object):
         solution_name : str, optional
             Name of the solution. The default value is ``None``.
         variation_dict : dict, optional
-            Names of the variations. The default value is ``None``.
+            Dictionary of variation names. The default value is ``None``.
 
         Returns
         -------

@@ -1,4 +1,4 @@
-"""This module contains the ``Simplorer`` class"""
+"""This module contains the `Simplorer` class."""
 
 from __future__ import absolute_import
 
@@ -11,61 +11,60 @@ from .generic.general_methods import aedt_exception_handler, generate_unique_nam
 
 
 class Simplorer(FieldAnalysisSimplorer, object):
-    """Simplorer object.
+    """Simplorer class.
 
     Parameters
     ----------
     projectname : str, optional
         Name of the project to select or the full path to the project
-        or AEDTZ archive to open.  The default is ``None``. If
-        ``None``, try to get an active project and, if no projects are
-        present, create an empty project.
+        or AEDTZ archive to open.  The default is ``None``, in which
+        case an attempt is made to get an active project. If no 
+        projects are present, an empty project is created.
     designname : str, optional
-        Name of the design to select. The default is ``None``. If
-        ``None``, try to get an active design and, if no designs are
-        present, create an empty design.
+        Name of the design to select. The default is ``None``, in 
+        which case an attempt is made to get an active design. If no
+        designs are present, an empty design is created.
     solution_type : str, optional
-        Solution type to apply to design. The default is ``None``. If
-        ``None``, the default type is applied.
+        Solution type to apply to the design. The default is
+        ``None``, which applies the default type.
     setup_name : str, optional
-       Name of the setup to use as the nominal. The default is
-       ``None``. If ``None``, the active setup is used or nothing is
-       used.
+        Name of the setup to use as the nominal. The default is
+        ``None``, in which case the active setup is used or 
+        nothing is used.
     specified_version: str, optional
-        Version of AEDT to use. The default is ``None``. If ``None``,
-        the active setup is used or the latest installed version is
-        used.
-    NG: bool, optional
-        Whether to launch AEDT in the non-graphical mode. The default
-        is ``False``, which launches AEDT in the graphical mode.
-    AlwaysNew: bool, optional
+        Version of AEDT to use. The default is ``None``, in which case
+        the active version or latest installed version is  used.
+    NG : bool, optional
+        Whether to run AEDT in the non-graphical mode. The default 
+        is``False``, which launches AEDT in the graphical mode.  
+    AlwaysNew : bool, optional
         Whether to launch an instance of AEDT in a new thread, even if
         another instance of the ``specified_version`` is active on the
         machine.  The default is ``True``.
-    release_on_exit: bool, optional
-        Whether to release AEDT on exit. The default is ``True``.
+    release_on_exit : bool, optional
+        Whether to release AEDT on exit. 
 
     Examples
     --------
-    Create an instance of ``Simplorer`` and connect to an existing
+    Create an instance of `Simplorer` and connect to an existing
     Maxwell design or create a new Maxwell design if one does not
     exist.
 
     >>> from pyaedt import Simplorer
     >>> app = Simplorer()
 
-    Create a instance of ``Simplorer`` and link to a project named
+    Create a instance of `Simplorer` and link to a project named
     ``"projectname"``. If this project does not exist, create one with
     this name.
 
     >>> app = Simplorer(projectname)
 
-    Create an instance of ``Simplorer`` and link to a design named
+    Create an instance of `Simplorer` and link to a design named
     ``"designname"`` in a project named ``"projectname"``.
 
     >>> app = Simplorer(projectname, designame)
 
-    Create an instance of ``Simplorer`` and open the specified
+    Create an instance of `Simplorer` and open the specified
     project, which is named ``"myfile.aedt"``.
 
     >>> app = Simplorer("myfile.aedt")
@@ -80,13 +79,16 @@ class Simplorer(FieldAnalysisSimplorer, object):
 
     @aedt_exception_handler
     def create_schematic_from_netlist(self, file_to_import):
-        """Create a circuit schematic from an HSpice netlist.
+        """Create a circuit schematic from an HSpice net list.
         
         Supported currently:
         
-        -R, L, C, Diodes, Bjts
-        
-        -Discrete components with syntax Uxxx net1 net2 ... netn modname
+        * R
+        * L
+        * C
+        * Diodes
+        * Bjts
+        * Discrete components with syntax ``Uxxx net1 net2 ... netn modname``
 
         Parameters
         ----------
@@ -251,4 +253,3 @@ class Simplorer(FieldAnalysisSimplorer, object):
         """ Push exit up to parent object Design """
         if ex_type:
             exception_to_desktop(self, ex_value, ex_traceback)
-
