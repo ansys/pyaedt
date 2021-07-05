@@ -59,7 +59,7 @@ class TestEDB:
     def test_get_stackup(self):
         stackup = self.edbapp.core_stackup.stackup_layers
         assert (len(stackup.layers)>2)
-        assert  self.edbapp.core_stackup.stackup_layers["TOP"].builder
+        assert  self.edbapp.core_stackup.stackup_layers["TOP"]._builder
         assert  self.edbapp.core_stackup.stackup_layers["TOP"].id
         assert  isinstance(self.edbapp.core_stackup.stackup_layers["TOP"].layer_type, int)
 
@@ -296,7 +296,6 @@ class TestEDB:
             assert pad.pad_by_layer[pad.via_stop_layer].offset_y is not None or False
             assert isinstance(pad.pad_by_layer[pad.via_stop_layer].geometry_type, int)
 
-
     def test_set_padstack(self):
         pad = self.edbapp.core_padstack.padstacks["C10N116"]
         hole_pad = 8
@@ -318,7 +317,6 @@ class TestEDB:
         assert pad.pad_by_layer[pad.via_stop_layer].offset_x == str(offset_x)
         assert pad.pad_by_layer[pad.via_stop_layer].offset_y == str(offset_y)
         assert pad.pad_by_layer[pad.via_stop_layer].parameters[0] == str(param)
-
 
     def test_save_edb_as(self):
         assert self.edbapp.save_edb_as(os.path.join(self.local_scratch.path, "Gelileo_new.aedb"))
@@ -386,7 +384,6 @@ class TestEDB:
         plane = self.edbapp.core_primitives.Shape('polygon', points=points)
         assert not self.edbapp.core_primitives.create_polygon(plane, "TOP")
 
-
     def test_create_path(self):
         points = [
             [-0.025, -0.02],
@@ -396,6 +393,9 @@ class TestEDB:
         path = self.edbapp.core_primitives.Shape('polygon', points=points)
         assert self.edbapp.core_primitives.create_path(path, "TOP")
 
+    def test_create_outline(self):
+        assert self.edbapp.core_stackup.stackup_layers.add_outline_layer("Outline1")
+        assert not self.edbapp.core_stackup.stackup_layers.add_outline_layer("Outline1")
 
     def test_create_edb(self):
         edb = Edb(os.path.join(scratch_path, "temp.aedb"))
