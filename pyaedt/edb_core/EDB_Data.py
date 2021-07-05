@@ -14,6 +14,8 @@ except ImportError:
 
 class EDBLayer(object):
     """EDBLayer class."""
+
+
     def __init__(self, edblayer, parent):
         self._layer = edblayer
         self._name = None
@@ -29,7 +31,7 @@ class EDBLayer(object):
         self._edb = parent._edb
         self._active_layout = parent._active_layout
         self._parent = parent
-        self.init_vals()
+        #self.init_vals()
 
     @property
     def _stackup_methods(self):
@@ -438,7 +440,7 @@ class EDBLayers(object):
         type
             Collection of layers.
         """
-        return self._edb.Cell.LayerCollection(self._active_layout.GetLayerCollection())
+        return self._active_layout.GetLayerCollection()
 
     @property
     def layer_collection_mode(self):
