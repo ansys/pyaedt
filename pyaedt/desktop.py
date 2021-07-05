@@ -129,8 +129,10 @@ def update_aedt_registry(key, value, desktop_version="193"):
    
 
     """
-    import subprocess
-
+    if os.name == 'posix':
+        import subprocessdotnet as subprocess
+    else:
+        import subprocess
     desktop_install_dir = os.environ["ANSYSEM_ROOT" + str(desktop_version)]
 
     with open(os.path.join(desktop_install_dir, "config", "ProductList.txt")) as file:

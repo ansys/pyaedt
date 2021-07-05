@@ -24,44 +24,49 @@ class EdbStackup(object):
         self._layer_dict = None
 
     @property
-    def builder(self):
+    def _builder(self):
         """ """
         return self.parent.builder
 
     @property
-    def edb_value(self):
+    def _edb_value(self):
         """ """
         return self.parent.edb_value
 
     @property
-    def edb(self):
+    def _edb(self):
         """ """
         return self.parent.edb
 
     @property
-    def active_layout(self):
+    def _active_layout(self):
         """ """
         return self.parent.active_layout
 
     @property
-    def cell(self):
+    def _cell(self):
         """ """
         return self.parent.cell
 
     @property
-    def db(self):
+    def _db(self):
         """ """
         return self.parent.db
 
     @property
-    def stackup_methods(self):
+    def _stackup_methods(self):
         """ """
         return self.parent.edblib.Layout.StackupMethods
 
     @property
+    def _messenger(self):
+        """ """
+        return self.parent.messenger
+
+    @property
     def stackup_layers(self):
         """Dictionary of all the stackup layers.
-       
+
         Returns
         -------
         dict
@@ -71,11 +76,10 @@ class EdbStackup(object):
             self._layer_dict = EDBLayers(self)
         return self._layer_dict
 
-
     @property
     def signal_layers(self):
         """List of all signal layers.
-        
+
         Returns
         -------
         list
@@ -87,14 +91,14 @@ class EdbStackup(object):
     @property
     def materials(self):
         """Dictionary of materials.
-        
+
         Returns
         -------
         dict
             Dictionary of materials.
         """
         mats = {}
-        for el in self.parent.edbutils.MaterialSetupInfo.GetFromLayout(self.parent.active_layout):
+        for el in self.parent.edbutils.MaterialSetupInfo.GetFromLayout(self.parent._active_layout):
             mats[el.Name] = el
         return mats
 
@@ -116,15 +120,15 @@ class EdbStackup(object):
         type
             Material definition.
         """
-        if self.edb.Definition.MaterialDef.FindByName(self.db, name).IsNull():
-            material_def = self.edb.Definition.MaterialDef.Create(self.db,name)
-            material_def.SetProperty(self.edb.Definition.MaterialPropertyId.Permittivity,
-                                                self.edb_value(permittivity))
-            material_def.SetProperty(self.edb.Definition.MaterialPropertyId.DielectricLossTangent,self.edb_value(loss_tangent))
+        if self._edb.Definition.MaterialDef.FindByName(self._db, name).IsNull():
+            material_def = self._edb.Definition.MaterialDef.Create(self._db,name)
+            material_def.SetProperty(self._edb.Definition.MaterialPropertyId.Permittivity,
+                                                self._edb_value(permittivity))
+            material_def.SetProperty(self._edb.Definition.MaterialPropertyId.DielectricLossTangent,self._edb_value(loss_tangent))
             return material_def
         return False
 
-    
+
     @aedt_exception_handler
     def create_conductor(self, name, conductivity=1e6):
         """Create a new conductor with simple properties.
@@ -139,12 +143,12 @@ class EdbStackup(object):
         Returns
         -------
         type
-            Material definition. 
+            Material definition.
         """
-        if self.edb.Definition.MaterialDef.FindByName(self.db, name).IsNull():
-            material_def = self.edb.Definition.MaterialDef.Create(self.db, name)
-            material_def.SetProperty(self.edb.Definition.MaterialPropertyId.Conductivity,
-                                     self.edb_value(conductivity))
+        if self._edb.Definition.MaterialDef.FindByName(self._db, name).IsNull():
+            material_def = self._edb.Definition.MaterialDef.Create(self._db, name)
+            material_def.SetProperty(self._edb.Definition.MaterialPropertyId.Conductivity,
+                                     self._edb_value(conductivity))
             return material_def
         return False
 
@@ -176,13 +180,13 @@ class EdbStackup(object):
         Returns
         -------
         type
-            Material definition.  
+            Material definition.
         """
-        material_def = self.edb.Definition.DebyeModel()
+        material_def = self._edb.Definition.DebyeModel()
         material_def.SetFrequencyRange(lower_freqency, higher_frequency)
         material_def.SetLossTangentAtHighLowFrequency(loss_tangent_low, loss_tangent_high)
-        material_def.SetRelativePermitivityAtHighLowFrequency(self.edb_value(relative_permittivity_low),
-                                                              self.edb_value(relative_permittivity_high))
+        material_def.SetRelativePermitivityAtHighLowFrequency(self._edb_value(relative_permittivity_low),
+                                                              self._edb_value(relative_permittivity_high))
         return self._add_dielectric_material_model(name, material_def)
 
 
@@ -204,23 +208,22 @@ class EdbStackup(object):
         Returns
         -------
         type
-            Material definition.      
+            Material definition.
         """
-        material_def = self.edb.Definition.DjordjecvicSarkarModel()
+        material_def = self._edb.Definition.DjordjecvicSarkarModel()
         material_def.SetFrequency(test_frequency)
-        material_def.SetLossTangentAtFrequency(self.edb_value(loss_tangent))
+        material_def.SetLossTangentAtFrequency(self._edb_value(loss_tangent))
         material_def.SetRelativePermitivityAtFrequency(relative_permittivity)
         return self._add_dielectric_material_model(name, material_def)
 
     @aedt_exception_handler
     def _add_dielectric_material_model(self, name, material_model):
-        if self.edb.Definition.MaterialDef.FindByName(self.db, name).IsNull():
-            DieDef = self.edb.Definition.MaterialDef.Create(self.db, name)
+        if self._edb.Definition.MaterialDef.FindByName(self._db, name).IsNull():
+            DieDef = self._edb.Definition.MaterialDef.Create(self._db, name)
             succeeded = DieDef.SetDielectricMaterialModel(material_model)
             if succeeded:
                 return DieDef
             return False
-
 
     @aedt_exception_handler
     def stackup_limits(self, only_metals=False):
@@ -236,11 +239,11 @@ class EdbStackup(object):
         bool
             ``True`` when successful, ``False`` when failed.
         """
-        stackup = self.builder.EdbHandler.layout.GetLayerCollection()
+        stackup = self._builder.EdbHandler.layout.GetLayerCollection()
         if only_metals:
-            input_layers = self.parent.edb.Cell.LayerTypeSet.SignalLayerSet
+            input_layers = self._edb.Cell.LayerTypeSet.SignalLayerSet
         else:
-            input_layers = self.parent.edb.Cell.LayerTypeSet.StackupLayerSet
+            input_layers = self._edb.Cell.LayerTypeSet.StackupLayerSet
 
         if is_ironpython:
             res, topl, topz, bottoml, bottomz = stackup.GetTopBottomStackupLayers(input_layers)

@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*
 """This module contains the `Circuit` class."""
 
 from __future__ import absolute_import
@@ -160,10 +161,10 @@ class Circuit(FieldAnalysisCircuit, object):
     projectname : str, optional
         Name of the project to select or the full path to the project
         or AEDTZ archive to open.  The default is ``None``, in which
-        case an attempt is made to get an active project. If no 
+        case an attempt is made to get an active project. If no
         projects are present, an empty project is created.
     designname : str, optional
-        Name of the design to select. The default is ``None``, in 
+        Name of the design to select. The default is ``None``, in
         which case an attempt is made to get an active design. If no
         designs are present, an empty design is created.
     solution_type : str, optional
@@ -171,20 +172,20 @@ class Circuit(FieldAnalysisCircuit, object):
         ``None``, which applies the default type.
     setup_name : str, optional
         Name of the setup to use as the nominal. The default is
-        ``None``, in which case the active setup is used or 
+        ``None``, in which case the active setup is used or
         nothing is used.
     specified_version: str, optional
         Version of AEDT to use. The default is ``None``, in which case
         the active version or latest installed version is  used.
     NG : bool, optional
-        Whether to run AEDT in the non-graphical mode. The default 
-        is``False``, which launches AEDT in the graphical mode.  
+        Whether to run AEDT in the non-graphical mode. The default
+        is``False``, which launches AEDT in the graphical mode.
     AlwaysNew : bool, optional
         Whether to launch an instance of AEDT in a new thread, even if
         another instance of the ``specified_version`` is active on the
         machine.  The default is ``True``.
     release_on_exit : bool, optional
-        Whether to release AEDT on exit. 
+        Whether to release AEDT on exit.
 
     Examples
     --------
@@ -711,7 +712,7 @@ class Circuit(FieldAnalysisCircuit, object):
                               poles=10000):
         """
         Export a full wave HSpice file using NDE.
-        
+
         .. warning::
           This method doesn't work.
 
@@ -731,7 +732,7 @@ class Circuit(FieldAnalysisCircuit, object):
         causality: bool, optional
             Whether to compute the causality. The default is ``False``.
         renormalize: bool, optional
-            Whether to renormalize the S-matrix to a specific port impedance. 
+            Whether to renormalize the S-matrix to a specific port impedance.
             The default is ``False``.
         impedance: float, optional
             Impedance value if ``renormalize=True``. The default is ``50``.
