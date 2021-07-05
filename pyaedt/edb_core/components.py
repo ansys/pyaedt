@@ -1,10 +1,4 @@
-"""
-Components Class
-----------------
-
-This class manages EDB components and related methods.
-
-"""
+"""This module contain the ``Components`` class."""
 import re
 import random
 
@@ -25,14 +19,16 @@ except ImportError:
 
 
 def resistor_value_parser(RValue):
-    """Convert resistor value.
+    """Convert a resistor value.
 
     Parameters
     ----------
-    RValue :
+    RValue : float
+        Resistor value.
         
     Returns
     -------
+    
 
     """
     if type(RValue) is str:
@@ -48,16 +44,17 @@ def resistor_value_parser(RValue):
 
 
 class Components(object):
-    """HFSS 3D Layout class."""
-    @property
-    def edb(self):
-        """ """
-        return self.parent.edb
+    """HFSS 3D application interface.
 
-    @property
-    def messenger(self):
-        """ """
-        return self.parent.messenger
+    This class manages EDB components and related methods.
+
+    Examples
+    --------
+    >>> from pyaedt import Edb
+    >>> edbapp = Edb("myaedbfolder")
+    >>> edbapp.core_components
+
+    """
 
     def __init__(self, parent):
         self.parent = parent
@@ -70,12 +67,18 @@ class Components(object):
         self._others = {}
         self._pins = {}
         self._comps_by_part = {}
-        self.init_parts()
+        self._init_parts()
 
+    @property
+    def _messenger(self):
+        return self.parent.messenger
+
+    @property
+    def _edb(self):
+        return self.parent.edb
 
     @aedt_exception_handler
-    def init_parts(self):
-        """ """
+    def _init_parts(self):
         a = self.components
         a = self.resistors
         a = self.ICs
@@ -86,56 +89,41 @@ class Components(object):
         return True
 
     @property
-    def builder(self):
-        """ """
+    def _builder(self):
         return self.parent.builder
 
     @property
-    def edb(self):
-        """ """
-        return self.parent.edb
-
-    @property
-    def edb_value(self):
-        """ """
+    def _edb_value(self):
         return self.parent.edb_value
 
     @property
-    def edbutils(self):
-        """ """
+    def _edbutils(self):
         return self.parent.edbutils
 
     @property
-    def active_layout(self):
-        """ """
+    def _active_layout(self):
         return self.parent.active_layout
 
     @property
-    def cell(self):
-        """ """
+    def _cell(self):
         return self.parent.cell
 
     @property
-    def db(self):
-        """ """
+    def _db(self):
         return self.parent.db
 
     @property
-    def components_methods(self):
-        """ """
+    def _components_methods(self):
         return self.parent.edblib.Layout.ComponentsMethods
 
     @property
     def components(self):
-        """
+        """Retrieve component setup information.
                 
-        Parameters
-        ----------
-
         Returns
         -------
         dict
-           Dictionary of EDC component setup information.
+           Dictionary of component setup information.
 
         Examples
         --------
@@ -143,7 +131,6 @@ class Components(object):
         >>> from pyaedt import Edb
         >>> edbapp = Edb("myaedbfolder")
         >>> edbapp.core_components.components
-        
         """
         if not self._cmp:
             self.refresh_components()
@@ -151,6 +138,7 @@ class Components(object):
 
     @aedt_exception_handler
     def refresh_components(self):
+        self._messenger.add_info_message("Refreshing Components Dictionary")
         try:
             cmplist = self.get_component_list()
             self._cmp = {}
@@ -161,14 +149,12 @@ class Components(object):
 
     @property
     def resistors(self):
-        """
-
-        Parameters
-        ----------
+        """Retrieve all resistors.
 
         Returns
         -------
         dict
+            Dictionary of resistors.
 
         Examples
         --------
@@ -185,12 +171,12 @@ class Components(object):
 
     @property
     def capacitors(self):
-        """
+        """Retrieve all capacitors.
                 
         Returns
         -------
         dict
-            Dictionary of capactors
+            Dictionary of capactors.
 
         Examples
         --------
@@ -198,7 +184,6 @@ class Components(object):
         >>> from pyaedt import Edb
         >>> edbapp = Edb("myaedbfolder")
         >>> edbapp.core_components.capacitors
-        
         """
         self._cap = {}
         for el, val in self.components.items():
@@ -208,7 +193,7 @@ class Components(object):
 
     @property
     def inductors(self):
-        """Dictionary of inductors.
+        """Retrieve all inductors.
         
         
         Returns
@@ -219,10 +204,9 @@ class Components(object):
         Examples
         --------
 
-        >>> from pyaedt import EDB
+        >>> from pyaedt import Edb
         >>> edbapp = Edb("myaedbfolder")
         >>> edbapp.core_components.inductors
-        
         """
         self._ind = {}
         for el, val in self.components.items():
@@ -233,7 +217,8 @@ class Components(object):
 
     @property
     def ICs(self):
-        """Dictionary of capacitors.
+        """Retrieve all capacitors.
+        
         Returns
         -------
         dict
@@ -244,8 +229,7 @@ class Components(object):
 
         >>> from pyaedt import Edb
         >>> edbapp = Edb("myaedbfolder")
-        >>> edbapp.core_components.ICs
-        
+        >>> edbapp.core_components.ICs 
         """
         self._ics = {}
         for el, val in self.components.items():
@@ -256,7 +240,7 @@ class Components(object):
 
     @property
     def IOs(self):
-        """Dictionary of capacitors.
+        """Retrieve all capacitors.
 
         Returns
         -------
@@ -295,6 +279,7 @@ class Components(object):
         >>> from pyaedt import Edb
         >>> edbapp = Edb("myaedbfolder")
         >>> edbapp.core_components.others
+        
         """
         self._others = {}
         for el, val in self.components.items():
@@ -305,12 +290,12 @@ class Components(object):
 
     @property
     def components_by_partname(self):
-        """Return a dictionary by part name.
+        """Return components by part name.
         
-
         Returns
         -------
         dict
+            Dictionary of components by part name.
 
         Examples
         --------
@@ -330,7 +315,7 @@ class Components(object):
 
     @aedt_exception_handler
     def get_component_list(self):
-        """Return a list of components EDB objects.
+        """Retrieve a list of a component's EDB objects.
 
         Returns
         -------
@@ -338,8 +323,8 @@ class Components(object):
             List of component setup information.
 
         """
-        cmp_setup_info_list = self.parent.edbutils.ComponentSetupInfo.GetFromLayout(
-            self.parent.builder.EdbHandler.layout)
+        cmp_setup_info_list = self._edbutils.ComponentSetupInfo.GetFromLayout(
+            self._builder.EdbHandler.layout)
         cmp_list = []
         for comp in cmp_setup_info_list:
             cmp_list.append(comp)
@@ -356,11 +341,10 @@ class Components(object):
 
         Returns
         -------
-        self.edb.Cell.Hierarchy.Component
-            Edb component (Edb.Cell.Hierarchy.Component) object if exists
-
+        bool
+            ``True`` when successful, ``False`` when failed.
         """
-        edbcmp = self.edb.Cell.Hierarchy.Component.FindByName(self.active_layout, name)
+        edbcmp = self._edb.Cell.Hierarchy.Component.FindByName(self._active_layout, name)
         if edbcmp is not None:
             return edbcmp
         else:
@@ -398,35 +382,34 @@ class Components(object):
 
         Parameters
         ----------
-        pins :
+        pins : list
             List of EDB core pins.
         component_name : str
             Name of the reference designator for the component.
 
         Returns
         -------
-        type
-            python tuple<bool,the Edb.Cell.Hierarchy.Component> With Item1 = True when component has successfully been created and False if not
+        bool
+            ``True`` when successful, ``False`` when failed.
        
         Examples
         --------
 
-    >>> from pyaedt import EDB
+    >>> from pyaedt import Edb
         >>> edbapp = Edb("myaedbfolder")
         >>> pins = edbapp.core_components.get_pin_from_component("A1")
         >>> edbapp.core_components.create_component_from_pins(pins, "A1New")
-        
         """
         try:
-            new_cmp = self.parent.edb.Cell.Hierarchy.Component.Create(self.parent.builder.EdbHandler, component_name)
-            new_group = self.parent.edb.Cell.Hierarchy.Group.Create(self.parent.builder.EdbHandler.layout,
+            new_cmp = self._edb.Cell.Hierarchy.Component.Create(self._builder.EdbHandler, component_name)
+            new_group = self._edb.Cell.Hierarchy.Group.Create(self._builder.EdbHandler.layout,
                                                                     component_name)
             for pin in pins:
                 new_group.AddMember(pin)
             new_cmp.SetGroup(new_group)
             new_cmp_layer_name = pins[0].GetPadstackDef().GetData().GetLayerNames().First()
-            new_cmp_placement_layer = self.parent.edb.Cell.Layer.FindByName(
-                self.parent.builder.EdbHandler.layout.GetLayerCollection(), new_cmp_layer_name)
+            new_cmp_placement_layer = self._edb.Cell.Layer.FindByName(
+                self._builder.EdbHandler.layout.GetLayerCollection(), new_cmp_layer_name)
             new_cmp.SetPlacementLayer(new_cmp_placement_layer)
             return (True, new_cmp)
         except:
@@ -441,10 +424,10 @@ class Components(object):
         componentname : str
             Name of the component.
         model_type : str, optional
-            Type of the model. Choices are ``"Spice"`` and `"Touchstone. "`The default is ``"Spice"``
+            Type of the model. Choices are ``"Spice"`` and ``"Touchstone"``. "`The default is ``"Spice"``.
         modelpath : str, optional
             Full path to the model file. The default is ``None``.
-        modelname :
+        modelname : str, optional
             Name of the model. The default is ``None``.
 
         Returns
@@ -455,7 +438,7 @@ class Components(object):
         Examples
         --------    
 
-        >>> from pyaedt import EDB
+        >>> from pyaedt import Edb
         >>> edbapp = Edb("myaedbfolder")
         >>> edbapp.core_components.set_component_model("A1", model_type="Spice", modelpath="pathtospfile", modelname="spicemodelname")
         """
@@ -478,7 +461,7 @@ class Components(object):
                         pinNames.remove(pinNames[0])
                         break
             if len(pinNames) == pinNumber:
-                spiceMod = self.edb.Cell.Hierarchy.SPICEModel()
+                spiceMod = self._edb.Cell.Hierarchy.SPICEModel()
                 spiceMod.SetModelPath(modelpath)
                 spiceMod.SetModelName(modelname)
                 terminal = 1
@@ -488,23 +471,23 @@ class Components(object):
 
                 edbRlcComponentProperty.SetModel(spiceMod)
                 if not edbComponent.SetComponentProperty(edbRlcComponentProperty):
-                    self.messenger.add_error_message("Error Assigning the Touchstone model")
+                    self._messenger.add_error_message("Error Assigning the Touchstone model")
                     return False
             else:
-                self.messenger.add_error_message("Wrong number of Pins")
+                self._messenger.add_error_message("Wrong number of Pins")
                 return False
 
         elif model_type=="Touchstone":
 
             nPortModelName = modelname
             edbComponentDef = edbComponent.GetComponentDef()
-            nPortModel = self.edb.Definition.NPortComponentModel.FindByName(edbComponentDef, nPortModelName)
+            nPortModel = self._edb.Definition.NPortComponentModel.FindByName(edbComponentDef, nPortModelName)
             if nPortModel.IsNull():
-                nPortModel = self.edb.Definition.NPortComponentModel.Create(nPortModelName)
+                nPortModel = self._edb.Definition.NPortComponentModel.Create(nPortModelName)
                 nPortModel.SetReferenceFile(modelpath)
                 edbComponentDef.AddComponentModel(nPortModel)
 
-            sParameterMod = self.edb.Cell.Hierarchy.SParameterModel()
+            sParameterMod = self._edb.Cell.Hierarchy.SParameterModel()
             sParameterMod.SetComponentModelName(nPortModel)
             gndnets=filter(lambda x: 'gnd' in x.lower(), componentNets)
             if len(gndnets)>0:
@@ -515,7 +498,7 @@ class Components(object):
             sParameterMod.SetReferenceNet(net)
             edbRlcComponentProperty.SetModel(sParameterMod)
             if not edbComponent.SetComponentProperty(edbRlcComponentProperty):
-                self.messenger.add_error_message("Error Assigning the Touchstone model")
+                self._messenger.add_error_message("Error Assigning the Touchstone model")
                 return False
         return True
 
@@ -529,7 +512,7 @@ class Components(object):
         pins : list
             List of EDB core pins.
         group_name : str, optional
-            Name for the group. The default is ``None``. If ``None``,
+            Name for the group. The default is ``None``, in which case 
             a default name is assigned as follows: ``[component Name] [NetName]``
 
         Returns
@@ -539,19 +522,18 @@ class Components(object):
 
         Examples
         --------
-        >>> from pyaedt import EDB
+        >>> from pyaedt import Edb
         >>> edbapp = Edb("myaedbfolder")
-        >>> edbapp.core_components.create_pingroup_from_pins(gndpinlist, "MyGNDPingroup")
-        
+        >>> edbapp.core_components.create_pingroup_from_pins(gndpinlist, "MyGNDPingroup")  
         """
         if len(pins) < 1:
-            self.messenger.add_error_message('No pins specified for pin group {}'.format(group_name))
+            self._messenger.add_error_message('No pins specified for pin group {}'.format(group_name))
             return (False, None)
         if group_name is None:
             cmp_name = pins[0].GetComponent().GetName()
             net_name = pins[0].GetNet().GetName()
             group_name = "{}_{}_{}".format(cmp_name, net_name, random.randint(0, 100))
-        pingroup = self.edb.Cell.Hierarchy.PinGroup.Create(self.parent.active_layout, group_name, convert_py_list_to_net_list(pins))
+        pingroup = self._edb.Cell.Hierarchy.PinGroup.Create(self._active_layout, group_name, convert_py_list_to_net_list(pins))
         if pingroup.IsNull():
             return (False, None)
         else:
@@ -566,6 +548,8 @@ class Components(object):
         Returns
         -------
         list
+           List of deleted RLC components.
+             
 
         Examples
         --------
@@ -574,7 +558,6 @@ class Components(object):
         >>> edbapp = Edb("myaedbfolder")
         >>> list_of_deleted_rlcs = edbapp.core_components.delete_single_pin_rlc()
         >>> print(list_of_deleted_rlcs)
-        
         """
         deleted_comps = []
         for comp, val in self.components.items():
@@ -583,7 +566,7 @@ class Components(object):
                 if edb_cmp is not None:
                     edb_cmp.Delete()
                     deleted_comps.append(comp)
-                    self.parent.messenger.add_info_message("Component {} deleted".format(comp))
+                    self.parent._messenger.add_info_message("Component {} deleted".format(comp))
         for el in deleted_comps:
             del self.components[el]
         return deleted_comps
@@ -595,7 +578,7 @@ class Components(object):
         Parameters
         ----------
         component_name : str
-            Name of component to delete.
+            Name of component.
 
         Returns
         -------
@@ -607,8 +590,7 @@ class Components(object):
         
         >>> from pyaedt import Edb
         >>> edbapp = Edb("myaedbfolder")
-        >>> edbapp.core_components.delete_component("A1")
-        
+        >>> edbapp.core_components.delete_component("A1") 
         """
         edb_cmp = self.get_component_by_name(component_name)
         if edb_cmp is not None:
@@ -626,7 +608,7 @@ class Components(object):
         Parameters
         ----------
         component_name : str
-            Name of the component to disable.
+            Name of the component.
 
         Returns
         -------
@@ -636,7 +618,7 @@ class Components(object):
         Examples
         --------
 
-        >>> from pyaedt import EDB
+        >>> from pyaedt import Edb
         >>> edbapp = Edb("myaedbfolder")
         >>> edbapp.core_components.disable_rlc_component("A1")
         
@@ -662,15 +644,15 @@ class Components(object):
         Parameters
         ----------
         componentname :
-            Name of component to update.
+            Name of the component to update.
         res_value : float, optional
             Resistance value. The default is ``None``.
-        ind_value : optional
+        ind_value : float, optional
             Inductor value.  The default is ``None``.
-        cap_value : optional
+        cap_value : float optional
             Capacitor value.  The default is ``None``.
-        isparallel :
-            boolean (Default value = False)
+        isparallel : bool, optional
+            Whether the RLC component is parallel. The default is ``False``.
 
         Returns
         -------
@@ -680,14 +662,13 @@ class Components(object):
         Examples
         --------
         
-        >>> from pyaedt import EDB
+        >>> from pyaedt import Edb
         >>> edbapp = Edb("myaedbfolder")
         >>> edbapp.core_components.set_component_rlc("R1", res_value=50, ind_value=1e-9, cap_value=1e-12, isparallel=False)
-
         """
         edbComponent = self.get_component_by_name(componentname)
         componentType = edbComponent.GetComponentType()
-        edbRlcComponentProperty = self.edb.Cell.Hierarchy.RLCComponentProperty()
+        edbRlcComponentProperty = self._edb.Cell.Hierarchy.RLCComponentProperty()
         componentPins = self.get_pin_from_component(componentname)
         pinNumber = len(componentPins)
         if pinNumber == 2:
@@ -695,30 +676,30 @@ class Components(object):
             toPin = componentPins[1]
             if res_value is None and ind_value is None and cap_value is None:
                 return False
-            rlc = self.edb.Utility.Rlc()
+            rlc = self._edb.Utility.Rlc()
             rlc.IsParallel = isparallel
             if res_value is not None:
                 rlc.REnabled = True
-                rlc.R = self.edb_value(res_value)
+                rlc.R = self._edb_value(res_value)
             if ind_value is not None:
                 rlc.LEnabled = True
-                rlc.L = self.edb_value(ind_value)
+                rlc.L = self._edb_value(ind_value)
             if cap_value is not None:
                 rlc.CEnabled = True
-                rlc.C = self.edb_value(cap_value)
-            pinPair = self.edb.Utility.PinPair(fromPin.GetName(), toPin.GetName())
-            rlcModel = self.edb.Cell.Hierarchy.PinPairModel()
+                rlc.C = self._edb_value(cap_value)
+            pinPair = self._edb.Utility.PinPair(fromPin.GetName(), toPin.GetName())
+            rlcModel = self._edb.Cell.Hierarchy.PinPairModel()
             rlcModel.SetPinPairRlc(pinPair, rlc)
             if not edbRlcComponentProperty.SetModel(rlcModel) or not edbComponent.SetComponentProperty(
                     edbRlcComponentProperty):
-                self.messenger.add_error_message('Failed to set RLC model on component')
+                self._messenger.add_error_message('Failed to set RLC model on component')
                 return False
         else:
-            self.messenger.add_warning_message(
-                "Component {} has been not assigned because it is not present in layout or it contains a number of pins  not equal to 2".format(
+            self._messenger.add_warning_message(
+                "Component {} has been not assigned because it is not present in the layout or it contains a number of pins not equal to 2".format(
                     componentname))
             return False
-        self.messenger.add_warning_message("RLC Properties for Component {} has been assigned".format(componentname))
+        self._messenger.add_warning_message("RLC properties for Component {} has been assigned.".format(componentname))
         return True
 
     @aedt_exception_handler
@@ -728,18 +709,16 @@ class Components(object):
         
         Parameters
         ----------
-        bom_file :
-            Full path to the BOM file.
-            .. note::
-               The BOM file is a delimited text file. Header values needed inside the BOM reader must 
-               be explicitly set if different from the defaults.
+        bom_file : str
+            Full path to the BOM file, which is a delimited text file. 
+            Header values needed inside the BOM reader must
+            be explicitly set if different from the defaults.
         delimiter : str, optional
             Value to use for the delimiter. The default is ``";"``.
         valuefield : str, optional
             Field header containing the value of the component. The default is ``"Func des"``.
-            .. note::
-               ``valuefield`` must contain the value of the component at beginning of the value 
-               followed by a space and then the rest of the value. For example, ``"22pF"``. 
+            The value for this parameter must being with the value of the component 
+            followed by a space and then the rest of the value. For example, ``"22pF"``.
         comptype : str, optional
             Field header containing the type of component. The default is ``"Prod name"``. For 
             example, you might enter ``"Inductor"``.
@@ -750,9 +729,8 @@ class Components(object):
         Returns
         -------
         bool
-            ``True`` if the file contains the header and it is correctly parsed. The method 
+            ``True`` if the file contains the header and it is correctly parsed. The method
             returns ``True`` even if no values are assigned.
-
         """
         with open(bom_file, 'r') as f:
             Lines = f.readlines()
@@ -783,7 +761,7 @@ class Components(object):
 
     @aedt_exception_handler
     def get_pin_from_component(self, cmpName, netName=None, pinName=None):
-        """List the pins of a component.
+        """Retrieve the pins of a component.
 
         Parameters
         ----------
@@ -804,24 +782,23 @@ class Components(object):
 
         >>> from pyaedt import Edb
         >>> edbapp = Edb("myaedbfolder", "project name", "release version")
-        >>> edbapp.core_components.get_pin_from_component("R1", refdes, optional:str nets, optional: str pins)
-
+        >>> edbapp.core_components.get_pin_from_component("R1", refdes)
         """
 
-        cmp = self.edb.Cell.Hierarchy.Component.FindByName(self.active_layout, cmpName)
+        cmp = self._edb.Cell.Hierarchy.Component.FindByName(self._active_layout, cmpName)
         if netName:
             pins = [p for p in cmp.LayoutObjs if
-                    p.GetObjType() == self.edb.Cell.LayoutObjType.PadstackInstance and
+                    p.GetObjType() == self._edb.Cell.LayoutObjType.PadstackInstance and
                     p.IsLayoutPin() and
                     p.GetNet().GetName() == netName]
         elif pinName:
             pins = [p for p in cmp.LayoutObjs if
-                    p.GetObjType() == self.edb.Cell.LayoutObjType.PadstackInstance and
+                    p.GetObjType() == self._edb.Cell.LayoutObjType.PadstackInstance and
                     p.IsLayoutPin() and
                     (self.get_aedt_pin_name(p) == str(pinName) or p.GetName()==str(pinName))]
         else:
             pins = [p for p in cmp.LayoutObjs if
-                    p.GetObjType() == self.edb.Cell.LayoutObjType.PadstackInstance and
+                    p.GetObjType() == self._edb.Cell.LayoutObjType.PadstackInstance and
                     p.IsLayoutPin()]
         return pins
 
@@ -861,7 +838,7 @@ class Components(object):
 
     @aedt_exception_handler
     def get_pin_position(self, pin):
-        """Retrieve the pin position x, y in meters.
+        """Retrieve the pin position in meters.
 
         Parameters
         ----------
@@ -879,24 +856,23 @@ class Components(object):
         >>> from pyaedt import Edb
         >>> edbapp = Edb("myaedbfolder", "project name", "release version")
         >>> edbapp.core_components.get_pin_position(pin)
-        """
-        
+        """ 
         if is_ironpython:
             res, pt_pos, rot_pos = pin.GetPositionAndRotation()
         else:
             res, pt_pos, rot_pos = pin.GetPositionAndRotation(
-                self.edb.Geometry.PointData(self.edb_value(0.0), self.edb_value(0.0)), .0)
+                self._edb.Geometry.PointData(self._edb_value(0.0), self._edb_value(0.0)), .0)
         if pin.GetComponent().IsNull():
             transformed_pt_pos = pt_pos
         else:
             transformed_pt_pos = pin.GetComponent().GetTransform().TransformPoint(pt_pos)
-        pin_xy = self.edb.Geometry.PointData(self.edb_value(str(transformed_pt_pos.X.ToDouble())),
-                                             self.edb_value(str(transformed_pt_pos.Y.ToDouble())))
+        pin_xy = self._edb.Geometry.PointData(self._edb_value(str(transformed_pt_pos.X.ToDouble())),
+                                             self._edb_value(str(transformed_pt_pos.Y.ToDouble())))
         return [pin_xy.X.ToDouble(), pin_xy.Y.ToDouble()]
 
     @aedt_exception_handler
     def get_pins_name_from_net(self, pin_list, net_name):
-        """List pins belonging to a net.
+        """Retrieve pins belonging to a net.
 
         Parameters
         ----------
@@ -908,15 +884,14 @@ class Components(object):
         Returns
         -------
         list
-            List of pins
+            List of pins belong to the net.
 
         Examples
         --------
 
         >>> from pyaedt import Edb
         >>> edbapp = Edb("myaedbfolder", "project name", "release version")
-        >>> edbapp.core_components.get_pins_name_from_net(pin_list, net_name)
-        
+        >>> edbapp.core_components.get_pins_name_from_net(pin_list, net_name)      
         """
         pinlist = []
         for pin in pin_list:
@@ -926,16 +901,16 @@ class Components(object):
 
     @aedt_exception_handler
     def get_nets_from_pin_list(self, PinList):
-        """List nets of a pin or pin list.
+        """Retrieve nets of one or more pins.
 
         Parameters
         ----------
-        PinList :
+        PinList : list
             List of pins.
 
         Returns
         -------
-        List
+        list
             List of nets.
 
         Examples
@@ -963,7 +938,7 @@ class Components(object):
         -------
         dict
             Dictionary of the reference designator, pin names, and net
-            names for the specified reference designator.
+            names for the reference designator.
 
         Examples
         --------
@@ -971,7 +946,6 @@ class Components(object):
         >>> from pyaedt import Edb
         >>> edbapp = Edb("myaedbfolder", "project name", "release version")
         >>> edbapp.core_components.get_component_net_connection_info(refdes)
-
         """
         component_pins = self.get_pin_from_component(refdes)
         data = {"refdes":[], "pin_name":[], "net_name":[]}
@@ -985,7 +959,7 @@ class Components(object):
         return data
 
     def get_rats(self):
-        """Return a list of dictionaries of the reference designator, pin names, and net names.
+        """Retrieve a list of dictionaries of the reference designator, pin names, and net names.
         
         Returns
         -------
@@ -999,7 +973,6 @@ class Components(object):
         >>> from pyaedt import Edb
         >>> edbapp = Edb("myaedbfolder", "project name", "release version")
         >>> edbapp.core_components.get_rats()
-
         """
         df_list = []
         for refdes in self.components.keys():
@@ -1007,10 +980,8 @@ class Components(object):
             df_list.append(df)
         return df_list
 
-
-
     def get_through_resistor_list(self, threshold=1):
-        """
+        """Retrieve through resistors.
 
         Parameters
         ----------
@@ -1020,6 +991,7 @@ class Components(object):
         Returns
         -------
         list
+            List of through resistors.
 
         Examples
         ---------

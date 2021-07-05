@@ -19,6 +19,7 @@ Application Objects
    HFSS3DLayout
    Mechanical
    RMxprt
+   Emit
 
 
 **Diagram**

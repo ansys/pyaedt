@@ -1,17 +1,5 @@
 """
-Boundary Class
-----------------------------------------------------------------
-
-
-Description
-==================================================
-
-This class contains all the AEDT Boundaries Functionalities embedded in object
-
-
-
-========================================================
-
+This module contains these classes: ``BoundaryCommon`` and ``BoundaryObject``.
 """
 from collections import OrderedDict
 from ..generic.general_methods import aedt_exception_handler
@@ -22,15 +10,15 @@ class BoundaryCommon(object):
     @aedt_exception_handler
     def _get_args(self, props=None):
         """
-
         Parameters
         ----------
         props :
-             (Default value = None)
+             The default is ``None``.
 
         Returns
         -------
-
+        bool
+            ``True`` when successful, ``False`` when failed.
         """
         if not props:
             props = self.props
@@ -63,11 +51,12 @@ class BoundaryObject(BoundaryCommon, object):
         Parameters
         ----------
         props :
-             (Default value = None)
+            The default is ``None``.
 
         Returns
         -------
-
+        type
+            
         """
         if props is None:
             props = self.props
@@ -77,15 +66,12 @@ class BoundaryObject(BoundaryCommon, object):
 
     @aedt_exception_handler
     def create(self):
-        """Create Boundary
+        """Create a boundary.
         
-        :return:Bool
-
-        Parameters
-        ----------
-
         Returns
         -------
+        bool
+            ``True`` when successful, ``False`` when failed.
 
         """
         if self.type == "PerfectE":
@@ -150,6 +136,8 @@ class BoundaryObject(BoundaryCommon, object):
             self._parent.oboundary.AssignGrilleBoundary(self._get_args())
         elif self.type == 'Block':
             self._parent.oboundary.AssignBlockBoundary(self._get_args())
+        elif self.type == 'SourceIcepak':
+            self._parent.oboundary.AssignSourceBoundary(self._get_args())
         elif self.type == 'Opening':
             self._parent.oboundary.AssignOpeningBoundary(self._get_args())
         elif self.type == 'EMLoss':
@@ -202,16 +190,12 @@ class BoundaryObject(BoundaryCommon, object):
 
     @aedt_exception_handler
     def update(self):
-        """Update current boundary
-        
-        
-        :return: Bool
-
-        Parameters
-        ----------
-
+        """Update the current boundary.
+                
         Returns
         -------
+        bool
+            ``True`` when successful, ``False`` when failed.
 
         """
         if self.type == "PerfectE":
@@ -280,6 +264,8 @@ class BoundaryObject(BoundaryCommon, object):
             self._parent.oboundary.EditEMLoss(self.name, self._get_args())
         elif self.type == 'Block':
             self._parent.oboundary.EditBlockBoundary(self.name,self._get_args())
+        elif self.type == 'SourceIcepak':
+            self._parent.oboundary.EditSourceBoundary(self._get_args())
         elif self.type == "Voltage":
             self._parent.oboundary.EditVoltage(self.name, self._get_args())
         elif self.type == "VoltageDrop":
@@ -329,4 +315,3 @@ class BoundaryObject(BoundaryCommon, object):
             return False
         return True
     
-

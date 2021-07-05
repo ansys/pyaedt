@@ -20,7 +20,7 @@ class FieldAnalysis2D(Analysis):
 
     """
     def __init__(self, application, projectname, designname, solution_type, setup_name=None,
-                 specified_version=None, NG=False, AlwaysNew=True, release_on_exit=True):
+                 specified_version=None, NG=False, AlwaysNew=False, release_on_exit=False):
 
 
         Analysis.__init__(self, application, projectname, designname, solution_type, setup_name,

@@ -13,9 +13,9 @@ Log the three types of messages
 
 >>> from pyaedt.hfss import Hfss
 >>> hfss = Hfss()
->>> hfss.messenger.add_info_message("This is an info Message on Design", "Design")
->>> hfss.messenger.add_warning_message("This is a global warning Message", "Global")
->>> hfss.messenger.add_error_message("This is a Project Error Message", "Project")
+>>> hfss._messenger.add_info_message("This is an info Message on Design", "Design")
+>>> hfss._messenger.add_warning_message("This is a global warning Message", "Global")
+>>> hfss._messenger.add_error_message("This is a Project Error Message", "Project")
 
 
 """
@@ -59,7 +59,7 @@ class MessageList:
         List of strings representing the message content for the specified design within the specified project
 
     """
-    def __init__(self, msg_list, project_name, design_name, solution_type):
+    def __init__(self, msg_list, project_name, design_name):
         self.global_level = []
         self.project_level = []
         self.design_level = []
@@ -137,12 +137,7 @@ class AEDTMessageManager(object):
 
         """
         global_message_data = self._desktop.GetMessages("", "", 0)
-        try:
-            sol_type = self._odesign.GetSolutionType()
-        except AttributeError:
-            sol_type = ""
-
-        message_data = MessageList(global_message_data, project_name, design_name, sol_type)
+        message_data = MessageList(global_message_data, project_name, design_name)
         return message_data
 
     @aedt_exception_handler
@@ -162,7 +157,7 @@ class AEDTMessageManager(object):
         --------
         Add an error message to the desktop message manager
 
-        >>> hfss.messenger.add_error_message("Project Error Message", "Project")
+        >>> hfss._messenger.add_error_message("Project Error Message", "Project")
 
         """
         self.add_message(2, message_text, level)
@@ -183,7 +178,7 @@ class AEDTMessageManager(object):
         --------
         Add a warning message to the desktop message manager
 
-        >>> hfss.messenger.add_warning_message("Project warning message")
+        >>> hfss._messenger.add_warning_message("Project warning message")
 
         """
         self.add_message(1, message_text, level)
@@ -205,7 +200,7 @@ class AEDTMessageManager(object):
         --------
         Add a info message at the global level.
 
-        >>> hfss.messenger.add_info_message("Global warning message", "Global")
+        >>> hfss._messenger.add_info_message("Global warning message", "Global")
 
         """
         self.add_message(0, message_text, level)

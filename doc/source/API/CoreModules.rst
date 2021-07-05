@@ -11,7 +11,8 @@ This section contains information about PyAEDT application modules:
 #. Design
 #. Variables
 #. Analysis
-#. modeler
+#. Modeler
+#. Objects
 #. DesignXPloration
 
 
@@ -34,6 +35,10 @@ The ``Analysis`` module contains all properties and methods needed to set up and
 The ``Modeler`` module contains all properties and methods needed to edit a modeler, 
 including all primitives methods and properties.
 
+**Objects**
+
+Object Classes contain all the properties and methods needed to edit geometric entities
+
 **DesignXploration**
 
 The ``DesignXploration`` module contain all properties and methods needed to create any optimetrics setup.
@@ -46,6 +51,7 @@ The ``DesignXploration`` module contain all properties and methods needed to cre
 
    AnalysisCore
    ModelerCore
+   ObjectCore
    Design
    Variables
    DesignXPlorer

@@ -13,29 +13,33 @@ except ImportError:
 
 
 class EdbNets(object):
-    """Edb Net object"""
+    """EdbNets class"""
+
+    def __init__(self, parent):
+        self.parent = parent
+
     @property
-    def builder(self):
+    def _builder(self):
         """ """
         return self.parent.builder
 
     @property
-    def edb(self):
+    def _edb(self):
         """ """
         return self.parent.edb
 
     @property
-    def edb_value(self):
+    def _edb_value(self):
         """ """
         return self.parent.edb_value
 
     @property
-    def active_layout(self):
+    def _active_layout(self):
         """ """
         return self.parent.active_layout
 
     @property
-    def cell(self):
+    def _cell(self):
         """ """
         return self.parent.cell
 
@@ -45,44 +49,59 @@ class EdbNets(object):
         return self.parent.db
 
     @property
-    def padstack_methods(self):
+    def _padstack_methods(self):
         """ """
         return self.parent.edblib.Layout.PadStackMethods
 
     @property
-    def messenger(self):
+    def _messenger(self):
         """ """
-        return self.parent.messenger
-
-    def __init__(self, parent):
-        self.parent = parent
+        return self.parent._messenger
 
     @property
-    def nets_methods(self):
+    def _nets_methods(self):
         """ """
         return self.parent.edblib.Layout.NetsMethods
 
     @property
     def nets(self):
-        """:return: Dictionary of Nets"""
-        if self.builder:
-            return convert_netdict_to_pydict(self.nets_methods.GetNetDict(self.builder))
+        """Nets.
+        
+        Returns
+        -------
+        dict
+            Dictionary of nets.
+        """
+        if self._builder:
+            return convert_netdict_to_pydict(self._nets_methods.GetNetDict(self._builder))
 
     @property
     def signal_nets(self):
-        """:return:Dictionary of Signal Nets"""
-        if self.builder:
-            return convert_netdict_to_pydict(self.nets_methods.GetSignalNetDict(self.builder))
+        """Signal nets.
+        
+        Return
+        ------
+        dict
+            Dictionary of signal nets.
+        """
+        if self._builder:
+            return convert_netdict_to_pydict(self._nets_methods.GetSignalNetDict(self._builder))
 
     @property
     def power_nets(self):
-        """:return:Dictionary of Power Nets"""
-        if self.builder:
-            return convert_netdict_to_pydict(self.nets_methods.GetPowerNetDict(self.builder))
+        """Power nets.
+        
+        Returns
+        -------
+        dict
+            Dictionary of power nets.
+        """
+        if self._builder:
+            return convert_netdict_to_pydict(self._nets_methods.GetPowerNetDict(self._builder))
 
     @aedt_exception_handler
     def is_power_gound_net(self, netname_list):
-        """Return a True if one of the net in the list is power or ground
+        """Determine if one of the  nets in a list is power or ground.
 
         Parameters
         ----------
@@ -92,14 +111,13 @@ class EdbNets(object):
         Returns
         -------
         bool
-            ``True`` if one of the net names is ``"power"`` or ``"ground"``.
-
+            ``True`` when one of the net names is ``"power"`` or ``"ground"``, ``False`` otherwise.
         """
-        if self.builder:
-            return self.nets_methods.IsPowerGroundNetInList(self.builder, netname_list)
+        if self._builder:
+            return self._nets_methods.IsPowerGroundNetInList(self._builder, netname_list)
 
     def get_dcconnected_net_list(self, ground_nets=["GND"]):
-        """List the nets connected to DC through inductors.
+        """Retrieve the nets connected to DC through inductors.
         
         .. note::
            Only inductors are considered.
@@ -112,8 +130,7 @@ class EdbNets(object):
         Returns
         -------
         list
-            List of DC connected nets. 
-
+            List of nets connected to DC through inductors. 
         """
         temp_list = []
         for refdes, comp_obj in self.parent.core_components.inductors.items():
@@ -143,12 +160,12 @@ class EdbNets(object):
         return dcconnected_net_list
 
     def get_powertree(self, power_net_name, ground_nets):
-        """
+        """Retrieve the power tree.
 
         Parameters
         ----------
-        power_net_name :
-            
+        power_net_name : str
+            Name of the power net.
         ground_nets :
             
 
@@ -189,18 +206,18 @@ class EdbNets(object):
 
     @aedt_exception_handler
     def get_net_by_name(self, net_name):
-        edb_net = self.parent.edb.Cell.Net.FindByName(self.active_layout, net_name)
+        edb_net = self._edb.Cell.Net.FindByName(self._active_layout, net_name)
         if edb_net is not None:
             return edb_net
 
     @aedt_exception_handler
     def delete_nets(self, netlist):
-        """Delete nets from EDB.
+        """Delete one or more nets from EDB.
        
         Parameters
         ----------
         netlist : str or list
-            The one or more nets to delete.
+            One or more nets to delete.
 
         Returns
         -------
@@ -211,25 +228,24 @@ class EdbNets(object):
         --------
         
         >>> deleted_nets = edb_core.core_nets.delete_nets(["Net1","Net2"])
-        
         """
         if type(netlist) is str:
             netlist=[netlist]
         nets_deleted =[]
         for net in netlist:
             try:
-                edb_net = self.edb.Cell.Net.FindByName(self.active_layout, net)
+                edb_net = self._edb.Cell.Net.FindByName(self._active_layout, net)
                 if edb_net is not None:
                     edb_net.Delete()
                     nets_deleted.append(net)
-                    self.parent.messenger.add_info_message("Net {} Deleted".format(net))
+                    self._messenger.add_info_message("Net {} Deleted".format(net))
             except:
                 pass
 
         return nets_deleted
 
     def find_or_create_net(self, net_name=''):
-        """Return the net with the given name in the layout or create it and return it.
+        """Find or create the net with the given name in the layout.
 
         Parameters
         ----------
@@ -242,10 +258,9 @@ class EdbNets(object):
             Net Object
         """
 
-        net = self.edb.Cell.Net.FindByName(self.active_layout, net_name)
+        net = self._edb.Cell.Net.FindByName(self._active_layout, net_name)
         if net.IsNull():
-            net = self.edb.Cell.Net.Create(self.active_layout, net_name)
+            net = self._edb.Cell.Net.Create(self._active_layout, net_name)
         return net
-
 
 

@@ -2,7 +2,9 @@ import os
 # Setup paths for module imports
 from .conftest import local_path, scratch_path
 import gc
+import pytest
 import time
+
 # Import required modules
 from pyaedt import Hfss3dLayout
 from pyaedt.generic.filesystem import Scratch
@@ -13,6 +15,7 @@ class Test3DLayoutEDB:
     def setup_class(self):
         with Scratch(scratch_path) as self.local_scratch:
             try:
+                pass
                 example_project = os.path.join(local_path, 'example_models', test_project_name + '.aedt')
 
                 self.test_project = self.local_scratch.copyfile(example_project)
@@ -66,4 +69,6 @@ class Test3DLayoutEDB:
         setup2 = self.aedtapp.mesh.assign_skin_depth("HFSS", "PWR", "GND")
         assert setup1
         assert setup2
+        setup1.props["Enabled"] = False
+        assert setup1.update()
         assert self.aedtapp.mesh.delete_mesh_operations("HFSS", setup1.name)

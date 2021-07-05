@@ -1,32 +1,5 @@
-# -*- coding: utf-8 -*-
-"""
-This module contains all Circuit functionalities in the ``Circuit`` class.
-
-
-Examples
---------
-
-Create an instance of ``Circuit`` and connect to an existing HFSS design or create a new HFSS design if one does not exist.
-
->>> aedtapp = Circuit()
-
-Create an instance of ``Circuit`` and link to a project named ``projectname``. If this project does not exist, create one with this name.
-
->>> aedtapp = Circuit(projectname)
-
-Create an instance of ``Circuit`` and link to a design named ``designname`` in a project named ``projectname``.
-
->>> aedtapp = Circuit(projectname,designame)
-
-Create an instance of ``Circuit`` and open the specified project, which is ``myfie.aedt``.
-
->>> aedtapp = Circuit("myfile.aedt")
-
-Create an instance of ``Circuit`` using the 2021 R1 version and open the specified project, which is ``myfie.aedt``.
-
->>> aedtapp = Circuit(specified_version="2021.1", projectname="myfile.aedt")
-
-"""
+# -*- coding: utf-8 -*
+"""This module contains the ``Circuit`` class."""
 
 from __future__ import absolute_import
 import math
@@ -181,39 +154,73 @@ def from_rkm_to_aedt(code):
 
 
 class Circuit(FieldAnalysisCircuit, object):
-    """Circuit object.
+    """Circuit application interface.
 
     Parameters
     ----------
     projectname : str, optional
-        Name of the project to select or the full path to the project or AEDTZ archive to open. 
-        The default is ``None``. If ``None``, try to get an active project and, if no projects are present, 
-        create an empty project.
+        Name of the project to select or the full path to the project
+        or AEDTZ archive to open.  The default is ``None``. If
+        ``None``, try to get an active project and, if no projects are
+        present, create an empty project.
     designname : str, optional
-        Name of the design to select. The default is ``None``. If ``None``, try to get an active design and, 
-        if no designs are present, create an empty design.
+        Name of the design to select. The default is ``None``. If
+        ``None``, try to get an active design and, if no designs are
+        present, create an empty design.
     solution_type : str, optional
-        Solution type to apply to the design. The default is ``None``. If ``None``, the default type is applied.
+        Solution type to apply to the design. The default is
+        ``None``. If ``None``, the default type is applied.
     setup_name : str, optional
-        Name of the setup to use as the nominal. The default is ``None``. If ``None``, the active setup 
-        is used or nothing is used.
+        Name of the setup to use as the nominal. The default is
+        ``None``. If ``None``, the active setup is used or nothing is
+        used.
     specified_version: str, optional
-        Version of AEDT to use. The default is ``None``. If ``None``, the
-        active setup is used or the latest installed version is used.
+        Version of AEDT to use. The default is ``None``. If ``None``,
+        the active setup is used or the latest installed version is
+        used.
     NG: bool, optional
-        Whether to launch AEDT in the non-graphical mode. The default 
+        Whether to launch AEDT in the non-graphical mode. The default
         is ``False``, which launches AEDT in the graphical mode.
     AlwaysNew: bool, optional
-        Whether to launch an instance of AEDT in a new thread, even if 
-        another instance of the ``specified_version`` is active on the machine.
-        The default is ``True``.
+        Whether to launch an instance of AEDT in a new thread, even if
+        another instance of the ``specified_version`` is active on the
+        machine.  The default is ``True``.
     release_on_exit: bool, optional
         Whether to release AEDT on exit. The default is ``True``.
+
+    Examples
+    --------
+    Create an instance of ``Circuit`` and connect to an existing HFSS
+    design or create a new HFSS design if one does not exist.
+
+    >>> from pyaedt import Circuit
+    >>> aedtapp = Circuit()
+
+    Create an instance of ``Circuit`` and link to a project named
+    ``projectname``. If this project does not exist, create one with
+    this name.
+
+    >>> aedtapp = Circuit(projectname)
+
+    Create an instance of ``Circuit`` and link to a design named
+    ``designname`` in a project named ``projectname``.
+
+    >>> aedtapp = Circuit(projectname,designame)
+
+    Create an instance of ``Circuit`` and open the specified project,
+    which is ``myfie.aedt``.
+
+    >>> aedtapp = Circuit("myfile.aedt")
+
+    Create an instance of ``Circuit`` using the 2021 R1 version and
+    open the specified project, which is ``myfie.aedt``.
+
+    >>> aedtapp = Circuit(specified_version="2021.1", projectname="myfile.aedt")
 
     """
 
     def __init__(self, projectname=None, designname=None, solution_type=None, setup_name=None,
-                 specified_version=None, NG=False, AlwaysNew=True, release_on_exit=True):
+                 specified_version=None, NG=False, AlwaysNew=False, release_on_exit=False):
         FieldAnalysisCircuit.__init__(self, "Circuit Design", projectname, designname, solution_type, setup_name,
                                       specified_version, NG, AlwaysNew, release_on_exit)
 

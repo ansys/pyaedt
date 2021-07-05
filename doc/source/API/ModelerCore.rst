@@ -9,11 +9,6 @@ Modeler
 
 **Diagram**
 
-.. inheritance-diagram:: pyaedt.modeler.Modeler pyaedt.modeler.Model3D pyaedt.modeler.Model2D pyaedt.modeler.Model3DLayout
-   :parts: 1
-
-
-
 .. toctree::
    :maxdepth: 2
    :caption: The ``Modeler`` application module includes these classes:

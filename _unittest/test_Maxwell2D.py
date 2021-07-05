@@ -51,7 +51,7 @@ class TestMaxwell2D:
 
     def test_05_create_poly(self):
         udp = [self.aedtapp.modeler.Position(0, 0, 0),self.aedtapp.modeler.Position(10, 5, 0)]
-        id1 = self.aedtapp.modeler.primitives.draw_polyline(udp, name="Ellipse1", matname="copper")
+        id1 = self.aedtapp.modeler.primitives.create_polyline(udp, name="Ellipse1", matname="copper")
         assert isinstance(id1, Polyline)
 
 
@@ -71,7 +71,7 @@ class TestMaxwell2D:
         bounds = self.aedtapp.assign_vector_potential(self.aedtapp.modeler.primitives["Rectangle1"].edges[0].id, 3)
         assert bounds
         assert bounds.props["Value"] == "3"
-        line = self.aedtapp.modeler.primitives.draw_polyline([[0,0,0],[1,0,1]],name="myline")
+        line = self.aedtapp.modeler.primitives.create_polyline([[0, 0, 0], [1, 0, 1]], name="myline")
         bound2 = self.aedtapp.assign_vector_potential("myline", 2)
         assert bound2
         assert bound2.props["Value"] == "2"

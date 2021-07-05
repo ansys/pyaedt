@@ -22,7 +22,7 @@ class FieldAnalysisIcepak(Analysis, object):
 
     """
     def __init__(self, application, projectname, designname, solutiontype, setup_name=None,
-                 specified_version=None, NG=False, AlwaysNew=True, release_on_exit=True):
+                 specified_version=None, NG=False, AlwaysNew=False, release_on_exit=False):
         Analysis.__init__(self, application, projectname, designname, solutiontype, setup_name,
                           specified_version, NG, AlwaysNew, release_on_exit)
         self._modeler = Modeler3D(self)
@@ -354,7 +354,7 @@ class FieldAnalysisIcepak(Analysis, object):
         -------
 
         """
-        cond = [i.lower() for i in list(self.materials.GetConductors())]
+        cond = [i.lower() for i in list(self.materials.conductors)]
         obj_names = []
         for el in self.modeler.primitives.objects:
             if self.modeler.primitives.objects[el].material_name in cond:
@@ -375,7 +375,7 @@ class FieldAnalysisIcepak(Analysis, object):
         -------
 
         """
-        diel = [i.lower() for i in list(self.materials.GetDielectrics())]
+        diel = [i.lower() for i in list(self.materials.dielectrics)]
         obj_names = []
         for el in self.modeler.primitives.objects:
             if self.modeler.primitives.objects[el].material_name in diel:

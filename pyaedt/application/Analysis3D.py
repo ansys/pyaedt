@@ -23,13 +23,13 @@ class FieldAnalysis3D(Analysis, object):
 
     """
     def __init__(self, application, projectname, designname, solutiontype, setup_name=None,
-                 specified_version=None, NG=False, AlwaysNew=True, release_on_exit=True):
+                 specified_version=None, NG=False, AlwaysNew=False, release_on_exit=False):
         Analysis.__init__(self, application, projectname, designname, solutiontype, setup_name,
                           specified_version, NG, AlwaysNew, release_on_exit)
         self._modeler = Modeler3D(self)
         self._mesh = Mesh(self)
         #self._post = PostProcessor(self)
-        self.modeler.primitives.refresh()
+        #self.modeler.primitives.refresh()
 
     @property
     def modeler(self):
@@ -309,7 +309,7 @@ class FieldAnalysis3D(Analysis, object):
         -------
 
         """
-        cond = self.materials.GetConductors()
+        cond = self.materials.conductors
         cond = [i.lower() for i in cond]
         obj_names = []
         for el in self.modeler.primitives.objects:
@@ -331,7 +331,7 @@ class FieldAnalysis3D(Analysis, object):
         -------
 
         """
-        diel = self.materials.GetDielectrics()
+        diel = self.materials.dielectrics
         diel = [i.lower() for i in diel]
         obj_names = []
         for el in self.modeler.primitives.objects:

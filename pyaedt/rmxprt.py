@@ -1,26 +1,4 @@
-"""
-This module contains all RMxprt functionalities in the ``Rmxprt`` class.
-
-Examples
---------
-
-Create an instance of ``Rmxprt`` and connect to an existing RMxprt design or create a new RMxprt design if one does not exist.
-
->>> app = Rmxprt()
-
-Create an instance of ``Rmxprt`` and link to a project named ``"projectname"``. If this project does not exist, create one with this name.
-
->>> app = Rmxprt(projectname)
-
-Create an instance of ``RMxprt`` and link to a design named ``"designname"`` in a project named ``"projectname"``.
-
->>> app = Rmxprt(projectname,designame)
-
-Create an instance of ``RMxprt`` and open the specified project, which is ``myfile.aedt``.
-
->>> app = Rmxprt("myfile.aedt")
-
-"""
+"""This module contains these classes: ``Rmxprt`` and ``RMXprtModule``."""
 from __future__ import absolute_import
 from .application.Design import Design
 from .application.AnalysisRMxprt import FieldAnalysisRMxprt
@@ -122,39 +100,68 @@ class Rotor(RMXprtModule):
 
 
 class Rmxprt(FieldAnalysisRMxprt):
-    """RMxprt class.
+    """RMxprt application interface.
+
+    This class exposes functionality from RMxprt.
 
     Parameters
     ----------
     projectname : str, optional
-        Name of the project to select or the full path to the project or AEDTZ archive to open. 
-        The default is ``None``. If ``None``, try to get an active project and, if no projects are present, 
-        create an empty project.
+        Name of the project to select or the full path to the project
+        or AEDTZ archive to open.  The default is ``None``. If
+        ``None``, try to get an active project and, if no projects are
+        present, create an empty project.
     designname : str, optional
-        Name of the design to select. The default is ``None``. If ``None``, try to get an active design and, 
-        if no designs are present, create an empty design.
+        Name of the design to select. The default is ``None``. If
+        ``None``, try to get an active design and, if no designs are
+        present, create an empty design.
     solution_type : str, optional
-        Solution type to apply to the design. The default is ``None``. If ``None``, the default type is applied.
-    model_units : optional
-    
+        Solution type to apply to the design. The default is
+        ``None``. If ``None``, the default type is applied.
+    model_units : str, optional
+        Model units.
     setup_name : str, optional
-        Name of the setup to use as the nominal. The default is ``None``. If ``None``, the active setup 
-        is used or nothing is used.
+        Name of the setup to use as the nominal. The default is
+        ``None``. If ``None``, the active setup is used or nothing is
+        used.
     specified_version: str, optional
         The default is ``None``.
     NG : bool, optional
         Whether to run AEDT in the non-graphical mode. The default is``False``.  
     AlwaysNew : bool, optional
-    
+        Whether to launch an instance of AEDT in a new thread, even if
+        another instance of the ``specified_version`` is active on the
+        machine.  The default is ``True``.
     release_on_exit : bool, optional
-    
+        Release resources on exit.
 
-    -------
+    Examples
+    --------
+    Create an instance of ``Rmxprt`` and connect to an existing RMxprt
+    design or create a new RMxprt design if one does not exist.
 
+    >>> from pyaedt import Rmxprt
+    >>> app = Rmxprt()
+
+    Create an instance of ``Rmxprt`` and link to a project named
+    ``"projectname"``. If this project does not exist, create one with
+    this name.
+
+    >>> app = Rmxprt(projectname)
+
+    Create an instance of ``RMxprt`` and link to a design named
+    ``"designname"`` in a project named ``"projectname"``.
+
+    >>> app = Rmxprt(projectname,designame)
+
+    Create an instance of ``RMxprt`` and open the specified project,
+    which is ``myfile.aedt``.
+
+    >>> app = Rmxprt("myfile.aedt")
     """
 
     def __init__(self, projectname=None, designname=None, solution_type=None, model_units=None, setup_name=None,
-                 specified_version=None, NG=False, AlwaysNew=True, release_on_exit=True):
+                 specified_version=None, NG=False, AlwaysNew=False, release_on_exit=False):
         FieldAnalysisRMxprt.__init__(self, "RMxprtSolution", projectname, designname, solution_type, setup_name,
                                      specified_version, NG, AlwaysNew, release_on_exit)
         if not model_units or model_units == "mm":

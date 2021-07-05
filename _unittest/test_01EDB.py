@@ -46,11 +46,20 @@ class TestEDB:
         assert len(self.edbapp.core_components.IOs)>0
         assert len(self.edbapp.core_components.Others)>0
 
+    def test_get_primitives(self):
+        assert len(self.edbapp.core_primitives.polygons)>0
+        assert len(self.edbapp.core_primitives.paths)>0
+        assert len(self.edbapp.core_primitives.rectangles)>0
+        assert len(self.edbapp.core_primitives.circles)>0
+        assert len(self.edbapp.core_primitives.bondwires) == 0
+        assert len(self.edbapp.core_primitives.polygons_by_layer["TOP"])>0
+        assert len(self.edbapp.core_primitives.polygons_by_layer["UNNAMED_000"]) == 0
+
 
     def test_get_stackup(self):
         stackup = self.edbapp.core_stackup.stackup_layers
         assert (len(stackup.layers)>2)
-        assert  self.edbapp.core_stackup.stackup_layers["TOP"].builder
+        assert  self.edbapp.core_stackup.stackup_layers["TOP"]._builder
         assert  self.edbapp.core_stackup.stackup_layers["TOP"].id
         assert  isinstance(self.edbapp.core_stackup.stackup_layers["TOP"].layer_type, int)
 
@@ -334,7 +343,7 @@ class TestEDB:
 
     def test_create_cutout(self):
         output = os.path.join(self.local_scratch.path, "cutout.aedb")
-        assert self.edbapp.create_cutout(["A0_N", "A0_P"],["GND"], output_aedb_path=output)
+        assert self.edbapp.create_cutout(["A0_N", "A0_P"], ["GND"], output_aedb_path=output)
         assert os.path.exists(os.path.join(output, "edb.def"))
 
     def test_rvalue(self):
@@ -384,7 +393,7 @@ class TestEDB:
         path = self.edbapp.core_primitives.Shape('polygon', points=points)
         assert self.edbapp.core_primitives.create_path(path, "TOP")
 
-    def test_create_path(self):
+    def test_create_outline(self):
         assert self.edbapp.core_stackup.stackup_layers.add_outline_layer("Outline1")
         assert not self.edbapp.core_stackup.stackup_layers.add_outline_layer("Outline1")
 

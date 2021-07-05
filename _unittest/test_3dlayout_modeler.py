@@ -7,6 +7,7 @@ import gc
 
 # Import required modules
 from pyaedt import Hfss3dLayout
+from pyaedt.hfss3dlayout import SweepString
 from pyaedt.generic.filesystem import Scratch
 
 # Input Data and version for the test
@@ -24,11 +25,14 @@ class Test3DLayout:
         gc.collect()
 
     def test_01_creatematerial(self):
-        mymat = self.aedtapp.materials.creatematerial("myMaterial")
-        assert mymat.set_property_value(mymat.PropName.Permittivity, 4.1)
-        assert mymat.set_property_value("Conductivity", 100)
-        assert mymat.set_property_value("Young's Modulus", 1e10)
-        assert mymat.update()
+        mymat = self.aedtapp.materials.add_material("myMaterial")
+        mymat.permittivity = 4.1
+        mymat.conductivity =  100
+        mymat.youngs_modulus =  1e10
+        assert  mymat.permittivity.value == 4.1
+        assert  mymat.conductivity.value == 100
+        assert  mymat.youngs_modulus.value == 1e10
+        assert len(self.aedtapp.materials.material_keys) == 3
 
     def test_02_add_layer_to_stackup(self):
         s1 = self.aedtapp.modeler.layers.add_layer("Signal3", "signal", "0.035mm", "0mm")
@@ -62,7 +66,6 @@ class Test3DLayout:
     def test_08_objectlist(self):
         a = self.aedtapp.modeler.primitives.geometries
         assert len(a) > 0
-
 
     def test_09_modify_padstack(self):
         pad_0 = self.aedtapp.modeler.primitives.padstacks["PlanarEMVia"]
@@ -104,6 +107,7 @@ class Test3DLayout:
         setup_name = "RFBoardSetup"
         setup = self.aedtapp.create_setup(setupname=setup_name)
         assert setup.name == self.aedtapp.existing_analysis_setups[0]
+        assert setup.setup_type == "HFSS"
 
     def test_15_edit_setup(self):
         setup_name = "RFBoardSetup2"
@@ -197,3 +201,37 @@ class Test3DLayout:
 
     def test_duplicate(self):
         assert self.aedtapp.modeler.duplicate("myrectangle",2, [1,1])
+
+    def test_sweep_string_linear_step(self):
+        sweep_string = SweepString()
+        assert sweep_string.get_string() == None
+        sweep_string.add_sweep([10, 20, 1], "linear_step", "MHz")
+        result = sweep_string.get_string()
+        assert result == "LIN 10MHz 20MHz 1MHz"
+
+    def test_sweep_string_log_scale(self):
+        sweep_string = SweepString()
+        sweep_string.add_sweep([1, 1000, 100], "log_scale", "kHz")
+        result = sweep_string.get_string()
+        assert result == "DEC 1kHz 1000kHz 100"
+
+    def test_sweep_string_log_scale(self):
+        sweep_string = SweepString()
+        sweep_string.add_sweep([7, 13, 17, 19, 23], "single", "GHz")
+        result = sweep_string.get_string()
+        assert result == "7GHz 13GHz 17GHz 19GHz 23GHz"
+
+    def test_sweep_not_supported_type(self):
+        sweep_string = SweepString()
+        assert not sweep_string.add_sweep([7, 13, 17, 19, 23], "not_supported", "GHz")
+        
+    def test_create_pin_port(self):
+        assert self.aedtapp.create_pin_port("PinPort1")
+
+    def test_create_scattering(self):
+        assert self.aedtapp.create_scattering()
+
+    def test_duplicate_material(self):
+        material = self.aedtapp.materials.add_material("FirstMaterial")
+        new_material = self.aedtapp.materials.duplicate_material("FirstMaterial", "SecondMaterial")
+        assert new_material.name == "secondmaterial"
