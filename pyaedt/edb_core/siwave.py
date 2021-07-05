@@ -20,7 +20,7 @@ class SourceType(object):
     (Port, CurrentSource, VoltageSource, Resistor) = (1, 2, 3, 4)
 
 
-class PinGroup():
+class PinGroup(object):
 
     def __init__(self):
         self._name = ""
@@ -60,7 +60,8 @@ class PinGroup():
     def net(self, value):
         self._net = value
 
-class Source():
+
+class Source(object):
 
     def __init__(self):
         self._name = ""
@@ -109,9 +110,10 @@ class Source():
     def do_pin_grouping(self,value):
         self._do_pin_grouping = value
 
+
 class CircuitPort(Source):
     def __init(self):
-        Source.__init__(self)
+        super(CircuitPort, self).__init__()
         self._impedance = "50"
         self._type = SourceType.Port
 
@@ -130,7 +132,7 @@ class CircuitPort(Source):
 
 class VoltageSource(Source):
     def __init__(self):
-        Source.__init__(self)
+        super(VoltageSource, self).__init__()
         self._magnitude = "1V"
         self._phase = "0Deg"
         self._impedance = "0.05"
@@ -167,7 +169,7 @@ class VoltageSource(Source):
 
 class CurrentSource(Source):
     def __init__(self):
-        Source.__init__(self)
+        super(CurrentSource, self).__init__()
         self._magnitude = "0.1A"
         self._phase = "0Deg"
         self._impedance = "1e7"
@@ -204,7 +206,7 @@ class CurrentSource(Source):
 
 class ResistorSource(Source):
     def __init__(self):
-        Source.__init__(self)
+        super(ResistorSource, self).__init__()
         self._rvalue = "50"
         self._type = SourceType.Resistor
 

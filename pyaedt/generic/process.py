@@ -4,7 +4,10 @@ from threading import Thread
 import queue
 from queue import Queue
 import os.path
-import subprocess
+if os.name == 'posix':
+	import subprocessdotnet as subprocess
+else:
+	import subprocess
 import clr
 import os
 if os.name == 'posix':
