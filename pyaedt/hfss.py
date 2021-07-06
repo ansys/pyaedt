@@ -120,10 +120,10 @@ class Hfss(FieldAnalysis3D, object):
     def _create_boundary(self, name, props, boundary_type):
         """Create a boundary.
         
-        Parmeters
+        Parameters
         ---------
         name : st
-            Name ofthe boundary
+            Name of the boundary
         props : list
             List of properties for the boundary.
         boundary_type : 
