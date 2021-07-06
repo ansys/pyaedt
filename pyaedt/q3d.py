@@ -43,7 +43,7 @@ class QExtractor(FieldAnalysis3D, FieldAnalysis2D, object):
         another instance of the ``specified_version`` is active on the
         machine. The default is ``True``.
     release_on_exit : bool, optional
-        Whether to release  AEDT on exit. The default is ``False``.
+        Whether to release AEDT on exit. The default is ``False``.
     
     Returns
     -------
@@ -85,7 +85,7 @@ class QExtractor(FieldAnalysis3D, FieldAnalysis2D, object):
         return self
 
     def __exit__(self, ex_type, ex_value, ex_traceback):
-        """Push exit up to parent object Design """
+        """Push exit up to parent object Design."""
         if ex_type:
             exception_to_desktop(self, ex_value, ex_traceback)
 
@@ -98,7 +98,7 @@ class Q3d(QExtractor, object):
 
     Parameters
     ----------
-     projectname : str, optional
+    projectname : str, optional
         Name of the project to select or the full path to the project
         or AEDTZ archive to open. The default is ``None``, in which
         case an attempt is made to get an active project. If no 
@@ -115,7 +115,7 @@ class Q3d(QExtractor, object):
         ``None``, in which case the active setup is used or 
         nothing is used.
     specified_version: str, optional
-        Version of AEDT  to use. The default is ``None``, in which case
+        Version of AEDT to use. The default is ``None``, in which case
         the active version or latest installed version is used.
     NG : bool, optional
         Whether to run AEDT in the non-graphical mode. The default 
@@ -445,7 +445,7 @@ class Q2d(QExtractor, object):
         ``None``, in which case the active setup is used or 
         nothing is used.
     specified_version: str, optional
-        Version of AEDT  to use. The default is ``None``, in which case
+        Version of AEDT to use. The default is ``None``, in which case
         the active version or latest installed version is used.
     NG : bool, optional
         Whether to run AEDT in the non-graphical mode. The default 
