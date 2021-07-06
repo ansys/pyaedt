@@ -18,7 +18,7 @@ class QExtractor(FieldAnalysis3D, FieldAnalysis2D, object):
      
      projectname : str, optional
         Name of the project to select or the full path to the project
-        or AEDTZ archive to open.  The default is ``None``, in which
+        or AEDTZ archive to open. The default is ``None``, in which
         case an attempt is made to get an active project. If no 
         projects are present, an empty project is created.
     designname : str, optional
@@ -27,7 +27,7 @@ class QExtractor(FieldAnalysis3D, FieldAnalysis2D, object):
         designs are present, an empty design is created.
     solution_type : str, optional
         Solution type to apply to the design. The default is
-        ``None``, which applies the default type.
+        ``None``, in which case the default type is applied.
     setup_name : str, optional
         Name of the setup to use as the nominal. The default is
         ``None``, in which case the active setup is used or 
@@ -100,7 +100,7 @@ class Q3d(QExtractor, object):
     ----------
      projectname : str, optional
         Name of the project to select or the full path to the project
-        or AEDTZ archive to open.  The default is ``None``, in which
+        or AEDTZ archive to open. The default is ``None``, in which
         case an attempt is made to get an active project. If no 
         projects are present, an empty project is created.
     designname : str, optional
@@ -109,7 +109,7 @@ class Q3d(QExtractor, object):
         designs are present, an empty design is created.
     solution_type : str, optional
         Solution type to apply to the design. The default is
-        ``None``, which applies the default type.
+        ``None``, in which case the default type is applied.
     setup_name : str, optional
         Name of the setup to use as the nominal. The default is
         ``None``, in which case the active setup is used or 
@@ -376,7 +376,7 @@ class Q3d(QExtractor, object):
         freqstep : float, optional
             Step point for the discrete frequency. If ``None``, 
             11 points will be created.
-        units  : str, optional
+        units : str, optional
             Unit of the discrete frequency. For example, ``"MHz"`` or 
             ``"GHz"``.The default is ``"GHz"``.    
         sweepname : str, optional
@@ -430,7 +430,7 @@ class Q2d(QExtractor, object):
     ----------
     projectname : str, optional
         Name of the project to select or the full path to the project
-        or AEDTZ archive to open.  The default is ``None``, in which
+        or AEDTZ archive to open. The default is ``None``, in which
         case an attempt is made to get an active project. If no 
         projects are present, an empty project is created.
     designname : str, optional
@@ -439,7 +439,7 @@ class Q2d(QExtractor, object):
         designs are present, an empty design is created.
     solution_type : str, optional
         Solution type to apply to the design. The default is
-        ``None``, which applies the default type.
+        ``None``, in which case the default type is applied.
     setup_name : str, optional
         Name of the setup to use as the nominal. The default is
         ``None``, in which case the active setup is used or 
