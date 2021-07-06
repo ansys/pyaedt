@@ -5,7 +5,6 @@ import pytest
 
 # Setup paths for module imports
 from .conftest import local_path, scratch_path, desktop_version, new_thread, non_graphical
-from .conftest import BasisTest
 
 # Import required modules
 from pyaedt import Hfss
@@ -16,7 +15,7 @@ test_project_name = "Coax_HFSS"
 example_project = os.path.join(local_path, 'example_models', test_project_name + '.aedt')
 
 
-class TestDesign(BasisTest):
+class TestDesign():
 
     def setup_class(self):
         with Scratch(scratch_path) as self.local_scratch:
@@ -32,6 +31,11 @@ class TestDesign(BasisTest):
 
     def test_app(self):
         assert self.aedtapp
+
+    #TODO: Clean up close-project so it doesn't crash
+    @pytest.mark.skip(reason="Skipped because project management needs revisiting")
+    def test_01_close_project(self):
+        self.aedtapp.close_project()
 
     def test_01_designname(self):
         self.aedtapp.design_name = "myname"
@@ -209,7 +213,7 @@ class TestDesign(BasisTest):
         proj_dir2 = self.aedtapp.generate_temp_project_directory("")
         assert os.path.exists(proj_dir2)
         proj_dir4 = self.aedtapp.generate_temp_project_directory(34)
-        assert not proj_dir4
+        assert os.path.exists(proj_dir4)
         proj_dir5 = self.aedtapp.generate_temp_project_directory(":_34")
         assert not proj_dir5
         

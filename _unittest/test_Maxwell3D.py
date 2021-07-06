@@ -21,16 +21,16 @@ class TestMaxwell3D:
 
     def test_01_create_primitive(self):
         self.aedtapp.modeler.model_units = "mm"
-        GEO = self.aedtapp.modeler
 
         plate_pos = self.aedtapp.modeler.Position(0, 0, 0)
         hole_pos = self.aedtapp.modeler.Position(18, 18, 0)
         # Create plate with hole
-        plate = GEO.primitives.create_box(plate_pos, [294, 294, 19], name="Plate")  # All positions in model units
-        hole = GEO.primitives.create_box(hole_pos, [108, 108, 19], name="Hole")  # All positions in model units
-        GEO.subtract([plate], [hole])
-        assert self.aedtapp.assignmaterial(plate, "aluminum")
-        assert self.aedtapp.solve_inside("Plate")
+        plate = self.aedtapp.modeler.primitives.create_box(plate_pos, [294, 294, 19], name="Plate")  # All positions in model units
+        hole = self.aedtapp.modeler.primitives.create_box(hole_pos, [108, 108, 19], name="Hole")  # All positions in model units
+        self.aedtapp.modeler.subtract([plate], [hole])
+        plate.material_name = "aluminum"
+        assert plate.solve_inside
+        assert plate.material_name == "aluminum"
 
     def test_02_create_coil(self):
         center_hole = self.aedtapp.modeler.Position(119, 25, 49)
@@ -39,8 +39,8 @@ class TestMaxwell3D:
                                               name="Coil_Hole")  # All positions in model units
         coil = self.aedtapp.modeler.primitives.create_box(center_coil, [200, 200, 100], name="Coil")  # All positions in model units
         self.aedtapp.modeler.subtract([coil], [coil_hole])
-        self.aedtapp.assignmaterial(coil, "copper")
-        self.aedtapp.solve_inside("Coil")
+        coil.material_name = "Copper"
+        coil.solve_inside = True
         p_coil = self.aedtapp.post.volumetric_loss("Coil")
         assert type(p_coil) is str
 

@@ -162,8 +162,17 @@ class TestVariable:
         v3 = Variable("3mA")
         v4 = Variable("10A")
 
-        assert not (v1 + v2)
-        assert not (v2 + v1)
+        try:
+            v1 + v2
+            assert False
+        except AssertionError:
+            pass
+
+        try:
+            v2 + v1
+            assert False
+        except AssertionError:
+            pass
         result_1 = v2 + v2
         result_2 = v3 + v4
         result_3 = v3 + v3
@@ -186,8 +195,18 @@ class TestVariable:
         v3 = Variable("3mA")
         v4 = Variable("10A")
 
-        assert not (v1 - v2)
-        assert not (v2 - v1)
+        try:
+            v1 - v2
+            assert False
+        except AssertionError:
+            pass
+
+        try:
+            v2 - v1
+            assert False
+        except AssertionError:
+            pass
+
         result_1 = v2 - v2
         result_2 = v3 - v4
         result_3 = v3 - v3

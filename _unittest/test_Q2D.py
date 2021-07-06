@@ -27,8 +27,8 @@ class TestQ2D:
 
     def test_02_create_primitive(self):
         udp = self.aedtapp.modeler.Position(0, 0, 0)
-        id1 = self.aedtapp.modeler.primitives.create_rectangle(udp,[5,3],name="Rectangle1")
-        assert isinstance(id1, int)
+        o = self.aedtapp.modeler.primitives.create_rectangle(udp,[5,3],name="Rectangle1")
+        assert isinstance(o.id, int)
 
 
     def test_06a_create_setup(self):
