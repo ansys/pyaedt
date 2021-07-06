@@ -2348,7 +2348,6 @@ class Design(object):
     def get_evaluated_value(self, variable_name, variation=None):
         """Return the evaluated value of a design property or project variable in SI units.
         
-        Optionally a variation string of the form
 
         Parameters
         ----------
