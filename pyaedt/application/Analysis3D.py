@@ -248,8 +248,9 @@ class FieldAnalysis3D(Analysis, object):
         cond = [i.lower() for i in cond]
         obj_names = []
         for el, obj in self.modeler.primitives.objects.items():
-            if obj.material_name.lower() in cond:
-                obj_names.append(obj.name)
+            if obj.object_type == "Solid":
+                if obj.material_name.lower() in cond:
+                    obj_names.append(obj.name)
         return obj_names
 
     @aedt_exception_handler

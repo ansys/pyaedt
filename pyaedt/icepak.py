@@ -331,7 +331,7 @@ class Icepak(FieldAnalysisIcepak):
         type
             Bounding object when successful.
         """
-        if object_name in self.modeler.primitives.get_all_objects_names():
+        if object_name in self.modeler.primitives.object_names:
             faces = self.modeler.primitives.get_object_faces(object_name)
             k = 0
             faceCenter = {}
@@ -644,7 +644,7 @@ class Icepak(FieldAnalysisIcepak):
         bool
             ``True`` when successful, ``False`` when failed.
         """
-        all_objs = self.modeler.primitives.get_all_objects_names()
+        all_objs = self.modeler.primitives.object_names
         self['FinPitch'] = self.modeler.primitives.arg_with_dim(pitch)
         self['FinThickness'] = self.modeler.primitives.arg_with_dim(thick)
         self['FinLength'] = self.modeler.primitives.arg_with_dim(length)
@@ -1372,7 +1372,7 @@ class Icepak(FieldAnalysisIcepak):
             ``True`` when successful, ``False`` when failed.
         """
         if not object_list:
-            allObjects = self.modeler.primitives.get_all_objects_names(refresh_list=True)
+            allObjects = self.modeler.primitives.object_names
             if removed_objects:
                 for rem in removed_objects:
                     allObjects.remove(rem)

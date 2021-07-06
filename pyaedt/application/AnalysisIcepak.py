@@ -376,7 +376,7 @@ class FieldAnalysisIcepak(Analysis, object):
         """
         diel = [i.lower() for i in list(self.materials.dielectrics)]
         obj_names = []
-        for el in self.modeler.primitives.objects:
-            if self.modeler.primitives.objects[el].material_name in diel:
-                obj_names.append(self.modeler.primitives.get_obj_name(el))
+        for el, obj in self.modeler.primitives.objects.items():
+            if obj.material_name in diel:
+                obj_names.append(obj.name)
         return obj_names

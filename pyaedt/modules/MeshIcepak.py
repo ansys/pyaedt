@@ -359,7 +359,6 @@ class IcepakMesh(object):
         meshregion.Level = level
         meshregion.name = name
         self.modeler.primitives._refresh_object_types()
-        all_nonmodels = self.modeler.primitives.non_models
         if not objectlist:
             objectlist = self.modeler.primitives.get_all_objects_names()
         meshregion.Objects = objectlist
@@ -367,7 +366,7 @@ class IcepakMesh(object):
         meshregion.create()
         self.modeler.primitives._refresh_object_types()
         all_objs2 = self.modeler.primitives.non_models
-        added_obj = [i for i in all_objs2 if i not in all_nonmodels]
+        added_obj = [i for i in all_objs2 if i not in self.modeler.primitives.non_model_objects]
         meshregion.Objects = added_obj
         self.meshregions.append(meshregion)
 

@@ -63,7 +63,6 @@ class TestMaxwell2D:
         o = self.aedtapp.modeler.primitives.create_polyline(udp, name="Ellipse1", matname="copper")
         assert isinstance(o, Polyline)
 
-
     def test_03_assign_initial_mesh_from_slider(self):
         assert self.aedtapp.mesh.assign_initial_mesh_from_slider(4)
 
@@ -91,10 +90,7 @@ class TestMaxwell2D:
         o = self.create_rectangle("Rectangle1")
         o.vertices[0].chamfer()
 
-    def test_primitives_2d(self):
-        assert not self.aedtapp.modeler.primitives.is3d
-
-    def test_fille_vertex(self):
+    def test_fillet_vertex(self):
         o = self.create_rectangle("Rectangle1")
         o.vertices[0].fillet()
 
