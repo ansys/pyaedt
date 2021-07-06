@@ -389,10 +389,10 @@ class FacePrimitive(object):
             True if operation is successful
         """
         self._parent.m_Editor.MoveFaces(["NAME:Selections", "Selections:=", self._parent.name, "NewPartsModelFlag:=", "Model"],
-                                        ["NAME:Parameters",
-                                         ["NAME:MoveFacesParameters", "MoveAlongNormalFlag:=", True, "OffsetDistance:=", _dim_arg(offset, self._parent.object_units),
-                                          "MoveVectorX:=", "0mm", "MoveVectorY:=", "0mm", "MoveVectorZ:=", "0mm",
-                                          "FacesToMove:=", [self.id]]])
+                                    ["NAME:Parameters",
+                                     ["NAME:MoveFacesParameters", "MoveAlongNormalFlag:=", True, "OffsetDistance:=", _dim_arg(offset, self._parent.object_units),
+                                      "MoveVectorX:=", "0mm", "MoveVectorY:=", "0mm", "MoveVectorZ:=", "0mm",
+                                      "FacesToMove:=", [self.id]]])
         return True
 
     @aedt_exception_handler
@@ -411,13 +411,13 @@ class FacePrimitive(object):
 
         """
         self._parent.m_Editor.MoveFaces(
-            ["NAME:Selections", "Selections:=",  self._parent.name, "NewPartsModelFlag:=", "Model"],
-            ["NAME:Parameters",
-             ["NAME:MoveFacesParameters", "MoveAlongNormalFlag:=", False, "OffsetDistance:=", "0mm",
-              "MoveVectorX:=", _dim_arg(vector[0], self._parent.object_units), "MoveVectorY:=",
-              _dim_arg(vector[1], self._parent.object_units), "MoveVectorZ:=",
-              _dim_arg(vector[2], self._parent.object_units),
-              "FacesToMove:=", [self.id]]])
+                ["NAME:Selections", "Selections:=",  self._parent.name, "NewPartsModelFlag:=", "Model"],
+                ["NAME:Parameters",
+                 ["NAME:MoveFacesParameters", "MoveAlongNormalFlag:=", False, "OffsetDistance:=", "0mm",
+                  "MoveVectorX:=", _dim_arg(vector[0], self._parent.object_units), "MoveVectorY:=",
+                  _dim_arg(vector[1], self._parent.object_units), "MoveVectorZ:=",
+                  _dim_arg(vector[2], self._parent.object_units),
+                  "FacesToMove:=", [self.id]]])
         return True
 
     @property
@@ -557,8 +557,8 @@ class Object3d(object):
         """
         faces = []
         for face in self.m_Editor.GetFaceIDs(self.name):
-            face = int(face)
-            faces.append(FacePrimitive(self, face))
+                face = int(face)
+                faces.append(FacePrimitive(self, face))
         return faces
 
     @property
@@ -595,8 +595,8 @@ class Object3d(object):
         """
         edges = []
         for edge in self._parent.get_object_edges(self.name):
-            edge = int(edge)
-            edges.append(EdgePrimitive(self, edge))
+                edge = int(edge)
+                edges.append(EdgePrimitive(self, edge))
         return edges
 
     @property
@@ -609,8 +609,8 @@ class Object3d(object):
         """
         vertices = []
         for vertex in self._parent.get_object_vertices(self.name):
-            vertex = int(vertex)
-            vertices.append(VertexPrimitive(self, vertex))
+                vertex = int(vertex)
+                vertices.append(VertexPrimitive(self, vertex))
         return vertices
 
     @property
@@ -948,7 +948,7 @@ class Object3d(object):
 
         if 'Orientation' in all_prop:
             self._part_coordinate_system = retry_ntimes(n, self.m_Editor.GetPropertyValue,
-                                                        "Geometry3DAttributeTab", self._m_name, 'Orientation')
+                                                    "Geometry3DAttributeTab", self._m_name, 'Orientation')
         if 'Model' in all_prop:
             mod = retry_ntimes(n, self.m_Editor.GetPropertyValue, "Geometry3DAttributeTab", self._m_name, 'Model')
             if mod == 'false' or mod == 'False':
@@ -982,7 +982,7 @@ class Object3d(object):
                 self._color = (0, 195, 255)
         if 'Surface Material' in all_prop:
             self.m_surfacematerial = retry_ntimes(n, self.m_Editor.GetPropertyValue,
-                                                  "Geometry3DAttributeTab", self._m_name, 'Surface Material')
+                                               "Geometry3DAttributeTab", self._m_name, 'Surface Material')
 
 class Padstack(object):
     """ """

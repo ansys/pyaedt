@@ -55,7 +55,7 @@ class Modeler3D(GeometryModeler):
                "SecurityMessage:=", "", "Password:=", "", "EditPassword:=", "",
                "PasswordType:=", "UnknownPassword", "HideContents:=", True,
                "ReplaceNames:=", True, "ComponentOutline:=", "None"]
-        objs = self.primitives.get_all_objects_names()
+        objs = self.primitives.object_names
         for el in objs:
             if "Region" in el and exclude_region:
                 objs.remove(el)

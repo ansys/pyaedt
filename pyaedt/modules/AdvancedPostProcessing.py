@@ -26,6 +26,13 @@ except ImportError:
                   "Install with \n\npip install pyvista\n\nRequires CPython")
 
 try:
+    from IPython.display import Image, display
+    ipython_available = True
+except ImportError:
+    warnings.warn("The Ipython module required to run some functionalities of PostProcess.\n"
+                  "Install with \n\npip install ipython\n\nRequires CPython")
+
+try:
     import matplotlib.pyplot as plt
 except ImportError:
     warnings.warn("The Matplotlib module required to run some functionalities of PostProcess.\n"
@@ -50,11 +57,16 @@ def is_float(istring):
     except Exception:
         return 0
 
-
 class PostProcessor(Post):
     """ """
     def __init__(self, parent):
         Post.__init__(self, parent)
+
+    @aedt_exception_handler
+    def nb_display(self, show_axis=True, show_grid=True, show_ruler=True):
+        """Jupyter Notebook is not supported by IronPython!"""
+        file_name = self.export_model_picture(self.scratch_path, picturename="Model", show_axis=show_axis, show_grid=show_grid, show_ruler=True)
+        return Image(file_name, width=500)
 
     @aedt_exception_handler
     def get_efields_data(self, setup_sweep_name='', ff_setup="Infinite Sphere1", freq='All'):

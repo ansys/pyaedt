@@ -804,7 +804,7 @@ class Analysis(Design, object):
             if not isinstance(object_list, list):
                 object_list = [object_list]
         else:
-            object_list = self.modeler.primitives.get_all_objects_names()
+            object_list = self.modeler.primitives.object_names
 
         if prop_names:
             if not isinstance(prop_names, list):

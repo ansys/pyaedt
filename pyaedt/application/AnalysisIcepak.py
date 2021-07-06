@@ -183,7 +183,6 @@ class FieldAnalysisIcepak(Analysis, object):
                 selection_list.append(body)
         design.modeler.oeditor.Copy(["NAME:Selections", "Selections:=", ','.join(selection_list)])
         self.modeler.oeditor.Paste()
-        self.modeler.primitives.refresh_all_ids()
         return True
 
     @aedt_exception_handler
@@ -306,7 +305,7 @@ class FieldAnalysisIcepak(Analysis, object):
             for el in component_header:
                 component_data[el] = [i[k] for i in data]
                 k += 1
-        all_objs = self.modeler.primitives.get_all_objects_names()
+        all_objs = self.modeler.primitives.object_names
         i = 0
         for mat in material_data["Name"]:
             list_mat_obj = ["COMP_" + rd for rd, md in zip(component_data["Ref Des"], component_data["Material"]) if
@@ -356,9 +355,9 @@ class FieldAnalysisIcepak(Analysis, object):
         """
         cond = [i.lower() for i in list(self.materials.conductors)]
         obj_names = []
-        for el in self.modeler.primitives.objects:
-            if self.modeler.primitives.objects[el].material_name in cond:
-                obj_names.append(self.modeler.primitives.get_obj_name(el))
+        for el, obj in self.modeler.primitives.objects.items():
+            if obj.material_name in cond:
+                obj_names.append(obj.name)
         return obj_names
 
     @aedt_exception_handler

@@ -864,7 +864,7 @@ class Hfss(FieldAnalysis3D, object):
 
         status, pecobj = self.modeler.duplicate_along_line(sheet_name, vector)
         self.modeler.thicken_sheet(pecobj[-1], pecthick, True)
-        self.assignmaterial(pecobj[0], "pec")
+        pecobj[0].material_name = "pec"
         return True
 
     @aedt_exception_handler
