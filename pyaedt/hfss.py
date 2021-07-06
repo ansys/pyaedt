@@ -122,7 +122,7 @@ class Hfss(FieldAnalysis3D, object):
         
         Parameters
         ---------
-        name : st
+        name : str
             Name of the boundary
         props : list
             List of properties for the boundary.
@@ -521,7 +521,7 @@ class Hfss(FieldAnalysis3D, object):
         target_cs : str, optional
             Target coordinate system. The default is ``"Global"``.
         solution : optional
-            The default is ''None''.
+            The default is ``None``.
         fieldtype : str, optional
             The default is ``"nearfield"``.
         use_composite_ports : bool, optional
@@ -531,11 +531,12 @@ class Hfss(FieldAnalysis3D, object):
         thin_sources : bool, optional
              The default is ``True``.
         power_fraction str, optional
-             The default is ``"o.95"``.
+             The default is ``"0.95"``.
         
         Returns
         -------
-        type
+        bool
+            ``True`` when successful, ``False`` when failed.
         
         """
 
@@ -882,7 +883,6 @@ class Hfss(FieldAnalysis3D, object):
         -------
         BoundaryObject
             Boundary object.
-            
         """
         if not self.modeler.primitives.does_object_exists(startobj) or not self.modeler.primitives.does_object_exists(
                 endobject):
