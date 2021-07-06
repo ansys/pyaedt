@@ -187,13 +187,17 @@ class Edb(object):
         print(dir())
         self.edb.Database.SetRunAsStandAlone(True)
         self._db = self.edb.Database.Open(self.edbpath, self.isreadonly)
+        self._active_cell = None
         if self.cellname:
             for cell in list(self._db.TopCircuitCells):
                 if cell.GetName() == self.cellname:
                     self._active_cell = cell
         else:
             self._active_cell = list(self._db.TopCircuitCells)[0]
-        self.builder = self.layout_methods.GetBuilder(self._db, self._active_cell)
+        if self._active_cell:
+            self.builder = self.layout_methods.GetBuilder(self._db, self._active_cell)
+        else:
+            self.builder = None
         return self.builder
 
     @aedt_exception_handler
