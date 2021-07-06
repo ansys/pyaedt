@@ -223,11 +223,7 @@ class Test3DLayout:
 
     def test_sweep_not_supported_type(self):
         sweep_string = SweepString()
-        try:
-            sweep_string.add_sweep([7, 13, 17, 19, 23], "not_supported", "GHz")
-            assert False
-        except ValueError:
-            pass
+        assert not sweep_string.add_sweep([7, 13, 17, 19, 23], "not_supported", "GHz")
         
     def test_create_pin_port(self):
         assert self.aedtapp.create_pin_port("PinPort1")

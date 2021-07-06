@@ -81,9 +81,10 @@ class BasisTest:
             if not application:
                 application = Hfss
             if self.test_project:
-                self.aedtapp = application(projectname=self.test_project, specified_version=desktop_version, AlwaysNew=new_thread, NG=non_graphical)
+                self.aedtapp = application(projectname=self.test_project, designname=design_name,
+                                           specified_version=desktop_version, AlwaysNew=new_thread, NG=non_graphical)
             else:
-                self.aedtapp = application(projectname=project_name, specified_version=desktop_version, AlwaysNew=new_thread, NG=non_graphical)
+                self.aedtapp = application(specified_version=desktop_version, AlwaysNew=new_thread, NG=non_graphical)
 
             #self.aedtapp.save_project()
 
@@ -97,6 +98,7 @@ class BasisTest:
         self.aedtapp.close_project(name=self.aedtapp.project_name, saveproject=False)
         self.local_scratch.remove()
         gc.collect()
+
 
 
 # Define desktopVersion explicitly since this is imported by other modules
@@ -123,6 +125,24 @@ def desktop_init():
     if config["test_desktops"]:
         run_desktop_tests()
 
+def pyaedt_unittest_check_desktop_error(func):
+    @wraps(func)
+    def inner_function(*args, **kwargs):
+        args[0].cache.update()
+        ret_val = func(*args, **kwargs)
+        try:
+            args[0].aedtapp.design_name
+        except Exception as e:
+            pytest.exit("Desktop Crashed - Aborting the test!")
+        args[0].cache.update()
+        model_report = args[0].aedtapp.modeler.primitives.model_consistency_report
+        assert not model_report["Missing Objects"]
+        assert not model_report["Non-Existent Objects"]
+        assert args[0].cache.no_new_errors
+        return ret_val
+
+    return inner_function
+#
 # def pyaedt_unittest_same_design(func):
 #     @wraps(func)
 #     def inner_function(*args, **kwargs):
