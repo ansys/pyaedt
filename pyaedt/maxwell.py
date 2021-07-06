@@ -887,7 +887,7 @@ class Maxwell2d(Maxwell, FieldAnalysis2D, object):
                         a = self.variable_manager[value_str].value
                     return a
                 else:
-                    raise Exception('Design data is not found by the get_model_depth function. Find and fix the inconsistency.')
+                    raise RuntimeError('Design data is not found by the get_model_depth function. Find and fix the inconsistency.')
         else:
             return None
 
