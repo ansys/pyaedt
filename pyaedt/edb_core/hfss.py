@@ -105,10 +105,10 @@ class Edb3DLayout(object):
 
         Parameters
         ----------
-        ref_des_list : list
+        ref_des_list : list, str
             List of one or more reference designators.
             
-        net_list : list
+        net_list : list, str
             List of one or more nets.  
 
         Returns
@@ -117,10 +117,22 @@ class Edb3DLayout(object):
             ``True`` when successful, ``False`` when failed.
         
         """
-        ref_desList = convert_py_list_to_net_list(ref_des_list)
-        netList = convert_py_list_to_net_list(net_list)
-        if self._hfss_terminals.CreateCoaxPortOnComponent(self._builder, ref_desList, netList):
-            return True
+        coax = []
+        if not isinstance(ref_des_list, list):
+            ref_des_list = [ref_des_list]
+        if not isinstance(net_list, list):
+            ref_des_list = [net_list]
+        for ref in ref_des_list:
+            for pinname, pin in self.parent.core_components.components[ref].pins.items():
+                if pin.net in net_list and pin.pin.IsLayoutPin():
+                   port_name = "{}_{}_{}".format(ref,pin.net,pin.pin.GetName())
+                   if "IronPython" in sys.version or ".NETFramework" in sys.version:
+                       res, fromLayer_pos, toLayer_pos = pin.pin.GetLayerRange()
+                   else:
+                       res, fromLayer_pos, toLayer_pos = pin.pin.GetLayerRange(None, None)
+                   if self._edb.Cell.Terminal.PadstackInstanceTerminal.Create(self._active_layout, pin.pin.GetNet(), port_name, pin.pin, toLayer_pos):
+                       coax.append(port_name)
+        return coax
 
     @aedt_exception_handler
     def create_hfss_ports_on_padstack(self, pinpos, portname=None):

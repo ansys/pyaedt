@@ -35,13 +35,13 @@ class QExtractor(FieldAnalysis3D, FieldAnalysis2D, object):
         return design_file
 
     def __init__(self, Q3DType, projectname=None, designname=None, solution_type=None, setup_name=None,
-                 specified_version=None, NG=False, AlwaysNew=False, release_on_exit=False):
+                 specified_version=None, NG=False, AlwaysNew=False, release_on_exit=False, student_version=False):
         if Q3DType == "Q3D Extractor":
             FieldAnalysis3D.__init__(self, "Q3D Extractor", projectname, designname, solution_type, setup_name,
-                                     specified_version, NG, AlwaysNew, release_on_exit)
+                                     specified_version, NG, AlwaysNew, release_on_exit, student_version)
         else:
             FieldAnalysis2D.__init__(self, "2D Extractor", projectname, designname, solution_type, setup_name,
-                                     specified_version, NG, AlwaysNew, release_on_exit)
+                                     specified_version, NG, AlwaysNew, release_on_exit, student_version)
 
     def __enter__(self):
         return self
@@ -76,6 +76,8 @@ class Q3d(QExtractor, object):
         Name of the setup to use as the nominal. The default is
         ``None``. If ``None``, the active setup is used or nothing is
         used.
+    student_version : bool, optional
+        Whether open AEDT Student Version. The default is ``False``.
 
     Examples
     --------

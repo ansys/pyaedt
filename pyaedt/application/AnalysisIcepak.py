@@ -22,9 +22,9 @@ class FieldAnalysisIcepak(Analysis, object):
 
     """
     def __init__(self, application, projectname, designname, solutiontype, setup_name=None,
-                 specified_version=None, NG=False, AlwaysNew=False, release_on_exit=False):
+                 specified_version=None, NG=False, AlwaysNew=False, release_on_exit=False, student_version=False):
         Analysis.__init__(self, application, projectname, designname, solutiontype, setup_name,
-                          specified_version, NG, AlwaysNew, release_on_exit)
+                          specified_version, NG, AlwaysNew, release_on_exit, student_version)
         self._modeler = Modeler3D(self)
         self._mesh = IcepakMesh(self)
         #self._post = PostProcessor(self)

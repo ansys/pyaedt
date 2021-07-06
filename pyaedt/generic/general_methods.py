@@ -201,6 +201,55 @@ def env_value(input_version):
     v_key = "ANSYSEM_ROOT{0}{1}".format(version, release)
     return v_key
 
+
+@aedt_exception_handler
+def env_path_student(input_version):
+    """
+
+    Parameters
+    ----------
+    input_version :
+
+
+    Returns
+    -------
+
+    """
+    version = int(input_version[2:4])
+    release = int(input_version[5])
+    if version < 20:
+        if release < 3:
+            version -= 1
+        else:
+            release -= 2
+    v_key = "ANSYSEMSV_ROOT{0}{1}".format(version, release)
+    return os.getenv(v_key)
+
+
+@aedt_exception_handler
+def env_value_student(input_version):
+    """
+
+    Parameters
+    ----------
+    input_version :
+
+
+    Returns
+    -------
+
+    """
+    version = int(input_version[2:4])
+    release = int(input_version[5])
+    if version < 20:
+        if release < 3:
+            version -= 1
+        else:
+            release -= 2
+    v_key = "ANSYSEMSV_ROOT{0}{1}".format(version, release)
+    return v_key
+
+
 @aedt_exception_handler
 def get_filename_without_extension(path):
     """

@@ -36,7 +36,8 @@ except ImportError:
 from .application.MessageManager import EDBMessageManager
 from .edb_core import *
 
-from .generic.general_methods import get_filename_without_extension, generate_unique_name, aedt_exception_handler, env_path, env_value
+from .generic.general_methods import get_filename_without_extension, generate_unique_name, aedt_exception_handler, \
+    env_path, env_value, env_path_student, env_value_student
 
 
 class Edb(object):
@@ -73,7 +74,7 @@ class Edb(object):
 
     """
 
-    def __init__(self, edbpath=None, cellname=None, isreadonly=False, edbversion="2021.1", isaedtowned=False, oproject=None):
+    def __init__(self, edbpath=None, cellname=None, isreadonly=False, edbversion="2021.1", isaedtowned=False, oproject=None, student_version=False):
         if edb_initialized:
             self.oproject = oproject
             if isaedtowned:
@@ -85,7 +86,7 @@ class Edb(object):
                 elif os.path.exists(edbpath):
                     self._messenger = EDBMessageManager(edbpath)
 
-
+            self.student_version = student_version
             self._messenger.add_info_message("Messenger Initialized in EDB")
             self.edbversion = edbversion
             self.isaedtowned = isaedtowned
@@ -140,7 +141,10 @@ class Edb(object):
             clr.AddReferenceToFile('EdbLib.dll')
             clr.AddReferenceToFileAndPath(os.path.join(self.base_path, 'Ansys.Ansoft.SimSetupData.dll'))
         else:
-            self.base_path = env_path( self.edbversion)
+            if self.student_version:
+                self.base_path = env_path_student(self.edbversion)
+            else:
+                self.base_path = env_path( self.edbversion)
             sys.path.append(self.base_path)
             clr.AddReference('Ansys.Ansoft.Edb')
             clr.AddReference('Ansys.Ansoft.EdbBuilderUtils')
@@ -177,31 +181,19 @@ class Edb(object):
         if init_dlls:
             self._init_dlls()
 
-        if not self.isreadonly:
-            print(self.edbpath)
-            print(self.edbversion)
-            print(_ironpython)
-            print(dir())
-
-            if _ironpython and  inside_desktop:
-                print("opening from DB")
-                self._db = self.edb.Database.Open(self.edbpath, self.isreadonly)
-                self._active_cell =  list(self._db.TopCircuitCells)[0]
-                self.builder = self.layout_methods.GetBuilder(self._db, self._active_cell)
-            else:
-                print("opening from EDBLib")
-                self.builder = self.layout_methods.OpenEdbStandAlone(self.edbpath, self.edbversion)
-                self._db = self.builder.EdbHandler.dB
-                self._active_cell = self.builder.EdbHandler.cell
+        print(self.edbpath)
+        print(self.edbversion)
+        print(_ironpython)
+        print(dir())
+        self.edb.Database.SetRunAsStandAlone(True)
+        self._db = self.edb.Database.Open(self.edbpath, self.isreadonly)
+        if self.cellname:
+            for cell in list(self._db.TopCircuitCells):
+                if cell.GetName() == self.cellname:
+                    self._active_cell = cell
         else:
-            if _ironpython and  inside_desktop:
-                self._db = self.edb.Database.Open(self.edbpath, self.isreadonly)
-                self._active_cell =  list(self._db.TopCircuitCells)[0]
-                self.builder = self.layout_methods.GetBuilder(self._db, self._active_cell)
-            else:
-                self.builder = self.layout_methods.OpenEdbInAedt(self.edbpath, self.edbversion)
-                self._db = self.builder.EdbHandler.dB
-                self._active_cell = self.builder.EdbHandler.cell
+            self._active_cell = list(self._db.TopCircuitCells)[0]
+        self.builder = self.layout_methods.GetBuilder(self._db, self._active_cell)
         return self.builder
 
     @aedt_exception_handler
@@ -252,7 +244,6 @@ class Edb(object):
             self.cellname = generate_unique_name("Cell")
 
         self._active_cell = self.edb.Cell.Cell.Create(self._db,  self.edb.Cell.CellType.CircuitCell, self.cellname)
-
         self.builder = self.layout_methods.GetBuilder(self.db, self._active_cell)
         print("active cell set")
         return self.builder

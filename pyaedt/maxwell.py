@@ -752,6 +752,8 @@ class Maxwell3d(Maxwell, FieldAnalysis3D, object):
         machine.  The default is ``True``.
      release_on_exit : bool, optional
         Whether to release AEDT on exit. The default is ``True``.
+     student_version : bool, optional
+        Whether open AEDT Student Version. The default is ``False``.
 
     Examples
     --------
@@ -774,12 +776,12 @@ class Maxwell3d(Maxwell, FieldAnalysis3D, object):
         return '3D'
 
     def __init__(self, projectname=None, designname=None, solution_type=None, setup_name=None,
-                 specified_version=None, NG=False, AlwaysNew=False, release_on_exit=False):
+                 specified_version=None, NG=False, AlwaysNew=False, release_on_exit=False,student_version=False):
         """
         Initialize the ``Maxwell`` class.
         """
         FieldAnalysis3D.__init__(self, "Maxwell 3D", projectname, designname, solution_type, setup_name,
-                                 specified_version, NG, AlwaysNew, release_on_exit)
+                                 specified_version, NG, AlwaysNew, release_on_exit, student_version)
         Maxwell.__init__(self)
 
 
@@ -820,6 +822,8 @@ class Maxwell2d(Maxwell, FieldAnalysis2D, object):
         machine.  The default is ``True``.
      release_on_exit : bool, optional
         Whether to release AEDT on exit. The default is ``True``.
+    student_version : bool, optional
+        Whether open AEDT Student Version. The default is ``False``.
 
     Examples
     --------
@@ -854,9 +858,9 @@ class Maxwell2d(Maxwell, FieldAnalysis2D, object):
         return self.odesign.GetGeometryMode()
 
     def __init__(self, projectname=None, designname=None, solution_type=None, setup_name=None,
-                 specified_version=None, NG=False, AlwaysNew=False, release_on_exit=False):
+                 specified_version=None, NG=False, AlwaysNew=False, release_on_exit=False, student_version=False):
         FieldAnalysis2D.__init__(self, "Maxwell 2D", projectname, designname, solution_type, setup_name,
-                                 specified_version, NG, AlwaysNew, release_on_exit)
+                                 specified_version, NG, AlwaysNew, release_on_exit, student_version)
         Maxwell.__init__(self)
 
     def get_model_depth(self):

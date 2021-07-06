@@ -32,6 +32,20 @@ class Mechanical(FieldAnalysis3D, object):
        Name of the setup to use as the nominal. The default is
        ``None``. If ``None``, the active setup is used or nothing is
        used.
+    specified_version: str, optional
+        Version of AEDT  to use. The default is ``None``, in which case
+        the active version or latest installed version is  used.
+    NG : bool, optional
+        Whether to run AEDT in the non-graphical mode. The default
+        is``False``, which launches AEDT in the graphical mode.
+    AlwaysNew : bool, optional
+        Whether to launch an instance of AEDT in a new thread, even if
+        another instance of the ``specified_version`` is active on the
+        machine.  The default is ``True``.
+    release_on_exit : bool, optional
+        Whether to release AEDT on exit.
+    student_version : bool, optional
+        Whether open AEDT Student Version. The default is ``False``.
 
     Examples
     --------
@@ -66,10 +80,10 @@ class Mechanical(FieldAnalysis3D, object):
     """
 
     def __init__(self, projectname=None, designname=None, solution_type=None, setup_name=None,
-                 specified_version=None, NG=False, AlwaysNew=False, release_on_exit=False):
+                 specified_version=None, NG=False, AlwaysNew=False, release_on_exit=False, student_version=False):
 
         FieldAnalysis3D.__init__(self, "Mechanical", projectname, designname, solution_type, setup_name,
-                                 specified_version, NG, AlwaysNew, release_on_exit)
+                                 specified_version, NG, AlwaysNew, release_on_exit, student_version)
     def __enter__(self):
         return self
 
