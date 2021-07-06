@@ -2,7 +2,7 @@
 This module contains these classes: `Design` and `DesignCache`.
 
 It contains all basic project information and objects. 
-Because this module is inherithed in the Main Tool class, 
+Because this module is inherited in the Main Tool class, 
 it will be a simple call from it.
 
 """
@@ -342,7 +342,7 @@ class DesignCache(object):
         return self.no_new_messages
 
     def design_snapshot(self):
-        """Retrive the design snapshot.
+        """Retrieve the design snapshot.
         
         Returns
         -------
@@ -1545,7 +1545,7 @@ class Design(object):
         ----------
         project_file : str
             Full path and name for the project file.
-        design_name : str, optinal
+        design_name : str, optional
             Design name. The default is ``None``.
         close_active_proj : bool, optional
             Whether to close the active project. The defaultis ``False``.
@@ -2005,7 +2005,7 @@ class Design(object):
         Parameters
         ----------
         design_name : str, optional
-            Name of the design. The default is ``None``, in wich case, the 
+            Name of the design. The default is ``None``, in which case, the 
             default design name is ``<Design-Type>Design<_index>``. If the 
             given or default design name is in use, then an underscore and 
             index is added to ensure that the design name is unique. 
