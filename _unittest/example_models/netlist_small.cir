@@ -22,5 +22,5 @@ I1 N1763408 0 1e-3
 .param a4=50V
 .PARAM definire4=20
 # .model CON4 V1
-.lib C:\Temp\model.lib
+# .lib C:\Temp\model.lib
 .END
