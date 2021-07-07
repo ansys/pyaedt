@@ -840,7 +840,7 @@ class Design(object):
         Returns
         -------
         list
-            List of libraries: ``[syslub, userlib, personallib]``
+            List of libraries: ``[syslib, userlib, personallib]``
 
         """
         return [self.syslib, self.userlib, self.personallib]
