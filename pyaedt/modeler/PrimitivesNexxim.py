@@ -903,6 +903,7 @@ class NexximComponents(CircuitComponents):
 
         Returns
         -------
+        bool
         """
         complist = component.split(";")
         complist2 = complist[0].split("@")
@@ -921,7 +922,7 @@ class NexximComponents(CircuitComponents):
 
         self.oeditor.ChangeProperty(argo)
 
-        pass
+        return True
 
     @aedt_exception_handler
     def refresh_dynamic_link(self, component_name):
