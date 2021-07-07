@@ -96,10 +96,10 @@ class Maxwell(object):
     projectname : str, optional
         Name of the project to select or the full path to the project
         or AEDTZ archive to open. The default is ``None``, in which
-        case an attempt is made to get an active project. If no 
+        case an attempt is made to get an active project. If no
         projects are present, an empty project is created.
     designname : str, optional
-        Name of the design to select. The default is ``None``, in 
+        Name of the design to select. The default is ``None``, in
         which case an attempt is made to get an active design. If no
         designs are present, an empty design is created.
     solution_type : str, optional
@@ -107,14 +107,14 @@ class Maxwell(object):
         ``None``, in which case the default type is applied.
     setup_name : str, optional
         Name of the setup to use as the nominal. The default is
-        ``None``, in which case the active setup is used or 
+        ``None``, in which case the active setup is used or
         nothing is used.
     specified_version: str, optional
         Version of AEDT to use. The default is ``None``, in which case
         the active version or latest installed version is used.
     NG : bool, optional
-        Whether to run AEDT in the non-graphical mode. The default 
-        is ``False``, in which case AEDT launches in the graphical mode.  
+        Whether to run AEDT in the non-graphical mode. The default
+        is ``False``, in which case AEDT launches in the graphical mode.
     AlwaysNew : bool, optional
         Whether to launch an instance of AEDT in a new thread, even if
         another instance of the ``specified_version`` is active on the
@@ -390,7 +390,7 @@ class Maxwell(object):
         Parameters
         ----------
         coil_terminals : list, optional
-            List of faces to create the coil terminal on. 
+            List of faces to create the coil terminal on.
             The default is ``None``.
         winding_type : str, optional
             Type of the winding. Options are ``"Current"``, ``"Voltage"``, 
@@ -564,7 +564,7 @@ class Maxwell(object):
         Parameters
         ----------
         input_object : str or list
-           One or objects to assign the torque to 
+           One or objects to assign the torque to
         reference_cs : str, optional
             The default is ``"Global"``.
         is_positive : bool, optional
@@ -674,13 +674,13 @@ class Maxwell(object):
     @aedt_exception_handler
     def set_initial_angle(self, motion_setup, val):
         """Set the initial angle.
-        
+
         Parameters
         ----------
         motion_setup : str
             Name of the motion setup.
         val : 
-            Value of the angle.  
+            Value of the angle.
 
         Returns
         -------
@@ -726,10 +726,10 @@ class Maxwell3d(Maxwell, FieldAnalysis3D, object):
     projectname : str, optional
         Name of the project to select or the full path to the project
         or AEDTZ archive to open. The default is ``None``, in which
-        case an attempt is made to get an active project. If no 
+        case an attempt is made to get an active project. If no
         projects are present, an empty project is created.
     designname : str, optional
-        Name of the design to select. The default is ``None``, in 
+        Name of the design to select. The default is ``None``, in
         which case an attempt is made to get an active design. If no
         designs are present, an empty design is created.
     solution_type : str, optional
@@ -737,20 +737,22 @@ class Maxwell3d(Maxwell, FieldAnalysis3D, object):
         ``None``, in which case the default type is applied.
     setup_name : str, optional
         Name of the setup to use as the nominal. The default is
-        ``None``, in which case the active setup is used or 
+        ``None``, in which case the active setup is used or
         nothing is used.
     specified_version: str, optional
         Version of AEDT to use. The default is ``None``, in which case
         the active version or latest installed version is used.
     NG : bool, optional
-        Whether to run AEDT in the non-graphical mode. The default 
-        is ``False``, in which case AEDT is launched in the graphical mode.  
+        Whether to run AEDT in the non-graphical mode. The default
+        is ``False``, in which case AEDT is launched in the graphical mode.
     AlwaysNew : bool, optional
         Whether to launch an instance of AEDT in a new thread, even if
         another instance of the ``specified_version`` is active on the
         machine. The default is ``True``.
     release_on_exit : bool, optional
         Whether to release AEDT on exit. The default is ``False``.
+     student_version : bool, optional
+        Whether open AEDT Student Version. The default is ``False``.
 
     Examples
     --------
@@ -773,12 +775,12 @@ class Maxwell3d(Maxwell, FieldAnalysis3D, object):
         return '3D'
 
     def __init__(self, projectname=None, designname=None, solution_type=None, setup_name=None,
-                 specified_version=None, NG=False, AlwaysNew=False, release_on_exit=False):
+                 specified_version=None, NG=False, AlwaysNew=False, release_on_exit=False,student_version=False):
         """
         Initialize the ``Maxwell`` class.
         """
         FieldAnalysis3D.__init__(self, "Maxwell 3D", projectname, designname, solution_type, setup_name,
-                                 specified_version, NG, AlwaysNew, release_on_exit)
+                                 specified_version, NG, AlwaysNew, release_on_exit, student_version)
         Maxwell.__init__(self)
 
 
@@ -793,10 +795,10 @@ class Maxwell2d(Maxwell, FieldAnalysis2D, object):
     projectname : str, optional
         Name of the project to select or the full path to the project
         or AEDTZ archive to open. The default is ``None``, in which
-        case an attempt is made to get an active project. If no 
+        case an attempt is made to get an active project. If no
         projects are present, an empty project is created.
     designname : str, optional
-        Name of the design to select. The default is ``None``, in 
+        Name of the design to select. The default is ``None``, in
         which case an attempt is made to get an active design. If no
         designs are present, an empty design is created.
     solution_type : str, optional
@@ -804,20 +806,22 @@ class Maxwell2d(Maxwell, FieldAnalysis2D, object):
         ``None``, in which case the default type is applied.
     setup_name : str, optional
         Name of the setup to use as the nominal. The default is
-        ``None``, in which case the active setup is used or 
+        ``None``, in which case the active setup is used or
         nothing is used.
     specified_version: str, optional
         Version of AEDT to use. The default is ``None``, in which case
         the active version or latest installed version is used.
     NG : bool, optional
-        Whether to run AEDT in the non-graphical mode. The default 
-        is ``False``, in which case AEDT is launched in the graphical mode.  
+        Whether to run AEDT in the non-graphical mode. The default
+        is ``False``, in which case AEDT is launched in the graphical mode.
     AlwaysNew : bool, optional
         Whether to launch an instance of AEDT in a new thread, even if
         another instance of the ``specified_version`` is active on the
         machine. The default is ``True``.
     release_on_exit : bool, optional
         Whether to release AEDT on exit. The default is ``False``.
+    student_version : bool, optional
+        Whether open AEDT Student Version. The default is ``False``.
 
     Examples
     --------
@@ -852,9 +856,9 @@ class Maxwell2d(Maxwell, FieldAnalysis2D, object):
         return self.odesign.GetGeometryMode()
 
     def __init__(self, projectname=None, designname=None, solution_type=None, setup_name=None,
-                 specified_version=None, NG=False, AlwaysNew=False, release_on_exit=False):
+                 specified_version=None, NG=False, AlwaysNew=False, release_on_exit=False, student_version=False):
         FieldAnalysis2D.__init__(self, "Maxwell 2D", projectname, designname, solution_type, setup_name,
-                                 specified_version, NG, AlwaysNew, release_on_exit)
+                                 specified_version, NG, AlwaysNew, release_on_exit, student_version)
         Maxwell.__init__(self)
 
     def get_model_depth(self):

@@ -14,15 +14,15 @@ class QExtractor(FieldAnalysis3D, FieldAnalysis2D, object):
     """
     Parameters
     ----------
-     Q3DType : 
-     
+     Q3DType :
+
      projectname : str, optional
         Name of the project to select or the full path to the project
         or AEDTZ archive to open. The default is ``None``, in which
-        case an attempt is made to get an active project. If no 
+        case an attempt is made to get an active project. If no
         projects are present, an empty project is created.
     designname : str, optional
-        Name of the design to select. The default is ``None``, in 
+        Name of the design to select. The default is ``None``, in
         which case an attempt is made to get an active design. If no
         designs are present, an empty design is created.
     solution_type : str, optional
@@ -30,24 +30,24 @@ class QExtractor(FieldAnalysis3D, FieldAnalysis2D, object):
         ``None``, in which case the default type is applied.
     setup_name : str, optional
         Name of the setup to use as the nominal. The default is
-        ``None``, in which case the active setup is used or 
+        ``None``, in which case the active setup is used or
         nothing is used.
     specified_version: str, optional
         Version of AEDT  to use. The default is ``None``, in which case
         the active version or latest installed version is used.
     NG : bool, optional
-        Whether to run AEDT in the non-graphical mode. The default 
-        is ``False``, which launches AEDT in the graphical mode.  
+        Whether to run AEDT in the non-graphical mode. The default
+        is ``False``, which launches AEDT in the graphical mode.
     AlwaysNew : bool, optional
         Whether to launch an instance of AEDT in a new thread, even if
         another instance of the ``specified_version`` is active on the
         machine. The default is ``True``.
     release_on_exit : bool, optional
         Whether to release AEDT on exit. The default is ``False``.
-    
+
     Returns
     -------
-    
+
     """
     @property
     def odefinition_manager(self):
@@ -73,13 +73,13 @@ class QExtractor(FieldAnalysis3D, FieldAnalysis2D, object):
         return design_file
 
     def __init__(self, Q3DType, projectname=None, designname=None, solution_type=None, setup_name=None,
-                 specified_version=None, NG=False, AlwaysNew=False, release_on_exit=False):
+                 specified_version=None, NG=False, AlwaysNew=False, release_on_exit=False, student_version=False):
         if Q3DType == "Q3D Extractor":
             FieldAnalysis3D.__init__(self, "Q3D Extractor", projectname, designname, solution_type, setup_name,
-                                     specified_version, NG, AlwaysNew, release_on_exit)
+                                     specified_version, NG, AlwaysNew, release_on_exit, student_version)
         else:
             FieldAnalysis2D.__init__(self, "2D Extractor", projectname, designname, solution_type, setup_name,
-                                     specified_version, NG, AlwaysNew, release_on_exit)
+                                     specified_version, NG, AlwaysNew, release_on_exit, student_version)
 
     def __enter__(self):
         return self
@@ -101,10 +101,10 @@ class Q3d(QExtractor, object):
     projectname : str, optional
         Name of the project to select or the full path to the project
         or AEDTZ archive to open. The default is ``None``, in which
-        case an attempt is made to get an active project. If no 
+        case an attempt is made to get an active project. If no
         projects are present, an empty project is created.
     designname : str, optional
-        Name of the design to select. The default is ``None``, in 
+        Name of the design to select. The default is ``None``, in
         which case an attempt is made to get an active design. If no
         designs are present, an empty design is created.
     solution_type : str, optional
@@ -112,20 +112,24 @@ class Q3d(QExtractor, object):
         ``None``, in which case the default type is applied.
     setup_name : str, optional
         Name of the setup to use as the nominal. The default is
-        ``None``, in which case the active setup is used or 
-        nothing is used.
-    specified_version: str, optional
+        ``None``. If ``None``, the active setup is used or nothing is
+        used.
+        specified_version: str, optional
         Version of AEDT to use. The default is ``None``, in which case
         the active version or latest installed version is used.
     NG : bool, optional
-        Whether to run AEDT in the non-graphical mode. The default 
-        is ``False``, which launches AEDT in the graphical mode.  
+        Whether to run AEDT in the non-graphical mode. The default
+        is ``False``, which launches AEDT in the graphical mode.
     AlwaysNew : bool, optional
         Whether to launch an instance of AEDT in a new thread, even if
         another instance of the ``specified_version`` is active on the
         machine. The default is ``True``.
     release_on_exit : bool, optional
         Whether to release  AEDT on exit. The default is ``False``.
+    student_version : bool, optional
+        Whether open AEDT Student Version. The default is ``False``.
+        ``None``, in which case the active setup is used or
+        nothing is used.
 
     Examples
     --------
@@ -136,9 +140,9 @@ class Q3d(QExtractor, object):
     >>> app = Q3d()
     """
     def __init__(self, projectname=None, designname=None, solution_type=None, setup_name=None,
-                 specified_version=None, NG=False, AlwaysNew=False, release_on_exit=False):
+                 specified_version=None, NG=False, AlwaysNew=False, release_on_exit=False, student_version=True):
         QExtractor.__init__(self, "Q3D Extractor", projectname, designname, solution_type, setup_name,
-                            specified_version, NG, AlwaysNew, release_on_exit)
+                            specified_version, NG, AlwaysNew, release_on_exit, student_version)
 
     @aedt_exception_handler
     def auto_identify_nets(self):
@@ -193,8 +197,8 @@ class Q3d(QExtractor, object):
 
     @aedt_exception_handler
     def assign_source_to_sheet(self, sheetname, objectname=None, netname=None, sourcename=None):
-        """Generate a source on an object.  
-        
+        """Generate a source on an object.
+
         It will be the face that has the maximum/minimum in this axis.
 
         Parameters
@@ -371,14 +375,14 @@ class Q3d(QExtractor, object):
         freqstart : float
             Starting point for the discrete frequency.
         freqstop : float, optional
-            Stopping point for the discrete frequency. If ``None``, 
+            Stopping point for the discrete frequency. If ``None``,
             a single-point sweep is to be performed.
         freqstep : float, optional
-            Step point for the discrete frequency. If ``None``, 
+            Step point for the discrete frequency. If ``None``,
             11 points will be created.
         units : str, optional
-            Unit of the discrete frequency. For example, ``"MHz"`` or 
-            ``"GHz"``.The default is ``"GHz"``.    
+            Unit of the discrete frequency. For example, ``"MHz"`` or
+            ``"GHz"``.The default is ``"GHz"``.
         sweepname : str, optional
             Name of the sweep.
         savefields : bool, optional
@@ -431,10 +435,10 @@ class Q2d(QExtractor, object):
     projectname : str, optional
         Name of the project to select or the full path to the project
         or AEDTZ archive to open. The default is ``None``, in which
-        case an attempt is made to get an active project. If no 
+        case an attempt is made to get an active project. If no
         projects are present, an empty project is created.
     designname : str, optional
-        Name of the design to select. The default is ``None``, in 
+        Name of the design to select. The default is ``None``, in
         which case an attempt is made to get an active design. If no
         designs are present, an empty design is created.
     solution_type : str, optional
@@ -442,14 +446,14 @@ class Q2d(QExtractor, object):
         ``None``, in which case the default type is applied.
     setup_name : str, optional
         Name of the setup to use as the nominal. The default is
-        ``None``, in which case the active setup is used or 
+        ``None``, in which case the active setup is used or
         nothing is used.
     specified_version: str, optional
         Version of AEDT to use. The default is ``None``, in which case
         the active version or latest installed version is used.
     NG : bool, optional
-        Whether to run AEDT in the non-graphical mode. The default 
-        is ``False``, which launches AEDT in the graphical mode.  
+        Whether to run AEDT in the non-graphical mode. The default
+        is ``False``, which launches AEDT in the graphical mode.
     AlwaysNew : bool, optional
         Whether to launch an instance of AEDT in a new thread, even if
         another instance of the ``specified_version`` is active on the
@@ -484,6 +488,6 @@ class Q2d(QExtractor, object):
 
 
     def __init__(self, projectname=None, designname=None, solution_type=None, setup_name=None,
-                 specified_version=None, NG=False, AlwaysNew=False, release_on_exit=False):
+                 specified_version=None, NG=False, AlwaysNew=False, release_on_exit=False, student_version=False):
         QExtractor.__init__(self, "2D Extractor", projectname, designname, solution_type, setup_name,
-                            specified_version, NG, AlwaysNew, release_on_exit)
+                            specified_version, NG, AlwaysNew, release_on_exit, student_version)

@@ -22,10 +22,10 @@ class Hfss(FieldAnalysis3D, object):
      projectname : str, optional
         Name of the project to select or the full path to the project
         or AEDTZ archive to open. The default is ``None``, in which
-        case an attempt is made to get an active project. If no 
+        case an attempt is made to get an active project. If no
         projects are present, an empty project is created.
     designname : str, optional
-        Name of the design to select. The default is ``None``, in 
+        Name of the design to select. The default is ``None``, in
         which case an attempt is made to get an active design. If no
         designs are present, an empty design is created.
     solution_type : str, optional
@@ -33,20 +33,23 @@ class Hfss(FieldAnalysis3D, object):
         ``None``, in which case the default type is applied.
     setup_name : str, optional
         Name of the setup to use as the nominal. The default is
-        ``None``, in which case the active setup is used or 
+        ``None``, in which case the active setup is used or
         nothing is used.
     specified_version: str, optional
         Version of AEDT to use. The default is ``None``, in which case
         the active version or latest installed version is used.
     NG : bool, optional
-        Whether to run AEDT in the non-graphical mode. The default 
-        is ``False``, which launches AEDT in the graphical mode.  
+        Whether to run AEDT in the non-graphical mode. The default
+        is ``False``, which launches AEDT in the graphical mode.
     AlwaysNew : bool, optional
         Whether to launch an instance of AEDT in a new thread, even if
         another instance of the ``specified_version`` is active on the
         machine. The default is ``True``.
     release_on_exit : bool, optional
         Whether to release AEDT on exit. The default is ``False``.
+        Whether to release AEDT on exit. The default is ``True``.
+    student_version : bool, optional
+        Whether open AEDT Student Version. The default is ``False``.
 
     Examples
     --------
@@ -78,6 +81,11 @@ class Hfss(FieldAnalysis3D, object):
 
     >>> hfss = Hfss(specified_version="2021.1", projectname="myfile.aedt")
 
+    Create an instance of ``Hfss`` using the 2021 R2 student version and open
+    the specified project, which is named ``"myfile.aedt"``.
+
+    >>> hfss = Hfss(specified_version="2021.2", projectname="myfile.aedt", student_version=True)
+
     """
 
     def __repr__(self):
@@ -88,9 +96,9 @@ class Hfss(FieldAnalysis3D, object):
             return "HFSS Module"
 
     def __init__(self, projectname=None, designname=None, solution_type=None, setup_name=None,
-                 specified_version=None, NG=False, AlwaysNew=False, release_on_exit=False):
+                 specified_version=None, NG=False, AlwaysNew=False, release_on_exit=False, student_version=False):
         FieldAnalysis3D.__init__(self, "HFSS", projectname, designname, solution_type, setup_name,
-                                 specified_version, NG, AlwaysNew, release_on_exit)
+                                 specified_version, NG, AlwaysNew, release_on_exit, student_version)
 
     def __enter__(self):
         return self
@@ -102,7 +110,7 @@ class Hfss(FieldAnalysis3D, object):
 
     class BoundaryType(object):
         """Boundary class.
-        
+
         Parameters
         ----------
         PerfectE :
@@ -119,22 +127,22 @@ class Hfss(FieldAnalysis3D, object):
     @aedt_exception_handler
     def _create_boundary(self, name, props, boundary_type):
         """Create a boundary.
-        
+
         Parameters
         ---------
         name : str
             Name of the boundary
         props : list
             List of properties for the boundary.
-        boundary_type : 
+        boundary_type :
             Type of the boundary.
-        
+
         Returns
         -------
         type
             Boundary created.
         """
-        
+
         bound = BoundaryObject(self, name, props, boundary_type)
         result = bound.create()
         if result:
@@ -293,7 +301,7 @@ class Hfss(FieldAnalysis3D, object):
         >>> id1 = aedtapp.modeler.primitives.get_obj_id("inner")
         >>> coat = aedtapp.assigncoating([id1], "copper",usethickness=True, thickness="0.2mm")
         """
-        
+
         listobj = self.modeler.convert_to_selections(obj, True)
         listobjname = "_".join(listobj)
         props = {"Objects": listobj}
@@ -353,7 +361,7 @@ class Hfss(FieldAnalysis3D, object):
         num_of_freq_points : int, optional
             Number of frequency points in the range. The default is ``451``.
         sweeptype : str, optional
-            Type of the sweep. Options are ``"Fast"``, ``"Interpolating"``, 
+            Type of the sweep. Options are ``"Fast"``, ``"Interpolating"``,
             and ``"Discrete"``. The default is ``"Interpolating"``.
         interpolation_tol : float, optional
             Error tolerance threshold for the interpolation process. The default is ``0.5``.
@@ -425,7 +433,7 @@ class Hfss(FieldAnalysis3D, object):
         SweepHFSS
             Sweep object.
         """
-        
+
         if sweepname is None:
             sweepname = generate_unique_name("Sweep")
 
@@ -513,11 +521,11 @@ class Hfss(FieldAnalysis3D, object):
                                   use_composite_ports=False, use_global_current=True, current_conformance="Disable",
                                   thin_sources=True, power_fraction="0.95"):
         """Create a linked antenna.
-        
+
         Parameters
         -------------
         source_object :
-        
+
         target_cs : str, optional
             Target coordinate system. The default is ``"Global"``.
         solution : optional
@@ -532,12 +540,12 @@ class Hfss(FieldAnalysis3D, object):
              The default is ``True``.
         power_fraction str, optional
              The default is ``"0.95"``.
-        
+
         Returns
         -------
         bool
             ``True`` when successful, ``False`` when failed.
-        
+
         """
 
         compName = source_object.design_name
@@ -872,7 +880,7 @@ class Hfss(FieldAnalysis3D, object):
         renorm : bool, optional
             Whether to renormalize the mode. The default is ``True``.
         deembed_dist : float, optional
-            Deembed distance in millimeters. The default is ``0``, 
+            Deembed distance in millimeters. The default is ``0``,
             in which case deembed is disabled.
         port_on_plane : bool, optional
             Whether to create the port on the plane orthogonal to ``AxisDir``. The default is ``True``.
@@ -908,22 +916,6 @@ class Hfss(FieldAnalysis3D, object):
 
     @aedt_exception_handler
     def _create_pec_cap(self, sheet_name, axisdir, pecthick):
-        """Create a pec cap.
-        
-        Parameters
-        ----------
-        sheet_name : str
-            Name of the sheet to create the pec cap on.
-        axisdir :
-            Position of  the  pec cap.
-        pecthick : 
-            Thickness of the pec cap.
-        
-        Returns
-        -------
-        type
-        
-        """
         vector = [0, 0, 0]
         if axisdir < 3:
             vector[divmod(axisdir, 3)[1]] = -pecthick / 2
@@ -960,7 +952,7 @@ class Hfss(FieldAnalysis3D, object):
         renorm : bool, optional
             Whether to renormalize the mode. The default is ``True``.
         deembed_dist : float, optional
-            Deembed distance in millimeters. The default is ``0``, 
+            Deembed distance in millimeters. The default is ``0``,
             in which case deembed is disabled.
         vfactor : int, optional
             Port vertical factor. The default is ``3``.
@@ -1096,7 +1088,7 @@ class Hfss(FieldAnalysis3D, object):
         Parameters
         ----------
         Tissue_object_List_ID :
-            
+
         TissueMass : optional
             The default is ``1``.
         MaterialDensity : optional
@@ -1167,10 +1159,10 @@ class Hfss(FieldAnalysis3D, object):
         sourcename : str, optional
             Perfect H name. The default is ``None``.
         rlctype : str, optional
-            Type of the RLC. Options are ``"Parallel"`` or ``"Series"``. 
+            Type of the RLC. Options are ``"Parallel"`` or ``"Series"``.
             The default is ``"Parallel"``.
         Rvalue : optional
-            Resistance value in ohms. The default is ``None``, 
+            Resistance value in ohms. The default is ``None``,
             in which case this parameter is disabled.
         Lvalue : optional
             Inductance value in H. The default is ``None``,
@@ -1179,7 +1171,7 @@ class Hfss(FieldAnalysis3D, object):
             Capacitance value in F. The default is ``None``,
             in which case this parameter is disabled.
         bound_on_plane : bool, optional
-            Whether to create the boundary on the plane orthogonal 
+            Whether to create the boundary on the plane orthogonal
             to ``AxisDir``. The default is ``True``.
 
         Returns
@@ -1249,7 +1241,7 @@ class Hfss(FieldAnalysis3D, object):
         bound_on_plane : bool, optional
             Whether to create the impedance on the plane orthogonal to ``AxisDir``.
             The default is ``True``.
-        
+
         Returns
         -------
         BoundaryObject
@@ -1281,7 +1273,7 @@ class Hfss(FieldAnalysis3D, object):
         Parameters
         ----------
         boundary_type : str, optional
-            Boundary type object. Options are ``"PerfectE"``, ``"PerfectH"``, ``"Aperture"``, and 
+            Boundary type object. Options are ``"PerfectE"``, ``"PerfectH"``, ``"Aperture"``, and
             ``"Radiation"``. The default is ``"BoundaryType.PerfectE"``.
         sheet_name : in, str, list, optional
             Name of the sheet. It can be an integer (face ID), a string (sheet), or a list of integers
@@ -1380,7 +1372,7 @@ class Hfss(FieldAnalysis3D, object):
         renorm : bool, optional
             Whether to renormalize the mode. The default is ``True``.
         deembed_dist : float, optional
-            Deembed distance in millimeters. The default is ``0``, 
+            Deembed distance in millimeters. The default is ``0``,
             in which case deembed is disabled.
 
         Returns
@@ -1606,13 +1598,13 @@ class Hfss(FieldAnalysis3D, object):
         rlctype : str, optional
             Type of the RLC. Options are ``"Parallel"`` or ``"Series"``. The default is ``"Parallel"``.
         Rvalue : float, optional
-            Resistance value in ohms. The default is ``None``, in which 
+            Resistance value in ohms. The default is ``None``, in which
             case this parameter is disabled.
         Lvalue : optional
-            Inductance value in H. The default is ``None``, in which 
+            Inductance value in H. The default is ``None``, in which
             case this parameter is disabled.
         Cvalue : optional
-            Capacitance value in F. The default is ``None``, in which 
+            Capacitance value in F. The default is ``None``, in which
             case this parameter is disabled.
        
         Returns
@@ -1690,10 +1682,10 @@ class Hfss(FieldAnalysis3D, object):
                                        port_impedance="50",
                                        renormalize=False, renorm_impedance="50",
                                        deembed=False):
-        """Create a circuit port. 
+        """Create a circuit port.
         
-        The integration line is from edge2 to edge1.        
-                        
+        The integration line is from edge2 to edge1.
+
         Parameters
         ----------
         edge_signal : int
@@ -1771,7 +1763,7 @@ class Hfss(FieldAnalysis3D, object):
         internalExtr : bool, optional
             Whether the sheets must also be extruded internally. The default is ``True``.
         internalvalue : optional
-            Value in millimeters for thickening the sheets internally (vgoing into the model) if ``internalExtr=True``. 
+            Value in millimeters for thickening the sheets internally (vgoing into the model) if ``internalExtr=True``.
             The default is ``1``.
 
         Returns
@@ -2031,7 +2023,7 @@ class Hfss(FieldAnalysis3D, object):
     def create_scattering(self, plot_name="S Parameter Plot Nominal", sweep_name=None, port_names=None, port_excited=None,
                           variations=None):
         """Create a scattering report.
-                
+
         Parameters
         ----------
         PlotName : str, optional
@@ -2146,10 +2138,10 @@ class Hfss(FieldAnalysis3D, object):
         filename : str, optional
              Full path to the output file. The default is ``None``.
         variation : list, optional
-             List of all parameter variations. For example, ``["$AmbientTemp", "$PowerIn"]``. 
+             List of all parameter variations. For example, ``["$AmbientTemp", "$PowerIn"]``.
              The default is ``[]``.
         variations_value : list, optional
-             List of all parameter variation values. For example, ``["22cel", "100"]``. 
+             List of all parameter variation values. For example, ``["22cel", "100"]``.
              The default is ``[]``.
 
         Returns

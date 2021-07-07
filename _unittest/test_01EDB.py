@@ -219,7 +219,7 @@ class TestEDB:
         assert self.edbapp.core_components.delete_component("R1")
 
     def test_create_coax_port(self):
-        assert self.edbapp.core_hfss.create_coax_port_on_component("U2A5","V1P0_S0")
+        assert self.edbapp.core_hfss.create_coax_port_on_component("U2A5",["RSVD_0", "V1P0_SO"])
 
     def test_create_siwave_circuit_port(self):
         assert self.edbapp.core_siwave.create_circuit_port("U2A5","V1P5_S3","U2A5","GND",50,"test")
@@ -402,3 +402,18 @@ class TestEDB:
         assert edb
         assert edb.active_layout
         edb.close_edb()
+    def test_export_to_hfss(self):
+        edb = Edb(edbpath=os.path.join(local_path, 'example_models', "simple.aedb"), edbversion="2021.1")
+        options_config = {'UNITE_NETS' : 1, 'LAUNCH_Q3D' : 0}
+        out = edb.write_export3d_option_config_file(scratch_path, options_config)
+        assert os.path.exists(out)
+        out= edb.export_hfss(scratch_path, non_graphical=True)
+        assert os.path.exists(out)
+
+    def test_export_to_q3d(self):
+        edb = Edb(edbpath=os.path.join(local_path, 'example_models', "simple.aedb"), edbversion="2021.1")
+        options_config = {'UNITE_NETS' : 1, 'LAUNCH_Q3D' : 0}
+        out = edb.write_export3d_option_config_file(scratch_path, options_config)
+        assert os.path.exists(out)
+        out= edb.export_q3d(scratch_path, non_graphical=True, net_list=["NET1", "NET2", "GND"])
+        assert os.path.exists(out)

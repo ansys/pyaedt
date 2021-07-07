@@ -19,10 +19,10 @@ class Mechanical(FieldAnalysis3D, object):
     projectname : str, optional
         Name of the project to select or the full path to the project
         or AEDTZ archive to open.  The default is ``None``, in which
-        case an attempt is made to get an active project. If no 
+        case an attempt is made to get an active project. If no
         projects are present, an empty project is created.
     designname : str, optional
-        Name of the design to select. The default is ``None``, in 
+        Name of the design to select. The default is ``None``, in
         which case an attempt is made to get an active design. If no
         designs are present, an empty design is created.
     solution_type : str, optional
@@ -30,21 +30,22 @@ class Mechanical(FieldAnalysis3D, object):
         ``None``, which applies the default type.
     setup_name : str, optional
         Name of the setup to use as the nominal. The default is
-        ``None``, in which case the active setup is used or 
+        ``None``, in which case the active setup is used or
         nothing is used.
     specified_version: str, optional
         Version of AEDT  to use. The default is ``None``, in which case
         the active version or latest installed version is  used.
     NG : bool, optional
-        Whether to run AEDT in the non-graphical mode. The default 
-        is``False``, which launches AEDT in the graphical mode.  
+        Whether to run AEDT in the non-graphical mode. The default
+        is``False``, which launches AEDT in the graphical mode.
     AlwaysNew : bool, optional
         Whether to launch an instance of AEDT in a new thread, even if
         another instance of the ``specified_version`` is active on the
         machine.  The default is ``True``.
     release_on_exit : bool, optional
-        Whether to release AEDT on exit. 
-
+        Whether to release AEDT on exit.
+    student_version : bool, optional
+        Whether open AEDT Student Version. The default is ``False``.
     Examples
     --------
     Create an instance of `Mechanical` and connect to an existing
@@ -78,10 +79,10 @@ class Mechanical(FieldAnalysis3D, object):
     """
 
     def __init__(self, projectname=None, designname=None, solution_type=None, setup_name=None,
-                 specified_version=None, NG=False, AlwaysNew=False, release_on_exit=False):
+                 specified_version=None, NG=False, AlwaysNew=False, release_on_exit=False, student_version=False):
 
         FieldAnalysis3D.__init__(self, "Mechanical", projectname, designname, solution_type, setup_name,
-                                 specified_version, NG, AlwaysNew, release_on_exit)
+                                 specified_version, NG, AlwaysNew, release_on_exit, student_version)
     def __enter__(self):
         return self
 
@@ -104,12 +105,12 @@ class Mechanical(FieldAnalysis3D, object):
         sweepname : str, optional
             Name of the EM sweep to use for the mapping. The default is ``"LastAdaptive"``.
         map_frequency : str, optional
-            Frequency to map. The default is ``None``. The value must be ``None`` for 
+            Frequency to map. The default is ``None``. The value must be ``None`` for
 	      Eigenmode analysis.
         surface_objects : list, optional
             List objects in the source that are metals. The default is ``[]``.
         source_project_name : str, optional
-            Name of the source project. The default is ``None``, in which case  
+            Name of the source project. The default is ``None``, in which case
 	      the source from the same project is used.
         paramlist : list, optional
             List of all parameters in the EM to map. The default is ``[]``.
@@ -183,7 +184,7 @@ class Mechanical(FieldAnalysis3D, object):
         sweepname :str, optional
             Name of the EM sweep to use for the mapping. The default is ``"SteadyState"``.
         source_project_name : str, optional
-            Name of the source project. The default is ``None``, in which case the 
+            Name of the source project. The default is ``None``, in which case the
 	      source from the same project is used.
         paramlist : list, optional
             List of all parameters in the EM to map. The default is ``[]``.
@@ -405,7 +406,7 @@ class Mechanical(FieldAnalysis3D, object):
     @property
     def existing_analysis_sweeps(self):
         """List of existing analysis setups in the Mechanical design.
-                
+
 
         Returns
         -------

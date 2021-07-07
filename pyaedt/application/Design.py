@@ -381,7 +381,7 @@ class Design(object):
         return True
 
     def __init__(self, design_type, project_name=None, design_name=None, solution_type=None,
-                 specified_version=None, NG=False, AlwaysNew=False, release_on_exit=False):
+                 specified_version=None, NG=False, AlwaysNew=False, release_on_exit=False, student_version=False):
         # Get Desktop from global Desktop Environment
         self._project_dictionary = OrderedDict()
         self.boundaries = OrderedDict()
@@ -389,7 +389,7 @@ class Design(object):
         self.design_datasets = {}
         main_module = sys.modules['__main__']
         if "pyaedt_initialized" not in dir(main_module):
-            Desktop(specified_version, NG, AlwaysNew, release_on_exit)
+            Desktop(specified_version, NG, AlwaysNew, release_on_exit, student_version)
         self._project_dictionary = {}
         self._mttime = None
         self._desktop = main_module.oDesktop
