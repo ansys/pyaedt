@@ -1040,7 +1040,7 @@ class Design(object):
                     proj.Save()
                 else:
                     assert not os.path.exists(
-                        proj_name + ".lock"), "Project Is Locked. Close or remove the lock before proceeding"
+                        proj_name + ".lock"), "Project is locked. Close or remove the lock before proceeding."
                     proj = self._desktop.OpenProject(proj_name)
                     time.sleep(0.5)
                 self._oproject = proj
@@ -1103,7 +1103,7 @@ class Design(object):
 
     @property
     def variable_manager(self):
-        """Variable manager
+        """Variable manager.
         
         This object is used to create and manage project design and postprocessing variables.
 
@@ -1128,9 +1128,9 @@ class Design(object):
         variable_name : str
             Name of the variable.
         min_val : optional
-            The default is ``None``.
+            Minimum value for the variable. The default is ``None``.
         max_val :  optional
-            The default is ``None``.
+            Maximum value for the variable. The default is ``None``.
         tolerance : optional
             The default is ``None``.
         probability : optional
@@ -1479,9 +1479,9 @@ class Design(object):
         Parameters
         ----------
         close_projects: bool, optional
-            Whether to close all projects.  Default is ``True``.
+            Whether to close all projects. The default is ``True``.
         close_desktop: bool, optional
-            Whether to close the desktop after release it.  Default is ``True``.
+            Whether to close the desktop after releasing it. The default is ``True``.
 
         Returns
         -------
@@ -1542,7 +1542,7 @@ class Design(object):
         design_name : str, optional
             Design name. The default is ``None``.
         close_active_proj : bool, optional
-            Whether to close the active project. The defaultis ``False``.
+            Whether to close the active project. The default is ``False``.
 
         Returns
         -------
@@ -1881,7 +1881,7 @@ class Design(object):
 
     @aedt_exception_handler
     def close_project(self, name=None, saveproject=True):
-        """Close a project
+        """Close a project.
 
         Parameters
         ----------
@@ -1900,7 +1900,7 @@ class Design(object):
         """
         msg_txt = ""
         if name:
-            assert name in self.project_list, "Invalid project name {}".format(name)
+            assert name in self.project_list, "Invalid project name {}.".format(name)
             msg_txt = "specified "+ name
         else:
             name = self.project_name
@@ -1930,12 +1930,13 @@ class Design(object):
         ----------
         name : str, optional
             Name of the design. The default is ``None``, in which case
-            the active design will be deleted. 
+            the active design is deleted. 
 
         Returns
         -------
         bool
             ``True`` when successful, ``False`` when failed.
+            
         """
         if not name:
             name = self.design_name
@@ -1966,7 +1967,6 @@ class Design(object):
         separator_name : str
             Name of the separator.
 
-
         Returns
         -------
         bool
@@ -1983,12 +1983,7 @@ class Design(object):
         ----------
         sVarName :
             Name of the variable.
-
-        Returns
-        -------
-        type
-            none
-
+       
         """
         return  self.variable_manager.delete_variable(sVarName)
 
@@ -2009,8 +2004,10 @@ class Design(object):
 
         Returns
         -------
+        str
+            Name of the design.
 
-        """"Circuit Design"
+        """
         if self.design_type == "Circuit Design" or self.design_type == "HFSS 3D Layout Design":
             self.modeler.edb.close_edb()
         self.__init__(projectname=self.project_name, designname=design_name)
@@ -2076,7 +2073,7 @@ class Design(object):
         Returns
         --------
         str
-            Unique project name in the form ``"Project_<unique_name>.aedt"
+            Unique project name in the form ``"Project_<unique_name>.aedt".
         
         """
         char_set = string.ascii_uppercase + string.digits
@@ -2155,15 +2152,16 @@ class Design(object):
 
     @aedt_exception_handler
     def duplicate_design(self, label):
-        """Copy a design to a new name that consists of the original 
-        design name plus suffix of ``MMode`` and a running index 
+        """Copy a design to a new name.
+        
+        The new name consists of the original 
+        design name plus a suffix of ``MMode`` and a running index 
         as necessary to allow for multiple calls.
 
         Parameters
         ----------
         label : str
             Name of the design to copy.
-
 
         Returns
         -------
@@ -2232,7 +2230,7 @@ class Design(object):
         Returns
         -------
         dict
-            Dictionary of design data.
+            Dictionary of the design data.
         
         """
         design_file = os.path.join(self.working_directory, "design_data.json")
@@ -2285,7 +2283,7 @@ class Design(object):
             ``True`` when successful, ``False`` when failed.
 
         """
-        assert self.project_name != project_name, "Cannot delete the active design."
+        assert self.project_name != project_name, "You cannot delete the active design."
         self._desktop.DeleteProject(project_name)
         return True
 
@@ -2451,7 +2449,7 @@ class Design(object):
 
     @aedt_exception_handler
     def _assert_consistent_design_type(self, des_name):
-        """
+        """Assert consistent design type.
 
         Parameters
         ----------
