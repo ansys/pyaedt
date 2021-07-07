@@ -98,7 +98,7 @@ def from_rkm(code):
 
     # Matches RKM codes that start with a digit.
     # fd_pattern = r'([0-9]+)([LREkKMGTFmuµUnNpP]+)([0-9]*)'
-    fd_pattern = r'([0-9]+)([{}]+)([0-9]*)'.format(''.join(RKM_MAPS.keys()),)
+    fd_pattern = r'([0-9]+)([{}]+)([0-9]*)'.format(''.join(RKM_MAPS.keys()), )
     # matches rkm codes that end with a digit
     # ld_pattern = r'([0-9]*)([LREkKMGTFmuµUnNpP]+)([0-9]+)'
     ld_pattern = r'([0-9]*)([{}]+)([0-9]+)'.format(''.join(RKM_MAPS.keys()))
@@ -236,13 +236,12 @@ class Circuit(FieldAnalysisCircuit, object):
 
     @aedt_exception_handler
     def _get_number_from_string(self, stringval):
-        value = stringval[stringval.find("=") + 1:].strip().replace("{", "").replace("}", "").replace(",",".")
+        value = stringval[stringval.find("=") + 1:].strip().replace("{", "").replace("}", "").replace(",", ".")
         try:
             float(value)
             return value
         except:
             return from_rkm_to_aedt(value)
-
 
     @aedt_exception_handler
     def create_schematic_from_netlist(self, file_to_import):
@@ -271,15 +270,15 @@ class Circuit(FieldAnalysisCircuit, object):
         ypos = 0
         delta = 0.0508
         use_instance = True
-        model =[]
+        model = []
         self._desktop.CloseAllWindows()
-        autosave=False
+        autosave = False
         if self._desktop.GetAutoSaveEnabled() == 1:
             self._desktop.EnableAutoSave(False)
-            autosave=True
+            autosave = True
         with open(file_to_import, 'rb') as f:
             for line in f:
-                line=line.decode('utf-8')
+                line = line.decode('utf-8')
                 if ".param" in line[:7].lower():
                     try:
                         ppar = line[7:].split("=")[0]
@@ -296,30 +295,32 @@ class Circuit(FieldAnalysisCircuit, object):
             self.modeler.components.create_component(None, component_library=None, component_name="Models_Netlist",
                                                      xpos=xpos, ypos=0, global_netlist_list=model)
             self.modeler.components.disable_data_netlist(component_name="Models_Netlist")
-            xpos +=0.0254
-        counter =  0
+            xpos += 0.0254
+        counter = 0
         with open(file_to_import, 'rb') as f:
             for line in f:
-                line=line.decode('utf-8')
+                line = line.decode('utf-8')
                 mycomp = None
                 fields = line.split(" ")
-                name = fields[0].replace(".","")
+                name = fields[0].replace(".", "")
 
                 if fields[0][0] == "R":
-                    if  "{" in fields[3][0]:
-                        value =  fields[3].strip()[1:-1]
-                    elif '/' in fields[3] and '"' not in fields[3][0] and "'" not in fields[3][0] and "{" not in fields[3][0]:
+                    if "{" in fields[3][0]:
+                        value = fields[3].strip()[1:-1]
+                    elif '/' in fields[3] and '"' not in fields[3][0] and "'" not in fields[3][0] and "{" not in \
+                            fields[3][0]:
                         value = self._get_number_from_string(fields[3].split('/')[0])
                     else:
                         value = self._get_number_from_string(fields[3])
                     mycomp, mycompname = self.modeler.components.create_resistor(name, value, xpos, ypos,
                                                                                  use_instance_id_netlist=use_instance)
                 elif fields[0][0] == "L":
-                    if len(fields)>4 and  "=" not in fields[4]:
+                    if len(fields) > 4 and "=" not in fields[4]:
                         try:
                             float(fields[4])
                         except:
-                            self._messenger.add_warning_message("Component {} Not Imported. Check it and manually import".format(name))
+                            self._messenger.add_warning_message(
+                                "Component {} Not Imported. Check it and manually import".format(name))
                             continue
                     if "{" in fields[3][0]:
                         value = fields[3].strip()[1:-1]
@@ -330,8 +331,8 @@ class Circuit(FieldAnalysisCircuit, object):
                     mycomp, mycompname = self.modeler.components.create_inductor(name, value, xpos, ypos,
                                                                                  use_instance_id_netlist=use_instance)
                 elif fields[0][0] == "C":
-                    if  "{" in fields[3][0]:
-                        value =  fields[3].strip()[1:-1]
+                    if "{" in fields[3][0]:
+                        value = fields[3].strip()[1:-1]
                     elif '/' in fields[3] and '"' not in fields[3][0] and "'" not in fields[3][0]:
                         value = self._get_number_from_string(fields[3].split('/')[0])
                     else:
@@ -358,13 +359,13 @@ class Circuit(FieldAnalysisCircuit, object):
                             parameter_list = ["MOD"]
                             parameter_value = [parameter]
                         self.modeler.components.create_symbol(parameter, pins)
-                        already_exist=False
+                        already_exist = False
                         for el in self.modeler.components.components:
                             if self.modeler.components.components[el].name == parameter:
                                 already_exist = True
                         if not already_exist:
                             self.modeler.components.create_new_component_from_symbol(parameter, pins, fields[0][0],
-                                                                                 parameter_list, parameter_value)
+                                                                                     parameter_list, parameter_value)
                         mycomp, mycompname = self.modeler.components.create_component(fields[0], component_library=None,
                                                                                       component_name=parameter,
                                                                                       xpos=xpos, ypos=ypos,
@@ -391,7 +392,7 @@ class Circuit(FieldAnalysisCircuit, object):
                             already_exist = True
                     if not already_exist:
                         self.modeler.components.create_new_component_from_symbol(parameter, pins, fields[0][0],
-                                                                             parameter_list, parameter_value)
+                                                                                 parameter_list, parameter_value)
                     mycomp, mycompname = self.modeler.components.create_component(fields[0], component_library=None,
                                                                                   component_name=parameter,
                                                                                   xpos=xpos, ypos=ypos,
@@ -407,11 +408,11 @@ class Circuit(FieldAnalysisCircuit, object):
                         mycomp, mycompname = self.modeler.components.create_voltage_dc(name, value, xpos, ypos,
                                                                                        use_instance_id_netlist=use_instance)
                     else:
-                        value = line[line.index("PULSE")+6:line.index(")")-1].split(" ")
-                        value = [i.replace("{", "").replace("}","") for i in value]
+                        value = line[line.index("PULSE") + 6:line.index(")") - 1].split(" ")
+                        value = [i.replace("{", "").replace("}", "") for i in value]
                         fields[1], fields[2] = fields[2], fields[1]
                         mycomp, mycompname = self.modeler.components.create_voltage_pulse(name, value, xpos, ypos,
-                                                                                       use_instance_id_netlist=use_instance)
+                                                                                          use_instance_id_netlist=use_instance)
                 elif fields[0][0] == "K":
                     value = self._get_number_from_string(fields[3])
                     mycomp, mycompname = self.modeler.components.create_coupling_inductors(name, fields[1], fields[2],
@@ -423,10 +424,10 @@ class Circuit(FieldAnalysisCircuit, object):
                         mycomp, mycompname = self.modeler.components.create_current_dc(name, value, xpos, ypos,
                                                                                        use_instance_id_netlist=use_instance)
                     else:
-                        value = line[line.index("PULSE")+6:line.index(")")-1].split(" ")
-                        value = [i.replace("{", "").replace("}","") for i in value]
+                        value = line[line.index("PULSE") + 6:line.index(")") - 1].split(" ")
+                        value = [i.replace("{", "").replace("}", "") for i in value]
                         mycomp, mycompname = self.modeler.components.create_current_pulse(name, value, xpos, ypos,
-                                                                                       use_instance_id_netlist=use_instance)
+                                                                                          use_instance_id_netlist=use_instance)
                 if mycomp:
                     pins = self.modeler.components.get_pins(mycomp)
                     id = 1
@@ -442,10 +443,10 @@ class Circuit(FieldAnalysisCircuit, object):
                     if ypos > 0.254:
                         xpos += delta
                         ypos = 0
-                    counter+=1
-                    if counter>59:
+                    counter += 1
+                    if counter > 59:
                         self.modeler.oeditor.CreatePage("<Page Title>")
-                        counter =0
+                        counter = 0
         if autosave:
             self._desktop.EnableAutoSave(True)
         return True
@@ -491,7 +492,7 @@ class Circuit(FieldAnalysisCircuit, object):
                 props[n] = []
                 i = my_netlist.index(el) + 1
                 finished = False
-                while not finished and i<len(my_netlist):
+                while not finished and i < len(my_netlist):
                     if my_netlist[i][0] == "Property:":
                         props[n].append(my_netlist[i][1])
                     elif "Pin:" in my_netlist[i]:
@@ -502,8 +503,8 @@ class Circuit(FieldAnalysisCircuit, object):
 
         column_number = int(math.sqrt(len(comps)))
         for el in comps:
-            name = el[2].strip()   #Remove carriage return.
-            name = name[1:-1]      #Remove quotes.
+            name = el[2].strip()  # Remove carriage return.
+            name = name[1:-1]  # Remove quotes.
             if len(el) > 3:
                 comptype = el[3]
             else:
@@ -511,7 +512,7 @@ class Circuit(FieldAnalysisCircuit, object):
             value = "required"
             for prop in props[name]:
                 if "Value=" in prop:
-                    value = prop.split("=")[1].replace(",",".").strip()
+                    value = prop.split("=")[1].replace(",", ".").strip()
 
             mycomp = None
             if "resistor:RES." in comptype:
@@ -531,7 +532,7 @@ class Circuit(FieldAnalysisCircuit, object):
                                                                         use_instance_id_netlist=use_instance)
             elif "diode:" in comptype:
                 mycomp, mycompname = self.modeler.components.create_diode(name, value, xpos, ypos,
-                                                                        use_instance_id_netlist=use_instance)
+                                                                          use_instance_id_netlist=use_instance)
 
             if mycomp:
                 pins = self.modeler.components.get_pins(mycomp)
@@ -545,10 +546,11 @@ class Circuit(FieldAnalysisCircuit, object):
                     netname = None
                     for net in nets:
                         net = [i.strip() for i in net]
-                        if (name+"-"+str(id)) in net:
+                        if (name + "-" + str(id)) in net:
                             fullnetname = net[2]
                             netnames = fullnetname.split("/")
-                            netname = netnames[len(netnames)-1].replace(",","_").replace("'","").replace("$","").strip()
+                            netname = netnames[len(netnames) - 1].replace(",", "_").replace("'", "").replace("$",
+                                                                                                             "").strip()
                     if not netname:
                         prop = props[name]
                         if "Pin:" in prop and id in prop:
@@ -567,13 +569,13 @@ class Circuit(FieldAnalysisCircuit, object):
 
         for el in nets:
             netname = el[2][1:-1]
-            netname = netname.replace("$","")
+            netname = netname.replace("$", "")
             if "GND" in netname.upper():
                 self.modeler.components.create_gnd(xpos, ypos)
-                page_pos = ypos+0.00254
+                page_pos = ypos + 0.00254
                 id, name = self.modeler.components.create_page_port(netname, xpos, ypos, 6.28318530717959)
                 mod1 = self.modeler.components[id]
-                mod1.set_location(str(xpos)+"meter", str(page_pos)+"meter")
+                mod1.set_location(str(xpos) + "meter", str(page_pos) + "meter")
                 ypos += delta
                 if ypos > delta * column_number:
                     xpos += delta
@@ -609,7 +611,8 @@ class Circuit(FieldAnalysisCircuit, object):
             return ""
 
     @aedt_exception_handler
-    def get_source_pin_names(self, source_design_name, source_project_name=None, source_project_path=None, port_selector=3):
+    def get_source_pin_names(self, source_design_name, source_project_name=None, source_project_path=None,
+                             port_selector=3):
         """List the pin names.
         
         Parameters
@@ -650,7 +653,6 @@ class Circuit(FieldAnalysisCircuit, object):
 
         return pins
 
-
     @aedt_exception_handler
     def import_touchstone_solution(self, filename, solution_name="Imported_Data"):
         """Import a Touchstone file as the solution.
@@ -671,8 +673,8 @@ class Circuit(FieldAnalysisCircuit, object):
             with open(filename, "r") as f:
                 lines = f.readlines()
                 for i in lines:
-                    if "[Number of Ports]" in  i:
-                        ports = int(i[i.find("]")+1:])
+                    if "[Number of Ports]" in i:
+                        ports = int(i[i.find("]") + 1:])
                 portnames = [i.split(" = ")[1].strip() for i in lines if "! Port" in i[:9]]
                 if not portnames:
                     portnames = ["Port{}".format(i + 1) for i in range(ports)]
@@ -681,11 +683,11 @@ class Circuit(FieldAnalysisCircuit, object):
             m = re_filename.search(filename)
             ports = int(m.group('ports'))
             portnames = None
-            with open(filename,"r") as f:
+            with open(filename, "r") as f:
                 lines = f.readlines()
                 portnames = [i.split(" = ")[1].strip() for i in lines if "Port[" in i]
             if not portnames:
-                portnames = ["Port{}".format(i+1) for i in range(ports)]
+                portnames = ["Port{}".format(i + 1) for i in range(ports)]
         arg = ["NAME:NPortData", "Description:=", "", "ImageFile:=", "",
                "SymbolPinConfiguration:=", 0, ["NAME:PortInfoBlk"], ["NAME:PortOrderBlk"],
                "filename:=", filename, "numberofports:=", ports, "sssfilename:=", "",
@@ -705,6 +707,69 @@ class Circuit(FieldAnalysisCircuit, object):
                "NoiseModelOption:=", "External"]
         self.odesign.ImportData(arg, "", True)
         return portnames
+
+    @aedt_exception_handler
+    def export_touchstone(self, solutionname, sweepname, filename=None, variation=[], variations_value=[]):
+        """Export the Touchstone file to a local folder.
+
+        Parameters
+        ----------
+        solutionname : str
+             Name of the solution that has been solved.
+        sweepname : str
+             Name of the sweep that has been solved.
+        filename : str, optional
+             Full path to the output file. The default is ``None``.
+        variation : list, optional
+             List of all parameter variations. For example, ``["$AmbientTemp", "$PowerIn"]``.
+             The default is ``[]``.
+        variations_value : list, optional
+             List of all parameter variation values. For example, ``["22cel", "100"]``.
+             The default is ``[]``.
+
+        Returns
+        -------
+        bool
+            ``True`` when successful, ``False`` when failed.
+        """
+
+        # Normalize the save path
+        if not filename:
+            appendix = ""
+            for v, vv in zip(variation, variations_value):
+                appendix += "_" + v + vv.replace("\'", "")
+            ext = ".S" + str(self.oboundary.GetNumExcitations()) + "p"
+            filename = os.path.join(self.project_path, solutionname + "_" + sweepname + appendix + ext)
+        else:
+            filename = filename.replace("//", "/").replace("\\", "/")
+        print("Exporting Touchstone " + filename)
+        DesignVariations = ""
+        i = 0
+        for el in variation:
+            DesignVariations += str(variation[i]) + "=\'" + str(variations_value[i].replace("\'", "")) + "\' "
+            i += 1
+            # DesignVariations = "$AmbientTemp=\'22cel\' $PowerIn=\'100\'"
+        # array containing "SetupName:SolutionName" pairs (note that setup and solution are separated by a colon)
+        SolutionSelectionArray = [solutionname + ":" + sweepname]
+        # 2=tab delimited spreadsheet (.tab), 3= touchstone (.sNp), 4= CitiFile (.cit),
+        # 7=Matlab (.m), 8=Terminal Z0 spreadsheet
+        FileFormat = 3
+        OutFile = filename  # full path of output file
+        FreqsArray = ["all"]  # array containin the frequencies to export, use ["all"] for all frequencies
+        DoRenorm = True  # perform renormalization before export
+        RenormImped = 50  # Real impedance value in ohm, for renormalization
+        DataType = "S"  # Type: "S", "Y", or "Z" matrix to export
+        Pass = -1  # The pass to export. -1 = export all passes.
+        ComplexFormat = 0  # 0=Magnitude/Phase, 1=Real/Immaginary, 2=dB/Phase
+        DigitsPrecision = 15  # Touchstone number of digits precision
+        IncludeGammaImpedance = True  # Include Gamma and Impedance in comments
+        NonStandardExtensions = False  # Support for non-standard Touchstone extensions
+
+        self.odesign.ExportNetworkData(DesignVariations, SolutionSelectionArray, FileFormat,
+                                         OutFile, FreqsArray, DoRenorm, RenormImped, DataType, Pass,
+                                         ComplexFormat, DigitsPrecision, False, IncludeGammaImpedance,
+                                         NonStandardExtensions)
+        return True
 
     @aedt_exception_handler
     def export_fullwave_spice(self, designname=None, setupname=None, is_solution_file=False, filename=None,
@@ -755,7 +820,7 @@ class Circuit(FieldAnalysisCircuit, object):
             designname = ""
         else:
             if not setupname:
-                setupname=self.nominal_sweep
+                setupname = self.nominal_sweep
         self.onetwork_data_explorer.ExportFullWaveSpice(designname, is_solution_file, setupname, "",
                                                         [],
                                                         ["NAME:SpiceData", "SpiceType:=", "HSpice",
@@ -777,7 +842,7 @@ class Circuit(FieldAnalysisCircuit, object):
                                                          "TouchStonePrecision:=", 15,
                                                          "SubcircuitName:=", "",
                                                          "SYZDataInAutoMode:=", False,
-                                                         "ExportDirectory:=", os.path.dirname(filename)+"\\",
+                                                         "ExportDirectory:=", os.path.dirname(filename) + "\\",
                                                          "ExportSpiceFileName:=", os.path.basename(filename),
                                                          "FullwaveSpiceFileName:=",
                                                          os.path.basename(filename), "UseMultipleCores:=",
@@ -785,7 +850,7 @@ class Circuit(FieldAnalysisCircuit, object):
         return filename
 
     @aedt_exception_handler
-    def create_touchstone_report(self,plot_name, curvenames, solution_name=None, variation_dict=None):
+    def create_touchstone_report(self, plot_name, curvenames, solution_name=None, variation_dict=None):
         """Create a Touchstone plot.
 
         Parameters
@@ -810,10 +875,10 @@ class Circuit(FieldAnalysisCircuit, object):
         variations = ["Freq:=", ["All"]]
         if variation_dict:
             for el in variation_dict:
-                variations.append(el +":=")
+                variations.append(el + ":=")
                 variations.append([variation_dict[el]])
         self.post.oreportsetup.CreateReport(plot_name, "Standard", "Rectangular Plot", solution_name,
-                             ["NAME:Context", "SimValueContext:=",
-                              [3, 0, 2, 0, False, False, -1, 1, 0, 1, 1, "", 0, 0]], variations,
-                             ["X Component:=", "Freq", "Y Component:=", curvenames])
+                                            ["NAME:Context", "SimValueContext:=",
+                                             [3, 0, 2, 0, False, False, -1, 1, 0, 1, 1, "", 0, 0]], variations,
+                                            ["X Component:=", "Freq", "Y Component:=", curvenames])
         return True
