@@ -15,6 +15,7 @@ netlist2 = 'Schematic1.qcv'
 touchstone = 'SSN_ssn.s6p'
 touchstone2 = 'Galileo_V3P3S0.ts'
 
+
 class TestCircuit:
     def setup_class(self):
         with Scratch(scratch_path) as self.local_scratch:
@@ -74,20 +75,20 @@ class TestCircuit:
 
     def test_07_add_hfss_component(self):
         my_model, myname = self.aedtapp.modeler.components.create_field_model("uUSB", "Setup1 : Sweep",
-                                                                   ["usb_N_conn", "usb_N_pcb", "usb_P_conn",
-                                                                    "usb_P_pcb"])
+                                                                              ["usb_N_conn", "usb_N_pcb", "usb_P_conn",
+                                                                               "usb_P_pcb"])
         assert type(my_model) is int
 
-    def test_07_import_mentor_netlist(self):
+    def test_08_import_mentor_netlist(self):
         self.aedtapp.insert_design("MentorSchematicImport")
         assert self.aedtapp.create_schematic_from_mentor_netlist(os.path.join(self.local_scratch.path, netlist2))
         pass
 
-    def test_08_import_netlist(self):
+    def test_09_import_netlist(self):
         self.aedtapp.insert_design("SchematicImport")
         assert self.aedtapp.create_schematic_from_netlist(os.path.join(self.local_scratch.path, netlist1))
 
-    def test_09_import_touchstone(self):
+    def test_10_import_touchstone(self):
         self.aedtapp.insert_design("Touchstone_import")
         ports = self.aedtapp.import_touchstone_solution(os.path.join(self.local_scratch.path, touchstone))
         ports2 = self.aedtapp.import_touchstone_solution(os.path.join(self.local_scratch.path, touchstone2))
@@ -100,38 +101,62 @@ class TestCircuit:
         insertions = ["dB(S({},{}))".format(i, j) for i, j in zip(tx, rx)]
         assert self.aedtapp.create_touchstone_report("Insertion Losses", insertions)
 
-    def test_10_export_fullwave(self):
-        output = self.aedtapp.export_fullwave_spice(os.path.join(self.local_scratch.path, touchstone), is_solution_file=True)
+    def test_11_export_fullwave(self):
+        output = self.aedtapp.export_fullwave_spice(os.path.join(self.local_scratch.path, touchstone),
+                                                    is_solution_file=True)
         assert output
         pass
 
-    def test_11_connect_components(self):
+    def test_12_connect_components(self):
 
         myindid, myind = self.aedtapp.modeler.components.create_inductor("L100", 1e-9, 0, 0)
         myresid, myres = self.aedtapp.modeler.components.create_resistor("R100", 50, 0.0254, 0)
         mycapid, mycap = self.aedtapp.modeler.components.create_capacitor("C100", 1e-12, 0.0400, 0)
-
+        self.aedtapp.modeler.components.create_iport("Port1", 0.2, 0.2)
 
         assert self.aedtapp.modeler.connect_schematic_components(myresid, myindid, pinnum_second=2)
         assert self.aedtapp.modeler.connect_schematic_components(myresid, mycapid, pinnum_first=1)
 
-    def test_12_properties(self):
+        L1_pins = self.aedtapp.modeler.components.get_pins(myindid)
+        L1_pin2location = {}
+        for pin in L1_pins:
+            L1_pin2location[pin] = self.aedtapp.modeler.components.get_pin_location(myindid, pin)
+
+        C1_pins = self.aedtapp.modeler.components.get_pins(mycapid)
+        C1_pin2location = {}
+        for pin in C1_pins:
+            C1_pin2location[pin] = self.aedtapp.modeler.components.get_pin_location(mycapid, pin)
+
+        self.aedtapp.modeler.components.create_iport("P1_1", L1_pin2location["n1"][0],
+                                                     L1_pin2location["n1"][1])
+        self.aedtapp.modeler.components.create_iport("P2_2", C1_pin2location["negative"][0],
+                                                     C1_pin2location["negative"][1])
+
+    def test_13_properties(self):
         assert self.aedtapp.modeler.edb
         assert self.aedtapp.modeler.model_units
 
-    def test_13_move(self):
+    def test_14_move(self):
         assert self.aedtapp.modeler.move("L100", 0.00508, 0.00508)
 
-    def test_14_rotate(self):
+    def test_15_rotate(self):
         assert self.aedtapp.modeler.rotate("L100")
 
-    def test_11_read_touchstone(self):
+    def test_16_read_touchstone(self):
         from pyaedt.generic.TouchstoneParser import read_touchstone
         data = read_touchstone(os.path.join(self.local_scratch.path, touchstone))
-        assert len(data.expressions)>0
+        assert len(data.expressions) > 0
         assert data.data_real()
         assert data.data_imag()
         assert data.data_db()
 
-    def test_12_create_setup(self):
-        assert self.aedtapp.create_setup()
+    def test_17_create_setup(self):
+        setup_name = "Dom_LNA"
+        LNA_setup = self.aedtapp.create_setup(setup_name)
+        LNA_setup.SweepDefinition = [("Variable", "Freq"), ("Data", "LIN 1GHz 5GHz 1001"), ("OffsetF1", False),
+                                     ("Synchronize", 0)]
+        assert LNA_setup.update()
+
+    def test_18_export_touchstone(self):
+        assert self.aedtapp.analyse_nominal()
+        assert self.aedtapp.export_touchstone("Dom_LNA", "Dom_LNA", os.path.join(self.local_scratch.path, "new.s2p"))

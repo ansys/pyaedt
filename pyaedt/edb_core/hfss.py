@@ -3,9 +3,9 @@ This module contains the ``Edb3DLayout`` class.
 """
 
 import warnings
+import os
 from .general import *
 from ..generic.general_methods import get_filename_without_extension, generate_unique_name
-
 
 try:
     import clr
@@ -19,48 +19,48 @@ except ImportError:
 class Edb3DLayout(object):
     """Edb3DLayout class."""
 
+    def __init__(self, parent):
+        self.parent = parent
+
     @property
-    def hfss_terminals(self):
+    def _hfss_terminals(self):
         return self.parent.edblib.HFSS3DLayout.HFSSTerminalMethods
 
     @property
-    def hfss_ic_methods(self):
+    def _hfss_ic_methods(self):
         return self.parent.edblib.HFSS3DLayout.ICMethods
 
     @property
-    def hfss_setup(self):
+    def _hfss_setup(self):
         return self.parent.edblib.HFSS3DLayout.HFSSSetup
 
     @property
-    def hfss_mesh_setup(self):
+    def _hfss_mesh_setup(self):
         return self.parent.edblib.HFSS3DLayout.Meshing
 
     @property
-    def sweep_methods(self):
+    def _sweep_methods(self):
         return self.parent.edblib.SimulationSetup.SweepMethods
 
     @property
-    def edb(self):
+    def _edb(self):
         return self.parent.edb
 
     @property
-    def active_layout(self):
+    def _active_layout(self):
         return self.parent.active_layout
 
     @property
-    def cell(self):
+    def _cell(self):
         return self.parent.cell
 
     @property
-    def db(self):
+    def _db(self):
         return self.parent.db
 
     @property
-    def builder(self):
+    def _builder(self):
         return self.parent.builder
-
-    def __init__(self, parent):
-        self.parent = parent
 
     @aedt_exception_handler
     def get_trace_width_for_traces_with_ports(self):
@@ -71,7 +71,7 @@ class Edb3DLayout(object):
         dict
             Dictionary of trace width data.
         """
-        mesh =  self.hfss_mesh_setup.GetMeshOperation(self.builder)
+        mesh =  self._hfss_mesh_setup.GetMeshOperation(self._builder)
         if mesh.Item1:
             return convert_netdict_to_pydict(mesh.Item2)
         else:
@@ -93,7 +93,7 @@ class Edb3DLayout(object):
         
         """
         pinList = convert_py_list_to_net_list(pin_list)
-        if self.hfss_terminals.CreateHfssPorts(self.builder, pinList):
+        if self._hfss_terminals.CreateHfssPorts(self._builder, pinList):
             return True
 
     @aedt_exception_handler
@@ -105,10 +105,10 @@ class Edb3DLayout(object):
 
         Parameters
         ----------
-        ref_des_list : list
+        ref_des_list : list, str
             List of one or more reference designators.
             
-        net_list : list
+        net_list : list, str
             List of one or more nets.  
 
         Returns
@@ -117,10 +117,22 @@ class Edb3DLayout(object):
             ``True`` when successful, ``False`` when failed.
         
         """
-        ref_desList = convert_py_list_to_net_list(ref_des_list)
-        netList = convert_py_list_to_net_list(net_list)
-        if self.hfss_terminals.CreateCoaxPortOnComponent(self.builder, ref_desList, netList):
-            return True
+        coax = []
+        if not isinstance(ref_des_list, list):
+            ref_des_list = [ref_des_list]
+        if not isinstance(net_list, list):
+            ref_des_list = [net_list]
+        for ref in ref_des_list:
+            for pinname, pin in self.parent.core_components.components[ref].pins.items():
+                if pin.net in net_list and pin.pin.IsLayoutPin():
+                   port_name = "{}_{}_{}".format(ref,pin.net,pin.pin.GetName())
+                   if "IronPython" in sys.version or ".NETFramework" in sys.version:
+                       res, fromLayer_pos, toLayer_pos = pin.pin.GetLayerRange()
+                   else:
+                       res, fromLayer_pos, toLayer_pos = pin.pin.GetLayerRange(None, None)
+                   if self._edb.Cell.Terminal.PadstackInstanceTerminal.Create(self._active_layout, pin.pin.GetNet(), port_name, pin.pin, toLayer_pos):
+                       coax.append(port_name)
+        return coax
 
     @aedt_exception_handler
     def create_hfss_ports_on_padstack(self, pinpos, portname=None):
@@ -145,10 +157,12 @@ class Edb3DLayout(object):
             res, fromLayer_pos, toLayer_pos = pinpos.GetLayerRange(None, None)
         if not portname:
             portname = generate_unique_name("Port_" + pinpos.GetNet().GetName())
-        edbpointTerm_pos = self.edb.Cell.Terminal.PadstackInstanceTerminal.Create(self.active_layout, pinpos.GetNet(),
+        edbpointTerm_pos = self._edb.Cell.Terminal.PadstackInstanceTerminal.Create(self._active_layout, pinpos.GetNet(),
                                                                           portname, pinpos,
                                                                           toLayer_pos)
         if edbpointTerm_pos:
             return True
         else:
             return False
+
+

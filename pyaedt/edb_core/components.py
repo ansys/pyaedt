@@ -16,7 +16,7 @@ try:
     from System.Collections.Generic import List
 except ImportError:
     warnings.warn('This module requires pythonnet.')
-
+from collections import defaultdict
 
 def resistor_value_parser(RValue):
     """Convert a resistor value.
@@ -67,26 +67,18 @@ class Components(object):
         self._others = {}
         self._pins = {}
         self._comps_by_part = {}
-        self.init_parts()
+        self._init_parts()
 
     @property
-    def messenger(self):
-        """ """
-        return self.parent._messenger
-
-    @property
-    def edb(self):
-        """ """
-        return self.parent.edb
-
-    @property
-    def messenger(self):
-        """ """
+    def _messenger(self):
         return self.parent.messenger
 
+    @property
+    def _edb(self):
+        return self.parent.edb
+
     @aedt_exception_handler
-    def init_parts(self):
-        """ """
+    def _init_parts(self):
         a = self.components
         a = self.resistors
         a = self.ICs
@@ -97,43 +89,31 @@ class Components(object):
         return True
 
     @property
-    def builder(self):
-        """ """
+    def _builder(self):
         return self.parent.builder
 
     @property
-    def edb(self):
-        """ """
-        return self.parent.edb
-
-    @property
-    def edb_value(self):
-        """ """
+    def _edb_value(self):
         return self.parent.edb_value
 
     @property
-    def edbutils(self):
-        """ """
+    def _edbutils(self):
         return self.parent.edbutils
 
     @property
-    def active_layout(self):
-        """ """
+    def _active_layout(self):
         return self.parent.active_layout
 
     @property
-    def cell(self):
-        """ """
+    def _cell(self):
         return self.parent.cell
 
     @property
-    def db(self):
-        """ """
+    def _db(self):
         return self.parent.db
 
     @property
-    def components_methods(self):
-        """ """
+    def _components_methods(self):
         return self.parent.edblib.Layout.ComponentsMethods
 
     @property
@@ -142,7 +122,7 @@ class Components(object):
                 
         Returns
         -------
-        dict
+        defaultdict(EDBComponent)
            Dictionary of component setup information.
 
         Examples
@@ -158,6 +138,13 @@ class Components(object):
 
     @aedt_exception_handler
     def refresh_components(self):
+        """Refresh the component dictionary
+
+        Returns
+        -------
+        defaultdict(EDBComponent)
+        """
+        self._messenger.add_info_message("Refreshing Components Dictionary")
         try:
             cmplist = self.get_component_list()
             self._cmp = {}
@@ -342,8 +329,8 @@ class Components(object):
             List of component setup information.
 
         """
-        cmp_setup_info_list = self.parent.edbutils.ComponentSetupInfo.GetFromLayout(
-            self.parent.builder.EdbHandler.layout)
+        cmp_setup_info_list = self._edbutils.ComponentSetupInfo.GetFromLayout(
+            self._builder.EdbHandler.layout)
         cmp_list = []
         for comp in cmp_setup_info_list:
             cmp_list.append(comp)
@@ -363,7 +350,7 @@ class Components(object):
         bool
             ``True`` when successful, ``False`` when failed.
         """
-        edbcmp = self.edb.Cell.Hierarchy.Component.FindByName(self.active_layout, name)
+        edbcmp = self._edb.Cell.Hierarchy.Component.FindByName(self._active_layout, name)
         if edbcmp is not None:
             return edbcmp
         else:
@@ -420,15 +407,15 @@ class Components(object):
         >>> edbapp.core_components.create_component_from_pins(pins, "A1New")
         """
         try:
-            new_cmp = self.parent.edb.Cell.Hierarchy.Component.Create(self.parent.builder.EdbHandler, component_name)
-            new_group = self.parent.edb.Cell.Hierarchy.Group.Create(self.parent.builder.EdbHandler.layout,
+            new_cmp = self._edb.Cell.Hierarchy.Component.Create(self._builder.EdbHandler, component_name)
+            new_group = self._edb.Cell.Hierarchy.Group.Create(self._builder.EdbHandler.layout,
                                                                     component_name)
             for pin in pins:
                 new_group.AddMember(pin)
             new_cmp.SetGroup(new_group)
             new_cmp_layer_name = pins[0].GetPadstackDef().GetData().GetLayerNames().First()
-            new_cmp_placement_layer = self.parent.edb.Cell.Layer.FindByName(
-                self.parent.builder.EdbHandler.layout.GetLayerCollection(), new_cmp_layer_name)
+            new_cmp_placement_layer = self._edb.Cell.Layer.FindByName(
+                self._builder.EdbHandler.layout.GetLayerCollection(), new_cmp_layer_name)
             new_cmp.SetPlacementLayer(new_cmp_placement_layer)
             return (True, new_cmp)
         except:
@@ -480,7 +467,7 @@ class Components(object):
                         pinNames.remove(pinNames[0])
                         break
             if len(pinNames) == pinNumber:
-                spiceMod = self.edb.Cell.Hierarchy.SPICEModel()
+                spiceMod = self._edb.Cell.Hierarchy.SPICEModel()
                 spiceMod.SetModelPath(modelpath)
                 spiceMod.SetModelName(modelname)
                 terminal = 1
@@ -490,23 +477,23 @@ class Components(object):
 
                 edbRlcComponentProperty.SetModel(spiceMod)
                 if not edbComponent.SetComponentProperty(edbRlcComponentProperty):
-                    self.messenger.add_error_message("Error Assigning the Touchstone model")
+                    self._messenger.add_error_message("Error Assigning the Touchstone model")
                     return False
             else:
-                self.messenger.add_error_message("Wrong number of Pins")
+                self._messenger.add_error_message("Wrong number of Pins")
                 return False
 
         elif model_type=="Touchstone":
 
             nPortModelName = modelname
             edbComponentDef = edbComponent.GetComponentDef()
-            nPortModel = self.edb.Definition.NPortComponentModel.FindByName(edbComponentDef, nPortModelName)
+            nPortModel = self._edb.Definition.NPortComponentModel.FindByName(edbComponentDef, nPortModelName)
             if nPortModel.IsNull():
-                nPortModel = self.edb.Definition.NPortComponentModel.Create(nPortModelName)
+                nPortModel = self._edb.Definition.NPortComponentModel.Create(nPortModelName)
                 nPortModel.SetReferenceFile(modelpath)
                 edbComponentDef.AddComponentModel(nPortModel)
 
-            sParameterMod = self.edb.Cell.Hierarchy.SParameterModel()
+            sParameterMod = self._edb.Cell.Hierarchy.SParameterModel()
             sParameterMod.SetComponentModelName(nPortModel)
             gndnets=filter(lambda x: 'gnd' in x.lower(), componentNets)
             if len(gndnets)>0:
@@ -517,7 +504,7 @@ class Components(object):
             sParameterMod.SetReferenceNet(net)
             edbRlcComponentProperty.SetModel(sParameterMod)
             if not edbComponent.SetComponentProperty(edbRlcComponentProperty):
-                self.messenger.add_error_message("Error Assigning the Touchstone model")
+                self._messenger.add_error_message("Error Assigning the Touchstone model")
                 return False
         return True
 
@@ -546,13 +533,13 @@ class Components(object):
         >>> edbapp.core_components.create_pingroup_from_pins(gndpinlist, "MyGNDPingroup")  
         """
         if len(pins) < 1:
-            self.messenger.add_error_message('No pins specified for pin group {}'.format(group_name))
+            self._messenger.add_error_message('No pins specified for pin group {}'.format(group_name))
             return (False, None)
         if group_name is None:
             cmp_name = pins[0].GetComponent().GetName()
             net_name = pins[0].GetNet().GetName()
             group_name = "{}_{}_{}".format(cmp_name, net_name, random.randint(0, 100))
-        pingroup = self.edb.Cell.Hierarchy.PinGroup.Create(self.parent.active_layout, group_name, convert_py_list_to_net_list(pins))
+        pingroup = self._edb.Cell.Hierarchy.PinGroup.Create(self._active_layout, group_name, convert_py_list_to_net_list(pins))
         if pingroup.IsNull():
             return (False, None)
         else:
@@ -687,7 +674,7 @@ class Components(object):
         """
         edbComponent = self.get_component_by_name(componentname)
         componentType = edbComponent.GetComponentType()
-        edbRlcComponentProperty = self.edb.Cell.Hierarchy.RLCComponentProperty()
+        edbRlcComponentProperty = self._edb.Cell.Hierarchy.RLCComponentProperty()
         componentPins = self.get_pin_from_component(componentname)
         pinNumber = len(componentPins)
         if pinNumber == 2:
@@ -695,30 +682,30 @@ class Components(object):
             toPin = componentPins[1]
             if res_value is None and ind_value is None and cap_value is None:
                 return False
-            rlc = self.edb.Utility.Rlc()
+            rlc = self._edb.Utility.Rlc()
             rlc.IsParallel = isparallel
             if res_value is not None:
                 rlc.REnabled = True
-                rlc.R = self.edb_value(res_value)
+                rlc.R = self._edb_value(res_value)
             if ind_value is not None:
                 rlc.LEnabled = True
-                rlc.L = self.edb_value(ind_value)
+                rlc.L = self._edb_value(ind_value)
             if cap_value is not None:
                 rlc.CEnabled = True
-                rlc.C = self.edb_value(cap_value)
-            pinPair = self.edb.Utility.PinPair(fromPin.GetName(), toPin.GetName())
-            rlcModel = self.edb.Cell.Hierarchy.PinPairModel()
+                rlc.C = self._edb_value(cap_value)
+            pinPair = self._edb.Utility.PinPair(fromPin.GetName(), toPin.GetName())
+            rlcModel = self._edb.Cell.Hierarchy.PinPairModel()
             rlcModel.SetPinPairRlc(pinPair, rlc)
             if not edbRlcComponentProperty.SetModel(rlcModel) or not edbComponent.SetComponentProperty(
                     edbRlcComponentProperty):
-                self.messenger.add_error_message('Failed to set RLC model on component')
+                self._messenger.add_error_message('Failed to set RLC model on component')
                 return False
         else:
-            self.messenger.add_warning_message(
+            self._messenger.add_warning_message(
                 "Component {} has been not assigned because it is not present in the layout or it contains a number of pins not equal to 2".format(
                     componentname))
             return False
-        self.messenger.add_warning_message("RLC properties for Component {} has been assigned.".format(componentname))
+        self._messenger.add_warning_message("RLC properties for Component {} has been assigned.".format(componentname))
         return True
 
     @aedt_exception_handler
@@ -804,20 +791,20 @@ class Components(object):
         >>> edbapp.core_components.get_pin_from_component("R1", refdes)
         """
 
-        cmp = self.edb.Cell.Hierarchy.Component.FindByName(self.active_layout, cmpName)
+        cmp = self._edb.Cell.Hierarchy.Component.FindByName(self._active_layout, cmpName)
         if netName:
             pins = [p for p in cmp.LayoutObjs if
-                    p.GetObjType() == self.edb.Cell.LayoutObjType.PadstackInstance and
+                    p.GetObjType() == self._edb.Cell.LayoutObjType.PadstackInstance and
                     p.IsLayoutPin() and
                     p.GetNet().GetName() == netName]
         elif pinName:
             pins = [p for p in cmp.LayoutObjs if
-                    p.GetObjType() == self.edb.Cell.LayoutObjType.PadstackInstance and
+                    p.GetObjType() == self._edb.Cell.LayoutObjType.PadstackInstance and
                     p.IsLayoutPin() and
                     (self.get_aedt_pin_name(p) == str(pinName) or p.GetName()==str(pinName))]
         else:
             pins = [p for p in cmp.LayoutObjs if
-                    p.GetObjType() == self.edb.Cell.LayoutObjType.PadstackInstance and
+                    p.GetObjType() == self._edb.Cell.LayoutObjType.PadstackInstance and
                     p.IsLayoutPin()]
         return pins
 
@@ -880,13 +867,13 @@ class Components(object):
             res, pt_pos, rot_pos = pin.GetPositionAndRotation()
         else:
             res, pt_pos, rot_pos = pin.GetPositionAndRotation(
-                self.edb.Geometry.PointData(self.edb_value(0.0), self.edb_value(0.0)), .0)
+                self._edb.Geometry.PointData(self._edb_value(0.0), self._edb_value(0.0)), .0)
         if pin.GetComponent().IsNull():
             transformed_pt_pos = pt_pos
         else:
             transformed_pt_pos = pin.GetComponent().GetTransform().TransformPoint(pt_pos)
-        pin_xy = self.edb.Geometry.PointData(self.edb_value(str(transformed_pt_pos.X.ToDouble())),
-                                             self.edb_value(str(transformed_pt_pos.Y.ToDouble())))
+        pin_xy = self._edb.Geometry.PointData(self._edb_value(str(transformed_pt_pos.X.ToDouble())),
+                                             self._edb_value(str(transformed_pt_pos.Y.ToDouble())))
         return [pin_xy.X.ToDouble(), pin_xy.Y.ToDouble()]
 
     @aedt_exception_handler

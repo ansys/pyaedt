@@ -1,4 +1,4 @@
-"""This module contains these classes: ``Hfss3dLayout`` and ``SweepString``."""
+"""This module contains these classes: `Hfss3dLayout` and `SweepString`."""
 
 from __future__ import absolute_import
 import os
@@ -11,18 +11,25 @@ from .generic.general_methods import generate_unique_name, aedt_exception_handle
 
 
 class SweepString(object):
-    """Generate a sweep string like this example: ``"LIN 10GHz 20GHz 0.05GHz LINC 20GHz 30GHz 10 DEC 30GHz 40GHz 10 40GHz``"""
+    """SweepString class.
+    
+    This class allows you to generate a sweep string like in this example: 
+    ``"LIN 10GHz 20GHz 0.05GHz LINC 20GHz 30GHz 10 DEC 30GHz 40GHz 10 40GHz``
+    
+    Parameters
+    ----------
+    unit : str, optional
+        Units for the sweep string. The default is ``"GHz"``.
+     """
+        
     def __init__(self, unit='GHz'):
-        """
-
-        :param unit:
-        """
+    
         self.unit = unit
         self.sweep_string = ""
 
     @aedt_exception_handler
     def add_sweep(self, sweep, line_type, unit=None):
-        """Add a sweep line to the string.
+        """Add a line to the sweep string.
 
         Parameters
         ----------
@@ -35,7 +42,7 @@ class SweepString(object):
         line_type :
             linear_step", "linear_count", "log_scale", "single"
         unit : str
-            Units such as ``"MHz"``, ``"GHz"``, and so on. The default is ``None``.
+            Units such as ``"MHz"`` or ``"GHz"``. The default is ``None``.
 
         Returns
         -------
@@ -78,53 +85,70 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
 
     Parameters
     ----------
-    projectname : str
+    projectname : str, optional
         Name of the project to select or the full path to the project
-        or AEDTZ archive to open.  If ``None``, try to get the active
-        project and, if none exists, create an empty project.
-    designname : str
-        Name of the design to select. If ``None``, try to get the
-        active design and, if none exists, create an empty design.
-    solution_type : str
-        Solution type to apply to the design. If ``None``, use the
-        default.
-    setup_name :
-        Name of the setup to use as the nominal. If ``None``, the
-        active setup is used or nothing is used.
+        or AEDTZ archive to open.  The default is ``None``, in which
+        case an attempt is made to get an active project. If no 
+        projects are present, an empty project is created.
+    designname : str, optional
+        Name of the design to select. The default is ``None``, in 
+        which case an attempt is made to get an active design. If no
+        designs are present, an empty design is created.
+    solution_type : str, optional
+        Solution type to apply to the design. The default is
+        ``None``, which applies the default type.
+    setup_name : str, optional
+        Name of the setup to use as the nominal. The default is
+        ``None``, in which case the active setup is used or 
+        nothing is used.
+    specified_version: str, optional
+        Version of AEDT  to use. The default is ``None``, in which case
+        the active version or latest installed version is used.
+    NG : bool, optional
+        Whether to run AEDT in the non-graphical mode. The default 
+        is``False``, which launches AEDT in the graphical mode.  
+    AlwaysNew : bool, optional
+        Whether to launch an instance of AEDT in a new thread, even if
+        another instance of the ``specified_version`` is active on the
+        machine.  The default is ``True``.
+    release_on_exit : bool, optional
+        Whether to release AEDT on exit. 
+    student_version : bool, optional
+        Whether open AEDT Student Version. The default is ``False``.
 
     Examples
     --------
-    Create an ``Hfss3dLayout`` object and connect to an existing HFSS
+    Create an `Hfss3dLayout` object and connect to an existing HFSS
     design or create a new HFSS design if one does not exist.
 
     >>> from pyaedt import Hfss3dLayout
     >>> aedtapp = Hfss3dLayout()
 
-    Create an ``Hfss3dLayout`` object and link to a project named
+    Create an `Hfss3dLayout` object and link to a project named
     ``projectname``. If this project does not exist, create one with
     this name.
 
     >>> aedtapp = Hfss3dLayout(projectname)
 
-    Create an ``Hfss3dLayout`` object and link to a design named
+    Create an `Hfss3dLayout` object and link to a design named
     ``designname`` in a project named ``projectname``.
 
     >>> aedtapp = Hfss3dLayout(projectname,designame)
 
-    Create an ``Hfss3dLayout`` object and open the specified project.
+    Create an `Hfss3dLayout` object and open the specified project.
 
     >>> aedtapp = Hfss3dLayout("myfile.aedt")
 
-    Create a ``Desktop on 2021R1`` object and then create a
-    ``Hfss3dLayout`` object and open the specified project.
+    Create a `Desktop on 2021R1` object and then create a
+    `Hfss3dLayout` object and open the specified project.
 
     >>> aedtapp = Hfss3dLayout(specified_version="2021.1", projectname="myfile.aedt")
     """
 
     def __init__(self, projectname=None, designname=None, solution_type=None, setup_name=None,
-                 specified_version=None, NG=False, AlwaysNew=False, release_on_exit=False):
+                 specified_version=None, NG=False, AlwaysNew=False, release_on_exit=False, student_version=False):
         FieldAnalysis3DLayout.__init__(self, "HFSS 3D Layout Design", projectname, designname, solution_type,
-                                       setup_name, specified_version, NG, AlwaysNew, release_on_exit)
+                                       setup_name, specified_version, NG, AlwaysNew, release_on_exit, student_version)
 
     def __enter__(self):
         return self
@@ -143,9 +167,9 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
         primivitivename : str
             Name of the primitive.
         edgenumber :
-            Edge number on which to create the port.
-        iscircuit : bool
-            Indicates if it is a circuit port. The default is ``False``.
+            Edge number to create the port on.
+        iscircuit : bool, optional
+            Whether the edge port is a circuit port. The default is ``False``.
 
         Returns
         -------
@@ -171,29 +195,28 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
         Parameters
         ----------
         vianame : str
-            Name of the via on which to create the port.
+            Name of the via to create the port on.
         layer : str
             Name of the layer.
         xstart :
-            X-axis position of the pin.
-        ystart :
-            Y-axis position of the pin.
+            Starting position of the pin on the X axis.
         xend :
-            X-axis position of the pin.
+            Ending position of the pin on the X axis.
+        ystart :
+            Starting position of the pin on the Y axis.
         yend :
-            Y-axis end position of the pin.
-        archeight :
+            Ending postiion of the pin on the Y axis.
+        archeight : float, optional
             Arc height. The default is ``0``.
-        arcrad :
-            Rotation of the pin in rad. The default is ``0``.
-        isexternal : bool
-            Indicates if the pin is external. If ''True,`` the pin is external. If ''False,`` the pin is internal. The default is ``True``.
+        arcrad : float, optional
+            Rotation of the pin in radians. The default is ``0``.
+        isexternal : bool, optional
+            Whether the pin is external. The default is ``True``.
 
         Returns
         -------
-        type
-            Name of the port | False error
-
+        str
+            Name of the port when successful, ``False`` when failed.
         """
         listp = self.port_list
         if type(layer) is str:
@@ -219,22 +242,23 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
         ----------
         name : str
             Name of the pin port.
-        xpos :
+        xpos : float, optional
             X-axis position of the pin. The default is ``0``.
-        ypos :
+        ypos : float, optional
             Y-axis position of the pin. The default is ``0``.
-        rotation :
+        rotation : float, optional
             Rotation of the pin in degrees. The default is ``0``.
-        top_layer : str
-            Top layer of the pin. If ``None``, it is automatically assigned to the top. The default is ``None``.
+        top_layer : str, optional
+            Top layer of the pin. The default is ``None``, in which case the top 
+            layer is assigned automatically.
         bot_layer : str
-            Bottom layer of the pin. If ``None``, it is automatically assigned to the bottom. The default is ``None``.
+            Bottom layer of the pin. The default is ``None``, in which case the
+            bottom is assigned automatically.
 
         Returns
         -------
-        type
-            True
-
+        bool
+            ``True`` when successful, ``False`` when failed.
         """
         self.modeler.layers.refresh_all_layers()
         layers = self.modeler.layers.all_signal_layers
@@ -263,32 +287,34 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
 
     @aedt_exception_handler
     def delete_port(self, portname):
-        """
+        """Delete a port.
 
         Parameters
         ----------
         portname : str
-        The name of the port.          
+            Name of the port.          
 
         Returns
         -------
-
+        bool
+            ``True`` when successful, ``False`` when failed.
         """
         self.oexcitation.Delete(portname)
         return True
 
     @aedt_exception_handler
     def import_edb(self, edb_full_path):
-        """
+        """Import EDB.
 
         Parameters
         ----------
         edb_full_path : str
+            Full path to the EDB.
             
-
         Returns
         -------
-
+        bool
+            ``True`` when successful, ``False`` when failed. 
         """
         oTool = self.odesktop.GetTool("ImportExport")
         oTool.ImportEDB(edb_full_path)
@@ -302,17 +328,17 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
 
         Parameters
         ----------
-        name : str
+        name : str, optional
             Name of the design to validate. The default is ``None``.
-        outputdir : str
-            Output directory in which to save the log file. The default is ``None``.
-        ports : str
-            Number of excitations expected. The default is ``None``.
+        outputdir : str, optional
+            Output directory to save the log file to. The default is ``None``.
+        ports : str, optional
+            Number of excitations that are expected. The default is ``None``.
 
         Returns
         -------
-        type
-            All the info in a list for later use
+        list
+            List of validation messages.
 
         """
         if name is None:
@@ -394,25 +420,26 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
 
     @aedt_exception_handler
     def create_scattering(self, plot_name="S Parameter Plot Nominal", sweep_name=None, port_names=None, port_excited=None, variations=None):
-        """Create scattering Report
+        """Create a scattering report.
         
 
         Parameters
         ----------
-        PlotName :
-             The name of the plot. The default is ``"S Parameter Plot Nominal"``
-        sweep_name : str
+        PlotName : str, optional
+             Name of the plot. The default is ``"S Parameter Plot Nominal"``.
+        sweep_name : str, optional
+             Name of the sweep. The default is ``None``.
+        PortNames : str or list, optional
+             Names of one or more ports. The default is ``None``.
+        PortExcited : optional
              The default is ``None``.
-        PortNames : str
-             The names of the port. The default is ``None``.
-        PortExcited : str
-             The default is ``None``.
-        variations :
+        variations : optional
              The default is ``None``.
 
         Returns
         -------
-
+        bool
+            ``True`` when successful, ``False`` when failed.
         """
         Families = ["Freq:=", ["All"]]
         if variations:
@@ -450,7 +477,7 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
 
     @aedt_exception_handler
     def export_touchstone(self, solutionname, sweepname, filename, variation, variations_value):
-        """Export the Touchstone file.
+        """Export a Touchstone file.
         
         Parameters
         ----------
@@ -459,7 +486,7 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
         sweepname : str
             Name of the sweep that has been solved.
         filename : str
-            Full path of the output file.
+            Full path for the Touchstone file.
         variation : list
             List of all parameter variations, such  as ``["$AmbientTemp", "$PowerIn"]``.
         variations_value : list
@@ -467,9 +494,9 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
 
         Returns
         -------
-
+        bool
+            ``True`` when successful, ``False`` when failed.
         """
-
         # normalize the save path
         if not filename:
             appendix = ""
@@ -507,20 +534,20 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
 
     @aedt_exception_handler
     def set_export_touchstone(self, activate, export_dir=""):
-        """Set automatic export of the Touchstone file after the simulation is ``True``.
+        """Export the Touchstone file automatically if the simulation is successful.
 
         Parameters
         ----------
         activate : bool
-            Export after the simulation.
+            Whether to export after the simulation.
+        eport_dir str, optional
+            Path to export the file to. The defaultis ``""``.
 
         Returns
         -------
-        type
-            True if operation succeeded
-
+        bool
+            ``True`` when successful, ``False`` when failed.
         """
-
         settings = []
         if activate:
             settings.append("NAME:options")
@@ -548,33 +575,32 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
         setupname : str
             Name of the setup that is attached to the sweep.
         unit :
-            Units such as ``"MHz"``, ``"GHz"``, and so on.
-        freqstart :
+            Units, such as ``"MHz"`` or ``"GHz"``.
+        freqstart : float
             Starting frequency of the sweep.
-        freqstop :
+        freqstop : float
             Stopping frequency of the sweep.
+        num_of_freq_points : int
+            Number of frequency points in the range.
         sweepname : str
             Name of the sweep. The default is ``None``.
-        num_of_freq_points :
-            Number of frequency points in the range.
-        sweeptype : discrete
-            Type of sweep. Choices are ``"Fast"``, ``"Interpolating"``, and ``"Discrete"``. The default is ``"Interpolating``.
-        interpolation_max_solutions :
-            Maximum number of solutions evaluated for the interpolation process. The default is ``250``.
-        interpolation_tol_percent :
+        sweeptype : str, optional
+            Type of the sweep. Options are ``"Fast"``, ``"Interpolating"``, and ``"Discrete"``. The default is ``"Interpolating``.
+        interpolation_tol_percent : float, optional
             Error tolerance threshold for the interpolation process. The default is ``0.5``.
-        save_fields : bool
-            Save the fields for a discrete sweep only. The default is ``True``.
-        save_rad_fields_only : bool
-            Save only the radiated fields if ``save_fields = True``. The default is ``False``.
-        use_q3d_for_dc : bool
-            Use Q3D to solve the DC point. The default is ``False``.
+        interpolation_max_solutions : int, optional
+            Maximum number of solutions evaluated for the interpolation process. The default is ``250``.
+        save_fields : bool, optional
+            Whether to save the fields for a discrete sweep only. The default is ``True``.
+        save_rad_fields_only : bool, optional
+            Whether to save only the radiated fields if ``save_fields=True``. The default is ``False``.
+        use_q3d_for_dc : bool, optional
+            Whether to use Q3D to solve the DC point. The default is ``False``.
 
         Returns
         -------
-        type
-            Setup name if operation succeeded
-
+        str
+            Setup name if operation is successful.
         """
         if sweepname is None:
             sweepname = generate_unique_name("Sweep")
@@ -646,4 +672,47 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
         # self._messenger.add_debug_message("Sweep Setup created correctly")
         return setup
 
+    @aedt_exception_handler
+    def import_gds(self, gds_path, aedb_path=None, xml_path=None, set_as_active=True, close_active_project=False):
+        """Import grounds into HFSS 3D Layout and assign the stackup from an XML file if present.
 
+        Parameters
+        ----------
+        gds_path : str
+            Full path to the GDS file.
+        aedb_path : str, optional
+            Full path to the AEDB file
+        xml_path : str, optional
+            Path to the XML file with stackup information. The default is ``None``, in 
+            which case the stackup is not edited.
+        set_as_active : bool, optional
+            Whether to set the GDS file as active. The default is ``True``.
+        close_active_project : bool, optional
+            Whether to close the active project after loading the GDS file.
+            The default is ''False``.
+        Returns
+        -------
+        bool
+            ``True`` when successful, ``False`` when failed.
+        """
+        active_project = self.project_name
+        project_name = os.path.basename(gds_path)[:-4]
+        if not aedb_path:
+            aedb_path = gds_path.replace('.gds', '.aedb')
+        if os.path.exists(aedb_path):
+            old_name = project_name
+            project_name = generate_unique_name(project_name)
+            aedb_path = gds_path.replace(old_name + '.gds', project_name + '.aedb')
+            self.messenger.add_warning_message("aedb_exists. Renaming it to {}".format(project_name))
+
+        oTool = self.odesktop.GetTool("ImportExport")
+        oTool.ImportGDSII(gds_path, aedb_path, "", "")
+        project = self.odesktop.SetActiveProject(project_name)
+        oeditor = project.GetActiveDesign().SetActiveEditor("Layout")
+        if xml_path:
+            oeditor.ImportStackupXML(xml_path)
+        if set_as_active:
+            self.__init__(project_name)
+        if close_active_project:
+            self.odesktop.CloseProject(active_project)
+        return True

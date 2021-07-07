@@ -48,37 +48,49 @@ class IcepakMesh(object):
             self.Objects = ["Region"]
             self.Enable = True
 
+        @aedt_exception_handler
+        def _dim_arg(self, value):
+            if type(value) is str:
+                try:
+                    float(value)
+                    val = "{0}{1}".format(value,  self.model_units)
+                except:
+                    val = value
+            else:
+                val = "{0}{1}".format(value,  self.model_units)
+            return val
+
         @property
         def autosettings(self):
-            """ """
+            """Automatic mesh settings."""
             arg = ["MeshMethod:=", "MesherHD", "UserSpecifiedSettings:=", self.UserSpecifiedSettings, "ComputeGap:=",
                    self.ComputeGap, "MeshRegionResolution:=", self.Level, "MinGapX:=",
-                   str(self.MinGapX) + self.model_units, "MinGapY:=",
-                   str(self.MinGapY) + self.model_units, "MinGapZ:=", str(self.MinGapZ) + self.model_units, "Objects:=",
+                   self._dim_arg(self.MinGapX), "MinGapY:=",
+                   self._dim_arg(self.MinGapY) , "MinGapZ:=", self._dim_arg(self.MinGapZ), "Objects:=",
                    self.Objects]
             return arg
 
         @property
         def manualsettings(self):
-            """ """
+            """Manual mesh settings."""
             arg = ["MeshMethod:=", "MesherHD", "UserSpecifiedSettings:=", self.UserSpecifiedSettings, "ComputeGap:=",
-                   self.ComputeGap, "MaxElementSizeX:=", str(self.MaxElementSizeX) + self.model_units,
+                   self.ComputeGap, "MaxElementSizeX:=", self._dim_arg(self.MaxElementSizeX),
                    "MaxElementSizeY:=",
-                   str(self.MaxElementSizeY) + self.model_units, "MaxElementSizeZ:=",
-                   str(self.MaxElementSizeZ) + self.model_units, "MinElementsInGap:=",
+                   self._dim_arg(self.MaxElementSizeY) , "MaxElementSizeZ:=",
+                   self._dim_arg(self.MaxElementSizeZ), "MinElementsInGap:=",
                    self.MinElementsInGap,
                    "MinElementsOnEdge:=", self.MinElementsOnEdge, "MaxSizeRatio:=",
                    self.MaxSizeRatio, "NoOGrids:=", self.NoOGrids, "EnableMLM:=", self.EnableMLM, "EnforeMLMType:=",
                    self.EnforeMLMType, "MaxLevels:=", self.MaxLevels, "BufferLayers:=", self.BufferLayers,
                    "UniformMeshParametersType:=", self.UniformMeshParametersType, "StairStepMeshing:=",
                    self.StairStepMeshing, "MinGapX:=",
-                   str(self.MinGapX) + self.model_units, "MinGapY:=", str(self.MinGapY) + self.model_units,
-                   "MinGapZ:=", str(self.MinGapZ) + self.model_units, "Objects:=", self.Objects]
+                   self._dim_arg(self.MinGapX) , "MinGapY:=", self._dim_arg(self.MinGapY),
+                   "MinGapZ:=", self._dim_arg(self.MinGapZ), "Objects:=", self.Objects]
             return arg
 
         @property
         def odesign(self):
-            """ """
+            """Instance of a design in a project."""
             return self._parent._odesign
 
         @aedt_exception_handler
@@ -125,24 +137,24 @@ class IcepakMesh(object):
 
     @property
     def omeshmodule(self):
-        """ """
+        """Instance ofa mesh module in a project."""
         design_type = self.odesign.GetDesignType()
         assert design_type in meshers, "Invalid design type {}".format(design_type)
         return self.odesign.GetModule(meshers[design_type])
 
     @property
     def boundingdimension(self):
-        """ """
+        """Bounding dimension."""
         return self.modeler.get_bounding_dimension()
 
     @property
     def odesign(self):
-        """ """
+        """Instance of a design in a project."""
         return self._parent._odesign
 
     @property
     def modeler(self):
-        """ """
+        """Modeler."""
         return self._parent._modeler
 
     @aedt_exception_handler
@@ -218,8 +230,8 @@ class IcepakMesh(object):
         Parameters
         ----------
         accuracy : int, optional
-            Type of mesh. Options are ``1``, ``2``, and ``3``, which represent respectively 
-            a coarse, standard, or very accurate mesh. The default is ``2``.
+            Type of the mesh. Options are ``1``, ``2``, and ``3``, which represent 
+            respectively a coarse, standard, or very accurate mesh. The default is ``2``.
 
         Returns
         -------
@@ -251,7 +263,7 @@ class IcepakMesh(object):
         Parameters
         ----------
         accuracy2 : int
-            Type of mesh. Options are ``1``, ``2``, and ``3``, which represent respectively 
+            Type of the mesh. Options are ``1``, ``2``, and ``3``, which represent respectively 
             a coarse, standard, or very accurate mesh. 
         stairStep : bool, optional
             Whether to enable a stair step. The default is ``True``.
@@ -282,7 +294,7 @@ class IcepakMesh(object):
         Parameters
         ----------
         entity_type : int
-            Type of the entity. Options are 1 and 2, which represent respectively
+            Type of the entity. Options are ``1`` and ``2``, which represent respectively
             an object and a component.
         obj_list : list
             List of objects, which can include conductors and dielctrics.
@@ -329,28 +341,33 @@ class IcepakMesh(object):
         Parameters
         ----------
         objectlist : list, optional
-            List of objects to which to apply the mesh region. The default 
+            List of objects to apply the mesh region to. The default 
             is ``[]``.
         level : int, optional
-            Level of surface mesh. Options are ``1`` through ``5``. The default
+            Level of the surface mesh. Options are ``1`` through ``5``. The default
             is ``5``.
         name : str, optional
             Name of the mesh region. The default is ``"MeshRegion1"``.
 
         Returns
         -------
-        type
+        IcepakMesh.MeshRegion
             Mesh region object.
         """
         meshregion = self.MeshRegion(self.omeshmodule, self.boundingdimension, self.modeler.model_units)
         meshregion.UserSpecifiedSettings = False
         meshregion.Level = level
         meshregion.name = name
+        self.modeler.primitives._refresh_object_types()
+        all_nonmodels = self.modeler.primitives.non_models
         if not objectlist:
             objectlist = self.modeler.primitives.get_all_objects_names()
+        meshregion.Objects = objectlist
+
         meshregion.create()
-        objectlist2 = self.modeler.primitives.get_all_objects_names()
-        added_obj = [i for i in objectlist2 if i not in objectlist]
+        self.modeler.primitives._refresh_object_types()
+        all_objs2 = self.modeler.primitives.non_models
+        added_obj = [i for i in all_objs2 if i not in all_nonmodels]
         meshregion.Objects = added_obj
         self.meshregions.append(meshregion)
 
@@ -363,7 +380,7 @@ class IcepakMesh(object):
         Parameters
         ----------
         name : str
-            Name of design to mesh.
+            Name of the design to mesh.
 
         Returns
         -------
@@ -380,7 +397,7 @@ class IcepakMesh(object):
         Parameters
         ----------
         mesh_level : int
-            Level of mesh to apply. Options are ``1`` through ``5``.   
+            Level of mesh to assign. Options are ``1`` through ``5``.   
         groupName : str
             Name of the group.
         localMeshParamEn : bool, optional

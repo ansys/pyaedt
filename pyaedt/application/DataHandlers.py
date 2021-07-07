@@ -95,23 +95,26 @@ def arg2dict(arg, dict_out):
     -------
 
     """
-    if arg[0][:5] == 'NAME:':
+    if arg[0] == "NAME:DimUnits" or arg[0] == "NAME:Points":
+        dict_out[arg[0][5:]] = list(arg[1:])
+    elif arg[0][:5] == 'NAME:':
         top_key = arg[0][5:]
         dict_in = OrderedDict()
+        i = 1
+        while i < len(arg):
+            if (type(arg[i]) is list or type(arg[i]) is tuple) and arg[i][0][:5] == 'NAME:':
+                arg2dict(arg[i], dict_in)
+                i += 1
+            elif arg[i][-2:] == ':=':
+                dict_in[arg[i][:-2]] = arg[i + 1]
+
+                i += 2
+            else:
+                raise ValueError('Incorrect data argument format')
+        dict_out[top_key] = dict_in
     else:
         raise ValueError('Incorrect data argument format')
-    i = 1
-    while i < len(arg):
-        if (type(arg[i]) is list or type(arg[i]) is tuple) and arg[i][0][:5] == 'NAME:':
-            arg2dict(arg[i], dict_in)
-            i += 1
-        elif arg[i][-2:] == ':=':
-            dict_in[arg[i][:-2]] = arg[i + 1]
 
-            i += 2
-        else:
-            raise ValueError('Incorrect data argument format')
-    dict_out[top_key] = dict_in
 
 
 @aedt_exception_handler

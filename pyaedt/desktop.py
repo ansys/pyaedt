@@ -1,26 +1,9 @@
 """
-The ``Desktop`` module is used to initialize AEDT.
+The `Desktop` module contains the `Desktop` class.
 
-This module initializes AEDT and MessageManager to manage AEDT.
-You can initialize the ``Desktop`` module before launching an app or 
+The class is used to initialize AEDT and Message Manager to manage AEDT.
+You can initialize the `Desktop` module before launching an app or 
 have the app automatically initialize it to the latest installed AEDT version.
-
-
-Examples
---------
-Launch AEDT 2021 R1 in non-graphical mode and initialize HFSS.
-
->>> import pyaedt
->>> desktop = pyaedt.Desktop("2021.1", NG=True)
->>> hfss = pyaedt.Hfss()
-
-Launch AEDT 2021 R1 in graphical mode and initialize HFSS.
-
->>> desktop = Desktop("2021.1")
->>> hfss = pyaedt.Hfss()
-
-The previous example initializes the ``Desktop`` module to the latest AEDT version 
-installed on your machine in graphical mode and initializes HFSS.
 
 """
 from __future__ import absolute_import
@@ -55,7 +38,7 @@ logger = logging.getLogger(__name__)
 
 if "IronPython" in sys.version or ".NETFramework" in sys.version:
     import clr  # IronPython C:\Program Files\AnsysEM\AnsysEM19.4\Win64\common\IronPython\ipy64.exe
-    _com = 'pythonnet'
+    _com = 'ironpython'
 elif IsWindows:
     import pythoncom
     modules = [tup[1] for tup in pkgutil.iter_modules()]
@@ -71,9 +54,9 @@ elif IsWindows:
 
 
 def exception_to_desktop(self, ex_value, tb_data):
-    """Writes the trace stack to the desktop when a python error occurs.
+    """Writes the trace stack to the desktop when a Python error occurs.
     
-    It adds the message to the AEDT global message manager and to the log file (if present).
+    The message is added to the AEDT global Message Manager and to the log file (if present).
 
     Parameters
     ----------
@@ -81,7 +64,6 @@ def exception_to_desktop(self, ex_value, tb_data):
         
     tb_data :
         
-
     Returns
     -------
 
@@ -107,19 +89,20 @@ def exception_to_desktop(self, ex_value, tb_data):
 
 
 def update_aedt_registry(key, value, desktop_version="193"):
-    """Update AEDT registry key.
+    """Update the AEDT registry key.
     
     .. note::
-       This method is only supported in Windows.
+       This method is only supported on Windows.
     
     Parameters
     ----------
     key : str
         Registry key.
     value : str
-        Value to which to set the registry key. Value includes "" if needed.
+        Value for the registry key. The value includes "" if needed.
     desktop_version : str, optional
-        Version of AEDT to use. The default is ``"193"``.
+        Version of AEDT to use. The default is ``"193"`` 
+        to use 2019 R3.
 
     Returns
     -------
@@ -146,8 +129,10 @@ def update_aedt_registry(key, value, desktop_version="193"):
    
 
     """
-    import subprocess
-
+    if os.name == 'posix':
+        import subprocessdotnet as subprocess
+    else:
+        import subprocess
     desktop_install_dir = os.environ["ANSYSEM_ROOT" + str(desktop_version)]
 
     with open(os.path.join(desktop_install_dir, "config", "ProductList.txt")) as file:
@@ -288,17 +273,17 @@ class Desktop:
     """Initialize AEDT based on the inputs provided.
     
     .. note::
-       On Windows, it works without limitations in IronPython and CPython.
-       On Linux, it works only in embedded IronPython in AEDT.
+       On Windows, this class works without limitations in IronPython and CPython.
+       On Linux, this class works only in embedded IronPython in AEDT.
 
     Parameters
     ----------
     specified_version: str, optional
-        Version of AEDT to use. The default is ``None``. If ``None``, the
-        active setup is used or the latest installed version is used.
+        Version of AEDT to use. The default is ``None``, in which case the
+        active setup or latest installed version is used.
     NG: bool, optional
         Whether to launch AEDT in the non-graphical mode. The default 
-        is ``False``, which launches AEDT in the graphical mode.
+        is ``False``, in which case AEDT launches in the graphical mode.
     AlwaysNew: bool, optional
         Whether to launch an instance of AEDT in a new thread, even if 
         another instance of the ``specified_version`` is active on the machine.
@@ -318,6 +303,7 @@ class Desktop:
 
     >>> desktop = Desktop("2021.1")
     >>> hfss = pyaedt.Hfss()
+    
     """
             
     @property
@@ -326,10 +312,14 @@ class Desktop:
 
         self._version_keys = []
         self._version_ids = {}
-
         version_list = list_installed_ansysem()
         for version_env_var in version_list:
-            current_version_id = version_env_var.replace("ANSYSEM_ROOT", '')
+            if "ANSYSEMSV_ROOT" in version_env_var:
+                current_version_id = version_env_var.replace("ANSYSEMSV_ROOT", '')
+                student=True
+            else:
+                current_version_id = version_env_var.replace("ANSYSEM_ROOT", '')
+                student = False
             version = int(current_version_id[0:2])
             release = int(current_version_id[2])
             if version < 20:
@@ -337,17 +327,31 @@ class Desktop:
                     version -= 1
                 else:
                     release -= 2
-            v_key = "20{0}.{1}".format(version, release)
-            self._version_keys.append(v_key)
-            self._version_ids[v_key] = version_env_var
+            if student:
+                v_key = "20{0}.{1}SV".format(version, release)
+                self._version_keys.append(v_key)
+                self._version_ids[v_key] = version_env_var
+            else:
+                v_key = "20{0}.{1}".format(version, release)
+                self._version_keys.append(v_key)
+                self._version_ids[v_key] = version_env_var
+
         return self._version_keys
 
     @property
     def current_version(self):
         """ """
         return self.version_keys[0]
-        
-    def __init__(self, specified_version=None, NG=False, AlwaysNew=True, release_on_exit=True):
+
+    @property
+    def current_version_student(self):
+        """ """
+        for el in self.version_keys:
+            if "SV" in el:
+                return el
+        return None
+
+    def __init__(self, specified_version=None, NG=False, AlwaysNew=True, release_on_exit=True, student_version=False):
         """Initialize desktop."""
         self._main = sys.modules['__main__']
         self._main.close_on_exit = False
@@ -365,22 +369,34 @@ class Desktop:
             self._main.sDesktopinstallDirectory = base_path
             self.release = False
         else:
+            version_student = False
             if specified_version:
+                if student_version:
+                    specified_version += "SV"
+                    version_student = True
                 assert specified_version in self.version_keys, \
                     "Specified version {} not known.".format(specified_version)
                 version_key = specified_version
             else:
-                version_key = self.current_version
+                if student_version and self.current_version_student:
+                    version_key = self.current_version_student
+                    version_student = True
+                else:
+                    version_key = self.current_version
+                    version_student = False
             base_path = os.getenv(self._version_ids[version_key])
             self._main = sys.modules['__main__']
             self._main.sDesktopinstallDirectory = base_path
-            version = "Ansoft.ElectronicsDesktop." + version_key
+            if student_version and version_student:
+                version = "Ansoft.ElectronicsDesktop." + version_key[:-2]
+            else:
+                version = "Ansoft.ElectronicsDesktop." + version_key
             self._main.AEDTVersion = version_key
             self._main.interpreter = _com
             self._main.interpreter_ver = _pythonver
             if "oDesktop" in dir(self._main):
                 del self._main.oDesktop
-            if _com == 'pythonnet':
+            if _com == 'ironpython':
                 sys.path.append(base_path)
                 sys.path.append(os.path.join(base_path, 'PythonFiles', 'DesktopPlugin'))
                 clr.AddReference("Ansys.Ansoft.CoreCOMScripting")
@@ -411,14 +427,21 @@ class Desktop:
                 processID = []
                 if IsWindows:
                     username = getpass.getuser()
-                    process = "ansysedt.exe"
+                    if student_version:
+                        process = "ansysedtsv.exe"
+                    else:
+                        process = "ansysedt.exe"
                     output = os.popen('tasklist /FI "IMAGENAME eq {}" /v'.format(process)).readlines()
                     pattern = r'(?i)^(?:{})\s+?(\d+)\s+.+[\s|\\](?:{})\s+'.format(process, username)
                     for l in output:
                         m = re.search(pattern, l)
                         if m:
                             processID.append(m.group(1))
-
+                if student_version and not processID:
+                    import subprocess
+                    DETACHED_PROCESS = 0x00000008
+                    pid = subprocess.Popen([os.path.join(base_path, "ansysedtsv.exe")],
+                                           creationflags=DETACHED_PROCESS).pid
                 if NG or AlwaysNew or not processID:
                     # Force new object if no non-graphical instance is running or if there is not an already existing process.
                     App = StandalonePyScriptWrapper.CreateObjectNew(NG)
@@ -428,7 +451,10 @@ class Desktop:
                 if IsWindows:
                     module_logger.debug("Info: Using Windows TaskManager to Load processes")
                     username = getpass.getuser()
-                    process = "ansysedt.exe"
+                    if student_version:
+                        process = "ansysedtsv.exe"
+                    else:
+                        process = "ansysedt.exe"
                     output = os.popen('tasklist /FI "IMAGENAME eq {}" /v'.format(process)).readlines()
                     pattern = r'(?i)^(?:{})\s+?(\d+)\s+.+[\s|\\](?:{})\s+'.format(process, username)
                     for l in output:
@@ -488,8 +514,6 @@ class Desktop:
                 datefmt='%Y/%m/%d %H.%M.%S',
                 filemode='w')
 
-
-
         info_msg1 = 'pyaedt v{}'.format(pyaedtversion.strip())
         info_msg2 = 'Python version {}'.format(sys.version)
         self._main.oMessenger.add_info_message(info_msg1, 'Global')
@@ -501,9 +525,9 @@ class Desktop:
         logger.info(info_msg4)
 
         if _com == 'pywin32' and (AlwaysNew or NG):
-            info_msg5 = 'The ``AlwaysNew`` or ``NG`` option is not available for a pywin32 connection only. Install Pythonnet to support these options.'
+            info_msg5 = 'The ``AlwaysNew`` or ``NG`` option is not available for a pywin32 connection only. Install Python.NET to support these options.'
             self._main.oMessenger.add_info_message(info_msg5, 'Global')
-        elif _com == 'pythonnet':
+        elif _com == 'ironpython':
             dll_path = os.path.join(base_path,"common","IronPython", "dlls")
             sys.path.append(dll_path)
             info_msg5 = 'Adding IronPython common dlls to the sys.path: {0}'.format(dll_path)
