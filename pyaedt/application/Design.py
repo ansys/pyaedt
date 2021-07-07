@@ -337,6 +337,7 @@ class DesignCache(object):
         
         Returns
         -------
+        bool
             ``True`` if the cache elements are unchanged since the last update.
         """
         return self.no_new_messages
@@ -347,7 +348,7 @@ class DesignCache(object):
         Returns
         -------
         type
-            Snapshot.
+            Snapshot object.
         """
         snapshot = {
             "Solids:":  self._parent.modeler.primitives.solids,
@@ -367,9 +368,9 @@ class DesignCache(object):
         """Retrieve the current state values from the design and perform a delta calculation with the cached values.
         Then replace the cached values with the current values. 
         
-        ..note::
+        .. note::
            The update is done automatically when the property
-        `'no_change`' is accessed.
+           ``'no_change'`` is accessed.
         """
         
         messages = self._parent._messenger.messages
@@ -447,6 +448,7 @@ class Design(object):
         Whether to release AEDT on exit. The default is ``False``.   
 
     """
+
     def __str__(self):
         pyaedt_details = "      pyaedt API\n"
         pyaedt_details += "pyaedt running AEDT Version {} \n".format(self._aedt_version)
@@ -523,12 +525,14 @@ class Design(object):
         Parameters
         ----------
         design_name : str, optional
-        Name of the design to select. The default is ``None``, in 
-        which case an attempt is made to get an active design. If no
-        designs are present, an empty design is created.
+            Name of the design to select. The default is ``None``, in 
+            which case an attempt is made to get an active design. If no
+            designs are present, an empty design is created.
 
         Returns
         -------
+        dict
+           Dictionary of design properties.
 
         """
         if not design_name:
@@ -554,7 +558,7 @@ class Design(object):
         Returns
         -------
         str
-            AEDT version.
+            Version of AEDT.
 
         """
         version = self.odesktop.GetVersion()
@@ -673,7 +677,7 @@ class Design(object):
         Returns
         -------
         str
-           Path to the project file.
+            Path to the project file.
 
         """
         return os.path.normpath(self._oproject.GetPath())
@@ -684,7 +688,8 @@ class Design(object):
 
         Returns
         -------
-           Full absolute name and path for the project file.
+        str
+            Full absolute name and path for the project file.
 
         """
         return os.path.join(self.project_path, self.project_name + '.aedt')
@@ -693,9 +698,9 @@ class Design(object):
     def lock_file(self):
         """Lock file.
       
-
         Returns
         -------
+        str
             Full absolute name and path for the project lock file.
         
         """
@@ -707,6 +712,7 @@ class Design(object):
        
         Returns
         -------
+        str
             Full absolute path for the ``aedtresults`` directory.
   
         """
@@ -847,25 +853,25 @@ class Design(object):
 
     @property
     def temp_directory(self):
-        """Temp directory
+        """Path to the temporary directory.
 
         Returns
         -------
         str
-             Full absolute path for the ``temp`` directory.
+            Full absolute path for the ``temp`` directory.
 
         """
         return os.path.normpath(self._desktop.GetTempDirectory())
 
     @property
     def toolkit_directory(self):
-        """Toolkit directory.
+        """Path to the toolkit directory.
 
         Returns
         -------
         str
-             Full absolute path for the ``toolkit`` directory for this project. 
-             If this directory does not exist, it is created.
+            Full absolute path for the ``toolkit`` directory for this project. 
+            If this directory does not exist, it is created.
 
         """
         toolkit_directory = os.path.join(self.project_path, self.project_name + '.toolkit')
@@ -875,7 +881,7 @@ class Design(object):
 
     @property
     def working_directory(self):
-        """Working directory.
+        """Path to the working directory.
 
         Returns
         -------
@@ -896,7 +902,7 @@ class Design(object):
         Returns
         -------
         str
-          Default for the solution type.
+           Default for the solution type.
 
         """
         return design_solutions[self._design_type][0]
@@ -1079,7 +1085,6 @@ class Design(object):
         -------
         str
             AEDT installation directory.
-            
 
         """
         return self._desktop_install_dir
@@ -1098,8 +1103,9 @@ class Design(object):
 
     @property
     def variable_manager(self):
-        """Variable manager object that is used to create and manage project, 
-        design and postprocessing variables.
+        """Variable manager
+        
+        This object is used to create and manage project design and postprocessing variables.
 
         Returns
         -------
@@ -1204,9 +1210,9 @@ class Design(object):
         ----------
         variable_name : str
             Name of the variable.
-        min_val : optional
+        min_val : str, optional
             Minimum value for the variable. The default is ``None``.
-        max_val : optional
+        max_val : str, optional
             Maximum value for the variable. The default is ``None``.
 
         Returns
@@ -1256,9 +1262,9 @@ class Design(object):
 
         variable_name : str
             Name of the variable.
-        min_val : optional
+        min_val : str, optional
             Minimum value for the variable. The default is ``None``.
-        max_val : optional
+        max_val : str, optional
             Maximum value for the variable. The default is ``None``.
 
         Returns
@@ -1473,9 +1479,9 @@ class Design(object):
         Parameters
         ----------
         close_projects: bool, optional
-            Close all projects.
+            Whether to close all projects.  Default is ``True``.
         close_desktop: bool, optional
-            Close the desktop after release it.
+            Whether to close the desktop after release it.  Default is ``True``.
 
         Returns
         -------
@@ -1490,7 +1496,7 @@ class Design(object):
     def generate_temp_project_directory(self, subdir_name):
         """Generate a unique directory string to save a project to.
 
-        This method creates a directory for storage of a project in the ''temp'' directory 
+        This method creates a directory for storage of a project in the ``temp`` directory 
         of the AED installation because this location is guaranteed to exist. If the '`name`' 
         parameter is defined, a subdirectory is added within the ``temp`` directory and a 
         hash suffix is added to ensure that this directory is empty and has a unique name.
@@ -1830,7 +1836,8 @@ class Design(object):
     def copy_project(self, path, dest):
         """Copy the project to another destination.
         
-        This method saves the project before copying it.
+        .. note::
+           This method saves the project before copying it.
 
         Parameters
         ----------
@@ -1879,7 +1886,7 @@ class Design(object):
         Parameters
         ----------
         name : str, optional
-            Name of the project. The default is ``None,'' in which case the
+            Name of the project. The default is ``None``, in which case the
             active project is closed.
         saveproject : bool, optional
             Whether to save the project before closing it. The default is
@@ -1916,14 +1923,14 @@ class Design(object):
     def delete_design(self, name=None, fallback_design=None):
         """Delete a design from the current project.
         
-        ..warning::
-          This method does not work from the toolkit.
+        .. warning::
+           This method does not work from the toolkit.
 
         Parameters
         ----------
         name : str, optional
             Name of the design. The default is ``None``, in which case
-            the ative design is to be deleted. 
+            the active design will be deleted. 
 
         Returns
         -------
@@ -1956,7 +1963,8 @@ class Design(object):
 
         Parameters
         ----------
-        separator_name : 
+        separator_name : str
+            Name of the separator.
 
 
         Returns
@@ -2063,7 +2071,14 @@ class Design(object):
 
     @aedt_exception_handler
     def _generate_unique_project_name(self):
-        """Generate an unique project name."""
+        """Generate an unique project name.
+
+        Returns
+        --------
+        str
+            Unique project name in the form ``"Project_<unique_name>.aedt"
+        
+        """
         char_set = string.ascii_uppercase + string.digits
         uName = ''.join(random.sample(char_set, 3))
         proj_name = "Project_" + uName+ ".aedt"
@@ -2075,7 +2090,7 @@ class Design(object):
 
         Parameters
         ----------
-        new_name :
+        new_name : str
             New name of the design.
 
         Returns
@@ -2217,7 +2232,7 @@ class Design(object):
         Returns
         -------
         dict
-        Dictionary of design data.
+            Dictionary of design data.
         
         """
         design_file = os.path.join(self.working_directory, "design_data.json")
@@ -2304,7 +2319,7 @@ class Design(object):
 
     @aedt_exception_handler
     def validate_simple(self, logfile=None):
-        """Validate a design. Return 0 if validation failed or 1 if passed
+        """Validate a design.
 
         Parameters
         ----------
@@ -2314,6 +2329,8 @@ class Design(object):
 
         Returns
         -------
+        int
+            ``0`` if validation failed or ``1`` if passed.
 
         """
         if logfile:
@@ -2361,18 +2378,18 @@ class Design(object):
 
     @aedt_exception_handler
     def evaluate_expression(self, expression_string):
-        """ Evaluate a valid string expression and return the numerical value in SI units.
+        """Evaluate a valid string expression and return the numerical value in SI units.
 
         Parameters
         ----------
         expression_string : str
             A valid string expression for a design property or project variable.
-            For example, ``"34mm*sqrt(2)", "$G1*p2/34"``.
+            For example, ``"34mm*sqrt(2)"`` or ``"$G1*p2/34"``.
 
         Returns
         -------
         float
-           Evaluated value for the string expression.
+            Evaluated value for the string expression.
 
         """
         # Set the value of an internal reserved design variable to the specified string
@@ -2403,12 +2420,12 @@ class Design(object):
         Parameters
         ----------
         variation_string : str, optional
-            Variation string. For example, ``"p1=1mm p2=3mm"``.
+            Variation string. For example, ``"p1=1mm" or ``"p2=3mm"``.
 
         Returns
         -------
         str
-           String specifying the desired variation.
+            String specifying the desired variation.
 
         """
         nominal = self._odesign.GetNominalVariation()
