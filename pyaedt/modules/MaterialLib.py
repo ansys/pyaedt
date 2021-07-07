@@ -158,7 +158,7 @@ class Materials(object):
             material name
 
         props : dict
-            Optional material property dictionary. Default = `None`.
+            Optional material property dictionary. Default is `None`.
 
         Returns
         -------
@@ -545,4 +545,3 @@ class Materials(object):
             newmat.update()
             self.material_keys[newname] = newmat
         return True
-
