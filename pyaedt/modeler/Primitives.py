@@ -884,6 +884,23 @@ class Primitives(object):
         return report
 
     @aedt_exception_handler
+    def update_object(self, obj):
+        """Use to update any object3d derivatives that have potentially been modified by a modeler operation
+
+        Parameters
+        ----------
+        obj : int, str or Object3d
+            Object to be updated after a modeler operation
+
+        Returns
+        -------
+        Object3d
+        """
+        o = self._resolve_object(obj)
+        o._update()
+        return o
+
+    @aedt_exception_handler
     def value_in_object_units(self, value):
         """Convert a numerical length string, such as ``10mm`` to a floating point value.
 

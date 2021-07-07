@@ -312,3 +312,23 @@ class TestModeler(BasisTest):
         self.aedtapp.modeler.set_working_coordinate_system("Global")
         self.aedtapp.modeler.set_working_coordinate_system("new1")
 
+    def test_sweep_around_axis(self):
+        box1 = self.aedtapp.modeler.primitives.create_box([-10, -10, -10], [20, 20, 20], "box_to_split")
+        box1.sweep_around_axis("Z", sweep_angle=360, draft_angle=0)
+
+    def test_sweep_along_path(self):
+        udp1 = [0, 0, 0]
+        udp2 = [5, 0, 0]
+        path = self.aedtapp.modeler.primitives.create_polyline([udp1, udp2], name="Poly1")
+        box1 = self.aedtapp.modeler.primitives.create_box([-10, -10, -10], [20, 20, 20], "box_to_split")
+        box1.sweep_along_path(path)
+
+    def test_section_object(self):
+        box1 = self.aedtapp.modeler.primitives.create_box([-10, -10, -10], [20, 20, 20], "box_to_split")
+        self.aedtapp.modeler.section(box1, 0, create_new=True, section_cross_object=False)
+        pass
+
+    def test_sweep_along_vector(self):
+        sweep_vector = [5, 0, 0]
+        box1 = self.aedtapp.modeler.primitives.create_box([-10, -10, -10], [20, 20, 20], "box_to_split")
+        box1.sweep_along_vector(sweep_vector)

@@ -485,7 +485,7 @@ class Primitives3D(Primitives, object):
         Object3d
         """
         vArg1 = udpequationbasedcurveddefinition.toScript()
-        vArg2 = o.export_attributes(name)
+        vArg2 = self._default_object_attributes(name)
 
         new_name = self.oeditor.CreateEquationCurve(vArg1, vArg2)
         return self._create_object(new_name)
@@ -689,55 +689,3 @@ class Primitives3D(Primitives, object):
         """
         return self.solids
 
-    @aedt_exception_handler
-    def get_face_normal(self, faceId, bounding_box=None):
-        """Get the face normal.
-        Limitations:
-        - the face must be planar.
-        - Currently it works only if the face has at least two vertices. Notable excluded items are circles and
-        ellipses that have only one vertex.
-        - If a bounding box is specified, the normal is orientated outwards with respect to the bounding box.
-        Usually the bounding box refers to a volume where the face lies.
-        If no bounding box is specified, the normal can be inward or outward the volume.
-
-        Parameters
-        ----------
-        faceId :
-            part ID (integer).
-        bounding_box :
-            optional, bounding box in the form [x_min, y_min, z_min, x_Max, y_Max, z_Max] (Default value = None)
-
-        Returns
-        -------
-        type
-            normal versor (normalized [x, y, z]) or None.
-
-        """
-        vertices_ids = self.get_face_vertices(faceId)
-        if len(vertices_ids) < 2:
-            return None
-        else:
-            v1 = self.get_vertex_position(vertices_ids[0])
-            v2 = self.get_vertex_position(vertices_ids[1])
-        fc = self.get_face_center(faceId)
-        cv1 = GeometryOperators.v_points(fc, v1)
-        cv2 = GeometryOperators.v_points(fc, v2)
-        n = GeometryOperators.v_cross(cv1, cv2)
-        normal = GeometryOperators.normalize_vector(n)
-        if not bounding_box:
-            return normal
-        else:
-            """
-            try to move the face center twice, the first with the normal vector, and the second with its inverse.
-            Measures which is closer to the center point of the bounding box.
-            """
-            inv_norm = [-i for i in normal]
-            mv1 = GeometryOperators.v_sum(fc, normal)
-            mv2 = GeometryOperators.v_sum(fc, inv_norm)
-            bb_center = GeometryOperators.get_mid_point(bounding_box[0:3], bounding_box[3:6])
-            d1 = GeometryOperators.points_distance(mv1, bb_center)
-            d2 = GeometryOperators.points_distance(mv2, bb_center)
-            if d1 > d2:
-                return normal
-            else:
-                return inv_norm

@@ -1565,7 +1565,7 @@ class GeometryModeler(Modeler, object):
 
         self.oeditor.SweepAlongVector(vArg1, vArg2)
 
-        return self._update_object(objid)
+        return self.primitives.update_object(objid)
 
     @aedt_exception_handler
     def sweep_along_path(self, objid, sweep_object, draft_angle=0, draft_type="Round", is_check_face_intersection=False, twist_angle=0):
@@ -1597,25 +1597,7 @@ class GeometryModeler(Modeler, object):
 
         self.oeditor.SweepAlongPath(vArg1, vArg2)
 
-        return self._update_object(objid)
-
-    def _get_object(self, obj):
-        if isinstance(obj, int):
-            return self.primitives.objects[obj]
-        elif isinstance(obj, str):
-            id = self.primitives.object_id_dict[obj]
-            return self.primitives.objects[id]
-        else:
-            return obj
-
-    def _update_object(self, obj):
-        '''Use to update any object3d derivatives that have potentially been modified by a modeler operation'''
-        self.primitives._refresh_object_types()
-        self.primitives.cleanup_objects()
-        o = self._get_object(obj)
-        o._update_object_type()
-        o._update_properties()
-        return o
+        return self.primitives.update_object(objid)
 
     @aedt_exception_handler
     def sweep_around_axis(self, objid, cs_axis, sweep_angle=360, draft_angle=0):
@@ -1647,7 +1629,7 @@ class GeometryModeler(Modeler, object):
 
         self.oeditor.SweepAroundAxis(vArg1, vArg2)
 
-        return self._update_object(objid)
+        return self.primitives.update_object(objid)
 
     @aedt_exception_handler
     def section(self, object_list, plane, create_new=True, section_cross_object=False):

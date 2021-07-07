@@ -841,6 +841,89 @@ class Object3d(object):
         self._parent.modeler.translate(self.id, vector)
         return self
 
+
+    def sweep_along_vector(self, sweep_vector, draft_angle=0, draft_type="Round"):
+        """Sweep selection along vector
+
+        Parameters
+        ----------
+        objid : str, int
+            if str, it is considered an objecname. if Int it is considered an object id
+        sweep_vector :
+            Application.Position object
+        draft_angle : float
+            Draft Angle
+        draft_type : str
+            Draft Type. Default Round
+        Returns
+        -------
+        bool
+        """
+        self._parent.modeler.sweep_along_vector(self, sweep_vector, draft_angle, draft_type)
+        return self
+
+    def sweep_along_path(self, sweep_object, draft_angle=0, draft_type="Round",
+                              is_check_face_intersection=False, twist_angle=0):
+        """Sweep selection along vector
+
+        Parameters
+        ----------
+        objid: str, int
+            if str, it is considered an objecname. if Int it is considered an object id
+        sweep_object: if str, it is considered an objecname. if Int is considered an object id
+        draft_angle : float
+            Draft Angle
+        draft_type : str
+            Draft Type. Default "Round"
+        is_check_face_intersection: Boolean, False by default
+        twist_angle: Float Angle in degres, 0 by default
+
+        Returns
+        -------
+        bool
+        """
+        self._parent.modeler.sweep_along_path(self, sweep_object, draft_angle, draft_type,
+                                              is_check_face_intersection, twist_angle)
+        return self
+
+    def sweep_around_axis(self, cs_axis, sweep_angle=360, draft_angle=0):
+        """Sweep around a specified axis
+
+        Parameters
+        ----------
+        cs_axis :
+            Application.CoordinateSystemAxis object
+        sweep_angle : float
+             Sweep Angle in degrees
+        draft_angle : float
+            Draft Angle
+
+        Returns
+        -------
+        Object3d
+        """
+        self._parent.modeler.sweep_around_axis(self, cs_axis, sweep_angle, draft_angle)
+        return self
+
+    def section(self, plane, create_new=True, section_cross_object=False):
+        """Section the object
+
+        Parameters
+        ----------
+        plane :
+            Application.CoordinateSystemPlane object
+        create_new :
+            Bool. (Default value = True)
+        section_cross_object :
+            Bool (Default value = False)
+
+        Returns
+        -------
+        Object3d
+        """
+        self._parent.modeler.section(self, plane, create_new, section_cross_object)
+        return self
+
     @aedt_exception_handler
     def clone(self):
         """Clones the object and returns the Object3d object
@@ -898,6 +981,8 @@ class Object3d(object):
         return True
 
     def _update(self):
+        self._parent._refresh_object_types()
+        self._parent.cleanup_objects()
         self._update_object_type()
         self._update_properties()
 
