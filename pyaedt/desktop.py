@@ -38,7 +38,7 @@ logger = logging.getLogger(__name__)
 
 if "IronPython" in sys.version or ".NETFramework" in sys.version:
     import clr  # IronPython C:\Program Files\AnsysEM\AnsysEM19.4\Win64\common\IronPython\ipy64.exe
-    _com = 'pythonnet'
+    _com = 'ironpython'
 elif IsWindows:
     import pythoncom
     modules = [tup[1] for tup in pkgutil.iter_modules()]
@@ -312,10 +312,14 @@ class Desktop:
 
         self._version_keys = []
         self._version_ids = {}
-
         version_list = list_installed_ansysem()
         for version_env_var in version_list:
-            current_version_id = version_env_var.replace("ANSYSEM_ROOT", '')
+            if "ANSYSEMSV_ROOT" in version_env_var:
+                current_version_id = version_env_var.replace("ANSYSEMSV_ROOT", '')
+                student=True
+            else:
+                current_version_id = version_env_var.replace("ANSYSEM_ROOT", '')
+                student = False
             version = int(current_version_id[0:2])
             release = int(current_version_id[2])
             if version < 20:
@@ -323,17 +327,31 @@ class Desktop:
                     version -= 1
                 else:
                     release -= 2
-            v_key = "20{0}.{1}".format(version, release)
-            self._version_keys.append(v_key)
-            self._version_ids[v_key] = version_env_var
+            if student:
+                v_key = "20{0}.{1}SV".format(version, release)
+                self._version_keys.append(v_key)
+                self._version_ids[v_key] = version_env_var
+            else:
+                v_key = "20{0}.{1}".format(version, release)
+                self._version_keys.append(v_key)
+                self._version_ids[v_key] = version_env_var
+
         return self._version_keys
 
     @property
     def current_version(self):
         """ """
         return self.version_keys[0]
-        
-    def __init__(self, specified_version=None, NG=False, AlwaysNew=True, release_on_exit=True):
+
+    @property
+    def current_version_student(self):
+        """ """
+        for el in self.version_keys:
+            if "SV" in el:
+                return el
+        return None
+
+    def __init__(self, specified_version=None, NG=False, AlwaysNew=True, release_on_exit=True, student_version=False):
         """Initialize desktop."""
         self._main = sys.modules['__main__']
         self._main.close_on_exit = False
@@ -351,22 +369,34 @@ class Desktop:
             self._main.sDesktopinstallDirectory = base_path
             self.release = False
         else:
+            version_student = False
             if specified_version:
+                if student_version:
+                    specified_version += "SV"
+                    version_student = True
                 assert specified_version in self.version_keys, \
                     "Specified version {} not known.".format(specified_version)
                 version_key = specified_version
             else:
-                version_key = self.current_version
+                if student_version and self.current_version_student:
+                    version_key = self.current_version_student
+                    version_student = True
+                else:
+                    version_key = self.current_version
+                    version_student = False
             base_path = os.getenv(self._version_ids[version_key])
             self._main = sys.modules['__main__']
             self._main.sDesktopinstallDirectory = base_path
-            version = "Ansoft.ElectronicsDesktop." + version_key
+            if student_version and version_student:
+                version = "Ansoft.ElectronicsDesktop." + version_key[:-2]
+            else:
+                version = "Ansoft.ElectronicsDesktop." + version_key
             self._main.AEDTVersion = version_key
             self._main.interpreter = _com
             self._main.interpreter_ver = _pythonver
             if "oDesktop" in dir(self._main):
                 del self._main.oDesktop
-            if _com == 'pythonnet':
+            if _com == 'ironpython':
                 sys.path.append(base_path)
                 sys.path.append(os.path.join(base_path, 'PythonFiles', 'DesktopPlugin'))
                 clr.AddReference("Ansys.Ansoft.CoreCOMScripting")
@@ -397,14 +427,21 @@ class Desktop:
                 processID = []
                 if IsWindows:
                     username = getpass.getuser()
-                    process = "ansysedt.exe"
+                    if student_version:
+                        process = "ansysedtsv.exe"
+                    else:
+                        process = "ansysedt.exe"
                     output = os.popen('tasklist /FI "IMAGENAME eq {}" /v'.format(process)).readlines()
                     pattern = r'(?i)^(?:{})\s+?(\d+)\s+.+[\s|\\](?:{})\s+'.format(process, username)
                     for l in output:
                         m = re.search(pattern, l)
                         if m:
                             processID.append(m.group(1))
-
+                if student_version and not processID:
+                    import subprocess
+                    DETACHED_PROCESS = 0x00000008
+                    pid = subprocess.Popen([os.path.join(base_path, "ansysedtsv.exe")],
+                                           creationflags=DETACHED_PROCESS).pid
                 if NG or AlwaysNew or not processID:
                     # Force new object if no non-graphical instance is running or if there is not an already existing process.
                     App = StandalonePyScriptWrapper.CreateObjectNew(NG)
@@ -414,7 +451,10 @@ class Desktop:
                 if IsWindows:
                     module_logger.debug("Info: Using Windows TaskManager to Load processes")
                     username = getpass.getuser()
-                    process = "ansysedt.exe"
+                    if student_version:
+                        process = "ansysedtsv.exe"
+                    else:
+                        process = "ansysedt.exe"
                     output = os.popen('tasklist /FI "IMAGENAME eq {}" /v'.format(process)).readlines()
                     pattern = r'(?i)^(?:{})\s+?(\d+)\s+.+[\s|\\](?:{})\s+'.format(process, username)
                     for l in output:
@@ -474,8 +514,6 @@ class Desktop:
                 datefmt='%Y/%m/%d %H.%M.%S',
                 filemode='w')
 
-
-
         info_msg1 = 'pyaedt v{}'.format(pyaedtversion.strip())
         info_msg2 = 'Python version {}'.format(sys.version)
         self._main.oMessenger.add_info_message(info_msg1, 'Global')
@@ -489,7 +527,7 @@ class Desktop:
         if _com == 'pywin32' and (AlwaysNew or NG):
             info_msg5 = 'The ``AlwaysNew`` or ``NG`` option is not available for a pywin32 connection only. Install Python.NET to support these options.'
             self._main.oMessenger.add_info_message(info_msg5, 'Global')
-        elif _com == 'pythonnet':
+        elif _com == 'ironpython':
             dll_path = os.path.join(base_path,"common","IronPython", "dlls")
             sys.path.append(dll_path)
             info_msg5 = 'Adding IronPython common dlls to the sys.path: {0}'.format(dll_path)

@@ -16,7 +16,7 @@ try:
     from System.Collections.Generic import List
 except ImportError:
     warnings.warn('This module requires pythonnet.')
-
+from collections import defaultdict
 
 def resistor_value_parser(RValue):
     """Convert a resistor value.
@@ -122,7 +122,7 @@ class Components(object):
                 
         Returns
         -------
-        dict
+        defaultdict(EDBComponent)
            Dictionary of component setup information.
 
         Examples
@@ -138,6 +138,12 @@ class Components(object):
 
     @aedt_exception_handler
     def refresh_components(self):
+        """Refresh the component dictionary
+
+        Returns
+        -------
+        defaultdict(EDBComponent)
+        """
         self._messenger.add_info_message("Refreshing Components Dictionary")
         try:
             cmplist = self.get_component_list()
