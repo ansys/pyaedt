@@ -466,9 +466,9 @@ class Icepak(FieldAnalysisIcepak):
         """
         point_name = generate_unique_name("Point")
         self.modeler.oeditor.CreatePoint(
-            ["NAME:PointParameters", "PointX:=", self.modeler.primitives.arg_with_dim(point_position[0]), "PointY:=",
-             self.modeler.primitives.arg_with_dim(point_position[1]), "PointZ:=",
-             self.modeler.primitives.arg_with_dim(point_position[2])],
+            ["NAME:PointParameters", "PointX:=", self.modeler.primitives._arg_with_dim(point_position[0]), "PointY:=",
+             self.modeler.primitives._arg_with_dim(point_position[1]), "PointZ:=",
+             self.modeler.primitives._arg_with_dim(point_position[2])],
             ["NAME:Attributes", "Name:=", point_name, "Color:=", "(143 175 143)"])
         if not monitor_name:
             monitor_name = generate_unique_name("Monitor")
@@ -502,7 +502,7 @@ class Icepak(FieldAnalysisIcepak):
                 k += 1
         total_power = 0
         i=0
-        all_objects = self.modeler.primitives.get_all_objects_names()
+        all_objects = self.modeler.primitives.object_names
         for power in component_data["Applied Power (W)"]:
             try:
                 float(power)
@@ -645,25 +645,25 @@ class Icepak(FieldAnalysisIcepak):
             ``True`` when successful, ``False`` when failed.
         """
         all_objs = self.modeler.primitives.object_names
-        self['FinPitch'] = self.modeler.primitives.arg_with_dim(pitch)
-        self['FinThickness'] = self.modeler.primitives.arg_with_dim(thick)
-        self['FinLength'] = self.modeler.primitives.arg_with_dim(length)
-        self['FinHeight'] = self.modeler.primitives.arg_with_dim(height)
+        self['FinPitch'] = self.modeler.primitives._arg_with_dim(pitch)
+        self['FinThickness'] = self.modeler.primitives._arg_with_dim(thick)
+        self['FinLength'] = self.modeler.primitives._arg_with_dim(length)
+        self['FinHeight'] = self.modeler.primitives._arg_with_dim(height)
         self['DraftAngle'] = draftangle
         self['PatternAngle'] = patternangle
-        self['FinSeparation'] = self.modeler.primitives.arg_with_dim(separation)
-        self['VerticalSeparation'] = self.modeler.primitives.arg_with_dim(vertical_separation)
-        self['HSHeight'] = self.modeler.primitives.arg_with_dim(hs_height)
-        self['HSWidth'] = self.modeler.primitives.arg_with_dim(hs_width)
-        self['HSBaseThick'] = self.modeler.primitives.arg_with_dim(hs_basethick)
+        self['FinSeparation'] = self.modeler.primitives._arg_with_dim(separation)
+        self['VerticalSeparation'] = self.modeler.primitives._arg_with_dim(vertical_separation)
+        self['HSHeight'] = self.modeler.primitives._arg_with_dim(hs_height)
+        self['HSWidth'] = self.modeler.primitives._arg_with_dim(hs_width)
+        self['HSBaseThick'] = self.modeler.primitives._arg_with_dim(hs_basethick)
         if numcolumn_perside>1:
             self['NumColumnsPerSide'] = numcolumn_perside
         if symmetric:
-            self['SymSeparation'] = self.modeler.primitives.arg_with_dim(symmetric_separation)
+            self['SymSeparation'] = self.modeler.primitives._arg_with_dim(symmetric_separation)
         # ipk['PatternDirection'] = 'Y'
         # ipk['LengthDirection'] = 'X'
         # ipk['HeightDirection'] = 'Z'
-        self['Tolerance'] = self.modeler.primitives.arg_with_dim(tolerance)
+        self['Tolerance'] = self.modeler.primitives._arg_with_dim(tolerance)
 
         #self.modeler.primitives.create_box([0, 0, '-HSBaseThick'], ['HSWidth', 'HSHeight', 'FinHeight+HSBaseThick'], "Outline")
         self.modeler.primitives.create_box(['-HSWidth/200', '-HSHeight/200', '-HSBaseThick'], ['HSWidth*1.01', 'HSHeight*1.01', 'HSBaseThick+Tolerance'], "HSBase", matname)
@@ -691,7 +691,7 @@ class Icepak(FieldAnalysisIcepak):
         self.modeler.duplicate_along_line("Fin", self.Position(0, 'FinSeparation+FinThickness', 0), num,True)
         self.modeler.duplicate_along_line("Fin", self.Position(0, '-FinSeparation-FinThickness', 0), num/4, True)
 
-        all_names = self.modeler.primitives.get_all_objects_names()
+        all_names = self.modeler.primitives.object_names
         list = [i for i in all_names if "Fin" in i]
         if numcolumn_perside>0:
             self.modeler.duplicate_along_line(list,
@@ -699,10 +699,10 @@ class Icepak(FieldAnalysisIcepak):
                                                           0),
                                              'NumColumnsPerSide', True)
 
-        all_names = self.modeler.primitives.get_all_objects_names()
+        all_names = self.modeler.primitives.object_names
         list = [i for i in all_names if "Fin" in i]
         self.modeler.split(list, self.CoordinateSystemPlane.ZXPlane, "PositiveOnly")
-        all_names = self.modeler.primitives.get_all_objects_names()
+        all_names = self.modeler.primitives.object_names
         list = [i for i in all_names if "Fin" in i]
         self.modeler.create_coordinate_system(self.Position(0, 'HSHeight', 0), mode="view", view="XY", name="TopRight")
 
@@ -725,14 +725,14 @@ class Icepak(FieldAnalysisIcepak):
             Center_Line.append(self.Position('-SymSeparation', 'Tolerance', '-Tolerance'))
             self.modeler.primitives.create_polyline(Center_Line, cover_surface=True, name="Center")
             self.modeler.thicken_sheet("Center", '-FinHeight-2*Tolerance')
-            all_names = self.modeler.primitives.get_all_objects_names()
+            all_names = self.modeler.primitives.object_names
             list = [i for i in all_names if "Fin" in i]
             self.modeler.subtract(list, "Center", False)
         else:
             self.modeler.create_coordinate_system(self.Position('HSWidth', 0, 0), mode="view", view="XY",
                                                   name="BottomRight",reference_cs="TopRight")
             self.modeler.split(list, self.CoordinateSystemPlane.YZPlane, "NegativeOnly")
-        all_objs2 = self.modeler.primitives.get_all_objects_names()
+        all_objs2 = self.modeler.primitives.object_names
         list_to_move=[i for i in all_objs2 if i not in all_objs]
         center[0] -= hs_width/2
         center[1] -= hs_height/2

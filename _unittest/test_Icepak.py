@@ -133,13 +133,17 @@ class TestIcepak:
         pass
 
     def test_12_AssignMeshOperation(self):
+        self.aedtapp.oproject = "Filter_Board"
+        self.aedtapp.odesign = "IcepakDesign1"
         group_name = "Group1"
         mesh_level_Filter = "2"
         component_name = ["RadioBoard1_1"]
         mesh_level_RadioPCB = "1"
-        assert self.aedtapp.mesh.assign_mesh_level_to_group(mesh_level_Filter, group_name)
+        test = self.aedtapp.mesh.assign_mesh_level_to_group(mesh_level_Filter, group_name)
+        assert test
         #assert self.aedtapp.mesh.assignMeshLevel2Component(mesh_level_RadioPCB, component_name)
-        assert self.aedtapp.mesh.assign_mesh_region(component_name, mesh_level_RadioPCB)
+        test = self.aedtapp.mesh.assign_mesh_region(component_name, mesh_level_RadioPCB)
+        assert test
 
     def test_13_assign_openings(self):
         airfaces = [self.aedtapp.modeler.primitives["Region"].faces[0].id]

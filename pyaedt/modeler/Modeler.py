@@ -813,19 +813,6 @@ class GeometryModeler(Modeler, object):
         return get_total_transformation(point, ref_cs)
 
     @aedt_exception_handler
-    def delete_all_objects(self):
-        """Delete all line, solid and sheet objects
-
-        Returns
-        -------
-         bool
-            True if operation succeeded, False otherwise
-        """
-
-        self.primitives.delete()
-        return True
-
-    @aedt_exception_handler
     def set_working_coordinate_system(self, name):
         """ Set the working coordinate system to name.
 
@@ -1839,12 +1826,10 @@ class GeometryModeler(Modeler, object):
         """
         szSelections = self.convert_to_selections(theList)
 
-        self.primitives.cleanup_objects()
-
         vArg1 = ['NAME:Selections', 'Selections:=', szSelections]
         vArg2 = ['NAME:UniteParameters', 'KeepOriginals:=', False]
-
         self.oeditor.Unite(vArg1, vArg2)
+        self.primitives.cleanup_objects()
         return True
 
     @aedt_exception_handler
@@ -2439,19 +2424,19 @@ class GeometryModeler(Modeler, object):
 
         Parameters
         ----------
-        objectname :
+        objectname : str
             
 
         Returns
         -------
 
         """
-        if type(objectname) is int:
-            objectname = self.primitives.objects[objectname].name
+        objectname = self.convert_to_selections(objectname)
         self.oeditor.GenerateHistory(
             ["NAME:Selections", "Selections:=", objectname, "NewPartsModelFlag:=", "Model",
              "UseCurrentCS:=", True
             ])
+        self.primitives.cleanup_objects()
         return True
 
 
@@ -2476,21 +2461,24 @@ class GeometryModeler(Modeler, object):
             New Bondwirename
 
         """
-        edges = self.primitives.get_object_edges(bondname)
-        faces = self.primitives.get_object_faces(bondname)
+        old_bondwire = self.primitives.get_object_from_name(bondname)
+        if not old_bondwire:
+            return False
+        edges = old_bondwire.edges
+        faces = old_bondwire.faces
         centers = []
         for el in faces:
-            center = self.primitives.get_face_center(el)
+            center = el.center
             if center:
                 centers.append(center)
         edgelist = []
         verlist = []
         for el in edges:
-            ver = self.primitives.get_edge_vertices(el)
+            ver = el.vertices
             if len(ver) < 2:
                 continue
-            p1 = self.primitives.get_vertex_position(ver[0])
-            p2 = self.primitives.get_vertex_position(ver[1])
+            p1 = ver[0].position
+            p2 = ver[1].position
             p3 = [abs(i - j) for i, j in zip(p1, p2)]
 
             dir = p3.index(max(p3))
@@ -2503,14 +2491,13 @@ class GeometryModeler(Modeler, object):
         connected = [edgelist[0]]
         tol = 1e-6
         for edge in edgelist[1:]:
-            ver = self.primitives.get_edge_vertices(edge)
-            p1 = self.primitives.get_vertex_position(ver[0])
-            p2 = self.primitives.get_vertex_position(ver[1])
+            ver = edge.vertices
+            p1 = ver[0].position
+            p2 = ver[1].position
             for el in connected:
-                ver1 = self.primitives.get_edge_vertices(el)
-
-                p3 = self.primitives.get_vertex_position(ver1[0])
-                p4 = self.primitives.get_vertex_position(ver1[1])
+                ver1 = el.vertices
+                p3 = ver1[0].position
+                p4 = ver1[1].position
                 dist = GeometryOperators.points_distance(p1, p3)
                 if dist < tol:
                     connected.append(edge)
@@ -2533,17 +2520,17 @@ class GeometryModeler(Modeler, object):
             new_edges.append(edge_object)
 
         self.unite(new_edges)
-        self.generate_object_history(new_edges[0].id)
-        self.primitives.convert_segments_to_line(new_edges[0].id)
+        self.generate_object_history(new_edges[0])
+        self.primitives.convert_segments_to_line(new_edges[0].name)
 
-        edges = self.primitives.get_object_edges(new_edges[0].id)
+        edges = new_edges[0].edges
         i = 0
         edge_to_delete = []
         first_vert = None
         for edge in edges:
-            ver = self.primitives.get_edge_vertices(edge)
-            p1 = self.primitives.get_vertex_position(ver[0])
-            p2 = self.primitives.get_vertex_position(ver[1])
+            ver = edge.vertices
+            p1 = ver[0].position
+            p2 = ver[1].position
             if not first_vert:
                 first_vert = p1
             dist = GeometryOperators.points_distance(p1, p2)
@@ -2570,7 +2557,7 @@ class GeometryModeler(Modeler, object):
                                                width=(rad*(2-math.sin(angle))) * 2)
         if status:
             self.translate(new_edges[0], move_vector)
-            self.set_object_model_state(bondname, False)
+            old_bondwire.model = False
             return new_edges[0]
         else:
             return False

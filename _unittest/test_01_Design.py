@@ -32,11 +32,6 @@ class TestDesign():
     def test_app(self):
         assert self.aedtapp
 
-    #TODO: Clean up close-project so it doesn't crash
-    @pytest.mark.skip(reason="Skipped because project management needs revisiting")
-    def test_01_close_project(self):
-        self.aedtapp.close_project()
-
     def test_01_designname(self):
         self.aedtapp.design_name = "myname"
         assert self.aedtapp.design_name == "myname"
@@ -135,7 +130,6 @@ class TestDesign():
         assert "myduplicateddesign" in self.aedtapp.design_list
         self.aedtapp.delete_design("myduplicateddesign")
 
-
     def test_15b_copy_design_from(self):
         origin = os.path.join(self.local_scratch.path, 'origin.aedt')
         destin = os.path.join(self.local_scratch.path, 'destin.aedt')
@@ -200,12 +194,10 @@ class TestDesign():
         assert ds.add_point(300, 0.8)
         assert len(ds.x) == xl + 1
 
-
     def test_20_get_3dComponents_properties(self):
         assert len(self.aedtapp.components3d)>0
         props = self.aedtapp.get_components3d_vars("Dipole_Antenna_DM")
         assert len(props) == 3
-
 
     def test_21_generate_temp_project_directory(self):
         proj_dir1 = self.aedtapp.generate_temp_project_directory("Example")
@@ -216,4 +208,9 @@ class TestDesign():
         assert os.path.exists(proj_dir4)
         proj_dir5 = self.aedtapp.generate_temp_project_directory(":_34")
         assert not proj_dir5
-        
+
+    '''
+    def test_01_close_project(self):
+        self.aedtapp.close_project()
+        pass
+    '''

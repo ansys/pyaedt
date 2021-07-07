@@ -139,10 +139,10 @@ class TestMaxwell3D:
         my_udpPairs.append(mypair)
 
         my_udpName = "MyClawPoleCore"
-        assert self.aedtapp.modeler.primitives.create_udp(udp_dll_name="RMxprt/ClawPoleCore",
+        udp = self.aedtapp.modeler.primitives.create_udp(udp_dll_name="RMxprt/ClawPoleCore",
                                                           udp_parameters_list=my_udpPairs, upd_library='syslib',
                                                           name=my_udpName, udptye="Solid")
-
+        assert udp
 
     def test_27_create_udm(self):
         my_udmPairs = []

@@ -85,6 +85,25 @@ class TestPrimitives(BasisTest):
         return p1, p2, test_points
 
     @pyaedt_unittest_check_desktop_error
+    def test_resolve_object(self):
+        o = self.aedtapp.modeler.primitives.create_box([0, 0, 0], [10, 10, 5], "MyCreatedBox", "Copper")
+        o1 = self.aedtapp.modeler.primitives._resolve_object(o)
+        o2 = self.aedtapp.modeler.primitives._resolve_object(o.id)
+        o3 = self.aedtapp.modeler.primitives._resolve_object(o.name)
+
+        assert isinstance(o1, Object3d)
+        assert isinstance(o2, Object3d)
+        assert isinstance(o3, Object3d)
+        assert o1.id == o.id
+        assert o2.id == o.id
+        assert o3.id == o.id
+        self.cache.ignore_error_message_local("Error. Object")
+        oinvalid1 = self.aedtapp.modeler.primitives._resolve_object(-1)
+        oinvalid2 = self.aedtapp.modeler.primitives._resolve_object("FrankInvalid")
+        assert not oinvalid1
+        assert not oinvalid2
+
+    @pyaedt_unittest_check_desktop_error
     def test_create_box(self):
         o = self.aedtapp.modeler.primitives.create_box([0, 0, 0], [10, 10, 5], "MyCreatedBox", "Copper")
         assert o.id > 0
@@ -156,7 +175,6 @@ class TestPrimitives(BasisTest):
         assert len(faces) >= 6
 
     @pyaedt_unittest_check_desktop_error
-    @pytest.mark.serial
     def test_01b_check_object_faces(self):
         o = self.create_copper_box()
         face_list = o.faces

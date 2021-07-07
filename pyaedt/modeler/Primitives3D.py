@@ -453,9 +453,7 @@ class Primitives3D(Primitives, object):
         XStart, YStart, ZStart = self._pos_with_arg(position)
 
         MajorRadius = self._arg_with_dim(major_raidus)
-        #TODO Clean up units handling
-        #Ratio = self.arg_with_dim(ratio)
-        Ratio = ratio
+        Ratio = self._arg_with_dim(ratio)
 
         vArg1 = ["NAME:EllipseParameters"]
         vArg1.append("IsCovered:="), vArg1.append(is_covered)
@@ -486,8 +484,6 @@ class Primitives3D(Primitives, object):
         -------
         Object3d
         """
-        o = self._new_object(matname=matname)
-
         vArg1 = udpequationbasedcurveddefinition.toScript()
         vArg2 = o.export_attributes(name)
 
@@ -507,11 +503,6 @@ class Primitives3D(Primitives, object):
         -------
         Object3d
         """
-        # TODO Test
-        id = udphelixdefinition.ProfileID
-
-        o = self.objects[id]
-
         vArg1 = ["NAME:Selections"]
         vArg1.append("Selections:="), vArg1.append(o.name)
         vArg1.append("NewPartsModelFlag:="), vArg1.append('Model')
@@ -527,18 +518,17 @@ class Primitives3D(Primitives, object):
 
         Parameters
         ----------
-        object_name :
-            object id or object name
+        object_name : int or str or Object3d
+            Object specifier
 
         Returns
         -------
-        type
-            Bool
+        type:
+            Object3d
 
         """
-        if type(object_name) is int:
-            object_name = self.objects[object_name].name
-        edges = self.get_object_edges(object_name)
+        this_object = self._resolve_object(object_name)
+        edges = this_object.edges
         for i in reversed(range(len(edges))):
             self.oeditor.ChangeProperty(
                 [
@@ -547,7 +537,7 @@ class Primitives3D(Primitives, object):
                         "NAME:Geometry3DPolylineTab",
                         [
                             "NAME:PropServers",
-                            object_name + ":CreatePolyline:1:Segment" + str(i)
+                            this_object.name + ":CreatePolyline:1:Segment" + str(i)
                         ],
                         [
                             "NAME:ChangedProps",

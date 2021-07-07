@@ -7,6 +7,7 @@ from collections import defaultdict
 import math
 import time
 import numbers
+import os
 from copy import copy
 from .GeometryOperators import GeometryOperators
 from .Object3d import Object3d, EdgePrimitive, FacePrimitive, VertexPrimitive, _dim_arg, _uname
@@ -151,8 +152,11 @@ class Polyline(Object3d):
 
         if src_object:
             self.__dict__ = src_object.__dict__.copy()
-            self._id = self._parent.get_obj_id(name)
-            self._m_name = name
+            if name:
+                self._m_name = name    # This is conimg from
+            else:
+                self._id = src_object.id
+                self._m_name = src_object.name
         else:
 
             self._xsection = self._crosssection(type=xsection_type, orient=xsection_orient, width=xsection_width,
@@ -647,7 +651,7 @@ class Polyline(Object3d):
         model_units = self._parent.model_units
 
         arg1 = ["NAME:AllTabs"]
-        arg2 = ["NAME:Geometry3DCmdTab", ["NAME:PropServers", self.name + ":CreatePolyline:1"]]
+        arg2 = ["NAME:Geometry3DCmdTab", ["NAME:PropServers", self._m_name + ":CreatePolyline:1"]]
         arg3 = ["NAME:ChangedProps"]
         arg3.append(["NAME:Type", "Value:=", section_type])
         arg3.append(["NAME:Orientation", "Value:=", section_orient])
@@ -871,7 +875,7 @@ class Primitives(object):
                 missing.append(name)
         non_existent = []
         for name in self.object_id_dict:
-            if name not in self.object_names and name not in self.unclassified:
+            if name not in obj_names and name not in self.unclassified:
                 non_existent.append(name)
         report = {
             "Missing Objects": missing,
@@ -1220,12 +1224,10 @@ class Primitives(object):
                 vArgParamVector.append(["NAME:Pair", "Name:=", pair.Name, "Value:=", pair.Value])
 
         vArg1.append(vArgParamVector)
-        namergs = name.replace(".dll", "").split("/")
-        o._m_name = namergs[-1]
-        vArg2 = self._default_object_attributes("Solid", o._m_name )
-        self.oeditor.CreateUserDefinedPart(vArg1, vArg2)
-
-        return self._create_object(o._m_name)
+        obj_name, ext = os.path.splitext(os.path.basename(udp_dll_name))
+        vArg2 = self._default_object_attributes(name=obj_name )
+        obj_name = self.oeditor.CreateUserDefinedPart(vArg1, vArg2)
+        return self._create_object(obj_name)
 
     @aedt_exception_handler
     def delete(self, objects=None):
@@ -1343,7 +1345,6 @@ class Primitives(object):
         if objname in self.object_id_dict:
             id = self.get_obj_id(objname)
             return self.objects[id]
-        return None
 
     @aedt_exception_handler
     def get_objects_w_string(self, stringname, case_sensitive=True):
@@ -1379,17 +1380,16 @@ class Primitives(object):
 
     def cleanup_objects(self):
         """Clean up any objects in self.objects that have been removed by previous operations
-        and do not exist in the modeler anymore"""
+        and do not exist in the modeler anymore. Also updates object ids which may have changed
+        via a modeler operation such as unite"""
         self._refresh_object_types()
         new_object_dict = {}
         new_object_id_dict = {}
-        for obj_name in self.object_id_dict:
-            if obj_name in self._all_object_names or obj_name in self._unclassified:
-                id = self.object_id_dict[obj_name]
-                new_object_id_dict[obj_name] = id
-                new_object_dict[id] = self.objects[id]
-            else:
-                pass
+        for old_id, obj in self.objects.items():
+            if obj.name in self._all_object_names or obj.name in self._unclassified:
+                updated_id = obj.id    # By calling the object property we get the new id
+                new_object_id_dict[obj.name] = updated_id
+                new_object_dict[updated_id] = obj
 
         self.objects = new_object_dict
         self.object_id_dict = new_object_id_dict
@@ -1464,17 +1464,8 @@ class Primitives(object):
         list
             List with two edges if present.
         """
-        if isinstance(start_obj, str):
-            start_obj = self.get_object_from_name(start_obj)
-        if not start_obj:
-            self.messenger.add_error_message("Error. Object {} does not exist".format(str(start_obj)))
-            return False
-
-        if isinstance(end_obj, str):
-            end_obj = self.get_object_from_name(end_obj)
-        if not end_obj:
-            self.messenger.add_error_message("Error. Object {} does not exist".format(str(end_obj)))
-            return False
+        start_obj = self._resolve_object(start_obj)
+        end_obj = self._resolve_object(end_obj)
 
         edge_start_list = start_obj.edges
         edge_stop_list = end_obj.edges
@@ -2450,6 +2441,12 @@ class Primitives(object):
                 distance = d
         return selected_edge
 
+    def _resolve_object(self, object):
+        if isinstance(object, Object3d):
+            return object
+        else:
+            return self[object]
+
     def _get_model_objects(self, model=True):
         """Retrieve all model objects.
 
@@ -2533,7 +2530,7 @@ class Primitives(object):
         o = Object3d(self, name)
         self.objects[o.id] = o
         self.object_id_dict[o.name] = o.id
-        self.add_new_objects()
+        #self.add_new_objects()
         return o
 
     def _refresh_all_ids_from_aedt_file(self):

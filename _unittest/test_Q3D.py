@@ -47,12 +47,14 @@ class TestQ3D:
         sweep = self.aedtapp.create_discrete_sweep(mysetup.name, sweepname="mysweep", freqstart=1)
         assert sweep
         assert sweep.props["RangeStart"] == 1
+
+    def test_06b_create_setup(self):
+        mysetup = self.aedtapp.create_setup()
+        mysetup.props["SaveFields"] = True
+        assert mysetup.update()
         sweep2 = self.aedtapp.create_frequency_sweep(mysetup.name, sweepname="mysweep2",unit="GHz",freqstart=1, freqstop=4)
         assert sweep2
         assert sweep2.props["RangeEnd"] == 4
-
-        pass
-
 
     def test_07_create_source_sinks(self):
         source = self.aedtapp.assign_source_to_objectface("MyCylinder", axisdir=0, source_name="Source1")
@@ -79,9 +81,10 @@ class TestQ3D:
 
     def test_08_create_faceted_bondwire(self):
         self.aedtapp.load_project(self.test_project, close_active_proj=True)
-        assert self.aedtapp.modeler.create_faceted_bondwire_from_true_surface("bondwire_example",
+        test = self.aedtapp.modeler.create_faceted_bondwire_from_true_surface("bondwire_example",
                                                                               self.aedtapp.CoordinateSystemAxis.ZAxis,
                                                                               min_size=0.2, numberofsegments=8)
+        assert test
         pass
 
     def test_09_autoidentify(self):

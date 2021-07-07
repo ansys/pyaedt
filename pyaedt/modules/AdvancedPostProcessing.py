@@ -771,7 +771,7 @@ class PostProcessor(Post):
         """Export the model."""
         assert self._parent._aedt_version >= "2021.2", self.messenger.add_error_message("Obj supported from AEDT 2021R2")
         project_path = self._parent.project_path
-        obj_list = self._parent.modeler.primitives.get_all_objects_names()
+        obj_list = self._parent.modeler.primitives.object_names
         obj_list = [i for i in obj_list if not self._parent.modeler.primitives.objects[
             self._parent.modeler.primitives.get_obj_id(i)].is3d or (
                             self._parent.modeler.primitives.objects[
@@ -803,7 +803,7 @@ class PostProcessor(Post):
         if not setup_name:
             setup_name = self._parent.nominal_adaptive
         face_lists = []
-        obj_list = self._parent.modeler.primitives.get_all_objects_names()
+        obj_list = self._parent.modeler.primitives.object_names
         for el in obj_list:
             obj_id = self._parent.modeler.primitives.get_obj_id(el)
             if not self._parent.modeler.primitives.objects[obj_id].is3d or (

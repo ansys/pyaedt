@@ -341,7 +341,7 @@ class TestHFSS:
         ms = self.aedtapp.modeler.primitives.create_box([4,5,0],[1,100,0.2],name="MS1", matname="copper")
         sub = self.aedtapp.modeler.primitives.create_box([0,5,-2],[20,100,2],name="SUB1", matname="FR4_epoxy")
         gnd = self.aedtapp.modeler.primitives.create_box([0,5,-2.2],[20,100,0.2],name="GND1", matname="FR4_epoxy")
-        port = self.aedtapp.create_wave_port_microstrip_between_objects("GND1", "MS1",   portname="MS1", axisdir=1)
+        port = self.aedtapp.create_wave_port_microstrip_between_objects(gnd.name, ms.name,   portname="MS1", axisdir=1)
 
 
         assert port.name == "MS1"

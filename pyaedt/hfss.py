@@ -854,7 +854,7 @@ class Hfss(FieldAnalysis3D, object):
                 return self._create_port_terminal(faces[0], endobject, portname, iswaveport=True)
         return False
 
-    @aedt_exception_handler
+
     def _create_pec_cap(self, sheet_name, axisdir, pecthick):
         vector = [0, 0, 0]
         if axisdir < 3:
@@ -863,8 +863,10 @@ class Hfss(FieldAnalysis3D, object):
             vector[divmod(axisdir, 3)[1]] = pecthick / 2
 
         status, pecobj = self.modeler.duplicate_along_line(sheet_name, vector)
-        self.modeler.thicken_sheet(pecobj[-1], pecthick, True)
-        pecobj[0].material_name = "pec"
+        pec_obj_name = pecobj[-1]
+        pec_object = self.modeler.primitives.get_object_from_name(pec_obj_name)
+        self.modeler.thicken_sheet(pec_obj_name, pecthick, True)
+        pec_object.material_name = "pec"
         return True
 
     @aedt_exception_handler

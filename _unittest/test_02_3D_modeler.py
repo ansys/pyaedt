@@ -59,13 +59,6 @@ class TestModeler(BasisTest):
         box1 = self.aedtapp.modeler.primitives.create_box([-10, -10, -10], [20, 20, 20], "box_to_split")
         assert self.aedtapp.modeler.split("box_to_split", 1)
 
-    @pytest.mark.skip(reason="Skipped due to interdependency")
-    @pyaedt_unittest_check_desktop_error
-    def test_delete_all_objects(self):
-        box1 = self.aedtapp.modeler.primitives.create_box([-10, -10, -10], [20, 20, 20], "box_to_split")
-        self.aedtapp.modeler.delete_all_objects()
-        assert self.aedtapp.modeler.primitives.get_all_solids_names == []
-
     @pyaedt_unittest_check_desktop_error
     def test_06_duplicate_and_mirror(self):
         self.restore_model()
