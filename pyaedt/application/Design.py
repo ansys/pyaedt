@@ -2242,7 +2242,7 @@ class Design(object):
         Returns
         -------
         bool
-            Always returns ``True``.
+            ``True`` when successful, ``False`` when failed.
 
         """
         msg_text = "Saving {0} Project".format(self.project_name)
@@ -2267,7 +2267,7 @@ class Design(object):
         Returns
         -------
         bool
-            Always returns ``True``.
+            ``True`` when successful, ``False`` when failed.
 
         """
         assert self.project_name != project_name, "Cannot delete the active design."
@@ -2282,12 +2282,7 @@ class Design(object):
         ----------
         name :
             Name of the design to make active.
-
-        Returns
-        -------
-        type
-            nothing
-
+        
         """
         self.oproject.SetActiveDesign(name)
         self.odesign = name
@@ -2302,12 +2297,7 @@ class Design(object):
         ----------
         filename : str
             Full path and name of the configuration, which can be an ACF or TXT file.
-
-        Returns
-        -------
-        type
-            nothing
-
+        
         """
         self._desktop.SetRegistryFromFile(r'%s' % os.path.abspath(filename))
         return True
