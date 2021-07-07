@@ -213,7 +213,7 @@ class SiwaveSolve(object):
             p = subprocess.Popen(command)
             p.wait()
 
-    def export_3d_cad(self, format_3d="Q3D", output_folder=None, net_list=None, non_graphical=False):
+    def export_3d_cad(self, format_3d="Q3D", output_folder=None, net_list=None):
         """Export edb to Q3D or HFSS
 
         Parameters
@@ -223,8 +223,7 @@ class SiwaveSolve(object):
             Output file folder. If `` then the aedb parent folder is used
         net_list : list, default ``None``
             Define Nets to Export. if None, all nets will be exported
-        non_graphical : bool, default ``False``
-            Define if Siwave will run in non-graphical mode
+
         Returns
         -------
         str
@@ -254,17 +253,15 @@ class SiwaveSolve(object):
             f.write("oDoc.ScrCloseProject()\n")
             f.write("oApp.Quit()\n")
         if os.name == "posix":
-            _exe = os.path.join(self.installer_path, "siwave")
+            _exe = '"'+os.path.join(self.installer_path, "siwave")+'"'
         else:
-            _exe = os.path.join(self.installer_path, 'siwave.exe')
+            _exe = '"'+os.path.join(self.installer_path, 'siwave.exe')+'"'
         command = [_exe]
-        if non_graphical:
-            command.append("-batch")
-            comcommand.append("-ng")
         command.append("-RunScriptAndExit")
         command.append(scriptname)
         print(command)
-        p = subprocess.call(command)
+        os.system(" ".join(command))
+
         return os.path.join(output_folder, format_3d+"_siwave.aedt")
 
 
