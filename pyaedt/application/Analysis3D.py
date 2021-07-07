@@ -18,7 +18,7 @@ class FieldAnalysis3D(Analysis, object):
     Parameters
     ----------
     application : str
-        Application that is to initialize the call.
+        3D application that is to initialize the call.
     projectname : str, optional
         Name of the project to select or the full path to the project
         or AEDTZ archive to open. The default is ``None``, in which
