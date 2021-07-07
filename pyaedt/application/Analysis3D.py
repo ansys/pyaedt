@@ -98,7 +98,7 @@ class FieldAnalysis3D(Analysis, object):
 
     @aedt_exception_handler
     def get_components3d_vars(self, component3dname):
-        """Read the A3DCOMP flie  and check for variables. It polulates a dictionary with default value
+        """Read the A3DCOMP file and check for variables. 
 
         Parameters
         ----------
@@ -202,7 +202,7 @@ class FieldAnalysis3D(Analysis, object):
             Whether to include pec objects for the copied objects. The 
             default is ``True``.
         include_sheets :
-            Whether to include sheets for the copied ojects. The 
+            Whether to include sheets for the copied objects. The 
             default is ``False``.
 
         Returns
