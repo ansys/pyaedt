@@ -47,7 +47,7 @@ from pyaedt import Desktop
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # Change Boolean to False to open AEDT in graphical mode
 
-NonGraphical = True
+NonGraphical = False
 
 d=Desktop("2021.1", NG=NonGraphical)
 
