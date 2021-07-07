@@ -765,7 +765,7 @@ class Circuit(FieldAnalysisCircuit, object):
         IncludeGammaImpedance = True  # Include Gamma and Impedance in comments
         NonStandardExtensions = False  # Support for non-standard Touchstone extensions
 
-        self.osolution.ExportNetworkData(DesignVariations, SolutionSelectionArray, FileFormat,
+        self.odesign.ExportNetworkData(DesignVariations, SolutionSelectionArray, FileFormat,
                                          OutFile, FreqsArray, DoRenorm, RenormImped, DataType, Pass,
                                          ComplexFormat, DigitsPrecision, False, IncludeGammaImpedance,
                                          NonStandardExtensions)
