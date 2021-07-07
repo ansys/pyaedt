@@ -151,7 +151,7 @@ class FieldAnalysis3DLayout(Analysis):
 
     @aedt_exception_handler
     def get_all_insertion_loss_list(self, trlist=[], reclist=[], tx_prefix='', rx_prefix=''):
-        """Retrieve a list of all insertion losses from two lists of exctitations (driver and receiver). 
+        """Retrieve a list of all insertion losses from two lists of excitations (driver and receiver). 
         
         Parameters
         ----------
@@ -297,7 +297,7 @@ class FieldAnalysis3DLayout(Analysis):
 
     @property
     def existing_analysis_setups(self):
-        """Retrieve a list of all defined analysis setup names in the Maxwell design."""
+        """Retrieve a list of all analysis setup names in the Maxwell design."""
         oModule = self.odesign.GetModule("SolveSetups")
         setups = list(oModule.GetSetups())
         return setups
