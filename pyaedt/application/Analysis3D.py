@@ -78,7 +78,7 @@ class FieldAnalysis3D(Analysis, object):
         Returns
         -------
         dict
-            Ditcionary of components with their absolute paths.
+            Dictionary of components with their absolute paths.
 
         """
         components_dict={}
@@ -109,7 +109,7 @@ class FieldAnalysis3D(Analysis, object):
         Returns
         -------
         dict
-            Dictionaly of variables in the A3DCOMP file.
+            Dictionary of variables in the A3DCOMP file.
 
         """
         vars = {}
