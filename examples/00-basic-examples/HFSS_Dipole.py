@@ -81,6 +81,7 @@ hfss.post.create_rectangular_plot("db(GainTotal)",hfss.nominal_adaptive, variati
 
 #####################################################
 # Close Desktop
+if os.name != "posix":
+    d.force_close_desktop()
 
-d.force_close_desktop()
 

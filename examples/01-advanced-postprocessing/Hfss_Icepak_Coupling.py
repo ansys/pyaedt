@@ -5,6 +5,7 @@ HFSS-Icepack Coupling Analysis
 This Example shows how to create a full project from scratch in HFSS and Icepak (linked to HFSS). the project creates
 a setup, solves it and create post processing output. It includes a lot of commands to show pyaedt Capabilities
 This Example needs PyVista, numpy and matplotlib,  to be installed on the machine to provide advanced post processing features
+This Examples runs on Windows Only using CPython
 """
 
 

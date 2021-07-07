@@ -327,8 +327,13 @@ class AEDTMessageManager(object):
 class EDBMessageManager(object):
     """Class that manage EDB Messaging to the logger file"""
 
-    def __init__(self, project_dir="C:\\Temp"):
+    def __init__(self, project_dir=None):
         self.logger = logging.getLogger(__name__)
+        if not project_dir:
+            if os.name == "posix":
+                project_dir = "/tmp"
+            else:
+                project_dir = "C:\\Temp"
         if not self.logger.handlers:
             logging.basicConfig(
                 filename=os.path.join(project_dir, "EDBTLib.log"),

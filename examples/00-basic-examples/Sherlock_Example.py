@@ -152,7 +152,8 @@ ipk.save_project()
 
 
 end = time.time()-start
-ipk.close_desktop()
+if os.name != "posix":
+    ipk.close_desktop()
 print("Elapsed time: {}".format(datetime.timedelta(seconds=end)))
 print("Project Saved in {} ".format(temp_folder))
 

@@ -135,8 +135,8 @@ h3d.close_project()
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # After the simulaton is completed user can close the desktop or release it (using release_desktop method).
 # All methods give possibility to save projects before exit
-
-d.force_close_desktop()
+if os.name != "posix":
+    d.force_close_desktop()
 
 
 

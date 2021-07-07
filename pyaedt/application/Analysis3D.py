@@ -57,13 +57,23 @@ class FieldAnalysis3D(Analysis, object):
         components_dict={}
         syspath = os.path.join(self.syslib, "3DComponents", self._design_type)
         if os.path.exists(syspath):
-            listfiles = glob.glob(syspath + "/**/*.a3dcomp", recursive=True)
+            listfiles = []
+            for root, dirs, files in os.walk(syspath):
+                for file in files:
+                    if file.endswith(".a3dcomp"):
+                        listfiles.append(os.path.join(root, file))
+            #listfiles = glob.glob(syspath + "/**/*.a3dcomp", recursive=True)
             for el in listfiles:
                 head, tail = ntpath.split(el)
                 components_dict[tail[:-8]]= el
         userlib = os.path.join(self.userlib, "3DComponents", self._design_type)
         if os.path.exists(userlib):
-            listfiles = glob.glob(userlib + "/**/*.a3dcomp", recursive=True)
+            listfiles = []
+            for root, dirs, files in os.walk(userlib):
+                for file in files:
+                    if file.endswith(".a3dcomp"):
+                        listfiles.append(os.path.join(root, file))
+            #listfiles = glob.glob(userlib + "/**/*.a3dcomp", recursive=True)
             for el in listfiles:
                 head, tail = ntpath.split(el)
                 components_dict[tail[:-8]]= el

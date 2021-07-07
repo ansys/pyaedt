@@ -54,5 +54,5 @@ variations["Freq"] = ["10GHz"]
 variations["Theta"] = ["All"]
 variations["Phi"] = ["All"]
 target.post.create_rectangular_plot("db(GainTotal)",target.nominal_adaptive, variations, "Theta", "ATK_3D",plottype="Far Fields")
-
-target.close_desktop()
+if os.name != "posix":
+    target.close_desktop()

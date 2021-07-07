@@ -143,5 +143,5 @@ print('CS5 :', p2)
 #####################################################
 # Close Desktop
 # -------------
-d.force_close_desktop()
-
+if os.name != "posix":
+    d.close_desktop()

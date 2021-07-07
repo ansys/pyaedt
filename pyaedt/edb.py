@@ -82,7 +82,7 @@ class Edb(object):
                 self._messenger = self._main.oMessenger
             else:
                 if not edbpath or not os.path.exists(edbpath):
-                    self._messenger = EDBMessageManager(r'C:\Temp')
+                    self._messenger = EDBMessageManager()
                 elif os.path.exists(edbpath):
                     self._messenger = EDBMessageManager(edbpath)
 

@@ -99,8 +99,8 @@ aedtapp.close_project()
 
 
 
-
-desktop.force_close_desktop()
+if os.name != "posix":
+    desktop.force_close_desktop()
 
 #########################################################
 

@@ -519,11 +519,12 @@ class EDBLayers(object):
         bool
             ``True`` when successful, ``False`` when failed.
         """
-        thisLC = self._edb.Cell.LayerCollection(self._parent._active_layout.GetLayerCollection())
+        thisLC = self._parent._active_layout.GetLayerCollection()
         layers = list(list(thisLC.Layers(self._edb.Cell.LayerTypeSet.AllLayerSet)))
         layers.reverse()
         newLayers = List[self._edb.Cell.Layer]()
         el = 0.0
+        layerType = int(layerType)
         if not layers or not start_layer:
             if layerType != self.layer_types.SignalLayer and layerType != self.layer_types.DielectricLayer and layerType != self.layer_types.ConductingLayer:
                 newLayer = self._edb.Cell.Layer(layerName, layerType)
