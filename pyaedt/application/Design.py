@@ -427,7 +427,7 @@ class Design(object):
         or AEDTZ archive to open. The default is ``None``, in which
         case an attempt is made to get an active project. If no 
         projects are present, an empty project is created.
-    design_ame : str, optional
+    design_name : str, optional
         Name of the design to select. The default is ``None``, in 
         which case an attempt is made to get an active design. If no
         designs are present, an empty design is created.
@@ -439,13 +439,16 @@ class Design(object):
         the active version or latest installed version is used.
     NG : bool, optional
         Whether to run AEDT in the non-graphical mode. The default 
-        is ``False``, which launches AEDT in the graphical mode.  
+        is ``False``, in which case AEDT launces in the graphical mode.  
     AlwaysNew : bool, optional
         Whether to launch an instance of AEDT in a new thread, even if
         another instance of the ``specified_version`` is active on the
         machine. The default is ``True``.
     release_on_exit : bool, optional
-        Whether to release AEDT on exit. The default is ``False``.   
+        Whether to release AEDT on exit. The default is ``False``.
+    student_version : bool, optional
+        Whether to enable the student version of AEDT. The default 
+        is ``False``.
 
     """
 
@@ -1259,7 +1262,9 @@ class Design(object):
     @aedt_exception_handler
     def activate_variable_tuning(self, variable_name, min_val=None, max_val=None):
         """Activate tuning analysis for a variable and optionally set up ranges.
-
+        
+        Parameters
+        ----------
         variable_name : str
             Name of the variable.
         min_val : str, optional
@@ -1585,7 +1590,7 @@ class Design(object):
         Returns
         -------
         type
-            Dataset object when dataset is created; otherwise ``False``.
+            Dataset object when the dataset is created; ``False`` otherwise.
 
         """
         return self.create_dataset(dsname, xlist,ylist, is_project_dataset=False, xunit=xunit, yunit=yunit)
@@ -1601,7 +1606,7 @@ class Design(object):
         xlist : list
             List of X values for the dataset.
         ylist : list
-            List of y values for the dataset.
+            List of Y values for the dataset.
         xunit : str, optional
             Units for the X axis. The default is ``""``.
         yunit : str, optional
@@ -1610,7 +1615,7 @@ class Design(object):
         Returns
         -------
         type
-            Dataset object when dataset is created; otherwise ``False``.
+            Dataset object when the dataset is created; ``False`` otherwise.
 
         """
         return self.create_dataset(dsname, xlist,ylist, is_project_dataset=True, xunit=xunit, yunit=yunit)
@@ -1644,7 +1649,7 @@ class Design(object):
         Returns
         -------
         type
-            Dataset object when dataset is created; otherwise ``False``.
+            Dataset object when the dataset is created; ``False`` otherwise.
 
         """
         return self.create_dataset(dsname=dsname, xlist=xlist, ylist=ylist, zlist=zlist, vlist=vlist, xunit=xunit,
@@ -1681,7 +1686,7 @@ class Design(object):
         Returns
         -------
         type
-            Dataset object when dataset is created; otherwise ``False``.
+            Dataset object when the dataset is created; ``False`` otherwise.
 
         """
         if not self.dataset_exists(dsname, is_project_dataset):
@@ -1734,7 +1739,8 @@ class Design(object):
         Parameters
         ----------
         lossy_dielectric : bool, optional
-            Whether to enable causal materials. The default is ``True``.
+            Whether to enable causal materials. 
+            The default is ``True``.
 
         Returns
         -------
@@ -1757,7 +1763,8 @@ class Design(object):
         Parameters
         ----------
         material_override : bool, optional
-            Whether to enable the material override. The default is ``True``.
+            Whether to enable the material override. 
+            The default is ``True``.
         
         Returns
         -------
@@ -2111,7 +2118,7 @@ class Design(object):
             The active design is maintained.
         design_name : str
             Name of the design to copy into the active design. If a design with this 
-            same name is already present in the destination project, AEDT automatically 
+            name is already present in the destination project, AEDT automatically 
             changes the name. 
 
         Returns
