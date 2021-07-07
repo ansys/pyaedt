@@ -38,7 +38,7 @@ from .edb_core import *
 
 from .generic.general_methods import get_filename_without_extension, generate_unique_name, aedt_exception_handler, \
     env_path, env_value, env_path_student, env_value_student
-
+from .generic.process import SiwaveSolve
 
 class Edb(object):
     """EDB instance interface.
@@ -180,11 +180,8 @@ class Edb(object):
         """
         if init_dlls:
             self._init_dlls()
-
-        print(self.edbpath)
-        print(self.edbversion)
-        print(_ironpython)
-        print(dir())
+        self.messenger.add_warning_message("EDB Path {}".format(self.edbpath))
+        self.messenger.add_warning_message("EDB Version {}".format(self.edbversion))
         self.edb.Database.SetRunAsStandAlone(True)
         self._db = self.edb.Database.Open(self.edbpath, self.isreadonly)
         self._active_cell = None
@@ -629,3 +626,96 @@ class Edb(object):
             self.edbpath = output_aedb_path
             self._active_cell = _cutout
         return True
+
+    @aedt_exception_handler
+    def write_export3d_option_config_file(self, path_to_output, config_dictionaries=None):
+        option_config = {
+            "UNITE_NETS": 1,
+            "ASSIGN_SOLDER_BALLS_AS_SOURCES": 0,
+            "Q3D_MERGE_SOURCES": 0,
+            "Q3D_MERGE_SINKS": 0,
+            "CREATE_PORTS_FOR_PWR_GND_NETS": 0,
+            "PORTS_FOR_PWR_GND_NETS": 0,
+            "GENERATE_TERMINALS": 0,
+            "SOLVE_CAPACITANCE": 0,
+            "SOLVE_DC_RESISTANCE": 0,
+            "SOLVE_DC_INDUCTANCE_RESISTANCE": 1,
+            "SOLVE_AC_INDUCTANCE_RESISTANCE": 0,
+            "CreateSources": 0, "CreateSinks": 0,
+            "LAUNCH_Q3D": 0, "LAUNCH_HFSS": 0}
+        if config_dictionaries:
+            for el, val in config_dictionaries.items():
+                option_config[el]=val
+        with open(os.path.join(path_to_output, "options.config"), "w") as f:
+            for el, val in option_config.items():
+                f.write(el+" "+str(val)+"\n")
+        return os.path.join(path_to_output, "options.config")
+
+    @aedt_exception_handler
+    def export_hfss(self, path_to_output, net_list=None, non_graphical=False):
+        """
+        Export Edb to HFSS
+
+        Parameters
+        ----------
+        path_to_output : str
+            full path to where aedt will be saved
+        net_list : list, optional
+            if provided, only nets in list will be exported
+        non_graphical : bool
+            Export in non graphical mode
+
+        Returns
+        -------
+        str
+            path to .aedt file
+
+        Examples
+        --------
+
+        >>> from pyaedt import Edb
+
+        >>> edb = Edb(edbpath=r"C:\temp\myproject.aedb", edbversion="2021.1")
+
+        >>> options_config = {'UNITE_NETS' : 1, 'LAUNCH_Q3D' : 0}
+        >>> edb.write_export3d_option_config_file(r"C:\temp", options_config)
+        >>> edb.export_hfss(r"C:\temp", non_graphical=True)
+        "C:\\temp\\hfss_siwave.aedt"
+        """
+        siwave_s = SiwaveSolve(self.edbpath, aedt_installer_path=self.base_path)
+        return siwave_s.export_3d_cad("HFSS", path_to_output,net_list, non_graphical)
+
+    @aedt_exception_handler
+    def export_q3d(self, path_to_output, net_list=None, non_graphical=False):
+        """
+        Export Edb to HFSS
+
+        Parameters
+        ----------
+        path_to_output : str
+            full path to where aedt will be saved
+        net_list : list, optional
+            if provided, only nets in list will be exported
+        non_graphical : bool
+            Export in non graphical mode
+
+        Returns
+        -------
+        str
+            path to .aedt file
+
+        Examples
+        --------
+
+        >>> from pyaedt import Edb
+
+        >>> edb = Edb(edbpath=r"C:\temp\myproject.aedb", edbversion="2021.1")
+
+        >>> options_config = {'UNITE_NETS' : 1, 'LAUNCH_Q3D' : 0}
+        >>> edb.write_export3d_option_config_file(r"C:\temp", options_config)
+        >>> edb.export_q3d(r"C:\temp", non_graphical=True)
+        "C:\\temp\\q3d_siwave.aedt"
+        """
+
+        siwave_s = SiwaveSolve(self.edbpath, aedt_installer_path=self.base_path)
+        return siwave_s.export_3d_cad("Q3D", path_to_output, net_list, non_graphical)

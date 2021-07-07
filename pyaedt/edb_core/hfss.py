@@ -3,9 +3,9 @@ This module contains the ``Edb3DLayout`` class.
 """
 
 import warnings
+import os
 from .general import *
 from ..generic.general_methods import get_filename_without_extension, generate_unique_name
-
 
 try:
     import clr
@@ -164,3 +164,5 @@ class Edb3DLayout(object):
             return True
         else:
             return False
+
+

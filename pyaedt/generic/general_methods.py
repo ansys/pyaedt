@@ -204,16 +204,21 @@ def env_value(input_version):
 
 @aedt_exception_handler
 def env_path_student(input_version):
-    """
+    """Return the Student version Environment Variable value based on an input version string
 
     Parameters
     ----------
-    input_version :
+    input_version : str
 
 
     Returns
     -------
+    str
 
+    Examples
+    --------
+    >>> env_path_student("2021.1")
+    "C:/Program Files/ANSYSEM/ANSYSEM2021.1/Win64"
     """
     version = int(input_version[2:4])
     release = int(input_version[5])
@@ -228,16 +233,21 @@ def env_path_student(input_version):
 
 @aedt_exception_handler
 def env_value_student(input_version):
-    """
+    """Return the Student version Environment Variable name based on an input version string
 
     Parameters
     ----------
-    input_version :
+    input_version : str
 
 
     Returns
     -------
+    str
 
+    Examples
+    --------
+    >>> env_value_student("2021.1")
+    "ANSYSEMSV_ROOT211"
     """
     version = int(input_version[2:4])
     release = int(input_version[5])
