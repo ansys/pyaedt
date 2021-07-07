@@ -93,12 +93,14 @@ class FieldAnalysis3DLayout(Analysis):
         ----------
         excitation_names : list, optional
             List of excitations. The default is ``[]``, in which case
-            the S parameters for all excitations are to be provided. 
+            the S parameters for all excitations are to be provided.
+            For example, ``["1", "2"]``
             
         Returns
         -------
         list
-            List of strings representing the S parameters of the excitations.
+            List of strings representing the S parameters of the excitations.  For
+            example ``["S(1,1)", "S(1,2)", S(2,2)]``
             
         Examples
         --------
