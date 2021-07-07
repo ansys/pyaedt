@@ -114,8 +114,8 @@ def aedt_exception_handler(func):
         -------
 
         """
-        if "PYTEST_CURRENT_TEST" in os.environ:
-            # We are running under pytest, do not use the decorator
+        if "PYTEST_CURRENT_TEST" in os.environ or 'unittest' in sys.modules.keys():
+            # We are running under pytest or unittest, do not use the decorator
             return func(*args, **kwargs)
         else:
             try:
