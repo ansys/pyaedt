@@ -501,7 +501,7 @@ class Materials(object):
             json.dump(json_dict, fp, indent=4)
         return True
 
-    def import_materials_to_file(self, full_json_path):
+    def import_materials_from_file(self, full_json_path):
         """
         Import and create materilas from json file
 
