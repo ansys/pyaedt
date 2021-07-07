@@ -66,7 +66,7 @@ class FieldAnalysis2D(Analysis):
 
     @property
     def mesh(self):
-        """Mesh opbject"""
+        """Mesh object"""
         return self._mesh
 
     # @property
@@ -79,7 +79,7 @@ class FieldAnalysis2D(Analysis):
 
         Parameters
         ----------
-         obj : str, list
+        obj : str or list
             One or more objects to assign materials to.
         mat : str
             Material to assign. If this material is not present, it will be 
