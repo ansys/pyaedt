@@ -890,6 +890,40 @@ class NexximComponents(CircuitComponents):
         pass
 
     @aedt_exception_handler
+    def set_sim_solution_on_hfss_subcircuit(self, component, solution_name="Setup1 : Sweep"):
+        """
+
+        Parameters
+        ----------
+        component : str
+            Address of the component instance. For example, ``"Inst@Galileo_cutout3;87;1"``.
+        solution_name: str, optional
+            Name of the solution and sweep. The
+            default is ``"Setup1 : Sweep"``.
+
+        Returns
+        -------
+        """
+        complist = component.split(";")
+        complist2 = complist[0].split("@")
+        arg = ["NAME:AllTabs"]
+        arg1 = ["NAME:Model"]
+        arg2 = ["NAME:PropServers", "Component@" + str(complist2[1])]
+        arg3 = ["NAME:ChangedProps", ["NAME:Solution", "Value:=", solution_name]]
+
+        arg1.append(arg2)
+        arg1.append(arg3)
+        arg.append(arg1)
+
+        self._parent._oproject.ChangeProperty(arg)
+
+        argo = ["NAME:AllTabs", ["NAME:Component", ["NAME:PropServers", str(component)]]]
+
+        self.oeditor.ChangeProperty(argo)
+
+        pass
+
+    @aedt_exception_handler
     def refresh_dynamic_link(self, component_name):
         """
 
