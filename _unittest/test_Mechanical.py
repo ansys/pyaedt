@@ -52,7 +52,7 @@ class TestMechanical:
         setup=hfss.create_setup()
         freq="1GHz"
         setup.props["Frequency"]=freq
-        ids_faces=[i.id for i in hfss.modeler.primitives["MyCylinder"].faces]
+        ids_faces = [i.id for i in hfss.modeler.primitives["MyCylinder"].faces]
         assert self.aedtapp.assign_em_losses(hfss.design_name, hfss.setups[0].name, "LastAdaptive", freq, )
 
     def test_06a_create_setup(self):
@@ -68,7 +68,7 @@ class TestMechanical:
         coax_dimension = 30
         id1 = ipk.modeler.primitives.create_cylinder(ipk.CoordinateSystemPlane.XYPlane, udp, 3, coax_dimension, 0,
                                                      "MyCylinder", "brass")
-        setup=ipk.create_setup()
+        setup = ipk.create_setup()
         mech = Mechanical(solution_type=self.aedtapp.SolutionTypes.Mechanical.Structural)
         mech.modeler.primitives.create_cylinder(mech.CoordinateSystemPlane.XYPlane, udp, 3, coax_dimension, 0,
                                                "MyCylinder", "brass")

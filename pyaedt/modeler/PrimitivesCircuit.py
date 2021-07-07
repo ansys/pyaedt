@@ -485,58 +485,21 @@ class CircuitComponents(object):
         yp = 0.00254 * (h + 2)
         angle = 0
         self.o_symbol_manager.Add(
-            [
-                "NAME:" + symbol_name,
-                "ModTime:=", 1591858230,
-                "Library:=", "",
-                "ModSinceLib:=", False,
-                "LibLocation:=", "Project",
-                "HighestLevel:=", 1,
-                "Normalize:=", True,
-                "InitialLevels:=", [0, 1],
-                [
-                    "NAME:Graphics"
-                ]
-            ])
+            ["NAME:" + symbol_name, "ModTime:=", 1591858230, "Library:=", "", "ModSinceLib:=", False, "LibLocation:=",
+             "Project", "HighestLevel:=", 1, "Normalize:=", True, "InitialLevels:=", [0, 1], ["NAME:Graphics"]])
         arg = ["NAME:" + symbol_name, "ModTime:=", 1591858265, "Library:=", "", "ModSinceLib:=", False, "LibLocation:=",
                "Project", "HighestLevel:=", 1, "Normalize:=", False, "InitialLevels:=", [0, 1]]
         oDefinitionEditor = self._parent._oproject.SetActiveDefinitionEditor("SymbolEditor", symbol_name)
-
         id = 2
-        oDefinitionEditor.CreateRectangle(
-            [
-                "NAME:RectData",
-                "X1:=", x1,
-                "Y1:=", y1,
-                "X2:=", x2,
-                "Y2:=", y2,
-                "LineWidth:=", 0,
-                "BorderColor:=", 0,
-                "Fill:=", 0,
-                "Color:=", 0,
-                "Id:=", id
-            ],
-            [
-                "NAME:Attributes",
-                "Page:=", 1
-            ])
+        oDefinitionEditor.CreateRectangle(["NAME:RectData", "X1:=", x1, "Y1:=", y1, "X2:=", x2, "Y2:=", y2,
+                                           "LineWidth:=", 0, "BorderColor:=", 0, "Fill:=", 0, "Color:=", 0, "Id:=", id],
+                                          ["NAME:Attributes", "Page:=", 1])
         i = 1
         id += 2
         r = numpins - (h * 2)
         for pin in pin_lists:
-            oDefinitionEditor.CreatePin(
-                [
-                    "NAME:PinData",
-                    "Name:=", pin,
-                    "Id:=", id
-                ],
-                [
-                    "NAME:PinParams",
-                    "X:=", xp,
-                    "Y:=", yp,
-                    "Angle:=", angle,
-                    "Flip:=", False
-                ])
+            oDefinitionEditor.CreatePin(["NAME:PinData", "Name:=", pin, "Id:=", id],
+                                        ["NAME:PinParams", "X:=", xp, "Y:=", yp, "Angle:=", angle, "Flip:=", False])
             arg.append(["NAME:PinDef", "Pin:=",
                         [pin, xp, yp, angle, "N", 0, 0.00254, False, 0, True, "", False, False, pin,
                          True]])

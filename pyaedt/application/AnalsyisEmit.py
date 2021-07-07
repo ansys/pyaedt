@@ -48,10 +48,10 @@ class FieldAnalysisEmit(Design):
 
 
     def __init__(self, application, projectname, designname, solution_type, setup_name=None,
-                 specified_version=None, NG=False, AlwaysNew=True, release_on_exit=True):
+                 specified_version=None, NG=False, AlwaysNew=True, release_on_exit=True, student_version=False):
         self.solution_type = solution_type
         Design.__init__(self, application, projectname, designname, solution_type,
-                        specified_version, NG, AlwaysNew, release_on_exit)
+                        specified_version, NG, AlwaysNew, release_on_exit, student_version)
         self._modeler = ModelerEmit(self)
         self._post = PostProcessor(self)
 
