@@ -94,19 +94,14 @@ class FieldAnalysis3DLayout(Analysis):
         excitation_names : list, optional
             List of excitations. The default is ``[]``, in which case
             the S parameters for all excitations are to be provided.
-            For example, ``["1", "2"]``
+            For example, ``["1", "2"]``.
             
         Returns
         -------
         list
-            List of strings representing the S parameters of the excitations.  For
-            example ``["S(1,1)", "S(1,2)", S(2,2)]``
-            
-        Examples
-        --------
-        
-        >>>excitation_names ["1","2"] output ["S(1,1)", "S(1,2)", S(2,2)]
-
+            List of strings representing the S parameters of the excitations. 
+            For example, ``["S(1,1)", "S(1,2)", S(2,2)]``.
+      
         """
         if not excitation_names:
             excitation_names = self.get_excitations_name
@@ -128,6 +123,7 @@ class FieldAnalysis3DLayout(Analysis):
         excitation_names : list, optional
             List of excitations. The default is ``[]``, in which case
             the return losses for all excitations are to be provided. 
+            For example, ``["1", "2"]``.
         excitation_name_prefix : string, optional
              Prefix to add to the excitation names. The default is ``""``.
 
@@ -135,12 +131,8 @@ class FieldAnalysis3DLayout(Analysis):
         -------
         type
             List of strings representing the return losses of the excitations.
-            
-        Examples
-        --------
-        
-        >>>excitation_names ["1", "2"] output ["S(1,1)", "S(2,2)"]
-
+            For example, ``["S(1,1)", "S(2,2)"``. 
+       
         """
         if not excitation_names:
             excitation_names = self.get_excitations_name
@@ -158,10 +150,10 @@ class FieldAnalysis3DLayout(Analysis):
         Parameters
         ----------
         trlist : list, optional
-            List of drivers. The default is ``[]``.
+            List of drivers. The default is ``[]``. For example, ``["1"]``.
         reclist : list, optional
             List of receivers. The default is ``[]``. The number of drivers equals 
-            the number of receivers.
+            the number of receivers. For example, ``["2"]``.
         tx_prefix : str, optional
             Prefix to add to driver names. For example, ``"DIE"``. The default is ``""``.
         rx_prefix : str, optional
@@ -171,11 +163,7 @@ class FieldAnalysis3DLayout(Analysis):
         -------
         list
             List of strings representing insertion losses of the excitations.
-        
-        Examples
-        --------
-                
-        >>>excitation_names ["1"] ["2"] output ["S(1,2)"]
+            For example, ``["S(1,2)"]``.       
 
         """
         spar = []
@@ -197,7 +185,7 @@ class FieldAnalysis3DLayout(Analysis):
         Parameters
         ----------
         trlist : list, optional
-            List of drivers. The default is ``[]``.
+            List of drivers. The default is ``[]``. For example, ``["1", "2", "3"]``.
         tx_prefix : str, optional
             Prefix to add to driver names. For example, ``"DIE"``.  The default is ``""``.
 
@@ -205,11 +193,7 @@ class FieldAnalysis3DLayout(Analysis):
         -------
         list
             List of strings representing near end XTalks of the excitations.
-            
-        Examples
-        --------
-        
-        >>>excitation_names ["1", "2", "3"] output ["S(1,2)", "S(1,3)", "S(2,3)"]
+            For example, ``["S(1,2)", "S(1,3)", "S(2,3)"``.
 
         """
         next = []
@@ -229,9 +213,9 @@ class FieldAnalysis3DLayout(Analysis):
         Parameters
         ----------
         trlist : list, optional
-            List of drivers. The default is ``[]``.
+            List of drivers. The default is ``[]``. For example, ``["1", "2"]``.
         reclist : list, optional
-            List of receiver. The default is ``[]``.
+            List of receiver. The default is ``[]``. For example, ``["3","4"]``.
         tx_prefix : str, optional
             Prefix for driver names. For example, ``"DIE"``.  The default is ``""``.
         rx_prefix : str, optional
@@ -246,12 +230,8 @@ class FieldAnalysis3DLayout(Analysis):
         -------
         list
             List of strings representing the far end XTalks of the excitations.
-            
-        Examples
-        --------
+            For example, ``["S(1,4)", "S(2,3)"]``. 
         
-        >>>excitation_names ["1", "2"] ["3","4"] output ["S(1,4)", "S(2,3)"]
-
         """
         fext = []
         if not trlist:
