@@ -444,19 +444,7 @@ class Design(object):
         another instance of the ``specified_version`` is active on the
         machine. The default is ``True``.
     release_on_exit : bool, optional
-        Whether to release AEDT on exit. The default is ``False``.
-   
-    Examples
-    --------
-
-    Import the `Hfss` module.
-
-    >>> from pyaedt import Hfss
-    >>> hfss = Hfss()
-
-    Return the Project object.
-
-    >>> hfss.oproject
+        Whether to release AEDT on exit. The default is ``False``.   
 
     """
     def __str__(self):
