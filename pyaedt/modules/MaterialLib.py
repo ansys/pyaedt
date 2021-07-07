@@ -63,6 +63,7 @@ class Materials(object):
         return self.material_keys.itervalues()
 
     def __getitem__(self, item):
+        item = item.lower()
         if item in list(self.material_keys.keys()):
             return self.material_keys[item]
         elif item in list(self.surface_material_keys.keys()):
@@ -146,7 +147,7 @@ class Materials(object):
         return False
 
     @aedt_exception_handler
-    def add_material(self, materialname):
+    def add_material(self, materialname, props=None):
         """The function create a new material named materialname and apply defaults value and return the material object
         that allows user to customize the material
         The function will not update the material in
@@ -155,6 +156,9 @@ class Materials(object):
         ----------
         materialname : str
             material name
+
+        props : dict
+            Optional material property dictionary. Default = `None`.
 
         Returns
         -------
@@ -177,7 +181,7 @@ class Materials(object):
                 "Warning. The material is already in database. Please change name or edit it")
             return self.material_keys[materialname]
         else:
-            material = Material(self._parent, materialname)
+            material = Material(self._parent, materialname, props)
             material.update()
             self.messenger.add_info_message("Material added. Please edit it to update in Desktop")
             self.material_keys[materialname] = material
