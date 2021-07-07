@@ -243,7 +243,6 @@ class FieldAnalysis3D(Analysis, object):
         -------
         list
             List of setup sources.
-            
         """
         return list(self.osolution.GetAllSources())
 
@@ -256,7 +255,7 @@ class FieldAnalysis3D(Analysis, object):
         sources : list
             List of source names.
         number_of_modes : int, optional
-            Number of modes. The  default is `1`.
+            Number of modes. The  default is ``1``.
 
         Returns
         -------
