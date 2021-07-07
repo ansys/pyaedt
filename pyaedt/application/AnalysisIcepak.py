@@ -131,7 +131,7 @@ class FieldAnalysisIcepak(Analysis, object):
         objectname : str
             Name of the object.
         property : str
-            Name of the design proerty.
+            Name of the design property.
         type : string, optional 
             Type of the property. Options are ``"boundary"``, ``"excitation"``, ``"setup"``,
             and ``"mesh"``. The default is ``None``. 
