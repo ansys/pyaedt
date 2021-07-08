@@ -1,5 +1,6 @@
 from ..generic.general_methods import aedt_exception_handler
 from .Primitives import Primitives
+import numbers
 
 
 class Primitives2D(Primitives, object):
@@ -216,3 +217,25 @@ class Primitives2D(Primitives, object):
         vArg2 = self._default_object_attributes(name=name, matname=matname)
         new_object_name = self.oeditor.CreateRegularPolygon(vArg1, vArg2)
         return self._create_object(new_object_name)
+
+    @aedt_exception_handler
+    def create_region(self, pad_percent=300):
+        """Create an air region.
+
+        Parameters
+        ----------
+        pad_percent : float or list of float, default=300
+            If float, use padding in per-cent for all dimensions
+            If list, then interpret as adding for  ["+X", "+Y", "-X", "-Y"]
+
+        Returns
+        -------
+        Object3d
+
+        """
+        #TODO handle RZ!!
+        if isinstance(pad_percent, numbers.Number):
+            pad_percent = [pad_percent, pad_percent, 0, pad_percent, pad_percent, 0]
+        else:
+            pad_percent = [pad_percent[0], pad_percent[1], 0, pad_percent[2], pad_percent[3], 0]
+        return Primitives.create_region(self, pad_percent)

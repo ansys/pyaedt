@@ -306,5 +306,5 @@ class TestObject3D:
         added_objects = turn.duplicate_around_axis(cs_axis="Z", angle=8, nclones=19)
         turn.unite(added_objects)
         assert len(added_objects) == 18
-        assert "single_turn" in self.aedtapp.modeler.primitives.lines
+        assert "single_turn" in self.aedtapp.modeler.primitives.line_names
 

@@ -736,5 +736,5 @@ class Primitives3D(Primitives, object):
             list of the solids names
 
         """
-        return self.solids
+        return self.solid_names
 

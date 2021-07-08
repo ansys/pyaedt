@@ -515,6 +515,7 @@ class Object3d(object):
         self._bounding_box = None
         self._material_name = None
         self._transparency = None
+        self._solve_inside = None
         self._update()
 
     @property
@@ -1065,12 +1066,12 @@ class Object3d(object):
                     self.color, self.transparency, self.display_wireframe, self.part_coordinate_system)
 
     def _update_object_type(self):
-        if self._m_name in self._parent.solids:
+        if self._m_name in self._parent.solid_names:
             self._object_type = "Solid"
         else:
-            if self._m_name in self._parent.sheets:
+            if self._m_name in self._parent.sheet_names:
                 self._object_type = "Sheet"
-            elif self._m_name in self._parent.lines:
+            elif self._m_name in self._parent.line_names:
                 self._object_type = "Line"
 
     def _update_properties(self):

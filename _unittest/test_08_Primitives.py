@@ -15,7 +15,6 @@ from .conftest import config
 scdoc = "input.scdoc"
 step = "input.stp"
 
-
 class TestPrimitives(BasisTest):
     def setup_class(self):
         BasisTest.setup_class(self, project_name="test_primitives", design_name="3D_Primitives")
@@ -111,7 +110,7 @@ class TestPrimitives(BasisTest):
         assert o.object_type == "Solid"
         assert o.is3d == True
         assert o.material_name == "copper"
-        assert "MyCreatedBox" in self.aedtapp.modeler.primitives.solids
+        assert "MyCreatedBox" in self.aedtapp.modeler.primitives.solid_names
         assert len(self.aedtapp.modeler.primitives.object_names) == len(self.aedtapp.modeler.primitives.objects)
 
 
@@ -145,8 +144,8 @@ class TestPrimitives(BasisTest):
        assert o2.material_name == "aluminum"
        assert o2.solve_inside == False
 
-       assert o1.name in self.aedtapp.modeler.primitives.solids
-       assert o2.name in self.aedtapp.modeler.primitives.solids
+       assert o1.name in self.aedtapp.modeler.primitives.solid_names
+       assert o2.name in self.aedtapp.modeler.primitives.solid_names
        assert len(self.aedtapp.modeler.primitives.object_names) == len(self.aedtapp.modeler.primitives.objects)
        pass
 
@@ -320,20 +319,20 @@ class TestPrimitives(BasisTest):
         arrofpos = [udp1, udp2, udp3]
         path = self.aedtapp.modeler.primitives.create_polyline(arrofpos, name="poly_vector")
         my_name = path.name
-        assert my_name in self.aedtapp.modeler.primitives.lines
+        assert my_name in self.aedtapp.modeler.primitives.line_names
         assert my_name in self.aedtapp.modeler.primitives.model_objects
         assert my_name in self.aedtapp.modeler.primitives.object_names
         assert isinstance(self.aedtapp.modeler.get_vertices_of_line(my_name), list)
         rect = self.aedtapp.modeler.primitives.create_rectangle(self.aedtapp.CoordinateSystemPlane.YZPlane, [0,-2,-2],[4,3], name="rect_1")
         swept = self.aedtapp.modeler.sweep_along_path(rect, path )
         assert swept
-        assert rect.name in self.aedtapp.modeler.primitives.solids
+        assert rect.name in self.aedtapp.modeler.primitives.solid_names
 
     @pyaedt_unittest_check_desktop_error
     def test_10_sweep_along_vector(self):
         rect2 = self.aedtapp.modeler.primitives.create_rectangle(self.aedtapp.CoordinateSystemPlane.YZPlane, [0,-2,-2],[4,3], name="rect_2")
         assert self.aedtapp.modeler.sweep_along_vector(rect2, [10,20,20] )
-        assert rect2.name in self.aedtapp.modeler.primitives.solids
+        assert rect2.name in self.aedtapp.modeler.primitives.solid_names
 
     @pyaedt_unittest_check_desktop_error
     def test_11_create_rectangle(self):
@@ -368,9 +367,9 @@ class TestPrimitives(BasisTest):
         p1, p2, points = self.create_polylines()
         c1 = self.create_copper_box()
         r1 = self.create_rectangle()
-        solid_list = self.aedtapp.modeler.primitives.solids
-        sheet_list = self.aedtapp.modeler.primitives.sheets
-        line_list = self.aedtapp.modeler.primitives.lines
+        solid_list = self.aedtapp.modeler.primitives.solid_names
+        sheet_list = self.aedtapp.modeler.primitives.sheet_names
+        line_list = self.aedtapp.modeler.primitives.line_names
         all_objects_list = self.aedtapp.modeler.primitives.object_names
 
         assert c1.name in solid_list
@@ -736,23 +735,23 @@ class TestPrimitives(BasisTest):
         primitives = self.aedtapp.modeler.primitives
         P = primitives.create_polyline([[0, 1, 2], [0, 2, 3], [2, 1, 4]])
         P.remove_edges(edge_id=0)
-        assert P.name in self.aedtapp.modeler.primitives.lines
+        assert P.name in self.aedtapp.modeler.primitives.line_names
         P = primitives.create_polyline([[0, 1, 2], [0, 2, 3], [2, 1, 4], [3, 1, 6]])
         P.remove_edges(edge_id=[0, 1])
-        assert P.name in self.aedtapp.modeler.primitives.lines
+        assert P.name in self.aedtapp.modeler.primitives.line_names
         P = primitives.create_polyline([[0, 1, 2], [0, 2, 3], [2, 1, 4], [3, 1, 6]])
         P.remove_edges(edge_id=[1, 2])
-        assert P.name in self.aedtapp.modeler.primitives.lines
+        assert P.name in self.aedtapp.modeler.primitives.line_names
         P = primitives.create_polyline([[0, 1, 2], [0, 2, 3], [2, 1, 4], [3, 1, 6]])
         P.remove_edges(edge_id=2)
-        assert P.name in self.aedtapp.modeler.primitives.lines
+        assert P.name in self.aedtapp.modeler.primitives.line_names
 
     @pyaedt_unittest_check_desktop_error
     def test_41_remove_edges_from_polyline_invalid(self):
         self.cache.ignore_error_message_local("Body could not be created for part ")
         P = self.aedtapp.modeler.primitives.create_polyline([[0, 1, 2], [0, 2, 3], [2, 1, 4]])
         P.remove_edges(edge_id=[0, 1])
-        assert not P.name in self.aedtapp.modeler.primitives.lines
+        assert not P.name in self.aedtapp.modeler.primitives.line_names
 
     @pyaedt_unittest_check_desktop_error
     def test_42_duplicate_polyline_and_manipulate(self):
@@ -828,4 +827,4 @@ class TestPrimitives(BasisTest):
         assert len(eq_segmented.edges) == 4
 
         eq_xsection = self.aedtapp.modeler.primitives.create_equationbased_curve(x_t="_t", y_t="_t*2", xsection_type="Circle")
-        assert eq_xsection in self.aedtapp.modeler.primitives.solids
+        assert eq_xsection.name in self.aedtapp.modeler.primitives.solid_names

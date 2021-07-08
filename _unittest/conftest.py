@@ -67,7 +67,7 @@ else:
 
 class BasisTest:
 
-    def setup_class(self, project_name=None, design_name=None, application=None):
+    def setup_class(self, project_name=None, design_name=None, solution_type=None, application=None):
 
         with Scratch(scratch_path) as self.local_scratch:
             if project_name:
@@ -82,7 +82,8 @@ class BasisTest:
                 application = Hfss
             if self.test_project:
                 self.aedtapp = application(projectname=self.test_project, designname=design_name,
-                                           specified_version=desktop_version, AlwaysNew=new_thread, NG=non_graphical)
+                                           solution_type=solution_type, specified_version=desktop_version,
+                                           AlwaysNew=new_thread, NG=non_graphical)
             else:
                 self.aedtapp = application(specified_version=desktop_version, AlwaysNew=new_thread, NG=non_graphical)
 

@@ -156,6 +156,7 @@ class FieldAnalysis3D(Analysis, object):
                     return val
         return None
 
+    #TODO Refactor this
     @aedt_exception_handler
     def copy_solid_bodies_from(self, design, object_list=None, no_vacuum=True, no_pec=True, include_sheets=False):
         """Copy all the list of object from one design to active one
@@ -270,7 +271,7 @@ class FieldAnalysis3D(Analysis, object):
         diel = self.materials.dielectrics
         diel = [i.lower() for i in diel]
         obj_names = []
-        for name in self.modeler.primitives.solids:
+        for name in self.modeler.primitives.solid_names:
             id = self.modeler.primitives.object_id_dict[name]
             obj = self.modeler.primitives.objects[id]
             if obj.material_name.lower() in diel:

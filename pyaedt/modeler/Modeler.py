@@ -1892,13 +1892,13 @@ class GeometryModeler(Modeler, object):
             True if succeeded
 
         """
-        unclassified_before = list(self.primitives.unclassified)
+        unclassified_before = list(self.primitives.unclassified_names)
         szSelections = self.convert_to_selections(theList)
 
         vArg1 = ['NAME:Selections', 'Selections:=', szSelections]
 
         self.oeditor.Connect(vArg1)
-        if unclassified_before != self.primitives.unclassified:
+        if unclassified_before != self.primitives.unclassified_names:
             self.odesign.Undo()
             self.messenger.add_error_message("Error in connection. Reverting Operation")
             return False

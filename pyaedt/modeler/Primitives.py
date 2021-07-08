@@ -742,27 +742,56 @@ class Primitives(object):
         self.refresh()
 
     @property
-    def solids(self):
+    def solid_objects(self):
+        """List of all objects of type 'Solid'"""
+        self._refresh_solids()
+        return [self[name] for name in self._solids]
+
+    @property
+    def sheet_objects(self):
+        """List of all objects of type 'Solid'"""
+        self._refresh_sheets()
+        return [self[name] for name in self._sheets]
+
+    @property
+    def line_objects(self):
+        """List of all objects of type 'Solid'"""
+        self._refresh_lines()
+        return [self[name] for name in self._lines]
+
+    @property
+    def unclassified_objects(self):
+        self._refresh_unclassified()
+        return [self[name] for name in self._unclassified]
+
+    @property
+    def object_list(self):
+        """List of all objects of type 'Line'"""
+        self._refresh_object_types()
+        return [self[name] for name in self._all_object_names]
+
+    @property
+    def solid_names(self):
         """List of all objects of type 'Solid'"""
         self._refresh_solids()
         return self._solids
 
     @property
-    def unclassified(self):
-        self._refresh_unclassified()
-        return self._unclassified
-
-    @property
-    def sheets(self):
+    def sheet_names(self):
         """List of all objects of type 'Sheet'"""
         self._refresh_sheets()
         return self._sheets
 
     @property
-    def lines(self):
+    def line_names(self):
         """List of all objects of type 'Line'"""
         self._refresh_lines()
         return self._lines
+
+    @property
+    def unclassified_names(self):
+        self._refresh_unclassified()
+        return self._unclassified
 
     @property
     def object_names(self):
@@ -840,7 +869,7 @@ class Primitives(object):
                 missing.append(name)
         non_existent = []
         for name in self.object_id_dict:
-            if name not in obj_names and name not in self.unclassified:
+            if name not in obj_names and name not in self.unclassified_names:
                 non_existent.append(name)
         report = {
             "Missing Objects": missing,
@@ -964,9 +993,16 @@ class Primitives(object):
             arg.append(qvalstr)
             arg.append(str(pad_percent[i]))
             i += 1
-        arg2 = ["NAME:Attributes", "Name:=", "Region", "Flags:=", "Wireframe#", "Color:=", "(143 175 143)",
-                "Transparency:=", 0, "PartCoordinateSystem:=", "Global", "UDMId:=", "", "Materiaobjidue:=",
-                "\"air\"", "SurfaceMateriaobjidue:=", "\"\"", "SolveInside:=", True, "IsMaterialEditable:=", True,
+        arg2 = ["NAME:Attributes",
+                "Name:=", "Region",
+                "Flags:=", "Wireframe#",
+                "Color:=", "(143 175 143)",
+                "Transparency:=", 0,
+                "PartCoordinateSystem:=",
+                "Global", "UDMId:=", "",
+                "Materiaobjidue:=", "\"air\"",
+                "SurfaceMateriaobjidue:=", "\"\"",
+                "SolveInside:=", True, "IsMaterialEditable:=", True,
                 "UseMaterialAppearance:=", False, "IsLightweight:=", False]
         self.oeditor.CreateRegion(arg, arg2)
         return self._create_object("Region")
@@ -2168,7 +2204,7 @@ class Primitives(object):
 
         # select all edges
         all_edges = []
-        solids = [s for s in self.solids if s not in list_of_bodies]
+        solids = [s for s in self.solid_names if s not in list_of_bodies]
         for solid in solids:
             edges = self.get_object_edges(solid)
             all_edges.extend(edges)
@@ -2301,7 +2337,7 @@ class Primitives(object):
 
         # select all edges
         all_edges = []
-        solids = [s for s in self.solids if s not in list_of_bodies]
+        solids = [s for s in self.solid_names if s not in list_of_bodies]
         for solid in solids:
             edges = self.get_object_edges(solid)
             all_edges.extend(edges)
@@ -2663,10 +2699,10 @@ class Primitives(object):
 
     def _find_object_from_edge_id(self, lval):
         objList = []
-        objListSheets = self.sheets
+        objListSheets = self.sheet_names
         if len(objListSheets) > 0:
             objList.extend(objListSheets)
-        objListSolids = self.solids
+        objListSolids = self.solid_names
         if len(objListSolids) > 0:
             objList.extend(objListSolids)
         for obj in objList:
@@ -2679,10 +2715,10 @@ class Primitives(object):
     def _find_object_from_face_id(self, lval):
         if self.oeditor is not None:
             objList = []
-            objListSheets = self.sheets
+            objListSheets = self.sheet_names
             if len(objListSheets) > 0:
                 objList.extend(objListSheets)
-            objListSolids = self.solids
+            objListSolids = self.solid_names
             if len(objListSolids) > 0:
                 objList.extend(objListSolids)
             for obj in objList:

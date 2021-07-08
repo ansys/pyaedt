@@ -296,9 +296,9 @@ class DesignCache(object):
 
     def design_snapshot(self):
         snapshot = {
-            "Solids:":  self._parent.modeler.primitives.solids,
-            "Lines:":  self._parent.modeler.primitives.lines,
-            "Sheets": self._parent.modeler.primitives.sheets,
+            "Solids:":  self._parent.modeler.primitives.solid_names,
+            "Lines:":  self._parent.modeler.primitives.line_names,
+            "Sheets": self._parent.modeler.primitives.sheet_names,
             "DesignName" : self._parent.design_name
         }
         return snapshot
