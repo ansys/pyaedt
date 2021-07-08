@@ -19,7 +19,13 @@ import os
 from pyaedt import examples
 netlist = examples.download_netlist()
 from pyaedt import generate_unique_name
-temp_folder = os.path.join(os.environ["TEMP"], generate_unique_name("Example"))
+
+if os.name == "posix":
+    tmpfold = os.environ["TMPDIR"]
+else:
+    tmpfold = os.environ["TEMP"]
+
+temp_folder = os.path.join(tmpfold, generate_unique_name("Example"))
 if not os.path.exists(temp_folder): os.makedirs(temp_folder)
 myfile = os.path.join(netlist)
 print(temp_folder)

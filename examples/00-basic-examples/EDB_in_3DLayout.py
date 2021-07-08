@@ -10,7 +10,13 @@ This Example shows how to use HFSS3DLayout combined with EDB to interact with a 
 import os
 
 from pyaedt import generate_unique_name
-temp_folder = os.path.join(os.environ["TEMP"], generate_unique_name("Example"))
+
+if os.name == "posix":
+    tmpfold = os.environ["TMPDIR"]
+else:
+    tmpfold = os.environ["TEMP"]
+
+temp_folder = os.path.join(tmpfold, generate_unique_name("Example"))
 if not os.path.exists(temp_folder): os.makedirs(temp_folder)
 print(temp_folder)
 ######################################

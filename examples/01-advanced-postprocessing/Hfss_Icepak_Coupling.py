@@ -24,7 +24,12 @@ sys.path.append(os.path.join(aedt_lib_path))
 sys.path.append(os.path.join(pdf_path1))
 from pyaedt import generate_unique_name
 
-project_dir = os.path.join(os.environ["TEMP"], generate_unique_name("Example"))
+if os.name == "posix":
+    tmpfold = os.environ["TMPDIR"]
+else:
+    tmpfold = os.environ["TEMP"]
+
+project_dir = os.path.join(tmpfold, generate_unique_name("Example"))
 if not os.path.exists(project_dir): os.makedirs(project_dir)
 print(project_dir)
 

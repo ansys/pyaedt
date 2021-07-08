@@ -13,7 +13,12 @@ import os
 from pyaedt import examples, generate_unique_name
 project_full_name = examples.download_sbr()
 project_name = os.path.basename(project_full_name)[:-5]
-temp_folder = os.path.join(os.environ["TEMP"], generate_unique_name("SBR"))
+if os.name == "posix":
+    tmpfold = os.environ["TMPDIR"]
+else:
+    tmpfold = os.environ["TEMP"]
+
+temp_folder = os.path.join(tmpfold, generate_unique_name("SBR"))
 if not os.path.exists(temp_folder):
     os.mkdir(temp_folder)
 from pyaedt import Hfss
