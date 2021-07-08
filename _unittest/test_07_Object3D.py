@@ -25,6 +25,28 @@ class TestObject3D:
         self.local_scratch.remove()
         gc.collect()
 
+
+    def create_example_coil(self, name=None):
+        if not name:
+            name = "test_coil"
+        RI = 10
+        RO = 18
+        HT = 9
+        N = 1.5
+        tetarad = 4 * math.pi / 180
+
+        pointsList1 = [[RI*math.cos(tetarad),-RI*math.sin(tetarad),HT/2-N],
+                       [(RI+N)*math.cos(tetarad),-(RI+N)*math.sin(tetarad),HT/2],
+                       [RO-N,0,HT/2],[RO,0,HT/2-N],[RO,0,-HT/2+N],
+                       [RO-N,0,-HT/2],[(RI+N)*math.cos(tetarad),(RI+N)*math.sin(tetarad),-HT/2],
+                       [RI*math.cos(tetarad),RI*math.sin(tetarad),-HT/2+N],
+                       [RI*math.cos(tetarad),RI*math.sin(tetarad),HT/2-N],
+                       [(RI+N)*math.cos(tetarad),(RI+N)*math.sin(tetarad),HT/2]]
+
+        if self.aedtapp.modeler.primitives[name]:
+            self.aedtapp.modeler.primitives.delete(name)
+        return self.aedtapp.modeler.primitives.create_polyline(position_list=pointsList1, name=name)
+
     def create_copper_box(self):
         o = self.aedtapp.modeler.primitives["Mybox"]
         if not o:
@@ -278,3 +300,11 @@ class TestObject3D:
         assert v1[0] == v0[0] + 1.0
         assert v1[1] == v0[1]
         assert v1[2] == v0[2]
+
+    def test_duplicate_around_axis_and_unite(self):
+        turn = self.create_example_coil("single_turn")
+        added_objects = turn.duplicate_around_axis(cs_axis="Z", angle=8, nclones=19)
+        turn.unite(added_objects)
+        assert len(added_objects) == 18
+        assert "single_turn" in self.aedtapp.modeler.primitives.lines
+

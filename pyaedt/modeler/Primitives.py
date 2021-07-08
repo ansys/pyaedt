@@ -159,9 +159,9 @@ class Polyline(Object3d):
                 self._m_name = src_object.name
         else:
 
-            self._xsection = self._crosssection(type=xsection_type, orient=xsection_orient, width=xsection_width,
-                                                topwidth=xsection_topwidth, height=xsection_height, num_seg=xsection_num_seg,
-                                                bend_type=xsection_bend_type)
+            self._xsection = self._parent._crosssection_arguments(type=xsection_type, orient=xsection_orient, width=xsection_width,
+                                                                  topwidth=xsection_topwidth, height=xsection_height, num_seg=xsection_num_seg,
+                                                                  bend_type=xsection_bend_type)
             self._positions = copy(position_list)
 
             # When close surface or cover_surface are set to True, ensure the start point and end point are coincident,
@@ -221,41 +221,6 @@ class Polyline(Object3d):
         id_list = self._parent.get_object_vertices(partID=self.id)
         position_list = [ self._parent.get_vertex_position(id) for id in id_list]
         return position_list
-
-    def _crosssection(self, type=None, orient=None, width=0, topwidth=0, height=0, num_seg=0, bend_type=None):
-        """Generate the properties array for the polyline cross-section.
-        """
-        arg_str = ["NAME:PolylineXSection"]
-
-        # Set the default section type to "None"
-        section_type = type
-        if not section_type:
-            section_type = "None"
-
-        # Set the default orientation to "Auto"
-        section_orient = orient
-        if not section_orient:
-            section_orient = "Auto"
-
-        # Set the default bend-type to "Corner"
-        section_bend = bend_type
-        if not section_bend:
-            section_bend = "Corner"
-
-        #Ensure number-of segments is valid
-        if num_seg:
-            assert num_seg > 2, "Number of segments for a cross-section must be 0 or greater than 2."
-
-        model_units = self._parent.model_units
-        arg_str += ["XSectionType:=", section_type]
-        arg_str += ["XSectionOrient:=", section_orient]
-        arg_str += ["XSectionWidth:=", _dim_arg(width, model_units)]
-        arg_str += ["XSectionTopWidth:=", _dim_arg(topwidth, model_units)]
-        arg_str += ["XSectionHeight:=", _dim_arg(height, model_units)]
-        arg_str += ["XSectionNumSegments:=", "{}".format(num_seg)]
-        arg_str += ["XSectionBendType:=", section_bend]
-
-        return arg_str
 
     def _pl_point(self, pt):
         pt_data= ["NAME:PLPoint"]
@@ -2634,6 +2599,41 @@ class Primitives(object):
 
         return args
 
+    def _crosssection_arguments(self, type=None, orient=None, width=0, topwidth=0, height=0, num_seg=0, bend_type=None):
+        """Generate the properties array for the polyline cross-section.
+        """
+        arg_str = ["NAME:PolylineXSection"]
+
+        # Set the default section type to "None"
+        section_type = type
+        if not section_type:
+            section_type = "None"
+
+        # Set the default orientation to "Auto"
+        section_orient = orient
+        if not section_orient:
+            section_orient = "Auto"
+
+        # Set the default bend-type to "Corner"
+        section_bend = bend_type
+        if not section_bend:
+            section_bend = "Corner"
+
+        #Ensure number-of segments is valid
+        if num_seg:
+            assert num_seg > 2, "Number of segments for a cross-section must be 0 or greater than 2."
+
+        model_units = self.model_units
+        arg_str += ["XSectionType:=", section_type]
+        arg_str += ["XSectionOrient:=", section_orient]
+        arg_str += ["XSectionWidth:=", _dim_arg(width, model_units)]
+        arg_str += ["XSectionTopWidth:=", _dim_arg(topwidth, model_units)]
+        arg_str += ["XSectionHeight:=", _dim_arg(height, model_units)]
+        arg_str += ["XSectionNumSegments:=", "{}".format(num_seg)]
+        arg_str += ["XSectionBendType:=", section_bend]
+
+        return arg_str
+
     def _arg_with_dim(self, prop_value, units=None):
         if isinstance(prop_value, str):
             val = prop_value
@@ -2711,6 +2711,5 @@ class Primitives(object):
         elif partId in self.object_id_dict:
             return self.objects[self.object_id_dict[partId]]
         return None
-
 
 

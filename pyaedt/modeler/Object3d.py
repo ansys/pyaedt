@@ -831,6 +831,64 @@ class Object3d(object):
         self._model = fModel
 
     @aedt_exception_handler
+    def unite(self, object_list):
+        """Unite a list of objects with this object
+
+        Parameters
+        ----------
+        object_list : list of str or list of Object3d
+            list of object
+
+        Returns
+        -------
+        Object3d
+        """
+        unite_list = [self.name] + self._parent.modeler.convert_to_selections(object_list, return_list=True)
+        self._parent.modeler.unite(unite_list)
+        return self
+
+    def duplicate_around_axis(self, cs_axis, angle=90, nclones=2, create_new_objects=True):
+        """Duplicate self around axis. Returns a list of the names of all newly created clones
+
+        Parameters
+        ----------
+        cs_axis :
+            Application.CoordinateSystemAxis object
+        angle :
+            Flaat angle of rotation (Default value = 90)
+        nclones :
+            number of clones (Default value = 2)
+        create_new_objects :
+            Flag whether to create create copies as new objects, defaults to True
+
+        Returns
+        -------
+        list of str
+        """
+        ret, added_objects = self._parent.modeler.duplicate_around_axis(self, cs_axis, angle, nclones, create_new_objects)
+        return added_objects
+
+    @aedt_exception_handler
+    def duplicate_along_line(self, vector, nclones=2, attachObject=False):
+        """Duplicate self along line. Returns a list of the names of all newly created clones
+
+        Parameters
+        ----------
+        vector :
+            List of Vector [x1,y1,z1] or  Application.Position object
+        attachObject :
+            Boolean (Default value = False)
+        nclones :
+            number of clones (Default value = 2)
+
+        Returns
+        -------
+        list of str
+        """
+        ret, added_objects = self._parent.modeler.duplicate_along_line(self, vector, nclones, attachObject)
+        return added_objects
+
+    @aedt_exception_handler
     def translate(self, vector):
         """Translates the object and returns the Object3d object
 
@@ -841,7 +899,7 @@ class Object3d(object):
         self._parent.modeler.translate(self.id, vector)
         return self
 
-
+    @aedt_exception_handler
     def sweep_along_vector(self, sweep_vector, draft_angle=0, draft_type="Round"):
         """Sweep selection along vector
 
@@ -862,6 +920,7 @@ class Object3d(object):
         self._parent.modeler.sweep_along_vector(self, sweep_vector, draft_angle, draft_type)
         return self
 
+    @aedt_exception_handler
     def sweep_along_path(self, sweep_object, draft_angle=0, draft_type="Round",
                               is_check_face_intersection=False, twist_angle=0):
         """Sweep selection along vector
@@ -886,6 +945,7 @@ class Object3d(object):
                                               is_check_face_intersection, twist_angle)
         return self
 
+    @aedt_exception_handler
     def sweep_around_axis(self, cs_axis, sweep_angle=360, draft_angle=0):
         """Sweep around a specified axis
 
@@ -905,6 +965,7 @@ class Object3d(object):
         self._parent.modeler.sweep_around_axis(self, cs_axis, sweep_angle, draft_angle)
         return self
 
+    @aedt_exception_handler
     def section(self, plane, create_new=True, section_cross_object=False):
         """Section the object
 

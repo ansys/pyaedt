@@ -468,23 +468,72 @@ class Primitives3D(Primitives, object):
         return self._create_object(new_object_name)
 
     @aedt_exception_handler
-    def create_equationbased_curve(self, udpequationbasedcurveddefinition, name=None, matname=None):
+    def create_equationbased_curve(self, x_t=0, y_t=0, z_t=0, t_start=0, t_end=1, num_points = 0,
+                                   name=None, xsection_type=None, xsection_orient=None,
+                                   xsection_width=0, xsection_topwidth=0, xsection_height=0,xsection_num_seg=0,
+                                   xsection_bend_type=None):
         """
 
         Parameters
         ----------
-        udpequationbasedcurveddefinition :
-
-        name :
-             (Default value = None)
-        matname :
-             (Default value = None)
+        x_t : str or float
+            Expression for the x-component of the curve as a function of ``"_t"`` (e.g. ``"3 * cos(_t)"``)
+        y_t : str or float
+            Expression for the x-component of the curve as a function of ``"_t"``
+        z_t : str or float
+            Expression for the x-component of the curve as a function of ``"_t"``
+        t_start : str or float
+            Start value of the parameter ``"_t"``
+        t_end : str pr float
+            Start value of the parameter ``"_t"``
+        num_points : int, default=0
+            Number of vertices on the segmented curve. If zero then the curve is non-segmented
+        name : str, optional
+            Object name of the created part in the 3D modeler. If not specified then a name is assigned automatically
+        xsection_type : str, optional
+            Type of the cross-section. Choices are ``"Line"``, ``"Circle"``,
+            ``"Rectangle"``, and ``"Isosceles Trapezoid"``. The default is ``None``.
+        xsection_orient : str, optional
+            Direction of the normal vector to the width of the cross-section.
+            Choices are ``"X"``, ``"Y"``, ``"Z"``, and ``"Auto"``. The default is
+            ``None``, which sets the direction to ``"Auto"``.
+        xsection_width : float or str, optional
+            Width or diameter of the cross-section for all  types. The
+            default is ``1``.
+        xsection_topwidth : float or str, optional
+            Top width of the cross-section for type ``"Isosceles Trapezoid"`` only.
+            The default is ``1``.
+        xsection_height : float or str
+            Height of the cross-section for type ``"Rectangle"`` or ``"Isosceles
+            Trapezoid"`` only. The default is ``1``.
+        xsection_num_seg : int, optional
+            Number of segments in the cross-section surface for types ``"Circle"``,
+            ``"Rectangle"``, or ``"Isosceles Trapezoid"``. The default is ``0``. The
+            value must be ``0`` or greater than ``2``.
+        xsection_bend_type : str, optional
+            Type of the bend for the cross-section. The default is ``None``, which sets
+            the bend type to ``"Corner"``. For the type ``"Circle"``, the bend type
+            should be set to ``"Curved"``.
 
         Returns
         -------
         Object3d
         """
-        vArg1 = udpequationbasedcurveddefinition.toScript()
+        x_section = self._crosssection_arguments(type=xsection_type, orient=xsection_orient, width=xsection_width,
+                                                 topwidth=xsection_topwidth, height=xsection_height, num_seg=xsection_num_seg,
+                                                 bend_type=xsection_bend_type)
+
+        vArg1 = ["NAME:EquationBasedCurveParameters",
+                 "XtFunction:=", str(x_t),
+                 "YtFunction:=", str(y_t),
+                 "ZtFunction:=", str(z_t),
+                 "tStart:=", str(t_start),
+                 "tEnd:=", str(t_end),
+                 "NumOfPointsOnCurve:="	, num_points,
+                 "Version:="		, 1,
+                 x_section]
+
+
         vArg2 = self._default_object_attributes(name)
 
         new_name = self.oeditor.CreateEquationCurve(vArg1, vArg2)

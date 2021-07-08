@@ -1443,12 +1443,12 @@ class GeometryModeler(Modeler, object):
 
     @aedt_exception_handler
     def duplicate_around_axis(self, objid, cs_axis, angle=90, nclones=2, create_new_objects=True):
-        """Duplicate selection aroun axis
+        """Duplicate selection around axis
 
         Parameters
         ----------
         objid :
-            if str, it is considered an objecname. if Int it is considered an object id
+            if str, it is considered an object name. if Int it is considered an object id
         cs_axis :
             Application.CoordinateSystemAxis object
         angle :
@@ -1460,7 +1460,7 @@ class GeometryModeler(Modeler, object):
 
         Returns
         -------
-
+        tuple
         """
         selections = self.convert_to_selections(objid)
 
@@ -1471,8 +1471,14 @@ class GeometryModeler(Modeler, object):
         vArg3 = ["NAME:Options", "DuplicateBoundaries:=", "true"]
 
         self.oeditor.DuplicateAroundAxis(vArg1, vArg2, vArg3)
+        return self._duplicate_added_objects_tuple()
 
-        return True, self.primitives.add_new_objects()
+    def _duplicate_added_objects_tuple(self):
+        added_objects = self.primitives.add_new_objects()
+        if added_objects:
+            return True, added_objects
+        else:
+            return False, []
 
     @aedt_exception_handler
     def duplicate_along_line(self, objid, vector, nclones=2, attachObject=False):
@@ -1491,7 +1497,7 @@ class GeometryModeler(Modeler, object):
 
         Returns
         -------
-
+        tuple
         """
         selections = self.convert_to_selections(objid)
         Xpos, Ypos, Zpos = self.primitives._pos_with_arg(vector)
@@ -1506,7 +1512,7 @@ class GeometryModeler(Modeler, object):
         vArg3 = ["NAME:Options", "DuplicateBoundaries:=", "true"]
 
         self.oeditor.DuplicateAlongLine(vArg1, vArg2, vArg3)
-        return True, self.primitives.add_new_objects()
+        return self._duplicate_added_objects_tuple()
 
     @aedt_exception_handler
     def thicken_sheet(self, objid, thickness, bBothSides=False):
