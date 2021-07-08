@@ -27,7 +27,7 @@ edb = Edb(edbpath=aedb_path, edbversion="2021.1")
 #
 
 edb.core_stackup.stackup_layers.add_layer("GND")
-edb.core_stackup.stackup_layers.add_layer("Diel","GND", layerType=edb.core_stackup.layer_types.DielectricLayer, thickness="0.1mm")
+edb.core_stackup.stackup_layers.add_layer("Diel","GND", layerType=1, thickness="0.1mm", material="FR4_epoxy")
 edb.core_stackup.stackup_layers.add_layer("TOP","Diel", thickness="0.05mm")
 #########################################
 # Create of signal net and ground planes
