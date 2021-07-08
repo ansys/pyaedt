@@ -9,11 +9,7 @@ in Q3D and run a simulation
 # Import Packages
 # Setup The local path to the Path Containing AEDTLIb
 import os
-import pathlib
 
-local_path = os.path.abspath('')
-module_path = pathlib.Path(local_path)
-aedt_lib_path = module_path.parent.parent.parent
 from pyaedt import examples, generate_unique_name
 project_full_name = examples.download_sbr()
 project_name = os.path.basename(project_full_name)[:-5]

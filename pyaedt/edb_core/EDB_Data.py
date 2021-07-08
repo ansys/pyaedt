@@ -481,6 +481,30 @@ class EDBLayers(object):
             return self.layer_types.DielectricLayer
         elif int(val) == 2:
             return self.layer_types.ConductingLayer
+        elif int(val) == 3:
+            return self.layer_types.AirlinesLayer
+        elif int(val) == 4:
+            return self.layer_types.ErrorsLayer
+        elif int(val) == 5:
+            return self.layer_types.SymbolLayer
+        elif int(val) == 6:
+            return self.layer_types.MeasureLayer
+        elif int(val) == 8:
+            return self.layer_types.AssemblyLayer
+        elif int(val) == 9:
+            return self.layer_types.SilkscreenLayer
+        elif int(val) == 10:
+            return self.layer_types.SolderMaskLayer
+        elif int(val) == 11:
+            return self.layer_types.SolderPasteLayer
+        elif int(val) == 12:
+            return self.layer_types.GlueLayer
+        elif int(val) == 13:
+            return self.layer_types.WirebondLayer
+        elif int(val) == 14:
+            return self.layer_types.UserLayer
+        elif int(val) == 16:
+            return self.layer_types.SIwaveHFSSSolverRegions
         elif int(val) == 18:
             return self.layer_types.OutlineLayer
 

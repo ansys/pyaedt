@@ -10,13 +10,7 @@ This Example shows how to create an Icepak Project starting from Sherlock Files 
 import time
 import os
 import datetime
-import pathlib
-import sys
 
-local_path = os.path.abspath('')
-module_path = pathlib.Path(local_path)
-aedt_lib_path = module_path.parent
-sys.path.append(os.path.join(aedt_lib_path))
 from pyaedt import examples, generate_unique_name
 input_dir = examples.download_sherlock()
 temp_folder = os.path.join(os.environ["TEMP"], generate_unique_name("Example"))

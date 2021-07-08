@@ -8,13 +8,6 @@ in Q3D and run a simulation
 # sphinx_gallery_thumbnail_path = 'Resources/busbar.png'
 
 import os
-import sys
-import pathlib
-
-local_path = os.path.abspath('')
-module_path = pathlib.Path(local_path)
-aedt_lib_path = module_path.parent.parent.parent
-sys.path.append(os.path.join(aedt_lib_path))
 
 from pyaedt.desktop import Desktop
 from pyaedt import Q3d
