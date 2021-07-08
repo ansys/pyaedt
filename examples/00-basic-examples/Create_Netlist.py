@@ -53,7 +53,7 @@ desktopVersion = "2021.1"
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # Change Boolean to False to open AEDT in graphical mode
 
-NonGraphical = True
+NonGraphical = False
 NewThread = False
 
 
@@ -96,11 +96,11 @@ aedtapp.create_schematic_from_netlist(myfile)
 #########################################################
 # Close Project....or continue adding functionalities
 
-aedtapp.close_project()
 
 
 
 if os.name != "posix":
+    aedtapp.close_project()
     desktop.force_close_desktop()
 
 #########################################################

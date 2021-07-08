@@ -128,10 +128,7 @@ bot.update_stackup_layer()
 h3d.modeler.fit_all()
 
 
-######################################
 
-# Enable and run the following command to close the desktop
-h3d.close_project()
 
 ###############################################################################
 # Close Desktop
@@ -139,6 +136,7 @@ h3d.close_project()
 # After the simulaton is completed user can close the desktop or release it (using release_desktop method).
 # All methods give possibility to save projects before exit
 if os.name != "posix":
+    h3d.close_project()
     d.force_close_desktop()
 
 
