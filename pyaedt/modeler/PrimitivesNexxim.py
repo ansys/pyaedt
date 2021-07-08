@@ -942,7 +942,7 @@ class NexximComponents(CircuitComponents):
         self.o_component_manager.UpdateDynamicLink(component_name)
 
     @aedt_exception_handler
-    def push_excitations(self, instance_name,thevenin_calculation = False):
+    def push_excitations(self, instance_name, thevenin_calculation=False, setup_name="LinearFrequency"):
         """
 
         Parameters
@@ -959,9 +959,9 @@ class NexximComponents(CircuitComponents):
         """
         arg = ["NAME:options",
                "CalcThevenin:=", thevenin_calculation,
-               "Sol:=", "LinearFrequency"]
+               "Sol:=", setup_name]
 
-        self.oeditor.PushExcitation(instance_name, arg)
+        self.oeditor.PushExcitations(instance_name, arg)
         pass
 
     @aedt_exception_handler
@@ -1017,16 +1017,16 @@ class NexximComponents(CircuitComponents):
                    "FDSFileName:=", "",
                    ["NAME:Properties",
                     "TextProp:=", ["LabelID","HD","Property string for netlist ID","V@ID"],
-                    "ValueProp:=", ["ACMAG","D","AC magnitude for small-signal analysis (Volts)",settings[0],0],
-                    "ValuePropNU:=", ["ACPHASE","D","AC phase for small-signal analysis",settings[1],0,"deg"],
-                    "ValueProp:=", ["DC","D","DC voltage (Volts)",settings[2],0],
+                    "ValueProp:=", ["ACMAG","OD","AC magnitude for small-signal analysis (Volts)",settings[0],0],
+                    "ValuePropNU:=", ["ACPHASE","OD","AC phase for small-signal analysis",settings[1],0,"deg"],
+                    "ValueProp:=", ["DC","OD","DC voltage (Volts)",settings[2],0],
                     "ValueProp:=", ["VO","OD","Voltage offset from zero (Volts)",settings[3],0],
                     "ValueProp:=", ["VA","OD","Voltage amplitude (Volts)",settings[4],0],
                     "ValueProp:=", ["FREQ","OD","Frequency (Hz)",settings[5],0],
-                    "ValueProp:=", ["TD","D","Delay to start of sine wave (seconds)",settings[6],0],
-                    "ValueProp:=", ["ALPHA","D","Damping factor (1/seconds)",settings[7],0],
-                    "ValuePropNU:=", ["THETA","D","Phase delay",settings[8],0,"deg"],
-                    "ValueProp:=", ["TONE","D","Frequency (Hz) to use for harmonic balance analysis, should be a submultiple of (or equal to) the driving frequency and should also be included in the HB analysis setup",settings[9],0],
+                    "ValueProp:=", ["TD","OD","Delay to start of sine wave (seconds)",settings[6],0],
+                    "ValueProp:=", ["ALPHA","OD","Damping factor (1/seconds)",settings[7],0],
+                    "ValuePropNU:=", ["THETA","OD","Phase delay",settings[8],0,"deg"],
+                    "ValueProp:=", ["TONE","OD","Frequency (Hz) to use for harmonic balance analysis, should be a submultiple of (or equal to) the driving frequency and should also be included in the HB analysis setup",settings[9],0],
                     "TextProp:=", ["ModelName","SHD","","V_SIN"],
                     "MenuProp:=", ["CoSimulator","D","","DefaultNetlist",0],
                     "ButtonProp:=", ["CosimDefinition","D","","","Edit",40501, "ButtonPropClientData:=", [] ] ] ] ] ] ]
