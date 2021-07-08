@@ -248,8 +248,8 @@ class Setup(object):
         isconvergence, bool, str, or list, optional
             Whether the expression is in the convergence criteria. The  default is ``True``.  
             If a list of expressions is supplied, supply a corresponding list of Boolean values.
-        isrelativeconvergence : 
-            The default is ``1``.
+        isrelativeconvergence : bool, optional
+            The default is ``True``.
                 
         Returns
         -------
@@ -371,7 +371,6 @@ class Setup(object):
     @aedt_exception_handler
     def add_mesh_link(self, design_name, solution_name, parameters_dict, project_name="This Project*"):
         """Add a mesh link to another design. 
-          
         Parameters
         ----------
         design_name : str, 
@@ -512,7 +511,7 @@ class SetupCircuit(object):
         Returns
         -------
         list
-           List of arguments.
+            List of arguments.
 
         """
         soltype = SetupKeys.SetupNames[self.setuptype]
@@ -685,15 +684,15 @@ class SetupCircuit(object):
         expressions : str or list
             One or more formulas to add to the expression cache. 
         report_type : str or list, optional
-            Type of report for the expression. The default is ``Fields``. If a list of expressions 
+            Type of report for the expression. The default is ``"Fields"``. If a list of expressions 
             is supplied, supply a corresponding list of report types.
         intrinsics : str or list, optional
             Intrinsic expression for the expression. The default is ``""``. If a list of expressions 
             is supplied, supply a corresponding list of intrinsic expressesions.
-        isconvergence, bool, str, or list, optional
+        isconvergence : bool, str, or list, optional
             Whether the expression is in the convergence criteria. The  default is ``True``.  
             If a list of expressions is supplied, supply a corresponding list of Boolean values.
-        isrelativeconvergence :
+        isrelativeconvergence : bool, optional
             The default is ``True``.
         conv_criteria
             The default is ``1``.
@@ -702,7 +701,6 @@ class SetupCircuit(object):
         -------
         bool
             ``True`` when successful, ``False`` when failed.
-       
         """
         arg = ["Name:SimSetup"]
         dict2arg(self.props, arg)
