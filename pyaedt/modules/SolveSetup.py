@@ -1,15 +1,8 @@
 """
-Setup Library Class
-----------------
+This module contains these classes: `Setup`, `Setup3DLayout` and `SetupCircuit`.
 
-
-**Description**
-
-
-This class contains all the functionalities to create and edit a setup. It is based on templates in order to allow to create and modify setup properties easily
-
-
-================
+This module contains all functionalities for creating and editing setups in AEDT. 
+It is based on templates to allow for easy creation and modification of setup properties.
 
 """
 from __future__ import absolute_import
@@ -24,11 +17,27 @@ from ..application.DataHandlers import tuple2dict, dict2arg
 
 
 class Setup(object):
-    """This Class defines the functions to initialize, create and update a Setup in Electronic Desktop"""
+    """Setup class.
+    
+    This class defines the functionalities needed to initialize, create, and update a 3D setup.
+    
+    Parameters
+    ----------
+    parent: str
+        AEDT module for analysis setup.
+    solutiontype: 
+        Type of the setup.
+    setupname: str, optional
+        Name of the setup. The default is ``"MySetupAuto"``.
+    isnewsetup: bool, optional
+      Whether to create the new setup from a template. The default is ``True.``
+      If ``False``, access is to the existing setup.
+     
+    """
 
     @property
     def parent(self):
-        """ """
+        """Parent object."""
         return self._parent
 
     @parent.setter
@@ -49,19 +58,14 @@ class Setup(object):
 
     @property
     def omodule(self):
-        """ """
+        """Analysis module."""
         return self._parent.oanalysis
 
     def __repr__(self):
         return "SetupName " + self.name + " with " + str(len(self.sweeps)) + " Sweeps"
 
     def __init__(self, parent, solutiontype, setupname="MySetupAuto", isnewsetup=True):
-        """
-        :param parent: AEDT Module for Analysis Setup
-        :param setupname: Setup Name
-        :param solutiontype: Setup Type of Application.SolutionType
-        :param isnewsetup: Boolean. True if is a new setup to be created from template. False to access existing Setup
-        """
+        
         self._parent = None
         self.parent = parent
         self.setuptype = solutiontype
@@ -99,15 +103,12 @@ class Setup(object):
 
     @aedt_exception_handler
     def create(self):
-        """Insert a new Setup based on Class settings into the AEDT Application
-        
-        :return: the argument list
-
-        Parameters
-        ----------
-
+        """Add a new setup based on class settings in AEDT.
+              
         Returns
         -------
+        list
+            List of arguments.
 
         """
         soltype = SetupKeys.SetupNames[self.setuptype]
@@ -118,17 +119,17 @@ class Setup(object):
 
     @aedt_exception_handler
     def update(self, update_dictionary=None):
-        """update the setup based on the class argument or to the updated dictionary passed as arcument
+        """Update the setup based on either the class argument or a dictionary.
 
         Parameters
         ----------
-        update_dictionary :
-            optional dictionary of settings to apply (Default value = None)
+        update_dictionary : optional
+            Dictionary to use to update the setup. The default is ``None``.
 
         Returns
         -------
-        type
-            bool
+        bool
+            ``True`` when successful, ``False`` when failed.
 
         """
         if update_dictionary:
@@ -141,27 +142,29 @@ class Setup(object):
         return True
 
     @aedt_exception_handler
-    def _expression_cache(self, expression_list, report_type_list,intrinsics_list, isconvergence_list,
+    def _expression_cache(self, expression_list, report_type_list, intrinsics_list, isconvergence_list,
                           isrelativeconvergence, conv_criteria):
-        """
+        """Retrieve data from the expression setup cache.
 
         Parameters
         ----------
-        expression_list :
+        expressions_list : list
+            List of formulas to retrieve. 
+        report_type_list : list
+            List of report types for the expressions. 
+        intrinsics_list : list
+            List of instrinsic expressions for the expressions. 
+        isconvergence_list : list
+            List of Boolean values indicating whether the expressions are in 
+            the convergence criteria.
+        isrelativeconvergence : 
             
-        report_type_list :
-            
-        intrinsics_list :
-            
-        isconvergence_list :
-            
-        isrelativeconvergence :
-            
-        conv_criteria :
-            
-
+        conv_criteria:
+        
         Returns
         -------
+        list
+            List of the data.
 
         """
         if isrelativeconvergence:
@@ -230,27 +233,28 @@ class Setup(object):
     @aedt_exception_handler
     def enable_expression_cache(self, expressions, report_type="Fields", intrinsics='', isconvergence=True,
                                 isrelativeconvergence=True, conv_criteria=1):
-        """Enable Setup Expression Cache
+        """Enable a setup expression cache.
 
         Parameters
         ----------
-        conv_criteria :
-            param isrelativeconvergence: (Default value = 1)
-        expressions :
-            Formula to be added to the expression cache. It can be a list or a string
-        report_type :
-            Report type of expression cache (eg. Fields). It can be a list or a string (same length of expression_list) (Default value = "Fields")
-        isconvergence :
-            Boolean if expression is in convergence criteria. It can be a list or a string (same length of expression_list) (Default value = True)
-        intrinsics :
-            List of Intrinsics of expression (if any). It can be a list or a string (same length of expression_list) (Default value = '')
-        isrelativeconvergence :
-             (Default value = True)
-
+        expressions : str or list
+            One or more formulas to add to the expression cache. 
+        report_type : str or list, optional
+            Type of report for the expression. The default is ``Fields``. If a list of expressions 
+            is supplied, supply a corresponding list of report types.
+        intrinsics : str or list, optional
+            Instrinsic expression for the expression. The default is ``""``. If a list of expressions 
+            is supplied, supply a corresponding list of intrinsic expressesions.
+        isconvergence, bool, str, or list, optional
+            Whether the expression is in the convergence criteria. The  default is ``True``.  
+            If a list of expressions is supplied, supply a corresponding list of Boolean values.
+        isrelativeconvergence : 
+            The default is ``1``.
+                
         Returns
         -------
-        type
-            none
+        bool
+            ``True`` when successful, ``False`` when failed.
 
         """
         arg = ["NAME:" + self.name]
@@ -263,17 +267,17 @@ class Setup(object):
 
     @aedt_exception_handler
     def add_derivatives(self, derivative_list):
-        """Add Derivatives to setup
+        """Add derivatives to the setup.
 
         Parameters
         ----------
-        derivative_list :
-            derivative list
+        derivative_list : list
+            List of derivatives.
 
         Returns
         -------
-        type
-            Bool
+        bool
+            ``True`` when successful, ``False`` when failed.
 
         """
         arg = ["NAME:" + self.name]
@@ -290,12 +294,13 @@ class Setup(object):
         Parameters
         ----------
         setup_name : str, optional
-            Name of the setup, by default ``None``
+            Name of the setup. The default is ``None``.
 
         Returns
         -------
         bool
-            ``True`` if successful, ``False`` otherwise.
+            ``True`` when successful, ``False`` when failed.
+            
         """
         if not setup_name:
             setup_name = self.name
@@ -316,12 +321,13 @@ class Setup(object):
         Parameters
         ----------
         setup_name : str, optional
-            Name of the setup, by default ``None``
+            Name of the setup. The default is ``None``.
 
         Returns
         -------
         bool
-            ``True`` if successful, ``False`` otherwise.
+            ``True`` when successful, ``False`` when failed.
+            
         """
         if not setup_name:
             setup_name = self.name
@@ -337,19 +343,19 @@ class Setup(object):
 
     @aedt_exception_handler
     def add_sweep(self, sweepname=None, sweeptype= "Interpolating"):
-        """Add a Sweep to the Project
+        """Add a sweep to the project.
 
         Parameters
         ----------
-        sweepname :
-            str Sweep Name (Default value = None)
-        sweeptype :
-            sweep type (Default value = "Interpolating")
+        sweepname : str, optional
+            Name of the sweep. The default is ``None``.
+        sweeptype : str, optional
+            Type of the sweep. The default is ``"Interpolating"``.
 
         Returns
         -------
         type
-            sweep object
+            Sweep object.
 
         """
         if not sweepname:
@@ -364,23 +370,27 @@ class Setup(object):
 
     @aedt_exception_handler
     def add_mesh_link(self, design_name, solution_name, parameters_dict, project_name="This Project*"):
-        """Add Mesh Link to another design. Design can be in the same project (default) or external project
-
+        """Add a mesh link to another design. 
+          
         Parameters
         ----------
-        project_name :
-            name of project "This Project*" by default
-        design_name :
-            str name of the design
-        solution_name :
-            str, name of solution in the format "setupname : solutionname". Optionally use appname.nominal_adaptive to get nominal adaptive or appname.nominal_sweep
-        parameters_dict :
-            dictionary of parameters. Optionally use appname.available_variations.nominal_w_values_dict property to get nominal values
+        design_name : str, 
+            Name of the design
+        solution_name : str
+            Name of solution in the format ``"setupname : solutionname"``. Optionally
+            use ``appname.nominal_adaptive`` to get the nominal adaptive or ``appname.nominal_sweep``
+            to get  the nominal sweep.
+        parameters_dict : dict
+            Dictionary of the parameters. Optionally use the ``appname.available_variations.nominal_w_values_dict`` 
+            property to get the nominal values.
+        project_name : str, optional
+            Name of the project with the design. The default is ``"This Project"``. 
+            However, you can supply the full path and name to another project.
 
         Returns
         -------
-        type
-            Bool
+        bool
+            ``True`` when successful, ``False`` when failed.
 
         """
         meshlinks = self.props["MeshLink"]
@@ -403,28 +413,26 @@ class Setup(object):
         return True
 
 class SetupCircuit(object):
-    """This Class defines the functions to initialize, create and update a Setup in Electronic Desktop
-
+    """SetupCircuit class.
+    
+    This class defines the functionalities needed to initialize, create, and update a circuit setup.
+    
     Parameters
     ----------
-    design :
-        AEDT oDesign module
-    setupmodule :
-        AEDT Module for Analysis Setup
-    setupname :
-        Setup Name
-    solutiontype :
-        Setup Type of Application.SolutionType
-    isnewsetup :
-        Boolean. True if is a new setup to be created from template. False to access existing Setup
-
-    Returns
-    -------
+    parent: str
+        AEDT module for analysis setup.
+    solutiontype: 
+        Type of the setup.
+    setupname: str, optional
+        Name of the setup. The default is ``"MySetupAuto"``.
+    isnewsetup: bool, optional
+      Whether to create the new setup from a template. The default is ``True.``
+      If ``False``, access is to the existing setup.     
 
     """
     @property
     def name(self):
-        """ """
+        """Name."""
         return self._Name
 
     @name.setter
@@ -445,7 +453,7 @@ class SetupCircuit(object):
 
     @property
     def parent(self):
-        """ """
+        """Parent object."""
         return self._parent
 
     @parent.setter
@@ -465,12 +473,12 @@ class SetupCircuit(object):
 
     @property
     def odesign(self):
-        """ """
+        """Design object."""
         return self._parent.odesign
 
     @property
     def omodule(self):
-        """ """
+        """Analysis module object."""
         return self._parent.oanalysis
 
     def __init__(self, parent,  solutiontype, setupname="MySetupAuto", isnewsetup=True):
@@ -499,15 +507,12 @@ class SetupCircuit(object):
 
     @aedt_exception_handler
     def create(self):
-        """Insert a new Setup based on Class settings into the AEDT Application
+        """Add a new setup based on class settings in AEDT.
         
-        :return: the argument list
-
-        Parameters
-        ----------
-
         Returns
         -------
+        list
+           List of arguments.
 
         """
         soltype = SetupKeys.SetupNames[self.setuptype]
@@ -522,15 +527,18 @@ class SetupCircuit(object):
 
         Parameters
         ----------
-        soltype :
+        soltype : str
+            Type of the solution.
             
         arg :
             
-        newsetup :
-             (Default value = True)
+        newsetup : bool, optional
+            Whether this is a new setup. The  default is ``True``.
 
         Returns
         -------
+        bool
+            ``True`` when successful, ``False`` when failed.
 
         """
         if newsetup:
@@ -555,17 +563,17 @@ class SetupCircuit(object):
 
     @aedt_exception_handler
     def update(self, update_dictionary=None):
-        """update the setup based on the class argument or to the updated dictionary passed as arcument
+        """Update the setup based on the class argument or a dictionary.
 
         Parameters
         ----------
-        update_dictionary :
-            optional dictionary of settings to apply (Default value = None)
+        update_dictionary : dict, optional
+            Dictionary of settings to apply. The default is ``None``.
 
         Returns
         -------
-        type
-            bool
+        bool
+            ``True`` when successful, ``False`` when failed.
 
         """
         if update_dictionary:
@@ -580,26 +588,28 @@ class SetupCircuit(object):
     @aedt_exception_handler
     def _expression_cache(self, expression_list, report_type_list, intrinsics_list, isconvergence_list,
                           isrelativeconvergence, conv_criteria):
-        """
+        """Retrieve data from the expression setup cache.
 
         Parameters
         ----------
-        expression_list :
+        expressions_list : list
+            List of formulas to retrieve. 
+        report_type_list : list
+            List of report types for the expressions. 
+        intrinsics_list : list
+            List of instrinsic expressions for the expressions. 
+        isconvergence_list : list
+            List of Boolean values indicating whether the expressions are in 
+            the convergence criteria.
+        isrelativeconvergence : 
             
-        report_type_list :
-            
-        intrinsics_list :
-            
-        isconvergence_list :
-            
-        isrelativeconvergence :
-            
-        conv_criteria :
-            
-
+        conv_criteria:
+        
         Returns
         -------
-
+        list
+            List of the data.
+        
         """
 
         if isrelativeconvergence:
@@ -668,28 +678,31 @@ class SetupCircuit(object):
     @aedt_exception_handler
     def enable_expression_cache(self, expressions, report_type="Fields", intrinsics='', isconvergence=True,
                                 isrelativeconvergence=True, conv_criteria=1):
-        """
+        """Enable a setup expression cache.
 
         Parameters
         ----------
-        conv_criteria :
-            param isrelativeconvergence: (Default value = 1)
-        expressions :
-            Formula to be added to the expression cache. It can be a list or a string
-        report_type :
-            Report type of expression cache (eg. Fields). It can be a list or a string (same length of expression_list) (Default value = "Fields")
-        isconvergence :
-            Boolean if expression is in convergence criteria. It can be a list or a string (same length of expression_list) (Default value = True)
-        intrinsics :
-            List of Intrinsics of expression (if any). It can be a list or a string (same length of expression_list) (Default value = '')
+        expressions : str or list
+            One or more formulas to add to the expression cache. 
+        report_type : str or list, optional
+            Type of report for the expression. The default is ``Fields``. If a list of expressions 
+            is supplied, supply a corresponding list of report types.
+        intrinsics : str or list, optional
+            Instrinsic expression for the expression. The default is ``""``. If a list of expressions 
+            is supplied, supply a corresponding list of intrinsic expressesions.
+        isconvergence, bool, str, or list, optional
+            Whether the expression is in the convergence criteria. The  default is ``True``.  
+            If a list of expressions is supplied, supply a corresponding list of Boolean values.
         isrelativeconvergence :
-             (Default value = True)
-
+            The default is ``True``.
+        conv_criteria
+            The default is ``1``.
+                
         Returns
         -------
-        type
-            none
-
+        bool
+            ``True`` when successful, ``False`` when failed.
+       
         """
         arg = ["Name:SimSetup"]
         dict2arg(self.props, arg)
@@ -701,17 +714,17 @@ class SetupCircuit(object):
 
     @aedt_exception_handler
     def add_derivatives(self, derivative_list):
-        """Add Derivatives to Setup
+        """Add derivatives to the setup.
 
         Parameters
         ----------
-        derivative_list :
-            derivative lists
+        derivative_list : list
+            List of derivatives.
 
         Returns
         -------
-        type
-            Bool
+        bool
+            ``True`` when successful, ``False`` when failed.
 
         """
         arg = ["Name:SimSetup"]
@@ -728,12 +741,13 @@ class SetupCircuit(object):
         Parameters
         ----------
         setup_name : str, optional
-            Name of the setup, by default ``None``
+            Name of the setup. The default is ``None``.
 
         Returns
         -------
         bool
-            ``True`` if successful, ``False`` otherwise.
+            ``True`` when successful, ``False`` when failed.
+            
         """
         if not setup_name:
             setup_name = self.name
@@ -747,12 +761,13 @@ class SetupCircuit(object):
         Parameters
         ----------
         setup_name : str, optional
-            Name of the setup, by default ``None``
+            Name of the setup. The default is ``None``.
 
         Returns
         -------
         bool
-            ``True`` if successful, ``False`` otherwise.
+            ``True`` when successful, ``False`` when failed.
+            
         """
         if not setup_name:
             setup_name = self.name
@@ -761,27 +776,27 @@ class SetupCircuit(object):
 
 
 class Setup3DLayout(object):
-    """This Class defines the functions to initialize, create and update a Setup in Electronic Desktop
-
+    """Setup3DLayout class.
+    
+    This class defines the functionalities needed to initialize, create, and update a 3D Layout setup.
+    
     Parameters
     ----------
-    setupmodule :
-        AEDT Module for Analysis Setup
-    setupname :
-        Setup Name
-    solutiontype :
-        Setup Type of Application.SolutionType
-    isnewsetup :
-        Boolean. True if is a new setup to be created from template. False to access existing Setup
-
-    Returns
-    -------
-
+    parent: str
+        AEDT module for analysis setup.
+    solutiontype: 
+        Type of the setup.
+    setupname: str, optional
+        Name of the setup. The default is ``"MySetupAuto"``.
+    isnewsetup: bool, optional
+      Whether to create the new setup from a template. The default is ``True.``
+      If ``False``, access is to the existing setup.
+    
     """
 
     @property
     def omodule(self):
-        """ """
+        """Analysis module."""
         return self.parent.oanalysis
 
     def __init__(self, parent, solutiontype, setupname="MySetupAuto", isnewsetup=True):
@@ -816,7 +831,14 @@ class Setup3DLayout(object):
 
     @property
     def setup_type(self):
-        """:return: setup type"""
+        """Setup type.
+        
+        Returns
+        -------
+        type
+            Setup type.
+        """
+        
         if 'SolveSetupType' in self.props:
             return self.props['SolveSetupType']
         else:
@@ -824,15 +846,12 @@ class Setup3DLayout(object):
 
     @aedt_exception_handler
     def create(self):
-        """Insert a new Setup based on Class settings into the AEDT Application
+        """Add a new setup based on class settings in AEDT.
         
-        :return: the argument list
-
-        Parameters
-        ----------
-
         Returns
         -------
+        list
+            List of arguments.
 
         """
         arg = ["NAME:" + self.name]
@@ -842,17 +861,17 @@ class Setup3DLayout(object):
 
     @aedt_exception_handler
     def update(self):
-        """update the setup based on the class argument or to the updated dictionary passed as arcument
+        """Update the setup based on the class argument or a dictionary.
 
         Parameters
         ----------
-        update_dictionary :
-            optional dictionary of settings to apply
+        update_dictionary : dict, optional
+            Dictionary of settings to apply.
 
         Returns
         -------
-        type
-            Bool
+        bool
+            ``True`` when successful, ``False`` when failed.
 
         """
         arg = ["NAME:" + self.name]
@@ -862,17 +881,17 @@ class Setup3DLayout(object):
 
     @aedt_exception_handler
     def enable(self):
-        """Enable specific Setup
+        """Enable a specific setup.
 
         Parameters
         ----------
-        setup_name :
-            optional setup name
+        setup_name : str, optional
+            Name of the setup.
 
         Returns
         -------
-        type
-            Bool
+        bool
+            ``True`` when successful, ``False`` when failed.
 
         """
         self.props['Properties']['Enable'] = "true"
@@ -881,17 +900,17 @@ class Setup3DLayout(object):
 
     @aedt_exception_handler
     def disable(self):
-        """Disable specific Setup
+        """Disable a specific setup.
 
         Parameters
         ----------
-        setup_name :
-            optional setup name
+        setup_name : str, optional
+            Name of the setup.
 
         Returns
         -------
-        type
-            Bool
+        bool
+            ``True`` when successful, ``False`` when failed.
 
         """
         self.props['Properties']['Enable'] = "false"
@@ -900,17 +919,17 @@ class Setup3DLayout(object):
 
     @aedt_exception_handler
     def export_to_hfss(self, file_fullname):
-        """Export Project to
+        """Export the project to a file.
 
         Parameters
         ----------
-        file_fullname :
-            fullname of desgintation
+        file_fullname : str
+            Full path and name to export to.
 
         Returns
         -------
-        type
-            Bool
+        bool
+            ``True`` when successful, ``False`` when failed.
 
         """
 
@@ -924,19 +943,19 @@ class Setup3DLayout(object):
 
     @aedt_exception_handler
     def add_sweep(self, sweepname=None, sweeptype="Interpolating"):
-        """Add Frequency Sweep
+        """Add a frequency sweep.
 
         Parameters
         ----------
-        sweepname :
-            str sweep name (Default value = None)
-        sweeptype :
-            str sweep type (Default value = "Interpolating")
+        sweepname : str, optional
+            Name of the sweep. The default is ``None``.
+        sweeptype : str, optional
+            The type of the sweep. The default is ``"Interpolating"``.
 
         Returns
         -------
         SweeHFSS3DLayout
-            sweep object
+            Sweep object.
 
         """
         if not sweepname:
