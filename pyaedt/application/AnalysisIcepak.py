@@ -84,9 +84,9 @@ class FieldAnalysisIcepak(Analysis, object):
         ----------
         ambienttemp : int, optional
             Ambient temperature, which can be an integer or a parameter already 
-            created in AEDT. The default is 20.)
+            created in AEDT. The default is 20.
         gravityDir : int, optional
-            Gravity direction index [0, 5]. The default is ``5``.
+            Gravity direction index in the range ``[0, 5]``. The default is ``5``.
         perform_minimal_val : bool, optional
             Whether to perform minimal validation. The default is ``True``. 
             When ``False``, full validation is performend.
@@ -144,7 +144,7 @@ class FieldAnalysisIcepak(Analysis, object):
         Example
         -------
             
-        >>>val = ipk.get_property_value('BoundarySetup:Source1', 'Total Power')
+        >>> val = ipk.get_property_value('BoundarySetup:Source1', 'Total Power')
 
         """
         boundary = {"HFSS": "HfssTab", "Icepak": "Icepak", "Q3D": "Q3D", "Maxwell3D": "Maxwell3D"}
@@ -186,7 +186,7 @@ class FieldAnalysisIcepak(Analysis, object):
         Parameters
         ----------
         design : str
-            Starting application object. For example, ``hfss1= HFSS3DLayout``.
+            Starting application object. For example, ``'hfss1=HFSS3DLayout'``.
         object_list : list, optional
             List of objects to copy. The default is ``None``.
         no_vacuum : bool, optional
@@ -289,7 +289,7 @@ class FieldAnalysisIcepak(Analysis, object):
         bool
             ``True`` when successful, ``False`` when failed.
 
-"""
+        """
         try:
             if "@" not in val:
                 value = float(val)
