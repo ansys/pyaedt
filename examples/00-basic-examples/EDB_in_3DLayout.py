@@ -7,13 +7,16 @@ This Example shows how to use HFSS3DLayout combined with EDB to interact with a 
 # sphinx_gallery_thumbnail_path = 'Resources/edb2.png'
 
 
-import sys
 import os
-import pathlib
-import shutil
 
 from pyaedt import generate_unique_name
-temp_folder = os.path.join(os.environ["TEMP"], generate_unique_name("Example"))
+
+if os.name == "posix":
+    tmpfold = os.environ["TMPDIR"]
+else:
+    tmpfold = os.environ["TEMP"]
+
+temp_folder = os.path.join(tmpfold, generate_unique_name("Example"))
 if not os.path.exists(temp_folder): os.makedirs(temp_folder)
 print(temp_folder)
 ######################################
@@ -125,18 +128,16 @@ bot.update_stackup_layer()
 h3d.modeler.fit_all()
 
 
-######################################
 
-# Enable and run the following command to close the desktop
-h3d.close_project()
 
 ###############################################################################
 # Close Desktop
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # After the simulaton is completed user can close the desktop or release it (using release_desktop method).
 # All methods give possibility to save projects before exit
-
-d.force_close_desktop()
+if os.name != "posix":
+    h3d.close_project()
+    d.force_close_desktop()
 
 
 

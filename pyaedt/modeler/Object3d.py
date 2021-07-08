@@ -590,6 +590,7 @@ class Object3d(object):
         self._bounding_box = None
         self._object_type = None
         self._material_name = self._parent.defaultmaterial
+        self._surface_material = None
         self._solve_inside = None
 
     @property
@@ -728,11 +729,26 @@ class Object3d(object):
     def material_name(self, mat):
         if self._parent.materials.checkifmaterialexists(mat):
             self._material_name = mat
-            vMaterial = ["NAME:Material", "Material:=", mat]
+            vMaterial = ["NAME:Material", "Value:=", chr(34)+mat+chr(34)]
             self._change_property(vMaterial)
             self._material_name = mat
         else:
             self.messenger.add_warning_message("Material {} does not exist".format(mat))
+
+    @property
+    def surface_material_name(self):
+        """Get or set the material name of the object
+        If the material does not exist, then send a warning and do nothing
+        """
+        return self._surface_material
+
+    @surface_material_name.setter
+    def surface_material_name(self, surf_matname):
+        self._surface_material = surf_matname
+        vMaterial = ["NAME:Surface Material", "Value:=", chr(34)+surf_matname+chr(34)]
+        if not self._change_property(vMaterial):
+            self.messenger.add_warning_message("Material {} does not exist".format(surf_matname))
+
 
     @property
     def id(self):
@@ -1049,7 +1065,7 @@ class Object3d(object):
             else:
                 self._color = (0, 195, 255)
         if 'Surface Material' in all_prop:
-            self.m_surfacematerial = retry_ntimes(n, self.m_Editor.GetPropertyValue,
+            self._surface_material = retry_ntimes(n, self.m_Editor.GetPropertyValue,
                                                "Geometry3DAttributeTab", self._m_name, 'Surface Material')
 
 class Padstack(object):

@@ -219,6 +219,8 @@ class FieldAnalysisIcepak(Analysis, object):
             self.modeler.oeditor.AssignMaterial(arg1, arg2)
             self._messenger.add_info_message('Assign Material ' + mat + ' to object ' + selections)
             self.materials._aedmattolibrary(mat)
+            for el in obj:
+                self.modeler.primitives[el]._material_name = mat
             return True
         elif self.materials.checkifmaterialexists(mat):
             Mat = self.materials.material_keys[mat]
@@ -228,6 +230,8 @@ class FieldAnalysisIcepak(Analysis, object):
                 arg2.append("SolveInside:="), arg2.append(False)
             self.modeler.oeditor.AssignMaterial(arg1, arg2)
             self._messenger.add_info_message('Assign Material ' + mat + ' to object ' + selections)
+            for el in obj:
+                self.modeler.primitives[el]._material_name = mat
             return True
         else:
             self._messenger.add_error_message("Material Does Not Exists")
@@ -315,27 +319,30 @@ class FieldAnalysisIcepak(Analysis, object):
                             md == mat]
             list_mat_obj = [mo for mo in list_mat_obj if mo in all_objs]
             if list_mat_obj:
-                if not self.materials.checkifmaterialexists(mat):
-                    newmat = self.materials.creatematerial(mat)
-                    if "Material Density" in material_data:
-                        value = material_data["Material Density"][i]
-                        self._assign_property_to_mat(newmat, value, newmat.PropName.MassDensity)
-                    if "Thermal Conductivity" in material_data:
-                        value = material_data["Thermal Conductivity"][i]
-                        self._assign_property_to_mat(newmat, value, newmat.PropName.ThermalConductivity)
-                    if "Material CTE" in material_data:
-                        value = material_data["Material CTE"][i]
-                        self._assign_property_to_mat(newmat, value, newmat.PropName.ThermalExpCoeff)
-                    if "Poisson Ratio" in material_data:
-                        value = material_data["Poisson Ratio"][i]
-                        self._assign_property_to_mat(newmat, value, newmat.PropName.PoissonsRatio)
-                    if "Elastic Modulus" in material_data:
-                        value = material_data["Elastic Modulus"][i]
-                        self._assign_property_to_mat(newmat, value, newmat.PropName.YoungsModulus)
-                    newmat.update()
+                if not self.materials.checkifmaterialexists(mat.lower()):
+                    newmat = self.materials.add_material(mat.lower())
+                else:
+                    newmat = self.materials[mat.lower()]
+                if "Material Density" in material_data:
+                    value = material_data["Material Density"][i]
+                    newmat.mass_density = value
+                if "Thermal Conductivity" in material_data:
+                    value = material_data["Thermal Conductivity"][i]
+                    newmat.thermal_conductivity = value
+                if "Material CTE" in material_data:
+                    value = material_data["Material CTE"][i]
+                    newmat.thermal_expansion_coefficient = value
+                if "Poisson Ratio" in material_data:
+                    value = material_data["Poisson Ratio"][i]
+                    newmat.poissons_ratio = value
+                if "Elastic Modulus" in material_data:
+                    value = material_data["Elastic Modulus"][i]
+                    newmat.youngs_modulus = value
                 self.assignmaterial(list_mat_obj, mat)
+
                 for o in list_mat_obj:
-                    self.modeler.primitives.objects[self.modeler.primitives.get_obj_id(o)].material_name = mat
+                    if self.modeler.primitives.objects[self.modeler.primitives.get_obj_id(o)].surface_material_name == '""':
+                        self.modeler.primitives.objects[self.modeler.primitives.get_obj_id(o)].surface_material_name = "Steel-oxidised-surface"
             i += 1
             all_objs = [ao for ao in all_objs if ao not in list_mat_obj]
         return True

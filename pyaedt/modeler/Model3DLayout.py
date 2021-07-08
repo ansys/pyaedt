@@ -38,15 +38,16 @@ class Modeler3DLayout(Modeler):
     @property
     def edb(self):
         """ """
-        edb_folder = os.path.join(self._parent.project_path, self._parent.project_name + ".aedb")
-        edb_file = os.path.join(edb_folder, "edb.def")
-        _mttime = os.path.getmtime(edb_file)
-        if _mttime != self._mttime:
-            if self._edb:
-                self._edb.close_edb()
-            self._edb = Edb(edb_folder, self._parent.design_name, True, self._parent._aedt_version,
-                            isaedtowned=True, oproject=self._parent.oproject)
-            self._mttime = _mttime
+        if os.name != "posix":
+            edb_folder = os.path.join(self._parent.project_path, self._parent.project_name + ".aedb")
+            edb_file = os.path.join(edb_folder, "edb.def")
+            _mttime = os.path.getmtime(edb_file)
+            if _mttime != self._mttime:
+                if self._edb:
+                    self._edb.close_edb()
+                self._edb = Edb(edb_folder, self._parent.design_name, True, self._parent._aedt_version,
+                                isaedtowned=True, oproject=self._parent.oproject)
+                self._mttime = _mttime
         return self._edb
 
     @property

@@ -9,15 +9,16 @@ in Q3D and run a simulation
 # Import Packages
 # Setup The local path to the Path Containing AEDTLIb
 import os
-import pathlib
 
-local_path = os.path.abspath('')
-module_path = pathlib.Path(local_path)
-aedt_lib_path = module_path.parent.parent.parent
 from pyaedt import examples, generate_unique_name
 project_full_name = examples.download_sbr()
 project_name = os.path.basename(project_full_name)[:-5]
-temp_folder = os.path.join(os.environ["TEMP"], generate_unique_name("SBR"))
+if os.name == "posix":
+    tmpfold = os.environ["TMPDIR"]
+else:
+    tmpfold = os.environ["TEMP"]
+
+temp_folder = os.path.join(tmpfold, generate_unique_name("SBR"))
 if not os.path.exists(temp_folder):
     os.mkdir(temp_folder)
 from pyaedt import Hfss
@@ -54,5 +55,5 @@ variations["Freq"] = ["10GHz"]
 variations["Theta"] = ["All"]
 variations["Phi"] = ["All"]
 target.post.create_rectangular_plot("db(GainTotal)",target.nominal_adaptive, variations, "Theta", "ATK_3D",plottype="Far Fields")
-
-target.close_desktop()
+if os.name != "posix":
+    target.close_desktop()
