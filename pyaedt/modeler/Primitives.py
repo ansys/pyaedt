@@ -114,13 +114,13 @@ class Polyline(Object3d):
         default is ``None``.
     xsection_width : float or str, optional
         Width or diameter of the cross-section for all types. The default is
-        ``0``.
+        ``1``.
     xsection_topwidth : float or str, ooptional
         Top width of the cross-section for type ``"Isosceles Trapezoid"`` only.
-        The default is ``0``.
+        The default is ``1``.
     xsection_height : float or str, optional
         Height of the cross-section for type ``"Rectangle"`` or ``"Isosceles
-        Trapezoid"`` only. The default is ``0``.
+        Trapezoid"`` only. The default is ``1``.
     xsection_num_seg : int, optional
         Number of segments in the cross-section surface for types ``"Circle"``,
         ``"Rectangle"`` or ``"Isosceles Trapezoid"``. The default is ``0``.
@@ -145,7 +145,7 @@ class Polyline(Object3d):
     @aedt_exception_handler
     def __init__(self, parent, src_object=None, position_list=None, segment_type=None, cover_surface=False,
                  close_surface=False, name=None, matname=None, xsection_type=None, xsection_orient=None,
-                 xsection_width=0, xsection_topwidth=0, xsection_height=0,
+                 xsection_width=1, xsection_topwidth=1, xsection_height=1,
                  xsection_num_seg=0, xsection_bend_type=None):
 
         self._parent = parent
@@ -1396,7 +1396,7 @@ class Primitives(object):
         return added_objects
 
     #TODO Eliminate this - check about import_3d_cad
-    # Shoudl no longer be a problem
+    # Should no longer be a problem
     @aedt_exception_handler
     def refresh_all_ids(self):
 
@@ -2512,7 +2512,7 @@ class Primitives(object):
         o = Object3d(self, name)
         self.objects[o.id] = o
         self.object_id_dict[o.name] = o.id
-        #self.add_new_objects()
+
         return o
 
     def _refresh_all_ids_from_aedt_file(self):
@@ -2599,7 +2599,7 @@ class Primitives(object):
 
         return args
 
-    def _crosssection_arguments(self, type=None, orient=None, width=0, topwidth=0, height=0, num_seg=0, bend_type=None):
+    def _crosssection_arguments(self, type, orient, width, topwidth, height, num_seg, bend_type=None):
         """Generate the properties array for the polyline cross-section.
         """
         arg_str = ["NAME:PolylineXSection"]

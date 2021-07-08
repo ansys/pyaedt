@@ -807,8 +807,6 @@ class TestPrimitives(BasisTest):
         self.aedtapp.modeler.primitives.get_closest_edgeid_to_position([0.2,0,0])
 
     @pyaedt_unittest_check_desktop_error
-    @pytest.mark.skipif(config["skip_space_claim"] == True or config["build_machine"] == True,
-                        reason="Skipped because SpaceClaim is not installed on Build Machine")
     def test_48_import_space_claim(self):
         self.aedtapp.insert_design("SCImport")
         assert self.aedtapp.modeler.import_spaceclaim_document(os.path.join(self.local_scratch.path, scdoc))
@@ -820,3 +818,14 @@ class TestPrimitives(BasisTest):
         assert self.aedtapp.modeler.import_3d_cad(os.path.join(self.local_scratch.path, step))
         assert len(self.aedtapp.modeler.primitives.objects) == 1
         pass
+
+    @pyaedt_unittest_check_desktop_error
+    def test_create_equationbased_curve(self):
+
+        eq_line = self.aedtapp.modeler.primitives.create_equationbased_curve(x_t="_t", y_t="_t*2", num_points = 0)
+        assert len(eq_line.edges) == 1
+        eq_segmented = self.aedtapp.modeler.primitives.create_equationbased_curve(x_t="_t", y_t="_t*2", num_points = 5)
+        assert len(eq_segmented.edges) == 4
+
+        eq_xsection = self.aedtapp.modeler.primitives.create_equationbased_curve(x_t="_t", y_t="_t*2", xsection_type="Circle")
+        assert eq_xsection in self.aedtapp.modeler.primitives.solids

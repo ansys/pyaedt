@@ -470,7 +470,7 @@ class Primitives3D(Primitives, object):
     @aedt_exception_handler
     def create_equationbased_curve(self, x_t=0, y_t=0, z_t=0, t_start=0, t_end=1, num_points = 0,
                                    name=None, xsection_type=None, xsection_orient=None,
-                                   xsection_width=0, xsection_topwidth=0, xsection_height=0,xsection_num_seg=0,
+                                   xsection_width=1, xsection_topwidth=1, xsection_height=1, xsection_num_seg=0,
                                    xsection_bend_type=None):
         """
 
