@@ -1,5 +1,5 @@
 """
-This module contains these Primitives classes: ``Polyline`` and ``Primitives``.
+This module contains these Primitives classes: `Polyline` and `Primitives`.
 """
 from __future__ import absolute_import
 import sys
@@ -31,7 +31,7 @@ class PolylineSegment():
     Parameters
     ----------
     type : str
-        Type of the object. Choices are ``Line``, ``Arc``, ``Spline``, and ``AngularArc``.
+        Type of the object. Options are ``Line``, ``Arc``, ``Spline``, and ``AngularArc``.
     num_seg: int, optional
         Number of segments for the type ``Arc``, ``Spline``, or ``AngularArc``.
         The default is ``0``. If the type is ``Line``, this parameter is ignored.
@@ -81,7 +81,7 @@ class Polyline(object):
 
     This class provides methods for creating and manipulating polyline objects within 
     the AEDT Modeler. Intended usage is for the constructor of this class to be called
-    by the ``Primitives.draw_polyline`` method. The documentation is provided there.
+    by the `Primitives.draw_polyline` method. The documentation is provided there.
 
     The returned polyline object exposes the methods for manipulation of the polyline:
 
@@ -103,28 +103,28 @@ class Polyline(object):
     matname : str, optional
         Name of the material. The default is ''None``.
     xsection_type : str, optional
-        Cross-section type. Choices are ``"Line"``, ``"Circle"``, ``"Rectangle"`` 
+        Type of the cross-section. Options are ``"Line"``, ``"Circle"``, ``"Rectangle"`` 
         and ``"Isosceles Trapezoid"``. The default is ``None``.
     xsection_orient : str, optional
         Direction of the normal vector to the width of the cross-section. 
-        Choices are ``"X"``, ``"Y"``, ``"Z"``, and ``"Auto"``. The 
+        Options are ``"X"``, ``"Y"``, ``"Z"``, and ``"Auto"``. The 
         default is ``None``.
     xsection_width : float or str, optional
         Width or diameter of the cross-section for all types. The default is
         ``0``.
     xsection_topwidth : float or str, ooptional
-        Top width of the cross-section for type ``"Isosceles Trapezoid"`` only.
+        Top width of the cross-section for the type ``"Isosceles Trapezoid"`` only.
         The default is ``0``.
     xsection_height : float or str, optional
-        Height of the cross-section for type ``"Rectangle"`` or ``"Isosceles 
+        Height of the cross-section for the type ``"Rectangle"`` or ``"Isosceles 
         Trapezoid"`` only. The default is ``0``.
     xsection_num_seg : int, optional
-        Number of segments in the cross-section surface for types ``"Circle"``, 
+        Number of segments in the cross-section surface for the type ``"Circle"``, 
         ``"Rectangle"`` or ``"Isosceles Trapezoid"``. The default is ``0``. 
         The value must be ``0`` or greater than ``2``.
     xsection_bend_type : str, optional
-        Type of the bend. The default is ``None``, which sets the bend type
-        to ``"Corner"``. For the type ``"Circle"``, the bend type 
+        Type of the bend. The default is ``None``, in which case the bend type
+        is set to ``"Corner"``. For the type ``"Circle"``, the bend type 
         should be set to ``"Curved"``.
         
     Methods
@@ -137,7 +137,7 @@ class Polyline(object):
         
     See Also
     --------
-    The constructor is intended to be called from the ``Primitives.draw_polyline`` method.
+    The constructor is intended to be called from the `Primitives.draw_polyline` method.
     """
     @aedt_exception_handler
     def __init__(self, parent, position_list=None, object_id=None, segment_type=None, cover_surface=False,
@@ -249,7 +249,7 @@ class Polyline(object):
 
     @aedt_exception_handler
     def _crosssection(self, type=None, orient=None, width=0, topwidth=0, height=0, num_seg=0, bend_type=None):
-        """Generate the properties array for the polyline cross-section.
+        """Generate an array of properties for the polyline cross-section.
         """
         arg_str = ["NAME:PolylineXSection"]
 
@@ -285,9 +285,9 @@ class Polyline(object):
 
     @aedt_exception_handler
     def _pl_point(self, pt):
-        """Property array data for a polyline point.
+        """Retrieve an array of property data for a polyline point.
 
-        Generate the XYZ point data property array for AEDT. The X, Y, and Z coordinates are taken
+        Generate the property array for the XYZ point data. The X, Y, and Z coordinates are taken
         from the first three elements of the point. Numeric values are converted to strings with model units.
 
         Parameters
@@ -311,10 +311,10 @@ class Polyline(object):
 
     @aedt_exception_handler
     def _point_segment_string_array(self):
-        """Retrieve a parameter array for points and segments.
+        """Retrieve an array of parameter data for points and segments.
 
-        Returns the parameter array required to specify the points and segments of a polyline
-        for use in the AEDT API command ``CreatePolyline``.
+        Returns the array of parameters required to specify the points and segments of a polyline
+        for use in the AEDT API method `CreatePolyline`.
 
         Returns
         -------
@@ -371,7 +371,7 @@ class Polyline(object):
                 else:
                     current_segment = segment_types[vertex_count]
             except IndexError:
-                raise ("Number of segments inconsistent with the number of points!")
+                raise ("Number of segments is inconsistent with the number of points.")
 
             if current_segment:
                 seg_str = self._segment_array(current_segment, start_index=index_count, start_point=position_list[pos_count])
@@ -388,7 +388,7 @@ class Polyline(object):
                             if current_segment.type == "Arc" and self._is_closed:
                                 position_list.append(position_list[0])
                             else:
-                                err_str = "Insufficient points in position_list to complete the specified segment list"
+                                err_str = "There are insufficient points in the position list to complete the specified segment list."
                                 raise IndexError(err_str)
                         points_str.append(self._pl_point(position_list[pos_count + i]))
                         pos_count_incr += 1
@@ -408,10 +408,10 @@ class Polyline(object):
 
     @aedt_exception_handler
     def _segment_array(self, segment_data, start_index=0, start_point=None):
-        """Retrieve a property array for a polyline segment.
+        """Retrieve an array of properties for a polyline segment.
 
-        Returns a list containing parameters for an individual segment of a polyline
-        to use in the command ``CreatePolyline`` in the AEDT API.
+        Returns an array of parameters for an individual segment of a polyline
+        to use in the AEDT API method `CreatePolyline`.
 
         Parameters
         ----------
@@ -509,7 +509,8 @@ class Polyline(object):
 
         Returns
         -------
-        Polyline
+        type
+            Polyline object created.
 
         Examples
         --------
@@ -607,7 +608,7 @@ class Polyline(object):
         Parameters
         ----------
         edge_id : int or list of int
-            One or more edge IDs within the total number of edges within the polyline.            
+            One or more edge IDs within the total number of edges in the polyline.            
         
         Returns
         -------
@@ -639,28 +640,28 @@ class Polyline(object):
         Parameters
         ----------
         type : str, optional
-            Cross-section type. Choices are ``"Line"``, ``"Circle"``, ``"Rectangle"`` 
+            Types of the cross-sections. Options are ``"Line"``, ``"Circle"``, ``"Rectangle"`` 
             and ``"Isosceles Trapezoid"``. The default is ``None``.
         orient : str, optional
             Direction of the normal vector to the width of the cross-section. 
-            Choices are ``"X"``, ``"Y"``, ``"Z"``, and ``"Auto"``. The default 
+            Options are ``"X"``, ``"Y"``, ``"Z"``, and ``"Auto"``. The default 
             is ``None``, which sents the orientation to ``"Auto"``.
         width : float or str, optional
            Width or diameter of the cross-section for all types. The default is
            ``0``.
         topwidth : float or str
-           Top width of the cross-section for type ``"Isosceles Trapezoid"`` 
+           Top width of the cross-section for the type ``"Isosceles Trapezoid"`` 
            only. The default is ``0``.
         height : float or str
-            Height of the cross-section for type ``"Rectangle"`` or ``"Isosceles 
+            Height of the cross-section for the type ``"Rectangle"`` or ``"Isosceles 
             Trapezoid"`` only. The default is ``0``.
         num_seg : int, optional
-            Number of segments in the cross-section surface for types ``"Circle"``, 
+            Number of segments in the cross-section surface for the type ``"Circle"``, 
             ``"Rectangle"`` or ``"Isosceles Trapezoid"``. The default is ``0``. 
             The value must be ``0`` or greater than ``2``.
         bend_type : str, optional
-            Type of the bend. The default is ``None``, which sets the bend type
-            to ``"Corner"``. For the type ``"Circle"``, the bend type should be 
+            Type of the bend. The default is ``None``, in which case the bend type
+            is set to ``"Corner"``. For the type ``"Circle"``, the bend type should be 
             set to ``"Curved"``.
 
         Returns
@@ -730,7 +731,7 @@ class Polyline(object):
         segment: str or PolylineSegment
             Definition of the segment to insert. Valid string values are 
             ``"Line"`` or ``"Arc"``. Otherwise use ``"PolylineSegment"`` 
-            to define the segment precicesly for the types ``"AngularArc"`` 
+            to define the segment precicesly for the type ``"AngularArc"`` 
             or ``"Spline"``.
 
         Returns
@@ -823,32 +824,32 @@ class Primitives(object):
 
     @property
     def non_models(self):
-        """List of all objects of type 'Solid'"""
+        """List of all objects of type ``"Solid"``.`""
         return self._nonmodels
 
     @property
     def solids(self):
-        """List of all objects of type 'Solid'"""
+        """List of all objects of type ``"Solid"``."
         return self._solids
 
     @property
     def sheets(self):
-        """List of all objects of type 'Sheet'"""
+        """List of all objects of type ``"Sheet"``."""
         return self._sheets
 
     @property
     def lines(self):
-        """List of all objects of type 'Line'"""
+        """List of all objects of type ``"Line"``."""
         return self._lines
 
     @property
     def object_names(self):
-        """List of all objects of type 'Line'"""
+        """List of all objects of type ``"Line"``."""
         return self._all_object_names
 
     @aedt_exception_handler
     def __getitem__(self, partId):
-        """Return the object ``Object3D`` for a given object ID or object name.
+        """Return the object `Object3D` for a given object ID or object name.
 
         Parameters
         ----------
@@ -886,56 +887,57 @@ class Primitives(object):
 
     @property
     def oproject(self):
-        """ """
+        """Project objecd."""
         return self._parent.oproject
 
     @property
     def odesign(self):
-        """ """
+        """Design object."""
         return self._parent.odesign
 
     @property
     def materials(self):
-        """ """
+        """Materials."""
         return self._parent.materials
 
     @property
     def defaultmaterial(self):
-        """ """
+        """Default material."""
         return default_materials[self._parent._design_type]
 
     @property
     def variable_manager(self):
+        """Variable manager."""
         return self._parent.variable_manager
 
     @property
     def messenger(self):
-        """ """
+        """Messenger."""
         return self._parent._messenger
 
     @property
     def version(self):
-        """ """
+        """AEDT version."""
         return self._parent._aedt_version
 
     @property
     def modeler(self):
-        """ """
+        """Modeler."""
         return self._modeler
 
     @property
     def design_types(self):
-        """ """
+        """Design types."""
         return self._parent._modeler
 
     @property
     def oeditor(self):
-        """ """
+        """Editor object."""
         return self.modeler.oeditor
 
     @property
     def model_units(self):
-        """ """
+        """Model units."""
         return self.modeler.model_units
 
     @aedt_exception_handler
@@ -1018,20 +1020,20 @@ class Primitives(object):
 
     @aedt_exception_handler
     def value_in_object_units(self, value):
-        """Convert a numerical length string, such as ``10mm`` to a floating point value.
+        """Convert a numerical length string, such as ``"10mm"`` to a floating point value.
 
-        Converts a numerical length string, such as ``10mm``, to a floating point value 
+        Converts a numerical length string, such as ``"10mm"``, to a floating point value 
         in the defined object units ``self.object_units``. If a list of such objects is 
         given, the entire list is converted.
 
         Parameters
         ----------
         value : string or list of strings
-            Numerical length string to convert.
+            One or more numerical length strings to convert.
         
         Returns
         -------
-        float or list of floats
+            float or list of floats
         """
         # Convert to a list if a scalar is presented
 
@@ -1062,13 +1064,15 @@ class Primitives(object):
 
     @aedt_exception_handler
     def does_object_exists(self, object):
-        """"
+        """"Check to see if an object exits.
+        
         Parameters
         ----------
         object : 
             Object name or object ID.
         
-        Returns: 
+        Returns
+        -------
         bool
             ``True`` when successful, ``False`` when failed
         """
@@ -1139,7 +1143,7 @@ class Primitives(object):
         Returns
         -------
         int
-            Object ID.
+            ID of the object.
         """
         o = self._new_object()
 
@@ -1172,7 +1176,7 @@ class Primitives(object):
         Returns
         -------
         int
-            Object ID.
+            ID of the object.
         """
         o = self._new_object()
 
@@ -1228,11 +1232,11 @@ class Primitives(object):
             Name of the material. The default is ``None``, in which case a name
             is automatically assigned. 
         xsection_type : str, optional
-            Type of the cross-section. Choices are ``"Line"``, ``"Circle"``, 
+            Type of the cross-section. Options are ``"Line"``, ``"Circle"``, 
             ``"Rectangle"``, and ``"Isosceles Trapezoid"``. The default is ``None``.
         xsection_orient : str, optional
             Direction of the normal vector to the width of the cross-section.
-            Choices are ``"X"``, ``"Y"``, ``"Z"``, and ``"Auto"``. The default is 
+            Options are ``"X"``, ``"Y"``, ``"Z"``, and ``"Auto"``. The default is 
             ``None``, which sets the direction to ``"Auto"``.
         xsection_width : float or str, optional
             Width or diameter of the cross-section for all  types. The 
@@ -1244,20 +1248,21 @@ class Primitives(object):
             Height of the cross-section for type ``"Rectangle"`` or ``"Isosceles 
             Trapezoid"`` only. The default is ``1``.
         xsection_num_seg : int, optional
-            Number of segments in the cross-section surface for types ``"Circle"``, 
+            Number of segments in the cross-section surface for type ``"Circle"``, 
             ``"Rectangle"``, or ``"Isosceles Trapezoid"``. The default is ``0``. The
             value must be ``0`` or greater than ``2``.
         xsection_bend_type : str, optional
-            Type of the bend for the cross-section. The default is ``None``, which sets
-            the bend type to ``"Corner"``. For the type ``"Circle"``, the bend type 
+            Type of the bend for the cross-section. The default is ``None``, in which 
+            case the bend type is set to ``"Corner"``. For the type ``"Circle"``, the bend type 
             should be set to ``"Curved"``.
         
         Returns
         -------
         Polyline
-            Object with additional methods for manipulating the polyline.  For example,
-            ``insert_segment``. The object ID of the created polyline can be accessed
-            via ``Polyline.id``.
+            Object with additional methods for manipulating the polyline.  
+            
+            For example, `insert_segment`. The object ID of the created polyline can be accessed
+            via `Polyline.id`.
 
         Examples
         -------
@@ -1298,14 +1303,15 @@ class Primitives(object):
         >>> P4 = primitives.create_polyline(test_points, segment_type="Spline", name="PL_spline",
         ...                               xsection_type="Circle", xsection_width="1mm")
 
-        Use the ``PolylineSegment`` object to specify more detail about the individual segments.
+        Use the `PolylineSegment` object to specify more detail about the individual segments.
         Create a center point arc starting from the position ``test_points[1]``, rotating 
-        about the center point position ``test_points[0]` in the XY plane.
+        about the center point position ``test_points[0]`` in the XY plane.
         
         >>> start_point = test_points[1]
         >>> center_point = test_points[0]
         >>> segment_def = PolylineSegment(type="AngularArc", arc_center=center_point, arc_angle="90deg", arc_plane="XY")
         >>> primitives.create_polyline(start_point, segment_type=segment_def, name="PL_center_point_arc")
+        
         """
         new_polyline = Polyline(parent=self, position_list=position_list, segment_type=segment_type,
                                 cover_surface=cover_surface, close_surface=close_surface, name=name,
@@ -1325,7 +1331,8 @@ class Primitives(object):
 
         Returns
         -------
-        Polyline
+        type
+            Polyline
         """
         return Polyline(self, object_id=object_id)
 
@@ -1349,7 +1356,7 @@ class Primitives(object):
         Returns
         -------
         type
-            Object ID.
+            ID of the object.
         """
         o = self._new_object()
 
@@ -1524,7 +1531,7 @@ class Primitives(object):
         Returns
         -------
         type
-            Object iD.
+            Object ID.
         """
         if objname in self.objects_names:
             if self.objects_names[objname] in self.objects:
@@ -1571,8 +1578,8 @@ class Primitives(object):
 
         Returns
         -------
-        type
-            Objects lists.
+        list
+            List of model objects.
 
         """
         list_objs = []
@@ -1747,7 +1754,7 @@ class Primitives(object):
 
     @aedt_exception_handler
     def get_all_objects_names(self, refresh_list=False, get_solids=True, get_sheets=True, get_lines=True):
-        """Retrieve the names of all object in the design.
+        """Retrieve the names of all objects in the design.
 
         Parameters
         ----------
@@ -1894,7 +1901,7 @@ class Primitives(object):
             Name of the ending object.
         port_direction : str, optional 
             Direction of the port to which to give edges precedence when more than two couples 
-            are at the same distance. Choices are ``"XNeg"``, ``"XPos"``, ``"YNeg"``, 
+            are at the same distance. Options are ``"XNeg"``, ``"XPos"``, ``"YNeg"``, 
             ``"YPos`"``, ``"ZNeg"``, and ``"ZPos"``. The default is ``0``.
 
         Returns
@@ -2004,7 +2011,7 @@ class Primitives(object):
             Whether edges are to be on the plane orthogonal to the axis direction.
             The default is ''True``.
         axisdir : int, optional
-            Axis direction. Choices are ``0`` through ``5``. The default is ``0``.
+            Axis direction. Options are ``0`` through ``5``. The default is ``0``.
         startobj : str, optional
              Name of the starting object. The default is ``""``.
         endobject : str, optional
@@ -2160,8 +2167,8 @@ class Primitives(object):
         Parameters
         ----------
         face_id : int or str
-            Object ID or object name (string), which is available 
-            using ``get_object_vertices``.
+            Object ID or object name, which is available 
+            using the method `get_object_vertices`.
 
         Returns
         -------
@@ -2206,7 +2213,7 @@ class Primitives(object):
         ----------
         edgeID : int, str
             Object ID or object name, which is available using 
-            ``get_object_vertices``.
+            `get_object_vertices`.
 
         Returns
         -------
@@ -2223,7 +2230,7 @@ class Primitives(object):
 
     @aedt_exception_handler
     def get_vertex_position(self, vertex_id):
-        """Retrieves a vector of vertex coordinates.
+        """Retrieve a vector of vertex coordinates.
 
         Parameters
         ----------
@@ -2296,10 +2303,11 @@ class Primitives(object):
         sheet :
 
         axisdir : int
-            Axis direction. Coices are ``0`` through ``5``.
+            Axis direction. Options are ``0`` through ``5``.
 
         Returns
         -------
+        
         """
         edgesid = self.get_object_edges(sheet)
         id =divmod(axisdir,3)[1]
@@ -2363,7 +2371,7 @@ class Primitives(object):
         position :
             ApplicationName.modeler.Position(x,y,z) object
         units : str, optional
-            Units, such as ``"m''``. The default is ``None``, which means that the
+            Units, such as ``"m''``. The default is ``None``, in which case the
             model units are used.
 
         Returns
@@ -2389,11 +2397,11 @@ class Primitives(object):
         position :
             ApplicationName.modeler.Position(x,y,z) object
         obj_name : str, optional
-            Name of the object. The default is ``None``, which means that all 
-            objects are to be searched. 
+            Name of the object. The default is ``None``, in which case all 
+            objects are searched. 
         units : str, optional
             Units for the position, such as ``"m"``. The default is ``None``, 
-            which means the model units are used.
+            in which case the model units are used.
 
         Returns
         -------
@@ -2441,7 +2449,7 @@ class Primitives(object):
         Returns
         -------
         type
-            An array of edge IDs.
+            Array of edge IDs.
         """
         edgeID = []
         edges = self.get_object_edges(obj_name)
@@ -2461,10 +2469,10 @@ class Primitives(object):
         position :
             ApplicationName.modeler.Position(x,y,z) object
         obj_name : str, optional
-            Name of the object. The default is ``None``, which means that all 
-            objects are to be searched. 
+            Name of the object. The default is ``None``, in which case all 
+            objects are searched. 
         units : str, optional
-            Units, such as ``"m"``. The default is ``None``, which means that the
+            Units, such as ``"m"``. The default is ``None``, in which case the
             model units are used. 
         
         Returns
@@ -2507,7 +2515,7 @@ class Primitives(object):
         ----------
         Value :
         units : str, optional
-           Units, such as ``"m"``. The default is ``None``, which means that the
+           Units, such as ``"m"``. The default is ``None``, in which case the
            model units are used.
         
         Returns
@@ -2532,7 +2540,7 @@ class Primitives(object):
         pos :
 
         units : str, optional
-            Units, such as ``"m"``. The default is ``None``, which means that the
+            Units, such as ``"m"``. The default is ``None``, in which case the
             model units are used.
         
         Returns
@@ -2575,14 +2583,13 @@ class Primitives(object):
 
     @aedt_exception_handler
     def _find_object_from_edge_id(self, lval):
-        """
+        """Retrieve an object using an edge ID.
 
         Parameters
         ----------
-        lval :
-
-        Returns
-        -------
+        lval :  str
+            ID of the edge.
+        
         """
 
         objList = []
@@ -2601,14 +2608,12 @@ class Primitives(object):
 
     @aedt_exception_handler
     def _find_object_from_face_id(self, lval):
-        """
+        """Retrieve an object using a face ID.
 
         Parameters
         ----------
-        lval :
-
-        Returns
-        -------
+        lval : str
+            ID of the face.
         """
         if self.oeditor is not None:
             objList = []
@@ -2722,7 +2727,7 @@ class Primitives(object):
         the IDs of these lines.
         
         This method accepts a one or more sheet objects as input, while 
-        the method ``get_edges_for_circuit_port`` accepts a face ID.
+        the method `get_edges_for_circuit_port` accepts a face ID.
         
         Parameters
         ----------
@@ -2863,7 +2868,7 @@ class Primitives(object):
         or XZ plane). This method creates new lines for the detected edges and returns 
         the IDs of these lines.
         
-        This method accepts a face ID in the input, while the ``get_edges_for_circuit_port_from_port`` 
+        This method accepts a face ID in the input, while the `get_edges_for_circuit_port_from_port` 
         method accepts one or more sheet objects.
                 
         Parameters
@@ -2994,9 +2999,9 @@ class Primitives(object):
         Parameters
         ----------
         position : list
-            List of float values, such as ``[x,y,z]`` or the ApplicationName.modeler.Position(x,y,z) object.
+            List of float values, such as ``[x,y,z]`` or the `ApplicationName.modeler.Position(x,y,z)` object.
         units :
-            Units for the position, such as ``"m"``. The default is ``None``, which means the model units are used.
+            Units for the position, such as ``"m"``. The default is ``None``, in which case the model units are used.
 
         Returns
         -------
