@@ -11,8 +11,9 @@ class FieldAnalysisCircuit(Analysis):
     
     This class is for circuit analysis setup in Nexxim.
     
-    It is automatically initialized by an application call (e.g. HFSS,
-    Q3D, etc.). See the application function for parameter definitions.
+    It is automatically initialized by a call from an application,
+    such as HFSS or Q3D. See the application function for its
+    parameter definitions.
 
     Parameters
     ----------
