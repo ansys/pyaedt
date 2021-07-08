@@ -11,8 +11,8 @@ class FieldAnalysisCircuit(Analysis):
     
     This class is for circuit analysis setup in Nexxim.
     
-    It is automatically initialized by an application call (like HFSS,
-    Q3D...). See the application function for parameter definitions.
+    It is automatically initialized by an application call (e.g. HFSS,
+    Q3D, etc.). See the application function for parameter definitions.
 
     Parameters
     ----------
@@ -103,7 +103,7 @@ class FieldAnalysisCircuit(Analysis):
         eexcitation_names : list, optional
             List of excitations. The default is ``[]``, in which case
             the S parameters for all excitations are to be provided. 
-            For example, ``["1","2"]``.
+            For example, ``["1", "2"]``.
             
         Returns
         -------
@@ -132,7 +132,8 @@ class FieldAnalysisCircuit(Analysis):
         ----------
         excitation_names : list, optional
             List of excitations. The default is ``[]``, in which case
-            the return losses for all excitations are to be provided. 
+            the return losses for all excitations are to be provided.
+            For example ``["1", "2"]``.
         excitation_name_prefix : string, optional
              Prefix to add to the excitation names. The default is ``""``, 
              
@@ -140,11 +141,7 @@ class FieldAnalysisCircuit(Analysis):
         -------
         list
             List of strings representing the return losses of the excitations.
-            
-        Examples
-        --------
-        
-        >>>excitation_names ["1","2"] output ["S(1,1)",, S(2,2)]
+            For example ``["S(1, 1)", S(2, 2)]``
 
         """
         if not excitation_names:
@@ -199,7 +196,7 @@ class FieldAnalysisCircuit(Analysis):
         ----------
         trlist : list, optional
             List of drivers. The default is ``[]``. For example,
-            ``["1", "2", "3"``.
+            ``["1", "2", "3"]``.
         tx_prefix : str, optional
             Prefix to add to driver names. For example, ``"DIE"``.  The default is ``""``.
 
@@ -207,7 +204,7 @@ class FieldAnalysisCircuit(Analysis):
         -------
         list
             List of strings representing near end XTalks of the excitations.
-            For example, ``["S(1,2)", "S(1,3)", "S(2,3)"]``.
+            For example, ``["S(1, 2)", "S(1, 3)", "S(2, 3)"]``.
 
         """
         next = []
@@ -231,7 +228,7 @@ class FieldAnalysisCircuit(Analysis):
             ``["1", "2"]``.
         reclist : list, optional
             List of receiver. The default is ``[]``. For example,
-            ``["3","4"]``.
+            ``["3", "4"]``.
         tx_prefix : str, optional
             Prefix for driver names. For example, ``"DIE"``.  The default is ``""``.
         rx_prefix : str, optional
@@ -246,7 +243,7 @@ class FieldAnalysisCircuit(Analysis):
         -------
         list
             List of strings representing the far end XTalks of the excitations.
-            For example, ``["S(1,4)", "S(2,3)"]``.
+            For example, ``["S(1, 4)", "S(2, 3)"]``.
             
         """
         fext = []
