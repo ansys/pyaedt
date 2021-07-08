@@ -824,12 +824,12 @@ class Primitives(object):
 
     @property
     def non_models(self):
-        """List of all objects of type ``"Solid"``.`""
+        """List of all objects of type ``"Solid"``.`"""
         return self._nonmodels
 
     @property
     def solids(self):
-        """List of all objects of type ``"Solid"``."
+        """List of all objects of type ``"Solid"``."""
         return self._solids
 
     @property
@@ -887,7 +887,7 @@ class Primitives(object):
 
     @property
     def oproject(self):
-        """Project objecd."""
+        """Project object."""
         return self._parent.oproject
 
     @property
