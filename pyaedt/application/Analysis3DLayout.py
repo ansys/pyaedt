@@ -45,7 +45,7 @@ class FieldAnalysis3DLayout(Analysis):
         another instance of the ``specified_version`` is active on the
         machine. The default is ``True``.
     release_on_exit : bool, optional
-        Whether to release  AEDT on exit. The default is ``False``.
+        Whether to release AEDT on exit. The default is ``False``.
     student_version : bool, optional
         Whether to enable the student version of AEDT. The default 
         is ``False``.
@@ -100,7 +100,7 @@ class FieldAnalysis3DLayout(Analysis):
         -------
         list
             List of strings representing the S parameters of the excitations. 
-            For example, ``["S(1,1)", "S(1,2)", S(2,2)]``.
+            For example, ``["S(1, 1)", "S(1, 2)", S(2, 2)]``.
       
         """
         if not excitation_names:
@@ -131,7 +131,7 @@ class FieldAnalysis3DLayout(Analysis):
         -------
         type
             List of strings representing the return losses of the excitations.
-            For example, ``["S(1,1)", "S(2,2)"``. 
+            For example, ``["S(1, 1)", "S(2, 2)"]``. 
        
         """
         if not excitation_names:
@@ -163,7 +163,7 @@ class FieldAnalysis3DLayout(Analysis):
         -------
         list
             List of strings representing insertion losses of the excitations.
-            For example, ``["S(1,2)"]``.       
+            For example, ``["S(1, 2)"]``.
 
         """
         spar = []
@@ -193,7 +193,7 @@ class FieldAnalysis3DLayout(Analysis):
         -------
         list
             List of strings representing near end XTalks of the excitations.
-            For example, ``["S(1,2)", "S(1,3)", "S(2,3)"``.
+            For example, ``["S(1, 2)", "S(1, 3)", "S(2, 3)"]``.
 
         """
         next = []
@@ -215,7 +215,7 @@ class FieldAnalysis3DLayout(Analysis):
         trlist : list, optional
             List of drivers. The default is ``[]``. For example, ``["1", "2"]``.
         reclist : list, optional
-            List of receiver. The default is ``[]``. For example, ``["3","4"]``.
+            List of receiver. The default is ``[]``. For example, ``["3", "4"]``.
         tx_prefix : str, optional
             Prefix for driver names. For example, ``"DIE"``.  The default is ``""``.
         rx_prefix : str, optional
@@ -230,7 +230,7 @@ class FieldAnalysis3DLayout(Analysis):
         -------
         list
             List of strings representing the far end XTalks of the excitations.
-            For example, ``["S(1,4)", "S(2,3)"]``. 
+            For example, ``["S(1, 4)", "S(2, 3)"]``. 
         
         """
         fext = []
@@ -331,7 +331,7 @@ class FieldAnalysis3DLayout(Analysis):
 
         Returns
         -------
-         :class: Setup3DLayout
+        :class: Setup3DLayout
             Setup object.
 
         """
