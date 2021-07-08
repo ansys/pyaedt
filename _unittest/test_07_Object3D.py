@@ -47,8 +47,10 @@ class TestObject3D:
             self.aedtapp.modeler.primitives.delete(name)
         return self.aedtapp.modeler.primitives.create_polyline(position_list=pointsList1, name=name)
 
-    def create_copper_box(self):
-        o = self.aedtapp.modeler.primitives["Mybox"]
+    def create_copper_box(self, name=None):
+        if not name:
+            name = "MyBox"
+        o = self.aedtapp.modeler.primitives[name]
         if not o:
             o = self.aedtapp.modeler.primitives.create_box([0, 0, 0], [10, 10, 5], "Mybox", "Copper")
         return o
@@ -307,4 +309,14 @@ class TestObject3D:
         turn.unite(added_objects)
         assert len(added_objects) == 18
         assert "single_turn" in self.aedtapp.modeler.primitives.line_names
+
+    def test_duplicate_around_axis_and_unite(self):
+        turn = self.create_example_coil("single_turn")
+        added_objects = turn.duplicate_along_line([0, 0, 15], nclones=3, attachObject=False)
+        assert len(added_objects) == 2
+        assert "single_turn" in self.aedtapp.modeler.primitives.line_names
+
+    def test_section_object(self):
+        turn = self.create_example_coil("single_turn")
+        turn.section(plane, create_new=True, section_cross_object=False)
 
