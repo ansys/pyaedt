@@ -153,7 +153,7 @@ class Setup(object):
         report_type_list : list
             List of report types for the expressions. 
         intrinsics_list : list
-            List of instrinsic expressions for the expressions. 
+            List of intrinsic expressions for the expressions. 
         isconvergence_list : list
             List of Boolean values indicating whether the expressions are in 
             the convergence criteria.
@@ -243,7 +243,7 @@ class Setup(object):
             Type of report for the expression. The default is ``Fields``. If a list of expressions 
             is supplied, supply a corresponding list of report types.
         intrinsics : str or list, optional
-            Instrinsic expression for the expression. The default is ``""``. If a list of expressions 
+            Intrinsic expression for the expression. The default is ``""``. If a list of expressions 
             is supplied, supply a corresponding list of intrinsic expressesions.
         isconvergence, bool, str, or list, optional
             Whether the expression is in the convergence criteria. The  default is ``True``.  
@@ -597,7 +597,7 @@ class SetupCircuit(object):
         report_type_list : list
             List of report types for the expressions. 
         intrinsics_list : list
-            List of instrinsic expressions for the expressions. 
+            List of intrinsic expressions for the expressions. 
         isconvergence_list : list
             List of Boolean values indicating whether the expressions are in 
             the convergence criteria.
@@ -688,7 +688,7 @@ class SetupCircuit(object):
             Type of report for the expression. The default is ``Fields``. If a list of expressions 
             is supplied, supply a corresponding list of report types.
         intrinsics : str or list, optional
-            Instrinsic expression for the expression. The default is ``""``. If a list of expressions 
+            Intrinsic expression for the expression. The default is ``""``. If a list of expressions 
             is supplied, supply a corresponding list of intrinsic expressesions.
         isconvergence, bool, str, or list, optional
             Whether the expression is in the convergence criteria. The  default is ``True``.  
