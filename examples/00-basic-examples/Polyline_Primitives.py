@@ -8,7 +8,6 @@ This tutorial shows how you can create and manipulate polylines using pyaedt
 # #### Perform required imports from AEDTLib and connect to the Desktop
 
 import os
-from IPython.display import Image, display
 from pyaedt.maxwell import Maxwell3d
 from pyaedt.modeler.Primitives import Polyline, PolylineSegment
 
@@ -243,7 +242,8 @@ project_file = os.path.join(project_dir, project_name + '.aedt')
 
 M3D.save_project(project_file)
 
-M3D.close_desktop()
+if os.name != "posix":
+    M3D.close_desktop()
 
 
 

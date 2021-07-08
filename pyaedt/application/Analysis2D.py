@@ -5,38 +5,68 @@ from ..generic.general_methods import aedt_exception_handler, generate_unique_na
 
 
 class FieldAnalysis2D(Analysis):
-    """**AEDT_2D_FieldAnalysis**
+    """**FieldAnalysis2D class.**
     
-    Class for 2D Field Analysis Setup (Maxwell2D, Q2D)
+    This class is for 2D field analysis setup in Maxwell2D and Q2D.
     
-    It is automatically initialized by Application call. Refer to
-    Application function for inputs definition
+    It is automatically initialized by an application call from one of 
+    the 2D tools. See the application function for parameter definitions.
 
     Parameters
     ----------
-
-    Returns
-    -------
+    application : str
+        2D application that is to initialize the call.
+    projectname : str, optional
+        Name of the project to select or the full path to the project
+        or AEDTZ archive to open. The default is ``None``, in which
+        case an attempt is made to get an active project. If no 
+        projects are present, an empty project is created.
+    designname : str, optional
+        Name of the design to select. The default is ``None``, in 
+        which case an attempt is made to get an active design. If no
+        designs are present, an empty design is created.
+    solution_type : str, optional
+        Solution type to apply to the design. The default is
+        ``None``, in which case the default type is applied.
+    setup_name : str, optional
+        Name of the setup to use as the nominal. The default is
+        ``None``, in which case the active setup is used or 
+        nothing is used.
+    specified_version: str, optional
+        Version of AEDT  to use. The default is ``None``, in which case
+        the active version or latest installed version is used.
+    NG : bool, optional
+        Whether to run AEDT in the non-graphical mode. The default 
+        is ``False``, which launches AEDT in the graphical mode.  
+    AlwaysNew : bool, optional
+        Whether to launch an instance of AEDT in a new thread, even if
+        another instance of the ``specified_version`` is active on the
+        machine. The default is ``True``.
+    release_on_exit : bool, optional
+        Whether to release  AEDT on exit. The default is ``False``.
+    student_version : bool, optional
+        Whether to enable the student version of AEDT. The default 
+        is ``False``.
 
     """
     def __init__(self, application, projectname, designname, solution_type, setup_name=None,
-                 specified_version=None, NG=False, AlwaysNew=False, release_on_exit=False):
+                 specified_version=None, NG=False, AlwaysNew=False, release_on_exit=False, student_version=False):
 
 
         Analysis.__init__(self, application, projectname, designname, solution_type, setup_name,
-                          specified_version, NG, AlwaysNew, release_on_exit)
+                          specified_version, NG, AlwaysNew, release_on_exit, student_version)
         self._modeler = Modeler2D(self)
         self._mesh = Mesh(self)
         # self._post = PostProcessor(self)
 
     @property
     def modeler(self):
-        """ """
+        """Modeler object."""
         return self._modeler
 
     @property
     def mesh(self):
-        """ """
+        """Mesh object"""
         return self._mesh
 
     # @property
@@ -45,19 +75,20 @@ class FieldAnalysis2D(Analysis):
 
     @aedt_exception_handler
     def assignmaterial(self, obj, mat):
-        """The function assigns Material mat to object obj. If material mat is not present it will be created
+        """Assign a material to one or more objects. 
 
         Parameters
         ----------
-        obj : str, list
-            list of objects to which assign materials
+        obj : str or list
+            One or more objects to assign materials to.
         mat : str
-            material to assign
+            Material to assign. If this material is not present, it will be 
+            created.
 
         Returns
         -------
-        type
-            True if succeeded | False if failed
+        bool
+            ``True`` when successful, ``False`` when failed.
 
         """
         mat = mat.lower()

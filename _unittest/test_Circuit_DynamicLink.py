@@ -67,6 +67,7 @@ class TestCircuitDL:
 
         self.aedtapp.modeler.components.refresh_dynamic_link("uUSB")
         self.aedtapp.modeler.components.set_sim_option_on_hfss_subcircuit(hfss_comp)
+        self.aedtapp.modeler.components.set_sim_solution_on_hfss_subcircuit(hfss_comp)
         #self.aedtapp.modeler.components.refresh_dynamic_link("Galileo_G87173_205_cutout3")
 
         #hfssComp = self.aedtapp.modeler.components.components[hfss_comp_id]

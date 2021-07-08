@@ -5,6 +5,8 @@ Maxwell 2D Analysis
 This tutorial shows how you can use PyAedt to create a project in
 in Maxwell2D and run a transient simulation
 This Example needs PyVista, numpy and matplotlib,  to be installed on the machine to provide advanced post processing features
+This Examples runs on Windows Only using CPython
+
 """
 
 import os

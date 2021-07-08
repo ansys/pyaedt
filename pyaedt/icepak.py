@@ -48,6 +48,8 @@ class Icepak(FieldAnalysisIcepak):
         machine.  The default is ``True``.
     release_on_exit : bool, optional
         Whether to release AEDT on exit. 
+    student_version : bool, optional
+        Whether open AEDT Student Version. The default is ``False``.
 
     Examples
     --------
@@ -81,9 +83,9 @@ class Icepak(FieldAnalysisIcepak):
     """
     
     def __init__(self, projectname=None, designname=None, solution_type=None, setup_name=None,
-                 specified_version=None, NG=False, AlwaysNew=False, release_on_exit=False):
+                 specified_version=None, NG=False, AlwaysNew=False, release_on_exit=False, student_version=False):
         FieldAnalysisIcepak.__init__(self, "Icepak", projectname, designname, solution_type, setup_name,
-                                     specified_version, NG, AlwaysNew, release_on_exit)
+                                     specified_version, NG, AlwaysNew, release_on_exit, student_version)
 
     def __enter__(self):
         return self

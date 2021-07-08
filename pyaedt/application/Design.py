@@ -1,23 +1,9 @@
 """
-Design Module
--------------
+This module contains these classes: `Design` and `DesignCache`.
 
-Description
-===========
-This class contains all the basic Project information and
-objects. since it is hinerithed in the Main Tool class it will be a
-simple call from it
-
-Examples
---------
-
->>> from pyaedt import Hfss
->>> hfss = Hfss()
-
-Return the oProject object
-
->>> hfss.oproject
-
+It contains all basic project information and objects. 
+Because this module is inherited in the Main Tool class, 
+it will be a simple call from it.
 
 """
 from __future__ import absolute_import
@@ -224,13 +210,21 @@ def list_difference(list1, list2):
     return list(set(list1) - set(list2))
 
 class DesignCache(object):
-    """Cache object to analyse the differences between the state of a design between two points in time.
+    """DesignCache class.
+    
+    The cache object analyzes the differences in the state of a design between two points in time.
 
-    At present the contents of the design to be tracked are:
+    The contents of the design tracked in the Message Manager currently are:
 
-        * global-level messages in the message Manager
-        * project-level messages in the message Manager
-        * design-level messages in the message Manager
+        * global-level messages
+        * project-level messages
+        * design-level messages
+    
+    Parameters
+    ----------
+    parent: str
+        Name of the parent object.
+        
     """
     def __init__(self, parent):
         self._parent = parent
@@ -251,50 +245,111 @@ class DesignCache(object):
 
     @property
     def no_change(self):
-        """True if the design snapshot has not changed between updates"""
+        """Whether the design snapshot is unchanged since the last update.
+        
+        Returns
+        --------
+        bool
+            ``True`` when the design snapshot is unchanged since the last update; ``False`` otherwise.
+        """
         return self._no_change
 
     @property
     def delta_global_messages(self):
-        """A list of any new or missing global-level messages since the last update"""
+        """List of any new or missing global-level messages since the last update.
+        
+        Returns
+        -------
+        list
+            List of any new or missing global-level messages since the last update.
+        """
         return self._delta_global_messages
 
     @property
     def delta_project_messages(self):
-        """A list of any new or missing project-level messages since the last update"""
+        """List of any new or missing project-level messages since the last update.
+        
+        Returns
+        -------
+        list
+            List of any new or missing project-level messages since the last update.
+        """
         return self._delta_global_messages
 
     @property
     def delta_design_messages(self):
-        """A list of any new or missing design-level messages since the last update"""
+        """List of any new or missing design-level messages since the last update.
+        
+        Returns
+        -------
+        list
+            List of any new or missing design-level messages since the last update.
+        """
         return self._delta_design_messages
 
     @property
     def delta_error_messages(self):
-        """A list of any new or missing error messages since the last update"""
+        """List of any new or missing error messages since the last update.
+        
+        Returns
+        -------
+        list
+            List of any new or missing error messages since the last update.
+        """
         return self._new_error_messages
 
     @property
     def no_new_messages(self):
-        """Returns True if new messages have appeared since the last update or the message manager was cleared"""
+        """Whether new messages have appeared since the last update or since the Message Manager was cleared.
+        
+        Returns
+        -------
+        bool
+            ``True`` if new messages have appeared since the last update or since the Message Manager was
+            cleared; ``False`` otherwise.
+        """
         return not bool(self._delta_messages)
 
     @property
     def no_new_errors(self):
-        """Returns True if new error messages have appeared since the last update"""
+        """Whether any new error messages have appeared since the last uodate.
+        
+        Returns
+        -------
+        bool
+            ``True`` if new error messages have appeared since the last update; ``False`` otherwise.
+        """
         return not bool(self._new_error_messages)
 
     @property
     def no_new_warnings(self):
-        """Returns True if new error messages have appeared since the last update"""
+        """Whether any new warning messages have appeared since the last uodate.
+        Returns
+        -------
+        bool
+            ``True`` if new error messages have appeared since the last update; ``False`` otherwise.
+        """
         return not bool(self._new_warning_messages)
 
     @property
     def no_change(self):
-        """Returns True if the cache elements have not changed since the last update"""
+        """Whether cache elements are unchanged since the last update.
+        
+        Returns
+        -------
+        bool
+            ``True`` if the cache elements are unchanged since the last update.
+        """
         return self.no_new_messages
 
     def design_snapshot(self):
+        """Retrieve the design snapshot.
+        
+        Returns
+        -------
+        type
+            Snapshot object.
+        """
         snapshot = {
             "Solids:":  self._parent.modeler.primitives.solid_names,
             "Lines:":  self._parent.modeler.primitives.line_names,
@@ -304,15 +359,20 @@ class DesignCache(object):
         return snapshot
 
     def clear(self):
-        """Clear the cached values"""
+        """Clear the cached values."""
         self._messages_global_level = []
         self._messages_project_level = []
         self._messages_design_level = []
 
     def update(self):
-        """Get the current state values from the design and perform a delta-calculation with the cached values.
-        Then replace the cached values with the current values. Note: this is done automatically when the property
-        'no_change' is accessed!"""
+        """Retrieve the current state values from the design and perform a delta calculation with the cached values.
+        Then replace the cached values with the current values. 
+        
+        .. note::
+           The update is done automatically when the property
+           ``'no_change'`` is accessed.
+        """
+        
         messages = self._parent._messenger.messages
 
         # Check whether the design snapshot has changed since the last update
@@ -354,7 +414,41 @@ class DesignCache(object):
 
 
 class Design(object):
-    """Class Design. Contains all functions and objects connected to the active Project and Design"""
+    """Design class. 
+    
+    This class contains all functions and objects connected to the active project and design.
+    
+    Parameters
+    ----------
+    design_type : str
+        Type of the design.
+    project_name : str, optional
+        Name of the project to select or the full path to the project
+        or AEDTZ archive to open. The default is ``None``, in which
+        case an attempt is made to get an active project. If no 
+        projects are present, an empty project is created.
+    design_ame : str, optional
+        Name of the design to select. The default is ``None``, in 
+        which case an attempt is made to get an active design. If no
+        designs are present, an empty design is created.
+    solution_type : str, optional
+        Solution type to apply to the design. The default is
+        ``None``, in which case the default type is applied.
+    specified_version: str, optional
+        Version of AEDT to use. The default is ``None``, in which case
+        the active version or latest installed version is used.
+    NG : bool, optional
+        Whether to run AEDT in the non-graphical mode. The default 
+        is ``False``, which launches AEDT in the graphical mode.  
+    AlwaysNew : bool, optional
+        Whether to launch an instance of AEDT in a new thread, even if
+        another instance of the ``specified_version`` is active on the
+        machine. The default is ``True``.
+    release_on_exit : bool, optional
+        Whether to release AEDT on exit. The default is ``False``.   
+
+    """
+
     def __str__(self):
         pyaedt_details = "      pyaedt API\n"
         pyaedt_details += "pyaedt running AEDT Version {} \n".format(self._aedt_version)
@@ -381,7 +475,7 @@ class Design(object):
         return True
 
     def __init__(self, design_type, project_name=None, design_name=None, solution_type=None,
-                 specified_version=None, NG=False, AlwaysNew=False, release_on_exit=False):
+                 specified_version=None, NG=False, AlwaysNew=False, release_on_exit=False, student_version=False):
         # Get Desktop from global Desktop Environment
         self._project_dictionary = OrderedDict()
         self.boundaries = OrderedDict()
@@ -389,7 +483,7 @@ class Design(object):
         self.design_datasets = {}
         main_module = sys.modules['__main__']
         if "pyaedt_initialized" not in dir(main_module):
-            Desktop(specified_version, NG, AlwaysNew, release_on_exit)
+            Desktop(specified_version, NG, AlwaysNew, release_on_exit, student_version)
         self._project_dictionary = {}
         self._mttime = None
         self._desktop = main_module.oDesktop
@@ -398,11 +492,11 @@ class Design(object):
         self._messenger = AEDTMessageManager(self)
         self.logger = logging.getLogger(__name__)
 
-        assert design_type in design_solutions, "Invalid design type specified: {}".format(design_type)
+        assert design_type in design_solutions, "Invalid design type is specified: {}.".format(design_type)
         self._design_type = design_type
         if solution_type:
             assert solution_type in design_solutions[design_type], \
-                "Invalid solution type {0} for design type {1}".format(solution_type, design_type)
+                "Invalid solution type {0} exists for design type {1}.".format(solution_type, design_type)
         self._solution_type = solution_type
         self._odesign = None
         self._oproject = None
@@ -416,7 +510,7 @@ class Design(object):
 
     @property
     def project_properies(self):
-        """ """
+        """Project properties."""
         if os.path.exists(self.project_file):
             _mttime = os.path.getmtime(self.project_file)
             if _mttime != self._mttime:
@@ -426,15 +520,19 @@ class Design(object):
 
     @property
     def design_properties(self, design_name=None):
-        """
+        """Design properties.
 
         Parameters
         ----------
-        design_name :
-             (Default value = None)
+        design_name : str, optional
+            Name of the design to select. The default is ``None``, in 
+            which case an attempt is made to get an active design. If no
+            designs are present, an empty design is created.
 
         Returns
         -------
+        dict
+           Dictionary of design properties.
 
         """
         if not design_name:
@@ -455,15 +553,12 @@ class Design(object):
 
     @property
     def aedt_version_id(self):
-        """Property
-
-        :return: AEDT Version
-
-        Parameters
-        ----------
+        """AEDT version.
 
         Returns
         -------
+        str
+            Version of AEDT.
 
         """
         version = self.odesktop.GetVersion()
@@ -471,12 +566,12 @@ class Design(object):
 
     @property
     def design_name(self):
-        """Name of the parent AEDT Design.
+        """Name of the parent AEDT design.
 
         Returns
         -------
         str
-            Name of the parent AEDT Design.
+            Name of the parent AEDT design.
 
         Examples
         --------
@@ -516,10 +611,12 @@ class Design(object):
 
     @property
     def design_list(self):
-        """List of available designs
+        """List of designs.
 
         Returns
         -------
+        list
+            List of the designs.
 
         """
         deslist = list(self.oproject.GetTopDesignList())
@@ -531,12 +628,12 @@ class Design(object):
 
     @property
     def design_type(self):
-        """Property
-
-        :return: Design Type
+        """Design type.
 
         Parameters
         ----------
+        type
+            Type of the design.
 
         Returns
         -------
@@ -548,15 +645,12 @@ class Design(object):
 
     @property
     def project_name(self):
-        """Property
-
-        :return: Project Name
-
-        Parameters
-        ----------
+        """Project name.
 
         Returns
         -------
+        str
+            Name of the project.
 
         """
         if self._oproject:
@@ -566,90 +660,72 @@ class Design(object):
 
     @property
     def project_list(self):
-        """Property
-
-        :return: List of available Projects
-
-        Parameters
-        ----------
-
+        """Project list.     
+        
         Returns
         -------
+        list
+            List of projects.
 
         """
         return list(self._desktop.GetProjectList())
 
     @property
     def project_path(self):
-        """Property
-
-        :return: Project Path
-
-        Parameters
-        ----------
+        """Project path.
 
         Returns
         -------
+        str
+            Path to the project file.
 
         """
         return os.path.normpath(self._oproject.GetPath())
 
     @property
     def project_file(self):
-        """Property
-
-        :return: Full absolute Project name and path
-
-        Parameters
-        ----------
+        """Project file.
 
         Returns
         -------
+        str
+            Full absolute name and path for the project file.
 
         """
         return os.path.join(self.project_path, self.project_name + '.aedt')
 
     @property
     def lock_file(self):
-        """Property
-
-        :return: Full absolute Project lock file
-
-        Parameters
-        ----------
-
+        """Lock file.
+      
         Returns
         -------
-
+        str
+            Full absolute name and path for the project lock file.
+        
         """
         return os.path.join(self.project_path, self.project_name + '.aedt.lock')
 
     @property
     def results_directory(self):
         """Property
-
-        :return: Full absolute path of the aedtresults directory
-
-        Parameters
-        ----------
-
+       
         Returns
         -------
-
+        str
+            Full absolute path for the ``aedtresults`` directory.
+  
         """
         return os.path.join(self.project_path, self.project_name + '.aedtresults')
 
     @property
     def solution_type(self):
-        """Property
-
-        :return: Solution Type
-
-        Parameters
-        ----------
+        """Solutiion type.
 
         Returns
         -------
+        str
+            Type of the solution.
 
         """
         try:
@@ -690,15 +766,12 @@ class Design(object):
 
     @property
     def valid_design(self):
-        """Property
-
-        :return: True if oproject and odesign exists
-
-        Parameters
-        ----------
-
+        """Valid design.
+       
         Returns
         -------
+        bool
+            ``True`` when project and design exists, ``False`` otherwise.
 
         """
         if self._oproject and self._odesign:
@@ -708,120 +781,97 @@ class Design(object):
 
     @property
     def personallib(self):
-        """Property
-
-        :return: Full absolute path of the PersonalLib directory
-
-        Parameters
-        ----------
+        """PersonalLib directory.
 
         Returns
         -------
+        str
+            Full absolute path for the ``PersonalLib`` directory.
 
         """
         return os.path.normpath(self._desktop.GetPersonalLibDirectory())
 
     @property
     def userlib(self):
-        """Property
-
-        :return: Full absolute path of the UserLib directory
-
-        Parameters
-        ----------
+        """UserLib directory.
 
         Returns
         -------
+        str
+            Full absolute path for the ``UserLib`` directory.
 
         """
         return os.path.normpath(self._desktop.GetUserLibDirectory())
 
     @property
     def syslib(self):
-        """Property
-
-        :return: Full absolute path of the SysLib directory
-
-        Parameters
-        ----------
+        """SysLib directory
 
         Returns
         -------
+        str
+            Full absolute path for the ``SysLib`` directory.
 
         """
         return os.path.normpath(self._desktop.GetLibraryDirectory())
 
     @property
     def src_dir(self):
-        """Property
-
-        :return: Full absolute path of the python directory
-
-        Parameters
-        ----------
+        """Source directory for Python.
 
         Returns
         -------
+        str
+            Full absolute path for the ``python`` directory.
 
         """
         return os.path.dirname(os.path.realpath(__file__))
 
     @property
     def pyaedt_dir(self):
-        """Property
-
-        :return: Full absolute path of the pyaedt Root Parent
-
-        Parameters
-        ----------
-
+        """PyAEDT directory.
+       
         Returns
         -------
+        str
+           Full absolute path for the ``pyaedt`` directory.
 
         """
         return os.path.realpath(os.path.join(self.src_dir, '..'))
 
     @property
     def library_list(self):
-        """Property
-
-        :return: list of [syslub, userlib, personallib]
-
-        Parameters
-        ----------
+        """Library list.
 
         Returns
         -------
+        list
+            List of libraries: ``[syslib, userlib, personallib]``
 
         """
         return [self.syslib, self.userlib, self.personallib]
 
     @property
     def temp_directory(self):
-        """Property
-
-        :return: Full absolute path of the TEMP directory
-
-        Parameters
-        ----------
+        """Path to the temporary directory.
 
         Returns
         -------
+        str
+            Full absolute path for the ``temp`` directory.
 
         """
         return os.path.normpath(self._desktop.GetTempDirectory())
 
     @property
     def toolkit_directory(self):
-        """Property
-
-        :return: Full absolute path of the toolkit directory for this project - creates it if does not exist
-
-        Parameters
-        ----------
+        """Path to the toolkit directory.
 
         Returns
         -------
+        str
+            Full absolute path for the ``toolkit`` directory for this project. 
+            If this directory does not exist, it is created.
 
         """
         toolkit_directory = os.path.join(self.project_path, self.project_name + '.toolkit')
@@ -831,15 +881,13 @@ class Design(object):
 
     @property
     def working_directory(self):
-        """Property
-
-        :return: Full absolute path of the working directory for this project - creates it if does not exist
-
-        Parameters
-        ----------
+        """Path to the working directory.
 
         Returns
         -------
+         str
+             Full absolute path for the working directory for this project. 
+             If this directory does not exist, it is created.
 
         """
         working_directory = os.path.join(self.toolkit_directory, self.design_name)
@@ -849,30 +897,24 @@ class Design(object):
 
     @property
     def default_solution_type(self):
-        """Property
-
-        :return: Default solution type for the current application running
-
-        Parameters
-        ----------
+        """Default solution type.
 
         Returns
         -------
+        str
+           Default for the solution type.
 
         """
         return design_solutions[self._design_type][0]
 
     @property
     def odesign(self):
-        """Property
-
-        :return: oDesign object
-
-        Parameters
-        ----------
+        """Design object.
 
         Returns
         -------
+        type
+            Design object.
 
         """
         return self._odesign
@@ -920,61 +962,49 @@ class Design(object):
 
     @property
     def oboundary(self):
-        """Property
-
-        :return: BoundarySetup Module object
-
-        Parameters
-        ----------
+        """BoundarySetup module object.
 
         Returns
         -------
+        type
+            BoundarySetup module object.
 
         """
         return self._odesign.GetModule("BoundarySetup")
 
     @property
     def omodelsetup(self):
-        """Property
-
-        :return: ModelSetup Module object
-
-        Parameters
-        ----------
+        """ModelSetup module object.
 
         Returns
         -------
-
+        type
+            ModelSetup module object.
+            
         """
         return self._odesign.GetModule("ModelSetup")
 
 
     @property
     def oimportexport(self):
-        """Property
-
-        :return: ImportExport Module object
-
-        Parameters
-        ----------
+        """ImportExport module object.
 
         Returns
         -------
+        type
+            ImportExport module object.
 
         """
         return self.odesktop.GetTool("ImportExport")
 
     @property
     def oproject(self):
-        """Property
-
-        :return: oProject object
-
-        Parameters
-        ----------
+        """Property object.
 
         Returns
         -------
+        type
+            Project object
 
         """
         return self._oproject
@@ -1010,7 +1040,7 @@ class Design(object):
                     proj.Save()
                 else:
                     assert not os.path.exists(
-                        proj_name + ".lock"), "Project Is Locked. Close or remove the lock before proceeding"
+                        proj_name + ".lock"), "Project is locked. Close or remove the lock before proceeding."
                     proj = self._desktop.OpenProject(proj_name)
                     time.sleep(0.5)
                 self._oproject = proj
@@ -1025,82 +1055,69 @@ class Design(object):
 
     @property
     def oanalysis_setup(self):
-        """Property
-
-        :return: AnalysisSetup Module object
-
-        Parameters
-        ----------
+        """AnalysisSetup module object.
 
         Returns
         -------
+        type
+            AnalysisSetup module object.
 
         """
         return self.odesign.GetModule("AnalysisSetup")
 
     @property
     def odesktop(self):
-        """Property
-
-        :return: oDesktop Module object
-
-        Parameters
-        ----------
+        """Desktop module object.
 
         Returns
         -------
+        type
+            Desktop module object.
 
         """
         return self._desktop
 
     @property
     def desktop_install_dir(self):
-        """Property
-
-        :return: AEDT Install Dir
-
-        Parameters
-        ----------
+        """Desktop installation directory.
 
         Returns
         -------
+        str
+            AEDT installation directory.
 
         """
         return self._desktop_install_dir
 
     @property
     def messenger(self):
-        """Property
-
-        :return: Messenger object that can be used for logging on log file and on AEDT Message Windows
-
-        Parameters
-        ----------
+        """Messenger object that is used to write logs to the log file and to AEDT Message windows.
 
         Returns
         -------
+        type
+            Messenger object.
 
         """
         return self._messenger
 
     @property
     def variable_manager(self):
-        """Property
-
-        :return: Variable maanager that can be used to create and manage Project, Design and PostProcessing Variables
-
-        Parameters
-        ----------
+        """Variable manager.
+        
+        This object is used to create and manage project design and postprocessing variables.
 
         Returns
         -------
-
+        type
+            Variable manager object.
+            
         """
         return self._variable_manager
 
     @aedt_exception_handler
     def _optimetrics_variable_args(self, arg, optimetrics_type, variable_name, min_val=None, max_val=None, tolerance=None, probability=None, mean=None, enable=True):
-        """
+        """Optimetrics variable arguments.
 
         Parameters
         ----------
@@ -1108,20 +1125,20 @@ class Design(object):
 
         optimetrics_type :
 
-        variable_name :
-
-        min_val :
-             (Default value = None)
-        max_val :
-             (Default value = None)
-        tolerance :
-             (Default value = None)
-        probability :
-             (Default value = None)
-        mean :
-             (Default value = None)
-        enable :
-             (Default value = True)
+        variable_name : str
+            Name of the variable.
+        min_val : optional
+            Minimum value for the variable. The default is ``None``.
+        max_val :  optional
+            Maximum value for the variable. The default is ``None``.
+        tolerance : optional
+            The default is ``None``.
+        probability : optional
+            The default is ``None``.
+        mean : optional
+            The default is ``None``.
+        enable : bool, optional
+            The default is ``True``.
 
         Returns
         -------
@@ -1154,27 +1171,27 @@ class Design(object):
 
     @aedt_exception_handler
     def activate_variable_statistical(self, variable_name, min_val=None, max_val=None, tolerance=None, probability=None, mean=None):
-        """Activate Statitistical Analysis for variable selected. Optionally setup ranges
+        """Activate statitistical analysis for a variable and optionally set up ranges.
 
         Parameters
         ----------
-        variable_name :
-            name of the variable
-        min_val :
-            Minimum value for variable. Optional (Default value = None)
-        max_val :
-            Maximum value for variable. Optional (Default value = None)
-        tolerance :
-            Tolerance value for variable. Optional (Default value = None)
-        probability :
-            Probability value for variable. Optional (Default value = None)
+        variable_name : str
+            Name of the variable.
+        min_val : optional
+            Minimum value for the variable. The default is ``None``.
+        max_val : optional
+            Maximum value for the variable. The default is ``None``.
+        tolerance : optional
+            Tolerance value for the variable. The default is ``None``.
+        probability : optional
+            Probability value for the variable. The default is ``None``.
         mean :
-            Mean value for variable. Optional (Default value = None)
+            Mean value for the variable. The default is ``None``.
 
         Returns
         -------
-        type
-            Bool
+        bool
+            ``True`` when successful, ``False`` when failed.
 
         """
         arg = ["NAME:AllTabs"]
@@ -1187,21 +1204,21 @@ class Design(object):
 
     @aedt_exception_handler
     def activate_variable_optimization(self, variable_name, min_val=None, max_val=None):
-        """Activate Optimization Analysis for variable selected. Optionally setup ranges
+        """Activate optimization analysis for a variable and optionally set up ranges.
 
         Parameters
         ----------
-        variable_name :
-            name of the variable
-        min_val :
-            Minimum value for variable. Optional (Default value = None)
-        max_val :
-            Maximum value for variable. Optional (Default value = None)
+        variable_name : str
+            Name of the variable.
+        min_val : str, optional
+            Minimum value for the variable. The default is ``None``.
+        max_val : str, optional
+            Maximum value for the variable. The default is ``None``.
 
         Returns
         -------
-        type
-            Bool
+        bool
+            ``True`` when successful, ``False`` when failed.
 
         """
         arg = ["NAME:AllTabs"]
@@ -1214,21 +1231,21 @@ class Design(object):
 
     @aedt_exception_handler
     def activate_variable_sensitivity(self, variable_name, min_val=None, max_val=None):
-        """Activate Sensitivity Analysis for variable selected. Optionally setup ranges
+        """Activate sensitivity analysis for a variable and optionally set up ranges.
 
         Parameters
         ----------
-        variable_name :
-            name of the variable
-        min_val :
-            Minimum value for variable. Optional (Default value = None)
-        max_val :
-            Maximum value for variable. Optional (Default value = None)
+        variable_name : str
+            Name of the variable.
+        min_val : optional
+            Minimum value for the variable. The default is ``None``.
+        max_val : optional
+            Maximum value for the variable. The default is ``None``.
 
         Returns
         -------
-        type
-            Bool
+        bool
+            ``True`` when successful, ``False`` when failed.
 
         """
         arg = ["NAME:AllTabs"]
@@ -1241,21 +1258,19 @@ class Design(object):
 
     @aedt_exception_handler
     def activate_variable_tuning(self, variable_name, min_val=None, max_val=None):
-        """Activate Tuning Analysis for variable selected. Optionally setup ranges
+        """Activate tuning analysis for a variable and optionally set up ranges.
 
-        Parameters
-        ----------
-        variable_name :
-            name of the variable
-        min_val :
-            Minimum value for variable. Optional (Default value = None)
-        max_val :
-            Maximum value for variable. Optional (Default value = None)
+        variable_name : str
+            Name of the variable.
+        min_val : str, optional
+            Minimum value for the variable. The default is ``None``.
+        max_val : str, optional
+            Maximum value for the variable. The default is ``None``.
 
         Returns
         -------
-        type
-            Bool
+        bool
+            ``True`` when successful, ``False`` when failed.
 
         """
         arg = ["NAME:AllTabs"]
@@ -1268,17 +1283,17 @@ class Design(object):
 
     @aedt_exception_handler
     def deactivate_variable_statistical(self, variable_name):
-        """Deactivate Statistical Analysis for variable selected.
+        """Deactivate statistical analysis for a variable.
 
         Parameters
         ----------
-        variable_name :
-            name of the variable
+        variable_name : str
+            Name of the variable.
 
         Returns
         -------
-        type
-            Bool
+        bool
+            ``True`` when successful, ``False`` when failed.
 
         """
         arg = ["NAME:AllTabs"]
@@ -1291,17 +1306,17 @@ class Design(object):
 
     @aedt_exception_handler
     def deactivate_variable_optimization(self, variable_name):
-        """Deactivate Optimization Analysis for variable selected.
+        """Deactivate optimization analysis for a variable.
 
         Parameters
         ----------
-        variable_name :
-            name of the variable
+        variable_name : str
+            Name of the variable.
 
         Returns
         -------
-        type
-            Bool
+        bool
+            ``True`` when successful, ``False`` when failed.
 
         """
         arg = ["NAME:AllTabs"]
@@ -1314,17 +1329,17 @@ class Design(object):
 
     @aedt_exception_handler
     def deactivate_variable_sensitivity(self, variable_name):
-        """Deactivate Sensitivity Analysis for variable selected.
+        """Deactivate sensitivity analysis for a variable.
 
         Parameters
         ----------
-        variable_name :
-            name of the variable
+        variable_name : str
+            Name of the variable.
 
         Returns
         -------
-        type
-            Bool
+        bool
+            ``True`` when successful, ``False`` when failed.
 
         """
         arg = ["NAME:AllTabs"]
@@ -1337,17 +1352,17 @@ class Design(object):
 
     @aedt_exception_handler
     def deactivate_variable_tuning(self, variable_name):
-        """Deactivate Tuning Analysis for variable selected.
+        """Deactivate tuning analysis for a variable.
 
         Parameters
         ----------
-        variable_name :
-            name of the variable
+        variable_name : str
+            Name of the variable.
 
         Returns
         -------
-        type
-            Bool
+        bool
+            ``True`` when successful, ``False`` when failed.
 
         """
         arg = ["NAME:AllTabs"]
@@ -1360,7 +1375,7 @@ class Design(object):
 
     @aedt_exception_handler
     def _get_boundaries_data(self):
-        """ """
+        """Retrieve data for boundaries."""
         boundaries = []
         if self.design_properties and 'BoundarySetup' in self.design_properties:
             for ds in self.design_properties['BoundarySetup']["Boundaries"]:
@@ -1446,45 +1461,55 @@ class Design(object):
 
     @aedt_exception_handler
     def close_desktop(self):
-        """:return: Close the Desktop and release the tool"""
+        """Close the desktop and release AEDT.
+        
+        Returns
+        -------
+        bool
+            ``True`` when successful, ``False`` when failed.
+
+        """
         force_close_desktop()
         return True
 
     @aedt_exception_handler
     def release_desktop(self, close_projects=True, close_desktop=True):
-        """
+        """Release the desktop.
 
         Parameters
         ----------
-        close_projects: bool
-            close all projects
-        close_desktop: bool
-            close desktop after release it
+        close_projects: bool, optional
+            Whether to close all projects. The default is ``True``.
+        close_desktop: bool, optional
+            Whether to close the desktop after releasing it. The default is ``True``.
 
         Returns
         -------
         bool
-            True if desktop released
+            ``True`` when successful, ``False`` when failed.
+
         """
         release_desktop(close_projects, close_desktop)
         return True
 
     @aedt_exception_handler
     def generate_temp_project_directory(self, subdir_name):
-        """Generate a unique directory string to store a project
+        """Generate a unique directory string to save a project to.
 
-        Creates a directory name for storage of a project in a location which is guaranteed to exist (the temp
-        directory of the AEDT installation). If the 'name' parameter is defined, then add a sub-directory within
-        the temp directory and add a hash suffix to ensure that this directory is empty (unique name)
+        This method creates a directory for storage of a project in the ``temp`` directory 
+        of the AED installation because this location is guaranteed to exist. If the '`name`' 
+        parameter is defined, a subdirectory is added within the ``temp`` directory and a 
+        hash suffix is added to ensure that this directory is empty and has a unique name.
 
         Parameters
         ----------
         subdir_name : str
-            Base name of the sub-directory to be created im self.tempdirectory
+            Base name of the subdirectory to create in the ``temp`` directory.
 
         Returns
         -------
         str
+            Base name of the subdirectory created.
 
         Examples
         --------
@@ -1508,21 +1533,21 @@ class Design(object):
 
     @aedt_exception_handler
     def load_project(self, project_file, design_name=None, close_active_proj=False):
-        """Open aedt project based on project file. Design is optional
+        """Open an AEDT project based on a project file and an optional design.
 
         Parameters
         ----------
-        project_file :
-            full path project file name
-        design_name :
-            optional design name (Default value = None)
-        close_active_proj :
-            bool (Default value = False)
+        project_file : str
+            Full path and name for the project file.
+        design_name : str, optional
+            Design name. The default is ``None``.
+        close_active_proj : bool, optional
+            Whether to close the active project. The default is ``False``.
 
         Returns
         -------
-        type
-            bool
+        bool
+            ``True`` when successful, ``False`` when failed.
 
         """
         if close_active_proj:
@@ -1542,50 +1567,50 @@ class Design(object):
 
     @aedt_exception_handler
     def create_dataset1d_design(self, dsname, xlist, ylist, xunit="", yunit=""):
-        """Create a Design dataset
+        """Create a design dataset.
 
         Parameters
         ----------
-        dsname :
-            name of dataset (without prefix for project datasets)
-        xlist :
-            list of x values of dataset
-        ylist :
-            list of y values of dataset
-        xunit :
-            optional x unit (Default value = "")
-        yunit :
-            optional y unit (Default value = "")
+        dsname : str
+            Name of the dataset (without a prefix for a project dataset).
+        xlist : list
+            List of X values for the dataset.
+        ylist : list
+            List of y values for the dataset.
+        xunit : str, optional
+            Units for the X axis. The default is ``""``.
+        yunit : str, optional
+            Units for the Y axis. The default is ``""``.
 
         Returns
         -------
         type
-            Dataset object if dataset is created. False if not
+            Dataset object when dataset is created; otherwise ``False``.
 
         """
         return self.create_dataset(dsname, xlist,ylist, is_project_dataset=False, xunit=xunit, yunit=yunit)
 
     @aedt_exception_handler
     def create_dataset1d_project(self, dsname, xlist, ylist, xunit="", yunit=""):
-        """Create a Project dataset
+        """Create a project dataset.
 
         Parameters
         ----------
-        dsname :
-            name of dataset (without prefix for project datasets)
-        xlist :
-            list of x values of dataset
-        ylist :
-            list of y values of dataset
-        xunit :
-            optional x unit (Default value = "")
-        yunit :
-            optional y unit (Default value = "")
+        dsname : str
+            Name of dataset (without a prefix for a project dataset).
+        xlist : list
+            List of X values for the dataset.
+        ylist : list
+            List of y values for the dataset.
+        xunit : str, optional
+            Units for the X axis. The default is ``""``.
+        yunit : str, optional
+            Units for the Y axis. The default is ``""``.
 
         Returns
         -------
         type
-            Dataset object if dataset is created. False if not
+            Dataset object when dataset is created; otherwise ``False``.
 
         """
         return self.create_dataset(dsname, xlist,ylist, is_project_dataset=True, xunit=xunit, yunit=yunit)
@@ -1593,33 +1618,33 @@ class Design(object):
     @aedt_exception_handler
     def create_dataset3d(self, dsname, xlist, ylist, zlist=None, vlist=None, xunit="", yunit="",
                        zunit="", vunit=""):
-        """Create a Dataset
+        """Create a 3D dataset.
 
         Parameters
         ----------
-        dsname :
-            name of dataset (without prefix for project datasets)
-        xlist :
-            list of x values of dataset
-        ylist :
-            list of y values of dataset
-        zlist :
-            list of z values of dataset (for 3D Datasets only) (Default value = None)
-        vlist :
-            list of v values of dataset (for 3D Datasets only) (Default value = None)
-        xunit :
-            optional x unit (Default value = "")
-        yunit :
-            optional y unit (Default value = "")
-        zunit :
-            optional z unit (for 3D Datasets only) (Default value = "")
-        vunit :
-            optional v unit (for 3D Datasets only) (Default value = "")
-
+        dsname : str
+            Name of the dataset (without prefix for a project dataset).
+        xlist : list
+            List of X values for the dataset.
+        ylist : list
+            List of Y values for the dataset.
+        zylist : list, optional
+            List of Z values for a 3D dataset only. The default is ``None``.
+        vylist : list, optional
+            List of V values for a 3D dataset only. The default is ``None``.
+        xunit : str, optional
+            Units for the X axis. The default is ``""``.
+        yunit : str, optional
+            Units for the Y axis. The default is ``""``.
+        zunit : str, optional
+            Units for the Z axis for a 3D dataset only. The default is ``""``.
+        vunit : str, optional
+            Units for the V axis for a 3D dataset only. The default is ``""``.    
+                
         Returns
         -------
         type
-            Dataset object if dataset is created. False if not
+            Dataset object when dataset is created; otherwise ``False``.
 
         """
         return self.create_dataset(dsname=dsname, xlist=xlist, ylist=ylist, zlist=zlist, vlist=vlist, xunit=xunit,
@@ -1628,35 +1653,35 @@ class Design(object):
     @aedt_exception_handler
     def create_dataset(self, dsname, xlist, ylist, zlist=None, vlist=None, is_project_dataset=True, xunit="", yunit="",
                        zunit="", vunit=""):
-        """Create a Dataset
+        """Create a dataset.
 
         Parameters
         ----------
-        dsname :
-            name of dataset (without prefix for project datasets)
-        xlist :
-            list of x values of dataset
-        ylist :
-            list of y values of dataset
-        zlist :
-            list of z values of dataset (for 3D Datasets only) (Default value = None)
-        vlist :
-            list of v values of dataset (for 3D Datasets only) (Default value = None)
-        is_project_dataset :
-            bool True if is a project dataset, False if it is a design dataset (Default value = True)
-        xunit :
-            optional x unit (Default value = "")
-        yunit :
-            optional y unit (Default value = "")
-        zunit :
-            optional z unit (for 3D Datasets only) (Default value = "")
-        vunit :
-            optional v unit (for 3D Datasets only) (Default value = "")
-
+        dsname : str
+            Name of the dataset (without prefix for a project dataset).
+        xlist : list
+            List of X values for the dataset.
+        ylist : list
+            List of Y values for the dataset.
+        zylist : list, optional
+            List of Z values for a 3D dataset only. The default is ``None``.
+        vylist : list, optional
+            List of V values for a 3D dataset only. The default is ``None``.
+        is_project_dataset : bool, optional
+            Whether it is a project data set. The default is ``True``.
+        xunit : str, optional
+            Units for the X axis. The default is ``""``.
+        yunit : str, optional
+            Units for the Y axis. The default is ``""``.
+        zunit : str, optional
+            Units for the Z axis for a 3D dataset only. The default is ``""``.
+        vunit : str, optional
+            Units for the V axis for a 3D dataset only. The default is ``""``.    
+                
         Returns
         -------
         type
-            Dataset object if dataset is created. False if not
+            Dataset object when dataset is created; otherwise ``False``.
 
         """
         if not self.dataset_exists(dsname, is_project_dataset):
@@ -1675,19 +1700,19 @@ class Design(object):
 
     @aedt_exception_handler
     def dataset_exists(self, name, is_project_dataset=True):
-        """Check if a dataset exists
+        """Check if a dataset exists.
 
         Parameters
         ----------
-        name :
-            Name of dataset to check  (without prefix for project datasets)
-        is_project_dataset :
-            bool (Default value = True)
+        name :str
+            Name of the dataset (without a prefix for a project dataset).
+        is_project_dataset : bool, optional
+            Whether it is a project data set. The default is ``True``.
 
         Returns
         -------
-        type
-            True if dataset exists
+        bool
+            ``True`` when successful, ``False`` when failed.
 
         """
         if is_project_dataset and "$"+name in self.project_datasets:
@@ -1704,15 +1729,17 @@ class Design(object):
 
     @aedt_exception_handler
     def change_automatically_use_causal_materials(self, lossy_dielectric=True):
-        """Enable or disable the automatic use of causal material for lossy dielectrics
+        """Enable the automatic use of causal material for lossy dielectrics.
 
         Parameters
         ----------
-        lossy_dielectric : bool
-            enable or disable causal materials (Default value = True)
+        lossy_dielectric : bool, optional
+            Whether to enable causal materials. The default is ``True``.
 
         Returns
         -------
+        bool    
+            ``True`` when successful, ``False`` when failed.
 
         """
         if lossy_dielectric:
@@ -1725,22 +1752,17 @@ class Design(object):
 
     @aedt_exception_handler
     def change_material_override(self, material_override=True):
-        """Enable the material override in the given Project
+        """Enable the material override in the project.
 
         Parameters
         ----------
-        ___________ :
-
-        material_override :
-            bool (Default value = True)
-        enable :
-            or disable material override
-
+        material_override : bool, optional
+            Whether to enable the material override. The default is ``True``.
+        
         Returns
         -------
-        type
-            _______
-            bool
+        bool
+            ``True`` when successful, ``False`` when failed.
 
         """
         if material_override:
@@ -1754,22 +1776,22 @@ class Design(object):
     @aedt_exception_handler
     def change_validation_settings(self, entity_check_level="Strict", ignore_unclassified=False,
                                    skip_intersections=False):
-        """change the validation design settings
+        """Update the validation design settings.
 
         Parameters
         ----------
-        entity_check_level : str
-            Entity Level, default "Strict"
-        ignore_unclassified : bool
-            Ignore unclassified elements (Default value = False)
-        skip_intersections : bool
-            Skip Intersections (Default value = False)
+        entity_check_level : str, optional
+            Entity Level. The default is ``"Strict"``.
+        ignore_unclassified : bool, optional
+            Whether to ignore unclassified elements. The default is ``False``.
+        skip_intersections : bool, optional
+            Whether to skip intersections. The default is ``False``.
 
         Returns
         -------
-
-            bool
-
+        bool
+            ``True`` when successful, ``False`` when failed.
+            
         """
         self._messenger.add_info_message("Changing the validation design settings")
         self.odesign.SetDesignSettings(["NAME:Design Settings Data"],
@@ -1781,19 +1803,22 @@ class Design(object):
 
     @aedt_exception_handler
     def clean_proj_folder(self, directory=None, name=None):
-        """Delete all project name related folder
+        """Delete a project folder.
 
         Parameters
         ----------
-        directory : str, default=None
-            project directory, of not specified clear the .aedtresults directory of the active project
-        name : str, default=None
-            project name, if not specified clear the data for the active project
+        directory : str, optionl
+            Name of the directory. The default is ``None``, in which case the active project is
+            deleted from the ``aedtresults`` directory.
+        name : str, optional
+            Name of the project. The default is ``None``, in which case the data for the 
+            active project is deleted.
 
         Returns
         -------
         bool
-            True if the clear operation is successful
+            ``True`` when successful, ``False`` when failed.
+            
         """
         if not name:
             name=self.project_name
@@ -1809,18 +1834,22 @@ class Design(object):
 
     @aedt_exception_handler
     def copy_project(self, path, dest):
-        """Copy the given project to another destination
-        Save the project before copying it
+        """Copy the project to another destination.
+        
+        .. note::
+           This method saves the project before copying it.
 
         Parameters
         ----------
-        path :
-            destination project path
+        path : str
+            Path to save a copy of the project to.
         dest :
-            name of the project
+            Name to give the project in the new destination.
 
         Returns
         -------
+        bool
+            ``True`` when successful, ``False`` when failed.
 
         """
         self._messenger.add_info_message("Copy AEDT Project ")
@@ -1830,16 +1859,18 @@ class Design(object):
 
     @aedt_exception_handler
     def create_new_project(self, proj_name):
-        """Create a new project within the desktop
+        """Create a new project within the desktop.
 
         Parameters
         ----------
         proj_name :
-            name of the new project
+            Name of the project.
 
         Returns
         -------
-
+        bool
+            ``True`` when successful, ``False`` when failed.
+            
         """
         self._messenger.add_info_message("Creating new Project ")
         prj = self._desktop.NewProject(proj_name)
@@ -1850,22 +1881,26 @@ class Design(object):
 
     @aedt_exception_handler
     def close_project(self, name=None, saveproject=True):
-        """Close the specified project
+        """Close a project.
 
         Parameters
         ----------
-        name :
-            name of the project (if none take active project) (Default value = None)
-        saveproject : bool
-            Save project before close (Default value = True)
+        name : str, optional
+            Name of the project. The default is ``None``, in which case the
+            active project is closed.
+        saveproject : bool, optional
+            Whether to save the project before closing it. The default is
+            ``True``.
 
         Returns
         -------
+        bool
+            ``True`` when successful, ``False`` when failed.
 
         """
         msg_txt = ""
         if name:
-            assert name in self.project_list, "Invalid project name {}".format(name)
+            assert name in self.project_list, "Invalid project name {}.".format(name)
             msg_txt = "specified "+ name
         else:
             name = self.project_name
@@ -1881,22 +1916,27 @@ class Design(object):
         lock_file = str(self.lock_file)
         self.odesktop.CloseProject(name)
         if name == self.project_name:
-            assert not os.path.exists(lock_file), 'AEDT project did not close properly'
+            assert not os.path.exists(lock_file), 'The AEDT project did not close properly.'
         return True
 
     @aedt_exception_handler
     def delete_design(self, name=None, fallback_design=None):
-        """Delete name Design from the current project (will not work from toolkit)
+        """Delete a design from the current project.
+        
+        .. warning::
+           This method does not work from the toolkit.
 
         Parameters
         ----------
-        name : str, default=None
-            Design name to be deleted. If not specified then delete the active design
+        name : str, optional
+            Name of the design. The default is ``None``, in which case
+            the active design is deleted. 
 
         Returns
         -------
         bool
-            succeed status
+            ``True`` when successful, ``False`` when failed.
+            
         """
         if not name:
             name = self.design_name
@@ -1920,54 +1960,54 @@ class Design(object):
 
     @aedt_exception_handler
     def delete_separator(self, separator_name):
-        """Deletes a separator from either the active project or design
+        """Delete a separator from either the active project or a design.
 
         Parameters
         ----------
-        separator_name :
-
+        separator_name : str
+            Name of the separator.
 
         Returns
         -------
         bool
-            True if the separator exists and can be deleted, False otherwise
+            ``True`` when successful, ``False`` when failed.
 
         """
         return self._variable_manager.delete_separator(separator_name)
 
     @aedt_exception_handler
     def delete_variable(self, sVarName):
-        """Delete a Variable
+        """Delete a variable.
 
         Parameters
         ----------
         sVarName :
-            name of variable to delete
-
-        Returns
-        -------
-        type
-            none
-
+            Name of the variable.
+       
         """
         return  self.variable_manager.delete_variable(sVarName)
 
     @aedt_exception_handler
     def insert_design(self, design_name=None):
-        """Inserts a design of the specified design type. Default design type is taked from the derived application \
-        class. If no design-name is given, the default design name is <Design-Type>Design<_index>. If the given or \
-        default design name is in use, then an underscore + index is added            to ensure that the design name\
-        is unique. The inserted object is assigned to self._odesign
-
+        """Insert a design of a specified design type. 
+        
+        The default design type is taked from the derived application class. 
+       
         Parameters
         ----------
-        design_name :
-            optional design name (Default value = None)
+        design_name : str, optional
+            Name of the design. The default is ``None``, in which case, the 
+            default design name is ``<Design-Type>Design<_index>``. If the 
+            given or default design name is in use, then an underscore and 
+            index is added to ensure that the design name is unique. 
+            The inserted object is assigned to the Design object.
 
         Returns
         -------
+        str
+            Name of the design.
 
-        """"Circuit Design"
+        """
         if self.design_type == "Circuit Design" or self.design_type == "HFSS 3D Layout Design":
             self.modeler.edb.close_edb()
         self.__init__(projectname=self.project_name, designname=design_name)
@@ -1978,7 +2018,7 @@ class Design(object):
         unique_design_name = self._generate_unique_design_name(design_name)
         if solution_type:
             assert solution_type in design_solutions[self._design_type], \
-                "Invalid solution type {0} for design type {1}".format(solution_type, self._design_type)
+                "Solution type {0} is invalid for design type {1}.".format(solution_type, self._design_type)
         else:
             solution_type = self.default_solution_type
         if design_type == "RMxprtSolution":
@@ -1987,7 +2027,7 @@ class Design(object):
             new_design = self._oproject.InsertDesign("RMxprt", unique_design_name, "Model Creation Inner-Rotor Induction Machine", "")
         else:
             new_design = self._oproject.InsertDesign(design_type, unique_design_name, solution_type, "")
-        self._messenger.add_info_message("Added design '{0}' of type {1}".format(unique_design_name, design_type),
+        self._messenger.add_info_message("Added design '{0}' of type {1}.".format(unique_design_name, design_type),
                                          level='Project')
         name = new_design.GetName()
         if ";" in name:
@@ -1998,15 +2038,18 @@ class Design(object):
 
     @aedt_exception_handler
     def _generate_unique_design_name(self, design_name):
-        """
+        """Generate an unique design name.
 
         Parameters
         ----------
-        design_name :
+        design_name : str
+            Name of the design.
 
 
         Returns
         -------
+        str
+            Name of the design.
 
         """
         design_index = 0
@@ -2025,7 +2068,14 @@ class Design(object):
 
     @aedt_exception_handler
     def _generate_unique_project_name(self):
-        """ """
+        """Generate an unique project name.
+
+        Returns
+        --------
+        str
+            Unique project name in the form ``"Project_<unique_name>.aedt".
+        
+        """
         char_set = string.ascii_uppercase + string.digits
         uName = ''.join(random.sample(char_set, 3))
         proj_name = "Project_" + uName+ ".aedt"
@@ -2033,15 +2083,17 @@ class Design(object):
 
     @aedt_exception_handler
     def rename_design(self, new_name):
-        """Rename the active Design
+        """Rename the active design.
 
         Parameters
         ----------
-        new_name :
-            new name of the design
+        new_name : str
+            New name of the design.
 
         Returns
         -------
+        bool
+            ``True`` when successful, ``False`` when failed.
 
         """
         self._odesign.RenameDesignInstance(self.design_name, new_name)
@@ -2050,22 +2102,24 @@ class Design(object):
 
     @aedt_exception_handler
     def copy_design_from(self, project_fullname, design_name):
-        """Copy the design with name design_name from the project project_fullname  into the active design\
-        If a design with the same name is already present in the destination project, the name is\
-         automatically changed (this is done by AEDT). The name is returned by the function.\
-        The active design is maintained.
-
+        """Copy a design from a project into the active design.       
+       
         Parameters
         ----------
-        project_fullname :
-            copmlete full name (with path) of the project containing the design to be copied
-        design_name :
-            design name to be copied into the active design
+        project_fullname : str
+            Full path and name for the project containing the design to copy. 
+            The active design is maintained.
+        design_name : str
+            Name of the design to copy into the active design. If a design with this 
+            same name is already present in the destination project, AEDT automatically 
+            changes the name. 
 
         Returns
         -------
-        type
-            the copied design name or None if not copied (e.g. design_name does not exists in project_fullname)
+        str
+           Name of the copied design name when successful or ``None`` when failed.
+           Failure is generally a result of the name specified for ``design_name``
+           not existing in the project specified for ``project_fullname``.
 
         """
         self.save_project()
@@ -2098,17 +2152,22 @@ class Design(object):
 
     @aedt_exception_handler
     def duplicate_design(self, label):
-        """Copy the selected design with a new name consisting of the original design name, plus
-            a defined extension MMode, plus a running index as necessary to allow for multiple calls
+        """Copy a design to a new name.
+        
+        The new name consists of the original 
+        design name plus a suffix of ``MMode`` and a running index 
+        as necessary to allow for multiple calls.
 
         Parameters
         ----------
-        label :
-
+        label : str
+            Name of the design to copy.
 
         Returns
         -------
-
+        bool
+            ``True`` when successful, ``False`` when failed.
+      
         """
 
         active_design = self.design_name
@@ -2129,24 +2188,22 @@ class Design(object):
 
     @aedt_exception_handler
     def export_variables_to_csv(self, filename, export_project=True, export_design=True):
-        """Export Project and design variables variables to filename
+        """Export a project and design variables to a CSV file.
 
         Parameters
         ----------
-        filename :
-            full path to csv file to export data
-        export_design :
-            True (Export Design Variables) | False (Default value = True)
-        export_project :
-            True (Export Project Variables) | False (Default value = True)
+        filename : str
+            Full path and name for the CSV file.
+        export_project : bool, optional
+            Whether to export project variables. The default is ``True``.
+        export_design : bool, optional
+            Whether to export design variables. The default is ``True``.
+        
 
         Returns
         -------
-        type
-            True
-
-        """
-        """
+        bool
+            ``True`` when successful, ``False`` when failed.
             
         """
         varnames = []
@@ -2168,7 +2225,14 @@ class Design(object):
 
     @aedt_exception_handler
     def read_design_data(self):
-        """Reads back the design data as a dictionary"""
+        """Read back the design data as a dictionary.
+        
+        Returns
+        -------
+        dict
+            Dictionary of the design data.
+        
+        """
         design_file = os.path.join(self.working_directory, "design_data.json")
         with open(design_file, 'r') as fps:
             design_data = json.load(fps)
@@ -2176,21 +2240,22 @@ class Design(object):
 
     @aedt_exception_handler
     def save_project(self, project_file=None, overwrite=True, refresh_obj_ids_after_save=False):
-        """Save the AEDT Project and add a message.
+        """Save the AEDT project and add a message.
 
         Parameters
         ----------
         project_file : str, optional
-            Full Project path. Default ``None``.
+            Full path and project file name. The default is ````None``.
         overwrite : bool, optional
-            Overwrite existing project.  Default ``True``.
-        refresh_obj_ids_after_save : bool
-            Refresh object IDs after save.  Default ``False``.
+            Whether to overwrite the existing project. The default is ``True``.
+        refresh_obj_ids_after_save : bool, optional
+            Whether to refresh object IDs after saving the project.  
+            The default is ``False``.
 
         Returns
         -------
         bool
-            Always returns ``True``
+            ``True`` when successful, ``False`` when failed.
 
         """
         msg_text = "Saving {0} Project".format(self.project_name)
@@ -2205,37 +2270,32 @@ class Design(object):
 
     @aedt_exception_handler
     def delete_project(self, project_name):
-        """Delete the named project.
+        """Delete a project.
 
         Parameters
         ----------
         project_name : str
-            Name of the project to delete
+            Name of the project.
 
         Returns
         -------
         bool
-            Always returns ``True``.
+            ``True`` when successful, ``False`` when failed.
 
         """
-        assert self.project_name != project_name, "Cannot delete active design"
+        assert self.project_name != project_name, "You cannot delete the active design."
         self._desktop.DeleteProject(project_name)
         return True
 
     @aedt_exception_handler
     def set_active_design(self, name):
-        """Change active Design to another design
+        """Change the active design to another design.
 
         Parameters
         ----------
         name :
-            design name to make active
-
-        Returns
-        -------
-        type
-            nothing
-
+            Name of the design to make active.
+        
         """
         self.oproject.SetActiveDesign(name)
         self.odesign = name
@@ -2244,33 +2304,31 @@ class Design(object):
 
     @aedt_exception_handler
     def update_registry_from_file(self, filename):
-        """Update HPC options from an af from an acf configuration file.
+        """Update HPC options from a configuration file.
 
         Parameters
         ----------
-        filename :
-            full path to the filename (can be an acf or a txt)
-
-        Returns
-        -------
-        type
-            nothing
-
+        filename : str
+            Full path and name of the configuration, which can be an ACF or TXT file.
+        
         """
         self._desktop.SetRegistryFromFile(r'%s' % os.path.abspath(filename))
         return True
 
     @aedt_exception_handler
     def validate_simple(self, logfile=None):
-        """Validate Design. Return 0 if validation failed or 1 if passed
+        """Validate a design.
 
         Parameters
         ----------
-        logfile :
-            Optional, save validation to logfile (Default value = None)
+        logfile : str, optional
+            Name of the log file to save validation information to.
+            The default is ``None``. 
 
         Returns
         -------
+        int
+            ``0`` if validation failed or ``1`` if passed.
 
         """
         if logfile:
@@ -2281,17 +2339,19 @@ class Design(object):
 
     @aedt_exception_handler
     def get_evaluated_value(self, variable_name, variation=None):
-        """Returns the floating-point evaluated value of a given variable in SI-units
-        (design property or project variable)
-
-        Optionally a variation string of the form
+        """Return the evaluated value of a design property or project variable in SI units.
+        
 
         Parameters
         ----------
-        variable_name : str, default=None
-        Name of the project- or design variable to be evaluated
-        variation : str, default=None
-        Variation string for the evaluation. If not specified then use the nominal variation
+        variable_name : str 
+            Name of the project or design variable to evaluate.
+        variation : str, optional
+            Variation string for the evaluation. The default is ``None``,
+            in which case the nominal variation is used.
+            
+        Examples
+        --------
 
         >>> M3D = Maxwell3D()
         >>> M3D["p1"] = "10mm"
@@ -2302,6 +2362,7 @@ class Design(object):
         Returns
         -------
         float
+            Evaluated value of the design property or project variable in SI units.
 
         """
         if not variation:
@@ -2315,16 +2376,18 @@ class Design(object):
 
     @aedt_exception_handler
     def evaluate_expression(self, expression_string):
-        """ Evaluate an arbitrary valid string expression and return the numerical value in SI units
+        """Evaluate a valid string expression and return the numerical value in SI units.
 
         Parameters
         ----------
         expression_string : str
-        A valid design property/project variable string, i.e "34mm*sqrt(2)", "$G1*p2/34"
+            A valid string expression for a design property or project variable.
+            For example, ``"34mm*sqrt(2)"`` or ``"$G1*p2/34"``.
 
         Returns
         -------
         float
+            Evaluated value for the string expression.
 
         """
         # Set the value of an internal reserved design variable to the specified string
@@ -2342,24 +2405,25 @@ class Design(object):
 
     @aedt_exception_handler
     def design_variation(self, variation_string=None):
-        """Generate a string to specify a desired variation
+        """Generate a string to specify a desired variation.
 
-        Converts a user input string defining a desired solution variation, e.g. "p1=1mm p2=3mm" into a valid
-        string taking into account all existing design properties and project variables including non-sweep
-        dependent properties.
+        This method converts a user input string defining a desired solution variation into a valid
+        string taking into account all existing design properties and project variables, including 
+        dependent (non-sweep) properties.
 
-        This is actually needed because the standard GetVariationVariableValue does not work for obtaining
-        values of dependent (non-sweep variables). Presumably using the new beta feature object-oriented
-        scripting model this could be made redundant in future releases.
+        This is needed because the standard function `GetVariationVariableValue` does not work for obtaining
+        values of dependent (non-sweep variables). Using the new beta feature object-oriented
+        scripting model could make this redundant in future releases.
 
         Parameters
         ----------
-        variation_string : str
-        Variation string of the form "p1=1mm p2=3mm"
+        variation_string : str, optional
+            Variation string. For example, ``"p1=1mm" or ``"p2=3mm"``.
 
         Returns
         -------
         str
+            String specifying the desired variation.
 
         """
         nominal = self._odesign.GetNominalVariation()
@@ -2385,11 +2449,12 @@ class Design(object):
 
     @aedt_exception_handler
     def _assert_consistent_design_type(self, des_name):
-        """
+        """Assert consistent design type.
 
         Parameters
         ----------
-        des_name :
+        des_name : str
+            Name of the design.
 
 
         Returns
@@ -2401,17 +2466,17 @@ class Design(object):
             dtype = self._odesign.GetDesignType()
             if dtype != "RMxprt":
                 assert dtype == self._design_type, \
-                    "Error: Specified design is not of type {}".format(self._design_type)
+                    "Error: Specified design is not of type {}.".format(self._design_type)
             else:
                 assert ("RMxprtSolution" == self._design_type) or ("ModelCreation" == self._design_type), \
-                    "Error: Specified design is not of type {}".format(self._design_type)
+                    "Error: Specified design is not of type {}.".format(self._design_type)
             return True
         else:
             return des_name
 
     @aedt_exception_handler
     def _check_solution_consistency(self):
-        """ """
+        """Check solution consistency. """
         if self._solution_type:
             return self._odesign.GetSolutionType() in self._solution_type
         else:

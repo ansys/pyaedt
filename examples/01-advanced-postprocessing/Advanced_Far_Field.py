@@ -2,8 +2,9 @@
 
 Advanced Far Field Post Processing Example
 --------------------------------------------
-This Example shows how to use advanced postprocessing functions to create plots using MatPlotLib without opening HFSS UI """
-
+This Example shows how to use advanced postprocessing functions to create plots using MatPlotLib without opening HFSS UI
+This Examples runs on Windows Only using CPython
+"""
 #########################################################
 # Import Packages
 # Setup The local path to the Path Containing AEDTLIb

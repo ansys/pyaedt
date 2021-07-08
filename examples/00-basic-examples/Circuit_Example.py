@@ -9,7 +9,7 @@ in NEXXIM Circuit and run a simulation
 
 from pyaedt import Circuit
 from pyaedt import Desktop
-
+import os
 ###############################################################################
 # Launch Desktop and Circuit
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -104,5 +104,5 @@ aedtapp.export_fullwave_spice()
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # After the simulaton is completed user can close the desktop or release it (using release_desktop method).
 # All methods give possibility to save projects before exit
-
-d.force_close_desktop()
+if os.name != "posix":
+    d.force_close_desktop()

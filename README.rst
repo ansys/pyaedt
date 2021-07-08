@@ -118,7 +118,7 @@ Implicit Desktop declaration and error management
     Launch the latest installed version of AEDT in graphical mode
 
     from pyaedt import Circuit    
-    with Circuit as circuit:
+    with Circuit() as circuit:
         ...
         # Any error here will be caught by Desktop.
         ...

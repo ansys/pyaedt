@@ -4,7 +4,7 @@ Touchstone Management
 --------------------------------------------
 This Example shows how to use Touchstone objects without opening AEDT
 This Example needs numpy and matplotlib,  to be installed on the machine to provide advanced post processing features
-
+This Examples runs on Windows Only using CPython
 """
 
 import sys
