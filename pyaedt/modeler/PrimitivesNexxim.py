@@ -951,6 +951,8 @@ class NexximComponents(CircuitComponents):
             Name of the instance.
         thevenin_calculation : bool, optional
             Whether to perform the Thevenin equivalent calculation. The default is ``False``.
+        setup_name : str
+            Name of the Solution Setup to push
 
         Returns
         -------
