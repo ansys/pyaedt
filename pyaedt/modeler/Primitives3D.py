@@ -357,7 +357,7 @@ class Primitives3D(Primitives, object):
         position : list, Position
             ApplicationName.modeler.Position(x,y,z) object or list ``[x,y,z]`` of position
         dimension_list : list
-            dimension list ``[width, heigh]``
+            dimension list ``[width, height]``
         name : str
             Object Name (Default value = None)
         matname : str
