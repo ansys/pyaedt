@@ -38,9 +38,9 @@ class Primitives3D(Primitives, object):
         Parameters
         ----------
         position : list
-            Center point for the box in a list of [x, y, z] coordinates. 
+            Center point for the box in a list of ``[x, y, z]`` coordinates. 
         dimensions_list : list
-           Dimensions for the box in a list of [x, y, z] coordinates.
+           Dimensions for the box in a list of ``[x, y, z]`` coordinates.
         name : str, optional
             Name of the box. Thed default is ``None``, in which case the 
             default name is assigned.
@@ -556,9 +556,9 @@ class Primitives3D(Primitives, object):
         cs_plane :
             Coordinate system plane for orienting the rectangle. 
         position : list
-            Center point of the rectangle in a list of [x, y, z] coordinates. 
+            Center point of the rectangle in a list of ``[x, y, z]`` coordinates. 
         dblList : list
-            Dimensions of the rectangle in a list of [x, y, z] coordinates.
+            Dimensions of the rectangle in a list of ``[x, y, z]`` coordinates.
         name : str, optional
             Name of the rectangle. The default is ``None``, in which case the 
             default name is assigned.
@@ -671,13 +671,13 @@ class Primitives3D(Primitives, object):
         cs_axis :
             Coordinate system axis for orienting the cone. 
         position : list
-            Center point of the cone's base circle in a list of [x, y, z] coordinates. 
+            Center point of the cone's base circle in a list of ``[x, y, z]`` coordinates. 
         bottom_radius : float
             Radius of the cone's base circle.
         top_radius : float
             Radius of the cone's top circle.
         height : list
-            Height of the cone in a list of [x, y, z] coordinates.
+            Height of the cone in a list of ``[x, y, z]`` coordinates.
         name : str, optional
             Name of the cone. The default is ``None``, in which case the 
             default name is assigned.
