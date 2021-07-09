@@ -5,7 +5,8 @@ class TestSequenceFunctions(unittest.TestCase):
 
     def setUp(self):
         self.aedtapp = Hfss()
-        self.test_obj = TestObject3D
+        self.test_obj = TestObject3D()
+        self.test_obj.aedtapp = self.aedtapp
 
     def test_create_box(self):
         # make sure the shuffled sequence does not lose any elements

@@ -2,8 +2,10 @@
 import os
 import math
 
-# Setup paths for module imports
-from .conftest import local_path, scratch_path
+try:
+    from .conftest import local_path, scratch_path
+except:
+    pass
 
 # Import required modules
 from pyaedt import Hfss
