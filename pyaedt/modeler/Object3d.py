@@ -11,12 +11,15 @@ solids) within the AEDT 3D Modeler
 
 """
 from __future__ import absolute_import
-
+import time
 import random
 import string
 from collections import defaultdict
 from .. import generate_unique_name, retry_ntimes, aedt_exception_handler
 from .GeometryOperators import GeometryOperators
+from ..generic.general_methods import time_fn
+
+
 
 clamp = lambda n, minn, maxn: max(min(maxn, n), minn)
 
@@ -517,6 +520,7 @@ class Object3d(object):
         self._transparency = None
         self._solve_inside = None
         self._is_updated = False
+        self._all_props = None
         self._update()
 
     @property
@@ -638,13 +642,34 @@ class Object3d(object):
         return self._parent.messenger
 
     @property
+    def surface_material_name(self):
+        """Get the surface material name of the object
+        If the material does not exist, then send a warning and return None
+        """
+        if 'Surface Material' in self.valid_properties:
+            self.m_surfacematerial = retry_ntimes(10, self.m_Editor.GetPropertyValue,
+                                          "Geometry3DAttributeTab", self._m_name, 'Surface Material')
+            return self.m_surfacematerial
+
+    @property
+    def group_name(self):
+        """Get the group to which an object belongs
+        """
+        if 'Group' in self.valid_properties:
+            self.m_groupName = retry_ntimes(10, self.m_Editor.GetPropertyValue, "Geometry3DAttributeTab", self._m_name, 'Group')
+            return self.m_groupName
+
+    @property
     def material_name(self):
         """Get or set the material name of the object
         If the material does not exist, then send a warning and do nothing
         """
-        if not self._is_updated:
-            self._update_properties()
-        return self._material_name
+        if 'Material' in self.valid_properties:
+            mat = retry_ntimes(10, self.m_Editor.GetPropertyValue, "Geometry3DAttributeTab", self._m_name, 'Material')
+            self._material_name = ''
+            if mat:
+                self._material_name = mat[1:-1].lower()
+            return self._material_name
 
     @material_name.setter
     def material_name(self, mat):
@@ -670,8 +695,6 @@ class Object3d(object):
              * Sheet
              * Line
          """
-        if not self._is_updated:
-            self._update_properties()
         return self._object_type
 
     @property
@@ -701,6 +724,11 @@ class Object3d(object):
             pass
         self._m_name = obj_name
 
+    @property
+    def valid_properties(self):
+        if not self._all_props:
+            self._all_props = retry_ntimes(10, self.m_Editor.GetProperties, "Geometry3DAttributeTab", self._m_name)
+        return self._all_props
 
     @property
     def color(self):
@@ -708,9 +736,16 @@ class Object3d(object):
         If the integer values are outside the range 0 - 255, then limit the values. Invalid inputs will be ignored
          >>> part.color = (255,255,0)
         """
-        if not self._is_updated:
-            self._update_properties()
-        return self._color
+        if 'Color' in self.valid_properties:
+            color = retry_ntimes(10, self.m_Editor.GetPropertyValue, "Geometry3DAttributeTab", self._m_name, 'Color')
+            if color:
+                b = (int(color) >> 16) & 255
+                g = (int(color) >> 8) & 255
+                r = int(color) & 255
+                self._color = (r, g, b)
+            else:
+                self._color = (0, 195, 255)
+            return self._color
 
     @property
     def color_string(self):
@@ -752,9 +787,13 @@ class Object3d(object):
         """Get or set part transparency as a value between 0.0 and 1.0
         If the value is outside the range, then apply a limit. If the value is not a valid number, set to 0.0
         """
-        if not self._is_updated:
-            self._update_properties()
-        return self._transparency
+        if 'Transparent' in self.valid_properties:
+            transp = retry_ntimes(10, self.m_Editor.GetPropertyValue, "Geometry3DAttributeTab", self._m_name, 'Transparent')
+            try:
+                self._transparency = float(transp)
+            except:
+                self._transparency = 0.3
+            return self._transparency
 
     @transparency.setter
     def transparency(self, T):
@@ -786,9 +825,10 @@ class Object3d(object):
         str
             Name of the part coordinate system
         """
-        if not self._is_updated:
-            self._update_properties()
-        return self._part_coordinate_system
+        if 'Orientation' in self.valid_properties:
+            self._part_coordinate_system = retry_ntimes(10, self.m_Editor.GetPropertyValue,
+                                                "Geometry3DAttributeTab", self._m_name, 'Orientation')
+            return self._part_coordinate_system
 
     @part_coordinate_system.setter
     def part_coordinate_system(self, sCS):
@@ -800,9 +840,13 @@ class Object3d(object):
         """Get or Set part solve inside flag as a boolean value
         True if "solve-inside" is activated for the part
         """
-        if not self._is_updated:
-            self._update_properties()
-        return self._solve_inside
+        if 'Solve Inside' in self.valid_properties:
+            solveinside = retry_ntimes(10, self.m_Editor.GetPropertyValue, "Geometry3DAttributeTab", self._m_name, 'Solve Inside')
+            if solveinside == 'false' or solveinside == 'False':
+                self._solve_inside = False
+            else:
+                self._solve_inside = True
+            return self._solve_inside
 
     @solve_inside.setter
     def solve_inside(self, S):
@@ -821,9 +865,14 @@ class Object3d(object):
     def display_wireframe(self):
         """Get or set the display_wireframe property of the part as a boolean value
         """
-        if not self._is_updated:
-            self._update_properties()
-        return self._wireframe
+        if 'Display Wireframe' in self.valid_properties:
+            wireframe = retry_ntimes(10, self.m_Editor.GetPropertyValue,
+                                     "Geometry3DAttributeTab", self._m_name, 'Display Wireframe')
+            if wireframe == 'true' or wireframe == 'True':
+                self._wireframe = True
+            else:
+                self._wireframe = False
+            return self._wireframe
 
     @display_wireframe.setter
     def display_wireframe(self, fWireframe):
@@ -837,9 +886,13 @@ class Object3d(object):
     def model(self):
         """Set part Model/Non-model as a boolean value
         """
-        if not self._is_updated:
-            self._update_properties()
-        return self._model
+        if 'Model' in self.valid_properties:
+            mod = retry_ntimes(10, self.m_Editor.GetPropertyValue, "Geometry3DAttributeTab", self._m_name, 'Model')
+            if mod == 'false' or mod == 'False':
+                self._model = False
+            else:
+                self._model = True
+            return self._model
 
     @model.setter
     def model(self, fModel):
@@ -1064,10 +1117,8 @@ class Object3d(object):
         self._parent._refresh_object_types()
         self._parent.cleanup_objects()
         self._update_object_type()
-        # self._update_properties()
 
     def __str__(self):
-        self._update_properties()
         return """
          {}
          name: {}    id: {}    object_type: {}
@@ -1079,7 +1130,7 @@ class Object3d(object):
          transparency: {}
          display_wireframe {}
          part_coordinate_system: {}
-         """.format(type(self), self._m_name, self.id, self.object_type, self._solve_inside, self._model, self._material_name,
+         """.format(type(self), self.name, self.id, self.object_type, self.solve_inside, self.model, self.material_name,
                     self.color, self.transparency, self.display_wireframe, self.part_coordinate_system)
 
     def _update_object_type(self):
@@ -1090,64 +1141,6 @@ class Object3d(object):
                 self._object_type = "Sheet"
             elif self._m_name in self._parent.line_names:
                 self._object_type = "Line"
-
-    def _update_properties(self):
-
-        n = 10
-        all_prop = retry_ntimes(n, self.m_Editor.GetProperties, "Geometry3DAttributeTab", self._m_name)
-
-        self._solve_inside = False
-        if 'Solve Inside' in all_prop:
-            solveinside = retry_ntimes(n, self.m_Editor.GetPropertyValue, "Geometry3DAttributeTab", self._m_name, 'Solve Inside')
-            if solveinside == 'false' or solveinside == 'False':
-                self._solve_inside = False
-            else:
-                self._solve_inside = True
-
-        if 'Material' in all_prop:
-            mat = retry_ntimes(n, self.m_Editor.GetPropertyValue, "Geometry3DAttributeTab", self._m_name, 'Material')
-            self._material_name = ''
-            if mat:
-                self._material_name = mat[1:-1].lower()
-
-        if 'Orientation' in all_prop:
-            self._part_coordinate_system = retry_ntimes(n, self.m_Editor.GetPropertyValue,
-                                                    "Geometry3DAttributeTab", self._m_name, 'Orientation')
-        if 'Model' in all_prop:
-            mod = retry_ntimes(n, self.m_Editor.GetPropertyValue, "Geometry3DAttributeTab", self._m_name, 'Model')
-            if mod == 'false' or mod == 'False':
-                self._model = False
-            else:
-                self._model = True
-        if 'Group' in all_prop:
-            self.m_groupName = retry_ntimes(n, self.m_Editor.GetPropertyValue, "Geometry3DAttributeTab", self._m_name, 'Group')
-        if 'Display Wireframe' in all_prop:
-            wireframe = retry_ntimes(n, self.m_Editor.GetPropertyValue,
-                                     "Geometry3DAttributeTab", self._m_name, 'Display Wireframe')
-            if wireframe == 'true' or wireframe == 'True':
-                self._wireframe = True
-            else:
-                self._wireframe = False
-        if 'Transparent' in all_prop:
-            transp = retry_ntimes(n, self.m_Editor.GetPropertyValue, "Geometry3DAttributeTab", self._m_name, 'Transparent')
-            try:
-                self._transparency = float(transp)
-            except:
-                self._transparency = 0.3
-
-        if 'Color' in all_prop:
-            color = int(retry_ntimes(n, self.m_Editor.GetPropertyValue, "Geometry3DAttributeTab", self._m_name, 'Color'))
-            if color:
-                b = (color >> 16) & 255
-                g = (color >> 8) & 255
-                r = color & 255
-                self._color = (r, g, b)
-            else:
-                self._color = (0, 195, 255)
-        if 'Surface Material' in all_prop:
-            self.m_surfacematerial = retry_ntimes(n, self.m_Editor.GetPropertyValue,
-                                               "Geometry3DAttributeTab", self._m_name, 'Surface Material')
-        self._is_updated = True
 
 class Padstack(object):
     """ """

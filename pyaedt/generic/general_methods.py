@@ -337,3 +337,10 @@ def retry_ntimes(n, function, *args, **kwargs):
             break
     return ret_val
 
+def time_fn( fn, *args, **kwargs ):
+    start = time.perf_counter()
+    results = fn( *args, **kwargs )
+    end = time.perf_counter()
+    fn_name = fn.__module__ + "." + fn.__name__
+    print(fn_name + ": " + str(end-start) + "s")
+    return results

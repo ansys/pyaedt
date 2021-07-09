@@ -8,6 +8,7 @@ from .conftest import local_path, scratch_path
 # Import required modules
 from pyaedt import Hfss
 from pyaedt.generic.filesystem import Scratch
+from pyaedt.generic.general_methods import time_fn
 from pyaedt.modeler.Object3d import _to_boolean, FacePrimitive, EdgeTypePrimitive, Object3d, _uname
 
 import gc
@@ -55,6 +56,10 @@ class TestObject3D:
             o = self.aedtapp.modeler.primitives.create_box([0, 0, 0], [10, 10, 5], "Mybox", "Copper")
         return o
 
+    def create_copper_box_test_performance(self):
+        for o in range(10):
+            o = self.aedtapp.modeler.primitives.create_box([0, 0, 0], [10, 10, 5], "MyboxLoop", "Copper")
+
     def create_copper_sphere(self, name=None):
         if not name:
             name = "Mysphere"
@@ -73,8 +78,12 @@ class TestObject3D:
         test = _uname()
         assert test.startswith("NewObject")
 
+    def test_object_performance(self):
+        time_fn(self.create_copper_box_test_performance)
+
     def test_01_bounding_box(self):
         o = self.create_copper_box()
+        a = o.color
         bb = o.bounding_box
         assert len(bb) == 6
 
