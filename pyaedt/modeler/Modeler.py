@@ -1646,18 +1646,25 @@ class GeometryModeler(Modeler, object):
         ----------
         object_list :
             list. if is list of string , it is considered an objecname. if Int it is considered an object id
-        plane :
-            Application.CoordinateSystemPlane object
-        create_new :
-            Bool. (Default value = True)
-        section_cross_object :
-            Bool (Default value = False)
+        plane : Application.CoordinateSystemPlane or str
+            Coordinate plane to be used: ''"XY"'', ''"YZ"'', ''"ZX"''
+        create_new : bool, default=True
+            no effect
+        section_cross_object : bool, default=False
+            no effect
 
         Returns
         -------
 
         """
-        planes = {0: "XY", 1: "YZ", 2: "ZX"}
+        plane_ids = [0, 1, 2]
+        plane_str = ["XY", "YZ", "ZX"]
+        if plane in plane_ids:
+            section_plane = plane_str[plane]
+        elif plane in plane_str:
+            section_plane = plane
+        else:
+            return False
 
         selections = self.convert_to_selections(object_list)
 
@@ -1670,7 +1677,7 @@ class GeometryModeler(Modeler, object):
             [
                 "NAME:SectionToParameters",
                 "CreateNewObjects:=", create_new,
-                "SectionPlane:=", planes[plane],
+                "SectionPlane:=", section_plane,
                 "SectionCrossObject:=", section_cross_object
             ])
         self.primitives.refresh_all_ids()

@@ -213,7 +213,7 @@ class TestPrimitives(BasisTest):
         assert o.name.startswith("MyCircle")
         assert o.object_type == "Sheet"
         assert o.is3d is False
-        assert o.solve_inside is False
+        assert not o.solve_inside
 
     @pyaedt_unittest_check_desktop_error
     def test_04_create_sphere(self):
