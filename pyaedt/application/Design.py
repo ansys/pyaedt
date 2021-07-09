@@ -1866,7 +1866,7 @@ class Design(object):
 
     @aedt_exception_handler
     def create_new_project(self, proj_name):
-        """Create a new project within the desktop.
+        """Create a project within the desktop.
 
         Parameters
         ----------
