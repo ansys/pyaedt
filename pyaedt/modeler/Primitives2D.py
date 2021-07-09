@@ -118,7 +118,7 @@ class Primitives2D(Primitives, object):
         return self._create_object(new_object_name)
 
     @aedt_exception_handler
-    def create_rectangle(self, position, dimension_list, is_covered=True, name=None, matname=None):
+    def create_rectangle(self, position, dimension_list, name=None, matname=None, is_covered=True):
         """Create a rectangle.
 
         Parameters
@@ -127,14 +127,14 @@ class Primitives2D(Primitives, object):
             Position of the lower-left corner of the rectangle
         dimension_list : list of float
             List of [height, width] of the rectangle
-        is_covered : bool
-            Specify whether the ellipse is a sheet (covered) or a line object
         name : str, default=None
             Name of the object. The default is ``None``. If ``None`` ,
             a unique name NewObject_xxxxxx will be assigned)
         matname : str, default=None
              Name of the material. The default is ``None``. If ``None``,
              the default material is assigned.
+        is_covered : bool
+            Specify whether the ellipse is a sheet (covered) or a line object
 
         Returns
         -------

@@ -44,17 +44,17 @@ class TestQ3D:
         mysetup = self.aedtapp.create_setup()
         mysetup.props["SaveFields"] = True
         assert mysetup.update()
-        sweep = self.aedtapp.create_discrete_sweep(mysetup.name, sweepname="mysweep", freqstart=1)
+        sweep = self.aedtapp.create_discrete_sweep(mysetup.name, sweepname="mysweep", freqstart=1, units="GHz")
         assert sweep
-        assert sweep.props["RangeStart"] == 1
+        assert sweep.props["RangeStart"] == "1GHz"
 
     def test_06b_create_setup(self):
         mysetup = self.aedtapp.create_setup()
         mysetup.props["SaveFields"] = True
         assert mysetup.update()
-        sweep2 = self.aedtapp.create_frequency_sweep(mysetup.name, sweepname="mysweep2",unit="GHz",freqstart=1, freqstop=4)
+        sweep2 = self.aedtapp.create_frequency_sweep(mysetup.name, sweepname="mysweep2",units="GHz",freqstart=1, freqstop=4)
         assert sweep2
-        assert sweep2.props["RangeEnd"] == 4
+        assert sweep2.props["RangeEnd"] == "4GHz"
 
     def test_07_create_source_sinks(self):
         source = self.aedtapp.assign_source_to_objectface("MyCylinder", axisdir=0, source_name="Source1")

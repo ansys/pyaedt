@@ -866,6 +866,7 @@ class GeometryModeler(Modeler, object):
         vdef = []
         for obj in objects:
             mat = self.primitives[obj].material_name
+            print("Material" + mat)
             th = self._parent.materials.check_thermal_modifier(mat)
             if th:
                 vargs2.append(obj)

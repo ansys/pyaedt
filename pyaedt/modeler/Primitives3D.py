@@ -347,22 +347,23 @@ class Primitives3D(Primitives, object):
         return self._create_object(new_object_name)
 
     @aedt_exception_handler
-    def create_rectangle(self, csPlane, position, dblList, is_covered=True, name=None, matname=None):
+    def create_rectangle(self, csPlane, position, dimension_list,  name=None, matname=None, is_covered=True):
         """Create a rectangle
 
         Parameters
         ----------
         cs_plane : CoordinateSystemPlane
             CoordinateSystem Plane
-        position :
-            ApplicationName.modeler.Position(x,y,z) object
-        dimension_list :
-            dimension list
-        name :
+        position : list, Position
+            ApplicationName.modeler.Position(x,y,z) object or list ``[x,y,z]`` of position
+        dimension_list : list
+            dimension list ``[width, height]``
+        name : str
             Object Name (Default value = None)
-        matname :
+        matname : str
             material name. Optional, if nothing default material will be assigned
-
+        is_covered : bool
+            ``True`` if rectangle is covered
         Returns
         -------
         Object3d
@@ -370,8 +371,8 @@ class Primitives3D(Primitives, object):
         szAxis = GeometryOperators.cs_plane_str(csPlane)
         XStart, YStart, ZStart = self._pos_with_arg(position)
 
-        Width = self._arg_with_dim(dblList[0])
-        Height = self._arg_with_dim(dblList[1])
+        Width = self._arg_with_dim(dimension_list[0])
+        Height = self._arg_with_dim(dimension_list[1])
 
         vArg1 = ["NAME:RectangleParameters"]
         vArg1.append("IsCovered:="), vArg1.append(is_covered)
