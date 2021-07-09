@@ -17,7 +17,7 @@ import json
 class Materials(object):
     """Materials class.
     
-    This class contains the AEDT materials database and all methods for creating and editing editing materials.
+    This class contains the AEDT materials database and all methods for creating and editing materials.
     """
     @property
     def odefinition_manager(self):
@@ -158,7 +158,7 @@ class Materials(object):
         Parameters
         ----------
         materialname : str
-            Bame of the material.
+            Name of the material.
         props : dict, optional
             Material property dictionary. The default is ``None``.
 
@@ -323,7 +323,7 @@ class Materials(object):
         Returns
         -------
         Material
-           Material object that waas created.
+            Material object that was created.
 
         Examples
         --------
@@ -383,14 +383,14 @@ class Materials(object):
         ----------
         material : str
             Name of the material.
-        library : stri, optional
+        library : str, optional
             Name of the library containing this material.
             The default is ``"Project"``.
 
         Returns
         -------
         bool
-             ``True`` when successful, ``False`` when failed.
+            ``True`` when successful, ``False`` when failed.
 
 
         Examples
@@ -412,7 +412,6 @@ class Materials(object):
     @property
     def conductors(self):
         """Conductors in the material database.
-
 
         Returns
         -------
@@ -470,7 +469,7 @@ class Materials(object):
         Parameters
         ----------
         full_json_path : str
-            Full path and name for the JSON file.
+            Full path to export the JSON file to.
 
         Returns
         -------
