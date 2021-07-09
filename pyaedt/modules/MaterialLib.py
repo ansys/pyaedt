@@ -1,11 +1,5 @@
 """
 This module contains the `Materials` class. 
-
-Parameters
-----------
-parent : str
-    Name of the parent AEDT application.
-
 """
 from __future__ import absolute_import
 import os
@@ -18,6 +12,12 @@ class Materials(object):
     """Materials class.
     
     This class contains the AEDT materials database and all methods for creating and editing materials.
+    
+    Parameters
+    ----------
+    parent : str
+        Name of the parent AEDT application.
+
     """
     @property
     def odefinition_manager(self):
