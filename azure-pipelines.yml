@@ -22,7 +22,7 @@ steps:
   inputs:
     versionSpec: '$(python.version)'
 
-- powershell: |
+- script: |
     python -m venv $(python.venv)
     $(python.venv)\Scripts\Activate.ps1
     python -m pip install pip -U
@@ -30,7 +30,7 @@ steps:
     python -c "import sys; print(sys.executable)"
   displayName: 'Create virtual env'
 
-- powershell: |
+- script: |
     $(python.venv)\Scripts\Activate.ps1
     pip install . --use-feature=in-tree-build
     pip install -r requirements_test.txt
@@ -40,12 +40,12 @@ steps:
     python -c "import pyaedt; print('Imported pyaedt')"
   displayName: 'Install pyaedt'
 
-- powershell: |
+- script: |
     $(python.venv)\Scripts\Activate.ps1
     pytest -v --cov --cov-config=.coveragerc -cov-report=xml --cov-report=html --junitxml=junit/test-results.xml
   displayName: 'Unit testing'
 
-- powershell: |
+- script: |
    $(python.venv)\Scripts\Activate.ps1
    coverage xml
   displayName: 'Coverage'
@@ -64,7 +64,7 @@ steps:
     summaryFileLocation: '$(System.DefaultWorkingDirectory)/coverage.xml'
   condition: succeededOrFailed()
 
-- powershell: |
+- script: |
     '$(python.venv)\Scripts\Activate.ps1'
     python setup.py sdist
     python -m pip install twine
