@@ -1,5 +1,5 @@
 """
-This class contains all functionalities for creating and editing materials
+This module contains the `Materials` class. 
 
 Parameters
 ----------
@@ -17,7 +17,7 @@ import json
 class Materials(object):
     """Materials class.
     
-    This class contains the AEDT materials database and methods for creating and manipulating materials.
+    This class contains the AEDT materials database and all methods for creating and editing editing materials.
     """
     @property
     def odefinition_manager(self):
