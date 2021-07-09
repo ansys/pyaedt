@@ -517,6 +517,8 @@ class Object3d(object):
         self._transparency = None
         self._solve_inside = None
         self._is_updated = False
+        self._surface_material = None
+
         self._update()
 
     @property
@@ -644,17 +646,40 @@ class Object3d(object):
         """
         if not self._is_updated:
             self._update_properties()
-        return self._material_name
+        if self._material_name:
+            return self._material_name.lower()
+        else:
+            return None
 
     @material_name.setter
     def material_name(self, mat):
         if self._parent.materials.checkifmaterialexists(mat):
             self._material_name = mat
-            vMaterial = ["NAME:Material", "Material:=", mat]
+            vMaterial = ["NAME:Material", "Value:=", chr(34)+mat+chr(34)]
             self._change_property(vMaterial)
             self._material_name = mat
         else:
             self.messenger.add_warning_message("Material {} does not exist".format(mat))
+
+    @property
+    def surface_material(self):
+        """Get or set the material name of the object
+        If the material does not exist, then send a warning and do nothing
+        """
+        if not self._is_updated:
+            self._update_properties()
+        return self._surface_material
+
+    @surface_material.setter
+    def surface_material(self, mat):
+        if self._parent.materials.checkifmaterialexists(mat):
+            self._surface_material = mat
+            vMaterial = ["NAME:Surface Material", "Value:=", chr(34)+mat+chr(34)]
+            self._change_property(vMaterial)
+            self._surface_material = mat
+        else:
+            self.messenger.add_warning_message("Material {} does not exist".format(mat))
+
 
     @property
     def id(self):
@@ -1145,8 +1170,12 @@ class Object3d(object):
             else:
                 self._color = (0, 195, 255)
         if 'Surface Material' in all_prop:
-            self.m_surfacematerial = retry_ntimes(n, self.m_Editor.GetPropertyValue,
+            mat = retry_ntimes(n, self.m_Editor.GetPropertyValue,
                                                "Geometry3DAttributeTab", self._m_name, 'Surface Material')
+            self._surface_material = ''
+            if mat:
+                self._surface_material = mat[1:-1].lower()
+
         self._is_updated = True
 
 class Padstack(object):

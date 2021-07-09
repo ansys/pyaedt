@@ -355,20 +355,19 @@ class IcepakMesh(object):
             Mesh region object.
         """
         if not name:
-            name = "MeshRegion1"
+            name = generate_unique_name("MeshRegion")
         meshregion = self.MeshRegion(self.omeshmodule, self.boundingdimension, self.modeler.model_units)
         meshregion.UserSpecifiedSettings = False
         meshregion.Level = level
         meshregion.name = name
         if not objectlist:
             objectlist = self.modeler.primitives.object_names
-        meshregion.Objects = objectlist
-
+        all_objs = self.modeler.primitives.object_names
         meshregion.create()
-        added_obj = [i for i in objectlist if i not in self.modeler.primitives.non_model_objects]
+        objectlist2 = self.modeler.primitives.object_names
+        added_obj = [i for i in objectlist2 if i not in all_objs]
         meshregion.Objects = added_obj
         self.meshregions.append(meshregion)
-
         return meshregion
 
     @aedt_exception_handler

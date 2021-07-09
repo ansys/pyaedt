@@ -221,11 +221,11 @@ class TestIcepak:
 
     def test_26_get_all_conductors(self):
         conductors = self.aedtapp.get_all_conductors_names()
-        assert sorted(conductors) == ["box", "box2", "box3", "network_box", "network_box2"]
+        assert sorted(conductors) == ["box",  "network_box", "network_box2"]
 
     def test_27_get_all_dielectrics(self):
         dielectrics = self.aedtapp.get_all_dielectrics_names()
-        assert dielectrics == ["Region"]
+        assert sorted(dielectrics) == ["Region", "box2", "box3"]
 
     def test_28_assign_surface_material(self):
         mats = self.aedtapp.materials.add_surface_material("my_surface", 0.5)
@@ -248,7 +248,7 @@ class TestIcepak:
         assert self.aedtapp.create_source_power(self.aedtapp.modeler.primitives["boxSource"].bottom_face.id, thermal_condtion="Fixed Temperature", temperature="28cel")
 
     def test_surface_monitor(self):
-        self.aedtapp.modeler.primitives.create_rectangle(self.aedtapp.CoordinateSystemPlane.XYPlane, [0,0,0], [10,20], "surf1")
+        self.aedtapp.modeler.primitives.create_rectangle(self.aedtapp.CoordinateSystemPlane.XYPlane, [0,0,0], [10,20], name="surf1")
         assert self.aedtapp.assign_surface_monitor("surf1")
 
     def test_poin_monitor(self):
