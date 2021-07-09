@@ -80,7 +80,6 @@ class Components(object):
 
     @property
     def _edb(self):
-        """EDB."""
         return self.parent.edb
 
     @aedt_exception_handler
@@ -96,38 +95,31 @@ class Components(object):
 
     @property
     def _builder(self):
-        """Builder."""
         return self.parent.builder
 
     @property
     def _edb_value(self):
-       """EDB values."""
-        return self.parent.edb_value
+      return self.parent.edb_value
 
     @property
     def _edbutils(self):
-        """EDB Utilities."""
         return self.parent.edbutils
 
     @property
     def _active_layout(self):
-        """Active layout."""
         return self.parent.active_layout
 
     @property
     def _cell(self):
-        """Cell."""
-        return self.parent.cell
+       return self.parent.cell
 
     @property
     def _db(self):
-        """Database."""
         return self.parent.db
 
     @property
     def _components_methods(self):
-        """Layout component methods."""
-        return self.parent.edblib.Layout.ComponentsMethods
+       return self.parent.edblib.Layout.ComponentsMethods
 
     @property
     def components(self):
