@@ -195,6 +195,7 @@ class FieldAnalysis3D(Analysis, object):
                     return val
         return None
 
+    #TODO Refactor this
     @aedt_exception_handler
     def copy_solid_bodies_from(self, design, object_list=None, no_vacuum=True, no_pec=True, include_sheets=False):
         """Copy a list of objects from one design to the active design.
@@ -241,7 +242,6 @@ class FieldAnalysis3D(Analysis, object):
                 selection_list.append(body)
         design.modeler.oeditor.Copy(["NAME:Selections", "Selections:=", ','.join(selection_list)])
         self.modeler.oeditor.Paste()
-        self.modeler.primitives.refresh_all_ids()
 
         return True
 
@@ -281,65 +281,6 @@ class FieldAnalysis3D(Analysis, object):
         return True
 
     @aedt_exception_handler
-    def assignmaterial(self, obj, mat):
-        """Assign a material to one or more objects. 
-
-        Parameters
-        ----------
-        obj : str, list
-            One or more objects to assign materials to.
-        mat : str
-            Material to assign. If this material is not present, it will be 
-            created.
-
-        Returns
-        -------
-        bool
-            ``True`` when successful, ``False`` when failed.
-
-        """
-        mat = mat.lower()
-        selections = self.modeler.convert_to_selections(obj)
-        arg1 = ["NAME:Selections"]
-        arg1.append("Selections:="), arg1.append(selections)
-        arg2 = ["NAME:Attributes"]
-        arg2.append("MaterialValue:="), arg2.append(chr(34) + mat + chr(34))
-        if mat in self.materials.material_keys:
-            Mat = self.materials.material_keys[mat]
-            Mat.update()
-            if Mat.is_dielectric():
-                arg2.append("SolveInside:="), arg2.append(True)
-            else:
-                arg2.append("SolveInside:="), arg2.append(False)
-            self.modeler.oeditor.AssignMaterial(arg1, arg2)
-            self._messenger.add_info_message('Assign Material ' + mat + ' to object ' + selections)
-            if type(obj) is list:
-                for el in obj:
-                    self.modeler.primitives[el].material_name = mat
-            else:
-                self.modeler.primitives[obj].material_name = mat
-            return True
-        elif self.materials.checkifmaterialexists(mat):
-            self.materials._aedmattolibrary(mat)
-            Mat = self.materials.material_keys[mat]
-            if Mat.is_dielectric():
-                arg2.append("SolveInside:="), arg2.append(True)
-            else:
-                arg2.append("SolveInside:="), arg2.append(False)
-            self.modeler.oeditor.AssignMaterial(arg1, arg2)
-            self._messenger.add_info_message('Assign Material ' + mat + ' to object ' + selections)
-            if type(obj) is list:
-                for el in obj:
-                    self.modeler.primitives[el].material_name = mat
-            else:
-                self.modeler.primitives[obj].material_name = mat
-
-            return True
-        else:
-            self._messenger.add_error_message("Material Does Not Exists")
-            return False
-
-    @aedt_exception_handler
     def get_all_conductors_names(self):
         """Retrieve all conductors in the active design.
                 
@@ -352,9 +293,10 @@ class FieldAnalysis3D(Analysis, object):
         cond = self.materials.conductors
         cond = [i.lower() for i in cond]
         obj_names = []
-        for el in self.modeler.primitives.objects:
-            if self.modeler.primitives.objects[el].material_name.lower() in cond:
-                obj_names.append(self.modeler.primitives.get_obj_name(el))
+        for el, obj in self.modeler.primitives.objects.items():
+            if obj.object_type == "Solid":
+                if obj.material_name.lower() in cond:
+                    obj_names.append(obj.name)
         return obj_names
 
     @aedt_exception_handler
@@ -370,7 +312,9 @@ class FieldAnalysis3D(Analysis, object):
         diel = self.materials.dielectrics
         diel = [i.lower() for i in diel]
         obj_names = []
-        for el in self.modeler.primitives.objects:
-            if self.modeler.primitives.objects[el].material_name.lower() in diel:
-                obj_names.append(self.modeler.primitives.get_obj_name(el))
+        for name in self.modeler.primitives.solid_names:
+            id = self.modeler.primitives.object_id_dict[name]
+            obj = self.modeler.primitives.objects[id]
+            if obj.material_name.lower() in diel:
+                obj_names.append(obj.name)
         return obj_names
