@@ -970,7 +970,7 @@ class Material(CommonMaterial, object):
         threshold : float, optional
             Threshold to define if a material is a conductor. The
             default is ``100000``. If the conductivity is equal to or
-            greather than the specified threshold, the material is 
+            greater than the specified threshold, the material is 
             considered a conductor.  
 
         Returns
@@ -999,7 +999,7 @@ class Material(CommonMaterial, object):
         threshold : float, optional
             Threshold to define if a material is a dielectric. The
             default is ``100000``. If the conductivity is equal to or
-            greather than the specified threshold, the material is 
+            greater than the specified threshold, the material is 
             considered a dielectric. 
 
         Returns
