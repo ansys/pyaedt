@@ -407,18 +407,20 @@ class TestEDB:
 
     @pytest.mark.skipif(config["build_machine"], reason="Not running in non-graphical mode")
     def test_export_to_hfss(self):
-        edb = Edb(edbpath=os.path.join(local_path, 'example_models', "simple.aedb"), edbversion="2021.1")
+        edb = Edb(edbpath=os.path.join(local_path, 'example_models', "simple.aedb"), edbversion=desktop_version)
         options_config = {'UNITE_NETS' : 1, 'LAUNCH_Q3D' : 0}
         out = edb.write_export3d_option_config_file(scratch_path, options_config)
         assert os.path.exists(out)
         out= edb.export_hfss(scratch_path)
         assert os.path.exists(out)
+        edb.close_edb()
 
     @pytest.mark.skipif(config["build_machine"], reason="Not running in non-graphical mode")
     def test_export_to_q3d(self):
-        edb = Edb(edbpath=os.path.join(local_path, 'example_models', "simple.aedb"), edbversion="2021.1")
+        edb = Edb(edbpath=os.path.join(local_path, 'example_models', "simple.aedb"), edbversion=desktop_version)
         options_config = {'UNITE_NETS' : 1, 'LAUNCH_Q3D' : 0}
         out = edb.write_export3d_option_config_file(scratch_path, options_config)
         assert os.path.exists(out)
         out= edb.export_q3d(scratch_path,  net_list=["NET1", "NET2", "GND"])
         assert os.path.exists(out)
+        edb.close_edb()

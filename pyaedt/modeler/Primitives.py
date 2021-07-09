@@ -2594,7 +2594,7 @@ class Primitives(object):
             o._m_groupName = groupname
             o._color = attribs['Color']
             o.m_surfacematerial = attribs['SurfaceMaterialValue']
-
+            o._is_updated = True
         return len(self.objects)
 
     def _default_object_attributes(self, name=None, matname=None):

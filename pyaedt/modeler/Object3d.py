@@ -504,7 +504,7 @@ class Object3d(object):
     * object_units
 
     """
-    def __init__(self, parent, name=None, id=None):
+    def __init__(self, parent, name=None):
         if name:
             self._m_name = name
         else:
@@ -516,6 +516,7 @@ class Object3d(object):
         self._material_name = None
         self._transparency = None
         self._solve_inside = None
+        self._is_updated = False
         self._update()
 
     @property
@@ -641,6 +642,8 @@ class Object3d(object):
         """Get or set the material name of the object
         If the material does not exist, then send a warning and do nothing
         """
+        if not self._is_updated:
+            self._update_properties()
         return self._material_name
 
     @material_name.setter
@@ -667,6 +670,8 @@ class Object3d(object):
              * Sheet
              * Line
          """
+        if not self._is_updated:
+            self._update_properties()
         return self._object_type
 
     @property
@@ -703,6 +708,8 @@ class Object3d(object):
         If the integer values are outside the range 0 - 255, then limit the values. Invalid inputs will be ignored
          >>> part.color = (255,255,0)
         """
+        if not self._is_updated:
+            self._update_properties()
         return self._color
 
     @property
@@ -745,6 +752,8 @@ class Object3d(object):
         """Get or set part transparency as a value between 0.0 and 1.0
         If the value is outside the range, then apply a limit. If the value is not a valid number, set to 0.0
         """
+        if not self._is_updated:
+            self._update_properties()
         return self._transparency
 
     @transparency.setter
@@ -777,6 +786,8 @@ class Object3d(object):
         str
             Name of the part coordinate system
         """
+        if not self._is_updated:
+            self._update_properties()
         return self._part_coordinate_system
 
     @part_coordinate_system.setter
@@ -789,6 +800,8 @@ class Object3d(object):
         """Get or Set part solve inside flag as a boolean value
         True if "solve-inside" is activated for the part
         """
+        if not self._is_updated:
+            self._update_properties()
         return self._solve_inside
 
     @solve_inside.setter
@@ -808,6 +821,8 @@ class Object3d(object):
     def display_wireframe(self):
         """Get or set the display_wireframe property of the part as a boolean value
         """
+        if not self._is_updated:
+            self._update_properties()
         return self._wireframe
 
     @display_wireframe.setter
@@ -822,6 +837,8 @@ class Object3d(object):
     def model(self):
         """Set part Model/Non-model as a boolean value
         """
+        if not self._is_updated:
+            self._update_properties()
         return self._model
 
     @model.setter
@@ -1047,14 +1064,13 @@ class Object3d(object):
         self._parent._refresh_object_types()
         self._parent.cleanup_objects()
         self._update_object_type()
-        self._update_properties()
+        # self._update_properties()
 
     def __str__(self):
         self._update_properties()
         return """
          {}
          name: {}    id: {}    object_type: {}
-         bounding_box: {}
          --- read/write properties  ----
          solve_inside: {} 
          model: {}
@@ -1063,7 +1079,7 @@ class Object3d(object):
          transparency: {}
          display_wireframe {}
          part_coordinate_system: {}
-         """.format(type(self), self._m_name, self.id, self.object_type, self.bounding_box, self._solve_inside, self._model, self._material_name,
+         """.format(type(self), self._m_name, self.id, self.object_type, self._solve_inside, self._model, self._material_name,
                     self.color, self.transparency, self.display_wireframe, self.part_coordinate_system)
 
     def _update_object_type(self):
@@ -1131,6 +1147,7 @@ class Object3d(object):
         if 'Surface Material' in all_prop:
             self.m_surfacematerial = retry_ntimes(n, self.m_Editor.GetPropertyValue,
                                                "Geometry3DAttributeTab", self._m_name, 'Surface Material')
+        self._is_updated = True
 
 class Padstack(object):
     """ """
