@@ -86,7 +86,7 @@ class Layer(object):
     editor :
     
     type : string, optional
-        The defualt is ``"signal"``.
+        The default is ``"signal"``.
     layerunits : str, optional
         The default is ``"mm"``.
     roughunit: str, optional
