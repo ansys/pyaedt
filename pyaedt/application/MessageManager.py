@@ -318,7 +318,7 @@ class AEDTMessageManager(object):
             * ``0`` : Clear all info messages.
             * ``1`` : Clear all info and warning messages.
             * ``2`` : Clear all info, warning, and error messages.
-            * ``3`` : Clear all messages, which includ info, warning,
+            * ``3`` : Clear all messages, which include info, warning,
               error, and fatal-error messages.
               
             The default is ``2.``
