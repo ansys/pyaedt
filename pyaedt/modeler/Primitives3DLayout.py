@@ -346,7 +346,7 @@ class Primitives3DLayout(object):
         x : float, optional
             Position on the X axis. The default is ``0``.
         y : float, optional
-            Position on the Y axix. The default is ``0``.
+            Position on the Y axis. The default is ``0``.
         rotation :float, optional
             Angle rotation in degrees. The default is ``0``.
         hole_diam :
@@ -413,7 +413,7 @@ class Primitives3DLayout(object):
         layername : str
             Name of the layer.
         x : float
-            Postion on the X axis.
+            Position on the X axis.
         y : float
             Postioin on the Y axis.
         radius : float
@@ -468,7 +468,7 @@ class Primitives3DLayout(object):
             Dimensions for the box in a list of [x, y, z] coordinates.
         corner_radius : float, optional
         angle : float, optional
-            Amgle rotation in degrees. The default is ``0``.
+            Angle rotation in degrees. The default is ``0``.
         name : str, optional
             Name of the rectangle. The default is ``None``, in which case the 
             default name is assigned.
