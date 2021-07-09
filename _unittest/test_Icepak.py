@@ -48,7 +48,10 @@ class TestIcepak:
 
     def teardown_class(self):
         assert self.aedtapp.close_project(self.aedtapp.project_name)
-        self.aedtapp.close_project(src_project_name)
+        try:
+            self.aedtapp.odesktop.CloseProject(src_project_name)
+        except:
+            pass
         time.sleep(2)
         self.local_scratch.remove()
         gc.collect()

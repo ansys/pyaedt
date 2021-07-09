@@ -48,10 +48,10 @@ class TestHFSS:
     def test_02_create_primitive(self):
         udp = self.aedtapp.modeler.Position(0, 0, 0)
         coax_dimension = 200
-        o1 = self.aedtapp.modeler.primitives.create_cylinder(self.aedtapp.CoordinateSystemPlane.XYPlane, udp, 3, coax_dimension,
+        o1 = self.aedtapp.modeler.primitives.create_cylinder(self.aedtapp.CoordinateSystemAxis.XAxis, udp, 3, coax_dimension,
                                                          0, "inner")
         assert isinstance(o1.id, int)
-        o2 = self.aedtapp.modeler.primitives.create_cylinder(self.aedtapp.CoordinateSystemPlane.XYPlane, udp, 10, coax_dimension,
+        o2 = self.aedtapp.modeler.primitives.create_cylinder(self.aedtapp.CoordinateSystemAxis.XAxis, udp, 10, coax_dimension,
                                                          0, "outer")
         assert isinstance(o2.id, int)
         assert self.aedtapp.modeler.subtract(o2, o1, True)
@@ -61,9 +61,9 @@ class TestHFSS:
         inner.material_name = "Copper"
         cyl_1.material_name = "teflon_based"
         outer.material_name = "Copper"
-        assert inner.material_name == "Copper"
+        assert inner.material_name == "copper"
         assert cyl_1.material_name == "teflon_based"
-        assert outer.material_name == "Copper"
+        assert outer.material_name == "copper"
 
     @pytest.mark.parametrize(
         "object_name, kwargs",
@@ -88,7 +88,7 @@ class TestHFSS:
         assert ports[0].name == "sheet1_Port"
         assert ports[0].name in [i.name for i in self.aedtapp.boundaries]
         self.aedtapp.solution_type ="DrivenModal"
-        udp = self.aedtapp.modeler.Position(5, 0, 0)
+        udp = self.aedtapp.modeler.Position(200, 0, 0)
         o6 = self.aedtapp.modeler.primitives.create_circle(self.aedtapp.CoordinateSystemPlane.YZPlane,udp,10, name="sheet2")
         ports = self.aedtapp.create_wave_port_from_sheet(o6, 5, self.aedtapp.AxisDir.XPos, 40, 2, "sheet2_Port", True)
         assert ports[0].name == "sheet2_Port"
