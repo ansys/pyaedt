@@ -52,7 +52,7 @@ class Primitives3D(Primitives, object):
         Returns
         -------
         int
-            Box ID.
+            ID of the created box.
 
         Examples
         --------
@@ -137,7 +137,7 @@ class Primitives3D(Primitives, object):
         Returns
         -------
         int
-            Bondwire ID.
+            ID of the created bondwire.
 
         Examples
         --------
@@ -204,8 +204,8 @@ class Primitives3D(Primitives, object):
         
         Returns
         -------
-        type
-            Region ID.
+        int
+            ID of the created region.
         
         """
         if "Region" in self.get_all_objects_names():
@@ -247,13 +247,12 @@ class Primitives3D(Primitives, object):
         ----------
         cs_plane :
             Coordinate system plane for orienting the circle. 
-        position :
+        position : list
             Center point of the circle in a list of [x, y, z] coordinates. 
         radius : float
             Radius of the circle. 
-        numSides :
-            Number of sides. The default is ``0``, which is the value 
-            needed for a circle.
+        numSides : int, optional
+            Number of sides. The default is ``0``, which correct for a circle.
         name : str, optional
             Name of the circle. The default is ``None``, in which case the 
             default name is assigned.
@@ -263,8 +262,8 @@ class Primitives3D(Primitives, object):
 
         Returns
         -------
-        type
-            Circle ID.
+        int
+            ID of the created circle.
 
         """
         o = self._new_object(matname=matname)
@@ -309,8 +308,8 @@ class Primitives3D(Primitives, object):
 
         Returns
         -------
-        type
-            Sphere ID.
+        int
+            ID of the created sphere.
 
         """
         o = self._new_object(matname=matname)
@@ -359,8 +358,8 @@ class Primitives3D(Primitives, object):
 
         Returns
         -------
-        type
-            Cylinder ID.
+        int
+            ID of the created cylinder.
 
         """
         o = self._new_object(matname=matname)
@@ -415,8 +414,8 @@ class Primitives3D(Primitives, object):
 
         Returns
         -------
-        type
-            Ellipse ID.
+        int
+            ID of the created ellipse.
 
         """
         o = self._new_object(matname=matname)
@@ -462,8 +461,8 @@ class Primitives3D(Primitives, object):
 
         Returns
         -------
-        type
-           Curve ID.
+        int
+           ID of the created curve.
 
         """
         o = self._new_object(matname=matname)
@@ -487,7 +486,8 @@ class Primitives3D(Primitives, object):
 
         Returns
         -------
-        Helix ID.
+        int
+            ID of the created helix.
 
         """
         # TODO Test
@@ -568,8 +568,8 @@ class Primitives3D(Primitives, object):
        
         Returns
         -------
-        type
-            Rectangle ID.
+        int
+            ID of the created rectangle.
 
         """
         o = self.request_new_object(matname=matname)
@@ -609,8 +609,8 @@ class Primitives3D(Primitives, object):
 
         Returns
         -------
-        type
-            ID of the user-defined model.
+        int
+            ID of the created user-defined model.
 
         """
         vArg1 = ["NAME:UserDefinedModelParameters",["NAME:Definition"], ["NAME:Options"]]
@@ -687,8 +687,8 @@ class Primitives3D(Primitives, object):
 
         Returns
         -------
-        type
-            Cone ID.
+        int
+            ID of the created cone.
 
         """
         o = self._new_object(matname=matname)
@@ -739,7 +739,8 @@ class Primitives3D(Primitives, object):
 
         Returns
         -------
-           Component ID.
+        int
+           ID of the created component.
 
         """
         o = self._new_object()
@@ -784,7 +785,7 @@ class Primitives3D(Primitives, object):
         Returns
         -------
         list
-            List of objects belonging to the 3D component.
+            List of the objects belonging to the 3D component.
 
         """
         compobj = self.oeditor.GetChildObject(componentname)
@@ -805,7 +806,7 @@ class Primitives3D(Primitives, object):
         Returns
         -------
         list
-            List of names of all solids.
+            List of names of all the solids.
 
         """
         return self.get_all_objects_names(refresh_list=refresh_list, get_solids=True, get_sheets=False, get_lines=False)
@@ -826,7 +827,7 @@ class Primitives3D(Primitives, object):
         Parameters
         ----------
         faceId : int
-            ID of the face..
+            ID of the face.
         bounding_box : list, optional
             Dimensions of the bounding box in a list in the form 
             ``[x_min, y_min, z_min, x_Max, y_Max, z_Max]``.
@@ -834,7 +835,7 @@ class Primitives3D(Primitives, object):
 
         Returns
         -------
-        type
+        list
             Normal versor (normalized ``[x, y, z]``) or ``None``.
 
         """
