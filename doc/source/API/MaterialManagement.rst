@@ -9,7 +9,7 @@ Material and Stackup
 
 .. toctree::
    :maxdepth: 2
-   :caption: The ``Material and Stackup`` module includes these classes:
+   :caption: The `Material and Stackup` module includes these classes:
 
    MaterialLib
    Material

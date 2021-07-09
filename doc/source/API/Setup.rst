@@ -9,7 +9,7 @@ Setup
 
 .. toctree::
    :maxdepth: 2
-   :caption: The ``Setup`` module includes these classes::
+   :caption: The `Setup` module includes these classes::
 
    Setup3D
    Setup3DLayout
