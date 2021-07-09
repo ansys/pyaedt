@@ -7,7 +7,7 @@ This tool has been tested on HFSS, Icepak, and Maxwell 3D. It also provides basi
 
 Requirements
 ~~~~~~~~~~~~
-In addition to the runtime dependencies listed in the installation information, EDB Utilities requires ANSYS EM Suite 2021 R1 or later.
+In addition to the runtime dependencies listed in the installation information, PyAEDT requires ANSYS EM Suite 2021 R1 or later.
 
 Installing on CPython v3.7-v3.8
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
