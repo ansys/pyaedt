@@ -1,18 +1,19 @@
 from pyaedt import Hfss
 from _unittest.test_07_Object3D import TestObject3D
 from unittest import TestCase
-
-def test_generator(test_obj, test_function):
-    def test(self):
-        method_to_call = getattr(test_obj, test_function)
-        try:
-            method_to_call()
-        except AssertionError:
-            self.assertTrue(False)
-    return test
+import sys
 
 class TestSequenceFunctionsGenerate(TestCase):
     pass
+
+def test_generator(test_obj, test_function):
+    def test(self):
+        try:
+            getattr(test_obj, test_function)()
+        except AssertionError:
+            print(sys.exc_info())
+            self.assertTrue(False)
+    return test
 
 test_obj = TestObject3D()
 test_names = [name for name in dir(test_obj) if name.startswith("test_")]
