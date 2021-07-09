@@ -45,7 +45,7 @@ class Primitives2D(Primitives, object):
         Parameters
         ----------
         position : list
-            Center point of the circle in a list of [x, y, z] coordinates.
+            Center point of the circle in a list of ``[x, y, z]`` coordinates.
         radius : float
             Radius of the circle.
         numSides : int, optional
@@ -92,7 +92,7 @@ class Primitives2D(Primitives, object):
         Parameters
         ----------
         position : list
-            Center point of the ellipse in a list of [x, y, z] coordinates.
+            Center point of the ellipse in a list of ``[x, y, z]`` coordinates.
         major_raidus : float
             Base radius of the ellipse.
         ratio : float
@@ -146,9 +146,9 @@ class Primitives2D(Primitives, object):
         Parameters
         ----------
         position : list
-            Center point of the rectangle in a list of [x, y, z] coordinates.
+            Center point of the rectangle in a list of ``[x, y, z]`` coordinates.
         dimension_list : list
-            Dimensions of the rectangle in a list of [x, y, z] coordinates.
+            Dimensions of the rectangle in a list of ``[x, y, z]`` coordinates.
         name : str, optional
             Name of the rectangle. The default is ``None``, in which case the 
             default name is assigned.
