@@ -97,7 +97,7 @@ class Materials(object):
         Parameters
         ----------
         mat : str
-            Name of the material. If the material exists and is not in the materials databse, 
+            Name of the material. If the material exists and is not in the materials database, 
             it is added to the materials database.
 
         Returns
