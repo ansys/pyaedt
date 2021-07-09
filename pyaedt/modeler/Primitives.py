@@ -31,10 +31,10 @@ class PolylineSegment():
     Parameters
     ----------
     type : str
-        Type of the object. Options are ``Line``, ``Arc``, ``Spline``, and ``AngularArc``.
+        Type of the object. Options are ``"Line"``, ``"Arc"``, ``"Spline"``, and ``"AngularArc"``.
     num_seg: int, optional
-        Number of segments for the type ``Arc``, ``Spline``, or ``AngularArc``.
-        The default is ``0``. If the type is ``Line``, this parameter is ignored.
+        Number of segments for the type ``"Arc"``, ``"Spline"``, or ``"AngularArc"``.
+        The default is ``0``. If the ``type="Line"``, this parameter is ignored.
     num_points : int, optional
         Number of control points for the type ``Spline``. For other types, this parameter
         is defined automatically.
@@ -371,7 +371,7 @@ class Polyline(object):
                 else:
                     current_segment = segment_types[vertex_count]
             except IndexError:
-                raise ("Number of segments is inconsistent with the number of points.")
+                raise IndexError("Number of segments is inconsistent with the number of points.")
 
             if current_segment:
                 seg_str = self._segment_array(current_segment, start_index=index_count, start_point=position_list[pos_count])
@@ -1262,7 +1262,7 @@ class Primitives(object):
             Object with additional methods for manipulating the polyline.  
             
             For example, `insert_segment`. The object ID of the created polyline can be accessed
-            via `Polyline.id`.
+            via ``Polyline.id``.
 
         Examples
         -------
@@ -1301,7 +1301,7 @@ class Primitives(object):
         diameter of 1 mm.
         
         >>> P4 = primitives.create_polyline(test_points, segment_type="Spline", name="PL_spline",
-        ...                               xsection_type="Circle", xsection_width="1mm")
+        ...                                 xsection_type="Circle", xsection_width="1mm")
 
         Use the `PolylineSegment` object to specify more detail about the individual segments.
         Create a center point arc starting from the position ``test_points[1]``, rotating 
