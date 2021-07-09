@@ -974,15 +974,16 @@ class Object3d(object):
         ----------
         plane :
             Application.CoordinateSystemPlane object
-        create_new :
+        create_new : bool, default=True
             Bool. (Default value = True)
-        section_cross_object :
+        section_cross_object : bool, default=False
             Bool (Default value = False)
 
         Returns
         -------
         Object3d
         """
+        #TODO Refactor plane !
         self._parent.modeler.section(self, plane, create_new, section_cross_object)
         return self
 

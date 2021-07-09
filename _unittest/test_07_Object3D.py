@@ -316,7 +316,8 @@ class TestObject3D:
         assert len(added_objects) == 2
         assert "single_turn" in self.aedtapp.modeler.primitives.line_names
 
+    #TODO: Finish asserts anc check the boolean inputs - they are not present in the GUI ??
     def test_section_object(self):
-        turn = self.create_example_coil("single_turn")
-        turn.section(plane, create_new=True, section_cross_object=False)
+        o = self.aedtapp.modeler.primitives.create_box([-10, 0, 0], [10, 10, 5], "SectionBox", "Copper")
+        o.section(plane=1, create_new=True, section_cross_object=False)
 

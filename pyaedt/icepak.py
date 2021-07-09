@@ -246,7 +246,7 @@ class Icepak(FieldAnalysisIcepak):
 
         """
         if assign_material:
-            self.assignmaterial(object_name, material_name)
+            self.modeler.primitives[object_name].material_name = material_name
         props={}
         props["Objects"] = [object_name]
         props["Block Type"] = "Solid"
@@ -358,7 +358,7 @@ class Icepak(FieldAnalysisIcepak):
                 fcrjc = fcrjb
                 fcrjb = app
             if assign_material:
-                self.assignmaterial(object_name, default_material)
+                self.modeler.primitives[object_name].material_name = default_material
             props = {}
             if use_object_for_name:
                 boundary_name = object_name
@@ -687,7 +687,7 @@ class Icepak(FieldAnalysisIcepak):
         Fin_Line2.append(self.Position(0, 'sin(DraftAngle*3.14/180)*FinThickness', 'FinHeight'))
         self.modeler.primitives.create_polyline(Fin_Line2, cover_surface=True, name="Fin_top")
         self.modeler.connect(["Fin", "Fin_top"])
-        self.assignmaterial("Fin", matname)
+        self.modeler.primitives["Fin"].material_name = matname
         # self.modeler.thicken_sheet("Fin",'-FinHeight')
         num = int((hs_width / (separation+thick))/(max(1-math.sin(patternangle*3.14/180),0.1)))
         self.modeler.duplicate_along_line("Fin", self.Position(0, 'FinSeparation+FinThickness', 0), num,True)
