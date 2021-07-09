@@ -24,14 +24,9 @@ To use IronPython in AEDT:
 
 1. Download the PyAEDT package from ``https://pypi.org/project/pyaedt/#files``
 2. Extract the files.
-3. Copy pyaedt folder to the ``PersonalLib`` folder of the AEDT framework.
-4. Run Aedt
+3. Run the following command to install PyAEDT into Electronics Desktop (specify the full paths to ipy64 and setup-distutils.py as needed)
 
-If you don't know which is current ``PersonalLib`` folder:
-    - run AEDT
-    - go to Tools-> Options -> General Options
-    - Select Directories Menus
-    - View and Set your PersonalLib Folder
+``ipy64 setup-distutils.py install --user``
 
 Using Standalone IronPython
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~
