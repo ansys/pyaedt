@@ -1,4 +1,4 @@
-"""This module contain the ``Components`` class."""
+"""This module contain the `Components` class."""
 import re
 import random
 
@@ -48,6 +48,10 @@ class Components(object):
 
     This class manages EDB components and related methods.
 
+    Parameters
+    ----------
+    parent :
+    
     Examples
     --------
     >>> from pyaedt import Edb
@@ -71,10 +75,12 @@ class Components(object):
 
     @property
     def _messenger(self):
+        """Messenger.""
         return self.parent.messenger
 
     @property
     def _edb(self):
+        """EDB."""
         return self.parent.edb
 
     @aedt_exception_handler
@@ -90,40 +96,47 @@ class Components(object):
 
     @property
     def _builder(self):
+        """Builder."""
         return self.parent.builder
 
     @property
     def _edb_value(self):
+       """EDB values."""
         return self.parent.edb_value
 
     @property
     def _edbutils(self):
+        """EDB Utilities."""
         return self.parent.edbutils
 
     @property
     def _active_layout(self):
+        """Active layout."""
         return self.parent.active_layout
 
     @property
     def _cell(self):
+        """Cell."""
         return self.parent.cell
 
     @property
     def _db(self):
+        """Database."""
         return self.parent.db
 
     @property
     def _components_methods(self):
+        """Layout component methods."""
         return self.parent.edblib.Layout.ComponentsMethods
 
     @property
     def components(self):
-        """Retrieve component setup information.
+        ""Component setup information.
                 
         Returns
         -------
-        defaultdict(EDBComponent)
-           Dictionary of component setup information.
+        dict
+           Default dictionary for the EDB comopnent.
 
         Examples
         --------
@@ -138,11 +151,12 @@ class Components(object):
 
     @aedt_exception_handler
     def refresh_components(self):
-        """Refresh the component dictionary
+        """Refresh the component dictionary.
 
         Returns
         -------
-        defaultdict(EDBComponent)
+        dict
+        Default dictionary for the EDB comopnent.
         """
         self._messenger.add_info_message("Refreshing Components Dictionary")
         try:
@@ -155,7 +169,7 @@ class Components(object):
 
     @property
     def resistors(self):
-        """Retrieve all resistors.
+        """Resistors.
 
         Returns
         -------
@@ -177,12 +191,12 @@ class Components(object):
 
     @property
     def capacitors(self):
-        """Retrieve all capacitors.
+        """Capacitors.
                 
         Returns
         -------
         dict
-            Dictionary of capactors.
+            Dictionary of capacitors.
 
         Examples
         --------
@@ -199,8 +213,7 @@ class Components(object):
 
     @property
     def inductors(self):
-        """Retrieve all inductors.
-        
+        """Inductors.    
         
         Returns
         -------
@@ -223,12 +236,12 @@ class Components(object):
 
     @property
     def ICs(self):
-        """Retrieve all capacitors.
+        """Integrated circuits.
         
         Returns
         -------
         dict
-            Dictionary of capacitors.
+            Dictionary of integrated circuits.
 
         Examples
         --------
@@ -246,7 +259,7 @@ class Components(object):
 
     @property
     def IOs(self):
-        """Retrieve all capacitors.
+        """Capacitors.
 
         Returns
         -------
@@ -269,7 +282,7 @@ class Components(object):
 
     @property
     def Others(self):
-        """
+        """Other core components.
                 
         Parameters
         ----------
@@ -277,7 +290,7 @@ class Components(object):
         Returns
         -------
         dict
-            Dictionary of capacitors.
+            Dictionary of other core components.
 
         Examples
         --------
@@ -296,7 +309,7 @@ class Components(object):
 
     @property
     def components_by_partname(self):
-        """Return components by part name.
+        """Components by part name.
         
         Returns
         -------
@@ -423,7 +436,7 @@ class Components(object):
 
     @aedt_exception_handler
     def set_component_model(self, componentname, model_type="Spice", modelpath=None, modelname=None):
-        """Assign an HSpice or Touchstone model to a component.
+        """Assign a Spice or Touchstone model to a component.
         
         Parameters
         ----------
@@ -584,7 +597,7 @@ class Components(object):
         Parameters
         ----------
         component_name : str
-            Name of component.
+            Name of the component.
 
         Returns
         -------
@@ -645,12 +658,12 @@ class Components(object):
 
     @aedt_exception_handler
     def set_component_rlc(self, componentname, res_value=None, ind_value=None, cap_value=None, isparallel=False):
-        """Update RLC component values.
+        """Update values for an RLC component.
         
         Parameters
         ----------
         componentname :
-            Name of the component to update.
+            Name of the RLC component.
         res_value : float, optional
             Resistance value. The default is ``None``.
         ind_value : float, optional
@@ -711,7 +724,7 @@ class Components(object):
     @aedt_exception_handler
     def update_rlc_from_bom(self, bom_file, delimiter=";", valuefield="Func des", comptype="Prod name",
                             refdes="Pos / Place"):
-        """Update the EDC core component values (RLCs) with values coming from the BOM file.
+        """Update the EDC core component values (RLCs) with values coming from a BOM file.
         
         Parameters
         ----------
@@ -735,8 +748,8 @@ class Components(object):
         Returns
         -------
         bool
-            ``True`` if the file contains the header and it is correctly parsed. The method
-            returns ``True`` even if no values are assigned.
+            ``True`` if the file contains the header and it is correctly parsed. ``True`` is
+            returned even if no values are assigned.
         """
         with open(bom_file, 'r') as f:
             Lines = f.readlines()
@@ -814,7 +827,7 @@ class Components(object):
         """Retrieve the pin name that is shown in AEDT.
         
         .. note::
-           To obtain the EDB core pin name, use ``pin.GetName()``.
+           To obtain the EDB core pin name, use `pin.GetName()`.
 
         Parameters
         ----------
@@ -943,8 +956,7 @@ class Components(object):
         Returns
         -------
         dict
-            Dictionary of the reference designator, pin names, and net
-            names for the reference designator.
+            Dictionary of the net connection information for the reference designator.
 
         Examples
         --------
