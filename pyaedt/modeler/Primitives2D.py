@@ -21,7 +21,8 @@ class Primitives2D(Primitives, object):
         
         Returns
         -------
-         ``True`` when successful, ``False`` when failed.
+        bool
+            ``True`` when successful, ``False`` when failed.
          
          """
         return False
