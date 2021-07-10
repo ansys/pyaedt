@@ -3,11 +3,28 @@ from .Primitives import Primitives
 
 
 class Primitives2D(Primitives, object):
-    """Primitives2D class."""
+    """Primitives2D class.
+    
+    This class provides all functionalities for managing primtives in 2D tools.
+    
+    Parameters
+    ----------
+    parent : str
+        Name of the parent AEDT application.
+    modeler : str
+        Name of the modeler.     
+    """
 
     @aedt_exception_handler
     def is3d(self):
-        """Returns False always to indicate a 3D analysis type."""
+        """Check if the analysis is a 3D type.
+        
+        Returns
+        -------
+        bool
+            ``True`` when successful, ``False`` when failed.
+         
+         """
         return False
 
     @property
@@ -28,21 +45,22 @@ class Primitives2D(Primitives, object):
 
         Parameters
         ----------
-        position :
-            ApplicationName.modeler.Position(x,y,z) object
+        position : list
+            Center point of the circle in a list of ``[x, y, z]`` coordinates.
         radius : float
-            Radius of the object.
+            Radius of the circle.
         numSides : int, optional
             Number of sides. The default is ``0``, which is correct for a circle.
         name : str, optional
-            Name of the object. The default is ``None``.
+            Name of the circle. The default is ``None``, in which case the 
+            default name is assigned.
         matname : str, optional
-            Name of the material. The default is ``None``. If ``None``,
-            the default material is assigned.
+            Name of the material. The default is ``None``, in which case the 
+            default material is assigned.
 
         Returns
         -------
-        type
+        int
             ID of the created circle.
 
         """
@@ -74,24 +92,27 @@ class Primitives2D(Primitives, object):
 
         Parameters
         ----------
-        position :
-            ApplicationName.modeler.Position(x,y,z) object
+        position : list
+            Center point of the ellipse in a list of ``[x, y, z]`` coordinates.
         major_raidus : float
-            
+            Base radius of the ellipse.
         ratio : float
-            Ratio between major and minor radius.
+            Aspect ratio of the secondary radius to the base radius.
         bIsCovered : bool, optional
-            The default is ``True``.
+            Whether the ellipse is covered. The default is ``True``, 
+            in which case the result is a 2D sheet object. If ``False,``
+            the result is a closed 1D polyline object.
         name : str, optional
-            Name of the object. The default is ``None``.
+            Name of the ellipse. The default is ``None``, in which case the 
+            default name is assigned.
         matname : str, optional
-            Name of the material. The default is ``None``. If ``None``, 
-            the default material is assigned.
+            Name of the material. The default is ``None``, in which case the 
+            default material is assigned.
 
         Returns
         -------
-        type
-           ID of the created ellipse.
+        int
+            ID of the created ellipse.
 
         """
         o = self._new_object(matname=matname)
@@ -125,19 +146,20 @@ class Primitives2D(Primitives, object):
 
         Parameters
         ----------
-        position :
-            ApplicationName.modeler.Position(x,y,z) object
+        position : list
+            Center point of the rectangle in a list of ``[x, y, z]`` coordinates.
         dimension_list : list
-            dimension list
-        name :
-            Name of the object. The default is ``None``.
+            Dimensions of the rectangle in a list of ``[x, y, z]`` coordinates.
+        name : str, optional
+            Name of the rectangle. The default is ``None``, in which case the 
+            default name is assigned.
         matname : str, optional
-            Name of the material. The default is ``None``. If ``None``, 
+            Name of the material. The default is ``None``, in which case 
             the default material is assigned.
 
         Returns
         -------
-        type
+        int
             ID of the created rectangle.
 
         """
