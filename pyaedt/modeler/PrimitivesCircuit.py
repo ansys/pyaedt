@@ -17,7 +17,7 @@ class CircuitComponents(object):
 
     @property
     def messenger(self):
-        """Messenger. """
+        """Messenger."""
         return self._parent._messenger
 
     @property
@@ -63,6 +63,7 @@ class CircuitComponents(object):
     @aedt_exception_handler
     def __getitem__(self, partname):
         """Retrieve a part.
+
         Parameters
         ----------
         partname : int or str
@@ -95,7 +96,7 @@ class CircuitComponents(object):
         Returns
         -------
         int
-            ID that was created.
+            Unique ID in the range of ``[1, 65535]``.
             
         """
         id = random.randint(1, 65535)
@@ -661,7 +662,7 @@ class CircuitComponents(object):
 
         Parameters
         ----------
-        id : 
+        id : int
             ID to assign the component.
 
         Returns
