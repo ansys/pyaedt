@@ -14,12 +14,32 @@ if 'clr' in modules or _ironpython:
 
 
 class Primitives3DLayout(object):
-    """Class for management of all Primitives of HFSS3DLayout"""
+    """Primitives3DLayout class.
+    
+    This class provides all functionalities for managing primitives in HFSS 3D Layout.
+    
+    Parameters
+    ----------
+    parent : str
+        Name of the parent AEDT application.
+    modeler : str
+        Name of the modeler.
+    
+    """
     @aedt_exception_handler
     def __getitem__(self, partname):
-        """
-        :param partname: if integer try to get the object id. if string, trying to get object Name
-        :return: part object details
+        """Retrieve a part.
+        
+        Parameters
+        ----------
+        partname: int or str
+           Part ID or part name. 
+        
+        Returns
+        -------
+        type
+          Part object details.
+          
         """
         for el in self.geometries:
             if el == partname:
@@ -41,7 +61,14 @@ class Primitives3DLayout(object):
 
     @property
     def components(self):
-        """:return: Component List from EDB. If no EDB is present none is returned"""
+        """Components.
+        
+        Returns
+        -------
+        list
+            List of components from EDB. If no EDB is present, ``None``  is returned.
+        
+        """
         try:
             comps = list(self.modeler.edb.core_components.components.keys())
         except:
@@ -52,7 +79,14 @@ class Primitives3DLayout(object):
 
     @property
     def geometries(self):
-        """:return: Geometries List from EDB. If no EDB is present none is returned"""
+        """Geometries.
+        
+        Returns
+        -------
+        list
+            List of geometries from EDB. If no EDB is present, ``None`` is returned.
+           
+           """
         try:
             prims = self.modeler.edb.core_primitives.primitives
         except:
@@ -85,7 +119,14 @@ class Primitives3DLayout(object):
 
     @property
     def pins(self):
-        """:return: Pins List from EDB. If no EDB is present none is returned"""
+        """Pins.
+        
+        Returns
+        -------
+        list
+            List of pins from EDB. If no EDB is present, ``None`` is returned.
+        
+        """
         try:
             pins_objs = list(self.modeler.edb.pins)
         except:
@@ -99,7 +140,14 @@ class Primitives3DLayout(object):
 
     @property
     def nets(self):
-        """:return: Nets List from EDB. If no EDB is present none is returned"""
+        """Nets.
+        
+        Returns
+        -------
+        list
+            List of nets from EDB. If no EDB is present, ``None`` is returned.
+        
+        """
         try:
             nets_objs = list(self.modeler.edb.core_nets.nets)
         except:
@@ -110,57 +158,71 @@ class Primitives3DLayout(object):
 
     @property
     def defaultmaterial(self):
-        """ """
+        """Default materials.
+        
+        Returns
+        -------
+        list
+            List of default materials.
+          
+        """
         return default_materials[self._parent._design_type]
 
     @property
     def messenger(self):
-        """ """
+        """Messenger."""
         return self._parent._messenger
 
     @property
     def version(self):
-        """ """
+        """AEDT version.
+        
+        Returns
+        -------
+        str
+            Version of AEDT.
+        
+        """
         return self._parent._aedt_version
 
     @property
     def modeler(self):
-        """ """
+        """Modeler."""
         return self._modeler
 
     @property
     def oeditor(self):
-        """ """
+        """Editor object."""
         return self.modeler.oeditor
 
     @property
     def opadstackmanager(self):
-        """ """
+        """Padstack managerobject. """
         return self._parent._oproject.GetDefinitionManager().GetManager("Padstack")
 
     @property
     def model_units(self):
-        """ """
+        """Model units."""
         return self.modeler.model_units
 
     @property
     def Padstack(self):
-        """ """
+        """Padstack."""
         return Padstack()
 
     @aedt_exception_handler
     def new_padstack(self, name="Padstack"):
-        """Return a new Padstack object that can be used in HFSS 3D Layout to create a new Padstack
+        """Create a new `Padstack` object that can be used to create a new padstack.
 
         Parameters
         ----------
-        name :
-            Padstack Name (Default value = "Padstack")
+        name : str, optional
+            Name of the padstack. The default is ``"Padstack"``.
 
         Returns
         -------
         type
-            Padstack Object if name is doesn't already exists
+            Padstack object if the name does not already exist.
 
         """
         if name in self.padstacks:
@@ -171,15 +233,12 @@ class Primitives3DLayout(object):
 
     @aedt_exception_handler
     def init_padstacks(self):
-        """Read all Padstack from HFSS 3D Layout
+        """Read all padstacks from HFSS 3D Layout.
         
-        :return: True
-
-        Parameters
-        ----------
-
         Returns
         -------
+        bool
+            ``True`` when successful, ``False`` when failed.
 
         """
         names = GeometryOperators.List2list(self.opadstackmanager.GetNames())
@@ -246,19 +305,20 @@ class Primitives3DLayout(object):
 
     @aedt_exception_handler
     def change_net_visibility(self, netlist=None, visible=False):
-        """Change the visibility of a net or net list
+        """Change the visibility of one or more nets.
 
         Parameters
         ----------
-        netlist :
-            single net or netlist to visualize (Default value = None)
-        visible :
-            Boolean (Default value = False)
+        netlist : str  or list, optional
+            One or more nets to visualize. The default is ``None``.
+        visible : bool, optional
+            Whether to make the selected nets visible. The 
+            The default value is ``False``.
 
         Returns
         -------
-        type
-            Boolean
+        bool
+            ``True`` when successful, ``False`` when failed.
 
         """
         if not netlist:
@@ -278,33 +338,36 @@ class Primitives3DLayout(object):
     @aedt_exception_handler
     def create_via(self, padstack="PlanarEMVia", x=0, y=0, rotation=0, hole_diam=None, top_layer=None, bot_layer=None,
                    name=None, netname=None):
-        """Create a Via based on existing padstack
+        """Create a via based on an existing padstack.
 
         Parameters
         ----------
-        padstack :
-            String containing the Padstack Name (Default value = "PlanarEMVia")
-        x :
-            x position (Default value = 0)
-        y :
-            y position (Default value = 0)
-        rotation :
-            angle rotation in deg (Default value = 0)
+        padstack : str, optional
+            Name of the padstack. The default is ``"PlanarEMVia"``.
+        x : float, optional
+            Position on the X axis. The default is ``0``.
+        y : float, optional
+            Position on the Y axis. The default is ``0``.
+        rotation :float, optional
+            Angle rotation in degrees. The default is ``0``.
         hole_diam :
-            hole diameter. If None Override is disabled (Default value = None)
-        top_layer :
-            top layer (Default value = None)
-        bot_layer :
-            bottom layer (Default value = None)
-        name :
-            Via Name (Default value = None)
-        netname :
-            optional Netname (Default value = None)
+            Diameter of the hole. The default is ``None``, in which case
+            the override is disabled.
+        top_layer : str, optional
+            Top layer. The default is ``None``.
+        bot_layer : str, optional
+            Bottom layer. The default is ``None``.
+        name : str, optional
+            Name of the via. The default is ``None``, in which case the 
+            default name is assigned.
+        netname : str, optional
+            Name of the net. The default is ``None``, in which case the 
+            default name is assigned.
 
         Returns
         -------
-        type
-            Name of the created object, if successful
+        str
+            Name of the created via when successful.
 
         """
         layers = self.modeler.layers.all_signal_layers
@@ -344,27 +407,29 @@ class Primitives3DLayout(object):
 
     @aedt_exception_handler
     def create_circle(self, layername, x, y, radius, name=None, netname=None):
-        """Create Circle on specific layer
+        """Create a circle on a layer.
 
         Parameters
         ----------
-        layername :
-            layername
-        x :
-            x position float
-        y :
-            y position float
-        radius :
-            radius float
-        name :
-            Object Name (Default value = None)
-        netname :
-            optional Netname (Default value = None)
+        layername : str
+            Name of the layer.
+        x : float
+            Position on the X axis.
+        y : float
+            Position on the Y axis.
+        radius : float
+            Radius of the circle.
+        name : str, optional
+            Name of the circle. The default is ``None``, in which case the 
+            default name is assigned.
+        netname : str, optional
+            Name of the net. The default is ``None``, in which case the 
+            default name is assigned.
 
         Returns
         -------
-        type
-            Name of the created object, if successful
+        str
+            Name of the created circle when successful.
 
         """
         if not name:
@@ -392,20 +457,30 @@ class Primitives3DLayout(object):
 
     @aedt_exception_handler
     def create_rectangle(self, layername, origin, dimensions, corner_radius=0, angle=0, name=None, netname=None):
-        """Create a Rectangle on specified layer
+        """Create a rectangle on a layer.
 
         Parameters
         ----------
-        layername
-        origin
-        dimensions
-        corner_radius
-        angle
-        name
-        netname
+        layername : str
+            Name of the layer.
+        origin : list
+            Origin of the coordinate system in a list of ``[x, y, z]`` coordinates.
+        dimensions : list
+            Dimensions for the box in a list of ``[x, y, z]`` coordinates.
+        corner_radius : float, optional
+        angle : float, optional
+            Angle rotation in degrees. The default is ``0``.
+        name : str, optional
+            Name of the rectangle. The default is ``None``, in which case the 
+            default name is assigned.
+        netname : str, optional
+            Name of the net. The default is ``None``, in which case the 
+            default name is assigned.
 
         Returns
         -------
+        str
+            Name of the rectangle when successful.
 
         """
 
@@ -437,29 +512,38 @@ class Primitives3DLayout(object):
 
     @aedt_exception_handler
     def create_line(self, layername, center_line_list, lw=1, start_style=0, end_style=0, name=None, netname=None):
-        """Create Line based on specific list of point
+        """Create a line based on a list of points.
 
         Parameters
         ----------
         layername : str
-            layer name on which create the object
+            Name of the layer to create the line on.
         center_line_list : list
-            list of centerline points
-        lw :
-            line width (Default value = 1)
+            List of centerline coordinates in the form of ``[x, y, z]``.
+        lw : float, optional
+            Line width. The default is ``1``.
         start_style :
-            start style of the line. 0 Flat, 1 Extended, 2 Round (Default value = 0)
+            Starting style of the line. Options are:
+            
+            * ``0`` - Flat
+            * ``1`` - Extended
+            * ``2`` - Round
+            
+            The default is ``0``.
         end_style :
-            end style of the line. 0 Same as start, 1 Flat, 2 Extended, 3 Round (Default value = 0)
-        name :
-            Object Name (Default value = None)
-        netname :
-            optional Netname (Default value = None)
+            Ending style of the line. The options are the same as
+            those for ``start_style``. The default is ``0``.
+        name : str, optional
+            Name  of the line. The default is ``None``, in which case the 
+            default name is assigned.
+        netname : str, optional
+            Name of the net. The default is ``None``, in which case the 
+            default name is assigned.
 
         Returns
         -------
-        type
-            Name of the created object, if successful
+        str
+            Name of the created line when successful.
 
         """
         if not name:
@@ -494,11 +578,12 @@ class Primitives3DLayout(object):
         Value :
             
         sUnits :
-             (Default value = None)
+             The default is ``None``.
 
         Returns
         -------
-
+        str
+            String containing value or value and units if units is not ``None``.
         """
         if type(Value) is str:
             val = Value

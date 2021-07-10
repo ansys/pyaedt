@@ -8,14 +8,6 @@ in Q3D and run a simulation
 # sphinx_gallery_thumbnail_path = 'Resources/busbar.png'
 
 import os
-import sys
-import pathlib
-import glob
-from IPython.display import Image
-local_path = os.path.abspath('')
-module_path = pathlib.Path(local_path)
-aedt_lib_path = module_path.parent.parent.parent
-sys.path.append(os.path.join(aedt_lib_path))
 
 from pyaedt.desktop import Desktop
 from pyaedt import Q3d
@@ -97,7 +89,7 @@ q.analyse_nominal()
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # After the simulaton is completed user can close the desktop or release it (using release_desktop method).
 # All methods give possibility to save projects before exit
-
-d.force_close_desktop()
+if os.name != "posix":
+    d.force_close_desktop()
 
 

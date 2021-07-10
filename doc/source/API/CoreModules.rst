@@ -7,7 +7,6 @@ Application Modules
 ===================
 This section contains information about PyAEDT application modules:
 
-
 #. Design
 #. Variables
 #. Analysis
@@ -18,30 +17,30 @@ This section contains information about PyAEDT application modules:
 
 **Design**
 
-The ``Design`` module contains all properties and methods applicable to projects and designs.
+The `Design` module contains all properties and methods applicable to projects and designs.
 
 **Variable**
 
-The ``Variable`` module contains all methods for managing AEDT variables for both projects and designs.
+The `Variable` module contains all methods for managing AEDT variables for both projects and designs.
 
 
 **Analysis**
 
-The ``Analysis`` module contains all properties and methods needed to set up and run AEDT analyses.
+The `Analysis` module contains all properties and methods needed to set up and run AEDT analyses.
 
 
 **Modeler**
 
-The ``Modeler`` module contains all properties and methods needed to edit a modeler, 
+The `Modeler` module contains all properties and methods needed to edit a modeler, 
 including all primitives methods and properties.
 
 **Objects**
 
-Object Classes contain all the properties and methods needed to edit geometric entities
+The `Object` module contains all the properties and methods needed to edit geometric entities.
 
 **DesignXploration**
 
-The ``DesignXploration`` module contain all properties and methods needed to create any optimetrics setup.
+The `DesignXploration` module contains all properties and methods needed to create optimetrics setups.
 
 **Alphabetical Modules Listing**
 

@@ -87,6 +87,16 @@ class EdbStackup(object):
         """
         return self.stackup_layers.signal_layers
 
+    @property
+    def layer_types(self):
+        """Layer types.
+
+        Returns
+        -------
+        type
+            Types of layers.
+        """
+        return self._edb.Cell.LayerType
 
     @property
     def materials(self):

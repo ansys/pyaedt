@@ -15,7 +15,10 @@ This Example shows how to use EDB to create a Layout
 import os
 from pyaedt import Edb
 from pyaedt.generic.general_methods import generate_unique_name
-aedb_path=os.path.join(r"C:\Temp", generate_unique_name("Edb_custom")+".aedb")
+if os.name == "posix":
+    aedb_path = os.path.join("/tmp", generate_unique_name("Edb_custom") + ".aedb")
+else:
+    aedb_path=os.path.join(r"C:\Temp", generate_unique_name("Edb_custom")+".aedb")
 edb = Edb(edbpath=aedb_path, edbversion="2021.1")
 
 
@@ -24,9 +27,8 @@ edb = Edb(edbpath=aedb_path, edbversion="2021.1")
 #
 
 edb.core_stackup.stackup_layers.add_layer("GND")
-edb.core_stackup.stackup_layers.add_layer("Diel","GND", layerType=1, thickness="0.1mm")
+edb.core_stackup.stackup_layers.add_layer("Diel","GND", layerType=1, thickness="0.1mm", material="FR4_epoxy")
 edb.core_stackup.stackup_layers.add_layer("TOP","Diel", thickness="0.05mm")
-
 #########################################
 # Create of signal net and ground planes
 #

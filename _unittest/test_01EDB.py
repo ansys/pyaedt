@@ -10,6 +10,8 @@ from pyaedt.generic.filesystem import Scratch
 from .conftest import desktop_version
 test_project_name = "Galileo"
 bom_example = "bom_example.csv"
+from .conftest import config
+import pytest
 
 class TestEDB:
     def setup_class(self):
@@ -402,18 +404,21 @@ class TestEDB:
         assert edb
         assert edb.active_layout
         edb.close_edb()
+
+    @pytest.mark.skipif(config["build_machine"], reason="Not running in non-graphical mode")
     def test_export_to_hfss(self):
         edb = Edb(edbpath=os.path.join(local_path, 'example_models', "simple.aedb"), edbversion="2021.1")
         options_config = {'UNITE_NETS' : 1, 'LAUNCH_Q3D' : 0}
         out = edb.write_export3d_option_config_file(scratch_path, options_config)
         assert os.path.exists(out)
-        out= edb.export_hfss(scratch_path, non_graphical=True)
+        out= edb.export_hfss(scratch_path)
         assert os.path.exists(out)
 
+    @pytest.mark.skipif(config["build_machine"], reason="Not running in non-graphical mode")
     def test_export_to_q3d(self):
         edb = Edb(edbpath=os.path.join(local_path, 'example_models', "simple.aedb"), edbversion="2021.1")
         options_config = {'UNITE_NETS' : 1, 'LAUNCH_Q3D' : 0}
         out = edb.write_export3d_option_config_file(scratch_path, options_config)
         assert os.path.exists(out)
-        out= edb.export_q3d(scratch_path, non_graphical=True, net_list=["NET1", "NET2", "GND"])
+        out= edb.export_q3d(scratch_path,  net_list=["NET1", "NET2", "GND"])
         assert os.path.exists(out)

@@ -10,16 +10,15 @@ This Example shows how to create an Icepak Project starting from Sherlock Files 
 import time
 import os
 import datetime
-import pathlib
-import sys
 
-local_path = os.path.abspath('')
-module_path = pathlib.Path(local_path)
-aedt_lib_path = module_path.parent
-sys.path.append(os.path.join(aedt_lib_path))
 from pyaedt import examples, generate_unique_name
 input_dir = examples.download_sherlock()
-temp_folder = os.path.join(os.environ["TEMP"], generate_unique_name("Example"))
+if os.name == "posix":
+    tmpfold = os.environ["TMPDIR"]
+else:
+    tmpfold = os.environ["TEMP"]
+
+temp_folder = os.path.join(tmpfold, generate_unique_name("Example"))
 if not os.path.exists(temp_folder): os.makedirs(temp_folder)
 print(temp_folder)
 
@@ -47,7 +46,7 @@ from pyaedt import Desktop
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # Change Boolean to False to open AEDT in graphical mode
 
-NonGraphical = True
+NonGraphical = False
 
 d=Desktop("2021.1", NG=NonGraphical)
 
@@ -152,7 +151,8 @@ ipk.save_project()
 
 
 end = time.time()-start
-ipk.close_desktop()
+if os.name != "posix":
+    ipk.close_desktop()
 print("Elapsed time: {}".format(datetime.timedelta(seconds=end)))
 print("Project Saved in {} ".format(temp_folder))
 

@@ -13,7 +13,7 @@ This Example shows how to use HFSS3DLayout to create a parametric design, solve 
 #
 
 from pyaedt import Hfss3dLayout
-
+import os
 h3d = Hfss3dLayout(specified_version="2021.1", AlwaysNew=False)
 
 #########################################
@@ -79,5 +79,5 @@ h3d.post.create_rectangular_plot(["db(S(Port1,Port1))","db(S(Port1,Port2))"],fam
 #########################################
 # Close Electronic Desktop
 #
-
-h3d.close_desktop()
+if os.name != "posix":
+    h3d.close_desktop()
