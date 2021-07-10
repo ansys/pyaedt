@@ -605,7 +605,6 @@ class CommonMaterial(object):
             The default is ``True``.
         
         """
-        propv
         if isinstance(provpavlue, list) and self.__dict__["_"+propname].type != "simple" and self.__dict__["_"+propname].type != "nonlinear":
                 i=1
                 for val in provpavlue:
