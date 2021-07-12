@@ -1,10 +1,10 @@
 """
-The `Desktop` module contains the `Desktop` class.
+This module contains the `Desktop` class.
 
-The class is used to initialize AEDT and Message Manager to manage AEDT.
-You can initialize the `Desktop` module before launching an app or 
+This module is used to initialize AEDT and Message Manager to manage AEDT.
+
+You can initialize this module before launching an app or 
 have the app automatically initialize it to the latest installed AEDT version.
-
 """
 from __future__ import absolute_import
 
@@ -278,18 +278,21 @@ class Desktop:
 
     Parameters
     ----------
-    specified_version: str, optional
+    specified_version : str, optional
         Version of AEDT to use. The default is ``None``, in which case the
         active setup or latest installed version is used.
     NG: bool, optional
         Whether to launch AEDT in the non-graphical mode. The default 
         is ``False``, in which case AEDT launches in the graphical mode.
-    AlwaysNew: bool, optional
+    AlwaysNew : bool, optional
         Whether to launch an instance of AEDT in a new thread, even if 
         another instance of the ``specified_version`` is active on the machine.
         The default is ``True``.
-    release_on_exit: bool, optional
+    release_on_exit : bool, optional
         Whether to release AEDT on exit. The default is ``True``.
+    student_version : bool, optional
+        Whether to enable the student version of AEDT. The default is
+        ``False``.
 
     Examples
     --------
@@ -308,7 +311,7 @@ class Desktop:
             
     @property
     def version_keys(self):
-        """ """
+        """Version keys."""
 
         self._version_keys = []
         self._version_ids = {}
@@ -340,12 +343,12 @@ class Desktop:
 
     @property
     def current_version(self):
-        """ """
+        """Current version of AEDT."""
         return self.version_keys[0]
 
     @property
     def current_version_student(self):
-        """ """
+        """Current student version of AEDT. """
         for el in self.version_keys:
             if "SV" in el:
                 return el
@@ -535,7 +538,7 @@ class Desktop:
 
     @property
     def install_path(self):
-        """ """
+        """Installation path for AEDT."""
         version_key = self._main.AEDTVersion
         root = self._version_ids[version_key]
         return os.environ[root]
@@ -587,7 +590,7 @@ class Desktop:
         return str(ex_value)
 
     def release_desktop(self, close_projects=True, close_on_exit=True):
-        """
+        """Release AEDT.
 
         Parameters
         ----------
@@ -595,7 +598,7 @@ class Desktop:
             Whether to close the projects opened in the session. 
             The default is ``True``.
         close_on_exit : bool, optional
-            Whether to close the active AEDT session. 
+            Whether to close the active AEDT session on exiting AEDT. 
             The default is ``True``.
 
         Returns
@@ -605,32 +608,34 @@ class Desktop:
         release_desktop(close_projects, close_on_exit)
 
     def force_close_desktop(self):
-        """ """
+        """Forcibly close AEDT."""
         force_close_desktop()
 
     def close_desktop(self):
-        """ """
+        """Close AEDT."""
         force_close_desktop()
 
     def enable_autosave(self):
-        """ """
+        """Enable autosave."""
         self._main.oDesktop.EnableAutoSave(True)
 
     def disable_autosave(self):
-        """ """
+        """Disable autosave."""
         self._main.oDesktop.EnableAutoSave(False)
 
 
 def get_version_env_variable(version_id):
-    """
+    """Retrieve the environment variable for the AEDT version.
 
     Parameters
     ----------
-    version_id :
-        
+    version_id : int
+        ID of the AEDT version.
 
     Returns
     -------
+    str
+        Environment variable for the version.
 
     """
     version_env_var = "ANSYSEM_ROOT"
@@ -647,16 +652,17 @@ def get_version_env_variable(version_id):
 
 
 def get_version_key(version_id):
-    """
+    """Retrieve the key for the AEDT version.
 
     Parameters
     ----------
-    version_id :
-        
+    version_id : int
+       ID of the AEDT version.
 
     Returns
     -------
-
+    str
+        Key for the AEDT version.
     """
     values = version_id.split('.')
     version = int(values[0][2:])
