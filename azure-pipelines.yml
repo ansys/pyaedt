@@ -34,7 +34,7 @@ steps:
 #    pip install . --use-feature=in-tree-build
 #    pip install -r requirements_test.txt
 #    pip install pytest-azurepipelines
--
+
 - script: |
     python -m venv $(python.venv)
     $(python.venv)\Scripts\Activate.ps1
