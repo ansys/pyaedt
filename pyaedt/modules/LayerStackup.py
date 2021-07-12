@@ -16,7 +16,7 @@ def str2bool(str0):
 
     Parameters
     ----------
-    str0 : text
+    str0 : str
        String to convert.   
 
     Returns
@@ -36,8 +36,8 @@ def conv_number(number, typen=float):
 
     Parameters
     ----------
-    number : float
-       Number to convert.
+    float
+       Number represented a float.
         
     typen : 
          The default is ``float``.
@@ -176,7 +176,7 @@ class Layer(object):
         r : int
             Red color value.
         g : int
-            Green color vale.
+            Green color value.
         b :  int
             Blue color value.
 
