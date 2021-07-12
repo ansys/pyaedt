@@ -11,7 +11,7 @@ This module contains these data classes for creating a material library:
 * `SurMatProperties`
 * `SufaceMaterial`
 
-..note::
+.. note::
     This module is for internal use only.
 
 """
@@ -77,7 +77,7 @@ class MatProperties(object):
 class SurfMatProperties(object):
     """SurfMatProperties class.
     
-    The class contains a ist of constant names for all possible materials with 
+    The class contains a list of constant names for all possible materials with 
     mappings to their internal XML names. Internal mames are used in scripts, and 
     XML names are used in the XML syntax.
  
@@ -418,7 +418,7 @@ class MatProperty(object):
         tu : float, optional
             Upper temperature limit. The default is ``1000``.
         units : str, optional
-            Units for the temperaturereference. The default 
+            Units for the reference temperature. The default 
             is ``"cel"``.
         auto_calc : bool, optional
             Whether to calculate the lower and upper
@@ -600,7 +600,7 @@ class CommonMaterial(object):
         propname: str
             Name of the property.
         provpavlue :
-        
+            Value of the property.
         update_aedt : bool, optional
             The default is ``True``.
         
@@ -713,7 +713,7 @@ class Material(CommonMaterial, object):
         Returns
         -------
         type
-            Conductivity of the material
+            Conductivity of the material.
         """
         return self._conductivity
 
@@ -991,20 +991,20 @@ class Material(CommonMaterial, object):
 
     @aedt_exception_handler
     def is_dielectric(self, threshold=100000):
-        """Check if the material is a dielectric.
+        """Check if the material is dielectric.
 
         Parameters
         ----------
         threshold : float, optional
-            Threshold to define if a material is a dielectric. The
+            Threshold to define if a material is dielectric. The
             default is ``100000``. If the conductivity is equal to or
             greater than the specified threshold, the material is 
-            considered a dielectric. 
+            considered dielectric. 
 
         Returns
         -------
         bool
-            ``True`` when the material is a dielectric, ``False`` otherwise.
+            ``True`` when the material is dielectric, ``False`` otherwise.
         """
         return not self.is_conductor()
 
@@ -1139,7 +1139,7 @@ class SurfaceMaterial(CommonMaterial, object):
         Returns
         -------
         type
-            Surface roughtness of the surface material.
+            Surface roughness of the surface material.
         """
         return self._surface_roughness
 
