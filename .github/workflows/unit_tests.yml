@@ -21,9 +21,16 @@ jobs:
   build:
     # The type of runner that the job will run on
     runs-on: self-hosted
-
+    strategy:
+      matrix:
+        python-version: [3.8]
     # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
+      - uses: actions/checkout@v2
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v2
+        with:
+          python-version: ${{ matrix.python-version }}
       # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
       #- uses: actions/setup-python@v2
       #  name: 'Use Python $(python.version)'
@@ -32,7 +39,7 @@ jobs:
       #     architecture: 'x64'
 
       - name: 'Create virtual env'
-        run: 
+        run: |
           python -m venv testenv
           testenv\Scripts\Activate.ps1
           python -m pip install pip -U
@@ -40,7 +47,7 @@ jobs:
           python -c "import sys; print(sys.executable)"
 
       - name: 'Install pyaedt'
-        run: 
+        run: |
           testenv\Scripts\Activate.ps1
           pip install . --use-feature=in-tree-build
           pip install -r requirements_test.txt
@@ -50,12 +57,12 @@ jobs:
           python -c "import pyaedt; print('Imported pyaedt')"
 
       - name: 'Unit testing'
-        run: 
+        run: | 
           testenv\Scripts\Activate.ps1
           pytest -v --cov --cov-config=.coveragerc -cov-report=xml --cov-report=html --junitxml=junit/test-results.xml
 
       - name: 'Coverage'
-        run: 
+        run: |
           testenv\Scripts\Activate.ps1
          coverage xml
 
@@ -73,7 +80,7 @@ jobs:
         if: ${{ success() }}
         
       - name: 'Build and validate source distribution'
-        run:
+        run: |
           testenv\Scripts\Activate.ps1
           python setup.py sdist
           python -m pip install twine
@@ -87,7 +94,7 @@ jobs:
       #    ArtifactName: dist
       
       - name: 'Verify package'
-        run:
+        run: |
           pip install twine
           twine check dist/*
 
