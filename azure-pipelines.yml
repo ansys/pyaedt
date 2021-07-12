@@ -9,6 +9,7 @@ trigger:
   tags:
     include:
     - '*'
+
 pool:
   name: Ansys
 variables:
@@ -102,3 +103,4 @@ steps:
     TWINE_USERNAME: __token__
     TWINE_PASSWORD: $(PYPI_TOKEN)
     TWINE_REPOSITORY_URL: "https://upload.pypi.org/legacy/"
+
