@@ -11,9 +11,9 @@ trigger:
     - '*'
 
 pool:
-  name: Ansys
+  name: ansys-windows-1
 variables:
-  python.version: 3.7.7
+  python.version: 3.8
   python.venv: 'testvenv'
 
 steps:
@@ -22,20 +22,19 @@ steps:
   inputs:
     versionSpec: '$(python.version)'
 
-#- script: |
-#    python -m venv $(python.venv)
-#    $(python.venv)\Scripts\Activate.ps1
-#    python -m pip install pip -U
-#    python -m pip install wheel setuptools -U
-#    python -c "import sys; print(sys.executable)"
-#  displayName: 'Create virtual env'
-
-#- script: |
-#    $(python.venv)\Scripts\Activate.ps1
-#    pip install . --use-feature=in-tree-build
-#    pip install -r requirements_test.txt
-#    pip install pytest-azurepipelines
 - script: |
+    python -m venv $(python.venv)
+    $(python.venv)\Scripts\Activate.ps1
+    python -m pip install pip -U
+    python -m pip install wheel setuptools -U
+    python -c "import sys; print(sys.executable)"
+  displayName: 'Create virtual env'
+
+- script: |
+    $(python.venv)\Scripts\Activate.ps1
+    pip install . --use-feature=in-tree-build
+    pip install -r requirements_test.txt
+    pip install pytest-azurepipelines
     mkdir tmp
     cd tmp
     python -c "import pyaedt; print('Imported pyaedt')"
