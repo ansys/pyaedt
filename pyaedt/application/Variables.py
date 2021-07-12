@@ -305,7 +305,6 @@ class CSVDataset:
         pass
 
     @aedt_exception_handler
-    """Retrieve an item."""
     def __getitem__(self, item):
         variable_list = item.split(',')
         data_out = CSVDataset()
