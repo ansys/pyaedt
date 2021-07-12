@@ -59,18 +59,17 @@ jobs:
           $(python.venv)\Scripts\Activate.ps1
          coverage xml
 
-      - uses: PublishTestResults@2
+      - uses: EnricoMi/publish-unit-test-result-action@v1
         name: 'Publish Test Results **/test-results.xml'
         with:
           testResultsFiles: '**/test-results.xml'
           testRunTitle: 'Python $(python.version)'
         if: ${{ always() }}
 
-      - uses: PublishCodeCoverageResults@1
+      - uses: 5monkeys/cobertura-action@master
         name: 'Publish code coverage from $(System.DefaultWorkingDirectory)/coverage.xml'
         with:
-          codeCoverageTool: Cobertura
-          summaryFileLocation: '$(System.DefaultWorkingDirectory)/coverage.xml'
+          path: src/coverage.xml
         if: ${{ success() }}
         
       - name: 'Build and validate source distribution'
@@ -81,11 +80,11 @@ jobs:
           python -m twine check dist/*
         
 
-      - uses: PublishBuildArtifacts@1
-        name: 'Publish Artifact: dist'
-        with:
-          PathtoPublish: dist
-          ArtifactName: dist
+      #- uses: PublishBuildArtifacts@1
+      #  name: 'Publish Artifact: dist'
+      #  with:
+      #    PathtoPublish: dist
+      #    ArtifactName: dist
       
       - name: 'Verify package'
         run:
