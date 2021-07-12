@@ -12,6 +12,7 @@ trigger:
 runs-on: [self-hosted, windows]
 #pool:
 #  name: ansys-windows-1
+
 variables:
   python.version: 3.8
   python.venv: 'testvenv'
