@@ -75,7 +75,7 @@ def unit_system(units):
     Returns
     -------
     bool
-        ``True`` when successful, ``False`` when the specifed units are not defined in AEDT units.
+        ``True`` when successful, ``False`` when the specified units are not defined in AEDT units.
     
     """
     found = False
@@ -207,7 +207,7 @@ class CSVDataset:
         The CSV value includes the header and data, which supports AEDT units information 
         such as ``"1.23Wb"``. You can also augment the data with constant values.
     separator: str, optional
-        Value to use for the delimiter. The default is "None", in which case a commma is 
+        Value to use for the delimiter. The default is "None", in which case a comma is 
         assumed.
     units_dict: dict, optional
         Dictionary consisting of ``{Variable Name: unit}`` to rescale the dataq
@@ -664,7 +664,7 @@ class VariableManager(object):
         dependent : bool, optional
              Whether to include dependent variables. The default is ``True``.
         independent : bool, optional
-             Whether to include indepdent variables. The default is ``True``.
+             Whether to include independent variables. The default is ``True``.
 
         Returns
         -------
@@ -1538,4 +1538,3 @@ class DataSet(object):
         else:
             self._parent.odesign.ExportDataset(self.name, dataset_path)
         return True
-
