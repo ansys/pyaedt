@@ -20,7 +20,7 @@ jobs:
   # This workflow contains a single job called "build"
   build:
     # The type of runner that the job will run on
-    runs-on: self-hosted
+    runs-on: self-hosted, windows-latest
     strategy:
       matrix:
         python-version: [3.8]
@@ -74,10 +74,10 @@ jobs:
         if: ${{ always() }}
 
       - uses: 5monkeys/cobertura-action@master
-        name: 'Publish code coverage from $(System.DefaultWorkingDirectory)/coverage.xml'
+        name: 'Publish code coverage coverage.xml'
         with:
           path: src/coverage.xml
-        if: ${{ success() }}
+        if: ${{ always() }}
         
       - name: 'Build and validate source distribution'
         run: |
