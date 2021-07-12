@@ -43,6 +43,8 @@ rgb_color_codes = {
     "copper": (184, 115, 51),
     "stainless steel": (224, 223, 219)
 }
+
+
 def _uname(name=None):
     """Appends a 6-digit hash code to a specified name
 
@@ -108,8 +110,9 @@ def _dim_arg(value, units):
     try:
         val = float(value)
         return str(val) + units
-    except:
+    except ValueError:
         return value
+
 
 class EdgeTypePrimitive:
     """Common methods for EdgePrimitive and FacePrimitive"""
@@ -265,12 +268,12 @@ class EdgePrimitive(EdgeTypePrimitive):
         Object id as determined by the parent object
 
     """
-    def __init__(self, parent, id):
-        self.id = id
+    def __init__(self, parent, edge_id):
+        self.id = edge_id
         self._parent = parent
         self._oeditor = parent.m_Editor
         self.vertices = []
-        for vertex in self._oeditor.GetVertexIDsFromEdge(self.id):
+        for vertex in self._oeditor.GetVertexIDsFromEdge(edge_id):
             vertex = int(vertex)
             self.vertices.append(VertexPrimitive(parent, vertex))
 
@@ -392,10 +395,10 @@ class FacePrimitive(object):
             True if operation is successful
         """
         self._parent.m_Editor.MoveFaces(["NAME:Selections", "Selections:=", self._parent.name, "NewPartsModelFlag:=", "Model"],
-                                    ["NAME:Parameters",
-                                     ["NAME:MoveFacesParameters", "MoveAlongNormalFlag:=", True, "OffsetDistance:=", _dim_arg(offset, self._parent.object_units),
-                                      "MoveVectorX:=", "0mm", "MoveVectorY:=", "0mm", "MoveVectorZ:=", "0mm",
-                                      "FacesToMove:=", [self.id]]])
+                                        ["NAME:Parameters",
+                                        ["NAME:MoveFacesParameters", "MoveAlongNormalFlag:=", True, "OffsetDistance:=", _dim_arg(offset, self._parent.object_units),
+                                         "MoveVectorX:=", "0mm", "MoveVectorY:=", "0mm", "MoveVectorZ:=", "0mm",
+                                         "FacesToMove:=", [self.id]]])
         return True
 
     @aedt_exception_handler
@@ -522,8 +525,6 @@ class Object3d(object):
         self._is_updated = False
         self._all_props = None
         self._surface_material = None
-
-        self._update()
 
     @property
     def bounding_box(self):
@@ -709,6 +710,13 @@ class Object3d(object):
              * Sheet
              * Line
          """
+        if self._m_name in self._parent.solid_names:
+            self._object_type = "Solid"
+        else:
+            if self._m_name in self._parent.sheet_names:
+                self._object_type = "Sheet"
+            elif self._m_name in self._parent.line_names:
+                self._object_type = "Line"
         return self._object_type
 
     @property
@@ -777,10 +785,12 @@ class Object3d(object):
                 if len(parse_string) == 3:
                     color_tuple = tuple([int(x) for x in parse_string])
         else:
-            color_tuple = color_value
+            try:
+                color_tuple = tuple([int(x) for x in color_value])
+            except ValueError:
+                pass
 
         if color_tuple:
-
             try:
                 R = clamp(color_tuple[0], 0, 255)
                 G = clamp(color_tuple[1], 0, 255)
@@ -790,11 +800,9 @@ class Object3d(object):
                 self._color = (R, G, B)
             except TypeError:
                 color_tuple = None
-
-        if not color_tuple:
+        else:
             msg_text = "Invalid color input {} for object {}".format(color_value, self._m_name)
             self._parent.messenger.add_warning_message(msg_text)
-
 
     @property
     def transparency(self):
@@ -1127,9 +1135,9 @@ class Object3d(object):
         return True
 
     def _update(self):
-        self._parent._refresh_object_types()
+        #self._parent._refresh_object_types()
         self._parent.cleanup_objects()
-        self._update_object_type()
+
 
     def __str__(self):
         return """
@@ -1145,15 +1153,6 @@ class Object3d(object):
          part_coordinate_system: {}
          """.format(type(self), self.name, self.id, self.object_type, self.solve_inside, self.model, self.material_name,
                     self.color, self.transparency, self.display_wireframe, self.part_coordinate_system)
-
-    def _update_object_type(self):
-        if self._m_name in self._parent.solid_names:
-            self._object_type = "Solid"
-        else:
-            if self._m_name in self._parent.sheet_names:
-                self._object_type = "Sheet"
-            elif self._m_name in self._parent.line_names:
-                self._object_type = "Line"
 
 class Padstack(object):
     """ """

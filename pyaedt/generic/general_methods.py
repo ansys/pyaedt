@@ -2,6 +2,7 @@ import os
 import string
 import random
 import time
+import datetime
 import sys
 import traceback
 import logging
@@ -338,9 +339,14 @@ def retry_ntimes(n, function, *args, **kwargs):
     return ret_val
 
 def time_fn( fn, *args, **kwargs ):
-    start = time.perf_counter()
+    #start = time.perf_counter()
+    start = datetime.datetime.now()
     results = fn( *args, **kwargs )
-    end = time.perf_counter()
+    end = datetime.datetime.now()
     fn_name = fn.__module__ + "." + fn.__name__
-    print(fn_name + ": " + str(end-start) + "s")
+    delta = (end - start).microseconds * 1e-6
+    print(fn_name + ": " + str(delta) + "s")
     return results
+
+def isclose(a, b, rel_tol=1e-9, abs_tol=0.0):
+    return abs(a-b) <= max( rel_tol * max(abs(a), abs(b)), abs_tol )

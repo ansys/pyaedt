@@ -58,8 +58,8 @@ class FieldAnalysis3D(Analysis, object):
                           specified_version, NG, AlwaysNew, release_on_exit, student_version)
         self._modeler = Modeler3D(self)
         self._mesh = Mesh(self)
-        #self._post = PostProcessor(self)
-        #self.modeler.primitives.refresh()
+
+
 
     @property
     def modeler(self):

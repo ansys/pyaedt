@@ -59,8 +59,7 @@ class FieldAnalysisIcepak(Analysis, object):
                           specified_version, NG, AlwaysNew, release_on_exit, student_version)
         self._modeler = Modeler3D(self)
         self._mesh = IcepakMesh(self)
-        #self._post = PostProcessor(self)
-        self.modeler.primitives.refresh()
+
     @property
     def modeler(self):
         """Modeler object."""

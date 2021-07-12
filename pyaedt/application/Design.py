@@ -1950,10 +1950,9 @@ class Design(object):
                     self.odesign = None
                 else:
                     new_designname = self._oproject.GetActiveDesign().GetName()
-                    self.set_active_design(new_designname)
+            self.set_active_design(new_designname)
         except:
             pass
-        self.__init__(self.project_name, self.design_name)
 
         return True
 

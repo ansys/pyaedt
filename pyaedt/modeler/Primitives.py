@@ -182,8 +182,6 @@ class Polyline(Object3d):
 
             new_object_name = self.m_Editor.CreatePolyline(varg1, varg2)
 
-            self._parent._refresh_object_types()
-            assert new_object_name in self._parent._all_object_names
             Object3d.__init__(self, parent, name=new_object_name)
             self._parent.objects[self.id] = self
             self._parent.object_id_dict[self.name] = self.id
@@ -731,14 +729,6 @@ class Primitives(object):
     def __init__(self, parent, modeler):
         self._modeler = modeler
         self._parent = parent
-        self._solids = []
-        self._sheets = []
-        self._lines = []
-        self._unclassified = []
-        self._all_object_names = []
-        self.objects = defaultdict(Object3d)
-        self.object_id_dict = defaultdict()
-        self._currentId = 0
         self.refresh()
 
     @property
@@ -1393,18 +1383,24 @@ class Primitives(object):
         return list_objs
 
     def refresh(self):
+        self._solids = []
+        self._sheets = []
+        self._lines = []
+        self._unclassified = []
+        self._all_object_names = []
+        self.objects = defaultdict(Object3d)
+        self.object_id_dict = defaultdict()
+        self._currentId = 0
         self._refresh_all_ids_from_aedt_file()
-        self.add_new_objects()
 
     def cleanup_objects(self):
         """Clean up any objects in self.objects that have been removed by previous operations
         and do not exist in the modeler anymore. Also updates object ids which may have changed
         via a modeler operation such as unite"""
-        self._refresh_object_types()
         new_object_dict = {}
         new_object_id_dict = {}
         for old_id, obj in self.objects.items():
-            if obj.name in self._all_object_names or obj.name in self._unclassified:
+            if obj.name in self.object_names or obj.name in self.unclassified_objects:
                 updated_id = obj.id    # By calling the object property we get the new id
                 new_object_id_dict[obj.name] = updated_id
                 new_object_dict[updated_id] = obj
@@ -2094,17 +2090,12 @@ class Primitives(object):
 
         candidate_edges = []
         for p in port_sheets:
-            edges = self.get_object_edges(p)
+            edges = self[p].edges
             for edge in edges:
-                new_edge = self.create_object_from_edge(edge)
-                time.sleep(aedt_wait_time)
-                vertices = self.get_object_vertices(new_edge.id)
+                vertices = edge.vertices
                 v_flag = False
                 for vertex in vertices:
-                    v = self.get_vertex_position(vertex)
-                    if not v:
-                        v_flag = False
-                        break
+                    v = vertex.position
                     xyz_flag = 0
                     if abs(v[0] - bb[0]) < tol or abs(v[0] - bb[3]) < tol:
                         xyz_flag += 1
@@ -2118,37 +2109,26 @@ class Primitives(object):
                         v_flag = False
                         break
                 if v_flag:
-                    candidate_edges.append(new_edge.id)
-                else:
-                    self.delete(new_edge.id)
+                    candidate_edges.append(edge)
 
-        if return_colinear is False:
+        if not return_colinear:
             return candidate_edges
 
-        found_flag = False
         selected_edges = []
-        for i in range(len(candidate_edges) - 1):
-            if found_flag:
-                break
-            vertices_i = self.get_object_vertices(candidate_edges[i])
-            vertex1_i = self.get_vertex_position(vertices_i[0])
-            vertex2_i = self.get_vertex_position(vertices_i[1])
-            midpoint_i = GeometryOperators.get_mid_point(vertex1_i, vertex2_i)
-            for j in range(i + 1, len(candidate_edges)):
-                vertices_j = self.get_object_vertices(candidate_edges[j])
-                vertex1_j = self.get_vertex_position(vertices_j[0])
-                vertex2_j = self.get_vertex_position(vertices_j[1])
-                midpoint_j = GeometryOperators.get_mid_point(vertex1_j, vertex2_j)
+        for i, edge_i in enumerate(candidate_edges[:-1]):
+            vertex1_i = edge_i.vertices[0].position
+            midpoint_i = edge_i.midpoint
+            for j, edge_j in enumerate(candidate_edges[i+1:]):
+                midpoint_j = edge_j.midpoint
                 area = GeometryOperators.get_triangle_area(midpoint_i, midpoint_j, vertex1_i)
                 if area < tol ** 2:
-                    selected_edges.extend([candidate_edges[i], candidate_edges[j]])
-                    found_flag = True
+                    selected_edges.extend([edge_i, edge_j])
                     break
         selected_edges = list(set(selected_edges))
 
-        for edge in candidate_edges:
-            if edge not in selected_edges:
-                self.delete(edge)
+        for edge in selected_edges:
+            self.create_object_from_edge(edge)
+            time.sleep(aedt_wait_time)
 
         return selected_edges
 
@@ -2521,30 +2501,52 @@ class Primitives(object):
             return defaultmatname, True
 
     def _refresh_solids(self):
-        self._solids = list(self.oeditor.GetObjectsInGroup("Solids"))
+        test = retry_ntimes(10, self.oeditor.GetObjectsInGroup, "Solids")
+        if test is None or test is False:
+            assert False, "Get Solids is failing"
+        elif test is True:
+            self._solids = []    # In IronPython True is returned when no sheets are present
+        else:
+            self._solids = list(test)
         self._all_object_names = self._solids + self._sheets + self._lines
 
     def _refresh_sheets(self):
-        self._sheets = list(self.oeditor.GetObjectsInGroup("Sheets"))
+        test = retry_ntimes(10, self.oeditor.GetObjectsInGroup, "Sheets")
+        if test is None or test is False:
+            assert False, "Get Sheets is failing"
+        elif test is True:
+            self._sheets = []    # In IronPython True is returned when no sheets are present
+        else:
+            self._sheets = list(test)
         self._all_object_names = self._solids + self._sheets + self._lines
 
     def _refresh_lines(self):
-        self._lines = list(self.oeditor.GetObjectsInGroup("Lines"))
+        test = retry_ntimes(10, self.oeditor.GetObjectsInGroup, "Lines")
+        if test is None or test is False:
+            assert False, "Get Lines is failing"
+        elif test is True:
+            self._lines = []    # In IronPython True is returned when no lines are present
+        else:
+            self._lines = list(test)
         self._all_object_names = self._solids + self._sheets + self._lines
 
     def _refresh_unclassified(self):
-        self._unclassified = list(self.oeditor.GetObjectsInGroup("Unclassified"))
+        test = retry_ntimes(10, self.oeditor.GetObjectsInGroup, "Unclassified")
+        if test is None or test is False:
+            self._unclassified = []
+            print("Unclassified is failing")
+        elif test is True:
+            self._unclassified = []     # In IronPython True is returned when no unclassified are present
+        else:
+            self._unclassified = list(test)
 
     def _refresh_object_types(self):
         self._refresh_solids()
         self._refresh_sheets()
         self._refresh_lines()
-        self._refresh_unclassified()
         self._all_object_names = self._solids + self._sheets + self._lines
 
     def _create_object(self, name):
-        self._refresh_object_types()
-        assert name in self._all_object_names
         o = Object3d(self, name)
         self.objects[o.id] = o
         self.object_id_dict[o.name] = o.id

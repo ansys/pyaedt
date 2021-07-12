@@ -23,10 +23,6 @@ class Primitives3D(Primitives, object):
     create_rectangle
 
     """
-
-    def __init__(self, parent, modeler):
-        Primitives.__init__(self, parent, modeler)
-
     @aedt_exception_handler
     def create_box(self, position, dimensions_list, name=None, matname=None):
         """Create a Box
@@ -721,21 +717,3 @@ class Primitives3D(Primitives, object):
             return list(compobj.GetChildNames())
         else:
             return []
-
-    @aedt_exception_handler
-    def get_all_solids_names(self, refresh_list=False):
-        """get all solids names in the design
-
-        Parameters
-        ----------
-        refresh_list :
-            bool, force the refresh of objects (Default value = False)
-
-        Returns
-        -------
-        type
-            list of the solids names
-
-        """
-        return self.solid_names
-

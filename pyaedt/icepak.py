@@ -202,7 +202,7 @@ class Icepak(FieldAnalysisIcepak):
             List of boundaries inserted.
 
         """
-        oObjects = self.modeler.primitives.get_all_solids_names()
+        oObjects = self.modeler.primitives.solid_names
         listmcad = []
         num_power = None
         for row in list_powers:
@@ -401,7 +401,7 @@ class Icepak(FieldAnalysisIcepak):
         type
             Networks boundary objects.
         """
-        objs = self.modeler.primitives.get_all_solids_names()
+        objs = self.modeler.primitives.solid_names
         countpow = len(input_list[0])-3
         networks = []
         for row in input_list:
