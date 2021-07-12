@@ -64,7 +64,7 @@ jobs:
       - name: 'Coverage'
         run: |
           testenv\Scripts\Activate.ps1
-         coverage xml
+          coverage xml
 
       - uses: EnricoMi/publish-unit-test-result-action@v1
         name: 'Publish Test Results **/test-results.xml'
