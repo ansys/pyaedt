@@ -1,4 +1,4 @@
-"""This module contain the `Components` class."""
+"""This module contains the `Components` class."""
 import re
 import random
 
@@ -75,7 +75,7 @@ class Components(object):
 
     @property
     def _messenger(self):
-        """Messenger.""
+        """Messenger."""
         return self.parent.messenger
 
     @property
@@ -99,7 +99,7 @@ class Components(object):
 
     @property
     def _edb_value(self):
-      return self.parent.edb_value
+        return self.parent.edb_value
 
     @property
     def _edbutils(self):
@@ -111,7 +111,7 @@ class Components(object):
 
     @property
     def _cell(self):
-       return self.parent.cell
+        return self.parent.cell
 
     @property
     def _db(self):
@@ -119,11 +119,11 @@ class Components(object):
 
     @property
     def _components_methods(self):
-       return self.parent.edblib.Layout.ComponentsMethods
+        return self.parent.edblib.Layout.ComponentsMethods
 
     @property
     def components(self):
-        ""Component setup information.
+        """Component setup information.
                 
         Returns
         -------
@@ -148,7 +148,7 @@ class Components(object):
         Returns
         -------
         dict
-        Default dictionary for the EDB comopnent.
+            Default dictionary for the EDB comopnent.
         """
         self._messenger.add_info_message("Refreshing Components Dictionary")
         try:
