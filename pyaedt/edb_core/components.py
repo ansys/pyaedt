@@ -835,11 +835,13 @@ class Components(object):
         
         """
         if "IronPython" in sys.version or ".NETFramework" in sys.version:
-                name = clr.Reference[String]()
+            name = clr.Reference[String]()
+            response = pin.GetProductProperty(0, 11, name)
+            name = str(name).strip("'")
         else:
-                name = String("")
-        response = pin.GetProductProperty(0, 11, name)
-        name = str(name).strip("'")
+            name = String("")
+            response = pin.GetProductProperty(0, 11, name)
+            name = str(response[1])
         return name
 
     @aedt_exception_handler
