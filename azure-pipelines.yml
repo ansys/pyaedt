@@ -9,12 +9,10 @@ trigger:
   tags:
     include:
     - '*'
-
 pool:
   name: Ansys
-
 variables:
-  python.version: 3.8
+  python.version: 3.7.7
   python.venv: 'testvenv'
 
 steps:

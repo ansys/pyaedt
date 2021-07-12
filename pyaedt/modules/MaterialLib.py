@@ -531,18 +531,19 @@ class Materials(object):
             for el, val in data["datasets"].items():
                 numcol = len(val["Coordinates"]["DimUnits"])
                 xunit = val["Coordinates"]["DimUnits"][0]
-                yunit = val["Coordinates"]["DimUnits"][0]
+                yunit = val["Coordinates"]["DimUnits"][1]
                 zunit = ""
 
-
-                new_list = [val["Coordinates"]['Points'][i:i + numcol] for i in range(0, len(val["Coordinates"]['Points']), numcol)]
+                new_list = [val["Coordinates"]['Points'][i:i + numcol]
+                            for i in range(0, len(val["Coordinates"]['Points']), numcol)]
                 xval = new_list[0]
                 yval = new_list[1]
                 zval = None
-                if numcol>2:
-                    zunit = val["Coordinates"]["DimUnits"][0]
+                if numcol > 2:
+                    zunit = val["Coordinates"]["DimUnits"][2]
                     zval = new_list[2]
-                self._parent.create_dataset(el[1:],xunit=xunit, yunit=yunit, zunit=zunit, xlist=xval, ylist=yval, zlist=zval)
+                self._parent.create_dataset(el[1:], xunit=xunit, yunit=yunit, zunit=zunit,
+                                            xlist=xval, ylist=yval, zlist=zval)
 
         for el, val in data["materials"].items():
             if el.lower() in list(self.material_keys.keys()):
