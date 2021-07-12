@@ -1,6 +1,6 @@
 import os
 # Setup paths for module imports
-from .conftest import scratch_path, module_path, local_path
+from .conftest import scratch_path, local_path
 import gc
 # Import required modules
 from pyaedt import Hfss
