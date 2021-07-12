@@ -573,7 +573,7 @@ class VariableManager(object):
     @property
     def independent_design_variables(self):
 	"""Independent design variables.
-        
+	
         Returns
         -------
         dict
@@ -589,8 +589,7 @@ class VariableManager(object):
         Returns
         -------
         dict
-            Dictionary of dependent design properties (local variables) and project variables
-            available to the design.
+            Dictionary of dependent design properties (local variables) and project variables available to the design.
         
 	"""    
         return self._variable_dict([self.odesign, self.oproject], independent=False)
