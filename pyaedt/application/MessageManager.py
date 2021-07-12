@@ -73,9 +73,8 @@ class MessageList:
 class AEDTMessageManager(object):
     """AEDTMessageManager class.
     
-    This class manages AEDT messaging to the logger file and to the AEDT Message UI.
-    
-
+    This class manages AEDT messaging to both the logger and the AEDT Message UI.
+  
     Parameters
     ----------
     parent :
@@ -132,7 +131,8 @@ class AEDTMessageManager(object):
         Returns
         -------
         list
-           List of messages.
+           List of messages for the active project and design.
+           
         """
         return self.get_messages(self._project_name, self._design_name)
 
@@ -153,7 +153,7 @@ class AEDTMessageManager(object):
         Returns
         -------
         list
-            List of messages.
+            List of messages for the specified project and design.
 
         """
         global_message_data = self._desktop.GetMessages("", "", 0)
@@ -164,7 +164,7 @@ class AEDTMessageManager(object):
     def add_error_message(self, message_text, level=None):
         """Add a type 2 "Error" message to the Message Manager tree.
 
-        Also add an error message to the log file if the handler is present.
+        Also add an error message to the logger if the handler is present.
 
         Parameters
         ----------
@@ -173,7 +173,8 @@ class AEDTMessageManager(object):
         level : str, optional
             Level to add the error message to. Options are ``"Global"``, 
             ``"Project"``, and ``"Design"``. The default is ``None``, 
-            in which case the error message gets added to the design.
+            in which case the error message gets added to the ``"Design"``
+            level.
 
         Examples
         --------
@@ -188,7 +189,7 @@ class AEDTMessageManager(object):
     def add_warning_message(self, message_text, level=None):
         """Add a type 1 "Warning" message to the Message Manager tree.
         
-        Also add a warning message to the log file if the handler is present.
+        Also add a warning message to the logger if the handler is present.
 
         Parameters
         ----------
@@ -197,7 +198,8 @@ class AEDTMessageManager(object):
         level : str, optional
             Level to add the warning message to. Options are ``"Global"``, 
             ``"Project"``, and ``"Design"``. The default is ``None``, 
-            in which case the warning message gets added to the design.
+            in which case the warning message gets added to the ``"Design"``
+            level.
 
         Examples
         --------
@@ -212,7 +214,7 @@ class AEDTMessageManager(object):
     def add_info_message(self, message_text, level=None):
         """Add a type 0 "Info" message to the active design level of the Message Manager tree.
 
-        Also add an info message to the log file if the handler is present.
+        Also add an info message to the logger if the handler is present.
 
         Parameters
         ----------
@@ -221,7 +223,8 @@ class AEDTMessageManager(object):
         level : str, optional
             Level to add the info message to. Options are ``"Global"``, 
             ``"Project"``, and ``"Design"``. The default is ``None``, 
-            in which case the info message gets added to the design.
+            in which case the info message gets added to the ``"Design"``
+            level.
 
         Examples
         --------
@@ -258,7 +261,7 @@ class AEDTMessageManager(object):
         level : str, optional
             Level to add the message to. Options are ``"Global"``, 
             ``"Project"``, and ``"Design"``. The default is ``None``, 
-            in which case the message gets added to the design.
+            in which case the message gets added to the ``"Design"``level.
         proj_name : str, optional
             Name of the project.
         des_name : str, optional
@@ -361,7 +364,7 @@ class AEDTMessageManager(object):
 class EDBMessageManager(object):
     """EDBMessageManager class.
     
-    This class provides all functionalities for managing EDB messaging to the log file.
+    This class provides all functionalities for managing EDB messaging to the logger.
     
     Parameters
     ----------
@@ -385,46 +388,31 @@ class EDBMessageManager(object):
             self.logger = logging.getLogger(__name__)
 
     def add_error_message(self, message_text):
-        """Add a type 2 "Error" message to the log file.
+        """Add a type 2 "Error" message to the logger.
 
         Parameters
         ----------
         message_text : str
             Text to display as the message.
-
-        Returns
-        -------
-        str
-            Message text added to the log file.
-
+                
         """
 
         self.logger.error(message_text)
 
     def add_warning_message(self, message_text):
-        """Add a "Warning" message to the log file.
+        """Add a "Warning" message to the logger.
 
         message_text : str
             Text to display as the message.
-
-        Returns
-        -------
-        str
-            Message text added to the log file.
-
+        
         """
         self.logger.warning(message_text)
 
     def add_info_message(self, message_text):
-        """Add an "Info" message to the log file.
+        """Add an "Info" message to the logger.
 
         message_text : str
             Text to display as the message.
-
-        Returns
-        -------
-        str
-            Message text added to the log file.
 
         """
         self.logger.info(message_text)
