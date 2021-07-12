@@ -63,14 +63,14 @@ jobs:
         with:
           testResultsFiles: '**/test-results.xml'
           testRunTitle: 'Python $(python.version)'
-        if: ${{ always() } }
+        if: ${{ always() }}
 
       - uses: PublishCodeCoverageResults@1
         name: 'Publish code coverage from $(System.DefaultWorkingDirectory)/coverage.xml'
         with:
           codeCoverageTool: Cobertura
           summaryFileLocation: '$(System.DefaultWorkingDirectory)/coverage.xml'
-        if: ${{ success() } }
+        if: ${{ success() }}
         
       - name: 'Build and validate source distribution'
         run:
