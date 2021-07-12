@@ -1,5 +1,5 @@
-#from _unittest.test_07_Object3D import TestObject3D as TestClass
-from _unittest.test_08_Primitives import TestPrimitives as TestClass
+from _unittest.test_07_Object3D import TestObject3D as TestClass
+#from _unittest.test_08_Primitives import TestPrimitives as TestClass
 from pyaedt import Hfss as application
 
 #-------------------------------------------------------------------------------------

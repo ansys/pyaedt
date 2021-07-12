@@ -18,13 +18,15 @@ directory as this module. An example of the contents of local_config.json
 
 """
 import tempfile
-import pytest
 import os
 import shutil
-import pathlib
 import json
 import gc
-import time
+
+#if "PYTEST_CURRENT_TEST" in os.environ:
+import pytest
+import pathlib
+
 
 from functools import wraps
 from .launch_desktop_tests import run_desktop_tests
@@ -36,12 +38,10 @@ from pyaedt.generic.filesystem import Scratch
 from pyaedt.generic.general_methods import generate_unique_name
 test_project_name = "test_primitives"
 
-
 local_path = os.path.dirname(os.path.realpath(__file__))
-module_path = pathlib.Path(local_path)
 
 # set scratch path and create it if necessary
-scratch_path = tempfile.TemporaryDirectory().name
+scratch_path = tempfile.gettempdir()
 if not os.path.isdir(scratch_path):
     os.mkdir(scratch_path)
 
@@ -100,13 +100,10 @@ class BasisTest:
         self.local_scratch.remove()
         gc.collect()
 
-
-
 # Define desktopVersion explicitly since this is imported by other modules
 desktop_version = config["desktopVersion"]
 new_thread = config["NewThread"]
 non_graphical = config["NonGraphical"]
-
 
 @pytest.fixture(scope='session', autouse=True)
 def desktop_init():

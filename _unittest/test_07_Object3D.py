@@ -2,15 +2,12 @@
 import os
 import math
 
-try:
-    from .conftest import local_path, scratch_path
-except:
-    pass
+from .conftest import local_path, scratch_path
 
 # Import required modules
 from pyaedt import Hfss
 from pyaedt.generic.filesystem import Scratch
-from pyaedt.generic.general_methods import time_fn
+from pyaedt.generic.general_methods import time_fn, isclose
 from pyaedt.modeler.Object3d import _to_boolean, FacePrimitive, EdgeTypePrimitive, Object3d, _uname
 
 import gc
@@ -138,9 +135,9 @@ class TestObject3D:
         assert planar_face.normal == [0, 0, 1]
         assert planar_face.area == 100
         non_planar_face = o_sphere.faces[0]
-        assert math.isclose(non_planar_face.area, 201.06192982974676)
+        assert isclose(non_planar_face.area, 201.06192982974676)
         assert non_planar_face.move_with_offset(1)
-        assert math.isclose(non_planar_face.area, 314.1592653589793)
+        assert isclose(non_planar_face.area, 314.1592653589793)
         assert not non_planar_face.normal
 
     def test_04_object_material_property_invalid(self):
@@ -255,7 +252,7 @@ class TestObject3D:
         sum_sq = 0
         for i in range(0,3):
             sum_sq += (end_point.position[i] - start_point.position[i])**2
-        assert math.isclose(math.sqrt(sum_sq), test_edge.length)
+        assert isclose(math.sqrt(sum_sq), test_edge.length)
         self.aedtapp.modeler.primitives.delete(initial_object)
 
     def test_12_set_color(self):

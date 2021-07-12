@@ -10,8 +10,6 @@ from pyaedt.modeler.Object3d import Object3d
 from pyaedt.modeler.GeometryOperators import GeometryOperators
 from pyaedt.application.Analysis import CoordinateSystemAxis
 
-import pytest
-from .conftest import config
 scdoc = "input.scdoc"
 step = "input.stp"
 
@@ -389,7 +387,7 @@ class TestPrimitives(BasisTest):
             print(solid_object.name)
 
             assert solid_object.is3d
-            assert solid_object.object_type is "Solid"
+            assert solid_object.object_type == "Solid"
 
         print("Sheets")
         for sheet in sheet_list:
@@ -397,7 +395,7 @@ class TestPrimitives(BasisTest):
             print(sheet)
             print(sheet_object.name)
             assert self.aedtapp.modeler.primitives[sheet].is3d is False
-            assert self.aedtapp.modeler.primitives[sheet].object_type is "Sheet"
+            assert self.aedtapp.modeler.primitives[sheet].object_type == "Sheet"
 
         print("Lines")
         for line in line_list:
@@ -405,7 +403,7 @@ class TestPrimitives(BasisTest):
             print(line)
             print(line_object.name)
             assert self.aedtapp.modeler.primitives[line].is3d is False
-            assert self.aedtapp.modeler.primitives[line].object_type is "Line"
+            assert self.aedtapp.modeler.primitives[line].object_type == "Line"
 
         assert len(all_objects_list) == len(solid_list) + len(line_list) + len(sheet_list)
 
