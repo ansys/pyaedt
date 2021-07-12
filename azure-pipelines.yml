@@ -9,6 +9,7 @@ trigger:
   tags:
     include:
     - '*'
+
 pool:
   name: Ansys
 variables:
@@ -34,7 +35,6 @@ steps:
 #    pip install . --use-feature=in-tree-build
 #    pip install -r requirements_test.txt
 #    pip install pytest-azurepipelines
-
 - script: |
     python -m venv $(python.venv)
     $(python.venv)\Scripts\Activate.ps1
@@ -103,3 +103,4 @@ steps:
     TWINE_USERNAME: __token__
     TWINE_PASSWORD: $(PYPI_TOKEN)
     TWINE_REPOSITORY_URL: "https://upload.pypi.org/legacy/"
+
