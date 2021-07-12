@@ -9,9 +9,9 @@ trigger:
   tags:
     include:
     - '*'
-runs-on: [self-hosted, windows]
+runs-on: self-hosted
 #pool:
-#  name: ansys-windows-1
+#  name: Ansys
 
 variables:
   python.version: 3.8
