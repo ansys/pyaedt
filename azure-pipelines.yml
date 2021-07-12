@@ -9,11 +9,10 @@ trigger:
   tags:
     include:
     - '*'
-runs-on: [self-hosted, windows]
-#pool:
-#  name: ansys-windows-1
+pool:
+  name: Ansys
 variables:
-  python.version: 3.8
+  python.version: 3.7.7
   python.venv: 'testvenv'
 
 steps:
