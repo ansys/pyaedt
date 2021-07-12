@@ -93,11 +93,6 @@ jobs:
       #    PathtoPublish: dist
       #    ArtifactName: dist
       
-      - name: 'Verify package'
-        run: |
-          pip install twine
-          twine check dist/*
-
       #- run: 
       #    twine upload --skip-existing dist/*.tar.gz
       #  displayName: 'Upload to package PyPi'
