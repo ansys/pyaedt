@@ -630,11 +630,11 @@ def get_version_env_variable(version_id):
     Parameters
     ----------
     version_id : int
-       ID for the AEDT version.
-  
+        ID of the AEDT version.
+
     Returns
     -------
-    type
+    str
         Environment variable for the version.
 
     """
@@ -657,11 +657,11 @@ def get_version_key(version_id):
     Parameters
     ----------
     version_id : int
-       ID for the AEDT version.        
+       ID of the AEDT version.
 
     Returns
     -------
-    type
+    str
         Key for the AEDT version.
     """
     values = version_id.split('.')
