@@ -21,27 +21,34 @@ jobs:
   build:
     # The type of runner that the job will run on
     runs-on: self-hosted
-
+    strategy:
+      matrix:
+        python-version: [3.8]
     # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
-      # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
-      - uses: actions/setup-python@v2
-        name: 'Use Python $(python.version)'
+      - uses: actions/checkout@v2
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v2
         with:
-           python-version: 3.8
-           architecture: 'x64'
+          python-version: ${{ matrix.python-version }}
+      # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
+      #- uses: actions/setup-python@v2
+      #  name: 'Use Python $(python.version)'
+      #  with:
+      #     python-version: '3.8.10'
+      #     architecture: 'x64'
 
       - name: 'Create virtual env'
-        run: 
-          python -m venv $(python.venv)
-          $(python.venv)\Scripts\Activate.ps1
+        run: |
+          python -m venv testenv
+          testenv\Scripts\Activate.ps1
           python -m pip install pip -U
           python -m pip install wheel setuptools -U
           python -c "import sys; print(sys.executable)"
 
       - name: 'Install pyaedt'
-        run: 
-          $(python.venv)\Scripts\Activate.ps1
+        run: |
+          testenv\Scripts\Activate.ps1
           pip install . --use-feature=in-tree-build
           pip install -r requirements_test.txt
           pip install pytest-azurepipelines
@@ -50,31 +57,31 @@ jobs:
           python -c "import pyaedt; print('Imported pyaedt')"
 
       - name: 'Unit testing'
-        run: 
-          $(python.venv)\Scripts\Activate.ps1
+        run: | 
+          testenv\Scripts\Activate.ps1
           pytest -v --cov --cov-config=.coveragerc -cov-report=xml --cov-report=html --junitxml=junit/test-results.xml
 
       - name: 'Coverage'
-        run: 
-          $(python.venv)\Scripts\Activate.ps1
-         coverage xml
+        run: |
+          testenv\Scripts\Activate.ps1
+          coverage xml
 
-      - uses: EnricoMi/publish-unit-test-result-action@v1
-        name: 'Publish Test Results **/test-results.xml'
-        with:
-          testResultsFiles: '**/test-results.xml'
-          testRunTitle: 'Python $(python.version)'
-        if: ${{ always() }}
+      #- uses: EnricoMi/publish-unit-test-result-action@v1
+      #  name: 'Publish Test Results **/test-results.xml'
+      #  with:
+      #    testResultsFiles: '**/test-results.xml'
+      #    testRunTitle: 'Python $(python.version)'
+      #  if: ${{ always() }}
 
-      - uses: 5monkeys/cobertura-action@master
-        name: 'Publish code coverage from $(System.DefaultWorkingDirectory)/coverage.xml'
-        with:
-          path: src/coverage.xml
-        if: ${{ success() }}
+      #- uses: 5monkeys/cobertura-action@master
+      #  name: 'Publish code coverage coverage.xml'
+      #  with:
+      #    path: src/coverage.xml
+      #  if: ${{ always() }}
         
       - name: 'Build and validate source distribution'
-        run:
-          $(python.venv)\Scripts\Activate.ps1
+        run: |
+          testenv\Scripts\Activate.ps1
           python setup.py sdist
           python -m pip install twine
           python -m twine check dist/*
@@ -86,11 +93,6 @@ jobs:
       #    PathtoPublish: dist
       #    ArtifactName: dist
       
-      - name: 'Verify package'
-        run:
-          pip install twine
-          twine check dist/*
-
       #- run: 
       #    twine upload --skip-existing dist/*.tar.gz
       #  displayName: 'Upload to package PyPi'
