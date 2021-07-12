@@ -19,7 +19,7 @@ class Msg():
 
 
 class MessageList:
-    """ MessageList class.
+    """MessageList class.
     
     This class provides a data structure for collecting and returning messages from the 
     AEDT Message Manager for a specified project name and design name.
@@ -142,13 +142,13 @@ class AEDTMessageManager(object):
         
         Parameters
         ----------
-        project_name: str,
+        project_name : str
             Name of the project.
-        design_name, str
+        design_name : str
             Name of the design within the specified project.
         
-        ..note::
-          If the design or project names are invalid, they are ignored.
+        .. note::
+           If the design or project names are invalid, they are ignored.
 
         Returns
         -------
@@ -234,8 +234,9 @@ class AEDTMessageManager(object):
 
     @aedt_exception_handler
     def add_debug_message(self, message_text, level=None):
-        """
-        .. Deprecated. Use the method `add_info_message`.
+        """Deprecated in favor of `add_info_message`.
+        .. deprecated:: 0.2.0
+           Use the method :func:`MessageList.add_info_message`.
         """
         self.add_info_message(message_text, level)
 
@@ -364,7 +365,7 @@ class EDBMessageManager(object):
     
     Parameters
     ----------
-    project_dir : 
+    project_dir : str, optional
         The default is ``None``.
     """
 
