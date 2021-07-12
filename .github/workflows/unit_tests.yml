@@ -66,18 +66,18 @@ jobs:
           testenv\Scripts\Activate.ps1
           coverage xml
 
-      - uses: EnricoMi/publish-unit-test-result-action@v1
-        name: 'Publish Test Results **/test-results.xml'
-        with:
-          testResultsFiles: '**/test-results.xml'
-          testRunTitle: 'Python $(python.version)'
-        if: ${{ always() }}
+      #- uses: EnricoMi/publish-unit-test-result-action@v1
+      #  name: 'Publish Test Results **/test-results.xml'
+      #  with:
+      #    testResultsFiles: '**/test-results.xml'
+      #    testRunTitle: 'Python $(python.version)'
+      #  if: ${{ always() }}
 
-      - uses: 5monkeys/cobertura-action@master
-        name: 'Publish code coverage coverage.xml'
-        with:
-          path: src/coverage.xml
-        if: ${{ always() }}
+      #- uses: 5monkeys/cobertura-action@master
+      #  name: 'Publish code coverage coverage.xml'
+      #  with:
+      #    path: src/coverage.xml
+      #  if: ${{ always() }}
         
       - name: 'Build and validate source distribution'
         run: |
