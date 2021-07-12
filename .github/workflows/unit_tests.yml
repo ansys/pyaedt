@@ -28,7 +28,7 @@ jobs:
       - uses: actions/setup-python@v2
         name: 'Use Python $(python.version)'
         with:
-           python-version: 3.8
+           python-version: '3.8.10'
            architecture: 'x64'
 
       - name: 'Create virtual env'
