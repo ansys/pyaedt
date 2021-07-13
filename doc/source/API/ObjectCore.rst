@@ -4,11 +4,11 @@
    contain the root `toctree` directive.
 
 Geometric Objects
-===================================
+=================
 
 .. toctree::
    :maxdepth: 2
-   :caption: Classes:
+   :caption: Geometric objects consist of these classes:
 
    Object3d
    Object3d_FacePrimitive

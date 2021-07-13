@@ -1,9 +1,5 @@
 """
-General Methods
----------------
-
 This module contains EDB general methods and related methods.
-
 
 """
 from __future__ import absolute_import
@@ -37,15 +33,17 @@ else:
 
 @aedt_exception_handler
 def convert_netdict_to_pydict(dict):
-    """
+    """Convert a net dictionary to a Python dictionary.
 
     Parameters
     ----------
-    dict :
-        
-
+    dict : dict
+        Net dictionary to convert.
+    
     Returns
     -------
+    dict
+        Dictionary converted to Python.
 
     """
     pydict = {}
@@ -55,32 +53,35 @@ def convert_netdict_to_pydict(dict):
 
 @aedt_exception_handler
 def convert_pydict_to_netdict(dict):
-    """
+    """Convert a Python dictionarty to a Net dictionary.
 
     Parameters
     ----------
-    dict :
+    dict : dict
+        Python dictionary to convert.
         
 
     Returns
     -------
-
+    dict
+        Dictionary converted to Net.
     """
     type = dict[dict.Keys[0]]
     # to be completed
 
 @aedt_exception_handler
 def convert_py_list_to_net_list(pylist):
-    """
+    """Convert a Python list to a Net list.
 
     Parameters
     ----------
-    pylist :
+    pylist : list
+        Python list to convert.
         
-
     Returns
     -------
-
+    list
+        List converted to Net.
     """
     if type(pylist) is not list and type(pylist) is not tuple:
         pylist = [pylist]
@@ -93,16 +94,18 @@ def convert_py_list_to_net_list(pylist):
 
 @aedt_exception_handler
 def convert_net_list_to_py_list(netlist):
-    """
+    """Convert a Net list to a Python list.
 
     Parameters
     ----------
-    netlist :
+    netlist : list
+       Net list to convert.
         
 
     Returns
     -------
-
+    list
+        List converted to Python.
     """
     pylist = []
     for el in netlist:

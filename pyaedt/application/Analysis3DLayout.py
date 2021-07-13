@@ -7,24 +7,55 @@ from ..modules.Mesh3DLayout import Mesh
 
 
 class FieldAnalysis3DLayout(Analysis):
-    """**AEDT_3DLayout_FieldAnalysis**
-    Class for HFSS 3DLayoyt Field Analysis Setup
+    """FieldAnalysis3DLayout class.
+    
+    This class is for 3D field analysis setup in HFSS 3D Layout.
 
-    It is automatically initialized by Application call (like HFSS,
-    Q3D...). Refer to Application function for inputs definition.
+    It is automatically initialized by an application call from this
+    3D tool. See the application function for parameter definitions.
 
     Parameters
     ----------
-
-    Returns
-    -------
-
+    application : str
+        3D application that is to initialize the call.
+    projectname : str, optional
+        Name of the project to select or the full path to the project
+        or AEDTZ archive to open. The default is ``None``, in which
+        case an attempt is made to get an active project. If no 
+        projects are present, an empty project is created.
+    designname : str, optional
+        Name of the design to select. The default is ``None``, in 
+        which case an attempt is made to get an active design. If no
+        designs are present, an empty design is created.
+    solution_type : str, optional
+        Solution type to apply to the design. The default is
+        ``None``, in which case the default type is applied.
+    setup_name : str, optional
+        Name of the setup to use as the nominal. The default is
+        ``None``, in which case the active setup is used or 
+        nothing is used.
+    specified_version: str, optional
+        Version of AEDT  to use. The default is ``None``, in which case
+        the active version or latest installed version is used.
+    NG : bool, optional
+        Whether to run AEDT in the non-graphical mode. The default 
+        is ``False``, which launches AEDT in the graphical mode.  
+    AlwaysNew : bool, optional
+        Whether to launch an instance of AEDT in a new thread, even if
+        another instance of the ``specified_version`` is active on the
+        machine. The default is ``True``.
+    release_on_exit : bool, optional
+        Whether to release AEDT on exit. The default is ``False``.
+    student_version : bool, optional
+        Whether to enable the student version of AEDT. The default 
+        is ``False``.
+        
     """
     def __init__(self, application, projectname, designname, solution_type, setup_name=None,
-                 specified_version=None, NG=False, AlwaysNew=False, release_on_exit=False):
+                 specified_version=None, NG=False, AlwaysNew=False, release_on_exit=False, student_version=False):
 
         Analysis.__init__(self, application, projectname, designname, solution_type, setup_name,
-                          specified_version, NG, AlwaysNew, release_on_exit)
+                          specified_version, NG, AlwaysNew, release_on_exit, student_version)
         self.messenger.add_info_message("Analysis Loaded")
         self._modeler = Modeler3DLayout(self)
         self._modeler.primitives.init_padstacks()
@@ -34,34 +65,43 @@ class FieldAnalysis3DLayout(Analysis):
 
     @property
     def oboundary(self):
-        """:return: BoundarySetup Module object"""
+        """Boundary object."""
         return self._odesign.GetModule("Excitations")
 
     @property
     def mesh(self):
-        """ """
+        """Mesh object."""
         return self._mesh
 
     @property
     def get_excitations_name(self):
-        """:return: BoundarySetup Module object"""
+        """Excitation names.
+        
+        Returns
+        -------
+        type
+            BoundarySetup module object.
+        
+        """
         return list(self.oboundary.GetAllPortsList())
 
     @property
     def get_all_sparameter_list(self, excitation_names=[]):
-        """Get the list of all the SParameter from a list of exctitations. If no excitation is provided it will provide a full list of sparameters
-        Example: excitation_names ["1","2"] output ["S(1,1)", "S(1,2)", S(2,2)]
+        """List of all S parameters for a list of excitations. 
 
         Parameters
         ----------
-        excitation_names :
-            list of excitation to include (Default value = [])
-
+        excitation_names : list, optional
+            List of excitations. The default is ``[]``, in which case
+            the S parameters for all excitations are to be provided.
+            For example, ``["1", "2"]``.
+            
         Returns
         -------
-        type
-            list of strin representing Sparameters of excitations
-
+        list
+            List of strings representing the S parameters of the excitations. 
+            For example, ``["S(1, 1)", "S(1, 2)", S(2, 2)]``.
+      
         """
         if not excitation_names:
             excitation_names = self.get_excitations_name
@@ -76,21 +116,23 @@ class FieldAnalysis3DLayout(Analysis):
 
     @aedt_exception_handler
     def get_all_return_loss_list(self, excitation_names=[], excitation_name_prefix=''):
-        """Get the list of all the Returnloss from a list of exctitations. If no excitation is provided it will provide a full list of return Losses
-        Example: excitation_names ["1","2"] output ["S(1,1)",, S(2,2)]
+        """Retrieve a list of all return losses for a list of excitations. 
 
         Parameters
         ----------
-        excitation_names :
-            list of excitation to include (Default value = [])
-        excitation_name_prefix :
-             (Default value = '')
+        excitation_names : list, optional
+            List of excitations. The default is ``[]``, in which case
+            the return losses for all excitations are to be provided. 
+            For example, ``["1", "2"]``.
+        excitation_name_prefix : string, optional
+             Prefix to add to the excitation names. The default is ``""``.
 
         Returns
         -------
         type
-            list of string representing Return Losses of excitations
-
+            List of strings representing the return losses of the excitations.
+            For example, ``["S(1, 1)", "S(2, 2)"]``. 
+       
         """
         if not excitation_names:
             excitation_names = self.get_excitations_name
@@ -103,25 +145,25 @@ class FieldAnalysis3DLayout(Analysis):
 
     @aedt_exception_handler
     def get_all_insertion_loss_list(self, trlist=[], reclist=[], tx_prefix='', rx_prefix=''):
-        """Get the list of all the Insertion Losses from two list of exctitations (driver and receiver). Optionally prefix can
-        be used to retrieve driver and receiver names.
-        Example: excitation_names ["1"] ["2"] output ["S(1,2)"]
-
+        """Retrieve a list of all insertion losses from two lists of excitations (driver and receiver). 
+        
         Parameters
         ----------
-        trlist :
-            list of Drivers to include (Default value = [])
-        reclist :
-            list of Receiver to include. Number of Driver = Number of Receiver an (Default value = [])
-        tx_prefix :
-            prefix for TX (eg. "DIE") (Default value = '')
-        rx_prefix :
-            prefix for RX (eg. "BGA") (Default value = '')
+        trlist : list, optional
+            List of drivers. The default is ``[]``. For example, ``["1"]``.
+        reclist : list, optional
+            List of receivers. The default is ``[]``. The number of drivers equals 
+            the number of receivers. For example, ``["2"]``.
+        tx_prefix : str, optional
+            Prefix to add to driver names. For example, ``"DIE"``. The default is ``""``.
+        rx_prefix : str, optional
+            Prefix to add to receiver names. For example, ``"BGA"``. The default is ``""``.
 
         Returns
         -------
-        type
-            list of string representing Insertion Losses of excitations
+        list
+            List of strings representing insertion losses of the excitations.
+            For example, ``["S(1, 2)"]``.
 
         """
         spar = []
@@ -138,21 +180,20 @@ class FieldAnalysis3DLayout(Analysis):
 
     @aedt_exception_handler
     def get_next_xtalk_list(self, trlist=[], tx_prefix=""):
-        """Get the list of all the Near End XTalk a list of excitation. Optionally prefix can
-        be used to retrieve driver names.
-        Example: excitation_names ["1", "2", "3"] output ["S(1,2)", "S(1,3)", "S(2,3)"]
-
+        """Retrieve a list of all the near end XTalks from a list of excitations (driver and receiver).
+        
         Parameters
         ----------
-        trlist :
-            list of Drivers to include (Default value = [])
-        tx_prefix :
-            prefix for TX (eg. "DIE") (Default value = "")
+        trlist : list, optional
+            List of drivers. The default is ``[]``. For example, ``["1", "2", "3"]``.
+        tx_prefix : str, optional
+            Prefix to add to driver names. For example, ``"DIE"``.  The default is ``""``.
 
         Returns
         -------
-        type
-            list of string representing Near End XTalks
+        list
+            List of strings representing near end XTalks of the excitations.
+            For example, ``["S(1, 2)", "S(1, 3)", "S(2, 3)"]``.
 
         """
         next = []
@@ -167,29 +208,30 @@ class FieldAnalysis3DLayout(Analysis):
 
     @aedt_exception_handler
     def get_fext_xtalk_list(self, trlist=[], reclist=[], tx_prefix='', rx_prefix='', skip_same_index_couples=True):
-        """Get the list of all the Far End XTalk from 2 lists of exctitations. Optionally prefix can
-        be used to retrieve driver and receivers names. If skip_same_index_couples is true, the tx and rx with same index
-        position will be considered insertion losses and excluded from the list
-        Example: excitation_names ["1", "2"] ["3","4"] output ["S(1,4)", "S(2,3)"]
-
+        """Retrieve a list of all the far end XTalks from two lists of exctitations (driver and receiver).      
+       
         Parameters
         ----------
-        trlist :
-            list of Drivers to include (Default value = [])
-        tx_prefix :
-            prefix for TX (eg. "DIE") (Default value = '')
-        reclist :
-            list of Receiver to include (Default value = [])
-        rx_prefix :
-            prefix for RX (eg. "BGA") (Default value = '')
-        skip_same_index_couples :
-            Boolean ignore TX and RX couple with same index (Default value = True)
+        trlist : list, optional
+            List of drivers. The default is ``[]``. For example, ``["1", "2"]``.
+        reclist : list, optional
+            List of receiver. The default is ``[]``. For example, ``["3", "4"]``.
+        tx_prefix : str, optional
+            Prefix for driver names. For example, ``"DIE"``.  The default is ``""``.
+        rx_prefix : str, optional
+            Prefix for receiver names. For examples, ``"BGA"`` The default is ``""``.
+        skip_same_index_couples : bool, optional
+            Whether to skip driver and receiver couples with the same index position.
+            The default is ``True``, in which case the drivers and receivers 
+            with the same index position are considered insertion losses and 
+            excluded from the list.
 
         Returns
         -------
-        type
-            list of string representing Far End XTalks
-
+        list
+            List of strings representing the far end XTalks of the excitations.
+            For example, ``["S(1, 4)", "S(2, 3)"]``. 
+        
         """
         fext = []
         if not trlist:
@@ -204,7 +246,7 @@ class FieldAnalysis3DLayout(Analysis):
 
     @property
     def modeler(self):
-        """ """
+        """Modeler object."""
         return self._modeler
 
     # @property
@@ -217,48 +259,49 @@ class FieldAnalysis3DLayout(Analysis):
 
     @property
     def osolution(self):
-        """ """
+        """Solution object."""
         return self.odesign.GetModule("SolveSetups")
 
     @property
     def oexcitation(self):
-        """ """
+        """Excitation object."""
         return self.odesign.GetModule("Excitations")
 
     @property
     def port_list(self):
-        """ """
+        """Port list."""
         return self.oexcitation.GetAllPortsList()
 
     @property
     def oanalysis(self):
-        """ """
+        """Analysis object."""
         return self.odesign.GetModule("SolveSetups")
 
     @property
     def existing_analysis_setups(self):
-        """Return a list of all defined analysis setup names in the maxwell design."""
+        """Retrieve a list of all analysis setup names in the Maxwell design."""
         oModule = self.odesign.GetModule("SolveSetups")
         setups = list(oModule.GetSetups())
         return setups
 
     @aedt_exception_handler
     def create_setup(self, setupname="MySetupAuto", setuptype=None, props={}):
-        """Create a new Setup.
+        """Create a new setup.
 
         Parameters
         ----------
-        setupname : str
-            optional, name of the new setup (Default value = "MySetupAuto")
-        setuptype : SetupTypes
-            optional, setup type. if None, default type will be applied
-        props :
-            optional dictionary of properties with values (Default value = {})
+        setupname : str, optional
+            Name of the new setup. The default is ``"MySetupAuto"``.
+        setuptype : str, optional
+            Type of the setup. The default is ``None``, in which case
+            the default type is applied.
+        props : dict, optional
+            Dictionary of properties with values. The default is ``{}``.
 
         Returns
         -------
         Setup3DLayout
-            setup object
+            Setup object.
 
         """
         if setuptype is None:
@@ -276,19 +319,20 @@ class FieldAnalysis3DLayout(Analysis):
 
     @aedt_exception_handler
     def get_setup(self, setupname, setuptype=None):
-        """Get an existing Setup.
+        """Get an existing setup.
 
         Parameters
         ----------
         setupname : str
-            name of the setup
-        setuptype : SetupTypes
-            optional, setup type. if None, default type will be applied
+            Name of the setup.
+        setuptype : SetupTypes, optional
+            Type of the setup. The default is ``None``, in which case
+            the default type is applied.
 
         Returns
         -------
         :class: Setup3DLayout
-            setup object
+            Setup object.
 
         """
         if setuptype is None:

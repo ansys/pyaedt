@@ -1,16 +1,20 @@
 import time
 from threading import Thread
 
-import queue
-from queue import Queue
-import os.path
-import subprocess
-import clr
 import os
+import warnings
+import os.path
 if os.name == 'posix':
-	import subprocessdotnet as subprocess
+    import subprocessdotnet as subprocess
 else:
-	import subprocess
+    import subprocess
+try:
+    import clr
+except ImportError:
+    warnings.warn("Pythonnet is needed to run pyaedt")
+
+import os
+
 from .general_methods import env_path, env_value
 class AedtSolve(object):
     '''
@@ -119,8 +123,8 @@ class AedtSolve(object):
         p.wait()
 
 class SiwaveSolve(object):
-    def __init__(self, aedt_version="2021.1", aedt_installer_path=None):
-        self._project_path = ""
+    def __init__(self, project_path, aedt_version="2021.1", aedt_installer_path=None):
+        self.project_path = project_path
         self._exec_path = ""
         self._nbcores = 4
         self._ng = True
@@ -131,6 +135,14 @@ class SiwaveSolve(object):
                 self.installer_path = env_path(aedt_version)
             except:
                 raise Exception("Either a valid aedt version or full path has to be provided")
+        if self._ng:
+            executable = "siwave_ng"
+        else:
+            executable = "siwave"
+        if os.name == "posix":
+            self._exe = os.path.join(self.installer_path, executable)
+        else:
+            self._exe = os.path.join(self.installer_path, executable+'.exe')
 
 
     @property
@@ -144,7 +156,6 @@ class SiwaveSolve(object):
     @property
     def projectpath(self):
         return self._project_path
-        self._exec_path = os.path.splitext(self._project_path[0]) + ".exec"
 
     @projectpath.setter
     def projectpath(self,value):
@@ -190,10 +201,10 @@ class SiwaveSolve(object):
                         f.writelines("SaveSiw")
                     else:
                         fstarts = [i for i in range(len(content)) if content[i].startswith('SetNumCpus')]
-                        content[fstarts] = str.format('SetNumCpus {}', str(self.nbcores))
-                        f.closed()
+                        content[fstarts[0]] = str.format('SetNumCpus {}', str(self.nbcores))
+                        f.close()
                         os.remove(exec_file)
-                        f = open(exec_file,"w")
+                        f = open(exec_file, "w")
                         f.writelines(content)
             command = [exe_path]
             command.append(self._project_path)
@@ -201,3 +212,56 @@ class SiwaveSolve(object):
             command.append('-formatOutput -useSubdir')
             p = subprocess.Popen(command)
             p.wait()
+
+    def export_3d_cad(self, format_3d="Q3D", output_folder=None, net_list=None):
+        """Export edb to Q3D or HFSS
+
+        Parameters
+        ----------
+        format_3d : str, default ``Q3D``
+        output_folder : str
+            Output file folder. If `` then the aedb parent folder is used
+        net_list : list, default ``None``
+            Define Nets to Export. if None, all nets will be exported
+
+        Returns
+        -------
+        str
+            path to aedt file
+        """
+        if not output_folder:
+            output_folder = os.path.dirname(self.project_path)
+        scriptname = os.path.join(output_folder, "export_cad.py")
+        with open(scriptname, "w") as f:
+            f.write("import os\n")
+            f.write("edbpath = r'{}'\n".format(self.project_path))
+            f.write("exportOptions = os.path.join(r'{}', 'options.config')\n".format(output_folder))
+            f.write("oDoc.ScrImportEDB(edbpath)\n")
+            f.write("oDoc.ScrSaveProjectAs(os.path.join(r'{}','{}'))\n".format(output_folder, 'test.siw'))
+            if not net_list:
+                f.write("allnets = oDoc.ScrGetNetNameList()\n")
+            else:
+                f.write("allnets = []\n")
+                for el in net_list:
+                    f.write("allnets.append('{}')\n".format(el))
+            f.write("for i in range(0, len(allnets)):\n")
+            f.write("    if allnets[i] != 'DUMMY':\n")
+            f.write("        oDoc.ScrSelectNet(allnets[i], 1)\n")
+            f.write("oDoc.ScrSetOptionsFor3DModelExport(exportOptions)\n")
+            f.write("q3d_filename = os.path.join(r'{}', '{}')\n".format(output_folder, format_3d+"_siwave.aedt"))
+            f.write("oDoc.ScrExport3DModel('{}', q3d_filename)\n".format(format_3d))
+            f.write("oDoc.ScrCloseProject()\n")
+            f.write("oApp.Quit()\n")
+        if os.name == "posix":
+            _exe = '"'+os.path.join(self.installer_path, "siwave")+'"'
+        else:
+            _exe = '"'+os.path.join(self.installer_path, 'siwave.exe')+'"'
+        command = [_exe]
+        command.append("-RunScriptAndExit")
+        command.append(scriptname)
+        print(command)
+        os.system(" ".join(command))
+
+        return os.path.join(output_folder, format_3d+"_siwave.aedt")
+
+

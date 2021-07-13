@@ -1,23 +1,9 @@
 """
-Message Manager Library Module
-------------------------------
+This module contains these classes: `AEDTMessageManager`, `EDBMessageManager`, 
+and `MessageList`.
 
-Description
-===========
-This class contains all the functionalities to log error and messages
-both in AEDT and in log file.
-
-Examples
---------
-Log the three types of messages
-
->>> from pyaedt.hfss import Hfss
->>> hfss = Hfss()
->>> hfss._messenger.add_info_message("This is an info Message on Design", "Design")
->>> hfss._messenger.add_warning_message("This is a global warning Message", "Global")
->>> hfss._messenger.add_error_message("This is a Project Error Message", "Project")
-
-
+This module provides all functionalities for logging errors and messages
+in both AEDT and the log file.
 """
 
 import sys
@@ -33,18 +19,19 @@ class Msg():
 
 
 class MessageList:
-    """Data structure to collect and return message information from the AEDT Message Manager for a specified
-       project name and design name
+    """MessageList class.
+    
+    This class provides a data structure for collecting and returning messages from the 
+    AEDT Message Manager for a specified project name and design name.
 
     Parameters
     ---------
-    msg_list : list of str
-        list of messages extracted by the AEDTMessenger class from the Desktop
-
-    project_name : str, default=active project name
-        Specified project within the AEDT Desktop
-    design_name : str, default=active design name
-        Specified design within the specified project
+    msg_list : list 
+        List of messages extracted from AEDT by the `AEDTMessengeManager` class.
+    project_name : str
+        Name of the project. The default is the active project.
+    design_name : str 
+        Name of the design within the specified project. The default is the active design.
 
 
     Attributes
@@ -84,11 +71,23 @@ class MessageList:
 
 
 class AEDTMessageManager(object):
-    """Class that manages AEDT Messaging to the logger file and to the AEDT Message UI
-
+    """AEDTMessageManager class.
+    
+    This class manages AEDT messaging to both the logger and the AEDT Message UI.
+  
+    Parameters
+    ----------
+    parent :
+        The default is ``None``.
+    loadondesktop : bool, optional
+        The default is ``True``.
+    loadonlog : bool, optional
+        The default is ``True``.
+    
     Attributes
     ----------
-    messages : MessageList
+    messages : list
+       List of messages.
 
     Methods
     -------
@@ -99,6 +98,16 @@ class AEDTMessageManager(object):
     add message
     get_design_messages
     clear_messages
+
+    Examples
+    --------
+    Log the three types of messages.
+
+    >>> from pyaedt.hfss import Hfss
+    >>> hfss = Hfss()
+    >>> hfss._messenger.add_info_message("This is an info message on a design", "Design")
+    >>> hfss._messenger.add_warning_message("This is a global warning message", "Global")
+    >>> hfss._messenger.add_error_message("This is a project error message", "Project")
 
     """
     def __init__(self, parent=None, loadondesktop=True, loadonlog=True):
@@ -117,23 +126,34 @@ class AEDTMessageManager(object):
 
     @property
     def messages(self):
-        """Return the AEDT Message Manager Contents for the active project and design
+        """Message manager content for the active project and design.
 
         Returns
         -------
-        MessageList
+        list
+           List of messages for the active project and design.
+           
         """
         return self.get_messages(self._project_name, self._design_name)
 
     @aedt_exception_handler
     def get_messages(self, project_name, design_name):
-        """Return the AEDT Message Manager Contents for a specified project and design
-
-        If the design- or project names are invalid, they will be ignored
+        """Retrieve the Message Manager content for a specified project and design.
+        
+        Parameters
+        ----------
+        project_name : str
+            Name of the project.
+        design_name : str
+            Name of the design within the specified project.
+        
+        .. note::
+           If the design or project names are invalid, they are ignored.
 
         Returns
         -------
-        MessageList
+        list
+            List of messages for the specified project and design.
 
         """
         global_message_data = self._desktop.GetMessages("", "", 0)
@@ -142,20 +162,23 @@ class AEDTMessageManager(object):
 
     @aedt_exception_handler
     def add_error_message(self, message_text, level=None):
-        """Add a type 2 "Error" message to the message manager tree.
+        """Add a type 2 "Error" message to the Message Manager tree.
 
-        Add an error message to the logger if the handler is present.
+        Also add an error message to the logger if the handler is present.
 
         Parameters
         ----------
-        message_text :
-            message to show
-        level : str, default="Design"
-            message level. Must be "Global", "Project" or "Design"
+        message_text : str
+            Text to display as the error message.
+        level : str, optional
+            Level to add the error message to. Options are ``"Global"``, 
+            ``"Project"``, and ``"Design"``. The default is ``None``, 
+            in which case the error message gets added to the ``"Design"``
+            level.
 
         Examples
         --------
-        Add an error message to the desktop message manager
+        Add an error message to the AEDT Message Manager.
 
         >>> hfss._messenger.add_error_message("Project Error Message", "Project")
 
@@ -164,19 +187,23 @@ class AEDTMessageManager(object):
 
     @aedt_exception_handler
     def add_warning_message(self, message_text, level=None):
-        """Add a type 1 "Warning" message to the message manager tree.
-        Add a warning message to the logger if the handler is present
+        """Add a type 1 "Warning" message to the Message Manager tree.
+        
+        Also add a warning message to the logger if the handler is present.
 
         Parameters
         ----------
-        message_text :
-            message to show
-        level : str, default="Design"
-            message level. Must be "Global", "Project" or "Design"
+        message_text : str
+            Text to display as the warning message.
+        level : str, optional
+            Level to add the warning message to. Options are ``"Global"``, 
+            ``"Project"``, and ``"Design"``. The default is ``None``, 
+            in which case the warning message gets added to the ``"Design"``
+            level.
 
         Examples
         --------
-        Add a warning message to the desktop message manager
+        Add a warning message to the AEDT Message Manager.
 
         >>> hfss._messenger.add_warning_message("Project warning message")
 
@@ -185,20 +212,23 @@ class AEDTMessageManager(object):
 
     @aedt_exception_handler
     def add_info_message(self, message_text, level=None):
-        """Add a type 0 "Info" message to the active design level of the message manager tree
+        """Add a type 0 "Info" message to the active design level of the Message Manager tree.
 
-        Add an info message to the logger if the handler is present
+        Also add an info message to the logger if the handler is present.
 
         Parameters
         ----------
         message_text : str
-            Message to show
-        level : str, default="Design"
-            message level. Must be "Global", "Project" or "Design"
+            Text to display as the info message.
+        level : str, optional
+            Level to add the info message to. Options are ``"Global"``, 
+            ``"Project"``, and ``"Design"``. The default is ``None``, 
+            in which case the info message gets added to the ``"Design"``
+            level.
 
         Examples
         --------
-        Add a info message at the global level.
+        Add an info message at the global level.
 
         >>> hfss._messenger.add_info_message("Global warning message", "Global")
 
@@ -207,32 +237,35 @@ class AEDTMessageManager(object):
 
     @aedt_exception_handler
     def add_debug_message(self, message_text, level=None):
-        """
-        .. deprecated use add_info_message
+        """Deprecated in favor of `add_info_message`.
+        .. deprecated:: 0.2.0
+           Use the method :func:`MessageList.add_info_message`.
         """
         self.add_info_message(message_text, level)
 
     @aedt_exception_handler
     def add_message(self, type, message_text, level=None, proj_name=None, des_name=None):
-        """Pass a parameterized message to the AEDT message manager allowing specification of type and project/design level.
+        """Pass a parameterized message to the Message Manager to specify the type and project or design level.
 
         Parameters
         ----------
         type : int
-            Message types:
+            Type of the message. Options are:
 
-            * 0: info
+            * 0: Info
             * 1: Warning
             * 2: Error
-
+        
         message_text : str
-            Message to show.
-        level : str, default="Design"
-            message level. Must be "Global", "Project" or "Design"
+            Text to display as the message.
+        level : str, optional
+            Level to add the message to. Options are ``"Global"``, 
+            ``"Project"``, and ``"Design"``. The default is ``None``, 
+            in which case the message gets added to the ``"Design"``level.
         proj_name : str, optional
-            Project name.
+            Name of the project.
         des_name : str, optional
-            Design name.
+            Name of the design.
 
         """
         if not proj_name:
@@ -244,7 +277,7 @@ class AEDTMessageManager(object):
         if not level:
             level = 'Design'
 
-        assert level in message_levels, "Message level must be 'Design', 'Project', or 'Global'"
+        assert level in message_levels, "Message level must be `Design', 'Project', or 'Global'."
 
         if self.loadondesktop:
             if not proj_name and message_levels[level] > 0:
@@ -275,24 +308,28 @@ class AEDTMessageManager(object):
 
         Parameters
         ----------
-        proj_name : str
-            Name of project.  If blank, then all projects.  Defaults
-            to current project.
-        des_name : str
-            Name of design If blank, then all designs.  Defaults
-            to current project.
+        proj_name : str, optional
+            Name of project. The default is ``None``, in which case messages
+            are cleared for the current project. If blank, messages are cleared
+            for all projects.
+        des_name : str, optional
+            Name of the design within the specified project. The default
+            is ``None,`` in which case the current design is used. 
+            If blank, all designs are used.
         level : int, optional
-            Clear message level.  Default 2.
+            Level of the messages to clear. Options are:
 
-            * ``0`` : Clear all info messages
-            * ``1`` : Clear all info and warning messages
-            * ``2`` : Clear all info, warning and error messages
-            * ``3`` : Clear all messages included info, warning,
-              error, and fatal-error.
+            * ``0`` : Clear all info messages.
+            * ``1`` : Clear all info and warning messages.
+            * ``2`` : Clear all info, warning, and error messages.
+            * ``3`` : Clear all messages, which include info, warning,
+              error, and fatal-error messages.
+              
+            The default is ``2.``
 
         Examples
         --------
-        Clear all messages in the current design and project
+        Clear all messages in the current design and project.
 
         >>> hfss.clear_messages(level=3)
 
@@ -325,10 +362,23 @@ class AEDTMessageManager(object):
 
 
 class EDBMessageManager(object):
-    """Class that manage EDB Messaging to the logger file"""
+    """EDBMessageManager class.
+    
+    This class provides all functionalities for managing EDB messaging to the logger.
+    
+    Parameters
+    ----------
+    project_dir : str, optional
+        The default is ``None``.
+    """
 
-    def __init__(self, project_dir="C:\\Temp"):
+    def __init__(self, project_dir=None):
         self.logger = logging.getLogger(__name__)
+        if not project_dir:
+            if os.name == "posix":
+                project_dir = "/tmp"
+            else:
+                project_dir = "C:\\Temp"
         if not self.logger.handlers:
             logging.basicConfig(
                 filename=os.path.join(project_dir, "EDBTLib.log"),
@@ -338,44 +388,31 @@ class EDBMessageManager(object):
             self.logger = logging.getLogger(__name__)
 
     def add_error_message(self, message_text):
-        """Add a type 2 "Error" message to the logger
+        """Add a type 2 "Error" message to the logger.
 
         Parameters
         ----------
-        message_text :
-            message to show
-
-        Returns
-        -------
-
+        message_text : str
+            Text to display as the message.
+                
         """
 
         self.logger.error(message_text)
 
     def add_warning_message(self, message_text):
-        """Add a "Warning" message to the logger
+        """Add a "Warning" message to the logger.
 
-        Parameters
-        ----------
-        message_text :
-            message to show
-
-        Returns
-        -------
-
+        message_text : str
+            Text to display as the message.
+        
         """
         self.logger.warning(message_text)
 
     def add_info_message(self, message_text):
-        """Add an "Info" message to the logger
+        """Add an "Info" message to the logger.
 
-        Parameters
-        ----------
-        message_text :
-            message to show
-
-        Returns
-        -------
+        message_text : str
+            Text to display as the message.
 
         """
         self.logger.info(message_text)

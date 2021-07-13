@@ -8,39 +8,29 @@ from ..modules.SolveSetup import SetupCircuit
 
 
 class FieldAnalysisEmit(Design):
-    """**AEDT Emit Analysis**
+    """FieldAnaysisEmit class.
 
-    Class for Emit Analysis Setup (Emit)
+    The class is for setting up an EMIT analysis in AEDT.
+    It is automatically initialized by an application call (like for HFSS,
+    Q3D, and other tools). Refer to the Application function for input definitions.
 
-    It is automatically initialized by Application call (like HFSS,
-    Q3D...). Refer to Application function for inputs definition
-
-    Parameters
-    ----------
-
-    Returns
-    -------
-
+    
     """
     @property
     def solution_type(self):
-        """ """
+        """Solution type.
+          
+       Parameters
+        ----------
+        soltype :
+            SolutionType object.
+        """
         return self._solution_type
-
 
     @solution_type.setter
     def solution_type(self, soltype):
-        """Solution Type
+        """ """
 
-        Parameters
-        ----------
-        soltype :
-            SolutionType object
-
-        Returns
-        -------
-
-        """
         if soltype:
             self._solution_type = "EMIT"
         else:
@@ -48,31 +38,41 @@ class FieldAnalysisEmit(Design):
 
     @property
     def existing_analysis_setups(self):
-        """ """
+        """Existing analysis setups."""
         return []
 
     @property
     def setup_names(self):
-        """ """
+        """Setup names."""
         return []
 
 
     def __init__(self, application, projectname, designname, solution_type, setup_name=None,
-                 specified_version=None, NG=False, AlwaysNew=True, release_on_exit=True):
+                 specified_version=None, NG=False, AlwaysNew=True, release_on_exit=True, student_version=False):
         self.solution_type = solution_type
         Design.__init__(self, application, projectname, designname, solution_type,
-                        specified_version, NG, AlwaysNew, release_on_exit)
+                        specified_version, NG, AlwaysNew, release_on_exit, student_version)
         self._modeler = ModelerEmit(self)
         self._post = PostProcessor(self)
 
     @property
     def modeler(self):
-        """:return: Design oModeler"""
+        """Modeler.
+        
+        Returns
+        -------
+        type
+            Design oModeler
+        """
         return self._modeler
 
     @property
     def oanalysis(self):
-        """:return: Design Module "SimSetup"
+        """Analysis object.
+        
+        Returns
+        -------
+        type: 
+           Design module ``"SimSetup"``
         """
         return None
-

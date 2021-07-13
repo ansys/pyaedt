@@ -348,7 +348,6 @@ doc/_build/
 doc/source/examples
 _autosummary/
 
-
 # pip files
 *.egg-info/*
 build/
@@ -361,3 +360,6 @@ dist/
 /htmlcov/
 /coverage.xml
 /_unittest/local_config.json
+
+# Scratch Jupyter Notebooks
+scratch_notebooks/

@@ -10,7 +10,13 @@ import os
 from pyaedt import Hfss
 from pyaedt import Desktop
 from pyaedt import generate_unique_name
-temp_folder = os.path.join(os.environ["TEMP"], generate_unique_name("Example"))
+
+if os.name == "posix":
+    tmpfold = os.environ["TMPDIR"]
+else:
+    tmpfold = os.environ["TEMP"]
+
+temp_folder = os.path.join(tmpfold, generate_unique_name("Example"))
 if not os.path.exists(temp_folder):
     os.mkdir(temp_folder)
 #####################################################
@@ -81,6 +87,7 @@ hfss.post.create_rectangular_plot("db(GainTotal)",hfss.nominal_adaptive, variati
 
 #####################################################
 # Close Desktop
+if os.name != "posix":
+    d.force_close_desktop()
 
-d.force_close_desktop()
 

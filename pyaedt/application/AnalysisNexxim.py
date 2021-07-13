@@ -7,32 +7,31 @@ from ..modules.SolveSetup import SetupCircuit
 
 
 class FieldAnalysisCircuit(Analysis):
-    """**AEDT_CircuitAnalysis**
-    Class for Circuit Analysis Setup (Nexxim,)
-
-    It is automatically initialized by Application call (like HFSS,
-    Q3D...). Refer to Application function for inputs definition
+    """FieldCircuitAnalysis class.
+    
+    This class is for circuit analysis setup in Nexxim.
+    
+    It is automatically initialized by a call from an application,
+    such as HFSS or Q3D. See the application function for its
+    parameter definitions.
 
     Parameters
     ----------
 
-    Returns
-    -------
-
     """
     @property
     def solution_type(self):
-        """ """
+        """Solution type. """
         return self._solution_type
 
 
     @solution_type.setter
     def solution_type(self, soltype):
-        """Solution Type
+        """
 
         Parameters
         ----------
-        soltype :
+        soltype : 
             SolutionType object
 
         Returns
@@ -46,73 +45,73 @@ class FieldAnalysisCircuit(Analysis):
 
     @property
     def existing_analysis_setups(self):
-        """ """
+        """Analysis setups."""
         oModule = self.odesign.GetModule("SimSetup")
         setups = oModule.GetAllSolutionSetups()
         return setups
 
     @property
     def nominal_sweep(self):
-        """ return the nominal sweep"""
+        """Nominal sweep."""
         if self.existing_analysis_setups:
             return self.existing_analysis_setups[0]
         else:
             return ""
 
     def __init__(self, application, projectname, designname, solution_type, setup_name=None,
-                 specified_version=None, NG=False, AlwaysNew=False, release_on_exit=False):
+                 specified_version=None, NG=False, AlwaysNew=False, release_on_exit=False, student_version=False):
         self.solution_type = solution_type
         Analysis.__init__(self, application, projectname, designname, solution_type, setup_name,
-                          specified_version, NG, AlwaysNew, release_on_exit)
+                          specified_version, NG, AlwaysNew, release_on_exit, student_version)
         self._modeler = ModelerNexxim(self)
         self._modeler.primitives.init_padstacks()
         #self._post = PostProcessor(self)
 
     @property
     def modeler(self):
-        """ """
+        """Modeler object."""
         return self._modeler
 
     @property
     def oanalysis(self):
-        """ """
+        """Analysis object."""
         return self.odesign.GetModule("SimSetup")
 
     @property
     def setup_names(self):
-        """ """
+        """Setup names."""
         return self.oanalysis.GetAllSolutionSetups()
 
     @property
     def get_excitations_name(self):
-        """Property
+        """Excitation names.
         
-        :return: BoundarySetup Module object
-
-        Parameters
-        ----------
-
         Returns
         -------
-
+        type
+            BoundarySetup Module object
+        
         """
         ports = [p.replace('IPort@', '').split(';')[0] for p in self.modeler.oeditor.GetAllPorts()]
         return ports
 
     @property
     def get_all_sparameter_list(self, excitation_names=[]):
-        """Get the list of all the SParameter from a list of exctitations. If no excitation is provided it will provide a full list of sparameters
-        Example: excitation_names ["1","2"] output ["S(1,1)", "S(1,2)", S(2,2)]
+        """List of all S parameters for a list of exctitations. 
 
         Parameters
         ----------
-        excitation_names :
-            list of excitation to include (Default value = [])
-
+        eexcitation_names : list, optional
+            List of excitations. The default is ``[]``, in which case
+            the S parameters for all excitations are to be provided. 
+            For example, ``["1", "2"]``.
+            
         Returns
         -------
-        type
-            list of strin representing Sparameters of excitations
+        list
+            List of strings representing the S parameters of the excitations.
+            For example, ``"S(1,1)", "S(1,2)", "S(2,2)"``.
+            
 
         """
         if not excitation_names:
@@ -128,20 +127,22 @@ class FieldAnalysisCircuit(Analysis):
 
     @aedt_exception_handler
     def get_all_return_loss_list(self, excitation_names=[], excitation_name_prefix=''):
-        """Get the list of all the Returnloss from a list of exctitations. If no excitation is provided it will provide a full list of return Losses
-        Example: excitation_names ["1","2"] output ["S(1,1)",, S(2,2)]
+        """Retrieve a list of all return losses for a list of exctitations.
 
         Parameters
         ----------
-        excitation_names :
-            list of excitation to include (Default value = [])
-        excitation_name_prefix :
-             (Default value = '')
-
+        excitation_names : list, optional
+            List of excitations. The default is ``[]``, in which case
+            the return losses for all excitations are to be provided.
+            For example ``["1", "2"]``.
+        excitation_name_prefix : string, optional
+             Prefix to add to the excitation names. The default is ``""``, 
+             
         Returns
         -------
-        type
-            list of string representing Return Losses of excitations
+        list
+            List of strings representing the return losses of the excitations.
+            For example ``["S(1, 1)", S(2, 2)]``
 
         """
         if not excitation_names:
@@ -155,26 +156,26 @@ class FieldAnalysisCircuit(Analysis):
 
     @aedt_exception_handler
     def get_all_insertion_loss_list(self, trlist=[], reclist=[], tx_prefix='', rx_prefix=''):
-        """Get the list of all the Insertion Losses from two list of exctitations (driver and receiver). Optionally prefix can
-        be used to retrieve driver and receiver names.
-        Example: excitation_names ["1"] ["2"] output ["S(1,2)"]
-
+        """Retrieve a list of all insertion losses from two lists of excitations (driver and receiver).
+       
         Parameters
         ----------
-        trlist :
-            list of Drivers to include (Default value = [])
-        reclist :
-            list of Receiver to include. Number of Driver = Number of Receiver an (Default value = [])
-        tx_prefix :
-            prefix for TX (eg. "DIE") (Default value = '')
-        rx_prefix :
-            prefix for RX (eg. "BGA") (Default value = '')
-
+        trlist : list, optional
+            List of drivers. The default is ``[]``. For example, ``["1"]``.
+        reclist : list, optional
+            List of receivers. The default is ``[]``. The number of drivers equals 
+            the number of receivers. For example, ``["2"]``.
+        tx_prefix : str, optional
+            Prefix to add to driver names. For example, ``"DIE"``. The default is ``""``.
+        rx_prefix : str, optional
+            Prefix to add to receiver names. For example, ``"BGA"``. The default is ``""``.
+        
         Returns
         -------
-        type
-            list of string representing Insertion Losses of excitations
-
+        list
+            List of strings representing insertion losses of the excitations.
+            For example, ``["S(1,2)"]``.
+        
         """
         spar = []
         if not trlist:
@@ -190,21 +191,21 @@ class FieldAnalysisCircuit(Analysis):
 
     @aedt_exception_handler
     def get_next_xtalk_list(self, trlist=[], tx_prefix=""):
-        """Get the list of all the Near End XTalk a list of excitation. Optionally prefix can
-        be used to retrieve driver names.
-        Example: excitation_names ["1", "2", "3"] output ["S(1,2)", "S(1,3)", "S(2,3)"]
-
+        """Retrieve a list of all the near end XTalks from a list of excitations (driver and receiver).
+        
         Parameters
         ----------
-        trlist :
-            list of Drivers to include (Default value = [])
-        tx_prefix :
-            prefix for TX (eg. "DIE") (Default value = "")
+        trlist : list, optional
+            List of drivers. The default is ``[]``. For example,
+            ``["1", "2", "3"]``.
+        tx_prefix : str, optional
+            Prefix to add to driver names. For example, ``"DIE"``.  The default is ``""``.
 
         Returns
         -------
-        type
-            list of string representing Near End XTalks
+        list
+            List of strings representing near end XTalks of the excitations.
+            For example, ``["S(1, 2)", "S(1, 3)", "S(2, 3)"]``.
 
         """
         next = []
@@ -219,29 +220,32 @@ class FieldAnalysisCircuit(Analysis):
 
     @aedt_exception_handler
     def get_fext_xtalk_list(self, trlist=[], reclist=[], tx_prefix='', rx_prefix='', skip_same_index_couples=True):
-        """Get the list of all the Far End XTalk from 2 lists of exctitations. Optionally prefix can
-        be used to retrieve driver and receivers names. If skip_same_index_couples is true, the tx and rx with same index
-        position will be considered insertion losses and excluded from the list
-        Example: excitation_names ["1", "2"] ["3","4"] output ["S(1,4)", "S(2,3)"]
-
+        """Retrieve a list of all the far end XTalks from two lists of exctitations (driver and receiver).
+        
         Parameters
         ----------
-        trlist :
-            list of Drivers to include (Default value = [])
-        tx_prefix :
-            prefix for TX (eg. "DIE") (Default value = '')
-        reclist :
-            list of Receiver to include (Default value = [])
-        rx_prefix :
-            prefix for RX (eg. "BGA") (Default value = '')
-        skip_same_index_couples :
-            Boolean ignore TX and RX couple with same index (Default value = True)
-
+        trlist : list, optional
+            List of drivers. The default is ``[]``. For example,
+            ``["1", "2"]``.
+        reclist : list, optional
+            List of receiver. The default is ``[]``. For example,
+            ``["3", "4"]``.
+        tx_prefix : str, optional
+            Prefix for driver names. For example, ``"DIE"``.  The default is ``""``.
+        rx_prefix : str, optional
+            Prefix for receiver names. For examples, ``"BGA"`` The default is ``""``.
+        skip_same_index_couples : bool, optional
+            Whether to skip driver and receiver couples with the same index position.
+            The default is ``True``, in which case the drivers and receivers 
+            with the same index position are considered insertion losses and 
+            excluded from the list.
+        
         Returns
         -------
-        type
-            list of string representing Far End XTalks
-
+        list
+            List of strings representing the far end XTalks of the excitations.
+            For example, ``["S(1, 4)", "S(2, 3)"]``.
+            
         """
         fext = []
         if not trlist:
@@ -256,17 +260,17 @@ class FieldAnalysisCircuit(Analysis):
 
     @aedt_exception_handler
     def get_setup(self, setupname):
-        """Get Setup from current design.
+        """Retrieve the setup from the current design.
 
         Parameters
         ----------
         setupname : str
-            name of the setup
+            Name of the setup.
 
         Returns
         -------
         type
-            setup object
+            Setup object.
 
         """
         setuptype = SetupKeys.defaultSetups[self.solution_type]
@@ -277,21 +281,22 @@ class FieldAnalysisCircuit(Analysis):
 
     @aedt_exception_handler
     def create_setup(self, setupname="MySetupAuto", setuptype=None, props={}):
-        """Create a new Setup.
+        """Create a new setup.
 
         Parameters
         ----------
-        setupname :
-            optional, name of the new setup (Default value = "MySetupAuto")
-        setuptype :
-            optional, setup type. if None, default type will be applied
-        props :
-            optional dictionary of properties with values (Default value = {})
+        setupname : str, optional
+            Name of the new setup. The default is ``"MySetupAuto"``.
+        setuptype : str, optional
+            Type of the setup. The default is ``None``, in which case
+            the default type is applied.
+        props : dict, optional
+            Dictionary of properties with values. The default is ``{}``.
 
         Returns
         -------
-        :class: SetupCircuit
-            setup object
+        SetupCircuit
+            Setup object.
 
         """
         if setuptype is None:

@@ -8,7 +8,7 @@ This tutorial shows how you can use PyAedt to create a project in HFSS and creat
 
 from pyaedt import Hfss
 from pyaedt import Desktop
-
+import os
 ###################################
 # Starting Desktop in Non-Graphical mode. User can change boolean to run in graphical mode
 
@@ -91,8 +91,7 @@ sweep5.add_calculation(calculation="dB(S(1,1))", calculation_value="2.5GHz")
 ###################################
 # Close Desktop
 # ---------------------------------
-
-d.force_close_desktop()
-pass
+if os.name != "posix":
+    d.force_close_desktop()
 
 

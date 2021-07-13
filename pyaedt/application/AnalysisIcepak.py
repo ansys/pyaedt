@@ -8,35 +8,67 @@ from ..modules.MeshIcepak import IcepakMesh
 
 
 class FieldAnalysisIcepak(Analysis, object):
-    """AEDT_Icepak_FieldAnalysis
-    Class for 3D Field Analysis Setup (Icepak)
+    """FieldAnalysisIcepak class.
+    
+    This class is for 3D field analysis setup in Icepak.
 
-    It is automatically initialized by Application call (like HFSS,
-    Q3D...). Refer to Application function for inputs definition
+    It is automatically initialized by an appliation call from 
+    HFSS, Icepak, Q3D, or Maxwell 3D. See the application function 
+    for parameter definitions.
 
     Parameters
     ----------
-
-    Returns
-    -------
+    application : str
+        Application that is to initialize the call.
+    projectname : str, optional
+        Name of the project to select or the full path to the project
+        or AEDTZ archive to open. The default is ``None``, in which
+        case an attempt is made to get an active project. If no 
+        projects are present, an empty project is created.
+    designname : str, optional
+        Name of the design to select. The default is ``None``, in 
+        which case an attempt is made to get an active design. If no
+        designs are present, an empty design is created.
+    solutiontype : str, optional
+        Solution type to apply to the design. The default is
+        ``None``, in which case the default type is applied.
+    setup_name : str, optional
+        Name of the setup to use as the nominal. The default is
+        ``None``, in which case the active setup is used or 
+        nothing is used.
+    specified_version: str, optional
+        Version of AEDT  to use. The default is ``None``, in which case
+        the active version or latest installed version is used.
+    NG : bool, optional
+        Whether to run AEDT in the non-graphical mode. The default 
+        is ``False``, which launches AEDT in the graphical mode.  
+    AlwaysNew : bool, optional
+        Whether to launch an instance of AEDT in a new thread, even if
+        another instance of the ``specified_version`` is active on the
+        machine. The default is ``True``.
+    release_on_exit : bool, optional
+        Whether to release  AEDT on exit. The default is ``False``.
+    student_version : bool, optional
+        Whether to enable the student version of AEDT. The default 
+        is ``False``.
 
     """
     def __init__(self, application, projectname, designname, solutiontype, setup_name=None,
-                 specified_version=None, NG=False, AlwaysNew=False, release_on_exit=False):
+                 specified_version=None, NG=False, AlwaysNew=False, release_on_exit=False, student_version=False):
         Analysis.__init__(self, application, projectname, designname, solutiontype, setup_name,
-                          specified_version, NG, AlwaysNew, release_on_exit)
+                          specified_version, NG, AlwaysNew, release_on_exit, student_version)
         self._modeler = Modeler3D(self)
         self._mesh = IcepakMesh(self)
         #self._post = PostProcessor(self)
         self.modeler.primitives.refresh()
     @property
     def modeler(self):
-        """ """
+        """Modeler object."""
         return self._modeler
 
     @property
     def mesh(self):
-        """ """
+        """Mesh object."""
         return self._mesh
 
     # @property
@@ -46,27 +78,29 @@ class FieldAnalysisIcepak(Analysis, object):
     @aedt_exception_handler
     def apply_icepak_settings(self, ambienttemp=20, gravityDir=5, perform_minimal_val=True, default_fluid="air",
                               default_solid="Al-Extruded", default_surface="Steel-oxidised-surface"):
-        """Apply Icepak Default Design Settings like Ambient Temperature and Gravity.
+        """Apply Icepak default design settings.
 
         Parameters
         ----------
-        ambienttemp :
-            Ambient Temperature. It can be an integer or a parameter already created in AEDT (Default value = 20)
-        gravityDir :
-            Gravity direction index [0, 5] (Default value = 5)
-        perform_minimal_val :
-            True Perform Minimal validation. False perform Full Validation (Default value = True)
-        default_fluid :
-            default Fluid ."Air"
+        ambienttemp : int, optional
+            Ambient temperature, which can be an integer or a parameter already 
+            created in AEDT. The default is 20.
+        gravityDir : int, optional
+            Gravity direction index in the range ``[0, 5]``. The default is ``5``.
+        perform_minimal_val : bool, optional
+            Whether to perform minimal validation. The default is ``True``. 
+            When ``False``, full validation is performend.
+        default_fluid : str, optional
+            Default for the type of fluid. The default is ``"Air"``.
         default_solid :
-            default Solid ."Al-Extruded"
+            Default for  the type of solid. The default is ``"Al-Extruded"``.
         default_surface :
-            default Surface ."Steel-oxidised-surface"
+            Default for the type of surface. The defaultis ``"Steel-oxidised-surface"``.
 
         Returns
         -------
-        type
-            True
+        bool
+            ``True`` when successful, ``False`` when failed.
 
         """
         if type(ambienttemp) is int:
@@ -90,26 +124,27 @@ class FieldAnalysisIcepak(Analysis, object):
 
     @aedt_exception_handler
     def get_property_value(self, objectname, property, type=None):
-        """Get Design Property Value of specific object.
+        """Retrieve a design property value for an object.
 
         Parameters
         ----------
-        type :
-            type of the property. "Boundary", "Excitation", "Setup", "Mesh" (Default value = None)
-        objectname :
-            param property:
-        property :
-            
+        objectname : str
+            Name of the object.
+        property : str
+            Name of the design property.
+        type : string, optional 
+            Type of the property. Options are ``"boundary"``, ``"excitation"``, ``"setup"``,
+            and ``"mesh"``. The default is ``None``. 
 
         Returns
         -------
         type
-            property value
+            Value of the property.
             
+        Example
+        -------
             
-            :Example:
-            
-            val = ipk.get_property_value('BoundarySetup:Source1', 'Total Power')
+        >>> val = ipk.get_property_value('BoundarySetup:Source1', 'Total Power')
 
         """
         boundary = {"HFSS": "HfssTab", "Icepak": "Icepak", "Q3D": "Q3D", "Maxwell3D": "Maxwell3D"}
@@ -146,23 +181,25 @@ class FieldAnalysisIcepak(Analysis, object):
 
     @aedt_exception_handler
     def copy_solid_bodies_from(self, design, object_list=None, no_vacuum=True, no_pec=True):
-        """Copy all the list of object from one design to active one
+        """Copy a list of objects from one design to the active design.
 
         Parameters
         ----------
-        design :
-            starting application object (examples hfss1= HFSS3DLayout)
-        object_list :
-            List of object to copy (Default value = None)
-        no_vacuum : bool
-            define if vacuum objects have to be copied (Default value = True)
-        no_pec : bool
-            define if pec objects have to be copied (Default value = True)
+        design : str
+            Starting application object. For example, ``'hfss1=HFSS3DLayout'``.
+        object_list : list, optional
+            List of objects to copy. The default is ``None``.
+        no_vacuum : bool, optional
+            Whether to include vacuum objects for the copied objects. 
+            The default is ``True``.
+        no_pec :
+            Whether to include pec objects for the copied objects. The 
+            default is ``True``.
 
         Returns
         -------
-        type
-            True if succeeded
+        bool
+            ``True`` when successful, ``False`` when failed.
 
         """
         body_list = design.modeler.solid_bodies
@@ -188,19 +225,20 @@ class FieldAnalysisIcepak(Analysis, object):
 
     @aedt_exception_handler
     def assignmaterial(self, obj, mat):
-        """The function assigns Material mat to object obj. If material mat is not present it will be created
+        """Assign a material to one or more objects. 
 
         Parameters
         ----------
         obj : str, list
-            list of objects to which assign materials
+            One or more objects to assign materials to.
         mat : str
-            material to assign
+            Material to assign. If this material is not present it will be 
+            created.
 
         Returns
         -------
-        type
-            True if succeeded | False if failed
+        bool
+            ``True`` when successful, ``False`` when failed.
 
         """
         mat = mat.lower()
@@ -219,6 +257,8 @@ class FieldAnalysisIcepak(Analysis, object):
             self.modeler.oeditor.AssignMaterial(arg1, arg2)
             self._messenger.add_info_message('Assign Material ' + mat + ' to object ' + selections)
             self.materials._aedmattolibrary(mat)
+            for el in obj:
+                self.modeler.primitives[el]._material_name = mat
             return True
         elif self.materials.checkifmaterialexists(mat):
             Mat = self.materials.material_keys[mat]
@@ -228,6 +268,8 @@ class FieldAnalysisIcepak(Analysis, object):
                 arg2.append("SolveInside:="), arg2.append(False)
             self.modeler.oeditor.AssignMaterial(arg1, arg2)
             self._messenger.add_info_message('Assign Material ' + mat + ' to object ' + selections)
+            for el in obj:
+                self.modeler.primitives[el]._material_name = mat
             return True
         else:
             self._messenger.add_error_message("Material Does Not Exists")
@@ -235,19 +277,21 @@ class FieldAnalysisIcepak(Analysis, object):
 
     @aedt_exception_handler
     def _assign_property_to_mat(self,newmat, val, property):
-        """
+        """Assign a property to a new material.
 
         Parameters
         ----------
-        newmat :
-            
-        val :
-            
+        newmat : str
+            Name of the new material.
+        val : 
+            Property value to assign.
         property :
-            
+           Name of the property.
 
         Returns
         -------
+        bool
+            ``True`` when successful, ``False`` when failed.
 
         """
         try:
@@ -273,19 +317,20 @@ class FieldAnalysisIcepak(Analysis, object):
 
     @aedt_exception_handler
     def assignmaterial_from_sherlock_files(self, csv_component, csv_material):
-        """Assign material to objects in design based on csv files obtained from Sherlock Tool
+        """Assign material to objects in a design based on a CSV files obtained from Sherlock.
 
         Parameters
         ----------
-        csv_component :
-            csv containing component properties including material name
-        csv_material :
-            csv containing material properties
+        csv_component :  str
+            Name of the CSV file containing the component properties, including the 
+            material name.
+        csv_material : str
+            Name of the CSV file containing the material properties.
 
         Returns
         -------
-        type
-            Bool
+        bool
+            ``True`` when successful, ``False`` when failed.
 
         """
         with open(csv_material) as csvfile:
@@ -315,43 +360,42 @@ class FieldAnalysisIcepak(Analysis, object):
                             md == mat]
             list_mat_obj = [mo for mo in list_mat_obj if mo in all_objs]
             if list_mat_obj:
-                if not self.materials.checkifmaterialexists(mat):
-                    newmat = self.materials.creatematerial(mat)
-                    if "Material Density" in material_data:
-                        value = material_data["Material Density"][i]
-                        self._assign_property_to_mat(newmat, value, newmat.PropName.MassDensity)
-                    if "Thermal Conductivity" in material_data:
-                        value = material_data["Thermal Conductivity"][i]
-                        self._assign_property_to_mat(newmat, value, newmat.PropName.ThermalConductivity)
-                    if "Material CTE" in material_data:
-                        value = material_data["Material CTE"][i]
-                        self._assign_property_to_mat(newmat, value, newmat.PropName.ThermalExpCoeff)
-                    if "Poisson Ratio" in material_data:
-                        value = material_data["Poisson Ratio"][i]
-                        self._assign_property_to_mat(newmat, value, newmat.PropName.PoissonsRatio)
-                    if "Elastic Modulus" in material_data:
-                        value = material_data["Elastic Modulus"][i]
-                        self._assign_property_to_mat(newmat, value, newmat.PropName.YoungsModulus)
-                    newmat.update()
+                if not self.materials.checkifmaterialexists(mat.lower()):
+                    newmat = self.materials.add_material(mat.lower())
+                else:
+                    newmat = self.materials[mat.lower()]
+                if "Material Density" in material_data:
+                    value = material_data["Material Density"][i]
+                    newmat.mass_density = value
+                if "Thermal Conductivity" in material_data:
+                    value = material_data["Thermal Conductivity"][i]
+                    newmat.thermal_conductivity = value
+                if "Material CTE" in material_data:
+                    value = material_data["Material CTE"][i]
+                    newmat.thermal_expansion_coefficient = value
+                if "Poisson Ratio" in material_data:
+                    value = material_data["Poisson Ratio"][i]
+                    newmat.poissons_ratio = value
+                if "Elastic Modulus" in material_data:
+                    value = material_data["Elastic Modulus"][i]
+                    newmat.youngs_modulus = value
                 self.assignmaterial(list_mat_obj, mat)
+
                 for o in list_mat_obj:
-                    self.modeler.primitives.objects[self.modeler.primitives.get_obj_id(o)].material_name = mat
+                    if self.modeler.primitives.objects[self.modeler.primitives.get_obj_id(o)].surface_material_name == '""':
+                        self.modeler.primitives.objects[self.modeler.primitives.get_obj_id(o)].surface_material_name = "Steel-oxidised-surface"
             i += 1
             all_objs = [ao for ao in all_objs if ao not in list_mat_obj]
         return True
 
     @aedt_exception_handler
     def get_all_conductors_names(self):
-        """Get all conductors in active design
-        
-        
-        :return: objname list
-
-        Parameters
-        ----------
-
+        """Retrieve all conductors in the active design.        
+       
         Returns
         -------
+        list
+            List of conductors.
 
         """
         cond = [i.lower() for i in list(self.materials.conductors)]
@@ -363,16 +407,12 @@ class FieldAnalysisIcepak(Analysis, object):
 
     @aedt_exception_handler
     def get_all_dielectrics_names(self):
-        """Get all dielectrics in active design
-        
-        
-        :return: objname list
-
-        Parameters
-        ----------
-
+        """Retrieve all dielectrics in the active design.
+                
         Returns
         -------
+        list
+            List of dielectrics.
 
         """
         diel = [i.lower() for i in list(self.materials.dielectrics)]

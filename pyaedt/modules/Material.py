@@ -1,14 +1,18 @@
 """
-Material Class
-----------------
+This module contains these data classes for creating a material library: 
 
+* `BasicValue`
+* `ClosedFormTM`
+* `CommonMaterial`
+* `Dataset`
+* `MatProperties`
+* `MatProperty`
+* `Material`
+* `SurMatProperties`
+* `SufaceMaterial`
 
-Description
-==================================================
-
-This class contains the data class to create a material library. internal use only
-
-========================================================
+.. note::
+    This module is for internal use only.
 
 """
 from collections import defaultdict, OrderedDict
@@ -16,16 +20,12 @@ from ..generic.general_methods import aedt_exception_handler, generate_unique_na
 from ..application.DataHandlers import dict2arg, arg2dict
 
 class MatProperties(object):
-    """list of constants of all possible materials constant names and how they are mapped to XML
-    internalame=named used in script
-    xmlname=named used in XML syntax
-
-    Parameters
-    ----------
-
-    Returns
-    -------
-
+    """MatProperties class.
+    
+    This class contains a list of constant names for all possible materials with 
+    mappings to their internal XML names. Internal names are used in scripts, and 
+    XML names are used in the XML syntax.
+    
     """
     aedtname =     ['permittivity', 'permeability', 'conductivity', 'dielectric_loss_tangent', 'magnetic_loss_tangent', 'thermal_conductivity', 'mass_density', 'specific_heat', 'thermal_expansion_coefficient', 'youngs_modulus',   'poissons_ratio',   'diffusivity', 'molecular_mass', 'viscosity', 'core_loss_kh', 'core_loss_kc', 'core_loss_ke']
     defaultvalue = [1.0,             1.0,            0,              0,                         0,                       0.01,                      0,              0,               0,                               0,                  0,                  0.8,         0,                   0,                 0,                   0,                      0,                          0]
@@ -35,17 +35,17 @@ class MatProperties(object):
 
     @classmethod
     def get_defaultunit(cls, aedtname=None):
-        """Get the defaultunit for a given fullname or catname
+        """Retrieve the default unit for a full name or a category name.
 
         Parameters
         ----------
-        aedtname : str
-            aedtname (Default value = None)
+        aedtname : str, optional
+            AEDT full name or category name. The default is ``None``.
 
         Returns
         -------
         str
-            defaultunit if exists
+            Default unit if it exists.
 
         """
         if aedtname:
@@ -56,35 +56,31 @@ class MatProperties(object):
 
     @classmethod
     def get_defaultvalue(cls, aedtname):
-        """Get the defaultunit for a given fullname or catname
+        """Retrieve the default value for a full name or a category name.
 
         Parameters
         ----------
         aedtname : str
-             aedtname (Default value = None)
+             AEDT full name or category name. The default is ``None``.
 
         Returns
         -------
         float
-            defaultunit
+            Default value if it exists.
 
         """
         if aedtname:
             return cls.defaultvalue[cls.aedtname.index(aedtname)]
         else:
-            raise TypeError("get_defaultunit: either fullname or catname MUST be defined")
+            raise TypeError("get_defaultunit: Either the full name or category name must be defined.")
 
 class SurfMatProperties(object):
-    """list of constants of all possible materials constant names and how they are mapped to XML
-    internalame=named used in script
-    xmlname=named used in XML syntax
-
-    Parameters
-    ----------
-
-    Returns
-    -------
-
+    """SurfMatProperties class.
+    
+    The class contains a list of constant names for all possible materials with 
+    mappings to their internal XML names. Internal names are used in scripts, and 
+    XML names are used in the XML syntax.
+ 
     """
     aedtname =     ['surface_emissivity', 'surface_roughness', 'surface_diffuse_absorptance', 'surface_incident_absorptance']
     defaultvalue = [1.0,             0,            0.4,              0.4]
@@ -92,17 +88,17 @@ class SurfMatProperties(object):
 
     @classmethod
     def get_defaultunit(cls, aedtname=None):
-        """Get the defaultunit for a given fullname or catname
+        """Retrieve the default unit for a full name or a category name.
 
         Parameters
         ----------
-        aedtname : str
-            optional aedtname (Default value = None)
+        aedtname : str, optional
+            AEDT full name or category name. The default is ``None``.
 
         Returns
         -------
         str
-            defaultunit if exists
+            Default unit if it exists.
 
         """
         if aedtname:
@@ -113,27 +109,29 @@ class SurfMatProperties(object):
 
     @classmethod
     def get_defaultvalue(cls, aedtname=None):
-        """Get the defaultunit for a given fullname or catname
+        """Get the default value for a full name or a category name.
 
         Parameters
         ----------
-        aedtname : str
-            optional aedtname (Default value = None)
+        aedtname : str, optional
+            AEDT full name or category name. The default is ``None``.
 
         Returns
         -------
         float
-            defaultunit
+            Default value if it exists.
 
         """
         if aedtname:
             return cls.defaultvalue[cls.aedtname.index(aedtname)]
         else:
-            raise TypeError("get_defaultunit: either fullname or catname MUST be defined")
+            raise TypeError("get_defaultunit: Either the full name or category name must be defined.")
 
 
 class ClosedFormTM(object):
-    """Class to manage Closed Form Terhmal Modifier."""
+    """ClosedFormTM class.
+    
+    This class provides all functionalities for manging closed-form thermal modifiers."""
     Tref = '22cel'
     C1 = 0
     C2 = 0
@@ -144,7 +142,10 @@ class ClosedFormTM(object):
     TMU = 1000
 
 class Dataset(object):
-    """Data Class for DataSet Management"""
+    """Dataset class.
+    
+    This class provides all functionalities for managing datasets.
+    """
     ds = []
     unitx = ""
     unity = ""
@@ -155,6 +156,11 @@ class Dataset(object):
     namez = None
 
 class BasicValue(object):
+    """BasicValue class.
+    
+    This class provides all functionalities needed for 
+    thermal modifier calculations.
+    """
     value = None
     dataset = None
     thermalmodifier = None
@@ -162,10 +168,26 @@ class BasicValue(object):
 
 
 class MatProperty(object):
-    """type: simple, anisotropic, tensor"""
+    """MatProperty class.
+    
+    This class provides all functionalities for managing simple, anisotropic, 
+    tensor, and non-linear properties.
+    
+    Parameters
+    ----------
+    parent :
+    
+    name :
+    
+    val :
+        The default is ``None``.
+    thermalmodifier
+        The default is ``None``.
+    """
 
     @property
     def _messenger(self):
+        """Messenger."""
         return self._parent._messenger
 
     def __init__(self, parent, name, val=None, thermalmodifier=None):
@@ -196,20 +218,19 @@ class MatProperty(object):
 
     @property
     def type(self):
+        """Material property type."""
         return self._type
 
     @type.setter
     def type(self, type):
-        """Set Material Property Type
+        """Set the material property type.
 
         Parameters
         ----------
-        type :
-            simple", "nonlinear", "anisotropic", "tensor"
-
-        Returns
-        -------
-
+        type : str
+            Type of properties. Options are ``simple"``, 
+            ``"anisotropic",`` ``"tensor"``, and ``"nonlinear",`` 
+            
         """
         self._type = type
         if self._type == "simple":
@@ -223,6 +244,7 @@ class MatProperty(object):
 
     @property
     def value(self):
+        """Property value."""
         if len(self._property_value) == 1:
             return self._property_value[0].value
         else:
@@ -243,6 +265,7 @@ class MatProperty(object):
 
     @property
     def unit(self):
+        """Units."""
         return self._unit
 
     @unit.setter
@@ -251,6 +274,7 @@ class MatProperty(object):
 
     @property
     def data_set(self):
+        """Data set."""
         if len(self._property_value) == 1:
             return self._property_value[0].dataset
         else:
@@ -258,12 +282,27 @@ class MatProperty(object):
 
     @property
     def thermalmodifier(self):
+        """Thermal modifier."""
         if len(self._property_value) == 1:
             return self._property_value[0].thermalmodifier
         else:
             return [i.thermalmodifier for i in self._property_value]
 
     def _add_thermal_modifier(self,formula, index):
+        """Add a thermal modifier.
+        
+        Parameters
+        ----------
+        formula : str
+            Full formula to apply.
+        index : int 
+            Value for the index. 
+        
+        Returns
+        -------
+        type
+        
+        """
         if "ModifierData" not in self._parent._props:
             tm = OrderedDict({'Property:': self.name, 'Index:': index, "prop_modifier": "thermal_modifier",
                               "use_free_form": True, "free_form_value": formula})
@@ -308,18 +347,19 @@ class MatProperty(object):
         return self._parent.update()
 
     def add_thermal_modifier_free_form(self, formula, index=0):
-        """
-        Add a Thermal modifier to a material Property using an free Form formula
+        """Add a thermal modifier to a material property using a free-form formula.
 
         Parameters
         ----------
         formula : str
-            Full Formula to apply
-        index : int, Default ``0``
+            Full formula to apply.
+        index : int, optional
+            Value for the index. The default is ``0``.
 
         Returns
         -------
         bool
+            ``True`` when successful, ``False`` when failed.
 
         Examples
         --------
@@ -334,18 +374,19 @@ class MatProperty(object):
 
 
     def add_thermal_modifier_dataset(self, dataset_name, index=0):
-        """
-        Add a Thermal modifier to a material Property using an existing Dataset
+        """Add a thermal modifier to a material property using an existing dataset.
 
         Parameters
         ----------
         dataset_name : str
-            Project Dataset name
-        index : int, Default ``0``
+            Name of the project dataset.
+        index : int, optional
+            Value for the index. The default is ``0``.
 
         Returns
         -------
         bool
+            ``True`` when successful, ``False`` when failed.
 
         Examples
         --------
@@ -362,26 +403,40 @@ class MatProperty(object):
 
     def add_thermal_modifier_closed_form(self, tref=22, c1=0.0001, c2=1e-6, tl=-273.15, tu=1000, units="cel",
                                          auto_calc=True, tml=1000, tmu=1000, index=0):
-        """
-        Add a Thermal modifier to a material Property using Closed Form
+        """Add a thermal modifier to a material property using a closed-form formula.
 
         Parameters
         ----------
-        tref : float
-            Reference Temperature
-        c1 : float
-        c2 : float
-        tl : float
-        tu : float
-        units : str, Default ``cel``
-        auto_calc : bool, Default ``True``
-        tml : float
-        tmu : float
-        index : int, Default ``0``
+        tref : float, optional
+            Reference temperature. The default is ``22``.
+        c1 : float, optional
+            Coefficient 1 value. The default is ``0.0001``.
+        c2 : float, optional
+            Coefficient 2 value. The default is ``1e-6``.
+        tl : float, optional
+            Lower temperature limit. The default is ``273.15``.
+        tu : float, optional
+            Upper temperature limit. The default is ``1000``.
+        units : str, optional
+            Units for the reference temperature. The default 
+            is ``"cel"``.
+        auto_calc : bool, optional
+            Whether to calculate the lower and upper
+            temperature limits automatically. The default is 
+            ``True``.
+        tml : float, optional
+            Lower temperature limit when ``auto_calc=True.`` 
+            The default is ``1000``.
+        tmu : float, optional
+            Upper temperature limit when ``auto_calc=True.`` 
+            The default is ``1000``.
+        index : int, optional
+            Value for the index. The default is ``0``.
 
         Returns
         -------
         bool
+            ``True`` when successful, ``False`` when failed.
 
         Examples
         --------
@@ -465,38 +520,50 @@ class MatProperty(object):
         return self._parent.update()
 
 class CommonMaterial(object):
-    """Class for Frequency Dependence Datasets"""
+    """CommonMaterial class.
+    
+    This class provides all functionalities for datasets with frequency-dependent materials.
+    
+    Parameters
+    ----------
+    parent :
+    
+    name :
+    
+    props :  
+        The default is ``None``.
+    
+    """
 
     @property
     def odefinition_manager(self):
-        """:return: Definition Manager"""
+        """Definition manager."""
         return self._parent.oproject.GetDefinitionManager()
 
     @property
     def _omaterial_manager(self):
-        """:return:Material Manager"""
+        """Material manager."""
         return self.odefinition_manager.GetManager("Material")
 
     @property
     def _messenger(self):
-        """ """
+        """Messenger."""
         return self._parent._messenger
 
     @property
     def oproject(self):
-        """ """
+        """Project object."""
         return self._parent._oproject
 
     @property
     def desktop(self):
-        """ """
+        """Desktop."""
         return self._parent._desktop
 
     def __init__(self, parent, name, props=None):
         self._parent = parent
         self.name = name
         self.coordinate_system = ""
-
         if props:
             self._props = props
         else:
@@ -523,6 +590,13 @@ class CommonMaterial(object):
 
     @aedt_exception_handler
     def _get_args(self, props=None):
+        """Retrieve the arguments for a property.
+        
+        Parameters:
+            prop: str, optoinal
+                Name of the property.
+                The default is ``None``.
+        """
         if not props:
             props = self._props
         arg = ["NAME:" + self.name]
@@ -530,6 +604,18 @@ class CommonMaterial(object):
         return arg
 
     def _update_props(self, propname, provpavlue, update_aedt=True):
+        """Update properties.
+        
+        Parameters
+        ----------
+        propname: str
+            Name of the property.
+        provpavlue :
+            Value of the property.
+        update_aedt : bool, optional
+            The default is ``True``.
+        
+        """
         if isinstance(provpavlue, list) and self.__dict__["_"+propname].type != "simple" and self.__dict__["_"+propname].type != "nonlinear":
                 i=1
                 for val in provpavlue:
@@ -546,8 +632,21 @@ class CommonMaterial(object):
 
 
 class Material(CommonMaterial, object):
-    """Class for Material Properties"""
-
+    """Material class.
+    
+    This class provides all functionalities for material properties.
+    
+    Parameters
+    ----------
+    parent : 
+    
+    name :
+    
+    props  :
+        The default is ``None``.
+        
+    """
+    
     def __init__(self, parent, name, props=None):
         CommonMaterial.__init__(self, parent, name, props)
         self.thermal_material_type = "Solid"
@@ -557,7 +656,7 @@ class Material(CommonMaterial, object):
             self.physics_type = self._props["PhysicsTypes"]["set"]
         else:
             self.physics_type = ['Electromagnetic', 'Thermal', 'Structural']
-            self._props["PhysicsTypes"]=OrderedDict({"set":['Electromagnetic', 'Thermal', 'Structural']})
+            self._props["PhysicsTypes"] = OrderedDict({"set":['Electromagnetic', 'Thermal', 'Structural']})
 
         for property in MatProperties.aedtname:
             if property in self._props:
@@ -586,12 +685,12 @@ class Material(CommonMaterial, object):
 
     @property
     def permittivity(self):
-        """
+        """Permittivity.
 
         Returns
         -------
-        MatProperty
-            Permittivity Value of the material
+        type
+            Permittivity of the material.
         """
         return self._permittivity
 
@@ -603,12 +702,12 @@ class Material(CommonMaterial, object):
 
     @property
     def permeability(self):
-        """
+        """Permeability.
 
         Returns
         -------
-        MatProperty
-            Permeability Value of the material
+        type
+            Permeability of the material.
         """
         return self._permeability
 
@@ -620,12 +719,12 @@ class Material(CommonMaterial, object):
 
     @property
     def conductivity(self):
-        """
+        """Conductivity.
 
         Returns
         -------
-        MatProperty
-            Conductivity Value of the material
+        type
+            Conductivity of the material.
         """
         return self._conductivity
 
@@ -636,12 +735,12 @@ class Material(CommonMaterial, object):
 
     @property
     def dielectric_loss_tangent(self):
-        """
+        """ Dielectric loss tangent.
 
         Returns
         -------
-        MatProperty
-            Dielectric Loss Tangent Value of the material
+        type
+            Dielectric loss tangent of the material.
         """
         return self._dielectric_loss_tangent
 
@@ -653,12 +752,12 @@ class Material(CommonMaterial, object):
 
     @property
     def magnetic_loss_tangent(self):
-        """
+        """Magnetic loss tangent.
 
         Returns
         -------
-        MatProperty
-            Magnetic Loss Tangent Value of the material
+        type
+            Magnetic loss tangent of the material.
         """
         return self._magnetic_loss_tangent
 
@@ -669,12 +768,12 @@ class Material(CommonMaterial, object):
         self._update_props("magnetic_loss_tangent", value)
     @property
     def thermal_conductivity(self):
-        """
+        """Thermal conductivity.
 
         Returns
         -------
-        MatProperty
-            Thermal Conductivity Value of the material
+        type
+            Thermal conductivity of the material.
 
         """
         return self._thermal_conductivity
@@ -683,16 +782,18 @@ class Material(CommonMaterial, object):
     def thermal_conductivity(self, value):
 
         self._thermal_conductivity.value = value
+        self.physics_type = ['Electromagnetic', 'Thermal', 'Structural']
+        self._props["PhysicsTypes"] = OrderedDict({"set": ['Electromagnetic', 'Thermal', 'Structural']})
         self._update_props("thermal_conductivity", value)
 
     @property
     def mass_density(self):
-        """
+        """Mass density.
 
         Returns
         -------
-        MatProperty
-            Mass Density Value of the material
+        type
+            Mass density of the material.
 
         """
         return self._mass_density
@@ -705,12 +806,12 @@ class Material(CommonMaterial, object):
 
     @property
     def specific_heat(self):
-        """
+        """Specific heat.
 
         Returns
         -------
-        MatProperty
-            Specific Heat Value of the material
+        type
+            Specific heat of the material.
 
         """
         return self._specific_heat
@@ -723,12 +824,12 @@ class Material(CommonMaterial, object):
 
     @property
     def thermal_expansion_coefficient(self):
-        """
+        """Thermal expansion coefficient.
 
         Returns
         -------
-        MatProperty
-            Thermal Expansion Coefficient  of the material
+        type
+            Thermal expansion coefficient of the material.
 
         """
         return self._thermal_expansion_coefficient
@@ -741,39 +842,49 @@ class Material(CommonMaterial, object):
 
     @property
     def youngs_modulus(self):
-        """
+        """Young's modulus.
 
         Returns
         -------
-        MatProperty
-            Youngs Modulus  of the material
-
+        type
+            Young's modulus of the material.
         """
         return self._youngs_modulus
 
     @youngs_modulus.setter
     def youngs_modulus(self, value):
         self._youngs_modulus.value = value
+        self.physics_type = ['Electromagnetic', 'Thermal', 'Structural']
+        self._props["PhysicsTypes"] = OrderedDict({"set": ['Electromagnetic', 'Thermal', 'Structural']})
         self._update_props("youngs_modulus", value)
 
     @property
     def poissons_ratio(self):
-        """
+        """Poisson's ratio.
 
         Returns
         -------
-        MatProperty
-            Poisson Ratio's of the material
+        type
+            Poisson's ratio of the material.
         """
         return self._poissons_ratio
 
     @poissons_ratio.setter
     def poissons_ratio(self, value):
         self._poissons_ratio.value = value
+        self.physics_type = ['Electromagnetic', 'Thermal', 'Structural']
+        self._props["PhysicsTypes"] = OrderedDict({"set": ['Electromagnetic', 'Thermal', 'Structural']})
         self._update_props("poissons_ratio", value)
 
     @property
     def diffusivity(self):
+        """Diffusivity.
+        
+        Returns
+        -------
+        type
+            Diffusivity of the material.
+        """
         return self._diffusivity
 
     @diffusivity.setter
@@ -783,6 +894,13 @@ class Material(CommonMaterial, object):
 
     @property
     def molecular_mass(self):
+        """Molecular mass.
+        
+        Returns
+        -------
+        type
+            Molecular mass of the material.
+        """
         return self._molecular_mass
 
     @molecular_mass.setter
@@ -792,6 +910,13 @@ class Material(CommonMaterial, object):
 
     @property
     def viscosity(self):
+        """Viscosity.
+         
+        Returns
+        -------
+        type
+            Viscosity of the material.
+        """
         return self._viscosity
 
     @viscosity.setter
@@ -801,6 +926,13 @@ class Material(CommonMaterial, object):
 
     @property
     def core_loss_kh(self):
+        """Core loss in kilohertz.
+        
+        Returns
+        -------
+        type
+            Core loss of the material in kilohertz.
+        """
         return self._core_loss_kh
 
     @core_loss_kh.setter
@@ -810,6 +942,13 @@ class Material(CommonMaterial, object):
 
     @property
     def core_loss_kc(self):
+        """Core loss in kilocalories.
+        
+        Returns
+        -------
+        type
+            Core loss of the material in kilocalories.
+        """
         return self._core_loss_kc
 
     @core_loss_kc.setter
@@ -819,6 +958,13 @@ class Material(CommonMaterial, object):
 
     @property
     def core_loss_ke(self):
+        """Core loss in kinetic energy.
+        
+        Returns
+        -------
+        type
+            Core loss of the material in kinetic energy.
+        """
         return self._core_loss_ke
 
     @core_loss_ke.setter
@@ -827,17 +973,20 @@ class Material(CommonMaterial, object):
         self._update_props("core_loss_ke", value)
 
     def is_conductor(self, threshold=100000):
-        """Check if material is conductor
+        """Check if material is a conductor.
 
         Parameters
         ----------
-        threshold : float
-            Threshold to define if material is condcutor or not. Default is ``100000``
+        threshold : float, optional
+            Threshold to define if a material is a conductor. The
+            default is ``100000``. If the conductivity is equal to or
+            greater than the threshold, the material is 
+            considered a conductor.  
 
         Returns
         -------
         bool
-            ``True`` if material is conductor.   Material is defined as conductor if cond>=100000. Threshold can be modified
+            ``True`` when the material is a condutor, ``False`` otherwise.
         """
         cond = self.conductivity.value
         if not cond:
@@ -853,31 +1002,31 @@ class Material(CommonMaterial, object):
 
     @aedt_exception_handler
     def is_dielectric(self, threshold=100000):
-        """Check if material is dielectric
+        """Check if the material is dielectric.
 
         Parameters
         ----------
-        threshold : float
-            Threshold to define if material is dielectric. Default conductivitivy value is ``100000``
+        threshold : float, optional
+            Threshold to define if a material is dielectric. The
+            default is ``100000``. If the conductivity is equal to or
+            greater than the threshold, the material is 
+            considered dielectric. 
 
         Returns
         -------
         bool
-            ``True`` if material is dielectric.   Material is defined as conductor if conductivity>=100000.
-            Threshold can be modified
+            ``True`` when the material is dielectric, ``False`` otherwise.
         """
         return not self.is_conductor()
 
     @aedt_exception_handler
     def update(self):
-        """Update material in AEDT
-
+        """Update the material in AEDT.
 
         Returns
         -------
         bool
-            ``True`` if succeeded
-
+            ``True`` when successful, ``False`` when failed.
         """
 
         args = self._get_args()
@@ -898,6 +1047,17 @@ class Material(CommonMaterial, object):
 
 
 class SurfaceMaterial(CommonMaterial, object):
+    """SurfaceMaterial class.
+    
+    The class provides all functionalities for surface material properties.
+    
+    Parameters
+    ----------
+    parent :
+    name :
+    props :
+        The default is ``None``.
+    """
 
     def __init__(self, parent, name, props=None):
         CommonMaterial.__init__(self,parent, name, props)
@@ -934,6 +1094,13 @@ class SurfaceMaterial(CommonMaterial, object):
 
     @property
     def emissivity(self):
+        """Emissivity.
+        
+        Returns
+        -------
+        type
+            Emissivity of the surface material.
+        """
         return self._surface_emissivity
 
     @emissivity.setter
@@ -944,6 +1111,13 @@ class SurfaceMaterial(CommonMaterial, object):
 
     @property
     def surface_diffuse_absorptance(self):
+        """Surface diffuse absorptance.
+        
+        Returns
+        -------
+        type
+            Surface diffuse absorptance of the surface material.
+        """
         return self._surface_diffuse_absorptance
 
     @surface_diffuse_absorptance.setter
@@ -954,6 +1128,13 @@ class SurfaceMaterial(CommonMaterial, object):
 
     @property
     def surface_incident_absorptance(self):
+        """Surface incident absorptance.
+        
+        Returns
+        -------
+        type
+            Surface incident absorptance of the surface material.
+        """
         return self._surface_incident_absorptance
 
     @surface_incident_absorptance.setter
@@ -964,6 +1145,13 @@ class SurfaceMaterial(CommonMaterial, object):
 
     @property
     def surface_roughness(self):
+        """Surface roughness.
+        
+        Returns
+        -------
+        type
+            Surface roughness of the surface material.
+        """
         return self._surface_roughness
 
     @surface_roughness.setter
@@ -974,14 +1162,12 @@ class SurfaceMaterial(CommonMaterial, object):
 
     @aedt_exception_handler
     def update(self):
-        """Update material in AEDT
-
+        """Update the surface material in AEDT.
 
         Returns
         -------
-        type
-            Bool
-
+        bool
+            ``True`` when successful, ``False`` when failed.
         """
         args = self._get_args()
         if self._does_material_exists(self.name):

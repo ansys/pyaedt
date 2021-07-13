@@ -67,6 +67,7 @@ class TestCircuitDL:
 
         self.aedtapp.modeler.components.refresh_dynamic_link("uUSB")
         self.aedtapp.modeler.components.set_sim_option_on_hfss_subcircuit(hfss_comp)
+        self.aedtapp.modeler.components.set_sim_solution_on_hfss_subcircuit(hfss_comp)
         #self.aedtapp.modeler.components.refresh_dynamic_link("Galileo_G87173_205_cutout3")
 
         #hfssComp = self.aedtapp.modeler.components.components[hfss_comp_id]
@@ -107,9 +108,9 @@ class TestCircuitDL:
     @pytest.mark.skipif(config.get("skip_circuits", False),
                         reason="Skipped because Desktop is crashing")
     def test_03_assign_excitations(self):
-        excitation_settings = ["nan V", "0deg", "0V", "25V", "1V", "2.5GHz", "0s", "0", "0deg", "0Hz"]
+        excitation_settings = ["1 V", "0deg", "0V", "25V", "1V", "2.5GHz", "0s", "0", "0deg", "0Hz"]
         ports_list = ["Excitation_1", "Excitation_2"]
-        self.aedtapp.modeler.components.assign_sin_excitation2ports(ports_list,excitation_settings)
+        self.aedtapp.modeler.components.assign_sin_excitation2ports(ports_list, excitation_settings)
 
         pass
 
@@ -118,9 +119,8 @@ class TestCircuitDL:
     def test_04_setup(self):
         setup_name = "Dom_LNA"
         LNA_setup = self.aedtapp.create_setup(setup_name)
-        LNA_setup.SweepDefinition = [("Variable", "Freq"), ("Data", "LIN 1GHz 5GHz 1001"), ("OffsetF1", False), ("Synchronize", 0)]
+        sweep_list = ["LINC", "1GHz", "2GHz", "1001"]
+        LNA_setup.props["SweepDefinition"]["Data"] = " ".join(sweep_list)
         assert LNA_setup.update()
-        pass
-
 
 
