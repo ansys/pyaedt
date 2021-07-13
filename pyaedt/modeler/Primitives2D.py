@@ -41,7 +41,7 @@ class Primitives2D(Primitives, object):
 
         Returns
         -------
-        type
+        Object3d
             Object3d
 
         Examples
