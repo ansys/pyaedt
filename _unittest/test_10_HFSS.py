@@ -15,7 +15,7 @@ class TestHFSS:
         #self.desktop = Desktop(desktopVersion, NonGraphical, NewThread)
         # set a scratch directory and the environment / test data
         with Scratch(scratch_path) as self.local_scratch:
-            self.aedtapp = Hfss()
+            self.aedtapp = Hfss(AlwaysNew=True)
 
     def teardown_class(self):
         assert self.aedtapp.close_project(self.aedtapp.project_name)
@@ -180,10 +180,8 @@ class TestHFSS:
         o3 = self.aedtapp.modeler.primitives.create_cylinder(cs, [0, 0, 0], radius=10, height=100,
                                                             numSides=0, name="outer", matname="Copper")
 
-        port1 = self.aedtapp.create_wave_port_between_objects("inner", "outer",axisdir=0, add_pec_cap=True, portname="P1")
-        port2 = self.aedtapp.create_wave_port_between_objects("inner", "outer",axisdir=3, add_pec_cap=True, portname="P2")
-        assert port1.name.startswith("Wave1")
-        assert port2.name.startswith("Wave2")
+        port1 = self.aedtapp.create_wave_port_between_objects(o1.name, o3.name, axisdir=0, add_pec_cap=True, portname="P1")
+        assert port1.name.startswith("P1")
 
     def test_10_create_lumped_on_objects(self):
         box1 = self.aedtapp.modeler.primitives.create_box([0, 0, 50], [10, 10, 5], "BoxLumped1")

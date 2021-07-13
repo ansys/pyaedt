@@ -2,7 +2,7 @@
 import os
 
 # Setup paths for module imports
-from .conftest import scratch_path, local_path, BasisTest, pyaedt_unittest_check_desktop_error
+from .conftest import scratch_path, local_path, BasisTest, pyaedt_unittest_check_desktop_error, config
 
 from pyaedt.generic.filesystem import Scratch
 from pyaedt.modeler.Primitives import Polyline, PolylineSegment
@@ -14,6 +14,7 @@ try:
     import pytest
 except:
     pass
+
 scdoc = "input.scdoc"
 step = "input.stp"
 
@@ -809,6 +810,7 @@ class TestClass(BasisTest):
         self.create_copper_box()
         self.aedtapp.modeler.primitives.get_closest_edgeid_to_position([0.2,0,0])
 
+    @pytest.mark.skipif(config["build_machine"], reason="Not running in non-graphical mode")
     @pyaedt_unittest_check_desktop_error
     def test_48_import_space_claim(self):
         self.aedtapp.insert_design("SCImport")
