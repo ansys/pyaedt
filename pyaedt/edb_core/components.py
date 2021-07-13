@@ -155,7 +155,7 @@ class Components(object):
         Returns
         -------
         dict
-            Default dictionary for the EDB comopnent.         
+            Default dictionary for the EDB component.
 
         """
         self._messenger.add_info_message("Refreshing the Components dictionary.")
