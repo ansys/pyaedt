@@ -2,6 +2,7 @@ from ..application.Variables import AEDT_units
 from ..generic.general_methods import aedt_exception_handler, retry_ntimes
 from ..modules.LayerStackup import Layers
 from .Modeler import Modeler
+from .PrimitivesEmit import EmitComponents
 from .Primitives3DLayout import Primitives3DLayout
 from .PrimitivesNexxim import NexximComponents
 from .PrimitivesSimplorer import SimplorerComponents
@@ -262,3 +263,4 @@ class ModelerEmit(ModelerCircuit):
     def __init__(self, parent):
         self._parent = parent
         ModelerCircuit.__init__(self, parent)
+        self.components = EmitComponents(parent, self)
