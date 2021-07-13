@@ -1,4 +1,4 @@
-"""This module contains the `Components` class."""
+"""This module contains the `Components` class.
 
 Parameters
 ----------
