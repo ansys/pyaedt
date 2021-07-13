@@ -140,7 +140,7 @@ class Modeler3DLayout(Modeler):
         size: float
             size of expansion
         expand_type: str, default ``ROUND``
-            tye of expansion: ``ROUND``, ``MITER``, ``CORNER``
+            type of expansion: ``ROUND``, ``MITER``, ``CORNER``
         replace_original
 
         Returns
