@@ -1475,6 +1475,8 @@ class Primitives(object):
         for el in objects:
             self._delete_object_from_dict(el)
 
+        self._refresh_object_types()
+
         if len(objects) > 0:
             self.messenger.add_info_message("Deleted {} Objects".format(len(objects)))
 
