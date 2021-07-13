@@ -496,9 +496,9 @@ class VariableManager(object):
      'Var3': <pyaedt.application.Variables.Expression at 0x2661f34cb48>,
      '$PrjVar1': <pyaedt.application.Variables.Expression at 0x2661f34cc48>}
 
-    >>> # Get a dictionary of just the design variables
-    >>> v.design_variables
+    Get a dictionary of just the design variables
 
+    >>> v.design_variables
     {'Var1': <pyaedt.application.Variables.Variable at 0x2661f339508>,
      'Var2': <pyaedt.application.Variables.Variable at 0x2661f3415c8>,
      'Var3': <pyaedt.application.Variables.Expression at 0x2661f341808>}
@@ -590,7 +590,7 @@ class VariableManager(object):
         dict
             Dictionary of dependent design properties (local variables) and project variables available to the design.
         
-	"""    
+        """
         return self._variable_dict([self.odesign, self.oproject], independent=False)
 
     @property
@@ -939,9 +939,7 @@ class VariableManager(object):
 
 
 class Variable(object):
-    """
-    Variable class. 
-    
+    """Variable class.
     This class stores variables and allows operations on variables. It 
     handles the contents of design properties and project variables.
 
@@ -1100,7 +1098,7 @@ class Variable(object):
         --------
         >>> from pyaedt.application.Variables import Variable
 
-        Multiply '`Length1`' by unitless (`'None'`) to obtain `'Length'`. 
+        Multiply ``'Length1'`` by unitless ``'None'``` to obtain ``'Length'``. 
         A numerical value is also considered to be unitless.
         
         >>> v1 = Variable("10mm")
@@ -1112,7 +1110,7 @@ class Variable(object):
         >>> assert result_2.numeric_value == result_1.numeric_value
         >>> assert result_2.unit_system == result_1.unit_system
 
-        Multiply '`Voltage`' times '`Current'` to obtain '`Power'`.
+        Multiply voltage times current to obtain power.
         
         >>> v3 = Variable("3mA")
         >>> v4 = Variable("40V")
@@ -1239,6 +1237,7 @@ class Variable(object):
         Divide a variable with units ``"W"`` by a variable with units ``"V"`` and automatically 
         resolve the new units to ``"A"``.
         >>> from pyaedt.application.Variables import Variable
+
         >>> v1 = Variable("10W")
         >>> v2 = Variable("40V")
         >>> result = v1 / v2
@@ -1341,6 +1340,7 @@ class DataSet(object):
        The default is ``""``. 
     
     """
+
     def __init__(self, parent, name, x, y, z=None, v=None, xunit='', yunit='', zunit='', vunit=''):
         self._parent = parent
         self.name = name
