@@ -23,7 +23,7 @@ class MatProperties(object):
     """MatProperties class.
     
     This class contains a list of constant names for all possible materials with 
-    mappings to their internal XML names. Internal mames are used in scripts, and 
+    mappings to their internal XML names. Internal names are used in scripts, and 
     XML names are used in the XML syntax.
     
     """
@@ -35,7 +35,7 @@ class MatProperties(object):
 
     @classmethod
     def get_defaultunit(cls, aedtname=None):
-        """Retrieve the default unit for a given full name or category name.
+        """Retrieve the default unit for a full name or a category name.
 
         Parameters
         ----------
@@ -56,7 +56,7 @@ class MatProperties(object):
 
     @classmethod
     def get_defaultvalue(cls, aedtname):
-        """Get the default value for a full name or a category name.
+        """Retrieve the default value for a full name or a category name.
 
         Parameters
         ----------
@@ -78,7 +78,7 @@ class SurfMatProperties(object):
     """SurfMatProperties class.
     
     The class contains a list of constant names for all possible materials with 
-    mappings to their internal XML names. Internal mames are used in scripts, and 
+    mappings to their internal XML names. Internal names are used in scripts, and 
     XML names are used in the XML syntax.
  
     """
@@ -129,7 +129,7 @@ class SurfMatProperties(object):
 
 
 class ClosedFormTM(object):
-    """ClosedFormTM.
+    """ClosedFormTM class.
     
     This class provides all functionalities for manging closed-form thermal modifiers."""
     Tref = '22cel'
@@ -144,7 +144,7 @@ class ClosedFormTM(object):
 class Dataset(object):
     """Dataset class.
     
-    This call provides all functionalities for managing datasets.
+    This class provides all functionalities for managing datasets.
     """
     ds = []
     unitx = ""
@@ -431,7 +431,7 @@ class MatProperty(object):
             Upper temperature limit when ``auto_calc=True.`` 
             The default is ``1000``.
         index : int, optional
-            Value for the index. The default is ``0``.`
+            Value for the index. The default is ``0``.
 
         Returns
         -------
@@ -522,7 +522,18 @@ class MatProperty(object):
 class CommonMaterial(object):
     """CommonMaterial class.
     
-    This class provides all functionalities for datasets with frequency-dependent materials."""
+    This class provides all functionalities for datasets with frequency-dependent materials.
+    
+    Parameters
+    ----------
+    parent :
+    
+    name :
+    
+    props :  
+        The default is ``None``.
+    
+    """
 
     @property
     def odefinition_manager(self):
@@ -746,7 +757,7 @@ class Material(CommonMaterial, object):
         Returns
         -------
         type
-            Magnetic Loss tangent of the material.
+            Magnetic loss tangent of the material.
         """
         return self._magnetic_loss_tangent
 
@@ -969,7 +980,7 @@ class Material(CommonMaterial, object):
         threshold : float, optional
             Threshold to define if a material is a conductor. The
             default is ``100000``. If the conductivity is equal to or
-            greater than the specified threshold, the material is 
+            greater than the threshold, the material is 
             considered a conductor.  
 
         Returns
@@ -998,7 +1009,7 @@ class Material(CommonMaterial, object):
         threshold : float, optional
             Threshold to define if a material is dielectric. The
             default is ``100000``. If the conductivity is equal to or
-            greater than the specified threshold, the material is 
+            greater than the threshold, the material is 
             considered dielectric. 
 
         Returns
@@ -1010,7 +1021,7 @@ class Material(CommonMaterial, object):
 
     @aedt_exception_handler
     def update(self):
-        """Update material in AEDT.
+        """Update the material in AEDT.
 
         Returns
         -------
@@ -1151,7 +1162,7 @@ class SurfaceMaterial(CommonMaterial, object):
 
     @aedt_exception_handler
     def update(self):
-        """Update surface material in AEDT.
+        """Update the surface material in AEDT.
 
         Returns
         -------
