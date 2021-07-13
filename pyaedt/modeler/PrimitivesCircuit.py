@@ -12,62 +12,62 @@ class CircuitComponents(object):
 
     @property
     def oeditor(self):
-        """ """
+        """Editor object."""
         return self.modeler.oeditor
 
     @property
     def messenger(self):
-        """ """
+        """Messenger."""
         return self._parent._messenger
 
     @property
     def version(self):
-        """ """
+        """Version."""
         return self._parent._aedt_version
 
     @property
     def design_types(self):
-        """ """
+        """Design types."""
         return self._parent._modeler
 
     @property
     def model_units(self):
-        """ """
+        """Model units."""
         return self.modeler.model_units
 
     @property
     def o_model_manager(self):
-        """ """
+        """Model manager object."""
         return self.modeler.o_model_manager
 
     @property
     def o_definition_manager(self):
-        """ """
+        """Definition manager object."""
         return self._parent._oproject.GetDefinitionManager()
 
     @property
     def o_symbol_manager(self):
-        """ """
+        """Symbol manager object."""
         return self.o_definition_manager.GetManager("Symbol")
 
     @property
     def o_component_manager(self):
-        """ """
+        """Component manager object."""
         return self.o_definition_manager.GetManager("Component")
 
     @property
     def design_type(self):
-        """ """
+        """Design type."""
         return self._parent.design_type
 
     @aedt_exception_handler
     def __getitem__(self, partname):
-        """
+        """Retrieve a part.
+
         Parameters
         ----------
         partname : int or str
-           Name of the part. If an integer is entered, try to get the object ID.
-           If a string is entered, try to get the object name.
+           Part ID or part name. 
         
         Returns
         -------
@@ -91,7 +91,14 @@ class CircuitComponents(object):
 
     @aedt_exception_handler
     def create_unique_id(self):
-        """ """
+        """Create an unique ID.
+        
+        Returns
+        -------
+        int
+            Unique ID in the range of ``[1, 65535]``.
+            
+        """
         id = random.randint(1, 65535)
         while id in self.components:
             id = random.randint(1, 65535)
@@ -127,7 +134,7 @@ class CircuitComponents(object):
 
     @aedt_exception_handler
     def create_iport(self, name, posx=0.1, posy=0.1, angle=0):
-        """Create a new port.
+        """Create a port.
 
         Parameters
         ----------
@@ -162,7 +169,7 @@ class CircuitComponents(object):
 
     @aedt_exception_handler
     def create_page_port(self, name, posx=0.1, posy=0.1, angle=0):
-        """Create a new page port.
+        """Create a page port.
 
         Parameters
         ----------
@@ -337,7 +344,7 @@ class CircuitComponents(object):
     def create_component(self, inst_name=None, component_library="Resistors",
                          component_name="RES_", xpos=0.1, ypos=0.1, angle=0, use_instance_id_netlist=False,
                          global_netlist_list=[]):
-        """Create a new component from a library.
+        """Create a component from a library.
 
         Parameters
         ----------
@@ -399,7 +406,7 @@ class CircuitComponents(object):
 
     @aedt_exception_handler
     def disable_data_netlist(self, component_name):
-        """Disable Nexxim global net list.
+        """Disable the Nexxim global net list.
 
         Parameters
         ----------
@@ -459,7 +466,7 @@ class CircuitComponents(object):
 
     @aedt_exception_handler
     def create_symbol(self, symbol_name, pin_lists):
-        """Create a new symbol.
+        """Create a symbol.
 
         Parameters
         ----------
@@ -521,7 +528,7 @@ class CircuitComponents(object):
     @aedt_exception_handler
     def create_new_component_from_symbol(self, symbol_name, pin_lists, Refbase="U", parameter_list=[],
                                          parameter_value=[]):
-        """Create a new component from a symbol.
+        """Create a component from a symbol.
 
         Parameters
         ----------
@@ -651,12 +658,12 @@ class CircuitComponents(object):
 
     @aedt_exception_handler
     def add_id_to_component(self, id):
-        """
+        """Add an ID to a component.
 
         Parameters
         ----------
-        id : 
-            ID for the component.
+        id : int
+            ID to assign the component.
 
         Returns
         -------
@@ -684,7 +691,7 @@ class CircuitComponents(object):
 
     @aedt_exception_handler
     def get_obj_id(self, objname):
-        """
+        """Retrieve the ID of an object.
 
         Parameters
         ----------
@@ -725,17 +732,17 @@ class CircuitComponents(object):
 
     @aedt_exception_handler
     def get_pins(self, partid):
-        """
+        """Retrieve one or more pins.
 
         Parameters
         ----------
         partid : int or str
-            ID or full name of the component.
+            One or more IDs or names for the pins to retrieve.
 
         Returns
         -------
         type
-            Object with properties.
+            Pin with properties.
 
         """
         if type(partid) is str:
@@ -748,12 +755,12 @@ class CircuitComponents(object):
 
     @aedt_exception_handler
     def get_pin_location(self, partid, pinname):
-        """
+        """Retrieve the location of a pin.
 
         Parameters
         ----------
-        partid : 
-            ID of the component.
+        partid : int
+            ID of the part.
         pinname :
             Name of the pin.
 
@@ -784,8 +791,8 @@ class CircuitComponents(object):
 
         Returns
         -------
-        bool
-            ``True`` when successful, ``False`` when failed.
+        type
+            
 
         """
         if type(Value) is str:

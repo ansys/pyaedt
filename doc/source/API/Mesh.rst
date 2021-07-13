@@ -10,7 +10,7 @@ Mesh
 
 .. toctree::
    :maxdepth: 2
-   :caption: The ``Mesh`` module includes these classes:
+   :caption: The `Mesh` module includes these classes:
 
    Mesh3D
    MeshIcepak

@@ -1,0 +1,103 @@
+# This is a basic workflow to help you get started with Actions
+
+name: CI
+
+env:
+  python.version: 3.8
+  python.venv: 'testvenv'
+# Controls when the workflow will run
+on:
+  # Triggers the workflow on push or pull request events but only for the main branch
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+     
+  
+
+# A workflow run is made up of one or more jobs that can run sequentially or in parallel
+jobs:
+  # This workflow contains a single job called "build"
+  build:
+    # The type of runner that the job will run on
+    runs-on: self-hosted
+    strategy:
+      matrix:
+        python-version: [3.8]
+    # Steps represent a sequence of tasks that will be executed as part of the job
+    steps:
+      - uses: actions/checkout@v2
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v2
+        with:
+          python-version: ${{ matrix.python-version }}
+      # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
+      #- uses: actions/setup-python@v2
+      #  name: 'Use Python $(python.version)'
+      #  with:
+      #     python-version: '3.8.10'
+      #     architecture: 'x64'
+
+      - name: 'Create virtual env'
+        run: |
+          python -m venv testenv
+          testenv\Scripts\Activate.ps1
+          python -m pip install pip -U
+          python -m pip install wheel setuptools -U
+          python -c "import sys; print(sys.executable)"
+
+      - name: 'Install pyaedt'
+        run: |
+          testenv\Scripts\Activate.ps1
+          pip install . --use-feature=in-tree-build
+          pip install -r requirements_test.txt
+          pip install pytest-azurepipelines
+          mkdir tmp
+          cd tmp
+          python -c "import pyaedt; print('Imported pyaedt')"
+
+      - name: 'Unit testing'
+        run: | 
+          testenv\Scripts\Activate.ps1
+          pytest -v --cov --cov-config=.coveragerc -cov-report=xml --cov-report=html --junitxml=junit/test-results.xml
+
+      - name: 'Coverage'
+        run: |
+          testenv\Scripts\Activate.ps1
+          coverage xml
+
+      #- uses: EnricoMi/publish-unit-test-result-action@v1
+      #  name: 'Publish Test Results **/test-results.xml'
+      #  with:
+      #    testResultsFiles: '**/test-results.xml'
+      #    testRunTitle: 'Python $(python.version)'
+      #  if: ${{ always() }}
+
+      #- uses: 5monkeys/cobertura-action@master
+      #  name: 'Publish code coverage coverage.xml'
+      #  with:
+      #    path: src/coverage.xml
+      #  if: ${{ always() }}
+        
+      - name: 'Build and validate source distribution'
+        run: |
+          testenv\Scripts\Activate.ps1
+          python setup.py sdist
+          python -m pip install twine
+          python -m twine check dist/*
+        
+
+      #- uses: PublishBuildArtifacts@1
+      #  name: 'Publish Artifact: dist'
+      #  with:
+      #    PathtoPublish: dist
+      #    ArtifactName: dist
+      
+      #- run: 
+      #    twine upload --skip-existing dist/*.tar.gz
+      #  displayName: 'Upload to package PyPi'
+      #  if: contains(variables['Build.SourceBranch'], 'refs/tags/')
+      #  env:
+      #    TWINE_USERNAME: __token__
+      #    TWINE_PASSWORD: $(PYPI_TOKEN)
+      #    TWINE_REPOSITORY_URL: "https://upload.pypi.org/legacy/"

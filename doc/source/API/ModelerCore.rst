@@ -11,7 +11,7 @@ Modeler
 
 .. toctree::
    :maxdepth: 2
-   :caption: The ``Modeler`` application module includes these classes:
+   :caption: The `Modeler` application module includes these classes:
 
    Modeler
    Modeler3D
