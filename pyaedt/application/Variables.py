@@ -429,8 +429,7 @@ def decompose_variable_value(variable_value):
 
 
 class VariableManager(object):
-    """
-    VariableManager class.
+    """VariableManager class.
 
     This class manages the design properties and projecct variables. Design properties
     are the local variables in a design. Project variables are defined at the project 
@@ -480,15 +479,20 @@ class VariableManager(object):
     >>> from pyaedt.desktop import Desktop
     >>> d = Desktop()
     >>> aedtapp = Maxwell3d()
-    >>> # Define some test variables
+    
+    Define some test variables.
+    
     >>> aedtapp["Var1"] = 3
     >>> aedtapp["Var2"] = "12deg"
     >>> aedtapp["Var3"] = "Var1 * Var2"
     >>> aedtapp["$PrjVar1"] = "pi"
 
-    >>> # Get the variable manager for the active design
+    Get the variable manager for the active design.
+    
     >>> v = aedtapp.variable_manager
-    >>> # get a dictionary of all project & design variables
+    
+    Get a dictionary of all project and design variables.
+    
     >>> v.variables
 
     {'Var1': <pyaedt.application.Variables.Variable at 0x2661f34c448>,
@@ -496,14 +500,15 @@ class VariableManager(object):
      'Var3': <pyaedt.application.Variables.Expression at 0x2661f34cb48>,
      '$PrjVar1': <pyaedt.application.Variables.Expression at 0x2661f34cc48>}
 
-    Get a dictionary of just the design variables
+    Get a dictionary of only the design variables.
 
     >>> v.design_variables
     {'Var1': <pyaedt.application.Variables.Variable at 0x2661f339508>,
      'Var2': <pyaedt.application.Variables.Variable at 0x2661f3415c8>,
      'Var3': <pyaedt.application.Variables.Expression at 0x2661f341808>}
 
-    >>> # get a dictionary of just the independent design variables
+    Get a dictionary of only the independent design variables.
+    
     >>> v.independent_design_variables
     {'Var1': <pyaedt.application.Variables.Variable at 0x2661f335d08>,
      'Var2': <pyaedt.application.Variables.Variable at 0x2661f3557c8>}
@@ -1236,6 +1241,7 @@ class Variable(object):
         --------
         Divide a variable with units ``"W"`` by a variable with units ``"V"`` and automatically 
         resolve the new units to ``"A"``.
+	
         >>> from pyaedt.application.Variables import Variable
 
         >>> v1 = Variable("10W")
@@ -1386,9 +1392,6 @@ class DataSet(object):
     @aedt_exception_handler
     def create(self):
         """Create a dataset.
-
-        Parameters
-        ----------
 
         Returns
         -------
