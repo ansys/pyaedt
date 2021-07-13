@@ -801,7 +801,7 @@ class Components(object):
             pins = [p for p in cmp.LayoutObjs if
                     p.GetObjType() == self._edb.Cell.LayoutObjType.PadstackInstance and
                     p.IsLayoutPin() and
-                    (self.get_aedt_pin_name(p) == str(pinName) or p.GetName()==str(pinName))]
+                    (self.get_aedt_pin_name(p) == str(pinName) or p.GetName() == str(pinName))]
         else:
             pins = [p for p in cmp.LayoutObjs if
                     p.GetObjType() == self._edb.Cell.LayoutObjType.PadstackInstance and
@@ -835,10 +835,11 @@ class Components(object):
         
         """
         if "IronPython" in sys.version or ".NETFramework" in sys.version:
-                name = clr.Reference[String]()
+            name = clr.Reference[String]()
+            response = pin.GetProductProperty(0, 11, name)
         else:
-                name = String("")
-        response = pin.GetProductProperty(0, 11, name)
+            val = String("")
+            response, name = pin.GetProductProperty(0, 11, val)
         name = str(name).strip("'")
         return name
 
