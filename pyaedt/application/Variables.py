@@ -570,7 +570,7 @@ class VariableManager(object):
         """
         return self._variable_dict([self.oproject], dependent=False)
 
-     @property
+    @property
     def independent_design_variables(self):
         """Independent design variables.
         
