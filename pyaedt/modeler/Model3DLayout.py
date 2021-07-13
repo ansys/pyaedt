@@ -108,7 +108,7 @@ class Modeler3DLayout(Modeler):
 
     @aedt_exception_handler
     def colinear_heal(self, selection, tolerance=0.1):
-        """
+        """Remove small edges of selected object list.
 
         Parameters
         ----------
@@ -120,6 +120,17 @@ class Modeler3DLayout(Modeler):
         Returns
         -------
         bool
+
+        Examples
+        --------
+        >>> from pyaedt import Hfss3dLayout
+        >>> h3d=Hfss3dLayout(specified_version="2021.1")
+        >>> h3d.modeler.layers.add_layer("TOP")
+        >>> l1=h3d.modeler.primitives.create_line("TOP", [[0,0],[100,0]],  0.5, name="poly_1")
+        >>> l2=h3d.modeler.primitives.create_line("TOP", [[100,0],[120,-35]],  0.5, name="poly_2")
+        >>> h3d.modeler.unite([l1,l2])
+        >>> h3d.modeler.colinear_heal("poly_2", 0.25)
+        True
         """
         if isinstance(selection, str):
             selection = [selection]
@@ -128,9 +139,10 @@ class Modeler3DLayout(Modeler):
         return True
 
 
+
     @aedt_exception_handler
     def expand(self, object_to_expand,  size=1, expand_type="ROUND", replace_original=False):
-        """
+        """Expand the object by a specific size. If replace_original is ``False`` the method will create a new object
 
         Parameters
         ----------
@@ -147,11 +159,22 @@ class Modeler3DLayout(Modeler):
         -------
         str
             object name
+
+        Examples
+        --------
+        >>> from pyaedt import Hfss3dLayout
+        >>> h3d=Hfss3dLayout(specified_version="2021.1")
+        >>> h3d.modeler.layers.add_layer("TOP")
+        >>> h3d.modeler.primitives.create_rectangle("TOP", [20,20],[50,50], name="rect_1")
+        >>> h3d.modeler.primitives.create_line("TOP",[[25,25],[40,40]], name="line_3")
+        >>> out1 = h3d.modeler.expand("line_3")
+        >>> print(out1)
+        line_4
         """
         layer = retry_ntimes(10, self.oeditor.GetPropertyValue, "BaseElementTab", object_to_expand, 'PlacementLayer')
         poly = self.oeditor.GetPolygonDef(object_to_expand).GetPoints()
         pos = [poly[0].GetX(), poly[0].GetY()]
-        geom_names =  self.oeditor.FindObjectsByPoint(self.oeditor.Point().Set(pos[0],pos[1]), layer)
+        geom_names = self.oeditor.FindObjectsByPoint(self.oeditor.Point().Set(pos[0],pos[1]), layer)
         self.oeditor.Expand(self.primitives.arg_with_dim(size), expand_type, replace_original,
                             ["NAME:elements", object_to_expand])
         if not replace_original:
