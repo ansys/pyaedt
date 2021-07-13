@@ -351,7 +351,8 @@ class Hfss(FieldAnalysis3D, object):
         setupname : str
             Name of the setup that is attached to the sweep.
         unit : str, optional
-            Unit of the frequency. For example, ``"MHz`` or ``"GHz"``. The default is ``"GHz"``.
+            Unit of the frequency. For example, ``"MHz"`` or
+            ``"GHz"``. The default is ``"GHz"``.
         freqstart : float, optional
             Starting frequency of the sweep. The default is ``1e-3``.
         freqstop : float, optional
@@ -1120,7 +1121,7 @@ class Hfss(FieldAnalysis3D, object):
         ApplyInfiniteGP : bool, optional
             Whether to apply an infinite ground plane. The default is ``False``.
         GPAXis : str, optional
-            The default is``"-z"``.
+            The default is ``"-z"``.
 
         Returns
         -------
@@ -1225,16 +1226,17 @@ class Hfss(FieldAnalysis3D, object):
         endobject :
             Second (ending) object for the integration line.
         axisdir : str, optional
-            Position of the impedance. It should be one of the values for ``Application.AxisDir``, 
-            which are: ``"XNeg"``, ``"YNeg"``, ``"ZNeg"``, ``"XPos"``, ``"YPos"``, and ``"ZPos"``. 
-            The default is ``"0"``.
+            Position of the impedance. It should be one of the values
+            for ``Application.AxisDir``, which are: ``"XNeg"``,
+            ``"YNeg"``, ``"ZNeg"``, ``"XPos"``, ``"YPos"``, and
+            ``"ZPos"``.  The default is ``"0"``.
         sourcename : str, optional
             Name of the impedance. The default is ``None``.
         resistance : float, optional
-            Resistance value in ohms. The default is ``50``. If ``None'',
+            Resistance value in ohms. The default is ``50``. If ``None``,
             this parameter is disabled.
         reactance : optional
-            Reactance value in ohms. The default is ``0``. If ``None'',
+            Reactance value in ohms. The default is ``0``. If ``None``,
             this parameter is disabled.
         is_infground : bool, optional
             Whether the impendance is an infinite ground. The default is ``False``.

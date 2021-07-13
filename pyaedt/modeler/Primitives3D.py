@@ -818,11 +818,14 @@ class Primitives3D(Primitives, object):
         This method has limitations:
         
         * The face must be planar.
-        * Currently it works only if the face has at least two vertices. 
-        Notable excluded items are circles and ellipses that have only one vertex.
-        * If a bounding box is specified, the normal is orientated outwards with respect to the bounding box.
-        Usually the bounding box refers to a volume where the face lies.
-        If no bounding box is specified, the normal can be inward or outward of the volume.
+        * Currently it works only if the face has at least two
+          vertices.  Notable excluded items are circles and ellipses
+          that have only one vertex.
+        * If a bounding box is specified, the normal is orientated
+          outwards with respect to the bounding box.  Usually the
+          bounding box refers to a volume where the face lies.  If no
+          bounding box is specified, the normal can be inward or outward
+          of the volume.
 
         Parameters
         ----------

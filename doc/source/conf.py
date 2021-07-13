@@ -44,6 +44,7 @@ with open(os.path.join(root_path, "pyaedt", "version.txt"), "r") as f:
 # extensions coming with Sphinx_PyAEDT (named 'sphinx.ext.*') or your custom
 # ones.
 extensions = ['sphinx.ext.autodoc',
+              'sphinx.ext.todo',
               "sphinx.ext.viewcode",
               "sphinx.ext.autosummary",
               #"nbsphinx",

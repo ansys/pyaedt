@@ -11,7 +11,7 @@ writing information to AEDB files.
 
    edb_core.components.Components
    edb_core.hfss.Edb3DLayout
-   edb_core.siwave.EdBSiwave
+   edb_core.siwave.EdbSiwave
    edb_core.nets.EdbNets
    edb_core.padstack.EdbPadstacks
    edb_core.layout.EdbLayout

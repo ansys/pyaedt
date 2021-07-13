@@ -16,11 +16,12 @@ class FieldAnalysisEmit(Design):
 
     
     """
+
     @property
     def solution_type(self):
         """Solution type.
           
-       Parameters
+        Parameters
         ----------
         soltype :
             SolutionType object.

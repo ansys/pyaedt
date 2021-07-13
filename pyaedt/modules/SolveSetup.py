@@ -371,16 +371,19 @@ class Setup(object):
     @aedt_exception_handler
     def add_mesh_link(self, design_name, solution_name, parameters_dict, project_name="This Project*"):
         """Add a mesh link to another design. 
+
         Parameters
         ----------
         design_name : str, 
             Name of the design
         solution_name : str
-            Name of solution in the format ``"setupname : solutionname"``. Optionally
-            use ``appname.nominal_adaptive`` to get the nominal adaptive or ``appname.nominal_sweep``
-            to get  the nominal sweep.
+            Name of solution in the format ``"setupname : solutionname"``. 
+            Optionally use ``appname.nominal_adaptive`` to get the
+            nominal adaptive or ``appname.nominal_sweep`` to get the
+            nominal sweep.
         parameters_dict : dict
-            Dictionary of the parameters. Optionally use the ``appname.available_variations.nominal_w_values_dict`` 
+            Dictionary of the parameters. Optionally use the
+            ``appname.available_variations.nominal_w_values_dict``
             property to get the nominal values.
         project_name : str, optional
             Name of the project with the design. The default is ``"This Project"``. 

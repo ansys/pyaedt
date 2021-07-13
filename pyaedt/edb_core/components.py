@@ -415,7 +415,7 @@ class Components(object):
         Examples
         --------
 
-    >>> from pyaedt import Edb
+        >>> from pyaedt import Edb
         >>> edbapp = Edb("myaedbfolder")
         >>> pins = edbapp.core_components.get_pin_from_component("A1")
         >>> edbapp.core_components.create_component_from_pins(pins, "A1New")
@@ -445,7 +445,8 @@ class Components(object):
         componentname : str
             Name of the component.
         model_type : str, optional
-            Type of the model. Options are ``"Spice"`` and ``"Touchstone"``. "`The default is ``"Spice"``.
+            Type of the model. Options are ``"Spice"`` and
+            ``"Touchstone"``.  The default is ``"Spice"``.
         modelpath : str, optional
             Full path to the model file. The default is ``None``.
         modelname : str, optional
@@ -461,7 +462,9 @@ class Components(object):
 
         >>> from pyaedt import Edb
         >>> edbapp = Edb("myaedbfolder")
-        >>> edbapp.core_components.set_component_model("A1", model_type="Spice", modelpath="pathtospfile", modelname="spicemodelname")
+        >>> edbapp.core_components.set_component_model("A1", model_type="Spice", 
+        ...                                            modelpath="pathtospfile", 
+        ...                                            modelname="spicemodelname")
         
         """
         if not modelname:
@@ -793,14 +796,16 @@ class Components(object):
         cmpName : str
             Name of the component.
         netName : str, optional
-            Filter on the net name as an alternative to ``pinName``. The default is ``None``.
+            Filter on the net name as an alternative to
+            ``pinName``. The default is ``None``.
         pinName : str, optional
-            Filter on the pin name an an alternative to ``netName``. The default is ``None``.
+            Filter on the pin name an an alternative to
+            ``netName``. The default is ``None``.
 
         Returns
         -------
         list
-            List of pins when the component is found or ``[]'` otherwise.
+            List of pins when the component is found or ``[]`` otherwise.
 
         Examples
         --------
