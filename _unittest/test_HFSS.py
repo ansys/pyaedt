@@ -176,9 +176,9 @@ class TestHFSS:
     def test_09a_create_waveport_on_true_surface_objects(self):
         cs = self.aedtapp.CoordinateSystemPlane.XYPlane
         o1 = self.aedtapp.modeler.primitives.create_cylinder(cs, [0, 0, 0], radius=5, height=100,
-                                                             numSides=12, name="inner", matname="Copper")
+                                                             numSides=0, name="inner", matname="Copper")
         o3 = self.aedtapp.modeler.primitives.create_cylinder(cs, [0, 0, 0], radius=10, height=100,
-                                                            numSides=12, name="outer", matname="Copper")
+                                                            numSides=0, name="outer", matname="Copper")
 
         port1 = self.aedtapp.create_wave_port_between_objects("inner", "outer",axisdir=0, add_pec_cap=True, portname="P1")
         port2 = self.aedtapp.create_wave_port_between_objects("inner", "outer",axisdir=3, add_pec_cap=True, portname="P2")
