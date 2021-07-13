@@ -1,4 +1,4 @@
-"""This module contain the `Components` class.
+"""This module contains the `Components` class.
 
 Parameters
 ----------
@@ -81,6 +81,7 @@ class Components(object):
 
     @property
     def _messenger(self):
+        """Messenger."""
         return self.parent.messenger
 
     @property
@@ -133,7 +134,7 @@ class Components(object):
         Returns
         -------
         dict
-           Default dictionary of EDB component setup information.
+            Default dictionary for the EDB comopnent.
 
         Examples
         --------
@@ -149,13 +150,13 @@ class Components(object):
 
     @aedt_exception_handler
     def refresh_components(self):
-        """Refresh EDB component setup information.
+        """Refresh the component dictionary.
 
         Returns
         -------
         dict
-           Default dictionary of EDB component setup information.
-           
+            Default dictionary for the EDB component.
+
         """
         self._messenger.add_info_message("Refreshing the Components dictionary.")
         try:
@@ -195,7 +196,7 @@ class Components(object):
         Returns
         -------
         dict
-            Dictionary of capactors.
+            Dictionary of capacitors.
 
         Examples
         --------
@@ -603,7 +604,7 @@ class Components(object):
         Parameters
         ----------
         component_name : str
-            Name of component.
+            Name of the component.
 
         Returns
         -------
@@ -665,12 +666,12 @@ class Components(object):
 
     @aedt_exception_handler
     def set_component_rlc(self, componentname, res_value=None, ind_value=None, cap_value=None, isparallel=False):
-        """Update RLC component values.
+        """Update values for an RLC component.
         
         Parameters
         ----------
         componentname :
-            Name of the component to update.
+            Name of the RLC component.
         res_value : float, optional
             Resistance value. The default is ``None``.
         ind_value : float, optional
@@ -732,7 +733,7 @@ class Components(object):
     @aedt_exception_handler
     def update_rlc_from_bom(self, bom_file, delimiter=";", valuefield="Func des", comptype="Prod name",
                             refdes="Pos / Place"):
-        """Update the EDC core component values (RLCs) with values coming from the BOM file.
+        """Update the EDC core component values (RLCs) with values coming from a BOM file.
         
         Parameters
         ----------
@@ -756,9 +757,9 @@ class Components(object):
         Returns
         -------
         bool
-            ``True`` if the file contains the header and it is correctly parsed. The method
-            returns ``True`` even if no values are assigned.
-            
+            ``True`` if the file contains the header and it is correctly parsed. ``True`` is
+            returned even if no values are assigned.
+
         """
         with open(bom_file, 'r') as f:
             Lines = f.readlines()
@@ -837,7 +838,7 @@ class Components(object):
         """Retrieve the pin name that is shown in AEDT.
         
         .. note::
-           To obtain the EDB core pin name, use ``pin.GetName()``.
+           To obtain the EDB core pin name, use `pin.GetName()`.
 
         Parameters
         ----------
@@ -970,8 +971,7 @@ class Components(object):
         Returns
         -------
         dict
-            Dictionary of the reference designator, pin names, and net
-            names for the reference designator.
+            Dictionary of the net connection information for the reference designator.
 
         Examples
         --------
