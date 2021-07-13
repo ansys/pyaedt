@@ -379,9 +379,9 @@ class FieldAnalysisIcepak(Analysis, object):
                     newmat.youngs_modulus = value
                 self.assignmaterial(list_mat_obj, mat)
 
-                for o in list_mat_obj:
-                    if self.modeler.primitives.objects[self.modeler.primitives.get_obj_id(o)].surface_material_name == '""':
-                        self.modeler.primitives.objects[self.modeler.primitives.get_obj_id(o)].surface_material_name = "Steel-oxidised-surface"
+                for obj_name in list_mat_obj:
+                    if not self.modeler.primitives[obj_name].surface_material_name:
+                        self.modeler.primitives[obj_name].surface_material_name = "Steel-oxidised-surface"
             i += 1
             all_objs = [ao for ao in all_objs if ao not in list_mat_obj]
         return True

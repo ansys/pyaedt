@@ -12,7 +12,7 @@ from pyaedt.modeler.Object3d import _to_boolean, FacePrimitive, EdgeTypePrimitiv
 
 import gc
 
-class TestObject3D:
+class TestClass:
     def setup_class(self):
         with Scratch(scratch_path) as self.local_scratch:
             test_projectfile = os.path.join(self.local_scratch.path, 'test_object3d' + '.aedt')

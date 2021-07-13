@@ -922,11 +922,9 @@ class Hfss(FieldAnalysis3D, object):
         else:
             vector[divmod(axisdir, 3)[1]] = pecthick / 2
 
-        status, pecobj = self.modeler.duplicate_along_line(sheet_name, vector)
-        pec_obj_name = pecobj[-1]
-        pec_object = self.modeler.primitives.get_object_from_name(pec_obj_name)
-        self.modeler.thicken_sheet(pec_obj_name, pecthick, True)
-        pec_object.material_name = "pec"
+        pec_obj = self.modeler.primitives[sheet_name].clone()
+        self.modeler.thicken_sheet(pec_obj, pecthick, True)
+        pec_obj.material_name = "pec"
         return True
 
     @aedt_exception_handler

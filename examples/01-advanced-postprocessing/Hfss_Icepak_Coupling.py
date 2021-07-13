@@ -55,8 +55,8 @@ desktopVersion = "2021.1"
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # Change Boolean to False to open AEDT in graphical mode
 
-NonGraphical = True
-NewThread = False
+NonGraphical = False
+NewThread = True
 project_name = "HFSS_Icepak_Coupling"
 project_file = os.path.join(project_dir, project_name + ".aedt")
 
@@ -65,7 +65,7 @@ project_file = os.path.join(project_dir, project_name + ".aedt")
 # Initializes the HFSS Design in AEDT.
 # If there is a running HFSS Design the aedtapp will be linked to it, otherwise a new design will be run.
 
-aedtapp = Hfss(specified_version=desktopVersion,AlwaysNew=True)
+aedtapp = Hfss(specified_version=desktopVersion, NG=NonGraphical, AlwaysNew=NewThread)
 
 ################################################################
 # Variables Settings
@@ -87,11 +87,11 @@ aedtapp["inner"] = "3mm"
 
 #TODO: how does this work when two true-surfaces are defined ??
 o1 = aedtapp.modeler.primitives.create_cylinder(aedtapp.CoordinateSystemPlane.XYPlane, udp, "inner", "$coax_dimension",
-                                                 numSides=12, name="inner")
+                                                 numSides=0, name="inner")
 o2 = aedtapp.modeler.primitives.create_cylinder(aedtapp.CoordinateSystemPlane.XYPlane, udp, 8, "$coax_dimension",
-                                                 numSides=12, matname="teflon_based")
+                                                 numSides=0, matname="teflon_based")
 o3 = aedtapp.modeler.primitives.create_cylinder(aedtapp.CoordinateSystemPlane.XYPlane, udp, 10, "$coax_dimension",
-                                                 numSides=12, name="outer")
+                                                 numSides=0, name="outer")
 
 ################################################################
 # Material Assigment

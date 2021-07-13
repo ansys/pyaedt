@@ -83,15 +83,11 @@ class BasisTest:
                 self.test_project = None
             if not application:
                 application = Hfss
-            if self.test_project:
-                self.aedtapp = application(projectname=self.test_project, designname=design_name,
+
+            self.aedtapp = application(projectname=self.test_project, designname=design_name,
                                            solution_type=solution_type, specified_version=desktop_version,
                                            AlwaysNew=new_thread, NG=non_graphical)
-            else:
-                self.aedtapp = application(specified_version=desktop_version, AlwaysNew=new_thread, NG=non_graphical)
-
-            #self.aedtapp.save_project()
-
+            #TODO do we need this ?
             if project_name:
                 if design_name:
                     self.aedtapp.design_name = design_name

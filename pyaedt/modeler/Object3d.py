@@ -241,13 +241,19 @@ class VertexPrimitive(EdgeTypePrimitive):
     @property
     def position(self):
         """Position of the vertex
+        Returns None if the data from AEDT is invalid
 
         Returns
         -------
         list of float
             List of [x, y, z] coordinates of the vertex (in model units)
         """
-        return [float(i) for i in list(self._oeditor.GetVertexPosition(self.id))]
+        try:
+            vertex_data = list(self._oeditor.GetVertexPosition(self.id))
+            return [float(i) for i in vertex_data]
+        except Exception as e:
+            return None
+
 
     def __repr__(self):
         return "Vertex "+str(self.id)
@@ -280,7 +286,8 @@ class EdgePrimitive(EdgeTypePrimitive):
     @property
     def midpoint(self):
         """Midpoint coordinates of the edge.
-        If the edge is not a segment with two vertices return None
+        If the edge is a circle with only one vertex, return that vertex
+        Otherwise return None
 
         Returns
         -------
@@ -291,6 +298,8 @@ class EdgePrimitive(EdgeTypePrimitive):
         if len(self.vertices) == 2:
             midpoint = GeometryOperators.get_mid_point(self.vertices[0].position, self.vertices[1].position)
             return list(midpoint)
+        elif len(self.vertices) == 1:
+            return self.vertices[0].position
 
     @property
     def length(self):
@@ -650,9 +659,9 @@ class Object3d(object):
         If the material does not exist, then send a warning and return None
         """
         if 'Surface Material' in self.valid_properties:
-            self.m_surfacematerial = retry_ntimes(10, self.m_Editor.GetPropertyValue,
+            self._surface_material = retry_ntimes(10, self.m_Editor.GetPropertyValue,
                                           "Geometry3DAttributeTab", self._m_name, 'Surface Material')
-            return self.m_surfacematerial
+            return self._surface_material.strip('"')
 
     @property
     def group_name(self):
@@ -671,14 +680,14 @@ class Object3d(object):
             mat = retry_ntimes(10, self.m_Editor.GetPropertyValue, "Geometry3DAttributeTab", self._m_name, 'Material')
             self._material_name = ''
             if mat:
-                self._material_name = mat[1:-1].lower()
+                self._material_name = mat.strip('"').lower()
             return self._material_name
 
     @material_name.setter
     def material_name(self, mat):
         if self._parent.materials.checkifmaterialexists(mat):
             self._material_name = mat
-            vMaterial = ["NAME:Material", "Value:=", chr(34)+mat+chr(34)]
+            vMaterial = ["NAME:Material", "Value:=", chr(34) + mat + chr(34)]
             self._change_property(vMaterial)
             self._material_name = mat
         else:
@@ -689,7 +698,7 @@ class Object3d(object):
     def surface_material_name(self, mat):
         if self._parent.materials.checkifmaterialexists(mat):
             self._surface_material = mat
-            vMaterial = ["NAME:Surface Material", "Value:=", chr(34)+mat+chr(34)]
+            vMaterial = ["NAME:Surface Material", "Value:=", '"' + mat + '"']
             self._change_property(vMaterial)
             self._surface_material = mat
         else:
@@ -698,13 +707,14 @@ class Object3d(object):
 
     @property
     def id(self):
-        """Object id
+        """Object id - returns None if invalid data from AEDT Modeler
         """
         try:
-            id = self._parent.oeditor.GetObjectIDByName(self._m_name)
+            get_id = self._parent.oeditor.GetObjectIDByName(self._m_name)
         except Exception as e:
-            id=0
-        return id
+            return None
+        return get_id
+
     @property
     def object_type(self):
         """Get the object type
