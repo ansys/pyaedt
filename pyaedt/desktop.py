@@ -110,23 +110,22 @@ def update_aedt_registry(key, value, desktop_version="193"):
     
     Examples
     --------
+
     Update the HPC license type for HFSS in the AEDT registry.
     
-    >>> updateAEDTRegistry("HFSS/HPCLicenseType", "12")
+    >>> update_aedt_registry("HFSS/HPCLicenseType", "12") # doctest: +SKIP
     
     Update the HPC license type for Icepak in the AEDT registry.
     
-    >>> updateAEDTRegistry("Icepak/HPCLicenseType", "8")
+    >>> update_aedt_registry("Icepak/HPCLicenseType", "8") # doctest: +SKIP
     
     Update the legacy HPC license type for HFSS in the AEDT registry.
     
-    >>> updateAEDTRegistry("HFSS/UseLegacyElectronicsHPC", "0")
+    >>> update_aedt_registry("HFSS/UseLegacyElectronicsHPC", "0") # doctest: +SKIP
     
     Update the MPI vendor for HFSS in the AEDT registry.
     
-    >>> updateAEDTRegistry("HFSS/MPIVendor", "Intel")
-
-   
+    >>> update_aedt_registry("HFSS/MPIVendor", "Intel") # doctest: +SKIP
 
     """
     if os.name == 'posix':
@@ -297,12 +296,17 @@ class Desktop:
 
     >>> import pyaedt
     >>> desktop = pyaedt.Desktop("2021.1", NG=True)
-    >>> hfss = pyaedt.Hfss()
+    pyaedt Info: pyaedt v...
+    pyaedt Info: Python version ...
+    >>> hfss = pyaedt.Hfss(designname="HFSSDesign1")
+    pyaedt Info: Added design 'HFSSDesign1' of type HFSS.
 
     Launch AEDT 2021 R1 in graphical mode and initialize HFSS.
 
     >>> desktop = Desktop("2021.1")
-    >>> hfss = pyaedt.Hfss()
+    pyaedt Info: pyaedt v...
+    pyaedt Info: Python version ...
+    >>> hfss = pyaedt.Hfss(designname="HFSSDesign1")
     
     """
             
