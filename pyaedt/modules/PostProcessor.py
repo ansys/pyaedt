@@ -502,7 +502,7 @@ class FieldPlot:
 
     @property
     def plotGeomInfo(self):
-        """Plot gemoetry information."""
+        """Plot geometry information."""
         info = [1, self.objtype, self.listtype, 0]
         for index in self.faceIndexes:
             info.append(str(index))
