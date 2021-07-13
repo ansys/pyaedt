@@ -1,7 +1,6 @@
 # standard imports
 import os
 import gc
-import pytest
 
 # Setup paths for module imports
 from .conftest import local_path, scratch_path, desktop_version, new_thread, non_graphical
@@ -100,7 +99,7 @@ class TestDesign():
 
     def test_09_set_objects_temperature(self):
         ambient_temp = 22
-        objects = [o for o in self.aedtapp.modeler.primitives.get_all_solids_names()
+        objects = [o for o in self.aedtapp.modeler.primitives.solid_names
                     if self.aedtapp.modeler.primitives[o].model]
         assert self.aedtapp.modeler.set_objects_temperature(objects, ambient_temp=ambient_temp, create_project_var=True)
 

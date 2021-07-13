@@ -674,8 +674,6 @@ class Primitives3D(Primitives, object):
         -------
 
         """
-        o = self._new_object()
-
         vArg1 = ["NAME:InsertComponentData"]
 
         szGeoParams = ''

@@ -339,7 +339,6 @@ def retry_ntimes(n, function, *args, **kwargs):
     return ret_val
 
 def time_fn( fn, *args, **kwargs ):
-    #start = time.perf_counter()
     start = datetime.datetime.now()
     results = fn( *args, **kwargs )
     end = datetime.datetime.now()

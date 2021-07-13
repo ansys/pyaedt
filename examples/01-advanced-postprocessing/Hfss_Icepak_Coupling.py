@@ -85,27 +85,28 @@ aedtapp["inner"] = "3mm"
 # also material can be assigned directly to the object creation action.
 # Alternatively the material can be assigned usign assignmaterial function
 
-
-id1 = aedtapp.modeler.primitives.create_cylinder(aedtapp.CoordinateSystemPlane.XYPlane, udp, "inner", "$coax_dimension",
-                                                 0, "inner")
-id2 = aedtapp.modeler.primitives.create_cylinder(aedtapp.CoordinateSystemPlane.XYPlane, udp, 8, "$coax_dimension",
-                                                 0, matname="teflon_based")
-id3 = aedtapp.modeler.primitives.create_cylinder(aedtapp.CoordinateSystemPlane.XYPlane, udp, 10, "$coax_dimension",
-                                                 0, "outer")
+#TODO: how does this work when two true-surfaces are defined ??
+o1 = aedtapp.modeler.primitives.create_cylinder(aedtapp.CoordinateSystemPlane.XYPlane, udp, "inner", "$coax_dimension",
+                                                 numSides=12, name="inner")
+o2 = aedtapp.modeler.primitives.create_cylinder(aedtapp.CoordinateSystemPlane.XYPlane, udp, 8, "$coax_dimension",
+                                                 numSides=12, matname="teflon_based")
+o3 = aedtapp.modeler.primitives.create_cylinder(aedtapp.CoordinateSystemPlane.XYPlane, udp, 10, "$coax_dimension",
+                                                 numSides=12, name="outer")
 
 ################################################################
 # Material Assigment
 # User can assign material directly when creating primitive, as done for id2 or assign after the object has been created
 
-aedtapp.assignmaterial([id1, id3], "Copper")
+o1.material_name = "Copper"
+o3.material_name = "Copper"
 
 ################################################################
 # Modeler Operations
 # Subtract, add, etc. can be done using id of object or object name
 
 
-aedtapp.modeler.subtract(id3, id2, True)
-aedtapp.modeler.subtract(id2, id1, True)
+aedtapp.modeler.subtract(o3, o2, True)
+aedtapp.modeler.subtract(o2, o1, True)
 
 ################################################################
 # Mesh Operations
@@ -113,8 +114,8 @@ aedtapp.modeler.subtract(id2, id1, True)
 # After created, a mesh operation is accessible for edit or review of parameters
 
 aedtapp.mesh.assign_initial_mesh_from_slider(6)
-aedtapp.mesh.assign_model_resolution([aedtapp.modeler.primitives.get_obj_name(id1), aedtapp.modeler.primitives.get_obj_name(id3)], None)
-aedtapp.mesh.assign_length_mesh(aedtapp.modeler.primitives.get_object_faces(id2), False, 1, 2000)
+aedtapp.mesh.assign_model_resolution([o1.name, o3.name], None)
+aedtapp.mesh.assign_length_mesh(o2.faces, False, 1, 2000)
 
 ################################################################
 # Automatic Excitations Creation
@@ -221,7 +222,7 @@ aedtapp.analyze_setup("MySetup")
 # This section we generate Field Plots on HFSS Projects and we export it as an image
 
 cutlist = ["Global:XY", "Global:XZ", "Global:YZ"]
-vollist = [aedtapp.modeler.primitives.get_obj_name(id2)]
+vollist = [o2.name]
 setup_name = "MySetup : LastAdaptive"
 quantity_name = "ComplexMag_E"
 quantity_name2 = "ComplexMag_H"

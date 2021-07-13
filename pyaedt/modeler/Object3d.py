@@ -645,7 +645,7 @@ class Object3d(object):
         return self._parent.messenger
 
     @property
-    def surface_material(self):
+    def surface_material_name(self):
         """Get the surface material name of the object
         If the material does not exist, then send a warning and return None
         """
@@ -685,8 +685,8 @@ class Object3d(object):
             self.messenger.add_warning_message("Material {} does not exist".format(mat))
 
 
-    @surface_material.setter
-    def surface_material(self, mat):
+    @surface_material_name.setter
+    def surface_material_name(self, mat):
         if self._parent.materials.checkifmaterialexists(mat):
             self._surface_material = mat
             vMaterial = ["NAME:Surface Material", "Value:=", chr(34)+mat+chr(34)]
@@ -700,8 +700,11 @@ class Object3d(object):
     def id(self):
         """Object id
         """
-        return self._parent.oeditor.GetObjectIDByName(self._m_name)
-
+        try:
+            id = self._parent.oeditor.GetObjectIDByName(self._m_name)
+        except Exception as e:
+            id=0
+        return id
     @property
     def object_type(self):
         """Get the object type

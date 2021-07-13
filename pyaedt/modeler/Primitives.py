@@ -1392,6 +1392,7 @@ class Primitives(object):
         self.object_id_dict = defaultdict()
         self._currentId = 0
         self._refresh_all_ids_from_aedt_file()
+        self.add_new_objects()
 
     def cleanup_objects(self):
         """Clean up any objects in self.objects that have been removed by previous operations
