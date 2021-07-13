@@ -7,10 +7,9 @@ from collections import defaultdict
 import math
 import time
 import numbers
-import os
 from copy import copy
 from .GeometryOperators import GeometryOperators
-from .Object3d import Object3d, EdgePrimitive, FacePrimitive, VertexPrimitive, _dim_arg, _uname
+from .Object3d import Object3d, EdgePrimitive, FacePrimitive, VertexPrimitive, _dim_arg
 from ..generic.general_methods import aedt_exception_handler, retry_ntimes
 from ..application.Variables import Variable
 from collections import OrderedDict
@@ -23,12 +22,10 @@ else:
 default_materials = {"Icepak": "air", "HFSS": "vacuum", "Maxwell 3D": "vacuum", "Maxwell 2D": "vacuum",
                      "2D Extractor": "copper", "Q3D Extractor": "copper", "HFSS 3D Layout": "copper", "Mechanical" : "copper"}
 
-aedt_wait_time = 0.1
-
 
 class PolylineSegment():
     """PolylineSegment class.
-
+    
     A polyline segment is an object describing a segment of a polyline within the 3D modeler.
 
     Parameters
@@ -42,14 +39,14 @@ class PolylineSegment():
         Number of control points for the type ``Spline``. For other types, this parameter
         is defined automatically.
     arc_angle : float or str, optional
-        Sweep angle in radians or a valid value string. For example, ``"35deg"`` or ``"Specific
+        Sweep angle in radians or a valid value string. For example, ``"35deg"`` or ``"Specific 
         to type AngularArc``.
     arc_center : list, optional
-        List of values in model units or value string. For example, ``[x, y, z]`` or ``"Specific
+        List of values in model units or value string. For example, ``[x, y, z]`` or ``"Specific 
         to type AngularArc"``.
     arc_plane : str, optional
-        Plane in which the arc sweep is performed in the active coordinate system ``XY``, ``YZ``
-        or ``ZX``. The default is ``None``. If ``None``, the plane is determined automatically
+        Plane in which the arc sweep is performed in the active coordinate system ``XY``, ``YZ`` 
+        or ``ZX``. The default is ``None``. If ``None``, the plane is determined automatically 
         by the first coordinate for which start-point and center-point have the same value.
 
     Examples
@@ -58,7 +55,7 @@ class PolylineSegment():
     """
     @aedt_exception_handler
     def __init__(self, type, num_seg=0, num_points=0, arc_angle=0, arc_center=None, arc_plane=None):
-
+   
         valid_types = ["Line", "Arc", "Spline", "AngularArc"]
         assert type in valid_types, "Segment type must be in {}".format(valid_types)
         self.type = type
@@ -79,10 +76,10 @@ class PolylineSegment():
         self.arc_plane = arc_plane
 
 
-class Polyline(Object3d):
+class Polyline(object):
     """Polyline class.
 
-    This class provides methods for creating and manipulating polyline objects within
+    This class provides methods for creating and manipulating polyline objects within 
     the AEDT Modeler. Intended usage is for the constructor of this class to be called
     by the ``Primitives.draw_polyline`` method. The documentation is provided there.
 
@@ -90,9 +87,9 @@ class Polyline(Object3d):
 
     Parameters
     ----------
-    parent :
+    parent : 
     position_list : list, optional
-        The default is ''None``.
+        The default is ''None``. 
     object_id : optional
         The default is ''None``.
     segment_type : optional
@@ -106,30 +103,30 @@ class Polyline(Object3d):
     matname : str, optional
         Name of the material. The default is ''None``.
     xsection_type : str, optional
-        Cross-section type. Choices are ``"Line"``, ``"Circle"``, ``"Rectangle"``
+        Type of the cross-section. Options are ``"Line"``, ``"Circle"``, ``"Rectangle"``
         and ``"Isosceles Trapezoid"``. The default is ``None``.
     xsection_orient : str, optional
-        Direction of the normal vector to the width of the cross-section.
-        Choices are ``"X"``, ``"Y"``, ``"Z"``, and ``"Auto"``. The
+        Direction of the normal vector to the width of the cross-section. 
+        Options are ``"X"``, ``"Y"``, ``"Z"``, and ``"Auto"``. The
         default is ``None``.
     xsection_width : float or str, optional
         Width or diameter of the cross-section for all types. The default is
-        ``1``.
+        ``0``.
     xsection_topwidth : float or str, ooptional
-        Top width of the cross-section for type ``"Isosceles Trapezoid"`` only.
-        The default is ``1``.
+        Top width of the cross-section for the type ``"Isosceles Trapezoid"`` only.
+        The default is ``0``.
     xsection_height : float or str, optional
-        Height of the cross-section for type ``"Rectangle"`` or ``"Isosceles
-        Trapezoid"`` only. The default is ``1``.
+        Height of the cross-section for the type ``"Rectangle"`` or ``"Isosceles
+        Trapezoid"`` only. The default is ``0``.
     xsection_num_seg : int, optional
-        Number of segments in the cross-section surface for types ``"Circle"``,
-        ``"Rectangle"`` or ``"Isosceles Trapezoid"``. The default is ``0``.
+        Number of segments in the cross-section surface for the type ``"Circle"``,
+        ``"Rectangle"`` or ``"Isosceles Trapezoid"``. The default is ``0``. 
         The value must be ``0`` or greater than ``2``.
     xsection_bend_type : str, optional
-        Type of the bend. The default is ``None``, which sets the bend type
-        to ``"Corner"``. For the type ``"Circle"``, the bend type
+        Type of the bend. The default is ``None``, in which case the bend type
+        is set to ``"Corner"``. For the type ``"Circle"``, the bend type
         should be set to ``"Curved"``.
-
+        
     Methods
     -------
     set_crosssection_properties
@@ -137,31 +134,26 @@ class Polyline(Object3d):
     remove_vertex
     remove_edges
     clone
-
+        
     See Also
     --------
     The constructor is intended to be called from the ``Primitives.draw_polyline`` method.
     """
     @aedt_exception_handler
-    def __init__(self, parent, src_object=None, position_list=None, segment_type=None, cover_surface=False,
+    def __init__(self, parent, position_list=None, object_id=None, segment_type=None, cover_surface=False,
                  close_surface=False, name=None, matname=None, xsection_type=None, xsection_orient=None,
-                 xsection_width=1, xsection_topwidth=1, xsection_height=1,
+                 xsection_width=0, xsection_topwidth=0, xsection_height=0,
                  xsection_num_seg=0, xsection_bend_type=None):
-
+     
         self._parent = parent
 
-        if src_object:
-            self.__dict__ = src_object.__dict__.copy()
-            if name:
-                self._m_name = name    # This is conimg from
-            else:
-                self._id = src_object.id
-                self._m_name = src_object.name
-        else:
+        self._xsection = self._crosssection(type=xsection_type, orient=xsection_orient, width=xsection_width,
+                                            topwidth=xsection_topwidth, height=xsection_height, num_seg=xsection_num_seg,
+                                            bend_type=xsection_bend_type)
+        if position_list:
 
-            self._xsection = self._parent._crosssection_arguments(type=xsection_type, orient=xsection_orient, width=xsection_width,
-                                                                  topwidth=xsection_topwidth, height=xsection_height, num_seg=xsection_num_seg,
-                                                                  bend_type=xsection_bend_type)
+            self._o = parent.request_new_object(matname=matname)
+
             self._positions = copy(position_list)
 
             # When close surface or cover_surface are set to True, ensure the start point and end point are coincident,
@@ -178,13 +170,48 @@ class Polyline(Object3d):
 
             varg1 = self._point_segment_string_array()
 
-            varg2 = self._parent._default_object_attributes(name=name, matname=matname)
+            if name:
+                obj_name = name
+            else:
+                obj_name = self._o.name
 
-            new_object_name = self.m_Editor.CreatePolyline(varg1, varg2)
+            varg2 = self._o.export_attributes(obj_name)
 
-            Object3d.__init__(self, parent, name=new_object_name)
-            self._parent.objects[self.id] = self
-            self._parent.object_id_dict[self.name] = self.id
+            self._o._m_name = parent.oeditor.CreatePolyline(varg1, varg2)
+
+            self._parent._refresh_object_types()
+            self._parent._update_object(self._o)
+
+        else:
+            # Instantiate a new Polyline object for an existing object id in the modeler
+            self._o = self._parent.objects[object_id]
+            self._positions = []
+            for vertex in self._o.vertices:
+                position = vertex.position
+                self._positions.append(position)
+
+    @property
+    def id(self):
+        """Object ID of the polyline in the AEDT modeler.
+
+        Returns
+        -------
+        int
+        """
+        return self._o.id
+
+    @property
+    def name(self):
+        """Name of the polyline in the AEDT modeler. 
+        
+        The name can differ from the specified name if an
+        object of this name already exists.
+
+        Returns
+        -------
+        int
+        """
+        return self._o.name
 
     @property
     def start_point(self):
@@ -203,7 +230,7 @@ class Polyline(Object3d):
 
         Returns
         -------
-        list
+        list      
         """
         end_vertex_id = self._parent.get_object_vertices(partID=self.id)[-1]
         return self._parent.get_vertex_position(end_vertex_id)
@@ -326,6 +353,7 @@ class Polyline(Object3d):
 
         return varg1
 
+    @aedt_exception_handler
     def _segment_array(self, segment_data, start_index=0, start_point=None):
         """Retrieve a property array for a polyline segment.
 
@@ -340,7 +368,7 @@ class Polyline(Object3d):
             Starting vertex index of the segment within a compound polyline. The
             default is ``0``.
         start_point : list, optional
-            Position of the first point for type ``AngularArc``. The default is
+            Position of the first point for type ``AngularArc``. The default is 
             ``None``. Float values are considered in model units.
 
         Returns
@@ -435,21 +463,21 @@ class Polyline(Object3d):
         >>> primitives = self.aedtapp.modeler.primitives
         >>> P1 = primitives.create_polyline([[0, 1, 2], [0, 2, 3], [2, 1, 4]])
         >>> P2 = P1.clone()
-
         """
-        vArg1 = ['NAME:Selections', 'Selections:=', self.name]
-        self._parent.oeditor.Copy(vArg1)
-        self._parent.oeditor.Paste()
-        return self._add_new_polyline()
+        # Clone the polyline in the modeler
+        ret, new_name = self._parent._modeler.clone(self.id)
 
-    def _add_new_polyline(self):
-        new_objects = self._parent.find_new_objects()
-        assert len(new_objects) == 1
-        new_name = new_objects[0]
-        new_polyline = Polyline(self._parent, src_object=self, name=new_name)
-        self._parent.objects[new_polyline.id] = new_polyline
-        self._parent.object_id_dict[new_name] = new_polyline.id
-        return new_polyline
+        # Ensure that a single string name is returned
+        assert isinstance(new_name, str), "Could not copy myself"
+
+        # obtain the id of the polyine from the returned name
+        new_id = self._parent.get_obj_id(new_name)
+
+        # Instantiate the new Polyline object based on the new object id
+        duplicate = Polyline(self._parent, object_id=new_id)
+
+        # return the new Polyline object
+        return duplicate
 
     @aedt_exception_handler
     def remove_vertex(self, position, abstol=1e-9):
@@ -463,7 +491,7 @@ class Polyline(Object3d):
         position : list
             List of x, y, z coordinates specifying the vertex to be removed.
         abstol : float, optional
-            Absolute tolerance of the comparison of a specified position to the
+            Absolute tolerance of the comparison of a specified position to the 
             vertex positions. The default is ``1e-9``.
 
         Returns
@@ -474,18 +502,18 @@ class Polyline(Object3d):
         Examples
         --------
         Use floating point values for the vertex positions.
-
+        
         >>> P = primitives.create_polyline([[0, 1, 2], [0, 2, 3], [2, 1, 4]])
         >>> P.remove_vertex([0, 1, 2])
 
         Use string expressions for the vertex position.
-
+        
         >>> P = primitives.create_polyline([[0, 1, 2], [0, 2, 3], [2, 1, 4]])
         >>> P.remove_vertex(["0mm", "1mm", "2mm"])
 
         Use string expressions for the vertex position and include an absolute
         tolerance when searching for the vertex to be removed.
-
+        
         >>> P = primitives.create_polyline([[0, 1, 2], [0, 2, 3], [2, 1, 4]])
         >>> P.remove_vertex(["0mm", "1mm", "2mm"], abstol=1e-6)
         """
@@ -506,11 +534,11 @@ class Polyline(Object3d):
                     at_start = True
                 break
 
-        assert found_vertex, "Specified vertex {} not found in polyline {}.".format(position, self._m_name)
+        assert found_vertex, "Specified vertex {} not found in polyline {}.".format(position, self.name)
         self._parent.oeditor.DeletePolylinePoint(
             [
                 "NAME:Delete Point",
-                "Selections:=", self._m_name + ":CreatePolyline:1",
+                "Selections:=", self.name + ":CreatePolyline:1",
                 "Segment Indices:=", [seg_id],
                 "At Start:="	, at_start])
 
@@ -520,7 +548,7 @@ class Polyline(Object3d):
     def remove_edges(self, edge_id):
         """Remove a vertex from an existing polyline by position.
 
-        You must enter the exact position of the vertex as a list
+        You must enter the exact position of the vertex as a list 
         of ``[x, y, z]`` coordinates in the object coordinate system.
 
         Parameters
@@ -531,7 +559,7 @@ class Polyline(Object3d):
         Returns
         -------
         bool
-            ``True`` when successful, ``False`` when failed.
+            ``True`` when successful, ``False`` when failed. 
 
         Examples
         --------
@@ -558,28 +586,28 @@ class Polyline(Object3d):
         Parameters
         ----------
         type : str, optional
-            Cross-section type. Choices are ``"Line"``, ``"Circle"``, ``"Rectangle"``
+            Types of the cross-sections. Options are ``"Line"``, ``"Circle"``, ``"Rectangle"``
             and ``"Isosceles Trapezoid"``. The default is ``None``.
         orient : str, optional
-            Direction of the normal vector to the width of the cross-section.
-            Choices are ``"X"``, ``"Y"``, ``"Z"``, and ``"Auto"``. The default
+            Direction of the normal vector to the width of the cross-section. 
+            Options are ``"X"``, ``"Y"``, ``"Z"``, and ``"Auto"``. The default
             is ``None``, which sents the orientation to ``"Auto"``.
         width : float or str, optional
            Width or diameter of the cross-section for all types. The default is
            ``0``.
         topwidth : float or str
-           Top width of the cross-section for type ``"Isosceles Trapezoid"``
+           Top width of the cross-section for the type ``"Isosceles Trapezoid"``
            only. The default is ``0``.
         height : float or str
-            Height of the cross-section for type ``"Rectangle"`` or ``"Isosceles
+            Height of the cross-section for the type ``"Rectangle"`` or ``"Isosceles
             Trapezoid"`` only. The default is ``0``.
         num_seg : int, optional
-            Number of segments in the cross-section surface for types ``"Circle"``,
-            ``"Rectangle"`` or ``"Isosceles Trapezoid"``. The default is ``0``.
+            Number of segments in the cross-section surface for the type ``"Circle"``,
+            ``"Rectangle"`` or ``"Isosceles Trapezoid"``. The default is ``0``. 
             The value must be ``0`` or greater than ``2``.
         bend_type : str, optional
-            Type of the bend. The default is ``None``, which sets the bend type
-            to ``"Corner"``. For the type ``"Circle"``, the bend type should be
+            Type of the bend. The default is ``None``, in which case the bend type
+            is set to ``"Corner"``. For the type ``"Circle"``, the bend type should be
             set to ``"Curved"``.
 
         Returns
@@ -614,7 +642,7 @@ class Polyline(Object3d):
         model_units = self._parent.model_units
 
         arg1 = ["NAME:AllTabs"]
-        arg2 = ["NAME:Geometry3DCmdTab", ["NAME:PropServers", self._m_name + ":CreatePolyline:1"]]
+        arg2 = ["NAME:Geometry3DCmdTab", ["NAME:PropServers", self.name + ":CreatePolyline:1"]]
         arg3 = ["NAME:ChangedProps"]
         arg3.append(["NAME:Type", "Value:=", section_type])
         arg3.append(["NAME:Orientation", "Value:=", section_orient])
@@ -630,7 +658,10 @@ class Polyline(Object3d):
         arg2.append(arg3)
         arg1.append(arg2)
         self._parent.oeditor.ChangeProperty(arg1)
-        self._update()
+
+        self._parent._refresh_object_types()
+        self._parent._update_object(self._o)
+        #self._parent._update_object(self._o)
         return True
 
     @aedt_exception_handler
@@ -640,13 +671,13 @@ class Polyline(Object3d):
         Parameters
         ----------
         position_list : list
-            List of positions of the points that define the segment to insert.
-            Either the starting point or ending point of the segment list must
+            List of positions of the points that define the segment to insert. 
+            Either the starting point or ending point of the segment list must 
             match one of the vertices of the existing polyline.
         segment: str or PolylineSegment
-            Definition of the segment to insert. Valid string values are
-            ``"Line"`` or ``"Arc"``. Otherwise use ``"PolylineSegment"``
-            to define the segment precicesly for the types ``"AngularArc"``
+            Definition of the segment to insert. Valid string values are 
+            ``"Line"`` or ``"Arc"``. Otherwise use ``"PolylineSegment"`` 
+            to define the segment precicesly for the type ``"AngularArc"``
             or ``"Spline"``.
 
         Returns
@@ -654,6 +685,7 @@ class Polyline(Object3d):
         bool
             ``True`` when successful, ``False`` when failed.
         """
+        name = self._o.name
 
         # Check for a valid number of points
         num_points = len(position_list)
@@ -681,8 +713,8 @@ class Polyline(Object3d):
             end_point = []
 
         segment_index = 0
-        num_vertices = len(self.vertices)
-        for vertex in self.vertices:
+        num_vertices = len(self._o.vertices)
+        for vertex in self._o.vertices:
             if vertex.position == end_point:
                 at_start = True
                 break
@@ -698,7 +730,7 @@ class Polyline(Object3d):
 
         varg1=["NAME:Insert Polyline Segment="]
         varg1.append("Selections:=")
-        varg1.append(self._m_name +":CreatePolyline:1")
+        varg1.append(name +":CreatePolyline:1")
         varg1.append("Segment Indices:=")
         varg1.append([segment_index])
         varg1.append("At Start:=")
@@ -721,6 +753,8 @@ class Polyline(Object3d):
             varg1.append(varg2)
             varg1 += seg_str[9:]
         self._parent.oeditor.InsertPolylineSegment(varg1)
+        #Todo: check this !
+        self._parent._update_object(self._o, objtype="Solid")
 
         return True
 
@@ -729,6 +763,9 @@ class Primitives(object):
     def __init__(self, parent, modeler):
         self._modeler = modeler
         self._parent = parent
+        self.objects = defaultdict(Object3d)
+        self.objects_names = defaultdict()
+        self._currentId = 0
         self.refresh()
 
     @property
@@ -756,25 +793,25 @@ class Primitives(object):
 
     @property
     def object_list(self):
-        """List of all objects of type 'Line'"""
+        """List of all objects of type ``"Line"``"""
         self._refresh_object_types()
         return [self[name] for name in self._all_object_names]
 
     @property
     def solid_names(self):
-        """List of all objects of type 'Solid'"""
+        """List of all objects of type ``"Solid"``"""
         self._refresh_solids()
         return self._solids
 
     @property
     def sheet_names(self):
-        """List of all objects of type 'Sheet'"""
+        """List of all objects of type ``"Sheet"``"""
         self._refresh_sheets()
         return self._sheets
 
     @property
     def line_names(self):
-        """List of all objects of type 'Line'"""
+        """List of all objects of type ``"Line"``"""
         self._refresh_lines()
         return self._lines
 
@@ -785,9 +822,47 @@ class Primitives(object):
 
     @property
     def object_names(self):
-        """List of all objects of type 'Line'"""
+        """List of all objects of type ``"Line'"""
         self._refresh_object_types()
         return self._all_object_names
+
+    @aedt_exception_handler
+    def __getitem__(self, partId):
+        """Return the object `Object3D` for a given object ID or object name.
+
+        Parameters
+        ----------
+        partId : int or str
+            Object ID or object name from the 3D modeler.
+
+        Returns
+        -------
+        Object3d
+        """
+        if isinstance(partId, int) and partId in self.objects:
+            return self.objects[partId]
+        elif partId in self.objects_names:
+            return self.objects[self.objects_names[partId]]
+        return None
+
+    @aedt_exception_handler
+    def __setitem__(self, partId, partName):
+        """Rename an existing part in the 3D modler.
+
+        Parameters
+        ----------
+        partId : int
+            Object ID of the part to rename.
+        partName : str
+            New name for the part.
+
+        Returns
+        -------
+        bool
+            ``True`` when successful, ``False`` when failed
+        """
+        self.objects[partId].name = partName
+        return True
 
     @property
     def oproject(self):
@@ -834,69 +909,97 @@ class Primitives(object):
         """ """
         return self.modeler.model_units
 
-    @property
-    def model_objects(self):
-        """List of names of all objects of type 'model'"""
-        return self._get_model_objects(model=True)
-
-    @property
-    def non_model_objects(self):
-        """List of names of all objects of type 'non-model'"""
-        return self._get_model_objects(model=False)
-
-    @property
-    def model_consistency_report(self):
-        """Summary of detected inconsistencies between the AEDT modeler and pyaedt structures
-
-        Returns
-        -------
-        dict
-        """
-        obj_names = self.object_names
-        missing = []
-        for name in obj_names:
-            if name not in self.object_id_dict:
-                missing.append(name)
-        non_existent = []
-        for name in self.object_id_dict:
-            if name not in obj_names and name not in self.unclassified_names:
-                non_existent.append(name)
-        report = {
-            "Missing Objects": missing,
-            "Non-Existent Objects": non_existent
-        }
-        return report
-
     @aedt_exception_handler
-    def update_object(self, obj):
-        """Use to update any object3d derivatives that have potentially been modified by a modeler operation
+    def _delete_object_from_dict(self, objname):
+        """Delete an object from the dictionaries.
 
         Parameters
         ----------
-        obj : int, str or Object3d
-            Object to be updated after a modeler operation
+        objname : int or str
+            Object ID or object name from the 3D modeler.
 
         Returns
         -------
-        Object3d
+        bool
+            ``True`` when successful, ``False`` when failed.
         """
-        o = self._resolve_object(obj)
-        o._update()
-        return o
+        if type(objname) is str and objname in self.objects_names:
+            id1 = self.objects_names[objname]
+            self.objects_names.pop(objname)
+            if id1 in self.objects:
+                self.objects.pop(id1)
+        elif objname in self.objects:
+            name = self.objects[objname].name
+            self.objects.pop(objname)
+            if name in self.objects_names:
+                self.objects_names.pop(name)
+        return True
+
+    @aedt_exception_handler
+    def _update_object(self, o):
+
+
+        # Store the new object infos
+        self.objects[o.id] = o
+        self.objects_names[o.name] = o.id
+
+        o.update_object_type()
+        o.update_properties()
+
+        # Cleanup
+        if 0 in self.objects:
+            del self.objects[0]
+
+        return o.id
+
+    @aedt_exception_handler
+    def _check_material(self, matname, defaultmatname):
+        """Check for a material name.
+        
+        If a material name exists, it is assigned. Otherwise, the default material
+        specified is assigned.
+
+        Parameters
+        ----------
+        matname : str
+            Name of the material.
+        defaultmatname : str
+            Name of the default material to assign if ``metname`` does not exist.
+
+        Returns
+        -------
+        str or bool
+            String if a material name, Boolean if the material is a dielectric.
+        """
+        if matname:
+            matname = matname.lower()
+            if self._parent.materials.checkifmaterialexists(matname):
+                if self._parent._design_type == "HFSS":
+                    return matname, self._parent.materials.material_keys[matname].is_dielectric()
+                else:
+                    return matname, True
+
+            else:
+                self.messenger.add_warning_message(
+                    "Material {} doesn not exists. Assigning default material".format(matname))
+        if self._parent._design_type == "HFSS":
+            return defaultmatname, self._parent.materials.material_keys[defaultmatname].is_dielectric()
+        else:
+            return defaultmatname, True
 
     @aedt_exception_handler
     def value_in_object_units(self, value):
         """Convert a numerical length string, such as ``10mm`` to a floating point value.
 
-        Converts a numerical length string, such as ``10mm``, to a floating point value
-        in the defined object units ``self.object_units``. If a list of such objects is
+        Converts a numerical length string, such as ``"10mm"``, to a floating point value
+        in the defined object units ``self.object_units``. If a list of such objects is 
         given, the entire list is converted.
 
         Parameters
         ----------
         value : string or list of strings
-            Numerical length string to convert.
-
+            One or more numerical length strings to convert.
+        
         Returns
         -------
         float or list of floats
@@ -933,10 +1036,11 @@ class Primitives(object):
         """"
         Parameters
         ----------
-        object :
+        object : 
             Object name or object ID.
-
-        Returns:
+        
+        Returns
+        -------
         bool
             ``True`` when successful, ``False`` when failed
         """
@@ -953,25 +1057,23 @@ class Primitives(object):
         return False
 
     @aedt_exception_handler
-    def create_region(self, pad_percent=300):
+    def create_region(self, pad_percent):
         """Create an air region.
 
         Parameters
         ----------
-        pad_percent : float or list of float, default=300
-            If float, use padding in per-cent for all dimensions
-            If list, then interpret as adding for  ["+X", "+Y", "+Z", "-X", "-Y", "-Z"]
+        pad_percent : list
+            Percent to pad.
 
         Returns
         -------
-        Object3d
-
+        type
+            Object ID.
         """
-        if "Region" in self.object_names:
+        if "Region" in self.get_all_objects_names():
             return None
-        if isinstance(pad_percent, numbers.Number):
-            pad_percent = [pad_percent] * 6
-
+        id = self._new_id()
+        obj = self.objects[id]
         arg = ["NAME:RegionParameters"]
         p = ["+X", "+Y", "+Z", "-X", "-Y", "-Z"]
         i = 0
@@ -983,41 +1085,37 @@ class Primitives(object):
             arg.append(qvalstr)
             arg.append(str(pad_percent[i]))
             i += 1
-        arg2 = ["NAME:Attributes",
-                "Name:=", "Region",
-                "Flags:=", "Wireframe#",
-                "Color:=", "(143 175 143)",
-                "Transparency:=", 0,
-                "PartCoordinateSystem:=",
-                "Global", "UDMId:=", "",
-                "Materiaobjidue:=", "\"air\"",
-                "SurfaceMateriaobjidue:=", "\"\"",
-                "SolveInside:=", True, "IsMaterialEditable:=", True,
+        arg2 = ["NAME:Attributes", "Name:=", "Region", "Flags:=", "Wireframe#", "Color:=", "(143 175 143)",
+                "Transparency:=", 0, "PartCoordinateSystem:=", "Global", "UDMId:=", "", "Materiaobjidue:=",
+                "\"air\"", "SurfaceMateriaobjidue:=", "\"\"", "SolveInside:=", True, "IsMaterialEditable:=", True,
                 "UseMaterialAppearance:=", False, "IsLightweight:=", False]
         self.oeditor.CreateRegion(arg, arg2)
-        return self._create_object("Region")
+        obj._m_name = "Region"
+        obj._solve_inside = True
+        obj._transparency = 0
+        obj._wireframe = True
+        id = self._update_object(obj)
+        self.objects[id] = obj
+        return id
 
 
     @aedt_exception_handler
-    def create_object_from_edge(self, edge):
-        """Create a line object from edge id or from EdgePrimitive object
-
+    def create_object_from_edge(self, edgeID):
+        """Create an object from an edge.
+        
         Parameters
         ----------
-            edge: int or EdgePrimitive
-                Edge specifier (either an integer edge-id or an EdgePrimitive object
-
+        edgeID: int
+            ID of the edge.
+            
         Returns
         -------
         type
             Object3d
         """
-        if isinstance(edge, EdgePrimitive):
-            edge_id = edge.id
-        else:
-            edge_id = edge
+        o = self._new_object()
 
-        obj = self._find_object_from_edge_id(edge_id)
+        obj = self._find_object_from_edge_id(edgeID)
 
         if obj is not None:
 
@@ -1026,27 +1124,32 @@ class Primitives(object):
             varg1.append('NewPartsModelFlag:='), varg1.append('Model')
 
             varg2 = ['NAME:BodyFromEdgeToParameters']
-            varg2.append('Edges:='), varg2.append([edge_id])
+            varg2.append('Edges:='), varg2.append([edgeID])
+            o._m_name =self.oeditor.CreateObjectFromEdges(varg1, ['NAME:Parameters', varg2])[0]
 
-            new_object_name = self.oeditor.CreateObjectFromEdges(varg1, ['NAME:Parameters', varg2])[0]
-            return self._create_object(new_object_name)
+            self._refresh_object_types()
+            id = self._update_object(o)
+            self.objects[id] = o
+        return id
 
     @aedt_exception_handler
-    def create_object_from_face(self, face):
+    def create_object_from_face(self, faceId):
         """Create an object from a face.
 
         Parameters
-            face : int or FacePrimitive
-                Face id or FacePrimitive object of the
+        ----------
+        faceId : int
+            ID of the face.
+        
         Returns
         -------
         type
             Object3d
         """
-        face_id = face
-        if isinstance(face, FacePrimitive):
-            face_id = face.id
-        obj = self._find_object_from_face_id(face_id)
+        o = self._new_object()
+
+        obj = self._find_object_from_face_id(faceId)
+
         if obj is not None:
 
             varg1 = ['NAME:Selections']
@@ -1054,9 +1157,13 @@ class Primitives(object):
             varg1.append('NewPartsModelFlag:='), varg1.append('Model')
 
             varg2 = ['NAME:BodyFromFaceToParameters']
-            varg2.append('FacesToDetach:='), varg2.append([face_id])
-            new_object_name = self.oeditor.CreateObjectFromFaces(varg1, ['NAME:Parameters', varg2])[0]
-            return self._create_object(new_object_name)
+            varg2.append('FacesToDetach:='), varg2.append([faceId])
+            o._m_name =self.oeditor.CreateObjectFromFaces(varg1, ['NAME:Parameters', varg2])[0]
+
+            self._refresh_object_types()
+            id = self._update_object(o)
+            self.objects[id] = o
+        return id
 
     @aedt_exception_handler
     def create_polyline(self, position_list, segment_type=None,
@@ -1074,49 +1181,49 @@ class Primitives(object):
         position_list : list
             Array of positions of each point of the polyline.
             A position is a list of 2D or 3D coordinates. Position coordinate values
-            can be numbers or valid AEDT string expressions. For example, ``[0, 1, 2]``,
+            can be numbers or valid AEDT string expressions. For example, ``[0, 1, 2]``, 
             ``["0mm", "5mm", "1mm"]``, or ``["x1", "y1"]``.
         segment_type : str or PolylineSegment or list, optional
             The default behavior is to connect all points as ``"Line"`` segments. The
             default is ``None``. For a string, ``"Line"`` or ``"Arc"`` is valid. For a
-            ``"PolylineSegment"``, for ``"Line",`` ``"Arc"``, ``"Spline"``, or
-            ``"AngularArc"``, a list of segment types (str or PolylineSegment) is
+            ``"PolylineSegment"``, for ``"Line",`` ``"Arc"``, ``"Spline"``, or 
+            ``"AngularArc"``, a list of segment types (str or PolylineSegment) is 
             valid for a compound polyline.
         cover_surface : bool, optional
             The default is ``False``.
         close_surface : bool, optional
-            The default is ``False``, which automatically joins the starting and
+            The default is ``False``, which automatically joins the starting and 
             ending points.
         name: str, optional
             Name of the polyline. The default is ``None``.
         matname: str, optional
             Name of the material. The default is ``None``, in which case a name
-            is automatically assigned.
+            is automatically assigned. 
         xsection_type : str, optional
-            Type of the cross-section. Choices are ``"Line"``, ``"Circle"``,
+            Type of the cross-section. Options are ``"Line"``, ``"Circle"``,
             ``"Rectangle"``, and ``"Isosceles Trapezoid"``. The default is ``None``.
         xsection_orient : str, optional
             Direction of the normal vector to the width of the cross-section.
-            Choices are ``"X"``, ``"Y"``, ``"Z"``, and ``"Auto"``. The default is
+            Options are ``"X"``, ``"Y"``, ``"Z"``, and ``"Auto"``. The default is
             ``None``, which sets the direction to ``"Auto"``.
         xsection_width : float or str, optional
-            Width or diameter of the cross-section for all  types. The
+            Width or diameter of the cross-section for all  types. The 
             default is ``1``.
         xsection_topwidth : float or str, optional
             Top width of the cross-section for type ``"Isosceles Trapezoid"`` only.
             The default is ``1``.
         xsection_height : float or str
-            Height of the cross-section for type ``"Rectangle"`` or ``"Isosceles
+            Height of the cross-section for type ``"Rectangle"`` or ``"Isosceles 
             Trapezoid"`` only. The default is ``1``.
         xsection_num_seg : int, optional
-            Number of segments in the cross-section surface for types ``"Circle"``,
+            Number of segments in the cross-section surface for type ``"Circle"``,
             ``"Rectangle"``, or ``"Isosceles Trapezoid"``. The default is ``0``. The
             value must be ``0`` or greater than ``2``.
         xsection_bend_type : str, optional
-            Type of the bend for the cross-section. The default is ``None``, which sets
-            the bend type to ``"Corner"``. For the type ``"Circle"``, the bend type
+            Type of the bend for the cross-section. The default is ``None``, in which
+            case the bend type is set to ``"Corner"``. For the type ``"Circle"``, the bend type
             should be set to ``"Curved"``.
-
+        
         Returns
         -------
         Polyline
@@ -1127,7 +1234,7 @@ class Primitives(object):
         Examples
         -------
         Set up the desktop environment.
-
+        
         >>> from pyaedt.desktop import Desktop
         >>> from pyaedt.Maxwell import Maxwell3d
         >>> from pyaedt.modeler.Primitives import PolylineSegment
@@ -1137,36 +1244,36 @@ class Primitives(object):
         >>> primitives = aedtapp.modeler.primitives
 
         Define some test data points.
-
+        
         >>> test_points = [["0mm", "0mm", "0mm"], ["100mm", "20mm", "0mm"],
         ...                ["71mm", "71mm", "0mm"], ["0mm", "100mm", "0mm"]]
 
-        The default behavior assumes that all points are to be connected by line segments.
+        The default behavior assumes that all points are to be connected by line segments. 
         Optionally specify the name.
-
+        
         >>> P1 = primitives.create_polyline(test_points, name="PL_line_segments")
 
         Specify that the first segment is a line and the last three points define a three-point arc.
-
+        
         >>> P2 = primitives.create_polyline(test_points, segment_type=["Line", "Arc"], name="PL_line_plus_arc")
 
-        Redraw the 3-point arc alone from the last three points and additionally specify five segments
+        Redraw the 3-point arc alone from the last three points and additionally specify five segments 
         using ``PolylineSegment``.
-
+        
         >>> P3 = primitives.create_polyline(test_points[1:],
         ...                               segment_type=PolylineSegment(type="Arc", num_seg=7),
         ...                               name="PL_segmented_arc")
 
-        Specify that the four points form a spline and add a circular cross-section with a
+        Specify that the four points form a spline and add a circular cross-section with a 
         diameter of 1 mm.
-
+        
         >>> P4 = primitives.create_polyline(test_points, segment_type="Spline", name="PL_spline",
         ...                               xsection_type="Circle", xsection_width="1mm")
 
-        Use the ``PolylineSegment`` object to specify more detail about the individual segments.
+        Use the `PolylineSegment` object to specify more detail about the individual segments.
         Create a center point arc starting from the position ``test_points[1]``, rotating
-        about the center point position ``test_points[0]` in the XY plane.
-
+        about the center point position ``test_points[0]`` in the XY plane.
+        
         >>> start_point = test_points[1]
         >>> center_point = test_points[0]
         >>> segment_def = PolylineSegment(type="AngularArc", arc_center=center_point, arc_angle="90deg", arc_plane="XY")
@@ -1180,19 +1287,19 @@ class Primitives(object):
         return new_polyline
 
     @aedt_exception_handler
-    def get_existing_polyline(self, object):
+    def get_existing_polyline(self, object_id):
         """Retrieve a polyline object to manipulate it.
 
         Parameters
         ----------
-        src_object : object3d
-            An existing polyline object in the 3D Modeler
+        object_id : int
+            ID of the polyline object in the 3D modeler.
 
         Returns
         -------
         Polyline
         """
-        return Polyline(self, src_object=object)
+        return Polyline(self, object_id=object_id)
 
     @aedt_exception_handler
     def create_udp(self, udp_dll_name, udp_parameters_list, upd_library='syslib', name=None, udptye="Solid"):
@@ -1232,50 +1339,108 @@ class Primitives(object):
                 vArgParamVector.append(["NAME:Pair", "Name:=", pair.Name, "Value:=", pair.Value])
 
         vArg1.append(vArgParamVector)
-        obj_name, ext = os.path.splitext(os.path.basename(udp_dll_name))
-        vArg2 = self._default_object_attributes(name=obj_name )
-        obj_name = self.oeditor.CreateUserDefinedPart(vArg1, vArg2)
-        return self._create_object(obj_name)
+        namergs = name.replace(".dll", "").split("/")
+        o._m_name =name
+        vArg2 = o.export_attributes(namergs[-1])
+        self.oeditor.CreateUserDefinedPart(vArg1, vArg2)
+
+        self._refresh_object_types()
+        id = self._update_object(o)
+
+        return id
 
     @aedt_exception_handler
-    def delete(self, objects=None):
+    def get_obj_name(self, partId):
+        """Return an object name from an ID.
+
+        Parameters
+        ----------
+        partId :
+            ID of the object.
+
+        Returns
+        -------
+        type
+            Object ID.
+
+        """
+        return self.objects[partId].name
+
+    @aedt_exception_handler
+    def convert_to_selections(self, objtosplit, return_list=False):
+        """Convert a list of objects to a selection.
+
+        Parameters
+        ----------
+        objtosplit : str, int, or list of mixed types
+            Objects to convert to a selection. 
+        return_list : bool, optional
+            How to return the objects in the selection. The default is ''False``.
+            When ``False``, the objects in the selection are returned as a string.
+            When ``True``, the objects in the selection are returned as a list.
+        
+        Returns
+        -------
+        type
+            Object name in the form of a list of string.
+
+        """
+        if type(objtosplit) is not list:
+            objtosplit = [objtosplit]
+        objnames = []
+        for el in objtosplit:
+            if type(el) is int:
+                objnames.append(self.get_obj_name(el))
+            else:
+                objnames.append(el)
+        if return_list:
+            return objnames
+        else:
+            return ",".join(objnames)
+
+    @aedt_exception_handler
+    def delete(self, objects):
         """Delete objects or groups.
 
         Parameters
         ----------
-        objects : list, default=None
-            List of objects or group names. of ''None'' then delete all objects
+        objects : list
+            List of objects or group names.
 
         Returns
         -------
         bool
             ``True`` when successful, ``False`` when failed
         """
-        if not objects:
-            objects = self.object_names
-        elif not isinstance(objects, list):
+        if type(objects) is not list:
             objects = [objects]
-        print("Deleting objects: {}".format(objects))
 
-        slice = min(100, len(objects))
-        num_objects = len(objects)
-        remaining = num_objects
-        while remaining > 0:
-            objs = objects[:slice]
-            objects_str = self._modeler.convert_to_selections(objs, return_list=False)
+        while len(objects) > 100:
+            objs = objects[:100]
+            objects_str = self.convert_to_selections(objs, return_list=False)
             arg = [
                 "NAME:Selections",
                 "Selections:="	, objects_str
                 ]
             self.oeditor.Delete(arg)
+            for el in objs:
+                self._delete_object_from_dict(el)
 
-            remaining -= slice
-            if remaining > 0:
-                objects = objects[slice:]
+
+            objects = objects[100:]
+
+        objects_str = self.convert_to_selections(objects, return_list=False)
+        arg = [
+            "NAME:Selections",
+            "Selections:="	, objects_str
+            ]
+        self.oeditor.Delete(arg)
+
+        for el in objects:
+            self._delete_object_from_dict(el)
 
         if len(objects) > 0:
-            self.cleanup_objects()
-            self.messenger.add_info_message("Deleted {} Objects".format(num_objects))
+            self.messenger.add_info_message("Deleted {} Objects".format(len(objects)))
 
         return True
 
@@ -1296,7 +1461,7 @@ class Primitives(object):
             ``True`` when successful, ``False`` when failed
 
         """
-        objnames = self.object_id_dict
+        objnames = self.get_all_objects_names()
         num_del = 0
         for el in objnames:
             if case_sensitive:
@@ -1332,27 +1497,10 @@ class Primitives(object):
         type
             Object iD.
         """
-        if objname in self.object_id_dict:
-            return self.object_id_dict[objname]
+        if objname in self.objects_names:
+            if self.objects_names[objname] in self.objects:
+                return self.objects_names[objname]
         return None
-
-    @aedt_exception_handler
-    def get_object_from_name(self, objname):
-        """Return the object ID from an object name.
-
-        Parameters
-        ----------
-        objname : str
-            Name of the object.
-
-        Returns
-        -------
-        type
-            Object3d
-        """
-        if objname in self.object_id_dict:
-            id = self.get_obj_id(objname)
-            return self.objects[id]
 
     @aedt_exception_handler
     def get_objects_w_string(self, stringname, case_sensitive=True):
@@ -1383,58 +1531,43 @@ class Primitives(object):
         return list_objs
 
     def refresh(self):
-        self._solids = []
-        self._sheets = []
-        self._lines = []
-        self._unclassified = []
-        self._all_object_names = []
-        self.objects = defaultdict(Object3d)
-        self.object_id_dict = defaultdict()
-        self._currentId = 0
         self._refresh_all_ids_from_aedt_file()
-        self.add_new_objects()
+        #TODO: Why do we need this ?
+        if not self.objects:
+            self.refresh_all_ids()
 
-    def cleanup_objects(self):
-        """Clean up any objects in self.objects that have been removed by previous operations
-        and do not exist in the modeler anymore. Also updates object ids which may have changed
-        via a modeler operation such as unite"""
-        new_object_dict = {}
-        new_object_id_dict = {}
-        for old_id, obj in self.objects.items():
-            if obj.name in self.object_names or obj.name in self.unclassified_objects:
-                updated_id = obj.id    # By calling the object property we get the new id
-                new_object_id_dict[obj.name] = updated_id
-                new_object_dict[updated_id] = obj
+    @aedt_exception_handler
+    def _refresh_object_types(self):
+        self._nonmodels = list(self.oeditor.GetObjectsInGroup("Non Model"))
+        self._solids = list(self.oeditor.GetObjectsInGroup("Solids"))
+        self._sheets = list(self.oeditor.GetObjectsInGroup("Sheets"))
+        self._lines = list(self.oeditor.GetObjectsInGroup("Lines"))
+        self._all_object_names = self._solids + self._sheets + self._lines
 
-        self.objects = new_object_dict
-        self.object_id_dict = new_object_id_dict
-
-    def find_new_objects(self):
-        """Append any objects to self.objects that have been created by previous operations
-        and are now present in the modeler"""
-        new_objects = []
-        for obj_name in self.object_names:
-            if obj_name not in self.object_id_dict:
-                new_objects.append(obj_name)
-        return new_objects
-
-    def add_new_objects(self):
-        """Append any objects to self.objects that have been created by previous operations
-        and are now present in the modeler"""
-        added_objects = []
-        for obj_name in self.object_names:
-            if obj_name not in self.object_id_dict:
-                self._create_object(obj_name)
-                added_objects.append(obj_name)
-        return added_objects
-
-    #TODO Eliminate this - check about import_3d_cad
-    # Should no longer be a problem
     @aedt_exception_handler
     def refresh_all_ids(self):
 
-        self.add_new_objects()
-        self.cleanup_objects()
+        self._refresh_object_types()
+        all_object_names = self.get_all_objects_names()
+
+        for el in self._solids:
+            if el not in all_object_names:
+                o = Object3d(self, name=el)
+                self._update_object(o)
+
+        for el in self._sheets:
+            if el not in all_object_names:
+                o = Object3d(self, name=el)
+                self._update_object(o)
+
+        for el in self._lines:
+            if el not in all_object_names:
+                o = Object3d(self, name=el)
+                self._update_object(o)
+
+        for el in all_object_names:
+            if el not in self._all_object_names:
+                self._delete_object_from_dict(el)
 
         return len(self.objects)
 
@@ -1457,9 +1590,54 @@ class Primitives(object):
         return obj_lst
 
     @aedt_exception_handler
+    def get_all_objects_ids(self):
+        """Retrieve the IDs of all objects.
+
+        Returns
+        -------
+        type
+            List of object IDs.
+        """
+        objs = []
+        for el in self.objects:
+            objs.append(el)
+        return objs
+
+    @aedt_exception_handler
+    def request_new_object(self, matname=None):
+        """Retrieve the new object.
+
+        Parameters
+        ----------
+        matname : str, optional
+        Name of the material of the new component.
+
+        Returns
+        -------
+        Object3d
+        """
+        return self._new_object(matname=matname)
+
+    @aedt_exception_handler
+    def _new_object(self, matname=None):
+        """Deprecate this to _new_object """
+        o = Object3d(self)
+        self.objects[0] = o
+        o._material_name, o._solve_inside = self._check_material(matname, self.defaultmaterial)
+        return o
+
+    @aedt_exception_handler
+    def _new_id(self):
+        """Deprecate this to _new_object """
+        o = Object3d(self)
+        self._currentId = 0
+        self.objects[self._currentId] = o
+        return self._currentId
+
+    @aedt_exception_handler
     def find_closest_edges(self, start_obj, end_obj, port_direction=0):
         """Retrieve the two closet edges that are not perpendicular for two objects.
-
+        
         PortDirection is used in case more than 2 couple are on the same distance (eg. coax or microstrip). in that case
         it will give the precedence to the edges that are on that axis direction (eg XNeg)
 
@@ -1469,9 +1647,9 @@ class Primitives(object):
             Name of the starting object.
         end_obj : str
             Name of the ending object.
-        port_direction : str, optional
-            Direction of the port to which to give edges precedence when more than two couples
-            are at the same distance. Choices are ``"XNeg"``, ``"XPos"``, ``"YNeg"``,
+        port_direction : str, optional 
+            Direction of the port to which to give edges precedence when more than two couples 
+            are at the same distance. Options are ``"XNeg"``, ``"XPos"``, ``"YNeg"``,
             ``"YPos`"``, ``"ZNeg"``, and ``"ZPos"``. The default is ``0``.
 
         Returns
@@ -1479,11 +1657,14 @@ class Primitives(object):
         list
             List with two edges if present.
         """
-        start_obj = self._resolve_object(start_obj)
-        end_obj = self._resolve_object(end_obj)
-
-        edge_start_list = start_obj.edges
-        edge_stop_list = end_obj.edges
+        if not self.does_object_exists(start_obj):
+            self.messenger.add_error_message("Error. Object {} does not exists".format(str(start_obj)))
+            return False
+        if not self.does_object_exists(end_obj):
+            self.messenger.add_error_message("Error. Object {} does not exists".format(str(end_obj)))
+            return False
+        edge_start_list = self.modeler.primitives.get_object_edges(start_obj)
+        edge_stop_list = self.modeler.primitives.get_object_edges(end_obj)
         mindist = 1e6
         tol = 1e-12
         pos_tol = 1e-6
@@ -1491,28 +1672,27 @@ class Primitives(object):
         actual_point = None
         is_parallel = False
         for el in edge_start_list:
-            vertices_i = el.vertices
+            vertices_i = self.get_edge_vertices(el)
             vertex1_i = None
             vertex2_i = None
             if len(vertices_i) == 2:  # normal segment edge
-                vertex1_i = vertices_i[0].position
-                vertex2_i = vertices_i[1].position
-                start_midpoint = el.midpoint
+                vertex1_i = self.get_vertex_position(vertices_i[0])
+                vertex2_i = self.get_vertex_position(vertices_i[1])
+                start_midpoint = GeometryOperators.get_mid_point(vertex1_i, vertex2_i)
             elif len(vertices_i) == 1:
-                #TODO why do we need this ?
-                start_midpoint = vertices_i[0].position
+                start_midpoint = self.get_vertex_position(vertices_i[0])
             else:
                 continue
             for el1 in edge_stop_list:
-                vertices_j = el1.vertices
+                vertices_j = self.get_edge_vertices(el1)
                 vertex1_j = None
                 vertex2_j = None
                 if len(vertices_j) == 2:  # normal segment edge
-                    vertex1_j = vertices_j[0].position
-                    vertex2_j = vertices_j[1].position
-                    end_midpoint = el1.midpoint
+                    vertex1_j = self.get_vertex_position(vertices_j[0])
+                    vertex2_j = self.get_vertex_position(vertices_j[1])
+                    end_midpoint = GeometryOperators.get_mid_point(vertex1_j, vertex2_j)
                 elif len(vertices_j) == 1:
-                    end_midpoint = vertices_j[0].position
+                    end_midpoint = self.get_vertex_position(vertices_j[0])
                 else:
                     continue
 
@@ -1569,7 +1749,7 @@ class Primitives(object):
 
     @aedt_exception_handler
     def get_equivalent_parallel_edges(self, edgelist, portonplane=True, axisdir=0, startobj="", endobject=""):
-        """Create two new edges that are parallel and equal to the smallest edge given a parallel couple of edges.
+        """Create two new edges that are parallel and equal to the smallest edge given a parallel couple of edges. 
 
         Parameters
         ----------
@@ -1590,13 +1770,11 @@ class Primitives(object):
         list
             List of the two newly created edges.
         """
-        if isinstance(edgelist[0], str):
-            edgelist[0] = self.get_object_from_name(edgelist[0])
-        if isinstance(edgelist[1], str):
-            edgelist[1] = self.get_object_from_name(edgelist[1])
-
-        l1 = edgelist[0].length
-        l2 = edgelist[1].length
+        try:
+            l1 = self.get_edge_length(edgelist[0])
+            l2 = self.get_edge_length(edgelist[1])
+        except:
+            return None
         if l1 < l2:
             orig_edge = edgelist[0]
             dest_edge = edgelist[1]
@@ -1606,32 +1784,32 @@ class Primitives(object):
 
         first_edge = self.create_object_from_edge(orig_edge)
         second_edge = self.create_object_from_edge(orig_edge)
-        ver1 = orig_edge.vertices
-        ver2 = dest_edge.vertices
+        ver1 = self.get_edge_vertices(orig_edge)
+        ver2 = self.get_edge_vertices(dest_edge)
         if len(ver2) < 2:
             self.delete(first_edge)
             self.delete(second_edge)
             return False
-        p = ver1[0].position
-        a1 = ver2[0].position
-        a2 = ver2[1].position
+        p = self.get_vertex_position(ver1[0])
+        a1 = self.get_vertex_position(ver2[0])
+        a2 = self.get_vertex_position(ver2[1])
 
         vect = GeometryOperators.distance_vector(p, a1, a2)
 
+        #vect = self.modeler.Position([i for i in d])
         if portonplane:
             vect[divmod(axisdir, 3)[1]] = 0
         self.modeler.translate(second_edge, vect)
-        ver_check = second_edge.vertices
-        p_check = ver_check[0].position
+        ver_check = self.get_object_vertices(second_edge)
+        p_check = self.get_vertex_position(ver_check[0])
         obj_check =self.get_bodynames_from_position(p_check)
-        p_check2 = ver_check[1].position
+        p_check2 = self.get_vertex_position(ver_check[1])
         obj_check2 = self.get_bodynames_from_position(p_check2)
         if (startobj in obj_check or endobject in obj_check) and (startobj in obj_check2 or endobject in obj_check2):
             if l1<l2:
-                return_edges = [first_edge, second_edge]
+                return [first_edge, second_edge]
             else:
-                return_edges = [second_edge, first_edge]
-            return return_edges
+                return [second_edge,first_edge]
         else:
             self.delete(second_edge)
             self.delete(first_edge)
@@ -1652,7 +1830,7 @@ class Primitives(object):
             List of faces IDs.
         """
         oFaceIDs = []
-        if type(partId) is str and partId in self.object_id_dict:
+        if type(partId) is str and partId in self.objects_names:
             oFaceIDs = self.oeditor.GetFaceIDs(partId)
             oFaceIDs = [int(i) for i in oFaceIDs]
         elif partId in self.objects:
@@ -1678,7 +1856,7 @@ class Primitives(object):
 
         """
         oEdgeIDs = []
-        if type(partId) is str and partId in self.object_id_dict:
+        if type(partId) is str and partId in self.objects_names:
             oEdgeIDs = self.oeditor.GetEdgeIDsFromObject(partId)
             oEdgeIDs = [int(i) for i in oEdgeIDs]
         elif partId in self.objects:
@@ -1721,7 +1899,7 @@ class Primitives(object):
 
         """
         oVertexIDs = []
-        if type(partID) is str and partID in self.object_id_dict:
+        if type(partID) is str and partID in self.objects_names:
             oVertexIDs = self.oeditor.GetVertexIDsFromObject(partID)
             oVertexIDs = [int(i) for i in oVertexIDs]
         elif partID in self.objects:
@@ -1737,8 +1915,8 @@ class Primitives(object):
         Parameters
         ----------
         face_id : int or str
-            Object ID or object name (string), which is available
-            using ``get_object_vertices``.
+            Object ID or object name, which is available
+            using the method `get_object_vertices`.
 
         Returns
         -------
@@ -1782,8 +1960,8 @@ class Primitives(object):
         Parameters
         ----------
         edgeID : int, str
-            Object ID or object name, which is available using
-            ``get_object_vertices``.
+            Object ID or object name, which is available using 
+            `get_object_vertices`.
 
         Returns
         -------
@@ -1810,7 +1988,7 @@ class Primitives(object):
         Returns
         -------
         list
-            List of float values indicating the position.
+            List of float values indicating the position. 
             For example, ``[x, y, z]``.
         """
         try:
@@ -1911,8 +2089,8 @@ class Primitives(object):
             two vertices, an empty list is returned.
         """
 
-        if type(partID) is str and partID in self.object_id_dict:
-            partID = self.object_id_dict[partID]
+        if type(partID) is str and partID in self.objects_names:
+            partID = self.objects_names[partID]
 
         if partID in self.objects and self.objects[partID].object_type == "Line":
             vertices = self.get_object_vertices(partID)
@@ -1948,11 +2126,12 @@ class Primitives(object):
         list
             List of object names.
         """
-        XCenter, YCenter, ZCenter = self._pos_with_arg(position, units)
+        XCenter, YCenter, ZCenter = self.pos_with_arg(position, units)
         vArg1 = ['NAME:Parameters']
         vArg1.append('XPosition:='), vArg1.append(XCenter)
         vArg1.append('YPosition:='), vArg1.append(YCenter)
         vArg1.append('ZPosition:='), vArg1.append(ZCenter)
+
         list_of_bodies = list(self.oeditor.GetBodyNamesByPosition(vArg1))
         return list_of_bodies
 
@@ -1965,38 +2144,43 @@ class Primitives(object):
         position :
             ApplicationName.modeler.Position(x,y,z) object
         obj_name : str, optional
-            Name of the object. The default is ``None``, which means that all
-            objects are to be searched.
+            Name of the object. The default is ``None``, in which case all
+            objects are searched.
         units : str, optional
-            Units for the position, such as ``"m"``. The default is ``None``,
-            which means the model units are used.
+            Units for the position, such as ``"m"``. The default is ``None``, 
+            in which case the model units are used.
 
         Returns
         -------
         type
             Edge ID of the first object touching this position.
         """
-        if isinstance(obj_name, str):
-            object_list = [obj_name]
-        else:
-            object_list = self.object_names
-
         edgeID = -1
-        XCenter, YCenter, ZCenter = self._pos_with_arg(position, units)
+        XCenter, YCenter, ZCenter = self.pos_with_arg(position, units)
 
         vArg1 = ['NAME:EdgeParameters']
         vArg1.append('BodyName:='), vArg1.append('')
         vArg1.append('XPosition:='), vArg1.append(XCenter)
         vArg1.append('YPosition:='), vArg1.append(YCenter)
         vArg1.append('ZPosition:='), vArg1.append(ZCenter)
-        for obj in object_list:
-            vArg1[2] = obj
+        if obj_name:
+            vArg1[2] = obj_name
             try:
                 edgeID = self.oeditor.GetEdgeByPosition(vArg1)
-                return edgeID
-            except Exception as e:
-            #except pywintypes.com_error:
+            except Exception:
+                # Not Found, keep looking
                 pass
+        else:
+            for obj in self.get_all_objects_names():
+                vArg1[2] = obj
+                try:
+                    edgeID = self.oeditor.GetEdgeByPosition(vArg1)
+                    break
+                except Exception:
+                    # Not Found, keep looking
+                    pass
+
+        return edgeID
 
     @aedt_exception_handler
     def get_edgeids_from_vertexid(self, vertexid, obj_name):
@@ -2032,36 +2216,41 @@ class Primitives(object):
         position :
             ApplicationName.modeler.Position(x,y,z) object
         obj_name : str, optional
-            Name of the object. The default is ``None``, which means that all
-            objects are to be searched.
+            Name of the object. The default is ``None``, in which case all
+            objects are searched.
         units : str, optional
-            Units, such as ``"m"``. The default is ``None``, which means that the
-            model units are used.
-
+            Units, such as ``"m"``. The default is ``None``, in which case the
+            model units are used. 
+        
         Returns
         -------
         type
-            Face ID of the first object touching this position. If no face found, return None
+            Face ID of the first object touching this position.
         """
-        if isinstance(obj_name, str):
-            object_list = [obj_name]
-        else:
-            object_list = self.object_names
+        face_id = -1
+        XCenter, YCenter, ZCenter = self.pos_with_arg(position, units)
 
-        XCenter, YCenter, ZCenter = self._pos_with_arg(position, units)
         vArg1 = ['NAME:FaceParameters']
         vArg1.append('BodyName:='), vArg1.append('')
         vArg1.append('XPosition:='), vArg1.append(XCenter)
         vArg1.append('YPosition:='), vArg1.append(YCenter)
         vArg1.append('ZPosition:='), vArg1.append(ZCenter)
-        for obj in object_list:
-            vArg1[2] = obj
+        if obj_name:
+            vArg1[2] = obj_name
             try:
                 face_id = self.oeditor.GetFaceByPosition(vArg1)
-                return face_id
-            except:
+            except Exception:
                 # Not Found, keep looking
                 pass
+        else:
+            for obj in self.get_all_objects_names():
+                vArg1[2] = obj
+                try:
+                    face_id = self.oeditor.GetFaceByPosition(vArg1)
+                    break
+                except Exception:
+                    # Not Found, keep looking
+                    pass
 
     @aedt_exception_handler
     def get_edges_on_bounding_box(self, sheets, return_colinear=True, tol=1e-6):
@@ -2086,17 +2275,22 @@ class Primitives(object):
             List of edge IDs.
         """
 
-        port_sheets = self._modeler.convert_to_selections(sheets, return_list=True)
+        port_sheets = self.convert_to_selections(sheets, return_list=True)
         bb = self._modeler.get_model_bounding_box()
 
         candidate_edges = []
         for p in port_sheets:
-            edges = self[p].edges
+            edges = self.get_object_edges(p)
             for edge in edges:
-                vertices = edge.vertices
+                new_edge = self.create_object_from_edge(edge)
+                time.sleep(1)
+                vertices = self.get_object_vertices(new_edge)
                 v_flag = False
                 for vertex in vertices:
-                    v = vertex.position
+                    v = self.get_vertex_position(vertex)
+                    if not v:
+                        v_flag = False
+                        break
                     xyz_flag = 0
                     if abs(v[0] - bb[0]) < tol or abs(v[0] - bb[3]) < tol:
                         xyz_flag += 1
@@ -2110,26 +2304,37 @@ class Primitives(object):
                         v_flag = False
                         break
                 if v_flag:
-                    candidate_edges.append(edge)
+                    candidate_edges.append(new_edge)
+                else:
+                    self.delete(new_edge)
 
-        if not return_colinear:
+        if return_colinear is False:
             return candidate_edges
 
+        found_flag = False
         selected_edges = []
-        for i, edge_i in enumerate(candidate_edges[:-1]):
-            vertex1_i = edge_i.vertices[0].position
-            midpoint_i = edge_i.midpoint
-            for j, edge_j in enumerate(candidate_edges[i+1:]):
-                midpoint_j = edge_j.midpoint
+        for i in range(len(candidate_edges) - 1):
+            if found_flag:
+                break
+            vertices_i = self.get_object_vertices(candidate_edges[i])
+            vertex1_i = self.get_vertex_position(vertices_i[0])
+            vertex2_i = self.get_vertex_position(vertices_i[1])
+            midpoint_i = GeometryOperators.get_mid_point(vertex1_i, vertex2_i)
+            for j in range(i + 1, len(candidate_edges)):
+                vertices_j = self.get_object_vertices(candidate_edges[j])
+                vertex1_j = self.get_vertex_position(vertices_j[0])
+                vertex2_j = self.get_vertex_position(vertices_j[1])
+                midpoint_j = GeometryOperators.get_mid_point(vertex1_j, vertex2_j)
                 area = GeometryOperators.get_triangle_area(midpoint_i, midpoint_j, vertex1_i)
                 if area < tol ** 2:
-                    selected_edges.extend([edge_i, edge_j])
+                    selected_edges.extend([candidate_edges[i], candidate_edges[j]])
+                    found_flag = True
                     break
         selected_edges = list(set(selected_edges))
 
-        for edge in selected_edges:
-            self.create_object_from_edge(edge)
-            time.sleep(aedt_wait_time)
+        for edge in candidate_edges:
+            if edge not in selected_edges:
+                self.delete(edge)
 
         return selected_edges
 
@@ -2137,15 +2342,15 @@ class Primitives(object):
     def get_edges_for_circuit_port_from_sheet(self, sheet, XY_plane=True, YZ_plane=True, XZ_plane=True,
                                              allow_perpendicular=False, tol=1e-6):
         """Retrieve two edge IDs suitable for the circuit port from a sheet.
-
-        One edge belongs to the sheet passed in the input, and the second edge
-        is the closest edge's coplanar to the first edge (aligned to the XY, YZ,
+                    
+        One edge belongs to the sheet passed in the input, and the second edge 
+        is the closest edge's coplanar to the first edge (aligned to the XY, YZ, 
         or XZ plane). This method creates new lines for the detected edges and returns
         the IDs of these lines.
-
-        This method accepts a one or more sheet objects as input, while
-        the method ``get_edges_for_circuit_port`` accepts a face ID.
-
+        
+        This method accepts a one or more sheet objects as input, while 
+        the method `get_edges_for_circuit_port` accepts a face ID.
+        
         Parameters
         ----------
         sheet : int, str, or list
@@ -2171,7 +2376,7 @@ class Primitives(object):
             List of edge IDs.
         """
         tol2 = tol**2
-        port_sheet = self._modeler.convert_to_selections(sheet, return_list=True)
+        port_sheet = self.convert_to_selections(sheet, return_list=True)
         if len(port_sheet) > 1:
             return []
         else:
@@ -2185,7 +2390,8 @@ class Primitives(object):
 
         # select all edges
         all_edges = []
-        solids = [s for s in self.solid_names if s not in list_of_bodies]
+        solids = self.get_all_solids_names()
+        solids = [s for s in solids if s not in list_of_bodies]
         for solid in solids:
             edges = self.get_object_edges(solid)
             all_edges.extend(edges)
@@ -2262,7 +2468,7 @@ class Primitives(object):
 
         if selected_edges:
             new_edge1 = self.create_object_from_edge(selected_edges[0])
-            time.sleep(aedt_wait_time)
+            time.sleep(1)
             new_edge2 = self.create_object_from_edge(selected_edges[1])
             return selected_edges
         else:
@@ -2270,18 +2476,23 @@ class Primitives(object):
         pass
 
     @aedt_exception_handler
+    def get_all_solids_names(self):
+        """Retrieve the names of all solids. """
+        return []
+
+    @aedt_exception_handler
     def get_edges_for_circuit_port(self, face_id, XY_plane=True, YZ_plane=True, XZ_plane=True,
                                    allow_perpendicular=False, tol=1e-6):
         """Retrieve two edge IDs suitable for the circuit port.
-
-        One edge belongs to the face ID passed in the input, and the second edge
-        is the closest edge's coplanar to the first edge (aligned to the XY, YZ,
-        or XZ plane). This method creates new lines for the detected edges and returns
+        
+        One edge belongs to the face ID passed in the input, and the second edge 
+        is the closest edge's coplanar to the first edge (aligned to the XY, YZ, 
+        or XZ plane). This method creates new lines for the detected edges and returns 
         the IDs of these lines.
-
-        This method accepts a face ID in the input, while the ``get_edges_for_circuit_port_from_port``
+        
+        This method accepts a face ID in the input, while the `get_edges_for_circuit_port_from_port`
         method accepts one or more sheet objects.
-
+                
         Parameters
         ----------
         face_id :
@@ -2300,7 +2511,7 @@ class Primitives(object):
             The default is ``False``.
         tol : float, optional
             Geometric tolerance. The default is ``1e-6``.
-
+        
         Returns
         -------
         list
@@ -2318,7 +2529,8 @@ class Primitives(object):
 
         # select all edges
         all_edges = []
-        solids = [s for s in self.solid_names if s not in list_of_bodies]
+        solids = self.get_all_solids_names()
+        solids = [s for s in solids if s not in list_of_bodies]
         for solid in solids:
             edges = self.get_object_edges(solid)
             all_edges.extend(edges)
@@ -2395,7 +2607,7 @@ class Primitives(object):
 
         if selected_edges:
             new_edge1 = self.create_object_from_edge(selected_edges[0])
-            time.sleep(aedt_wait_time)
+            time.sleep(1)
             new_edge2 = self.create_object_from_edge(selected_edges[1])
             return selected_edges
         else:
@@ -2439,317 +2651,3 @@ class Primitives(object):
                 selected_edge = edge
                 distance = d
         return selected_edge
-
-    def _resolve_object(self, object):
-        if isinstance(object, Object3d):
-            return object
-        else:
-            return self[object]
-
-    def _get_model_objects(self, model=True):
-        """Retrieve all model objects.
-
-        Parameters
-        ----------
-        model : bool, optional
-            Whether to retrieve all model objects. The default is ''True``. When ``False``,
-            all non-model objects are retrieved.
-
-        Returns
-        -------
-        type
-            Objects lists.
-
-        """
-        list_objs = []
-        for id, obj in self.objects.items():
-            if obj.model == model:
-                list_objs.append(obj.name)
-        return list_objs
-
-    def _check_material(self, matname, defaultmatname):
-        """Check for a material name.
-
-        If a material name exists, it is assigned. Otherwise, the default material
-        specified is assigned.
-
-        Parameters
-        ----------
-        matname : str
-            Name of the material.
-        defaultmatname : str
-            Name of the default material to assign if ``metname`` does not exist.
-
-        Returns
-        -------
-        str or bool
-            String if a material name, Boolean if the material is a dielectric.
-        """
-        if matname:
-            matname = matname.lower()
-            if self._parent.materials.checkifmaterialexists(matname):
-                if self._parent._design_type == "HFSS":
-                    return matname, self._parent.materials.material_keys[matname].is_dielectric()
-                else:
-                    return matname, True
-
-            else:
-                self.messenger.add_warning_message(
-                    "Material {} doesn not exists. Assigning default material".format(matname))
-        if self._parent._design_type == "HFSS":
-            return defaultmatname, self._parent.materials.material_keys[defaultmatname].is_dielectric()
-        else:
-            return defaultmatname, True
-
-    def _refresh_solids(self):
-        test = retry_ntimes(10, self.oeditor.GetObjectsInGroup, "Solids")
-        if test is None or test is False:
-            assert False, "Get Solids is failing"
-        elif test is True:
-            self._solids = []    # In IronPython True is returned when no sheets are present
-        else:
-            self._solids = list(test)
-        self._all_object_names = self._solids + self._sheets + self._lines
-
-    def _refresh_sheets(self):
-        test = retry_ntimes(10, self.oeditor.GetObjectsInGroup, "Sheets")
-        if test is None or test is False:
-            assert False, "Get Sheets is failing"
-        elif test is True:
-            self._sheets = []    # In IronPython True is returned when no sheets are present
-        else:
-            self._sheets = list(test)
-        self._all_object_names = self._solids + self._sheets + self._lines
-
-    def _refresh_lines(self):
-        test = retry_ntimes(10, self.oeditor.GetObjectsInGroup, "Lines")
-        if test is None or test is False:
-            assert False, "Get Lines is failing"
-        elif test is True:
-            self._lines = []    # In IronPython True is returned when no lines are present
-        else:
-            self._lines = list(test)
-        self._all_object_names = self._solids + self._sheets + self._lines
-
-    def _refresh_unclassified(self):
-        test = retry_ntimes(10, self.oeditor.GetObjectsInGroup, "Unclassified")
-        if test is None or test is False:
-            self._unclassified = []
-            print("Unclassified is failing")
-        elif test is True:
-            self._unclassified = []     # In IronPython True is returned when no unclassified are present
-        else:
-            self._unclassified = list(test)
-
-    def _refresh_object_types(self):
-        self._refresh_solids()
-        self._refresh_sheets()
-        self._refresh_lines()
-        self._all_object_names = self._solids + self._sheets + self._lines
-
-    def _create_object(self, name):
-        o = Object3d(self, name)
-        self.objects[o.id] = o
-        self.object_id_dict[o.name] = o.id
-
-        return o
-
-    def _refresh_all_ids_from_aedt_file(self):
-        if not self._parent.design_properties or "ModelSetup" not in self._parent.design_properties:
-            return False
-
-        try:
-            groups = self._parent.design_properties['ModelSetup']['GeometryCore']['GeometryOperations']['Groups'][
-                'Group']
-        except KeyError:
-            groups = []
-        if type(groups) is not list:
-            groups = [groups]
-        try:
-            self._parent.design_properties['ModelSetup']['GeometryCore']['GeometryOperations']['ToplevelParts'][
-                'GeometryPart']
-        except KeyError:
-            return 0
-        for el in self._parent.design_properties['ModelSetup']['GeometryCore']['GeometryOperations']['ToplevelParts']['GeometryPart']:
-            if isinstance(el, OrderedDict):
-                attribs = el['Attributes']
-            else:
-                attribs = \
-                    self._parent.design_properties['ModelSetup']['GeometryCore']['GeometryOperations']['ToplevelParts'][
-                        'GeometryPart']['Attributes']
-
-            o = self._create_object(name=attribs['Name'])
-
-            o.part_coordinate_system = attribs['PartCoordinateSystem']
-            if "NonModel" in attribs['Flags']:
-                o._model = False
-            else:
-                o._model = True
-            if "Wireframe" in attribs['Flags']:
-                o._wireframe = True
-            else:
-                o._wireframe = False
-            groupname = ""
-            for group in groups:
-                if attribs['GroupId'] == group['GroupID']:
-                    groupname = group['Attributes']['Name']
-
-            o._m_groupName = groupname
-            o._color = attribs['Color']
-            o._surface_material = attribs['SurfaceMaterialValue'][1:-1]
-            o._material_name = attribs['MaterialValue'][1:-1]
-            o._is_updated = True
-        return len(self.objects)
-
-    def _default_object_attributes(self, name=None, matname=None):
-
-        if not matname:
-            matname = self.defaultmaterial
-
-        material, is_dielectric = self._check_material(matname, self.defaultmaterial)
-
-        solve_inside = False
-        if is_dielectric:
-            solve_inside = True
-
-        if not name:
-            name = _uname()
-
-        args = ["NAME:Attributes",
-                "Name:=", name,
-                "Flags:=", "",
-                "Color:=", "(132 132 193)",
-                "Transparency:=", 0.3,
-                "PartCoordinateSystem:=", "Global",
-                "SolveInside:=", solve_inside]
-
-        if self.version >= "2019.3":
-            args += ["MaterialValue:=", chr(34) + material + chr(34),
-                     "UDMId:=", "",
-                     "SurfaceMaterialValue:=", chr(34) +"Steel-oxidised-surface"+ chr(34)]
-        else:
-            args += ["MaterialName:=", material]
-
-        if self.version >= "2021.1":
-            args += ["ShellElement:="	, False,
-                     "ShellElementThickness:=", "0mm",
-                     "IsMaterialEditable:=", True,
-                     "UseMaterialAppearance:=", False,
-                     "IsLightweight:=", False]
-
-        return args
-
-    def _crosssection_arguments(self, type, orient, width, topwidth, height, num_seg, bend_type=None):
-        """Generate the properties array for the polyline cross-section.
-        """
-        arg_str = ["NAME:PolylineXSection"]
-
-        # Set the default section type to "None"
-        section_type = type
-        if not section_type:
-            section_type = "None"
-
-        # Set the default orientation to "Auto"
-        section_orient = orient
-        if not section_orient:
-            section_orient = "Auto"
-
-        # Set the default bend-type to "Corner"
-        section_bend = bend_type
-        if not section_bend:
-            section_bend = "Corner"
-
-        #Ensure number-of segments is valid
-        if num_seg:
-            assert num_seg > 2, "Number of segments for a cross-section must be 0 or greater than 2."
-
-        model_units = self.model_units
-        arg_str += ["XSectionType:=", section_type]
-        arg_str += ["XSectionOrient:=", section_orient]
-        arg_str += ["XSectionWidth:=", _dim_arg(width, model_units)]
-        arg_str += ["XSectionTopWidth:=", _dim_arg(topwidth, model_units)]
-        arg_str += ["XSectionHeight:=", _dim_arg(height, model_units)]
-        arg_str += ["XSectionNumSegments:=", "{}".format(num_seg)]
-        arg_str += ["XSectionBendType:=", section_bend]
-
-        return arg_str
-
-    def _arg_with_dim(self, prop_value, units=None):
-        if isinstance(prop_value, str):
-            val = prop_value
-        else:
-            if units is None:
-                units = self.model_units
-                assert isinstance(prop_value, numbers.Number), "Argument {} must be a numeric value".format(prop_value)
-            val = "{0}{1}".format(prop_value, units)
-        return val
-
-    def _pos_with_arg(self, pos, units=None):
-        posx = self._arg_with_dim(pos[0], units)
-        posy = self._arg_with_dim(pos[1], units)
-        posz = self._arg_with_dim(pos[2], units)
-
-        return posx, posy, posz
-
-    def _str_list(self, theList):
-        szList = ''
-        for id in theList:
-            o = self.objects[id]
-            if len(szList):
-                szList += ','
-            szList += str(o.name)
-
-        return szList
-
-    def _find_object_from_edge_id(self, lval):
-        objList = []
-        objListSheets = self.sheet_names
-        if len(objListSheets) > 0:
-            objList.extend(objListSheets)
-        objListSolids = self.solid_names
-        if len(objListSolids) > 0:
-            objList.extend(objListSolids)
-        for obj in objList:
-            edgeIDs = list(self.oeditor.GetEdgeIDsFromObject(obj))
-            if str(lval) in edgeIDs:
-                return obj
-
-        return None
-
-    def _find_object_from_face_id(self, lval):
-        if self.oeditor is not None:
-            objList = []
-            objListSheets = self.sheet_names
-            if len(objListSheets) > 0:
-                objList.extend(objListSheets)
-            objListSolids = self.solid_names
-            if len(objListSolids) > 0:
-                objList.extend(objListSolids)
-            for obj in objList:
-                face_ids = list(self.oeditor.GetFaceIDs(obj))
-                if str(lval) in face_ids:
-                    return obj
-
-        return None
-
-    def __getitem__(self, partId):
-        """Return the object ``Object3D`` for a given object ID or object name.
-
-        Parameters
-        ----------
-        partId : int or str
-            Object ID or object name from the 3D modeler.
-
-        Returns
-        -------
-        Object3d
-            Returns None if the part id or object name is not found
-
-        """
-        if isinstance(partId, int) and partId in self.objects:
-            return self.objects[partId]
-        elif partId in self.object_id_dict:
-            return self.objects[self.object_id_dict[partId]]
-        return None
-
-
