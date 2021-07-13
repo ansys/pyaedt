@@ -576,9 +576,10 @@ class VariableManager(object):
 	
 	Returns
 	-------
-	Dictionary of independent design properties (local variables) available to the design.
-	"""
+	dict
+	    Dictionary of independent design properties (local variables) available to the design.
 	
+	"""
         return self._variable_dict([self.odesign], dependent=False)
 
     @property
