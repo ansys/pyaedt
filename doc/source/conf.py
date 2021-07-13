@@ -55,11 +55,17 @@ extensions = ['sphinx.ext.autodoc',
               'recommonmark',
               'sphinx.ext.graphviz',
               'sphinx.ext.mathjax',
-              'sphinx.ext.inheritance_diagram']
+              'sphinx.ext.inheritance_diagram'
+]
+
+
+# return type inline with the description.
+# napoleon_use_rtype = False
+# html_copy_source = False
 
 
 # Add any paths that contain templates here, relative to this directory.
-templates_path = ['_templates']
+# templates_path = ['_templates']
 
 # Copy button customization ---------------------------------------------------
 # exclude traditional Python prompts from the copied code
