@@ -142,7 +142,9 @@ class Modeler3DLayout(Modeler):
 
     @aedt_exception_handler
     def expand(self, object_to_expand,  size=1, expand_type="ROUND", replace_original=False):
-        """Expand the object by a specific size. If replace_original is ``False`` the method will create a new object
+        """Expand the object by a specific size.
+
+        If replace_original is ``False`` the method will create a new object.
 
         Parameters
         ----------
