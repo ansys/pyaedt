@@ -4,7 +4,7 @@ from ..generic.general_methods import retry_ntimes, aedt_exception_handler
 from ..application.Variables import AEDT_units
 from ..edb import Edb
 from .Modeler import Modeler
-from .Primitives3DLayout import Primitives3DLayout
+from .Primitives3DLayout import Primitives3DLayout, Geometries3DLayout
 from ..modules.LayerStackup import Layers
 import sys
 
@@ -104,6 +104,63 @@ class Modeler3DLayout(Modeler):
     def obounding_box(self):
         """ """
         return self.oeditor.GetModelBoundingBox()
+
+
+    @aedt_exception_handler
+    def colinear_heal(self, selection, tolerance=0.1):
+        """
+
+        Parameters
+        ----------
+        selection : list or str
+            list of primitives to heal
+        tolerance :  float
+            tolerance
+
+        Returns
+        -------
+        bool
+        """
+        if isinstance(selection, str):
+            selection = [selection]
+        self.oeditor.Heal(["NAME:Repair", "Selection:=", selection, "Type:=", "Colinear", "Tol:=",
+                           self.primitives.arg_with_dim(tolerance)])
+        return True
+
+
+    @aedt_exception_handler
+    def expand(self, object_to_expand,  size=1, expand_type="ROUND", replace_original=False):
+        """
+
+        Parameters
+        ----------
+        object_to_expand: str
+            name of the object to expand
+
+        size: float
+            size of expansion
+        expand_type: str, default ``ROUND``
+            tye of expansion: ``ROUND``, ``MITER``, ``CORNER``
+        replace_original
+
+        Returns
+        -------
+        str
+            object name
+        """
+        layer = retry_ntimes(10, self.oeditor.GetPropertyValue, "BaseElementTab", object_to_expand, 'PlacementLayer')
+        poly = self.oeditor.GetPolygonDef(object_to_expand).GetPoints()
+        pos = [poly[0].GetX(), poly[0].GetY()]
+        geom_names =  self.oeditor.FindObjectsByPoint(self.oeditor.Point().Set(pos[0],pos[1]), layer)
+        self.oeditor.Expand(self.primitives.arg_with_dim(size), expand_type, replace_original,
+                            ["NAME:elements", object_to_expand])
+        if not replace_original:
+            new_geom_names = [i for i in self.oeditor.FindObjectsByPoint(self.oeditor.Point().Set(pos[0],pos[1]), layer) if i not in geom_names]
+            if self.primitives.isoutsideDesktop:
+                self.primitives._geometries[new_geom_names[0]] = Geometries3DLayout(self, new_geom_names[0])
+            return new_geom_names[0]
+        return object_to_expand
+
 
     @aedt_exception_handler
     def import_cadence_brd(self, brd_filename, edb_path=None, edb_name=None):
