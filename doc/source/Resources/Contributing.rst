@@ -68,7 +68,7 @@ To submit new code to PyAEDT:
 
 1. Fork the PyAEDT GitHub repository and then clone the forked repository to your computer. 
 
-2. In your local repostiory, create a new branch based on the ``Branch Naming Conventions`` section.
+2. In your local repository, create a new branch based on the ``Branch Naming Conventions`` section.
 
 3. Add your new feature and commit it locally. Be sure to commit frequently as the ability to revert to past commits is often helpful, especially if your change is complex. 
 
@@ -83,7 +83,7 @@ Once you have tested your branch locally, create a pull request on PyAEDT and ta
 
 For code verification, someone from the PyAnsys development team will review your code to verify that it meets our standards. Once your code is approved, if you have write permission, you may merge the PR branch. If you don't have write permission, the reviewer or someone else with write permission will merge and delete the PR branch.
 
-If your PR brnach is a ``fix/`` branch, do not delete it because it may be necessary to merge your PR branch with the current release branch. See the next section for branch naming conventions.
+If your PR branch is a ``fix/`` branch, do not delete it because it may be necessary to merge your PR branch with the current release branch. See the next section for branch naming conventions.
 
 Branch Naming Conventions
 ~~~~~~~~~~~~~~~~~~~~~~~~~
