@@ -28,7 +28,7 @@ aedt_wait_time = 0.1
 
 class PolylineSegment():
     """PolylineSegment class.
-
+    
     A polyline segment is an object describing a segment of a polyline within the 3D modeler.
 
     Parameters
@@ -42,14 +42,14 @@ class PolylineSegment():
         Number of control points for the type ``Spline``. For other types, this parameter
         is defined automatically.
     arc_angle : float or str, optional
-        Sweep angle in radians or a valid value string. For example, ``"35deg"`` or ``"Specific
+        Sweep angle in radians or a valid value string. For example, ``"35deg"`` or ``"Specific 
         to type AngularArc``.
     arc_center : list, optional
-        List of values in model units or value string. For example, ``[x, y, z]`` or ``"Specific
+        List of values in model units or value string. For example, ``[x, y, z]`` or ``"Specific 
         to type AngularArc"``.
     arc_plane : str, optional
-        Plane in which the arc sweep is performed in the active coordinate system ``XY``, ``YZ``
-        or ``ZX``. The default is ``None``. If ``None``, the plane is determined automatically
+        Plane in which the arc sweep is performed in the active coordinate system ``XY``, ``YZ`` 
+        or ``ZX``. The default is ``None``. If ``None``, the plane is determined automatically 
         by the first coordinate for which start-point and center-point have the same value.
 
     Examples
@@ -58,7 +58,7 @@ class PolylineSegment():
     """
     @aedt_exception_handler
     def __init__(self, type, num_seg=0, num_points=0, arc_angle=0, arc_center=None, arc_plane=None):
-
+   
         valid_types = ["Line", "Arc", "Spline", "AngularArc"]
         assert type in valid_types, "Segment type must be in {}".format(valid_types)
         self.type = type
@@ -82,7 +82,7 @@ class PolylineSegment():
 class Polyline(Object3d):
     """Polyline class.
 
-    This class provides methods for creating and manipulating polyline objects within
+    This class provides methods for creating and manipulating polyline objects within 
     the AEDT Modeler. Intended usage is for the constructor of this class to be called
     by the ``Primitives.draw_polyline`` method. The documentation is provided there.
 
@@ -90,9 +90,9 @@ class Polyline(Object3d):
 
     Parameters
     ----------
-    parent :
+    parent : 
     position_list : list, optional
-        The default is ''None``.
+        The default is ''None``. 
     object_id : optional
         The default is ''None``.
     segment_type : optional
@@ -106,30 +106,30 @@ class Polyline(Object3d):
     matname : str, optional
         Name of the material. The default is ''None``.
     xsection_type : str, optional
-        Cross-section type. Choices are ``"Line"``, ``"Circle"``, ``"Rectangle"``
+        Type of the cross-section. Options are ``"Line"``, ``"Circle"``, ``"Rectangle"``
         and ``"Isosceles Trapezoid"``. The default is ``None``.
     xsection_orient : str, optional
-        Direction of the normal vector to the width of the cross-section.
-        Choices are ``"X"``, ``"Y"``, ``"Z"``, and ``"Auto"``. The
+        Direction of the normal vector to the width of the cross-section. 
+        Options are ``"X"``, ``"Y"``, ``"Z"``, and ``"Auto"``. The
         default is ``None``.
     xsection_width : float or str, optional
         Width or diameter of the cross-section for all types. The default is
-        ``1``.
+        ``0``.
     xsection_topwidth : float or str, ooptional
-        Top width of the cross-section for type ``"Isosceles Trapezoid"`` only.
-        The default is ``1``.
+        Top width of the cross-section for the type ``"Isosceles Trapezoid"`` only.
+        The default is ``0``.
     xsection_height : float or str, optional
-        Height of the cross-section for type ``"Rectangle"`` or ``"Isosceles
-        Trapezoid"`` only. The default is ``1``.
+        Height of the cross-section for the type ``"Rectangle"`` or ``"Isosceles
+        Trapezoid"`` only. The default is ``0``.
     xsection_num_seg : int, optional
-        Number of segments in the cross-section surface for types ``"Circle"``,
-        ``"Rectangle"`` or ``"Isosceles Trapezoid"``. The default is ``0``.
+        Number of segments in the cross-section surface for the type ``"Circle"``,
+        ``"Rectangle"`` or ``"Isosceles Trapezoid"``. The default is ``0``. 
         The value must be ``0`` or greater than ``2``.
     xsection_bend_type : str, optional
-        Type of the bend. The default is ``None``, which sets the bend type
-        to ``"Corner"``. For the type ``"Circle"``, the bend type
+        Type of the bend. The default is ``None``, in which case the bend type
+        is set to ``"Corner"``. For the type ``"Circle"``, the bend type
         should be set to ``"Curved"``.
-
+        
     Methods
     -------
     set_crosssection_properties
@@ -137,7 +137,7 @@ class Polyline(Object3d):
     remove_vertex
     remove_edges
     clone
-
+        
     See Also
     --------
     The constructor is intended to be called from the ``Primitives.draw_polyline`` method.
@@ -340,7 +340,7 @@ class Polyline(Object3d):
             Starting vertex index of the segment within a compound polyline. The
             default is ``0``.
         start_point : list, optional
-            Position of the first point for type ``AngularArc``. The default is
+            Position of the first point for type ``AngularArc``. The default is 
             ``None``. Float values are considered in model units.
 
         Returns
@@ -463,7 +463,7 @@ class Polyline(Object3d):
         position : list
             List of x, y, z coordinates specifying the vertex to be removed.
         abstol : float, optional
-            Absolute tolerance of the comparison of a specified position to the
+            Absolute tolerance of the comparison of a specified position to the 
             vertex positions. The default is ``1e-9``.
 
         Returns
@@ -474,18 +474,18 @@ class Polyline(Object3d):
         Examples
         --------
         Use floating point values for the vertex positions.
-
+        
         >>> P = primitives.create_polyline([[0, 1, 2], [0, 2, 3], [2, 1, 4]])
         >>> P.remove_vertex([0, 1, 2])
 
         Use string expressions for the vertex position.
-
+        
         >>> P = primitives.create_polyline([[0, 1, 2], [0, 2, 3], [2, 1, 4]])
         >>> P.remove_vertex(["0mm", "1mm", "2mm"])
 
         Use string expressions for the vertex position and include an absolute
         tolerance when searching for the vertex to be removed.
-
+        
         >>> P = primitives.create_polyline([[0, 1, 2], [0, 2, 3], [2, 1, 4]])
         >>> P.remove_vertex(["0mm", "1mm", "2mm"], abstol=1e-6)
         """
@@ -520,7 +520,7 @@ class Polyline(Object3d):
     def remove_edges(self, edge_id):
         """Remove a vertex from an existing polyline by position.
 
-        You must enter the exact position of the vertex as a list
+        You must enter the exact position of the vertex as a list 
         of ``[x, y, z]`` coordinates in the object coordinate system.
 
         Parameters
@@ -531,7 +531,7 @@ class Polyline(Object3d):
         Returns
         -------
         bool
-            ``True`` when successful, ``False`` when failed.
+            ``True`` when successful, ``False`` when failed. 
 
         Examples
         --------
@@ -558,28 +558,28 @@ class Polyline(Object3d):
         Parameters
         ----------
         type : str, optional
-            Cross-section type. Choices are ``"Line"``, ``"Circle"``, ``"Rectangle"``
+            Types of the cross-sections. Options are ``"Line"``, ``"Circle"``, ``"Rectangle"``
             and ``"Isosceles Trapezoid"``. The default is ``None``.
         orient : str, optional
-            Direction of the normal vector to the width of the cross-section.
-            Choices are ``"X"``, ``"Y"``, ``"Z"``, and ``"Auto"``. The default
+            Direction of the normal vector to the width of the cross-section. 
+            Options are ``"X"``, ``"Y"``, ``"Z"``, and ``"Auto"``. The default
             is ``None``, which sents the orientation to ``"Auto"``.
         width : float or str, optional
            Width or diameter of the cross-section for all types. The default is
            ``0``.
         topwidth : float or str
-           Top width of the cross-section for type ``"Isosceles Trapezoid"``
+           Top width of the cross-section for the type ``"Isosceles Trapezoid"``
            only. The default is ``0``.
         height : float or str
-            Height of the cross-section for type ``"Rectangle"`` or ``"Isosceles
+            Height of the cross-section for the type ``"Rectangle"`` or ``"Isosceles
             Trapezoid"`` only. The default is ``0``.
         num_seg : int, optional
-            Number of segments in the cross-section surface for types ``"Circle"``,
-            ``"Rectangle"`` or ``"Isosceles Trapezoid"``. The default is ``0``.
+            Number of segments in the cross-section surface for the type ``"Circle"``,
+            ``"Rectangle"`` or ``"Isosceles Trapezoid"``. The default is ``0``. 
             The value must be ``0`` or greater than ``2``.
         bend_type : str, optional
-            Type of the bend. The default is ``None``, which sets the bend type
-            to ``"Corner"``. For the type ``"Circle"``, the bend type should be
+            Type of the bend. The default is ``None``, in which case the bend type
+            is set to ``"Corner"``. For the type ``"Circle"``, the bend type should be
             set to ``"Curved"``.
 
         Returns
@@ -640,13 +640,13 @@ class Polyline(Object3d):
         Parameters
         ----------
         position_list : list
-            List of positions of the points that define the segment to insert.
-            Either the starting point or ending point of the segment list must
+            List of positions of the points that define the segment to insert. 
+            Either the starting point or ending point of the segment list must 
             match one of the vertices of the existing polyline.
         segment: str or PolylineSegment
-            Definition of the segment to insert. Valid string values are
-            ``"Line"`` or ``"Arc"``. Otherwise use ``"PolylineSegment"``
-            to define the segment precicesly for the types ``"AngularArc"``
+            Definition of the segment to insert. Valid string values are 
+            ``"Line"`` or ``"Arc"``. Otherwise use ``"PolylineSegment"`` 
+            to define the segment precicesly for the type ``"AngularArc"``
             or ``"Spline"``.
 
         Returns
@@ -756,25 +756,25 @@ class Primitives(object):
 
     @property
     def object_list(self):
-        """List of all objects of type 'Line'"""
+        """List of all objects of type ``"Line"``"""
         self._refresh_object_types()
         return [self[name] for name in self._all_object_names]
 
     @property
     def solid_names(self):
-        """List of all objects of type 'Solid'"""
+        """List of all objects of type ``"Solid"``"""
         self._refresh_solids()
         return self._solids
 
     @property
     def sheet_names(self):
-        """List of all objects of type 'Sheet'"""
+        """List of all objects of type ``"Sheet"``"""
         self._refresh_sheets()
         return self._sheets
 
     @property
     def line_names(self):
-        """List of all objects of type 'Line'"""
+        """List of all objects of type ``"Line"``"""
         self._refresh_lines()
         return self._lines
 
@@ -785,7 +785,7 @@ class Primitives(object):
 
     @property
     def object_names(self):
-        """List of all objects of type 'Line'"""
+        """List of all objects of type ``"Line'"""
         self._refresh_object_types()
         return self._all_object_names
 
@@ -888,15 +888,15 @@ class Primitives(object):
     def value_in_object_units(self, value):
         """Convert a numerical length string, such as ``10mm`` to a floating point value.
 
-        Converts a numerical length string, such as ``10mm``, to a floating point value
-        in the defined object units ``self.object_units``. If a list of such objects is
+        Converts a numerical length string, such as ``"10mm"``, to a floating point value
+        in the defined object units ``self.object_units``. If a list of such objects is 
         given, the entire list is converted.
 
         Parameters
         ----------
         value : string or list of strings
-            Numerical length string to convert.
-
+            One or more numerical length strings to convert.
+        
         Returns
         -------
         float or list of floats
@@ -933,10 +933,11 @@ class Primitives(object):
         """"
         Parameters
         ----------
-        object :
+        object : 
             Object name or object ID.
-
-        Returns:
+        
+        Returns
+        -------
         bool
             ``True`` when successful, ``False`` when failed
         """
@@ -1074,49 +1075,49 @@ class Primitives(object):
         position_list : list
             Array of positions of each point of the polyline.
             A position is a list of 2D or 3D coordinates. Position coordinate values
-            can be numbers or valid AEDT string expressions. For example, ``[0, 1, 2]``,
+            can be numbers or valid AEDT string expressions. For example, ``[0, 1, 2]``, 
             ``["0mm", "5mm", "1mm"]``, or ``["x1", "y1"]``.
         segment_type : str or PolylineSegment or list, optional
             The default behavior is to connect all points as ``"Line"`` segments. The
             default is ``None``. For a string, ``"Line"`` or ``"Arc"`` is valid. For a
-            ``"PolylineSegment"``, for ``"Line",`` ``"Arc"``, ``"Spline"``, or
-            ``"AngularArc"``, a list of segment types (str or PolylineSegment) is
+            ``"PolylineSegment"``, for ``"Line",`` ``"Arc"``, ``"Spline"``, or 
+            ``"AngularArc"``, a list of segment types (str or PolylineSegment) is 
             valid for a compound polyline.
         cover_surface : bool, optional
             The default is ``False``.
         close_surface : bool, optional
-            The default is ``False``, which automatically joins the starting and
+            The default is ``False``, which automatically joins the starting and 
             ending points.
         name: str, optional
             Name of the polyline. The default is ``None``.
         matname: str, optional
             Name of the material. The default is ``None``, in which case a name
-            is automatically assigned.
+            is automatically assigned. 
         xsection_type : str, optional
-            Type of the cross-section. Choices are ``"Line"``, ``"Circle"``,
+            Type of the cross-section. Options are ``"Line"``, ``"Circle"``,
             ``"Rectangle"``, and ``"Isosceles Trapezoid"``. The default is ``None``.
         xsection_orient : str, optional
             Direction of the normal vector to the width of the cross-section.
-            Choices are ``"X"``, ``"Y"``, ``"Z"``, and ``"Auto"``. The default is
+            Options are ``"X"``, ``"Y"``, ``"Z"``, and ``"Auto"``. The default is
             ``None``, which sets the direction to ``"Auto"``.
         xsection_width : float or str, optional
-            Width or diameter of the cross-section for all  types. The
+            Width or diameter of the cross-section for all  types. The 
             default is ``1``.
         xsection_topwidth : float or str, optional
             Top width of the cross-section for type ``"Isosceles Trapezoid"`` only.
             The default is ``1``.
         xsection_height : float or str
-            Height of the cross-section for type ``"Rectangle"`` or ``"Isosceles
+            Height of the cross-section for type ``"Rectangle"`` or ``"Isosceles 
             Trapezoid"`` only. The default is ``1``.
         xsection_num_seg : int, optional
-            Number of segments in the cross-section surface for types ``"Circle"``,
+            Number of segments in the cross-section surface for type ``"Circle"``,
             ``"Rectangle"``, or ``"Isosceles Trapezoid"``. The default is ``0``. The
             value must be ``0`` or greater than ``2``.
         xsection_bend_type : str, optional
-            Type of the bend for the cross-section. The default is ``None``, which sets
-            the bend type to ``"Corner"``. For the type ``"Circle"``, the bend type
+            Type of the bend for the cross-section. The default is ``None``, in which
+            case the bend type is set to ``"Corner"``. For the type ``"Circle"``, the bend type
             should be set to ``"Curved"``.
-
+        
         Returns
         -------
         Polyline
@@ -1127,7 +1128,7 @@ class Primitives(object):
         Examples
         -------
         Set up the desktop environment.
-
+        
         >>> from pyaedt.desktop import Desktop
         >>> from pyaedt.Maxwell import Maxwell3d
         >>> from pyaedt.modeler.Primitives import PolylineSegment
@@ -1137,36 +1138,36 @@ class Primitives(object):
         >>> primitives = aedtapp.modeler.primitives
 
         Define some test data points.
-
+        
         >>> test_points = [["0mm", "0mm", "0mm"], ["100mm", "20mm", "0mm"],
         ...                ["71mm", "71mm", "0mm"], ["0mm", "100mm", "0mm"]]
 
-        The default behavior assumes that all points are to be connected by line segments.
+        The default behavior assumes that all points are to be connected by line segments. 
         Optionally specify the name.
-
+        
         >>> P1 = primitives.create_polyline(test_points, name="PL_line_segments")
 
         Specify that the first segment is a line and the last three points define a three-point arc.
-
+        
         >>> P2 = primitives.create_polyline(test_points, segment_type=["Line", "Arc"], name="PL_line_plus_arc")
 
-        Redraw the 3-point arc alone from the last three points and additionally specify five segments
+        Redraw the 3-point arc alone from the last three points and additionally specify five segments 
         using ``PolylineSegment``.
-
+        
         >>> P3 = primitives.create_polyline(test_points[1:],
         ...                               segment_type=PolylineSegment(type="Arc", num_seg=7),
         ...                               name="PL_segmented_arc")
 
-        Specify that the four points form a spline and add a circular cross-section with a
+        Specify that the four points form a spline and add a circular cross-section with a 
         diameter of 1 mm.
-
+        
         >>> P4 = primitives.create_polyline(test_points, segment_type="Spline", name="PL_spline",
         ...                               xsection_type="Circle", xsection_width="1mm")
 
-        Use the ``PolylineSegment`` object to specify more detail about the individual segments.
+        Use the `PolylineSegment` object to specify more detail about the individual segments.
         Create a center point arc starting from the position ``test_points[1]``, rotating
-        about the center point position ``test_points[0]` in the XY plane.
-
+        about the center point position ``test_points[0]`` in the XY plane.
+        
         >>> start_point = test_points[1]
         >>> center_point = test_points[0]
         >>> segment_def = PolylineSegment(type="AngularArc", arc_center=center_point, arc_angle="90deg", arc_plane="XY")
@@ -1459,7 +1460,7 @@ class Primitives(object):
     @aedt_exception_handler
     def find_closest_edges(self, start_obj, end_obj, port_direction=0):
         """Retrieve the two closet edges that are not perpendicular for two objects.
-
+        
         PortDirection is used in case more than 2 couple are on the same distance (eg. coax or microstrip). in that case
         it will give the precedence to the edges that are on that axis direction (eg XNeg)
 
@@ -1469,9 +1470,9 @@ class Primitives(object):
             Name of the starting object.
         end_obj : str
             Name of the ending object.
-        port_direction : str, optional
-            Direction of the port to which to give edges precedence when more than two couples
-            are at the same distance. Choices are ``"XNeg"``, ``"XPos"``, ``"YNeg"``,
+        port_direction : str, optional 
+            Direction of the port to which to give edges precedence when more than two couples 
+            are at the same distance. Options are ``"XNeg"``, ``"XPos"``, ``"YNeg"``,
             ``"YPos`"``, ``"ZNeg"``, and ``"ZPos"``. The default is ``0``.
 
         Returns
@@ -1569,7 +1570,7 @@ class Primitives(object):
 
     @aedt_exception_handler
     def get_equivalent_parallel_edges(self, edgelist, portonplane=True, axisdir=0, startobj="", endobject=""):
-        """Create two new edges that are parallel and equal to the smallest edge given a parallel couple of edges.
+        """Create two new edges that are parallel and equal to the smallest edge given a parallel couple of edges. 
 
         Parameters
         ----------
@@ -1605,26 +1606,30 @@ class Primitives(object):
             dest_edge = edgelist[0]
 
         first_edge = self.create_object_from_edge(orig_edge)
-        second_edge = self.create_object_from_edge(orig_edge)
+        second_edge = self.create_object_from_edge(dest_edge)
         ver1 = orig_edge.vertices
         ver2 = dest_edge.vertices
-        if len(ver2) < 2:
+        if len(ver2) == 2:
+            p = ver1[0].position
+            a1 = ver2[0].position
+            a2 = ver2[1].position
+            vect = GeometryOperators.distance_vector(p, a1, a2)
+            if portonplane:
+                vect[divmod(axisdir, 3)[1]] = 0
+            #TODO: can we avoid this translate operation - is there another way to check ?
+            self.modeler.translate(second_edge, vect)
+            p_check = second_edge.vertices[0].position
+            p_check2 = second_edge.vertices[1].position
+        elif len(ver2) == 1:  # for circular edges with one vertex
+            #TODO Massimo please check this !
+            p_check = first_edge.vertices[0].position
+            p_check2 = second_edge.vertices[0].position
+        else:
             self.delete(first_edge)
             self.delete(second_edge)
             return False
-        p = ver1[0].position
-        a1 = ver2[0].position
-        a2 = ver2[1].position
 
-        vect = GeometryOperators.distance_vector(p, a1, a2)
-
-        if portonplane:
-            vect[divmod(axisdir, 3)[1]] = 0
-        self.modeler.translate(second_edge, vect)
-        ver_check = second_edge.vertices
-        p_check = ver_check[0].position
         obj_check =self.get_bodynames_from_position(p_check)
-        p_check2 = ver_check[1].position
         obj_check2 = self.get_bodynames_from_position(p_check2)
         if (startobj in obj_check or endobject in obj_check) and (startobj in obj_check2 or endobject in obj_check2):
             if l1<l2:
@@ -1737,8 +1742,8 @@ class Primitives(object):
         Parameters
         ----------
         face_id : int or str
-            Object ID or object name (string), which is available
-            using ``get_object_vertices``.
+            Object ID or object name, which is available
+            using the method `get_object_vertices`.
 
         Returns
         -------
@@ -1782,8 +1787,8 @@ class Primitives(object):
         Parameters
         ----------
         edgeID : int, str
-            Object ID or object name, which is available using
-            ``get_object_vertices``.
+            Object ID or object name, which is available using 
+            `get_object_vertices`.
 
         Returns
         -------
@@ -1810,7 +1815,7 @@ class Primitives(object):
         Returns
         -------
         list
-            List of float values indicating the position.
+            List of float values indicating the position. 
             For example, ``[x, y, z]``.
         """
         try:
@@ -1965,11 +1970,11 @@ class Primitives(object):
         position :
             ApplicationName.modeler.Position(x,y,z) object
         obj_name : str, optional
-            Name of the object. The default is ``None``, which means that all
-            objects are to be searched.
+            Name of the object. The default is ``None``, in which case all
+            objects are searched.
         units : str, optional
-            Units for the position, such as ``"m"``. The default is ``None``,
-            which means the model units are used.
+            Units for the position, such as ``"m"``. The default is ``None``, 
+            in which case the model units are used.
 
         Returns
         -------
@@ -2032,16 +2037,16 @@ class Primitives(object):
         position :
             ApplicationName.modeler.Position(x,y,z) object
         obj_name : str, optional
-            Name of the object. The default is ``None``, which means that all
-            objects are to be searched.
+            Name of the object. The default is ``None``, in which case all
+            objects are searched.
         units : str, optional
-            Units, such as ``"m"``. The default is ``None``, which means that the
-            model units are used.
-
+            Units, such as ``"m"``. The default is ``None``, in which case the
+            model units are used. 
+        
         Returns
         -------
         type
-            Face ID of the first object touching this position. If no face found, return None
+            Face ID of the first object touching this position.
         """
         if isinstance(obj_name, str):
             object_list = [obj_name]
@@ -2137,15 +2142,15 @@ class Primitives(object):
     def get_edges_for_circuit_port_from_sheet(self, sheet, XY_plane=True, YZ_plane=True, XZ_plane=True,
                                              allow_perpendicular=False, tol=1e-6):
         """Retrieve two edge IDs suitable for the circuit port from a sheet.
-
-        One edge belongs to the sheet passed in the input, and the second edge
-        is the closest edge's coplanar to the first edge (aligned to the XY, YZ,
+                    
+        One edge belongs to the sheet passed in the input, and the second edge 
+        is the closest edge's coplanar to the first edge (aligned to the XY, YZ, 
         or XZ plane). This method creates new lines for the detected edges and returns
         the IDs of these lines.
-
-        This method accepts a one or more sheet objects as input, while
-        the method ``get_edges_for_circuit_port`` accepts a face ID.
-
+        
+        This method accepts a one or more sheet objects as input, while 
+        the method `get_edges_for_circuit_port` accepts a face ID.
+        
         Parameters
         ----------
         sheet : int, str, or list
@@ -2278,10 +2283,10 @@ class Primitives(object):
         is the closest edge's coplanar to the first edge (aligned to the XY, YZ,
         or XZ plane). This method creates new lines for the detected edges and returns
         the IDs of these lines.
-
-        This method accepts a face ID in the input, while the ``get_edges_for_circuit_port_from_port``
+        
+        This method accepts a face ID in the input, while the `get_edges_for_circuit_port_from_port`
         method accepts one or more sheet objects.
-
+                
         Parameters
         ----------
         face_id :
@@ -2300,7 +2305,7 @@ class Primitives(object):
             The default is ``False``.
         tol : float, optional
             Geometric tolerance. The default is ``1e-6``.
-
+        
         Returns
         -------
         list
@@ -2549,9 +2554,9 @@ class Primitives(object):
 
     def _create_object(self, name):
         o = Object3d(self, name)
-        self.objects[o.id] = o
-        self.object_id_dict[o.name] = o.id
-
+        new_id = o.id
+        self.objects[new_id] = o
+        self.object_id_dict[o.name] = new_id
         return o
 
     def _refresh_all_ids_from_aedt_file(self):

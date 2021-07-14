@@ -14,7 +14,7 @@ test_project_name = "Coax_HFSS"
 example_project = os.path.join(local_path, 'example_models', test_project_name + '.aedt')
 
 
-class TestDesign():
+class TestClass():
 
     def setup_class(self):
         with Scratch(scratch_path) as self.local_scratch:

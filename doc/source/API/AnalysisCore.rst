@@ -15,7 +15,7 @@ Analysis Application Modules
 
 .. toctree::
    :maxdepth: 2
-   :caption: The ``Analysis`` application module includes these classes:
+   :caption: The `Analysis` application module includes these classes:
 
    Analysis
    Analysis3D

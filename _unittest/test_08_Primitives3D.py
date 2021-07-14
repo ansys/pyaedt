@@ -2,7 +2,7 @@
 import os
 
 # Setup paths for module imports
-from .conftest import scratch_path, local_path, BasisTest, pyaedt_unittest_check_desktop_error
+from .conftest import scratch_path, local_path, BasisTest, pyaedt_unittest_check_desktop_error, config
 
 from pyaedt.generic.filesystem import Scratch
 from pyaedt.modeler.Primitives import Polyline, PolylineSegment
@@ -14,11 +14,12 @@ try:
     import pytest
 except:
     pass
+
 scdoc = "input.scdoc"
 step = "input.stp"
 
 
-class TestPrimitives(BasisTest):
+class TestClass(BasisTest):
     def setup_class(self):
         BasisTest.setup_class(self, project_name="test_primitives", design_name="3D_Primitives")
         with Scratch(scratch_path) as self.local_scratch:
@@ -809,6 +810,7 @@ class TestPrimitives(BasisTest):
         self.create_copper_box()
         self.aedtapp.modeler.primitives.get_closest_edgeid_to_position([0.2,0,0])
 
+    @pytest.mark.skipif(config["build_machine"], reason="Not running in non-graphical mode")
     @pyaedt_unittest_check_desktop_error
     def test_48_import_space_claim(self):
         self.aedtapp.insert_design("SCImport")
@@ -840,5 +842,5 @@ class TestPrimitives(BasisTest):
         compfile = self.aedtapp.components3d['Dipole_Antenna_DM']
         geometryparams = self.aedtapp.get_components3d_vars('Dipole_Antenna_DM')
         geometryparams['dipole_length'] = "l_dipole"
-        o = self.aedtapp.modeler.primitives.insert_3d_component(compfile, geometryparams)
-        assert o
+        name = self.aedtapp.modeler.primitives.insert_3d_component(compfile, geometryparams)
+        assert isinstance(name, str)

@@ -5,22 +5,28 @@ from ..application.Analysis import CoordinateSystemAxis
 from .Object3d import Object3d
 
 class Primitives3D(Primitives, object):
-    """Class for management of all Primitives of 3D Tools
+    """Primitives3D class.
 
-    Methods
-    -------
+    This class provides all functionalities for managing primitives in 3D tools.
 
-    create_box
-    create_cylinder
-    create_polyhedron
-    create_cone
+    Parameters
+    ----------
+    parent : str
+        Name of the parent AEDT application.
+    modeler : str
+        Name of the modeler.
+    """
 
-    create_bondwire
+    def __init__(self, parent, modeler):
+        Primitives.__init__(self, parent, modeler)
 
-    Perhaps move to 2D ?
-    create_circle
-    create_ellipse
-    create_rectangle
+    @aedt_exception_handler
+    def is3d(self):
+        """Check if the analysis is a 3D type.
+
+        Returns
+        -------
+         ``True`` when successful, ``False`` when failed.
 
     """
     @aedt_exception_handler
@@ -30,25 +36,32 @@ class Primitives3D(Primitives, object):
 
         Parameters
         ----------
-        position : list of float
-            Lower bottom left corner of the Box [x, y, z]
-        dimensions_list : list of float
-            list of dimensions of X, Y, Z
-        name : str, default=None
-            Object Name (if not specified a name will be assigned automatically)
-        matname :
-            material name. Optional, if nothing default material will be assigned
+        position : list
+            Center point for the box in a list of ``[x, y, z]`` coordinates.
+        dimensions_list : list
+           Dimensions for the box in a list of ``[x, y, z]`` coordinates.
+        name : str, optional
+            Name of the box. Thed default is ``None``, in which case the
+            default name is assigned.
+        matname : str, optional
+            Name of the material.  The default is ``None``, in which case the
+            default material is assigned. If the material name supplied is
+            invalid, the default material is assigned.
 
         Returns
         -------
         Object3d
 
         Examples
-        _________
-        >>> from pyaedt import Hfss
-        >>> aedtapp = Hfss()
-        >>> ret_object = aedtapp.modeler.primitives.create_box(position=[0,0,0], dimensions_list=[10,5,20],
-        ...                                                name="mybox", matname="copper")
+        --------
+
+        >>> from pyaedt import hfss
+        >>> hfss = HFSS()
+        >>> origin = [0,0,0]
+        >>> dimensions = [10,5,20]
+        >>> #Material and name are not mandatory fields
+        >>> object_id = hfss.modeler.primivites.create_box(origin, dimensions, name="mybox", matname="copper")
+
         """
         assert len(position) == 3, "Position Argument must be a valid 3 Element List"
         assert len(dimensions_list) == 3, "Dimension Argument must be a valid 3 Element List"
@@ -270,27 +283,40 @@ class Primitives3D(Primitives, object):
         Parameters
         ----------
         start_position : list
-            Starting Position
-        end_position :list
-            Ending Position
-        h1: float
-            h1 value
-        h2: float
-            h2 value
-        alpha: float
-            alpha angle
-        beta: float
-            beta angle
-        bond_type: int
-            0- JEDEC5, 1- Jedec4, 2- Low. Default JEDEC_5
-        diameter: float
-            wire diameter
-        facets: int
-            wire facets
-        name : str, default=None
-            Object Name (if not specified a name will be assigned automatically)
-        matname :
-            material name. Optional, if nothing default material will be assigned
+            Starting position of the bond pad in a list of [x, y, z] coordinates.
+        end_position :  list
+            Ending position of the bond pad in a list of [x, y, z] coordinates.
+        h1: float, optional
+            Height between the IC  die I/O pad and the top of the bondwire.
+            The default is ``0.2``.
+        h2: float, optional
+            Height of the IC die I/O pad above the lead frame. The default
+            is ``0``. A negative value indicates that the I/O pad is below
+            the lead frame.
+        alpha: float, optional
+            Angle in degrees between the xy plane and the wire bond at the
+            IC die I/O pad. The default is ``80``.
+        beta: float, optional
+            Angle in degrees between the xy plane and the wire bond at the
+            lead frame. The default is ``5``.
+        bond_type: int, optional
+            Type of the boundwire, which indicates its shape. Options are:
+
+            * ''0'' for JEDEC 5-point
+            * ``1`` for JEDEC 4-point
+            * ''2`` for Low
+
+            The default is ''0``.
+        diameter: float, optional
+            Diameter of the wire. The default is ``0.025``.
+        facets: int, optional
+            Number of wire facets. The default is ``6``.
+        name : str, optional
+            Name of the bond wire. The default is ``None``, in which case
+            the default name is assigned.
+        matname : str, optional
+            Name of the material. The default is ``None``, in which case
+            the default material is assigned.
 
         Returns
         -------
@@ -299,10 +325,12 @@ class Primitives3D(Primitives, object):
         Examples
         _________
         >>> from pyaedt import Hfss
-        >>> aedtapp = Hfss()
-        >>> ret_obj = aedtapp.modeler.primitives.create_bondwire(start_position=[0, 0, 0], end_position=[10,5,20],
-        ...                                                      h1=0.5, h2=0.1, alpha=75, beta=4,bond_type=0,
-        ...                                                      name="mybox", matname="copper")
+        >>> hfss = Hfss()
+        >>> origin = [0,0,0]
+        >>> endpos = [10,5,20]
+        >>> #Material and name are not mandatory fields
+        >>> object_id = hfss.modeler.primivites.create_bondwire(origin, endpos,h1=0.5, h2=0.1, alpha=75, beta=4,bond_type=0, name="mybox", matname="copper")
+
         """
         XPosition, YPosition, ZPosition = self._pos_with_arg(start_position)
         if XPosition is None or YPosition is None or ZPosition is None:
@@ -384,22 +412,24 @@ class Primitives3D(Primitives, object):
 
     @aedt_exception_handler
     def create_circle(self, cs_plane, position, radius, numSides=0, is_covered=True, name=None, matname=None):
-        """Create a circle
+        """Create a circle.
 
         Parameters
         ----------
         cs_plane :
-            ApplicationName.CoordinateSystemPlane object
-        position :
-            ApplicationName.modeler.Position(x,y,z) object
-        radius :
-            radius float
-        numSides :
-            Number of sides. 0 for circle (Default value = 0)
-        name :
-            Object Name (Default value = None)
-        matname :
-            material name. Optional, if nothing default material will be assigned
+            Coordinate system plane for orienting the circle.
+        position : list
+            Center point of the circle in a list of [x, y, z] coordinates.
+        radius : float
+            Radius of the circle.
+        numSides : int, optional
+            Number of sides. The default is ``0``, which correct for a circle.
+        name : str, optional
+            Name of the circle. The default is ``None``, in which case the
+            default name is assigned.
+        matname : str, optional
+            Name of the material. The default is ``None``, in which case the
+            default material is assigned.
 
         Returns
         -------
@@ -423,24 +453,28 @@ class Primitives3D(Primitives, object):
 
     @aedt_exception_handler
     def create_ellipse(self, cs_plane, position, major_raidus, ratio, is_covered=True, name=None, matname=None):
-        """Create a ellipse
+        """Create an ellipse
 
         Parameters
         ----------
         cs_plane :
-            ApplicationName.CoordinateSystemPlane object
-        position :
-            ApplicationName.modeler.Position(x,y,z) object
-        major_raidus :
-            radius float
-        ratio :
-            Ratio float
-        is_covered :
-            Boolean (Default value = True)
-        name :
-            Object Name (Default value = None)
-        matname :
-            material name. Optional, if nothing default material will be assigned
+            Coordinate system plane for orienting the ellipse.
+        position : list
+            Center point of the ellipse in a list of [x, y, z] coordinates.
+        major_raidus : float
+            Base radius of the ellipse.
+        ratio : float
+            Aspect ratio of the secondary radius to the base radius.
+        bIsCovered : bool, optional
+            Whether the ellipse is covered. The default is ``True``,
+            in which case the result is a 2D sheet object. If ``False,``
+            the result is a closed 1D polyline object.
+        name : str, optional
+            Name of the ellipse. The default is ``None``, in which case the
+            default name is assigned.
+        matname : str, optional
+            Name of the material. The default is ``None``, in which case the
+            default material is assigned.
 
         Returns
         -------
@@ -677,10 +711,8 @@ class Primitives3D(Primitives, object):
         vArg1 = ["NAME:InsertComponentData"]
 
         szGeoParams = ''
-        for par in geoParams:
-            name = par
-            val = geoParams[par]
-            szGeoParams += "{0}='{1}' ".format(name, val)
+        for par, val in geoParams.items():
+            szGeoParams += "{0}='{1}' ".format(par, val)
 
         vArg1.append("GeometryParameters:=")
         vArg1.append(szGeoParams)
@@ -693,7 +725,8 @@ class Primitives3D(Primitives, object):
         vArg1.append("ComponentFile:=")
         vArg1.append(compFile)
         new_object_name = self.oeditor.Insert3DComponent(vArg1)
-        return self._create_object(new_object_name)
+        #TODO return an object
+        return new_object_name
 
     @aedt_exception_handler
     def get_3d_component_object_list(self, componentname):
