@@ -292,15 +292,19 @@ class AEDTMessageManager(object):
             message_text = message_text[:250] + "..."
 
         # Print to stdout and to logger
+        
         if type == 0:
             print("pyaedt Info: {}".format(message_text))
-            self.logger.info(message_text)
+            if self.logger:
+              self.logger.info(message_text)
         elif type == 1:
             print("pyaedt Warning: {}".format(message_text))
-            self.logger.warning(message_text)
+            if self.logger:
+              self.logger.warning(message_text)
         elif type == 2:
             print("pyaedt Error: {}".format(message_text))
-            self.logger.error(message_text)
+            if self.logger:
+              self.logger.error(message_text)
 
     @aedt_exception_handler
     def clear_messages(self, proj_name=None, des_name=None, level=2):

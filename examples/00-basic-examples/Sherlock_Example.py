@@ -120,7 +120,7 @@ ipk.save_project()
 # Assign Power to Component Blocks
 
 
-all_objects = ipk.modeler.primitives.get_all_objects_names()
+all_objects = ipk.modeler.primitives.object_names
 
 ######################################
 # Assign Power blocks

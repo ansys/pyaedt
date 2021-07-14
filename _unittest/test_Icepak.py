@@ -48,7 +48,10 @@ class TestIcepak:
 
     def teardown_class(self):
         assert self.aedtapp.close_project(self.aedtapp.project_name)
-        self.aedtapp.close_project(src_project_name)
+        try:
+            self.aedtapp.odesktop.CloseProject(src_project_name)
+        except:
+            pass
         time.sleep(2)
         self.local_scratch.remove()
         gc.collect()
@@ -133,13 +136,17 @@ class TestIcepak:
         pass
 
     def test_12_AssignMeshOperation(self):
+        self.aedtapp.oproject = "Filter_Board"
+        self.aedtapp.odesign = "IcepakDesign1"
         group_name = "Group1"
         mesh_level_Filter = "2"
         component_name = ["RadioBoard1_1"]
         mesh_level_RadioPCB = "1"
-        assert self.aedtapp.mesh.assign_mesh_level_to_group(mesh_level_Filter, group_name)
+        test = self.aedtapp.mesh.assign_mesh_level_to_group(mesh_level_Filter, group_name)
+        assert test
         #assert self.aedtapp.mesh.assignMeshLevel2Component(mesh_level_RadioPCB, component_name)
-        assert self.aedtapp.mesh.assign_mesh_region(component_name, mesh_level_RadioPCB)
+        test = self.aedtapp.mesh.assign_mesh_region(component_name, mesh_level_RadioPCB)
+        assert test
 
     def test_13_assign_openings(self):
         airfaces = [self.aedtapp.modeler.primitives["Region"].faces[0].id]
@@ -217,11 +224,11 @@ class TestIcepak:
 
     def test_26_get_all_conductors(self):
         conductors = self.aedtapp.get_all_conductors_names()
-        assert sorted(conductors) == ["box", "box2", "box3", "network_box", "network_box2"]
+        assert sorted(conductors) == ["box",  "network_box", "network_box2"]
 
     def test_27_get_all_dielectrics(self):
         dielectrics = self.aedtapp.get_all_dielectrics_names()
-        assert dielectrics == ["Region"]
+        assert sorted(dielectrics) == ["Region", "box2", "box3"]
 
     def test_28_assign_surface_material(self):
         mats = self.aedtapp.materials.add_surface_material("my_surface", 0.5)
@@ -229,7 +236,7 @@ class TestIcepak:
 
     def test_33_create_region(self):
         self.aedtapp.modeler.primitives.delete("Region")
-        assert type(self.aedtapp.modeler.primitives.create_region([100,100,100,100,100,100])) is int
+        assert isinstance(self.aedtapp.modeler.primitives.create_region([100,100,100,100,100,100]).id, int)
 
     def test_34_automatic_mesh_pcb(self):
         assert self.aedtapp.mesh.automatic_mesh_pcb()
@@ -244,7 +251,7 @@ class TestIcepak:
         assert self.aedtapp.create_source_power(self.aedtapp.modeler.primitives["boxSource"].bottom_face.id, thermal_condtion="Fixed Temperature", temperature="28cel")
 
     def test_surface_monitor(self):
-        self.aedtapp.modeler.primitives.create_rectangle(self.aedtapp.CoordinateSystemPlane.XYPlane, [0,0,0], [10,20], "surf1")
+        self.aedtapp.modeler.primitives.create_rectangle(self.aedtapp.CoordinateSystemPlane.XYPlane, [0,0,0], [10,20], name="surf1")
         assert self.aedtapp.assign_surface_monitor("surf1")
 
     def test_poin_monitor(self):
@@ -252,4 +259,3 @@ class TestIcepak:
 
     def test_88_create_heat_sink(self):
         assert self.aedtapp.create_parametric_fin_heat_sink()
-

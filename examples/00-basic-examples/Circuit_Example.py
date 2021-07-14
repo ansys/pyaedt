@@ -25,7 +25,7 @@ desktopVersion = "2021.1"
 # Change Boolean to False to open AEDT in graphical mode
 
 NonGraphical = True
-NewThread = False
+NewThread = True
 
 ###############################################################################
 # Launch AEDT and Circuit Design

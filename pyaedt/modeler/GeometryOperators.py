@@ -160,9 +160,9 @@ class GeometryOperators(object):
         -------
 
         """
-        if val == CoordinateSystemAxis.XAxis:
+        if val == CoordinateSystemAxis.XAxis or val == 'X':
             return 'X'
-        elif val == CoordinateSystemAxis.YAxis:
+        elif val == CoordinateSystemAxis.YAxis  or val == 'Y':
             return 'Y'
         else:
             return 'Z'

@@ -1,11 +1,9 @@
 # standard imports
 import os
 import gc
-import pytest
 
 # Setup paths for module imports
 from .conftest import local_path, scratch_path, desktop_version, new_thread, non_graphical
-from .conftest import BasisTest
 
 # Import required modules
 from pyaedt import Hfss
@@ -16,7 +14,7 @@ test_project_name = "Coax_HFSS"
 example_project = os.path.join(local_path, 'example_models', test_project_name + '.aedt')
 
 
-class TestDesign(BasisTest):
+class TestClass():
 
     def setup_class(self):
         with Scratch(scratch_path) as self.local_scratch:
@@ -101,7 +99,7 @@ class TestDesign(BasisTest):
 
     def test_09_set_objects_temperature(self):
         ambient_temp = 22
-        objects = [o for o in self.aedtapp.modeler.primitives.get_all_solids_names()
+        objects = [o for o in self.aedtapp.modeler.primitives.solid_names
                     if self.aedtapp.modeler.primitives[o].model]
         assert self.aedtapp.modeler.set_objects_temperature(objects, ambient_temp=ambient_temp, create_project_var=True)
 
@@ -130,7 +128,6 @@ class TestDesign(BasisTest):
         self.aedtapp.duplicate_design("myduplicateddesign")
         assert "myduplicateddesign" in self.aedtapp.design_list
         self.aedtapp.delete_design("myduplicateddesign")
-
 
     def test_15b_copy_design_from(self):
         origin = os.path.join(self.local_scratch.path, 'origin.aedt')
@@ -196,12 +193,10 @@ class TestDesign(BasisTest):
         assert ds.add_point(300, 0.8)
         assert len(ds.x) == xl + 1
 
-
     def test_20_get_3dComponents_properties(self):
         assert len(self.aedtapp.components3d)>0
         props = self.aedtapp.get_components3d_vars("Dipole_Antenna_DM")
         assert len(props) == 3
-
 
     def test_21_generate_temp_project_directory(self):
         proj_dir1 = self.aedtapp.generate_temp_project_directory("Example")
@@ -209,7 +204,12 @@ class TestDesign(BasisTest):
         proj_dir2 = self.aedtapp.generate_temp_project_directory("")
         assert os.path.exists(proj_dir2)
         proj_dir4 = self.aedtapp.generate_temp_project_directory(34)
-        assert not proj_dir4
+        assert os.path.exists(proj_dir4)
         proj_dir5 = self.aedtapp.generate_temp_project_directory(":_34")
         assert not proj_dir5
-        
+
+    '''
+    def test_01_close_project(self):
+        self.aedtapp.close_project()
+        pass
+    '''

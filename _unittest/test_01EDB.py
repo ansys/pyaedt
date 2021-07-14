@@ -402,7 +402,7 @@ class TestEDB:
         assert not self.edbapp.core_stackup.stackup_layers.add_outline_layer("Outline1")
 
     def test_create_edb(self):
-        edb = Edb(os.path.join(scratch_path, "temp.aedb"))
+        edb = Edb(os.path.join(self.local_scratch.path, "temp.aedb"))
         assert edb
         assert edb.active_layout
         edb.close_edb()
@@ -423,13 +423,4 @@ class TestEDB:
         out = edb.write_export3d_option_config_file(scratch_path, options_config)
         assert os.path.exists(out)
         out= edb.export_q3d(scratch_path,  net_list=["NET1", "NET2", "GND"])
-        assert os.path.exists(out)
-
-    @pytest.mark.skipif(config["build_machine"], reason="Not running in non-graphical mode")
-    def test_export_to_maxwell(self):
-        edb = Edb(edbpath=os.path.join(local_path, 'example_models', "simple.aedb"), edbversion="2021.1")
-        options_config = {'UNITE_NETS' : 1, 'LAUNCH_MAXWELL' : 0}
-        out = edb.write_export3d_option_config_file(scratch_path, options_config)
-        assert os.path.exists(out)
-        out= edb.export_maxwell(scratch_path)
         assert os.path.exists(out)
