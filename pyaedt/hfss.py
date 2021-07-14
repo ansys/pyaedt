@@ -902,7 +902,7 @@ class Hfss(FieldAnalysis3D, object):
                                                                                              axisdir, port_on_plane)
             if add_pec_cap:
                 dist = GeometryOperators.points_distance(point0, point1)
-                self._create_pec_cap(sheet_name, startobj, dist / 10)
+                self._create_pec_cap(sheet_name, startobj, startobj, dist / 10)
             if not portname:
                 portname = generate_unique_name("Port")
             elif portname + ":1" in self.modeler.get_excitations_name():
@@ -998,7 +998,7 @@ class Hfss(FieldAnalysis3D, object):
                                                                                                         vfactor,
                                                                                                         hfactor)
             dist = GeometryOperators.points_distance(point0, point1)
-            self._create_pec_cap(sheet_name, axisdir, dist / 10)
+            self._create_pec_cap(sheet_name, startobj, dist / 10)
             if not portname:
                 portname = generate_unique_name("Port")
             elif portname + ":1" in self.modeler.get_excitations_name():
