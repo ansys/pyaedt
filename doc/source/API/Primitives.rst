@@ -9,7 +9,6 @@ The ``Primitives`` module includes these classes:
    :template: custom-class-template.rst
    :nosignatures:
 
-   Primitives.Primitives
    Primitives.PolylineSegment
    Primitives.Polyline
    Primitives2D.Primitives2D

@@ -2,7 +2,6 @@ Application Modules
 ===================
 This section contains the following PyAEDT application modules:
 
-#. Analysis
 #. Modeler
 #. Objects
 #. Edb
@@ -10,35 +9,6 @@ This section contains the following PyAEDT application modules:
 #. Variable
 #. DesignXPloration
 
-
-Analysis
-~~~~~~~~
-
-This module contains all properties and methods needed to set up and
-run AEDT analyses.  The `Analysis` application module includes the
-following classes:
-
-.. currentmodule:: pyaedt.application
-
-.. autosummary::
-   :toctree: _autosummary
-   :template: custom-class-template.rst
-   :nosignatures:
-
-   Analysis.Analysis
-   Analysis3D.FieldAnalysis3D
-   Analysis2D.FieldAnalysis2D
-   Analysis3DLayout.FieldAnalysis3DLayout
-   AnalysisIcepak.FieldAnalysisIcepak
-   AnalysisNexxim.FieldAnalysisCircuit
-   AnalysisRMxprt.FieldAnalysisRMxprt
-   AnalysisSimplorer.FieldAnalysisSimplorer
-
-
-**Inheritance Diagram**
-
-.. inheritance-diagram:: pyaedt.application.Analysis pyaedt.application.Analysis2D pyaedt.application.Analysis3D pyaedt.application.Analysis3DLayout pyaedt.application.AnalysisIcepak pyaedt.application.AnalysisNexxim pyaedt.application.AnalysisRMxprt pyaedt.application.AnalysisSimplorer
-    :parts: 1
 
 
 Modeler
@@ -119,7 +89,6 @@ and designs.
    :nosignatures:
 
    DesignCache
-   Design
 
 
 Variable
