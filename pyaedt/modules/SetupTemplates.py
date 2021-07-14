@@ -550,13 +550,13 @@ def HFSS3DLayout_AdaptiveFrequencyData(freq):
     Parameters
     ----------
     freq : float
-        Value for frequency.
+        Value for adaptive frequency.
         
 
     Returns
     -------
-    float
-        Value for frequency.
+    list
+        Frequency parameters.
 
     """
     value = [
@@ -972,7 +972,7 @@ class SweepHFSS3DLayout(object):
 
     @aedt_exception_handler
     def _get_args(self, props=None):
-        """Retrieve arguments.
+        """Retrieve properties.
 
         Parameters
         ----------
@@ -1102,7 +1102,7 @@ class SweepQ3D(object):
 
     @aedt_exception_handler
     def _get_args(self, props=None):
-        """Retrieve arguments.
+        """Retrieve properties.
 
         Parameters
         ----------
