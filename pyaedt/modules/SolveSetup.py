@@ -42,9 +42,7 @@ class Setup(object):
 
     @parent.setter
     def parent(self, value):
-        """ """
         self._parent = value
-        pass
 
     @property
     def omodule(self):
@@ -428,7 +426,6 @@ class SetupCircuit(object):
 
     @name.setter
     def name(self, name):
-        """ """
         self._Name = name
         self.props["Name"] = name
 
@@ -439,7 +436,6 @@ class SetupCircuit(object):
 
     @parent.setter
     def parent(self, name):
-        """ """
         self._parent = name
 
     @property
@@ -464,8 +460,9 @@ class SetupCircuit(object):
           If ``False``, access is to the existing setup.
           
         Returns
+        -------
         str
-           Name of the setup.
+            Name of the setup.
         
         """
         return self._parent.oanalysis
@@ -597,7 +594,7 @@ class SetupCircuit(object):
         Returns
         -------
         list
-            List of the the data.
+            List of the data.
         
         """
 
