@@ -81,19 +81,18 @@ jobs:
           name: coverage-results
           path: coverage.xml
         # Use always() to always run this step to publish test results when there are test failures
-        if: ${{ always() }}        
-      #- uses: EnricoMi/publish-unit-test-result-action@v1
-      #  name: 'Publish Test Results **/test-results.xml'
-      #  with:
-      #    testResultsFiles: '**/test-results.xml'
-      #    testRunTitle: 'Python $(python.version)'
-      #  if: ${{ always() }}
-
-      #- uses: 5monkeys/cobertura-action@master
-      #  name: 'Publish code coverage coverage.xml'
-      #  with:
-      #    path: src/coverage.xml
-      #  if: ${{ always() }}
+        if: ${{ always() }}   
+     
+      - name: Publish Code Coverage 
+        uses: romeovs/lcov-reporter-action@v0.2.16
+        with:
+          lcov-file: ./coverage.xml
+          
+      - name: Publish Unit Test Results
+        uses: EnricoMi/publish-unit-test-result-action@v1.19
+        if: always()
+        with:
+          files: junit/test-results.xml
         
       - name: 'Build and validate source distribution'
         run: |
