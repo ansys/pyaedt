@@ -1,19 +1,14 @@
-.. pyaedt documentation master file, created by
-   sphinx-quickstart on Fri Jun 12 11:39:54 2020.
-   You can adapt this file completely to your liking, but it should at least
-   contain the root `toctree` directive.
-
 Desktop and Messenger
 =====================
 
+The PyAEDT API includes these classes for Desktop and Messenger:
 
-.. toctree::
-   :maxdepth: 2
-   :caption: The PyAEDT API includes these classes for Desktop and Messenger:
+.. currentmodule:: pyaedt
+
+.. autosummary::
+   :toctree: _autosummary
+   :template: custom-class-template.rst
 
    Desktop
-   Messenger
-
-
-
-
+   application.MessageManager.AEDTMessageManager
+   application.MessageManager.EDBMessageManager

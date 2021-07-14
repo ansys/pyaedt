@@ -65,7 +65,7 @@ extensions = ['sphinx.ext.autodoc',
 
 
 # Add any paths that contain templates here, relative to this directory.
-# templates_path = ['_templates']
+templates_path = ['_templates']
 
 # Copy button customization ---------------------------------------------------
 # exclude traditional Python prompts from the copied code
@@ -177,7 +177,7 @@ if os.name != 'posix':
 # -- Options for HTML output -------------------------------------------------
 html_show_sourcelink = True
 html_theme = 'pyansys_sphinx_theme'
-html_logo = "./Resources/pyansys-logo-black-cropped.png"
+html_logo = 'https://docs.pyansys.com/_static/pyansys-logo-black-cropped.png'
 
 html_theme_options = {
     "github_url": "https://github.com/pyansys/PyAEDT",

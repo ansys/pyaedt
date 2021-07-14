@@ -1,19 +1,10 @@
-.. pyaedt documentation master file, created by
-   sphinx-quickstart on Fri Jun 12 11:39:54 2020.
-   You can adapt this file completely to your liking, but it should at least
-   contain the root `toctree` directive.
-
 Geometric Objects
 =================
 
-.. toctree::
-   :maxdepth: 2
-   :caption: Geometric objects consist of these classes:
+This classes contain all the properties and methods needed to edit
+geometric entities and consist of the following classes.
 
-   Object3d
-   Object3d_FacePrimitive
-   Object3d_EdgePrimitive
-   Object3d_VertexPrimitive
-
-
-
+pyaedt.modeler.Object3d.Object3d
+pyaedt.modeler.Object3d.FacePrimitive
+pyaedt.modeler.Object3d.EdgePrimitive
+pyaedt.modeler.Object3d.VertexPrimitive
