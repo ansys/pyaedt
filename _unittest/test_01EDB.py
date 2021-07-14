@@ -200,13 +200,15 @@ class TestEDB:
 
     def test_aedt_pinname_pin_position(self):
         cmp_pinlist = self.edbapp.core_padstack.get_pinlist_from_component_and_net("U2A5", "GND")
-        assert type(self.edbapp.core_components.get_aedt_pin_name(cmp_pinlist[0])) is str
+        pin_name = self.edbapp.core_components.get_aedt_pin_name(cmp_pinlist[0])
+        assert type(pin_name) is str
+        assert len(pin_name) > 0
         assert len(self.edbapp.core_components.get_pin_position(cmp_pinlist[0])) == 2
 
     def test_get_pins_name_from_net(self):
         cmp_pinlist = self.edbapp.core_components.get_pin_from_component("U2A5")
-        assert len(self.edbapp.core_components.get_pins_name_from_net(cmp_pinlist, "GND"))>0
-        assert len(self.edbapp.core_components.get_pins_name_from_net(cmp_pinlist, "VCCC"))==0
+        assert len(self.edbapp.core_components.get_pins_name_from_net(cmp_pinlist, "GND")) > 0
+        assert len(self.edbapp.core_components.get_pins_name_from_net(cmp_pinlist, "VCCC")) == 0
 
     def test_delete_single_pin_rlc(self):
         assert len(self.edbapp.core_components.delete_single_pin_rlc())>0

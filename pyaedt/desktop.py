@@ -238,14 +238,14 @@ def force_close_desktop():
             for el in plist:
                 Module.oDesktop.CloseProject(el)
         except:
-            logger.error("No Projects. Closing Desktop Connection")
+            logger.warning("No Projects. Closing Desktop Connection")
         try:
             scopeID = 5
             while i <= scopeID:
                 Module.COMUtil.ReleaseCOMObjectScope(Module.COMUtil.PInvokeProxyAPI, 0)
                 i += 1
         except:
-            logger.error("No COM UTIL. Closing the Desktop....")
+            logger.warning("No COM UTIL. Closing the Desktop....")
         try:
             del Module.pyaedt_initialized
         except:
@@ -253,20 +253,18 @@ def force_close_desktop():
         try:
             os.kill(pid, 9)
             del Module.oDesktop
-            log= logging.getLogger(__name__)
-            handlers = log.handlers[:]
-            for handler in handlers:
-                handler.close()
-                log.removeHandler(handler)
-            return True
+            successfully_closed = True
         except:
             Module.oMessenger.add_error_message("something went wrong in Closing AEDT")
-            log= logging.getLogger(__name__)
+            successfully_closed = False
+        finally:
+            log = logging.getLogger(__name__)
             handlers = log.handlers[:]
             for handler in handlers:
                 handler.close()
                 log.removeHandler(handler)
-            return False
+            return successfully_closed
+
 
 
 class Desktop:
@@ -434,7 +432,8 @@ class Desktop:
                         process = "ansysedtsv.exe"
                     else:
                         process = "ansysedt.exe"
-                    output = os.popen('tasklist /FI "IMAGENAME eq {}" /v'.format(process)).readlines()
+                    with os.popen('tasklist /FI "IMAGENAME eq {}" /v'.format(process)) as tasks_list:
+                        output = tasks_list.readlines()
                     pattern = r'(?i)^(?:{})\s+?(\d+)\s+.+[\s|\\](?:{})\s+'.format(process, username)
                     for l in output:
                         m = re.search(pattern, l)
@@ -458,7 +457,8 @@ class Desktop:
                         process = "ansysedtsv.exe"
                     else:
                         process = "ansysedt.exe"
-                    output = os.popen('tasklist /FI "IMAGENAME eq {}" /v'.format(process)).readlines()
+                    with os.popen('tasklist /FI "IMAGENAME eq {}" /v'.format(process)) as tasks_list:
+                        output = tasks_list.readlines()
                     pattern = r'(?i)^(?:{})\s+?(\d+)\s+.+[\s|\\](?:{})\s+'.format(process, username)
                     for l in output:
                         m = re.search(pattern, l)
@@ -609,11 +609,11 @@ class Desktop:
 
     def force_close_desktop(self):
         """Forcibly close AEDT."""
-        force_close_desktop()
+        return force_close_desktop()
 
     def close_desktop(self):
         """Close AEDT."""
-        force_close_desktop()
+        return force_close_desktop()
 
     def enable_autosave(self):
         """Enable autosave."""

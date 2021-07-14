@@ -1274,6 +1274,8 @@ class Primitives(object):
             if remaining > 0:
                 objects = objects[slice:]
 
+        self._refresh_object_types()
+
         if len(objects) > 0:
             self.cleanup_objects()
             self.messenger.add_info_message("Deleted {} Objects".format(num_objects))
@@ -2603,8 +2605,14 @@ class Primitives(object):
 
             o._m_groupName = groupname
             o._color = attribs['Color']
-            o._surface_material = attribs['SurfaceMaterialValue'][1:-1]
-            o._material_name = attribs['MaterialValue'][1:-1]
+            o._surface_material = attribs.get('SurfaceMaterialValue', None)
+            if o._surface_material:
+                o._surface_material = o._surface_material[1:-1]
+            if 'MaterialValue' in attribs:
+                o._material_name = attribs['MaterialValue'][1:-1]
+            else:
+                o._material_name = attribs.get('MaterialName', None)
+
             o._is_updated = True
         return len(self.objects)
 

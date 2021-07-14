@@ -238,3 +238,16 @@ class Test3DLayout:
         material = self.aedtapp.materials.add_material("FirstMaterial")
         new_material = self.aedtapp.materials.duplicate_material("FirstMaterial", "SecondMaterial")
         assert new_material.name == "secondmaterial"
+
+
+    def test_expand(self):
+        self.aedtapp.modeler.primitives.create_rectangle("Signal3", [20, 20], [50, 50], name="rect_1")
+        self.aedtapp.modeler.primitives.create_line("Signal3", [[25, 25], [40, 40]], name="line_3")
+        out1 = self.aedtapp.modeler.expand("line_3",size=1, expand_type="ROUND", replace_original=False)
+        assert isinstance(out1, str)
+
+    def test_heal(self):
+        l1 = self.aedtapp.modeler.primitives.create_line("Signal3", [[0, 0], [100, 0]], 0.5, name="poly_1111")
+        l2 = self.aedtapp.modeler.primitives.create_line("Signal3", [[100, 0], [120, -35]], 0.5, name="poly_2222")
+        self.aedtapp.modeler.unite([l1, l2])
+        assert self.aedtapp.modeler.colinear_heal("poly_2222", tolerance=0.25)
