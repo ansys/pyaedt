@@ -1606,7 +1606,7 @@ class Primitives(object):
             dest_edge = edgelist[0]
 
         first_edge = self.create_object_from_edge(orig_edge)
-        second_edge = self.create_object_from_edge(dest_edge)
+        second_edge = self.create_object_from_edge(orig_edge)
         ver1 = orig_edge.vertices
         ver2 = dest_edge.vertices
         if len(ver2) == 2:
