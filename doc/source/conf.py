@@ -67,6 +67,10 @@ extensions = ['sphinx.ext.autodoc',
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ['_templates']
 
+if 'PYAEDT_CI_NO_AUTODOC' in os.environ:
+    templates_path.clear()
+
+
 # Copy button customization ---------------------------------------------------
 # exclude traditional Python prompts from the copied code
 copybutton_prompt_text = r'>>> ?|\.\.\. '
