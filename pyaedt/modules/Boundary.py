@@ -9,16 +9,18 @@ class BoundaryCommon(object):
     """ """
     @aedt_exception_handler
     def _get_args(self, props=None):
-        """
+        """Retrieve boundary properties.
+        
         Parameters
         ----------
-        props :
+        props : dict, optional
              The default is ``None``.
 
         Returns
         -------
-        bool
-            ``True`` when successful, ``False`` when failed.
+        dict
+            Dictionary of boundary properties.
+
         """
         if not props:
             props = self.props
@@ -28,16 +30,35 @@ class BoundaryCommon(object):
 
     @aedt_exception_handler
     def delete(self):
-        """ """
+        """Delete boundaries.
+        
+        Returns
+        -------
+        bool
+            ``True`` when successful, ``False`` when failed.
+        
+        """
         self._parent.oboundary.DeleteBoundaries([self.name])
         for el in self._parent.boundaries:
             if el.name == self.name:
                 self._parent.boundaries.remove(el)
         return True
 
-
 class BoundaryObject(BoundaryCommon, object):
-    """Boundary Data and execution class"""
+    """Boundary data and execution class.
+    
+    Parameters
+    ----------
+    parent:
+    
+    name :
+    
+    props :
+    
+    boundarytype :
+    
+        
+    """
     def __init__(self, parent, name, props, boundarytype):
         self._parent = parent
         self.name = name
@@ -46,7 +67,7 @@ class BoundaryObject(BoundaryCommon, object):
 
     @aedt_exception_handler
     def _get_args(self, props=None):
-        """
+        """Retrieve arguments.
 
         Parameters
         ----------
@@ -190,7 +211,7 @@ class BoundaryObject(BoundaryCommon, object):
 
     @aedt_exception_handler
     def update(self):
-        """Update the current boundary.
+        """Update the boundary.
                 
         Returns
         -------
@@ -296,7 +317,14 @@ class BoundaryObject(BoundaryCommon, object):
 
     @aedt_exception_handler
     def update_assignment(self):
-        """ """
+        """Update the assignment.
+        
+        Returns
+        -------
+        bool
+            ``True`` when successful, ``False`` when failed.
+
+        """
         if "Faces" in self.props:
             faces = self.props["Faces"]
             faces_out = []

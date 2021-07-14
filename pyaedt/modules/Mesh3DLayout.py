@@ -1,7 +1,8 @@
 """
-This module contains these classes: ``Mesh`` and ``Mesh3DOperation``.
+This module contains these classes: `Mesh` and `Mesh3DOperation`.
 
-They contain all functionalities for creating and editing the mesh in the 3D tools.
+This module provides all functionalities for creating and editing the mesh in the 3D tools.
+
 """
 from __future__ import absolute_import
 
@@ -10,7 +11,20 @@ from ..application.DataHandlers import dict2arg
 from collections import OrderedDict, defaultdict
 
 class Mesh3DOperation(object):
-    """Mesh3DOperation class."""
+    """Mesh3DOperation class.
+    
+    Parameters
+    ----------
+    parent :
+    
+    hfss_setup_name : str
+        Name of the HFSS setup.
+    name :
+    
+    props : dict
+        Dictionary of the properites. 
+    
+    """
 
     def __init__(self, parent, hfss_setup_name, name, props):
         self._parent = parent
@@ -20,17 +34,19 @@ class Mesh3DOperation(object):
 
     @aedt_exception_handler
     def _get_args(self, props=None):
-        """
+        """Retrieve arguments.
 
         Parameters
         ----------
-        props :
-             The default is ``None``.
+        props : dict
+            Dictionary of the properties. The default is ``None``, in which
+            case the default properties are retrieved.
 
         Returns
         -------
         bool
             ``True`` when successful, ``False`` when failed.
+            
         """
         if not props:
             props = self.props
@@ -40,19 +56,40 @@ class Mesh3DOperation(object):
 
     @aedt_exception_handler
     def create(self):
-        """ """
+        """Create a mesh.
+        
+        Returns
+        -------
+        bool
+            ``True`` when successful, ``False`` when failed.
+        
+        """
         self._parent.omeshmodule.AddMeshOperation(self.hfss_setup_name, self._get_args())
         return True
 
     @aedt_exception_handler
     def update(self):
-        """ """
+        """Update the mesh.
+        
+        Returns
+        -------
+        bool
+            ``True`` when successful, ``False`` when failed.
+        
+        """
         self._parent.omeshmodule.EditMeshOperation(self.hfss_setup_name, self.name, self._get_args())
         return True
 
     @aedt_exception_handler
     def delete(self):
-        """ """
+        """Delete the mesh.
+        
+        Returns
+        -------
+        bool
+            ``True`` when successful, ``False`` when failed.
+            
+        """
         self._parent.omeshmodule.DeleteMeshOperation(self.hfss_setup_name, self.name,)
 
         return True
@@ -63,14 +100,11 @@ class Mesh(object):
     """Mesh class.
     
     This class provides the main AEDT mesh functionaility. The inherited class
-    ``AEDTConfig`` contains all ``_desktop`` hierarchical calls needed by this class.
+    `AEDTConfig` contains all `_desktop` hierarchical calls needed by this class.
    
     Parameters
     ----------
     parent :
-
-    Returns
-    -------
 
     """
 
@@ -84,22 +118,29 @@ class Mesh(object):
 
     @property
     def omeshmodule(self):
-        """:return: Mesh Module"""
+        """Mesh module.
+        
+        Returns
+        -------
+        type
+            Mesh module object.
+        """
+        
         return self.odesign.GetModule("SolveSetups")
 
     @property
     def messenger(self):
-        """ """
+        """Messenger."""
         return self._parent._messenger
 
     @property
     def odesign(self):
-        """ """
+        """Design."""
         return self._parent._odesign
 
     @property
     def modeler(self):
-        """ """
+        """Modeler."""
         return self._parent._modeler
 
     @aedt_exception_handler
@@ -117,6 +158,7 @@ class Mesh(object):
         -------
         bool
             ``True`` when successful, ``False`` when failed.
+            
         """
         for el in self.meshoperations:
             if el.hfss_setup_name == setup_name and el.name == mesh_name:
@@ -127,12 +169,13 @@ class Mesh(object):
 
     @aedt_exception_handler
     def _get_design_mesh_operations(self):
-        """Get design mesh operations.
+        """Retrieve design mesh operations.
         
         Returns
         -------
-        bool
-            ``True`` when successful, ``False`` when failed.
+        type
+            Mesh operations object.
+        
         """
         meshops = []
         try:
@@ -163,14 +206,16 @@ class Mesh(object):
             Maximum length of the element. The default is ``1`` When ``None``, this 
             parameter is disabled. 
         maxel : int, optional
-            Maximum number of elements. The default is ``1000`` When ``None``, this 
+            Maximum number of elements. The default is ``1000``. When ``None``, this 
             parameter is disabled. 
         meshop_name : str, optional
-            Name of the mesh operation. The default is ``None``
+            Name of the mesh operation. The default is ``None``.
+            
         Returns
         -------
         type
             Mesh operation object.
+        
         """
         if meshop_name:
             for el in self.meshoperations:
@@ -216,7 +261,7 @@ class Mesh(object):
     @aedt_exception_handler
     def assign_skin_depth(self, setupname, layer_name, net_name, skindepth=1, maxelements=None, triangulation_max_length=0.1, numlayers="2",
                           meshop_name=None):
-        """Assign skin depth.
+        """Assign skin depth to the mesh.
 
         Parameters
         ----------
@@ -241,6 +286,7 @@ class Mesh(object):
         -------
         type
             Mesh operation object.
+        
         """
         if meshop_name:
             for el in self.meshoperations:
