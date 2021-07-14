@@ -4,6 +4,8 @@ from .conf_unittest import test_generator
 import os
 import sys
 
+os.environ["UNITTEST_CURRENT_TEST"] = "1"
+
 SHOW_ERROR_MESSAGES = True
 
 class NonexistantError(Exception):

@@ -25,6 +25,9 @@ import gc
 import sys
 try:
     import pytest
+    if "UNITTEST_CURRENT_TEST" in os.environ:
+        os.environ.pop("UNITTEST_CURRENT_TEST")
+    assert "PYTEST_CURRENT_TEST" in os.environ
 except:
     import _unittest_ironpython.conf_unittest as pytest
 
@@ -35,7 +38,6 @@ from pyaedt import Desktop
 from pyaedt import Hfss
 from pyaedt.application.Design import DesignCache
 from pyaedt.generic.filesystem import Scratch
-from pyaedt.generic.general_methods import generate_unique_name
 test_project_name = "test_primitives"
 
 local_path = os.path.dirname(os.path.realpath(__file__))
