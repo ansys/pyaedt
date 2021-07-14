@@ -199,11 +199,10 @@ ipkapp.assign_openings(airfaces)
 
 aedtapp.save_project()
 aedtapp.close_project(project_name)
-aedtapp.load_project(project_file)
+aedtapp = Hfss(project_file)
 ipkapp = Icepak()
 ipkapp.solution_type = ipkapp.SolutionTypes.Icepak.SteadyTemperatureAndFlow
 ipkapp.modeler.fit_all()
-
 
 
 ################################################################

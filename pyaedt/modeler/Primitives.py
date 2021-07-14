@@ -1252,7 +1252,8 @@ class Primitives(object):
         bool
             ``True`` when successful, ``False`` when failed
         """
-        if not objects:
+
+        if objects is None:
             objects = self.object_names
         elif not isinstance(objects, list):
             objects = [objects]

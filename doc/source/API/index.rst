@@ -10,10 +10,3 @@ documentation.
    :maxdepth: 2
 
    Application
-   DesktopMessenger
-   CoreModules
-   Primitives
-   Mesh
-   MaterialManagement
-   Setup
-   Post

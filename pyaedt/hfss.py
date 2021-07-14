@@ -902,7 +902,7 @@ class Hfss(FieldAnalysis3D, object):
                                                                                              axisdir, port_on_plane)
             if add_pec_cap:
                 dist = GeometryOperators.points_distance(point0, point1)
-                self._create_pec_cap(sheet_name, axisdir, dist / 10)
+                self._create_pec_cap(sheet_name, startobj, dist / 10)
             if not portname:
                 portname = generate_unique_name("Port")
             elif portname + ":1" in self.modeler.get_excitations_name():
@@ -916,16 +916,28 @@ class Hfss(FieldAnalysis3D, object):
         return False
 
 
-    def _create_pec_cap(self, sheet_name, axisdir, pecthick):
-        vector = [0, 0, 0]
-        if axisdir < 3:
-            vector[divmod(axisdir, 3)[1]] = -pecthick / 2
-        else:
-            vector[divmod(axisdir, 3)[1]] = pecthick / 2
+    def _create_pec_cap(self, sheet_name, obj_name, pecthick):
+        # TODO check method
+        obj= self.modeler.primitives[sheet_name].clone()
+        out_obj = self.modeler.thicken_sheet(obj, pecthick, False)
+        bounding2 = out_obj.bounding_box
+        bounding1 = self.modeler.primitives[obj_name].bounding_box
+        tol = 1e-9
+        i=0
+        internal=False
+        for a, b in zip(bounding1,bounding2):
+            if i<3:
+                if (b-a)>tol:
+                    internal=True
+            elif (b-a)<tol:
+                internal = True
+            i += 1
+        if internal:
+            self.odesign.Undo()
+            self.modeler.primitives.cleanup_objects()
+            out_obj = self.modeler.thicken_sheet(obj, -pecthick, False)
 
-        pec_obj = self.modeler.primitives[sheet_name].clone()
-        self.modeler.thicken_sheet(pec_obj, pecthick, True)
-        pec_obj.material_name = "pec"
+        out_obj.material_name = "pec"
         return True
 
     @aedt_exception_handler

@@ -374,7 +374,10 @@ class FacePrimitive(object):
         list of float
             Centroid of all vertices of the face.
         """
-        return GeometryOperators.get_polygon_centroid([pos.position for pos in self.vertices])
+        if len(self.vertices)>1:
+            return GeometryOperators.get_polygon_centroid([pos.position for pos in self.vertices])
+        else:
+            return self.vertices[0].position
 
 
     @property
@@ -696,12 +699,12 @@ class Object3d(object):
 
     @surface_material_name.setter
     def surface_material_name(self, mat):
-        if self._parent.materials.checkifmaterialexists(mat):
+        try:
             self._surface_material = mat
             vMaterial = ["NAME:Surface Material", "Value:=", '"' + mat + '"']
             self._change_property(vMaterial)
             self._surface_material = mat
-        else:
+        except:
             self.messenger.add_warning_message("Material {} does not exist".format(mat))
 
 

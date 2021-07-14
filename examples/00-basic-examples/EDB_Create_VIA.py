@@ -11,10 +11,11 @@ This Example shows how to use EDB to create a Layout
 #########################################
 # Import Edb Layout object and initialize it on version 2021.1
 #
-
+import time
 import os
 from pyaedt import Edb
 from pyaedt.generic.general_methods import generate_unique_name
+start = time.time()
 if os.name == "posix":
     aedb_path = os.path.join("/tmp", generate_unique_name("Edb_custom") + ".aedb")
 else:
@@ -67,3 +68,5 @@ edb.core_padstack.place_padstack([45e-3,-5e-3], "MyVia")
 edb.save_edb()
 edb.close_edb()
 print("EDB Saved Correctly to {}. You can import in AEDT".format(aedb_path))
+end = time.time()-start
+print(end)

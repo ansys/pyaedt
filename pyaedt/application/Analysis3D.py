@@ -63,12 +63,23 @@ class FieldAnalysis3D(Analysis, object):
 
     @property
     def modeler(self):
-        """Modeler object."""
+        """Modeler object.
+
+        Returns
+        -------
+        Modeler3D
+            Modeler Object
+        """
         return self._modeler
 
     @property
     def mesh(self):
-        """Mesh object."""
+        """Mesh object.
+
+        Returns
+        -------
+        Mesh
+        """
         return self._mesh
 
     @property
