@@ -26,9 +26,13 @@ jobs:
         run: |
           pip install .
 
-      - name: Install requirements
+      - name: Install doc build requirements
         run: |
           pip install -r requirements_docs.txt
+
+      - name: Run Doctest
+        run: |
+          pytest -v pyaedt/desktop.py -p no:faulthandler
 
       # this will only run on cron jobs to avoid saturating the queue
       - name: Full Documentation Build
@@ -52,8 +56,9 @@ jobs:
           path: doc/_build/html
           retention-days: 7
 
+      # Deploys only on cron-job nightly builds
       - name: Deploy
-        if: startsWith(github.event.ref, 'refs/heads/main')
+        if: github.event_name != 'push' && startsWith(github.event.ref, 'refs/heads/main')
         uses: JamesIves/github-pages-deploy-action@4.1.4
         with:
           repository-name: pyansys/pyaedt-dev-docs
