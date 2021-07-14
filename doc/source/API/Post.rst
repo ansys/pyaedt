@@ -1,22 +1,24 @@
-.. pyaedt documentation master file, created by
-   sphinx-quickstart on Fri Jun 12 11:39:54 2020.
-   You can adapt this file completely to your liking, but it should at least
-   contain the root `toctree` directive.
-
-
-
 Postprocessing
 ==============
+This module provides all functionalities for creating and editing
+plots in the 3D tools and includes the following classes:
 
-**Diagram**
+.. note::
+   The ``AdvancedPostProcessing`` module requires Python 3 and
+   requires ``numpy``, ``matplotlib``, and ``pyvista``.
 
-.. inheritance-diagram:: pyaedt.modules.PostProcessor pyaedt.modules.AdvancedPostProcessing
-    :parts: 1
+.. note::
+   Some functionalities are available only in graphical mode.
 
 
-.. toctree::
-   :maxdepth: 2
-   :caption: The `Postprocessing` module includes these classes:
+.. currentmodule:: pyaedt.modules
 
-   PostProcessor
-   AdvancedPostProcessing
+.. autosummary::
+   :toctree: _autosummary
+   :template: custom-class-template.rst
+   :nosignatures:
+
+   PostProcessor.SolutionData
+   PostProcessor.FieldPlot
+   PostProcessor.PostProcessor
+   AdvancedPostProcessing.PostProcessor
