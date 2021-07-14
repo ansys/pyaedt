@@ -400,7 +400,7 @@ class TestEDB:
         assert not self.edbapp.core_stackup.stackup_layers.add_outline_layer("Outline1")
 
     def test_create_edb(self):
-        edb = Edb(os.path.join(scratch_path, "temp.aedb"))
+        edb = Edb(os.path.join(self.local_scratch.path, "temp.aedb"))
         assert edb
         assert edb.active_layout
         edb.close_edb()

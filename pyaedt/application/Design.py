@@ -1095,7 +1095,7 @@ class Design(object):
 
         Returns
         -------
-        type
+        AEDTMessageManager
             Messenger object.
 
         """
@@ -1109,7 +1109,7 @@ class Design(object):
 
         Returns
         -------
-        type
+        VariableManager
             Variable manager object.
             
         """
