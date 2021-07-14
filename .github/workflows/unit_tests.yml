@@ -12,8 +12,7 @@ on:
     branches: [ main ]
   pull_request:
     branches: [ main ]
-     
-  
+
 
 # A workflow run is made up of one or more jobs that can run sequentially or in parallel
 jobs:
@@ -53,7 +52,12 @@ jobs:
       - name: 'Unit testing'
         run: | 
           testenv\Scripts\Activate.ps1
-          pytest -v --cov=pyaedt --cov=_unittest --cov-config=.coveragerc -cov-report=xml --junitxml=junit/test-results.xml _unittest
+          pytest -v --cov=pyaedt --cov=_unittest --cov-config=.coveragerc -cov-report=xml --junitxml=junit/test-results.xml _unittest -p no:faulthandler
+
+      - name: Docstring testing
+        run: |
+          pip install pytest
+          pytest -v pyaedt/desktop.py -p no:faulthandler
 
       - name: 'Coverage'
         run: |
