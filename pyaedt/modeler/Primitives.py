@@ -2152,8 +2152,9 @@ class Primitives(object):
         or XZ plane). This method creates new lines for the detected edges and returns
         the IDs of these lines.
         
-        This method accepts a one or more sheet objects as input, while 
-        the method `get_edges_for_circuit_port` accepts a face ID.
+        This method accepts a one or more sheet objects as input,
+        while the method :func:`Primitives.get_edges_for_circuit_port`
+        accepts a face ID.
         
         Parameters
         ----------
@@ -2295,7 +2296,7 @@ class Primitives(object):
         ----------
         face_id :
             ID of the face.
-         XY_plane : bool, optional
+        XY_plane : bool, optional
             Whether the edge's pair are to be on the XY plane.
             The default is ``True``.
         YZ_plane : bool, optional

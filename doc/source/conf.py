@@ -60,8 +60,7 @@ extensions = ['sphinx.ext.autodoc',
 
 
 # return type inline with the description.
-# napoleon_use_rtype = False
-# html_copy_source = False
+napoleon_use_rtype = False
 
 
 # Add any paths that contain templates here, relative to this directory.
