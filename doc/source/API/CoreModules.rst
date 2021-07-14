@@ -23,6 +23,7 @@ following classes:
 .. autosummary::
    :toctree: _autosummary
    :template: custom-class-template.rst
+   :nosignatures:
 
    Analysis.Analysis
    Analysis3D.FieldAnalysis3D
@@ -51,6 +52,7 @@ modeler, including all primitives methods and properties.
 .. autosummary::
    :toctree: _autosummary
    :template: custom-class-template.rst
+   :nosignatures:
 
    Modeler.Modeler
    Modeler.GeometryModeler
@@ -69,6 +71,7 @@ Objects
 .. autosummary::
    :toctree: _autosummary
    :template: custom-class-template.rst
+   :nosignatures:
 
    Object3d
    FacePrimitive
@@ -86,6 +89,7 @@ information to AEDB files.
 .. autosummary::
    :toctree: _autosummary
    :template: custom-class-template.rst
+   :nosignatures:
 
    components.Components
    hfss.Edb3DLayout
@@ -112,6 +116,7 @@ and designs.
 .. autosummary::
    :toctree: _autosummary
    :template: custom-class-template.rst
+   :nosignatures:
 
    DesignCache
    Design
@@ -127,6 +132,7 @@ design and project variables in the 3D tools.
 .. autosummary::
    :toctree: _autosummary
    :template: custom-class-template.rst
+   :nosignatures:
 
    CSVDataset
    VariableManager
@@ -144,6 +150,7 @@ optimetrics setups.
 .. autosummary::
    :toctree: _autosummary
    :template: custom-class-template.rst
+   :nosignatures:
 
    CommonOptimetrics
    DXSetups
