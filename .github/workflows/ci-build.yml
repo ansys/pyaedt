@@ -1,6 +1,14 @@
 name: Documentation Build
 
-on: [push, pull_request, workflow_dispatch]
+on:
+  push:
+    branches:
+      - '*'
+  pull_request:
+    branches:
+      - '*'
+  schedule:  # Build and deploy dev docs nightly
+    - cron:  '0 4 * * *'
 
 jobs:
   docs_build:
@@ -22,8 +30,9 @@ jobs:
         run: |
           pip install -r requirements_docs.txt
 
+      # this will only run on cron jobs to avoid saturating the queue
       - name: Full Documentation Build
-        if: startsWith(github.event.ref, 'refs/heads/main')
+        if: github.event_name != 'push' && startsWith(github.event.ref, 'refs/heads/main')
         run: |
           make -C doc phtml
           touch doc/_build/html/.nojekyll
