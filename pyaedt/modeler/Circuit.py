@@ -13,54 +13,63 @@ from ..modules.LayerStackup import Layers
 
 
 class ModelerCircuit(Modeler):
-    """ModelerCircuit class."""
-
+    """ModelerCircuit class.
+    
+    Parameters
+    ----------
+    parent :
+    
+    """
     def __init__(self, parent):
         self._parent = parent
         Modeler.__init__(self, parent)
 
     @property
     def oeditor(self):
-        """ """
+        """Editor."""
         return self.odesign.SetActiveEditor("SchematicEditor")
 
     @property
     def obounding_box(self):
-        """ """
+        """Bounding box."""
         return self.oeditor.GetModelBoundingBox()
 
     @property
     def o_def_manager(self):
-        """ """
+        """Definition manager."""
         return self._parent.oproject.GetDefinitionManager()
 
     @property
     def o_component_manager(self):
-        """ """
+        """Component."""
         return self.o_def_manager.GetManager("Component")
 
     @property
     def o_model_manager(self):
-        """ """
+        """Model manager."""
         return self.o_def_manager.GetManager("Model")
 
     @aedt_exception_handler
     def connect_schematic_components(self, firstcomponent, secondcomponent, pinnum_first=2, pinnum_second=1):
-        """
+        """Connect schematic components.Modd
 
         Parameters
         ----------
-        firstcomponent :
-            
+        firstcomponent : 
+           Starting (right) component.
         secondcomponent :
-            
-        pinnum_first :
-             The default is ``2``.
-        pinnum_second :
-             The default is ``1``.
+           Ending (left) component for the connection line.
+        pinnum_first : str, ooptional
+             Number of the pin at which to terminate the connection from the right end of the 
+             starting component. The default is ``2``.
+        pinnum_second : str, optional
+             Number of the pin at which to termiante the connection from the left end of the
+             ending component. The default is ``1``.
 
         Returns
         -------
+        bool
+             ``True`` when successful, ``False`` when failed.
 
         """
         obj1 = self.components[firstcomponent]
@@ -87,7 +96,13 @@ class ModelerCircuit(Modeler):
 
 
 class ModelerNexxim(ModelerCircuit):
-    """ModelerNexxim class."""
+    """ModelerNexxim class.
+    
+    Parameters
+    ----------
+    parent :
+    
+    """
 
     def __init__(self, parent):
         self._parent = parent
@@ -111,12 +126,13 @@ class ModelerNexxim(ModelerCircuit):
 
     @property
     def edb(self):
-        """
+        """EDB.
 
         Returns
         -------
         Edb
             edb_core object if it exists.
+        
         """
         if self._parent.design_type == "Twin Builder":
             return
@@ -131,21 +147,24 @@ class ModelerNexxim(ModelerCircuit):
 
     @property
     def layouteditor(self):
+        """Layout editor.""""
         if self._parent.design_type == "Twin Builder":
             return
         return self.odesign.SetActiveEditor("Layout")
 
     @property
     def model_units(self):
+        """Model units."""
         return retry_ntimes(10, self.layouteditor.GetActiveUnits)
 
     @property
     def primitives(self):
-        """
+        """Primitives.
 
         Returns
         -------
         Primitives3DLayout
+        
         """
         if self._parent.design_type == "Twin Builder":
             return
@@ -156,14 +175,7 @@ class ModelerNexxim(ModelerCircuit):
 
     @model_units.setter
     def model_units(self, units):
-        """Set circuit model units.
-
-        Parameters
-        ----------
-        units : str
-            Units for the circuit model.
-            
-        """
+        """ """
         assert units in AEDT_units["Length"], "Invalid units string {0}".format(units)
         ''' Set the model units as a string e.g. "mm" '''
         self.oeditor.SetActivelUnits(
@@ -175,15 +187,15 @@ class ModelerNexxim(ModelerCircuit):
 
     @aedt_exception_handler
     def move(self, selections, posx, posy):
-        """Move the selections by x, y.
+        """Move the selections by ``[x, y]``.
 
         Parameters
         ----------
         selections : list
             List of the selections.
-        posx :
+        posx : float
             Offset for the X axis.
-        posy :
+        posy : float
             Offset for the Y axis.
 
         Returns
@@ -223,7 +235,7 @@ class ModelerNexxim(ModelerCircuit):
         selections : list
             List of the selections.
         degrees : optional
-            Rotation angle. The default is ``90``.
+            Angle rotation in degrees. The default is ``90``.
 
         Returns
         -------
@@ -251,7 +263,13 @@ class ModelerNexxim(ModelerCircuit):
 
 
 class ModelerSimplorer(ModelerCircuit):
-    """ """
+    """ModelerSimplorer class.
+    
+    Parameters
+    ----------
+    parent :
+    
+    """
 
     def __init__(self, parent):
         self._parent = parent
@@ -259,7 +277,13 @@ class ModelerSimplorer(ModelerCircuit):
         self.components = SimplorerComponents(parent, self)
 
 class ModelerEmit(ModelerCircuit):
-    """ModelerEmit class. """
+    """ModelerEmit class.
+    
+    Parameters
+    ----------
+    parent :
+    
+    """
 
     def __init__(self, parent):
         self._parent = parent
