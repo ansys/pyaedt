@@ -1475,6 +1475,8 @@ class Primitives(object):
         for el in objects:
             self._delete_object_from_dict(el)
 
+        self._refresh_object_types()
+
         if len(objects) > 0:
             self.messenger.add_info_message("Deleted {} Objects".format(len(objects)))
 
@@ -1663,7 +1665,10 @@ class Primitives(object):
 
             if o.analysis_type:
                 o._solve_inside = attribs['SolveInside']
-                o._material_name = attribs['MaterialValue'][1:-1]
+                if 'MaterialValue' in attribs:
+                    o._material_name = attribs['MaterialValue'][1:-1]
+                else:
+                    o._material_name = attribs.get('MaterialName', None)
 
             o.part_coordinate_system = attribs['PartCoordinateSystem']
             if "NonModel" in attribs['Flags']:
@@ -1681,7 +1686,7 @@ class Primitives(object):
 
             o._m_groupName = groupname
             o._color = attribs['Color']
-            o._surface_material = attribs['SurfaceMaterialValue']
+            o._surface_material = attribs.get('SurfaceMaterialValue', None)
 
             # Store the new object infos
             self.objects[o.id] = o
