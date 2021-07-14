@@ -1,17 +1,16 @@
 
 def get_hpc_info(filename):
-    """
+    """Retrieve HPC information.
 
     Parameters
     ----------
-    filename :
-        
+    filename : str
+        Name of the file.   
 
     Returns
     -------
     type
         
-
     """
     config_name = ''
     design_type = ''
@@ -27,27 +26,22 @@ def get_hpc_info(filename):
 
 def update_hpc_option(self, filnename, propertyname, propertyvalue,
                       isvaluestring=True):
-    """Update HPC option into acf configuration file.
-
-    isvaluestring report a true or false depending if value is a string or integer
-    nc is the number of core (integer or string)
+    """Update an HPC option in the configuration file.
 
     Parameters
     ----------
     filnename : str
-        Full path to the filename.  Can be acf or txt.
-
+        Full path and name of the configuration file. The file type can be ACF or TXT.
     propertyname : str
-        Property name to be updated.
-
+        Name of the property to update.
     propertyvalue : 
-        Property value to be added.
-
+        Value for the property.
     isvaluestring : bool, optional
-        ``True`` if the value a string.  Default ``True``.
+        Whether the value  is a string. The default is ``True``. 
 
     Returns
     -------
+    type
 
     """
     with open(filnename) as fid:
@@ -66,18 +60,18 @@ def update_hpc_option(self, filnename, propertyname, propertyvalue,
 
 
 def update_simulation_cores(self, name, nc):
-    """Update HPC Number of Cores in configuration file.
-    nc is the number of core (integer or string)
-
+    """Update the HPC number of cores in the configuration file.
+    
     Parameters
     ----------
-    name :
-        
-    nc :
-        
+    name : str
+        Name of the configuration file.    
+    nc : int or string
+        Number of cores.  
 
     Returns
     -------
+    type
 
     """
     with open(name) as fid:
@@ -92,18 +86,18 @@ def update_simulation_cores(self, name, nc):
     return
 
 def update_simulation_engines(self, name, nc):
-    """Update HPC Number of Engines in configuration file name.
-    nc is the number of Engines (integer or string)
-
+    """Update the HPC number of simulaton engines in the configuration file.
+    
     Parameters
     ----------
-    name :
-        
-    nc :
-        
+    name : str
+        Name of the configuration file.   
+    nc : int or str
+        Number of simulaton engines.   
 
     Returns
     -------
+    type
 
     """
     with open(name) as fid:
@@ -118,17 +112,18 @@ def update_simulation_engines(self, name, nc):
     return
 
 def update_machine_name(self, name, machinename):
-    """
+    """Update the machine name.
 
     Parameters
     ----------
-    name :
-        
-    machinename :
-        
+    name : str
+        Name of the machine to update.
+    machinename : str
+        New name of the machine.
 
     Returns
     -------
+    type
 
     """
     with open(name) as fid:
@@ -143,18 +138,19 @@ def update_machine_name(self, name, machinename):
     return
 
 def update_config_name(self, name, machinename):
-    """
+    """Update the name of the machine.
 
     Parameters
     ----------
-    name :
-        
-    machinename :
-        
+    name : str
+        Name of the machine to update.
+    machinename : str
+        New name of the machine.
 
     Returns
     -------
-
+    type
+    
     """
     with open(name) as fid:
         for line in fid:
@@ -169,20 +165,21 @@ def update_config_name(self, name, machinename):
         f.write(new_line)
     return
 
-def update_cluster_cores(self, file_name,param_name, param_val):
-    """
+def update_cluster_cores(self, file_name, param_name, param_val):
+    """Update the number of cluster cores in the configuration file.
 
     Parameters
     ----------
-    file_name :
-        
-    param_name :
-        
-    param_val :
-        
+    file_name : str
+        Full path and name of the configuration file. The file type can be ACF or TXT.   
+    param_name : str
+        Name of the parameter.      
+    param_val : int
+         New number of cluster cores. 
 
     Returns
     -------
+    type
 
     """
     with open(file_name) as f:
@@ -197,19 +194,20 @@ def update_cluster_cores(self, file_name,param_name, param_val):
     return
 
 def Update_hpc_template(self, file_name, param_name, param_val):
-    """
+    """Update a paramerter in the HPC template file.
 
-    Parameters
+     Parameters
     ----------
-    file_name :
-        
-    param_name :
-        
-    param_val :
-        
+    file_name : str
+        Full path and name of the HPC template file.
+    param_name : str
+        Name of the parameter to update.   
+    param_val : int
+        Value of the paraemeter.     
 
     Returns
     -------
+    type
 
     """
     with open(file_name) as f:
@@ -223,4 +221,3 @@ def Update_hpc_template(self, file_name, param_name, param_val):
     with open(file_name, "w") as f:
         f.write(new_line)
     return
-
