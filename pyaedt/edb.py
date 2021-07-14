@@ -716,3 +716,37 @@ class Edb(object):
 
         siwave_s = SiwaveSolve(self.edbpath, aedt_installer_path=self.base_path)
         return siwave_s.export_3d_cad("Q3D", path_to_output, net_list)
+
+
+    @aedt_exception_handler
+    def export_maxwell(self, path_to_output, net_list=None):
+        """
+        Export Edb to Maxwell 3D
+
+        Parameters
+        ----------
+        path_to_output : str
+            full path to where aedt will be saved
+        net_list : list, optional
+            if provided, only nets in list will be exported
+
+        Returns
+        -------
+        str
+            path to .aedt file
+
+        Examples
+        --------
+
+        >>> from pyaedt import Edb
+
+        >>> edb = Edb(edbpath=r"C:\temp\myproject.aedb", edbversion="2021.1")
+
+        >>> options_config = {'UNITE_NETS' : 1, 'LAUNCH_Q3D' : 0}
+        >>> edb.write_export3d_option_config_file(r"C:\temp", options_config)
+        >>> edb.export_maxwell(r"C:\temp")
+        "C:\\temp\\maxwell_siwave.aedt"
+        """
+
+        siwave_s = SiwaveSolve(self.edbpath, aedt_installer_path=self.base_path)
+        return siwave_s.export_3d_cad("Maxwell", path_to_output, net_list)

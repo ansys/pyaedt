@@ -1,10 +1,10 @@
 """
-The `Desktop` module contains the `Desktop` class.
+This module contains the `Desktop` class.
 
-The class is used to initialize AEDT and Message Manager to manage AEDT.
-You can initialize the `Desktop` module before launching an app or 
+This module is used to initialize AEDT and Message Manager to manage AEDT.
+
+You can initialize this module before launching an app or 
 have the app automatically initialize it to the latest installed AEDT version.
-
 """
 from __future__ import absolute_import
 
@@ -229,14 +229,14 @@ def force_close_desktop():
             for el in plist:
                 Module.oDesktop.CloseProject(el)
         except:
-            logger.error("No Projects. Closing Desktop Connection")
+            logger.warning("No Projects. Closing Desktop Connection")
         try:
             scopeID = 5
             while i <= scopeID:
                 Module.COMUtil.ReleaseCOMObjectScope(Module.COMUtil.PInvokeProxyAPI, 0)
                 i += 1
         except:
-            logger.error("No COM UTIL. Closing the Desktop....")
+            logger.warning("No COM UTIL. Closing the Desktop....")
         try:
             del Module.pyaedt_initialized
         except:
@@ -244,20 +244,18 @@ def force_close_desktop():
         try:
             os.kill(pid, 9)
             del Module.oDesktop
-            log= logging.getLogger(__name__)
-            handlers = log.handlers[:]
-            for handler in handlers:
-                handler.close()
-                log.removeHandler(handler)
-            return True
+            successfully_closed = True
         except:
             Module.oMessenger.add_error_message("something went wrong in Closing AEDT")
-            log= logging.getLogger(__name__)
+            successfully_closed = False
+        finally:
+            log = logging.getLogger(__name__)
             handlers = log.handlers[:]
             for handler in handlers:
                 handler.close()
                 log.removeHandler(handler)
-            return False
+            return successfully_closed
+
 
 
 class Desktop:
@@ -269,18 +267,21 @@ class Desktop:
 
     Parameters
     ----------
-    specified_version: str, optional
+    specified_version : str, optional
         Version of AEDT to use. The default is ``None``, in which case the
         active setup or latest installed version is used.
     NG: bool, optional
         Whether to launch AEDT in the non-graphical mode. The default 
         is ``False``, in which case AEDT launches in the graphical mode.
-    AlwaysNew: bool, optional
+    AlwaysNew : bool, optional
         Whether to launch an instance of AEDT in a new thread, even if 
         another instance of the ``specified_version`` is active on the machine.
         The default is ``True``.
-    release_on_exit: bool, optional
+    release_on_exit : bool, optional
         Whether to release AEDT on exit. The default is ``True``.
+    student_version : bool, optional
+        Whether to enable the student version of AEDT. The default is
+        ``False``.
 
     Examples
     --------
@@ -304,7 +305,7 @@ class Desktop:
             
     @property
     def version_keys(self):
-        """ """
+        """Version keys."""
 
         self._version_keys = []
         self._version_ids = {}
@@ -336,12 +337,12 @@ class Desktop:
 
     @property
     def current_version(self):
-        """ """
+        """Current version of AEDT."""
         return self.version_keys[0]
 
     @property
     def current_version_student(self):
-        """ """
+        """Current student version of AEDT. """
         for el in self.version_keys:
             if "SV" in el:
                 return el
@@ -427,7 +428,8 @@ class Desktop:
                         process = "ansysedtsv.exe"
                     else:
                         process = "ansysedt.exe"
-                    output = os.popen('tasklist /FI "IMAGENAME eq {}" /v'.format(process)).readlines()
+                    with os.popen('tasklist /FI "IMAGENAME eq {}" /v'.format(process)) as tasks_list:
+                        output = tasks_list.readlines()
                     pattern = r'(?i)^(?:{})\s+?(\d+)\s+.+[\s|\\](?:{})\s+'.format(process, username)
                     for l in output:
                         m = re.search(pattern, l)
@@ -451,7 +453,8 @@ class Desktop:
                         process = "ansysedtsv.exe"
                     else:
                         process = "ansysedt.exe"
-                    output = os.popen('tasklist /FI "IMAGENAME eq {}" /v'.format(process)).readlines()
+                    with os.popen('tasklist /FI "IMAGENAME eq {}" /v'.format(process)) as tasks_list:
+                        output = tasks_list.readlines()
                     pattern = r'(?i)^(?:{})\s+?(\d+)\s+.+[\s|\\](?:{})\s+'.format(process, username)
                     for l in output:
                         m = re.search(pattern, l)
@@ -531,7 +534,7 @@ class Desktop:
 
     @property
     def install_path(self):
-        """ """
+        """Installation path for AEDT."""
         version_key = self._main.AEDTVersion
         root = self._version_ids[version_key]
         return os.environ[root]
@@ -583,7 +586,7 @@ class Desktop:
         return str(ex_value)
 
     def release_desktop(self, close_projects=True, close_on_exit=True):
-        """Release the AEDT API.
+        """Release AEDT.
 
         Parameters
         ----------
@@ -591,7 +594,7 @@ class Desktop:
             Whether to close the projects opened in the session. 
             The default is ``True``.
         close_on_exit : bool, optional
-            Whether to close the active AEDT session. 
+            Whether to close the active AEDT session on exiting AEDT. 
             The default is ``True``.
 
         Examples
@@ -663,17 +666,17 @@ class Desktop:
 
 
 def get_version_env_variable(version_id):
-    """Get environment variable for the given AEDT version.
+    """Retrieve the environment variable for the AEDT version.
 
     Parameters
     ----------
     version_id : str
-        AEDT version number.
+        Full AEDT version number, such as "2021.1".
 
     Returns
     -------
     str
-        Environment variable corresponding to given version.
+        Environment variable for the version.
 
     Examples
     --------

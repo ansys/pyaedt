@@ -17,6 +17,9 @@ import string
 from collections import defaultdict
 from .. import generate_unique_name, retry_ntimes, aedt_exception_handler
 from .GeometryOperators import GeometryOperators
+from ..generic.general_methods import time_fn
+
+
 
 clamp = lambda n, minn, maxn: max(min(maxn, n), minn)
 
@@ -40,7 +43,8 @@ rgb_color_codes = {
     "copper": (184, 115, 51),
     "stainless steel": (224, 223, 219)
 }
-@aedt_exception_handler
+
+
 def _uname(name=None):
     """Appends a 6-digit hash code to a specified name
 
@@ -106,38 +110,52 @@ def _dim_arg(value, units):
     try:
         val = float(value)
         return str(val) + units
-    except:
+    except ValueError:
         return value
 
 
+class EdgeTypePrimitive:
+    """Common methods for EdgePrimitive and FacePrimitive"""
+    @aedt_exception_handler
+    def fillet(self, radius=0.1, setback=0.0):
+        """Add Fillet to selected edge
 
-class VertexPrimitive(object):
-    """Vertex object within the AEDT Desktop Modeler
-
-    Parameters
-    ----------
-    parent : Object3d
-        Pointer to the calling object which provides additional functionality
-
-    id : int
-        Object id as determined by the parent object
-
-    """
-    def __init__(self, parent, id):
-        self.id = id
-        self._parent = parent
-        self._oeditor = parent.m_Editor
-
-    @property
-    def position(self):
-        """Position of the vertex
+        Parameters
+        ----------
+        radius : float, default=0.1
+            Fillet Radius
+        setback : float, default=0.0
+            Fillet setback value
 
         Returns
         -------
-        list of float
-            List of [x, y, z] coordinates of the vertex (in model units)
+        bool
+            True if operation is successful
         """
-        return [float(i) for i in list(self._oeditor.GetVertexPosition(self.id))]
+        edge_id_list = []
+        vertex_id_list = []
+
+        if isinstance(self, VertexPrimitive):
+            vertex_id_list = [self.id]
+        else:
+            if self._parent.is3d:
+                edge_id_list = [self.id]
+            else:
+                self._parent.messenger.add_error_message("filet is possible only on Vertex in 2D Designs ")
+                return False
+
+        vArg1 = ['NAME:Selections', 'Selections:=', self._parent.name, 'NewPartsModelFlag:=', 'Model']
+        vArg2 = ["NAME:FilletParameters"]
+        vArg2.append('Edges:='), vArg2.append(edge_id_list)
+        vArg2.append('Vertices:='), vArg2.append(vertex_id_list)
+        vArg2.append('Radius:='), vArg2.append(self._parent._parent._arg_with_dim(radius))
+        vArg2.append('Setback:='), vArg2.append(self._parent._parent._arg_with_dim(setback))
+        self._parent.m_Editor.Fillet(vArg1, ["NAME:Parameters", vArg2])
+        if self._parent.name in list(self._parent.m_Editor.GetObjectsInGroup("UnClassified")):
+            self._parent.odesign.Undo()
+            self._parent.messenger.add_error_message("Operation Failed generating Unclassified object. Check and retry")
+            return False
+        return True
 
     @aedt_exception_handler
     def chamfer(self, left_distance=1, right_distance=None, angle=45, chamfer_type=0):
@@ -162,27 +180,36 @@ class VertexPrimitive(object):
         bool
             True if operation is successful
         """
-        if self._parent.is3d:
-            self._parent.messenger.add_error_message("chamfer is possible only on Vertex in 2D Objects ")
-            return False
+        edge_id_list = []
+        vertex_id_list = []
+
+        if isinstance(self, VertexPrimitive):
+            vertex_id_list = [self.id]
+        else:
+            if self._parent.is3d:
+                edge_id_list = [self.id]
+            else:
+                self._parent.messenger.add_error_message("chamfer is possible only on Vertex in 2D Designs ")
+                return False
         vArg1 = ['NAME:Selections', 'Selections:=', self._parent.name, 'NewPartsModelFlag:=', 'Model']
         vArg2 = ["NAME:ChamferParameters"]
-        vArg2.append('Edges:='), vArg2.append([])
-        vArg2.append('Vertices:='), vArg2.append([self.id])
-        vArg2.append('LeftDistance:='), vArg2.append(self._parent._parent.arg_with_dim(left_distance))
+        vArg2.append('Edges:='), vArg2.append(edge_id_list)
+        vArg2.append('Vertices:='), vArg2.append(vertex_id_list)
+        vArg2.append('LeftDistance:='), vArg2.append(self._parent._parent._arg_with_dim(left_distance))
         if not right_distance:
             right_distance = left_distance
         if chamfer_type == 0:
-            vArg2.append('RightDistance:='), vArg2.append(self._parent._parent.arg_with_dim(right_distance))
+            vArg2.append('RightDistance:='), vArg2.append(self._parent._parent._arg_with_dim(right_distance))
             vArg2.append('ChamferType:='), vArg2.append('Symmetric')
         elif chamfer_type == 1:
-            vArg2.append('RightDistance:='), vArg2.append(self._parent._parent.arg_with_dim(right_distance))
+            vArg2.append('RightDistance:='), vArg2.append(self._parent._parent._arg_with_dim(right_distance))
             vArg2.append('ChamferType:='), vArg2.append('Left Distance-Right Distance')
         elif chamfer_type == 2:
             vArg2.append('Angle:='), vArg2.append(str(angle) + "deg")
             vArg2.append('ChamferType:='), vArg2.append('Left Distance-Right Distance')
         elif chamfer_type == 3:
-            vArg2.append('Angle:='), vArg2.append(str(angle) + "deg")
+            vArg2.append("LeftDistance:="), vArg2.append(str(angle) + "deg")
+            vArg2.append("RightDistance:="), vArg2.append(self._parent._parent._arg_with_dim(right_distance))
             vArg2.append('ChamferType:='), vArg2.append('Right Distance-Angle')
         else:
             self._parent.messenger.add_error_message("Wrong Type Entered. Type must be integer from 0 to 3")
@@ -194,47 +221,8 @@ class VertexPrimitive(object):
             return False
         return True
 
-    @aedt_exception_handler
-    def fillet(self, radius=0.1, setback=0.0):
-        """Add Fillet to selected edge
-
-        Parameters
-        ----------
-        radius : float, default=0.1
-            Fillet Radius
-        setback : float, default=0.0
-            Fillet setback value
-
-        Returns
-        -------
-        bool
-            True if operation is successful
-        """
-        if self._parent.is3d:
-            self._parent.messenger.add_error_message("chamfer is possible only on Vertex in 2D Objects ")
-            return False
-        vArg1 = ['NAME:Selections', 'Selections:=', self._parent.name, 'NewPartsModelFlag:=', 'Model']
-        vArg2 = ["NAME:FilletParameters"]
-        vArg2.append('Edges:='), vArg2.append([])
-        vArg2.append('Vertices:='), vArg2.append([self.id])
-        vArg2.append('Radius:='), vArg2.append(self._parent._parent.arg_with_dim(radius))
-        vArg2.append('Setback:='), vArg2.append(self._parent._parent.arg_with_dim(setback))
-        self._parent.m_Editor.Fillet(vArg1, ["NAME:Parameters", vArg2])
-        if self._parent.name in list(self._parent.m_Editor.GetObjectsInGroup("UnClassified")):
-            self._parent.odesign.Undo()
-            self._parent.messenger.add_error_message("Operation Failed generating Unclassified object. Check and retry")
-            return False
-        return True
-
-    def __repr__(self):
-        return "Vertex "+str(self.id)
-
-    def __str__(self):
-        return "Vertex "+str(self.id)
-
-
-class EdgePrimitive(object):
-    """Edge object within the AEDT Desktop Modeler
+class VertexPrimitive(EdgeTypePrimitive):
+    """Vertex object within the AEDT Desktop Modeler
 
     Parameters
     ----------
@@ -249,15 +237,57 @@ class EdgePrimitive(object):
         self.id = id
         self._parent = parent
         self._oeditor = parent.m_Editor
+
+    @property
+    def position(self):
+        """Position of the vertex
+        Returns None if the data from AEDT is invalid
+
+        Returns
+        -------
+        list of float
+            List of [x, y, z] coordinates of the vertex (in model units)
+        """
+        try:
+            vertex_data = list(self._oeditor.GetVertexPosition(self.id))
+            return [float(i) for i in vertex_data]
+        except Exception as e:
+            return None
+
+
+    def __repr__(self):
+        return "Vertex "+str(self.id)
+
+    def __str__(self):
+        return "Vertex "+str(self.id)
+
+
+class EdgePrimitive(EdgeTypePrimitive):
+    """Edge object within the AEDT Desktop Modeler
+
+    Parameters
+    ----------
+    parent : Object3d
+        Pointer to the calling object which provides additional functionality
+
+    id : int
+        Object id as determined by the parent object
+
+    """
+    def __init__(self, parent, edge_id):
+        self.id = edge_id
+        self._parent = parent
+        self._oeditor = parent.m_Editor
         self.vertices = []
-        for vertex in self._oeditor.GetVertexIDsFromEdge(self.id):
+        for vertex in self._oeditor.GetVertexIDsFromEdge(edge_id):
             vertex = int(vertex)
             self.vertices.append(VertexPrimitive(parent, vertex))
 
     @property
     def midpoint(self):
         """Midpoint coordinates of the edge.
-        If the edge is not a segment with two vertices return an empty list.
+        If the edge is a circle with only one vertex, return that vertex
+        Otherwise return None
 
         Returns
         -------
@@ -270,8 +300,6 @@ class EdgePrimitive(object):
             return list(midpoint)
         elif len(self.vertices) == 1:
             return self.vertices[0].position
-        else:
-            return []
 
     @property
     def length(self):
@@ -287,89 +315,6 @@ class EdgePrimitive(object):
             return float(length)
         else:
             return False
-
-    @aedt_exception_handler
-    def chamfer(self, left_distance=1, right_distance=None, angle=45, chamfer_type=0):
-        """Add Chamfer to selected edge
-
-        Parameters
-        ----------
-        left_distance : float, default=1.0
-            left distance from the edge
-        right_distance : float, default=None
-            right distance from the edge
-        angle : float, default=45.0
-            angle value (for chamfer-type 2 and 3)
-        chamfer_type : int, default=0
-                * 0 - Symmetric
-                * 1 - Left Distance-Right Distance
-                * 2 - Left Distance-Angle
-                * 3 - Right Distance-Angle
-
-        Returns
-        -------
-        bool
-            True if operation is successful
-        """
-
-        vArg1 = ['NAME:Selections', 'Selections:=', self._parent.name, 'NewPartsModelFlag:=', 'Model']
-        vArg2 = ["NAME:ChamferParameters"]
-        vArg2.append('Edges:='), vArg2.append([self.id])
-        vArg2.append('Vertices:='), vArg2.append([])
-        vArg2.append('LeftDistance:='), vArg2.append(self._parent._parent.arg_with_dim(left_distance))
-        if not right_distance:
-            right_distance=left_distance
-        if chamfer_type == 0:
-            vArg2.append('RightDistance:='), vArg2.append(self._parent._parent.arg_with_dim(right_distance))
-            vArg2.append('ChamferType:='), vArg2.append('Symmetric')
-        elif chamfer_type == 1:
-            vArg2.append('RightDistance:='), vArg2.append(self._parent._parent.arg_with_dim(right_distance))
-            vArg2.append('ChamferType:='), vArg2.append('Left Distance-Right Distance')
-        elif chamfer_type == 2:
-            vArg2.append('Angle:='), vArg2.append(str(angle)+"deg")
-            vArg2.append('ChamferType:='), vArg2.append('Left Distance-Right Distance')
-        elif chamfer_type == 3:
-            vArg2.append('Angle:='), vArg2.append(str(angle)+"deg")
-            vArg2.append('ChamferType:='), vArg2.append('Right Distance-Angle')
-        else:
-            self._parent.messenger.add_error_message("Wrong Type Entered. Type must be integer from 0 to 3")
-            return False
-        self._oeditor.Chamfer(vArg1, ["NAME:Parameters", vArg2])
-        if self._parent.name in list(self._parent.m_Editor.GetObjectsInGroup("UnClassified")):
-            self._parent.odesign.Undo()
-            self._parent.messenger.add_error_message("Operation Failed generating Unclassified object. Check and retry")
-            return False
-        return True
-
-    @aedt_exception_handler
-    def fillet(self, radius=0.1, setback=0):
-        """Add Fillet to selected edge
-
-        Parameters
-        ----------
-        radius : float, default=0.1
-            Fillet radius
-        setback : float, default=0.0
-            Fillet setback
-
-        Returns
-        -------
-        bool
-            True if operation is successful
-
-        """
-        vArg1 = ['NAME:Selections', 'Selections:=', self._parent.name, 'NewPartsModelFlag:=', 'Model']
-        vArg2 = ["NAME:FilletParameters"]
-        vArg2.append('Edges:='), vArg2.append([self.id])
-        vArg2.append('Vertices:='), vArg2.append([])
-        vArg2.append('Radius:='), vArg2.append(self._parent._parent.arg_with_dim(radius))
-        vArg2.append('Setback:='), vArg2.append(self._parent._parent.arg_with_dim(setback))
-        self._parent.m_Editor.Fillet(vArg1, ["NAME:Parameters", vArg2])
-        if self._parent.name in list(self._parent.m_Editor.GetObjectsInGroup("UnClassified")):
-            self._parent.odesign.Undo()
-            self._parent.messenger.add_error_message("Operation Failed generating Unclassified object. Check and retry")
-            return False
-        return True
 
     def __repr__(self):
         return "EdgeId "+str(self.id)
@@ -459,10 +404,10 @@ class FacePrimitive(object):
             True if operation is successful
         """
         self._parent.m_Editor.MoveFaces(["NAME:Selections", "Selections:=", self._parent.name, "NewPartsModelFlag:=", "Model"],
-                                    ["NAME:Parameters",
-                                     ["NAME:MoveFacesParameters", "MoveAlongNormalFlag:=", True, "OffsetDistance:=", _dim_arg(offset, self._parent.object_units),
-                                      "MoveVectorX:=", "0mm", "MoveVectorY:=", "0mm", "MoveVectorZ:=", "0mm",
-                                      "FacesToMove:=", [self.id]]])
+                                        ["NAME:Parameters",
+                                        ["NAME:MoveFacesParameters", "MoveAlongNormalFlag:=", True, "OffsetDistance:=", _dim_arg(offset, self._parent.object_units),
+                                         "MoveVectorX:=", "0mm", "MoveVectorY:=", "0mm", "MoveVectorZ:=", "0mm",
+                                         "FacesToMove:=", [self.id]]])
         return True
 
     @aedt_exception_handler
@@ -581,24 +526,14 @@ class Object3d(object):
             self._m_name = _uname()
         self._parent = parent
         self.flags = ""
-        self._transparency = 0.3
         self._part_coordinate_system = "Global"
-        self._solve_inside = True
-        self._wireframe = False
-        self._model = True
-        self._color = (132, 132, 193)
         self._bounding_box = None
-        self._object_type = None
-        self._material_name = self._parent.defaultmaterial
-        self._surface_material = None
+        self._material_name = None
+        self._transparency = None
         self._solve_inside = None
-
-    @property
-    def analysis_type(self):
-        """Returns True for a 'Sheet' object in a 2D analysis or a 'Solid' object in a 3D analysis"""
-        solve_3d = self._parent.is3d and self.object_type == "Solid"
-        solve_2d = not self._parent.is3d and self.object_type == "Sheet"
-        return solve_3d or solve_2d
+        self._is_updated = False
+        self._all_props = None
+        self._surface_material = None
 
     @property
     def bounding_box(self):
@@ -719,42 +654,66 @@ class Object3d(object):
         return self._parent.messenger
 
     @property
+    def surface_material_name(self):
+        """Get the surface material name of the object
+        If the material does not exist, then send a warning and return None
+        """
+        if 'Surface Material' in self.valid_properties:
+            self._surface_material = retry_ntimes(10, self.m_Editor.GetPropertyValue,
+                                          "Geometry3DAttributeTab", self._m_name, 'Surface Material')
+            return self._surface_material.strip('"')
+
+    @property
+    def group_name(self):
+        """Get the group to which an object belongs
+        """
+        if 'Group' in self.valid_properties:
+            self.m_groupName = retry_ntimes(10, self.m_Editor.GetPropertyValue, "Geometry3DAttributeTab", self._m_name, 'Group')
+            return self.m_groupName
+
+    @property
     def material_name(self):
         """Get or set the material name of the object
         If the material does not exist, then send a warning and do nothing
         """
-        return self._material_name
+        if 'Material' in self.valid_properties:
+            mat = retry_ntimes(10, self.m_Editor.GetPropertyValue, "Geometry3DAttributeTab", self._m_name, 'Material')
+            self._material_name = ''
+            if mat:
+                self._material_name = mat.strip('"').lower()
+            return self._material_name
 
     @material_name.setter
     def material_name(self, mat):
         if self._parent.materials.checkifmaterialexists(mat):
             self._material_name = mat
-            vMaterial = ["NAME:Material", "Value:=", chr(34)+mat+chr(34)]
+            vMaterial = ["NAME:Material", "Value:=", chr(34) + mat + chr(34)]
             self._change_property(vMaterial)
             self._material_name = mat
         else:
             self.messenger.add_warning_message("Material {} does not exist".format(mat))
 
-    @property
-    def surface_material_name(self):
-        """Get or set the material name of the object
-        If the material does not exist, then send a warning and do nothing
-        """
-        return self._surface_material
 
     @surface_material_name.setter
-    def surface_material_name(self, surf_matname):
-        self._surface_material = surf_matname
-        vMaterial = ["NAME:Surface Material", "Value:=", chr(34)+surf_matname+chr(34)]
-        if not self._change_property(vMaterial):
-            self.messenger.add_warning_message("Material {} does not exist".format(surf_matname))
+    def surface_material_name(self, mat):
+        if self._parent.materials.checkifmaterialexists(mat):
+            self._surface_material = mat
+            vMaterial = ["NAME:Surface Material", "Value:=", '"' + mat + '"']
+            self._change_property(vMaterial)
+            self._surface_material = mat
+        else:
+            self.messenger.add_warning_message("Material {} does not exist".format(mat))
 
 
     @property
     def id(self):
-        """Object id
+        """Object id - returns None if invalid data from AEDT Modeler
         """
-        return self._parent.oeditor.GetObjectIDByName(self._m_name)
+        try:
+            get_id = self._parent.oeditor.GetObjectIDByName(self._m_name)
+        except Exception as e:
+            return None
+        return get_id
 
     @property
     def object_type(self):
@@ -764,6 +723,13 @@ class Object3d(object):
              * Sheet
              * Line
          """
+        if self._m_name in self._parent.solid_names:
+            self._object_type = "Solid"
+        else:
+            if self._m_name in self._parent.sheet_names:
+                self._object_type = "Sheet"
+            elif self._m_name in self._parent.line_names:
+                self._object_type = "Line"
         return self._object_type
 
     @property
@@ -781,14 +747,23 @@ class Object3d(object):
 
     @name.setter
     def name(self, obj_name):
-        if obj_name != self._m_name:
-            vName = []
-            vName.append("NAME:Name")
-            vName.append("Value:=")
-            vName.append(obj_name)
-            self._change_property(vName)
-            self._m_name = obj_name
+        if obj_name not in self._parent.object_names:
+            if obj_name != self._m_name:
+                vName = []
+                vName.append("NAME:Name")
+                vName.append("Value:=")
+                vName.append(obj_name)
+                self._change_property(vName)
+        else:
+            #TODO check for name conflict
+            pass
+        self._m_name = obj_name
 
+    @property
+    def valid_properties(self):
+        if not self._all_props:
+            self._all_props = retry_ntimes(10, self.m_Editor.GetProperties, "Geometry3DAttributeTab", self._m_name)
+        return self._all_props
 
     @property
     def color(self):
@@ -796,7 +771,16 @@ class Object3d(object):
         If the integer values are outside the range 0 - 255, then limit the values. Invalid inputs will be ignored
          >>> part.color = (255,255,0)
         """
-        return self._color
+        if 'Color' in self.valid_properties:
+            color = retry_ntimes(10, self.m_Editor.GetPropertyValue, "Geometry3DAttributeTab", self._m_name, 'Color')
+            if color:
+                b = (int(color) >> 16) & 255
+                g = (int(color) >> 8) & 255
+                r = int(color) & 255
+                self._color = (r, g, b)
+            else:
+                self._color = (0, 195, 255)
+            return self._color
 
     @property
     def color_string(self):
@@ -814,10 +798,12 @@ class Object3d(object):
                 if len(parse_string) == 3:
                     color_tuple = tuple([int(x) for x in parse_string])
         else:
-            color_tuple = color_value
+            try:
+                color_tuple = tuple([int(x) for x in color_value])
+            except ValueError:
+                pass
 
         if color_tuple:
-
             try:
                 R = clamp(color_tuple[0], 0, 255)
                 G = clamp(color_tuple[1], 0, 255)
@@ -827,18 +813,22 @@ class Object3d(object):
                 self._color = (R, G, B)
             except TypeError:
                 color_tuple = None
-
-        if not color_tuple:
+        else:
             msg_text = "Invalid color input {} for object {}".format(color_value, self._m_name)
             self._parent.messenger.add_warning_message(msg_text)
-
 
     @property
     def transparency(self):
         """Get or set part transparency as a value between 0.0 and 1.0
         If the value is outside the range, then apply a limit. If the value is not a valid number, set to 0.0
         """
-        return self._transparency
+        if 'Transparent' in self.valid_properties:
+            transp = retry_ntimes(10, self.m_Editor.GetPropertyValue, "Geometry3DAttributeTab", self._m_name, 'Transparent')
+            try:
+                self._transparency = float(transp)
+            except:
+                self._transparency = 0.3
+            return self._transparency
 
     @transparency.setter
     def transparency(self, T):
@@ -855,7 +845,6 @@ class Object3d(object):
         self._change_property(vTrans)
 
         self._transparency = trans_float
-        return True
 
     @property
     def object_units(self):
@@ -870,7 +859,10 @@ class Object3d(object):
         str
             Name of the part coordinate system
         """
-        return self._part_coordinate_system
+        if 'Orientation' in self.valid_properties:
+            self._part_coordinate_system = retry_ntimes(10, self.m_Editor.GetPropertyValue,
+                                                "Geometry3DAttributeTab", self._m_name, 'Orientation')
+            return self._part_coordinate_system
 
     @part_coordinate_system.setter
     def part_coordinate_system(self, sCS):
@@ -882,7 +874,13 @@ class Object3d(object):
         """Get or Set part solve inside flag as a boolean value
         True if "solve-inside" is activated for the part
         """
-        return self._solve_inside
+        if 'Solve Inside' in self.valid_properties:
+            solveinside = retry_ntimes(10, self.m_Editor.GetPropertyValue, "Geometry3DAttributeTab", self._m_name, 'Solve Inside')
+            if solveinside == 'false' or solveinside == 'False':
+                self._solve_inside = False
+            else:
+                self._solve_inside = True
+            return self._solve_inside
 
     @solve_inside.setter
     def solve_inside(self, S):
@@ -897,51 +895,18 @@ class Object3d(object):
 
         self._solve_inside = fs
 
-    @aedt_exception_handler
-    def export_attributes_legacy(self, name=None):
-        if name:
-            obj_name = name
-        else:
-            obj_name = self.name
-
-        args = ["NAME:Attributes", "Name:=", obj_name, "Flags:=", self.flags, "Color:=", self.color_string,
-                "Transparency:=", self.transparency, "PartCoordinateSystem:=", self.part_coordinate_system,
-                "MaterialName:=", self.material_name, "SolveInside:=", self.solve_inside]
-
-        return args
-
-    @aedt_exception_handler
-    def export_attributes(self, name=None):
-        if name:
-            obj_name = name
-        else:
-            obj_name = self.name
-
-        args = ["NAME:Attributes",
-                "Name:=", obj_name,
-                "Flags:=", self.flags,
-                "Color:=", self.color_string,
-                "Transparency:=", self.transparency,
-                "PartCoordinateSystem:=", self.part_coordinate_system,
-                "UDMId:=", "",
-                "MaterialValue:=", chr(34) + self._material_name + chr(34),
-                "SurfaceMaterialValue:=", chr(34) +"Steel-oxidised-surface"+ chr(34),
-                "SolveInside:=", self.solve_inside]
-
-        if self._parent.version >= "2021.1":
-            args += ["ShellElement:="	, False,
-                     "ShellElementThickness:=", "0mm",
-                     "IsMaterialEditable:=", True,
-                     "UseMaterialAppearance:=", False,
-                     "IsLightweight:=", False]
-
-        return args
-
     @property
     def display_wireframe(self):
         """Get or set the display_wireframe property of the part as a boolean value
         """
-        return self._wireframe
+        if 'Display Wireframe' in self.valid_properties:
+            wireframe = retry_ntimes(10, self.m_Editor.GetPropertyValue,
+                                     "Geometry3DAttributeTab", self._m_name, 'Display Wireframe')
+            if wireframe == 'true' or wireframe == 'True':
+                self._wireframe = True
+            else:
+                self._wireframe = False
+            return self._wireframe
 
     @display_wireframe.setter
     def display_wireframe(self, fWireframe):
@@ -955,7 +920,13 @@ class Object3d(object):
     def model(self):
         """Set part Model/Non-model as a boolean value
         """
-        return self._model
+        if 'Model' in self.valid_properties:
+            mod = retry_ntimes(10, self.m_Editor.GetPropertyValue, "Geometry3DAttributeTab", self._m_name, 'Model')
+            if mod == 'false' or mod == 'False':
+                self._model = False
+            else:
+                self._model = True
+            return self._model
 
     @model.setter
     def model(self, fModel):
@@ -963,6 +934,162 @@ class Object3d(object):
         fModel = _to_boolean(fModel)
         self._change_property(vArg1)
         self._model = fModel
+
+    @aedt_exception_handler
+    def unite(self, object_list):
+        """Unite a list of objects with this object
+
+        Parameters
+        ----------
+        object_list : list of str or list of Object3d
+            list of object
+
+        Returns
+        -------
+        Object3d
+        """
+        unite_list = [self.name] + self._parent.modeler.convert_to_selections(object_list, return_list=True)
+        self._parent.modeler.unite(unite_list)
+        return self
+
+    def duplicate_around_axis(self, cs_axis, angle=90, nclones=2, create_new_objects=True):
+        """Duplicate self around axis. Returns a list of the names of all newly created clones
+
+        Parameters
+        ----------
+        cs_axis :
+            Application.CoordinateSystemAxis object
+        angle :
+            Flaat angle of rotation (Default value = 90)
+        nclones :
+            number of clones (Default value = 2)
+        create_new_objects :
+            Flag whether to create create copies as new objects, defaults to True
+
+        Returns
+        -------
+        list of str
+        """
+        ret, added_objects = self._parent.modeler.duplicate_around_axis(self, cs_axis, angle, nclones, create_new_objects)
+        return added_objects
+
+    @aedt_exception_handler
+    def duplicate_along_line(self, vector, nclones=2, attachObject=False):
+        """Duplicate self along line. Returns a list of the names of all newly created clones
+
+        Parameters
+        ----------
+        vector :
+            List of Vector [x1,y1,z1] or  Application.Position object
+        attachObject :
+            Boolean (Default value = False)
+        nclones :
+            number of clones (Default value = 2)
+
+        Returns
+        -------
+        list of str
+        """
+        ret, added_objects = self._parent.modeler.duplicate_along_line(self, vector, nclones, attachObject)
+        return added_objects
+
+    @aedt_exception_handler
+    def translate(self, vector):
+        """Translates the object and returns the Object3d object
+
+        Returns
+        -------
+        Object3d
+        """
+        self._parent.modeler.translate(self.id, vector)
+        return self
+
+    @aedt_exception_handler
+    def sweep_along_vector(self, sweep_vector, draft_angle=0, draft_type="Round"):
+        """Sweep selection along vector
+
+        Parameters
+        ----------
+        objid : str, int
+            if str, it is considered an objecname. if Int it is considered an object id
+        sweep_vector :
+            Application.Position object
+        draft_angle : float
+            Draft Angle
+        draft_type : str
+            Draft Type. Default Round
+        Returns
+        -------
+        bool
+        """
+        self._parent.modeler.sweep_along_vector(self, sweep_vector, draft_angle, draft_type)
+        return self
+
+    @aedt_exception_handler
+    def sweep_along_path(self, sweep_object, draft_angle=0, draft_type="Round",
+                              is_check_face_intersection=False, twist_angle=0):
+        """Sweep selection along vector
+
+        Parameters
+        ----------
+        objid: str, int
+            if str, it is considered an objecname. if Int it is considered an object id
+        sweep_object: if str, it is considered an objecname. if Int is considered an object id
+        draft_angle : float
+            Draft Angle
+        draft_type : str
+            Draft Type. Default "Round"
+        is_check_face_intersection: Boolean, False by default
+        twist_angle: Float Angle in degres, 0 by default
+
+        Returns
+        -------
+        bool
+        """
+        self._parent.modeler.sweep_along_path(self, sweep_object, draft_angle, draft_type,
+                                              is_check_face_intersection, twist_angle)
+        return self
+
+    @aedt_exception_handler
+    def sweep_around_axis(self, cs_axis, sweep_angle=360, draft_angle=0):
+        """Sweep around a specified axis
+
+        Parameters
+        ----------
+        cs_axis :
+            Application.CoordinateSystemAxis object
+        sweep_angle : float
+             Sweep Angle in degrees
+        draft_angle : float
+            Draft Angle
+
+        Returns
+        -------
+        Object3d
+        """
+        self._parent.modeler.sweep_around_axis(self, cs_axis, sweep_angle, draft_angle)
+        return self
+
+    @aedt_exception_handler
+    def section(self, plane, create_new=True, section_cross_object=False):
+        """Section the object
+
+        Parameters
+        ----------
+        plane :
+            Application.CoordinateSystemPlane object
+        create_new : bool, default=True
+            Bool. (Default value = True)
+        section_cross_object : bool, default=False
+            Bool (Default value = False)
+
+        Returns
+        -------
+        Object3d
+        """
+        #TODO Refactor plane !
+        self._parent.modeler.section(self, plane, create_new, section_cross_object)
+        return self
 
     @aedt_exception_handler
     def clone(self):
@@ -975,98 +1102,70 @@ class Object3d(object):
         new_obj_tuple = self._parent.modeler.clone(self.id)
         success = new_obj_tuple[0]
         assert success, "Could not clone the object {}".format(self.name)
-        new_name = new_obj_tuple[1]
-        new_object = self._parent[new_name]
-        return new_object
+        new_name = new_obj_tuple[1][0]
+        return self._parent[new_name]
 
     @aedt_exception_handler
-    def _change_property(self, vPropChange):
-        """
+    def subtract(self, tool_list, keep_originals=True):
+        """Subtract part(s) from the object
 
         Parameters
         ----------
-        vPropChange :
+        tool_list : str or Object3d or list of (str or Object3d)
+            List of parts to subtract from this part
 
+        keep_originals : bool
+            Keep the tool parts after subtraction, if False, then delete these parts
 
         Returns
         -------
+        Object3d
+            Modified object following the subtraction
+        """
+        self._parent.modeler.subtract(self.name, tool_list, keep_originals)
+        return self
+
+    @aedt_exception_handler
+    def delete(self):
+        """Deletes the object
 
         """
+        arg = [
+            "NAME:Selections",
+            "Selections:="	, self._m_name
+        ]
+        self.m_Editor.Delete(arg)
+        self._parent.cleanup_objects()
+        self.__dict__ = {}
+
+    @aedt_exception_handler
+    def _change_property(self, vPropChange):
         vChangedProps = ["NAME:ChangedProps", vPropChange]
-
-        #TODO potential for name conflict
         vPropServers = ["NAME:PropServers", self._m_name]
-        # ScriptArgInf saPropServers(args_propservers)
-        # saPropServers.ExportVariant(vPropServers)
-
         vGeo3d = ["NAME:Geometry3DAttributeTab", vPropServers, vChangedProps]
-
         vOut = ["NAME:AllTabs", vGeo3d]
-        if vPropChange == ['NAME:Solve Inside', 'Value:=', True]:
-            print(1)
         self.m_Editor.ChangeProperty(vOut)
         return True
 
-    @aedt_exception_handler
-    def update_object_type(self):
-        if self._m_name in self._parent.solids:
-            self._object_type = "Solid"
-        else:
-            if self._m_name in self._parent.sheets:
-                self._object_type = "Sheet"
-            elif self._m_name in self._parent.lines:
-                self._object_type = "Line"
+    def _update(self):
+        #self._parent._refresh_object_types()
+        self._parent.cleanup_objects()
 
-    @aedt_exception_handler
-    def update_properties(self):
 
-        n = 10
-        all_prop = retry_ntimes(n, self.m_Editor.GetProperties, "Geometry3DAttributeTab", self._m_name)
-
-        if 'Solve Inside' in all_prop:
-            solveinside = retry_ntimes(n, self.m_Editor.GetPropertyValue, "Geometry3DAttributeTab", self._m_name, 'Solve Inside')
-            if solveinside == 'false' or solveinside == 'False':
-                self._solve_inside = False
-        if 'Material' in all_prop:
-            mat = retry_ntimes(n, self.m_Editor.GetPropertyValue, "Geometry3DAttributeTab", self._m_name, 'Material')
-            if mat:
-                self._material_name = mat[1:-1].lower()
-            else:
-                self._material_name = ''
-        if 'Orientation' in all_prop:
-            self.part_coordinate_system = retry_ntimes(n, self.m_Editor.GetPropertyValue,
-                                                    "Geometry3DAttributeTab", self._m_name, 'Orientation')
-        if 'Model' in all_prop:
-            mod = retry_ntimes(n, self.m_Editor.GetPropertyValue, "Geometry3DAttributeTab", self._m_name, 'Model')
-            if mod == 'false' or mod == 'False':
-                self._model = False
-            else:
-                self._model = True
-        if 'Group' in all_prop:
-            self.m_groupName = retry_ntimes(n, self.m_Editor.GetPropertyValue, "Geometry3DAttributeTab", self._m_name, 'Group')
-        if 'Display Wireframe' in all_prop:
-            wireframe = retry_ntimes(n, self.m_Editor.GetPropertyValue,
-                                     "Geometry3DAttributeTab", self._m_name, 'Display Wireframe')
-            if wireframe == 'true' or wireframe == 'True':
-                self._wireframe = True
-        if 'Transparent' in all_prop:
-            transp = retry_ntimes(n, self.m_Editor.GetPropertyValue, "Geometry3DAttributeTab", self._m_name, 'Transparent')
-            try:
-                self._transparency = float(transp)
-            except:
-                self._transparency = 0.3
-        if 'Color' in all_prop:
-            color = int(retry_ntimes(n, self.m_Editor.GetPropertyValue, "Geometry3DAttributeTab", self._m_name, 'Color'))
-            if color:
-                b = (color >> 16) & 255
-                g = (color >> 8) & 255
-                r = color & 255
-                self._color = (r, g, b)
-            else:
-                self._color = (0, 195, 255)
-        if 'Surface Material' in all_prop:
-            self._surface_material = retry_ntimes(n, self.m_Editor.GetPropertyValue,
-                                               "Geometry3DAttributeTab", self._m_name, 'Surface Material')
+    def __str__(self):
+        return """
+         {}
+         name: {}    id: {}    object_type: {}
+         --- read/write properties  ----
+         solve_inside: {} 
+         model: {}
+         material_name: {}
+         color: {}
+         transparency: {}
+         display_wireframe {}
+         part_coordinate_system: {}
+         """.format(type(self), self.name, self.id, self.object_type, self.solve_inside, self.model, self.material_name,
+                    self.color, self.transparency, self.display_wireframe, self.part_coordinate_system)
 
 class Padstack(object):
     """ """

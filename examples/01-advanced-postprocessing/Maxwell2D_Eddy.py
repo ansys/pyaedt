@@ -15,20 +15,10 @@ import matplotlib.pyplot as plt
 
 from pyaedt import Maxwell3d
 
-###############################################################################
-# NonGraphical
-# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-# Change Boolean to False to open AEDT in graphical mode
-
-NonGraphical = False
-
-
 #########################################
-# Insert a Maxwell design and instantiate Geometry modeler.
+# Insert a Maxwell design
 
-M3D = Maxwell3d(solution_type="EddyCurrent", specified_version="2021.1", NG=NonGraphical)
-project_dir = M3D.generate_temp_project_directory("Example")
-project_name = os.path.join(project_dir, 'test.aedt')
+M3D = Maxwell3d(solution_type="EddyCurrent", specified_version="2021.1", NG=False, AlwaysNew=True)
 M3D.modeler.model_units = "mm"
 
 #############################
@@ -44,10 +34,13 @@ hole = M3D.modeler.primitives.create_box([18, 18, 0], [108, 108, 19], name="Hole
 # different modeler operation can be applied using subtract, material assignment, solve_inside
 
 M3D.modeler.subtract([plate], [hole])
-M3D.assignmaterial(plate, "aluminum")
-M3D.solve_inside("Plate")
+plate.material_name = "aluminum"
+plate.solve_inside = True
 adaptive_frequency = "200Hz"
 p_plate = M3D.post.volumetric_loss("Plate")  # Create fields postprocessing variable for loss in object Plate
+
+project_dir = M3D.generate_temp_project_directory("Example")
+project_name = os.path.join(project_dir, 'test.aedt')
 M3D.save_project(project_name)  # unable to save file by passing the file name or directory as an argument.
 
 ########################
@@ -58,8 +51,8 @@ center_coil = M3D.modeler.Position(94, 0, 49)
 coil_hole = M3D.modeler.primitives.create_box(center_hole, [150, 150, 100], name="Coil_Hole")  # All positions in model units
 coil = M3D.modeler.primitives.create_box(center_coil, [200, 200, 100], name="Coil")  # All positions in model units
 M3D.modeler.subtract([coil], [coil_hole])
-M3D.assignmaterial(coil, "copper")
-M3D.solve_inside("Coil")
+coil.material_name = "copper"
+coil.solve_inside = True
 p_coil = M3D.post.volumetric_loss("Coil")
 
 ########################################
@@ -98,7 +91,7 @@ Setup.props["Frequency"] = adaptive_frequency
 Setup.props["HasSweepSetup"] = True
 Setup.props["StartValue"] = "1e-08GHz"
 Setup.props["StopValue"] = "1e-06GHz"
-Setup.props["StepSize"] = "2e-08GHz"
+Setup.props["StepSize"] = "1e-07GHz"
 
 Setup.update()
 Setup.enable_expression_cache([p_plate, p_coil], "Fields", "Phase=\'0deg\' ", True)

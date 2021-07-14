@@ -31,12 +31,6 @@ jobs:
         uses: actions/setup-python@v2
         with:
           python-version: ${{ matrix.python-version }}
-      # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
-      #- uses: actions/setup-python@v2
-      #  name: 'Use Python $(python.version)'
-      #  with:
-      #     python-version: '3.8.10'
-      #     architecture: 'x64'
 
       - name: 'Create virtual env'
         run: |
@@ -59,25 +53,34 @@ jobs:
       - name: 'Unit testing'
         run: | 
           testenv\Scripts\Activate.ps1
-          pytest -v --cov --cov-config=.coveragerc -cov-report=xml --cov-report=html --junitxml=junit/test-results.xml
+          pytest -v --cov=pyaedt --cov=_unittest --cov-config=.coveragerc -cov-report=xml --junitxml=junit/test-results.xml _unittest
 
       - name: 'Coverage'
         run: |
           testenv\Scripts\Activate.ps1
           coverage xml
-
-      #- uses: EnricoMi/publish-unit-test-result-action@v1
-      #  name: 'Publish Test Results **/test-results.xml'
+          
+      - name: Upload pytest test results
+        uses: actions/upload-artifact@v2
+        with:
+          name: pytest-results
+          path: junit/test-results.xml
+        # Use always() to always run this step to publish test results when there are test failures
+        if: ${{ always() }}
+        
+      - name: Upload pytest coverage results
+        uses: actions/upload-artifact@v2
+        with:
+          name: coverage-results
+          path: coverage.xml
+        # Use always() to always run this step to publish test results when there are test failures
+        if: ${{ always() }}        
+        
+      #- name: Publish Unit Test Results
+      #  uses: EnricoMi/publish-unit-test-result-action@v1.19
+      #  if: always()
       #  with:
-      #    testResultsFiles: '**/test-results.xml'
-      #    testRunTitle: 'Python $(python.version)'
-      #  if: ${{ always() }}
-
-      #- uses: 5monkeys/cobertura-action@master
-      #  name: 'Publish code coverage coverage.xml'
-      #  with:
-      #    path: src/coverage.xml
-      #  if: ${{ always() }}
+      #    files: junit/test-results.xml
         
       - name: 'Build and validate source distribution'
         run: |
@@ -86,7 +89,13 @@ jobs:
           python -m pip install twine
           python -m twine check dist/*
         
-
+      - name: Publish package
+        if: github.event_name == 'push' && startsWith(github.ref, 'refs/tags')
+        uses: pypa/gh-action-pypi-publish@release/v1
+        with:
+          user: __token__
+          password: ${{ secrets.PYPI_TOKEN }}
+          
       #- uses: PublishBuildArtifacts@1
       #  name: 'Publish Artifact: dist'
       #  with:

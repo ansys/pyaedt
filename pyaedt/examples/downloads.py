@@ -46,7 +46,7 @@ def _retrieve_file(url, filename, directory):
     if not os.path.isdir(EXAMPLES_PATH):
         os.mkdir(EXAMPLES_PATH)
     if not os.path.isdir(dirpath):
-        os.mkdir(dirpath)
+        os.makedirs(dirpath)
 
     # Perform download
     if os.name == "posix":

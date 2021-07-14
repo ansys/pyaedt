@@ -59,8 +59,7 @@ class FieldAnalysisIcepak(Analysis, object):
                           specified_version, NG, AlwaysNew, release_on_exit, student_version)
         self._modeler = Modeler3D(self)
         self._mesh = IcepakMesh(self)
-        #self._post = PostProcessor(self)
-        self.modeler.primitives.refresh()
+
     @property
     def modeler(self):
         """Modeler object."""
@@ -220,7 +219,6 @@ class FieldAnalysisIcepak(Analysis, object):
                 selection_list.append(body)
         design.modeler.oeditor.Copy(["NAME:Selections", "Selections:=", ','.join(selection_list)])
         self.modeler.oeditor.Paste()
-        self.modeler.primitives.refresh_all_ids()
         return True
 
     @aedt_exception_handler
@@ -258,7 +256,7 @@ class FieldAnalysisIcepak(Analysis, object):
             self._messenger.add_info_message('Assign Material ' + mat + ' to object ' + selections)
             self.materials._aedmattolibrary(mat)
             for el in obj:
-                self.modeler.primitives[el]._material_name = mat
+                self.modeler.primitives[el].material_name = mat
             return True
         elif self.materials.checkifmaterialexists(mat):
             Mat = self.materials.material_keys[mat]
@@ -269,7 +267,7 @@ class FieldAnalysisIcepak(Analysis, object):
             self.modeler.oeditor.AssignMaterial(arg1, arg2)
             self._messenger.add_info_message('Assign Material ' + mat + ' to object ' + selections)
             for el in obj:
-                self.modeler.primitives[el]._material_name = mat
+                self.modeler.primitives[el].material_name = mat
             return True
         else:
             self._messenger.add_error_message("Material Does Not Exists")
@@ -351,7 +349,7 @@ class FieldAnalysisIcepak(Analysis, object):
             for el in component_header:
                 component_data[el] = [i[k] for i in data]
                 k += 1
-        all_objs = self.modeler.primitives.get_all_objects_names()
+        all_objs = self.modeler.primitives.object_names
         i = 0
         for mat in material_data["Name"]:
             list_mat_obj = ["COMP_" + rd for rd, md in zip(component_data["Ref Des"], component_data["Material"]) if
@@ -381,9 +379,9 @@ class FieldAnalysisIcepak(Analysis, object):
                     newmat.youngs_modulus = value
                 self.assignmaterial(list_mat_obj, mat)
 
-                for o in list_mat_obj:
-                    if self.modeler.primitives.objects[self.modeler.primitives.get_obj_id(o)].surface_material_name == '""':
-                        self.modeler.primitives.objects[self.modeler.primitives.get_obj_id(o)].surface_material_name = "Steel-oxidised-surface"
+                for obj_name in list_mat_obj:
+                    if not self.modeler.primitives[obj_name].surface_material_name:
+                        self.modeler.primitives[obj_name].surface_material_name = "Steel-oxidised-surface"
             i += 1
             all_objs = [ao for ao in all_objs if ao not in list_mat_obj]
         return True
@@ -400,9 +398,9 @@ class FieldAnalysisIcepak(Analysis, object):
         """
         cond = [i.lower() for i in list(self.materials.conductors)]
         obj_names = []
-        for el in self.modeler.primitives.objects:
-            if self.modeler.primitives.objects[el].material_name in cond:
-                obj_names.append(self.modeler.primitives.get_obj_name(el))
+        for el, obj in self.modeler.primitives.objects.items():
+            if obj.material_name in cond:
+                obj_names.append(obj.name)
         return obj_names
 
     @aedt_exception_handler
@@ -417,7 +415,7 @@ class FieldAnalysisIcepak(Analysis, object):
         """
         diel = [i.lower() for i in list(self.materials.dielectrics)]
         obj_names = []
-        for el in self.modeler.primitives.objects:
-            if self.modeler.primitives.objects[el].material_name in diel:
-                obj_names.append(self.modeler.primitives.get_obj_name(el))
+        for el, obj in self.modeler.primitives.objects.items():
+            if obj.material_name in diel:
+                obj_names.append(obj.name)
         return obj_names

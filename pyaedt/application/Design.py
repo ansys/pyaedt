@@ -351,9 +351,9 @@ class DesignCache(object):
             Snapshot object.
         """
         snapshot = {
-            "Solids:":  self._parent.modeler.primitives.solids,
-            "Lines:":  self._parent.modeler.primitives.lines,
-            "Sheets": self._parent.modeler.primitives.sheets,
+            "Solids:":  self._parent.modeler.primitives.solid_names,
+            "Lines:":  self._parent.modeler.primitives.line_names,
+            "Sheets": self._parent.modeler.primitives.sheet_names,
             "DesignName" : self._parent.design_name
         }
         return snapshot
@@ -1098,7 +1098,7 @@ class Design(object):
 
         Returns
         -------
-        type
+        AEDTMessageManager
             Messenger object.
 
         """
@@ -1112,7 +1112,7 @@ class Design(object):
 
         Returns
         -------
-        type
+        VariableManager
             Variable manager object.
             
         """
@@ -1957,10 +1957,9 @@ class Design(object):
                     self.odesign = None
                 else:
                     new_designname = self._oproject.GetActiveDesign().GetName()
-                    self.set_active_design(new_designname)
+            self.set_active_design(new_designname)
         except:
             pass
-        self.__init__(self.project_name, self.design_name)
 
         return True
 

@@ -30,9 +30,9 @@ class TestMechanical:
     def test_02_create_primitive(self):
         udp = self.aedtapp.modeler.Position(0, 0, 0)
         coax_dimension = 30
-        id1 = self.aedtapp.modeler.primitives.create_cylinder(self.aedtapp.CoordinateSystemPlane.XYPlane, udp, 3, coax_dimension, 0,
+        o = self.aedtapp.modeler.primitives.create_cylinder(self.aedtapp.CoordinateSystemPlane.XYPlane, udp, 3, coax_dimension, 0,
                                                      "MyCylinder", "brass")
-        assert isinstance(id1, int)
+        assert isinstance(o.id, int)
 
     def test_03_assign_convection(self):
         face = self.aedtapp.modeler.primitives["MyCylinder"].faces[0].id
