@@ -104,7 +104,8 @@ desktop_version = config["desktopVersion"]
 new_thread = config["NewThread"]
 non_graphical = config["NonGraphical"]
 
-if "PYTEST_CURRENT_TEST" in os.environ:
+if "PYTEST_RUN_CONFIG" in os.environ:
+    import pytest
     @pytest.fixture(scope='session', autouse=True)
     def desktop_init():
         desktop = Desktop(desktop_version, non_graphical, new_thread)
@@ -115,8 +116,8 @@ if "PYTEST_CURRENT_TEST" in os.environ:
         # Intended for local debugging purposes only
         if new_thread:
             desktop.force_close_desktop()
-
-        p = pathlib.Path(scratch_path).glob('**/scratch*')
+        p = [x[0] for x in os.walk(scratch_path) if "scratch" in x[0]]
+        #p = pathlib.Path(scratch_path).glob('**/scratch*')
         for folder in p:
             shutil.rmtree(folder, ignore_errors=True)
 
