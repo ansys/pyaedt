@@ -550,11 +550,13 @@ def HFSS3DLayout_AdaptiveFrequencyData(freq):
     Parameters
     ----------
     freq : float
-        Frequency value.
+        Value for frequency.
         
 
     Returns
     -------
+    float
+        Value for frequency.
 
     """
     value = [
@@ -668,7 +670,21 @@ TR = []
 
 
 class SweepHFSS(object):
-    """SweepHFSS class."""
+    """SweepHFSS class.
+    
+    Parameters
+    ----------
+    oanalysis :
+    
+    setupname : str
+        Name of the setup.
+    sweeptype : str, optional
+        Type of the sweep. The default is ``"Interpolating"``.
+    props : dict, optional
+        Dictionary of the properties. The default is ``None``, in which case
+        the default properties are retrieved.
+    
+    """
 
     def __init__(self, oanalysis, setupname, sweepname, sweeptype="Interpolating", props=None):
         self.oanalysis = oanalysis
@@ -729,6 +745,7 @@ class SweepHFSS(object):
         -------
         bool
             ``True`` when successful, ``False`` when failed.
+            
         """
         range = {}
         range["RangeType"] = rangetype
@@ -749,11 +766,11 @@ class SweepHFSS(object):
     def create(self):
         """Create a sweep.
         
-        
         Returns
         -------
         bool
             ``True`` when successful, ``False`` when failed.
+            
         """
         self.oanalysis.InsertFrequencySweep(self.setupname, self._get_args())
         return True
@@ -762,26 +779,29 @@ class SweepHFSS(object):
     def update(self):
         """Update a sweep.
         
-        
         Returns
         -------
         bool
             ``True`` when successful, ``False`` when failed.
+            
         """
         self.oanalysis.EditFrequencySweep(self.setupname, self.name, self._get_args())
         return True
 
     @aedt_exception_handler
     def _get_args(self, props=None):
-        """
+        """Retrieve arguments.
 
         Parameters
         ----------
-        props :
-             The default is ``None``.
+        props :dict, optional
+             Dictionary of the properties. The default is ``None``, in which
+             case the default properties are retrieved.
 
         Returns
         -------
+        dict
+            Dictionary of the properties.
 
         """
         if props is None:
@@ -805,7 +825,9 @@ class SweepHFSS3DLayout(object):
     sweeptype : str, optional
         Type of the sweep. The default is ``"Interpolating"``.
     props : dict, optional
-        Dictionary of properties.  The default is ``None``, which uses default properties.
+        Dictionary of the properties. The default is ``None``, in which
+        case the default properties are retrieved.
+    
     """
     def __init__(self, oanalysis, setupname, sweepname, sweeptype="Interpolating", props=None):
         self.oanalysis = oanalysis
@@ -853,16 +875,17 @@ class SweepHFSS3DLayout(object):
 
     @aedt_exception_handler
     def add_subrange(self, rangetype, start, end, count):
-        """Add a Subrange to the sweep.
+        """Add a subrange to the sweep.
 
         Parameters
         ----------
         rangetype : str
-            Type of the subrange.  One of the following:
+            Type of the subrange. Options are:
             
             * ``"LinearCount"``
             * ``"LinearStep"``
             * ``"LogScale"``
+            
         start : float
             Starting frequency.
         end : float
@@ -891,12 +914,13 @@ class SweepHFSS3DLayout(object):
 
         Parameters
         ----------
-        rangetype :
-            Type of the subrange.  One of the following:
+        rangetype : str
+            Type of the subrange. Options are:
             
             * ``"LinearCount"``
             * ``"LinearStep"``
             * ``"LogScale"``
+            
         start : float
             Starting frequency.
         end : float
@@ -906,8 +930,9 @@ class SweepHFSS3DLayout(object):
 
         Returns
         -------
-         bool
+        bool
             ``True`` when successful, ``False`` when failed.
+            
         """
         range = ""
         if rangetype == "LinearCount":
@@ -923,13 +948,11 @@ class SweepHFSS3DLayout(object):
     def create(self):
         """Create a sweep.
 
-        Parameters
-        ----------
-
         Returns
         -------
         bool
             ``True`` when successful, ``False`` when failed.
+            
         """
         self.oanalysis.AddSweep(self.setupname, self._get_args())
         return True
@@ -942,21 +965,25 @@ class SweepHFSS3DLayout(object):
         -------
         bool
             ``True`` when successful, ``False`` when failed.
+            
         """
         self.oanalysis.EditSweep(self.setupname, self.name, self._get_args())
         return True
 
     @aedt_exception_handler
     def _get_args(self, props=None):
-        """
+        """Retrieve arguments.
 
         Parameters
         ----------
         props : dict
-             The default is ``None``.
+             Dictionary of the properties. The default is ``None``, in which case
+             the default properties are retrieved.
 
         Returns
         -------
+        dict
+            Dictionary of the properties.
 
         """
         if props is None:
@@ -980,7 +1007,9 @@ class SweepQ3D(object):
     sweeptype : str, optional
         Type of the sweep. The default is ``"Interpolating"``.
     props : dict
-        Dictionary of properties.  The default is ``None``.
+        Dictionary of the properties.  The default is ``None``, in which case
+        the default properties are retrieved.
+        
     """
     def __init__(self, oanalysis, setupname, sweepname, sweeptype="Interpolating", props=None):
         self.oanalysis = oanalysis
@@ -1011,11 +1040,12 @@ class SweepQ3D(object):
         Parameters
         ----------
         type :
-            Type of the subrange.  One of the following:
+            Type of the subrange. Options are:
             
             * ``"LinearCount"``
             * ``"LinearStep"``
             * ``"LogScale"``
+            
         start : float
             Starting frequency.
         end : float
@@ -1027,6 +1057,7 @@ class SweepQ3D(object):
         -------
         bool
             ``True`` when successful, ``False`` when failed.
+            
         """
         range = {}
         range["RangeType"] = type
@@ -1050,6 +1081,7 @@ class SweepQ3D(object):
         -------
         bool
             ``True`` when successful, ``False`` when failed.
+        
         """
         self.oanalysis.InsertSweep(self.setupname, self._get_args())
         return True
@@ -1062,6 +1094,7 @@ class SweepQ3D(object):
         -------
         bool
             ``True`` when successful, ``False`` when failed.
+        
         """
         self.oanalysis.EditSweep(self.setupname, self.name, self._get_args())
 
@@ -1069,15 +1102,18 @@ class SweepQ3D(object):
 
     @aedt_exception_handler
     def _get_args(self, props=None):
-        """
+        """Retrieve arguments.
 
         Parameters
         ----------
         props : dict
-             The default is ``None``.
+             Dictionary of the properties. The default is ``None``, in which case
+             the default properties are retrieved.
 
         Returns
         -------
+        dict
+            Dictionary of the properties.
 
         """
         if props is None:
@@ -1088,7 +1124,7 @@ class SweepQ3D(object):
 
 
 class SetupKeys(object):
-    """ """
+    """SetupKeys class."""
     defaultSetups = {"DrivenModal": 1, "DrivenTerminal": 1, "Eigenmode": 2,
                      "Transient Network": 3, "SBR+": 4, "Transient": 5, "Magnetostatic": 6, "EddyCurrent": 7,
                      "Electrostatic": 8, "ElectroDCConduction": 9,
