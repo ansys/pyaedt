@@ -2606,7 +2606,7 @@ class Primitives(object):
             o._m_groupName = groupname
             o._color = attribs['Color']
             o._surface_material = attribs.get('SurfaceMaterialValue', None)
- if o._surface_material:
+            if o._surface_material:
                 o._surface_material = o._surface_material[1:-1]
             if 'MaterialValue' in attribs:
                 o._material_name = attribs['MaterialValue'][1:-1]
