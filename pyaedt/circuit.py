@@ -1,4 +1,4 @@
-# -*- coding: utf-8 -*
+# -*- coding: utf-8 -*-
 """This module contains the `Circuit` class."""
 
 from __future__ import absolute_import
@@ -222,6 +222,35 @@ class Circuit(FieldAnalysisCircuit, object):
     the specified project, which is named ``"myfile.aedt"``.
 
     >>> hfss = Circuit(specified_version="2021.2", projectname="myfile.aedt", student_version=True)
+
+    Examples
+    --------
+    Create an instance of ``Circuit`` and connect to an existing HFSS
+    design or create a new HFSS design if one does not exist.
+
+    >>> from pyaedt import Circuit
+    >>> aedtapp = Circuit()
+
+    Create an instance of ``Circuit`` and link to a project named
+    ``projectname``. If this project does not exist, create one with
+    this name.
+
+    >>> aedtapp = Circuit(projectname)
+
+    Create an instance of ``Circuit`` and link to a design named
+    ``designname`` in a project named ``projectname``.
+
+    >>> aedtapp = Circuit(projectname,designame)
+
+    Create an instance of ``Circuit`` and open the specified project,
+    which is ``myfie.aedt``.
+
+    >>> aedtapp = Circuit("myfile.aedt")
+
+    Create an instance of ``Circuit`` using the 2021 R1 version and
+    open the specified project, which is ``myfie.aedt``.
+
+    >>> aedtapp = Circuit(specified_version="2021.1", projectname="myfile.aedt")
 
     """
 

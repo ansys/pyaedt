@@ -364,13 +364,13 @@ class CircuitComponents(object):
             Whether to enable the instance ID in the net list.
             The default is ``False``.
         global_netlist_list : list, optional
-             The default is``[]``.
+            The default is``[]``.
 
         Returns
         -------
         type
             Component ID.
-         str
+        str
             Component name.
 
         """

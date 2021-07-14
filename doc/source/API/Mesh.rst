@@ -1,17 +1,14 @@
-.. pyaedt documentation master file, created by
-   sphinx-quickstart on Fri Jun 12 11:39:54 2020.
-   You can adapt this file completely to your liking, but it should at least
-   contain the root `toctree` directive.
-
 Mesh
 ====
+The ``Mesh`` module includes these classes:
 
-**Diagram**
+.. currentmodule:: pyaedt.modules
 
-.. toctree::
-   :maxdepth: 2
-   :caption: The `Mesh` module includes these classes:
+.. autosummary::
+   :toctree: _autosummary
+   :template: custom-class-template.rst
+   :nosignatures:
 
-   Mesh3D
-   MeshIcepak
-   Mesh3DLayout
+   Mesh.Mesh
+   MeshIcepak.IcepakMesh
+   Mesh3DLayout.Mesh

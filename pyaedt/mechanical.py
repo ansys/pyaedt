@@ -46,6 +46,7 @@ class Mechanical(FieldAnalysis3D, object):
         Whether to release AEDT on exit.
     student_version : bool, optional
         Whether open AEDT Student Version. The default is ``False``.
+
     Examples
     --------
     Create an instance of `Mechanical` and connect to an existing

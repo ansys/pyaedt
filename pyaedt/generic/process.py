@@ -4,29 +4,40 @@ from threading import Thread
 import os
 import warnings
 import os.path
+
+
 if os.name == 'posix':
-    import subprocessdotnet as subprocess
+    try:
+        import subprocessdotnet as subprocess
+    except:
+        warnings.warn("Pythonnet is needed to run pyaedt within Linux")
 else:
     import subprocess
+
 try:
     import clr
 except ImportError:
     warnings.warn("Pythonnet is needed to run pyaedt")
 
-import os
-
 from .general_methods import env_path, env_value
+
+
 class AedtSolve(object):
-    '''
-    class dedicated for calling Aedt solvers. Only solving on local machines is supported for the moment.
+    """
+    Class dedicated for calling Aedt solvers.
+
+    .. note::
+       Only solving on local machines is supported for the moment.
+
     Examples
     --------
     >>> from pyaedt import AedtSolve
     >>> solver = process.AedtSolve()
-    >>> solver.NonGraphical = True
-    >>> solver.ProjectPath = edb_file
+    >>> solver.nongraphical = True
+    >>> solver.projectpath = edb_file
     >>> solver.solve()
-    '''
+    """
+
     def __init__(self,aedt_version="2021.1", aedt_installer_path=None):
         self._project_path = ""
         self._command = []

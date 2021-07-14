@@ -1530,7 +1530,7 @@ class GeometryModeler(Modeler, object):
 
         Returns
         -------
-
+        Object3d
         """
         selections = self.convert_to_selections(objid)
 
@@ -1540,7 +1540,41 @@ class GeometryModeler(Modeler, object):
         vArg2.append('BothSides:='), vArg2.append(bBothSides)
 
         self.oeditor.ThickenSheet(vArg1, vArg2)
-        return True
+        return self.primitives.update_object(objid)
+
+    @aedt_exception_handler
+    def sweep_along_normal(self, obj_name, face_id, sweep_value=0.1):
+        """Sweep selection along vector
+
+        Parameters
+        ----------
+        obj_name : str, int
+            if str, it is considered an objectname. if Int it is considered an object id
+        face_id : int
+            face to sweep
+        sweep_value : float
+            sweep value
+
+        Returns
+        -------
+        Object3d
+        """
+        selections = self.convert_to_selections(obj_name)
+        vArg1 = ['NAME:Selections', 'Selections:=', selections, 'NewPartsModelFlag:=', 'Model']
+        vArg2 = ["NAME:Parameters"]
+        vArg2.append(["NAME:SweepFaceAlongNormalToParameters", "FacesToDetach:=", [face_id], "LengthOfSweep:=",
+                      self.primitives._arg_with_dim(sweep_value)])
+
+        objs = self.primitives._all_object_names
+        self.oeditor.SweepFacesAlongNormal(vArg1, vArg2)
+        self.primitives.cleanup_objects()
+        objs2 = self.primitives._all_object_names
+        obj = [i for i in objs2 if i not in objs]
+        for el in obj:
+            self.primitives._create_object(el)
+        if obj:
+            return self.primitives.update_object(self.primitives[obj[0]])
+        return False
 
     @aedt_exception_handler
     def sweep_along_vector(self, objid, sweep_vector, draft_angle=0, draft_type="Round"):

@@ -1566,6 +1566,7 @@ class Design(object):
         self.odesign = design_name
         time.sleep(0.5)
         if proj:
+            self.__init__(projectname=proj.GetName(), designname=design_name)
             return True
         else:
             return False
@@ -1919,11 +1920,8 @@ class Design(object):
             oproj = self.oproject
         if saveproject:
             oproj.Save()
-
-        lock_file = str(self.lock_file)
         self.odesktop.CloseProject(name)
-        if name == self.project_name:
-            assert not os.path.exists(lock_file), 'The AEDT project did not close properly.'
+
         return True
 
     @aedt_exception_handler

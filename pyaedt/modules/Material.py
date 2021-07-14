@@ -288,6 +288,17 @@ class MatProperty(object):
         else:
             return [i.thermalmodifier for i in self._property_value]
 
+    @thermalmodifier.setter
+    def thermalmodifier(self, thermal_value):
+        """Thermal modifier."""
+        if isinstance(thermal_value, str):
+            self._add_thermal_modifier(thermal_value, 0)
+        else:
+            for i in thermal_value:
+                self._add_thermal_modifier(i, thermal_value.index(i))
+
+
+
     def _add_thermal_modifier(self,formula, index):
         """Add a thermal modifier.
         
