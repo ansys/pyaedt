@@ -1,45 +1,45 @@
 
 
 class BLNDChamferRangeLaw(object):
-    """ """
+    """BLNDChamferRangeLaw class."""
     (BLNDConstantRange,
      BLNDVariableRange) = range(0, 2)
 
 
 class BLNDFilletRadiusLaw(object):
-    """ """
+    """BLNDFilletRadiusLaw class."""
     (BLNDConstantRadius,
      BLNDVariableRadius) = range(0, 2)
 
 
 class BLNDFilletType(object):
-    """ """
+    """BLNDFilletType class."""
     (BLNDRound,
      BLNDMitered) = range(0, 2)
 
 
 class CoordinateSystemAxis(object):
-    """ """
+    """CoordinateSystemAxis class."""
     (XAxis, YAxis, ZAxis) = range(0, 3)
 
 
 class CoordinateSystemPlane(object):
-    """ """
+    """CoordinateSystemPlane class."""
     (XYPlane, YZPlane, ZXPlane) = range(0, 3)
 
 
 class Plane(object):
-    """ """
+    """Plane class."""
     (XYPlane, YZPlane, ZXPlane, ISO) = ("XY", "YZ", "ZX", "iso")
 
 
 class GravityDirection(object):
-    """ """
+    """GravityDirection class."""
     (XNeg, YNeg, ZNeg, XPos, YPos, ZPos) = range(0, 6)
 
 
 class MessageSeverity(object):
-    """ """
+    """MessageSeverity class."""
     (InfoMessage,
      WarningMessage,
      ErrorMessage,
@@ -48,7 +48,7 @@ class MessageSeverity(object):
 
 
 class ParamDataType(object):
-    """ """
+    """ParamDataType class."""
     (Unknown,
      Int,
      Double,
@@ -58,7 +58,7 @@ class ParamDataType(object):
 
 
 class ParamPropFlag(object):
-    """ """
+    """ParamPropFlag class."""
     (Unknown,
      NoFlag,
      ReadOnly,
@@ -68,7 +68,7 @@ class ParamPropFlag(object):
 
 
 class ParamPropType(object):
-    """ """
+    """ParamPropTyp class."""
     (Unknown,
      Text,
      Menu,
@@ -80,7 +80,7 @@ class ParamPropType(object):
 
 
 class PartPropertyFlags(object):
-    """ """
+    """PartPropertyFlags class."""
     PropNonModel = 1
     PropDisplayWireFrame = 2
     PropReadOnly = 4
@@ -91,7 +91,7 @@ class PartPropertyFlags(object):
 
 
 class PolylineSegmentType(object):
-    """ """
+    """PolylineSegmentType class."""
     (LineSegment,
      ArcSegment,
      SplineSegment,
@@ -99,7 +99,7 @@ class PolylineSegmentType(object):
 
 
 class PolylineXSegmentType(object):
-    """ """
+    """PolylineXSegmentType class."""
     (NONE,
      Line,
      Circle,
@@ -108,14 +108,14 @@ class PolylineXSegmentType(object):
 
 
 class SplitWhichSideToKeep(object):
-    """ """
+    """SplitWhichSideToKeep class."""
     (SplitKeepBoth,
      SplitKeepPositiveOnly,
      SplitKeepNegativeOnly) = range(0, 3)
 
 
 class SweepDraftType(object):
-    """ """
+    """SweepDraftType class."""
     (ExtendedDraft,
      RoundDraft,
      NaturalDraft,
@@ -123,7 +123,7 @@ class SweepDraftType(object):
 
 
 class UnitType(object):
-    """ """
+    """UnitType  class."""
     (NoUnit,
      LengthUnit,
      AngleUnit) = range(0, 3)
