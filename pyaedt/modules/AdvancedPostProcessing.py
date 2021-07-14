@@ -855,24 +855,29 @@ class PostProcessor(Post):
         plotname : str
             Name of the plot to export.
         project_path : str, optional
-            Path where the image file is to be saved. The default value = ``""``.
+            Path where the image file is to be saved. The default is ``""``.
         meshplot : bool, optional
-            Whether to create and plot the mesh over the fields. The default is ``False``.
+            Whether to create and plot the mesh over the fields. The
+            default is ``False``.
         setup_name : str, optional
             Name of the setup or sweep to use for the export. The default is ``None``.
         intrinsic_dict : dict, optional
             Intrinsic dictionary needed for the export when ``meshplot="True"``. 
             The default is ``{}``. 
         imageformat : str, optional
-            Format of the image file. Options are ``"jpg"``, ``"png"``, ``"svg"``, and 
-            ``"webp"``. The default is ``"jpg"``.
+            Format of the image file. Options are ``"jpg"``,
+            ``"png"``, ``"svg"``, and ``"webp"``. The default is
+            ``"jpg"``.
         view : str, optional
-            View to export. Options are ``"iso"``, ``"x"`` , ``"y"``, ``"z"``, and ``"all"``. 
-            The default is ``"iso"``. The ``"all"" option exports all views.
-        plot_label :
+            View to export. Options are ``"iso"``, ``"x"`` , ``"y"``,
+            ``"z"``, and ``"all"``.  The default is ``"iso"``. The
+            ``"all"`` option exports all views.
+        plot_label : str, optional
             Type of the plot. The default is ``"Temperature"``.
-        plot_folder :
-            Plot folder to forcibly update before exporting the field. The default is ``None``, which updates all of the plots.
+        plot_folder : str, optional
+            Plot folder to forcibly update before exporting the
+            field. The default is ``None``, which updates all of the
+            plots.
 
         Returns
         -------

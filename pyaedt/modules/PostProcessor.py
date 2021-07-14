@@ -1430,24 +1430,32 @@ class PostProcessor(object):
         Parameters
         ----------
         expression : str or list
-            One or more formulas to add to the report. The default is ``"dB(S(1,1))"``.
+            One or more formulas to add to the report. The default is
+            ``"dB(S(1,1))"``.
         setup_sweep_name : str, optional
-            Name of the setup to use to compute the report. The default is ``""``, 
-            in which case the nominal sweep is used.
+            Name of the setup to use to compute the report. The
+            default is ``""``, in which case the nominal sweep is
+            used.
         domain : str or list, optional
-            Context type. The options are ``"Sweep"`` or ``"Time"``. The default is ``"Sweep".``
+            Context type. The options are ``"Sweep"`` or
+            ``"Time"``. The default is ``"Sweep".``
         families_dict : dict, optional
-            Dictionary of all families including the primary sweep. The default is ``{"Freq": ["All"]}``.
+            Dictionary of all families including the primary
+            sweep. The default is ``{"Freq": ["All"]}``.
         report_input_type :  str
-             Type of input data for the report.
+            Type of input data for the report.
+
         Returns
         -------
         SolutionData
             SolutionData object if successful.
-       Examples
-       --------
+
+        Examples
+        --------
+        Generate a report with the default sweep and default variation
+
         >>> hfss = HFSS()
-        >>> hfss.post.get_report_data("S(1,1)")   # it will take default sweep and default variation
+        >>> hfss.post.get_report_data("S(1,1)")
 
         >>> m3d = Maxwell3D()
         >>> m3d.post.get_report_data("SurfaceLoss")   # Eddy Current examples

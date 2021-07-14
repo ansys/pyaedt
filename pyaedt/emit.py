@@ -31,7 +31,7 @@ class Emit(FieldAnalysisEmit, object):
         present, create an empty design.
     solution_type : str, optional
         Solution type to apply to design. The default is ``None``. If
-        ``None`, the default type is applied.
+        ``None``, the default type is applied.
     setup_name : str, optional
        Name of the setup to use as the nominal. The default is
        ``None``. If ``None``, the active setup is used or nothing is

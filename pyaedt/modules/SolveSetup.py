@@ -1,7 +1,7 @@
 """
 This module contains these classes: `Setup`, `Setup3DLayout`, and `SetupCircuit`.
 
-This module provides all functionalities for creating and editing setups in AEDT. 
+This module provides all functionalities for creating and editing setups in AEDT.
 It is based on templates to allow for easy creation and modification of setup properties.
 
 """
@@ -228,13 +228,13 @@ class Setup(object):
         expressions : str or list
             One or more formulas to add to the expression cache. 
         report_type : str or list, optional
-            Type of the report for the expression. The default is ``Fields``. If a list of expressions 
+            Type of the report for the expression. The default is ``Fields``. If a list of expressions
             is supplied, supply a corresponding list of report types.
         intrinsics : str or list, optional
-            Intrinsic functions for the expressions. The default is ``""``. If a list of expressions 
+            Intrinsic functions for the expressions. The default is ``""``. If a list of expressions
             is supplied, a corresponding list of intrinsic functions must be supplied.
         isconvergence, bool, str, or list, optional
-            Whether the expression is in the convergence criteria. The default is ``True``.  
+            Whether the expression is in the convergence criteria. The default is ``True``.
             If a list of expressions is supplied, a corresponding list of Boolean values must be
             supplied.
         isrelativeconvergence : bool, optional
@@ -360,17 +360,19 @@ class Setup(object):
     @aedt_exception_handler
     def add_mesh_link(self, design_name, solution_name, parameters_dict, project_name="This Project*"):
         """Add a mesh link to another design. 
-        
+
         Parameters
         ----------
         design_name : str, 
             Name of the design.
         solution_name : str
-            Name of the solution in the format ``"setupname : solutionname"``. Optionally
-            use ``appname.nominal_adaptive`` to get the nominal adaptive or ``appname.nominal_sweep``
-            to get  the nominal sweep.
+            Name of the solution in the format ``"setupname : solutionname"``.
+            Optionally use ``appname.nominal_adaptive`` to get the
+            nominal adaptive or ``appname.nominal_sweep`` to get the
+            nominal sweep.
         parameters_dict : dict
-            Dictionary of the parameters. Optionally use the ``appname.available_variations.nominal_w_values_dict`` 
+            Dictionary of the parameters. Optionally use the
+            ``appname.available_variations.nominal_w_values_dict``
             property to get the nominal values.
         project_name : str, optional
             Name of the project with the design. The default is ``"This Project"``. 
@@ -446,24 +448,24 @@ class SetupCircuit(object):
     @property
     def omodule(self):
         """Analysis module.
-        
+
         Parameters
         ----------
         parent: str
             AEDT module for analysis setup.
-        solutiontype: 
+        solutiontype:
             Type of the setup.
         setupname: str, optional
             Name of the setup. The default is ``"MySetupAuto"``.
         isnewsetup: bool, optional
           Whether to create the new setup from a template. The default is ``True.``
           If ``False``, access is to the existing setup.
-          
+
         Returns
         -------
         str
             Name of the setup.
-        
+
         """
         return self._parent.oanalysis
 
@@ -583,7 +585,7 @@ class SetupCircuit(object):
         report_type_list : list
             List of report types for the expressions. 
         intrinsics_list : list
-            List of intrinsic functions for the expressions. 
+            List of intrinsic functions for the expressions.
         isconvergence_list : list
             List of Boolean values indicating whether the expressions are in 
             the convergence criteria.
@@ -671,14 +673,14 @@ class SetupCircuit(object):
         expressions : str or list
             One or more formulas to add to the expression cache. 
         report_type : str or list, optional
-            Type of the report for the expression. The default is ``"Fields"``. If a list of expressions 
+            Type of the report for the expression. The default is ``"Fields"``. If a list of expressions
             is supplied, a corresponding list of report types must be supplied.
         intrinsics : str or list, optional
-            Intrinsic functions for the expressions. The default is ``""``. If a list of expressions 
+            Intrinsic functions for the expressions. The default is ``""``. If a list of expressions
             is supplied, a corresponding list of intrinsic expressesions must be supplied.
         isconvergence : bool, str, or list, optional
             Whether the expression is in the convergence criteria. The  default is ``True``.  
-            If a list of expressions is supplied, a corresponding list of Boolean values must be 
+            If a list of expressions is supplied, a corresponding list of Boolean values must be
             supplied.
         isrelativeconvergence : bool, optional
             The default is ``True``.
@@ -689,7 +691,7 @@ class SetupCircuit(object):
         -------
         bool
             ``True`` when successful, ``False`` when failed.
-        
+
         """
         arg = ["Name:SimSetup"]
         dict2arg(self.props, arg)
@@ -784,24 +786,24 @@ class Setup3DLayout(object):
     @property
     def omodule(self):
         """Analysis module.
-        
+
         Parameters
         ----------
         parent: str
            AEDT module for analysis setup.
-        solutiontype: 
+        solutiontype:
             Type of the setup.
         setupname: str, optional
             Name of the setup. The default is ``"MySetupAuto"``.
         isnewsetup: bool, optional
             Whether to create the new setup from a template. The default is ``True.``
             If ``False``, access is to the existing setup.
-        
+
         Returns
         -------
         type
             Analysis module.
-            
+
         """
         return self.parent.oanalysis
 

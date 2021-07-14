@@ -314,6 +314,18 @@ class FieldAnalysisIcepak(Analysis, object):
             return False
 
     @aedt_exception_handler
+    def _create_dataset_from_sherlock(self, material_name, material_string, property_name= "Mass_Density"):
+        mats = material_string.split(",")
+        mat_temp = [[i.split("@")[0], i.split("@")[1]] for i in mats]
+        nominal_id = int(len(mat_temp) / 2)
+        nominal_val = float(mat_temp[nominal_id-1][0])
+        ds_name= generate_unique_name(property_name)
+        self.create_dataset(ds_name,
+                            [float(i[1].replace("C", "").replace("K", "").replace("F", "")) for i in mat_temp],
+                            [float(i[0]) / nominal_val for i in mat_temp])
+        return nominal_val, "$" + ds_name
+
+    @aedt_exception_handler
     def assignmaterial_from_sherlock_files(self, csv_component, csv_material):
         """Assign material to objects in a design based on a CSV files obtained from Sherlock.
 
@@ -363,20 +375,50 @@ class FieldAnalysisIcepak(Analysis, object):
                 else:
                     newmat = self.materials[mat.lower()]
                 if "Material Density" in material_data:
-                    value = material_data["Material Density"][i]
-                    newmat.mass_density = value
+                    if "@" in material_data["Material Density"][i] and "," in  material_data["Material Density"][i]:
+                        nominal_val, dataset_name = self._create_dataset_from_sherlock(mat, material_data[
+                            "Material Density"][i], "Mass_Density")
+                        newmat.mass_density = nominal_val
+                        newmat.mass_density.thermalmodifier = "pwl({}, Temp)".format(dataset_name)
+                    else:
+                        value = material_data["Material Density"][i]
+                        newmat.mass_density = value
                 if "Thermal Conductivity" in material_data:
-                    value = material_data["Thermal Conductivity"][i]
-                    newmat.thermal_conductivity = value
+                    if "@" in material_data["Thermal Conductivity"][i] and "," in  material_data["Thermal Conductivity"][i]:
+                        nominal_val, dataset_name = self._create_dataset_from_sherlock(mat, material_data[
+                            "Thermal Conductivity"][i], "Thermal_Conductivity")
+                        newmat.thermal_conductivity = nominal_val
+                        newmat.thermal_conductivity.thermalmodifier = "pwl({}, Temp)".format(dataset_name)
+                    else:
+                        value = material_data["Thermal Conductivity"][i]
+                        newmat.thermal_conductivity = value
                 if "Material CTE" in material_data:
-                    value = material_data["Material CTE"][i]
-                    newmat.thermal_expansion_coefficient = value
+                    if "@" in material_data["Material CTE"][i] and "," in  material_data["Material CTE"][i]:
+                        nominal_val, dataset_name = self._create_dataset_from_sherlock(mat, material_data[
+                            "Material CTE"][i], "CTE")
+                        newmat.thermal_expansion_coefficient = nominal_val
+                        newmat.thermal_expansion_coefficient.thermalmodifier = "pwl({}, Temp)".format(dataset_name)
+                    else:
+                        value = material_data["Material CTE"][i]
+                        newmat.thermal_expansion_coefficient = value
                 if "Poisson Ratio" in material_data:
-                    value = material_data["Poisson Ratio"][i]
-                    newmat.poissons_ratio = value
+                    if "@" in material_data["Poisson Ratio"][i] and "," in  material_data["Poisson Ratio"][i]:
+                        nominal_val, dataset_name = self._create_dataset_from_sherlock(mat, material_data[
+                            "Poisson Ratio"][i], "Poisson_Ratio")
+                        newmat.poissons_ratio = nominal_val
+                        newmat.poissons_ratio.thermalmodifier = "pwl({}, Temp)".format(dataset_name)
+                    else:
+                        value = material_data["Poisson Ratio"][i]
+                        newmat.poissons_ratio = value
                 if "Elastic Modulus" in material_data:
-                    value = material_data["Elastic Modulus"][i]
-                    newmat.youngs_modulus = value
+                    if "@" in material_data["Elastic Modulus"][i] and "," in  material_data["Elastic Modulus"][i]:
+                        nominal_val, dataset_name = self._create_dataset_from_sherlock(mat, material_data[
+                            "Elastic Modulus"][i], "Youngs_Modulus")
+                        newmat.youngs_modulus = nominal_val
+                        newmat.youngs_modulus.thermalmodifier = "pwl({}, Temp)".format(dataset_name)
+                    else:
+                        value = material_data["Elastic Modulus"][i]
+                        newmat.youngs_modulus = value
                 self.assignmaterial(list_mat_obj, mat)
 
                 for obj_name in list_mat_obj:

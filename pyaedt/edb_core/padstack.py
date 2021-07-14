@@ -18,7 +18,6 @@ except ImportError:
 class EdbPadstacks(object):
     """EdbPadstacks class."""
 
-
     def __init__(self, parent):
         self.parent = parent
 
@@ -89,11 +88,11 @@ class EdbPadstacks(object):
         padstackname : str, optional
             Name of the padstack. The default is ``None``.
         holediam : str, optional
-           Diameter of the hole with units. The default is ``"300um"``.
+            Diameter of the hole with units. The default is ``"300um"``.
         paddiam : str, optional
             Diameter of the pad with units. The default is ``"400um"``.
         antipaddiam : str, optional
-            Diameter of the antipad with units. The default is``"600um"``.
+            Diameter of the antipad with units. The default is ``"600um"``.
         startlayer : str, optional
             Starting layer. The default is ``None``, in which case the top
             is the starting layer.
@@ -142,11 +141,11 @@ class EdbPadstacks(object):
         padstackname : str, optional
             Name of the padstack. The default is ``None``.
         holediam : str, optional
-           Diameter of the hole with units. The default is ``"300um"``.
+            Diameter of the hole with units. The default is ``"300um"``.
         paddiam : str, optional
             Diameter of the pad with units. The default is ``"400um"``.
         antipaddiam : str, optional
-            Diameter of the antipad with units. The default is``"600um"``.
+            Diameter of the antipad with units. The default is ``"600um"``.
         startlayer : str, optional
             Starting layer. The default is ``None``, in which case the top
             is the starting layer.
