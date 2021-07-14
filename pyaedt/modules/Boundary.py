@@ -9,7 +9,7 @@ class BoundaryCommon(object):
     """ """
     @aedt_exception_handler
     def _get_args(self, props=None):
-        """Retrieve boundaries.
+        """Retrieve boundary properties.
         
         Parameters
         ----------
@@ -18,8 +18,9 @@ class BoundaryCommon(object):
 
         Returns
         -------
-        type
-        
+        dict
+            Dictionary of boundary properties.
+
         """
         if not props:
             props = self.props
@@ -322,7 +323,7 @@ class BoundaryObject(BoundaryCommon, object):
         -------
         bool
             ``True`` when successful, ``False`` when failed.
-            
+
         """
         if "Faces" in self.props:
             faces = self.props["Faces"]
