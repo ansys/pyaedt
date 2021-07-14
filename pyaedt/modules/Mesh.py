@@ -29,11 +29,6 @@ class MeshOperation(object):
     
     meshoptpe :
     
-    Returns
-    -------
-    type
-    
-    
     """
     def __init__(self, parent, name, props, meshoptype):
         self._parent = parent
@@ -444,7 +439,7 @@ class Mesh(object):
 
     @aedt_exception_handler
     def delete_mesh_operations(self, mesh_type=None):
-        """Remove a mesh operations from a design. 
+        """Remove mesh operations from a design. 
 
         Parameters
         ----------
@@ -810,7 +805,7 @@ class Mesh(object):
 
         Returns
         -------
-        type
+        :class:`MeshOperation`
             Mesh operation object.
             
         """
