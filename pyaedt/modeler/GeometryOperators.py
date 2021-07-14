@@ -139,7 +139,7 @@ class GeometryOperators(object):
         Returns
         -------
         str
-           String for the coodinate system plane.
+           String for the coordinate system plane.
 
         """
         if val == CoordinateSystemPlane.XYPlane:
@@ -312,7 +312,7 @@ class GeometryOperators(object):
     @staticmethod
     @aedt_exception_handler
     def v_prod(s, v):
-        """Evaluate the product between a scalar v alue and a vector.
+        """Evaluate the product between a scalar value and a vector.
                 
         Parameters
         ----------
@@ -468,7 +468,7 @@ class GeometryOperators(object):
         ----------
         pointlists : list
             List of points.          
-        direction : int, optinal
+        direction : int, optional
              The default is ``0``.
 
         Returns
@@ -887,7 +887,7 @@ class GeometryOperators(object):
         Returns
         -------
         list
-            List of ``[q1, q2, q3, q4]`` ccordinates for the quaternion.
+            List of ``[q1, q2, q3, q4]`` coordinates for the quaternion.
         
         """
         un = GeometryOperators.normalize_vector(u)
