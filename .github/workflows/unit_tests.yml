@@ -59,7 +59,8 @@ jobs:
       - name: 'Unit testing'
         run: | 
           testenv\Scripts\Activate.ps1
-          pytest _unittest -v --cov --cov-config=.coveragerc -cov-report=xml --cov-report=html --junitxml=junit/test-results.xml
+          pip install pytest-cov
+          pytest -v --cov=_unittest --cov-config=.coveragerc -cov-report=xml --junitxml=junit/test-results.xml _unittest
 
       - name: 'Coverage'
         run: |
