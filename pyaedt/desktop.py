@@ -600,7 +600,7 @@ class Desktop:
         >>> desktop = pyaedt.Desktop("2021.1")
         pyaedt Info: pyaedt v...
         pyaedt Info: Python version ...
-        >>> desktop.release_desktop(close_projects=False, close_on_exit=False)
+        >>> desktop.release_desktop(close_projects=False, close_on_exit=False) # doctest: +SKIP
 
         """
         release_desktop(close_projects, close_on_exit)
