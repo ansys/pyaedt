@@ -74,18 +74,13 @@ jobs:
           name: coverage-results
           path: coverage.xml
         # Use always() to always run this step to publish test results when there are test failures
-        if: ${{ always() }}   
-     
-      - name: Publish Code Coverage 
-        uses: romeovs/lcov-reporter-action@v0.2.16
-        with:
-          lcov-file: ./coverage.xml
-          
-      - name: Publish Unit Test Results
-        uses: EnricoMi/publish-unit-test-result-action@v1.19
-        if: always()
-        with:
-          files: junit/test-results.xml
+        if: ${{ always() }}        
+        
+      #- name: Publish Unit Test Results
+      #  uses: EnricoMi/publish-unit-test-result-action@v1.19
+      #  if: always()
+      #  with:
+      #    files: junit/test-results.xml
         
       - name: 'Build and validate source distribution'
         run: |
