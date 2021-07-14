@@ -163,7 +163,7 @@ class ModelerNexxim(ModelerCircuit):
 
         Returns
         -------
-        Primitives3DLayout
+        :class:`pyaedt.modeler.Primitives3DLayout.Primitives3DLayout`
         
         """
         if self._parent.design_type == "Twin Builder":
