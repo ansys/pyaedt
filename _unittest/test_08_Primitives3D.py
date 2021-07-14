@@ -102,7 +102,7 @@ class TestClass(BasisTest):
         assert isinstance(o1, Object3d)
         assert isinstance(o2, Object3d)
         assert isinstance(o3, Object3d)
-        assert o1.id == o.id * 2
+        assert o1.id == o.id
         assert o2.id == o.id
         assert o3.id == o.id
         self.cache.ignore_error_message_local("Error. Object")

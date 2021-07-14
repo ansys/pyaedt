@@ -16,13 +16,13 @@ class TestSequenceFunctionsGenerate(TestCase):
         try:
             TestCase.assertRaises(self, excClass, callableObj, *args, **kwargs)
         except:
-            print '\n    ' + repr(sys.exc_info()[1])
+            print('\n    ' + repr(sys.exc_info()[1]))
 
     def assertTrue(self, callableObj, *args, **kwargs):
         try:
             TestCase.assertTrue(self, callableObj, *args, **kwargs)
         except:
-            print '\n    ' + repr(sys.exc_info()[1])
+            print('\n    ' + repr(sys.exc_info()[1]))
 
 test_filter = "test_"
 
