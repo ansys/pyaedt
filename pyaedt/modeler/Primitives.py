@@ -1256,7 +1256,7 @@ class Primitives(object):
             objects = self.object_names
         elif not isinstance(objects, list):
             objects = [objects]
-        print("Deleting objects: {}".format(objects))
+        self.messenger.logger.debug("Deleting objects: {}".format(objects))
 
         slice = min(100, len(objects))
         num_objects = len(objects)

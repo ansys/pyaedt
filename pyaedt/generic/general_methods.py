@@ -102,20 +102,7 @@ def aedt_exception_handler(func):
     """
     @wraps(func)
     def inner_function(*args, **kwargs):
-        """
-
-        Parameters
-        ----------
-        *args :
-            
-        **kwargs :
-            
-
-        Returns
-        -------
-
-        """
-        if "PYTEST_CURRENT_TEST" in os.environ or 'unittest' in sys.modules.keys():
+        if "PYTEST_CURRENT_TEST" in os.environ or "UNIT_TEST_FLAG" in os.environ:
             # We are running under pytest or unittest, do not use the decorator
             return func(*args, **kwargs)
         else:

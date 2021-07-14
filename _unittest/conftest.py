@@ -23,11 +23,10 @@ import shutil
 import json
 import gc
 import sys
-
-if "PYTEST_CURRENT_TEST" in os.environ:
+try:
     import pytest
-    import pathlib
-
+except:
+    import _unittest_ironpython.conf_unittest as pytest
 
 local_path = os.path.dirname(os.path.realpath(__file__))
 
@@ -104,25 +103,23 @@ desktop_version = config["desktopVersion"]
 new_thread = config["NewThread"]
 non_graphical = config["NonGraphical"]
 
-if "PYTEST_RUN_CONFIG" in os.environ:
-    import pytest
-    @pytest.fixture(scope='session', autouse=True)
-    def desktop_init():
-        desktop = Desktop(desktop_version, non_graphical, new_thread)
-        desktop.disable_autosave()
-        yield desktop
+@pytest.fixture(scope='session', autouse=True)
+def desktop_init():
+    desktop = Desktop(desktop_version, non_graphical, new_thread)
+    desktop.disable_autosave()
+    yield desktop
 
-        # If new_thread is set to false by a local_config, then don't close the desktop.
-        # Intended for local debugging purposes only
-        if new_thread:
-            desktop.force_close_desktop()
-        p = [x[0] for x in os.walk(scratch_path) if "scratch" in x[0]]
-        #p = pathlib.Path(scratch_path).glob('**/scratch*')
-        for folder in p:
-            shutil.rmtree(folder, ignore_errors=True)
+    # If new_thread is set to false by a local_config, then don't close the desktop.
+    # Intended for local debugging purposes only
+    if new_thread:
+        desktop.force_close_desktop()
+    p = [x[0] for x in os.walk(scratch_path) if "scratch" in x[0]]
+    #p = pathlib.Path(scratch_path).glob('**/scratch*')
+    for folder in p:
+        shutil.rmtree(folder, ignore_errors=True)
 
-        if config["test_desktops"]:
-            run_desktop_tests()
+    if config["test_desktops"]:
+        run_desktop_tests()
 
 
 from functools import wraps
@@ -130,6 +127,7 @@ from functools import wraps
 def pyaedt_unittest_check_desktop_error(func):
     @wraps(func)
     def inner_function(*args, **kwargs):
+        #args[0].aedtapp.messenger("Test Function Here")
         args[0].cache.update()
         ret_val = func(*args, **kwargs)
         try:

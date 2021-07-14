@@ -1,8 +1,14 @@
 # standard imports
 import os
+import sys
+
+try:
+    import pytest
+except:
+    import _unittest_ironpython.conf_unittest as pytest
 
 # Setup paths for module imports
-from .conftest import scratch_path, local_path, BasisTest, pyaedt_unittest_check_desktop_error, config
+from conftest import scratch_path, local_path, BasisTest, pyaedt_unittest_check_desktop_error, config
 
 from pyaedt.generic.filesystem import Scratch
 from pyaedt.modeler.Primitives import Polyline, PolylineSegment
@@ -10,14 +16,13 @@ from pyaedt.modeler.Object3d import Object3d
 from pyaedt.modeler.GeometryOperators import GeometryOperators
 from pyaedt.application.Analysis import CoordinateSystemAxis
 
-try:
-    import pytest
-except:
-    pass
+test = sys.modules.keys()
+
+
+
 
 scdoc = "input.scdoc"
 step = "input.stp"
-
 
 class TestClass(BasisTest):
     def setup_class(self):
@@ -97,7 +102,7 @@ class TestClass(BasisTest):
         assert isinstance(o1, Object3d)
         assert isinstance(o2, Object3d)
         assert isinstance(o3, Object3d)
-        assert o1.id == o.id
+        assert o1.id == o.id * 2
         assert o2.id == o.id
         assert o3.id == o.id
         self.cache.ignore_error_message_local("Error. Object")
@@ -581,12 +586,11 @@ class TestClass(BasisTest):
         assert not o.edges[0].chamfer(chamfer_type=4)
 
     @pyaedt_unittest_check_desktop_error
-    def test_33_fillet(self):
+    def test_33_fillet_and_undo(self):
         o = self.create_copper_box(name="MyBox")
         assert o.edges[0].fillet()
         self.aedtapp.odesign.Undo()
         assert o.edges[0].fillet()
-        self.aedtapp.odesign.Undo()
 
     @pyaedt_unittest_check_desktop_error
     def test_34_create_polyline_basic_segments(self):
@@ -795,7 +799,7 @@ class TestClass(BasisTest):
     def test_46_lines(self):
         assert self.aedtapp.modeler.vertex_data_of_lines()
 
-    #TODO Verify that this is ok
+    @pytest.mark.skipif('unittest' in sys.modules.keys(), reason="Not running in non-graphical mode")
     @pyaedt_unittest_check_desktop_error
     def test_47_get_edges_on_bounding_box(self):
         self.aedtapp.close_project(name=self.aedtapp.project_name, saveproject=False)
