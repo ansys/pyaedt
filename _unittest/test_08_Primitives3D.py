@@ -799,7 +799,7 @@ class TestClass(BasisTest):
     def test_46_lines(self):
         assert self.aedtapp.modeler.vertex_data_of_lines()
 
-    @pytest.mark.skipif("UNITTEST_CURRENT_TEST" in os.environ, reason="Not running in non-graphical mode")
+    @pytest.mark.skipif("UNITTEST_CURRENT_TEST" in os.environ, reason="Issue in IronPython")
     @pyaedt_unittest_check_desktop_error
     def test_47_get_edges_on_bounding_box(self):
         self.aedtapp.close_project(name=self.aedtapp.project_name, saveproject=False)

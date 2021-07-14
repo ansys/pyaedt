@@ -27,7 +27,6 @@ try:
     import pytest
     if "UNITTEST_CURRENT_TEST" in os.environ:
         os.environ.pop("UNITTEST_CURRENT_TEST")
-    assert "PYTEST_CURRENT_TEST" in os.environ
 except:
     import _unittest_ironpython.conf_unittest as pytest
 
