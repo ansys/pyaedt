@@ -56,6 +56,7 @@ jobs:
 
       - name: Docstring testing
         run: |
+          testenv\Scripts\Activate.ps1
           pip install pytest
           pytest -v pyaedt/desktop.py -p no:faulthandler
 
