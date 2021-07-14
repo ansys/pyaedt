@@ -269,7 +269,6 @@ def _reaf_aedt_file(filename):
     global _len_all_lines
     global _count
     # read the AEDT file and discard the binary part
-    # temp = open(filename, 'rb').read().splitlines()
     with open(filename, 'rb') as aedt_fh:
         temp = aedt_fh.read().splitlines()
     _all_lines = []

@@ -432,7 +432,6 @@ class Desktop:
                         process = "ansysedtsv.exe"
                     else:
                         process = "ansysedt.exe"
-                    # output = os.popen('tasklist /FI "IMAGENAME eq {}" /v'.format(process)).readlines()
                     with os.popen('tasklist /FI "IMAGENAME eq {}" /v'.format(process)) as tasks_list:
                         output = tasks_list.readlines()
                     pattern = r'(?i)^(?:{})\s+?(\d+)\s+.+[\s|\\](?:{})\s+'.format(process, username)
@@ -458,7 +457,6 @@ class Desktop:
                         process = "ansysedtsv.exe"
                     else:
                         process = "ansysedt.exe"
-                    # output = os.popen('tasklist /FI "IMAGENAME eq {}" /v'.format(process)).readlines()
                     with os.popen('tasklist /FI "IMAGENAME eq {}" /v'.format(process)) as tasks_list:
                         output = tasks_list.readlines()
                     pattern = r'(?i)^(?:{})\s+?(\d+)\s+.+[\s|\\](?:{})\s+'.format(process, username)

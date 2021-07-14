@@ -1665,7 +1665,6 @@ class Primitives(object):
 
             if o.analysis_type:
                 o._solve_inside = attribs['SolveInside']
-                # o._material_name = attribs['MaterialValue'][1:-1]
                 if 'MaterialValue' in attribs:
                     o._material_name = attribs['MaterialValue'][1:-1]
                 else:
