@@ -618,7 +618,7 @@ class Mesh(object):
         names : list
             List of objects or faces.
         enable : bool, optional
-            Whether  to apply curvilinear elements. The default is ``True``.
+            Whether to apply curvilinear elements. The default is ``True``.
          meshop_name : str, optional
             Name of the mesh operation. The default is ``None``.
 
