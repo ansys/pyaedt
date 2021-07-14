@@ -1401,8 +1401,10 @@ class Primitives(object):
         via a modeler operation such as unite"""
         new_object_dict = {}
         new_object_id_dict = {}
+        all_objects =self.object_names
+        all_unclassified =self.unclassified_objects
         for old_id, obj in self.objects.items():
-            if obj.name in self.object_names or obj.name in self.unclassified_objects:
+            if obj.name in all_objects or obj.name in all_unclassified:
                 updated_id = obj.id    # By calling the object property we get the new id
                 new_object_id_dict[obj.name] = updated_id
                 new_object_dict[updated_id] = obj
@@ -1631,7 +1633,8 @@ class Primitives(object):
 
         obj_check =self.get_bodynames_from_position(p_check)
         obj_check2 = self.get_bodynames_from_position(p_check2)
-        if (startobj in obj_check or endobject in obj_check) and (startobj in obj_check2 or endobject in obj_check2):
+        if (startobj in obj_check and endobject in obj_check2) or (startobj in obj_check2 and endobject in obj_check):
+        #if (startobj in obj_check or endobject in obj_check) and (startobj in obj_check2 or endobject in obj_check2):
             if l1<l2:
                 return_edges = [first_edge, second_edge]
             else:
