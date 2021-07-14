@@ -206,8 +206,9 @@ class Mesh(object):
 
         Returns
         -------
-        type
+        :class:`MeshOperation`
             Mesh operation object.
+            
         """
         names = self.modeler.convert_to_selections(names, True)
         if meshop_name:
@@ -249,7 +250,7 @@ class Mesh(object):
 
         Returns
         -------
-        type
+        :class:`MeshOperation`
             Mesh operation object.
             
         """
@@ -304,7 +305,7 @@ class Mesh(object):
 
         Returns
         -------
-        type
+        :class:`MeshOperation`
             Mesh operation object.
         
         """
@@ -407,7 +408,7 @@ class Mesh(object):
 
         Returns
         -------
-        type
+        :class:`MeshOperation`
             Mesh operation object.
         
         """
@@ -495,7 +496,7 @@ class Mesh(object):
 
         Returns
         -------
-        type
+        :class:`MeshOperation`
             Mesh operation object.
 
         """
@@ -567,7 +568,7 @@ class Mesh(object):
 
         Returns
         -------
-        type
+        :class:`MeshOperation`
             Mesh operation object.
             
         """
@@ -624,7 +625,7 @@ class Mesh(object):
 
         Returns
         -------
-        type
+        :class:`MeshOperation`
             Mesh operation object.
             
         """
@@ -672,7 +673,7 @@ class Mesh(object):
 
         Returns
         -------
-        type
+       :class:`MeshOperation`
             Mesh operation object.
         
         """
@@ -722,7 +723,7 @@ class Mesh(object):
 
         Returns
         -------
-        type
+        :class:`MeshOperation`
             Mesh operation object.
             
         """
@@ -761,7 +762,7 @@ class Mesh(object):
 
         Returns
         -------
-        type
+        :class:`MeshOperation`
             Mesh operation object.
             
         """
