@@ -1622,10 +1622,9 @@ class Primitives(object):
             self.modeler.translate(second_edge, vect)
             p_check = second_edge.vertices[0].position
             p_check2 = second_edge.vertices[1].position
-        elif len(ver2) == 1:  # for circular edges with one vertex
-            #TODO Massimo please check this !
-            p_check = first_edge.vertices[0].position
-            p_check2 = second_edge.vertices[0].position
+        # elif len(ver2) == 1:  # for circular edges with one vertex
+        #     p_check = first_edge.vertices[0].position
+        #     p_check2 = second_edge.vertices[0].position
         else:
             self.delete(first_edge)
             self.delete(second_edge)
@@ -1633,8 +1632,8 @@ class Primitives(object):
 
         obj_check =self.get_bodynames_from_position(p_check)
         obj_check2 = self.get_bodynames_from_position(p_check2)
-        if (startobj in obj_check and endobject in obj_check2) or (startobj in obj_check2 and endobject in obj_check):
-        #if (startobj in obj_check or endobject in obj_check) and (startobj in obj_check2 or endobject in obj_check2):
+        #if (startobj in obj_check and endobject in obj_check2) or (startobj in obj_check2 and endobject in obj_check):
+        if (startobj in obj_check or endobject in obj_check) and (startobj in obj_check2 or endobject in obj_check2):
             if l1<l2:
                 return_edges = [first_edge, second_edge]
             else:
