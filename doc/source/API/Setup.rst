@@ -7,6 +7,7 @@ The ``Setup`` module includes these classes:
 .. autosummary::
    :toctree: _autosummary
    :template: custom-class-template.rst
+   :nosignatures:
 
    SolveSetup.Setup
    SolveSetup.Setup3DLayout

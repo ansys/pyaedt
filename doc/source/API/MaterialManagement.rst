@@ -7,6 +7,7 @@ The ``Material and Stackup`` module includes these classes:
 .. autosummary::
    :toctree: _autosummary
    :template: custom-class-template.rst
+   :nosignatures:
 
    MaterialLib.Materials
    Material.MatProperties

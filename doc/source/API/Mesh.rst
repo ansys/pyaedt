@@ -7,6 +7,7 @@ The ``Mesh`` module includes these classes:
 .. autosummary::
    :toctree: _autosummary
    :template: custom-class-template.rst
+   :nosignatures:
 
    Mesh.Mesh
    MeshIcepak.IcepakMesh

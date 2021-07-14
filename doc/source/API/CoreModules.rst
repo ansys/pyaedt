@@ -2,12 +2,12 @@ Application Modules
 ===================
 This section contains the following PyAEDT application modules:
 
-#. Design
-#. Variables
 #. Analysis
-#. Edb
 #. Modeler
 #. Objects
+#. Edb
+#. Design
+#. Variable
 #. DesignXPloration
 
 
