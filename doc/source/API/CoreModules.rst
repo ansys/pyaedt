@@ -34,7 +34,7 @@ following classes:
    AnalysisSimplorer.FieldAnalysisSimplorer
 
 
-**Diagram**
+**Inheritance Diagram**
 
 .. inheritance-diagram:: pyaedt.application.Analysis pyaedt.application.Analysis2D pyaedt.application.Analysis3D pyaedt.application.Analysis3DLayout pyaedt.application.AnalysisIcepak pyaedt.application.AnalysisNexxim pyaedt.application.AnalysisRMxprt pyaedt.application.AnalysisSimplorer
     :parts: 1
@@ -104,32 +104,51 @@ information to AEDB files.
 
 Design
 ~~~~~~
+This module contains all properties and methods applicable to projects
+and designs.
 
-.. toctree::
-   :maxdepth: 2
-   :caption: This module contains all properties and methods
-             applicable to projects and designs.
+.. currentmodule:: pyaedt.application.Design
 
+.. autosummary::
+   :toctree: _autosummary
+   :template: custom-class-template.rst
+
+   DesignCache
    Design
 
 
 Variable
 ~~~~~~~~
+This module provides all functionalities for creating and editing
+design and project variables in the 3D tools.
 
-.. toctree::
-   :maxdepth: 2
-   :caption: This module contains all methods for managing AEDT
-             variables for both projects and designs.
+.. currentmodule:: pyaedt.application.Variables
 
-   Variables
+.. autosummary::
+   :toctree: _autosummary
+   :template: custom-class-template.rst
+
+   CSVDataset
+   VariableManager
+   Variable
+   DataSet
 
 
 DesignXploration
 ~~~~~~~~~~~~~~~~
+This module contains all properties and methods needed to create
+optimetrics setups.
 
-.. toctree::
-   :maxdepth: 2
-   :caption: This module contains all properties and methods needed to
-             create optimetrics setups.
+.. currentmodule:: pyaedt.modules.DesignXPloration
 
-   DesignXPlorer
+.. autosummary::
+   :toctree: _autosummary
+   :template: custom-class-template.rst
+
+   CommonOptimetrics
+   DXSetups
+   ParametericsSetups
+   SensitivitySetups
+   StatisticalSetups
+   DOESetups
+   OptimizationSetups
