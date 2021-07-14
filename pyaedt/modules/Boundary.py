@@ -13,7 +13,7 @@ class BoundaryCommon(object):
         
         Parameters
         ----------
-        props : optional
+        props : dict, optional
              The default is ``None``.
 
         Returns
