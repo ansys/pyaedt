@@ -1,16 +1,17 @@
-.. pyaedt documentation master file, created by
-   sphinx-quickstart on Fri Jun 12 11:39:54 2020.
-   You can adapt this file completely to your liking, but it should at least
-   contain the root `toctree` directive.
-
 Material and Stackup
 ====================
+The ``Material and Stackup`` module includes these classes:
 
+.. currentmodule:: pyaedt.modules
 
-.. toctree::
-   :maxdepth: 2
-   :caption: The `Material and Stackup` module includes these classes:
+.. autosummary::
+   :toctree: _autosummary
+   :template: custom-class-template.rst
 
-   MaterialLib
-   Material
-   LayersStackup
+   MaterialLib.Materials
+   Material.MatProperties
+   Material.SurfMatProperties
+   Material.MatProperty
+   Material.Material
+   Material.SurfaceMaterial
+   LayerStackup.Layer
