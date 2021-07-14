@@ -1,6 +1,6 @@
 Application Modules
 ===================
-This section contains information about PyAEDT application modules:
+This section contains the following PyAEDT application modules:
 
 #. Design
 #. Variables
@@ -78,12 +78,28 @@ Objects
 
 EDB
 ~~~
-.. toctree::
-   :maxdepth: 2
-   :caption: This module contains all EDT functionalities for reading
-             and writing information to AEDB files.
+This module contains all EDT functionalities for reading and writing
+information to AEDB files.
 
-   Edb
+.. currentmodule:: pyaedt.edb_core
+
+.. autosummary::
+   :toctree: _autosummary
+   :template: custom-class-template.rst
+
+   components.Components
+   hfss.Edb3DLayout
+   siwave.EdbSiwave
+   nets.EdbNets
+   padstack.EdbPadstacks
+   layout.EdbLayout
+   stackup.EdbStackup
+   EDB_Data.EDBLayer
+   EDB_Data.EDBLayers
+   EDB_Data.EDBPadProperties
+   EDB_Data.EDBPadstack
+   EDB_Data.EDBPinInstances
+   EDB_Data.EDBComponent
 
 
 Design
@@ -117,6 +133,3 @@ DesignXploration
              create optimetrics setups.
 
    DesignXPlorer
-
-
-
