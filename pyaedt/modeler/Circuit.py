@@ -147,7 +147,7 @@ class ModelerNexxim(ModelerCircuit):
 
     @property
     def layouteditor(self):
-        """Layout editor.""""
+        """Layout editor."""
         if self._parent.design_type == "Twin Builder":
             return
         return self.odesign.SetActiveEditor("Layout")
