@@ -5,7 +5,7 @@ def get_hpc_info(filename):
     Parameters
     ----------
     filename : str
-        Name of the flie.   
+        Name of the file.   
 
     Returns
     -------
@@ -221,4 +221,3 @@ def Update_hpc_template(self, file_name, param_name, param_val):
     with open(file_name, "w") as f:
         f.write(new_line)
     return
-
