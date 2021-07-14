@@ -158,7 +158,7 @@ class Modeler3DLayout(Modeler):
             Type of the expansion. Options are ``"ROUND"``, ``"MITER"``, and
             ``"CORNER"``. The default is ``"ROUND"``.
         replace_original : bool, optional
-             Whether to replace the orginal object. The default is ``False``, in which case 
+             Whether to replace the original object. The default is ``False``, in which case 
              a new object is created.
 
         Returns
@@ -386,7 +386,7 @@ class Modeler3DLayout(Modeler):
         count : int
         
         direction_vector : list
-            List of `[x, y]` coordiantes for the direction vector.
+            List of `[x, y]` coordinates for the direction vector.
 
         Returns
         -------
