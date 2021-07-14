@@ -30,11 +30,11 @@ jobs:
           echo "dev.aedtdocs.pyansys.com" >> doc/_build/html/CNAME
 
       - name: Partial Documentation Build
-        if: !startsWith(github.event.ref, 'refs/heads/main')
+        if: startsWith(github.event.ref, 'refs/heads/main') != true
         run: |
           make -C doc html
         env:
-          PYAEDT_CI_NO_AUTODOC:True
+          PYAEDT_CI_NO_AUTODOC: True
 
       - name: Upload Documentation
         uses: actions/upload-artifact@v2.2.3
