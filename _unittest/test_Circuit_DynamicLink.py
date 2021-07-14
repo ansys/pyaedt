@@ -49,7 +49,10 @@ class TestCircuitDL:
 
     def teardown_class(self):
         self.aedtapp.close_project(src_project_name, saveproject=False)
-        self.aedtapp.close_project(test_project_name)
+        try:
+            self.aedtapp.close_project(test_project_name)
+        except:
+            pass
         self.local_scratch.remove()
         gc.collect()
 
