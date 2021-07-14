@@ -55,11 +55,11 @@ class ModelerCircuit(Modeler):
 
         Parameters
         ----------
-        firstcomponent : 
+        firstcomponent : str
            Starting (right) component.
-        secondcomponent :
+        secondcomponent : str
            Ending (left) component for the connection line.
-        pinnum_first : str, ooptional
+        pinnum_first : str, optional
              Number of the pin at which to terminate the connection from the right end of the 
              starting component. The default is ``2``.
         pinnum_second : str, optional
@@ -69,7 +69,7 @@ class ModelerCircuit(Modeler):
         Returns
         -------
         bool
-             ``True`` when successful, ``False`` when failed.
+            ``True`` when successful, ``False`` when failed.
 
         """
         obj1 = self.components[firstcomponent]
@@ -130,7 +130,7 @@ class ModelerNexxim(ModelerCircuit):
 
         Returns
         -------
-        Edb
+        :class:`pyaedt.Edb`
             edb_core object if it exists.
         
         """
@@ -175,7 +175,6 @@ class ModelerNexxim(ModelerCircuit):
 
     @model_units.setter
     def model_units(self, units):
-        """ """
         assert units in AEDT_units["Length"], "Invalid units string {0}".format(units)
         ''' Set the model units as a string e.g. "mm" '''
         self.oeditor.SetActivelUnits(
