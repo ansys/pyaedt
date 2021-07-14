@@ -1,7 +1,7 @@
 import os
 import pytest
 # Setup paths for module imports
-from .conftest import scratch_path, module_path
+from .conftest import scratch_path
 import gc
 # Import required modules
 from pyaedt import Hfss
@@ -15,13 +15,26 @@ class TestHFSS:
         #self.desktop = Desktop(desktopVersion, NonGraphical, NewThread)
         # set a scratch directory and the environment / test data
         with Scratch(scratch_path) as self.local_scratch:
-            self.aedtapp = Hfss()
+            self.aedtapp = Hfss(AlwaysNew=True)
 
     def teardown_class(self):
         assert self.aedtapp.close_project(self.aedtapp.project_name)
         #self.desktop.force_close_desktop()
         self.local_scratch.remove()
         gc.collect()
+
+    def restore_geometry(self):
+        udp = self.aedtapp.modeler.Position(0, 0, 0)
+        coax_dimension = 200
+        object_list = ["inner", "outer"]
+        for name in object_list:
+            if self.aedtapp.modeler.primitives[name]:
+                self.aedtapp.modeler.primitives.delete(name)
+        inner = self.aedtapp.modeler.primitives.create_cylinder(self.aedtapp.CoordinateSystemPlane.XYPlane, udp, 3, coax_dimension, 0, "inner")
+        outer = self.aedtapp.modeler.primitives.create_cylinder(self.aedtapp.CoordinateSystemPlane.XYPlane, udp, 10, coax_dimension, 0, "outer")
+        cyl_1 = self.aedtapp.modeler.primitives.create_cylinder(self.aedtapp.CoordinateSystemPlane.XYPlane, udp, 10, coax_dimension, 0, "die")
+        self.aedtapp.modeler.subtract(cyl_1, inner, True)
+        return inner, outer, cyl_1
 
     def test_01_save(self):
         project_name = "Test_Exercse201119"
@@ -35,25 +48,22 @@ class TestHFSS:
     def test_02_create_primitive(self):
         udp = self.aedtapp.modeler.Position(0, 0, 0)
         coax_dimension = 200
-        id1 = self.aedtapp.modeler.primitives.create_cylinder(self.aedtapp.CoordinateSystemPlane.XYPlane, udp, 3, coax_dimension,
+        o1 = self.aedtapp.modeler.primitives.create_cylinder(self.aedtapp.CoordinateSystemAxis.XAxis, udp, 3, coax_dimension,
                                                          0, "inner")
-        assert isinstance(id1, int)
-        id2 = self.aedtapp.modeler.primitives.create_cylinder(self.aedtapp.CoordinateSystemPlane.XYPlane, udp, 10, coax_dimension,
+        assert isinstance(o1.id, int)
+        o2 = self.aedtapp.modeler.primitives.create_cylinder(self.aedtapp.CoordinateSystemAxis.XAxis, udp, 10, coax_dimension,
                                                          0, "outer")
-        assert isinstance(id2, int)
-        assert self.aedtapp.modeler.subtract(id2, id1, True)
+        assert isinstance(o2.id, int)
+        assert self.aedtapp.modeler.subtract(o2, o1, True)
 
     def test_03_2_assign_material(self):
-        udp = self.aedtapp.modeler.Position(0, 0, 0)
-        coax_dimension = 150
-        id1 = self.aedtapp.modeler.primitives.get_obj_id("inner")
-        id2 = self.aedtapp.modeler.primitives.create_cylinder(self.aedtapp.CoordinateSystemPlane.XYPlane, udp, 10,
-                                                              coax_dimension, 0, "die")
-        assert self.aedtapp.modeler.subtract("die", "inner", True)
-        assert self.aedtapp.assignmaterial([id1], "Copper")
-        assert self.aedtapp.assignmaterial(id2, "teflon_based")
-        assert self.aedtapp.assignmaterial("outer", "Copper")
-        pass
+        inner, outer, cyl_1 = self.restore_geometry()
+        inner.material_name = "Copper"
+        cyl_1.material_name = "teflon_based"
+        outer.material_name = "Copper"
+        assert inner.material_name == "copper"
+        assert cyl_1.material_name == "teflon_based"
+        assert outer.material_name == "copper"
 
     @pytest.mark.parametrize(
         "object_name, kwargs",
@@ -72,15 +82,15 @@ class TestHFSS:
 
     def test_05_create_wave_port_from_sheets(self):
         udp = self.aedtapp.modeler.Position(0, 0, 0)
-        id5 = self.aedtapp.modeler.primitives.create_circle(self.aedtapp.CoordinateSystemPlane.YZPlane,udp,10, name="sheet1")
+        o5 = self.aedtapp.modeler.primitives.create_circle(self.aedtapp.CoordinateSystemPlane.YZPlane,udp,10, name="sheet1")
         self.aedtapp.solution_type ="DrivenTerminal"
-        ports = self.aedtapp.create_wave_port_from_sheet(id5, 5, self.aedtapp.AxisDir.XNeg, 40, 2, "sheet1_Port", True)
+        ports = self.aedtapp.create_wave_port_from_sheet(o5, 5, self.aedtapp.AxisDir.XNeg, 40, 2, "sheet1_Port", True)
         assert ports[0].name == "sheet1_Port"
         assert ports[0].name in [i.name for i in self.aedtapp.boundaries]
         self.aedtapp.solution_type ="DrivenModal"
-        udp = self.aedtapp.modeler.Position(5, 0, 0)
-        id6 = self.aedtapp.modeler.primitives.create_circle(self.aedtapp.CoordinateSystemPlane.YZPlane,udp,10, name="sheet2")
-        ports = self.aedtapp.create_wave_port_from_sheet(id6, 5, self.aedtapp.AxisDir.XPos, 40, 2, "sheet2_Port", True)
+        udp = self.aedtapp.modeler.Position(200, 0, 0)
+        o6 = self.aedtapp.modeler.primitives.create_circle(self.aedtapp.CoordinateSystemPlane.YZPlane,udp,10, name="sheet2")
+        ports = self.aedtapp.create_wave_port_from_sheet(o6, 5, self.aedtapp.AxisDir.XPos, 40, 2, "sheet2_Port", True)
         assert ports[0].name == "sheet2_Port"
         assert ports[0].name in [i.name for i in self.aedtapp.boundaries]
 
@@ -125,19 +135,17 @@ class TestHFSS:
     def test_06z_validate_setup(self):
         list, ok = self.aedtapp.validate_full_design(ports=5)
         assert ok
-        pass
 
     def test_07_set_power(self):
-        id1 = self.aedtapp.modeler.primitives.get_obj_id("inner")
         assert self.aedtapp.edit_source("sheet1_Port" + ":1", "10W")
 
     def test_08_create_circuit_port_from_edges(self):
         plane = self.aedtapp.CoordinateSystemPlane.XYPlane
-        rectid1 = self.aedtapp.modeler.primitives.create_rectangle(plane, [10, 10, 10], [10, 10], name="rect1_for_port")
-        edges1 = self.aedtapp.modeler.primitives.get_object_edges(rectid1)
+        rect_1 = self.aedtapp.modeler.primitives.create_rectangle(plane, [10, 10, 10], [10, 10], name="rect1_for_port")
+        edges1 = self.aedtapp.modeler.primitives.get_object_edges(rect_1.id)
         e1 = edges1[0]
-        rectid2 = self.aedtapp.modeler.primitives.create_rectangle(plane, [30, 10, 10], [10, 10], name="rect2_for_port")
-        edges2 = self.aedtapp.modeler.primitives.get_object_edges(rectid2)
+        rect_2 = self.aedtapp.modeler.primitives.create_rectangle(plane, [30, 10, 10], [10, 10], name="rect2_for_port")
+        edges2 = self.aedtapp.modeler.primitives.get_object_edges(rect_2.id)
         e2 = edges2[0]
 
         self.aedtapp.solution_type = "DrivenModal"
@@ -157,7 +165,7 @@ class TestHFSS:
     def test_09_create_waveport_on_objects(self):
         box1 = self.aedtapp.modeler.primitives.create_box([0,0,0], [10,10,5], "BoxWG1", "Copper")
         box2 = self.aedtapp.modeler.primitives.create_box([0, 0, 10], [10, 10, 5], "BoxWG2", "copper")
-        self.aedtapp.assignmaterial("BoxWG2", "Copper")
+        box2.material_name = "Copper"
         port = self.aedtapp.create_wave_port_between_objects("BoxWG1", "BoxWG2", self.aedtapp.AxisDir.XNeg, 50, 1, "Wave1",
                                                              False)
         assert port.name == "Wave1"
@@ -165,11 +173,21 @@ class TestHFSS:
                                                            "Wave1", True, 5)
         assert port2.name != "Wave1" and "Wave1" in port2.name
 
+    def test_09a_create_waveport_on_true_surface_objects(self):
+        cs = self.aedtapp.CoordinateSystemPlane.XYPlane
+        o1 = self.aedtapp.modeler.primitives.create_cylinder(cs, [0, 0, 0], radius=5, height=100,
+                                                             numSides=0, name="inner", matname="Copper")
+        o3 = self.aedtapp.modeler.primitives.create_cylinder(cs, [0, 0, 0], radius=10, height=100,
+                                                            numSides=0, name="outer", matname="Copper")
+
+        port1 = self.aedtapp.create_wave_port_between_objects(o1.name, o3.name, axisdir=0, add_pec_cap=True, portname="P1")
+        assert port1.name.startswith("P1")
+
     def test_10_create_lumped_on_objects(self):
         box1 = self.aedtapp.modeler.primitives.create_box([0, 0, 50], [10, 10, 5], "BoxLumped1")
-        self.aedtapp.assignmaterial("BoxLumped1", "Copper")
+        box1.material_name = "Copper"
         box2 = self.aedtapp.modeler.primitives.create_box([0, 0, 60], [10, 10, 5], "BoxLumped2")
-        self.aedtapp.assignmaterial("BoxLumped2", "Copper")
+        box2.material_name = "Copper"
         port = self.aedtapp.create_lumped_port_between_objects("BoxLumped1", "BoxLumped2", self.aedtapp.AxisDir.XNeg, 50,
                                                             "Lump1", True, False)
         assert not self.aedtapp.create_lumped_port_between_objects("BoxLumped1111", "BoxLumped2", self.aedtapp.AxisDir.XNeg, 50,
@@ -180,7 +198,7 @@ class TestHFSS:
     def test_11_create_circuit_on_objects(self):
         box1 = self.aedtapp.modeler.primitives.create_box([0, 0, 80], [10, 10, 5], "BoxCircuit1","Copper")
         box2 = self.aedtapp.modeler.primitives.create_box([0, 0, 100], [10, 10, 5], "BoxCircuit2", "copper")
-        self.aedtapp.assignmaterial("BoxCircuit2", "Copper")
+        box2.material_name = "Copper"
         port = self.aedtapp.create_circuit_port_between_objects("BoxCircuit1", "BoxCircuit2", self.aedtapp.AxisDir.XNeg,
                                                                 50, "Circ1", True, 50, False)
         assert port == "Circ1"
@@ -215,23 +233,23 @@ class TestHFSS:
 
     def test_15_create_perfects_on_sheets(self):
         rect = self.aedtapp.modeler.primitives.create_rectangle(self.aedtapp.CoordinateSystemPlane.XYPlane, [0, 0, 0],
-                                                                [10, 2], "RectBound", "Copper")
-        pe = self.aedtapp.assign_perfecte_to_sheets("RectBound")
+                                                                [10, 2], name="RectBound", matname="Copper")
+        pe = self.aedtapp.assign_perfecte_to_sheets(rect.name)
         assert pe.name in self.aedtapp.modeler.get_boundaries_name()
-        ph = self.aedtapp.assign_perfecth_to_sheets("RectBound")
+        ph = self.aedtapp.assign_perfecth_to_sheets(rect.name)
         assert ph.name in self.aedtapp.modeler.get_boundaries_name()
 
     def test_16_create_impedance_on_sheets(self):
         rect = self.aedtapp.modeler.primitives.create_rectangle(self.aedtapp.CoordinateSystemPlane.XYPlane, [0, 0, 0],
-                                                                [10, 2], "ImpBound", "Copper")
+                                                                [10, 2], name="ImpBound", matname="Copper")
         imp = self.aedtapp.assign_impedance_to_sheet("imp1", "TL2", 50, 25)
         assert imp.name in self.aedtapp.modeler.get_boundaries_name()
         assert imp.update()
 
     def test_17_create_lumpedrlc_on_sheets(self):
         rect = self.aedtapp.modeler.primitives.create_rectangle(self.aedtapp.CoordinateSystemPlane.XYPlane, [0, 0, 0],
-                                                                [10, 2], "rlcBound", "Copper")
-        imp = self.aedtapp.assign_lumped_rlc_to_sheet("rlcBound", self.aedtapp.AxisDir.XPos,Rvalue=50,Lvalue=1e-9)
+                                                                [10, 2], name="rlcBound", matname="Copper")
+        imp = self.aedtapp.assign_lumped_rlc_to_sheet(rect.name, self.aedtapp.AxisDir.XPos,Rvalue=50,Lvalue=1e-9)
         names = self.aedtapp.modeler.get_boundaries_name()
         assert imp.name in self.aedtapp.modeler.get_boundaries_name()
 
@@ -244,22 +262,22 @@ class TestHFSS:
     def test_18_create_sources_on_objects(self):
         box1 = self.aedtapp.modeler.primitives.create_box([30,0,0], [40,10,5], "BoxVolt1", "Copper")
         box2 = self.aedtapp.modeler.primitives.create_box([30, 0, 10], [40, 10, 5], "BoxVolt2", "Copper")
-        port = self.aedtapp.create_voltage_source_from_objects("BoxVolt1", "BoxVolt2", self.aedtapp.AxisDir.XNeg, "Volt1")
+        port = self.aedtapp.create_voltage_source_from_objects(box1.name, "BoxVolt2", self.aedtapp.AxisDir.XNeg, "Volt1")
         assert port in self.aedtapp.modeler.get_excitations_name()
         port = self.aedtapp.create_current_source_from_objects("BoxVolt1", "BoxVolt2", self.aedtapp.AxisDir.XPos, "Curr1")
         assert port in self.aedtapp.modeler.get_excitations_name()
 
     def test_19_create_lumped_on_sheet(self):
         rect = self.aedtapp.modeler.primitives.create_rectangle(self.aedtapp.CoordinateSystemPlane.XYPlane, [0, 0, 0],
-                                                                [10, 2], "lump_port", "Copper")
-        port = self.aedtapp.create_lumped_port_to_sheet("lump_port", self.aedtapp.AxisDir.XNeg, 50,
+                                                                [10, 2], name="lump_port", matname="Copper")
+        port = self.aedtapp.create_lumped_port_to_sheet(rect.name, self.aedtapp.AxisDir.XNeg, 50,
                                                             "Lump_sheet", True, False)
         assert port+":1" in self.aedtapp.modeler.get_excitations_name()
 
     def test_20_create_voltage_on_sheet(self):
         rect = self.aedtapp.modeler.primitives.create_rectangle(self.aedtapp.CoordinateSystemPlane.XYPlane, [0, 0, 0],
-                                                                [10, 2], "lump_volt", "Copper")
-        port = self.aedtapp.assig_voltage_source_to_sheet("lump_volt", self.aedtapp.AxisDir.XNeg,  "LumpVolt1")
+                                                                [10, 2], name="lump_volt", matname="Copper")
+        port = self.aedtapp.assig_voltage_source_to_sheet(rect.name, self.aedtapp.AxisDir.XNeg,  "LumpVolt1")
         assert port in self.aedtapp.modeler.get_excitations_name()
         assert self.aedtapp.get_property_value("BoundarySetup:LumpVolt1", "VoltageMag", "Excitation") == "1V"
 
@@ -333,7 +351,7 @@ class TestHFSS:
         ms = self.aedtapp.modeler.primitives.create_box([4,5,0],[1,100,0.2],name="MS1", matname="copper")
         sub = self.aedtapp.modeler.primitives.create_box([0,5,-2],[20,100,2],name="SUB1", matname="FR4_epoxy")
         gnd = self.aedtapp.modeler.primitives.create_box([0,5,-2.2],[20,100,0.2],name="GND1", matname="FR4_epoxy")
-        port = self.aedtapp.create_wave_port_microstrip_between_objects("GND1", "MS1",   portname="MS1", axisdir=1)
+        port = self.aedtapp.create_wave_port_microstrip_between_objects(gnd.name, ms.name,   portname="MS1", axisdir=1)
 
 
         assert port.name == "MS1"
@@ -347,8 +365,9 @@ class TestHFSS:
         project_name = "HfssCopiedProject"
         design_name = "HfssCopiedBodies"
         new_design = Hfss(projectname=project_name, designname=design_name)
-        assert new_design.copy_solid_bodies_from(self.aedtapp)
-        assert len(new_design.modeler.solid_bodies) == 41
+        num_orig_bodies = len(self.aedtapp.modeler.primitives.solid_names)
+        assert new_design.copy_solid_bodies_from(self.aedtapp, no_vacuum=False, no_pec=False)
+        assert len(new_design.modeler.solid_bodies) == num_orig_bodies
         new_design.delete_design(design_name)
         new_design.close_project(project_name)
 
@@ -371,13 +390,12 @@ class TestHFSS:
 
     def test_38_get_all_sources(self):
         sources = self.aedtapp.get_all_sources()
-        assert len(sources) == 17
+        assert isinstance(sources, list)
 
     def test_39_set_source_contexts(self):
         assert self.aedtapp.set_source_context(["port10", "port11"])
 
     def test_40_assign_current_source_to_sheet(self):
-        sheet_name = "RectangleForSource"
-        self.aedtapp.modeler.primitives.create_rectangle(self.aedtapp.CoordinateSystemPlane.XYPlane, [0, 0, 0], 
-                                                         [5, 1], sheet_name, "Copper")
-        assert self.aedtapp.assign_current_source_to_sheet(sheet_name)
+        sheet = self.aedtapp.modeler.primitives.create_rectangle(self.aedtapp.CoordinateSystemPlane.XYPlane, [0, 0, 0],
+                                                         [5, 1], name="RectangleForSource", matname="Copper")
+        assert self.aedtapp.assign_current_source_to_sheet(sheet.name)

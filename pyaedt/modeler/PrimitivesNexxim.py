@@ -890,7 +890,7 @@ class NexximComponents(CircuitComponents):
         pass
 
     @aedt_exception_handler
-    def set_sim_solution_on_hfss_subcircuit(self, component, solution_name="HFSS Setup 1 : Sweep 1"):
+    def set_sim_solution_on_hfss_subcircuit(self, component, solution_name="Setup1 : Sweep"):
         """
 
         Parameters
