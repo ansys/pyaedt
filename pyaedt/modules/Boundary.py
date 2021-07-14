@@ -9,18 +9,18 @@ class BoundaryCommon(object):
     """ """
     @aedt_exception_handler
     def _get_args(self, props=None):
-        """Retrieve arguments.
+        """Retrieve boundary properties.
         
         Parameters
         ----------
-        props :
+        props : dict, optional
              The default is ``None``.
 
         Returns
         -------
-        bool
-            ``True`` when successful, ``False`` when failed.
-            
+        dict
+            Dictionary of boundary properties.
+
         """
         if not props:
             props = self.props
@@ -44,9 +44,21 @@ class BoundaryCommon(object):
                 self._parent.boundaries.remove(el)
         return True
 
-
 class BoundaryObject(BoundaryCommon, object):
-    """Boundary data and execution class."""
+    """Boundary data and execution class.
+    
+    Parameters
+    ----------
+    parent:
+    
+    name :
+    
+    props :
+    
+    boundarytype :
+    
+        
+    """
     def __init__(self, parent, name, props, boundarytype):
         self._parent = parent
         self.name = name
@@ -311,7 +323,7 @@ class BoundaryObject(BoundaryCommon, object):
         -------
         bool
             ``True`` when successful, ``False`` when failed.
-        
+
         """
         if "Faces" in self.props:
             faces = self.props["Faces"]
