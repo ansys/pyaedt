@@ -344,7 +344,7 @@ class Q3d(QExtractor, object):
                 setupdata = i
                 for sw in setupdata.sweeps:
                     if sweepname == sw.name:
-                        self.messenger.add_warning_message("Sweep {} is already present. Rename and retry.".format(sweepname))
+                        self._messenger.add_warning_message("Sweep {} is already present. Rename and retry.".format(sweepname))
                         return False
                 sweepdata = setupdata.add_sweep(sweepname, "Discrete")
                 sweepdata.props["RangeStart"] = str(freqstart) + "GHz"
@@ -403,7 +403,7 @@ class Q3d(QExtractor, object):
                 setupdata = i
                 for sw in setupdata.sweeps:
                     if sweepname == sw.name:
-                        self.messenger.add_warning_message("Sweep {} already present. Please rename and retry".format(sweepname))
+                        self._messenger.add_warning_message("Sweep {} already present. Please rename and retry".format(sweepname))
                         return False
                 sweepdata = setupdata.add_sweep(sweepname, "Discrete")
                 sweepdata.props["RangeStart"] = str(freqstart)+"GHz"

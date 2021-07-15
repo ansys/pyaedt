@@ -346,7 +346,7 @@ class Primitives3D(Primitives, object):
         elif bond_type==2:
             bondwire = "LOW"
         else:
-            self.messenger.add_error_message("Wrong Profile Type")
+            self._messenger.add_error_message("Wrong Profile Type")
             return False
         vArg1 = ["NAME:BondwireParameters"]
         vArg1.append("WireType:="), vArg1.append(bondwire)

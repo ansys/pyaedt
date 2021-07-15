@@ -129,8 +129,8 @@ class Mesh(object):
         return self.odesign.GetModule("SolveSetups")
 
     @property
-    def messenger(self):
-        """Messenger."""
+    def _messenger(self):
+        """_messenger."""
         return self._parent._messenger
 
     @property
@@ -237,7 +237,7 @@ class Mesh(object):
             restrictel = True
             numel = str(maxel)
         if maxlength is None and maxel is None:
-            self.messenger.add_error_message("mesh not assigned due to incorrect settings")
+            self._messenger.add_error_message("mesh not assigned due to incorrect settings")
             return
         if type(layer_name) is list and type(net_name) is list:
             assignment = OrderedDict({"MeshEntityInfo":[]})

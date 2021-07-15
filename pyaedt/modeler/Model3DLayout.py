@@ -10,17 +10,17 @@ import sys
 
 class Modeler3DLayout(Modeler):
     """Modeler3DLayout class.
-    
+
     Parameters
     ----------
     parent :
-    
+
     """
     def __init__(self, parent):
         self._parent = parent
-        self.messenger.add_info_message("Loading Modeler")
+        self._messenger.add_info_message("Loading Modeler")
         Modeler.__init__(self, parent)
-        self.messenger.add_info_message("Modeler Loaded")
+        self._messenger.add_info_message("Modeler Loaded")
         self._primitivesDes = self._parent.project_name + self._parent.design_name
         edb_folder = os.path.join(self._parent.project_path, self._parent.project_name + ".aedb")
         edb_file = os.path.join(edb_folder, "edb.def")
@@ -31,12 +31,12 @@ class Modeler3DLayout(Modeler):
                             oproject=self._parent.oproject)
         else:
             self._mttime = 0
-        self.messenger.add_info_message("EDB Loaded")
+        self._messenger.add_info_message("EDB Loaded")
 
         self.layers = Layers(self._parent,self, roughnessunits="um")
-        self.messenger.add_info_message("Layers Loaded")
+        self._messenger.add_info_message("Layers Loaded")
         self._primitives = Primitives3DLayout(self._parent, self)
-        self.messenger.add_info_message("Primitives Loaded")
+        self._messenger.add_info_message("Primitives Loaded")
         self.layers.refresh_all_layers()
 
         pass
@@ -44,12 +44,12 @@ class Modeler3DLayout(Modeler):
     @property
     def edb(self):
         """EBD.
-        
+
         Returns
         -------
         :class:'pyaedt.Edb`
              EDB.
-        
+
         """
         if os.name != "posix":
             edb_folder = os.path.join(self._parent.project_path, self._parent.project_name + ".aedb")
@@ -64,7 +64,7 @@ class Modeler3DLayout(Modeler):
         return self._edb
 
     @property
-    def messenger(self):
+    def _messenger(self):
         """Messenger."""
         return self._parent._messenger
 
@@ -84,7 +84,18 @@ class Modeler3DLayout(Modeler):
         return retry_ntimes(10, self.oeditor.GetActiveUnits)
 
     @model_units.setter
-    def model_units(self, units):       
+    def model_units(self, units):
+        """
+
+        Parameters
+        ----------
+        units :
+            
+
+        Returns
+        -------
+
+        """
         assert units in AEDT_units["Length"], "Invalid units string {0}".format(units)
         ''' Set the model units as a string e.g. "mm" '''
         self.oeditor.SetActivelUnits(
@@ -134,7 +145,7 @@ class Modeler3DLayout(Modeler):
         >>> h3d.modeler.unite([l1,l2])
         >>> h3d.modeler.colinear_heal("poly_2", 0.25)
         True
-        
+
         """
         if isinstance(selection, str):
             selection = [selection]
@@ -158,7 +169,7 @@ class Modeler3DLayout(Modeler):
             Type of the expansion. Options are ``"ROUND"``, ``"MITER"``, and
             ``"CORNER"``. The default is ``"ROUND"``.
         replace_original : bool, optional
-             Whether to replace the original object. The default is ``False``, in which case 
+             Whether to replace the original object. The default is ``False``, in which case
              a new object is created.
 
         Returns
@@ -176,7 +187,7 @@ class Modeler3DLayout(Modeler):
         >>> out1 = h3d.modeler.expand("line_3")
         >>> print(out1)
         line_4
-        
+
         """
         layer = retry_ntimes(10, self.oeditor.GetPropertyValue, "BaseElementTab", object_to_expand, 'PlacementLayer')
         poly = self.oeditor.GetPolygonDef(object_to_expand).GetPoints()
@@ -201,16 +212,16 @@ class Modeler3DLayout(Modeler):
         brd_filename : str
             Full path and name of the BRD file to import.
         edb_path : str, optional
-            Path where the EDB is to be created. The default is ``None``, in which 
+            Path where the EDB is to be created. The default is ``None``, in which
             case the project directory is used.
         edb_name : str, optional
-            name of the EDB. The default is ``None``, in which 
+            name of the EDB. The default is ``None``, in which
             case the board name is used.
 
         Returns
         -------
         bool
-            ``True`` when successful, ``False`` when failed.   
+            ``True`` when successful, ``False`` when failed.
 
         """
         if not edb_path:
@@ -259,16 +270,16 @@ class Modeler3DLayout(Modeler):
         ipc_filename :
             Full path and name of the IPC file to import.
         edb_path : str, optional
-            Path where the EDB is to be created. The default is ``None``, in which 
+            Path where the EDB is to be created. The default is ``None``, in which
             case the project directory is used.
         edb_name : str, optional
-            name of the EDB. The default is ``None``, in which 
+            name of the EDB. The default is ``None``, in which
             case the board name is used.
 
         Returns
         -------
         bool
-            ``True`` when successful, ``False`` when failed.   
+            ``True`` when successful, ``False`` when failed.
 
         """
         if not edb_path:
@@ -298,7 +309,7 @@ class Modeler3DLayout(Modeler):
         -------
         bool
             ``True`` when successful, ``False`` when failed.
-            
+
         """
         vArg1 = ['NAME:primitives', blank]
         if type(tool) is list:
@@ -343,7 +354,7 @@ class Modeler3DLayout(Modeler):
                         self.primitives._geometries.pop(el)
             return True
         else:
-            self.messenger.add_error_message("Input list must contain at least 2 elements")
+            self._messenger.add_error_message("Input list must contain at least 2 elements")
             return False
 
     @aedt_exception_handler
@@ -372,19 +383,19 @@ class Modeler3DLayout(Modeler):
                         self.primitives._geometries.pop(el)
             return True
         else:
-            self.messenger.add_error_message("Input list must contain at least 2 elements")
+            self._messenger.add_error_message("Input list must contain at least 2 elements")
             return False
 
     @aedt_exception_handler
     def duplicate(self, objectlists, count, direction_vector):
         """Duplicate one or more elements along a vector.
-        
+
         Parameters
         ----------
         objectlists : list
             List of elements to duplicate.
         count : int
-        
+
         direction_vector : list
             List of `[x, y]` coordinates for the direction vector.
 
@@ -392,7 +403,7 @@ class Modeler3DLayout(Modeler):
         -------
         bool
             ``True`` when successful, ``False`` when failed.
-            
+
         """
         if isinstance(objectlists, str):
             objectlists = [objectlists]
