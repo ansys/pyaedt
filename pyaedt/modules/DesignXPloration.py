@@ -75,7 +75,7 @@ defaultdoeSetup = OrderedDict({"IsEnabled": True, "ProdOptiSetupDataV2":
 
 
 class CommonOptimetrics(object):
-    """CommonOptimetrics class.
+    """Creates and sets up optimizations.
     
     Parameters
     ----------
@@ -92,7 +92,14 @@ class CommonOptimetrics(object):
 
     @property
     def omodule(self):
-        """Optimetrics module."""
+        """Optimetrics module.
+        
+        Returns
+        -------
+        :class:`Optimetrics`
+            Optimetrics object.
+        
+        """
         return self._parent.odesign.GetModule("Optimetrics")
 
     def __init__(self, parent, name, dictinputs, optimtype):
@@ -146,7 +153,7 @@ class CommonOptimetrics(object):
 
     @aedt_exception_handler
     def update(self, update_dictionary=None):
-        """Update a setup based on stored properties. 
+        """Update the setup based on stored properties. 
 
         Parameters
         ----------
@@ -187,7 +194,7 @@ class CommonOptimetrics(object):
     @aedt_exception_handler
     def _add_calculation(self, reporttype, solution=None, domain="Sweep", calculation="", calculation_type="d",
                          calculation_value="", calculation_name=None):
-        """Add a new calculation.
+        """Add a calculation to the setup.
 
         Parameters
         ----------
@@ -241,7 +248,7 @@ class CommonOptimetrics(object):
     @aedt_exception_handler
     def _add_goal(self, optigoalname, reporttype, solution=None, domain="Sweep", calculation="", calculation_type="discrete",
                   calc_val1="", calc_val2="", condition="==", goal_value=1, goal_weight=1, goal_name=None):
-        """Add an optimization goal.
+        """Add an optimization goal to the setup.
 
         Parameters
         ----------
@@ -315,7 +322,7 @@ class CommonOptimetrics(object):
 
 
 class DXSetups(object):
-    """DXSetups class.
+    """Sets up DesignXplorer optimizations.
     
     Parameters
     ----------
@@ -324,7 +331,7 @@ class DXSetups(object):
     """
 
     class Setup(CommonOptimetrics, object):
-        """Setup class for DesignXplorer.
+        """Sets up a DesignXplorer optimization in optiSLang.
 
         Parameters
         ----------
@@ -341,7 +348,7 @@ class DXSetups(object):
 
         @aedt_exception_handler
         def add_calculation(self, calculation="", calculation_value="", reporttype="Modal Solution Data", solution=None, domain="Sweep",  calculation_name=None):
-            """Add a calculation to the DesignXplorer setup.
+            """Add a calculation to the setup.
 
             Parameters
             ----------
@@ -371,7 +378,7 @@ class DXSetups(object):
         @aedt_exception_handler
         def add_goal(self, calculation="", calculation_value="", calculation_type="discrete", calculation_stop="",
                      reporttype="Modal Solution Data", solution=None, domain="Sweep", goal_name=None, goal_value=1, goal_weight=1, condition="=="):
-            """Add a goal to the DesignXplorer setup.
+            """Add a goal to the setup.
 
             Parameters
             ----------
@@ -421,7 +428,13 @@ class DXSetups(object):
     
     @property
     def optimodule(self):
-        """Optimetrics module."""
+        """Optimetrics module.
+        
+        Returns
+        :class:`Optimetrics`
+            Optimetrics object.
+        
+        """
         return self.parent.odesign.GetModule("Optimetrics")
 
     def __init__(self, parent):
@@ -438,7 +451,7 @@ class DXSetups(object):
 
     @aedt_exception_handler
     def add_dx_setup(self,variables_to_include, defaults_var_values=None, setupname=None, parametricname=None):
-        """Add a basic DesignXplorer setup.
+        """Add a basic parametric setup in DesignXplorer.
         
         You can customize all DesignXplorer options after the setup is added.
 
@@ -456,8 +469,8 @@ class DXSetups(object):
 
         Returns
         -------
-        type
-            Optimetrics object class.
+        :class:`Optimetrics`
+            Optimetrics object.
         
         """
         if not setupname:
@@ -494,7 +507,7 @@ class DXSetups(object):
 
 
 class ParametericsSetups(object):
-    """ParametricsSetups class.
+    """Sets up a parametric analysis.
     
     Parameters
     ----------
@@ -503,7 +516,7 @@ class ParametericsSetups(object):
     """
     class Setup(CommonOptimetrics, object):
 
-        """Setup class.
+        """Sets up a parametric analysis in optiSLang.
         
         Parameters
         ----------
@@ -587,7 +600,13 @@ class ParametericsSetups(object):
 
     @property
     def optimodule(self):
-        """Optimetrics module."""
+        """Optimetrics module.
+        
+        Returns
+        -------
+        :class:`Optimetrics`
+            Optimetrics object.
+        """
         return self.parent.odesign.GetModule("Optimetrics")
 
     def __init__(self, parent):
@@ -623,8 +642,8 @@ class ParametericsSetups(object):
 
         Returns
         -------
-        type
-            Optimetrics object class.
+        :class:`Optimetrics`
+            Optimetrics object.
         
         """
         if not setupname:
@@ -647,7 +666,7 @@ class ParametericsSetups(object):
 
 
 class SensitivitySetups(object):
-    """SensitivitySetups class.
+    """Sets up a sensitivity analysis.
     
     Parameters
     ----------
@@ -655,7 +674,7 @@ class SensitivitySetups(object):
     
     """
     class Setup(CommonOptimetrics, object):
-        """Setup class.
+        """Sets up a sensitivity analysis in optiSLang.
         
         Parameters
         ----------
@@ -675,7 +694,7 @@ class SensitivitySetups(object):
         @aedt_exception_handler
         def add_calculation(self, calculation="", calculation_value="", reporttype="Modal Solution Data", solution=None,
                             domain="Sweep", calculation_name=None):
-            """Add a calculation to a sensitivity anayysis.
+            """Add a calculation to the sensitivity analysis.
 
             Parameters
             ----------
@@ -710,7 +729,14 @@ class SensitivitySetups(object):
    
     @property
     def optimodule(self):
-        """Optimetrics module."""
+        """Optimetrics module.
+        
+        Returns
+        -------
+        :class:`Optimetrics`
+            Optimetrics object.
+            
+        """
         return self.parent.odesign.GetModule("Optimetrics")
 
     def __init__(self, parent):
@@ -754,7 +780,7 @@ class SensitivitySetups(object):
 
         Returns
         -------
-        type
+        :class:`Sensitivity`
             Sensitivity object.
 
         """
@@ -778,7 +804,7 @@ class SensitivitySetups(object):
 
 
 class StatisticalSetups(object):
-    """StatisticalSetups class.
+    """Sets up a statistical analysis.
     
     Parameters
     ----------
@@ -786,7 +812,7 @@ class StatisticalSetups(object):
     
     """
     class Setup(CommonOptimetrics, object):
-        """Setup class.
+        """Sets up a statistical analysis in optiSLang.
         
         Parameters
         ----------
@@ -806,7 +832,7 @@ class StatisticalSetups(object):
 
         @aedt_exception_handler
         def add_calculation(self, calculation="", calculation_value="", reporttype="Modal Solution Data", solution=None, domain="Sweep",  calculation_name=None):
-            """Add a calculation to a statistical analysis.
+            """Add a calculation to the statistical analysis.
 
             Parameters
             ----------
@@ -841,7 +867,14 @@ class StatisticalSetups(object):
     
     @property
     def optimodule(self):
-        """Optimetrics module."""
+        """Optimetrics module.
+        
+        Returns
+        -------
+        :class:`Optimetrics`
+            Optimetrics object.
+            
+        """
         return self.parent.odesign.GetModule("Optimetrics")
 
     def __init__(self, parent):
@@ -885,9 +918,9 @@ class StatisticalSetups(object):
 
         Returns
         -------
-        type
+        :class:`Statistical`
             Statistical object.
-
+     
         """
         if not parametricname:
             parametricname = generate_unique_name("Statistical")
@@ -909,7 +942,7 @@ class StatisticalSetups(object):
 
 
 class DOESetups(object):
-    """DOESetups class.
+    """Sets up DOEs (Designs of Experiments).
     
     Parameters
     ----------
@@ -917,7 +950,7 @@ class DOESetups(object):
    
     """
     class Setup(CommonOptimetrics, object):
-        """Setup class for a DesignXplorer DOE (Design of Experiments).
+        """Sets up a DOE (Design of Experiments) in optiSLang.
         
         Parameters
         ----------
@@ -937,7 +970,7 @@ class DOESetups(object):
         @aedt_exception_handler
         def add_calculation(self, calculation="", calculation_value="", reporttype="Modal Solution Data", solution=None,
                             domain="Sweep", calculation_name=None):
-            """Add a calculation to a DesignXplorer DOE (Design of Experiments).
+            """Add a calculation to the DOE (Design of Experiments).
 
             Parameters
             ----------
@@ -968,7 +1001,7 @@ class DOESetups(object):
         @aedt_exception_handler
         def add_goal(self, calculation="", calculation_value="", calculation_type="discrete",
                      calculation_stop="", reporttype="Modal Solution Data", solution=None, domain="Sweep", goal_name=None, goal_value=1, goal_weight=1, condition="=="):
-            """Add a goal to a DesignXplorer DOE (Design of Experiments).
+            """Add a goal to the DOE (Design of Experiments).
 
             Parameters
             ----------
@@ -1019,7 +1052,14 @@ class DOESetups(object):
 
     @property
     def optimodule(self):
-        """Optimetrics module."""
+        """Optimetrics module.
+        
+        Returns
+        -------
+        :class:`Optimetrics`
+            Optimetrics object.
+        
+        """
         return self.parent.odesign.GetModule("Optimetrics")
 
     def __init__(self, parent):
@@ -1102,7 +1142,7 @@ class DOESetups(object):
 
 
 class OptimizationSetups(object):
-    """OptimizationSetups class.
+    """Sets up optimizations.
     
     Parameters
     ----------
@@ -1111,7 +1151,7 @@ class OptimizationSetups(object):
     """
 
     class Setup(CommonOptimetrics, object):
-        """Setup class.
+        """Sets up an optimization in optiSLang.
         
         Parameters
         ----------
@@ -1132,7 +1172,7 @@ class OptimizationSetups(object):
         def add_goal(self, calculation="", calculation_value="", calculation_type="discrete", calculation_stop="",
                      reporttype="Modal Solution Data", solution=None, domain="Sweep", goal_name=None, goal_value=1,
                      goal_weight=1, condition="=="):
-            """Add a calculation to an optimetrics analysis.
+            """Add a calculation to the analysis.
 
             Parameters
             ----------
@@ -1181,7 +1221,14 @@ class OptimizationSetups(object):
 
     @property
     def optimodule(self):
-        """Optimetrics module."""
+        """Optimetrics module.
+        
+        Returns
+        -------
+        :class:`Optimetrics`
+            Optimetrics object.
+        
+        """
         return self.parent.odesign.GetModule("Optimetrics")
 
     def __init__(self, parent):
