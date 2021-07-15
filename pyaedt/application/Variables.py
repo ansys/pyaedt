@@ -518,9 +518,10 @@ class VariableManager(object):
 
     See Also
     --------
-    Variable class.
+    :class:`Variable` class.
     
     """
+
     @property
     def variables(self):
         """Variables.
