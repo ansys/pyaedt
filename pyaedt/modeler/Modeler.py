@@ -1280,7 +1280,8 @@ class GeometryModeler(Modeler, object):
         all_objs = self.primitives.object_names
         objs_to_unmodel = [i for i in all_objs if i not in group_objs]
         if objs_to_unmodel:
-            self.set_object_model_state(objs_to_unmodel, False)
+            vArg1 = ["NAME:Model", "Value:=", False]
+            self.primitives._change_geometry_property(vArg1, objs_to_unmodel)
             bounding = self.get_model_bounding_box()
             self.odesign.Undo()
         else:
