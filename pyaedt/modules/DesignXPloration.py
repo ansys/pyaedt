@@ -89,6 +89,7 @@ class CommonOptimetrics(object):
         Type of the optimization.
     
     """
+
     @property
     def omodule(self):
         """Optimetrics module."""
