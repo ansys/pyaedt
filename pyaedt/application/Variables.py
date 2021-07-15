@@ -1318,7 +1318,7 @@ class Variable(object):
         return self.__rtruediv__(other)
 
 class Expression(Variable, object):
-    """Expression class.
+    ""Provides a framework for manipulating variable expressions.
     
     This class provides for manipulating variable expressions.
     
