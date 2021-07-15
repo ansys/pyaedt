@@ -19,7 +19,7 @@ class Hfss(FieldAnalysis3D, object):
 
     Parameters
     ----------
-     projectname : str, optional
+    projectname : str, optional
         Name of the project to select or the full path to the project
         or AEDTZ archive to open. The default is ``None``, in which
         case an attempt is made to get an active project. If no
@@ -351,7 +351,8 @@ class Hfss(FieldAnalysis3D, object):
         setupname : str
             Name of the setup that is attached to the sweep.
         unit : str, optional
-            Unit of the frequency. For example, ``"MHz`` or ``"GHz"``. The default is ``"GHz"``.
+            Unit of the frequency. For example, ``"MHz"`` or
+            ``"GHz"``. The default is ``"GHz"``.
         freqstart : float, optional
             Starting frequency of the sweep. The default is ``1e-3``.
         freqstop : float, optional
@@ -385,7 +386,7 @@ class Hfss(FieldAnalysis3D, object):
                 setupdata = i
                 for sw in setupdata.sweeps:
                     if sweepname == sw.name:
-                        self.messenger.add_warning_message(
+                        self._messenger.add_warning_message(
                             "Sweep {} is already present. Rename and retry".format(sweepname))
                         return False
                 sweepdata = setupdata.add_sweep(sweepname, sweeptype)
@@ -444,7 +445,7 @@ class Hfss(FieldAnalysis3D, object):
                 setupdata = i
                 for sw in setupdata.sweeps:
                     if sweepname == sw.name:
-                        self.messenger.add_warning_message(
+                        self._messenger.add_warning_message(
                             "Sweep {} is already present. Rename and retry".format(sweepname))
                         return False
                 sweepdata = setupdata.add_sweep(sweepname, "Discrete")
@@ -500,7 +501,7 @@ class Hfss(FieldAnalysis3D, object):
                 setupdata = i
                 for sw in setupdata.sweeps:
                     if sweepname == sw.name:
-                        self.messenger.add_warning_message(
+                        self._messenger.add_warning_message(
                             "Sweep {} is already present. Rename and retry.".format(sweepname))
                         return False
                 sweepdata = setupdata.add_sweep(sweepname, "Discrete")
@@ -628,7 +629,7 @@ class Hfss(FieldAnalysis3D, object):
                 setupdata = i
                 for sw in setupdata.sweeps:
                     if sweepname == sw.name:
-                        self.messenger.add_warning_message(
+                        self._messenger.add_warning_message(
                             "Sweep {} is already present. Rename and retry.".format(sweepname))
                         return False
                 sweepdata = setupdata.add_sweep(sweepname, "Discrete")
@@ -679,7 +680,7 @@ class Hfss(FieldAnalysis3D, object):
         """
         if not self.modeler.primitives.does_object_exists(startobj) or not self.modeler.primitives.does_object_exists(
                 endobject):
-            self.messenger.add_error_message("One or both objects doesn't exists. Check and retry")
+            self._messenger.add_error_message("One or both objects doesn't exists. Check and retry")
             return False
         if self.solution_type in ["DrivenModal", "DrivenTerminal", "Transient Network"]:
             out, parallel = self.modeler.primitives.find_closest_edges(startobj, endobject, axisdir)
@@ -725,7 +726,7 @@ class Hfss(FieldAnalysis3D, object):
         """
         if not self.modeler.primitives.does_object_exists(startobj) or not self.modeler.primitives.does_object_exists(
                 endobject):
-            self.messenger.add_error_message("One or both objects do not exist. Check and retry.")
+            self._messenger.add_error_message("One or both objects do not exist. Check and retry.")
             return False
 
         if self.solution_type in ["DrivenModal", "DrivenTerminal", "Transient Network"]:
@@ -771,7 +772,7 @@ class Hfss(FieldAnalysis3D, object):
         """
         if not self.modeler.primitives.does_object_exists(startobj) or not self.modeler.primitives.does_object_exists(
                 endobject):
-            self.messenger.add_error_message("One or both objects doesn't exists. Check and retry")
+            self._messenger.add_error_message("One or both objects doesn't exists. Check and retry")
             return False
         if self.solution_type in ["DrivenModal", "DrivenTerminal", "Transient Network"]:
             sheet_name, point0, point1 = self.modeler._create_sheet_from_object_closest_edge(startobj, endobject,
@@ -813,7 +814,7 @@ class Hfss(FieldAnalysis3D, object):
         """
         if not self.modeler.primitives.does_object_exists(startobj) or not self.modeler.primitives.does_object_exists(
                 endobject):
-            self.messenger.add_error_message("One or both objects do not exist. Check and retry.")
+            self._messenger.add_error_message("One or both objects do not exist. Check and retry.")
             return False
         if self.solution_type in ["DrivenModal", "DrivenTerminal", "Transient Network"]:
             sheet_name, point0, point1 = self.modeler._create_sheet_from_object_closest_edge(startobj, endobject,
@@ -894,14 +895,14 @@ class Hfss(FieldAnalysis3D, object):
         """
         if not self.modeler.primitives.does_object_exists(startobj) or not self.modeler.primitives.does_object_exists(
                 endobject):
-            self.messenger.add_error_message("One or both objects do not exist. Check and retry.")
+            self._messenger.add_error_message("One or both objects do not exist. Check and retry.")
             return False
         if self.solution_type in ["DrivenModal", "DrivenTerminal", "Transient Network"]:
             sheet_name, point0, point1 = self.modeler._create_sheet_from_object_closest_edge(startobj, endobject,
                                                                                              axisdir, port_on_plane)
             if add_pec_cap:
                 dist = GeometryOperators.points_distance(point0, point1)
-                self._create_pec_cap(sheet_name, axisdir, dist / 10)
+                self._create_pec_cap(sheet_name, startobj, dist / 10)
             if not portname:
                 portname = generate_unique_name("Port")
             elif portname + ":1" in self.modeler.get_excitations_name():
@@ -914,17 +915,29 @@ class Hfss(FieldAnalysis3D, object):
                 return self._create_port_terminal(faces[0], endobject, portname, iswaveport=True)
         return False
 
-    @aedt_exception_handler
-    def _create_pec_cap(self, sheet_name, axisdir, pecthick):
-        vector = [0, 0, 0]
-        if axisdir < 3:
-            vector[divmod(axisdir, 3)[1]] = -pecthick / 2
-        else:
-            vector[divmod(axisdir, 3)[1]] = pecthick / 2
 
-        status, pecobj = self.modeler.duplicate_along_line(sheet_name, vector)
-        self.modeler.thicken_sheet(pecobj[-1], pecthick, True)
-        self.assignmaterial(pecobj[0], "pec")
+    def _create_pec_cap(self, sheet_name, obj_name, pecthick):
+        # TODO check method
+        obj= self.modeler.primitives[sheet_name].clone()
+        out_obj = self.modeler.thicken_sheet(obj, pecthick, False)
+        bounding2 = out_obj.bounding_box
+        bounding1 = self.modeler.primitives[obj_name].bounding_box
+        tol = 1e-9
+        i=0
+        internal=False
+        for a, b in zip(bounding1,bounding2):
+            if i<3:
+                if (b-a)>tol:
+                    internal=True
+            elif (b-a)<tol:
+                internal = True
+            i += 1
+        if internal:
+            self.odesign.Undo()
+            self.modeler.primitives.cleanup_objects()
+            out_obj = self.modeler.thicken_sheet(obj, -pecthick, False)
+
+        out_obj.material_name = "pec"
         return True
 
     @aedt_exception_handler
@@ -976,7 +989,7 @@ class Hfss(FieldAnalysis3D, object):
         """
         if not self.modeler.primitives.does_object_exists(startobj) or not self.modeler.primitives.does_object_exists(
                 endobject):
-            self.messenger.add_error_message("One or both objects do not exist. Check and retry.")
+            self._messenger.add_error_message("One or both objects do not exist. Check and retry.")
             return False
         if self.solution_type in ["DrivenModal", "DrivenTerminal", "Transient Network"]:
             sheet_name, point0, point1 = self.modeler._create_microstrip_sheet_from_object_closest_edge(startobj,
@@ -985,7 +998,7 @@ class Hfss(FieldAnalysis3D, object):
                                                                                                         vfactor,
                                                                                                         hfactor)
             dist = GeometryOperators.points_distance(point0, point1)
-            self._create_pec_cap(sheet_name, axisdir, dist / 10)
+            self._create_pec_cap(sheet_name, startobj, dist / 10)
             if not portname:
                 portname = generate_unique_name("Port")
             elif portname + ":1" in self.modeler.get_excitations_name():
@@ -1028,7 +1041,7 @@ class Hfss(FieldAnalysis3D, object):
         """
         if not self.modeler.primitives.does_object_exists(startobj) or not self.modeler.primitives.does_object_exists(
                 endobject):
-            self.messenger.add_error_message("One or both objects do not exist. Check and retry.")
+            self._messenger.add_error_message("One or both objects do not exist. Check and retry.")
             return False
         if self.solution_type in ["DrivenModal", "DrivenTerminal", "Transient Network"]:
             sheet_name, point0, point1 = self.modeler._create_sheet_from_object_closest_edge(startobj, endobject,
@@ -1068,7 +1081,7 @@ class Hfss(FieldAnalysis3D, object):
         """
         if not self.modeler.primitives.does_object_exists(startobj) or not self.modeler.primitives.does_object_exists(
                 endobject):
-            self.messenger.add_error_message("One or both objects do not exist. Check and retry.")
+            self._messenger.add_error_message("One or both objects do not exist. Check and retry.")
             return False
         if self.solution_type in ["DrivenModal", "DrivenTerminal", "Transient Network"]:
             sheet_name, point0, point1 = self.modeler._create_sheet_from_object_closest_edge(startobj, endobject,
@@ -1120,7 +1133,7 @@ class Hfss(FieldAnalysis3D, object):
         ApplyInfiniteGP : bool, optional
             Whether to apply an infinite ground plane. The default is ``False``.
         GPAXis : str, optional
-            The default is``"-z"``.
+            The default is ``"-z"``.
 
         Returns
         -------
@@ -1182,7 +1195,7 @@ class Hfss(FieldAnalysis3D, object):
         """
         if not self.modeler.primitives.does_object_exists(startobj) or not self.modeler.primitives.does_object_exists(
                 endobject):
-            self.messenger.add_error_message("One or both objects do not exist. Check and retry.")
+            self._messenger.add_error_message("One or both objects do not exist. Check and retry.")
             return False
         if self.solution_type in ["DrivenModal", "DrivenTerminal", "Transient Network"] and (
                 Rvalue or Lvalue or Cvalue):
@@ -1225,16 +1238,17 @@ class Hfss(FieldAnalysis3D, object):
         endobject :
             Second (ending) object for the integration line.
         axisdir : str, optional
-            Position of the impedance. It should be one of the values for ``Application.AxisDir``, 
-            which are: ``"XNeg"``, ``"YNeg"``, ``"ZNeg"``, ``"XPos"``, ``"YPos"``, and ``"ZPos"``. 
-            The default is ``"0"``.
+            Position of the impedance. It should be one of the values
+            for ``Application.AxisDir``, which are: ``"XNeg"``,
+            ``"YNeg"``, ``"ZNeg"``, ``"XPos"``, ``"YPos"``, and
+            ``"ZPos"``.  The default is ``"0"``.
         sourcename : str, optional
             Name of the impedance. The default is ``None``.
         resistance : float, optional
-            Resistance value in ohms. The default is ``50``. If ``None'',
+            Resistance value in ohms. The default is ``50``. If ``None``,
             this parameter is disabled.
         reactance : optional
-            Reactance value in ohms. The default is ``0``. If ``None'',
+            Reactance value in ohms. The default is ``0``. If ``None``,
             this parameter is disabled.
         is_infground : bool, optional
             Whether the impendance is an infinite ground. The default is ``False``.
@@ -1250,7 +1264,7 @@ class Hfss(FieldAnalysis3D, object):
         """
         if not self.modeler.primitives.does_object_exists(startobj) or not self.modeler.primitives.does_object_exists(
                 endobject):
-            self.messenger.add_error_message("One or both objects do not exist. Check and retry.")
+            self._messenger.add_error_message("One or both objects do not exist. Check and retry.")
             return False
         if self.solution_type in ["DrivenModal", "DrivenTerminal", "Transient Network"]:
             sheet_name, point0, point1 = self.modeler._create_sheet_from_object_closest_edge(startobj, endobject,
@@ -1899,7 +1913,7 @@ class Hfss(FieldAnalysis3D, object):
                                     ]
                                 ])
                     except:
-                        self.messenger.add_debug_message("done")
+                        self._messenger.add_debug_message("done")
                         # self.modeler_oproject.ClearMessages()
         return ports_ID
 
@@ -2051,7 +2065,7 @@ class Hfss(FieldAnalysis3D, object):
         if not sweep_name:
             sweep_name = self.existing_analysis_sweeps[1]
         elif sweep_name not in self.existing_analysis_sweeps:
-            self.messenger.add_error_message("Setup {} doesn't exist in Setup list".format(sweep_name))
+            self._messenger.add_error_message("Setup {} doesn't exist in Setup list".format(sweep_name))
             return False
         if not port_names:
             port_names = self.modeler.get_excitations_name()

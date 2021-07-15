@@ -26,7 +26,7 @@ from ..application.Variables import AEDT_units
 from ..generic.general_methods import generate_unique_name, retry_ntimes, aedt_exception_handler
 import math
 from ..application.DataHandlers import dict2arg
-from .Object3d import EdgePrimitive, FacePrimitive, VertexPrimitive
+from .Object3d import EdgePrimitive, FacePrimitive, VertexPrimitive, Object3d
 
 
 class CoordinateSystem(object):
@@ -474,7 +474,7 @@ class Modeler(object):
         return self._parent._desktop
 
     @property
-    def messenger(self):
+    def _messenger(self):
         """ """
         return self._parent._messenger
 
@@ -504,6 +504,7 @@ class GeometryModeler(Modeler, object):
         """
         self._parent = parent
         Modeler.__init__(self, parent)
+        #TODO Refactor this as a dictionary with names as key
         self.coordinate_systems = self._get_coordinates_data()
         self._is3d = is3d
 
@@ -535,7 +536,7 @@ class GeometryModeler(Modeler, object):
             if type(el) is EdgePrimitive or type(el) is FacePrimitive or type(el) is VertexPrimitive:
                 output_list = [i.id for i in input_list]
             elif type(el) is int and convert_objects_ids_to_name:
-                if el in list(self.primitives.objects.keys()):
+                if el in self.primitives.objects:
                     output_list.append(self.primitives.objects[el].name)
                 else:
                     output_list.append(el)
@@ -543,7 +544,6 @@ class GeometryModeler(Modeler, object):
                 output_list.append(el)
         return output_list
 
-    @aedt_exception_handler
     def _get_coordinates_data(self):
         """ """
         coord = []
@@ -852,9 +852,9 @@ class GeometryModeler(Modeler, object):
 
         """
         if enable_deformation:
-            self.messenger.add_debug_message("Set model temperature and enabling temperature and deformation feedback")
+            self._messenger.add_debug_message("Set model temperature and enabling temperature and deformation feedback")
         else:
-            self.messenger.add_debug_message("Set model temperature and enabling temperature feedback")
+            self._messenger.add_debug_message("Set model temperature and enabling temperature feedback")
         if create_project_var:
             self._parent.variable_manager["$AmbientTemp"] = str(ambient_temp) + "cel"
             var = "$AmbientTemp"
@@ -866,6 +866,7 @@ class GeometryModeler(Modeler, object):
         vdef = []
         for obj in objects:
             mat = self.primitives[obj].material_name
+            print("Material" + mat)
             th = self._parent.materials.check_thermal_modifier(mat)
             if th:
                 vargs2.append(obj)
@@ -879,10 +880,10 @@ class GeometryModeler(Modeler, object):
             if enable_deformation:
                 self.odesign.SetObjectDeformation(["EnabledObjects:=", vdef])
         except:
-            self.messenger.add_error_message("Failed to enable the temperature and deformation dependence")
+            self._messenger.add_error_message("Failed to enable the temperature and deformation dependence")
             return False
         else:
-            self.messenger.add_debug_message(
+            self._messenger.add_debug_message(
                 "Assigned objects temperature and enabled temperature and deformation feedback")
             return True
 
@@ -904,7 +905,7 @@ class GeometryModeler(Modeler, object):
         -------
 
         """
-        self.messenger.add_debug_message("Set model temperature and enabling Thermal Feedback")
+        self._messenger.add_debug_message("Set model temperature and enabling Thermal Feedback")
         if create_project_var:
             self._parent.variable_manager["$AmbientTemp"] = str(ambient_temp) + "cel"
             var = "$AmbientTemp"
@@ -926,10 +927,10 @@ class GeometryModeler(Modeler, object):
         try:
             self.odesign.SetObjectTemperature(vargs1)
         except:
-            self.messenger.add_error_message("Failed to enable the temperature dependence")
+            self._messenger.add_error_message("Failed to enable the temperature dependence")
             return False
         else:
-            self.messenger.add_debug_message("Assigned Objects Temperature")
+            self._messenger.add_debug_message("Assigned Objects Temperature")
             return True
 
     @aedt_exception_handler
@@ -956,11 +957,13 @@ class GeometryModeler(Modeler, object):
         if port_edges is None or port_edges is False:
             port_edges = []
             for e in out:
-                port_edges.append(self.primitives.create_object_from_edge(e))
-
-        sheet_name = self.primitives.get_obj_name(port_edges[0])
-        point0 = self.primitives.get_edge_midpoint(port_edges[0])
-        point1 = self.primitives.get_edge_midpoint(port_edges[1])
+                edge = self.primitives.create_object_from_edge(e)
+                port_edges.append(edge)
+        edge_0 = port_edges[0].edges[0]
+        edge_1 = port_edges[1].edges[0]
+        sheet_name = port_edges[0].name
+        point0 = edge_0.midpoint
+        point1 = edge_1.midpoint
         self.connect(port_edges)
         return sheet_name, point0, point1
 
@@ -970,10 +973,10 @@ class GeometryModeler(Modeler, object):
 
         Parameters
         ----------
-        objectname :
-            
-        startposition :
-            
+        objectname : str
+            name of the object
+        startposition : list of float
+
         offset :
             
         plane :
@@ -981,36 +984,35 @@ class GeometryModeler(Modeler, object):
 
         Returns
         -------
-
+        position : list of float
         """
-        v1=startposition[0]
-        v2=startposition[1]
-        v3=startposition[2]
+        position = [0, 0, 0]
         angle = 0
         if plane==0:
             while angle<=360:
-                startposition[0] =  v1 + offset*math.cos(math.pi*angle/180)
-                startposition[1] =  v2 + offset*math.sin(math.pi*angle/180)
+                position[0] =  startposition[0] + offset*math.cos(math.pi*angle/180)
+                position[1] =  startposition[1] + offset*math.sin(math.pi*angle/180)
                 if objectname in self.primitives.get_bodynames_from_position(startposition):
                     angle = 400
                 else:
                     angle += 90
         elif plane==1:
             while angle<=360:
-                startposition[1] = v2 + offset*math.cos(math.pi*angle/180)
-                startposition[2] = v3 + offset*math.sin(math.pi*angle/180)
+                position[1] = startposition[1] + offset*math.cos(math.pi*angle/180)
+                position[2] = startposition[2] + offset*math.sin(math.pi*angle/180)
                 if objectname in self.primitives.get_bodynames_from_position(startposition):
                     angle = 400
                 else:
                     angle += 90
         elif plane == 2:
             while angle<=360:
-                startposition[0] = v1 + offset*math.cos(math.pi*angle/180)
-                startposition[2] = v3 + offset*math.sin(math.pi*angle/180)
+                position[0] = startposition[0] + offset*math.cos(math.pi*angle/180)
+                position[2] = startposition[2] + offset*math.sin(math.pi*angle/180)
                 if objectname in self.primitives.get_bodynames_from_position(startposition):
                     angle = 400
                 else:
                     angle += 90
+        return position
 
 
     @aedt_exception_handler
@@ -1081,32 +1083,23 @@ class GeometryModeler(Modeler, object):
         axisdist = obj_cent[divmod(axisdir,3)[1]]-gnd_cent[divmod(axisdir,3)[1]]
         if axisdir<3:
             axisdist = -axisdist
-        pos= [axisdist, sheet_dim]
-        rect = 0
-        offset = [i for i in start]
-        if divmod(axisdir,3)[1] == 0:
-            self.find_point_around(objectname,offset, sheet_dim, self._parent.CoordinateSystemPlane.YZPlane)
-            p1 = self.primitives.create_polyline([start, offset])
-            p2 = self.primitives.create_polyline([start, offset])
-            self.translate(p2.id, [axisdist, 0, 0])
-            self.connect([p1.id, p2.id])
-            #rect = self.primitives.create_rectangle(self._parent.CoordinateSystemPlane.XYPlane,  start,pos)
-        elif divmod(axisdir,3)[1]== 1:
-            self.find_point_around(objectname,offset, sheet_dim, self._parent.CoordinateSystemPlane.ZXPlane)
-            p1 = self.primitives.create_polyline([start, offset])
-            p2 = self.primitives.create_polyline([start, offset])
-            self.translate(p2.id, [0, axisdist, 0])
-            self.connect([p1.id, p2.id])
-            #rect = self.primitives.create_rectangle(self._parent.CoordinateSystemPlane.YZPlane,start,pos)
-        elif divmod(axisdir,3)[1] == 2:
-            self.find_point_around(objectname,offset, sheet_dim, self._parent.CoordinateSystemPlane.XYPlane)
-            p1 = self.primitives.create_polyline([self.Position(start), self.Position(offset)])
-            p2 = self.primitives.create_polyline([self.Position(start), self.Position(offset)])
-            self.translate(p2.id, [0,0,axisdist])
-            self.connect([p1.id, p2.id])
-            #rect = self.primitives.create_rectangle(self._parent.CoordinateSystemPlane.ZXPlane,start,pos)
 
-        return p1.id
+        if divmod(axisdir,3)[1] == 0:
+            cs = self._parent.CoordinateSystemPlane.YZPlane
+            vector = [axisdist, 0, 0]
+        elif divmod(axisdir,3)[1]== 1:
+            cs = self._parent.CoordinateSystemPlane.ZXPlane
+            vector = [0, axisdist, 0]
+        elif divmod(axisdir,3)[1] == 2:
+            cs = self._parent.CoordinateSystemPlane.XYPlane
+            vector = [0, 0, axisdist]
+
+        offset = self.find_point_around(objectname, start, sheet_dim, cs)
+        p1 = self.primitives.create_polyline([start, offset])
+        p2 = p1.clone().translate(vector)
+        self.connect([p1, p2])
+
+        return p1
 
     @aedt_exception_handler
     def _get_faceid_on_axis(self, objname, axisdir):
@@ -1156,15 +1149,13 @@ class GeometryModeler(Modeler, object):
         port_edges = self.primitives.get_equivalent_parallel_edges(out, True, axisdir, startobj, endobject)
         if port_edges is None:
             return False
-        sheet_name = self.primitives.get_obj_name(port_edges[0])
-        point0 = self.primitives.get_edge_midpoint(port_edges[0])
-        point1 = self.primitives.get_edge_midpoint(port_edges[1])
-        dist = GeometryOperators.points_distance(point0, point1)
-        self.primitives.get_object_edges(port_edges[0])
-        len = self.primitives.get_edge_length(self.primitives.get_object_edges(port_edges[0])[0])
+        sheet_name = port_edges[0].name
+        point0 = port_edges[0].edges[0].midpoint
+        point1 = port_edges[1].edges[0].midpoint
+        len = port_edges[0].edges[0].length
         vect = GeometryOperators.v_points(point1, point0)
-        l1 = self.primitives.get_edge_length(out[0])
-        l2 = self.primitives.get_edge_length(out[1])
+        l1 = out[0].length
+        l2 = out[1].length
         if l1 < l2:
             vect_t = [i * (vfactor - 1) for i in vect]
             self.translate(port_edges[0], vect_t)
@@ -1240,19 +1231,8 @@ class GeometryModeler(Modeler, object):
 
         """
         selections = self.convert_to_selections(obj_list, True)
-        arg = ["NAME:AllTabs"]
-        arg2 = ["NAME:Geometry3DAttributeTab"]
-        arg3 = ["NAME:PropServers"]
-        for el in selections:
-            arg3.append(el)
-        arg2.append(arg3)
-        arg2.append(["NAME:ChangedProps", ["NAME:Model", "Value:=", model]])
-        arg.append(arg2)
-        self.oeditor.ChangeProperty(arg)
         for obj in selections:
-            self.primitives.objects[self.primitives.get_obj_id(obj)].model = model
-
-
+            self.primitives[obj].model = model
         return True
 
     @aedt_exception_handler
@@ -1297,7 +1277,7 @@ class GeometryModeler(Modeler, object):
         group_objs = list(self.oeditor.GetObjectsInGroup(group))
         if not group_objs:
             return None
-        all_objs = self.primitives.get_all_objects_names()
+        all_objs = self.primitives.object_names
         objs_to_unmodel = [i for i in all_objs if i not in group_objs]
         if objs_to_unmodel:
             self.set_object_model_state(objs_to_unmodel, False)
@@ -1306,35 +1286,6 @@ class GeometryModeler(Modeler, object):
         else:
             bounding = self.get_model_bounding_box()
         return bounding
-
-    @aedt_exception_handler
-    def get_object_bounding_box(self, object):
-        """return single object bounding box
-
-        Parameters
-        ----------
-        object :
-            object name or object id
-
-        Returns
-        -------
-        type
-            array of 6 elements representing bounding box
-
-        """
-        if type(object) is int:
-            object = self.primitives.get_obj_name(object)
-        all_objs = self.primitives.get_all_objects_names()
-        objs_to_unmodel = [i for i in all_objs if i != object]
-        if objs_to_unmodel:
-            self.set_object_model_state(objs_to_unmodel, False)
-            bounding = self.get_model_bounding_box()
-            self.odesign.Undo()
-        else:
-            bounding = self.get_model_bounding_box()
-        return bounding
-
-
 
     @aedt_exception_handler
     def convert_to_selections(self, objtosplit, return_list=False):
@@ -1355,10 +1306,16 @@ class GeometryModeler(Modeler, object):
             objtosplit = [objtosplit]
         objnames = []
         for el in objtosplit:
-            if type(el) is int and el in list(self.primitives.objects.keys()):
-                objnames.append(self.primitives.get_obj_name(el))
-            else:
+            if isinstance(el, int) and el in self.primitives.objects:
+                objnames.append(self.primitives.objects[el].name)
+            elif isinstance(el, Object3d):
+                objnames.append(el.name)
+            elif isinstance(el, FacePrimitive):
+                objnames.append(el.id)
+            elif isinstance(el, str):
                 objnames.append(el)
+            else:
+                return False
         if return_list:
             return objnames
         else:
@@ -1423,8 +1380,8 @@ class GeometryModeler(Modeler, object):
 
         """
         selections = self.convert_to_selections(objid)
-        Xpos, Ypos, Zpos = self.primitives.pos_with_arg(position)
-        Xnorm, Ynorm, Znorm = self.primitives.pos_with_arg(vector)
+        Xpos, Ypos, Zpos = self.primitives._pos_with_arg(position)
+        Xnorm, Ynorm, Znorm = self.primitives._pos_with_arg(vector)
 
         vArg1 = ['NAME:Selections', 'Selections:=', selections, 'NewPartsModelFlag:=', 'Model']
         vArg2 = ['NAME:DuplicateToMirrorParameters']
@@ -1435,16 +1392,8 @@ class GeometryModeler(Modeler, object):
         vArg2.append('DuplicateMirrorNormalY:='), vArg2.append(Ynorm)
         vArg2.append('DuplicateMirrorNormalZ:='), vArg2.append(Znorm)
         vArg3 = ['NAME:Options', 'DuplicateAssignments:=', False]
-        # id = []
-        if self.oeditor is not None:
-            objs = self.primitives.get_all_objects_names()
-            idStr = self.oeditor.DuplicateMirror(vArg1, vArg2, vArg3)
-            self.primitives.refresh_all_ids()
-            objs2 = self.primitives.get_all_objects_names()
-            thelist = [i for i in objs2 if i not in objs]
-            return True, thelist
-        else:
-            return False, []
+        self.oeditor.DuplicateMirror(vArg1, vArg2, vArg3)
+        return True, self.primitives.add_new_objects()
 
     @aedt_exception_handler
     def mirror(self, objid, position, vector):
@@ -1466,8 +1415,8 @@ class GeometryModeler(Modeler, object):
 
         """
         selections = self.convert_to_selections(objid)
-        Xpos, Ypos, Zpos = self.primitives.pos_with_arg(position)
-        Xnorm, Ynorm, Znorm = self.primitives.pos_with_arg(vector)
+        Xpos, Ypos, Zpos = self.primitives._pos_with_arg(position)
+        Xnorm, Ynorm, Znorm = self.primitives._pos_with_arg(vector)
 
         vArg1 = ['NAME:Selections', 'Selections:=', selections, 'NewPartsModelFlag:=', 'Model']
         vArg2 = ['NAME:MirrorParameters']
@@ -1478,19 +1427,18 @@ class GeometryModeler(Modeler, object):
         vArg2.append('MirrorNormalY:='), vArg2.append(Ynorm)
         vArg2.append('MirrorNormalZ:='), vArg2.append(Znorm)
 
-        if self.oeditor is not None:
-            self.oeditor.Mirror(vArg1, vArg2)
+        self.oeditor.Mirror(vArg1, vArg2)
 
         return True
 
     @aedt_exception_handler
     def duplicate_around_axis(self, objid, cs_axis, angle=90, nclones=2, create_new_objects=True):
-        """Duplicate selection aroun axis
+        """Duplicate selection around axis
 
         Parameters
         ----------
         objid :
-            if str, it is considered an objecname. if Int it is considered an object id
+            if str, it is considered an object name. if Int it is considered an object id
         cs_axis :
             Application.CoordinateSystemAxis object
         angle :
@@ -1502,24 +1450,25 @@ class GeometryModeler(Modeler, object):
 
         Returns
         -------
-
+        tuple
         """
         selections = self.convert_to_selections(objid)
 
         vArg1 = ['NAME:Selections', 'Selections:=', selections, 'NewPartsModelFlag:=', 'Model']
         vArg2 = ["NAME:DuplicateAroundAxisParameters", "CreateNewObjects:=", create_new_objects, "WhichAxis:=",
-                 GeometryOperators.cs_axis_str(cs_axis), "AngleStr:=", self.primitives.arg_with_dim(angle, 'deg'), "Numclones:=",
+                 GeometryOperators.cs_axis_str(cs_axis), "AngleStr:=", self.primitives._arg_with_dim(angle, 'deg'), "Numclones:=",
                  str(nclones)]
         vArg3 = ["NAME:Options", "DuplicateBoundaries:=", "true"]
 
-        id = []
-        objs = self.primitives.get_all_objects_names()
-        idList = self.oeditor.DuplicateAroundAxis(vArg1, vArg2, vArg3)
-        self.primitives.refresh_all_ids()
-        objs2 = self.primitives.get_all_objects_names()
-        thelist = [i for i in objs2 if i not in objs]
+        self.oeditor.DuplicateAroundAxis(vArg1, vArg2, vArg3)
+        return self._duplicate_added_objects_tuple()
 
-        return True, thelist
+    def _duplicate_added_objects_tuple(self):
+        added_objects = self.primitives.add_new_objects()
+        if added_objects:
+            return True, added_objects
+        else:
+            return False, []
 
     @aedt_exception_handler
     def duplicate_along_line(self, objid, vector, nclones=2, attachObject=False):
@@ -1527,7 +1476,7 @@ class GeometryModeler(Modeler, object):
 
         Parameters
         ----------
-        objid :
+        objid : str, int, Object3d
             if str, it is considered an objecname. if Int it is considered an object id
         vector :
             List of Vector [x1,y1,z1] or  Application.Position object
@@ -1538,10 +1487,10 @@ class GeometryModeler(Modeler, object):
 
         Returns
         -------
-
+        tuple
         """
         selections = self.convert_to_selections(objid)
-        Xpos, Ypos, Zpos = self.primitives.pos_with_arg(vector)
+        Xpos, Ypos, Zpos = self.primitives._pos_with_arg(vector)
 
         vArg1 = ['NAME:Selections', 'Selections:=', selections, 'NewPartsModelFlag:=', 'Model']
         vArg2 = ["NAME:DuplicateToAlongLineParameters"]
@@ -1552,13 +1501,8 @@ class GeometryModeler(Modeler, object):
         vArg2.append("Numclones:="), vArg2.append(str(nclones))
         vArg3 = ["NAME:Options", "DuplicateBoundaries:=", "true"]
 
-        id = []
-        objs = self.primitives.get_all_objects_names()
-        idList = self.oeditor.DuplicateAlongLine(vArg1, vArg2, vArg3)
-        self.primitives.refresh_all_ids()
-        objs2 = self.primitives.get_all_objects_names()
-        thelist = [i for i in objs2 if i not in objs]
-        return True, thelist
+        self.oeditor.DuplicateAlongLine(vArg1, vArg2, vArg3)
+        return self._duplicate_added_objects_tuple()
 
     @aedt_exception_handler
     def thicken_sheet(self, objid, thickness, bBothSides=False):
@@ -1575,18 +1519,51 @@ class GeometryModeler(Modeler, object):
 
         Returns
         -------
-
+        Object3d
         """
         selections = self.convert_to_selections(objid)
 
         vArg1 = ['NAME:Selections', 'Selections:=', selections, 'NewPartsModelFlag:=', 'Model']
         vArg2 = ["NAME:SheetThickenParameters"]
-        vArg2.append('Thickness:='), vArg2.append(self.primitives.arg_with_dim(thickness))
+        vArg2.append('Thickness:='), vArg2.append(self.primitives._arg_with_dim(thickness))
         vArg2.append('BothSides:='), vArg2.append(bBothSides)
 
-        if self.oeditor is not None:
-            self.oeditor.ThickenSheet(vArg1, vArg2)
-        return True
+        self.oeditor.ThickenSheet(vArg1, vArg2)
+        return self.primitives.update_object(objid)
+
+    @aedt_exception_handler
+    def sweep_along_normal(self, obj_name, face_id, sweep_value=0.1):
+        """Sweep selection along vector
+
+        Parameters
+        ----------
+        obj_name : str, int
+            if str, it is considered an objectname. if Int it is considered an object id
+        face_id : int
+            face to sweep
+        sweep_value : float
+            sweep value
+
+        Returns
+        -------
+        Object3d
+        """
+        selections = self.convert_to_selections(obj_name)
+        vArg1 = ['NAME:Selections', 'Selections:=', selections, 'NewPartsModelFlag:=', 'Model']
+        vArg2 = ["NAME:Parameters"]
+        vArg2.append(["NAME:SweepFaceAlongNormalToParameters", "FacesToDetach:=", [face_id], "LengthOfSweep:=",
+                      self.primitives._arg_with_dim(sweep_value)])
+
+        objs = self.primitives._all_object_names
+        self.oeditor.SweepFacesAlongNormal(vArg1, vArg2)
+        self.primitives.cleanup_objects()
+        objs2 = self.primitives._all_object_names
+        obj = [i for i in objs2 if i not in objs]
+        for el in obj:
+            self.primitives._create_object(el)
+        if obj:
+            return self.primitives.update_object(self.primitives[obj[0]])
+        return False
 
     @aedt_exception_handler
     def sweep_along_vector(self, objid, sweep_vector, draft_angle=0, draft_type="Round"):
@@ -1607,10 +1584,10 @@ class GeometryModeler(Modeler, object):
         bool
         """
         selections = self.convert_to_selections(objid)
-        vectorx, vectory, vectorz = self.primitives.pos_with_arg(sweep_vector)
+        vectorx, vectory, vectorz = self.primitives._pos_with_arg(sweep_vector)
         vArg1 = ['NAME:Selections', 'Selections:=', selections, 'NewPartsModelFlag:=', 'Model']
         vArg2 = ["NAME:VectorSweepParameters"]
-        vArg2.append('DraftAngle:='), vArg2.append(self.primitives.arg_with_dim(draft_angle, 'deg'))
+        vArg2.append('DraftAngle:='), vArg2.append(self.primitives._arg_with_dim(draft_angle, 'deg'))
         vArg2.append('DraftType:='), vArg2.append(GeometryOperators.draft_type_str(draft_type))
         vArg2.append('SweepVectorX:='), vArg2.append(vectorx)
         vArg2.append('SweepVectorY:='), vArg2.append(vectory)
@@ -1618,7 +1595,7 @@ class GeometryModeler(Modeler, object):
 
         self.oeditor.SweepAlongVector(vArg1, vArg2)
 
-        return True
+        return self.primitives.update_object(objid)
 
     @aedt_exception_handler
     def sweep_along_path(self, objid, sweep_object, draft_angle=0, draft_type="Round", is_check_face_intersection=False, twist_angle=0):
@@ -1643,14 +1620,14 @@ class GeometryModeler(Modeler, object):
         selections = self.convert_to_selections(objid) + "," + self.convert_to_selections(sweep_object)
         vArg1 = ['NAME:Selections', 'Selections:=', selections, 'NewPartsModelFlag:=', 'Model']
         vArg2 = ["NAME:PathSweepParameters"]
-        vArg2.append('DraftAngle:='), vArg2.append(self.primitives.arg_with_dim(draft_angle, 'deg'))
+        vArg2.append('DraftAngle:='), vArg2.append(self.primitives._arg_with_dim(draft_angle, 'deg'))
         vArg2.append('DraftType:='), vArg2.append(GeometryOperators.draft_type_str(draft_type))
         vArg2.append('CheckFaceFaceIntersection:='), vArg2.append(is_check_face_intersection)
         vArg2.append('TwistAngle:='), vArg2.append(str(twist_angle) + 'deg')
 
         self.oeditor.SweepAlongPath(vArg1, vArg2)
-        return True
 
+        return self.primitives.update_object(objid)
 
     @aedt_exception_handler
     def sweep_around_axis(self, objid, cs_axis, sweep_angle=360, draft_angle=0):
@@ -1676,13 +1653,13 @@ class GeometryModeler(Modeler, object):
 
         vArg1 = ['NAME:Selections', 'Selections:=', selections, 'NewPartsModelFlag:=', 'Model']
         vArg2 = ['NAME:AxisSweepParameters', 'DraftAngle:=',
-                 self.primitives.arg_with_dim(draft_angle, 'deg'),
+                 self.primitives._arg_with_dim(draft_angle, 'deg'),
                  'DraftType:=', 'Round', 'CheckFaceFaceIntersection:=', False, 'SweepAxis:=', GeometryOperators.cs_axis_str(cs_axis),
-                 'SweepAngle:=', self.primitives.arg_with_dim(sweep_angle, 'deg'), 'NumOfSegments:=', '0']
+                 'SweepAngle:=', self.primitives._arg_with_dim(sweep_angle, 'deg'), 'NumOfSegments:=', '0']
 
         self.oeditor.SweepAroundAxis(vArg1, vArg2)
 
-        return True
+        return self.primitives.update_object(objid)
 
     @aedt_exception_handler
     def section(self, object_list, plane, create_new=True, section_cross_object=False):
@@ -1692,18 +1669,25 @@ class GeometryModeler(Modeler, object):
         ----------
         object_list :
             list. if is list of string , it is considered an objecname. if Int it is considered an object id
-        plane :
-            Application.CoordinateSystemPlane object
-        create_new :
-            Bool. (Default value = True)
-        section_cross_object :
-            Bool (Default value = False)
+        plane : Application.CoordinateSystemPlane or str
+            Coordinate plane to be used: ''"XY"'', ''"YZ"'', ''"ZX"''
+        create_new : bool, default=True
+            no effect
+        section_cross_object : bool, default=False
+            no effect
 
         Returns
         -------
 
         """
-        planes = {0: "XY", 1: "YZ", 2: "ZX"}
+        plane_ids = [0, 1, 2]
+        plane_str = ["XY", "YZ", "ZX"]
+        if plane in plane_ids:
+            section_plane = plane_str[plane]
+        elif plane in plane_str:
+            section_plane = plane
+        else:
+            return False
 
         selections = self.convert_to_selections(object_list)
 
@@ -1716,9 +1700,10 @@ class GeometryModeler(Modeler, object):
             [
                 "NAME:SectionToParameters",
                 "CreateNewObjects:=", create_new,
-                "SectionPlane:=", planes[plane],
+                "SectionPlane:=", section_plane,
                 "SectionCrossObject:=", section_cross_object
             ])
+        self.primitives.refresh_all_ids()
         return True
 
     @aedt_exception_handler
@@ -1765,7 +1750,7 @@ class GeometryModeler(Modeler, object):
         vArg1 = ['NAME:Selections', 'Selections:=', selections, 'NewPartsModelFlag:=', 'Model']
         vArg2 = ["NAME:RotateParameters"]
         vArg2.append('RotateAxis:='), vArg2.append(GeometryOperators.cs_axis_str(cs_axis))
-        vArg2.append('RotateAngle:='), vArg2.append(self.primitives.arg_with_dim(angle, unit))
+        vArg2.append('RotateAngle:='), vArg2.append(self.primitives._arg_with_dim(angle, unit))
 
         if self.oeditor is not None:
             self.oeditor.Rotate(vArg1, vArg2)
@@ -1773,15 +1758,15 @@ class GeometryModeler(Modeler, object):
         return True
 
     @aedt_exception_handler
-    def subtract(self, theList, theList1, keepOriginals=True):
-        """Subtract objects from IDs
+    def subtract(self, blank_list, tool_list, keepOriginals=True):
+        """Subtract objects
 
         Parameters
         ----------
-        theList :
-            list of IDs from which subtract
-        theList1 :
-            list of IDs to subtract
+        blank_list : list of Object3d or list of int
+            list of objects from which to subtract (either Object3d or integer object id allowed)
+        tool_list :
+            list of objects to subtract (either Object3d or integer object id allowed)
         keepOriginals : bool
             define to keep original or not (Default value = True)
 
@@ -1791,19 +1776,15 @@ class GeometryModeler(Modeler, object):
             True if succeeded
 
         """
-        szList = self.convert_to_selections(theList)
-        szList1 = self.convert_to_selections(theList1)
-        if not keepOriginals:
-            if type(theList1) is not list:
-                theList1 = [theList1]
-            for id in list(theList1):
-                    self.primitives._delete_object_from_dict(id)
-
+        szList = self.convert_to_selections(blank_list)
+        szList1 = self.convert_to_selections(tool_list)
 
         vArg1 = ['NAME:Selections', 'Blank Parts:=', szList, 'Tool Parts:=', szList1]
         vArg2 = ['NAME:SubtractParameters', 'KeepOriginals:=', keepOriginals]
 
         self.oeditor.Subtract(vArg1, vArg2)
+        if not keepOriginals:
+            self.primitives.cleanup_objects()
 
         return True
 
@@ -1833,15 +1814,11 @@ class GeometryModeler(Modeler, object):
     def get_model_bounding_box(self):
         """GetModelBoundingbox and return it
         
-        
-        :return: bounding box list
-
-        Parameters
-        ----------
 
         Returns
         -------
-
+        list
+            list of 6 float values [min_x, min_y, min_z, max_x, max_y, max_z]
         """
         bb = list(self.oeditor.GetModelBoundingBox())
         bound = [float(b) for b in bb]
@@ -1864,134 +1841,10 @@ class GeometryModeler(Modeler, object):
         """
         szSelections = self.convert_to_selections(theList)
 
-        delList = theList[1::]
-        for id in delList:
-            self.primitives._delete_object_from_dict(id)
-
         vArg1 = ['NAME:Selections', 'Selections:=', szSelections]
         vArg2 = ['NAME:UniteParameters', 'KeepOriginals:=', False]
-
         self.oeditor.Unite(vArg1, vArg2)
-        return True
-
-    @aedt_exception_handler
-    def chamfer(self, object_name, edge_list=None, vertices_list=None, left_distance=1, right_distance=None, angle=45, chamfer_type=0):
-        """Add Chamfer to selected edge
-
-        Parameters
-        ----------
-        object_name :
-            name of the object
-        edge_list :
-            list of edges to which apply chamfer (Default value = None)
-        vertices_list :
-            list of vertices to which apply chamfer. Alternative to edge_list (Default value = None)
-        left_distance :
-            float left distance (Default value = 1)
-        right_distance :
-            float optional right distance (Default value = None)
-        angle :
-            float angle (for type 2 and 3) (Default value = 45)
-        chamfer_type :
-            0 - Symmetric , 1 - Left Distance-Right Distance, 2 - Left Distance-Angle, 3 - Right Distance-Angle (Default value = 0)
-
-        Returns
-        -------
-        type
-            bool
-
-        """
-        if self.primitives.objects[self.primitives.objects_names[object_name]].is3d:
-            if edge_list:
-                edge_list = self._convert_list_to_ids(edge_list)
-                vertices_list = []
-            else:
-                self.messenger.add_error_message("An Edge List is needed on 3D objects")
-                return False
-        else:
-            if vertices_list:
-                vertices_list = self._convert_list_to_ids(vertices_list)
-                edge_list = []
-            else:
-                self.messenger.add_error_message("An Edge List is needed on 3D objects")
-                return False
-        vArg1 = ['NAME:Selections', 'Selections:=', object_name, 'NewPartsModelFlag:=', 'Model']
-        vArg2 = ["NAME:ChamferParameters"]
-        vArg2.append('Edges:='), vArg2.append(edge_list)
-        vArg2.append('Vertices:='), vArg2.append(vertices_list)
-        vArg2.append('LeftDistance:='), vArg2.append(self.primitives.arg_with_dim(left_distance))
-        if not right_distance:
-            right_distance=left_distance
-        if chamfer_type == 0:
-            vArg2.append('RightDistance:='), vArg2.append(self.primitives.arg_with_dim(right_distance))
-            vArg2.append('ChamferType:='), vArg2.append('Symmetric')
-        elif chamfer_type == 1:
-            vArg2.append('RightDistance:='), vArg2.append(self.primitives.arg_with_dim(right_distance))
-            vArg2.append('ChamferType:='), vArg2.append('Left Distance-Right Distance')
-        elif chamfer_type == 2:
-            vArg2.append('Angle:='), vArg2.append(str(angle)+"deg")
-            vArg2.append('ChamferType:='), vArg2.append('Left Distance-Right Distance')
-        elif chamfer_type == 3:
-            vArg2.append('Angle:='), vArg2.append(str(angle)+"deg")
-            vArg2.append('ChamferType:='), vArg2.append('Right Distance-Angle')
-        else:
-            self.messenger.add_error_message("Wrong Type Entered. Type must be integer from 0 to 3")
-            return False
-        self.oeditor.Chamfer(vArg1, ["NAME:Parameters", vArg2])
-        if object_name in list(self.oeditor.GetObjectsInGroup("UnClassified")):
-            self.odesign.Undo()
-            self.messenger.add_error_message("Operation Failed generating Unclassified object. Check and retry")
-            return False
-        return True
-
-    @aedt_exception_handler
-    def fillet(self, object_name, edge_list=None, vertices_list=None, radius=0.1, setback=0):
-        """Add Fillet to selected edge
-
-        Parameters
-        ----------
-        object_name :
-            name of the object
-        edge_list :
-            list of edges to which apply fillet (Default value = None)
-        vertices_list :
-            list of vertices to which apply fillet. Alternative to edge_list (Default value = None)
-        radius :
-            float Fillet Radius (Default value = 0.1)
-        setback :
-            float Fillet setback (Default value = 0)
-
-        Returns
-        -------
-        type
-            Bool
-
-        """
-        if self.primitives.objects[self.primitives.objects_names[object_name]].is3d:
-            if edge_list:
-                edge_list = self._convert_list_to_ids(edge_list)
-                vertices_list = []
-            else:
-                self.messenger.add_error_message("An Edge List is needed on 3D objects")
-                return False
-        else:
-            if vertices_list:
-                vertices_list = self._convert_list_to_ids(vertices_list)
-                edge_list = []
-            else:
-                self.messenger.add_error_message("An Edge List is needed on 3D objects")
-                return False
-        vArg1 = ['NAME:Selections', 'Selections:=', object_name, 'NewPartsModelFlag:=', 'Model']
-        vArg2 = ["NAME:FilletParameters"]
-        vArg2.append('Edges:='), vArg2.append(edge_list)
-        vArg2.append('Vertices:='), vArg2.append(vertices_list)
-        vArg2.append('Radius:='), vArg2.append(self.primitives.arg_with_dim(radius))
-        vArg2.append('Setback:='), vArg2.append(self.primitives.arg_with_dim(setback))
-        self.oeditor.Fillet(vArg1, ["NAME:Parameters", vArg2])
-        if object_name in list(self.oeditor.GetObjectsInGroup("UnClassified")):
-            self.odesign.Undo()
-            self.messenger.add_error_message("Operation Failed generating Unclassified object. Check and retry")
-            return False
+        self.primitives.cleanup_objects()
         return True
 
     @aedt_exception_handler
@@ -2013,13 +1866,10 @@ class GeometryModeler(Modeler, object):
         szSelections = self.convert_to_selections(objid)
         vArg1 = ['NAME:Selections', 'Selections:=', szSelections]
 
-        objs = self.primitives.get_all_objects_names()
         self.oeditor.Copy(vArg1)
-        newObj = self.oeditor.Paste()
-        self.primitives.refresh_all_ids()
-        objs2 = self.primitives.get_all_objects_names()
-        thelist = [i for i in objs2 if i not in objs]
-        return True, thelist[0]
+        self.oeditor.Paste()
+        new_objects = self.primitives.add_new_objects()
+        return True, new_objects
 
     @aedt_exception_handler
     def intersect(self, theList, keeporiginal=False):
@@ -2048,13 +1898,10 @@ class GeometryModeler(Modeler, object):
         unclassified1 = list(self.oeditor.GetObjectsInGroup("Unclassified"))
         if unclassified != unclassified1:
             self.odesign.Undo()
-            self.messenger.add_error_message("Error in intersection. Reverting Operation")
+            self._messenger.add_error_message("Error in intersection. Reverting Operation")
             return False
-        if not keeporiginal:
-            for el in theList[1:]:
-                self.primitives._delete_object_from_dict(el)
-        self.messenger.add_info_message("Intersection Succeeded")
-        #self.primitives.refresh_all_ids()
+        self.primitives.cleanup_objects()
+        self._messenger.add_info_message("Intersection Succeeded")
         return True
 
     @aedt_exception_handler
@@ -2072,22 +1919,19 @@ class GeometryModeler(Modeler, object):
             True if succeeded
 
         """
-        unclassified = list(self.oeditor.GetObjectsInGroup("Unclassified"))
-        object1 = theList[0]
-        object2 = theList[1]
+        unclassified_before = list(self.primitives.unclassified_names)
         szSelections = self.convert_to_selections(theList)
 
         vArg1 = ['NAME:Selections', 'Selections:=', szSelections]
 
         self.oeditor.Connect(vArg1)
-        unclassified1 = list(self.oeditor.GetObjectsInGroup("Unclassified"))
-        if unclassified != unclassified1:
+        if unclassified_before != self.primitives.unclassified_names:
             self.odesign.Undo()
-            self.messenger.add_error_message("Error in connection. Reverting Operation")
+            self._messenger.add_error_message("Error in connection. Reverting Operation")
             return False
 
-        self.primitives._delete_object_from_dict(object2)
-        self.messenger.add_info_message("Connection Correctly created")
+        self.primitives.cleanup_objects()
+        self._messenger.add_info_message("Connection Correctly created")
         return True
 
     @aedt_exception_handler
@@ -2107,7 +1951,7 @@ class GeometryModeler(Modeler, object):
             True if succeeded
 
         """
-        Xvec, Yvec, Zvec = self.primitives.pos_with_arg(vector)
+        Xvec, Yvec, Zvec = self.primitives._pos_with_arg(vector)
         szSelections = self.convert_to_selections(objid)
 
         vArg1 = ['NAME:Selections', 'Selections:=', szSelections, 'NewPartsModelFlag:=', 'Model']
@@ -2133,12 +1977,12 @@ class GeometryModeler(Modeler, object):
         -------
 
         """
-        self.messenger.add_info_message("Subtract all objects from Chassis object - exclude vacuum objs")
+        self._messenger.add_info_message("Subtract all objects from Chassis object - exclude vacuum objs")
         mat_names = self.omaterial_manager.GetNames()
         num_obj_start = self.oeditor.GetNumObjects()
         blank_part = chassis_part
         # in main code this object will need to be determined automatically eg by name such as chassis or sheer size
-        self.messenger.add_info_message("Blank Part in Subtraction = " + str(blank_part))
+        self._messenger.add_info_message("Blank Part in Subtraction = " + str(blank_part))
         '''
         check if blank part exists, if not, skip subtraction
         '''
@@ -2154,7 +1998,7 @@ class GeometryModeler(Modeler, object):
         num_obj_end = self.oeditor.GetNumObjects()
         self.subtract(blank_part, tool_parts, True)
 
-        self.messenger.add_info_message \
+        self._messenger.add_info_message \
             ("Subtraction Objs - Initial: " + str(num_obj_start) + "  ,  Final: " + str(num_obj_end))
 
     @aedt_exception_handler
@@ -2212,10 +2056,10 @@ class GeometryModeler(Modeler, object):
 
         """
 
-        Xvec, Yvec, Zvec = self.primitives.pos_with_arg(faceposition)
+        Xvec, Yvec, Zvec = self.primitives._pos_with_arg(faceposition)
 
-        if type(obj) is int:
-            obj = self.primitives.get_obj_name(obj)
+        if isinstance(obj, int):
+            obj = self.primitives.objects[obj].name
         plane = None
         found = False
         i = 0
@@ -2223,9 +2067,9 @@ class GeometryModeler(Modeler, object):
             off1, off2, off3 = self._offset_on_plane(i, offset)
             vArg1 = ['NAME:FaceParameters']
             vArg1.append('BodyName:='), vArg1.append(obj)
-            vArg1.append('XPosition:='), vArg1.append(Xvec + "+" + self.primitives.arg_with_dim(off1))
-            vArg1.append('YPosition:='), vArg1.append(Yvec + "+" + self.primitives.arg_with_dim(off2))
-            vArg1.append('ZPosition:='), vArg1.append(Zvec + "+" + self.primitives.arg_with_dim(off3))
+            vArg1.append('XPosition:='), vArg1.append(Xvec + "+" + self.primitives._arg_with_dim(off1))
+            vArg1.append('YPosition:='), vArg1.append(Yvec + "+" + self.primitives._arg_with_dim(off2))
+            vArg1.append('ZPosition:='), vArg1.append(Zvec + "+" + self.primitives._arg_with_dim(off3))
             try:
                 face_id = self.oeditor.GetFaceByPosition(vArg1)
                 if i < 4:
@@ -2300,7 +2144,7 @@ class GeometryModeler(Modeler, object):
         -------
 
         """
-        self.messenger.add_info_message("Adding Airbox to the Bounding ")
+        self._messenger.add_info_message("Adding Airbox to the Bounding ")
 
         bound = self.get_model_bounding_box()
         if offset_type == "Absolute":
@@ -2374,8 +2218,8 @@ class GeometryModeler(Modeler, object):
 
         Returns
         -------
-        type
-            inner ID, outer ID, diel ID
+        tuple of Object3d
+            inner, outer, diel
 
         """
 
@@ -2384,9 +2228,9 @@ class GeometryModeler(Modeler, object):
         diel = self.primitives.create_cylinder(axis, startingposition, dielradius, length, 0)
         self.subtract(outer, inner)
         self.subtract(outer, diel)
-        self._parent.assignmaterial(inner, matinner)
-        self._parent.assignmaterial(outer, matouter)
-        self._parent.assignmaterial(diel, matdiel)
+        inner.material_name = matinner
+        outer.material_name = matouter
+        diel.material_name = matdiel
 
         return inner, outer, diel
 
@@ -2445,20 +2289,20 @@ class GeometryModeler(Modeler, object):
             if not wg_thickness:
                 wg_thickness = wgheight / 20
             if parametrize_h:
-                self._parent[wgmodel + "_H"] = self.primitives.arg_with_dim(wgheight)
+                self._parent[wgmodel + "_H"] = self.primitives._arg_with_dim(wgheight)
                 h = wgmodel + "_H"
-                hb = wgmodel + "_H + 2*" + self.primitives.arg_with_dim(wg_thickness)
+                hb = wgmodel + "_H + 2*" + self.primitives._arg_with_dim(wg_thickness)
             else:
-                h = self.primitives.arg_with_dim(wgheight)
-                hb = self.primitives.arg_with_dim(wgheight) + " + 2*" + self.primitives.arg_with_dim(wg_thickness)
+                h = self.primitives._arg_with_dim(wgheight)
+                hb = self.primitives._arg_with_dim(wgheight) + " + 2*" + self.primitives._arg_with_dim(wg_thickness)
 
             if parametrize_w:
-                self._parent[wgmodel + "_W"] = self.primitives.arg_with_dim(wgwidth)
+                self._parent[wgmodel + "_W"] = self.primitives._arg_with_dim(wgwidth)
                 w = wgmodel + "_W"
-                wb = wgmodel + "_W + " + self.primitives.arg_with_dim(2 * wg_thickness)
+                wb = wgmodel + "_W + " + self.primitives._arg_with_dim(2 * wg_thickness)
             else:
-                w = self.primitives.arg_with_dim(wgwidth)
-                wb = self.primitives.arg_with_dim(wgwidth) + " + 2*" + self.primitives.arg_with_dim(wg_thickness)
+                w = self.primitives._arg_with_dim(wgwidth)
+                wb = self.primitives._arg_with_dim(wgwidth) + " + 2*" + self.primitives._arg_with_dim(wg_thickness)
             if wg_direction_axis == self._parent.CoordinateSystemAxis.ZAxis:
                 airbox = self.primitives.create_box(origin, [w, h, wg_length])
 
@@ -2488,13 +2332,13 @@ class GeometryModeler(Modeler, object):
                 else:
                     origin[2] -= wg_thickness
                     origin[1] -= wg_thickness
-            centers=[f.center for f in self.primitives.objects[airbox].faces]
+            centers=[f.center for f in airbox.faces]
             posx = [i[wg_direction_axis] for i in centers]
             mini = posx.index(min(posx))
             maxi = posx.index(max(posx))
             if create_sheets_on_openings:
-                p1 = self.primitives.create_object_from_face(self.primitives.objects[airbox].faces[mini].id)
-                p2 = self.primitives.create_object_from_face(self.primitives.objects[airbox].faces[maxi].id)
+                p1 = self.primitives.create_object_from_face(airbox.faces[mini].id)
+                p2 = self.primitives.create_object_from_face(airbox.faces[maxi].id)
             if not name:
                 name = generate_unique_name(wgmodel)
             if wg_direction_axis == self._parent.CoordinateSystemAxis.ZAxis:
@@ -2505,7 +2349,7 @@ class GeometryModeler(Modeler, object):
             else:
                 wgbox = self.primitives.create_box(origin, [wg_length, wb, hb], name=name)
             self.subtract(wgbox, airbox, False)
-            self._parent.assignmaterial(wgbox, wg_material)
+            wgbox.material_name = wg_material
 
             return wgbox, p1, p2
         else:
@@ -2559,7 +2403,7 @@ class GeometryModeler(Modeler, object):
 
         self.oeditor.CreateEntityList(["NAME:GeometryEntityListParameters", "EntityType:=", "Face",
                                        "EntityList:=", fl], ["NAME:Attributes", "Name:=", name])
-        self.messenger.add_info_message("Face List " + name + " created")
+        self._messenger.add_info_message("Face List " + name + " created")
         return True
 
     @aedt_exception_handler
@@ -2585,7 +2429,7 @@ class GeometryModeler(Modeler, object):
         listf = ",".join(fl)
         self.oeditor.CreateEntityList(["NAME:GeometryEntityListParameters", "EntityType:=", "Object",
                                        "EntityList:=", listf], ["NAME:Attributes", "Name:=", name])
-        self.messenger.add_info_message("Object List " + name + " created")
+        self._messenger.add_info_message("Object List " + name + " created")
 
         return self.get_entitylist_id(name)
 
@@ -2595,19 +2439,19 @@ class GeometryModeler(Modeler, object):
 
         Parameters
         ----------
-        objectname :
+        objectname : str
             
 
         Returns
         -------
 
         """
-        if type(objectname) is int:
-            objectname = self.primitives.objects[objectname].name
+        objectname = self.convert_to_selections(objectname)
         self.oeditor.GenerateHistory(
             ["NAME:Selections", "Selections:=", objectname, "NewPartsModelFlag:=", "Model",
              "UseCurrentCS:=", True
             ])
+        self.primitives.cleanup_objects()
         return True
 
 
@@ -2632,21 +2476,24 @@ class GeometryModeler(Modeler, object):
             New Bondwirename
 
         """
-        edges = self.primitives.get_object_edges(bondname)
-        faces = self.primitives.get_object_faces(bondname)
+        old_bondwire = self.primitives.get_object_from_name(bondname)
+        if not old_bondwire:
+            return False
+        edges = old_bondwire.edges
+        faces = old_bondwire.faces
         centers = []
         for el in faces:
-            center = self.primitives.get_face_center(el)
+            center = el.center
             if center:
                 centers.append(center)
         edgelist = []
         verlist = []
         for el in edges:
-            ver = self.primitives.get_edge_vertices(el)
+            ver = el.vertices
             if len(ver) < 2:
                 continue
-            p1 = self.primitives.get_vertex_position(ver[0])
-            p2 = self.primitives.get_vertex_position(ver[1])
+            p1 = ver[0].position
+            p2 = ver[1].position
             p3 = [abs(i - j) for i, j in zip(p1, p2)]
 
             dir = p3.index(max(p3))
@@ -2654,19 +2501,18 @@ class GeometryModeler(Modeler, object):
                 edgelist.append(el)
                 verlist.append([p1, p2])
         if not edgelist:
-            self.messenger.add_error_message("No edges found specified direction. Check again")
+            self._messenger.add_error_message("No edges found specified direction. Check again")
             return False
         connected = [edgelist[0]]
         tol = 1e-6
         for edge in edgelist[1:]:
-            ver = self.primitives.get_edge_vertices(edge)
-            p1 = self.primitives.get_vertex_position(ver[0])
-            p2 = self.primitives.get_vertex_position(ver[1])
+            ver = edge.vertices
+            p1 = ver[0].position
+            p2 = ver[1].position
             for el in connected:
-                ver1 = self.primitives.get_edge_vertices(el)
-
-                p3 = self.primitives.get_vertex_position(ver1[0])
-                p4 = self.primitives.get_vertex_position(ver1[1])
+                ver1 = el.vertices
+                p3 = ver1[0].position
+                p4 = ver1[1].position
                 dist = GeometryOperators.points_distance(p1, p3)
                 if dist < tol:
                     connected.append(edge)
@@ -2685,20 +2531,21 @@ class GeometryModeler(Modeler, object):
                     break
         new_edges = []
         for edge in connected:
-            new_edges.append(self.primitives.create_object_from_edge(edge))
+            edge_object = self.primitives.create_object_from_edge(edge)
+            new_edges.append(edge_object)
 
         self.unite(new_edges)
         self.generate_object_history(new_edges[0])
-        self.primitives.convert_segments_to_line(new_edges[0])
+        self.primitives.convert_segments_to_line(new_edges[0].name)
 
-        edges = self.primitives.get_object_edges(new_edges[0])
+        edges = new_edges[0].edges
         i = 0
         edge_to_delete = []
         first_vert = None
         for edge in edges:
-            ver = self.primitives.get_edge_vertices(edge)
-            p1 = self.primitives.get_vertex_position(ver[0])
-            p2 = self.primitives.get_vertex_position(ver[1])
+            ver = edge.vertices
+            p1 = ver[0].position
+            p2 = ver[1].position
             if not first_vert:
                 first_vert = p1
             dist = GeometryOperators.points_distance(p1, p2)
@@ -2714,11 +2561,10 @@ class GeometryModeler(Modeler, object):
                 rad = dist
                 move_vector = GeometryOperators.v_sub(fc, first_vert)
 
-        P = self.primitives.get_existing_polyline(object_id=new_edges[0])
+        P = self.primitives.get_existing_polyline(object=new_edges[0])
 
         if edge_to_delete:
             P.remove_edges(edge_to_delete)
-            #self.primitives.delete_edges_from_polilyne(new_edges[0], edge_to_delete)
 
         angle = math.pi * (180 -360/numberofsegments)/360
 
@@ -2726,7 +2572,7 @@ class GeometryModeler(Modeler, object):
                                                width=(rad*(2-math.sin(angle))) * 2)
         if status:
             self.translate(new_edges[0], move_vector)
-            self.set_object_model_state(bondname, False)
+            old_bondwire.model = False
             return new_edges[0]
         else:
             return False
@@ -2767,7 +2613,7 @@ class GeometryModeler(Modeler, object):
         """
         list2 = self.select_allfaces_fromobjects(externalobjects)  # find ALL faces of outer objects
         self.create_face_list(list2, name)
-        self.messenger.add_info_message('Extfaces of thermal model = ' + str(len(list2)))
+        self._messenger.add_info_message('Extfaces of thermal model = ' + str(len(list2)))
         return True
 
     @aedt_exception_handler
@@ -2787,7 +2633,7 @@ class GeometryModeler(Modeler, object):
             True if operation succeeded
 
         """
-        self.messenger.add_info_message("Creating Explicit Subtraction between Objects")
+        self._messenger.add_info_message("Creating Explicit Subtraction between Objects")
         for el in diellist:
             list1 = el
             list2 = ""
@@ -2812,7 +2658,7 @@ class GeometryModeler(Modeler, object):
                 self.subtract(list1, list2, True)
                 self.purge_history(list1)
                 self.purge_history(list2)
-        self.messenger.add_info_message("Explicit Subtraction Completed")
+        self._messenger.add_info_message("Explicit Subtraction Completed")
         return True
 
     @aedt_exception_handler
@@ -2839,10 +2685,10 @@ class GeometryModeler(Modeler, object):
                     "NAME:Selections",
                     "Selections:=", obj
                 ])
-            originals = self.primitives.get_all_objects_names()
+            originals = self.primitives.object_names
             self.oeditor.Paste()
             self.primitives.refresh_all_ids()
-            added = self.primitives.get_all_objects_names()
+            added = self.primitives.object_names
             cloned = [i for i in added if i not in originals]
             solids = self.primitives.get_all_solids_names()
             self.subtract(cloned[0], ",".join(solids))
@@ -2884,7 +2730,7 @@ class GeometryModeler(Modeler, object):
             try:
                 line_ids[line_object] = str(self.oeditor.GetObjectIDByName(line_object))
             except:
-                self.messenger.add_warning_message('Line {} has an invalid ID!'.format(line_object))
+                self._messenger.add_warning_message('Line {} has an invalid ID!'.format(line_object))
         return line_ids
 
     @aedt_exception_handler
@@ -2912,7 +2758,7 @@ class GeometryModeler(Modeler, object):
         str
             Object name if exists
         """
-        for object in list(self.primitives.objects_names.keys()):
+        for object in list(self.primitives.object_id_dict.keys()):
             try:
                 oEdgeIDs = self.oeditor.GetEdgeIDsFromObject(object)
                 if str(edge_id) in oEdgeIDs:
@@ -3028,7 +2874,7 @@ class GeometryModeler(Modeler, object):
         self.oeditor.Import(vArg1)
         if refresh_all_ids:
             self.primitives.refresh_all_ids()
-        self.messenger.add_info_message("Step file {} imported".format(filename))
+        self._messenger.add_info_message("Step file {} imported".format(filename))
         return True
 
 
@@ -3052,7 +2898,7 @@ class GeometryModeler(Modeler, object):
                 if l > latestversion:
                     latestversion = l
         if not latestversion:
-            self.messenger.add_error_message("NO SPACECLAIM FOUND")
+            self._messenger.add_error_message("NO SPACECLAIM FOUND")
         else:
             scdm_path = os.path.join(os.environ[latestversion], "scdm")
         self.oeditor.CreateUserDefinedModel(
@@ -3252,7 +3098,7 @@ class GeometryModeler(Modeler, object):
         -------
 
         """
-        self.messenger.add_info_message("Selecting Outer Faces")
+        self._messenger.add_info_message("Selecting Outer Faces")
 
         sel = []
         if type(mats) is str:
@@ -3283,7 +3129,7 @@ class GeometryModeler(Modeler, object):
         -------
 
         """
-        self.messenger.add_info_message("Selecting Outer Faces")
+        self._messenger.add_info_message("Selecting Outer Faces")
 
         sel = []
 
@@ -3422,7 +3268,7 @@ class GeometryModeler(Modeler, object):
                                     ]
                                 ])
                     except:
-                        self.messenger.add_info_message("done")
+                        self._messenger.add_info_message("done")
                         # self.modeler_oproject.ClearMessages()
         return True
 
@@ -3450,6 +3296,12 @@ class GeometryModeler(Modeler, object):
                 self.Y = value
             elif item == 2:
                 self.Z = value
+
+        def __iter__(self):
+            return self
+
+        def __len__(self):
+            return 3
 
         def __init__(self, *args):
             """class Position
@@ -3516,7 +3368,7 @@ class GeometryModeler(Modeler, object):
         -------
 
         """
-        all_objects = self.primitives.get_all_objects_names()
+        all_objects = self.primitives.object_names
         if objects and groups:
             object_selection = self.convert_to_selections(objects, return_list=False)
             group_selection = self.convert_to_selections(groups, return_list=False)
@@ -3587,4 +3439,3 @@ class GeometryModeler(Modeler, object):
                 "Groups:=", ["Model"]
             ])
         return True
-

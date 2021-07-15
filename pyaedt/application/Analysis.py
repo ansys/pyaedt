@@ -804,7 +804,7 @@ class Analysis(Design, object):
             if not isinstance(object_list, list):
                 object_list = [object_list]
         else:
-            object_list = self.modeler.primitives.get_all_objects_names()
+            object_list = self.modeler.primitives.object_names
 
         if prop_names:
             if not isinstance(prop_names, list):
@@ -943,11 +943,11 @@ class Analysis(Design, object):
             elif os.path.exists(r"\\"+clustername+r"\AnsysEM\AnsysEM{}\Linux64\ansysedt".format(version)):
                 aedt_full_exe_path = r"\\\\\\\\"+clustername+r"\\\\AnsysEM\\\\AnsysEM{}\\\\Linux64\\\\ansysedt".format(version)
             else:
-                self.messenger.add_error_message("Aedt Path doesn't exists. Please provide a full path")
+                self._messenger.add_error_message("Aedt Path doesn't exists. Please provide a full path")
                 return False
         else:
             if not os.path.exists(aedt_full_exe_path):
-                self.messenger.add_error_message("Aedt Path doesn't exists. Please provide a full path")
+                self._messenger.add_error_message("Aedt Path doesn't exists. Please provide a full path")
                 return False
             aedt_full_exe_path.replace("\\", "\\\\")
 

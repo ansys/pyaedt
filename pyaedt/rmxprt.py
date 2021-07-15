@@ -139,6 +139,7 @@ class Rmxprt(FieldAnalysisRMxprt):
         Whether to release AEDT on exit. The default is ``True``.
     student_version : bool, optional
         Whether open AEDT Student Version. The default is ``False``.
+
     Examples
     --------
     Create an instance of `Rmxprt` and connect to an existing RMxprt

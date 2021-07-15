@@ -5,6 +5,7 @@ HFSS-Icepack Coupling Analysis
 This Example shows how to create a full project from scratch in HFSS and Icepak (linked to HFSS). the project creates
 a setup, solves it and create post processing output. It includes a lot of commands to show pyaedt Capabilities
 This Example needs PyVista, numpy and matplotlib,  to be installed on the machine to provide advanced post processing features
+This Examples runs on Windows Only using CPython
 """
 
 
@@ -23,7 +24,12 @@ sys.path.append(os.path.join(aedt_lib_path))
 sys.path.append(os.path.join(pdf_path1))
 from pyaedt import generate_unique_name
 
-project_dir = os.path.join(os.environ["TEMP"], generate_unique_name("Example"))
+if os.name == "posix":
+    tmpfold = os.environ["TMPDIR"]
+else:
+    tmpfold = os.environ["TEMP"]
+
+project_dir = os.path.join(tmpfold, generate_unique_name("Example"))
 if not os.path.exists(project_dir): os.makedirs(project_dir)
 print(project_dir)
 
@@ -49,8 +55,8 @@ desktopVersion = "2021.1"
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # Change Boolean to False to open AEDT in graphical mode
 
-NonGraphical = True
-NewThread = False
+NonGraphical = False
+NewThread = True
 project_name = "HFSS_Icepak_Coupling"
 project_file = os.path.join(project_dir, project_name + ".aedt")
 
@@ -59,7 +65,7 @@ project_file = os.path.join(project_dir, project_name + ".aedt")
 # Initializes the HFSS Design in AEDT.
 # If there is a running HFSS Design the aedtapp will be linked to it, otherwise a new design will be run.
 
-aedtapp = Hfss(specified_version=desktopVersion,AlwaysNew=True)
+aedtapp = Hfss(specified_version=desktopVersion, NG=NonGraphical, AlwaysNew=NewThread)
 
 ################################################################
 # Variables Settings
@@ -79,27 +85,28 @@ aedtapp["inner"] = "3mm"
 # also material can be assigned directly to the object creation action.
 # Alternatively the material can be assigned usign assignmaterial function
 
-
-id1 = aedtapp.modeler.primitives.create_cylinder(aedtapp.CoordinateSystemPlane.XYPlane, udp, "inner", "$coax_dimension",
-                                                 0, "inner")
-id2 = aedtapp.modeler.primitives.create_cylinder(aedtapp.CoordinateSystemPlane.XYPlane, udp, 8, "$coax_dimension",
-                                                 0, matname="teflon_based")
-id3 = aedtapp.modeler.primitives.create_cylinder(aedtapp.CoordinateSystemPlane.XYPlane, udp, 10, "$coax_dimension",
-                                                 0, "outer")
+#TODO: how does this work when two true-surfaces are defined ??
+o1 = aedtapp.modeler.primitives.create_cylinder(aedtapp.CoordinateSystemPlane.XYPlane, udp, "inner", "$coax_dimension",
+                                                 numSides=0, name="inner")
+o2 = aedtapp.modeler.primitives.create_cylinder(aedtapp.CoordinateSystemPlane.XYPlane, udp, 8, "$coax_dimension",
+                                                 numSides=0, matname="teflon_based")
+o3 = aedtapp.modeler.primitives.create_cylinder(aedtapp.CoordinateSystemPlane.XYPlane, udp, 10, "$coax_dimension",
+                                                 numSides=0, name="outer")
 
 ################################################################
 # Material Assigment
 # User can assign material directly when creating primitive, as done for id2 or assign after the object has been created
 
-aedtapp.assignmaterial([id1, id3], "Copper")
+o1.material_name = "Copper"
+o3.material_name = "Copper"
 
 ################################################################
 # Modeler Operations
 # Subtract, add, etc. can be done using id of object or object name
 
 
-aedtapp.modeler.subtract(id3, id2, True)
-aedtapp.modeler.subtract(id2, id1, True)
+aedtapp.modeler.subtract(o3, o2, True)
+aedtapp.modeler.subtract(o2, o1, True)
 
 ################################################################
 # Mesh Operations
@@ -107,8 +114,8 @@ aedtapp.modeler.subtract(id2, id1, True)
 # After created, a mesh operation is accessible for edit or review of parameters
 
 aedtapp.mesh.assign_initial_mesh_from_slider(6)
-aedtapp.mesh.assign_model_resolution([aedtapp.modeler.primitives.get_obj_name(id1), aedtapp.modeler.primitives.get_obj_name(id3)], None)
-aedtapp.mesh.assign_length_mesh(aedtapp.modeler.primitives.get_object_faces(id2), False, 1, 2000)
+aedtapp.mesh.assign_model_resolution([o1.name, o3.name], None)
+aedtapp.mesh.assign_length_mesh(o2.faces, False, 1, 2000)
 
 ################################################################
 # Automatic Excitations Creation
@@ -192,11 +199,10 @@ ipkapp.assign_openings(airfaces)
 
 aedtapp.save_project()
 aedtapp.close_project(project_name)
-aedtapp.load_project(project_file)
+aedtapp = Hfss(project_file)
 ipkapp = Icepak()
 ipkapp.solution_type = ipkapp.SolutionTypes.Icepak.SteadyTemperatureAndFlow
 ipkapp.modeler.fit_all()
-
 
 
 ################################################################
@@ -215,7 +221,7 @@ aedtapp.analyze_setup("MySetup")
 # This section we generate Field Plots on HFSS Projects and we export it as an image
 
 cutlist = ["Global:XY", "Global:XZ", "Global:YZ"]
-vollist = [aedtapp.modeler.primitives.get_obj_name(id2)]
+vollist = [o2.name]
 setup_name = "MySetup : LastAdaptive"
 quantity_name = "ComplexMag_E"
 quantity_name2 = "ComplexMag_H"

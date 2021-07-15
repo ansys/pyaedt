@@ -61,7 +61,7 @@ class EdbStackup(object):
     @property
     def _messenger(self):
         """ """
-        return self.parent.messenger
+        return self.parent._messenger
 
     @property
     def stackup_layers(self):
@@ -87,6 +87,16 @@ class EdbStackup(object):
         """
         return self.stackup_layers.signal_layers
 
+    @property
+    def layer_types(self):
+        """Layer types.
+
+        Returns
+        -------
+        type
+            Types of layers.
+        """
+        return self._edb.Cell.LayerType
 
     @property
     def materials(self):

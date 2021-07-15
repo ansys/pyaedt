@@ -89,7 +89,7 @@ class CommonOptimetrics(object):
     """
     @property
     def omodule(self):
-        """ """
+        """Optimetrics module."""
         return self._parent.odesign.GetModule("Optimetrics")
 
     def __init__(self, parent, name, dictinputs, optimtype):
@@ -169,9 +169,6 @@ class CommonOptimetrics(object):
     def create(self):
         """Update a setup based on stored properties.
         
-        Parameters
-        ----------
-
         Returns
         -------
         bool
@@ -326,10 +323,7 @@ class DXSetups(object):
             The default is ``None``.
         optimtype : str, optional
             Type of optimization. The default is ``"OptiDesignExplorer"''.
-        
-       Returns
-       -------
-       
+      
         """
         def __init__(self, parent, name, dictinputs=None):
             CommonOptimetrics.__init__(self, parent, name, dictinputs=dictinputs, optimtype="OptiDesignExplorer")
@@ -345,7 +339,7 @@ class DXSetups(object):
             calculation_value : str, optional
                 Value for the calculation, such as ``"1GHz"`` if a sweep. The default is ``""``.
             reporttype : str, optional
-                Name of the report to which to add the calculation. The default 
+                Name of the report to add the calculation to. The default 
                 is ``"Modal Solution Data"``.
             solution : str, optional
                 Type of the solution. The default is ``None``, in which case the default 
@@ -375,7 +369,7 @@ class DXSetups(object):
             calculation_value : str, optional
                 Value for the calculation, such as ``"1GHz"`` if a sweep. The default is ``""``.
                 If ``calculation_type="discrete"``, the value is discrete or is a list. If the
-                value is range, it is the starting value. 
+                value is a range, it is the starting value. 
             calculation_type : str, optional
                 Type of the calculation. Options are ``"discrete"`` or ``"range"``. 
                 The default is ``"discrete"``.
@@ -383,7 +377,7 @@ class DXSetups(object):
                 Stopping value for the calculation if ``calculation_type="range"``.  
                 The default is ``""``.
             reporttype : str, optional
-                Name of the report to which to add the calculation. The default 
+                Name of the report to add the calculation to. The default 
                 is ``"Modal Solution Data"``.
             solution : str, optional
                 Type of the solution. The default is ``None``, in which case the default 
@@ -410,11 +404,11 @@ class DXSetups(object):
                                   goal_weight=goal_weight, goal_value=goal_value, condition=condition)
     @property
     def parent(self):
-        """ """
+        """Parent object."""
         return self._parent
     @property
     def optimodule(self):
-        """ """
+        """Optimetrics module."""
         return self.parent.odesign.GetModule("Optimetrics")
 
     def __init__(self, parent):
@@ -442,10 +436,10 @@ class DXSetups(object):
         defaults_var_values : list, optional
             List of default variable values.
         setupname : str, optional
-            Name of the setup. The default is ''None``, in which case the default 
+            Name of the setup. The default is ``None``, in which case the default 
             analysis setup is used.
         parametricname : str, optional
-            Name of the parametric setup. The default is ''None``.
+            Name of the parametric setup. The default is ``None``.
 
         Returns
         -------
@@ -495,7 +489,7 @@ class ParametericsSetups(object):
         ----------
         parent:
         name :
-        dictinputs : optioal
+        dictinputs : optional
             The default is ``None``.
         otimtype : str, optional
             Type of the optimization. The default is ``"OptiParametric"``.
@@ -543,7 +537,7 @@ class ParametericsSetups(object):
             calculation_value : str, optional
                 Value for the calculation, such as ``"1GHz"`` if a sweep. The default is ``""``.
             reporttype : str, optional
-                Name of the report to which to add the calculation. The default 
+                Name of the report to add the calculation to. The default 
                 is ``"Modal Solution Data"``.
             solution : str, optional
                 Type of the solution. The default is ``None``, in which case the default 
@@ -565,12 +559,12 @@ class ParametericsSetups(object):
 
     @property
     def parent(self):
-        """ """
+        """Parent object."""
         return self._parent
 
     @property
     def optimodule(self):
-        """ """
+        """Optimetrics module."""
         return self.parent.odesign.GetModule("Optimetrics")
 
     def __init__(self, parent):
@@ -599,7 +593,7 @@ class ParametericsSetups(object):
         datarange :
             Range of the data.
         setupname : str, optional
-            Name of the setup. The dfault is ''None``, in which case  the default analysis 
+            Name of the setup. The default is ``None``, in which case  the default analysis 
             setup is used.
         parametricname : str, optional
             Name of the parametric setup. The default is ``None``.
@@ -640,7 +634,7 @@ class SensitivitySetups(object):
         dictinputs : optional
             The default is ``None``.
         otimtype : str, optional
-            The type of optimization. The default is ``"OptiSensitivity"`.
+            Type of the optimization. The default is ``"OptiSensitivity"``.
         """
         def __init__(self, parent, name, dictinputs=None):
             CommonOptimetrics.__init__(self, parent, name, dictinputs=dictinputs, optimtype="OptiSensitivity")
@@ -657,7 +651,7 @@ class SensitivitySetups(object):
             calculation_value : str, optional
                 Value for the calculation, such as ``"1GHz"`` if a sweep. The default is ``""``.
             reporttype : str, optional
-                Name of the report to which to add the calculation. The default 
+                Name of the report to add the calculationto. The default 
                 is ``"Modal Solution Data"``.
             solution : str, optional
                 Type of the solution. The default is ``None``, in which case the default 
@@ -677,11 +671,11 @@ class SensitivitySetups(object):
 
     @property
     def parent(self):
-        """ """
+        """Parent object."""
         return self._parent
     @property
     def optimodule(self):
-        """ """
+        """Optimetrics module."""
         return self.parent.odesign.GetModule("Optimetrics")
 
     def __init__(self, parent):
@@ -712,7 +706,7 @@ class SensitivitySetups(object):
         calculation_type : str, optional
             Type of variation. The default is ``"Freq:``.
         reporttype : str, optional
-            Name of the report to which to add the calculation. The default 
+            Name of the report to add the calculation to. The default 
             is ``"Modal Solution Data"``.
         domain : str, optional
             Type of the domain. The default is ``"Sweep"``. If ``None``, one sweep is taken.
@@ -760,7 +754,7 @@ class StatisticalSetups(object):
         dictinputs : optional
             The default is ``None``.
         otimtype : str, optional
-            The type of optimization. The default is ``"OptiStatistical"`.
+            Type of the optimization. The default is ``"OptiStatistical"``.
         """
         def __init__(self, parent, name, dictinputs=None):
             CommonOptimetrics.__init__(self, parent, name, dictinputs=dictinputs, optimtype="OptiStatistical")
@@ -777,7 +771,7 @@ class StatisticalSetups(object):
             calculation_value : str, optional
                 Value for the calculation, such as ``"1GHz"`` if a sweep. The default is ``""``.
             reporttype : str, optional
-                Name of the report to which to add the calculation. The default 
+                Name of the report to add the calculation to. The default 
                 is ``"Modal Solution Data"``.
             domain : str, optional
                 Type of the domain. The default is ``"Sweep"``. If ``None``, one sweep is taken.
@@ -797,11 +791,11 @@ class StatisticalSetups(object):
 
     @property
     def parent(self):
-        """ """
+        """Parent object."""
         return self._parent
     @property
     def optimodule(self):
-        """ """
+        """Optimetrics module."""
         return self.parent.odesign.GetModule("Optimetrics")
 
     def __init__(self, parent):
@@ -828,11 +822,11 @@ class StatisticalSetups(object):
         calculation_name : str, optional
             Name of the calculation.
         calc_variation_value : str, optional
-            Variation value, such as``"1GHz"``.
+            Variation value, such as ``"1GHz"``.
         calculation_type : str, optional
             Variation type. The default is ``"Freq"``.
         reporttype : str, optional
-            Type of report to which to add the calculation. The default is 
+            Type of report to add the calculation to. The default is 
             ``"Modal Solution Data"`.
         domain :
             Type of the domain. The default is ``"Sweep"``.
@@ -880,7 +874,7 @@ class DOESetups(object):
         dictinputs : optional
             The default is ``None``.
         otimtype : str, optional
-            The type of optimization. The default is ``"OptiDXDOE"`.
+            Type of the optimization. The default is ``"OptiDXDOE"`.
         """
         def __init__(self, parent, name, dictinputs=None):
             CommonOptimetrics.__init__(self, parent, name, dictinputs=dictinputs, optimtype="OptiDXDOE")
@@ -897,14 +891,14 @@ class DOESetups(object):
             calculation_value : str, optional
                 Value for the calculation, such as ``"1GHz"`` if a sweep. The default is ``""``.
             reporttype : str, optional
-                Name of the report to which to add the calculation. The default 
+                Name of the report to add the calculation to. The default 
                 is ``"Modal Solution Data"``.
             solution : str, optional
                 Type of the solution. The default is ``None``, in which case the default 
                 solution is used. 
             domain : str, optional
                 Type of the domain. The default is ``"Sweep"``. If ``None``, one sweep is taken.
-            calculationname : str, optional
+            calculation_name : str, optional
                 Name of the calculation. The default is ``None``.       
 
             Returns
@@ -927,14 +921,14 @@ class DOESetups(object):
             calculation_value : str, optional
                 Value for the calculation, such as ``"1GHz"`` if a sweep. The default is ``""``.
                 If ``calculation_type="discrete"``, the value is discrete or is a list. If the
-                value is range, it is the starting value. 
+                value is a range, it is the starting value. 
             calculation_type : str, optional
                 Type of calculation. Options are ``"discrete"`` or ``"range"``. 
                 The default is ``"discrete"``.
             calculation_stop : str, optional
                 Stopping value if ``calculation_type="range"``.  The default is ``""``.
             reporttype : str, optional
-                Name of the report to which to add the calculation. The default 
+                Name of the report to add the calculation to. The default 
                 is ``"Modal Solution Data"``.
             solution : str, optional
                 Type of the solution. The default is ``None``, in which case the default 
@@ -963,11 +957,11 @@ class DOESetups(object):
 
     @property
     def parent(self):
-        """ """
+        """Parent object."""
         return self._parent
     @property
     def optimodule(self):
-        """ """
+        """Optimetrics module."""
         return self.parent.odesign.GetModule("Optimetrics")
 
     def __init__(self, parent):
@@ -1000,7 +994,7 @@ class DOESetups(object):
         calculation_stop : str, optional
             Stopping value if ``calculation_type="range"``.  The default is ``""``.
         reporttype : str, optional
-            Name of the report to which to add the calculation. The default 
+            Name of the report to add the calculation to. The default 
             is ``"Modal Solution Data"``.
         domain : str, optional
             Type of the domain. The default is ``"Sweep"``. If ``None``, one sweep is taken.
@@ -1072,14 +1066,14 @@ class OptimizationSetups(object):
             calculation_value : str, optional
                 Value for the calculation, such as ``"1GHz"`` if a sweep. The default is ``""``.
                 If ``calculation_type="discrete"``, the value is discrete or is a list. If the
-                value is range, it is the starting value. 
+                value is a range, it is the starting value. 
             calculation_type : str, optional
                 Type of calculation. Options are ``"discrete"`` or ``"range"``. 
                 The default is ``"discrete"``.
             calculation_stop : str, optional
                 Stopping value if ``calculation_type="range"``.  The default is ``""``.
             reporttype : str, optional
-                Name of the report to which to add the calculation. The default 
+                Name of the report to add the calculation to. The default 
                 is ``"Modal Solution Data"``.
             solution : str, optional
                 Type of the solution. The default is ``None``, in which case the default 
@@ -1106,11 +1100,11 @@ class OptimizationSetups(object):
 
     @property
     def parent(self):
-        """ """
+        """Parent object."""
         return self._parent
     @property
     def optimodule(self):
-        """ """
+        """Optimetrics module."""
         return self.parent.odesign.GetModule("Optimetrics")
 
     def __init__(self, parent):
@@ -1144,7 +1138,7 @@ class OptimizationSetups(object):
         calculation_type : str, optional
             Type of the calculation. The default is ``"Freq"``.
         reporttype : str, optional
-            Name of the report to which to add the calculation. The default 
+            Name of the report to add the calculation to. The default 
             is ``"Modal Solution Data"``.
         domain : str, optional
             Type of the domain. The default is ``"Sweep"``. If ``None``, one sweep is taken.

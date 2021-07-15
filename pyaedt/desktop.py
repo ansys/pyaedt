@@ -1,10 +1,10 @@
 """
-The `Desktop` module contains the `Desktop` class.
+This module contains the `Desktop` class.
 
-The class is used to initialize AEDT and Message Manager to manage AEDT.
-You can initialize the `Desktop` module before launching an app or 
+This module is used to initialize AEDT and Message Manager to manage AEDT.
+
+You can initialize this module before launching an app or 
 have the app automatically initialize it to the latest installed AEDT version.
-
 """
 from __future__ import absolute_import
 
@@ -60,12 +60,10 @@ def exception_to_desktop(self, ex_value, tb_data):
 
     Parameters
     ----------
-    ex_value :
-        
-    tb_data :
-        
-    Returns
-    -------
+    ex_value : str
+        Type of exception.
+    tb_data : str
+        Traceback information.
 
     """
     desktop = sys.modules['__main__'].oDesktop
@@ -103,30 +101,24 @@ def update_aedt_registry(key, value, desktop_version="193"):
     desktop_version : str, optional
         Version of AEDT to use. The default is ``"193"`` 
         to use 2019 R3.
-
-    Returns
-    -------
-    
     
     Examples
     --------
     Update the HPC license type for HFSS in the AEDT registry.
     
-    >>> updateAEDTRegistry("HFSS/HPCLicenseType", "12")
+    >>> update_aedt_registry("HFSS/HPCLicenseType", "12") # doctest: +SKIP
     
     Update the HPC license type for Icepak in the AEDT registry.
     
-    >>> updateAEDTRegistry("Icepak/HPCLicenseType", "8")
+    >>> update_aedt_registry("Icepak/HPCLicenseType", "8") # doctest: +SKIP
     
     Update the legacy HPC license type for HFSS in the AEDT registry.
     
-    >>> updateAEDTRegistry("HFSS/UseLegacyElectronicsHPC", "0")
+    >>> update_aedt_registry("HFSS/UseLegacyElectronicsHPC", "0") # doctest: +SKIP
     
     Update the MPI vendor for HFSS in the AEDT registry.
     
-    >>> updateAEDTRegistry("HFSS/MPIVendor", "Intel")
-
-   
+    >>> update_aedt_registry("HFSS/MPIVendor", "Intel") # doctest: +SKIP
 
     """
     if os.name == 'posix':
@@ -157,8 +149,8 @@ def release_desktop(close_projects=True, close_desktop=True):
 
     Returns
     -------
-    type
-        None
+    bool
+        ``True`` when successful, ``False`` when failed.
 
     """
     if _com == "pythonnet":
@@ -176,8 +168,10 @@ def release_desktop(close_projects=True, close_desktop=True):
             i += 1
         try:
             del Module.oDesktop
+            return True
         except:
             Module.oMessenger.add_info_message("Attributes not present")
+            return False
 
     elif _com == "pythonnet_v3":
         Module = sys.modules['__main__']
@@ -213,16 +207,13 @@ def release_desktop(close_projects=True, close_desktop=True):
                 Module.oMessenger.add_info_message("Attributes not present")
             try:
                 del Module.pyaedt_initialized
+                return True
             except:
-                pass
+                return False
 
 
 def force_close_desktop():
     """Close all AEDT projects and shut down AEDT.
-    
-
-    Parameters
-    ----------
 
     Returns
     -------
@@ -238,14 +229,14 @@ def force_close_desktop():
             for el in plist:
                 Module.oDesktop.CloseProject(el)
         except:
-            logger.error("No Projects. Closing Desktop Connection")
+            logger.warning("No Projects. Closing Desktop Connection")
         try:
             scopeID = 5
             while i <= scopeID:
                 Module.COMUtil.ReleaseCOMObjectScope(Module.COMUtil.PInvokeProxyAPI, 0)
                 i += 1
         except:
-            logger.error("No COM UTIL. Closing the Desktop....")
+            logger.warning("No COM UTIL. Closing the Desktop....")
         try:
             del Module.pyaedt_initialized
         except:
@@ -253,20 +244,18 @@ def force_close_desktop():
         try:
             os.kill(pid, 9)
             del Module.oDesktop
-            log= logging.getLogger(__name__)
-            handlers = log.handlers[:]
-            for handler in handlers:
-                handler.close()
-                log.removeHandler(handler)
-            return True
+            successfully_closed = True
         except:
             Module.oMessenger.add_error_message("something went wrong in Closing AEDT")
-            log= logging.getLogger(__name__)
+            successfully_closed = False
+        finally:
+            log = logging.getLogger(__name__)
             handlers = log.handlers[:]
             for handler in handlers:
                 handler.close()
                 log.removeHandler(handler)
-            return False
+            return successfully_closed
+
 
 
 class Desktop:
@@ -278,18 +267,21 @@ class Desktop:
 
     Parameters
     ----------
-    specified_version: str, optional
+    specified_version : str, optional
         Version of AEDT to use. The default is ``None``, in which case the
         active setup or latest installed version is used.
     NG: bool, optional
         Whether to launch AEDT in the non-graphical mode. The default 
         is ``False``, in which case AEDT launches in the graphical mode.
-    AlwaysNew: bool, optional
+    AlwaysNew : bool, optional
         Whether to launch an instance of AEDT in a new thread, even if 
         another instance of the ``specified_version`` is active on the machine.
         The default is ``True``.
-    release_on_exit: bool, optional
+    release_on_exit : bool, optional
         Whether to release AEDT on exit. The default is ``True``.
+    student_version : bool, optional
+        Whether to enable the student version of AEDT. The default is
+        ``False``.
 
     Examples
     --------
@@ -297,18 +289,23 @@ class Desktop:
 
     >>> import pyaedt
     >>> desktop = pyaedt.Desktop("2021.1", NG=True)
-    >>> hfss = pyaedt.Hfss()
+    pyaedt Info: pyaedt v...
+    pyaedt Info: Python version ...
+    >>> hfss = pyaedt.Hfss(designname="HFSSDesign1")
+    pyaedt Info: Added design 'HFSSDesign1' of type HFSS.
 
     Launch AEDT 2021 R1 in graphical mode and initialize HFSS.
 
     >>> desktop = Desktop("2021.1")
-    >>> hfss = pyaedt.Hfss()
+    pyaedt Info: pyaedt v...
+    pyaedt Info: Python version ...
+    >>> hfss = pyaedt.Hfss(designname="HFSSDesign1")
     
     """
             
     @property
     def version_keys(self):
-        """ """
+        """Version keys."""
 
         self._version_keys = []
         self._version_ids = {}
@@ -340,12 +337,12 @@ class Desktop:
 
     @property
     def current_version(self):
-        """ """
+        """Current version of AEDT."""
         return self.version_keys[0]
 
     @property
     def current_version_student(self):
-        """ """
+        """Current student version of AEDT. """
         for el in self.version_keys:
             if "SV" in el:
                 return el
@@ -431,7 +428,8 @@ class Desktop:
                         process = "ansysedtsv.exe"
                     else:
                         process = "ansysedt.exe"
-                    output = os.popen('tasklist /FI "IMAGENAME eq {}" /v'.format(process)).readlines()
+                    with os.popen('tasklist /FI "IMAGENAME eq {}" /v'.format(process)) as tasks_list:
+                        output = tasks_list.readlines()
                     pattern = r'(?i)^(?:{})\s+?(\d+)\s+.+[\s|\\](?:{})\s+'.format(process, username)
                     for l in output:
                         m = re.search(pattern, l)
@@ -455,7 +453,8 @@ class Desktop:
                         process = "ansysedtsv.exe"
                     else:
                         process = "ansysedt.exe"
-                    output = os.popen('tasklist /FI "IMAGENAME eq {}" /v'.format(process)).readlines()
+                    with os.popen('tasklist /FI "IMAGENAME eq {}" /v'.format(process)) as tasks_list:
+                        output = tasks_list.readlines()
                     pattern = r'(?i)^(?:{})\s+?(\d+)\s+.+[\s|\\](?:{})\s+'.format(process, username)
                     for l in output:
                         m = re.search(pattern, l)
@@ -535,7 +534,7 @@ class Desktop:
 
     @property
     def install_path(self):
-        """ """
+        """Installation path for AEDT."""
         version_key = self._main.AEDTVersion
         root = self._version_ids[version_key]
         return os.environ[root]
@@ -555,13 +554,15 @@ class Desktop:
 
         Parameters
         ----------
-        ex_value :
+        ex_value : str
+            Type of exception.
+        tb_data : str
+            Traceback information.
             
-        tb_data :
-            
-
         Returns
         -------
+        str
+            Type of exception.
 
         """
         try:
@@ -579,15 +580,13 @@ class Desktop:
         tb_trace = traceback.format_tb(tb_data)
         tblist = tb_trace[0].split('\n')
         self._main.oMessenger.add_error_message(str(ex_value), 'Global')
-        #self._main.oDesktop.AddMessage(proj_name, des_name, 2, str(ex_value))
         for el in tblist:
-            #self._main.oDesktop.AddMessage(proj_name, des_name, 2, el)
             self._main.oMessenger.add_error_message(el, 'Global')
 
         return str(ex_value)
 
     def release_desktop(self, close_projects=True, close_on_exit=True):
-        """
+        """Release AEDT.
 
         Parameters
         ----------
@@ -595,42 +594,95 @@ class Desktop:
             Whether to close the projects opened in the session. 
             The default is ``True``.
         close_on_exit : bool, optional
-            Whether to close the active AEDT session. 
+            Whether to close the active AEDT session on exiting AEDT. 
             The default is ``True``.
 
-        Returns
-        -------
+        Examples
+        --------
+        >>> import pyaedt
+        >>> desktop = pyaedt.Desktop("2021.1")
+        pyaedt Info: pyaedt v...
+        pyaedt Info: Python version ...
+        >>> desktop.release_desktop(close_projects=False, close_on_exit=False) # doctest: +SKIP
 
         """
         release_desktop(close_projects, close_on_exit)
 
     def force_close_desktop(self):
-        """ """
+        """Close all AEDT projects and shut down AEDT.
+    
+        Examples
+        --------
+        >>> import pyaedt
+        >>> desktop = pyaedt.Desktop("2021.1")
+        pyaedt Info: pyaedt v...
+        pyaedt Info: Python version ...
+        >>> desktop.force_close_desktop() # doctest: +SKIP
+
+        """
         force_close_desktop()
 
     def close_desktop(self):
-        """ """
+        """Close all AEDT projects and shut down AEDT.
+    
+        Examples
+        --------
+        >>> import pyaedt
+        >>> desktop = pyaedt.Desktop("2021.1")
+        pyaedt Info: pyaedt v...
+        pyaedt Info: Python version ...
+        >>> desktop.close_desktop() # doctest: +SKIP
+
+        """
         force_close_desktop()
 
     def enable_autosave(self):
-        """ """
+        """Enable auto save option.
+
+        Examples
+        --------
+        >>> import pyaedt
+        >>> desktop = pyaedt.Desktop("2021.1")
+        pyaedt Info: pyaedt v...
+        pyaedt Info: Python version ...
+        >>> desktop.enable_autosave()
+
+        """
         self._main.oDesktop.EnableAutoSave(True)
 
     def disable_autosave(self):
-        """ """
+        """Disable auto save option.
+
+        Examples
+        --------
+        >>> import pyaedt
+        >>> desktop = pyaedt.Desktop("2021.1")
+        pyaedt Info: pyaedt v...
+        pyaedt Info: Python version ...
+        >>> desktop.disable_autosave()
+
+        """
         self._main.oDesktop.EnableAutoSave(False)
 
 
 def get_version_env_variable(version_id):
-    """
+    """Retrieve the environment variable for the AEDT version.
 
     Parameters
     ----------
-    version_id :
-        
+    version_id : str
+        Full AEDT version number, such as "2021.1".
 
     Returns
     -------
+    str
+        Environment variable for the version.
+
+    Examples
+    --------
+    >>> from pyaedt import desktop
+    >>> desktop.get_version_env_variable("2021.1")
+    'ANSYSEM_ROOT211'
 
     """
     version_env_var = "ANSYSEM_ROOT"
@@ -644,22 +696,3 @@ def get_version_env_variable(version_id):
             release += 2
     version_env_var += str(version) + str(release)
     return version_env_var
-
-
-def get_version_key(version_id):
-    """
-
-    Parameters
-    ----------
-    version_id :
-        
-
-    Returns
-    -------
-
-    """
-    values = version_id.split('.')
-    version = int(values[0][2:])
-    release = int(values[1])
-    version_key = str(version) + str(release)
-    return version_key

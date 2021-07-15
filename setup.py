@@ -1,10 +1,7 @@
-import os
-import sys
 import setuptools
-import glob
+import sys
 
-with open("pyaedt/version.txt", "r") as f:
-    version = f.readline()
+from _setup_common import name, version, author, maintainer, maintainer_email, description, long_description, packages, data_files, license, classifiers
 
 if sys.version_info >= (3, 0):
     install_requires = ["pywin32 >= 2.2.7;platform_system=='Windows'",
@@ -12,40 +9,19 @@ if sys.version_info >= (3, 0):
 else:
     install_requires = []
 
-
-# loosely from https://packaging.python.org/guides/single-sourcing-package-version/
-HERE = os.path.abspath(os.path.dirname(__file__))
-
-# Get the long description from the README file
-with open(os.path.join(HERE, "README.rst"), encoding="utf-8") as f:
-    long_description = f.read()
-
 setuptools.setup(
-    name="pyaedt",
+    name=name,
     version=version,
-    author='ANSYS, Inc.',
-    maintainer='Massimo Capodiferro',
-    maintainer_email="massimo.capodiferro@ansys.com",
-    description="Higher-Level Pythonic Ansys Electronics Destkop Framework",
+    author=author,
+    maintainer=maintainer,
+    maintainer_email=maintainer_email,
+    description=description,
     long_description=long_description,
     long_description_content_type="text/x-rst",
     install_requires=install_requires,
-    packages=['pyaedt', 'pyaedt.misc', 'pyaedt.application', 'pyaedt.modeler', 'pyaedt.modules',
-              'pyaedt.generic', 'pyaedt.edb_core', 'pyaedt.examples'],
-    data_files=[('dlls', glob.iglob('pyaedt/dlls/**/*', recursive=True)),
-                ('misc', glob.iglob('pyaedt/misc/*', recursive=True)),
-                ('License', glob.iglob('./*.md', recursive=True)),
-                ('version', ['pyaedt/version.txt'])],
+    packages=packages,
+    data_files=data_files,
     include_package_data=True,
-    license="MIT",
-    classifiers=[
-        "Development Status :: 4 - Beta",
-        "Programming Language :: Python :: 2.7",
-        "Programming Language :: Python :: 3.6",
-        "Programming Language :: Python :: 3.7",
-        "Programming Language :: Python :: 3.8",
-        "License :: OSI Approved :: MIT License",
-        "Operating System :: Microsoft :: Windows",
-        "Operating System :: POSIX",
-    ],
+    license=license,
+    classifiers=classifiers,
 )

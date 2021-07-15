@@ -26,6 +26,13 @@ except ImportError:
                   "Install with \n\npip install pyvista\n\nRequires CPython")
 
 try:
+    from IPython.display import Image, display
+    ipython_available = True
+except ImportError:
+    warnings.warn("The Ipython module required to run some functionalities of PostProcess.\n"
+                  "Install with \n\npip install ipython\n\nRequires CPython")
+
+try:
     import matplotlib.pyplot as plt
 except ImportError:
     warnings.warn("The Matplotlib module required to run some functionalities of PostProcess.\n"
@@ -50,11 +57,16 @@ def is_float(istring):
     except Exception:
         return 0
 
-
 class PostProcessor(Post):
     """ """
     def __init__(self, parent):
         Post.__init__(self, parent)
+
+    @aedt_exception_handler
+    def nb_display(self, show_axis=True, show_grid=True, show_ruler=True):
+        """Jupyter Notebook is not supported by IronPython!"""
+        file_name = self.export_model_picture(show_axis=show_axis, show_grid=show_grid, show_ruler=show_ruler)
+        return Image(file_name, width=500)
 
     @aedt_exception_handler
     def get_efields_data(self, setup_sweep_name='', ff_setup="Infinite Sphere1", freq='All'):
@@ -489,7 +501,7 @@ class PostProcessor(Post):
 
         if plot:
             end = time.time() - start
-            self.messenger.add_info_message("PyVista Generation tooks {} secs".format(end))
+            self._messenger.add_info_message("PyVista Generation tooks {} secs".format(end))
             if off_screen:
                 if imageformat:
                     plot.show(screenshot=filename + "." + imageformat)
@@ -757,9 +769,9 @@ class PostProcessor(Post):
     @aedt_exception_handler
     def export_model_obj(self):
         """Export the model."""
-        assert self._parent._aedt_version >= "2021.2", self.messenger.add_error_message("Obj supported from AEDT 2021R2")
+        assert self._parent._aedt_version >= "2021.2", self._messenger.add_error_message("Obj supported from AEDT 2021R2")
         project_path = self._parent.project_path
-        obj_list = self._parent.modeler.primitives.get_all_objects_names()
+        obj_list = self._parent.modeler.primitives.object_names
         obj_list = [i for i in obj_list if not self._parent.modeler.primitives.objects[
             self._parent.modeler.primitives.get_obj_id(i)].is3d or (
                             self._parent.modeler.primitives.objects[
@@ -791,7 +803,7 @@ class PostProcessor(Post):
         if not setup_name:
             setup_name = self._parent.nominal_adaptive
         face_lists = []
-        obj_list = self._parent.modeler.primitives.get_all_objects_names()
+        obj_list = self._parent.modeler.primitives.object_names
         for el in obj_list:
             obj_id = self._parent.modeler.primitives.get_obj_id(el)
             if not self._parent.modeler.primitives.objects[obj_id].is3d or (
@@ -821,7 +833,7 @@ class PostProcessor(Post):
         list
             List of AEDTPLT files.
         """
-        assert self._parent._aedt_version >= "2021.2", self.messenger.add_error_message("Obj supported from AEDT 2021R2")
+        assert self._parent._aedt_version >= "2021.2", self._messenger.add_error_message("Obj supported from AEDT 2021R2")
         files = [self.export_model_obj()]
         if export_afterplot:
             imageformat='jpg'
@@ -843,24 +855,29 @@ class PostProcessor(Post):
         plotname : str
             Name of the plot to export.
         project_path : str, optional
-            Path where the image file is to be saved. The default value = ``""``.
+            Path where the image file is to be saved. The default is ``""``.
         meshplot : bool, optional
-            Whether to create and plot the mesh over the fields. The default is ``False``.
+            Whether to create and plot the mesh over the fields. The
+            default is ``False``.
         setup_name : str, optional
             Name of the setup or sweep to use for the export. The default is ``None``.
         intrinsic_dict : dict, optional
             Intrinsic dictionary needed for the export when ``meshplot="True"``. 
             The default is ``{}``. 
         imageformat : str, optional
-            Format of the image file. Options are ``"jpg"``, ``"png"``, ``"svg"``, and 
-            ``"webp"``. The default is ``"jpg"``.
+            Format of the image file. Options are ``"jpg"``,
+            ``"png"``, ``"svg"``, and ``"webp"``. The default is
+            ``"jpg"``.
         view : str, optional
-            View to export. Options are ``"iso"``, ``"x"`` , ``"y"``, ``"z"``, and ``"all"``. 
-            The default is ``"iso"``. The ``"all"" option exports all views.
-        plot_label :
+            View to export. Options are ``"iso"``, ``"x"`` , ``"y"``,
+            ``"z"``, and ``"all"``.  The default is ``"iso"``. The
+            ``"all"`` option exports all views.
+        plot_label : str, optional
             Type of the plot. The default is ``"Temperature"``.
-        plot_folder :
-            Plot folder to forcibly update before exporting the field. The default is ``None``, which updates all of the plots.
+        plot_folder : str, optional
+            Plot folder to forcibly update before exporting the
+            field. The default is ``None``, which updates all of the
+            plots.
 
         Returns
         -------

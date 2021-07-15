@@ -12,6 +12,11 @@ from .conftest import config
 test_project_name = "coax_setup_solved"
 test_field_name = "Potter_Horn"
 
+try:
+    from IPython.display import Image, display
+    ipython_available = True
+except ImportError:
+    ipython_available = False
 
 class TestDesign:
     def setup_class(self):
@@ -108,7 +113,6 @@ class TestDesign:
         self.aedtapp.post.export_report_to_csv(self.local_scratch.path, "MyTestScattering")
         assert os.path.exists(os.path.join(self.local_scratch.path, "MyTestScattering.csv"))
 
-
     def test_07_export_fields_from_Calculator(self):
 
         self.aedtapp.post.export_field_file_on_grid("E", "Setup1 : LastAdaptive", self.aedtapp.available_variations.nominal_w_values,
@@ -134,10 +138,22 @@ class TestDesign:
 
     @pytest.mark.skipif(config["build_machine"], reason="Skipped because it cannot run on build machine in non-graphical mode" )
     def test_13_export_model_picture(self):
-        assert self.aedtapp.post.export_model_picture(self.local_scratch.path, "images")
+        path = self.aedtapp.post.export_model_picture(dir=self.local_scratch.path, name="images")
+        assert path
+        path = self.aedtapp.post.export_model_picture(show_axis=True, show_grid=False, show_ruler=True)
+        assert path
+        path = self.aedtapp.post.export_model_picture(name="Ericsson", picturename="test_picture")
+        assert path
+        path = self.aedtapp.post.export_model_picture(picturename="test_picture")
+        assert path
 
     def test_11_get_efields(self):
         app2 = Hfss(self.test_project2)
         assert app2.post.get_efields_data(ff_setup="3D")
         app2.close_project(saveproject=False)
         pass
+
+    @pytest.mark.skipif(not ipython_available, reason="Skipped because ipython not available" )
+    def test_nb_display(self):
+        img = self.aedtapp.post.nb_display(show_axis=True, show_grid=True, show_ruler=True)
+        assert isinstance(img, Image)

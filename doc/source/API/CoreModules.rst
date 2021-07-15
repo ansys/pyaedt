@@ -1,57 +1,130 @@
-.. pyaedt documentation master file, created by
-   sphinx-quickstart on Fri Jun 12 11:39:54 2020.
-   You can adapt this file completely to your liking, but it should at least
-   contain the root `toctree` directive.
-
 Application Modules
 ===================
-This section contains information about PyAEDT application modules:
+This section contains the following PyAEDT application modules:
 
-
-#. Design
-#. Variables
-#. Analysis
 #. Modeler
 #. Objects
+#. Edb
+#. Design
+#. Variable
 #. DesignXPloration
 
 
-**Design**
 
-The ``Design`` module contains all properties and methods applicable to projects and designs.
+Modeler
+~~~~~~~
 
-**Variable**
+This module contains all properties and methods needed to edit a
+modeler, including all primitives methods and properties.
 
-The ``Variable`` module contains all methods for managing AEDT variables for both projects and designs.
+.. currentmodule:: pyaedt.modeler
+
+.. autosummary::
+   :toctree: _autosummary
+   :template: custom-class-template.rst
+   :nosignatures:
+
+   Modeler.Modeler
+   Modeler.GeometryModeler
+   Modeler.CoordinateSystem
+   GeometryOperators
+   Model2D.Modeler2D
+   Model3D.Modeler3D
+   Model3DLayout.Modeler3DLayout
 
 
-**Analysis**
+Objects
+~~~~~~~
 
-The ``Analysis`` module contains all properties and methods needed to set up and run AEDT analyses.
+.. currentmodule:: pyaedt.modeler.Object3d
+
+.. autosummary::
+   :toctree: _autosummary
+   :template: custom-class-template.rst
+   :nosignatures:
+
+   Object3d
+   FacePrimitive
+   EdgePrimitive
+   VertexPrimitive
 
 
-**Modeler**
+EDB
+~~~
+This module contains all EDT functionalities for reading and writing
+information to AEDB files.
 
-The ``Modeler`` module contains all properties and methods needed to edit a modeler, 
-including all primitives methods and properties.
+.. currentmodule:: pyaedt.edb_core
 
-**Objects**
+.. autosummary::
+   :toctree: _autosummary
+   :template: custom-class-template.rst
+   :nosignatures:
 
-Object Classes contain all the properties and methods needed to edit geometric entities
+   components.Components
+   hfss.Edb3DLayout
+   siwave.EdbSiwave
+   nets.EdbNets
+   padstack.EdbPadstacks
+   layout.EdbLayout
+   stackup.EdbStackup
+   EDB_Data.EDBLayer
+   EDB_Data.EDBLayers
+   EDB_Data.EDBPadProperties
+   EDB_Data.EDBPadstack
+   EDB_Data.EDBPinInstances
+   EDB_Data.EDBComponent
 
-**DesignXploration**
 
-The ``DesignXploration`` module contain all properties and methods needed to create any optimetrics setup.
+Design
+~~~~~~
+This module contains all properties and methods applicable to projects
+and designs.
 
-**Alphabetical Modules Listing**
+.. currentmodule:: pyaedt.application.Design
 
-.. toctree::
-   :maxdepth: 2
-   :caption: The AEDT application modules, listed alphabetically, include the following classes:
+.. autosummary::
+   :toctree: _autosummary
+   :template: custom-class-template.rst
+   :nosignatures:
 
-   AnalysisCore
-   ModelerCore
-   ObjectCore
-   Design
-   Variables
-   DesignXPlorer
+   DesignCache
+
+
+Variable
+~~~~~~~~
+This module provides all functionalities for creating and editing
+design and project variables in the 3D tools.
+
+.. currentmodule:: pyaedt.application.Variables
+
+.. autosummary::
+   :toctree: _autosummary
+   :template: custom-class-template.rst
+   :nosignatures:
+
+   CSVDataset
+   VariableManager
+   Variable
+   DataSet
+
+
+DesignXploration
+~~~~~~~~~~~~~~~~
+This module contains all properties and methods needed to create
+optimetrics setups.
+
+.. currentmodule:: pyaedt.modules.DesignXPloration
+
+.. autosummary::
+   :toctree: _autosummary
+   :template: custom-class-template.rst
+   :nosignatures:
+
+   CommonOptimetrics
+   DXSetups
+   ParametericsSetups
+   SensitivitySetups
+   StatisticalSetups
+   DOESetups
+   OptimizationSetups

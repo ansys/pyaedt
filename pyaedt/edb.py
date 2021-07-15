@@ -82,7 +82,7 @@ class Edb(object):
                 self._messenger = self._main.oMessenger
             else:
                 if not edbpath or not os.path.exists(edbpath):
-                    self._messenger = EDBMessageManager(r'C:\Temp')
+                    self._messenger = EDBMessageManager()
                 elif os.path.exists(edbpath):
                     self._messenger = EDBMessageManager(edbpath)
 
@@ -121,6 +121,89 @@ class Edb(object):
             self._db = None
             self._edb = None
             pass
+
+
+    @aedt_exception_handler
+    def add_info_message(self, message_text):
+        """Add a type 0 "Info" message to the active design level of the Message Manager tree.
+
+                Also add an info message to the logger if the handler is present.
+
+                Parameters
+                ----------
+                message_text : str
+                    Text to display as the info message.
+
+
+                Returns
+                -------
+                bool
+                    ``True`` if succeeded.
+
+                Examples
+                --------
+                >>> from pyaedt import Edb
+                >>> edb = Edb()
+                >>> edb.add_info_message("Design info message")
+
+                """
+        self._messenger.add_info_message(message_text)
+        return True
+
+    @aedt_exception_handler
+    def add_warning_message(self, message_text):
+        """Add a type 0 "Warning" message to the active design level of the Message Manager tree.
+
+                Also add an info message to the logger if the handler is present.
+
+                Parameters
+                ----------
+                message_text : str
+                    Text to display as the warning message.
+
+
+                Returns
+                -------
+                bool
+                    ``True`` if succeeded.
+
+                Examples
+                --------
+                >>> from pyaedt import Edb
+                >>> edb = Edb()
+                >>> edb.add_warning_message("Design warning message")
+
+                """
+        self._messenger.add_warning_message(message_text)
+        return True
+
+    @aedt_exception_handler
+    def add_error_message(self, message_text):
+        """Add a type 0 "Error" message to the active design level of the Message Manager tree.
+
+                Also add an error message to the logger if the handler is present.
+
+                Parameters
+                ----------
+                message_text : str
+                    Text to display as the error message.
+
+
+                Returns
+                -------
+                bool
+                    ``True`` if succeeded.
+
+                Examples
+                --------
+                >>> from pyaedt import Edb
+                >>> edb = Edb()
+                >>> edb.add_error_message("Design error message")
+
+                """
+        self._messenger.add_error_message(message_text)
+        return True
+
 
     @aedt_exception_handler
     def _init_dlls(self):
@@ -180,8 +263,8 @@ class Edb(object):
         """
         if init_dlls:
             self._init_dlls()
-        self.messenger.add_warning_message("EDB Path {}".format(self.edbpath))
-        self.messenger.add_warning_message("EDB Version {}".format(self.edbversion))
+        self._messenger.add_warning_message("EDB Path {}".format(self.edbpath))
+        self._messenger.add_warning_message("EDB Version {}".format(self.edbversion))
         self.edb.Database.SetRunAsStandAlone(True)
         self._db = self.edb.Database.Open(self.edbpath, self.isreadonly)
         self._active_cell = None
@@ -304,11 +387,6 @@ class Edb(object):
         self._messenger.add_error_message(str(ex_value))
         for el in tblist:
             self._messenger.add_error_message(el)
-
-    @property
-    def messenger(self):
-        """ """
-        return self._messenger
 
     @property
     def db(self):
@@ -716,3 +794,37 @@ class Edb(object):
 
         siwave_s = SiwaveSolve(self.edbpath, aedt_installer_path=self.base_path)
         return siwave_s.export_3d_cad("Q3D", path_to_output, net_list)
+
+
+    @aedt_exception_handler
+    def export_maxwell(self, path_to_output, net_list=None):
+        """
+        Export Edb to Maxwell 3D
+
+        Parameters
+        ----------
+        path_to_output : str
+            full path to where aedt will be saved
+        net_list : list, optional
+            if provided, only nets in list will be exported
+
+        Returns
+        -------
+        str
+            path to .aedt file
+
+        Examples
+        --------
+
+        >>> from pyaedt import Edb
+
+        >>> edb = Edb(edbpath=r"C:\temp\myproject.aedb", edbversion="2021.1")
+
+        >>> options_config = {'UNITE_NETS' : 1, 'LAUNCH_Q3D' : 0}
+        >>> edb.write_export3d_option_config_file(r"C:\temp", options_config)
+        >>> edb.export_maxwell(r"C:\temp")
+        "C:\\temp\\maxwell_siwave.aedt"
+        """
+
+        siwave_s = SiwaveSolve(self.edbpath, aedt_installer_path=self.base_path)
+        return siwave_s.export_3d_cad("Maxwell", path_to_output, net_list)

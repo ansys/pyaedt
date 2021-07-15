@@ -11,14 +11,12 @@ import os
 class TestEmit:
 
     def setup_class(self):
-        project_name = "SimplorerProject"
-        design_name = "SimplorerDesign1"
         # set a scratch directory and the environment / test data
         with Scratch(scratch_path) as self.local_scratch:
             self.aedtapp = Emit()
 
     def teardown_class(self):
-        assert self.aedtapp.close_project(self.aedtapp.project_name)
+        assert self.aedtapp.close_project()
         self.local_scratch.remove()
         gc.collect()
 

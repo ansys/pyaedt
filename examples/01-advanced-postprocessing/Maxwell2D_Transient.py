@@ -5,6 +5,8 @@ Maxwell 2D Analysis
 This tutorial shows how you can use PyAedt to create a project in
 in Maxwell2D and run a transient simulation
 This Example needs PyVista, numpy and matplotlib,  to be installed on the machine to provide advanced post processing features
+This Examples runs on Windows Only using CPython
+
 """
 
 import os
@@ -26,19 +28,19 @@ m2d.save_project(os.path.join(project_dir,"M2d.aedt"))
 ###################################################
 #  create rectangle and duplicate it
 
-id1=m2d.modeler.primitives.create_rectangle([0,0,0],[20,10],"Rectangle1", "copper")
-m2d.modeler.duplicate_along_line(id1, [14,0,0])
-
+rect1 = m2d.modeler.primitives.create_rectangle([0,0,0],[20,10],"Rectangle1", "copper")
+added = rect1.duplicate_along_line([14,0,0])
+rect2 = m2d.modeler.primitives[added[0]]
 ###################################################
 #  create air region
 
-m2d.modeler.primitives.create_region([100,100,100,100,100,100])
+region = m2d.modeler.primitives.create_region([100,100,100,100,100,100])
 
 ###################################################
 #  Assign Windings to sheets and balloon to air region
 
-m2d.assign_winding(["Rectangle1", "Rectangle1_1"], name="PHA")
-m2d.assign_balloon(m2d.modeler.primitives["Region"].edges)
+m2d.assign_winding([rect1.name, rect2.name], name="PHA")
+m2d.assign_balloon(region.edges)
 
 ###############################################################################
 # Add a transient Setup
@@ -72,11 +74,11 @@ m2d.analyse_nominal()
 import time
 start = time.time()
 cutlist = ["Global:XY"]
-face_lists = m2d.modeler.primitives.get_object_faces("Rectangle1")
-face_lists += m2d.modeler.primitives.get_object_faces("Rectangle1_1")
+face_lists = rect1.faces
+face_lists += rect2.faces
 timesteps=[str(i*1e-3)+"s" for i in range(21)]
-
-animatedGif=m2d.post.animate_fields_from_aedtplt_2("Mag_B", face_lists, "Surface", intrinsic_dict={'Time': '0s'}, variation_variable="Time",variation_list=timesteps, off_screen=True, export_gif=True)
+id_list = [f.id for f in face_lists]
+#animatedGif=m2d.post.animate_fields_from_aedtplt_2("Mag_B", id_list, "Surface", intrinsic_dict={'Time': '0s'}, variation_variable="Time",variation_list=timesteps, off_screen=True, export_gif=True)
 
 
 ###############################################

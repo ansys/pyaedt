@@ -48,8 +48,11 @@ class TestCircuitDL:
                 pass
 
     def teardown_class(self):
-        self.aedtapp.close_project(src_project_name, saveproject=False)
-        self.aedtapp.close_project(test_project_name)
+        for proj in self.aedtapp.project_list:
+            try:
+                self.aedtapp.close_project(proj, saveproject=False)
+            except:
+                pass
         self.local_scratch.remove()
         gc.collect()
 
@@ -108,9 +111,9 @@ class TestCircuitDL:
     @pytest.mark.skipif(config.get("skip_circuits", False),
                         reason="Skipped because Desktop is crashing")
     def test_03_assign_excitations(self):
-        excitation_settings = ["nan V", "0deg", "0V", "25V", "1V", "2.5GHz", "0s", "0", "0deg", "0Hz"]
+        excitation_settings = ["1 V", "0deg", "0V", "25V", "1V", "2.5GHz", "0s", "0", "0deg", "0Hz"]
         ports_list = ["Excitation_1", "Excitation_2"]
-        self.aedtapp.modeler.components.assign_sin_excitation2ports(ports_list,excitation_settings)
+        self.aedtapp.modeler.components.assign_sin_excitation2ports(ports_list, excitation_settings)
 
         pass
 
@@ -119,9 +122,8 @@ class TestCircuitDL:
     def test_04_setup(self):
         setup_name = "Dom_LNA"
         LNA_setup = self.aedtapp.create_setup(setup_name)
-        LNA_setup.SweepDefinition = [("Variable", "Freq"), ("Data", "LIN 1GHz 5GHz 1001"), ("OffsetF1", False), ("Synchronize", 0)]
+        sweep_list = ["LINC", "1GHz", "2GHz", "1001"]
+        LNA_setup.props["SweepDefinition"]["Data"] = " ".join(sweep_list)
         assert LNA_setup.update()
-        pass
-
 
 

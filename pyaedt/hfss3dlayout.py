@@ -703,7 +703,7 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
             old_name = project_name
             project_name = generate_unique_name(project_name)
             aedb_path = gds_path.replace(old_name + '.gds', project_name + '.aedb')
-            self.messenger.add_warning_message("aedb_exists. Renaming it to {}".format(project_name))
+            self._messenger.add_warning_message("aedb_exists. Renaming it to {}".format(project_name))
 
         oTool = self.odesktop.GetTool("ImportExport")
         oTool.ImportGDSII(gds_path, aedb_path, "", "")

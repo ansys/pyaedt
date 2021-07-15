@@ -104,7 +104,7 @@ class TestMaterial:
 
 
     def test_import_materials(self):
-        assert self.aedtapp.materials.import_materials_to_file(os.path.join(local_path, 'example_models', 'mats.json'))
+        assert self.aedtapp.materials.import_materials_from_file(os.path.join(local_path, 'example_models', 'mats.json'))
         assert "$copper_ds1" in self.aedtapp.project_datasets.keys()
         assert "copper_5540" in self.aedtapp.materials.material_keys.keys()
         assert "al-extruded1" in self.aedtapp.materials.material_keys.keys()

@@ -1,19 +1,19 @@
-.. pyaedt documentation master file, created by
-   sphinx-quickstart on Fri Jun 12 11:39:54 2020.
-   You can adapt this file completely to your liking, but it should at least
-   contain the root `toctree` directive.
-
 Primitives
 ==========
+The ``Primitives`` module includes these classes:
 
+.. currentmodule:: pyaedt.modeler
 
+.. autosummary::
+   :toctree: _autosummary
+   :template: custom-class-template.rst
+   :nosignatures:
 
-.. toctree::
-   :maxdepth: 2
-   :caption: The ``Primitives`` module includes these classes:
-
-   CommonPrimitives
-   Primitives3D
-   Primitives2D
-   Primitives3DLayout
-   CircuitComponents
+   Primitives.PolylineSegment
+   Primitives.Polyline
+   Primitives2D.Primitives2D
+   Primitives3D.Primitives3D
+   Primitives3DLayout.Primitives3DLayout
+   PrimitivesNexxim.NexximComponents
+   PrimitivesSimplorer.SimplorerComponents
+   PrimitivesCircuit.CircuitComponents

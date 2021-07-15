@@ -141,7 +141,7 @@ class Icepak(FieldAnalysisIcepak):
         bound = BoundaryObject(self, boundary_name, props, 'Opening')
         if bound.create():
             self.boundaries.append(bound)
-            self.messenger.add_info_message("Opening Assigned")
+            self._messenger.add_info_message("Opening Assigned")
             return bound
         return None
 
@@ -171,7 +171,7 @@ class Icepak(FieldAnalysisIcepak):
             if self.setups:
                 setup_name =self.setups[0].name
             else:
-                self.messenger.add_error_message("No Setup Defined")
+                self._messenger.add_error_message("No Setup Defined")
                 return False
         self.oanalysis_setup.AddTwoWayCoupling(setup_name, ["NAME:Options", "NumCouplingIters:=", number_of_iterations,
                                                             "ContinueIcepakIterations:=", continue_ipk_iterations,
@@ -202,7 +202,7 @@ class Icepak(FieldAnalysisIcepak):
             List of boundaries inserted.
 
         """
-        oObjects = self.modeler.primitives.get_all_solids_names()
+        oObjects = self.modeler.primitives.solid_names
         listmcad = []
         num_power = None
         for row in list_powers:
@@ -246,7 +246,7 @@ class Icepak(FieldAnalysisIcepak):
 
         """
         if assign_material:
-            self.assignmaterial(object_name, material_name)
+            self.modeler.primitives[object_name].material_name = material_name
         props={}
         props["Objects"] = [object_name]
         props["Block Type"] = "Solid"
@@ -333,7 +333,7 @@ class Icepak(FieldAnalysisIcepak):
         type
             Bounding object when successful.
         """
-        if object_name in self.modeler.primitives.get_all_objects_names():
+        if object_name in self.modeler.primitives.object_names:
             faces = self.modeler.primitives.get_object_faces(object_name)
             k = 0
             faceCenter = {}
@@ -358,7 +358,7 @@ class Icepak(FieldAnalysisIcepak):
                 fcrjc = fcrjb
                 fcrjb = app
             if assign_material:
-                self.assignmaterial(object_name, default_material)
+                self.modeler.primitives[object_name].material_name = default_material
             props = {}
             if use_object_for_name:
                 boundary_name = object_name
@@ -373,7 +373,7 @@ class Icepak(FieldAnalysisIcepak):
             bound = BoundaryObject(self, boundary_name, props, 'Network')
             if bound.create():
                 self.boundaries.append(bound)
-                self.modeler.oeditor.ChangeProperty(["NAME:AllTabs", ["NAME:Geometry3DAttributeTab", ["NAME:PropServers", object_name], ["NAME:ChangedProps", ["NAME:Solve Inside", "Value:=", False]]]])
+                self.modeler.primitives[object_name].solve_inside = False
                 return bound
             return None
 
@@ -401,7 +401,7 @@ class Icepak(FieldAnalysisIcepak):
         type
             Networks boundary objects.
         """
-        objs = self.modeler.primitives.get_all_solids_names()
+        objs = self.modeler.primitives.solid_names
         countpow = len(input_list[0])-3
         networks = []
         for row in input_list:
@@ -468,9 +468,9 @@ class Icepak(FieldAnalysisIcepak):
         """
         point_name = generate_unique_name("Point")
         self.modeler.oeditor.CreatePoint(
-            ["NAME:PointParameters", "PointX:=", self.modeler.primitives.arg_with_dim(point_position[0]), "PointY:=",
-             self.modeler.primitives.arg_with_dim(point_position[1]), "PointZ:=",
-             self.modeler.primitives.arg_with_dim(point_position[2])],
+            ["NAME:PointParameters", "PointX:=", self.modeler.primitives._arg_with_dim(point_position[0]), "PointY:=",
+             self.modeler.primitives._arg_with_dim(point_position[1]), "PointZ:=",
+             self.modeler.primitives._arg_with_dim(point_position[2])],
             ["NAME:Attributes", "Name:=", point_name, "Color:=", "(143 175 143)"])
         if not monitor_name:
             monitor_name = generate_unique_name("Monitor")
@@ -504,14 +504,14 @@ class Icepak(FieldAnalysisIcepak):
                 k += 1
         total_power = 0
         i=0
-        all_objects = self.modeler.primitives.get_all_objects_names()
+        all_objects = self.modeler.primitives.object_names
         for power in component_data["Applied Power (W)"]:
             try:
                 float(power)
                 if "COMP_" + component_data["Ref Des"][i] in all_objects:
                     status = self.create_source_block("COMP_" + component_data["Ref Des"][i], str(power)+"W",assign_material=False)
                     if not status:
-                        self.messenger.add_warning_message(
+                        self._messenger.add_warning_message(
                             "Warning. Block {} skipped with {}W power".format(component_data["Ref Des"][i], power))
                     else:
                         total_power += float(power)
@@ -519,7 +519,7 @@ class Icepak(FieldAnalysisIcepak):
                 elif component_data["Ref Des"][i] in all_objects:
                     status = self.create_source_block(component_data["Ref Des"][i], str(power)+"W",assign_material=False)
                     if not status:
-                        self.messenger.add_warning_message(
+                        self._messenger.add_warning_message(
                             "Warning. Block {} skipped with {}W power".format(component_data["Ref Des"][i], power))
                     else:
                         total_power += float(power)
@@ -527,7 +527,7 @@ class Icepak(FieldAnalysisIcepak):
             except:
                 pass
             i += 1
-        self.messenger.add_info_message("Blocks inserted with total power {}W".format(total_power))
+        self._messenger.add_info_message("Blocks inserted with total power {}W".format(total_power))
         return total_power
 
     @aedt_exception_handler
@@ -646,26 +646,26 @@ class Icepak(FieldAnalysisIcepak):
         bool
             ``True`` when successful, ``False`` when failed.
         """
-        all_objs = self.modeler.primitives.get_all_objects_names()
-        self['FinPitch'] = self.modeler.primitives.arg_with_dim(pitch)
-        self['FinThickness'] = self.modeler.primitives.arg_with_dim(thick)
-        self['FinLength'] = self.modeler.primitives.arg_with_dim(length)
-        self['FinHeight'] = self.modeler.primitives.arg_with_dim(height)
+        all_objs = self.modeler.primitives.object_names
+        self['FinPitch'] = self.modeler.primitives._arg_with_dim(pitch)
+        self['FinThickness'] = self.modeler.primitives._arg_with_dim(thick)
+        self['FinLength'] = self.modeler.primitives._arg_with_dim(length)
+        self['FinHeight'] = self.modeler.primitives._arg_with_dim(height)
         self['DraftAngle'] = draftangle
         self['PatternAngle'] = patternangle
-        self['FinSeparation'] = self.modeler.primitives.arg_with_dim(separation)
-        self['VerticalSeparation'] = self.modeler.primitives.arg_with_dim(vertical_separation)
-        self['HSHeight'] = self.modeler.primitives.arg_with_dim(hs_height)
-        self['HSWidth'] = self.modeler.primitives.arg_with_dim(hs_width)
-        self['HSBaseThick'] = self.modeler.primitives.arg_with_dim(hs_basethick)
+        self['FinSeparation'] = self.modeler.primitives._arg_with_dim(separation)
+        self['VerticalSeparation'] = self.modeler.primitives._arg_with_dim(vertical_separation)
+        self['HSHeight'] = self.modeler.primitives._arg_with_dim(hs_height)
+        self['HSWidth'] = self.modeler.primitives._arg_with_dim(hs_width)
+        self['HSBaseThick'] = self.modeler.primitives._arg_with_dim(hs_basethick)
         if numcolumn_perside>1:
             self['NumColumnsPerSide'] = numcolumn_perside
         if symmetric:
-            self['SymSeparation'] = self.modeler.primitives.arg_with_dim(symmetric_separation)
+            self['SymSeparation'] = self.modeler.primitives._arg_with_dim(symmetric_separation)
         # ipk['PatternDirection'] = 'Y'
         # ipk['LengthDirection'] = 'X'
         # ipk['HeightDirection'] = 'Z'
-        self['Tolerance'] = self.modeler.primitives.arg_with_dim(tolerance)
+        self['Tolerance'] = self.modeler.primitives._arg_with_dim(tolerance)
 
         #self.modeler.primitives.create_box([0, 0, '-HSBaseThick'], ['HSWidth', 'HSHeight', 'FinHeight+HSBaseThick'], "Outline")
         self.modeler.primitives.create_box(['-HSWidth/200', '-HSHeight/200', '-HSBaseThick'], ['HSWidth*1.01', 'HSHeight*1.01', 'HSBaseThick+Tolerance'], "HSBase", matname)
@@ -687,13 +687,13 @@ class Icepak(FieldAnalysisIcepak):
         Fin_Line2.append(self.Position(0, 'sin(DraftAngle*3.14/180)*FinThickness', 'FinHeight'))
         self.modeler.primitives.create_polyline(Fin_Line2, cover_surface=True, name="Fin_top")
         self.modeler.connect(["Fin", "Fin_top"])
-        self.assignmaterial("Fin", matname)
+        self.modeler.primitives["Fin"].material_name = matname
         # self.modeler.thicken_sheet("Fin",'-FinHeight')
         num = int((hs_width / (separation+thick))/(max(1-math.sin(patternangle*3.14/180),0.1)))
         self.modeler.duplicate_along_line("Fin", self.Position(0, 'FinSeparation+FinThickness', 0), num,True)
         self.modeler.duplicate_along_line("Fin", self.Position(0, '-FinSeparation-FinThickness', 0), num/4, True)
 
-        all_names = self.modeler.primitives.get_all_objects_names()
+        all_names = self.modeler.primitives.object_names
         list = [i for i in all_names if "Fin" in i]
         if numcolumn_perside>0:
             self.modeler.duplicate_along_line(list,
@@ -701,10 +701,10 @@ class Icepak(FieldAnalysisIcepak):
                                                           0),
                                              'NumColumnsPerSide', True)
 
-        all_names = self.modeler.primitives.get_all_objects_names()
+        all_names = self.modeler.primitives.object_names
         list = [i for i in all_names if "Fin" in i]
         self.modeler.split(list, self.CoordinateSystemPlane.ZXPlane, "PositiveOnly")
-        all_names = self.modeler.primitives.get_all_objects_names()
+        all_names = self.modeler.primitives.object_names
         list = [i for i in all_names if "Fin" in i]
         self.modeler.create_coordinate_system(self.Position(0, 'HSHeight', 0), mode="view", view="XY", name="TopRight")
 
@@ -727,14 +727,14 @@ class Icepak(FieldAnalysisIcepak):
             Center_Line.append(self.Position('-SymSeparation', 'Tolerance', '-Tolerance'))
             self.modeler.primitives.create_polyline(Center_Line, cover_surface=True, name="Center")
             self.modeler.thicken_sheet("Center", '-FinHeight-2*Tolerance')
-            all_names = self.modeler.primitives.get_all_objects_names()
+            all_names = self.modeler.primitives.object_names
             list = [i for i in all_names if "Fin" in i]
             self.modeler.subtract(list, "Center", False)
         else:
             self.modeler.create_coordinate_system(self.Position('HSWidth', 0, 0), mode="view", view="XY",
                                                   name="BottomRight",reference_cs="TopRight")
             self.modeler.split(list, self.CoordinateSystemPlane.YZPlane, "NegativeOnly")
-        all_objs2 = self.modeler.primitives.get_all_objects_names()
+        all_objs2 = self.modeler.primitives.object_names
         list_to_move=[i for i in all_objs2 if i not in all_objs]
         center[0] -= hs_width/2
         center[1] -= hs_height/2
@@ -839,7 +839,7 @@ class Icepak(FieldAnalysisIcepak):
         # Generate a list of model objects from the lists made previously and use to map the HFSS losses into Icepak
         #
         if not object_list:
-            allObjects = self.modeler.primitives.get_all_objects_names(refresh_list=True)
+            allObjects = self.modeler.primitives.object_names
             if "Region" in allObjects:
                 allObjects.remove("Region")
         else:
@@ -1070,8 +1070,8 @@ class Icepak(FieldAnalysisIcepak):
                 arg.append("Calculation:=")
                 arg.append([type, geometryType, el, quantity, "", "Default"])
             except Exception as e:
-                self.messenger.add_error_message("Object " + el + " not added")
-                self.messenger.add_error_message(str(e))
+                self._messenger.add_error_message("Object " + el + " not added")
+                self._messenger.add_error_message(str(e))
         if not output_dir:
             output_dir = self.project_path
         self.osolution.EditFieldsSummarySetting(arg)
@@ -1312,7 +1312,7 @@ class Icepak(FieldAnalysisIcepak):
         if close_linked_project_after_import and ".aedt" in project_name:
                 prjname = os.path.splitext(os.path.basename(project_name))[0]
                 self.close_project(prjname, saveproject=False)
-        self.messenger.add_info_message("PCB Component Correctly created in Icepak")
+        self._messenger.add_info_message("PCB Component Correctly created in Icepak")
         return status
 
     @aedt_exception_handler
@@ -1374,7 +1374,7 @@ class Icepak(FieldAnalysisIcepak):
             ``True`` when successful, ``False`` when failed.
         """
         if not object_list:
-            allObjects = self.modeler.primitives.get_all_objects_names(refresh_list=True)
+            allObjects = self.modeler.primitives.object_names
             if removed_objects:
                 for rem in removed_objects:
                     allObjects.remove(rem)

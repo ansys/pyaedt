@@ -1,7 +1,7 @@
 """
 This module contains these classes: `FieldPlot`, `PostProcessor`, and `SolutionData`.
 
-These classes provide all functionalities for creating and editing plots in the 3D tools.
+This module provides all functionalities for creating and editing plots in the 3D tools.
 
 .. note::
    Some functionalities are available only in graphical mode.
@@ -17,6 +17,7 @@ import itertools
 from collections import OrderedDict
 from ..modeler.Modeler import CoordinateSystem
 from ..generic.general_methods import aedt_exception_handler, generate_unique_name, retry_ntimes
+from ..generic.filesystem import Scratch
 from ..application.Variables import AEDT_units
 
 report_type = {"DrivenModal": "Modal Solution Data", "DrivenTerminal": "Terminal Solution Data",
@@ -37,12 +38,12 @@ class SolutionData(object):
     """
     @property
     def sweeps(self):
-        """ """
+        """Sweeps."""
         return self._sweeps
 
     @property
     def sweeps_siunits(self):
-        """ """
+        """SI units for the sweep."""
         data = {}
         for el in self._sweeps:
             data[el] = self._convert_list_to_SI(self._sweeps[el], self._quantity(self.units_sweeps[el]), self.units_sweeps[el])
@@ -50,7 +51,7 @@ class SolutionData(object):
 
     @property
     def variations_value(self):
-        """ """
+        """Design variables."""
         vars = self.nominal_variation.GetDesignVariableNames()
         variationvals = {}
         for v in vars:
@@ -59,22 +60,12 @@ class SolutionData(object):
 
     @property
     def nominal_variation(self):
-        """ """
+        """Nominal variation."""
         return self._nominal_variation
 
     @nominal_variation.setter
     def nominal_variation(self, val):
-        """
-
-        Parameters
-        ----------
-        val :
-            
-
-        Returns
-        -------
-
-        """
+        
         if 0 <= val <= self.number_of_variations:
             self._nominal_variation = self._original_data[val]
         else:
@@ -82,12 +73,12 @@ class SolutionData(object):
 
     @property
     def primary_sweep(self):
-        """ """
+        """Primary sweep."""
         return self._primary_sweep
 
     @primary_sweep.setter
     def primary_sweep(self, ps):
-        """Set the primary sweep to the source perimter.
+        """Set the primary sweep to the source perimeter.
 
         Parameters
         ----------
@@ -104,7 +95,7 @@ class SolutionData(object):
 
     @property
     def expressions(self):
-        """ """
+        """Expressions."""
         mydata = [i for i in self._nominal_variation.GetDataExpressions()]
         return list(dict.fromkeys(mydata))
 
@@ -139,7 +130,13 @@ class SolutionData(object):
 
     @aedt_exception_handler
     def update_sweeps(self):
-        """:return:"""
+        """Update sweeps.
+        
+        Returns
+        -------
+        type
+        """
+      
         self._sweeps = OrderedDict({})
         for el in self._sweeps_names:
             self._sweeps[el] = [i for i in self.nominal_variation.GetSweepValues(el, False)]
@@ -203,7 +200,7 @@ class SolutionData(object):
 
     @aedt_exception_handler
     def to_degrees(self, input_list):
-        """Convert input list from radians to degrees.
+        """Convert an input list from radians to degrees.
 
         Parameters
         ----------
@@ -220,7 +217,7 @@ class SolutionData(object):
 
     @aedt_exception_handler
     def to_radians(self, input_list):
-        """Convert input list from degrees to radians.
+        """Convert an input list from degrees to radians.
 
         Parameters
         ----------
@@ -236,7 +233,7 @@ class SolutionData(object):
         return [i*360/(2*math.pi) for i in input_list]
 
     def data_magnitude(self, expression=None, convert_to_SI=False):
-        """Retrieve the data magnitude of a given expression. 
+        """Retrieve the data magnitude of an expression. 
         
         Parameters
         ----------
@@ -291,7 +288,7 @@ class SolutionData(object):
         Returns
         -------
         list
-           List of converted data.
+           List of the converted data.
 
         """
         sol = datalist
@@ -314,7 +311,7 @@ class SolutionData(object):
         Returns
         -------
         list
-            List of data in the database.
+            List of the data in the database.
 
         """
         if not expression:
@@ -337,7 +334,7 @@ class SolutionData(object):
         Returns
         -------
         list
-            List of real data.
+            List of the real data.
 
         """
         if not expression:
@@ -364,7 +361,7 @@ class SolutionData(object):
         return sol
 
     def data_imag(self, expression=None, convert_to_SI=False):
-        """Retrieve the imaginary part of data for an expression.
+        """Retrieve the imaginary part of the data for an expression.
 
         Parameters
         ----------
@@ -378,7 +375,7 @@ class SolutionData(object):
         Returns
         -------
         list
-            List of imaginary data.
+            List of the imaginary data.
 
         """
         if not expression:
@@ -421,6 +418,7 @@ class FieldPlot:
         Name of the plot or the name of the object.
     intrinsicList: dict, optional
         Name of the intrinsic dictionary. The default is ``{}``.
+    
     """
     def __init__(self, oField, objlist, solutionName, quantityName, intrinsincList={}):
         self.oField = oField
@@ -452,7 +450,14 @@ class FieldPlot:
 
     @aedt_exception_handler
     def create(self):
-        """ """
+        """Create a field plot.
+        
+        Returns
+        -------
+        bool
+            ``True`` when successful, ``False`` when failed.
+            
+        """
 
         self.oField.CreateFieldPlot(self.surfacePlotInstruction, "Field")
         return True
@@ -460,14 +465,26 @@ class FieldPlot:
 
     @aedt_exception_handler
     def update(self):
-        """ """
+        """Update the field plot.
+        
+        Returns
+        -------
+        bool
+            ``True`` when successful, ``False`` when failed.
+        """
         self.oField.ModifyFieldPlot(self.name, self.surfacePlotInstruction)
 
 
 
     @aedt_exception_handler
     def modify_folder(self):
-        """ """
+        """Modify the field plot folder.
+        
+        Returns
+        -------
+        bool
+            ``True`` when successful, ``False`` when failed.
+        """
         self.oField.SetFieldPlotSettings(self.plotFolder,
                                          [
                                              "NAME:FieldsPlotItemSettings",
@@ -476,17 +493,17 @@ class FieldPlot:
 
     @aedt_exception_handler
     def delete(self):
-        """ """
+        """Delete the field plot."""
         self.oField.DeleteFieldPlot([self.name])
 
     @property
     def plotFolder(self):
-        """ """
+        """Field plot folder."""
         return self.name
 
     @property
     def plotGeomInfo(self):
-        """ """
+        """Plot geometry information."""
         info = [1, self.objtype, self.listtype, 0]
         for index in self.faceIndexes:
             info.append(str(index))
@@ -495,7 +512,7 @@ class FieldPlot:
 
     @property
     def intrinsicVar(self):
-        """
+        """Intrinsic variable.
         
         Returns
         -------
@@ -519,7 +536,13 @@ class FieldPlot:
 
     @property
     def plotsettings(self):
-        """ """
+        """Plot settings.
+        
+        Returns
+        -------
+        list
+            List of properties for the plot.
+        """
         if self.objtype == "Surface":
             arg = [
                 "NAME:PlotOnSurfaceSettings",
@@ -561,7 +584,7 @@ class FieldPlot:
 
     @property
     def surfacePlotInstruction(self):
-        """ """
+        """Surface plot settings."""
         return [
             "NAME:" + self.name,
             "SolutionName:=", self.solutionName,
@@ -595,6 +618,7 @@ class PostProcessor(object):
     def __init__(self, parent):
         self._parent = parent
         self.FieldsPlot = {}
+        self._scratch = Scratch(self._parent.temp_directory, volatile=True)
 
     @property
     def _primitives(self):
@@ -637,12 +661,12 @@ class PostProcessor(object):
 
     @property
     def oreportsetup(self):
-        """Report Setup module.
+        """Report setup module.
 
         Returns
         -------
         type
-            Report Setup module.
+            Report setup module.
         """
         return self.odesign.GetModule("ReportSetup")
 
@@ -662,43 +686,43 @@ class PostProcessor(object):
 
 
     @property
-    def messenger(self):
-        """ """
+    def _messenger(self):
+        """_messenger."""
         return self._parent._messenger
 
     @property
     def desktop(self):
-        """ """
+        """Desktop."""
         return self._parent._desktop
 
     @property
     def odesign(self):
-        """ """
+        """Design."""
         return self._parent._odesign
 
     @property
     def oproject(self):
-        """ """
+        """Project."""
         return self._parent._oproject
 
     @property
     def modeler(self):
-        """ """
+        """Modeler."""
         return self._parent._modeler
 
     @property
     def oeditor(self):
-        """ """
+        """Editor."""
         return self.modeler.oeditor
 
     @property
     def report_types(self):
-        """ """
+        """Report type."""
         return list(self.oreportsetup.GetAvailableReportTypes())
 
     @aedt_exception_handler
     def display_types(self, report_type):
-        """
+        """Retrieve display types.
 
         Parameters
         ----------
@@ -708,14 +732,14 @@ class PostProcessor(object):
         Returns
         -------
         type
-            Report type.
+            Display types.
         """
         return self.oreportsetup.GetAvailableDisplayTypes(report_type)
 
     # TODO: define a fields calculator module and make robust !!
     @aedt_exception_handler
     def volumetric_loss(self, object_name):
-        """Create a new variable for volumetric losses using the field calculator.
+        """Create a variable for volumetric losses using the field calculator.
 
         Parameters
         ----------
@@ -777,7 +801,7 @@ class PostProcessor(object):
     def export_field_file_on_grid(self, quantity_name, solution=None, variation_dict=None, filename=None,
                                   gridtype="Cartesian", grid_center=[0, 0, 0],
                                   grid_start=[0, 0, 0], grid_stop=[0, 0, 0], grid_step=[0, 0, 0], isvector = False, intrinsics=None, phase=None):
-        """Create a new field file based on a specific solution and variation using the field calculator.
+        """Create a field file based on a solution and variation using the field calculator.
 
         Parameters
         ----------
@@ -789,23 +813,23 @@ class PostProcessor(object):
             Dictionary of all variation variables with their values.
             The default is ``None``.
         filename : str, optional
-            Full path and file name to which to save the file. 
+            Full path and file name to savethe file to. 
             The default is ``None``.
         gridtype : str, optional
             Type of the grid to export. The default is ``"Cartesian"``.
         grid_center : list, optional
             Center of the grid. This parameter is disabled if ``gridtype=
             "Cartesian"``. The default is a list of three
-            float values, ``[0, 0, 0]``.
+            float values. For example, ``[0, 0, 0]``.
         grid_start : list, optional
             Starting point of the grid. The default is a list of three
-            float values, ``[0, 0, 0]``.
+            float values. For example, ``[0, 0, 0]``.
         grid_stop : list, optional
             Stopping point of the grid. The default is a list of three
-            float values, ``[0, 0, 0]``.
+            float values. For example, ``[0, 0, 0]``.
         grid_step : list, optional
             Size of the step for the grid. The default is a list of three
-            float values, ``[0, 0, 0]``.
+            float values. For example, ``[0, 0, 0]``.
         isvector : bool, optional
             Whether the quantity is a vector. The  default is ``False``. 
         intrinsics : str, optional
@@ -819,7 +843,7 @@ class PostProcessor(object):
         bool
             ``True`` when successful, ``False`` when failed.
         """
-        self.messenger.add_info_message("Exporting {} Field. Be Patient".format(quantity_name))
+        self._messenger.add_info_message("Exporting {} Field. Be Patient".format(quantity_name))
         if not solution:
             solution = self._parent.existing_analysis_sweeps[0]
         if not filename:
@@ -887,7 +911,7 @@ class PostProcessor(object):
     def export_field_file(self, quantity_name, solution=None, variation_dict=None, filename=None,
                           obj_list="AllObjects", obj_type="Vol", intrinsics=None, phase=None,
                           sample_points_file=None, sample_points_lists=None, export_with_sample_points=True):
-        """Create a new field file based on a specific solution and variation using the field calculator.
+        """Create a field file based on a solution and variation using the field calculator.
 
         Parameters
         ----------
@@ -925,7 +949,7 @@ class PostProcessor(object):
         bool
             ``True`` when successful, ``False`` when failed.
         """
-        self.messenger.add_info_message("Exporting {} Field. Be Patient".format(quantity_name))
+        self._messenger.add_info_message("Exporting {} Field. Be Patient".format(quantity_name))
         if not solution:
             solution = self._parent.existing_analysis_sweeps[0]
         if not filename:
@@ -945,7 +969,7 @@ class PostProcessor(object):
                 elif obj_type == "Surf":
                     self.ofieldsreporter.EnterSurf(obj_list)
                 else:
-                    self.messenger.add_error_message("No correct choice")
+                    self._messenger.add_error_message("No correct choice")
                     return False
                 self.ofieldsreporter.CalcOp("Value")
                 variation_dict = self._parent.available_variations.nominal_w_values
@@ -1010,7 +1034,7 @@ class PostProcessor(object):
 
     @aedt_exception_handler
     def _create_fieldplot(self, objlist, quantityName, setup_name, intrinsincList, objtype, listtype):
-        """Internal function
+        """Internal function.
 
         Parameters
         ----------
@@ -1128,12 +1152,12 @@ class PostProcessor(object):
 
     @aedt_exception_handler
     def export_field_jpg(self, fileName, plotName, coordinateSystemName):
-        """Export the plot for a given plot name and coordinate system name to a JPG file.
+        """Export a plot and coordinate system to a JPG file.
 
         Parameters
         ----------
         fileName : str
-            Full path and file name for the JPG file.
+            Full path and file name to save the JPG file to.
         plotName : str
             Name of the plot.
         coordinateSystemName :str
@@ -1167,7 +1191,7 @@ class PostProcessor(object):
             View to export. Options are ``"iso"``, ``"XZ"``, ``"XY"``, and ``"YZ"``. 
             The default is ``"iso"``.
         wireframe : bool, optional
-            Whether objects are to be put in the wireframe mode. The default is ``True``.
+            Whether to put objects in the wireframe mode. The default is ``True``.
 
         Returns
         -------
@@ -1181,9 +1205,9 @@ class PostProcessor(object):
         coordinateSystemForExportPlot = self.modeler.create_coordinate_system(origin=center, mode='view', view=view)
         wireframes = []
         if wireframe:
-            names = self._primitives.get_all_objects_names()
+            names = self._primitives.object_names
             for el in names:
-                if not self._primitives[el].wireframe:
+                if not self._primitives[el].display_wireframe:
                     wireframes.append(el)
                     self._primitives[el].display_wireframe = True
         status = self.export_field_jpg(exportFilePath, plotName, coordinateSystemForExportPlot.name)
@@ -1211,7 +1235,7 @@ class PostProcessor(object):
         return True
 
     @aedt_exception_handler
-    def export_model_picture(self, dir, name, picturename="Model", ShowAxis=True, ShowGrid=True, ShowRuler=True):
+    def export_model_picture(self, dir=None, name=None, picturename=None, show_axis=True, show_grid=True, show_ruler=True):
         """Export a snapshot of the model to a JPG file. 
         
         .. note::
@@ -1219,41 +1243,58 @@ class PostProcessor(object):
         
         Parameters
         ----------
-        dir : str
-            Path to export the JPG file to.
-        name : str
+        dir : str, optional
+            Path to export the JPG file to. If none, use an internal volatile scratch in the temp-directory
+        name : str, optional
             Name of the project, which is used to compose the directory path.
         picturename : str, optional
-            Name of the JPG file. The default is ``"Model"``. The extension
+            Name of the JPG file. If not specfified, an automatic name will be generated
             ``".jpg"`` is added automatically.
-        ShowAxis : bool, optional
+        show_axis : bool, optional
             Whether to show the axes. The default is ``True``.
-        ShowGrid : bool, optional
+        show_grid : bool, optional
             Whether to show the grid. The default is ``True``.
-        ShowRuler : bool, optional
+        show_ruler : bool, optional
             Whether to show the ruler. The default is ``True``.
 
         Returns
         -------
-        bool
-            ``True`` when successful, ``False`` when failed.
+        str
+            file path of the generated jpg file
         """
         # Setup arguments list for createReport function
-        if not os.path.exists(dir + "//" + name):
-            os.mkdir(dir + "//" + name)
-        if not os.path.exists(dir + "//" + name + "//Pictures"):
-            os.mkdir(dir + "//" + name + "//Pictures")
+        if not dir:
+            dir = self._scratch.path
+            self.messenger.logger.debug("Using scratch path {}".format(self._scratch.path))
+
+        assert os.path.exists(dir), "Specified directory does not exist: {}".format(dir)
+
+        if name:
+            project_subdirectory = os.path.join(dir, name)
+            if not os.path.exists(project_subdirectory):
+                os.mkdir(project_subdirectory)
+            file_path = os.path.join(project_subdirectory, "Pictures")
+            if not os.path.exists(file_path):
+                os.mkdir(file_path)
+        else:
+            file_path = dir
+
+        if not picturename:
+            picturename = generate_unique_name("image")
+        else:
+            if picturename.endswith(".jpg"):
+                picturename = picturename[:-4]
 
         # open the 3D modeler and remove the selection on other objects
         self.oeditor.ShowWindow()
         self.steal_focus_oneditor()
         self.oeditor.FitAll()
         # export the image
-        arg = ["NAME:SaveImageParams", "ShowAxis:=", ShowAxis, "ShowGrid:=", ShowGrid, "ShowRuler:=", ShowRuler,
+        arg = ["NAME:SaveImageParams", "ShowAxis:=", show_axis, "ShowGrid:=", show_grid, "ShowRuler:=", show_ruler,
                "ShowRegion:=", "Default", "Selections:=", ""]
-        self.oeditor.ExportModelImageToFile(dir + "//" + name + "//Pictures//" + picturename + ".jpg", 0, 0,
-                                             arg)
-        return True
+        file_name = os.path.join(file_path, picturename + ".jpg")
+        self.oeditor.ExportModelImageToFile(file_name, 0, 0, arg)
+        return file_name
 
     @aedt_exception_handler
     def copy_report_data(self, PlotName):
@@ -1292,14 +1333,14 @@ class PostProcessor(object):
 
     @aedt_exception_handler
     def rename_report(self, PlotName, newname):
-        """Rename a report.
+        """Rename a plot.
 
         Parameters
         ----------
         PlotName : str
-            Name of the report.
+            Name of the plot.
         newname : str
-            New name of the report.
+            New name of the plot.
 
         Returns
         -------
@@ -1340,7 +1381,7 @@ class PostProcessor(object):
 
     @aedt_exception_handler
     def export_report_to_jpg(self, ProjectDir, PlotName):
-        """Export the SParameter plot as an image.
+        """Export the SParameter plot to a JPG file.
 
         Parameters
         ----------
@@ -1408,24 +1449,32 @@ class PostProcessor(object):
         Parameters
         ----------
         expression : str or list
-            One or more formulas to add to the report. The default is ``"dB(S(1,1))"``.
+            One or more formulas to add to the report. The default is
+            ``"dB(S(1,1))"``.
         setup_sweep_name : str, optional
-            Name of the setup to use to compute the report. The default is ``""``, 
-            in which case the nominal sweep is used.
+            Name of the setup to use to compute the report. The
+            default is ``""``, in which case the nominal sweep is
+            used.
         domain : str or list, optional
-            Context type. The options are ``"Sweep"`` or ``"Time"``. The default is ``"Sweep".``
+            Context type. The options are ``"Sweep"`` or
+            ``"Time"``. The default is ``"Sweep".``
         families_dict : dict, optional
-            Dictionary of all families including the primary sweep. The default is ``{"Freq": ["All"]}``.
+            Dictionary of all families including the primary
+            sweep. The default is ``{"Freq": ["All"]}``.
         report_input_type :  str
-             Type of input data for the report.
+            Type of input data for the report.
+
         Returns
         -------
         SolutionData
             SolutionData object if successful.
-       Examples
-       --------
+
+        Examples
+        --------
+        Generate a report with the default sweep and default variation
+
         >>> hfss = HFSS()
-        >>> hfss.post.get_report_data("S(1,1)")   # it will take default sweep and default variation
+        >>> hfss.post.get_report_data("S(1,1)")
 
         >>> m3d = Maxwell3D()
         >>> m3d.post.get_report_data("SurfaceLoss")   # Eddy Current examples

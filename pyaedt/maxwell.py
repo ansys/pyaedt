@@ -506,7 +506,7 @@ class Maxwell(object):
                 bound = BoundaryObject(self, name, props2, "CoilTerminal")
 
             else:
-                self.messenger.add_warning_error("Face Selection is not allowed in Maxwell 2D. Provide a 2D object.")
+                self._messenger.add_warning_message("Face Selection is not allowed in Maxwell 2D. Provide a 2D object.")
                 return False
         if bound.create():
             self.boundaries.append(bound)
@@ -644,24 +644,7 @@ class Maxwell(object):
         -------
 
         """
-        self.modeler.oeditor.ChangeProperty(
-            [
-                "NAME:AllTabs",
-                [
-                    "NAME:Geometry3DAttributeTab",
-                    [
-                        "NAME:PropServers",
-                        name
-                    ],
-                    [
-                        "NAME:ChangedProps",
-                        [
-                            "NAME:Solve Inside",
-                            "Value:=", activate
-                        ]
-                    ]
-                ]
-            ])
+        self.modeler.primitives[name].solve_inside = activate
         return True
 
     @aedt_exception_handler
@@ -914,9 +897,9 @@ class Maxwell2d(Maxwell, FieldAnalysis2D, object):
         """
         solid_bodies = self.modeler.solid_bodies
         if objectfilter:
-            solid_ids = [i for i,j in self.modeler.primitives.objects_names.items() if j.name in objectfilter]
+            solid_ids = [i for i,j in self.modeler.primitives.object_id_dict.items() if j.name in objectfilter]
         else:
-            solid_ids = [i for i in list(self.modeler.primitives.objects_names.keys())]
+            solid_ids = [i for i in list(self.modeler.primitives.object_id_dict.keys())]
         model_depth = self.get_model_depth()
         self.design_data = {
             "Project Directory": self.project_path,

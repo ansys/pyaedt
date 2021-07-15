@@ -1,6 +1,14 @@
 name: Documentation Build
 
-on: [push, pull_request, workflow_dispatch]
+on:
+  push:
+    branches:
+      - '*'
+  pull_request:
+    branches:
+      - '*'
+  schedule:  # Build and deploy dev docs nightly
+    - cron:  '0 4 * * *'
 
 jobs:
   docs_build:
@@ -17,14 +25,26 @@ jobs:
       - name: Install pyaedt
         run: |
           pip install .
-  
-      - name: Build Documentation
+
+      - name: Install doc build requirements
         run: |
           pip install -r requirements_docs.txt
-          make -C doc html
+
+      # this will only run on cron jobs to avoid saturating the queue
+      - name: Full Documentation Build
+        if: github.event_name != 'push' && startsWith(github.event.ref, 'refs/heads/main')
+        run: |
+          make -C doc phtml
           touch doc/_build/html/.nojekyll
           echo "dev.aedtdocs.pyansys.com" >> doc/_build/html/CNAME
-  
+
+      - name: Partial Documentation Build
+        if: startsWith(github.event.ref, 'refs/heads/main') != true
+        run: |
+          make -C doc html
+        env:
+          PYAEDT_CI_NO_AUTODOC: True
+
       - name: Upload Documentation
         uses: actions/upload-artifact@v2.2.3
         with:
@@ -32,8 +52,9 @@ jobs:
           path: doc/_build/html
           retention-days: 7
 
+      # Deploys only on cron-job nightly builds
       - name: Deploy
-        if: github.event_name == 'push' && startsWith(github.event.ref, 'refs/heads/main')
+        if: github.event_name != 'push' && startsWith(github.event.ref, 'refs/heads/main')
         uses: JamesIves/github-pages-deploy-action@4.1.4
         with:
           repository-name: pyansys/pyaedt-dev-docs

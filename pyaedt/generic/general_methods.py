@@ -2,6 +2,7 @@ import os
 import string
 import random
 import time
+import datetime
 import sys
 import traceback
 import logging
@@ -101,56 +102,47 @@ def aedt_exception_handler(func):
     """
     @wraps(func)
     def inner_function(*args, **kwargs):
-        """
-
-        Parameters
-        ----------
-        *args :
-            
-        **kwargs :
-            
-
-        Returns
-        -------
-
-        """
-        try:
+        if "PYTEST_CURRENT_TEST" in os.environ or "UNITTEST_CURRENT_TEST" in os.environ:
+            # We are running under pytest or unittest, do not use the decorator
             return func(*args, **kwargs)
-        except TypeError:
-            _exception(sys.exc_info(), func, args, kwargs, "Type Error")
-            return False
-        except ValueError:
-            _exception(sys.exc_info(), func, args, kwargs, "Value Error")
-            return False
-        except AttributeError:
-            _exception(sys.exc_info(), func, args, kwargs, "Attribute Error")
-            return False
-        except KeyError:
-            _exception(sys.exc_info(), func, args, kwargs, "Key Error")
-            return False
-        except IndexError:
-            _exception(sys.exc_info(), func, args, kwargs, "Index Error")
-            return False
-        except AssertionError:
-            _exception(sys.exc_info(), func, args, kwargs, "Assertion Error")
-            return False
-        except NameError:
-            _exception(sys.exc_info(), func, args, kwargs, "Name Error")
-            return False
-        except IOError:
-            _exception(sys.exc_info(), func, args, kwargs, "IO Error")
-            return False
-        except MethodNotSupportedError:
-            message = "This Method is not supported in current AEDT Design Type."
-            print("**************************************************************")
-            print("pyaedt Error on Method {}:  {}. Please Check again".format(func.__name__, message))
-            print("**************************************************************")
-            print("")
-            logger.error(message)
-            return False
-        except BaseException:
-            _exception(sys.exc_info(), func, args, kwargs, "General or AEDT Error")
-            return False
+        else:
+            try:
+                return func(*args, **kwargs)
+            except TypeError:
+                _exception(sys.exc_info(), func, args, kwargs, "Type Error")
+                return False
+            except ValueError:
+                _exception(sys.exc_info(), func, args, kwargs, "Value Error")
+                return False
+            except AttributeError:
+                _exception(sys.exc_info(), func, args, kwargs, "Attribute Error")
+                return False
+            except KeyError:
+                _exception(sys.exc_info(), func, args, kwargs, "Key Error")
+                return False
+            except IndexError:
+                _exception(sys.exc_info(), func, args, kwargs, "Index Error")
+                return False
+            except AssertionError:
+                _exception(sys.exc_info(), func, args, kwargs, "Assertion Error")
+                return False
+            except NameError:
+                _exception(sys.exc_info(), func, args, kwargs, "Name Error")
+                return False
+            except IOError:
+                _exception(sys.exc_info(), func, args, kwargs, "IO Error")
+                return False
+            except MethodNotSupportedError:
+                message = "This Method is not supported in current AEDT Design Type."
+                print("**************************************************************")
+                print("pyaedt Error on Method {}:  {}. Please Check again".format(func.__name__, message))
+                print("**************************************************************")
+                print("")
+                logger.error(message)
+                return False
+            except BaseException:
+                _exception(sys.exc_info(), func, args, kwargs, "General or AEDT Error")
+                return False
     return inner_function
 
 
@@ -333,3 +325,14 @@ def retry_ntimes(n, function, *args, **kwargs):
             break
     return ret_val
 
+def time_fn( fn, *args, **kwargs ):
+    start = datetime.datetime.now()
+    results = fn( *args, **kwargs )
+    end = datetime.datetime.now()
+    fn_name = fn.__module__ + "." + fn.__name__
+    delta = (end - start).microseconds * 1e-6
+    print(fn_name + ": " + str(delta) + "s")
+    return results
+
+def isclose(a, b, rel_tol=1e-9, abs_tol=0.0):
+    return abs(a-b) <= max( rel_tol * max(abs(a), abs(b)), abs_tol )

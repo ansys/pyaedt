@@ -9,16 +9,22 @@ class SimplorerComponents(CircuitComponents):
     """SimplorerComponents class.
     
     This class is for managing all circuit components for Simplorer.
+    
+    Parameters
+    ----------
+    parent :
+    
+    modeler :
+    
     """
-
     @property
     def design_libray(self):
-        """ """
+        """Design Library."""
         return "Simplorer Elements"
 
     @property
     def tab_name(self):
-        """ """
+        """Tab name."""
         return "Quantities"
 
     @aedt_exception_handler
@@ -28,12 +34,13 @@ class SimplorerComponents(CircuitComponents):
         Parameters
         ----------
         partname : int or str
-            ID or name of object.
+            ID or name of the object.
         
         Returns
         -------
         type
             Part object details.
+        
         """
         if type(partname) is int:
             return self.components[partname]
@@ -53,7 +60,7 @@ class SimplorerComponents(CircuitComponents):
 
     @aedt_exception_handler
     def create_resistor(self, compname=None, value=50, xpos=0, ypos=0,angle=0, use_instance_id_netlist=False):
-        """Create a new resistor.
+        """Create a resistor.
 
         Parameters
         ----------
@@ -62,20 +69,21 @@ class SimplorerComponents(CircuitComponents):
         value : float, optional
             Value for the resistor. The default is ``50``.
         xpos : float, optional
-            X-axis position. The default is ``0``.
+            Position on the X axis. The default is ``0``.
         ypos : float, optional
-            Y-axis position. The default is ``0``.
+            Position on the Y axis. The default is ``0``.
         angle : float, optional
-            Angle value. The default is ``0``.
+            Angle rotation in degrees. The default is ``0``.
         use_instance_id_netlist : bool, optional
             Whether to use the instance ID in the net list. The default is ``False``.
 
         Returns
         -------
-        type
+        int
             ID of the resistor.
         str
             Name of the resistor.
+        
         """
         id, name = self.create_component(compname, component_library="Basic Elements\\Circuit\\Passive Elements",
                                          component_name="R", xpos=xpos, ypos=ypos, angle=angle,
@@ -87,7 +95,7 @@ class SimplorerComponents(CircuitComponents):
 
     @aedt_exception_handler
     def create_inductor(self, compname=None,value=50, xpos=0, ypos=0,angle=0, use_instance_id_netlist=False):
-        """Create a new inductor.
+        """Create an inductor.
 
         Parameters
         ----------
@@ -96,17 +104,17 @@ class SimplorerComponents(CircuitComponents):
         value : float, optional
             Value for the inductor. The default is ``50``.
         xpos : float, optional
-            X-axis position. The default is ``0``.
+            Position on the X axis. The default is ``0``.
         ypos : float, optional
-            Y-axis position. The default is ``0``.
+            Position on the Y axis. The default is ``0``.
         angle : float, optional
-            Angle value. The default is ``0``.
+            Angle rotation in degrees. The default is ``0``.
         use_instance_id_netlist : bool, optional
             Whether to use the instance ID in the net list. The default is ``False``.
 
         Returns
         -------
-        type
+        int
             ID of the inductor.
         str
             Name of the inductor.
@@ -120,7 +128,7 @@ class SimplorerComponents(CircuitComponents):
 
     @aedt_exception_handler
     def create_capacitor(self, compname=None,value=50, xpos=0, ypos=0, angle=0, use_instance_id_netlist=False):
-        """Create a new capacitor.
+        """Create a capacitor.
 
         Parameters
         ----------
@@ -129,17 +137,17 @@ class SimplorerComponents(CircuitComponents):
         value : float, optional
             Value for the capacitor. The default is ``50``.
         xpos : float, optional
-            X-axis position. The default is ``0``.
+            Position on the X axis. The default is ``0``.
         ypos : float, optional
-            Y-axis position. The default is ``0``.
+            Position on the Y axis. The default is ``0``.
         angle : float, optional
-            Angle value. The default is ``0``.
+            Angle rotation in degrees. The default is ``0``.
         use_instance_id_netlist : bool, optional
             Whether to use the instance ID in the net list. The default is ``False``.
 
         Returns
         -------
-        type
+        int
             ID of the capacitor.
         str
             Name of the capacitor.
@@ -154,29 +162,30 @@ class SimplorerComponents(CircuitComponents):
 
     @aedt_exception_handler
     def create_diode(self, compname=None, model_name="required", xpos=0, ypos=0, angle=0, use_instance_id_netlist=False):
-        """Create a new diode.
+        """Create a diode.
 
         Parameters
         ----------
         compname : str, optional
             Name of the diode. The default is ``None``.
         model_name : str, optional
-            Name of the model.  The default is ``"required"``.
+            Name of the model. The default is ``"required"``.
         xpos : float, optional
-            X-axis position. The default is ``0``.
+            Position on the X axis. The default is ``0``.
         ypos : float, optional
-            Y-axis position. The default is ``0``.
+            Position on the Y axis. The default is ``0``.
         angle : float, optional
-            Angle value. The default is ``0``.
+            Angle rotation in degrees. The default is ``0``.
         use_instance_id_netlist : bool, optional
             Whether to use the instance ID in the net list. The default is ``False``.
 
         Returns
         -------
-        type
+        int
             ID of the diode.
         str
             Name of the diode.
+        
         """
         id, name = self.create_component(compname,
                                          component_library="Basic Elements\\Circuit\\Semiconductors System Level",
@@ -186,7 +195,7 @@ class SimplorerComponents(CircuitComponents):
 
     @aedt_exception_handler
     def create_npn(self, compname=None, value=None, xpos=0, ypos=0, angle=0, use_instance_id_netlist=False):
-        """Create a new NPN transistor.
+        """Create an NPN transistor.
 
         Parameters
         ----------
@@ -195,20 +204,21 @@ class SimplorerComponents(CircuitComponents):
         value : float, optional
             Value for the NPN transistor. The default is ``50``.
         xpos : float, optional
-            X-axis position. The default is ``0``.
+            Position on the X axis. The default is ``0``.
         ypos : float, optional
-            Y-axis position. The default is ``0``.
+            Position on the Y axis. The default is ``0``.
         angle : float, optional
-            Angle value. The default is ``0``.
+            Angle rotation in degrees. The default is ``0``.
         use_instance_id_netlist : bool, optional
             Whether to use the instance ID in the net list. The default is ``False``.
 
         Returns
         -------
-        type
+        int
             ID of the NPN transistor.
         str
             Name of the NPN transistor.
+        
         """
         id, name = self.create_component(compname,
                                          component_library="Basic Elements\\Circuit\\Semiconductors System Level",
@@ -218,7 +228,7 @@ class SimplorerComponents(CircuitComponents):
 
     @aedt_exception_handler
     def create_pnp(self, compname=None,value=50, xpos=0, ypos=0, angle=0, use_instance_id_netlist=False):
-        """Create a new PNP transistor.
+        """Create a PNP transistor.
 
         Parameters
         ----------
@@ -227,17 +237,17 @@ class SimplorerComponents(CircuitComponents):
         value : float, optional
             Value for the PNP transistor. The default is ``50``.
         xpos : float, optional
-            X-axis position. The default is ``0``.
+            Position on the X axis. The default is ``0``.
         ypos : float, optional
-            Y-axis position. The default is ``0``.
+            Position on the Y axis. The default is ``0``.
         angle : float, optional
-            Angle value. The default is ``0``.
+            Angle rotation in degrees. The default is ``0``.
         use_instance_id_netlist : bool, optional
             Whether to use the instance ID in the net list. The default is ``False``.
 
         Returns
         -------
-        type
+        int
             ID of the PNP transistor.
         str
             Name of the PNP transistor.

@@ -4,7 +4,7 @@ imageio>=2.5.0
 imageio-ffmpeg
 pyvista
 numpy
-Sphinx>=4.0.0
+Sphinx==4.0.3
 sphinx-autobuild
 sphinxcontrib-napoleon
 sphinxcontrib-websupport
@@ -16,3 +16,4 @@ sphinx-autodoc-typehints
 pyansys_sphinx_theme
 pypandoc
 nbsphinx
+ipywidgets

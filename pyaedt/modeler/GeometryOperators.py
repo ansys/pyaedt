@@ -6,23 +6,25 @@ import re
 
 
 class GeometryOperators(object):
-    """ """
+    """GeometryOperators class."""
 
     @staticmethod
     @aedt_exception_handler
     def List2list(input_list):
-        """ Convert a C# List object in a Python list.
-        The function performs a deep conversion.
+        """Convert a C# list object to a Python list.
+        
+        This function performs a deep conversion.
 
         Parameters
         ----------
-        input_list : List
-            List to be converted in Python list.
+        input_list : list
+            C# list to convert to a Python list.
 
         Returns
         -------
         list
-            converted list
+            Converted Python list.
+        
         """
         output_list = []
         for i in input_list:
@@ -35,36 +37,35 @@ class GeometryOperators(object):
     @staticmethod
     @aedt_exception_handler
     def parse_dim_arg(string, scale_to_unit=None):
-        """Convert a number and unit into a float.
+        """Convert a number and unit to a float.
 
-        For example ``'2mm'`` becomes ``0.002``.
         Angles are converted in radians.
 
         Parameters
         ----------
         string : str
-            String to convert.  For example ``'2mm'``.
-
+            String to convert. For example, ``"2mm"``.
         scale_to_unit : str
-            Units, for example ``'mm'``.
+            Units for the value to convert. For example, ``"mm"``.
 
         Returns
         -------
         float
-            Unit and value converted to a float.
+            Float value for the converted value and units. For example, ``0.002`.
 
         Examples
         --------
-        Parse `'2mm'`
+        Parse `'"2mm"'`.
 
         >>> from pyaedt.modeler.GeometryOperators import GeometryOperators as go
         >>> go.parse_dim_arg('2mm')
         0.002
 
-        The optional argument scale_to_unit let you specify the destination unit.
+        Use the optional argument ``scale_to_unit`` to specify the destination unit.
 
         >>> go.parse_dim_arg('2mm', scale_to_unit='mm')
         2.0
+        
         """
         scaling = {
             "m": 1.0,
@@ -128,7 +129,7 @@ class GeometryOperators(object):
     @staticmethod
     @aedt_exception_handler
     def cs_plane_str(val):
-        """
+        """Retrieve a string for a coordinate system plane.
 
         Parameters
         ----------
@@ -137,6 +138,8 @@ class GeometryOperators(object):
 
         Returns
         -------
+        str
+           String for the coordinate system plane.
 
         """
         if val == CoordinateSystemPlane.XYPlane:
@@ -149,7 +152,7 @@ class GeometryOperators(object):
     @staticmethod
     @aedt_exception_handler
     def cs_axis_str(val):
-        """
+        """Retrieve a string for a coordinate system axis.
 
         Parameters
         ----------
@@ -158,11 +161,13 @@ class GeometryOperators(object):
 
         Returns
         -------
+        str
+            String for the coordinate system axis.
 
         """
-        if val == CoordinateSystemAxis.XAxis:
+        if val == CoordinateSystemAxis.XAxis or val == 'X':
             return 'X'
-        elif val == CoordinateSystemAxis.YAxis:
+        elif val == CoordinateSystemAxis.YAxis  or val == 'Y':
             return 'Y'
         else:
             return 'Z'
@@ -170,7 +175,7 @@ class GeometryOperators(object):
     @staticmethod
     @aedt_exception_handler
     def draft_type_str(val):
-        """
+        """Retrieve the draft type.
 
         Parameters
         ----------
@@ -179,6 +184,8 @@ class GeometryOperators(object):
 
         Returns
         -------
+        str
+           Type of the draft.
 
         """
         if val == SweepDraftType.ExtendedDraft:
@@ -191,20 +198,20 @@ class GeometryOperators(object):
     @staticmethod
     @aedt_exception_handler
     def get_mid_point(v1, v2):
-        """ Evaluate the midpoints between two given points.
+        """Evaluate the midpoint between two points.
 
         Parameters
         ----------
         v1 : list
-            First point coordinates [x, y, z]
-            
+            List of ``[x, y, z]`` coordinates for the first point.         
         v2 : list
-            Second point coordinates [x, y, z]
+            List of ``[x, y, z]`` coordinates for the second point. 
 
         Returns
         -------
         list
-            Mid point coordinates [x, y, z]
+            List of ``[x, y, z]`` coordinates for the midpoint. 
+        
         """
         x = (v1[0] + v2[0]) / 2.
         y = (v1[1] + v2[1]) / 2.
@@ -214,23 +221,22 @@ class GeometryOperators(object):
     @staticmethod
     @aedt_exception_handler
     def get_triangle_area(v1, v2, v3):
-        """ Evaluates the area of a triangle defined by its three vertices.
+        """Evaluate the area of a triangle defined by its three vertices.
 
         Parameters
         ----------
         v1 : list
-            First vertex coordinates [x, y, z]
-            
+            List of ``[x, y, z]`` coordinates for the first vertex.         
         v2 : list
-            Second vertex coordinates [x, y, z]
-
+            List of ``[x, y, z]`` coordinates for the second vertex.         
         v3 : list
-            Third vertex coordinates [x, y, z]
+            List of ``[x, y, z]`` coordinates for the third vertex.         
 
         Returns
         -------
         float
-            Area of the triangle
+            Area of the triangle.
+        
         """
         a = ((v1[0] - v2[0]) ** 2 + (v1[1] - v2[1]) ** 2 + (v1[2] - v2[2]) ** 2) ** 0.5
         b = ((v2[0] - v3[0]) ** 2 + (v2[1] - v3[1]) ** 2 + (v2[2] - v3[2]) ** 2) ** 0.5
@@ -242,21 +248,21 @@ class GeometryOperators(object):
     @staticmethod
     @aedt_exception_handler
     def v_cross(a, b):
-        """ Evaluates the cross product of geometry vectors a and b.
+        """Evaluate the cross product of two geometry vectors.
 
         Parameters
         ----------
         a : list
-            first vector [x, y, z]
-
+            List of ``[x, y, z]`` coordinates for the first vector. 
         b : list
-            second vector [x, y, z]
+            List of ``[x, y, z]`` coordinates for the second vector. 
 
         Returns
         -------
         list
-            result vector
+            List of ``[x, y, z]`` coordinates for the result vector. 
         """
+        
         c = [a[1] * b[2] - a[2] * b[1],
              a[2] * b[0] - a[0] * b[2],
              a[0] * b[1] - a[1] * b[0]]
@@ -265,20 +271,20 @@ class GeometryOperators(object):
     @staticmethod
     @aedt_exception_handler
     def _v_dot(a, b):
-        """ Evaluates the dot product between two geometry vectors a and b
+        """Evaluate the dot product between two geometry vectors.
 
         Parameters
         ----------
         a : list
-            first vector [x, y, z]
-
+            List of ``[x, y, z]`` coordinates for the first vector. 
         b : list
-            second vector [x, y, z]
+            List of ``[x, y, z]`` coordinates for the second vector. 
 
         Returns
         -------
         float
-            result dot product
+            Result of the dot product.
+        
         """
         c = a[0] * b[0] + a[1] * b[1] + a[2] * b[2]
         return c
@@ -286,41 +292,42 @@ class GeometryOperators(object):
     @staticmethod
     @aedt_exception_handler
     def v_dot(a, b):
-        """ Evaluates the dot product between two geometry vectors a and b
+        """Evaluate the dot product between two geometry vectors.
 
         Parameters
         ----------
         a : list
-            first vector [x, y, z]
-
+            List of ``[x, y, z]`` coordinates for the first vector. 
         b : list
-            second vector [x, y, z]
+            List of ``[x, y, z]`` coordinates for the second vector. 
 
         Returns
         -------
         float
-            result dot product
+            Result of the dot product.
+        
         """
         return GeometryOperators._v_dot(a, b)
 
     @staticmethod
     @aedt_exception_handler
     def v_prod(s, v):
-        """ Evaluates the product between the scalar s and the vector v.
-        Vector v can be any length.
-
+        """Evaluate the product between a scalar value and a vector.
+                
         Parameters
         ----------
         s : float
-            scalar
-
+            Scalar value.
         v : list
-            vector [v1, v2,..., vn]
+            List of values for the vector in the format ``[v1, v2,..., vn]``.
+            The vector can be any length.
 
         Returns
         -------
         list
-            result vector. Same length as input vector v.
+            List of values for the result vector. This list is the 
+            same length as the list for the input vector.
+        
         """
         r = [s * i for i in v]
         return r
@@ -328,20 +335,20 @@ class GeometryOperators(object):
     @staticmethod
     @aedt_exception_handler
     def v_sub(a, b):
-        """ Evaluates the geometry vectors subtraction a-b.
+        """Evaluate two geometry vectors by subtracting them (a-b).
 
         Parameters
         ----------
         a : list
-            first vector [x, y, z]
-
+            List of ``[x, y, z]`` coordinates for the first vector. 
         b : list
-            second vector [x, y, z]
+            List of ``[x, y, z]`` coordinates for the second vector. 
 
         Returns
         -------
         list
-            result vector
+            List of ``[x, y, z]`` coordinates for the result vector.
+        
         """
         c = [a[0] - b[0],
              a[1] - b[1],
@@ -351,20 +358,20 @@ class GeometryOperators(object):
     @staticmethod
     @aedt_exception_handler
     def v_sum(a, b):
-        """ Evaluates the geometry vectors sum a+b.
+        """Evaluate two geometry vectors by adding them (a+b).
 
         Parameters
         ----------
         a : list
-            first vector [x, y, z]
-
+            List of ``[x, y, z]`` coordinates for the first vector. 
         b : list
-            second vector [x, y, z]
+            List of ``[x, y, z]`` coordinates for the second vector. 
 
         Returns
         -------
         list
-            result vector
+            List of ``[x, y, z]`` coordinates for the result vector.
+        
         """
         c = [a[0] + b[0],
              a[1] + b[1],
@@ -374,17 +381,18 @@ class GeometryOperators(object):
     @staticmethod
     @aedt_exception_handler
     def v_norm(a):
-        """ Evaluates the euclidean norm of geometry vector a.
+        """ Evaluate the Euclidean norm of a geometry vector.
 
         Parameters
         ----------
-        a : list
-            input vector [x, y, z]
-
+         a : list
+            List of ``[x, y, z]`` coordinates for the vector. 
+        
         Returns
         -------
         float
-            Evaluated norm in the same unit as input vector coordinates.
+            Evaluated norm in the same unit as the coordinates for the input vector.
+        
         """
         m = (a[0]**2 + a[1]**2 + a[2]**2) ** 0.5
         return m
@@ -392,17 +400,18 @@ class GeometryOperators(object):
     @staticmethod
     @aedt_exception_handler
     def normalize_vector(v):
-        """ Normalize the geometry vector v to get its versor.
+        """Normalize a geometry vector.
 
         Parameters
         ----------
         v : list
-            input vector [x, y, z]
+            List of ``[x, y, z]`` coordinates for vector.
 
         Returns
         -------
         list
-            Normalized vector
+            List of ``[x, y, z]`` coordinates for the normalized vector.
+        
         """
         # normalize a vector to its norm
         norm = GeometryOperators.v_norm(v)
@@ -412,40 +421,39 @@ class GeometryOperators(object):
     @staticmethod
     @aedt_exception_handler
     def v_points(p1, p2):
-        """ Returns the vector from point p1 to point p2.
+        """Return the vector from one point to another point.
 
         Parameters
         ----------
         p1 : list
-            [x1,y1,z1] of p1
-
+            List of ``[x1,y1,z1]`` coordinates for the first point.
         p2 : list
-            [x2,y2,z2] of p2
+            List of ``[x2,y2,z2]`` coordinates for second point.
 
         Returns
         -------
         list
-            vector [vx, vy, vz] from p1 to p2
+            List of ``[vx, vy, vz]``coordinates for the vector from the first point to the second point.
         """
         return GeometryOperators.v_sub(p2, p1)
     
     @staticmethod
     @aedt_exception_handler
     def points_distance(p1, p2):
-        """ Evaluates the distance between 2 points expressed as their cartesian coordinates.
+        """Evaluate the distance between two points expressed as their Cartesian coordinates.
 
         Parameters
         ----------
         p1 : list
-            [x1,y1,z1] of p1
-
+            List of ``[x1,y1,z1]"`` coordinates for the first point.
         p2 : list
-            [x2,y2,z2] of p2
+            List of ``[x2,y2,z2] coordinates for the second ppint.
 
         Returns
         -------
         float
-            Distance between the points, in same unit as points coordinates.
+            Distance between the two points in the same unit as the coordinates for the points.
+        
         """
         v = GeometryOperators.v_points(p1, p2)
         d = GeometryOperators.v_norm(v)
@@ -454,18 +462,19 @@ class GeometryOperators(object):
     @staticmethod
     @aedt_exception_handler
     def find_point_on_plane(pointlists, direction=0):
-        """ADD DESCRIPTION
+        """Find a point on a plane.
 
         Parameters
         ----------
         pointlists : list
-            
-        direction : int
-             The default is `0`
+            List of points.          
+        direction : int, optional
+             The default is ``0``.
 
         Returns
         -------
-        list
+        list 
+           
         """
     
         if direction <= 2:
@@ -483,25 +492,26 @@ class GeometryOperators(object):
     @staticmethod
     @aedt_exception_handler
     def distance_vector(p, a, b):
-        """Evaluates the vector distance between a point p and a line defined by two points, a and b.
-        The formula used is  d = (a-p)-((a-p)dot p)n,
-        where a is a point of the line (either a or b) and n is the unit vector in the direction of the line.
+        """Evaluate the vector distance between point ``p`` and a line defined by two points, ``a`` and ``b``.
+        
+        .. note::
+        The formula is  ``d = (a-p)-((a-p)dot p)n``, where ``a`` is a point of the line (either ``a`` or ``b``) 
+        and ``n`` is the unit vector in the direction of the line.
 
         Parameters
         ----------
         p : list
-            Reference point [x, y, z]
-
+            List of ``[x, y, z]`` coordinates for the reference point.
         a : list
-            First point of the segment [x, y, z]
-
+            List of ``[x, y, z]`` coordinates for the first point of the segment.
         b : list
-            Second point of the segment [x, y, z]
+            List of ``[x, y, z]`` coordinates for the second point of the segment.
 
         Returns
         -------
         list
-            distance vector [x, y, z]
+            List of ``[x, y, z]`` coordinates for the distance vector.
+        
         """
         v1 = GeometryOperators.v_points(a, b)
         n = [i / GeometryOperators.v_norm(v1) for i in v1]
@@ -514,25 +524,24 @@ class GeometryOperators(object):
     @staticmethod
     @aedt_exception_handler
     def is_between_points(p, a, b, tol=1e-6):
-        """ Returns True if p lies on the segment defined by points a1 and a2, False otherwise.
+        """Check if a point lies on the segment defined by two points.
 
         Parameters
         ----------
         p : list
-            Reference point [x, y, z]
-
+            List of ``[x, y, z]`` coordinates for the reference point ``p``.
         a : list
-            First point of the segment [x, y, z]
-
+            List of ``[x, y, z]`` coordinates for the first point of the segment.
         b : list
-            Second point of the segment [x, y, z]
-
+            List of ``[x, y, z]`` coordinates for the second point of the segment.   
         tol : float
             Linear tolerance. The default value is ``1e-6``.
 
         Returns
         -------
         bool
+            ``True`` when the point lies on the segment defined by the two points, ``False`` otherwise.
+	
         """
         v1 = GeometryOperators.v_points(a, b)
         v2 = GeometryOperators.v_points(a, p)
@@ -548,29 +557,26 @@ class GeometryOperators(object):
     @staticmethod
     @aedt_exception_handler
     def is_parallel(a1, a2, b1, b2, tol=1e-6):
-        """ Check if the segment defined by points a1 and a2 is parallel to segment defined by points b1 and b2.
+        """Check if a segment defined by two points is parallel to a segment defined by two other points.
 
         Parameters
         ----------
         a1 : list
-            First point of segment a [x, y, z]
-
+            List of ``[x, y, z]`` coordinates for the first point of the fiirst segment.
         a2 : list
-            Second point of segment a [x, y, z]
-
+            List of ``[x, y, z]`` coordinates for the second point of the first segment.
         b1 : list
-            First point of segment b [x, y, z]
-
+            List of ``[x, y, z]`` coordinates for the first point of the second segment.
         b2 : list
-            Second point of segment b [x, y, z]
-
+            List of ``[x, y, z]`` coordinates for the second point of the second segment.
         tol : float
             Linear tolerance. The default value is ``1e-6``.
 
         Returns
         -------
         bool
-            True if it is parallel, False otherwise
+            ``True`` when successful, ``False`` when failed.
+        
         """
         if 1. - GeometryOperators.parallel_coeff(a1, a2, b1, b2) < tol*tol:
             return True
@@ -580,18 +586,18 @@ class GeometryOperators(object):
     @staticmethod
     @aedt_exception_handler
     def parallel_coeff(a1, a2, b1, b2):
-        """ ADD DESCRIPTION
+        """ADD DESCRIPTION.
 
         Parameters
         ----------
         a1 : list
-            first point of segment a  [x, y, z]
+            List of ``[x, y, z]`` coordinates for the first point of the first segment.
         a2 : list
-            second point of segment a  [x, y, z]
+            List of ``[x, y, z]`` coordinates for the second point of the first segment.
         b1 : list
-            first point of segment b  [x, y, z]
+            List of ``[x, y, z]`` coordinates for the first point of the second segment.
         b2 : list
-            second point of segment b  [x, y, z]
+            List of ``[x, y, z]`` coordinates for the second point of the second segment.
 
         Returns
         -------
@@ -608,30 +614,24 @@ class GeometryOperators(object):
     @staticmethod
     @aedt_exception_handler
     def is_projection_inside(a1, a2, b1, b2):
-        """ Projects segment a onto segment b and check if is inside.
-        Return True if it is inside, False otherwise.
-        Segment a is defined by the points a1 and a2.
-        Segment b is defined by the points b1 and b2.
-
+        """Project a segment onto another segment and check if the projected segment is inside it.
+        
         Parameters
         ----------
         a1 : list
-            first point of segment a [x, y, z]
-
+            List of ``[x, y, z]`` coordinates for the first point of the projected segment.
         a2 : list
-            second point of segment a [x, y, z]
-
+            List of ``[x, y, z]`` coordinates for the second point of the projected segment.
         b1 : list
-            first point of segment b [x, y, z]
-
+            List of ``[x, y, z]`` coordinates for the first point of the other segment.
         b2 : list
-            second point of segment b  [x, y, z]
+            List of ``[x, y, z]`` coordinates for the second point of the other segment.
 
         Returns
         -------
         bool
-            ``True`` when it is inside, ``False`` otherwise.
-
+            ``True`` when the projected segment is inside the other segmennt, ``False`` otherwise.
+        
         """
         if not GeometryOperators.is_parallel(a1, a2, b1, b2):
             return False
@@ -647,7 +647,7 @@ class GeometryOperators(object):
     @staticmethod
     @aedt_exception_handler
     def arrays_positions_sum(vertlist1, vertlist2):
-        """ADD DESCRIPTION
+        """ADD DESCRIPTION.
 
         Parameters
         ----------
@@ -658,6 +658,7 @@ class GeometryOperators(object):
         Returns
         -------
         float
+        
         """
         s = 0
         for el in vertlist1:
@@ -668,20 +669,20 @@ class GeometryOperators(object):
     @staticmethod
     @aedt_exception_handler
     def v_angle(a, b):
-        """ Evaluates the angle between geometry vectors a and b.
+        """Evaluate the angle between two geometry vectors.
 
         Parameters
         ----------
         a : list
-            first vector [x, y, z]
-
+            List of ``[x, y, z]`` coordinates for the first vector.
         b : list
-            second vector [x, y, z]
+            List of ``[x, y, z]`` coordinates for the second vector.
 
         Returns
         -------
         float
-            angle in radians
+            Angle in radians.
+        
         """
         d = GeometryOperators.v_dot(a, b)
         an = GeometryOperators.v_norm(a)
@@ -692,21 +693,22 @@ class GeometryOperators(object):
     @staticmethod
     @aedt_exception_handler
     def pointing_to_axis(x_pointing, y_pointing):
-        """ Gets the axis from the HFSS X-Axis and Y-Pointing as per AEDT interface coordinate system definition.
+        """Retrieve the axes from the HFSS X axis and Y pointing axis as per the definition of the AEDT interface coordinate system.
 
         Parameters
         ----------
         x_pointing : list
-            X-Axis in format [x, y, z]
+            List of ``[x, y, z]`` coordinates for the X axis.
 
         y_pointing : list
-            Y-Pointing in format [x, y, z]
+            List of ``[x, y, z]`` coordinates for the Y pointing axis.
 
         Returns
         -------
         tuple
-            [Xx, Xy, Xz], [Yx, Yy, Yz], [Zx, Zy, Zz] of the 3 axis (normalized)
+            ``[Xx, Xy, Xz], [Yx, Yy, Yz], [Zx, Zy, Zz]`` of the three axes (normalized).
         """
+        
         xp = GeometryOperators.normalize_vector(x_pointing)
 
         tp = GeometryOperators.v_dot(y_pointing, xp)
@@ -721,24 +723,24 @@ class GeometryOperators(object):
     @staticmethod
     @aedt_exception_handler
     def axis_to_euler_zxz(x, y, z):
-        """ Finds the Euler angles of a given frame defined by x, y, z axis, following rotation sequence ZXZ.
+        """Finds the Euler angles of a frame defined by X, Y, and Z axes, following the rotation sequence ZXZ.
+        
         Provides assumption for the gimbal lock problem.
 
         Parameters
         ----------
         x : list
-            X Axis in format [Xx, Xy, Xz]
-
+            List of ``[Xx, Xy, Xz]`` coordinates for the X axis.
         y : list
-            Y Axis in format [Yx, Yy, Yz]
-
+            List of ``[Yx, Yy, Yz]`` coordinates for the Y axis. 
         z : list
-            Y Axis in format [Zx, Zy, Zz]
+            List of ``[Zx, Zy, Zz]`` coordinates for the Z axis.
 
         Returns
         -------
         tuple
-            (phi, theta, psi) containing Euler angles in radians.
+            (phi, theta, psi) containing the Euler angles in radians.
+        
         """
         x1 = x[0]
         x2 = x[1]
@@ -764,24 +766,24 @@ class GeometryOperators(object):
     @staticmethod
     @aedt_exception_handler
     def axis_to_euler_zyz(x, y, z):
-        """ Finds the Euler angles of a given frame defined by x, y, z axis, following rotation sequence ZYZ.
+        """Finds the Euler angles of a frame defined by X, Y, and Z axes, following rotation sequence ZYZ.
+        
         Provides assumption for the gimbal lock problem.
 
         Parameters
         ----------
         x : list
-            X Axis in format [Xx, Xy, Xz]
-
+            List of ``[Xx, Xy, Xz]`` coordinates for the X axis.
         y : list
-            Y Axis in format [Yx, Yy, Yz]
-
+            List of ``[Yx, Yy, Yz]`` coordinates for the Y axis. 
         z : list
-            Y Axis in format [Zx, Zy, Zz]
-
+            List of ``[Zx, Zy, Zz]`` coordinates for the Z axis.
+        
         Returns
         -------
         tuple
-            (phi, theta, psi) containing Euler angles in radians.
+            (phi, theta, psi) containing the Euler angles in radians.
+        
         """
         x1 = x[0]
         x2 = x[1]
@@ -807,17 +809,18 @@ class GeometryOperators(object):
     @staticmethod
     @aedt_exception_handler
     def quaternion_to_axis(q):
-        """ Convert the quaternion to a rotated frame defined by x, y, z axis.
+        """Convert a quaternion to a rotated frame defined by X, Y, and Z axes.
 
         Parameters
         ----------
         q : list
-            quaternion [q1, q2, q3, q4]
+            List of ``[q1, q2, q3, q4]`` coordinates for the quaternion.
 
         Returns
         -------
         tuple
-            [Xx, Xy, Xz], [Yx, Yy, Yz], [Zx, Zy, Zz] of the 3 axis (normalized)
+            [Xx, Xy, Xz], [Yx, Yy, Yz], [Zx, Zy, Zz] of the three axes (normalized).
+        
         """
         q1 = q[0]
         q2 = q[1]
@@ -845,18 +848,19 @@ class GeometryOperators(object):
     @staticmethod
     @aedt_exception_handler
     def quaternion_to_axis_angle(q):
-        """ Converts the quaternion to axis angle rotation formulation.
+        """Convert a quaternion to the axis angle rotation formulation.
 
         Parameters
         ----------
         q : list
-            quaternion [q1, q2, q3, q4]
+            List of ``[q1, q2, q3, q4]`` coordinates for the quaternion.
 
         Returns
         -------
         tuple
-            ([ux, uy, uz], theta) containing the rotation axis expressed as x, y, z components of the unit vector u
-        and the rotation angle theta expressed in radians.
+            ([ux, uy, uz], theta) containing the rotation axes expressed as X, Y, Z components of the unit vector ``u``
+            and the rotation angle theta expressed in radians.
+        
         """
         q1 = q[0]
         q2 = q[1]
@@ -870,20 +874,21 @@ class GeometryOperators(object):
     @staticmethod
     @aedt_exception_handler
     def axis_angle_to_quaternion(u, theta):
-        """ Convert the axis angle rotation formulation to quaternion.
+        """Convert the axis angle rotation formulation to a quaternion.
 
         Parameters
         ----------
         u : list
-            rotation axis in format [ux, uy, uz]
+            List of ``[ux, uy, uz]`` coordinates for the rotation axis.
 
         theta : float
-            angle of rotation in radians
+            Angle of rotation in radians.
 
         Returns
         -------
         list
-            quaternion [q1, q2, q3, q4]
+            List of ``[q1, q2, q3, q4]`` coordinates for the quaternion.
+        
         """
         un = GeometryOperators.normalize_vector(u)
         s = math.sin(theta * 0.5)
@@ -896,17 +901,18 @@ class GeometryOperators(object):
     @staticmethod
     @aedt_exception_handler
     def quaternion_to_euler_zxz(q):
-        """ Convert the quaternion to Euler angles following rotation sequence ZXZ.
+        """Convert a quaternion to Euler angles following rotation sequence ZXZ.
 
         Parameters
         ----------
         q : list
-            quaternion [q1, q2, q3, q4]
+            List of ``[q1, q2, q3, q4]`` coordinates for the quaternion.
 
         Returns
         -------
         tuple
-            (phi, theta, psi) containing Euler angles in radians.
+            (phi, theta, psi) containing the Euler angles in radians.
+        
         """
         q1 = q[0]
         q2 = q[1]
@@ -925,23 +931,22 @@ class GeometryOperators(object):
     @staticmethod
     @aedt_exception_handler
     def euler_zxz_to_quaternion(phi, theta, psi):
-        """ Converts the Euler angles following rotation sequence ZXZ to quaternion representation.
+        """Convert the Euler angles following rotation sequence ZXZ to a quaternion.
 
         Parameters
         ----------
         phi : float
-            Euler angle psi in radians
-
+            Euler angle psi in radians.
         theta : float
-            Euler angle theta in radians
-
+            Euler angle theta in radians.
         psi : float
-            Euler angle phi in radians
+            Euler angle phi in radians.
 
         Returns
         -------
         list
-            quaternion in [q1, q2, q3, q4]
+            List of ``[q1, q2, q3, q4]`` coordinates for the quaternion.
+        
         """
         t1 = phi
         t2 = theta
@@ -957,17 +962,18 @@ class GeometryOperators(object):
     @staticmethod
     @aedt_exception_handler
     def quaternion_to_euler_zyz(q):
-        """ Converts the quaternion to Euler angles following rotation sequence ZYZ.
+        """Convert a quaternion to Euler angles following rotation sequence ZYZ.
 
         Parameters
         ----------
         q : list
-            quaternion [q1, q2, q3, q4]
-
+            List of ``[q1, q2, q3, q4]`` coordinates for the quaternion.
+            
         Returns
         -------
         tuple
-            (phi, theta, psi) containing Euler angles in radians.
+            (phi, theta, psi) containing the Euler angles in radians.
+        
         """
         q1 = q[0]
         q2 = q[1]
@@ -986,23 +992,22 @@ class GeometryOperators(object):
     @staticmethod
     @aedt_exception_handler
     def euler_zyz_to_quaternion(phi, theta, psi):
-        """ Convert the Euler angles following rotation sequence ZYZ to quaternion representation.
+        """Convert the Euler angles following rotation sequence ZYZ to a quaternion.
 
         Parameters
         ----------
         phi : float
-            Euler angle psi in radians
-
+            Euler angle psi in radians.
         theta : float
-            Euler angle theta in radians
-
+            Euler angle theta in radians.
         psi : float
-            Euler angle phi in radians
+            Euler angle phi in radians.
 
         Returns
         -------
         list
-            quaternion in [q1, q2, q3, q4]
+            List of ``[q1, q2, q3, q4]`` coordinates for the quaternion.
+        
         """
         t1 = phi
         t2 = theta
@@ -1018,17 +1023,18 @@ class GeometryOperators(object):
     @staticmethod
     @aedt_exception_handler
     def deg2rad(angle):
-        """ Converts the angle from degrees to radians.
+        """Convert the angle from degrees to radians.
 
         Parameters
         ----------
         angle : float
-            Angle in degrees
+            Angle in degrees.
 
         Returns
         -------
         float
-            Angle in radians
+            Angle in radians.
+        
         """
         pi = math.pi
         return angle / 180. * pi
@@ -1036,17 +1042,18 @@ class GeometryOperators(object):
     @staticmethod
     @aedt_exception_handler
     def rad2deg(angle):
-        """ Converts the angle from radians to degrees.
+        """Convert the angle from radians to degrees.
 
         Parameters
         ----------
         angle : float
-            Angle in radians
+            Angle in radians.
 
         Returns
         -------
         float
-            Angle in degrees
+            Angle in degrees.
+        
         """
         pi = math.pi
         return angle * 180. / pi
@@ -1054,7 +1061,7 @@ class GeometryOperators(object):
     @staticmethod
     @aedt_exception_handler
     def atan2(y, x):
-        """ Implementation of atan2 that does not suffer from the following issues:
+        """Implementation of atan2 that does not suffer from the following issues:
         math.atan2(0.0, 0.0) = 0.0
         math.atan2(-0.0, 0.0) = -0.0
         math.atan2(0.0, -0.0) = 3.141592653589793
@@ -1064,15 +1071,16 @@ class GeometryOperators(object):
         Parameters
         ----------
         y : float
-            y parameter of atan2
+            Y-axis value for atan2.
 
         x : float
-            x parameter of atan2
+            X-axis value for atan2.
 
         Returns
         -------
         float
             atan2(y, x)
+        
         """
         eps = 7./3. - 4./3. - 1.
         if abs(y) < eps:
@@ -1084,24 +1092,27 @@ class GeometryOperators(object):
     @staticmethod
     @aedt_exception_handler
     def q_prod(p, q):
-        """ Evaluates the product of two quaternions p and q defined as:
-            p = p0 + p' = p0 + ip1 + jp2 + kp3
-            q = q0 + q' = q0 + iq1 + jq2 + kq3
+        """Evaluate the product of two quaternions, ``p`` and ``q``, defined as:
+            
+            * p = p0 + p' = p0 + ip1 + jp2 + kp3
+            
+            * q = q0 + q' = q0 + iq1 + jq2 + kq3
 
             r = pq = p0q0 - p' • q' + p0q' + q0p' + p' x q'
 
         Parameters
         ----------
         p : list
-            quaternion [p1, p2, p3, p4]
+            List of ``[p1, p2, p3, p4]`` coordinates for quaternion ``p``.
 
         q : list
-            quaternion [q1, q2, q3, q4]
+            List of ``[p1, p2, p3, p4]`` coordinates for quaternion ``q``.
 
         Returns
         -------
         list
-            result quaternion in format [r1, r2, r3, r4]
+            List of [r1, r2, r3, r4] coordinates for the result quaternion.
+        
         """
         p0 = p[0]
         pv = p[1:4]
@@ -1120,24 +1131,27 @@ class GeometryOperators(object):
     @staticmethod
     @aedt_exception_handler
     def q_rotation(v, q):
-        """Evaluates the rotation of a vector ``v`` defined by the quaternion ``q``.
+        """Evaluate the rotation of a vector defined by a quaternion.
 
         Evaluated as:
+        
         ``q = q0 + q' = q0 + iq1 + jq2 + kq3``
+        
         ``w = qvq* = (q0^2 - |q'|^2)v + 2(q' • v)q' + 2q0(q' x v)``
 
         Parameters
         ----------
         v : list
-            vector [v1, v2, v3]
+            List of ``[v1, v2, v3]`` coordinates for the vector. 
 
         q : list
-            quaternion [q1, q2, q3, q4]
+            List of ``[q1, q2, q3, q4]``coordinates for the quaternion. 
 
         Returns
         -------
         list
-            result vector w [w1, w2, w3]
+            List of ``[w1, w2, w3]`` coordinates for the result vector ``w``.
+        
         """
         q0 = q[0]
         qv = q[1:4]
@@ -1158,8 +1172,9 @@ class GeometryOperators(object):
     @staticmethod
     @aedt_exception_handler
     def q_rotation_inv(v, q):
-        """ Evaluates the inverse rotation of a vector v defined by the quaternion q.
-        It can also be the rotation of the coordinate frame with respect to the vector v.
+        """Evaluate the inverse rotation of a vector that is defined by a quaternion.
+        
+        It can also be the rotation of the coordinate frame with respect to the vector.
 
             q = q0 + q' = q0 + iq1 + jq2 + kq3
             q* = q0 - q' = q0 - iq1 - jq2 - kq3
@@ -1168,15 +1183,16 @@ class GeometryOperators(object):
         Parameters
         ----------
         v : list
-            vector [v1, v2, v3]
+            List of ``[v1, v2, v3]`` coordinates for the vector.
 
         q : list
-            quaternion [q1, q2, q3, q4]
+            List of ``[q1, q2, q3, q4]`` coordinates for the quaternion.
 
         Returns
         -------
         list
-            result vector w [w1, w2, w3]
+            List of ``[w1, w2, w3]`` coordinates for the vector.
+        
         """
         q1 = [q[0], -q[1], -q[2], -q[3]]
         return GeometryOperators.q_rotation(v, q1)
@@ -1184,17 +1200,18 @@ class GeometryOperators(object):
     @staticmethod
     @aedt_exception_handler
     def get_polygon_centroid(pts):
-        """ Evaluates the centroid of a polygon defined by its points.
+        """Evaluate the centroid of a polygon defined by its points.
 
         Parameters
         ----------
         pts : list
-            list of points, each point is defined as [x,y,z]
+            List of points, with each point defined by its ``[x,y,z]`` coordinates.
 
         Returns
         -------
         list
-            centroid coordinates as [x,y,z]
+            List of [x,y,z] coordinates for the centroid of the polygon.
+        
         """
         sx = sy = sz = sl = sl2 = 0
         for i in range(len(pts)):  # counts from 0 to len(points)-1

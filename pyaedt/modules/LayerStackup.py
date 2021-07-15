@@ -1,7 +1,7 @@
 """
 This module contains these classes: ''Layer'' and ''Layers''.  
 
-Layer stackup functionalities are used by the Circuit and HFSS 3D Layout tools.
+This module provides all layer stackup functionalities for the Circuit and HFSS 3D Layout tools.
 """
 from __future__ import absolute_import
 import random
@@ -12,12 +12,12 @@ from ..generic.general_methods import aedt_exception_handler
 
 @aedt_exception_handler
 def str2bool(str0):
-    """
+    """Convert a string to a Boolean value.
 
     Parameters
     ----------
-    str0 :
-        
+    str0 : str
+       String to convert.   
 
     Returns
     -------
@@ -32,11 +32,12 @@ def str2bool(str0):
         return ""
 
 def conv_number(number, typen=float):
-    """
+    """Convert a number.
 
     Parameters
     ----------
-    number : float
+    float
+       Number represented a float.
         
     typen : 
          The default is ``float``.
@@ -78,11 +79,26 @@ def getIfromRGB(rgb):
 
 
 class Layer(object):
-    """Layer class."""
+    """Layer class.
+    
+    Parameters
+    ----------
+    editor :
+    
+    type : string, optional
+        The default is ``"signal"``.
+    layerunits : str, optional
+        The default is ``"mm"``.
+    roughunit: str, optional
+        The default is ``"um"``.
+    negative: bool, optional
+        Whether the geometry on the layer is cut away 
+        from the layer. The default is ``False``.
+    """
 
     @property
     def visflag(self):
-        """ """
+        """Visibility flag for objects on the layer. """
         visflag = 0
         if not self.IsVisible:
             visflag = 0
@@ -177,7 +193,7 @@ class Layer(object):
 
     @aedt_exception_handler
     def create_stackup_layer(self):
-        """Create a new stackup layer.
+        """Create a stackup layer.
         
         Parameters
         ----------
@@ -285,7 +301,7 @@ class Layer(object):
         """Update the stackup layer.
         
         .. note::
-           This method is valid for release 2021R1 and newer.
+           This method is valid for release 2021 R1 and later.
         
         Returns
         -------
@@ -360,7 +376,13 @@ class Layer(object):
 
     @aedt_exception_handler
     def remove_stackup_layer(self):
-        """ """
+        """Remove the stackup layer.
+        
+        Returns
+        -------
+        bool
+            ``True`` when successful, ``False`` when failed.
+        """
         if self.name in self.oeditor.GetStackupLayerNames():
             self.oeditor.RemoveLayer(self.name)
             return True
@@ -368,31 +390,48 @@ class Layer(object):
 
 
 class Layers(object):
-    """Layers class."""
+    """Layers class.
+    
+    Parameters
+    ----------
+    parent :
+    
+    modeler :
+    
+    roughnessunits : str, optional
+       Units for the roughness of layers. The default is ``"um"``.
+    
+    """
 
     @property
-    def messenger(self):
-        """ """
+    def _messenger(self):
+        """_messenger."""
         return self._parent._messenger
 
     @property
     def modeler(self):
-        """ """
+        """Modeler."""
         return self._modeler
 
     @property
     def oeditor(self):
-        """ """
+        """Editor object."""
         return self.modeler.oeditor
 
     @property
     def LengthUnit(self):
-        """ """
+        """Length units."""
         return self.modeler.model_units
 
     @property
     def all_layers(self):
-        """ """
+        """Stackup layers.
+        
+        Returns
+        -------
+        list
+           List of stackup layers.
+        """
         return self.oeditor.GetStackupLayerNames()
 
     @property
@@ -402,7 +441,7 @@ class Layers(object):
         Returns
         -------
         list
-            List of signal Layers.
+            List of signal layers.
         """
         a = self.all_layers
         sig = []
@@ -416,7 +455,7 @@ class Layers(object):
 
     @property
     def all_diel_layers(self):
-        """List of dielectric layers.
+        """Dielectric layers.
         
         Returns
         -------
@@ -510,12 +549,12 @@ class Layers(object):
 
     @aedt_exception_handler
     def add_layer(self, layername, layertype="signal", thickness="0mm", elevation="0mm", material="copper", isnegative=False):
-        """Add a new layer.
+        """Add a layer.
 
         Parameters
         ----------
         layername : str
-            Name of the layer
+            Name of the layer.
         layertype : str, optional
             Type of the layer. The default is ``"signal"``.
         thickness : str, optional

@@ -33,7 +33,7 @@ class Modeler2D(GeometryModeler):
     def primitives(self):
         """ """
         if self._primitivesDes != self._parent.project_name + self._parent.design_name:
-            self._primitives = Primitives2D(self._parent, self)
+            self._primitives.refresh()
             self._primitivesDes = self._parent.project_name + self._parent.design_name
         return self._primitives
 

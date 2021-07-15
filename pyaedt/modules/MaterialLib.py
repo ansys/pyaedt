@@ -1,15 +1,5 @@
 """
-Material Library Class
-----------------------------------------------------------------
-
-
-Description
-===========
-
-This class contains all the functionalities to create and edit materials
-
-
-
+This module contains the `Materials` class. 
 """
 from __future__ import absolute_import
 import os
@@ -19,38 +9,46 @@ from ..generic.general_methods import aedt_exception_handler
 import json
 
 class Materials(object):
-    """This class contains AEDT Materials database and methods for creating and manipulating materials
+    """Materials class.
+    
+    This class contains the AEDT materials database and all methods for creating and editing materials.
+    
+    Parameters
+    ----------
+    parent : str
+        Name of the parent AEDT application.
+
     """
     @property
     def odefinition_manager(self):
-        """AEDT Definition Manager """
+        """Definition manager."""
         return self._parent._oproject.GetDefinitionManager()
 
     @property
     def omaterial_manager(self):
-        """AEDT Material Manager
+        """Material manager.
         """
         return self.odefinition_manager.GetManager("Material")
 
     @property
-    def messenger(self):
-        """
+    def _messenger(self):
+        """_messenger.
         
         Returns
         -------
         MessageManager
-            Message manager object
+            Message manager object.
         """
         return self._parent._messenger
 
     @property
     def oproject(self):
-        """AEDT Project object"""
+        """Project object."""
         return self._parent.oproject
 
     def __init__(self, parent):
         self._parent = parent
-        self.messenger.logger.info('Successfully loaded project materials !')
+        self._messenger.logger.info('Successfully loaded project materials !')
         self.material_keys = self._get_materials()
         self.surface_material_keys = self._get_surface_materials()
         self._load_from_project()
@@ -63,6 +61,7 @@ class Materials(object):
         return self.material_keys.itervalues()
 
     def __getitem__(self, item):
+        item = item.lower()
         if item in list(self.material_keys.keys()):
             return self.material_keys[item]
         elif item in list(self.surface_material_keys.keys()):
@@ -71,6 +70,7 @@ class Materials(object):
 
     @aedt_exception_handler
     def _get_materials(self):
+        """ """
         mats = {}
         try:
             for ds in self._parent.project_properies['AnsoftProject']['Definitions']['Materials']:
@@ -92,17 +92,18 @@ class Materials(object):
 
     @aedt_exception_handler
     def checkifmaterialexists(self, mat):
-        """Check if a material Exists in AEDT. If it exists and it's not in material database it will populate it
+        """Check if a material exists in AEDT.
 
         Parameters
         ----------
         mat : str
-            material name
+            Name of the material. If the material exists and is not in the materials database, 
+            it is added to the materials database.
 
         Returns
         -------
         bool
-            True/False
+            ``True`` when successful, ``False`` when failed.
 
         """
         mat = mat.lower()
@@ -119,16 +120,18 @@ class Materials(object):
 
     @aedt_exception_handler
     def check_thermal_modifier(self, mat):
-        """Check the termal modifier of predefined material. It checks in all the material properties to find any thermal modifiers
+        """Check a material to see if it has any thermal modifiers.
 
         Parameters
         ----------
         mat : str
-            material name
+            Name of the material. All propperties for this material are checked
+            for thermal modifiers.
 
         Returns
         -------
         bool
+            ``True`` when successful, ``False`` when failed.
 
         """
         mat = mat.lower()
@@ -146,19 +149,22 @@ class Materials(object):
         return False
 
     @aedt_exception_handler
-    def add_material(self, materialname):
-        """The function create a new material named materialname and apply defaults value and return the material object
-        that allows user to customize the material
-        The function will not update the material in
-
+    def add_material(self, materialname, props=None):
+        """Create a material with default values. 
+        
+        When the created material object is returned, you can customize 
+        the material. This method does not update the material.
+        
         Parameters
         ----------
         materialname : str
-            material name
+            Name of the material.
+        props : dict, optional
+            Material property dictionary. The default is ``None``.
 
         Returns
         -------
-        Material
+        type
             Material Object
 
         Examples
@@ -171,32 +177,36 @@ class Materials(object):
         
         """
         materialname = materialname.lower()
-        self.messenger.add_info_message('Adding New Material material to Project Library: ' + materialname)
+        self._messenger.add_info_message('Adding new material to the Project Library: ' + materialname)
         if materialname in self.material_keys:
-            self.messenger.add_warning_message(
-                "Warning. The material is already in database. Please change name or edit it")
+            self._messenger.add_warning_message(
+                "Warning. The material is already in the database. Change or edit the name.")
             return self.material_keys[materialname]
         else:
-            material = Material(self._parent, materialname)
+            material = Material(self._parent, materialname, props)
             material.update()
-            self.messenger.add_info_message("Material added. Please edit it to update in Desktop")
+            self._messenger.add_info_message("Material has been added. Edit it to update in Desktop.")
             self.material_keys[materialname] = material
             return self.material_keys[materialname]
 
     @aedt_exception_handler
     def add_surface_material(self, material_name, emissivity=None):
-        """The function create a new material surface in AEDT based properties are loaded from the XML file database amat.xml or from emissivity
+        """Add a surface material.
+        
+        In AEDT, base properties are loaded from the XML file database ``amat.xml`` 
+        or from the emissivity.
 
         Parameters
         ----------
         material_name : str
-            material name
+            Name of the material.
         emissivity : float, optional
-            Emissivity
+            Emissivity value.
+        
         Returns
         -------
         SurfaceMaterial
-            Material emissivity
+            Material emissivity.
             
         Examples
         --------
@@ -208,9 +218,9 @@ class Materials(object):
         """
         
         materialname = material_name.lower()
-        self.messenger.add_info_message('Adding New Surface Material material to Project Library: ' + materialname)
+        self._messenger.add_info_message('Adding New Surface Material material to Project Library: ' + materialname)
         if materialname in self.surface_material_keys:
-            self.messenger.add_warning_message(
+            self._messenger.add_warning_message(
                 "Warning. The material is already in database. Please change name or edit it")
             return self.surface_material_keys[materialname]
         else:
@@ -218,7 +228,7 @@ class Materials(object):
             if emissivity:
                 material.emissivity = emissivity
                 material.update()
-            self.messenger.add_info_message("Material added. Please edit it to update in Desktop")
+            self._messenger.add_info_message("Material added. Please edit it to update in Desktop")
             self.surface_material_keys[materialname] = material
             return self.surface_material_keys[materialname]
 
@@ -233,7 +243,7 @@ class Materials(object):
                 try:
                     matprop[prop].append(float(mat.__dict__["_"+prop].value))
                 except:
-                    self.messenger.add_warning_message("Warning. Wrong parsed property. Reset to 0")
+                    self._messenger.add_warning_message("Warning. Wrong parsed property. Reset to 0")
                     matprop[prop].append(0)
             try:
                 a = sum(matprop[prop])
@@ -245,24 +255,25 @@ class Materials(object):
 
     @aedt_exception_handler
     def add_material_sweep(self, swargs, matname):
-        """The function create a new material named  made of an array of materials args
-        If material needs a dataset (thermal modifier) than a dataset is created
-        material args properties are loaded from the XML file database amat.xml
-        enableTM: Boolean enable Thermal modifier in material description. At moment unused
-
+        """Create a new sweep material made of an array of materials.
+        
+        If a material needs to have a dataset (thermal modifier), then a 
+        dataset is created. Material properties are loaded from the XML file 
+        database ``amat.xml``.
+        
         Parameters
         ----------
-        swargs :
-            list of materials to be merged into single sweep material
-        matname :
-            name of sweep material
-        enableTM :
-            bool (Default value = True)
+        swargs : list
+            List of materials to merge into a single sweep material.
+        matname : str
+            Name of the sweep material.
+        enableTM : bool, optional
+            Unavailable currently. The default is ``True``.
 
         Returns
         -------
         int
-            name of project variable index
+            Index of the project variable.
 
         Examples
         --------
@@ -272,6 +283,7 @@ class Materials(object):
         >>> hfss.materials.add_material("MyMaterial")
         >>> hfss.materials.add_material("MyMaterial2")
         >>> hfss.materials.add_material_sweep(["MyMaterial", "MyMaterial2"], "Sweep_copper")
+        
         """
         matsweep = []
         matname = matname.lower()
@@ -299,19 +311,19 @@ class Materials(object):
 
     @aedt_exception_handler
     def duplicate_material(self, material, new_name):
-        """Duplicate Material
+        """Duplicate a material.
 
         Parameters
         ----------
         material : str
-            material original name
+            Name of the material to duplicate.
         new_name : str
-            target name
+            Name for the copy of the material.
 
         Returns
         -------
         Material
-            new material object
+            Material object that was created.
 
         Examples
         --------
@@ -320,9 +332,10 @@ class Materials(object):
         >>> hfss = Hfss()
         >>> hfss.materials.add_material("MyMaterial")
         >>> hfss.materials.duplicate_material("MyMaterial", "MyMaterial2")
+        
         """
         if material.lower() not in list(self.material_keys.keys()):
-            self.messenger.add_error_message("Material {} is not present".format(material))
+            self._messenger.add_error_message("Material {} is not present".format(material))
             return False
         newmat = Material(self, new_name.lower(), self.material_keys[material.lower()]._props)
         newmat.update()
@@ -331,19 +344,19 @@ class Materials(object):
 
     @aedt_exception_handler
     def duplicate_surface_material(self, material, new_name):
-        """Duplicate Surface Material
+        """Duplicate a surface material.
 
         Parameters
         ----------
-        material : str
-            material original name
+         material : str
+            Name of the surface material to duplicate.
         new_name : str
-            target name
+            Name for the copy of the surface material.
 
         Returns
         -------
         SurfaceMaterial
-            new Surface Material object
+            Surface Material object that was created.
 
         Examples
         --------
@@ -352,9 +365,10 @@ class Materials(object):
         >>> hfss = Hfss()
         >>> hfss.materials.add_surface_material("MyMaterial")
         >>> hfss.materials.duplicate_surface_material("MyMaterial", "MyMaterial2")
+        
         """
         if not material.lower() in list(self.surface_material_keys.keys()):
-            self.messenger.add_error_message("Material {} is not present".format(material))
+            self._messenger.add_error_message("Material {} is not present".format(material))
             return False
         newmat = SurfaceMaterial(self, new_name.lower(), self.surface_material_keys[material.lower()]._props)
         newmat.update()
@@ -363,18 +377,20 @@ class Materials(object):
 
     @aedt_exception_handler
     def remove_material(self, material, library="Project"):
-        """Remove Material
+        """Remove a material.
 
         Parameters
         ----------
         material : str
-            material name
-
+            Name of the material.
+        library : str, optional
+            Name of the library containing this material.
+            The default is ``"Project"``.
 
         Returns
         -------
         bool
-            ``True`` if succeeded
+            ``True`` when successful, ``False`` when failed.
 
 
         Examples
@@ -387,7 +403,7 @@ class Materials(object):
 
         """
         if material not in list(self.material_keys.keys()):
-            self.messenger.add_error_message("Material {} is not present".format(material))
+            self._messenger.add_error_message("Material {} is not present".format(material))
             return False
         self.odefinition_manager.RemoveMaterial(material, True, "", library)
         del self.material_keys[material]
@@ -395,13 +411,13 @@ class Materials(object):
 
     @property
     def conductors(self):
-        """Get List of conductors in material database
-
+        """Conductors in the material database.
 
         Returns
         -------
         list
-            list of conductor names
+            List of conductor names.
+            
         """
         data = []
         for key, mat in self.material_keys.items():
@@ -411,16 +427,13 @@ class Materials(object):
 
     @property
     def dielectrics(self):
-        """Get List of dielectrics in material database
-
-
-        Parameters
-        ----------
+        """Dielectrics in the material database.
 
         Returns
         -------
         list
-            list of dielctric names
+            List of dielctric names.
+            
         """
         data = []
         for key, mat in self.material_keys.items():
@@ -435,7 +448,7 @@ class Materials(object):
                 try:
                     self._aedmattolibrary(el)
                 except Exception as e:
-                    self.messenger.add_info_message('aedmattolibrary failed for material {}'.format(el))
+                    self._messenger.add_info_message('aedmattolibrary failed for material {}'.format(el))
 
     @aedt_exception_handler
     def _aedmattolibrary(self, matname):
@@ -451,18 +464,18 @@ class Materials(object):
         return True
 
     def export_materials_to_file(self, full_json_path):
-        """
-        Save all materials to Json File
-
+        """Export all materials to a JSON file.
+        
         Parameters
         ----------
         full_json_path : str
-            full path to json file
+            Full path to export the JSON file to.
 
         Returns
         -------
         bool
-            ``True`` if succeeded
+            ``True`` when successful, ``False`` when failed.
+            
         """
         def find_datasets(d, out_list):
             for k, v in d.items():
@@ -497,19 +510,19 @@ class Materials(object):
             json.dump(json_dict, fp, indent=4)
         return True
 
-    def import_materials_to_file(self, full_json_path):
-        """
-        Import and create materilas from json file
+    def import_materials_from_file(self, full_json_path):
+        """Import and create materials from a JSON file.
 
         Parameters
         ----------
         full_json_path : str
-            full path to json file
+            Full path and name for the JSON file.
 
         Returns
         -------
         bool
-            ``True`` if succeeded
+            ``True`` when successful, ``False`` when failed.
+            
         """
         with open(full_json_path) as json_file:
             data = json.load(json_file)
@@ -518,27 +531,27 @@ class Materials(object):
             for el, val in data["datasets"].items():
                 numcol = len(val["Coordinates"]["DimUnits"])
                 xunit = val["Coordinates"]["DimUnits"][0]
-                yunit = val["Coordinates"]["DimUnits"][0]
+                yunit = val["Coordinates"]["DimUnits"][1]
                 zunit = ""
 
-
-                new_list = [val["Coordinates"]['Points'][i:i + numcol] for i in range(0, len(val["Coordinates"]['Points']), numcol)]
+                new_list = [val["Coordinates"]['Points'][i:i + numcol]
+                            for i in range(0, len(val["Coordinates"]['Points']), numcol)]
                 xval = new_list[0]
                 yval = new_list[1]
                 zval = None
-                if numcol>2:
-                    zunit = val["Coordinates"]["DimUnits"][0]
+                if numcol > 2:
+                    zunit = val["Coordinates"]["DimUnits"][2]
                     zval = new_list[2]
-                self._parent.create_dataset(el[1:],xunit=xunit, yunit=yunit, zunit=zunit, xlist=xval, ylist=yval, zlist=zval)
+                self._parent.create_dataset(el[1:], xunit=xunit, yunit=yunit, zunit=zunit,
+                                            xlist=xval, ylist=yval, zlist=zval)
 
         for el, val in data["materials"].items():
             if el.lower() in list(self.material_keys.keys()):
                 newname =generate_unique_name(el)
-                self.messenger.add_warning_message("Material {} already exists. Renaming to {}".format(el, newname))
+                self._messenger.add_warning_message("Material {} already exists. Renaming to {}".format(el, newname))
             else:
                 newname = el
             newmat = Material(self, newname, val)
             newmat.update()
             self.material_keys[newname] = newmat
         return True
-

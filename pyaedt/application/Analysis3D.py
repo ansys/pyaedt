@@ -8,19 +8,49 @@ from ..modules.Mesh import Mesh
 
 
 class FieldAnalysis3D(Analysis, object):
-    """AEDT_3D_FieldAnalysis
+    """FieldAnalysis3D class.
 
-    Class for 3D Field Analysis Setup (HFSS, Maxwell3D, Q3D)
+    This class is for 3D field analysis setup in HFSS, Maxwell 3D, and Q3D.
 
-    It is automatically initialized by Application call (like HFSS,
-    Q3D...). Refer to Application function for inputs definition
+    It is automatically initialized by an application call from one of
+    the 3D tools. See the application function for parameter definitions.
 
     Parameters
     ----------
-
-    Returns
-    -------
-
+    application : str
+        3D application that is to initialize the call.
+    projectname : str, optional
+        Name of the project to select or the full path to the project
+        or AEDTZ archive to open. The default is ``None``, in which
+        case an attempt is made to get an active project. If no 
+        projects are present, an empty project is created.
+    designname : str, optional
+        Name of the design to select. The default is ``None``, in 
+        which case an attempt is made to get an active design. If no
+        designs are present, an empty design is created.
+    solutiontype : str, optional
+        Solution type to apply to the design. The default is
+        ``None``, in which case the default type is applied.
+    setup_name : str, optional
+        Name of the setup to use as the nominal. The default is
+        ``None``, in which case the active setup is used or 
+        nothing is used.
+    specified_version: str, optional
+        Version of AEDT  to use. The default is ``None``, in which case
+        the active version or latest installed version is used.
+    NG : bool, optional
+        Whether to run AEDT in the non-graphical mode. The default 
+        is ``False``, which launches AEDT in the graphical mode.  
+    AlwaysNew : bool, optional
+        Whether to launch an instance of AEDT in a new thread, even if
+        another instance of the ``specified_version`` is active on the
+        machine. The default is ``True``.
+    release_on_exit : bool, optional
+        Whether to release  AEDT on exit. The default is ``False``.
+    student_version : bool, optional
+        Whether to enable the student version of AEDT. The default 
+        is ``False``.
+   
     """
     def __init__(self, application, projectname, designname, solutiontype, setup_name=None,
                  specified_version=None, NG=False, AlwaysNew=False, release_on_exit=False, student_version=False):
@@ -28,42 +58,60 @@ class FieldAnalysis3D(Analysis, object):
                           specified_version, NG, AlwaysNew, release_on_exit, student_version)
         self._modeler = Modeler3D(self)
         self._mesh = Mesh(self)
-        #self._post = PostProcessor(self)
-        #self.modeler.primitives.refresh()
+
+
 
     @property
     def modeler(self):
-        """ """
+        """Modeler object.
+
+        Returns
+        -------
+        Modeler3D
+            Modeler Object
+        """
         return self._modeler
 
     @property
     def mesh(self):
-        """ """
+        """Mesh object.
+
+        Returns
+        -------
+        Mesh
+        """
         return self._mesh
 
     @property
     def components3d(self):
-        """
-
-        Parameters
-        ----------
+        """Components 3D object.
 
         Returns
         -------
-        type
-            :return: Ditcionary of components with their absolute path
+        dict
+            Dictionary of components with their absolute paths.
 
         """
         components_dict={}
         syspath = os.path.join(self.syslib, "3DComponents", self._design_type)
         if os.path.exists(syspath):
-            listfiles = glob.glob(syspath + "/**/*.a3dcomp", recursive=True)
+            listfiles = []
+            for root, dirs, files in os.walk(syspath):
+                for file in files:
+                    if file.endswith(".a3dcomp"):
+                        listfiles.append(os.path.join(root, file))
+            #listfiles = glob.glob(syspath + "/**/*.a3dcomp", recursive=True)
             for el in listfiles:
                 head, tail = ntpath.split(el)
                 components_dict[tail[:-8]]= el
         userlib = os.path.join(self.userlib, "3DComponents", self._design_type)
         if os.path.exists(userlib):
-            listfiles = glob.glob(userlib + "/**/*.a3dcomp", recursive=True)
+            listfiles = []
+            for root, dirs, files in os.walk(userlib):
+                for file in files:
+                    if file.endswith(".a3dcomp"):
+                        listfiles.append(os.path.join(root, file))
+            #listfiles = glob.glob(userlib + "/**/*.a3dcomp", recursive=True)
             for el in listfiles:
                 head, tail = ntpath.split(el)
                 components_dict[tail[:-8]]= el
@@ -71,17 +119,18 @@ class FieldAnalysis3D(Analysis, object):
 
     @aedt_exception_handler
     def get_components3d_vars(self, component3dname):
-        """Read the a3dComp file and check for variables. It polulates a dictionary with default value
+        """Read the A3DCOMP file and check for variables. 
 
         Parameters
         ----------
         component3dname :
-            name of 3dcomponent (it has to be in syslib or userlib) or full absolute path to a3dcomp file (with extension)
+            Name of the 3D component, which must be in the ``syslib`` or ``userlib`` directory or the 
+            full absolute path to the AEDCOMP file with the extension.
 
         Returns
         -------
-        type
-            vars dictionary
+        dict
+            Dictionary of variables in the A3DCOMP file.
 
         """
         vars = {}
@@ -105,21 +154,22 @@ class FieldAnalysis3D(Analysis, object):
 
     @aedt_exception_handler
     def get_property_value(self, objectname, property, type=None):
-        """
+        """Retrieve a property value.
 
         Parameters
         ----------
-        type :
-            type of the property. "Boundary", "Excitation", "Setup", "Mesh" (Default value = None)
-        objectname :
-            param property:
-        property :
-            
+        objectname : str
+            Name of the object.
+        property : str
+            Name of the property,
+        type : str, optional
+            Type of the property. Options are ``"boundary"``, ``"excitation"``, 
+            ``"setup",`` and ``"mesh"``. The default is ``None``.    
 
         Returns
         -------
         type
-            property value
+            Value of the property.
 
         """
 
@@ -156,28 +206,32 @@ class FieldAnalysis3D(Analysis, object):
                     return val
         return None
 
+    #TODO Refactor this
     @aedt_exception_handler
     def copy_solid_bodies_from(self, design, object_list=None, no_vacuum=True, no_pec=True, include_sheets=False):
-        """Copy all the list of object from one design to active one
+        """Copy a list of objects from one design to the active design.
 
         Parameters
         ----------
         design :
-            starting application object (examples hfss1= HFSS3DLayout)
-        object_list :
-            List of object to copy (Default value = None)
-        no_vacuum : bool
-            define if vacuum objects have to be copied (Default value = True)
+            Starting application object. For example, ``hfss1= HFSS3DLayout``.
+        object_list : list, optional
+            List of objects to copy. The default is ``None``.
+        no_vacuum : bool, optional
+            Whether to include vacuum objects for the copied objects. 
+            The default is ``True``.
         no_pec :
-            define if pec objects have to be copied (Default value = True)
+            Whether to include pec objects for the copied objects. The 
+            default is ``True``.
         include_sheets :
-            include sheets in the objects that have to be copied (Default value = False)
+            Whether to include sheets for the copied objects. The 
+            default is ``False``.
 
         Returns
         -------
-        type
-            True if succeeded
-
+        bool
+            ``True`` when successful, ``False`` when failed.
+            
         """
         body_list = design.modeler.solid_bodies
         if include_sheets:
@@ -199,36 +253,36 @@ class FieldAnalysis3D(Analysis, object):
                 selection_list.append(body)
         design.modeler.oeditor.Copy(["NAME:Selections", "Selections:=", ','.join(selection_list)])
         self.modeler.oeditor.Paste()
-        self.modeler.primitives.refresh_all_ids()
 
         return True
 
     @aedt_exception_handler
     def get_all_sources(self):
-        """Get list of all setup sources.
+        """Retrieve all setup sources.
 
         Returns
         -------
         list
-            All setup sources.
+            List of setup sources.
         """
         return list(self.osolution.GetAllSources())
 
     @aedt_exception_handler
     def set_source_context(self, sources, number_of_modes=1):
-        """Set source context.
+        """Set the source context.
 
         Parameters
         ----------
         sources : list
-            Source names.
+            List of source names.
         number_of_modes : int, optional
-            Number of modes, by default 1
+            Number of modes. The  default is ``1``.
 
         Returns
         -------
         bool
-            True if successful, False otherwise. 
+            ``True`` when successful, ``False`` when failed.
+            
         """
 
         contexts = []
@@ -238,103 +292,40 @@ class FieldAnalysis3D(Analysis, object):
         return True
 
     @aedt_exception_handler
-    def assignmaterial(self, obj, mat):
-        """The function assigns Material mat to object obj. If material mat is not present it will be created
-
-        Parameters
-        ----------
-        obj : str, list
-            list of objects to which assign materials
-        mat : str
-            material to assign
-
-        Returns
-        -------
-        type
-            True if succeeded | False if failed
-
-        """
-        mat = mat.lower()
-        selections = self.modeler.convert_to_selections(obj)
-        arg1 = ["NAME:Selections"]
-        arg1.append("Selections:="), arg1.append(selections)
-        arg2 = ["NAME:Attributes"]
-        arg2.append("MaterialValue:="), arg2.append(chr(34) + mat + chr(34))
-        if mat in self.materials.material_keys:
-            Mat = self.materials.material_keys[mat]
-            Mat.update()
-            if Mat.is_dielectric():
-                arg2.append("SolveInside:="), arg2.append(True)
-            else:
-                arg2.append("SolveInside:="), arg2.append(False)
-            self.modeler.oeditor.AssignMaterial(arg1, arg2)
-            self._messenger.add_info_message('Assign Material ' + mat + ' to object ' + selections)
-            if type(obj) is list:
-                for el in obj:
-                    self.modeler.primitives[el].material_name = mat
-            else:
-                self.modeler.primitives[obj].material_name = mat
-            return True
-        elif self.materials.checkifmaterialexists(mat):
-            self.materials._aedmattolibrary(mat)
-            Mat = self.materials.material_keys[mat]
-            if Mat.is_dielectric():
-                arg2.append("SolveInside:="), arg2.append(True)
-            else:
-                arg2.append("SolveInside:="), arg2.append(False)
-            self.modeler.oeditor.AssignMaterial(arg1, arg2)
-            self._messenger.add_info_message('Assign Material ' + mat + ' to object ' + selections)
-            if type(obj) is list:
-                for el in obj:
-                    self.modeler.primitives[el].material_name = mat
-            else:
-                self.modeler.primitives[obj].material_name = mat
-
-            return True
-        else:
-            self._messenger.add_error_message("Material Does Not Exists")
-            return False
-
-    @aedt_exception_handler
     def get_all_conductors_names(self):
-        """Get all conductors in active design
-        
-        
-        :return: objname list
-
-        Parameters
-        ----------
-
+        """Retrieve all conductors in the active design.
+                
         Returns
         -------
+        list
+            List of all conductors.
 
         """
         cond = self.materials.conductors
         cond = [i.lower() for i in cond]
         obj_names = []
-        for el in self.modeler.primitives.objects:
-            if self.modeler.primitives.objects[el].material_name.lower() in cond:
-                obj_names.append(self.modeler.primitives.get_obj_name(el))
+        for el, obj in self.modeler.primitives.objects.items():
+            if obj.object_type == "Solid":
+                if obj.material_name.lower() in cond:
+                    obj_names.append(obj.name)
         return obj_names
 
     @aedt_exception_handler
     def get_all_dielectrics_names(self):
-        """Get all dielectrics in active design
-        
-        
-        :return: objname list
-
-        Parameters
-        ----------
-
+        """Retrieve all dielectrics in the active design.
+              
         Returns
         -------
+        List
+           List of all dielectrics.
 
         """
         diel = self.materials.dielectrics
         diel = [i.lower() for i in diel]
         obj_names = []
-        for el in self.modeler.primitives.objects:
-            if self.modeler.primitives.objects[el].material_name.lower() in diel:
-                obj_names.append(self.modeler.primitives.get_obj_name(el))
+        for name in self.modeler.primitives.solid_names:
+            id = self.modeler.primitives.object_id_dict[name]
+            obj = self.modeler.primitives.objects[id]
+            if obj.material_name.lower() in diel:
+                obj_names.append(obj.name)
         return obj_names

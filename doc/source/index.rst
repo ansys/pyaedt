@@ -10,7 +10,7 @@ PyAEDT Documentation  |version|
    :hidden:
 
    Resources/Installation
-   API/API
+   API/index
    examples/index
    Resources/Code_Guidelines
    Resources/Contributing

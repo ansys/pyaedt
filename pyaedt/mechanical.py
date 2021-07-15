@@ -46,6 +46,7 @@ class Mechanical(FieldAnalysis3D, object):
         Whether to release AEDT on exit.
     student_version : bool, optional
         Whether open AEDT Student Version. The default is ``False``.
+
     Examples
     --------
     Create an instance of `Mechanical` and connect to an existing
@@ -133,7 +134,7 @@ class Mechanical(FieldAnalysis3D, object):
         # Generate a list of model objects from the lists made previously and use to map the HFSS losses into Icepak.
         #
         if not object_list:
-            allObjects = self.modeler.primitives.get_all_objects_names(refresh_list=True)
+            allObjects = self.modeler.primitives.object_names
         else:
             allObjects = object_list[:]
         surfaces = surface_objects
@@ -207,8 +208,9 @@ class Mechanical(FieldAnalysis3D, object):
         #
         # Generate a list of model objects from the lists made previously and use to map the HFSS losses into Icepak.
         #
+        object_list = self.modeler.convert_to_selections(object_list, True)
         if not object_list:
-            allObjects = self.modeler.primitives.get_all_objects_names(refresh_list=True)
+            allObjects = self.modeler.primitives.object_names
         else:
             allObjects = object_list[:]
         argparam = OrderedDict({})
@@ -345,7 +347,7 @@ class Mechanical(FieldAnalysis3D, object):
         """
 
         if not (self.solution_type == "Structural" or self.solution_type == "Modal"):
-            self.messenger.add_error_message("This method works only in Mechanical Structural Solution")
+            self._messenger.add_error_message("This method works only in Mechanical Structural Solution")
             return False
         props = {}
         objects_list = self.modeler._convert_list_to_ids(objects_list)
@@ -386,7 +388,7 @@ class Mechanical(FieldAnalysis3D, object):
 
         """
         if not (self.solution_type == "Structural" or self.solution_type == "Modal"):
-            self.messenger.add_error_message("This method works only in a Mechanical structural solution.")
+            self._messenger.add_error_message("This method works only in a Mechanical structural solution.")
             return False
         props = {}
         objects_list = self.modeler._convert_list_to_ids(objects_list)

@@ -335,7 +335,7 @@ class IcepakMesh(object):
         return True
 
     @aedt_exception_handler
-    def assign_mesh_region(self, objectlist=[], level=5, name="MeshRegion1"):
+    def assign_mesh_region(self, objectlist=[], level=5, name=None):
         """Assign a predefined surface mesh level to an object.
 
         Parameters
@@ -354,23 +354,20 @@ class IcepakMesh(object):
         IcepakMesh.MeshRegion
             Mesh region object.
         """
+        if not name:
+            name = generate_unique_name("MeshRegion")
         meshregion = self.MeshRegion(self.omeshmodule, self.boundingdimension, self.modeler.model_units)
         meshregion.UserSpecifiedSettings = False
         meshregion.Level = level
         meshregion.name = name
-        self.modeler.primitives._refresh_object_types()
-        all_nonmodels = self.modeler.primitives.non_models
         if not objectlist:
-            objectlist = self.modeler.primitives.get_all_objects_names()
-        meshregion.Objects = objectlist
-
+            objectlist = self.modeler.primitives.object_names
+        all_objs = self.modeler.primitives.object_names
         meshregion.create()
-        self.modeler.primitives._refresh_object_types()
-        all_objs2 = self.modeler.primitives.non_models
-        added_obj = [i for i in all_objs2 if i not in all_nonmodels]
+        objectlist2 = self.modeler.primitives.object_names
+        added_obj = [i for i in objectlist2 if i not in all_objs]
         meshregion.Objects = added_obj
         self.meshregions.append(meshregion)
-
         return meshregion
 
     @aedt_exception_handler

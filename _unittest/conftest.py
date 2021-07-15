@@ -18,30 +18,33 @@ directory as this module. An example of the contents of local_config.json
 
 """
 import tempfile
-import pytest
 import os
 import shutil
-import pathlib
 import json
 import gc
-import time
+import sys
+try:
+    import pytest
+    if "UNITTEST_CURRENT_TEST" in os.environ:
+        os.environ.pop("UNITTEST_CURRENT_TEST")
+except:
+    import _unittest_ironpython.conf_unittest as pytest
 
-from functools import wraps
-from .launch_desktop_tests import run_desktop_tests
+local_path = os.path.dirname(os.path.realpath(__file__))
+
 from pyaedt import Desktop
 # Import required modules
 from pyaedt import Hfss
 from pyaedt.application.Design import DesignCache
 from pyaedt.generic.filesystem import Scratch
-from pyaedt.generic.general_methods import generate_unique_name
 test_project_name = "test_primitives"
 
-
 local_path = os.path.dirname(os.path.realpath(__file__))
-module_path = pathlib.Path(local_path)
+sys.path.append(local_path)
+from launch_desktop_tests import run_desktop_tests
 
 # set scratch path and create it if necessary
-scratch_path = tempfile.TemporaryDirectory().name
+scratch_path = tempfile.gettempdir()
 if not os.path.isdir(scratch_path):
     os.mkdir(scratch_path)
 
@@ -67,7 +70,7 @@ else:
 
 class BasisTest:
 
-    def setup_class(self, project_name=None, design_name=None, application=None):
+    def setup_class(self, project_name=None, design_name=None, solution_type=None, application=None):
 
         with Scratch(scratch_path) as self.local_scratch:
             if project_name:
@@ -80,13 +83,11 @@ class BasisTest:
                 self.test_project = None
             if not application:
                 application = Hfss
-            if self.test_project:
-                self.aedtapp = application(projectname=self.test_project, specified_version=desktop_version, AlwaysNew=new_thread, NG=non_graphical)
-            else:
-                self.aedtapp = application(projectname=project_name, specified_version=desktop_version, AlwaysNew=new_thread, NG=non_graphical)
 
-            #self.aedtapp.save_project()
-
+            self.aedtapp = application(projectname=self.test_project, designname=design_name,
+                                           solution_type=solution_type, specified_version=desktop_version,
+                                           AlwaysNew=new_thread, NG=non_graphical)
+            #TODO do we need this ?
             if project_name:
                 if design_name:
                     self.aedtapp.design_name = design_name
@@ -98,12 +99,10 @@ class BasisTest:
         self.local_scratch.remove()
         gc.collect()
 
-
 # Define desktopVersion explicitly since this is imported by other modules
 desktop_version = config["desktopVersion"]
 new_thread = config["NewThread"]
 non_graphical = config["NonGraphical"]
-
 
 @pytest.fixture(scope='session', autouse=True)
 def desktop_init():
@@ -115,14 +114,39 @@ def desktop_init():
     # Intended for local debugging purposes only
     if new_thread:
         desktop.force_close_desktop()
-
-    p = pathlib.Path(scratch_path).glob('**/scratch*')
+    p = [x[0] for x in os.walk(scratch_path) if "scratch" in x[0]]
+    #p = pathlib.Path(scratch_path).glob('**/scratch*')
     for folder in p:
         shutil.rmtree(folder, ignore_errors=True)
 
     if config["test_desktops"]:
         run_desktop_tests()
 
+
+from functools import wraps
+
+def pyaedt_unittest_check_desktop_error(func):
+    @wraps(func)
+    def inner_function(*args, **kwargs):
+        #args[0].aedtapp._messenger("Test Function Here")
+        args[0].cache.update()
+        ret_val = func(*args, **kwargs)
+        try:
+            pass
+        except Exception as e:
+            pytest.exit("Desktop Crashed - Aborting the test!")
+        args[0].cache.update()
+        #model_report = args[0].aedtapp.modeler.primitives.model_consistency_report
+        #assert not model_report["Missing Objects"]
+        #assert not model_report["Non-Existent Objects"]
+        assert args[0].cache.no_new_errors
+        return ret_val
+
+    return inner_function
+
+
+
+#
 # def pyaedt_unittest_same_design(func):
 #     @wraps(func)
 #     def inner_function(*args, **kwargs):

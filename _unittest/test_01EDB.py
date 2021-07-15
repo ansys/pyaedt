@@ -10,6 +10,8 @@ from pyaedt.generic.filesystem import Scratch
 from .conftest import desktop_version
 test_project_name = "Galileo"
 bom_example = "bom_example.csv"
+from .conftest import config
+import pytest
 
 class TestEDB:
     def setup_class(self):
@@ -198,13 +200,15 @@ class TestEDB:
 
     def test_aedt_pinname_pin_position(self):
         cmp_pinlist = self.edbapp.core_padstack.get_pinlist_from_component_and_net("U2A5", "GND")
-        assert type(self.edbapp.core_components.get_aedt_pin_name(cmp_pinlist[0])) is str
+        pin_name = self.edbapp.core_components.get_aedt_pin_name(cmp_pinlist[0])
+        assert type(pin_name) is str
+        assert len(pin_name) > 0
         assert len(self.edbapp.core_components.get_pin_position(cmp_pinlist[0])) == 2
 
     def test_get_pins_name_from_net(self):
         cmp_pinlist = self.edbapp.core_components.get_pin_from_component("U2A5")
-        assert len(self.edbapp.core_components.get_pins_name_from_net(cmp_pinlist, "GND"))>0
-        assert len(self.edbapp.core_components.get_pins_name_from_net(cmp_pinlist, "VCCC"))==0
+        assert len(self.edbapp.core_components.get_pins_name_from_net(cmp_pinlist, "GND")) > 0
+        assert len(self.edbapp.core_components.get_pins_name_from_net(cmp_pinlist, "VCCC")) == 0
 
     def test_delete_single_pin_rlc(self):
         assert len(self.edbapp.core_components.delete_single_pin_rlc())>0
@@ -398,22 +402,38 @@ class TestEDB:
         assert not self.edbapp.core_stackup.stackup_layers.add_outline_layer("Outline1")
 
     def test_create_edb(self):
-        edb = Edb(os.path.join(scratch_path, "temp.aedb"))
+        edb = Edb(os.path.join(self.local_scratch.path, "temp.aedb"))
         assert edb
         assert edb.active_layout
         edb.close_edb()
+
+    @pytest.mark.skipif(config["build_machine"], reason="Not running in non-graphical mode")
     def test_export_to_hfss(self):
         edb = Edb(edbpath=os.path.join(local_path, 'example_models', "simple.aedb"), edbversion="2021.1")
         options_config = {'UNITE_NETS' : 1, 'LAUNCH_Q3D' : 0}
         out = edb.write_export3d_option_config_file(scratch_path, options_config)
         assert os.path.exists(out)
-        out= edb.export_hfss(scratch_path, non_graphical=True)
+        out= edb.export_hfss(scratch_path)
         assert os.path.exists(out)
+        edb.close_edb()
 
+
+    @pytest.mark.skipif(config["build_machine"], reason="Not running in non-graphical mode")
     def test_export_to_q3d(self):
         edb = Edb(edbpath=os.path.join(local_path, 'example_models', "simple.aedb"), edbversion="2021.1")
         options_config = {'UNITE_NETS' : 1, 'LAUNCH_Q3D' : 0}
         out = edb.write_export3d_option_config_file(scratch_path, options_config)
         assert os.path.exists(out)
-        out= edb.export_q3d(scratch_path, non_graphical=True, net_list=["NET1", "NET2", "GND"])
+        out= edb.export_q3d(scratch_path,  net_list=["NET1", "NET2", "GND"])
         assert os.path.exists(out)
+        edb.close_edb()
+
+    @pytest.mark.skipif(config["build_machine"], reason="Not running in non-graphical mode")
+    def test_export_to_maxwell(self):
+        edb = Edb(edbpath=os.path.join(local_path, 'example_models', "simple.aedb"), edbversion="2021.1")
+        options_config = {'UNITE_NETS' : 1, 'LAUNCH_MAXWELL' : 0}
+        out = edb.write_export3d_option_config_file(scratch_path, options_config)
+        assert os.path.exists(out)
+        out= edb.export_maxwell(scratch_path)
+        assert os.path.exists(out)
+        edb.close_edb()
