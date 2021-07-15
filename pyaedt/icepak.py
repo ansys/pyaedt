@@ -141,7 +141,7 @@ class Icepak(FieldAnalysisIcepak):
         bound = BoundaryObject(self, boundary_name, props, 'Opening')
         if bound.create():
             self.boundaries.append(bound)
-            self.messenger.add_info_message("Opening Assigned")
+            self._messenger.add_info_message("Opening Assigned")
             return bound
         return None
 
@@ -171,7 +171,7 @@ class Icepak(FieldAnalysisIcepak):
             if self.setups:
                 setup_name =self.setups[0].name
             else:
-                self.messenger.add_error_message("No Setup Defined")
+                self._messenger.add_error_message("No Setup Defined")
                 return False
         self.oanalysis_setup.AddTwoWayCoupling(setup_name, ["NAME:Options", "NumCouplingIters:=", number_of_iterations,
                                                             "ContinueIcepakIterations:=", continue_ipk_iterations,
@@ -373,7 +373,7 @@ class Icepak(FieldAnalysisIcepak):
             bound = BoundaryObject(self, boundary_name, props, 'Network')
             if bound.create():
                 self.boundaries.append(bound)
-                self.modeler.oeditor.ChangeProperty(["NAME:AllTabs", ["NAME:Geometry3DAttributeTab", ["NAME:PropServers", object_name], ["NAME:ChangedProps", ["NAME:Solve Inside", "Value:=", False]]]])
+                self.modeler.primitives[object_name].solve_inside = False
                 return bound
             return None
 
@@ -511,7 +511,7 @@ class Icepak(FieldAnalysisIcepak):
                 if "COMP_" + component_data["Ref Des"][i] in all_objects:
                     status = self.create_source_block("COMP_" + component_data["Ref Des"][i], str(power)+"W",assign_material=False)
                     if not status:
-                        self.messenger.add_warning_message(
+                        self._messenger.add_warning_message(
                             "Warning. Block {} skipped with {}W power".format(component_data["Ref Des"][i], power))
                     else:
                         total_power += float(power)
@@ -519,7 +519,7 @@ class Icepak(FieldAnalysisIcepak):
                 elif component_data["Ref Des"][i] in all_objects:
                     status = self.create_source_block(component_data["Ref Des"][i], str(power)+"W",assign_material=False)
                     if not status:
-                        self.messenger.add_warning_message(
+                        self._messenger.add_warning_message(
                             "Warning. Block {} skipped with {}W power".format(component_data["Ref Des"][i], power))
                     else:
                         total_power += float(power)
@@ -527,7 +527,7 @@ class Icepak(FieldAnalysisIcepak):
             except:
                 pass
             i += 1
-        self.messenger.add_info_message("Blocks inserted with total power {}W".format(total_power))
+        self._messenger.add_info_message("Blocks inserted with total power {}W".format(total_power))
         return total_power
 
     @aedt_exception_handler
@@ -1070,8 +1070,8 @@ class Icepak(FieldAnalysisIcepak):
                 arg.append("Calculation:=")
                 arg.append([type, geometryType, el, quantity, "", "Default"])
             except Exception as e:
-                self.messenger.add_error_message("Object " + el + " not added")
-                self.messenger.add_error_message(str(e))
+                self._messenger.add_error_message("Object " + el + " not added")
+                self._messenger.add_error_message(str(e))
         if not output_dir:
             output_dir = self.project_path
         self.osolution.EditFieldsSummarySetting(arg)
@@ -1312,7 +1312,7 @@ class Icepak(FieldAnalysisIcepak):
         if close_linked_project_after_import and ".aedt" in project_name:
                 prjname = os.path.splitext(os.path.basename(project_name))[0]
                 self.close_project(prjname, saveproject=False)
-        self.messenger.add_info_message("PCB Component Correctly created in Icepak")
+        self._messenger.add_info_message("PCB Component Correctly created in Icepak")
         return status
 
     @aedt_exception_handler

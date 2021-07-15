@@ -415,6 +415,8 @@ class TestEDB:
         assert os.path.exists(out)
         out= edb.export_hfss(scratch_path)
         assert os.path.exists(out)
+        edb.close_edb()
+
 
     @pytest.mark.skipif(config["build_machine"], reason="Not running in non-graphical mode")
     def test_export_to_q3d(self):
@@ -424,3 +426,5 @@ class TestEDB:
         assert os.path.exists(out)
         out= edb.export_q3d(scratch_path,  net_list=["NET1", "NET2", "GND"])
         assert os.path.exists(out)
+        edb.close_edb()
+

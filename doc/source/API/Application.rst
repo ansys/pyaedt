@@ -7,7 +7,6 @@ The PyAEDT API includes these classes for application classes and modules.
 .. autosummary::
    :toctree: _autosummary
    :template: custom-class-template.rst
-   :recursive:
 
    Hfss
    Q3d

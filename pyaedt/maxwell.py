@@ -506,7 +506,7 @@ class Maxwell(object):
                 bound = BoundaryObject(self, name, props2, "CoilTerminal")
 
             else:
-                self.messenger.add_warning_message("Face Selection is not allowed in Maxwell 2D. Provide a 2D object.")
+                self._messenger.add_warning_message("Face Selection is not allowed in Maxwell 2D. Provide a 2D object.")
                 return False
         if bound.create():
             self.boundaries.append(bound)
@@ -644,24 +644,7 @@ class Maxwell(object):
         -------
 
         """
-        self.modeler.oeditor.ChangeProperty(
-            [
-                "NAME:AllTabs",
-                [
-                    "NAME:Geometry3DAttributeTab",
-                    [
-                        "NAME:PropServers",
-                        name
-                    ],
-                    [
-                        "NAME:ChangedProps",
-                        [
-                            "NAME:Solve Inside",
-                            "Value:=", activate
-                        ]
-                    ]
-                ]
-            ])
+        self.modeler.primitives[name].solve_inside = activate
         return True
 
     @aedt_exception_handler

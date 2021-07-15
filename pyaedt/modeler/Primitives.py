@@ -810,7 +810,7 @@ class Primitives(object):
         return default_materials[self._parent._design_type]
 
     @property
-    def messenger(self):
+    def _messenger(self):
         """ """
         return self._parent._messenger
 
@@ -1257,7 +1257,7 @@ class Primitives(object):
             objects = self.object_names
         elif not isinstance(objects, list):
             objects = [objects]
-        self.messenger.logger.debug("Deleting objects: {}".format(objects))
+        self._messenger.logger.debug("Deleting objects: {}".format(objects))
 
         slice = min(100, len(objects))
         num_objects = len(objects)
@@ -1279,7 +1279,7 @@ class Primitives(object):
 
         if len(objects) > 0:
             self.cleanup_objects()
-            self.messenger.add_info_message("Deleted {} Objects".format(num_objects))
+            self._messenger.add_info_message("Deleted {} Objects".format(num_objects))
 
         return True
 
@@ -1311,7 +1311,7 @@ class Primitives(object):
                 if contained_string.lower() in el.lower():
                     self.delete(el)
                     num_del += 1
-        self.messenger.add_info_message("Deleted {} objects".format(num_del))
+        self._messenger.add_info_message("Deleted {} objects".format(num_del))
         return True
 
     @aedt_exception_handler
@@ -1869,7 +1869,7 @@ class Primitives(object):
         try:
             c = self.oeditor.GetFaceCenter(face_id)
         except:
-            self.messenger.add_warning_message("Non Planar Faces doesn't provide any Face Center")
+            self._messenger.add_warning_message("Non Planar Faces doesn't provide any Face Center")
             return False
         center = [float(i) for i in c]
         return center
@@ -2505,7 +2505,7 @@ class Primitives(object):
                     return matname, True
 
             else:
-                self.messenger.add_warning_message(
+                self._messenger.add_warning_message(
                     "Material {} doesn not exists. Assigning default material".format(matname))
         if self._parent._design_type == "HFSS":
             return defaultmatname, self._parent.materials.material_keys[defaultmatname].is_dielectric()
@@ -2546,7 +2546,7 @@ class Primitives(object):
         test = retry_ntimes(10, self.oeditor.GetObjectsInGroup, "Unclassified")
         if test is None or test is False:
             self._unclassified = []
-            self.messenger.logger.debug("Unclassified is failing")
+            self._messenger.logger.debug("Unclassified is failing")
         elif test is True:
             self._unclassified = []     # In IronPython True is returned when no unclassified are present
         else:

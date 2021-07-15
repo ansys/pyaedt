@@ -87,7 +87,7 @@ class Edb(object):
                     self._messenger = EDBMessageManager(edbpath)
 
             self.student_version = student_version
-            self._messenger.add_info_message("Messenger Initialized in EDB")
+            self._messenger.add_info_message("_messenger Initialized in EDB")
             self.edbversion = edbversion
             self.isaedtowned = isaedtowned
 
@@ -121,6 +121,89 @@ class Edb(object):
             self._db = None
             self._edb = None
             pass
+
+
+    @aedt_exception_handler
+    def add_info_message(self, message_text):
+        """Add a type 0 "Info" message to the active design level of the Message Manager tree.
+
+                Also add an info message to the logger if the handler is present.
+
+                Parameters
+                ----------
+                message_text : str
+                    Text to display as the info message.
+
+
+                Returns
+                -------
+                bool
+                    ``True`` if succeeded.
+
+                Examples
+                --------
+                >>> from pyaedt import Edb
+                >>> edb = Edb()
+                >>> edb.add_info_message("Design info message")
+
+                """
+        self._messenger.add_info_message(message_text)
+        return True
+
+    @aedt_exception_handler
+    def add_warning_message(self, message_text):
+        """Add a type 0 "Warning" message to the active design level of the Message Manager tree.
+
+                Also add an info message to the logger if the handler is present.
+
+                Parameters
+                ----------
+                message_text : str
+                    Text to display as the warning message.
+
+
+                Returns
+                -------
+                bool
+                    ``True`` if succeeded.
+
+                Examples
+                --------
+                >>> from pyaedt import Edb
+                >>> edb = Edb()
+                >>> edb.add_warning_message("Design warning message")
+
+                """
+        self._messenger.add_warning_message(message_text)
+        return True
+
+    @aedt_exception_handler
+    def add_error_message(self, message_text):
+        """Add a type 0 "Error" message to the active design level of the Message Manager tree.
+
+                Also add an error message to the logger if the handler is present.
+
+                Parameters
+                ----------
+                message_text : str
+                    Text to display as the error message.
+
+
+                Returns
+                -------
+                bool
+                    ``True`` if succeeded.
+
+                Examples
+                --------
+                >>> from pyaedt import Edb
+                >>> edb = Edb()
+                >>> edb.add_error_message("Design error message")
+
+                """
+        self._messenger.add_error_message(message_text)
+        return True
+
 
     @aedt_exception_handler
     def _init_dlls(self):
@@ -180,8 +263,8 @@ class Edb(object):
         """
         if init_dlls:
             self._init_dlls()
-        self.messenger.add_warning_message("EDB Path {}".format(self.edbpath))
-        self.messenger.add_warning_message("EDB Version {}".format(self.edbversion))
+        self._messenger.add_warning_message("EDB Path {}".format(self.edbpath))
+        self._messenger.add_warning_message("EDB Version {}".format(self.edbversion))
         self.edb.Database.SetRunAsStandAlone(True)
         self._db = self.edb.Database.Open(self.edbpath, self.isreadonly)
         self._active_cell = None
@@ -304,11 +387,6 @@ class Edb(object):
         self._messenger.add_error_message(str(ex_value))
         for el in tblist:
             self._messenger.add_error_message(el)
-
-    @property
-    def messenger(self):
-        """ """
-        return self._messenger
 
     @property
     def db(self):

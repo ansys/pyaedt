@@ -637,8 +637,8 @@ class VariableManager(object):
         return self._parent._odesign
 
     @property
-    def messenger(self):
-        """Messenger."""
+    def _messenger(self):
+        """_messenger."""
         return self._parent._messenger
 
     def __init__(self, parent):
@@ -794,7 +794,7 @@ class VariableManager(object):
             try:
                 if self.delete_separator(variable_name):
                     desktop_object.Undo()
-                    self.messenger.clear_messages()
+                    self._messenger.clear_messages()
                     return
             except:
                 pass

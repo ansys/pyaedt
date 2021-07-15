@@ -347,7 +347,7 @@ class Mechanical(FieldAnalysis3D, object):
         """
 
         if not (self.solution_type == "Structural" or self.solution_type == "Modal"):
-            self.messenger.add_error_message("This method works only in Mechanical Structural Solution")
+            self._messenger.add_error_message("This method works only in Mechanical Structural Solution")
             return False
         props = {}
         objects_list = self.modeler._convert_list_to_ids(objects_list)
@@ -388,7 +388,7 @@ class Mechanical(FieldAnalysis3D, object):
 
         """
         if not (self.solution_type == "Structural" or self.solution_type == "Modal"):
-            self.messenger.add_error_message("This method works only in a Mechanical structural solution.")
+            self._messenger.add_error_message("This method works only in a Mechanical structural solution.")
             return False
         props = {}
         objects_list = self.modeler._convert_list_to_ids(objects_list)

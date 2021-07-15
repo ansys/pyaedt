@@ -684,8 +684,8 @@ class PostProcessor(object):
 
 
     @property
-    def messenger(self):
-        """Messenger."""
+    def _messenger(self):
+        """_messenger."""
         return self._parent._messenger
 
     @property
@@ -841,7 +841,7 @@ class PostProcessor(object):
         bool
             ``True`` when successful, ``False`` when failed.
         """
-        self.messenger.add_info_message("Exporting {} Field. Be Patient".format(quantity_name))
+        self._messenger.add_info_message("Exporting {} Field. Be Patient".format(quantity_name))
         if not solution:
             solution = self._parent.existing_analysis_sweeps[0]
         if not filename:
@@ -947,7 +947,7 @@ class PostProcessor(object):
         bool
             ``True`` when successful, ``False`` when failed.
         """
-        self.messenger.add_info_message("Exporting {} Field. Be Patient".format(quantity_name))
+        self._messenger.add_info_message("Exporting {} Field. Be Patient".format(quantity_name))
         if not solution:
             solution = self._parent.existing_analysis_sweeps[0]
         if not filename:
@@ -967,7 +967,7 @@ class PostProcessor(object):
                 elif obj_type == "Surf":
                     self.ofieldsreporter.EnterSurf(obj_list)
                 else:
-                    self.messenger.add_error_message("No correct choice")
+                    self._messenger.add_error_message("No correct choice")
                     return False
                 self.ofieldsreporter.CalcOp("Value")
                 variation_dict = self._parent.available_variations.nominal_w_values

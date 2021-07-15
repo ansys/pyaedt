@@ -187,7 +187,7 @@ class MatProperty(object):
 
     @property
     def _messenger(self):
-        """Messenger."""
+        """_messenger."""
         return self._parent._messenger
 
     def __init__(self, parent, name, val=None, thermalmodifier=None):
@@ -558,7 +558,7 @@ class CommonMaterial(object):
 
     @property
     def _messenger(self):
-        """Messenger."""
+        """_messenger."""
         return self._parent._messenger
 
     @property

@@ -501,7 +501,7 @@ class PostProcessor(Post):
 
         if plot:
             end = time.time() - start
-            self.messenger.add_info_message("PyVista Generation tooks {} secs".format(end))
+            self._messenger.add_info_message("PyVista Generation tooks {} secs".format(end))
             if off_screen:
                 if imageformat:
                     plot.show(screenshot=filename + "." + imageformat)
@@ -769,7 +769,7 @@ class PostProcessor(Post):
     @aedt_exception_handler
     def export_model_obj(self):
         """Export the model."""
-        assert self._parent._aedt_version >= "2021.2", self.messenger.add_error_message("Obj supported from AEDT 2021R2")
+        assert self._parent._aedt_version >= "2021.2", self._messenger.add_error_message("Obj supported from AEDT 2021R2")
         project_path = self._parent.project_path
         obj_list = self._parent.modeler.primitives.object_names
         obj_list = [i for i in obj_list if not self._parent.modeler.primitives.objects[
@@ -833,7 +833,7 @@ class PostProcessor(Post):
         list
             List of AEDTPLT files.
         """
-        assert self._parent._aedt_version >= "2021.2", self.messenger.add_error_message("Obj supported from AEDT 2021R2")
+        assert self._parent._aedt_version >= "2021.2", self._messenger.add_error_message("Obj supported from AEDT 2021R2")
         files = [self.export_model_obj()]
         if export_afterplot:
             imageformat='jpg'

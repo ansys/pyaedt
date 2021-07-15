@@ -114,7 +114,7 @@ def _dim_arg(value, units):
         return value
 
 
-class EdgeTypePrimitive:
+class EdgeTypePrimitive(object):
     """Common methods for EdgePrimitive and FacePrimitive"""
     @aedt_exception_handler
     def fillet(self, radius=0.1, setback=0.0):
@@ -141,7 +141,7 @@ class EdgeTypePrimitive:
             if self._parent.is3d:
                 edge_id_list = [self.id]
             else:
-                self._parent.messenger.add_error_message("filet is possible only on Vertex in 2D Designs ")
+                self._parent._messenger.add_error_message("filet is possible only on Vertex in 2D Designs ")
                 return False
 
         vArg1 = ['NAME:Selections', 'Selections:=', self._parent.name, 'NewPartsModelFlag:=', 'Model']
@@ -153,7 +153,7 @@ class EdgeTypePrimitive:
         self._parent.m_Editor.Fillet(vArg1, ["NAME:Parameters", vArg2])
         if self._parent.name in list(self._parent.m_Editor.GetObjectsInGroup("UnClassified")):
             self._parent.odesign.Undo()
-            self._parent.messenger.add_error_message("Operation Failed generating Unclassified object. Check and retry")
+            self._parent._messenger.add_error_message("Operation Failed generating Unclassified object. Check and retry")
             return False
         return True
 
@@ -189,7 +189,7 @@ class EdgeTypePrimitive:
             if self._parent.is3d:
                 edge_id_list = [self.id]
             else:
-                self._parent.messenger.add_error_message("chamfer is possible only on Vertex in 2D Designs ")
+                self._parent._messenger.add_error_message("chamfer is possible only on Vertex in 2D Designs ")
                 return False
         vArg1 = ['NAME:Selections', 'Selections:=', self._parent.name, 'NewPartsModelFlag:=', 'Model']
         vArg2 = ["NAME:ChamferParameters"]
@@ -212,16 +212,17 @@ class EdgeTypePrimitive:
             vArg2.append("RightDistance:="), vArg2.append(self._parent._parent._arg_with_dim(right_distance))
             vArg2.append('ChamferType:='), vArg2.append('Right Distance-Angle')
         else:
-            self._parent.messenger.add_error_message("Wrong Type Entered. Type must be integer from 0 to 3")
+            self._parent._messenger.add_error_message("Wrong Type Entered. Type must be integer from 0 to 3")
             return False
         self._parent.m_Editor.Chamfer(vArg1, ["NAME:Parameters", vArg2])
         if self._parent.name in list(self._parent.m_Editor.GetObjectsInGroup("UnClassified")):
             self._parent.odesign.Undo()
-            self._parent.messenger.add_error_message("Operation Failed generating Unclassified object. Check and retry")
+            self._parent._messenger.add_error_message("Operation Failed generating Unclassified object. Check and retry")
             return False
         return True
 
-class VertexPrimitive(EdgeTypePrimitive):
+
+class VertexPrimitive(EdgeTypePrimitive, object):
     """Vertex object within the AEDT Desktop Modeler
 
     Parameters
@@ -262,7 +263,7 @@ class VertexPrimitive(EdgeTypePrimitive):
         return "Vertex "+str(self.id)
 
 
-class EdgePrimitive(EdgeTypePrimitive):
+class EdgePrimitive(EdgeTypePrimitive, object):
     """Edge object within the AEDT Desktop Modeler
 
     Parameters
@@ -360,7 +361,7 @@ class FacePrimitive(object):
         try:
             c = self._parent.m_Editor.GetFaceCenter(self.id)
         except:
-            self._parent.messenger.add_warning_message("Non Planar Faces doesn't provide any Face Center")
+            self._parent._messenger.add_warning_message("Non Planar Faces doesn't provide any Face Center")
             return False
         center = [float(i) for i in c]
         return center
@@ -458,7 +459,7 @@ class FacePrimitive(object):
         """
         vertices_ids = self.vertices
         if len(vertices_ids) < 2 or not self.center:
-            self._parent.messenger.add_warning_message("Not enough vertices or non-planar face")
+            self._parent._messenger.add_warning_message("Not enough vertices or non-planar face")
             return None
         # elif len(vertices_ids)<2:
         #     v1 = vertices_ids[0].position
@@ -552,7 +553,7 @@ class Object3d(object):
         -------
         list of [list of float]
         """
-        if self.id >0:
+        if self.id >0 and self._bounding_box is None:
             origin_design_name = self._parent._parent.design_name
             unique_design_name = generate_unique_name("bounding")
             new_design = self._parent.oproject.InsertDesign("HFSS", unique_design_name, "", "")
@@ -646,7 +647,7 @@ class Object3d(object):
         return self._parent.oeditor
 
     @property
-    def messenger(self):
+    def _messenger(self):
         """Provides a pointer to the oEditor object in the AEDT API. Intended primarily for use by
            FacePrimitive, EdgePrimitive, VertexPrimitive child objects
 
@@ -654,7 +655,7 @@ class Object3d(object):
         -------
         AEDTMessageManager
         """
-        return self._parent.messenger
+        return self._parent._messenger
 
     @property
     def surface_material_name(self):
@@ -694,7 +695,7 @@ class Object3d(object):
             self._change_property(vMaterial)
             self._material_name = mat
         else:
-            self.messenger.add_warning_message("Material {} does not exist".format(mat))
+            self._messenger.add_warning_message("Material {} does not exist".format(mat))
 
 
     @surface_material_name.setter
@@ -705,7 +706,7 @@ class Object3d(object):
             self._change_property(vMaterial)
             self._surface_material = mat
         except:
-            self.messenger.add_warning_message("Material {} does not exist".format(mat))
+            self._messenger.add_warning_message("Material {} does not exist".format(mat))
 
 
     @property
@@ -818,7 +819,7 @@ class Object3d(object):
                 color_tuple = None
         else:
             msg_text = "Invalid color input {} for object {}".format(color_value, self._m_name)
-            self._parent.messenger.add_warning_message(msg_text)
+            self._parent._messenger.add_warning_message(msg_text)
 
     @property
     def transparency(self):
@@ -1169,6 +1170,7 @@ class Object3d(object):
          part_coordinate_system: {}
          """.format(type(self), self.name, self.id, self.object_type, self.solve_inside, self.model, self.material_name,
                     self.color, self.transparency, self.display_wireframe, self.part_coordinate_system)
+
 
 class Padstack(object):
     """ """

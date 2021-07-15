@@ -1092,17 +1092,105 @@ class Design(object):
         """
         return self._desktop_install_dir
 
-    @property
-    def messenger(self):
-        """Messenger object that is used to write logs to the log file and to AEDT Message windows.
 
-        Returns
-        -------
-        AEDTMessageManager
-            Messenger object.
+    @aedt_exception_handler
+    def add_info_message(self, message_text, message_type=None):
+        """Add a type 0 "Info" message to the active design level of the Message Manager tree.
 
-        """
-        return self._messenger
+                Also add an info message to the logger if the handler is present.
+
+                Parameters
+                ----------
+                message_text : str
+                    Text to display as the info message.
+                message_type : str, optional
+                    Level to add the info message to. Options are ``"Global"``,
+                    ``"Project"``, and ``"Design"``. The default is ``None``,
+                    in which case the info message gets added to the ``"Design"``
+                    level.
+
+                Returns
+                -------
+                bool
+                    ``True`` if succeeded.
+
+                Examples
+                --------
+                >>> from pyaedt import Hfss
+                >>> hfss = Hfss()
+                >>> hfss.add_info_message("Global info message", "Global")
+                >>> hfss.add_info_message("Project info message", "Project")
+                >>> hfss.add_info_message("Design info message")
+
+                """
+        self._messenger.add_info_message(message_text, message_type)
+        return True
+
+    @aedt_exception_handler
+    def add_warning_message(self, message_text, message_type=None):
+        """Add a type 0 "Warning" message to the active design level of the Message Manager tree.
+
+                Also add an info message to the logger if the handler is present.
+
+                Parameters
+                ----------
+                message_text : str
+                    Text to display as the warning message.
+                message_type : str, optional
+                    Level to add the warning message to. Options are ``"Global"``,
+                    ``"Project"``, and ``"Design"``. The default is ``None``,
+                    in which case the warning message gets added to the ``"Design"``
+                    level.
+
+                Returns
+                -------
+                bool
+                    ``True`` if succeeded.
+
+                Examples
+                --------
+                >>> from pyaedt import Hfss
+                >>> hfss = Hfss()
+                >>> hfss.add_warning_message("Global warning message", "Global")
+                >>> hfss.add_warning_message("Project warning message", "Project")
+                >>> hfss.add_warning_message("Design warning message")
+
+                """
+        self._messenger.add_warning_message(message_text, message_type)
+        return True
+
+    @aedt_exception_handler
+    def add_error_message(self, message_text, message_type=None):
+        """Add a type 0 "Error" message to the active design level of the Message Manager tree.
+
+                Also add an error message to the logger if the handler is present.
+
+                Parameters
+                ----------
+                message_text : str
+                    Text to display as the error message.
+                message_type : str, optional
+                    Level to add the error message to. Options are ``"Global"``,
+                    ``"Project"``, and ``"Design"``. The default is ``None``,
+                    in which case the error message gets added to the ``"Design"``
+                    level.
+
+                Returns
+                -------
+                bool
+                    ``True`` if succeeded.
+
+                Examples
+                --------
+                >>> from pyaedt import Hfss
+                >>> hfss = Hfss()
+                >>> hfss.add_error_message("Global error message", "Global")
+                >>> hfss.add_error_message("Project error message", "Project")
+                >>> hfss.add_error_message("Design error message")
+
+                """
+        self._messenger.add_error_message(message_text, message_type)
+        return True
 
     @property
     def variable_manager(self):
@@ -1525,7 +1613,7 @@ class Design(object):
         base_path = self.temp_directory
 
         if not isinstance(subdir_name, str):
-            self.messenger.add_error_message("Input argument 'subdir' must be a string")
+            self._messenger.add_error_message("Input argument 'subdir' must be a string")
             return False
         dir_name = generate_unique_name(subdir_name)
         project_dir = os.path.join(base_path, dir_name)
@@ -1695,7 +1783,7 @@ class Design(object):
                 dsname = "$" + dsname
             ds = DataSet(self, dsname, xlist, ylist, zlist, vlist, xunit, yunit, zunit, vunit)
         else:
-            self.messenger.add_warning_message("Dataset {} already exists".format(dsname))
+            self._messenger.add_warning_message("Dataset {} already exists".format(dsname))
             return False
         ds.create()
         if is_project_dataset:
@@ -1722,14 +1810,14 @@ class Design(object):
 
         """
         if is_project_dataset and "$"+name in self.project_datasets:
-            self.messenger.add_info_message("DATASET {} exists.".format("$"+name))
+            self._messenger.add_info_message("DATASET {} exists.".format("$"+name))
             return True
             #self.oproject.ExportDataSet("$"+name, os.path.join(self.temp_directory, "ds.tab"))
         elif not is_project_dataset and name in self.design_datasets:
-            self.messenger.add_info_message("DATASET {} exists.".format(name))
+            self._messenger.add_info_message("DATASET {} exists.".format(name))
             return True
             #self.odesign.ExportDataSet(name, os.path.join(self.temp_directory, "ds.tab"))
-        self.messenger.add_info_message("DATASET {} doesn't exists.".format(name))
+        self._messenger.add_info_message("DATASET {} doesn't exists.".format(name))
         return False
 
 
