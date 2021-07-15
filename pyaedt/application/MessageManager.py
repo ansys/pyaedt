@@ -135,7 +135,7 @@ class AEDTMessageManager(object):
     def get_messages(self, project_name, design_name):
         """Retrieve the Message Manager content for a specified project and design.
         
-        If the specifed project and design names are invalid, they are ignored.
+        If the specified project and design names are invalid, they are ignored.
         
         Parameters
         ----------
