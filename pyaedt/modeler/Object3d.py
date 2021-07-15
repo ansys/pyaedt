@@ -539,32 +539,6 @@ class Object3d(object):
         self._all_props = None
         self._surface_material = None
 
-    # @property
-    # def bounding_box2(self):
-    #     """Return the bounding box of the individual part
-    #
-    #     List of six [x, y, z] positions of the bounding box containing
-    #     Xmin, Ymin, Zmin, Xmax, Ymax, and Zmax values
-    #
-    #     This is done by creating a new empty design, copying the object there and getting the model bounding box. A
-    #     list of six 3-D position vectors is returned
-    #
-    #     Returns
-    #     -------
-    #     list of [list of float]
-    #     """
-    #     if self.id >0 and self._bounding_box is None:
-    #         origin_design_name = self._parent._parent.design_name
-    #         unique_design_name = generate_unique_name("bounding")
-    #         new_design = self._parent.oproject.InsertDesign("HFSS", unique_design_name, "", "")
-    #         self.m_Editor.Copy(["NAME:Selections", "Selections:=", self.name])
-    #         oeditor = new_design.SetActiveEditor("3D Modeler")
-    #         oeditor.Paste()
-    #         bb = list(oeditor.GetModelBoundingBox())
-    #         self._bounding_box = [float(b) for b in bb]
-    #         self._parent._parent.delete_design(name=unique_design_name, fallback_design=origin_design_name)
-    #     return self._bounding_box
-
     @property
     def bounding_box(self):
         """Return the bounding box of the individual part
