@@ -1,7 +1,7 @@
 """
 This module contains these classes: `CSVDataset`, `DataSet`, `Expression`, `Variable`, and `VariableManager`.
 
-This module provides all functionalities for creating and editing design and project variables in the 3D tools.
+This module is used to create and edit design and project variables in the 3D tools.
 
 Examples
 --------
@@ -34,9 +34,14 @@ def fah2kel(val, inverse=True):
     Parameters
     ----------
     val : float
-        Temperature in Fahrenheit.
+        Temperature value in Fahrenheit.
     inverse : bool, optional
         The default is ``True``.
+	
+    Returns
+    -------
+    float
+        Temperature value converted to Kelvin.
     
     """
     if inverse:
@@ -51,11 +56,16 @@ def cel2kel(val, inverse=True):
     
     Parameters
     ----------
-    val :
-    
+    val : float
+        Temperature value in Celsius.
     inverse : bool, optional
         The default is ``True``.
-        
+    
+    Returns
+    -------
+    float
+        Temperature value converted to Kelvin.
+	
     """
     
     if inverse:
@@ -75,8 +85,9 @@ def unit_system(units):
     
     Returns
     -------
-    bool
-        ``True`` when successful, ``False`` when the specified units are not defined in AEDT units.
+    str
+        Key from the ``AEDT_units`` when successful. For example, ``"AngualrSpeed"``.
+	``False`` when the units specified are not defined in AEDT units.
     
     """
     found = False
@@ -199,10 +210,7 @@ def _resolve_unit_system(unit_system_1, unit_system_2, operation):
         return ""
 
 class CSVDataset:
-    """CSVDataset class.
-    
-    This class provides for reading in a CSV file and extracting data. This data
-    can also be augmented with constant values.
+    """Reads in a CSV file and extracts data, which can be augmented with constant values.
     
     Parameters
     ----------
@@ -1318,7 +1326,7 @@ class Variable(object):
         return self.__rtruediv__(other)
 
 class Expression(Variable, object):
-    ""Provides a framework for manipulating variable expressions.
+    """Provides a framework for manipulating variable expressions.
     
     Parameters
     ----------
