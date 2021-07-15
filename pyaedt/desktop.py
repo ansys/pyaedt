@@ -60,12 +60,10 @@ def exception_to_desktop(self, ex_value, tb_data):
 
     Parameters
     ----------
-    ex_value :
-        
-    tb_data :
-        
-    Returns
-    -------
+    ex_value : str
+        Type of exception.
+    tb_data : str
+        Traceback information.
 
     """
     desktop = sys.modules['__main__'].oDesktop
@@ -103,30 +101,24 @@ def update_aedt_registry(key, value, desktop_version="193"):
     desktop_version : str, optional
         Version of AEDT to use. The default is ``"193"`` 
         to use 2019 R3.
-
-    Returns
-    -------
-    
     
     Examples
     --------
     Update the HPC license type for HFSS in the AEDT registry.
     
-    >>> updateAEDTRegistry("HFSS/HPCLicenseType", "12")
+    >>> update_aedt_registry("HFSS/HPCLicenseType", "12") # doctest: +SKIP
     
     Update the HPC license type for Icepak in the AEDT registry.
     
-    >>> updateAEDTRegistry("Icepak/HPCLicenseType", "8")
+    >>> update_aedt_registry("Icepak/HPCLicenseType", "8") # doctest: +SKIP
     
     Update the legacy HPC license type for HFSS in the AEDT registry.
     
-    >>> updateAEDTRegistry("HFSS/UseLegacyElectronicsHPC", "0")
+    >>> update_aedt_registry("HFSS/UseLegacyElectronicsHPC", "0") # doctest: +SKIP
     
     Update the MPI vendor for HFSS in the AEDT registry.
     
-    >>> updateAEDTRegistry("HFSS/MPIVendor", "Intel")
-
-   
+    >>> update_aedt_registry("HFSS/MPIVendor", "Intel") # doctest: +SKIP
 
     """
     if os.name == 'posix':
@@ -157,8 +149,8 @@ def release_desktop(close_projects=True, close_desktop=True):
 
     Returns
     -------
-    type
-        None
+    bool
+        ``True`` when successful, ``False`` when failed.
 
     """
     if _com == "pythonnet":
@@ -176,8 +168,10 @@ def release_desktop(close_projects=True, close_desktop=True):
             i += 1
         try:
             del Module.oDesktop
+            return True
         except:
             Module.oMessenger.add_info_message("Attributes not present")
+            return False
 
     elif _com == "pythonnet_v3":
         Module = sys.modules['__main__']
@@ -213,16 +207,13 @@ def release_desktop(close_projects=True, close_desktop=True):
                 Module.oMessenger.add_info_message("Attributes not present")
             try:
                 del Module.pyaedt_initialized
+                return True
             except:
-                pass
+                return False
 
 
 def force_close_desktop():
     """Close all AEDT projects and shut down AEDT.
-    
-
-    Parameters
-    ----------
 
     Returns
     -------
@@ -298,12 +289,17 @@ class Desktop:
 
     >>> import pyaedt
     >>> desktop = pyaedt.Desktop("2021.1", NG=True)
-    >>> hfss = pyaedt.Hfss()
+    pyaedt Info: pyaedt v...
+    pyaedt Info: Python version ...
+    >>> hfss = pyaedt.Hfss(designname="HFSSDesign1")
+    pyaedt Info: Added design 'HFSSDesign1' of type HFSS.
 
     Launch AEDT 2021 R1 in graphical mode and initialize HFSS.
 
     >>> desktop = Desktop("2021.1")
-    >>> hfss = pyaedt.Hfss()
+    pyaedt Info: pyaedt v...
+    pyaedt Info: Python version ...
+    >>> hfss = pyaedt.Hfss(designname="HFSSDesign1")
     
     """
             
@@ -558,13 +554,15 @@ class Desktop:
 
         Parameters
         ----------
-        ex_value :
+        ex_value : str
+            Type of exception.
+        tb_data : str
+            Traceback information.
             
-        tb_data :
-            
-
         Returns
         -------
+        str
+            Type of exception.
 
         """
         try:
@@ -582,9 +580,7 @@ class Desktop:
         tb_trace = traceback.format_tb(tb_data)
         tblist = tb_trace[0].split('\n')
         self._main.oMessenger.add_error_message(str(ex_value), 'Global')
-        #self._main.oDesktop.AddMessage(proj_name, des_name, 2, str(ex_value))
         for el in tblist:
-            #self._main.oDesktop.AddMessage(proj_name, des_name, 2, el)
             self._main.oMessenger.add_error_message(el, 'Global')
 
         return str(ex_value)
@@ -601,26 +597,71 @@ class Desktop:
             Whether to close the active AEDT session on exiting AEDT. 
             The default is ``True``.
 
-        Returns
-        -------
+        Examples
+        --------
+        >>> import pyaedt
+        >>> desktop = pyaedt.Desktop("2021.1")
+        pyaedt Info: pyaedt v...
+        pyaedt Info: Python version ...
+        >>> desktop.release_desktop(close_projects=False, close_on_exit=False) # doctest: +SKIP
 
         """
         release_desktop(close_projects, close_on_exit)
 
     def force_close_desktop(self):
-        """Forcibly close AEDT."""
-        return force_close_desktop()
+        """Close all AEDT projects and shut down AEDT.
+    
+        Examples
+        --------
+        >>> import pyaedt
+        >>> desktop = pyaedt.Desktop("2021.1")
+        pyaedt Info: pyaedt v...
+        pyaedt Info: Python version ...
+        >>> desktop.force_close_desktop() # doctest: +SKIP
+
+        """
+        force_close_desktop()
 
     def close_desktop(self):
-        """Close AEDT."""
-        return force_close_desktop()
+        """Close all AEDT projects and shut down AEDT.
+    
+        Examples
+        --------
+        >>> import pyaedt
+        >>> desktop = pyaedt.Desktop("2021.1")
+        pyaedt Info: pyaedt v...
+        pyaedt Info: Python version ...
+        >>> desktop.close_desktop() # doctest: +SKIP
+
+        """
+        force_close_desktop()
 
     def enable_autosave(self):
-        """Enable autosave."""
+        """Enable auto save option.
+
+        Examples
+        --------
+        >>> import pyaedt
+        >>> desktop = pyaedt.Desktop("2021.1")
+        pyaedt Info: pyaedt v...
+        pyaedt Info: Python version ...
+        >>> desktop.enable_autosave()
+
+        """
         self._main.oDesktop.EnableAutoSave(True)
 
     def disable_autosave(self):
-        """Disable autosave."""
+        """Disable auto save option.
+
+        Examples
+        --------
+        >>> import pyaedt
+        >>> desktop = pyaedt.Desktop("2021.1")
+        pyaedt Info: pyaedt v...
+        pyaedt Info: Python version ...
+        >>> desktop.disable_autosave()
+
+        """
         self._main.oDesktop.EnableAutoSave(False)
 
 
@@ -629,13 +670,19 @@ def get_version_env_variable(version_id):
 
     Parameters
     ----------
-    version_id : int
-        ID of the AEDT version.
+    version_id : str
+        Full AEDT version number, such as "2021.1".
 
     Returns
     -------
     str
         Environment variable for the version.
+
+    Examples
+    --------
+    >>> from pyaedt import desktop
+    >>> desktop.get_version_env_variable("2021.1")
+    'ANSYSEM_ROOT211'
 
     """
     version_env_var = "ANSYSEM_ROOT"
@@ -649,23 +696,3 @@ def get_version_env_variable(version_id):
             release += 2
     version_env_var += str(version) + str(release)
     return version_env_var
-
-
-def get_version_key(version_id):
-    """Retrieve the key for the AEDT version.
-
-    Parameters
-    ----------
-    version_id : int
-       ID of the AEDT version.
-
-    Returns
-    -------
-    str
-        Key for the AEDT version.
-    """
-    values = version_id.split('.')
-    version = int(values[0][2:])
-    release = int(values[1])
-    version_key = str(version) + str(release)
-    return version_key
