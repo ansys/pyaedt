@@ -579,12 +579,10 @@ class Object3d(object):
         -------
         list of [list of float]
         """
-        all_objs = self._parent.object_names
         objs_to_unmodel = [val.name for i,val in self._parent.objects.items() if val.model]
         if objs_to_unmodel:
             vArg1 = ["NAME:Model", "Value:=", False]
             self._parent._change_geometry_property(vArg1, objs_to_unmodel)
-
         modeled=True
         if not self.model:
             vArg1 = ["NAME:Model", "Value:=", True]
