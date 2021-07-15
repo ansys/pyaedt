@@ -109,6 +109,7 @@ jobs:
         run: |
           testenv\Scripts\Activate.ps1
           python3 setup.py sdist
+          python -m pip install twine
           python3 -m twine upload dist/*
         env:
           TWINE_USERNAME: __token__
