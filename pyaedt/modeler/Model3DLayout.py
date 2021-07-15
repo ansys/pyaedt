@@ -18,9 +18,9 @@ class Modeler3DLayout(Modeler):
     """
     def __init__(self, parent):
         self._parent = parent
-        self._parent._messenger.add_info_message("Loading Modeler")
+        self._messenger.add_info_message("Loading Modeler")
         Modeler.__init__(self, parent)
-        self._parent._messenger.add_info_message("Modeler Loaded")
+        self._messenger.add_info_message("Modeler Loaded")
         self._primitivesDes = self._parent.project_name + self._parent.design_name
         edb_folder = os.path.join(self._parent.project_path, self._parent.project_name + ".aedb")
         edb_file = os.path.join(edb_folder, "edb.def")
@@ -31,12 +31,12 @@ class Modeler3DLayout(Modeler):
                             oproject=self._parent.oproject)
         else:
             self._mttime = 0
-        self._parent._messenger.add_info_message("EDB Loaded")
+        self._messenger.add_info_message("EDB Loaded")
 
         self.layers = Layers(self._parent,self, roughnessunits="um")
-        self._parent._messenger.add_info_message("Layers Loaded")
+        self._messenger.add_info_message("Layers Loaded")
         self._primitives = Primitives3DLayout(self._parent, self)
-        self._parent._messenger.add_info_message("Primitives Loaded")
+        self._messenger.add_info_message("Primitives Loaded")
         self.layers.refresh_all_layers()
 
         pass
@@ -63,7 +63,7 @@ class Modeler3DLayout(Modeler):
                 self._mttime = _mttime
         return self._edb
 
-
+    @property
     def _messenger(self):
         """Messenger."""
         return self._parent._messenger
