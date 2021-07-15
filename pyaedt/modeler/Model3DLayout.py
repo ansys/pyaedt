@@ -75,12 +75,12 @@ class Modeler3DLayout(Modeler):
 
     @aedt_exception_handler
     def fit_all(self):
-        """ Fit all."""
+        """Fit all."""
         self.oeditor.ZoomToFit()
 
     @property
     def model_units(self):
-        """Model units. """
+        """Model units."""
         return retry_ntimes(10, self.oeditor.GetActiveUnits)
 
     @model_units.setter
@@ -289,7 +289,7 @@ class Modeler3DLayout(Modeler):
 
         Parameters
         ----------
-        blank :
+        blank : str
             Name of the geometry to subtract from.
         tool : str or list
             One or more names of the geometries to be subtracted.
@@ -353,7 +353,7 @@ class Modeler3DLayout(Modeler):
         Parameters
         ----------
         objectlists : list
-            list of objects to intersect.
+            List of objects to intersect.
 
         Returns
         -------
@@ -382,7 +382,7 @@ class Modeler3DLayout(Modeler):
         Parameters
         ----------
         objectlists : list
-            Listof elements to duplicate.
+            List of elements to duplicate.
         count : int
         
         direction_vector : list
