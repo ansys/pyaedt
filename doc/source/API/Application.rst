@@ -8,19 +8,18 @@ The PyAEDT API includes these classes for application classes and modules.
    :toctree: _autosummary
    :template: custom-class-template.rst
 
-   Hfss
-   Q3d
-   Q2d
    Edb
+   Emit
+   Hfss
+   Hfss3dLayout
+   Icepak
    Maxwell2d
    Maxwell3d
-   Icepak
-   Icepak
-   Hfss3dLayout
    Mechanical
+   Q2d
+   Q3d
    Rmxprt
-   Emit
-
+   
 
 Inheritance Diagram
 ~~~~~~~~~~~~~~~~~~~
