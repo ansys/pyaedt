@@ -868,6 +868,17 @@ class Primitives(object):
         return report
 
     @aedt_exception_handler
+    def _change_geometry_property(self, vPropChange, names_list):
+        names = self._parent.modeler.convert_to_selections(names_list)
+        vChangedProps = ["NAME:ChangedProps", vPropChange]
+        vPropServers = ["NAME:PropServers", names]
+        vGeo3d = ["NAME:Geometry3DAttributeTab", vPropServers, vChangedProps]
+        vOut = ["NAME:AllTabs", vGeo3d]
+        self.oeditor.ChangeProperty(vOut)
+        return True
+
+
+    @aedt_exception_handler
     def update_object(self, obj):
         """Use to update any object3d derivatives that have potentially been modified by a modeler operation
 
