@@ -1044,7 +1044,7 @@ class Variable(object):
 
     @aedt_exception_handler
     def rescale_to(self, units):
-        """Rescale the expression to a new unit within the curent unit system.
+        """Rescale the expression to a new unit within the current unit system.
 	
 	Parameters
 	----------
