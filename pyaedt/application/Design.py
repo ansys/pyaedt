@@ -2,8 +2,7 @@
 This module contains these classes: `Design` and `DesignCache`.
 
 This module provides all functionalities for basic project information and objects. 
-Because this module is inherited in the Main Tool class, 
-it will be a simple call from it.
+These classes is are inherited in the main tool class.
 
 """
 from __future__ import absolute_import
@@ -210,7 +209,7 @@ def list_difference(list1, list2):
     return list(set(list1) - set(list2))
 
 class DesignCache(object):
-    """DesignCache class.
+    """Provides for analyzing the differences in the state of a design between two points in time.
     
     This class provides for analyzing the differences in the state of a design between two points in time.
 
@@ -626,7 +625,27 @@ class Design(object):
 
     @property
     def design_type(self):
-        """Design type.    
+        """Design type.
+        
+        One of the following:
+        - ``'Maxwell 2D'``
+        - ``'Maxwell 3D'``
+        - ``'Twin Builder'``
+        - ``'Circuit Design'``
+        - ``'2D Extractor'``
+        - ``'Q3D Extractor'``
+        - ``'HFSS'``
+        - ``'Icepak'``
+        - ``'RMxprtSolution'``
+        - ``'ModelCreation'``
+        - ``'HFSS 3D Layout Design'``
+        - ``'Mechanical'``
+        - ``'EMIT'
+
+        Returns
+        --------
+        str
+            Design type.  See above for one of the possible return values.
 
         """
         #return self._odesign.GetDesignType()
@@ -875,7 +894,7 @@ class Design(object):
 
         Returns
         -------
-         str
+        str
              Full absolute path for the project's working directory. 
              If this directory does not exist, it is created.
 
@@ -2421,7 +2440,6 @@ class Design(object):
     def get_evaluated_value(self, variable_name, variation=None):
         """Retrieve the evaluated value of a design property or project variable in SI units.
         
-
         Parameters
         ----------
         variable_name : str 
@@ -2491,7 +2509,7 @@ class Design(object):
         string taking into account all existing design properties and project variables, including 
         dependent (non-sweep) properties.
 
-        This is needed because the standard method :funct:`GetVariationVariableValue` does not work for obtaining
+        This is needed because the standard method COM function ``GetVariationVariableValue`` does not work for obtaining
         values of dependent (non-sweep variables). Using the new beta feature object-oriented
         scripting model could make this redundant in future releases.
 
