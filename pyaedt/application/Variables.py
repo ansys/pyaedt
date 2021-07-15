@@ -29,12 +29,12 @@ def dB(x, inverse=True):
 
 @aedt_exception_handler
 def fah2kel(val, inverse=True):
-    """Convert a variable from Fahrenheit to Kelvin.
+    """Convert a temperature from Fahrenheit to Kelvin.
     
     Parameters
     ----------
-    val : 
-    
+    val : float
+        Temperature in Fahrenheit.
     inverse : bool, optional
         The default is ``True``.
     
@@ -47,7 +47,7 @@ def fah2kel(val, inverse=True):
 
 @aedt_exception_handler
 def cel2kel(val, inverse=True):
-    """Convert a variable from Celsius to Kelvin.
+    """Convert a temperature from Celsius to Kelvin.
     
     Parameters
     ----------
@@ -441,7 +441,7 @@ class VariableManager(object):
     
     This class provides access to all variables or a subset of the variables. Manipulation
     of the numerical or string definitions of variable values is provided in the
-    `Variable` class.
+    :class:`Variable` class.
 
     Parameters
     ----------
@@ -736,7 +736,7 @@ class VariableManager(object):
            default is ``False``.
         description : str, optional 
            Text to display for the design property or project variable in the 
-	   ``Properties`` window. The default is ``None``.
+	     ``Properties`` window. The default is ``None``.
         overwrite : bool, optional
             Whether to overwrite an existing value for the design property or
             project variable. The default is ``False``, in which case this method is 
@@ -869,11 +869,11 @@ class VariableManager(object):
         Parameters
         ----------
         separator_name : str
-	    Value to use for the delimiter. 
+	      Value to use for the delimiter. 
         
         Returns
         -------
-	bool
+	  bool
             ``True`` when the separator exists and can be deleted, ``False`` otherwise.
             
         """
@@ -950,9 +950,9 @@ class VariableManager(object):
 
 
 class Variable(object):
-    """Variable class.
+    """Stores variables and provides for performing operations on variables.
     
-    This class stores variables and provides for performating operations 
+    This class stores variables and provides for performing operations 
     on variables. It handles the contents of design properties and project 
     variables.
 
@@ -1047,10 +1047,10 @@ class Variable(object):
     def rescale_to(self, units):
         """Rescale the expression to a new unit within the current unit system.
 	
-	Parameters
-	----------
-	units : str
-	    Units to rescale to.
+	  Parameters
+	  ----------
+	  units : str
+	      Units to rescale to.
 
         Examples
         --------
@@ -1319,8 +1319,6 @@ class Variable(object):
 
 class Expression(Variable, object):
     ""Provides a framework for manipulating variable expressions.
-    
-    This class provides for manipulating variable expressions.
     
     Parameters
     ----------
