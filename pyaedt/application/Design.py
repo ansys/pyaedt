@@ -2,7 +2,7 @@
 This module contains these classes: `Design` and `DesignCache`.
 
 This module provides all functionalities for basic project information and objects. 
-These classes is are inherited in the main tool class.
+These classes are inherited in the main tool class.
 
 """
 from __future__ import absolute_import
