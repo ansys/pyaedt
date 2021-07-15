@@ -375,7 +375,7 @@ class Hfss(FieldAnalysis3D, object):
         Returns
         -------
         SweepHFSS
-            Sweep object.
+            Sweep object if successful.  ``False`` if unsuccessful.
 
         Examples
         --------
