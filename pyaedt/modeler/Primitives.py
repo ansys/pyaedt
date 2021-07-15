@@ -1335,7 +1335,7 @@ class Primitives(object):
         Returns
         -------
         list
-            list of 6 float values [-x,-y,-z,+x,+y,+z]
+            list of 6 float values [min_x, min_y, min_z, max_x, max_y, max_z]
         """
         return self._parent.modeler.get_model_bounding_box()
 
@@ -2785,5 +2785,4 @@ class Primitives(object):
         elif partId in self.object_id_dict:
             return self.objects[self.object_id_dict[partId]]
         return None
-
 

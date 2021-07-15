@@ -1818,7 +1818,7 @@ class GeometryModeler(Modeler, object):
         Returns
         -------
         list
-            list of 6 float values [-x,-y,-z,+x,+y,+z]
+            list of 6 float values [min_x, min_y, min_z, max_x, max_y, max_z]
         """
         bb = list(self.oeditor.GetModelBoundingBox())
         bound = [float(b) for b in bb]
@@ -3439,4 +3439,3 @@ class GeometryModeler(Modeler, object):
                 "Groups:=", ["Model"]
             ])
         return True
-

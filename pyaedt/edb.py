@@ -87,7 +87,7 @@ class Edb(object):
                     self._messenger = EDBMessageManager(edbpath)
 
             self.student_version = student_version
-            self._messenger.add_info_message("_messenger Initialized in EDB")
+            self._messenger.add_info_message("Messenger Initialized in EDB")
             self.edbversion = edbversion
             self.isaedtowned = isaedtowned
 
