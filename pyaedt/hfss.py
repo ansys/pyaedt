@@ -383,6 +383,7 @@ class Hfss(FieldAnalysis3D, object):
         Create a frequency sweep named 'Sweep' for the analysis setup named 'Setup1'.
 
         >>> frequency_sweep = aedtapp.create_frequency_sweep("Setup1", sweepname ="Sweep")
+
         """
 
         if sweepname is None:
