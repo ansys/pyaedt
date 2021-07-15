@@ -65,7 +65,7 @@ class PostProcessor(Post):
     @aedt_exception_handler
     def nb_display(self, show_axis=True, show_grid=True, show_ruler=True):
         """Jupyter Notebook is not supported by IronPython!"""
-        file_name = self.export_model_picture(self.scratch_path, picturename="Model", show_axis=show_axis, show_grid=show_grid, show_ruler=True)
+        file_name = self.export_model_picture(show_axis=show_axis, show_grid=show_grid, show_ruler=show_ruler)
         return Image(file_name, width=500)
 
     @aedt_exception_handler
