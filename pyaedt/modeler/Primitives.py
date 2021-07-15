@@ -869,9 +869,11 @@ class Primitives(object):
 
     @aedt_exception_handler
     def _change_geometry_property(self, vPropChange, names_list):
-        names = self._parent.modeler.convert_to_selections(names_list)
+        names = self._parent.modeler.convert_to_selections(names_list, True)
         vChangedProps = ["NAME:ChangedProps", vPropChange]
-        vPropServers = ["NAME:PropServers", names]
+        vPropServers = ["NAME:PropServers"]
+        for el in names:
+            vPropServers.append(el)
         vGeo3d = ["NAME:Geometry3DAttributeTab", vPropServers, vChangedProps]
         vOut = ["NAME:AllTabs", vGeo3d]
         self.oeditor.ChangeProperty(vOut)
@@ -1327,11 +1329,15 @@ class Primitives(object):
 
     @aedt_exception_handler
     def get_model_bounding_box(self):
-        """Retrieve the model's bounding box."""
-        bound = []
-        if self.oeditor is not None:
-            bound = self.oeditor.GetModelBoundingBox()
-        return bound
+        """GetModelBoundingbox and return it
+
+
+        Returns
+        -------
+        list
+            list of 6 float values [-x,-y,-z,+x,+y,+z]
+        """
+        return self._parent.modeler.get_model_bounding_box()
 
     @aedt_exception_handler
     def get_obj_id(self, objname):

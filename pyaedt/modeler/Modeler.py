@@ -1814,15 +1814,11 @@ class GeometryModeler(Modeler, object):
     def get_model_bounding_box(self):
         """GetModelBoundingbox and return it
         
-        
-        :return: bounding box list
-
-        Parameters
-        ----------
 
         Returns
         -------
-
+        list
+            list of 6 float values [-x,-y,-z,+x,+y,+z]
         """
         bb = list(self.oeditor.GetModelBoundingBox())
         bound = [float(b) for b in bb]

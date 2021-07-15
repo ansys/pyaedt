@@ -540,7 +540,7 @@ class Object3d(object):
         self._surface_material = None
 
     # @property
-    # def bounding_box(self):
+    # def bounding_box2(self):
     #     """Return the bounding box of the individual part
     #
     #     List of six [x, y, z] positions of the bounding box containing
@@ -580,14 +580,21 @@ class Object3d(object):
         list of [list of float]
         """
         all_objs = self._parent.object_names
-        objs_to_unmodel = [i for i in all_objs if i != self._m_name]
+        objs_to_unmodel = [val.name for i,val in self._parent.objects.items() if val.model]
         if objs_to_unmodel:
             vArg1 = ["NAME:Model", "Value:=", False]
             self._parent._change_geometry_property(vArg1, objs_to_unmodel)
-            bounding = self._parent.get_model_bounding_box()
+
+        modeled=True
+        if not self.model:
+            vArg1 = ["NAME:Model", "Value:=", True]
+            self._parent._change_geometry_property(vArg1, self.name)
+            modeled = False
+        bounding = self._parent.get_model_bounding_box()
+        if objs_to_unmodel:
             self.odesign.Undo()
-        else:
-            bounding = self._parent.get_model_bounding_box()
+        if not modeled:
+            self.odesign.Undo()
         return bounding
 
 
