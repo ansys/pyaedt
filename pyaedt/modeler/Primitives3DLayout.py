@@ -66,7 +66,7 @@ class Primitives3DLayout(object):
         Returns
         -------
         list
-            List of components from EDB. If no EDB is present, ``None``  is returned.
+            List of components from EDB. If no EDB is present, ``None`` is returned.
         
         """
         try:
@@ -201,7 +201,7 @@ class Primitives3DLayout(object):
 
     @property
     def opadstackmanager(self):
-        """Padstack managerobject. """
+        """Padstack manager. """
         return self._parent._oproject.GetDefinitionManager().GetManager("Padstack")
 
     @property
@@ -216,7 +216,7 @@ class Primitives3DLayout(object):
 
     @aedt_exception_handler
     def new_padstack(self, name="Padstack"):
-        """Create a new `Padstack` object that can be used to create a new padstack.
+        """Create a `Padstack` object that can be used to create a padstack.
 
         Parameters
         ----------
@@ -226,7 +226,7 @@ class Primitives3DLayout(object):
         Returns
         -------
         type
-            Padstack object if the name does not already exist.
+            Padstack object if a padstack with this name does not already exist.
 
         """
         if name in self.padstacks:
@@ -352,7 +352,7 @@ class Primitives3DLayout(object):
             Position on the X axis. The default is ``0``.
         y : float, optional
             Position on the Y axis. The default is ``0``.
-        rotation :float, optional
+        rotation : float, optional
             Angle rotation in degrees. The default is ``0``.
         hole_diam :
             Diameter of the hole. The default is ``None``, in which case
@@ -484,7 +484,7 @@ class Primitives3DLayout(object):
         Returns
         -------
         str
-            Name of the rectangle when successful.
+            Name of the created rectangle when successful.
 
         """
 
@@ -587,7 +587,7 @@ class Primitives3DLayout(object):
         Returns
         -------
         str
-            String containing value or value and units if units is not ``None``.
+            String containing the value or value and the units if `sUnits` is not ``None``.
         """
         if type(Value) is str:
             val = Value

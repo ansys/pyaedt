@@ -17,6 +17,7 @@ import itertools
 from collections import OrderedDict
 from ..modeler.Modeler import CoordinateSystem
 from ..generic.general_methods import aedt_exception_handler, generate_unique_name, retry_ntimes
+from ..generic.filesystem import Scratch
 from ..application.Variables import AEDT_units
 
 report_type = {"DrivenModal": "Modal Solution Data", "DrivenTerminal": "Terminal Solution Data",
@@ -617,6 +618,7 @@ class PostProcessor(object):
     def __init__(self, parent):
         self._parent = parent
         self.FieldsPlot = {}
+        self._scratch = Scratch(self._parent.temp_directory, volatile=True)
 
     @property
     def _primitives(self):
@@ -1233,7 +1235,7 @@ class PostProcessor(object):
         return True
 
     @aedt_exception_handler
-    def export_model_picture(self, dir, name, picturename="Model", ShowAxis=True, ShowGrid=True, ShowRuler=True):
+    def export_model_picture(self, dir=None, name=None, picturename=None, show_axis=True, show_grid=True, show_ruler=True):
         """Export a snapshot of the model to a JPG file. 
         
         .. note::
@@ -1241,41 +1243,58 @@ class PostProcessor(object):
         
         Parameters
         ----------
-        dir : str
-            Path to export the JPG file to.
-        name : str
+        dir : str, optional
+            Path to export the JPG file to. If none, use an internal volatile scratch in the temp-directory
+        name : str, optional
             Name of the project, which is used to compose the directory path.
         picturename : str, optional
-            Name of the JPG file. The default is ``"Model"``. The extension
+            Name of the JPG file. If not specfified, an automatic name will be generated
             ``".jpg"`` is added automatically.
-        ShowAxis : bool, optional
+        show_axis : bool, optional
             Whether to show the axes. The default is ``True``.
-        ShowGrid : bool, optional
+        show_grid : bool, optional
             Whether to show the grid. The default is ``True``.
-        ShowRuler : bool, optional
+        show_ruler : bool, optional
             Whether to show the ruler. The default is ``True``.
 
         Returns
         -------
-        bool
-            ``True`` when successful, ``False`` when failed.
+        str
+            file path of the generated jpg file
         """
         # Setup arguments list for createReport function
-        if not os.path.exists(dir + "//" + name):
-            os.mkdir(dir + "//" + name)
-        if not os.path.exists(dir + "//" + name + "//Pictures"):
-            os.mkdir(dir + "//" + name + "//Pictures")
+        if not dir:
+            dir = self._scratch.path
+            self.messenger.logger.debug("Using scratch path {}".format(self._scratch.path))
+
+        assert os.path.exists(dir), "Specified directory does not exist: {}".format(dir)
+
+        if name:
+            project_subdirectory = os.path.join(dir, name)
+            if not os.path.exists(project_subdirectory):
+                os.mkdir(project_subdirectory)
+            file_path = os.path.join(project_subdirectory, "Pictures")
+            if not os.path.exists(file_path):
+                os.mkdir(file_path)
+        else:
+            file_path = dir
+
+        if not picturename:
+            picturename = generate_unique_name("image")
+        else:
+            if picturename.endswith(".jpg"):
+                picturename = picturename[:-4]
 
         # open the 3D modeler and remove the selection on other objects
         self.oeditor.ShowWindow()
         self.steal_focus_oneditor()
         self.oeditor.FitAll()
         # export the image
-        arg = ["NAME:SaveImageParams", "ShowAxis:=", ShowAxis, "ShowGrid:=", ShowGrid, "ShowRuler:=", ShowRuler,
+        arg = ["NAME:SaveImageParams", "ShowAxis:=", show_axis, "ShowGrid:=", show_grid, "ShowRuler:=", show_ruler,
                "ShowRegion:=", "Default", "Selections:=", ""]
-        self.oeditor.ExportModelImageToFile(dir + "//" + name + "//Pictures//" + picturename + ".jpg", 0, 0,
-                                             arg)
-        return True
+        file_name = os.path.join(file_path, picturename + ".jpg")
+        self.oeditor.ExportModelImageToFile(file_name, 0, 0, arg)
+        return file_name
 
     @aedt_exception_handler
     def copy_report_data(self, PlotName):
