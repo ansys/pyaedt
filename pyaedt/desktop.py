@@ -213,7 +213,7 @@ def release_desktop(close_projects=True, close_desktop=True):
 
 
 def force_close_desktop():
-    """Close all AEDT projects and shut down AEDT.
+    """Close all AEDT projects and forcibly shut down AEDT.
 
     Returns
     -------
@@ -259,7 +259,7 @@ def force_close_desktop():
 
 
 class Desktop:
-    """Initialize AEDT based on the inputs provided.
+    """Initializes AEDT based on the inputs provided.
     
     .. note::
        On Windows, this class works without limitations in IronPython and CPython.
@@ -637,7 +637,7 @@ class Desktop:
         force_close_desktop()
 
     def enable_autosave(self):
-        """Enable auto save option.
+        """Enable the auto save option.
 
         Examples
         --------
@@ -651,7 +651,7 @@ class Desktop:
         self._main.oDesktop.EnableAutoSave(True)
 
     def disable_autosave(self):
-        """Disable auto save option.
+        """Disable the auto save option.
 
         Examples
         --------
