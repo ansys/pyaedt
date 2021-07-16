@@ -1,5 +1,3 @@
- """This module contains the ``Emit`` class."""
-
 from __future__ import absolute_import
 
 import numbers
@@ -11,11 +9,11 @@ from .generic.general_methods import aedt_exception_handler, generate_unique_nam
 
 
 class Emit(FieldAnalysisEmit, object):
-    """Creates only a skeleton for an empty design currently.
+    """Creates currently only a skeleton for an empty design.
 
     .. note::
        This object has very limited functionalities. No methods
-       are implemented yet.
+       have been implemented yet.
 
     Parameters
     ----------
