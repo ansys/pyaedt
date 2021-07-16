@@ -58,7 +58,7 @@ class Icepak(FieldAnalysisIcepak):
     design or create a new Icepak design if one does not exist.
 
     >>> from pyaedt import Icepak
-    >>> icepak = Icepak()    
+    >>> icepak = Icepak()
 
     Create an instance of `Icepak` and link to a project named
     ``IcepakProject``. If this project does not exist, create one with
