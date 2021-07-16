@@ -120,7 +120,7 @@ class Maxwell(object):
     release_on_exit : bool, optional
         Whether to release AEDT on exit. The default is ``False``.
     student_version : bool, optional
-        Whether to open the AEDT student veresion. The default is ``False``.
+        Whether to open the AEDT student version. The default is ``False``.
 
     """
 
