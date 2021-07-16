@@ -727,7 +727,7 @@ class Maxwell3d(Maxwell, FieldAnalysis3D, object):
         Version of AEDT to use. The default is ``None``, in which case
         the active version or latest installed version is used.
     NG : bool, optional
-        Whether to run AEDT in the non-graphical mode. The default
+        Whether to launch AEDT in the non-graphical mode. The default
         is ``False``, in which case AEDT is launched in the graphical mode.
     AlwaysNew : bool, optional
         Whether to launch an instance of AEDT in a new thread, even if
@@ -736,17 +736,17 @@ class Maxwell3d(Maxwell, FieldAnalysis3D, object):
     release_on_exit : bool, optional
         Whether to release AEDT on exit. The default is ``False``.
      student_version : bool, optional
-        Whether open AEDT Student Version. The default is ``False``.
+        Whether to open the AEDT student version. The default is ``False``.
 
     Examples
     --------
-    Create an instance of `Maxwell3d` and open the specified
+    Create an instance of Maxwell 3D and open the specified
     project, which is named ``myfile.aedt``.
 
     >>> from pyaedt import Maxwell3d
     >>> aedtapp = Maxwell3d("myfile.aedt")
 
-    Create an instance of `Maxwell3d` using the 2021 R1 release and open
+    Create an instance of Maxwell 3D using the 2021 R1 release and open
     the specified project, which is named ``myfile.aedt``.
 
     >>> aedtapp = Maxwell3d(specified_version="2021.1", projectname="myfile.aedt")
@@ -771,7 +771,7 @@ class Maxwell3d(Maxwell, FieldAnalysis3D, object):
 class Maxwell2d(Maxwell, FieldAnalysis2D, object):
     """Maxwell 2D application interface.
 
-    Allows you to connect to an existing Maxwell 2D design or create a
+    This class allows you to connect to an existing Maxwell 2D design or create a
     new Maxwell 2D design if one does not exist.
 
     Parameters
@@ -796,7 +796,7 @@ class Maxwell2d(Maxwell, FieldAnalysis2D, object):
         Version of AEDT to use. The default is ``None``, in which case
         the active version or latest installed version is used.
     NG : bool, optional
-        Whether to run AEDT in the non-graphical mode. The default
+        Whether to launch AEDT in the non-graphical mode. The default
         is ``False``, in which case AEDT is launched in the graphical mode.
     AlwaysNew : bool, optional
         Whether to launch an instance of AEDT in a new thread, even if
@@ -805,24 +805,24 @@ class Maxwell2d(Maxwell, FieldAnalysis2D, object):
     release_on_exit : bool, optional
         Whether to release AEDT on exit. The default is ``False``.
     student_version : bool, optional
-        Whether open AEDT Student Version. The default is ``False``.
+        Whether to open the AEDT student version. The default is ``False``.
 
     Examples
     --------
-    Create an instance of `Maxwell2d` and connect to an existing
+    Create an instance of Maxwell 2D and connect to an existing
     Maxwell 2D design or create a new Maxwell 2D design if one does
     not exist.
 
     >>> from pyaedt import Maxwell2d
     >>> aedtapp = Maxwell2d()
 
-    Create an instance of `Maxwell2d` and link to a project named
+    Create an instance of Maxwell 2D and link to a project named
     ``projectname``. If this project does not exist, create one with
     this name.
 
     >>> aedtapp = Maxwell2d(projectname)
 
-    Create an instance of `Maxwell2d` and link to a design named
+    Create an instance of Maxwell 2D and link to a design named
     ``designname`` in a project named ``projectname``.
 
     >>> aedtapp = Maxwell2d(projectname,designame)
@@ -925,7 +925,14 @@ class Maxwell2d(Maxwell, FieldAnalysis2D, object):
 
     @aedt_exception_handler
     def read_design_data(self):
-        """Read back the design data as a dictionary."""
+        """Read back the design data as a dictionary.
+        
+        Return
+        ------
+        dict
+            Dictionary of design data.
+        
+        """
         design_file = os.path.join(self.working_directory, "design_data.json")
         with open(design_file, 'r') as fps:
             design_data = json.load(fps)
@@ -944,7 +951,7 @@ class Maxwell2d(Maxwell, FieldAnalysis2D, object):
 
         Returns
         -------
-        BoundaryObject
+        :class:`pyaedt.modules.Boundary.BoundaryObject`
             Boundary object.
 
         """
@@ -977,8 +984,8 @@ class Maxwell2d(Maxwell, FieldAnalysis2D, object):
 
         Returns
         -------
-        BoundaryObject
-            Vector Potential Object
+        :class:`pyaedt.modules.Boundary.BoundaryObject`
+            Boundary object.
 
         """
         input_edge= self.modeler._convert_list_to_ids(input_edge)
