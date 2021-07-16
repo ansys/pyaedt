@@ -1464,13 +1464,16 @@ class Icepak(FieldAnalysisIcepak):
         return True
 
     @aedt_exception_handler
-    def create_assign_region2PCBComponent(self, scale_factor = 1.0, restore_padding_values = [50,50,50,50,50,50]):
+    def create_meshregion_component(self, scale_factor=1.0, name="Component_Region",
+                                          restore_padding_values=[50, 50, 50, 50, 50, 50]):
         """Create and assign a region to the PCB component.
 
         Parameters
         ----------
         scale_factor : float, optional
              The default is ``1.0``.
+        name : str, optional
+            The default is "Component_Region"
         restore_padding_values : list, optional
              The default is ``[50,50,50,50,50,50]``.  
 
@@ -1479,7 +1482,7 @@ class Icepak(FieldAnalysisIcepak):
         tuple
             Tuple containing the ``(x, y, z)`` distances of the region.
         """
-        self.modeler.edit_region_dimensions([0,0,0,0,0,0])
+        self.modeler.edit_region_dimensions([0, 0, 0, 0, 0, 0])
 
         verticesID = self.modeler.oeditor.GetVertexIDsFromObject("Region")
 
@@ -1493,30 +1496,34 @@ class Icepak(FieldAnalysisIcepak):
             y_values.append(tmp[1])
             z_values.append(tmp[2])
 
-        x_max = float(max(x_values)) * scale_factor
-        x_min = float(min(x_values)) * scale_factor
+        scale_factor = scale_factor - 1
+        delta_x = (float(max(x_values)) - float(min(x_values))) * scale_factor
+        x_max = float(max(x_values)) + delta_x / 2.
+        x_min = float(min(x_values)) - delta_x / 2.
 
-        y_max = float(max(y_values)) * scale_factor
-        y_min = float(min(y_values)) * scale_factor
+        delta_y = (float(max(y_values)) - float(min(y_values))) * scale_factor
+        y_max = float(max(y_values)) + delta_y / 2.
+        y_min = float(min(y_values)) - delta_y / 2.
 
-        z_max = float(max(z_values)) * scale_factor
-        z_min = float(min(z_values)) * scale_factor
+        delta_z = (float(max(z_values)) - float(min(z_values))) * scale_factor
+        z_max = float(max(z_values)) + delta_z / 2.
+        z_min = float(min(z_values)) - delta_z / 2.
 
         dis_x = str(float(x_max) - float(x_min))
         dis_y = str(float(y_max) - float(y_min))
         dis_z = str(float(z_max) - float(z_min))
 
         min_position = self.modeler.Position(str(x_min)+"mm", str(y_min)+"mm", str(z_min)+"mm")
-        mesh_box = self.modeler.primitives.create_box(min_position,[dis_x+"mm",dis_y+"mm",dis_z+"mm"], "Component_Region")
+        mesh_box = self.modeler.primitives.create_box(min_position, [dis_x+"mm", dis_y+"mm", dis_z+"mm"],
+                                                      name)
 
-
-        self.modeler.primitives["Component_Region"].model = False
+        self.modeler.primitives[name].model = False
 
         self.modeler.edit_region_dimensions(restore_padding_values)
         return dis_x, dis_y, dis_z
 
     @aedt_exception_handler
-    def create_temp_point_monitor(self, point_name, point_coord = [0,0,0]):
+    def create_temp_point_monitor(self, point_name, point_coord=[0, 0, 0]):
         """Create a temperature monitor for the simulation.
 
         Parameters
