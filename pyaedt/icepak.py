@@ -285,7 +285,7 @@ class Icepak(FieldAnalysisIcepak):
             Name of the source. The default is ``None``.
         Returns
         -------
-        BoundaryObject
+        :class:`pyaedt.modules.Boundary.BoundaryObject`
             Boundary object when successful or ``None`` when failed.
         """
         if not source_name:

@@ -293,7 +293,7 @@ class Hfss(FieldAnalysis3D, object):
 
         Returns
         -------
-        BoundaryObject
+        :class:`pyaedt.modules.Boundary.BoundaryObject`
             Boundary object.
 
         Examples
@@ -890,7 +890,7 @@ class Hfss(FieldAnalysis3D, object):
 
         Returns
         -------
-        BoundaryObject
+        :class:`pyaedt.modules.Boundary.BoundaryObject`
             Boundary object.
         """
         if not self.modeler.primitives.does_object_exists(startobj) or not self.modeler.primitives.does_object_exists(
@@ -974,7 +974,7 @@ class Hfss(FieldAnalysis3D, object):
 
         Returns
         -------
-        BoundaryObject
+        :class:`pyaedt.modules.Boundary.BoundaryObject`
             Port object.
 
         Examples
@@ -1035,7 +1035,7 @@ class Hfss(FieldAnalysis3D, object):
         
         Returns
         -------
-        BoundaryObject
+        :class:`pyaedt.modules.Boundary.BoundaryObject`
             Boundary object.
 
         """
@@ -1075,7 +1075,7 @@ class Hfss(FieldAnalysis3D, object):
 
         Returns
         -------
-        BoundaryObject
+        :class:`pyaedt.modules.Boundary.BoundaryObject`
             Boundary object.
 
         """
@@ -1189,7 +1189,7 @@ class Hfss(FieldAnalysis3D, object):
 
         Returns
         -------
-        BoundaryObject
+        :class:`pyaedt.modules.Boundary.BoundaryObject`
             Boundary object.
 
         """
@@ -1258,7 +1258,7 @@ class Hfss(FieldAnalysis3D, object):
 
         Returns
         -------
-        BoundaryObject
+        :class:`pyaedt.modules.Boundary.BoundaryObject`
             Boundary object.
 
         """
@@ -1299,7 +1299,7 @@ class Hfss(FieldAnalysis3D, object):
 
         Returns
         -------
-        BoundaryObject
+        :class:`pyaedt.modules.Boundary.BoundaryObject`
             Boundary object.
         """
 
@@ -1556,7 +1556,7 @@ class Hfss(FieldAnalysis3D, object):
 
         Returns
         -------
-        BoundaryObject
+        :class:`pyaedt.modules.Boundary.BoundaryObject`
             Boundary object.
 
         """
@@ -1581,7 +1581,7 @@ class Hfss(FieldAnalysis3D, object):
 
         Returns
         -------
-        BoundaryObject
+        :class:`pyaedt.modules.Boundary.BoundaryObject`
             Boundary object.
 
         """

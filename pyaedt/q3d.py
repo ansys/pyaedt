@@ -176,7 +176,7 @@ class Q3d(QExtractor, object):
 
         Returns
         -------
-        BoundaryObject
+        :class:`pyaedt.modules.Boundary.BoundaryObject`
             Source object.
         """
         a = self.modeler._get_faceid_on_axis(object_name, axisdir)
@@ -214,7 +214,7 @@ class Q3d(QExtractor, object):
 
         Returns
         -------
-        BoundaryObject
+        :class:`pyaedt.modules.Boundary.BoundaryObject`
             Source object.
         """
         if not sourcename:
@@ -253,7 +253,7 @@ class Q3d(QExtractor, object):
 
         Returns
         -------
-        BoundaryObject
+        :class:`pyaedt.modules.Boundary.BoundaryObject`
             Sink object.
         """
         a = self.modeler._get_faceid_on_axis(object_name, axisdir)
@@ -290,7 +290,7 @@ class Q3d(QExtractor, object):
 
         Returns
         -------
-        BoundaryObject
+        :class:`pyaedt.modules.Boundary.BoundaryObject`
             Source object.
         """
         if not sinkname:
