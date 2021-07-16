@@ -57,7 +57,7 @@ jobs:
       - name: 'Create Documentations'      
         run: |
           testenv\Scripts\Activate.ps1
-          sphinx-build -b html -a doc/source ../_build/html -j 4
+          sphinx-build -b html -a doc/source doc/_build/html -j 4
 
 
       - name: Upload Documentation
