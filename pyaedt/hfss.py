@@ -374,7 +374,7 @@ class Hfss(FieldAnalysis3D, object):
         
         Returns
         -------
-        SweepHFSS
+        :class:`pyaedt.modules.SetupTemplates.SweepHFSS`, :class:`pyaedt.modules.SetupTemplates.SweepQ3D`, or bool
             Sweep object if successful.  ``False`` if unsuccessful.
 
         Examples
