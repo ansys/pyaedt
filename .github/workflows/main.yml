@@ -48,9 +48,7 @@ jobs:
       - name: 'Install pyaedt'
         run: |
           testenv\Scripts\Activate.ps1
-          pip install . --use-feature=in-tree-build
           pip install -r requirements_docs.txt
-          pip install pytest-azurepipelines
           copy /y C:\actions-runner\opengl32.dll testenv\Lib\site-packages\vtkmodules
           mkdir tmp
           cd tmp
