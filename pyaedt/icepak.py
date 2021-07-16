@@ -284,7 +284,7 @@ class Icepak(FieldAnalysisIcepak):
         
         Returns
         -------
-        :class:`pyaedt.modules.Bounary.BoundaryObject`
+        :class:`pyaedt.modules.Boundary.BoundaryObject`
             Boundary object.
         
         """
@@ -330,7 +330,7 @@ class Icepak(FieldAnalysisIcepak):
 
         Returns
         -------
-        :class:`pyaedt.modules.Bounary.BoundaryObject`
+        :class:`pyaedt.modules.Boundary.BoundaryObject`
             Boundary object.
         
         """
