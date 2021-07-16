@@ -233,9 +233,9 @@ class FieldAnalysis3D(Analysis, object):
             ``True`` when successful, ``False`` when failed.
             
         """
-        body_list = design.modeler.solid_bodies
+        body_list = design.modeler.primitives.solid_names
         if include_sheets:
-            body_list += design.modeler.primitives.get_all_sheets_names()
+            body_list += design.modeler.primitives.sheet_names
         selection_list = []
         material_properties = design.modeler.primitives.objects
         for body in body_list:
