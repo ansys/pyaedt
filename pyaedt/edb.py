@@ -1,4 +1,4 @@
-"""This module contains the ``Edb`` class.
+"""This module contains the `Edb` class.
 
 This module is implicitily loaded in HFSS 3D Layout when launched.
 
