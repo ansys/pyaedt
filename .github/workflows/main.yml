@@ -1,6 +1,6 @@
 # This is a basic workflow to help you get started with Actions
 
-name: Publish
+name: FullDocumentation
 
 env:
   python.version: 3.8
@@ -11,12 +11,19 @@ on:
   push:
     tags:
      - v*
-    
+  workflow_dispatch:
+    inputs:
+      logLevel:
+        description: 'Log level'     
+        required: true
+        default: 'warning'
+      tags:
+        description: 'Test scenario tags'     
      
 # A workflow run is made up of one or more jobs that can run sequentially or in parallel
 jobs:
   # This workflow contains a single job called "build"
-  publish:
+  full_documentation:
     # The type of runner that the job will run on
     runs-on: self-hosted
     strategy:
@@ -37,31 +44,26 @@ jobs:
           python -m pip install pip -U
           python -m pip install wheel setuptools -U
           python -c "import sys; print(sys.executable)"
+          
       - name: 'Install pyaedt'
         run: |
           testenv\Scripts\Activate.ps1
-          pip install . --use-feature=in-tree-build
-          pip install -r requirements_test.txt
-          pip install pytest-azurepipelines
-          mkdir tmp
-          cd tmp
-          python -c "import pyaedt; print('Imported pyaedt')"
-      - name: 'Unit testing'
-        run: | 
-          testenv\Scripts\Activate.ps1
-          pytest -v --cov=pyaedt --cov=_unittest --cov-config=.coveragerc -cov-report=xml --junitxml=junit/test-results.xml _unittest -p no:faulthandler
-        
-      - name: 'Build and validate source distribution'
+          pip install -r requirements.txt
+          pip install -r requirements_docs.txt
+          Copy-Item -Path "C:\actions-runner\opengl32.dll" -Destination "testenv\Lib\site-packages\vtkmodules" -Force
+ 
+        #if: startsWith(github.event.ref, 'refs/heads/main') != true
+      
+      - name: 'Create Documentations'      
         run: |
           testenv\Scripts\Activate.ps1
-          python setup.py sdist
-          python -m pip install twine
-          python -m twine check dist/*
-        
-      - name: Publish package
-        if: github.event_name == 'push' && startsWith(github.ref, 'refs/tags')
-        uses: pypa/gh-action-pypi-publish@release/v1
+          sphinx-build -b html -a doc/source ../_build/html -j 4
+
+
+      - name: Upload Documentation
+        uses: actions/upload-artifact@v2.2.3
         with:
-          user: __token__
-          password: ${{ secrets.PYPI_TOKEN }}
-          
+          name: Documentation
+          path: doc/_build/html
+          retention-days: 7
+
