@@ -292,6 +292,65 @@ class FieldAnalysis3D(Analysis, object):
         return True
 
     @aedt_exception_handler
+    def assign_material(self, obj, mat):
+        """Assign a material to one or more objects.
+
+        Parameters
+        ----------
+        obj : str, list
+            One or more objects to assign materials to.
+        mat : str
+            Material to assign. If this material is not present, it will be
+            created.
+
+        Returns
+        -------
+        bool
+            ``True`` when successful, ``False`` when failed.
+
+        """
+        mat = mat.lower()
+        selections = self.modeler.convert_to_selections(obj)
+        arg1 = ["NAME:Selections"]
+        arg1.append("Selections:="), arg1.append(selections)
+        arg2 = ["NAME:Attributes"]
+        arg2.append("MaterialValue:="), arg2.append(chr(34) + mat + chr(34))
+        if mat in self.materials.material_keys:
+            Mat = self.materials.material_keys[mat]
+            Mat.update()
+            if Mat.is_dielectric():
+                arg2.append("SolveInside:="), arg2.append(True)
+            else:
+                arg2.append("SolveInside:="), arg2.append(False)
+            self.modeler.oeditor.AssignMaterial(arg1, arg2)
+            self._messenger.add_info_message('Assign Material ' + mat + ' to object ' + selections)
+            if type(obj) is list:
+                for el in obj:
+                    self.modeler.primitives[el].material_name = mat
+            else:
+                self.modeler.primitives[obj].material_name = mat
+            return True
+        elif self.materials.checkifmaterialexists(mat):
+            self.materials._aedmattolibrary(mat)
+            Mat = self.materials.material_keys[mat]
+            if Mat.is_dielectric():
+                arg2.append("SolveInside:="), arg2.append(True)
+            else:
+                arg2.append("SolveInside:="), arg2.append(False)
+            self.modeler.oeditor.AssignMaterial(arg1, arg2)
+            self._messenger.add_info_message('Assign Material ' + mat + ' to object ' + selections)
+            if type(obj) is list:
+                for el in obj:
+                    self.modeler.primitives[el].material_name = mat
+            else:
+                self.modeler.primitives[obj].material_name = mat
+
+            return True
+        else:
+            self._messenger.add_error_message("Material Does Not Exists")
+            return False
+
+    @aedt_exception_handler
     def get_all_conductors_names(self):
         """Retrieve all conductors in the active design.
                 

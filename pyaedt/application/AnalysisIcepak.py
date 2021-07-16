@@ -222,7 +222,7 @@ class FieldAnalysisIcepak(Analysis, object):
         return True
 
     @aedt_exception_handler
-    def assignmaterial(self, obj, mat):
+    def assign_material(self, obj, mat):
         """Assign a material to one or more objects. 
 
         Parameters
@@ -419,7 +419,7 @@ class FieldAnalysisIcepak(Analysis, object):
                     else:
                         value = material_data["Elastic Modulus"][i]
                         newmat.youngs_modulus = value
-                self.assignmaterial(list_mat_obj, mat)
+                self.assign_material(list_mat_obj, mat)
 
                 for obj_name in list_mat_obj:
                     if not self.modeler.primitives[obj_name].surface_material_name:

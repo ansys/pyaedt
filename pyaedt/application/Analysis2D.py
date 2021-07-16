@@ -74,7 +74,7 @@ class FieldAnalysis2D(Analysis):
     #     return self._post
 
     @aedt_exception_handler
-    def assignmaterial(self, obj, mat):
+    def assign_material(self, obj, mat):
         """Assign a material to one or more objects. 
 
         Parameters
