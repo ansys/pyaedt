@@ -11,7 +11,7 @@ import os
 
 
 class QExtractor(FieldAnalysis3D, FieldAnalysis2D, object):
-    """Extracts a 2D or 3D fielld analysis.
+    """Extracts a 2D or 3D field analysis.
     
     Parameters
     ----------
