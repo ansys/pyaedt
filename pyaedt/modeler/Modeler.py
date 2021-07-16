@@ -833,7 +833,7 @@ class GeometryModeler(Modeler, object):
         return True
 
     @aedt_exception_handler
-    def set_object_deformation(self, objects):
+    def set_objects_deformation(self, objects):
         """Assign Deformation Objects for WorkBench Link.
 
         Parameters
