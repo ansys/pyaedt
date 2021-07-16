@@ -48,11 +48,10 @@ jobs:
       - name: 'Install pyaedt'
         run: |
           testenv\Scripts\Activate.ps1
+          cd
+          copy /y "C:\actions-runner\opengl32.dll" "testenv\Lib\site-packages\vtkmodules"
           pip install -r requirements_docs.txt
-          copy /y C:\actions-runner\opengl32.dll testenv\Lib\site-packages\vtkmodules
-          mkdir tmp
-          cd tmp
-          python -c "import pyaedt; print('Imported pyaedt')"    
+ 
         #if: startsWith(github.event.ref, 'refs/heads/main') != true
       
       - name: 'Create Documentations'      
