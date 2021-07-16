@@ -29,7 +29,7 @@ try:
         _ironpython = True
     edb_initialized = True
 except ImportError:
-    warnings.warn("The clr is missing. Install Pythonnet or use an Ironpython version if you want to use the EDB Module.")
+    warnings.warn("The clr is missing. Install Python.NET or use an IronPython version if you want to use the EDB module.")
     edb_initialized = False
 
 
@@ -43,8 +43,7 @@ from .generic.process import SiwaveSolve
 class Edb(object):
     """EDB instance interface.
 
-    This module contains all functionalities in EDB. It inherits all
-    objects that belong to EDB.
+    This module inherits all objects that belong to EDB.
 
     Parameters
     ----------
@@ -60,6 +59,10 @@ class Edb(object):
     isaedtowned : bool, optional
         Whether to launch ``edb_core`` from HFSS 3D Layout. The
         default is ``False``.
+    oproject : optional
+    
+    student_version : bool, optional
+        Whether to open the AEDT student version. The default is ``False.``
 
     Examples
     --------
@@ -204,7 +207,7 @@ class Edb(object):
 
     @aedt_exception_handler
     def _init_dlls(self):
-        """ """
+        """Initialize DLLs."""
         sys.path.append(os.path.join(os.path.dirname(__file__), "dlls", "EDBLib"))
         if os.name == 'posix':
             if env_value(self.edbversion) in os.environ:
@@ -331,14 +334,15 @@ class Edb(object):
 
     @aedt_exception_handler
     def import_layout_pcb(self, input_file, working_dir, init_dlls=False):
-        """Import a board file and generate an ``edb.def`` file in the working directory.
+        """Import a BRD file and generate an ``edb.def`` file in the working directory.
 
         Parameters
         ----------
         input_file : str
-            Full path to the brd file.
+            Full path to the BRD file.
         working_dir : str
-            Directory in which to create the ``aedb`` folder. The AEDB name will be the same as the BRD name.
+            Directory in which to create the ``aedb`` folder. The AEDB file name will be the 
+            same as the BRD file name.
         init_dlls : bool
             Whether to initialize DLLs. The default is ``False``.
 
@@ -456,7 +460,7 @@ class Edb(object):
 
     @property
     def core_padstack(self):
-        """Core padstacks."""
+        """Core padstack."""
         if not self._padstack:
             self._padstack = EdbPadstacks(self)
         return self._padstack
@@ -523,7 +527,7 @@ class Edb(object):
         
         Parameters
         ----------
-        port :
+        Port :
         
         Pec :
         
@@ -537,7 +541,7 @@ class Edb(object):
         
         NexximPort :
         
-        DCTerminal :
+        DcTerminal :
         
         VoltageProbe :
         
@@ -592,7 +596,7 @@ class Edb(object):
         Parameters
         ----------
         fname : str
-            Name of the file to save to.
+            Name of the file to save EDB to.
 
         Returns
         -------
@@ -605,7 +609,7 @@ class Edb(object):
 
     @aedt_exception_handler
     def execute(self, func):
-        """Execute.
+        """Execute a function.
 
         Parameters
         ----------
@@ -630,8 +634,8 @@ class Edb(object):
         inputBrd : str
             Full path to the BRD file.
         WorkDir : str
-            Directory in which to create the ``aedb`` folder. The AEDB name will be the 
-            same as the BRD name. The default value is ``None``.
+            Directory in which to create the ``aedb`` folder. The AEDB file name will be 
+            the same as the BRD file name. The default value is ``None``.
 
         Returns
         -------
@@ -653,8 +657,8 @@ class Edb(object):
         inputGDS : str
             Full path to the BRD file.
         WorkDir : str
-            Directory in which to create the ``aedb` folder. The AEDB name will be the 
-            same as the BRD name. The default value is ``None``.
+            Directory in which to create the ``aedb` folder. The AEDB file name will be 
+            the same as the BRD file name. The default value is ``None``.
 
         Returns
         -------
@@ -678,7 +682,7 @@ class Edb(object):
         reference_list : list
             List of references to add. The default is ``["GND"]``.
         extent_type : str
-            Type of the extension. Options are ``"Conforming"`` or 
+            Type of the extension. Options are ``"Conforming"`` and 
             ``"Bounding"``. The default is ``Conformaing``.
         expansion_size : float
             Expansion size ratio in meters. The default is ``0.002``.
@@ -687,11 +691,13 @@ class Edb(object):
         output_aedb_path : str, optional
             Full path to the new AEDB file.
         replace_design_with_cutout : bool, optional
-            Whether to replace the design with the cutou. The default 
+            Whether to replace the design with the cutout. The default 
             is ``True``.      
 
         Returns
         -------
+        bool
+            ``True`` when successful, ``False`` when failed.
 
         """
         _signal_nets = []
@@ -756,6 +762,16 @@ class Edb(object):
 
     @aedt_exception_handler
     def write_export3d_option_config_file(self, path_to_output, config_dictionaries=None):
+        """Write the options for a 3D export to a configuration file.
+        
+        Parameters
+        ----------
+        path_to_output : str
+            Full path to the configuration file where the 3D export optons are to be saved.
+        
+        config_dictionaries : optional
+        
+        """
         option_config = {
             "UNITE_NETS": 1,
             "ASSIGN_SOLDER_BALLS_AS_SOURCES": 0,
