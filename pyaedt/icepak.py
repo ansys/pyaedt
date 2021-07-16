@@ -53,45 +53,49 @@ class Icepak(FieldAnalysisIcepak):
 
     Examples
     --------
+
     Create an instance of `Icepak` and connect to an existing Icepak
     design or create a new Icepak design if one does not exist.
 
     >>> from pyaedt import Icepak
-    >>> aedtapp = Icepak()
+    >>> icepak = Icepak()    
 
     Create an instance of `Icepak` and link to a project named
-    ``projectname``. If this project does not exist, create one with
+    ``IcepakProject``. If this project does not exist, create one with
     this name.
 
-    >>> aedtapp = Icepak(projectname)
+    >>> icepak = Icepak("IcepakProject")
+    pyaedt Info: Added design ...
 
     Create an instance of `Icepak` and link to a design named
-    ``designname`` in a project named ``projectname``.
+    ``IcepakDesign1`` in a project named ``IcepakProject``.
 
-    >>> aedtapp = Icepak(projectname,designame)
+    >>> icepak = Icepak("IcepakProject", "IcepakDesign1")
+    pyaedt Info: Added design 'IcepakDesign1' of type Icepak.
 
     Create an instance of `Icepak` and open the specified project,
     which is ``myfile.aedt``.
 
-    >>> aedtapp = Icepak("myfile.aedt")
+    >>> icepak = Icepak("myfile.aedt")
+    pyaedt Info: Added design ...
 
     Create an instance of `Icepak` using the 2021 R1 release and
     open the specified project, which is ``myfile.aedt``.
 
-    >>> aedtapp = Icepak(specified_version="2021.1", projectname="myfile.aedt")
+    >>> icepak = Icepak(specified_version="2021.1", project_name="myfile.aedt")
 
     """
     
-    def __init__(self, projectname=None, designname=None, solution_type=None, setup_name=None,
+    def __init__(self, project_name=None, design_name=None, solution_type=None, setup_name=None,
                  specified_version=None, NG=False, AlwaysNew=False, release_on_exit=False, student_version=False):
-        FieldAnalysisIcepak.__init__(self, "Icepak", projectname, designname, solution_type, setup_name,
+        FieldAnalysisIcepak.__init__(self, "Icepak", project_name, design_name, solution_type, setup_name,
                                      specified_version, NG, AlwaysNew, release_on_exit, student_version)
 
     def __enter__(self):
         return self
 
     def __exit__(self, ex_type, ex_value, ex_traceback):
-        ''' Push exit up to parent object Design '''
+        """Push exit up to parent object Design."""
         if ex_type:
             exception_to_desktop(self, ex_value, ex_traceback)
 
@@ -103,6 +107,12 @@ class Icepak(FieldAnalysisIcepak):
         -------
         list
             List of all defined analysis setup names in the Maxwell design.
+
+        Examples
+        --------
+
+        >>> icepak.existing_analysis_sweeps
+        ['DomSetup : SteadyState']
             
         """
         setup_list = self.existing_analysis_setups
