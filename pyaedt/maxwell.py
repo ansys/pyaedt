@@ -57,11 +57,12 @@ with Desktop() as d:
 
 
 def float_units(val_str, units=""):
-    """
+    """Retrieve units for a value.
 
     Parameters
     ----------
     val_str : str
+        Name of the float  
         
     units : str, optional
          The default is ``""``.
@@ -86,10 +87,7 @@ def float_units(val_str, units=""):
 
 
 class Maxwell(object):
-    """Maxwell class.
-    
-    .. note::
-       This class contains all methods that are common to Maxwell 2D and Maxwell 3D.
+    """Contains all methods that are common to both Maxwell 2D and Maxwell 3D.
 
     Parameters
     ----------
@@ -113,7 +111,7 @@ class Maxwell(object):
         Version of AEDT to use. The default is ``None``, in which case
         the active version or latest installed version is used.
     NG : bool, optional
-        Whether to run AEDT in the non-graphical mode. The default
+        Whether to launch AEDT in the non-graphical mode. The default
         is ``False``, in which case AEDT launches in the graphical mode.
     AlwaysNew : bool, optional
         Whether to launch an instance of AEDT in a new thread, even if
@@ -121,9 +119,8 @@ class Maxwell(object):
         machine. The default is ``True``.
     release_on_exit : bool, optional
         Whether to release AEDT on exit. The default is ``False``.
-
-    Returns
-    -------
+    student_version : bool, optional
+        Whether to open the AEDT student veresion. The default is ``False``.
 
     """
 
@@ -192,7 +189,6 @@ class Maxwell(object):
         -------
         bool
             ``True`` when successful and ``False`` when failed.
-
         """
 
         self._py_file = setupname + ".py"
@@ -253,7 +249,9 @@ class Maxwell(object):
 
         Returns
         -------
-
+        bool
+            ``True`` when successful and ``False`` when failed.
+        
         """
         EddyVector = ["NAME:EddyEffectVector"]
         for obj in object_list:
@@ -289,11 +287,10 @@ class Maxwell(object):
 
         Returns
         -------
-        BoundaryObject
-            Boundary object
-            
+        :class:`pyaedt.modules.Boundary.BoundaryObject`
+            Boundary object.
+           
         """
-
         amplitude = str(amplitude) + "A"
 
         if not name:
@@ -327,9 +324,9 @@ class Maxwell(object):
 
         Returns
         -------
-        BoundaryObject
+        :class:`pyaedt.modules.Boundary.BoundaryObject`
             Boundary object.
-
+        
         """
 
         amplitude = str(amplitude) + "mV"
@@ -364,9 +361,8 @@ class Maxwell(object):
 
         Returns
         -------
-        BoundaryObject
+        :class:`pyaedt.modules.Boundary.BoundaryObject`
             Boundary object.
-
         """
 
         amplitude = str(amplitude) + "mV"
@@ -410,9 +406,8 @@ class Maxwell(object):
 
         Returns
         -------
-        BoundaryObject
-            Bounding object for the winding; otherwise only the bounding object.
-
+        :class:`pyaedt.modules.Boundary.BoundaryObject`
+            Boundary object for the winding; otherwise only the bounding object.
         """
 
         if not name:
@@ -515,8 +510,7 @@ class Maxwell(object):
 
     @aedt_exception_handler
     def assign_force(self, input_object, reference_cs="Global", is_virtual=True, force_name=None):
-        """
-        Assign a force to one or more objects.
+        """Assign a force to one or more objects.
 
         Parameters
         ----------
@@ -535,7 +529,6 @@ class Maxwell(object):
             ``True`` when successful, ``False`` when failed.
         
         """
-
         input_object = self.modeler._convert_list_to_ids(input_object, True)
         if not force_name:
             force_name = generate_unique_name("Force")
@@ -558,8 +551,7 @@ class Maxwell(object):
 
     @aedt_exception_handler
     def assign_torque(self, input_object, reference_cs="Global", is_positive=True, is_virtual=True, axis="Z", torque_name=None):
-        """
-        Assign a torque to one or more objects.
+        """Assign a torque to one or more objects.
 
         Parameters
         ----------
@@ -582,7 +574,6 @@ class Maxwell(object):
             ``True`` when successful, ``False`` when failed.
         
         """
-
         input_object = self.modeler._convert_list_to_ids(input_object, True)
         if not torque_name:
             torque_name = generate_unique_name("Torque")
@@ -616,7 +607,6 @@ class Maxwell(object):
             ``True`` when successful, ``False`` when failed.
         
         """
-
         input_object = self.modeler._convert_list_to_ids(input_object, True)
         if not force_name:
             force_name = generate_unique_name("Force")
@@ -642,14 +632,23 @@ class Maxwell(object):
 
         Returns
         -------
-
+        bool
+            ``True`` when successful, ``False`` when failed.
+            
         """
         self.modeler.primitives[name].solve_inside = activate
         return True
 
     @aedt_exception_handler
     def analyse_from_zero(self):
-        """Analyze from zero."""
+        """Analyze from zero.
+        
+        Returns
+        -------
+        bool
+            ``True`` when successful, ``False`` when failed.
+        
+        """
         self.oanalysis.ResetSetupToTimeZero(self._setup)
         self.analyse_nominal()
         return True
@@ -667,6 +666,8 @@ class Maxwell(object):
 
         Returns
         -------
+        bool
+            ``True`` when successful, ``False`` when failed.
 
         """
         self.odesign.ChangeProperty(
