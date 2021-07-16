@@ -1,6 +1,6 @@
 # This is a basic workflow to help you get started with Actions
 
-name: Document
+name: FullDocumentation
 
 env:
   python.version: 3.8
@@ -23,7 +23,7 @@ on:
 # A workflow run is made up of one or more jobs that can run sequentially or in parallel
 jobs:
   # This workflow contains a single job called "build"
-  documentation:
+  full_documentation:
     # The type of runner that the job will run on
     runs-on: self-hosted
     strategy:
@@ -65,8 +65,7 @@ jobs:
           cd doc/source 
           sphinx-build -b html -a . ../../html -j 4
           cd ../..
-        env:
-          PYAEDT_CI_NO_AUTODOC: True
+
 
       - name: Upload Documentation
         uses: actions/upload-artifact@v2.2.3
