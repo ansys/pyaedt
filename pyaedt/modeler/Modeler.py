@@ -1248,7 +1248,7 @@ class GeometryModeler(Modeler, object):
 
     @aedt_exception_handler
     def get_objects_in_group(self, group):
-        """return objects belonging to a group
+        """Get list of objects belonging to a group.
 
         Parameters
         ----------
@@ -1257,8 +1257,8 @@ class GeometryModeler(Modeler, object):
 
         Returns
         -------
-        type
-            array of 6 elements representing bounding box
+        list
+            Objects that belong to the group.
 
         """
         if type(group) is not str:

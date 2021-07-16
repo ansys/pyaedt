@@ -108,12 +108,6 @@ class Icepak(FieldAnalysisIcepak):
         list
             List of all defined analysis setup names in the Maxwell design.
 
-        Examples
-        --------
-
-        >>> icepak.existing_analysis_sweeps
-        ['DomSetup : SteadyState']
-            
         """
         setup_list = self.existing_analysis_setups
         sweep_list=[]
@@ -134,7 +128,16 @@ class Icepak(FieldAnalysisIcepak):
         Returns
         -------
         type
-            Bound object when successful or ``None`` when failed.
+            Boundary object when successful or ``None`` when failed.
+
+        Examples
+        --------
+
+        >>> faces = icepak.modeler.primitives["USB_GND"].faces
+        >>> face_names = [face.id for face in faces]
+        >>> boundary = icepak.assign_openings(face_names)
+        pyaedt Info: Face List boundary_faces created
+        pyaedt Info: Opening Assigned
 
         """
 
