@@ -44,7 +44,6 @@ class TestCircuitDL:
                 outf.close()
                 self.aedtapp = Circuit(self.test_project)
             except:
-                #self.desktop.force_close_desktop()
                 pass
 
     def teardown_class(self):

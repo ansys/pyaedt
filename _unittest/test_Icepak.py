@@ -43,7 +43,6 @@ class TestIcepak:
                                               os.path.join(self.local_scratch.path, test_project_name + '.aedb'))
                 self.aedtapp = Icepak(self.test_project)
             except:
-                #self.desktop.force_close_desktop()
                 pass
 
     def teardown_class(self):

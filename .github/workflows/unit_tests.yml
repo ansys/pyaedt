@@ -106,6 +106,7 @@ jobs:
       #    password: ${{ secrets.PYPI_TOKEN }}
       
       - name: "Builds and uploads to PyPI"
+        if: github.event_name == 'push' && startsWith(github.ref, 'refs/tags')
         run: |
           testenv\Scripts\Activate.ps1
           python setup.py sdist
@@ -114,17 +115,4 @@ jobs:
         env:
           TWINE_USERNAME: __token__
           TWINE_PASSWORD: ${{ secrets.PYPI_TOKEN }}
-      #- uses: PublishBuildArtifacts@1
-      #  name: 'Publish Artifact: dist'
-      #  with:
-      #    PathtoPublish: dist
-      #    ArtifactName: dist
-      
-      #- run: 
-      #    twine upload --skip-existing dist/*.tar.gz
-      #  displayName: 'Upload to package PyPi'
-      #  if: contains(variables['Build.SourceBranch'], 'refs/tags/')
-      #  env:
-      #    TWINE_USERNAME: __token__
-      #    TWINE_PASSWORD: $(PYPI_TOKEN)
-      #    TWINE_REPOSITORY_URL: "https://upload.pypi.org/legacy/"
+

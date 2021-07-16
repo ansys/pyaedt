@@ -691,7 +691,7 @@ class PostProcessor(object):
         return self._parent._messenger
 
     @property
-    def desktop(self):
+    def _desktop(self):
         """Desktop."""
         return self._parent._desktop
 
@@ -1058,7 +1058,7 @@ class PostProcessor(object):
         """
         if not setup_name:
             setup_name = self._parent.existing_analysis_sweeps[0]
-        self.desktop.CloseAllWindows()
+        self._desktop.CloseAllWindows()
         self.oproject.SetActiveDesign(self.odesign.GetName())
         self.oeditor.FitAll()
         char_set = string.ascii_uppercase + string.digits
@@ -1649,7 +1649,7 @@ class PostProcessor(object):
         bool
             ``True`` when successful, ``False`` when failed.
         """
-        self.desktop.RestoreWindow()
+        self._desktop.RestoreWindow()
         param = ["NAME:SphereParameters", "XCenter:=", "0mm", "YCenter:=", "0mm", "ZCenter:=", "0mm", "Radius:=", "1mm"]
         attr = ["NAME:Attributes", "Name:=", "DUMMYSPHERE1", "Flags:=", "NonModel#"]
         self.oeditor.CreateSphere(param, attr)

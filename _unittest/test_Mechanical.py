@@ -12,7 +12,6 @@ test_project_name = "coax_Mech"
 
 class TestMechanical:
     def setup_class(self):
-        #self.desktop = Desktop(desktopVersion, NonGraphical, NewThread)
         # set a scratch directory and the environment / test data
         with Scratch(scratch_path) as self.local_scratch:
             self.aedtapp = Mechanical(solution_type="Thermal")
