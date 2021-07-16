@@ -49,7 +49,8 @@ class Hfss(FieldAnalysis3D, object):
         Whether to release AEDT on exit. The default is ``False``.
         Whether to release AEDT on exit. The default is ``True``.
     student_version : bool, optional
-        Whether open AEDT Student Version. The default is ``False``.
+        Whether to open the AEDT student version. The default is 
+        ``False``.
 
     Examples
     --------
@@ -677,7 +678,7 @@ class Hfss(FieldAnalysis3D, object):
         Returns
         -------
         str
-            Port name when successful, ``False`` otherwise.
+            Name of port created when successful, ``False`` otherwise.
 
         """
         if not self.modeler.primitives.does_object_exists(startobj) or not self.modeler.primitives.does_object_exists(
@@ -724,7 +725,7 @@ class Hfss(FieldAnalysis3D, object):
         Returns
         -------
         str
-            Name of name when successful, ``False`` otherwise.
+            Name of port created when successful, ``False`` otherwise.
         """
         if not self.modeler.primitives.does_object_exists(startobj) or not self.modeler.primitives.does_object_exists(
                 endobject):
@@ -769,7 +770,7 @@ class Hfss(FieldAnalysis3D, object):
         Returns
         -------
         str
-           Source name when successful, ``False`` otherwise.
+           Name of source created when successful, ``False`` otherwise.
 
         """
         if not self.modeler.primitives.does_object_exists(startobj) or not self.modeler.primitives.does_object_exists(
@@ -811,7 +812,7 @@ class Hfss(FieldAnalysis3D, object):
         Returns
         -------
         str
-            Source name when successful, ``False`` otherwise.
+            Name of source created when successful, ``False`` otherwise.
 
         """
         if not self.modeler.primitives.does_object_exists(startobj) or not self.modeler.primitives.does_object_exists(
@@ -1117,8 +1118,8 @@ class Hfss(FieldAnalysis3D, object):
 
         Returns
         -------
-        bool
-            ``True`` when successful, ``False`` when failed.
+        :class:`pyaedt.hfss.SARSetup`
+            SARSetup object.
 
         """
         self.odesign.SARSetup(TissueMass, MaterialDensity, Tissue_object_List_ID, voxel_size, Average_SAR_method)
@@ -1397,7 +1398,7 @@ class Hfss(FieldAnalysis3D, object):
         Returns
         -------
         list
-            List of names for the created ports when successful, ``False`` otherwise.
+            List of names for the ports created when successful, ``False`` otherwise.
         
         """
         sheet = self.modeler.convert_to_selections(sheet, True)
@@ -1451,7 +1452,7 @@ class Hfss(FieldAnalysis3D, object):
         Returns
         -------
         str
-            Name of port when succesful, ``False`` otherwise.
+            Name of the port created when succesful, ``False`` otherwise.
         """
 
         if self.solution_type in ["DrivenModal", "DrivenTerminal", "Transient Network"]:
@@ -1501,7 +1502,7 @@ class Hfss(FieldAnalysis3D, object):
         Returns
         -------
         str
-            Name of the source when successful, ``False`` otherwise.
+            Name of the source created when successful, ``False`` otherwise.
         
         """
 
@@ -1534,7 +1535,7 @@ class Hfss(FieldAnalysis3D, object):
         Returns
         -------
         str
-            Name of the source when successful, ``False`` otherwise.
+            Name of the source created when successful, ``False`` otherwise.
         
         """
 
@@ -1632,7 +1633,7 @@ class Hfss(FieldAnalysis3D, object):
         Returns
         -------
         str
-            Name of the Perfect H when successful, ``False`` otherwise.
+            Name of the Perfect H created when successful, ``False`` otherwise.
 
         """
 
@@ -1684,7 +1685,7 @@ class Hfss(FieldAnalysis3D, object):
         Returns
         -------
         str
-            Name of the impedence when successful; ``False`` otherwise.
+            Name of the impedence created when successful; ``False`` otherwise.
         
         """
 
@@ -1731,7 +1732,7 @@ class Hfss(FieldAnalysis3D, object):
         Returns
         -------
         str
-            Name of the port when successful, ``False`` otherwise.
+            Name of the port created when successful, ``False`` otherwise.
 
         """
         edge_list = [edge_signal, edge_gnd]
