@@ -94,8 +94,8 @@ class TestClass():
         print(self.aedtapp.variable_manager)
         print(self.aedtapp.materials)
 
-    def test_09_add_workbench_link(self):
-        assert self.aedtapp.modeler.add_workbench_link(["inner"], "25")
+    def test_09_set_objects_deformation(self):
+        assert self.aedtapp.modeler.set_objects_deformation(["inner"])
 
     def test_09_set_objects_temperature(self):
         ambient_temp = 22
