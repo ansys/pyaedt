@@ -12,8 +12,6 @@ from collections import OrderedDict
 class Mechanical(FieldAnalysis3D, object):
     """Mechanical application interface.
 
-    This class exposes features from the Mechanical application.
-
     Parameters
     ----------
     projectname : str, optional
@@ -27,46 +25,46 @@ class Mechanical(FieldAnalysis3D, object):
         designs are present, an empty design is created.
     solution_type : str, optional
         Solution type to apply to the design. The default is
-        ``None``, which applies the default type.
+        ``None``, in which case the default type is applied.
     setup_name : str, optional
         Name of the setup to use as the nominal. The default is
         ``None``, in which case the active setup is used or
         nothing is used.
     specified_version: str, optional
-        Version of AEDT  to use. The default is ``None``, in which case
-        the active version or latest installed version is  used.
+        Version of AEDT to use. The default is ``None``, in which case
+        the active version or latest installed version is used.
     NG : bool, optional
-        Whether to run AEDT in the non-graphical mode. The default
+        Whether to launch AEDT in the non-graphical mode. The default
         is``False``, which launches AEDT in the graphical mode.
     AlwaysNew : bool, optional
         Whether to launch an instance of AEDT in a new thread, even if
         another instance of the ``specified_version`` is active on the
-        machine.  The default is ``True``.
+        machine. The default is ``True``.
     release_on_exit : bool, optional
         Whether to release AEDT on exit.
     student_version : bool, optional
-        Whether open AEDT Student Version. The default is ``False``.
+        Whether to open the AEDT student version. The default is ``False``.
 
     Examples
     --------
-    Create an instance of `Mechanical` and connect to an existing
+    Create an instance of Mechanical and connect to an existing
     HFSS design or create a new HFSS design if one does not exist.
 
     >>> from pyaedt import Mechanical
     >>> aedtapp = Mechanical()
 
-    Create an instance of `Mechanical` and link to a project named
+    Create an instance of Mechanical and link to a project named
     ``"projectname"``. If this project does not exist, create one with
     this name.
 
     >>> aedtapp = Mechanical(projectname)
 
-    Create an instance of `Mechanical` and link to a design named
+    Create an instance of Mechanical and link to a design named
     ``"designname"`` in a project named ``projectname``.
 
     >>> aedtapp = Mechanical(projectname,designame)
 
-    Create an instance of `Mechanical` and open the specified
+    Create an instance of Mechanical and open the specified
     project, which is named ``myfile.aedt``.
 
     >>> aedtapp = Mechanical("myfile.aedt")
@@ -88,7 +86,7 @@ class Mechanical(FieldAnalysis3D, object):
         return self
 
     def __exit__(self, ex_type, ex_value, ex_traceback):
-        """ Push exit up to parent object Design """
+        """Push exit up to parent object Design."""
         if ex_type:
             exception_to_desktop(self, ex_value, ex_traceback)
 
@@ -112,7 +110,7 @@ class Mechanical(FieldAnalysis3D, object):
             List objects in the source that are metals. The default is ``[]``.
         source_project_name : str, optional
             Name of the source project. The default is ``None``, in which case
-	      the source from the same project is used.
+	    the source from the same project is used.
         paramlist : list, optional
             List of all parameters in the EM to map. The default is ``[]``.
         object_list : list, optional
@@ -162,7 +160,7 @@ class Mechanical(FieldAnalysis3D, object):
         bound = BoundaryObject(self, name, props, "EMLoss")
         if bound.create():
             self.boundaries.append(bound)
-            self._messenger.add_info_message('EM losses mapped from design {}'.format(designname))
+            self._messenger.add_info_message('EM losses mapped from design {}.'.format(designname))
             return bound
         return False
 
@@ -194,7 +192,8 @@ class Mechanical(FieldAnalysis3D, object):
 
         Returns
         -------
-
+	:class:`aedt.modules.Boundary.Boundary object
+	    Boundary object.
         """
 
         assert self.solution_type == "Structural", "This method works only in a Mechanical structural solution."
@@ -237,7 +236,7 @@ class Mechanical(FieldAnalysis3D, object):
     @aedt_exception_handler
     def assign_uniform_convection(self, objects_list, convection_value, convection_unit="w_per_m2kel",
                                   temperature="AmbientTemp", boundary_name=""):
-        """Assign uniform convection to the face list.
+        """Assign a uniform convection to the face list.
 
         Parameters
         ----------
@@ -254,8 +253,8 @@ class Mechanical(FieldAnalysis3D, object):
 
         Returns
         -------
-        type
-            Boundary Object
+        :class:`aedt.modules.Boundary.Boundary object
+	    Boundary object.
 
         """
         assert self.solution_type == "Thermal", "This method works only in a Mechanical structural solution."
@@ -299,8 +298,8 @@ class Mechanical(FieldAnalysis3D, object):
 
         Returns
         -------
-        type
-            Boundary Object
+        :class:`aedt.modules.Boundary.Boundary object
+	    Boundary object.
 
         """
         assert self.solution_type == "Thermal", "This method works only in a Mechanical structural analysis."
@@ -341,8 +340,8 @@ class Mechanical(FieldAnalysis3D, object):
 
         Returns
         -------
-        type
-            boundary object
+        :class:`aedt.modules.Boundary.Boundary object
+	    Boundary object.
 
         """
 
@@ -383,8 +382,8 @@ class Mechanical(FieldAnalysis3D, object):
 
         Returns
         -------
-        type
-            boundary object
+        :class:`aedt.modules.Boundary.Boundary object
+	    Boundary object.
 
         """
         if not (self.solution_type == "Structural" or self.solution_type == "Modal"):
@@ -409,12 +408,10 @@ class Mechanical(FieldAnalysis3D, object):
     def existing_analysis_sweeps(self):
         """List of existing analysis setups in the Mechanical design.
 
-
         Returns
         -------
         list
             List of existing analysis setups.
-
 
         """
         setup_list = self.existing_analysis_setups
