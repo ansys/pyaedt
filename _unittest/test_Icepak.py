@@ -216,7 +216,7 @@ class TestIcepak:
     def test_25_copy_solid_bodies(self):
         project_name = "IcepakCopiedProject"
         design_name = "IcepakCopiedBodies"
-        new_design = Icepak(project_name=project_name, design_name=design_name)
+        new_design = Icepak(projectname=project_name, designname=design_name)
         assert new_design.copy_solid_bodies_from(self.aedtapp)
         assert sorted(new_design.modeler.solid_bodies) == ["Region", "box", "box2", "box3", "network_box", "network_box2"]
         new_design.delete_design(design_name)

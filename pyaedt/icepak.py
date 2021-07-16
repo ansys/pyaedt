@@ -20,12 +20,12 @@ class Icepak(FieldAnalysisIcepak):
 
     Parameters
     ----------
-    project_name : str, optional
+    projectname : str, optional
         Name of the project to select or the full path to the project
         or AEDTZ archive to open.  The default is ``None``, in which
         case an attempt is made to get an active project. If no 
         projects are present, an empty project is created.
-    design_name : str, optional
+    designname : str, optional
         Name of the design to select. The default is ``None``, in 
         which case an attempt is made to get an active design. If no
         designs are present, an empty design is created.
@@ -86,9 +86,9 @@ class Icepak(FieldAnalysisIcepak):
 
     """
     
-    def __init__(self, project_name=None, design_name=None, solution_type=None, setup_name=None,
+    def __init__(self, projectname=None, designname=None, solution_type=None, setup_name=None,
                  specified_version=None, NG=False, AlwaysNew=False, release_on_exit=False, student_version=False):
-        FieldAnalysisIcepak.__init__(self, "Icepak", project_name, design_name, solution_type, setup_name,
+        FieldAnalysisIcepak.__init__(self, "Icepak", projectname, designname, solution_type, setup_name,
                                      specified_version, NG, AlwaysNew, release_on_exit, student_version)
 
     def __enter__(self):
