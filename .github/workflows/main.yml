@@ -55,9 +55,9 @@ jobs:
           python -c "import pyaedt; print('Imported pyaedt')"
      
            - name: Partial Documentation Build
-        if: startsWith(github.event.ref, 'refs/heads/main') != true
+        #if: startsWith(github.event.ref, 'refs/heads/main') != true
       
-      - name: 'Install pyaedt'      
+      - name: 'Create Documentations'      
         run: |
           testenv\Scripts\Activate.ps1
           cd doc/source 
