@@ -1452,7 +1452,7 @@ class Hfss(FieldAnalysis3D, object):
         Returns
         -------
         str
-            Name of the port created when succesful, ``False`` otherwise.
+            Name of the port created when successful, ``False`` otherwise.
         """
 
         if self.solution_type in ["DrivenModal", "DrivenTerminal", "Transient Network"]:
@@ -1685,7 +1685,7 @@ class Hfss(FieldAnalysis3D, object):
         Returns
         -------
         str
-            Name of the impedence created when successful; ``False`` otherwise.
+            Name of the impedance created when successful; ``False`` otherwise.
         
         """
 
