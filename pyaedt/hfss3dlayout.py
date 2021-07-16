@@ -11,10 +11,9 @@ from .generic.general_methods import generate_unique_name, aedt_exception_handle
 
 
 class SweepString(object):
-    """SweepString class.
+    """Generates a sweep string.
     
-    This class allows you to generate a sweep string like in this example: 
-    ``"LIN 10GHz 20GHz 0.05GHz LINC 20GHz 30GHz 10 DEC 30GHz 40GHz 10 40GHz``
+    For example, ``"LIN 10GHz 20GHz 0.05GHz LINC 20GHz 30GHz 10 DEC 30GHz 40GHz 10 40GHz``.
     
     Parameters
     ----------
@@ -79,8 +78,7 @@ class SweepString(object):
 class Hfss3dLayout(FieldAnalysis3DLayout):
     """HFSS 3D Layout instance interface.
 
-    This class contains all HFSS 3D Layout functionalities. It
-    inherits all objects that belong to HFSS 3D Layout, including EDB
+    Inherits all objects that belong to HFSS 3D Layout, including EDB
     API queries.
 
     Parameters
