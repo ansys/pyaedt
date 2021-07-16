@@ -75,6 +75,15 @@ class Edb(object):
     """
 
     def __init__(self, edbpath=None, cellname=None, isreadonly=False, edbversion="2021.1", isaedtowned=False, oproject=None, student_version=False):
+        self._components = None
+        self._core_primitives = None
+        self._stackup = None
+        self._padstack = None
+        self._siwave = None
+        self._hfss = None
+        self._nets = None
+        self._db = None
+        self._edb = None
         if edb_initialized:
             self.oproject = oproject
             if isaedtowned:
@@ -90,7 +99,6 @@ class Edb(object):
             self._messenger.add_info_message("Messenger Initialized in EDB")
             self.edbversion = edbversion
             self.isaedtowned = isaedtowned
-
 
             self._init_dlls()
             self._db = None
@@ -110,17 +118,8 @@ class Edb(object):
                 self.edbpath = edbpath[-3:] + ".aedb"
                 working_dir = os.path.dirname(edbpath)
                 self.import_layout_pcb(edbpath, working_dir)
-            self._components = None
-            self._core_primitives = None
-            self._stackup = None
-            self._padstack = None
-            self._siwave = None
-            self._hfss = None
-            self._nets = None
         else:
-            self._db = None
-            self._edb = None
-            pass
+            warnings.warn("Failed to Initialize Dlls")
 
 
     @aedt_exception_handler
