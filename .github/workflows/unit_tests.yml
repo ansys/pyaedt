@@ -104,7 +104,7 @@ jobs:
           testenv\Scripts\Activate.ps1
           python setup.py sdist
           python -m pip install twine
-          python -m twine upload dist/*
+          python -m twine upload --skip-existing dist/*
         env:
           TWINE_USERNAME: __token__
           TWINE_PASSWORD: ${{ secrets.PYPI_TOKEN }}
