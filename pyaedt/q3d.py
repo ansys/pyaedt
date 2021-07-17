@@ -229,7 +229,7 @@ class Q3d(QExtractor, object):
 
         Returns
         -------
-        :class: `pyaedt.modules.boundary.BoundaryObject`
+        :class:`pyaedt.modules.boundary.BoundaryObject`
             Boundary object.
         
         """
@@ -267,7 +267,7 @@ class Q3d(QExtractor, object):
 
         Returns
         -------
-        :class: `pyaedt.modules.boundary.BoundaryObject`
+        :class:`pyaedt.modules.boundary.BoundaryObject`
             Boundary object.
         
         """

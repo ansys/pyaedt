@@ -283,7 +283,6 @@ class Edb(object):
     @aedt_exception_handler
     def open_edb_inside_aedt(self, init_dlls=False):
         """Open EDB inside of AEDT.
-        
         Parameters
         ----------
         init_dlls :
@@ -613,7 +612,8 @@ class Edb(object):
 
         Parameters
         ----------
-        func : 
+        func : str
+            Function to execute.
             
 
         Returns
@@ -683,7 +683,7 @@ class Edb(object):
             List of references to add. The default is ``["GND"]``.
         extent_type : str
             Type of the extension. Options are ``"Conforming"`` and 
-            ``"Bounding"``. The default is ``Conformaing``.
+            ``"Bounding"``. The default is ``"Conforming"``.
         expansion_size : float
             Expansion size ratio in meters. The default is ``0.002``.
         use_round_corner : bool, optional
@@ -769,7 +769,7 @@ class Edb(object):
         path_to_output : str
             Full path to the configuration file where the 3D export optons are to be saved.
         
-        config_dictionaries : optional
+        config_dictionaries : dict, optional
         
         """
         option_config = {

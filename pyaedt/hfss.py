@@ -1685,7 +1685,7 @@ class Hfss(FieldAnalysis3D, object):
         Returns
         -------
         str
-            Name of the impedance created when successful; ``False`` otherwise.
+            Name of the impedance created when successful, ``False`` otherwise.
         
         """
 

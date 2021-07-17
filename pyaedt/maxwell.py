@@ -927,8 +927,8 @@ class Maxwell2d(Maxwell, FieldAnalysis2D, object):
     def read_design_data(self):
         """Read back the design data as a dictionary.
         
-        Return
-        ------
+        Returns
+        -------
         dict
             Dictionary of design data.
         

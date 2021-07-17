@@ -103,7 +103,7 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
         Version of AEDT to use. The default is ``None``, in which case
         the active version or latest installed version is used.
     NG : bool, optional
-        Whether to laumch AEDT in the non-graphical mode. The default 
+        Whether to launch AEDT in the non-graphical mode. The default 
         is``False``, which launches AEDT in the graphical mode.  
     AlwaysNew : bool, optional
         Whether to launch an instance of AEDT in a new thread, even if

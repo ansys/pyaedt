@@ -387,7 +387,7 @@ class Icepak(FieldAnalysisIcepak):
         ----------
         input_list : list
             List of sources with inputs ``rjc``,  ``rjb``, and ``power``. 
-            For example, ``[[Objname1, rjc, rjb, power1,power2....],[Objname2, rjc2, rbj2, power1, power2...]]``.
+            For example, ``[[Objname1, rjc, rjb, power1, power2, ...], [Objname2, rjc2, rbj2, power1, power2, ...]]``.
         gravity_dir : int
             Gravity direction from -X to +Z. Options are ``0`` to ``5``.
         top :
@@ -1295,7 +1295,8 @@ class Icepak(FieldAnalysisIcepak):
                                  custom_x_resolution=None, custom_y_resolution=None):
         """Create a PCB component in Icepak that is linked to an HFSS 3D Layout object linking only to the geometry file.
         
-        No solution is linked.
+        .. note::
+           No solution is linked.
 
         Parameters
         ----------

@@ -110,7 +110,7 @@ class Mechanical(FieldAnalysis3D, object):
             List objects in the source that are metals. The default is ``[]``.
         source_project_name : str, optional
             Name of the source project. The default is ``None``, in which case
-	    the source from the same project is used.
+	      the source from the same project is used.
         paramlist : list, optional
             List of all parameters in the EM to map. The default is ``[]``.
         object_list : list, optional
@@ -192,8 +192,8 @@ class Mechanical(FieldAnalysis3D, object):
 
         Returns
         -------
-	:class:`aedt.modules.Boundary.Boundary object
-	    Boundary object.
+	  :class:`aedt.modules.Boundary.Boundary object
+	      Boundary object.
         """
 
         assert self.solution_type == "Structural", "This method works only in a Mechanical structural solution."
@@ -254,7 +254,7 @@ class Mechanical(FieldAnalysis3D, object):
         Returns
         -------
         :class:`aedt.modules.Boundary.Boundary object
-	    Boundary object.
+	      Boundary object.
 
         """
         assert self.solution_type == "Thermal", "This method works only in a Mechanical structural solution."
@@ -299,7 +299,7 @@ class Mechanical(FieldAnalysis3D, object):
         Returns
         -------
         :class:`aedt.modules.Boundary.Boundary object
-	    Boundary object.
+	      Boundary object.
 
         """
         assert self.solution_type == "Thermal", "This method works only in a Mechanical structural analysis."
@@ -341,7 +341,7 @@ class Mechanical(FieldAnalysis3D, object):
         Returns
         -------
         :class:`aedt.modules.Boundary.Boundary object
-	    Boundary object.
+	      Boundary object.
 
         """
 
@@ -383,7 +383,7 @@ class Mechanical(FieldAnalysis3D, object):
         Returns
         -------
         :class:`aedt.modules.Boundary.Boundary object
-	    Boundary object.
+	      Boundary object.
 
         """
         if not (self.solution_type == "Structural" or self.solution_type == "Modal"):

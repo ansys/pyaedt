@@ -9,7 +9,7 @@ from .generic.general_methods import aedt_exception_handler, generate_unique_nam
 
 
 class Emit(FieldAnalysisEmit, object):
-    """Creates currently only a skeleton for an empty design.
+    """Creates only a skeleton for an empty design.
 
     .. note::
        This object has very limited functionalities. No methods
