@@ -19,15 +19,12 @@ class Msg():
 
 
 class MessageList:
-    """MessageList class.
-    
-    This class provides a data structure for collecting and returning messages from the 
-    AEDT Message Manager for a specified project name and design name.
+    """Collects and returns messages from the AEDT Message Manager for a specified project name and design name.
 
     Parameters
     ---------
     msg_list : list 
-        List of messages extracted from AEDT by the `AEDTMessengeManager` class.
+        List of messages extracted from AEDT by the :class:`AEDTMessageManager` class.
     project_name : str
         Name of the project. The default is the active project.
     design_name : str 
@@ -71,9 +68,7 @@ class MessageList:
 
 
 class AEDTMessageManager(object):
-    """AEDTMessageManager class.
-    
-    This class manages AEDT messaging to both the logger and the AEDT Message UI.
+    """Manages AEDT messaging to both the logger and the AEDT Message Manager window.
   
     Parameters
     ----------
@@ -140,15 +135,14 @@ class AEDTMessageManager(object):
     def get_messages(self, project_name, design_name):
         """Retrieve the Message Manager content for a specified project and design.
         
+        If the specified project and design names are invalid, they are ignored.
+        
         Parameters
         ----------
         project_name : str
             Name of the project.
         design_name : str
-            Name of the design within the specified project.
-        
-        .. note::
-           If the design or project names are invalid, they are ignored.
+            Name of the design within the specified project.     
 
         Returns
         -------
@@ -237,7 +231,7 @@ class AEDTMessageManager(object):
 
     @aedt_exception_handler
     def add_debug_message(self, message_text, level=None):
-        """Deprecated in favor of `add_info_message`.
+        """Deprecated in favor of :func:`MessageList.add_info_message`.
         .. deprecated:: 0.2.0
            Use the method :func:`MessageList.add_info_message`.
         """
@@ -308,7 +302,7 @@ class AEDTMessageManager(object):
 
     @aedt_exception_handler
     def clear_messages(self, proj_name=None, des_name=None, level=2):
-        """Clear messages.
+        """Clear all messages.
 
         Parameters
         ----------
@@ -366,9 +360,7 @@ class AEDTMessageManager(object):
 
 
 class EDBMessageManager(object):
-    """EDBMessageManager class.
-    
-    This class provides all functionalities for managing EDB messaging to the logger.
+    """Manages EDB messaging to the logger.
     
     Parameters
     ----------
