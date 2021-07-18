@@ -1,0 +1,69 @@
+# This is a basic workflow to help you get started with Actions
+
+name: FullDocumentation
+
+env:
+  python.version: 3.8
+  python.venv: 'testvenv'
+# Controls when the workflow will run
+on:
+  # Triggers the workflow on push or pull request events but only for the main branch
+  push:
+    tags:
+     - v*
+  workflow_dispatch:
+    inputs:
+      logLevel:
+        description: 'Log level'     
+        required: true
+        default: 'warning'
+      tags:
+        description: 'Test scenario tags'     
+     
+# A workflow run is made up of one or more jobs that can run sequentially or in parallel
+jobs:
+  # This workflow contains a single job called "build"
+  full_documentation:
+    # The type of runner that the job will run on
+    runs-on: self-hosted
+    strategy:
+      matrix:
+        python-version: [3.8]
+    # Steps represent a sequence of tasks that will be executed as part of the job
+    steps:
+      - uses: actions/checkout@v2
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v2
+        with:
+          python-version: ${{ matrix.python-version }}
+
+      - name: 'Create virtual env'
+        run: |
+          python -m venv testenv
+          testenv\Scripts\Activate.ps1
+          python -m pip install pip -U
+          python -m pip install wheel setuptools -U
+          python -c "import sys; print(sys.executable)"
+          
+      - name: 'Install pyaedt'
+        run: |
+          testenv\Scripts\Activate.ps1
+          pip install -r requirements.txt
+          pip install -r requirements_docs.txt
+          Copy-Item -Path "C:\actions-runner\opengl32.dll" -Destination "testenv\Lib\site-packages\vtkmodules" -Force
+ 
+        #if: startsWith(github.event.ref, 'refs/heads/main') != true
+      
+      - name: 'Create Documentations'      
+        run: |
+          testenv\Scripts\Activate.ps1
+          sphinx-build -b html -a doc/source doc/_build/html -j 4
+
+
+      - name: Upload Documentation
+        uses: actions/upload-artifact@v2.2.3
+        with:
+          name: Documentation
+          path: doc/_build/html
+          retention-days: 7
+

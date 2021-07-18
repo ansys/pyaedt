@@ -77,8 +77,8 @@ class Components(object):
 
     @property
     def _messenger(self):
-        """Messenger."""
-        return self.parent.messenger
+        """_messenger."""
+        return self.parent._messenger
 
     @property
     def _edb(self):

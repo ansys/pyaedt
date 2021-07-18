@@ -404,8 +404,8 @@ class Layers(object):
     """
 
     @property
-    def messenger(self):
-        """Messenger."""
+    def _messenger(self):
+        """_messenger."""
         return self._parent._messenger
 
     @property

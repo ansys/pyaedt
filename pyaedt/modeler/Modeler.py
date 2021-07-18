@@ -474,7 +474,7 @@ class Modeler(object):
         return self._parent._desktop
 
     @property
-    def messenger(self):
+    def _messenger(self):
         """ """
         return self._parent._messenger
 
@@ -852,9 +852,9 @@ class GeometryModeler(Modeler, object):
 
         """
         if enable_deformation:
-            self.messenger.add_debug_message("Set model temperature and enabling temperature and deformation feedback")
+            self._messenger.add_debug_message("Set model temperature and enabling temperature and deformation feedback")
         else:
-            self.messenger.add_debug_message("Set model temperature and enabling temperature feedback")
+            self._messenger.add_debug_message("Set model temperature and enabling temperature feedback")
         if create_project_var:
             self._parent.variable_manager["$AmbientTemp"] = str(ambient_temp) + "cel"
             var = "$AmbientTemp"
@@ -880,10 +880,10 @@ class GeometryModeler(Modeler, object):
             if enable_deformation:
                 self.odesign.SetObjectDeformation(["EnabledObjects:=", vdef])
         except:
-            self.messenger.add_error_message("Failed to enable the temperature and deformation dependence")
+            self._messenger.add_error_message("Failed to enable the temperature and deformation dependence")
             return False
         else:
-            self.messenger.add_debug_message(
+            self._messenger.add_debug_message(
                 "Assigned objects temperature and enabled temperature and deformation feedback")
             return True
 
@@ -905,7 +905,7 @@ class GeometryModeler(Modeler, object):
         -------
 
         """
-        self.messenger.add_debug_message("Set model temperature and enabling Thermal Feedback")
+        self._messenger.add_debug_message("Set model temperature and enabling Thermal Feedback")
         if create_project_var:
             self._parent.variable_manager["$AmbientTemp"] = str(ambient_temp) + "cel"
             var = "$AmbientTemp"
@@ -927,10 +927,10 @@ class GeometryModeler(Modeler, object):
         try:
             self.odesign.SetObjectTemperature(vargs1)
         except:
-            self.messenger.add_error_message("Failed to enable the temperature dependence")
+            self._messenger.add_error_message("Failed to enable the temperature dependence")
             return False
         else:
-            self.messenger.add_debug_message("Assigned Objects Temperature")
+            self._messenger.add_debug_message("Assigned Objects Temperature")
             return True
 
     @aedt_exception_handler
@@ -1231,19 +1231,8 @@ class GeometryModeler(Modeler, object):
 
         """
         selections = self.convert_to_selections(obj_list, True)
-        arg = ["NAME:AllTabs"]
-        arg2 = ["NAME:Geometry3DAttributeTab"]
-        arg3 = ["NAME:PropServers"]
-        for el in selections:
-            arg3.append(el)
-        arg2.append(arg3)
-        arg2.append(["NAME:ChangedProps", ["NAME:Model", "Value:=", model]])
-        arg.append(arg2)
-        self.oeditor.ChangeProperty(arg)
         for obj in selections:
-            self.primitives.objects[self.primitives.get_obj_id(obj)].model = model
-
-
+            self.primitives[obj].model = model
         return True
 
     @aedt_exception_handler
@@ -1825,15 +1814,11 @@ class GeometryModeler(Modeler, object):
     def get_model_bounding_box(self):
         """GetModelBoundingbox and return it
         
-        
-        :return: bounding box list
-
-        Parameters
-        ----------
 
         Returns
         -------
-
+        list
+            list of 6 float values [min_x, min_y, min_z, max_x, max_y, max_z]
         """
         bb = list(self.oeditor.GetModelBoundingBox())
         bound = [float(b) for b in bb]
@@ -1913,10 +1898,10 @@ class GeometryModeler(Modeler, object):
         unclassified1 = list(self.oeditor.GetObjectsInGroup("Unclassified"))
         if unclassified != unclassified1:
             self.odesign.Undo()
-            self.messenger.add_error_message("Error in intersection. Reverting Operation")
+            self._messenger.add_error_message("Error in intersection. Reverting Operation")
             return False
         self.primitives.cleanup_objects()
-        self.messenger.add_info_message("Intersection Succeeded")
+        self._messenger.add_info_message("Intersection Succeeded")
         return True
 
     @aedt_exception_handler
@@ -1942,11 +1927,11 @@ class GeometryModeler(Modeler, object):
         self.oeditor.Connect(vArg1)
         if unclassified_before != self.primitives.unclassified_names:
             self.odesign.Undo()
-            self.messenger.add_error_message("Error in connection. Reverting Operation")
+            self._messenger.add_error_message("Error in connection. Reverting Operation")
             return False
 
         self.primitives.cleanup_objects()
-        self.messenger.add_info_message("Connection Correctly created")
+        self._messenger.add_info_message("Connection Correctly created")
         return True
 
     @aedt_exception_handler
@@ -1992,12 +1977,12 @@ class GeometryModeler(Modeler, object):
         -------
 
         """
-        self.messenger.add_info_message("Subtract all objects from Chassis object - exclude vacuum objs")
+        self._messenger.add_info_message("Subtract all objects from Chassis object - exclude vacuum objs")
         mat_names = self.omaterial_manager.GetNames()
         num_obj_start = self.oeditor.GetNumObjects()
         blank_part = chassis_part
         # in main code this object will need to be determined automatically eg by name such as chassis or sheer size
-        self.messenger.add_info_message("Blank Part in Subtraction = " + str(blank_part))
+        self._messenger.add_info_message("Blank Part in Subtraction = " + str(blank_part))
         '''
         check if blank part exists, if not, skip subtraction
         '''
@@ -2013,7 +1998,7 @@ class GeometryModeler(Modeler, object):
         num_obj_end = self.oeditor.GetNumObjects()
         self.subtract(blank_part, tool_parts, True)
 
-        self.messenger.add_info_message \
+        self._messenger.add_info_message \
             ("Subtraction Objs - Initial: " + str(num_obj_start) + "  ,  Final: " + str(num_obj_end))
 
     @aedt_exception_handler
@@ -2159,7 +2144,7 @@ class GeometryModeler(Modeler, object):
         -------
 
         """
-        self.messenger.add_info_message("Adding Airbox to the Bounding ")
+        self._messenger.add_info_message("Adding Airbox to the Bounding ")
 
         bound = self.get_model_bounding_box()
         if offset_type == "Absolute":
@@ -2418,7 +2403,7 @@ class GeometryModeler(Modeler, object):
 
         self.oeditor.CreateEntityList(["NAME:GeometryEntityListParameters", "EntityType:=", "Face",
                                        "EntityList:=", fl], ["NAME:Attributes", "Name:=", name])
-        self.messenger.add_info_message("Face List " + name + " created")
+        self._messenger.add_info_message("Face List " + name + " created")
         return True
 
     @aedt_exception_handler
@@ -2444,7 +2429,7 @@ class GeometryModeler(Modeler, object):
         listf = ",".join(fl)
         self.oeditor.CreateEntityList(["NAME:GeometryEntityListParameters", "EntityType:=", "Object",
                                        "EntityList:=", listf], ["NAME:Attributes", "Name:=", name])
-        self.messenger.add_info_message("Object List " + name + " created")
+        self._messenger.add_info_message("Object List " + name + " created")
 
         return self.get_entitylist_id(name)
 
@@ -2516,7 +2501,7 @@ class GeometryModeler(Modeler, object):
                 edgelist.append(el)
                 verlist.append([p1, p2])
         if not edgelist:
-            self.messenger.add_error_message("No edges found specified direction. Check again")
+            self._messenger.add_error_message("No edges found specified direction. Check again")
             return False
         connected = [edgelist[0]]
         tol = 1e-6
@@ -2628,7 +2613,7 @@ class GeometryModeler(Modeler, object):
         """
         list2 = self.select_allfaces_fromobjects(externalobjects)  # find ALL faces of outer objects
         self.create_face_list(list2, name)
-        self.messenger.add_info_message('Extfaces of thermal model = ' + str(len(list2)))
+        self._messenger.add_info_message('Extfaces of thermal model = ' + str(len(list2)))
         return True
 
     @aedt_exception_handler
@@ -2648,7 +2633,7 @@ class GeometryModeler(Modeler, object):
             True if operation succeeded
 
         """
-        self.messenger.add_info_message("Creating Explicit Subtraction between Objects")
+        self._messenger.add_info_message("Creating Explicit Subtraction between Objects")
         for el in diellist:
             list1 = el
             list2 = ""
@@ -2673,7 +2658,7 @@ class GeometryModeler(Modeler, object):
                 self.subtract(list1, list2, True)
                 self.purge_history(list1)
                 self.purge_history(list2)
-        self.messenger.add_info_message("Explicit Subtraction Completed")
+        self._messenger.add_info_message("Explicit Subtraction Completed")
         return True
 
     @aedt_exception_handler
@@ -2745,7 +2730,7 @@ class GeometryModeler(Modeler, object):
             try:
                 line_ids[line_object] = str(self.oeditor.GetObjectIDByName(line_object))
             except:
-                self.messenger.add_warning_message('Line {} has an invalid ID!'.format(line_object))
+                self._messenger.add_warning_message('Line {} has an invalid ID!'.format(line_object))
         return line_ids
 
     @aedt_exception_handler
@@ -2889,7 +2874,7 @@ class GeometryModeler(Modeler, object):
         self.oeditor.Import(vArg1)
         if refresh_all_ids:
             self.primitives.refresh_all_ids()
-        self.messenger.add_info_message("Step file {} imported".format(filename))
+        self._messenger.add_info_message("Step file {} imported".format(filename))
         return True
 
 
@@ -2913,7 +2898,7 @@ class GeometryModeler(Modeler, object):
                 if l > latestversion:
                     latestversion = l
         if not latestversion:
-            self.messenger.add_error_message("NO SPACECLAIM FOUND")
+            self._messenger.add_error_message("NO SPACECLAIM FOUND")
         else:
             scdm_path = os.path.join(os.environ[latestversion], "scdm")
         self.oeditor.CreateUserDefinedModel(
@@ -3113,7 +3098,7 @@ class GeometryModeler(Modeler, object):
         -------
 
         """
-        self.messenger.add_info_message("Selecting Outer Faces")
+        self._messenger.add_info_message("Selecting Outer Faces")
 
         sel = []
         if type(mats) is str:
@@ -3144,7 +3129,7 @@ class GeometryModeler(Modeler, object):
         -------
 
         """
-        self.messenger.add_info_message("Selecting Outer Faces")
+        self._messenger.add_info_message("Selecting Outer Faces")
 
         sel = []
 
@@ -3283,7 +3268,7 @@ class GeometryModeler(Modeler, object):
                                     ]
                                 ])
                     except:
-                        self.messenger.add_info_message("done")
+                        self._messenger.add_info_message("done")
                         # self.modeler_oproject.ClearMessages()
         return True
 
@@ -3454,4 +3439,3 @@ class GeometryModeler(Modeler, object):
                 "Groups:=", ["Model"]
             ])
         return True
-

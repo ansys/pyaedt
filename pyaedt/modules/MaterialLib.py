@@ -31,8 +31,8 @@ class Materials(object):
         return self.odefinition_manager.GetManager("Material")
 
     @property
-    def messenger(self):
-        """Messenger.
+    def _messenger(self):
+        """_messenger.
         
         Returns
         -------
@@ -48,7 +48,7 @@ class Materials(object):
 
     def __init__(self, parent):
         self._parent = parent
-        self.messenger.logger.info('Successfully loaded project materials !')
+        self._messenger.logger.info('Successfully loaded project materials !')
         self.material_keys = self._get_materials()
         self.surface_material_keys = self._get_surface_materials()
         self._load_from_project()
@@ -177,15 +177,15 @@ class Materials(object):
         
         """
         materialname = materialname.lower()
-        self.messenger.add_info_message('Adding new material to the Project Library: ' + materialname)
+        self._messenger.add_info_message('Adding new material to the Project Library: ' + materialname)
         if materialname in self.material_keys:
-            self.messenger.add_warning_message(
+            self._messenger.add_warning_message(
                 "Warning. The material is already in the database. Change or edit the name.")
             return self.material_keys[materialname]
         else:
             material = Material(self._parent, materialname, props)
             material.update()
-            self.messenger.add_info_message("Material has been added. Edit it to update in Desktop.")
+            self._messenger.add_info_message("Material has been added. Edit it to update in Desktop.")
             self.material_keys[materialname] = material
             return self.material_keys[materialname]
 
@@ -218,9 +218,9 @@ class Materials(object):
         """
         
         materialname = material_name.lower()
-        self.messenger.add_info_message('Adding New Surface Material material to Project Library: ' + materialname)
+        self._messenger.add_info_message('Adding New Surface Material material to Project Library: ' + materialname)
         if materialname in self.surface_material_keys:
-            self.messenger.add_warning_message(
+            self._messenger.add_warning_message(
                 "Warning. The material is already in database. Please change name or edit it")
             return self.surface_material_keys[materialname]
         else:
@@ -228,7 +228,7 @@ class Materials(object):
             if emissivity:
                 material.emissivity = emissivity
                 material.update()
-            self.messenger.add_info_message("Material added. Please edit it to update in Desktop")
+            self._messenger.add_info_message("Material added. Please edit it to update in Desktop")
             self.surface_material_keys[materialname] = material
             return self.surface_material_keys[materialname]
 
@@ -243,7 +243,7 @@ class Materials(object):
                 try:
                     matprop[prop].append(float(mat.__dict__["_"+prop].value))
                 except:
-                    self.messenger.add_warning_message("Warning. Wrong parsed property. Reset to 0")
+                    self._messenger.add_warning_message("Warning. Wrong parsed property. Reset to 0")
                     matprop[prop].append(0)
             try:
                 a = sum(matprop[prop])
@@ -335,7 +335,7 @@ class Materials(object):
         
         """
         if material.lower() not in list(self.material_keys.keys()):
-            self.messenger.add_error_message("Material {} is not present".format(material))
+            self._messenger.add_error_message("Material {} is not present".format(material))
             return False
         newmat = Material(self, new_name.lower(), self.material_keys[material.lower()]._props)
         newmat.update()
@@ -368,7 +368,7 @@ class Materials(object):
         
         """
         if not material.lower() in list(self.surface_material_keys.keys()):
-            self.messenger.add_error_message("Material {} is not present".format(material))
+            self._messenger.add_error_message("Material {} is not present".format(material))
             return False
         newmat = SurfaceMaterial(self, new_name.lower(), self.surface_material_keys[material.lower()]._props)
         newmat.update()
@@ -403,7 +403,7 @@ class Materials(object):
 
         """
         if material not in list(self.material_keys.keys()):
-            self.messenger.add_error_message("Material {} is not present".format(material))
+            self._messenger.add_error_message("Material {} is not present".format(material))
             return False
         self.odefinition_manager.RemoveMaterial(material, True, "", library)
         del self.material_keys[material]
@@ -448,7 +448,7 @@ class Materials(object):
                 try:
                     self._aedmattolibrary(el)
                 except Exception as e:
-                    self.messenger.add_info_message('aedmattolibrary failed for material {}'.format(el))
+                    self._messenger.add_info_message('aedmattolibrary failed for material {}'.format(el))
 
     @aedt_exception_handler
     def _aedmattolibrary(self, matname):
@@ -548,7 +548,7 @@ class Materials(object):
         for el, val in data["materials"].items():
             if el.lower() in list(self.material_keys.keys()):
                 newname =generate_unique_name(el)
-                self.messenger.add_warning_message("Material {} already exists. Renaming to {}".format(el, newname))
+                self._messenger.add_warning_message("Material {} already exists. Renaming to {}".format(el, newname))
             else:
                 newname = el
             newmat = Material(self, newname, val)

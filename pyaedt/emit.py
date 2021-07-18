@@ -1,5 +1,3 @@
-"""This module contains the ``Emit`` class."""
-
 from __future__ import absolute_import
 
 import numbers
@@ -11,12 +9,11 @@ from .generic.general_methods import aedt_exception_handler, generate_unique_nam
 
 
 class Emit(FieldAnalysisEmit, object):
-    """Emit class.
+    """Creates only a skeleton for an empty design.
 
     .. note::
-       At the moment, this object has very limited functionalities. It
-       contains only a skeleton for creating an empty design. No methods
-       are implemented yet.
+       This object has very limited functionalities. No methods
+       have been implemented yet.
 
     Parameters
     ----------
@@ -30,14 +27,14 @@ class Emit(FieldAnalysisEmit, object):
         ``None``, try to get an active design and, if no designs are
         present, create an empty design.
     solution_type : str, optional
-        Solution type to apply to design. The default is ``None``. If
-        ``None``, the default type is applied.
+        Solution type to apply to the design. The default is ``None``, in which
+        case the default type is applied.
     setup_name : str, optional
        Name of the setup to use as the nominal. The default is
-       ``None``. If ``None``, the active setup is used or nothing is
+       ``None``, in which case the active setup is used or nothing is
        used.
     specified_version : str, optional
-        Version of AEDT to use. The default is ``None``. If ``None``,
+        Version of AEDT to use. The default is ``None``, in which case
         the active setup is used or the latest installed version is
         used.
     NG : bool, optional
@@ -50,28 +47,28 @@ class Emit(FieldAnalysisEmit, object):
     release_on_exit : bool, optional
         Whether to release AEDT on exit. The default is ``True``.
     student_version : bool, optional
-        Whether open AEDT Student Version. The default is ``False``.
+        Whether to open the AEDT student version. The default is ``False``.
 
     Examples
     --------
-    Create an instance of ``Emit`` and connect to an existing Maxwell
+    Create an instance of Emit and connect to an existing Maxwell
     design or create a new Emit design if one does not exist.
 
     >>> from pyaedt import Emit
     >>> app = Emit()
 
-    Create a instance of ``Emit`` and link to a project named
+    Create a instance of Emit and link to a project named
     ``"projectname"``. If this project does not exist, create one with
     this name.
 
     >>> app = Emit(projectname)
 
-    Create an instance of ``Emit`` and link to a design named
+    Create an instance of Emit and link to a design named
     ``"designname"`` in a project named ``"projectname"``.
     
     >>> app = Emit(projectname,designame)
 
-    Create an instance of ``Emit`` and open the specified project.
+    Create an instance of Emit and open the specified project.
 
     >>> app = Emit("myfile.aedt")
 
@@ -88,6 +85,6 @@ class Emit(FieldAnalysisEmit, object):
         return self
 
     def __exit__(self, ex_type, ex_value, ex_traceback):
-        """ Push exit up to parent object Design """
+        """Push exit up to parent object Design """
         if ex_type:
             exception_to_desktop(self, ex_value, ex_traceback)
