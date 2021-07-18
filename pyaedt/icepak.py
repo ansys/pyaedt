@@ -82,7 +82,7 @@ class Icepak(FieldAnalysisIcepak):
     Create an instance of Icepak using the 2021 R1 release and
     open the specified project, which is ``myfile.aedt``.
 
-    >>> icepak = Icepak(specified_version="2021.1", project_name="myfile.aedt")
+    >>> icepak = Icepak(specified_version="2021.1", projectname="myfile.aedt")
 
     """
     
