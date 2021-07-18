@@ -1,9 +1,8 @@
 """
 This module contains these classes: `Design` and `DesignCache`.
 
-It contains all basic project information and objects. 
-Because this module is inherited in the Main Tool class, 
-it will be a simple call from it.
+This module provides all functionalities for basic project information and objects. 
+These classes are inherited in the main tool class.
 
 """
 from __future__ import absolute_import
@@ -210,9 +209,9 @@ def list_difference(list1, list2):
     return list(set(list1) - set(list2))
 
 class DesignCache(object):
-    """DesignCache class.
+    """Provides for analyzing the differences in the state of a design between two points in time.
     
-    The cache object analyzes the differences in the state of a design between two points in time.
+    This class provides for analyzing the differences in the state of a design between two points in time.
 
     The contents of the design tracked in the Message Manager currently are:
 
@@ -250,7 +249,7 @@ class DesignCache(object):
         Returns
         --------
         bool
-            ``True`` when the design snapshot is unchanged since the last update; ``False`` otherwise.
+            ``True`` when the design snapshot is unchanged since the last update, ``False`` otherwise.
         """
         return self._no_change
 
@@ -306,7 +305,7 @@ class DesignCache(object):
         -------
         bool
             ``True`` if new messages have appeared since the last update or since the Message Manager was
-            cleared; ``False`` otherwise.
+            cleared, ``False`` otherwise.
         """
         return not bool(self._delta_messages)
 
@@ -317,17 +316,18 @@ class DesignCache(object):
         Returns
         -------
         bool
-            ``True`` if new error messages have appeared since the last update; ``False`` otherwise.
+            ``True`` if new error messages have appeared since the last update, ``False`` otherwise.
         """
         return not bool(self._new_error_messages)
 
     @property
     def no_new_warnings(self):
         """Whether any new warning messages have appeared since the last uodate.
+        
         Returns
         -------
         bool
-            ``True`` if new error messages have appeared since the last update; ``False`` otherwise.
+            ``True`` if new error messages have appeared since the last update, ``False`` otherwise.
         """
         return not bool(self._new_warning_messages)
 
@@ -359,7 +359,7 @@ class DesignCache(object):
         return snapshot
 
     def clear(self):
-        """Clear the cached values."""
+        """Clear cached values."""
         self._messages_global_level = []
         self._messages_project_level = []
         self._messages_design_level = []
@@ -569,7 +569,7 @@ class Design(object):
 
     @property
     def design_name(self):
-        """Name of the parent AEDT design.
+        """Design name.
 
         Returns
         -------
@@ -595,12 +595,6 @@ class Design(object):
 
     @design_name.setter
     def design_name(self, new_name):
-        """
-        Property
-
-        :return: Change the name of the parent AEDT Design
-        """
-
         if ";" in new_name:
             new_name = new_name.split(";")[1]
 
@@ -614,7 +608,7 @@ class Design(object):
 
     @property
     def design_list(self):
-        """List of designs.
+        """Design list.
 
         Returns
         -------
@@ -632,14 +626,26 @@ class Design(object):
     @property
     def design_type(self):
         """Design type.
-
-        Parameters
-        ----------
-        type
-            Type of the design.
+        
+        One of the following:
+        - ``'Maxwell 2D'``
+        - ``'Maxwell 3D'``
+        - ``'Twin Builder'``
+        - ``'Circuit Design'``
+        - ``'2D Extractor'``
+        - ``'Q3D Extractor'``
+        - ``'HFSS'``
+        - ``'Icepak'``
+        - ``'RMxprtSolution'``
+        - ``'ModelCreation'``
+        - ``'HFSS 3D Layout Design'``
+        - ``'Mechanical'``
+        - ``'EMIT'
 
         Returns
-        -------
+        --------
+        str
+            Design type.  See above for one of the possible return values.
 
         """
         #return self._odesign.GetDesignType()
@@ -774,7 +780,7 @@ class Design(object):
         Returns
         -------
         bool
-            ``True`` when project and design exists, ``False`` otherwise.
+            ``True`` when the project and design exists, ``False`` otherwise.
 
         """
         if self._oproject and self._odesign:
@@ -888,8 +894,8 @@ class Design(object):
 
         Returns
         -------
-         str
-             Full absolute path for the working directory for this project. 
+        str
+             Full absolute path for the project's working directory. 
              If this directory does not exist, it is created.
 
         """
@@ -1301,9 +1307,9 @@ class Design(object):
         ----------
         variable_name : str
             Name of the variable.
-        min_val : str, optional
+        min_val : optional
             Minimum value for the variable. The default is ``None``.
-        max_val : str, optional
+        max_val : optional
             Maximum value for the variable. The default is ``None``.
 
         Returns
@@ -1355,9 +1361,9 @@ class Design(object):
         ----------
         variable_name : str
             Name of the variable.
-        min_val : str, optional
+        min_val : optional
             Minimum value for the variable. The default is ``None``.
-        max_val : str, optional
+        max_val : optional
             Maximum value for the variable. The default is ``None``.
 
         Returns
@@ -1376,7 +1382,7 @@ class Design(object):
 
     @aedt_exception_handler
     def deactivate_variable_statistical(self, variable_name):
-        """Deactivate statistical analysis for a variable.
+        """Deactivate the statistical analysis for a variable.
 
         Parameters
         ----------
@@ -1399,7 +1405,7 @@ class Design(object):
 
     @aedt_exception_handler
     def deactivate_variable_optimization(self, variable_name):
-        """Deactivate optimization analysis for a variable.
+        """Deactivate the optimization analysis for a variable.
 
         Parameters
         ----------
@@ -1422,7 +1428,7 @@ class Design(object):
 
     @aedt_exception_handler
     def deactivate_variable_sensitivity(self, variable_name):
-        """Deactivate sensitivity analysis for a variable.
+        """Deactivate the sensitivity analysis for a variable.
 
         Parameters
         ----------
@@ -1445,7 +1451,7 @@ class Design(object):
 
     @aedt_exception_handler
     def deactivate_variable_tuning(self, variable_name):
-        """Deactivate tuning analysis for a variable.
+        """Deactivate the tuning analysis for a variable.
 
         Parameters
         ----------
@@ -1590,7 +1596,7 @@ class Design(object):
         """Generate a unique directory string to save a project to.
 
         This method creates a directory for storage of a project in the ``temp`` directory 
-        of the AED installation because this location is guaranteed to exist. If the '`name`' 
+        of the AEDT installation because this location is guaranteed to exist. If the ``name`` 
         parameter is defined, a subdirectory is added within the ``temp`` directory and a 
         hash suffix is added to ensure that this directory is empty and has a unique name.
 
@@ -1602,7 +1608,7 @@ class Design(object):
         Returns
         -------
         str
-            Base name of the subdirectory created.
+            Base name of the created subdirectory.
 
         Examples
         --------
@@ -1668,9 +1674,9 @@ class Design(object):
         dsname : str
             Name of the dataset (without a prefix for a project dataset).
         xlist : list
-            List of X values for the dataset.
+            List of X-axisvalues for the dataset.
         ylist : list
-            List of y values for the dataset.
+            List of Y-axis values for the dataset.
         xunit : str, optional
             Units for the X axis. The default is ``""``.
         yunit : str, optional
@@ -1679,7 +1685,8 @@ class Design(object):
         Returns
         -------
         type
-            Dataset object when the dataset is created; ``False`` otherwise.
+            Dataset object when the dataset is created,
+            ``False`` otherwise.
 
         """
         return self.create_dataset(dsname, xlist,ylist, is_project_dataset=False, xunit=xunit, yunit=yunit)
@@ -1693,9 +1700,9 @@ class Design(object):
         dsname : str
             Name of dataset (without a prefix for a project dataset).
         xlist : list
-            List of X values for the dataset.
+            List of X-axis values for the dataset.
         ylist : list
-            List of Y values for the dataset.
+            List of Y-axis values for the dataset.
         xunit : str, optional
             Units for the X axis. The default is ``""``.
         yunit : str, optional
@@ -1704,7 +1711,7 @@ class Design(object):
         Returns
         -------
         type
-            Dataset object when the dataset is created; ``False`` otherwise.
+            Dataset object when the dataset is created, ``False`` otherwise.
 
         """
         return self.create_dataset(dsname, xlist,ylist, is_project_dataset=True, xunit=xunit, yunit=yunit)
@@ -1717,15 +1724,15 @@ class Design(object):
         Parameters
         ----------
         dsname : str
-            Name of the dataset (without prefix for a project dataset).
+            Name of the dataset (without a prefix for a project dataset).
         xlist : list
-            List of X values for the dataset.
+            List of X-axis values for the dataset.
         ylist : list
-            List of Y values for the dataset.
+            List of Y-axis values for the dataset.
         zylist : list, optional
-            List of Z values for a 3D dataset only. The default is ``None``.
+            List of Z-axis values for a 3D dataset only. The default is ``None``.
         vylist : list, optional
-            List of V values for a 3D dataset only. The default is ``None``.
+            List of V-axis values for a 3D dataset only. The default is ``None``.
         xunit : str, optional
             Units for the X axis. The default is ``""``.
         yunit : str, optional
@@ -1738,7 +1745,7 @@ class Design(object):
         Returns
         -------
         type
-            Dataset object when the dataset is created; ``False`` otherwise.
+            Dataset object when the dataset is created, ``False`` otherwise.
 
         """
         return self.create_dataset(dsname=dsname, xlist=xlist, ylist=ylist, zlist=zlist, vlist=vlist, xunit=xunit,
@@ -1752,15 +1759,15 @@ class Design(object):
         Parameters
         ----------
         dsname : str
-            Name of the dataset (without prefix for a project dataset).
+            Name of the dataset (without a prefix for a project dataset).
         xlist : list
-            List of X values for the dataset.
+            List of X-axis values for the dataset.
         ylist : list
-            List of Y values for the dataset.
+            List of Y-axis values for the dataset.
         zylist : list, optional
-            List of Z values for a 3D dataset only. The default is ``None``.
+            List of Z-axis values for a 3D dataset only. The default is ``None``.
         vylist : list, optional
-            List of V values for a 3D dataset only. The default is ``None``.
+            List of V-axis values for a 3D dataset only. The default is ``None``.
         is_project_dataset : bool, optional
             Whether it is a project data set. The default is ``True``.
         xunit : str, optional
@@ -1775,7 +1782,7 @@ class Design(object):
         Returns
         -------
         type
-            Dataset object when the dataset is created; ``False`` otherwise.
+            Dataset object when the dataset is created, ``False`` otherwise.
 
         """
         if not self.dataset_exists(dsname, is_project_dataset):
@@ -1823,7 +1830,7 @@ class Design(object):
 
     @aedt_exception_handler
     def change_automatically_use_causal_materials(self, lossy_dielectric=True):
-        """Enable the automatic use of causal material for lossy dielectrics.
+        """Enable or disable the automatic use of causal material for lossy dielectrics.
 
         Parameters
         ----------
@@ -1847,7 +1854,7 @@ class Design(object):
 
     @aedt_exception_handler
     def change_material_override(self, material_override=True):
-        """Enable the material override in the project.
+        """Enable or disable the material override in the project.
 
         Parameters
         ----------
@@ -2081,18 +2088,18 @@ class Design(object):
 
     @aedt_exception_handler
     def insert_design(self, design_name=None):
-        """Insert a design of a specified design type. 
+        """Add a design of a specified type. 
         
-        The default design type is taked from the derived application class. 
+        The default design type is taken from the derived application class. 
        
         Parameters
         ----------
         design_name : str, optional
-            Name of the design. The default is ``None``, in which case, the 
+            Name of the design. The default is ``None``, in which case the 
             default design name is ``<Design-Type>Design<_index>``. If the 
             given or default design name is in use, then an underscore and 
             index is added to ensure that the design name is unique. 
-            The inserted object is assigned to the Design object.
+            The inserted object is assigned to the `Design` object.
 
         Returns
         -------
@@ -2280,7 +2287,7 @@ class Design(object):
 
     @aedt_exception_handler
     def export_variables_to_csv(self, filename, export_project=True, export_design=True):
-        """Export a project and design variables to a CSV file.
+        """Export design properties, project variables, or both to a CSV file.
 
         Parameters
         ----------
@@ -2289,7 +2296,7 @@ class Design(object):
         export_project : bool, optional
             Whether to export project variables. The default is ``True``.
         export_design : bool, optional
-            Whether to export design variables. The default is ``True``.
+            Whether to export design properties. The default is ``True``.
         
 
         Returns
@@ -2401,7 +2408,7 @@ class Design(object):
         Parameters
         ----------
         filename : str
-            Full path and name of the configuration, which can be an ACF or TXT file.
+            Full path and name of the configuration file, which can be an ACF or TXT file.
         
         """
         self._desktop.SetRegistryFromFile(r'%s' % os.path.abspath(filename))
@@ -2420,7 +2427,7 @@ class Design(object):
         Returns
         -------
         int
-            ``0`` if validation failed or ``1`` if passed.
+            ``1`` when successful, ``0`` when failed.
 
         """
         if logfile:
@@ -2431,15 +2438,14 @@ class Design(object):
 
     @aedt_exception_handler
     def get_evaluated_value(self, variable_name, variation=None):
-        """Return the evaluated value of a design property or project variable in SI units.
+        """Retrieve the evaluated value of a design property or project variable in SI units.
         
-
         Parameters
         ----------
         variable_name : str 
-            Name of the project or design variable to evaluate.
-        variation : str, optional
-            Variation string for the evaluation. The default is ``None``,
+            Name of the design property or project variable.
+        variation : float, optional
+            Variation value for the evaluation. The default is ``None``,
             in which case the nominal variation is used.
             
         Examples
@@ -2499,11 +2505,11 @@ class Design(object):
     def design_variation(self, variation_string=None):
         """Generate a string to specify a desired variation.
 
-        This method converts a user input string defining a desired solution variation into a valid
+        This method converts an input string defining a desired solution variation into a valid
         string taking into account all existing design properties and project variables, including 
         dependent (non-sweep) properties.
 
-        This is needed because the standard function `GetVariationVariableValue` does not work for obtaining
+        This is needed because the standard method COM function ``GetVariationVariableValue`` does not work for obtaining
         values of dependent (non-sweep variables). Using the new beta feature object-oriented
         scripting model could make this redundant in future releases.
 
@@ -2568,7 +2574,9 @@ class Design(object):
 
     @aedt_exception_handler
     def _check_solution_consistency(self):
-        """Check solution consistency. """
+        """Check solution consistency.
+        
+        """
         if self._solution_type:
             return self._odesign.GetSolutionType() in self._solution_type
         else:
