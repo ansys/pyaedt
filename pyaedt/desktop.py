@@ -280,7 +280,7 @@ class Desktop:
     release_on_exit : bool, optional
         Whether to release AEDT on exit. The default is ``True``.
     student_version : bool, optional
-        Whether to enable the student version of AEDT. The default is
+        Whether to open the AEDT student version. The default is
         ``False``.
 
     Examples
@@ -671,7 +671,7 @@ def get_version_env_variable(version_id):
     Parameters
     ----------
     version_id : str
-        Full AEDT version number, such as "2021.1".
+        Full AEDT version number, such as ``"2021.1"``.
 
     Returns
     -------

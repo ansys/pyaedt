@@ -11,42 +11,16 @@ import os
 
 
 class QExtractor(FieldAnalysis3D, FieldAnalysis2D, object):
-    """
+    """Extracts a 2D or 3D field analysis.
+    
     Parameters
     ----------
-     Q3DType :
+    FieldAnalysis3D :
+    
+    FieldAnalysis2D :
+    
+    object :
 
-     projectname : str, optional
-        Name of the project to select or the full path to the project
-        or AEDTZ archive to open. The default is ``None``, in which
-        case an attempt is made to get an active project. If no
-        projects are present, an empty project is created.
-    designname : str, optional
-        Name of the design to select. The default is ``None``, in
-        which case an attempt is made to get an active design. If no
-        designs are present, an empty design is created.
-    solution_type : str, optional
-        Solution type to apply to the design. The default is
-        ``None``, in which case the default type is applied.
-    setup_name : str, optional
-        Name of the setup to use as the nominal. The default is
-        ``None``, in which case the active setup is used or
-        nothing is used.
-    specified_version: str, optional
-        Version of AEDT  to use. The default is ``None``, in which case
-        the active version or latest installed version is used.
-    NG : bool, optional
-        Whether to run AEDT in the non-graphical mode. The default
-        is ``False``, which launches AEDT in the graphical mode.
-    AlwaysNew : bool, optional
-        Whether to launch an instance of AEDT in a new thread, even if
-        another instance of the ``specified_version`` is active on the
-        machine. The default is ``True``.
-    release_on_exit : bool, optional
-        Whether to release AEDT on exit. The default is ``False``.
-
-    Returns
-    -------
 
     """
     @property
@@ -93,7 +67,7 @@ class QExtractor(FieldAnalysis3D, FieldAnalysis2D, object):
 class Q3d(QExtractor, object):
     """Q3D application interface.
 
-    This class allows you to create an instance of `Q3D` and link to an
+    This class allows you to create an instance of Q3D and link to an
     existing project or create a new one.
 
     Parameters
@@ -112,32 +86,31 @@ class Q3d(QExtractor, object):
         ``None``, in which case the default type is applied.
     setup_name : str, optional
         Name of the setup to use as the nominal. The default is
-        ``None``. If ``None``, the active setup is used or nothing is
-        used.
+        ``None``, in which case the active setup is used or nothing 
+        is used.
     specified_version: str, optional
         Version of AEDT to use. The default is ``None``, in which case
         the active version or latest installed version is used.
     NG : bool, optional
-        Whether to run AEDT in the non-graphical mode. The default
+        Whether to launch AEDT in the non-graphical mode. The default
         is ``False``, which launches AEDT in the graphical mode.
     AlwaysNew : bool, optional
         Whether to launch an instance of AEDT in a new thread, even if
         another instance of the ``specified_version`` is active on the
         machine. The default is ``True``.
     release_on_exit : bool, optional
-        Whether to release  AEDT on exit. The default is ``False``.
+        Whether to release AEDT on exit. The default is ``False``.
     student_version : bool, optional
-        Whether open AEDT Student Version. The default is ``False``.
-        ``None``, in which case the active setup is used or
-        nothing is used.
+        Whether to open the AEDT student version. The default is ``False``.
 
     Examples
     --------
-    Create an instance of ``Q3d`` and connect to an existing Q3D
+    Create an instance of Q3D and connect to an existing Q3D
     design or create a new Q3D design if one does not exist.
 
     >>> from pyaedt import Q3d
     >>> app = Q3d()
+    
     """
     def __init__(self, projectname=None, designname=None, solution_type=None, setup_name=None,
                  specified_version=None, NG=False, AlwaysNew=False, release_on_exit=False, student_version=True):
@@ -152,6 +125,7 @@ class Q3d(QExtractor, object):
         -------
         bool
             ``True`` when successful, ``False`` when failed.
+        
         """
         self.oboundary.AutoIdentifyNets()
         return True
@@ -160,8 +134,8 @@ class Q3d(QExtractor, object):
     def assign_source_to_objectface(self, object_name, axisdir=0, source_name=None, net_name=None):
         """Generate a source on a face ID of an object. 
         
-        The face ID is selected based on ``axisdir``. It will 
-        be the face that has the maximum/minimum in this axis direction.
+        The face ID is selected based on ``axisdir``. It is the face that 
+        has the maximum/minimum in this axis direction.
 
         Parameters
         ----------
@@ -176,8 +150,9 @@ class Q3d(QExtractor, object):
 
         Returns
         -------
-        BoundaryObject
-            Source object.
+        :class: `pyaedt.modules.boundary.BoundaryObject`
+            Boundary object.
+        
         """
         a = self.modeler._get_faceid_on_axis(object_name, axisdir)
 
@@ -199,7 +174,7 @@ class Q3d(QExtractor, object):
     def assign_source_to_sheet(self, sheetname, objectname=None, netname=None, sourcename=None):
         """Generate a source on an object.
 
-        It will be the face that has the maximum/minimum in this axis.
+        It is the face that has the maximum/minimum in this axis direction.
 
         Parameters
         ----------
@@ -214,8 +189,9 @@ class Q3d(QExtractor, object):
 
         Returns
         -------
-        BoundaryObject
-            Source object.
+        :class: `pyaedt.modules.boundary.BoundaryObject`
+            Boundary object.
+        
         """
         if not sourcename:
             sourcename = generate_unique_name("Source")
@@ -237,8 +213,8 @@ class Q3d(QExtractor, object):
     def assign_sink_to_objectface(self, object_name, axisdir=0, sink_name=None, net_name=None):
         """Generate a sink on a face ID of an object.
         
-        The face ID is selected based on ``axisdir``. It will 
-        be the face that has the maximum/minimum in this axis direction.
+        The face ID is selected based on ``axisdir``. It is the face that has 
+        the maximum/minimum in this axis direction.
 
         Parameters
         ----------
@@ -253,8 +229,9 @@ class Q3d(QExtractor, object):
 
         Returns
         -------
-        BoundaryObject
-            Sink object.
+        :class:`pyaedt.modules.boundary.BoundaryObject`
+            Boundary object.
+        
         """
         a = self.modeler._get_faceid_on_axis(object_name, axisdir)
 
@@ -275,7 +252,7 @@ class Q3d(QExtractor, object):
     def assign_sink_to_sheet(self, sheetname, objectname=None, netname=None, sinkname=None):
         """Generate a sink on an object.  
         
-        It will be the face that has the maximum/minimum in this axis direction.
+        It is the face that has the maximum/minimum in this axis direction.
 
         Parameters
         ----------
@@ -290,8 +267,9 @@ class Q3d(QExtractor, object):
 
         Returns
         -------
-        BoundaryObject
-            Source object.
+        :class:`pyaedt.modules.boundary.BoundaryObject`
+            Boundary object.
+        
         """
         if not sinkname:
             sinkname = generate_unique_name("Source")
@@ -333,6 +311,7 @@ class Q3d(QExtractor, object):
         -------
         bool
             ``True`` when successful, ``False`` when failed.
+        
         """
         if sweepname is None:
             sweepname = generate_unique_name("Sweep")
@@ -427,7 +406,7 @@ class Q3d(QExtractor, object):
 class Q2d(QExtractor, object):
     """Q2D application interface.
 
-    This class allows you to create an instance of `Q2D` and link to an
+    This class allows you to create an instance of Q2D and link to an
     existing project or create a new one.
 
     Parameters
@@ -452,30 +431,32 @@ class Q2d(QExtractor, object):
         Version of AEDT to use. The default is ``None``, in which case
         the active version or latest installed version is used.
     NG : bool, optional
-        Whether to run AEDT in the non-graphical mode. The default
+        Whether to launch AEDT in the non-graphical mode. The default
         is ``False``, which launches AEDT in the graphical mode.
     AlwaysNew : bool, optional
         Whether to launch an instance of AEDT in a new thread, even if
         another instance of the ``specified_version`` is active on the
         machine. The default is ``True``.
     release_on_exit : bool, optional
-        Whether to release  AEDT on exit. The default is ``False``.
+        Whether to release AEDT on exit. The default is ``False``.
+    student_version : bool, optional
+        Whether to open the AEDT student version.
 
     Examples
     --------
-    Create an instance of `Q2d` and link to a project named
+    Create an instance of Q2D and link to a project named
     ``projectname``. If this project does not exist, create one with
     this name.
 
     >>> from pyaedt import Q2d
     >>> app = Q2d(projectname)
 
-    Create an instance of `Q2d` and link to a design named
+    Create an instance of Q2D and link to a design named
     ``designname`` in a project named ``projectname``.
 
     >>> app = Q2d(projectname,designame)
 
-    Create an instance of `Q2d` and open the specified project,
+    Create an instance of Q2D and open the specified project,
     which is named ``myfile.aedt``.
 
     >>> app = Q2d("myfile.aedt")
