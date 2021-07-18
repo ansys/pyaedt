@@ -27,6 +27,5 @@ class TestHFSS:
         gc.collect()
 
 
-    @pytest.mark.skip(reason="Issue with example project")
     def test_01A_open_source(self):
          assert self.aedtapp.create_sbr_linked_antenna(self.source, target_cs="feederPosition", fieldtype="farfield")

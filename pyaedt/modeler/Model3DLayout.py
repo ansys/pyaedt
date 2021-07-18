@@ -9,12 +9,18 @@ from ..modules.LayerStackup import Layers
 import sys
 
 class Modeler3DLayout(Modeler):
-    """ """
+    """Modeler3DLayout class.
+
+    Parameters
+    ----------
+    parent :
+
+    """
     def __init__(self, parent):
         self._parent = parent
-        self.messenger.add_info_message("Loading Modeler")
+        self._messenger.add_info_message("Loading Modeler")
         Modeler.__init__(self, parent)
-        self.messenger.add_info_message("Modeler Loaded")
+        self._messenger.add_info_message("Modeler Loaded")
         self._primitivesDes = self._parent.project_name + self._parent.design_name
         edb_folder = os.path.join(self._parent.project_path, self._parent.project_name + ".aedb")
         edb_file = os.path.join(edb_folder, "edb.def")
@@ -25,19 +31,26 @@ class Modeler3DLayout(Modeler):
                             oproject=self._parent.oproject)
         else:
             self._mttime = 0
-        self.messenger.add_info_message("EDB Loaded")
+        self._messenger.add_info_message("EDB Loaded")
 
         self.layers = Layers(self._parent,self, roughnessunits="um")
-        self.messenger.add_info_message("Layers Loaded")
+        self._messenger.add_info_message("Layers Loaded")
         self._primitives = Primitives3DLayout(self._parent, self)
-        self.messenger.add_info_message("Primitives Loaded")
+        self._messenger.add_info_message("Primitives Loaded")
         self.layers.refresh_all_layers()
 
         pass
 
     @property
     def edb(self):
-        """ """
+        """EBD.
+
+        Returns
+        -------
+        :class:'pyaedt.Edb`
+             EDB.
+
+        """
         if os.name != "posix":
             edb_folder = os.path.join(self._parent.project_path, self._parent.project_name + ".aedb")
             edb_file = os.path.join(edb_folder, "edb.def")
@@ -51,23 +64,23 @@ class Modeler3DLayout(Modeler):
         return self._edb
 
     @property
-    def messenger(self):
-        """ """
+    def _messenger(self):
+        """Messenger."""
         return self._parent._messenger
 
     @property
     def oeditor(self):
-        """ """
+        """Layout."""
         return self._parent.odesign.SetActiveEditor("Layout")
 
     @aedt_exception_handler
     def fit_all(self):
-        """ """
+        """Fit all."""
         self.oeditor.ZoomToFit()
 
     @property
     def model_units(self):
-        """ """
+        """Model units."""
         return retry_ntimes(10, self.oeditor.GetActiveUnits)
 
     @model_units.setter
@@ -94,7 +107,7 @@ class Modeler3DLayout(Modeler):
 
     @property
     def primitives(self):
-        """ """
+        """Primitives."""
         if self._primitivesDes != self._parent.project_name + self._parent.design_name:
             self._primitives = Primitives3DLayout(self._parent, self)
             self._primitivesDes = self._parent.project_name + self._parent.design_name
@@ -102,24 +115,25 @@ class Modeler3DLayout(Modeler):
 
     @property
     def obounding_box(self):
-        """ """
+        """Bounding box."""
         return self.oeditor.GetModelBoundingBox()
 
 
     @aedt_exception_handler
     def colinear_heal(self, selection, tolerance=0.1):
-        """Remove small edges of selected object list.
+        """Remove small edges of one or more primitives.
 
         Parameters
         ----------
-        selection : list or str
-            list of primitives to heal
-        tolerance :  float
-            tolerance
+        selection : str or list
+            One or more primitives to heal.
+        tolerance :  float, optional
+            Tolerance value. The default is `0.1`.
 
         Returns
         -------
         bool
+             ``True`` when successful, ``False`` when failed.
 
         Examples
         --------
@@ -131,6 +145,7 @@ class Modeler3DLayout(Modeler):
         >>> h3d.modeler.unite([l1,l2])
         >>> h3d.modeler.colinear_heal("poly_2", 0.25)
         True
+
         """
         if isinstance(selection, str):
             selection = [selection]
@@ -144,23 +159,23 @@ class Modeler3DLayout(Modeler):
     def expand(self, object_to_expand,  size=1, expand_type="ROUND", replace_original=False):
         """Expand the object by a specific size.
 
-        If replace_original is ``False`` the method will create a new object.
-
         Parameters
         ----------
         object_to_expand: str
-            name of the object to expand
-
-        size: float
-            size of expansion
-        expand_type: str, default ``ROUND``
-            type of expansion: ``ROUND``, ``MITER``, ``CORNER``
-        replace_original
+            Name of the object to expand.
+        size: float, optional
+            Size of the expansion. The default is ``1``.
+        expand_type: str, optional
+            Type of the expansion. Options are ``"ROUND"``, ``"MITER"``, and
+            ``"CORNER"``. The default is ``"ROUND"``.
+        replace_original : bool, optional
+             Whether to replace the original object. The default is ``False``, in which case
+             a new object is created.
 
         Returns
         -------
         str
-            object name
+            Name of the object.
 
         Examples
         --------
@@ -172,6 +187,7 @@ class Modeler3DLayout(Modeler):
         >>> out1 = h3d.modeler.expand("line_3")
         >>> print(out1)
         line_4
+
         """
         layer = retry_ntimes(10, self.oeditor.GetPropertyValue, "BaseElementTab", object_to_expand, 'PlacementLayer')
         poly = self.oeditor.GetPolygonDef(object_to_expand).GetPoints()
@@ -189,19 +205,23 @@ class Modeler3DLayout(Modeler):
 
     @aedt_exception_handler
     def import_cadence_brd(self, brd_filename, edb_path=None, edb_name=None):
-        """
+        """Import a cadence board.
 
         Parameters
         ----------
-        brd_filename :
-            BRD Full File name
-        edb_path :
-            Path where EDB shall be created. if no path is provided, project dir will be used (Default value = None)
-        edb_name :
-            name of EDB. If no name is provided, brd name will be used (Default value = None)
+        brd_filename : str
+            Full path and name of the BRD file to import.
+        edb_path : str, optional
+            Path where the EDB is to be created. The default is ``None``, in which
+            case the project directory is used.
+        edb_name : str, optional
+            name of the EDB. The default is ``None``, in which
+            case the board name is used.
 
         Returns
         -------
+        bool
+            ``True`` when successful, ``False`` when failed.
 
         """
         if not edb_path:
@@ -243,19 +263,23 @@ class Modeler3DLayout(Modeler):
 
     @aedt_exception_handler
     def import_ipc2581(self, ipc_filename, edb_path=None, edb_name=None):
-        """
+        """Import an IPC file.
 
         Parameters
         ----------
         ipc_filename :
-            IPC Full File name
-        edb_path :
-            Path where EDB shall be created. if no path is provided, project dir will be used (Default value = None)
-        edb_name :
-            name of EDB. If no name is provided, brd name will be used (Default value = None)
+            Full path and name of the IPC file to import.
+        edb_path : str, optional
+            Path where the EDB is to be created. The default is ``None``, in which
+            case the project directory is used.
+        edb_name : str, optional
+            name of the EDB. The default is ``None``, in which
+            case the board name is used.
 
         Returns
         -------
+        bool
+            ``True`` when successful, ``False`` when failed.
 
         """
         if not edb_path:
@@ -272,20 +296,21 @@ class Modeler3DLayout(Modeler):
 
     @aedt_exception_handler
     def subtract(self, blank, tool):
-        """Subtract objects from names
+        """Subtract objects from one or more names.
 
         Parameters
         ----------
-        blank :
-            name of geometry from which subtract
-        tool :
-            name of geometry that will be subtracted. it can be a list
+        blank : str
+            Name of the geometry to subtract from.
+        tool : str or list
+            One or more names of the geometries to be subtracted.
 
         Returns
         -------
+        bool
+            ``True`` when successful, ``False`` when failed.
 
         """
-
         vArg1 = ['NAME:primitives', blank]
         if type(tool) is list:
             for el in tool:
@@ -305,18 +330,19 @@ class Modeler3DLayout(Modeler):
 
     @aedt_exception_handler
     def unite(self, objectlists):
-        """Unite objects from names
+        """Unite objects from names.
 
         Parameters
         ----------
-        objectlists :
-            list of objects to unite
+        objectlists : list
+            List of objects to unite.
 
         Returns
         -------
+        bool
+            ``True`` when successful, ``False`` when failed.
 
         """
-
         vArg1 = ['NAME:primitives']
         if len(objectlists) >= 2:
             for el in objectlists:
@@ -328,23 +354,24 @@ class Modeler3DLayout(Modeler):
                         self.primitives._geometries.pop(el)
             return True
         else:
-            self.messenger.add_error_message("Input list must contain at least 2 elements")
+            self._messenger.add_error_message("Input list must contain at least 2 elements")
             return False
 
     @aedt_exception_handler
     def intersect(self, objectlists):
-        """Intersect objects from names
+        """Intersect objects from names.
 
         Parameters
         ----------
-        objectlists :
-            list of objects to unite
+        objectlists : list
+            List of objects to intersect.
 
         Returns
         -------
+        bool
+            ``True`` when successful, ``False`` when failed.
 
         """
-
         vArg1 = ['NAME:primitives']
         if len(objectlists) >= 2:
             for el in objectlists:
@@ -356,23 +383,27 @@ class Modeler3DLayout(Modeler):
                         self.primitives._geometries.pop(el)
             return True
         else:
-            self.messenger.add_error_message("Input list must contain at least 2 elements")
+            self._messenger.add_error_message("Input list must contain at least 2 elements")
             return False
 
     @aedt_exception_handler
     def duplicate(self, objectlists, count, direction_vector):
-        """
-        Duplicate one or multiple element along vector
+        """Duplicate one or more elements along a vector.
+
         Parameters
         ----------
         objectlists : list
+            List of elements to duplicate.
         count : int
+
         direction_vector : list
-            x, y direction vector
+            List of `[x, y]` coordinates for the direction vector.
 
         Returns
         -------
         bool
+            ``True`` when successful, ``False`` when failed.
+
         """
         if isinstance(objectlists, str):
             objectlists = [objectlists]

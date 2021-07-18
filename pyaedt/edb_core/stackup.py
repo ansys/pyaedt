@@ -61,7 +61,7 @@ class EdbStackup(object):
     @property
     def _messenger(self):
         """ """
-        return self.parent.messenger
+        return self.parent._messenger
 
     @property
     def stackup_layers(self):
