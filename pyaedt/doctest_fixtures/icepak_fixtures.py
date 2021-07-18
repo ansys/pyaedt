@@ -11,8 +11,8 @@ def create_icepak(request, doctest_namespace):
 
     An Icepak object is created only once when running tests on
     icepak.py. The doctest_namespace dictionary is passed into
-    the context of the doctests. Because of doctest_namespace["icepak"], 
-    the object ``icepak`` can be referenced inside docstring examples. 
+    the context of the doctests. Because of doctest_namespace["icepak"],
+    the object ``icepak`` can be referenced inside docstring examples.
 
     """
     # Check test is running from icepak.py module
@@ -21,7 +21,7 @@ def create_icepak(request, doctest_namespace):
 
     # Use RadioBoardIcepak.aedt project to test
     project_path = os.path.join(doctest_namespace["projects_path"], "RadioBoardIcepak.aedt")
-    doctest_namespace["icepak"] = Icepak(project_name=project_path, design_name="IcepakDesign1")
+    doctest_namespace["icepak"] = Icepak(projectname=project_path, designname="IcepakDesign1")
 
 
 @pytest.fixture(autouse=True, scope="function")
