@@ -1,3 +1,22 @@
+import random
+import string
+
+def alphanumeric_hash_code(length=6):
+    """Appends a 6-digit hash code to a specified name
+
+    Parameters
+    ----------
+    length: int, default=6
+        length of the hash code
+
+    Returns
+    -------
+    str
+    """
+    char_set = string.ascii_uppercase + string.digits
+    return ''.join(random.sample(char_set, 6))
+
+
 def unique_string_list(element_list, only_string=True):
     """
 

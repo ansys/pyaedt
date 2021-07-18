@@ -128,10 +128,10 @@ class Rmxprt(FieldAnalysisRMxprt):
         Version of AEDT to use. The default is ``None``. If ``None``,
         the active setup is used or the latest installed version is
         used.
-    NG : bool, optional
+    non_graphical : bool, optional
         Whether to launch AEDT in the non-graphical mode. The default
         is ``False``, which launches AEDT in the graphical mode.
-    AlwaysNew : bool, optional
+    launch_new_desktop : bool, optional
         Whether to launch an instance of AEDT in a new thread, even if
         another instance of the ``specified_version`` is active on the
         machine.  The default is ``True``.
@@ -166,9 +166,9 @@ class Rmxprt(FieldAnalysisRMxprt):
     """
 
     def __init__(self, projectname=None, designname=None, solution_type=None, model_units=None, setup_name=None,
-                 specified_version=None, NG=False, AlwaysNew=False, release_on_exit=False, student_version=False):
+                 specified_version=None, non_graphical=False, launch_new_desktop=True, release_on_exit=False, student_version=False):
         FieldAnalysisRMxprt.__init__(self, "RMxprtSolution", projectname, designname, solution_type, setup_name,
-                                     specified_version, NG, AlwaysNew, release_on_exit, student_version)
+                                     specified_version, non_graphical, launch_new_desktop, release_on_exit, student_version)
         if not model_units or model_units == "mm":
             model_units = "mm"
         else:

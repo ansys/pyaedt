@@ -618,7 +618,7 @@ class PostProcessor(object):
     def __init__(self, parent):
         self._parent = parent
         self.FieldsPlot = {}
-        self._scratch = Scratch(self._parent.temp_directory, volatile=True)
+        self._scratch = Scratch(self._parent.temp_directory, volatile=False)
 
     @property
     def _primitives(self):

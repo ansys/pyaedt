@@ -86,7 +86,7 @@ class BasisTest:
 
             self.aedtapp = application(projectname=self.test_project, designname=design_name,
                                            solution_type=solution_type, specified_version=desktop_version,
-                                           AlwaysNew=new_thread, NG=non_graphical)
+                                           launch_new_desktop=new_thread, non_graphical=non_graphical)
             #TODO do we need this ?
             if project_name:
                 if design_name:
@@ -106,22 +106,7 @@ non_graphical = config["NonGraphical"]
 
 @pytest.fixture(scope='session', autouse=True)
 def desktop_init():
-    desktop = Desktop(desktop_version, non_graphical, new_thread)
-    desktop.disable_autosave()
-    yield desktop
-
-    # If new_thread is set to false by a local_config, then don't close the desktop.
-    # Intended for local debugging purposes only
-    if new_thread:
-        desktop.force_close_desktop()
-    p = [x[0] for x in os.walk(scratch_path) if "scratch" in x[0]]
-    #p = pathlib.Path(scratch_path).glob('**/scratch*')
-    for folder in p:
-        shutil.rmtree(folder, ignore_errors=True)
-
-    if config["test_desktops"]:
-        run_desktop_tests()
-
+    pass
 
 from functools import wraps
 

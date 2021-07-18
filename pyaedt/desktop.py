@@ -17,6 +17,7 @@ import getpass
 import re
 from .application.MessageManager import AEDTMessageManager
 from .misc import list_installed_ansysem
+from pyaedt.generic.filesystem import process_list
 
 pathname = os.path.dirname(__file__)
 if os.path.exists(os.path.join(pathname,'version.txt')):
@@ -257,7 +258,6 @@ def force_close_desktop():
             return successfully_closed
 
 
-
 class Desktop:
     """Initialize AEDT based on the inputs provided.
     
@@ -270,10 +270,10 @@ class Desktop:
     specified_version : str, optional
         Version of AEDT to use. The default is ``None``, in which case the
         active setup or latest installed version is used.
-    NG: bool, optional
+    non_graphical: bool, optional
         Whether to launch AEDT in the non-graphical mode. The default 
         is ``False``, in which case AEDT launches in the graphical mode.
-    AlwaysNew : bool, optional
+    launch_new_desktop : bool, optional
         Whether to launch an instance of AEDT in a new thread, even if 
         another instance of the ``specified_version`` is active on the machine.
         The default is ``True``.
@@ -288,7 +288,7 @@ class Desktop:
     Launch AEDT 2021 R1 in non-graphical mode and initialize HFSS.
 
     >>> import pyaedt
-    >>> desktop = pyaedt.Desktop("2021.1", NG=True)
+    >>> desktop = pyaedt.Desktop("2021.1", non_graphical=True)
     pyaedt Info: pyaedt v...
     pyaedt Info: Python version ...
     >>> hfss = pyaedt.Hfss(designname="HFSSDesign1")
@@ -302,7 +302,11 @@ class Desktop:
     >>> hfss = pyaedt.Hfss(designname="HFSSDesign1")
     
     """
-            
+
+    @property
+    def odesktop(self):
+        return self._main.oDesktop
+
     @property
     def version_keys(self):
         """Version keys."""
@@ -348,8 +352,7 @@ class Desktop:
                 return el
         return None
 
-    def __init__(self, specified_version=None, NG=False, AlwaysNew=True, release_on_exit=True, student_version=False):
-        """Initialize desktop."""
+    def __init__(self, specified_version=None, non_graphical=False, launch_new_desktop=False, release_on_exit=True, student_version=False):
         self._main = sys.modules['__main__']
         self._main.close_on_exit = False
         self._main.isoutsideDesktop = False
@@ -401,9 +404,9 @@ class Desktop:
                 self.COMUtil = AnsoftCOMUtil.Ansoft.CoreCOMScripting.Util.COMUtil
                 self._main.COMUtil = self.COMUtil
                 StandalonePyScriptWrapper = AnsoftCOMUtil.Ansoft.CoreCOMScripting.COM.StandalonePyScriptWrapper
-                if NG or AlwaysNew:
+                if non_graphical or launch_new_desktop:
                     # forcing new thread to start in non-graphical
-                    oAnsoftApp = StandalonePyScriptWrapper.CreateObjectNew(NG)
+                    oAnsoftApp = StandalonePyScriptWrapper.CreateObjectNew(non_graphical)
                 else:
                     oAnsoftApp = StandalonePyScriptWrapper.CreateObject(version)
                 self._main.oDesktop = oAnsoftApp.GetAppDesktop()
@@ -440,9 +443,9 @@ class Desktop:
                     DETACHED_PROCESS = 0x00000008
                     pid = subprocess.Popen([os.path.join(base_path, "ansysedtsv.exe")],
                                            creationflags=DETACHED_PROCESS).pid
-                if NG or AlwaysNew or not processID:
+                if non_graphical or launch_new_desktop or not processID:
                     # Force new object if no non-graphical instance is running or if there is not an already existing process.
-                    App = StandalonePyScriptWrapper.CreateObjectNew(NG)
+                    App = StandalonePyScriptWrapper.CreateObjectNew(non_graphical)
                 else:
                     App = StandalonePyScriptWrapper.CreateObject(version)
                 processID2 = []
@@ -463,7 +466,7 @@ class Desktop:
 
                 proc = [i for i in processID2 if i not in processID]
                 if not proc:
-                    if NG:
+                    if non_graphical:
                         self._main.close_on_exit = False
                     else:
                         self._main.close_on_exit = False
@@ -523,8 +526,8 @@ class Desktop:
         logger.info(info_msg3)
         logger.info(info_msg4)
 
-        if _com == 'pywin32' and (AlwaysNew or NG):
-            info_msg5 = 'The ``AlwaysNew`` or ``NG`` option is not available for a pywin32 connection only. Install Python.NET to support these options.'
+        if _com == 'pywin32' and (launch_new_desktop or non_graphical):
+            info_msg5 = 'The ``AlwaysNew`` or ``non_graphical`` option is not available for a pywin32 connection only. Install Python.NET to support these options.'
             self._main.oMessenger.add_info_message(info_msg5, 'Global')
         elif _com == 'ironpython':
             dll_path = os.path.join(base_path,"common","IronPython", "dlls")

@@ -59,10 +59,10 @@ class FieldAnalysisCircuit(Analysis):
             return ""
 
     def __init__(self, application, projectname, designname, solution_type, setup_name=None,
-                 specified_version=None, NG=False, AlwaysNew=False, release_on_exit=False, student_version=False):
+                 specified_version=None, non_graphical=False, launch_new_desktop=True, release_on_exit=False, student_version=False):
         self.solution_type = solution_type
         Analysis.__init__(self, application, projectname, designname, solution_type, setup_name,
-                          specified_version, NG, AlwaysNew, release_on_exit, student_version)
+                          specified_version, non_graphical, launch_new_desktop, release_on_exit, student_version)
         self._modeler = ModelerNexxim(self)
         self._modeler.primitives.init_padstacks()
         #self._post = PostProcessor(self)

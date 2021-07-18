@@ -12,12 +12,11 @@ solids) within the AEDT 3D Modeler
 """
 from __future__ import absolute_import
 
-import random
 import string
 from collections import defaultdict
 from .. import generate_unique_name, retry_ntimes, aedt_exception_handler
 from .GeometryOperators import GeometryOperators
-from ..generic.general_methods import time_fn
+from ..generic.string_handling import alphanumeric_hash_code
 
 
 
@@ -50,15 +49,15 @@ def _uname(name=None):
 
     Parameters
     ----------
-    name : str, default='NewObject_'
-        Specified name
+    name : str, optional
+        Specified name, if not specified then ''"NewObject_"''
 
     Returns
     -------
     str
     """
     char_set = string.ascii_uppercase + string.digits
-    unique_name = ''.join(random.sample(char_set, 6))
+    unique_name = alphanumeric_hash_code(length=6)
     if name:
         return name + unique_name
     else:

@@ -10,8 +10,6 @@ import gc
 
 class TestDownloads:
     def setup_class(self):
-        # self.desktop = Desktop(desktopVersion, NonGraphical, NewThread)
-        # set a scratch directory and the environment / test data
         self.examples = downloads
         pass
 

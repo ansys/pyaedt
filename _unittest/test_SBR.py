@@ -12,8 +12,6 @@ test_project_name = "Cassegrain"
 
 class TestHFSS:
     def setup_class(self):
-        #self.desktop = Desktop(desktopVersion, NonGraphical, NewThread)
-        # set a scratch directory and the environment / test data
         with Scratch(scratch_path) as self.local_scratch:
             example_project = os.path.join(local_path, 'example_models', test_project_name + '.aedt')
             self.test_project = self.local_scratch.copyfile(example_project)

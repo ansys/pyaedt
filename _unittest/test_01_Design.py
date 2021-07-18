@@ -19,7 +19,8 @@ class TestClass():
     def setup_class(self):
         with Scratch(scratch_path) as self.local_scratch:
             self.test_project = self.local_scratch.copyfile(example_project)
-            self.aedtapp = Hfss(projectname=self.test_project, specified_version=desktop_version, AlwaysNew=new_thread, NG=non_graphical)
+            self.aedtapp = Hfss(projectname=self.test_project, specified_version=desktop_version,
+                                launch_new_desktop=new_thread, non_graphical=non_graphical)
             self.aedtapp.save_project()
             self.cache = DesignCache(self.aedtapp)
 

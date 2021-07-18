@@ -24,9 +24,9 @@ if not os.path.exists(temp_folder):
 from pyaedt import Hfss
 #####################################
 # Define 2 Design. One Source and one Target, each one connected to different object
-target = Hfss(projectname=project_full_name, designname="Cassegrain_", solution_type="SBR+", specified_version="2021.1", AlwaysNew=False)
+target = Hfss(projectname=project_full_name, designname="Cassegrain_", solution_type="SBR+", specified_version="2021.1", launch_new_desktop=False)
 target.save_project(os.path.join(temp_folder,project_name+".aedt"))
-source = Hfss(projectname=project_name, designname="feeder", specified_version="2021.1", AlwaysNew=False)
+source = Hfss(projectname=project_name, designname="feeder", specified_version="2021.1", launch_new_desktop=False)
 
 #####################################
 # Define Linked Antenna. This is Hfss Far Field Applied to SBR+

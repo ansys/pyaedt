@@ -13,7 +13,7 @@ import os
 # Starting Desktop in Non-Graphical mode. User can change boolean to run in graphical mode
 
 NG = False
-d =Desktop("2021.1", NG=NG)
+d =Desktop("2021.1", non_graphical=NG)
 
 ###################################
 # Initialize Hfss object and creates needed design variables. Hfss will have 2 design variables w1 and w2

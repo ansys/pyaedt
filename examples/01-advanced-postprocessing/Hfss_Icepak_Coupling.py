@@ -65,7 +65,7 @@ project_file = os.path.join(project_dir, project_name + ".aedt")
 # Initializes the HFSS Design in AEDT.
 # If there is a running HFSS Design the aedtapp will be linked to it, otherwise a new design will be run.
 
-aedtapp = Hfss(specified_version=desktopVersion, NG=NonGraphical, AlwaysNew=NewThread)
+aedtapp = Hfss(specified_version=desktopVersion, non_graphical=NonGraphical, launch_new_desktop=NewThread)
 
 ################################################################
 # Variables Settings

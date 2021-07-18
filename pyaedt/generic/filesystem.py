@@ -1,12 +1,15 @@
 import os
 import shutil
 from distutils.dir_util import copy_tree
-import random
-import string
+import tempfile
+import re
+from .string_handling import alphanumeric_hash_code
+
 
 def my_location():
     """ """
     return os.path.normpath(os.path.dirname(__file__))
+
 
 def files_in_directory(path='.',ext=''):
     """
@@ -30,45 +33,63 @@ def files_in_directory(path='.',ext=''):
                 result.append(bd)
     return result
 
+def process_list(process, username):
+    processID = []
+    with os.popen('tasklist /FI "IMAGENAME eq {}" /v'.format(process)) as tasks_list:
+        data_table = tasks_list.readlines()
+        for row in data_table:
+            pattern = r'(?i)^(?:{})\s+?(\d+)\s+.+[\s|\\](?:{})\s+'.format(process, username)
+            found_process = re.search(pattern, row)
+            if found_process:
+                test = row.split()
+                processID.append(found_process.group(1))
+    return processID
+
 
 class Scratch():
-    """ """
+
+    """Scratch class
+
+     Provides a mechanism for creating and cleaning up a ''"scratch"'' dorectpry within a specified temp directory
+
+    Parameters
+    ----------
+    temp_dir : str, optional
+        Path of the specified temp directory, if not specified then use tempdir.gettempdir()
+    permission : octal, default=0o777
+        Permissions for the directory
+    volatile : bool
+        If ''"True"'' automatically clean up once the Scratch object no longer exists
+
+    """
 
     @property
     def path(self):
-        """ """
+        """Path of this scratch directory"""
         return self._scratch_path
 
-    @property
-    def is_empty(self):
-        """ """
-        return self._cleaned
-
-    def __init__(self, local_path, permission=0o777, volatile=False):
+    def __init__(self, temp_dir=None, permission=0o777, volatile=False):
         self._volatile = volatile
-        self._cleaned = True
-        char_set = string.ascii_uppercase + string.digits
-        self._scratch_path = os.path.normpath(os.path.join(local_path, 'scratch' + ''.join(random.sample(char_set, 6))))
-        if os.path.exists(self._scratch_path):
-            try:
-                self.remove()
-            except:
-                self._cleaned = False
-        if self._cleaned:
-            try:
-                os.mkdir(self.path)
-                os.chmod(self.path, permission)
-            except:
-                pass
+        self._scratch_path = None
+        if not temp_dir:
+            temp_dir = tempfile.gettempdir()
+        defined_scratch = os.path.normpath(os.path.join(temp_dir, 'scratch_' + alphanumeric_hash_code()))
+        try:
+            os.mkdir(defined_scratch)
+            os.chmod(defined_scratch, permission)
+            self._scratch_path = defined_scratch
+        except IOError:
+            pass
 
     def remove(self):
         """ """
-        try:
-            # TODO check why on Anaconda 3.7 get errors with os.path.exists
-            shutil.rmtree(self._scratch_path, ignore_errors=True)
-        except:
-            pass
-
+        if self._scratch_path:
+            try:
+                shutil.rmtree(self._scratch_path, ignore_errors=True)
+                return True
+            except IOError:
+                pass
+            return False
 
     def copyfile(self, src_file):
         """

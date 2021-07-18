@@ -23,7 +23,7 @@ if not os.path.exists(temp_folder):
 # Start Desktop in Graphical mode
 #
 nongraphical = False
-d = Desktop("2021.1", NG=nongraphical)
+d = Desktop("2021.1", non_graphical=nongraphical)
 
 #####################################################
 # Start HFSS in Graphical mode

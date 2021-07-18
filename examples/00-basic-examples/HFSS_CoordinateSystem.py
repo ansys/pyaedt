@@ -23,8 +23,7 @@ if not os.path.exists(temp_folder):
 # Start Desktop in Graphical mode
 # -------------------------------
 # This examples will use AEDT 2021.1 in Graphical mode
-nongraphical = False
-d = Desktop("2021.1", NG=nongraphical)
+d = Desktop("2021.1", non_graphical=False)
 
 #####################################################
 # Insert HFSS design

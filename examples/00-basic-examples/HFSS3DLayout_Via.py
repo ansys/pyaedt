@@ -14,7 +14,7 @@ This Example shows how to use HFSS3DLayout to create a parametric design, solve 
 
 from pyaedt import Hfss3dLayout
 import os
-h3d = Hfss3dLayout(specified_version="2021.1", AlwaysNew=False)
+h3d = Hfss3dLayout(specified_version="2021.1", launch_new_desktop=False)
 
 #########################################
 # Setup of all parametric variables will be used into the layout

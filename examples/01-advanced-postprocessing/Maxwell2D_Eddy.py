@@ -18,7 +18,7 @@ from pyaedt import Maxwell3d
 #########################################
 # Insert a Maxwell design
 
-M3D = Maxwell3d(solution_type="EddyCurrent", specified_version="2021.1", NG=False, AlwaysNew=True)
+M3D = Maxwell3d(solution_type="EddyCurrent", specified_version="2021.1", non_graphical=False, launch_new_desktop=True)
 M3D.modeler.model_units = "mm"
 
 #############################
@@ -33,7 +33,7 @@ hole = M3D.modeler.primitives.create_box([18, 18, 0], [108, 108, 19], name="Hole
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # different modeler operation can be applied using subtract, material assignment, solve_inside
 
-M3D.modeler.subtract([plate], [hole])
+plate.subtract(hole, keep_originals=False)
 plate.material_name = "aluminum"
 plate.solve_inside = True
 adaptive_frequency = "200Hz"
@@ -50,7 +50,7 @@ center_hole = M3D.modeler.Position(119, 25, 49)
 center_coil = M3D.modeler.Position(94, 0, 49)
 coil_hole = M3D.modeler.primitives.create_box(center_hole, [150, 150, 100], name="Coil_Hole")  # All positions in model units
 coil = M3D.modeler.primitives.create_box(center_coil, [200, 200, 100], name="Coil")  # All positions in model units
-M3D.modeler.subtract([coil], [coil_hole])
+coil.subtract(coil_hole)
 coil.material_name = "copper"
 coil.solve_inside = True
 p_coil = M3D.post.volumetric_loss("Coil")
@@ -63,7 +63,7 @@ M3D.modeler.create_coordinate_system(origin=[200, 100, 0], mode="view", view="XY
 ##############################
 # Create coil terminal
 
-M3D.modeler.section(["Coil"], M3D.CoordinateSystemPlane.ZXPlane)
+coil.section(M3D.CoordinateSystemPlane.ZXPlane)
 M3D.modeler.separate_bodies(["Coil_Section1"])
 M3D.modeler.primitives.delete("Coil_Section1_Separate1")
 M3D.assign_current(["Coil_Section1"], amplitude=2472)
@@ -71,7 +71,7 @@ M3D.assign_current(["Coil_Section1"], amplitude=2472)
 #################################
 # draw region
 
-M3D.modeler.create_air_region(*[300] * 6)
+M3D.modeler.primitives.create_region(pad_percent=300)
 #############################
 # set eddy effects
 
