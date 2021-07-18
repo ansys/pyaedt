@@ -13,7 +13,7 @@ from .application.DataHandlers import random_string
 class Hfss(FieldAnalysis3D, object):
     """HFSS application interface.
 
-    This class allows you to create an interactive instance of `Hfss` and
+    This class allows you to create an interactive instance of HfSS and
     connect to an existing HFSS design or create a new HFSS design if
     one does not exist.
 
@@ -49,39 +49,40 @@ class Hfss(FieldAnalysis3D, object):
         Whether to release AEDT on exit. The default is ``False``.
         Whether to release AEDT on exit. The default is ``True``.
     student_version : bool, optional
-        Whether open AEDT Student Version. The default is ``False``.
+        Whether to open the AEDT student version. The default is 
+        ``False``.
 
     Examples
     --------
 
-    Create an instance of `Hfss` and connect to an existing HFSS
+    Create an instance of HFSS and connect to an existing HFSS
     design or create a new HFSS design if one does not exist.
 
     >>> from pyaedt import Hfss
     >>> hfss = Hfss()
 
-    Create an instance of `Hfss` and link to a project named
+    Create an instance of HFSS and link to a project named
     ``projectname``. If this project does not exist, create one with
     this name.
 
     >>> hfss = Hfss(projectname)
 
-    Create an instance of `Hfss` and link to a design named
+    Create an instance of HFSS and link to a design named
     ``"designname"`` in a project named ``"projectname"``.
 
     >>> hfss = Hfss(projectname,designame)
 
-    Create an instance of `Hfss` and open the specified project,
+    Create an instance of HFSS and open the specified project,
     which is named ``"myfile.aedt"``.
 
     >>> hfss = Hfss("myfile.aedt")
 
-    Create an instance of `Hfss` using the 2021 R1 release and open
+    Create an instance of HFSS using the 2021 R1 release and open
     the specified project, which is named ``"myfile.aedt"``.
 
     >>> hfss = Hfss(specified_version="2021.1", projectname="myfile.aedt")
 
-    Create an instance of ``Hfss`` using the 2021 R2 student version and open
+    Create an instance of HFSS using the 2021 R2 student version and open
     the specified project, which is named ``"myfile.aedt"``.
 
     >>> hfss = Hfss(specified_version="2021.2", projectname="myfile.aedt", student_version=True)
@@ -109,7 +110,7 @@ class Hfss(FieldAnalysis3D, object):
             exception_to_desktop(self, ex_value, ex_traceback)
 
     class BoundaryType(object):
-        """Boundary class.
+        """Creates and manages boundaries.
 
         Parameters
         ----------
@@ -139,8 +140,9 @@ class Hfss(FieldAnalysis3D, object):
 
         Returns
         -------
-        type
-            Boundary created.
+        :class:`pyaedt.modules.Boundary.BoundaryObject`
+            Boundary object.
+        
         """
 
         bound = BoundaryObject(self, name, props, boundary_type)
@@ -618,6 +620,7 @@ class Hfss(FieldAnalysis3D, object):
         -------
         SweepHFSS
             Sweep object.
+        
         """
         if sweepname is None:
             sweepname = generate_unique_name("Sweep")
@@ -675,7 +678,7 @@ class Hfss(FieldAnalysis3D, object):
         Returns
         -------
         str
-            Port name.
+            Name of port created when successful, ``False`` otherwise.
 
         """
         if not self.modeler.primitives.does_object_exists(startobj) or not self.modeler.primitives.does_object_exists(
@@ -722,7 +725,7 @@ class Hfss(FieldAnalysis3D, object):
         Returns
         -------
         str
-            Port name.
+            Name of port created when successful, ``False`` otherwise.
         """
         if not self.modeler.primitives.does_object_exists(startobj) or not self.modeler.primitives.does_object_exists(
                 endobject):
@@ -767,7 +770,7 @@ class Hfss(FieldAnalysis3D, object):
         Returns
         -------
         str
-           Source name.
+           Name of source created when successful, ``False`` otherwise.
 
         """
         if not self.modeler.primitives.does_object_exists(startobj) or not self.modeler.primitives.does_object_exists(
@@ -809,7 +812,7 @@ class Hfss(FieldAnalysis3D, object):
         Returns
         -------
         str
-            Source name.
+            Name of source created when successful, ``False`` otherwise.
 
         """
         if not self.modeler.primitives.does_object_exists(startobj) or not self.modeler.primitives.does_object_exists(
@@ -850,9 +853,10 @@ class Hfss(FieldAnalysis3D, object):
 
         Returns
         -------
+        :class:`pyaedt.modules.Boundary.BoundaryObject`
+            Boundary object.
 
         """
-
         props = OrderedDict({"Objects": [sheet_name],
                              "Direction": OrderedDict({"Start": point1, "End": point2})})
         return self._create_boundary(sourcename, props, sourcetype)
@@ -892,6 +896,7 @@ class Hfss(FieldAnalysis3D, object):
         -------
         :class:`pyaedt.modules.Boundary.BoundaryObject`
             Boundary object.
+        
         """
         if not self.modeler.primitives.does_object_exists(startobj) or not self.modeler.primitives.does_object_exists(
                 endobject):
@@ -981,10 +986,15 @@ class Hfss(FieldAnalysis3D, object):
         --------
         >>>  from pyaedt import Hfss
         >>> hfss = Hfss()
-        >>> ms = hfss.modeler.primitives.create_box([4,5,0],[1,100,0.2],name="MS1", matname="copper")
-        >>> sub = hfss.modeler.primitives.create_box([0,5,-2],[20,100,2],name="SUB1", matname="FR4_epoxy")
-        >>> gnd = hfss.modeler.primitives.create_box([0,5,-2.2],[20,100,0.2],name="GND1", matname="FR4_epoxy")
-        >>> port = hfss.create_wave_port_microstrip_between_objects("GND1", "MS1",   portname="MS1", axisdir=1)
+        >>> ms = hfss.modeler.primitives.create_box([4, 5, 0], [1, 100, 0.2],
+        ...                                         name="MS1", matname="copper")
+        >>> sub = hfss.modeler.primitives.create_box([0, 5, -2], [20, 100, 2],
+        ...                                          name="SUB1", matname="FR4_epoxy")
+        >>> gnd = hfss.modeler.primitives.create_box([0, 5, -2.2], [20, 100, 0.2],
+        ...                                          name="GND1", matname="FR4_epoxy")
+        >>> port = hfss.create_wave_port_microstrip_between_objects("GND1", "MS1",
+        ...                                                         portname="MS1",
+        ...                                                         axisdir=1)
 
         """
         if not self.modeler.primitives.does_object_exists(startobj) or not self.modeler.primitives.does_object_exists(
@@ -1113,8 +1123,8 @@ class Hfss(FieldAnalysis3D, object):
 
         Returns
         -------
-        bool
-            ``True`` when successful, ``False`` when failed.
+        :class:`pyaedt.hfss.SARSetup`
+            SARSetup object.
 
         """
         self.odesign.SARSetup(TissueMass, MaterialDensity, Tissue_object_List_ID, voxel_size, Average_SAR_method)
@@ -1191,7 +1201,7 @@ class Hfss(FieldAnalysis3D, object):
         -------
         :class:`pyaedt.modules.Boundary.BoundaryObject`
             Boundary object.
-
+        
         """
         if not self.modeler.primitives.does_object_exists(startobj) or not self.modeler.primitives.does_object_exists(
                 endobject):
@@ -1301,6 +1311,7 @@ class Hfss(FieldAnalysis3D, object):
         -------
         :class:`pyaedt.modules.Boundary.BoundaryObject`
             Boundary object.
+        
         """
 
         props = {}
@@ -1392,7 +1403,8 @@ class Hfss(FieldAnalysis3D, object):
         Returns
         -------
         list
-            List of objects created.
+            List of names for the ports created when successful, ``False`` otherwise.
+        
         """
         sheet = self.modeler.convert_to_selections(sheet, True)
         portnames = []
@@ -1445,7 +1457,7 @@ class Hfss(FieldAnalysis3D, object):
         Returns
         -------
         str
-            Object name.
+            Name of the port created when successful, ``False`` otherwise.
         """
 
         if self.solution_type in ["DrivenModal", "DrivenTerminal", "Transient Network"]:
@@ -1495,7 +1507,8 @@ class Hfss(FieldAnalysis3D, object):
         Returns
         -------
         str
-            Object name
+            Name of the source created when successful, ``False`` otherwise.
+        
         """
 
         if self.solution_type in ["DrivenModal", "DrivenTerminal", "Transient Network"]:
@@ -1527,7 +1540,8 @@ class Hfss(FieldAnalysis3D, object):
         Returns
         -------
         str
-            Object name
+            Name of the source created when successful, ``False`` otherwise.
+        
         """
 
         if self.solution_type in ["DrivenModal", "DrivenTerminal", "Transient Network"]:
@@ -1624,7 +1638,7 @@ class Hfss(FieldAnalysis3D, object):
         Returns
         -------
         str
-            Object name.
+            Name of the Perfect H created when successful, ``False`` otherwise.
 
         """
 
@@ -1676,7 +1690,8 @@ class Hfss(FieldAnalysis3D, object):
         Returns
         -------
         str
-            Object name
+            Name of the impedance created when successful, ``False`` otherwise.
+        
         """
 
         if self.solution_type in ["DrivenModal", "DrivenTerminal", "Transient Network"]:
@@ -1721,8 +1736,8 @@ class Hfss(FieldAnalysis3D, object):
 
         Returns
         -------
-        bool
-            ``True`` when successful, ``False`` when failed.
+        str
+            Name of the port created when successful, ``False`` otherwise.
 
         """
         edge_list = [edge_signal, edge_gnd]
@@ -1754,6 +1769,7 @@ class Hfss(FieldAnalysis3D, object):
         -------
         bool
             ``True`` when successful, ``False`` when failed.
+        
         """
         self._messenger.add_info_message("Setting Up Power to Eigemode " + powerin + "Watt")
         if self.solution_type != "Eigenmode":
@@ -1783,7 +1799,7 @@ class Hfss(FieldAnalysis3D, object):
         Returns
         -------
         type
-            IDs of ports.
+            IDs of the ports.
 
         """
         tol = 1e-6
@@ -2055,8 +2071,8 @@ class Hfss(FieldAnalysis3D, object):
         -------
         bool
             ``True`` when successful, ``False`` when failed.
+            
         """
-
         Families = ["Freq:=", ["All"]]
         if variations:
             Families += variations
@@ -2128,6 +2144,7 @@ class Hfss(FieldAnalysis3D, object):
         -------
         bool
             ``True`` when successful, ``False`` when failed.
+        
         """
         npath = os.path.normpath(project_dir)
 
@@ -2217,8 +2234,8 @@ class Hfss(FieldAnalysis3D, object):
         -------
         bool
             ``True`` when successful, ``False`` when failed.
+        
         """
-
         settings = []
         if activate:
             settings.append("NAME:Design Settings Data")
@@ -2246,6 +2263,8 @@ class Hfss(FieldAnalysis3D, object):
 
         Returns
         -------
+        :class:`pyaedt.modules.Boundary.BoundaryObject`
+            Boundary object.
 
         """
         object_list = self.modeler.convert_to_selections(obj_names, return_list=True)
