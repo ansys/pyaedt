@@ -399,7 +399,7 @@ class Primitives3D(Primitives, object):
         cs_plane : 
             Coordinate system plane for orienting the rectangle.
         position : list or Position
-            List of ``[x,y,z]`` coordinates for the center point of the rectange or 
+            List of ``[x,y,z]`` coordinates for the center point of the rectangle or 
             the positionApplicationName.modeler.Position(x,y,z) object. 
         dimension_list : list
             List of ``[width, height]`` dimensions.
@@ -551,7 +551,7 @@ class Primitives3D(Primitives, object):
             in which case the curve is non-segmented.
         name : str, optional
             Name of the created curve in the 3D modeler. The default is ``None``,
-            in whic case the default name is assigned.
+            in which case the default name is assigned.
         xsection_type : str, optional
             Type of the cross-section. Choices are ``"Line"``, ``"Circle"``,
             ``"Rectangle"``, and ``"Isosceles Trapezoid"``. The default is ``None``.
@@ -770,7 +770,7 @@ class Primitives3D(Primitives, object):
 
     @aedt_exception_handler
     def get_3d_component_object_list(self, componentname):
-        """Retrive all objects belonging to a 3D component.
+        """Retrieve all objects belonging to a 3D component.
 
         Parameters
         ----------
