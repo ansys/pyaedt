@@ -70,7 +70,7 @@ class Analysis(Design, object):
 
         Returns
         -------
-        Materials
+        :class:`pyaedt.modules.MaterialLib.Materials`
             Material Manager that is used to manage materials in the project.
            
 
@@ -201,7 +201,7 @@ class Analysis(Design, object):
 
         Returns
         -------
-
+        :class:`pyaedt.modules.AdvancedPostProcessing.PostProcessor`
         """
         return self._post
 

@@ -50,7 +50,7 @@ class Primitives3D(Primitives, object):
 
         Returns
         -------
-        Object3d
+        :class:`pyaedt.modeler.Object3d.Object3d`
 
         Examples
         --------
@@ -101,7 +101,7 @@ class Primitives3D(Primitives, object):
 
         Returns
         -------
-        Object3d
+        :class:`pyaedt.modeler.Object3d.Object3d`
 
         Examples
         _________
@@ -153,7 +153,7 @@ class Primitives3D(Primitives, object):
 
         Returns
         -------
-        Object3d
+        :class:`pyaedt.modeler.Object3d.Object3d`
 
         Examples
         _________
@@ -206,7 +206,7 @@ class Primitives3D(Primitives, object):
 
         Returns
         -------
-        Object3d
+        :class:`pyaedt.modeler.Object3d.Object3d`
 
         Examples
         _________
@@ -252,7 +252,7 @@ class Primitives3D(Primitives, object):
 
         Returns
         -------
-        Object3d
+        :class:`pyaedt.modeler.Object3d.Object3d`
 
         Examples
         --------
@@ -320,7 +320,7 @@ class Primitives3D(Primitives, object):
 
         Returns
         -------
-        Object3d
+        :class:`pyaedt.modeler.Object3d.Object3d`
 
         Examples
         _________
@@ -390,7 +390,7 @@ class Primitives3D(Primitives, object):
             ``True`` if rectangle is covered
         Returns
         -------
-        Object3d
+        :class:`pyaedt.modeler.Object3d.Object3d`
         """
         szAxis = GeometryOperators.cs_plane_str(csPlane)
         XStart, YStart, ZStart = self._pos_with_arg(position)
@@ -433,7 +433,7 @@ class Primitives3D(Primitives, object):
 
         Returns
         -------
-        Object3d
+        :class:`pyaedt.modeler.Object3d.Object3d`
 
         """
         szAxis = GeometryOperators.cs_plane_str(cs_plane)
@@ -478,7 +478,7 @@ class Primitives3D(Primitives, object):
 
         Returns
         -------
-        Object3d
+        :class:`pyaedt.modeler.Object3d.Object3d`
         """
         szAxis = GeometryOperators.cs_plane_str(cs_plane)
         XStart, YStart, ZStart = self._pos_with_arg(position)
@@ -548,7 +548,7 @@ class Primitives3D(Primitives, object):
 
         Returns
         -------
-        Object3d
+        :class:`pyaedt.modeler.Object3d.Object3d`
         """
         x_section = self._crosssection_arguments(type=xsection_type, orient=xsection_orient, width=xsection_width,
                                                  topwidth=xsection_topwidth, height=xsection_height, num_seg=xsection_num_seg,
@@ -581,7 +581,7 @@ class Primitives3D(Primitives, object):
 
         Returns
         -------
-        Object3d
+        :class:`pyaedt.modeler.Object3d.Object3d`
         """
         vArg1 = ["NAME:Selections"]
         vArg1.append("Selections:="), vArg1.append(o.name)
@@ -603,8 +603,8 @@ class Primitives3D(Primitives, object):
 
         Returns
         -------
-        type:
-            Object3d
+        :class:`pyaedt.modeler.Object3d.Object3d`
+            Object3d object
 
         """
         this_object = self._resolve_object(object_name)
@@ -645,7 +645,7 @@ class Primitives3D(Primitives, object):
 
         Returns
         -------
-        Object3d
+        :class:`pyaedt.modeler.Object3d.Object3d`
 
         """
         vArg1 = ["NAME:UserDefinedModelParameters",["NAME:Definition"], ["NAME:Options"]]

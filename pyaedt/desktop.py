@@ -86,7 +86,7 @@ def exception_to_desktop(self, ex_value, tb_data):
         desktop.AddMessage(proj_name, des_name, 2, el)
 
 
-def update_aedt_registry(key, value, desktop_version="193"):
+def update_aedt_registry(key, value, desktop_version="211"):
     """Update the AEDT registry key.
     
     .. note::
@@ -99,8 +99,8 @@ def update_aedt_registry(key, value, desktop_version="193"):
     value : str
         Value for the registry key. The value includes "" if needed.
     desktop_version : str, optional
-        Version of AEDT to use. The default is ``"193"`` 
-        to use 2019 R3.
+        Version of AEDT to use. The default is ``"211"`` 
+        to use 2021 R1.
     
     Examples
     --------

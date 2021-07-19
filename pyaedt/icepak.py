@@ -53,32 +53,36 @@ class Icepak(FieldAnalysisIcepak):
 
     Examples
     --------
-    Create an instance of Icepak and connect to an existing Icepak
+
+    Create an instance of `Icepak` and connect to an existing Icepak
     design or create a new Icepak design if one does not exist.
 
     >>> from pyaedt import Icepak
-    >>> aedtapp = Icepak()
+    >>> icepak = Icepak()
 
-    Create an instance of Icepak and link to a project named
-    ``projectname``. If this project does not exist, create one with
+    Create an instance of `Icepak` and link to a project named
+    ``IcepakProject``. If this project does not exist, create one with
     this name.
 
-    >>> aedtapp = Icepak(projectname)
+    >>> icepak = Icepak("IcepakProject")
+    pyaedt Info: Added design ...
 
-    Create an instance of Icepak and link to a design named
-    ``designname`` in a project named ``projectname``.
+    Create an instance of `Icepak` and link to a design named
+    ``IcepakDesign1`` in a project named ``IcepakProject``.
 
-    >>> aedtapp = Icepak(projectname,designame)
+    >>> icepak = Icepak("IcepakProject", "IcepakDesign1")
+    pyaedt Info: Added design 'IcepakDesign1' of type Icepak.
 
     Create an instance of `Icepak` and open the specified project,
     which is ``myfile.aedt``.
 
-    >>> aedtapp = Icepak("myfile.aedt")
+    >>> icepak = Icepak("myfile.aedt")
+    pyaedt Info: Added design ...
 
     Create an instance of Icepak using the 2021 R1 release and
     open the specified project, which is ``myfile.aedt``.
 
-    >>> aedtapp = Icepak(specified_version="2021.1", projectname="myfile.aedt")
+    >>> icepak = Icepak(specified_version="2021.1", projectname="myfile.aedt")
 
     """
     
@@ -103,7 +107,7 @@ class Icepak(FieldAnalysisIcepak):
         -------
         list
             List of all defined analysis setup names in the Maxwell design.
-            
+
         """
         setup_list = self.existing_analysis_setups
         sweep_list=[]
@@ -123,8 +127,17 @@ class Icepak(FieldAnalysisIcepak):
 
         Returns
         -------
-        type
-            Bound object when successful, ``None`` when failed.
+        :class:`pyaedt.modules.Boundary.BoundaryObject`
+            Boundary object when successful or ``None`` when failed.
+
+        Examples
+        --------
+
+        >>> faces = icepak.modeler.primitives["USB_GND"].faces
+        >>> face_names = [face.id for face in faces]
+        >>> boundary = icepak.assign_openings(face_names)
+        pyaedt Info: Face List boundary_faces created
+        pyaedt Info: Opening Assigned
 
         """
         boundary_name = generate_unique_name("Opening")
