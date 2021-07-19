@@ -293,7 +293,7 @@ class EdgePrimitive(EdgeTypePrimitive, object):
         -------
         list of float values or ``None``
             Midpoint in ``[x, y, z]`` coordinates when the edge 
-            is a circe with only one vertix, ''None`` otherwise.
+            is a circle with only one vertex, ''None`` otherwise.
         
         """
 
@@ -366,7 +366,7 @@ class FacePrimitive(object):
         try:
             c = self._parent.m_Editor.GetFaceCenter(self.id)
         except:
-            self._parent._messenger.add_warning_message("Non-planar face doesnot provide a face center.")
+            self._parent._messenger.add_warning_message("Non-planar face does not provide a face center.")
             return False
         center = [float(i) for i in c]
         return center
@@ -2128,7 +2128,7 @@ class Geometries3DLayout(Objec3DLayout, object):
 
     @aedt_exception_handler
     def get_net_name(self):
-        """Retrive the net name.
+        """Retrieve the net name.
         
         Returns
         -------
@@ -2222,4 +2222,3 @@ class Geometries3DLayout(Objec3DLayout, object):
         """
         vMaterial = ["NAME:Net", "Value:=", netname]
         return self.change_property(vMaterial)
-
