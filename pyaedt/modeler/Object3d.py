@@ -1008,7 +1008,7 @@ class Object3d(object):
 
         Returns
         -------
-        Object3d
+        :class:`pyaedt.modeler.Object3d.Object3d`
         """
         self._parent.modeler.translate(self.id, vector)
         return self
@@ -1074,7 +1074,7 @@ class Object3d(object):
 
         Returns
         -------
-        Object3d
+        :class:`pyaedt.modeler.Object3d.Object3d`
         """
         self._parent.modeler.sweep_around_axis(self, cs_axis, sweep_angle, draft_angle)
         return self
@@ -1094,7 +1094,7 @@ class Object3d(object):
 
         Returns
         -------
-        Object3d
+        :class:`pyaedt.modeler.Object3d.Object3d`
         """
         #TODO Refactor plane !
         self._parent.modeler.section(self, plane, create_new, section_cross_object)
@@ -1106,7 +1106,7 @@ class Object3d(object):
 
         Returns
         -------
-        Object3d
+        :class:`pyaedt.modeler.Object3d.Object3d`
         """
         new_obj_tuple = self._parent.modeler.clone(self.id)
         success = new_obj_tuple[0]
@@ -1128,7 +1128,7 @@ class Object3d(object):
 
         Returns
         -------
-        Object3d
+        :class:`pyaedt.modeler.Object3d.Object3d`
             Modified object following the subtraction
         """
         self._parent.modeler.subtract(self.name, tool_list, keep_originals)

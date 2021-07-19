@@ -510,7 +510,12 @@ class GeometryModeler(Modeler, object):
 
     @property
     def materials(self):
-        """ """
+        """
+
+        Returns
+        -------
+        :class:`pyaedt.modules.MaterialLib.Materials`
+        """
         return self._parent.materials
 
 
@@ -1519,7 +1524,7 @@ class GeometryModeler(Modeler, object):
 
         Returns
         -------
-        Object3d
+        :class:`pyaedt.modeler.Object3d.Object3d`
         """
         selections = self.convert_to_selections(objid)
 
@@ -1546,7 +1551,7 @@ class GeometryModeler(Modeler, object):
 
         Returns
         -------
-        Object3d
+        :class:`pyaedt.modeler.Object3d.Object3d`
         """
         selections = self.convert_to_selections(obj_name)
         vArg1 = ['NAME:Selections', 'Selections:=', selections, 'NewPartsModelFlag:=', 'Model']

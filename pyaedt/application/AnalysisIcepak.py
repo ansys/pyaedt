@@ -67,7 +67,12 @@ class FieldAnalysisIcepak(Analysis, object):
 
     @property
     def mesh(self):
-        """Mesh object."""
+        """
+
+        Returns
+        -------
+        :class:`pyaedt.modules.MeshIcepak.IcepakMesh`
+        """
         return self._mesh
 
     # @property
