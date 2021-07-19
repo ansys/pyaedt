@@ -469,7 +469,7 @@ class Modeler(object):
 
     # Properties derived from internal parent data
     @property
-    def desktop(self):
+    def _desktop(self):
         """ """
         return self._parent._desktop
 

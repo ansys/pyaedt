@@ -567,7 +567,7 @@ class CommonMaterial(object):
         return self._parent._oproject
 
     @property
-    def desktop(self):
+    def _desktop(self):
         """Desktop."""
         return self._parent._desktop
 

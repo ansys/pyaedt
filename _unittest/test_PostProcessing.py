@@ -30,7 +30,6 @@ class TestDesign:
                 self.aedtapp = Hfss(self.test_project)
             except:
                 pass
-                #self.desktop.force_close_desktop()
 
 
     def teardown_class(self):

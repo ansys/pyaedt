@@ -331,7 +331,7 @@ class FieldAnalysis3DLayout(Analysis):
 
         Returns
         -------
-        :class: Setup3DLayout
+        :class:`pyaedt.modules.SolveSetup.Setup3DLayout`
             Setup object.
 
         """

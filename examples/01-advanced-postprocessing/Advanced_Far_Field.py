@@ -63,6 +63,7 @@ hfss = Hfss(project_name, "4X4_MultiCell_CA-Array")
 
 start = time.time()
 hfss.analyze_setup("Setup1")
+hfss.save_project()
 end = time.time() - start
 print("Solution Time", end)
 

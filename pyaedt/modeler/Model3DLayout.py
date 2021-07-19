@@ -47,7 +47,7 @@ class Modeler3DLayout(Modeler):
 
         Returns
         -------
-        :class:'pyaedt.Edb`
+        :class:`pyaedt.Edb`
              EDB.
 
         """
@@ -232,7 +232,7 @@ class Modeler3DLayout(Modeler):
 
         self.oimportexport.ImportExtracta(brd_filename, os.path.join(edb_path, edb_name + ".aedb"),
                                           os.path.join(edb_path, edb_name + ".xml"))
-        self._parent.oproject = self.desktop.GetActiveProject().GetName()
+        self._parent.oproject = self._parent._desktop.GetActiveProject().GetName()
         self._parent.odesign = None
 
         # name = self._parent.project_name
@@ -290,7 +290,7 @@ class Modeler3DLayout(Modeler):
 
         self.oimportexport.ImportIPC(ipc_filename, os.path.join(edb_path, edb_name + ".aedb"),
                                      os.path.join(edb_path, edb_name + ".xml"))
-        self._parent.oproject = self.desktop.GetActiveProject().GetName()
+        self._parent.oproject = self._parent._desktop.GetActiveProject().GetName()
         self._parent.odesign = None
         return True
 

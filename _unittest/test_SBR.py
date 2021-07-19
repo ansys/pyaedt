@@ -12,7 +12,6 @@ test_project_name = "Cassegrain"
 
 class TestHFSS:
     def setup_class(self):
-        #self.desktop = Desktop(desktopVersion, NonGraphical, NewThread)
         # set a scratch directory and the environment / test data
         with Scratch(scratch_path) as self.local_scratch:
             example_project = os.path.join(local_path, 'example_models', test_project_name + '.aedt')
@@ -22,7 +21,6 @@ class TestHFSS:
 
     def teardown_class(self):
         assert self.aedtapp.close_project(self.aedtapp.project_name,saveproject=False)
-        #self.desktop.force_close_desktop()
         self.local_scratch.remove()
         gc.collect()
 
