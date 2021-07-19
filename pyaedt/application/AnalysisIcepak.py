@@ -1,5 +1,6 @@
 import csv
 import re
+import warnings
 
 from ..generic.general_methods import aedt_exception_handler, generate_unique_name
 from ..application.Analysis import Analysis
@@ -228,6 +229,19 @@ class FieldAnalysisIcepak(Analysis, object):
 
     @aedt_exception_handler
     def assignmaterial(self, obj, mat):
+        """Assign a material to one or more objects.
+
+        .. deprecated:: 0.3.1
+           Use :func:`FieldAnalysisIcepak.assign_material` instead.
+
+        """
+        # raise a DeprecationWarning.  User won't have to change anything
+        warnings.warn('assignmaterial is deprecated.  Please use assign_material instead.',
+                      DeprecationWarning)
+        self.assign_material(obj, mat)
+
+    @aedt_exception_handler
+    def assign_material(self, obj, mat):
         """Assign a material to one or more objects. 
 
         Parameters
@@ -424,7 +438,7 @@ class FieldAnalysisIcepak(Analysis, object):
                     else:
                         value = material_data["Elastic Modulus"][i]
                         newmat.youngs_modulus = value
-                self.assignmaterial(list_mat_obj, mat)
+                self.assign_material(list_mat_obj, mat)
 
                 for obj_name in list_mat_obj:
                     if not self.modeler.primitives[obj_name].surface_material_name:

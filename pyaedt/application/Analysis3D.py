@@ -1,6 +1,7 @@
-import glob
 import os
 import ntpath
+import warnings
+
 from ..generic.general_methods import aedt_exception_handler, generate_unique_name
 from .Analysis import Analysis
 from ..modeler.Model3D import Modeler3D
@@ -233,9 +234,9 @@ class FieldAnalysis3D(Analysis, object):
             ``True`` when successful, ``False`` when failed.
             
         """
-        body_list = design.modeler.solid_bodies
+        body_list = design.modeler.primitives.solid_names
         if include_sheets:
-            body_list += design.modeler.primitives.get_all_sheets_names()
+            body_list += design.modeler.primitives.sheet_names
         selection_list = []
         material_properties = design.modeler.primitives.objects
         for body in body_list:
@@ -290,6 +291,99 @@ class FieldAnalysis3D(Analysis, object):
             contexts.append([s + ':' + str(i + 1) for s in sources])  # use one based indexing
         self.osolution.SetSourceContexts(contexts)
         return True
+
+    @aedt_exception_handler
+    def assignmaterial(self, obj, mat):
+        """Assign a material to one or more objects.
+
+        .. deprecated:: 0.3.1
+           Use :func:`FieldAnalysis3D.assign_material` instead.
+
+        """
+        warnings.warn('assignmaterial is deprecated.  Please use assign_material instead.',
+                      DeprecationWarning)
+        self.assign_material(obj, mat)
+
+    @aedt_exception_handler
+    def assign_material(self, obj, mat):
+        """Assign a material to one or more objects.
+
+        Parameters
+        ----------
+        obj : str, list
+            One or more objects to assign materials to.
+        mat : str
+            Material to assign. If this material is not present, it will be
+            created.
+
+        Returns
+        -------
+        bool
+            ``True`` when successful, ``False`` when failed.
+
+        Examples
+        --------
+        The method assign_material is useful to assign a material to a list of objects.
+
+        Open a design and create the objects.
+
+        >>> from pyaedt import Hfss
+        >>> hfss = Hfss()
+        >>> box1 = hfss.modeler.primitives.create_box([10, 10, 10], [4, 5, 5])
+        >>> box2 = hfss.modeler.primitives.create_box([0, 0, 0], [2, 3, 4])
+        >>> cylinder1 = hfss.modeler.primitives.create_cylinder(cs_axis="X", position=[5, 0, 0], radius=1, height=20)
+        >>> cylinder2 = hfss.modeler.primitives.create_cylinder(cs_axis="Z", position=[0, 0, 5], radius=1, height=10)
+
+        Assign the material "copper" to all the objects.
+
+        >>> objects_list = [box1, box2, cylinder1, cylinder2]
+        >>> hfss.assign_material(objects_list, "copper")
+
+        The method also accepts a list of object names.
+
+        >>> obj_names_list = [box1.name, box2.name, cylinder1.name, cylinder2.name]
+        >>> hfss.assign_material(obj_names_list, "aluminum")
+        """
+        mat = mat.lower()
+        selections = self.modeler.convert_to_selections(obj)
+        arg1 = ["NAME:Selections"]
+        arg1.append("Selections:="), arg1.append(selections)
+        arg2 = ["NAME:Attributes"]
+        arg2.append("MaterialValue:="), arg2.append(chr(34) + mat + chr(34))
+        if mat in self.materials.material_keys:
+            Mat = self.materials.material_keys[mat]
+            Mat.update()
+            if Mat.is_dielectric():
+                arg2.append("SolveInside:="), arg2.append(True)
+            else:
+                arg2.append("SolveInside:="), arg2.append(False)
+            self.modeler.oeditor.AssignMaterial(arg1, arg2)
+            self._messenger.add_info_message('Assign Material ' + mat + ' to object ' + selections)
+            if type(obj) is list:
+                for el in obj:
+                    self.modeler.primitives[el].material_name = mat
+            else:
+                self.modeler.primitives[obj].material_name = mat
+            return True
+        elif self.materials.checkifmaterialexists(mat):
+            self.materials._aedmattolibrary(mat)
+            Mat = self.materials.material_keys[mat]
+            if Mat.is_dielectric():
+                arg2.append("SolveInside:="), arg2.append(True)
+            else:
+                arg2.append("SolveInside:="), arg2.append(False)
+            self.modeler.oeditor.AssignMaterial(arg1, arg2)
+            self._messenger.add_info_message('Assign Material ' + mat + ' to object ' + selections)
+            if type(obj) is list:
+                for el in obj:
+                    self.modeler.primitives[el].material_name = mat
+            else:
+                self.modeler.primitives[obj].material_name = mat
+
+            return True
+        else:
+            self._messenger.add_error_message("Material Does Not Exists")
+            return False
 
     @aedt_exception_handler
     def get_all_conductors_names(self):
