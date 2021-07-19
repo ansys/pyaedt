@@ -485,8 +485,8 @@ class Design(object):
         self.project_datasets = {}
         self.design_datasets = {}
         main_module = sys.modules['__main__']
-        if "pyaedt_initialized" not in dir(main_module):
-            Desktop(specified_version, non_graphical, launch_new_desktop, release_on_exit, student_version)
+        #if "pyaedt_initialized" not in dir(main_module):
+        d = Desktop(specified_version, non_graphical, launch_new_desktop, release_on_exit, student_version)
         self._project_dictionary = {}
         self._mttime = None
         self._desktop = main_module.oDesktop
