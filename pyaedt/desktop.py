@@ -358,20 +358,13 @@ class Desktop:
         self._student_version = student_version
         self._module_logger = logging.getLogger(__name__)
         self._launch_new_desktop = launch_new_desktop
-        ng_compatible_desktop = False
-        if "oDesktop" in dir(self._main):
-            if self._main.oDesktop:
-                if "_process_ng" in dir(self._main):             # Check that non-graphical settings are compatible
-                    if non_graphical != self._main._process_ng:
-                        self._launch_new_desktop = True          # if not force a new desktop to launch
-                if ng_compatible_desktop:
-                    ng_compatible_desktop = True
-                    self._main.AEDTVersion = self._main.oDesktop.GetVersion()[0:6]
-                    self._main.oDesktop.RestoreWindow()
-                    self._main.oMessenger = AEDTMessageManager()
-                    self._main.sDesktopinstallDirectory = self._main.oDesktop.GetExeDir()
-                    self._release_on_exit = False
-        if not "oDesktop" in dir(self._main) or not ng_compatible_desktop:
+        if "oDesktop" in dir(self._main) and self._main.oDesktop is not None:
+                self._main.AEDTVersion = self._main.oDesktop.GetVersion()[0:6]
+                self._main.oDesktop.RestoreWindow()
+                self._main.oMessenger = AEDTMessageManager()
+                self._main.sDesktopinstallDirectory = self._main.oDesktop.GetExeDir()
+                self._release_on_exit = False
+        else:
             if specified_version:
                 if self._student_version:
                     specified_version += "SV"
@@ -461,10 +454,6 @@ class Desktop:
             self._main.AEDTVersion = version_key
             self._main.oDesktop.RestoreWindow()
             self._main.oMessenger = AEDTMessageManager()
-            if "_process_ng" not in dir(self._main) and StandalonePyScriptWrapper:
-                self._main._process_ng = non_graphical
-
-        self._main.pyaedt_initialized = True
 
         # Set up the log file in the AEDT project directory
         self.logger = logging.getLogger(__name__)
