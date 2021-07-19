@@ -1466,7 +1466,7 @@ class Icepak(FieldAnalysisIcepak):
     @aedt_exception_handler
     def create_meshregion_component(self, scale_factor=1.0, name="Component_Region",
                                           restore_padding_values=[50, 50, 50, 50, 50, 50]):
-        """Create and assign a region to the PCB component.
+        """Create a bounding box to be used as Mesh Region in Icepak.
 
         Parameters
         ----------
