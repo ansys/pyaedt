@@ -1265,7 +1265,7 @@ class PostProcessor(object):
         # Setup arguments list for createReport function
         if not dir:
             dir = self._scratch.path
-            self.messenger.logger.debug("Using scratch path {}".format(self._scratch.path))
+            self._messenger.logger.debug("Using scratch path {}".format(self._scratch.path))
 
         assert os.path.exists(dir), "Specified directory does not exist: {}".format(dir)
 
