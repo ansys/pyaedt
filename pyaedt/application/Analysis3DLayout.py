@@ -37,10 +37,10 @@ class FieldAnalysis3DLayout(Analysis):
     specified_version: str, optional
         Version of AEDT  to use. The default is ``None``, in which case
         the active version or latest installed version is used.
-    NG : bool, optional
+    non_graphical : bool, optional
         Whether to run AEDT in the non-graphical mode. The default 
         is ``False``, which launches AEDT in the graphical mode.  
-    AlwaysNew : bool, optional
+    launch_new_desktop : bool, optional
         Whether to launch an instance of AEDT in a new thread, even if
         another instance of the ``specified_version`` is active on the
         machine. The default is ``True``.

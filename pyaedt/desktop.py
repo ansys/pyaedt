@@ -478,7 +478,7 @@ class Desktop:
         logger.info(info_msg4)
 
         if _com == 'pywin32' and (launch_new_desktop or non_graphical):
-            info_msg5 = 'The ``AlwaysNew`` or ``non_graphical`` option is not available for a pywin32 connection only. Install Python.NET to support these options.'
+            info_msg5 = 'The ``launch_new_desktop`` or ``non_graphical`` option is not available for a pywin32 connection only. Install Python.NET to support these options.'
             self._main.oMessenger.add_info_message(info_msg5, 'Global')
         elif _com == 'ironpython':
             dll_path = os.path.join(base_path,"common","IronPython", "dlls")
