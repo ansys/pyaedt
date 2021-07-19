@@ -5,9 +5,7 @@ from ..application.Analysis import CoordinateSystemAxis
 from .Object3d import Object3d
 
 class Primitives3D(Primitives, object):
-    """Primitives3D class.
-
-    This class provides all functionalities for managing primitives in 3D tools.
+    """Manages primitives in 3D tools.
 
     Parameters
     ----------
@@ -15,8 +13,8 @@ class Primitives3D(Primitives, object):
         Name of the parent AEDT application.
     modeler : str
         Name of the modeler.
+    
     """
-
     def __init__(self, parent, modeler):
         Primitives.__init__(self, parent, modeler)
 
@@ -26,12 +24,13 @@ class Primitives3D(Primitives, object):
 
         Returns
         -------
-         ``True`` when successful, ``False`` when failed.
+        bool
+            ``True`` when successful, ``False`` when failed.
 
     """
     @aedt_exception_handler
     def create_box(self, position, dimensions_list, name=None, matname=None):
-        """Create a Box
+        """Create a box.
 
 
         Parameters
@@ -41,7 +40,7 @@ class Primitives3D(Primitives, object):
         dimensions_list : list
            Dimensions for the box in a list of ``[x, y, z]`` coordinates.
         name : str, optional
-            Name of the box. Thed default is ``None``, in which case the
+            Name of the box. The default is ``None``, in which case the
             default name is assigned.
         matname : str, optional
             Name of the material.  The default is ``None``, in which case the
@@ -51,6 +50,7 @@ class Primitives3D(Primitives, object):
         Returns
         -------
         :class:`pyaedt.modeler.Object3d.Object3d`
+            3D object.
 
         Examples
         --------
@@ -80,32 +80,36 @@ class Primitives3D(Primitives, object):
 
     @aedt_exception_handler
     def create_cylinder(self, cs_axis, position, radius, height, numSides=0, name=None, matname=None):
-        """Create a cylinder
+        """Create a cylinder.
 
         Parameters
         ----------
         cs_axis :
-            CoordinateSystemAxis
-        position :
-            ApplicationName.modeler.Position(x,y,z) object
-        radius :
-            radius float
-        height :
-            height float
-        numSides :
-            Number of sides. 0 for circle (Default value = 0)
-        name : str, default=None
-            Object Name (if not specified a name will be assigned automatically)
-        matname :
-            material name. Optional, if nothing default material will be assigned
+            Axis of rotation of the starting point around the center point.
+        position : list
+            Center point of the cyliner in a list of ''(x, y, z)`` coordinates.
+        radius : float
+            Radius of the cylinder.
+        height : float
+            Height of the cylinder.
+        numSides : int, optional
+            Number of sides. The default is ``0``, shich is correct for
+            a cylinder.
+        name : str, optional
+            Name of the cylinder. The default is ``None``, in which case 
+            the default name is assigned.
+        matname : str, optional
+            Name of the material. The default is ''None``, in which case the
+            default material is assigned.
 
         Returns
         -------
         :class:`pyaedt.modeler.Object3d.Object3d`
+            3D object.
 
         Examples
-        _________
-        >>> from pyaedt import Hfss
+        --------
+                >>> from pyaedt import Hfss
         >>> aedtapp = Hfss()
         >>> ret_object = aedtapp.modeler.primitives.create_cylinder(cs_axis='Z', position=[0,0,0], radius=2, height=3,
         ...                                                name="mycyl", matname="vacuum")
@@ -132,35 +136,42 @@ class Primitives3D(Primitives, object):
     @aedt_exception_handler
     def create_polyhedron(self, cs_axis=None, center_position=(0.0, 0.0, 0.0), start_position=(0.0, 1.0, 0.0),
                           height=1.0, num_sides=12, name=None, matname=None):
-        """Create a regular polyhedron
+        """Create a regular polyhedron.
 
         Parameters
         ----------
-        cs_axis : CoordinateSystemAxis, default=ZAxis
-            Axis of rotation of the start-point around the center-point
-        center_position : indexable of float. default=[0, 0, 0]
-            Center position in [x, y, z] coordinates
-        start_position : indexable of float. default=[0, 0, 0]
-            Start position in [x, y, z] coordinates
-        height : float, default=1
-            radius float
-        num_sides : int, default=12
-            number of sides of the polyhedron
-        name : str, default=None
-            Object Name (if not specified a name will be assigned automatically)
-        matname :
-            material name. Optional, if nothing default material will be assigned
+        cs_axis : optional
+            Axis of rotation of the starting point around the center point.
+            The default is ``None``, in which case the Z axis is used.
+        center_position : list, optional
+            List of ``[x, y, z]`` coordinates for the center position.
+            The default is ``(0.0, 0.0, 0.0)``.
+        start_position : list, optional
+            List of ``[x, y, z]`` coordinates for the starting position.
+            The default is ``(0.0, 0.0, 0.0)``.
+        height : float, optional
+            Height of the polyhedron. The default is ``1.0``.
+        num_sides : int, optional
+            Number of sides of the polyhedron. The default is ``12``.
+        name : str, optional
+            Name of the polyhedron. The default is ``None``, in which the 
+            default name is assigned.
+        matname : str, optional
+            Name of the material. The default is ``None``, in which the 
+            default material is assigned.
 
         Returns
         -------
         :class:`pyaedt.modeler.Object3d.Object3d`
+            3D object.
 
         Examples
-        _________
+        --------
         >>> from pyaedt import Hfss
         >>> aedtapp = Hfss()
         >>> ret_obj = aedtapp.modeler.primitives.create_polyhedron(cs_axis='X', center_position=[0, 0, 0], start_position=[0,5,0],
         ...                                                      height=0.5, num_sides=8, name="mybox", matname="copper")
+        
         """
         test = cs_axis
         cs_axis = GeometryOperators.cs_axis_str(cs_axis)
@@ -185,31 +196,35 @@ class Primitives3D(Primitives, object):
 
     @aedt_exception_handler
     def create_cone(self, cs_axis, position, bottom_radius, top_radius, height, name=None, matname=None):
-        """Create a cone
+        """Create a cone.
 
         Parameters
         ----------
-        cs_axis : CoordinateSystemAxis
-            CoordinateSystem Axis
-        position : list of float
-            Center position of the bottom of the cone
+        Axis of rotation of the starting point around the center point.
+            The default is ``None``, in which case the Z axis is used.
+        center_position : list, optional
+            List of ``[x, y, z]`` coordinates for the center position 
+            of the bottom of the cone. 
         bottom_radius : float
-            Bottom radius of the cone
+            Bottom radius of the cone.
         top_radius : float
-            Top radius of the cone
+            Top radius of the cone.
         height : float
-            Height of the cone
-        name : str, default=None
-            Object Name (if not specified a name will be assigned automatically)
-        matname :
-            material name. Optional, if nothing default material will be assigned
+            Height of the cone.
+        name : str, optional
+            Name of the cone. The default is ``None``, in which case 
+            the default name is assigned.
+        matname : str, optional
+            Name of the material. The default is ``None``, in which case 
+            the default material is assigned.
 
         Returns
         -------
         :class:`pyaedt.modeler.Object3d.Object3d`
+            3D object.
 
         Examples
-        _________
+        --------
         >>> from pyaedt import Hfss
         >>> aedtapp = Hfss()
         >>> ret_object = aedtapp.modeler.primitives.create_cone(cs_axis='Z', position=[0,0,0],
@@ -237,22 +252,26 @@ class Primitives3D(Primitives, object):
 
     @aedt_exception_handler
     def create_sphere(self, position, radius, name=None, matname=None):
-        """Create a sphere
+        """Create a sphere.
 
         Parameters
         ----------
-        position : list of float
-            Center position of the sphere [x, y, z]
-        radius :
-            radius float
-        name : str, default=None
-            Object Name (if not specified a name will be assigned automatically)
-        matname :
-            material name. Optional, if nothing default material will be assigned
+        position : list
+            List of ``[x, y, z]`` coordinates for the center position 
+            of the sphere. 
+        radius : float
+            Radius of the sphere.
+        name : str, optional
+            Name of the sphere. The default is ``None``, in which case 
+            the default name is assigned.
+        matname : str, optional
+            Name of the material. The default is ``None``, in which case 
+            the default material is assigned.
 
         Returns
         -------
         :class:`pyaedt.modeler.Object3d.Object3d`
+            3D object.
 
         Examples
         --------
@@ -278,14 +297,14 @@ class Primitives3D(Primitives, object):
     @aedt_exception_handler
     def create_bondwire(self, start_position, end_position, h1=0.2, h2=0, alpha=80, beta=5, bond_type=0,
                         diameter=0.025, facets=6, name=None, matname=None):
-        """Create a Bondwire.
+        """Create a bondwire.
 
         Parameters
         ----------
         start_position : list
-            Starting position of the bond pad in a list of [x, y, z] coordinates.
+            List of [x, y, z] coordinates for the starting position of the bond pad.
         end_position :  list
-            Ending position of the bond pad in a list of [x, y, z] coordinates.
+            List of [x, y, z] coordinates for the ending position of the bond pad.
         h1: float, optional
             Height between the IC  die I/O pad and the top of the bondwire.
             The default is ``0.2``.
@@ -312,7 +331,7 @@ class Primitives3D(Primitives, object):
         facets: int, optional
             Number of wire facets. The default is ``6``.
         name : str, optional
-            Name of the bond wire. The default is ``None``, in which case
+            Name of the bondwire. The default is ``None``, in which case
             the default name is assigned.
         matname : str, optional
             Name of the material. The default is ``None``, in which case
@@ -321,9 +340,10 @@ class Primitives3D(Primitives, object):
         Returns
         -------
         :class:`pyaedt.modeler.Object3d.Object3d`
+            3D object.
 
         Examples
-        _________
+        --------
         >>> from pyaedt import Hfss
         >>> hfss = Hfss()
         >>> origin = [0,0,0]
@@ -372,25 +392,31 @@ class Primitives3D(Primitives, object):
 
     @aedt_exception_handler
     def create_rectangle(self, csPlane, position, dimension_list,  name=None, matname=None, is_covered=True):
-        """Create a rectangle
+        """Create a rectangle.
 
         Parameters
         ----------
-        cs_plane : CoordinateSystemPlane
-            CoordinateSystem Plane
-        position : list, Position
-            ApplicationName.modeler.Position(x,y,z) object or list ``[x,y,z]`` of position
+        cs_plane : 
+            Coordinate system plane for orienting the rectangle.
+        position : list or Position
+            List of ``[x,y,z]`` coordinates for the center point of the rectange or 
+            the positionApplicationName.modeler.Position(x,y,z) object. 
         dimension_list : list
-            dimension list ``[width, height]``
-        name : str
-            Object Name (Default value = None)
-        matname : str
-            material name. Optional, if nothing default material will be assigned
-        is_covered : bool
-            ``True`` if rectangle is covered
+            List of ``[width, height]`` dimensions.
+       name : str, optional
+            Name of the rectangle. The default is ``None``, in which case
+            the default name is assigned.
+        matname : str, optional
+            Name of the material. The default is ``None``, in which case
+            the default material is assigned.
+        is_covered : bool, optional
+            Whether the rectangle is covered. The default is ``True``.
+        
         Returns
         -------
         :class:`pyaedt.modeler.Object3d.Object3d`
+            3D object.
+        
         """
         szAxis = GeometryOperators.cs_plane_str(csPlane)
         XStart, YStart, ZStart = self._pos_with_arg(position)
@@ -419,11 +445,11 @@ class Primitives3D(Primitives, object):
         cs_plane :
             Coordinate system plane for orienting the circle.
         position : list
-            Center point of the circle in a list of [x, y, z] coordinates.
+            List of ``[x, y, z]`` coordinates for the center point of the circle.
         radius : float
             Radius of the circle.
         numSides : int, optional
-            Number of sides. The default is ``0``, which correct for a circle.
+            Number of sides. The default is ``0``, which is correct for a circle.
         name : str, optional
             Name of the circle. The default is ``None``, in which case the
             default name is assigned.
@@ -434,6 +460,7 @@ class Primitives3D(Primitives, object):
         Returns
         -------
         :class:`pyaedt.modeler.Object3d.Object3d`
+            3D object.
 
         """
         szAxis = GeometryOperators.cs_plane_str(cs_plane)
@@ -453,19 +480,18 @@ class Primitives3D(Primitives, object):
 
     @aedt_exception_handler
     def create_ellipse(self, cs_plane, position, major_raidus, ratio, is_covered=True, name=None, matname=None):
-        """Create an ellipse
-
+        """Create an ellipse.
         Parameters
         ----------
         cs_plane :
             Coordinate system plane for orienting the ellipse.
         position : list
-            Center point of the ellipse in a list of [x, y, z] coordinates.
+            List of ``[x, y, z]`` coordinates for the center point of the ellipse.
         major_raidus : float
             Base radius of the ellipse.
         ratio : float
             Aspect ratio of the secondary radius to the base radius.
-        bIsCovered : bool, optional
+        is_covered : bool, optional
             Whether the ellipse is covered. The default is ``True``,
             in which case the result is a 2D sheet object. If ``False,``
             the result is a closed 1D polyline object.
@@ -479,6 +505,8 @@ class Primitives3D(Primitives, object):
         Returns
         -------
         :class:`pyaedt.modeler.Object3d.Object3d`
+            3D object.
+        
         """
         szAxis = GeometryOperators.cs_plane_str(cs_plane)
         XStart, YStart, ZStart = self._pos_with_arg(position)
@@ -503,52 +531,57 @@ class Primitives3D(Primitives, object):
                                    name=None, xsection_type=None, xsection_orient=None,
                                    xsection_width=1, xsection_topwidth=1, xsection_height=1, xsection_num_seg=0,
                                    xsection_bend_type=None):
-        """
+        """Create an equation-based curve.
 
         Parameters
         ----------
         x_t : str or float
-            Expression for the x-component of the curve as a function of ``"_t"`` (e.g. ``"3 * cos(_t)"``)
+            Expression for the X-component of the curve as a function of ``"_t"``.
+            For example, ``"3 * cos(_t)"``.
         y_t : str or float
-            Expression for the x-component of the curve as a function of ``"_t"``
+            Expression for the Y-component of the curve as a function of ``"_t"``
         z_t : str or float
-            Expression for the x-component of the curve as a function of ``"_t"``
+            Expression for the Z-component of the curve as a function of ``"_t"``
         t_start : str or float
-            Start value of the parameter ``"_t"``
-        t_end : str pr float
-            Start value of the parameter ``"_t"``
-        num_points : int, default=0
-            Number of vertices on the segmented curve. If zero then the curve is non-segmented
+            Starting value of the parameter ``"_t"``.
+        t_end : str or float
+            Ending value of the parameter ``"_t"``.
+        num_points : int, optional
+            Number of vertices on the segmented curve. The default is ``0``, 
+            in which case the curve is non-segmented.
         name : str, optional
-            Object name of the created part in the 3D modeler. If not specified then a name is assigned automatically
+            Name of the created curve in the 3D modeler. The default is ``None``,
+            in whic case the default name is assigned.
         xsection_type : str, optional
             Type of the cross-section. Choices are ``"Line"``, ``"Circle"``,
             ``"Rectangle"``, and ``"Isosceles Trapezoid"``. The default is ``None``.
         xsection_orient : str, optional
             Direction of the normal vector to the width of the cross-section.
             Choices are ``"X"``, ``"Y"``, ``"Z"``, and ``"Auto"``. The default is
-            ``None``, which sets the direction to ``"Auto"``.
+            ``None``, in which case the direction is set to ``"Auto"``.
         xsection_width : float or str, optional
-            Width or diameter of the cross-section for all  types. The
+            Width or diameter of the cross-section for all types. The
             default is ``1``.
         xsection_topwidth : float or str, optional
             Top width of the cross-section for type ``"Isosceles Trapezoid"`` only.
             The default is ``1``.
         xsection_height : float or str
-            Height of the cross-section for type ``"Rectangle"`` or ``"Isosceles
+            Height of the cross-section for types ``"Rectangle"`` and ``"Isosceles
             Trapezoid"`` only. The default is ``1``.
         xsection_num_seg : int, optional
             Number of segments in the cross-section surface for types ``"Circle"``,
-            ``"Rectangle"``, or ``"Isosceles Trapezoid"``. The default is ``0``. The
+            ``"Rectangle"``, and ``"Isosceles Trapezoid"``. The default is ``0``. The
             value must be ``0`` or greater than ``2``.
         xsection_bend_type : str, optional
-            Type of the bend for the cross-section. The default is ``None``, which sets
-            the bend type to ``"Corner"``. For the type ``"Circle"``, the bend type
-            should be set to ``"Curved"``.
+            Type of the bend for the cross-section. The default is ``None``, in which 
+            case the bend type is set to ``"Corner"``. For the type ``"Circle"``, the 
+            bend type should be set to ``"Curved"``.
 
         Returns
         -------
         :class:`pyaedt.modeler.Object3d.Object3d`
+            3D object.
+        
         """
         x_section = self._crosssection_arguments(type=xsection_type, orient=xsection_orient, width=xsection_width,
                                                  topwidth=xsection_topwidth, height=xsection_height, num_seg=xsection_num_seg,
@@ -572,7 +605,7 @@ class Primitives3D(Primitives, object):
 
     @aedt_exception_handler
     def create_helix(self, udphelixdefinition):
-        """
+        """Create an helix.
 
         Parameters
         ----------
@@ -582,6 +615,8 @@ class Primitives3D(Primitives, object):
         Returns
         -------
         :class:`pyaedt.modeler.Object3d.Object3d`
+            3D object.
+        
         """
         vArg1 = ["NAME:Selections"]
         vArg1.append("Selections:="), vArg1.append(o.name)
@@ -594,17 +629,19 @@ class Primitives3D(Primitives, object):
 
     @aedt_exception_handler
     def convert_segments_to_line(self, object_name):
-        """Convert a CreatePolyline list of segment into lines. it applies to splines and 3 points args
+        """Convert a CreatePolyline list of segments to lines. 
+        
+        This method applies to splines and 3-point arguments.
 
         Parameters
         ----------
-        object_name : int or str or Object3d
-            Object specifier
+        object_name : int, str. or Object3d
+            Specified for the object.
 
         Returns
         -------
         :class:`pyaedt.modeler.Object3d.Object3d`
-            Object3d object
+            3D object.
 
         """
         this_object = self._resolve_object(object_name)
@@ -632,20 +669,21 @@ class Primitives3D(Primitives, object):
 
     @aedt_exception_handler
     def create_udm(self, udmfullname, udm_params_list, udm_library='syslib'):
-        """Create User Defined Model
+        """Create a user-defined model.
 
         Parameters
         ----------
-        udmfullname :
-            udm full name including folder
+        udmfullname : str
+            Full name for the user-defined model, including the folder name.
         udm_params_list :
-            udpm pairs object
-        udm_library :
-            udp library (Default value = 'syslib')
+            List of user-defined object pairs for the model.
+        udm_library : str, optional
+            Name of library for the user-defined model. The default is ``"syslib"``.
 
         Returns
         -------
         :class:`pyaedt.modeler.Object3d.Object3d`
+           3D object.
 
         """
         vArg1 = ["NAME:UserDefinedModelParameters",["NAME:Definition"], ["NAME:Options"]]
@@ -689,23 +727,25 @@ class Primitives3D(Primitives, object):
 
     @aedt_exception_handler
     def insert_3d_component(self, compFile, geoParams, szMatParams='', szDesignParams='', targetCS='Global'):
-        """Insert a new 3d Component object
+        """Insert a new 3D component.
 
         Parameters
         ----------
-        compFile :
-            Component file
+        compFile : str
+            Name of the component file.
         geoParams :
-            Geometrical Parameters
-        szMatParams :
-            Material Parameters (Default value = '')
-        szDesignParams :
-            Design Parameters (Default value = '')
-        targetCS :
-            Target Coordinate System (Default value = 'Global')
+            Geometrical parameters.
+        szMatParams : str, optional
+            Material parameters. The default is ``""``.
+        szDesignParams : str, optional
+            Design parameters. The default is ``""``.
+        targetCS : str, optional
+            Target coordinate system. The default is ``"Global"``.
 
         Returns
         -------
+        str
+            Name of the created 3D component.
 
         """
         vArg1 = ["NAME:InsertComponentData"]
@@ -730,17 +770,17 @@ class Primitives3D(Primitives, object):
 
     @aedt_exception_handler
     def get_3d_component_object_list(self, componentname):
-        """Given a 3DComponent it returns the list of all objects belonging to it
+        """Retrive all objects belonging to a 3D component.
 
         Parameters
         ----------
-        componentname :
-            3DComponent Name
+        componentname : str
+            Name of the 3D component.
 
         Returns
         -------
-        type
-            List of objects
+        List
+            List of objects belonging to the 3D component.
 
         """
         compobj = self.oeditor.GetChildObject(componentname)
