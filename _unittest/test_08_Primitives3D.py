@@ -18,9 +18,6 @@ from pyaedt.application.Analysis import CoordinateSystemAxis
 
 test = sys.modules.keys()
 
-
-
-
 scdoc = "input.scdoc"
 step = "input.stp"
 
@@ -839,7 +836,6 @@ class TestClass(BasisTest):
         eq_xsection = self.aedtapp.modeler.primitives.create_equationbased_curve(x_t="_t", y_t="_t*2", xsection_type="Circle")
         assert eq_xsection.name in self.aedtapp.modeler.primitives.solid_names
 
-
     def test_create_3dcomponent(self):
         self.aedtapp['l_dipole'] = "13.5cm"
 
@@ -848,3 +844,24 @@ class TestClass(BasisTest):
         geometryparams['dipole_length'] = "l_dipole"
         name = self.aedtapp.modeler.primitives.insert_3d_component(compfile, geometryparams)
         assert isinstance(name, str)
+
+    @pyaedt_unittest_check_desktop_error
+    def test_assign_material(self):
+        box1 = self.aedtapp.modeler.primitives.create_box([60, 60, 60], [4, 5, 5])
+        box2 = self.aedtapp.modeler.primitives.create_box([50, 50, 50], [2, 3, 4])
+        cyl1 = self.aedtapp.modeler.primitives.create_cylinder(cs_axis="X", position=[50, 0, 0], radius=1, height=20)
+        cyl2 = self.aedtapp.modeler.primitives.create_cylinder(cs_axis="Z", position=[0, 0, 50], radius=1, height=10)
+
+        objects_list = [box1, box2, cyl1, cyl2]
+        self.aedtapp.assign_material(objects_list, "copper")
+        assert self.aedtapp.modeler.primitives[box1].material_name == "copper"
+        assert self.aedtapp.modeler.primitives[box2].material_name == "copper"
+        assert self.aedtapp.modeler.primitives[cyl1].material_name == "copper"
+        assert self.aedtapp.modeler.primitives[cyl2].material_name == "copper"
+
+        obj_names_list = [box1.name, box2.name, cyl1.name, cyl2.name]
+        self.aedtapp.assign_material(obj_names_list, "aluminum")
+        assert self.aedtapp.modeler.primitives[box1].material_name == "aluminum"
+        assert self.aedtapp.modeler.primitives[box2].material_name == "aluminum"
+        assert self.aedtapp.modeler.primitives[cyl1].material_name == "aluminum"
+        assert self.aedtapp.modeler.primitives[cyl2].material_name == "aluminum"

@@ -325,14 +325,24 @@ class FieldAnalysis3D(Analysis, object):
         --------
         The method assign_material is useful to assign a material to a list of objects.
 
+        Open a design and create the objects.
+
         >>> from pyaedt import Hfss
         >>> hfss = Hfss()
         >>> box1 = hfss.modeler.primitives.create_box([10, 10, 10], [4, 5, 5])
         >>> box2 = hfss.modeler.primitives.create_box([0, 0, 0], [2, 3, 4])
         >>> cylinder1 = hfss.modeler.primitives.create_cylinder(cs_axis="X", position=[5, 0, 0], radius=1, height=20)
         >>> cylinder2 = hfss.modeler.primitives.create_cylinder(cs_axis="Z", position=[0, 0, 5], radius=1, height=10)
-        >>> objects_list = [box1.name, box2.name, cylinder1.name, cylinder2.name]
+
+        Assign the material "copper" to all the objects.
+
+        >>> objects_list = [box1, box2, cylinder1, cylinder2]
         >>> hfss.assign_material(objects_list, "copper")
+
+        The method also accepts a list of object names.
+
+        >>> obj_names_list = [box1.name, box2.name, cylinder1.name, cylinder2.name]
+        >>> hfss.assign_material(obj_names_list, "aluminum")
         """
         mat = mat.lower()
         selections = self.modeler.convert_to_selections(obj)

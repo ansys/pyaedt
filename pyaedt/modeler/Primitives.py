@@ -2784,5 +2784,7 @@ class Primitives(object):
             return self.objects[partId]
         elif partId in self.object_id_dict:
             return self.objects[self.object_id_dict[partId]]
+        elif isinstance(partId, Object3d):
+            return partId
         return None
 
