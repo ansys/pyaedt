@@ -300,8 +300,8 @@ class Hfss(FieldAnalysis3D, object):
 
         Examples
         --------
-        >>> id1 = aedtapp.modeler.primitives.get_obj_id("inner")
-        >>> coat = aedtapp.assigncoating([id1], "copper",usethickness=True, thickness="0.2mm")
+        >>> id1 = hfss.modeler.primitives.get_obj_id("inner")
+        >>> coat = hfss.assigncoating([id1], "copper",usethickness=True, thickness="0.2mm")
         """
 
         listobj = self.modeler.convert_to_selections(obj, True)
@@ -375,14 +375,14 @@ class Hfss(FieldAnalysis3D, object):
         Returns
         -------
         :class:`pyaedt.modules.SetupTemplates.SweepHFSS`, :class:`pyaedt.modules.SetupTemplates.SweepQ3D`, or bool
-            Sweep object if successful.  ``False`` if unsuccessful.
+            Sweep object if successful. ``False`` if unsuccessful.
 
         Examples
         --------
 
         Create a frequency sweep named ``'Sweep'`` for the analysis setup named ``'Setup1'``.
 
-        >>> frequency_sweep = aedtapp.create_frequency_sweep("Setup1", sweepname ="FrequencySweep")
+        >>> frequency_sweep = hfss.create_frequency_sweep("Setup1", sweepname ="FrequencySweep")
 
         """
 

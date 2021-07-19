@@ -63,6 +63,7 @@ jobs:
           testenv\Scripts\Activate.ps1
           pip install pytest
           pytest -v pyaedt/desktop.py pyaedt/icepak.py
+          pytest -v pyaedt/desktop.py pyaedt/hfss.py
 
       - name: 'Coverage'
         run: |
