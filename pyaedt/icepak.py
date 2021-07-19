@@ -127,7 +127,7 @@ class Icepak(FieldAnalysisIcepak):
 
         Returns
         -------
-        type
+        :class:`pyaedt.modules.Boundary.BoundaryObject`
             Boundary object when successful or ``None`` when failed.
 
         Examples
