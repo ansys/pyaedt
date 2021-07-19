@@ -55,34 +55,35 @@ class Hfss(FieldAnalysis3D, object):
     Examples
     --------
 
-    Create an instance of HFSS and connect to an existing HFSS
-    design or create a new HFSS design if one does not exist.
+    Create an instance of `HFSS` and connect to an existing HFSS
+    design or create a new `HFSS` design if one does not exist.
 
     >>> from pyaedt import Hfss
     >>> hfss = Hfss()
 
-    Create an instance of HFSS and link to a project named
-    ``projectname``. If this project does not exist, create one with
+    Create an instance of `HFSS` and link to a project named
+    ``HfssProject``. If this project does not exist, create one with
     this name.
 
-    >>> hfss = Hfss(projectname)
+    >>> hfss = Hfss("HfssProject")
 
-    Create an instance of HFSS and link to a design named
-    ``"designname"`` in a project named ``"projectname"``.
 
-    >>> hfss = Hfss(projectname,designame)
+    Create an instance of `HFSS` and link to a design named
+    ``HfssDesign1`` in a project named ``HfssProject``.
 
-    Create an instance of HFSS and open the specified project,
+    >>> hfss = Hfss("HfssProject","HfssDesign1")
+
+    Create an instance of `HFSS` and open the specified project,
     which is named ``"myfile.aedt"``.
 
     >>> hfss = Hfss("myfile.aedt")
 
-    Create an instance of HFSS using the 2021 R1 release and open
+    Create an instance of `HFSS` using the 2021 R1 release and open
     the specified project, which is named ``"myfile.aedt"``.
 
     >>> hfss = Hfss(specified_version="2021.1", projectname="myfile.aedt")
 
-    Create an instance of HFSS using the 2021 R2 student version and open
+    Create an instance of `HFSS` using the 2021 R2 student version and open
     the specified project, which is named ``"myfile.aedt"``.
 
     >>> hfss = Hfss(specified_version="2021.2", projectname="myfile.aedt", student_version=True)
@@ -300,8 +301,10 @@ class Hfss(FieldAnalysis3D, object):
 
         Examples
         --------
+        
         >>> id1 = hfss.modeler.primitives.get_obj_id("inner")
-        >>> coat = hfss.assigncoating([id1], "copper",usethickness=True, thickness="0.2mm")
+        >>> coat = hfss.assigncoating([id1], "copper", usethickness=True, thickness="0.2mm")
+
         """
 
         listobj = self.modeler.convert_to_selections(obj, True)
@@ -992,7 +995,7 @@ class Hfss(FieldAnalysis3D, object):
 
         Examples
         --------
-        >>>  from pyaedt import Hfss
+        >>> from pyaedt import Hfss
         >>> hfss = Hfss()
         >>> ms = hfss.modeler.primitives.create_box([4, 5, 0], [1, 100, 0.2],
         ...                                         name="MS1", matname="copper")
@@ -1003,6 +1006,7 @@ class Hfss(FieldAnalysis3D, object):
         >>> port = hfss.create_wave_port_microstrip_between_objects("GND1", "MS1",
         ...                                                         portname="MS1",
         ...                                                         axisdir=1)
+        pyaedt Info: Connection Correctly created
 
         """
         if not self.modeler.primitives.does_object_exists(startobj) or not self.modeler.primitives.does_object_exists(
