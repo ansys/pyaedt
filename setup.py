@@ -1,3 +1,4 @@
+"""Setup file for pyaedt"""
 import setuptools
 import sys
 
