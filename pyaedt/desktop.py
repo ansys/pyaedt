@@ -341,16 +341,12 @@ class Desktop:
 
     @property
     def current_version(self):
-        """Current version of AEDT."""
-        return self.version_keys[0]
-
-    @property
-    def current_version_student(self):
-        """Current student version of AEDT. """
-        for el in self.version_keys:
-            if "SV" in el:
-                return el
-        return None
+        if self._student_version:
+            for el in self.version_keys:
+                if "SV" in el:
+                    return el
+        else:
+            return self.version_keys[0]
 
     def __init__(self, specified_version=None, non_graphical=False, launch_new_desktop=False, release_on_exit=True, student_version=False):
         self._main = sys.modules['__main__']
@@ -362,47 +358,40 @@ class Desktop:
         self._student_version = student_version
         self._module_logger = logging.getLogger(__name__)
         self._launch_new_desktop = launch_new_desktop
-
-        desktop_found = False
+        ng_compatible_desktop = False
         if "oDesktop" in dir(self._main):
             if self._main.oDesktop:
-                if "_process_ng" in dir(self._main):
+                if "_process_ng" in dir(self._main):             # Check that non-graphical settings are compatible
                     if non_graphical != self._main._process_ng:
-                        self._launch_new_desktop = True
-                self._main.AEDTVersion = self._main.oDesktop.GetVersion()[0:6]
-                self._main.oDesktop.RestoreWindow()
-                self._main.oMessenger = AEDTMessageManager()
-                self._main.sDesktopinstallDirectory = self._main.oDesktop.GetExeDir()
-                self._release_on_exit = False
-                desktop_found = True
-        if not desktop_found:
-            version_student = False
+                        self._launch_new_desktop = True          # if not force a new desktop to launch
+                if ng_compatible_desktop:
+                    ng_compatible_desktop = True
+                    self._main.AEDTVersion = self._main.oDesktop.GetVersion()[0:6]
+                    self._main.oDesktop.RestoreWindow()
+                    self._main.oMessenger = AEDTMessageManager()
+                    self._main.sDesktopinstallDirectory = self._main.oDesktop.GetExeDir()
+                    self._release_on_exit = False
+        if not "oDesktop" in dir(self._main) or not ng_compatible_desktop:
             if specified_version:
                 if self._student_version:
                     specified_version += "SV"
-                    version_student = True
                 assert specified_version in self.version_keys, \
                     "Specified version {} not known.".format(specified_version)
                 version_key = specified_version
             else:
-                if self._student_version and self.current_version_student:
-                    version_key = self.current_version_student
-                    version_student = True
-                else:
-                    version_key = self.current_version
-                    version_student = False
-            base_path = os.getenv(self._version_ids[version_key])
-            self._main.sDesktopinstallDirectory = base_path
-            if self._student_version and version_student:
+                version_key = self.current_version
+            if self._student_version:
                 version = "Ansoft.ElectronicsDesktop." + version_key[:-2]
             else:
                 version = "Ansoft.ElectronicsDesktop." + version_key
 
+            base_path = os.getenv(self._version_ids[version_key])
+            self._main.sDesktopinstallDirectory = base_path
             self._main.AEDTVersion = version_key
             self._main.interpreter = _com
             self._main.interpreter_ver = _pythonver
-            if "oDesktop" in dir(self._main):
-                del self._main.oDesktop
+            #if "oDesktop" in dir(self._main):
+            #    del self._main.oDesktop
 
             if _com == 'ironpython':
                 StandalonePyScriptWrapper = self._setup_pythonnet_v3_env(base_path)
@@ -426,7 +415,7 @@ class Desktop:
                     DETACHED_PROCESS = 0x00000008
                     pid = subprocess.Popen([os.path.join(base_path, "ansysedtsv.exe")],
                                            creationflags=DETACHED_PROCESS).pid
-                if non_graphical or launch_new_desktop or not processID:
+                if non_graphical or self._launch_new_desktop or not processID:
                     # Force new object if no non-graphical instance is running or if there is not an already existing process.
                     App = StandalonePyScriptWrapper.CreateObjectNew(non_graphical)
                 else:
