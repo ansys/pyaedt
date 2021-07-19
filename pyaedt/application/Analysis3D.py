@@ -331,7 +331,7 @@ class FieldAnalysis3D(Analysis, object):
         >>> box2 = hfss.modeler.primitives.create_box([0, 0, 0], [2, 3, 4])
         >>> cylinder1 = hfss.modeler.primitives.create_cylinder(cs_axis="X", position=[5, 0, 0], radius=1, height=20)
         >>> cylinder2 = hfss.modeler.primitives.create_cylinder(cs_axis="Z", position=[0, 0, 5], radius=1, height=10)
-        >>> objects_list = [box1.name, box2.name, cylinder1.nam, cylinder2.name]
+        >>> objects_list = [box1.name, box2.name, cylinder1.name, cylinder2.name]
         >>> hfss.assign_material(objects_list, "copper")
         """
         mat = mat.lower()
