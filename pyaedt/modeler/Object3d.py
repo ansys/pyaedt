@@ -1,13 +1,6 @@
-# -*- coding: utf-8 -*-
 """
-3D Object Property Manager
--------------------------------
-
-Description
-===========
-
-This module contains methods and data-structures to manage all properties of objects (points, lines, sheeets and
-solids) within the AEDT 3D Modeler
+This module contains methods and data structures to manage all properties of objects (points, lines, sheeets, and
+solids) within the AEDT 3D Modeler.
 
 """
 from __future__ import absolute_import
@@ -46,16 +39,17 @@ rgb_color_codes = {
 
 
 def _uname(name=None):
-    """Appends a 6-digit hash code to a specified name
+    """Append a 6-digit hash code to a specified name.
 
     Parameters
     ----------
-    name : str, default='NewObject_'
-        Specified name
+    name : str
+        Name to append the hash code to. The default is ``"NewObject_"``.
 
     Returns
     -------
     str
+    
     """
     char_set = string.ascii_uppercase + string.digits
     unique_name = ''.join(random.sample(char_set, 6))
@@ -67,21 +61,22 @@ def _uname(name=None):
 
 @aedt_exception_handler
 def _to_boolean(val):
-    """Get the boolean value of the provided input.
+    """Retrieve the Boolean value of the provided input.
 
-        If the value is a boolean return the value.
+        If the value is a Boolean, return the value.
         Otherwise check to see if the value is in
         ["false", "f", "no", "n", "none", "0", "[]", "{}", "" ]
-        and returns True if value is not in the list
+        and return True if the value is not in the list.
 
     Parameters
     ----------
     val : bool or str
-        Input value to be tested for True/False condition
+        Input value to test for True/False condition.
 
     Returns
     -------
     bool
+    
     """
 
     if val is True or val is False:
@@ -94,18 +89,19 @@ def _to_boolean(val):
 
 @aedt_exception_handler
 def _dim_arg(value, units):
-    """Concatenate a specified units string to a numerical input
+    """Concatenate a specified units string to a numerical input.
 
     Parameters
     ----------
     value : str or number
-        Valid expression string in the AEDT modeler, e.g. "5mm"
+        Valid expression string in the AEDT modeler. For example, ``"5mm"``.
     units : str
-        Valid units string in the AEDT modeler, e.g. "mm"
+        Valid units string in the AEDT modeler. For example, ``"mm"``.
 
     Returns
     -------
     str
+    
     """
     try:
         val = float(value)
@@ -115,22 +111,23 @@ def _dim_arg(value, units):
 
 
 class EdgeTypePrimitive(object):
-    """Common methods for EdgePrimitive and FacePrimitive"""
+    """Provides common methods for EdgePrimitive and FacePrimitive."""
     @aedt_exception_handler
     def fillet(self, radius=0.1, setback=0.0):
-        """Add Fillet to selected edge
+        """Add fillet to an edge.
 
         Parameters
         ----------
-        radius : float, default=0.1
-            Fillet Radius
-        setback : float, default=0.0
-            Fillet setback value
+        radius : float, optional
+            Radius of the fillet. The default is ``0.1``.
+        setback : float, optional
+            Setback value for the file. The default is ``0.0``.
 
         Returns
         -------
         bool
-            True if operation is successful
+            ``True`` when successful, ``False`` when failed.
+        
         """
         edge_id_list = []
         vertex_id_list = []
@@ -141,7 +138,7 @@ class EdgeTypePrimitive(object):
             if self._parent.is3d:
                 edge_id_list = [self.id]
             else:
-                self._parent._messenger.add_error_message("filet is possible only on Vertex in 2D Designs ")
+                self._parent._messenger.add_error_message("Filet is possible only on a vertex in 2D designs.")
                 return False
 
         vArg1 = ['NAME:Selections', 'Selections:=', self._parent.name, 'NewPartsModelFlag:=', 'Model']
@@ -153,32 +150,36 @@ class EdgeTypePrimitive(object):
         self._parent.m_Editor.Fillet(vArg1, ["NAME:Parameters", vArg2])
         if self._parent.name in list(self._parent.m_Editor.GetObjectsInGroup("UnClassified")):
             self._parent.odesign.Undo()
-            self._parent._messenger.add_error_message("Operation Failed generating Unclassified object. Check and retry")
+            self._parent._messenger.add_error_message("Operation failed, generating an unclassified object. Check and retry.")
             return False
         return True
 
     @aedt_exception_handler
     def chamfer(self, left_distance=1, right_distance=None, angle=45, chamfer_type=0):
-        """Add chamfer to selected edge
+        """Add a chamfer to the selected edge.
 
         Parameters
         ----------
-        left_distance : float, default=1.0
-            left distance from the edge
-        right_distance : float, default=None
-            right distance from the edge
-        angle : float, default=45.0
-            angle value (for chamfer-type 2 and 3)
-        chamfer_type : int, default=0
+        left_distance : float, optional
+            Left distance from the edge. The default is ``1``.
+        right_distance : float, optional
+            Right distance from the edge. The default is ``None``.
+        angle : float, optional.
+            Angle value for chamfer types 2 and 3. The default is ``0``.
+        chamfer_type : int, optiinal
+            Type of the chamfer. Options are:
                 * 0 - Symmetric
                 * 1 - Left Distance-Right Distance
                 * 2 - Left Distance-Angle
                 * 3 - Right Distance-Angle
+            
+            The default is ``0``.
 
         Returns
         -------
         bool
-            True if operation is successful
+            ``True`` when successful, ``False`` when failed.
+            
         """
         edge_id_list = []
         vertex_id_list = []
@@ -223,15 +224,14 @@ class EdgeTypePrimitive(object):
 
 
 class VertexPrimitive(EdgeTypePrimitive, object):
-    """Vertex object within the AEDT Desktop Modeler
+    """Contains the vertex object within the AEDT Desktop Modeler.
 
     Parameters
     ----------
-    parent : Object3d
-        Pointer to the calling object which provides additional functionality
-
+    parent : :class:`pyaedt.modeler.Object3d.Object3d`
+        Pointer to the calling object that provides additional functionality.
     id : int
-        Object id as determined by the parent object
+        Object ID as determined by the parent object.
 
     """
     def __init__(self, parent, id):
@@ -241,13 +241,15 @@ class VertexPrimitive(EdgeTypePrimitive, object):
 
     @property
     def position(self):
-        """Position of the vertex
-        Returns None if the data from AEDT is invalid
-
+        """Position of the vertex.
+        
         Returns
         -------
-        list of float
-            List of [x, y, z] coordinates of the vertex (in model units)
+        list of float values or ''None``
+            List of ``[x, y, z]`` coordinates of the vertex 
+            in model units when the data from AEDT is valid, ``None``
+            otherwise.
+        
         """
         try:
             vertex_data = list(self._oeditor.GetVertexPosition(self.id))
@@ -264,15 +266,14 @@ class VertexPrimitive(EdgeTypePrimitive, object):
 
 
 class EdgePrimitive(EdgeTypePrimitive, object):
-    """Edge object within the AEDT Desktop Modeler
+    """Contains the edge object within the AEDT Desktop Modeler.
 
     Parameters
     ----------
-    parent : Object3d
-        Pointer to the calling object which provides additional functionality
-
+    parent : :class:`pyaedt.modeler.Object3d.Object3d`
+        Pointer to the calling object that provides additional functionality.
     id : int
-        Object id as determined by the parent object
+        Object ID as determined by the parent object.
 
     """
     def __init__(self, parent, edge_id):
@@ -287,13 +288,13 @@ class EdgePrimitive(EdgeTypePrimitive, object):
     @property
     def midpoint(self):
         """Midpoint coordinates of the edge.
-        If the edge is a circle with only one vertex, return that vertex
-        Otherwise return None
 
         Returns
         -------
-        list of float
-            Midpoint coordinates as [x, y, z] coordinates
+        list of float values or ``None``
+            Midpoint in ``[x, y, z]`` coordinates when the edge 
+            is a circe with only one vertix, ''None`` otherwise.
+        
         """
 
         if len(self.vertices) == 2:
@@ -304,12 +305,13 @@ class EdgePrimitive(EdgeTypePrimitive, object):
 
     @property
     def length(self):
-        """Length of the edge
+        """Length of the edge.
 
         Returns
         -------
-        float or False
-            Edge length in model units, False if edge does not have 2 vertices
+        float or ``False``
+            Edge length in model units when edge has two vertices, ``False`` othwerise.
+        
         """
         if len(self.vertices) == 2:
             length = GeometryOperators.points_distance(self.vertices[0].position, self.vertices[1].position)
@@ -325,7 +327,8 @@ class EdgePrimitive(EdgeTypePrimitive, object):
 
 
 class FacePrimitive(object):
-    """ """
+    """Contains the face object within the AEDT Desktop Modeler."""
+    
     def __repr__(self):
         return "FaceId "+str(self.id)
 
@@ -347,33 +350,36 @@ class FacePrimitive(object):
 
     @property
     def id(self):
+        """ID of the face."""
         return self._id
 
     @property
     def center(self):
-        """Get the face center (in model units)
+        """Face center for a planar face in model units.
 
         Returns
         -------
-        list of float or False
-            Center position in [x, y, z] coordinates - only works for planar faces. otherwise return False
+        list of float values or ``False``
+            Center position in [x, y, z] coordinates for the planar face, ``False`` otherwise.
+        
         """
         try:
             c = self._parent.m_Editor.GetFaceCenter(self.id)
         except:
-            self._parent._messenger.add_warning_message("Non Planar Faces doesn't provide any Face Center")
+            self._parent._messenger.add_warning_message("Non-planar face doesnot provide a face center.")
             return False
         center = [float(i) for i in c]
         return center
 
     @property
     def centroid(self):
-        """Get the face center (in model units)
+        """Face center in model units.
 
         Returns
         -------
-        list of float
+        list of float values
             Centroid of all vertices of the face.
+        
         """
         if len(self.vertices)>1:
             return GeometryOperators.get_polygon_centroid([pos.position for pos in self.vertices])
@@ -383,29 +389,31 @@ class FacePrimitive(object):
 
     @property
     def area(self):
-        """Get the face area
+        """Face area.
 
         Returns
         -------
         float
-            Face area (in model units)
+            Face area in model units.
+        
         """
         area = self._parent.m_Editor.GetFaceArea(self.id)
         return area
 
     @aedt_exception_handler
     def move_with_offset(self, offset=1.0):
-        """Move face along normal
+        """Move a face along the normal.
 
         Parameters
         ----------
-        offset : float, default=1.0
-            Offset to apply (in model units)
+        offset : float, optional
+            Offset to apply in model units. The default is ``1.0``.
 
         Returns
         -------
         bool
-            True if operation is successful
+            ``True`` when successful, ``False`` when failed.
+        
         """
         self._parent.m_Editor.MoveFaces(["NAME:Selections", "Selections:=", self._parent.name, "NewPartsModelFlag:=", "Model"],
                                         ["NAME:Parameters",
@@ -416,17 +424,17 @@ class FacePrimitive(object):
 
     @aedt_exception_handler
     def move_with_vector(self, vector):
-        """Move face Along a specified vector
+        """Move the face along a vector.
 
         Parameters
         ----------
-        vector : list of float [x, y, z]
-            Move vector to apply to the face
+        vector : list 
+            List of ``[x, y, z]`` coordinates for the vector.
 
         Returns
         -------
         bool
-            True if operation is successful
+            ``True`` when successful, ``False`` when failed.
 
         """
         self._parent.m_Editor.MoveFaces(
@@ -441,10 +449,10 @@ class FacePrimitive(object):
 
     @property
     def normal(self):
-        """Get the face normal.
+        """Face normal.
 
         Limitations:
-        #. the face must be planar.
+        #. The face must be planar.
         #. Currently it works only if the face has at least two vertices. Notable excluded items are circles and
         ellipses that have only one vertex.
         #. If a bounding box is specified, the normal is orientated outwards with respect to the bounding box.
@@ -453,8 +461,8 @@ class FacePrimitive(object):
 
         Returns
         -------
-        list of float
-            normal vector (normalized [x, y, z]) or None.
+        list of float values or ``None``
+            Normal vector (normalized ``[x, y, z]`` coordinates) or ``None``.
 
         """
         vertices_ids = self.vertices
@@ -482,7 +490,7 @@ class FacePrimitive(object):
         normal = GeometryOperators.normalize_vector(n)
 
         """
-        try to move the face center twice, the first with the normal vector, and the second with its inverse.
+        Try to move the face center twice, the first with the normal vector, and the second with its inverse.
         Measures which is closer to the center point of the bounding box.
         """
         inv_norm = [-i for i in normal]
@@ -498,23 +506,28 @@ class FacePrimitive(object):
 
 
 class Object3d(object):
-    """Object Attributes Manager for the AEDT 3D Modeler
+    """Manages object attributes for the AEDT 3D Modeler.
+    
+    Parameters
+    ----------
+    parent :
+    name :
 
+    Examples
+    --------
     Basic usage demonstrated with an HFSS design:
 
-    ##################################################
     >>> from pyaedt import Hfss
     >>> aedtapp = Hfss()
     >>> prim = aedtapp.modeler.primitives
 
+    Create a part, such as box, to return an :class:`pyaedt.modeler.Object3d.Object3d`.
 
-    Then we can create a part. Create_box returns an Object3d object
-
-    ##################################################
     >>> id = prim.create_box([0, 0, 0], [10, 10, 5], "Mybox", "Copper")
     >>> part = prim[id]
 
-    Properties
+    Properties are:
+    
     * bounding_box
     * faces
     * edges
@@ -541,17 +554,17 @@ class Object3d(object):
 
     @property
     def bounding_box(self):
-        """Return the bounding box of the individual part
+        """Bounding box of a part.
 
-        List of six [x, y, z] positions of the bounding box containing
-        Xmin, Ymin, Zmin, Xmax, Ymax, and Zmax values
-
-        This is done by creating a new empty design, copying the object there and getting the model bounding box. A
-        list of six 3-D position vectors is returned
+        This is done by creating a new empty design, copying the object there, and getting the model bounding box. A
+        list of six 3D position vectors is returned.
 
         Returns
         -------
         list of [list of float]
+            List of six `[x, y, z]` positions of the bounding box containing
+            Xmin, Ymin, Zmin, Xmax, Ymax, and Zmax values.
+        
         """
         objs_to_unmodel = [val.name for i,val in self._parent.objects.items() if val.model]
         if objs_to_unmodel:
@@ -572,15 +585,18 @@ class Object3d(object):
 
     @property
     def odesign(self):
+        """Design."""
         return self._parent.odesign
 
     @property
     def faces(self):
-        """ Returns the a the information for each face in the given part
+        """Information for each face in the given part.
 
         Returns
         -------
-        list of FacePrimitive
+        list
+            List of FacePrimitive.
+        
         """
         faces = []
         for face in self.m_Editor.GetFaceIDs(self.name):
@@ -590,11 +606,12 @@ class Object3d(object):
 
     @property
     def top_face(self):
-        """The top face in the Z direction of the object.
+        """Top face in the Z direction of the object.
 
         Returns
         -------
         FacePrimitive
+        
         """
         result = [(float(face.center[2]), face) for face in self.faces]
         result = sorted(result, key=lambda tup: tup[0])
@@ -602,11 +619,13 @@ class Object3d(object):
 
     @property
     def bottom_face(self):
-        """The bottom face in the Z direction of the object.
+        """Bottom face in the Z direction of the object.
 
         Returns
         -------
-        FacePrimitive
+        list
+            List of FacePrimitive
+        
         """
         result = [(float(face.center[2]), face) for face in self.faces]
         result = sorted(result, key=lambda tup: tup[0])
@@ -614,11 +633,12 @@ class Object3d(object):
 
     @property
     def edges(self):
-        """Returns the information for each edge in the given part
+        """Information for each edge in the given part.
 
         Returns
         -------
         list of EdgePrimitive
+        
         """
         edges = []
         for edge in self._parent.get_object_edges(self.name):
@@ -628,11 +648,13 @@ class Object3d(object):
 
     @property
     def vertices(self):
-        """Returns the information for each vertex in the given part
+        """Information for each vertex in the given part.
 
         Returns
         -------
-        list of VertexPrimitive
+        list
+            List of VertexPrimitive.
+        
         """
         vertices = []
         for vertex in self._parent.get_object_vertices(self.name):
@@ -642,30 +664,37 @@ class Object3d(object):
 
     @property
     def m_Editor(self):
-        """Provides a pointer to the oEditor object in the AEDT API. Intended primarily for use by
-           FacePrimitive, EdgePrimitive, VertexPrimitive child objects
+        """Pointer to the oEditor object in the AEDT API. This property is 
+        intended primarily for use by FacePrimitive, EdgePrimitive, and
+        VertexPrimitive child objects.
 
         Returns
         -------
         oEditor COM Object
+        
         """
         return self._parent.oeditor
 
     @property
     def _messenger(self):
-        """Provides a pointer to the oEditor object in the AEDT API. Intended primarily for use by
-           FacePrimitive, EdgePrimitive, VertexPrimitive child objects
+        """Message Manager.
 
         Returns
         -------
         AEDTMessageManager
+        
         """
         return self._parent._messenger
 
     @property
     def surface_material_name(self):
-        """Get the surface material name of the object
-        If the material does not exist, then send a warning and return None
+        """Surface material name of the object.
+        
+        Returns
+        -------
+        str or ``None``
+            Name of the surface material when successful, ``None`` and a warning message otherwise.
+        
         """
         if 'Surface Material' in self.valid_properties:
             self._surface_material = retry_ntimes(10, self.m_Editor.GetPropertyValue,
@@ -674,7 +703,13 @@ class Object3d(object):
 
     @property
     def group_name(self):
-        """Get the group to which an object belongs
+        """Group the object belongs to.
+        
+        Returns
+        -------
+        str
+            Name of the group.
+        
         """
         if 'Group' in self.valid_properties:
             self.m_groupName = retry_ntimes(10, self.m_Editor.GetPropertyValue, "Geometry3DAttributeTab", self._m_name, 'Group')
@@ -682,8 +717,13 @@ class Object3d(object):
 
     @property
     def material_name(self):
-        """Get or set the material name of the object
-        If the material does not exist, then send a warning and do nothing
+        """Material name of the object.
+        
+        Returns
+        -------
+        str or ``None``
+            Name of the material when successful, ``None`` and a warning message otherwise.
+
         """
         if 'Material' in self.valid_properties:
             mat = retry_ntimes(10, self.m_Editor.GetPropertyValue, "Geometry3DAttributeTab", self._m_name, 'Material')
@@ -700,7 +740,7 @@ class Object3d(object):
             self._change_property(vMaterial)
             self._material_name = mat
         else:
-            self._messenger.add_warning_message("Material {} does not exist".format(mat))
+            self._messenger.add_warning_message("Material {} does not exist.".format(mat))
 
 
     @surface_material_name.setter
@@ -716,7 +756,13 @@ class Object3d(object):
 
     @property
     def id(self):
-        """Object id - returns None if invalid data from AEDT Modeler
+        """ID of the object.
+        
+        Returns
+        -------
+        int or ``None``
+            ID of the object when successful, ``None`` otherwise.
+        
         """
         try:
             get_id = self._parent.oeditor.GetObjectIDByName(self._m_name)
@@ -726,12 +772,18 @@ class Object3d(object):
 
     @property
     def object_type(self):
-        """Get the object type
-            Returns str:
+        """Type of the object. Options are:
+             
              * Solid
              * Sheet
              * Line
-         """
+         
+        Returns
+        -------
+        str
+            Type of the object.
+        
+        """       
         if self._m_name in self._parent.solid_names:
             self._object_type = "Solid"
         else:
@@ -743,6 +795,14 @@ class Object3d(object):
 
     @property
     def is3d(self):
+        """Check for if the object is 3D.
+        
+        Returns
+        -------
+        bool
+            ``True`` when successful, ``False`` when failed.
+        
+        """
         if self.object_type == "Solid":
             return True
         else:
@@ -750,7 +810,13 @@ class Object3d(object):
 
     @property
     def name(self):
-        """Get or set the object name as a string value
+        """Name of the object as a string value.
+        
+        Returns
+        -------
+        str
+           Name of object as a string value.
+        
         """
         return self._m_name
 
@@ -770,15 +836,21 @@ class Object3d(object):
 
     @property
     def valid_properties(self):
+        "Valid properties."
         if not self._all_props:
             self._all_props = retry_ntimes(10, self.m_Editor.GetProperties, "Geometry3DAttributeTab", self._m_name)
         return self._all_props
 
     @property
     def color(self):
-        """Get or set part color as a tuple of integer values for (Red, Green, Blue)
-        If the integer values are outside the range 0 - 255, then limit the values. Invalid inputs will be ignored
+        """Part color as a tuple of integer values for `(Red, Green, Blue)` color valeus.
+        
+        If the integer values are outside the range 0-255, then limit the values. Invalid inputs are ignored.
+        
+        Examples
+        --------
          >>> part.color = (255,255,0)
+        
         """
         if 'Color' in self.valid_properties:
             color = retry_ntimes(10, self.m_Editor.GetPropertyValue, "Geometry3DAttributeTab", self._m_name, 'Color')
@@ -793,7 +865,7 @@ class Object3d(object):
 
     @property
     def color_string(self):
-        """Return the color tuple as a string in the format '(Red, Green, Blue)'"""
+        """Color tuple as a string in the format '(Red, Green, Blue)'."""
         return "({} {} {})".format(self.color[0], self.color[1], self.color[2])
 
     @color.setter
@@ -823,13 +895,15 @@ class Object3d(object):
             except TypeError:
                 color_tuple = None
         else:
-            msg_text = "Invalid color input {} for object {}".format(color_value, self._m_name)
+            msg_text = "Invalid color input {} for object {}.".format(color_value, self._m_name)
             self._parent._messenger.add_warning_message(msg_text)
 
     @property
     def transparency(self):
-        """Get or set part transparency as a value between 0.0 and 1.0
-        If the value is outside the range, then apply a limit. If the value is not a valid number, set to 0.0
+        """Part transparency as a value between 0.0 and 1.0
+        
+        If the value is outside the range, then apply a limit. If the value is not a valid number, set to ``0.0``.
+        
         """
         if 'Transparent' in self.valid_properties:
             transp = retry_ntimes(10, self.m_Editor.GetPropertyValue, "Geometry3DAttributeTab", self._m_name, 'Transparent')
@@ -861,12 +935,13 @@ class Object3d(object):
 
     @property
     def part_coordinate_system(self):
-        """Get or set the part coordinate systems
+        """Part coordinate system.
 
         Returns
         -------
         str
-            Name of the part coordinate system
+            Name of the part coordinate system.
+        
         """
         if 'Orientation' in self.valid_properties:
             self._part_coordinate_system = retry_ntimes(10, self.m_Editor.GetPropertyValue,
@@ -880,8 +955,13 @@ class Object3d(object):
 
     @property
     def solve_inside(self):
-        """Get or Set part solve inside flag as a boolean value
-        True if "solve-inside" is activated for the part
+        """Part solve inside flag as a Boolean value.
+        
+        Returns
+        -------
+        bool
+            ``True`` when ``"solve-inside"`` is activated for the part, ``False`` otherwise.
+        
         """
         if 'Solve Inside' in self.valid_properties:
             solveinside = retry_ntimes(10, self.m_Editor.GetPropertyValue, "Geometry3DAttributeTab", self._m_name, 'Solve Inside')
@@ -906,7 +986,13 @@ class Object3d(object):
 
     @property
     def display_wireframe(self):
-        """Get or set the display_wireframe property of the part as a boolean value
+        """Wireframe property of the part as a Boolean value.
+        
+        Returns
+        -------
+        bool
+            ``True`` when wirefame is activated for the part, ``False`` otherwise.
+        
         """
         if 'Display Wireframe' in self.valid_properties:
             wireframe = retry_ntimes(10, self.m_Editor.GetPropertyValue,
@@ -927,7 +1013,13 @@ class Object3d(object):
 
     @property
     def model(self):
-        """Set part Model/Non-model as a boolean value
+        """Part Model/Non-model property as a Boolean value.
+        
+        Returns
+        -------
+        bool
+            ``True`` when model, ``False`` otherwise.     
+        
         """
         if 'Model' in self.valid_properties:
             mod = retry_ntimes(10, self.m_Editor.GetPropertyValue, "Geometry3DAttributeTab", self._m_name, 'Model')
@@ -946,90 +1038,100 @@ class Object3d(object):
 
     @aedt_exception_handler
     def unite(self, object_list):
-        """Unite a list of objects with this object
+        """Unite a list of objects with this object.
 
         Parameters
         ----------
         object_list : list of str or list of Object3d
-            list of object
+            List of objects.
 
         Returns
         -------
-        Object3d
+        :class:`pyaedt.modeler.Object3d.Object3d`
+           Object 3D object. 
+        
         """
         unite_list = [self.name] + self._parent.modeler.convert_to_selections(object_list, return_list=True)
         self._parent.modeler.unite(unite_list)
         return self
 
     def duplicate_around_axis(self, cs_axis, angle=90, nclones=2, create_new_objects=True):
-        """Duplicate self around axis. Returns a list of the names of all newly created clones
+        """Duplicate the object around the axis. 
 
         Parameters
         ----------
-        cs_axis :
-            Application.CoordinateSystemAxis object
-        angle :
-            Flaat angle of rotation (Default value = 90)
-        nclones :
-            number of clones (Default value = 2)
-        create_new_objects :
-            Flag whether to create create copies as new objects, defaults to True
+        cs_axis : Application.CoordinateSystemAxis object
+            Coordinate system axis of the object. 
+        angle : float
+            Angle of rotation in degrees. The default is ``90``.
+        nclones : int, optional
+            Number of clones. The default is ``2``.
+        create_new_objects : bool, optional
+            Whether to create copies as new objects. The default is ``True``.
 
         Returns
         -------
-        list of str
+        list
+            List of names of the newly added objects.
+        
         """
         ret, added_objects = self._parent.modeler.duplicate_around_axis(self, cs_axis, angle, nclones, create_new_objects)
         return added_objects
 
     @aedt_exception_handler
     def duplicate_along_line(self, vector, nclones=2, attachObject=False):
-        """Duplicate self along line. Returns a list of the names of all newly created clones
+        """Duplicate the object along a line.
 
         Parameters
         ----------
-        vector :
-            List of Vector [x1,y1,z1] or  Application.Position object
-        attachObject :
-            Boolean (Default value = False)
-        nclones :
-            number of clones (Default value = 2)
+        vector : list
+            List of ``[x1 ,y1, z1]`` coordinates for the vector or the Application.Position object.
+        attachObject : bool, optional
+            Whether to attach the object. The default is ``False``.
+        nclones : int, optional
+            Number of clones. The default is ``2``.
 
         Returns
         -------
-        list of str
-        """
+        list
+            List of names of the newly added objects.
+       
+       """
         ret, added_objects = self._parent.modeler.duplicate_along_line(self, vector, nclones, attachObject)
         return added_objects
 
     @aedt_exception_handler
     def translate(self, vector):
-        """Translates the object and returns the Object3d object
+        """Translate the object and return the 3D object.
 
         Returns
         -------
-        Object3d
+        :class:`pyaedt.modeler.Object3d.Object3d`
+            3D object. 
+        
         """
         self._parent.modeler.translate(self.id, vector)
         return self
 
     @aedt_exception_handler
     def sweep_along_vector(self, sweep_vector, draft_angle=0, draft_type="Round"):
-        """Sweep selection along vector
+        """Sweep the selection along a vector.
 
         Parameters
         ----------
-        objid : str, int
-            if str, it is considered an objecname. if Int it is considered an object id
-        sweep_vector :
+        sweep_vector : 
             Application.Position object
-        draft_angle : float
-            Draft Angle
+        draft_angle : float, optional
+            Angle of the draft in degrees. The default is ``0``.
         draft_type : str
-            Draft Type. Default Round
+            Type of the draft. Options are ``"Extended"``, ``"Round"``,
+            and ``"Natural"``. The default is ``"Round``.
+        
         Returns
         -------
         bool
+            ``True`` when model, ``False`` otherwise.  
+        
         """
         self._parent.modeler.sweep_along_vector(self, sweep_vector, draft_angle, draft_type)
         return self
@@ -1037,23 +1139,27 @@ class Object3d(object):
     @aedt_exception_handler
     def sweep_along_path(self, sweep_object, draft_angle=0, draft_type="Round",
                               is_check_face_intersection=False, twist_angle=0):
-        """Sweep selection along vector
+        """Sweep the selection along a vector.
 
         Parameters
         ----------
-        objid: str, int
-            if str, it is considered an objecname. if Int it is considered an object id
-        sweep_object: if str, it is considered an objecname. if Int is considered an object id
-        draft_angle : float
-            Draft Angle
+        sweep_vector : 
+            Application.Position object
+        draft_angle : float, optional
+            Angle of the draft in degrees. The default is ``0``.
         draft_type : str
-            Draft Type. Default "Round"
-        is_check_face_intersection: Boolean, False by default
-        twist_angle: Float Angle in degres, 0 by default
+            Type of the draft. Options are ``"Extended"``, ``"Round"``,
+            and ``"Natural"``. The default is ``"Round``.
+        is_check_face_intersection: bool, optional
+           The default is ``False``.
+        twist_angle: float, optional
+            Angle at which to twist or rotate in degres. The default is ``0``.
 
         Returns
         -------
         bool
+            ``True`` when model, ``False`` otherwise.  
+        
         """
         self._parent.modeler.sweep_along_path(self, sweep_object, draft_angle, draft_type,
                                               is_check_face_intersection, twist_angle)
@@ -1061,40 +1167,44 @@ class Object3d(object):
 
     @aedt_exception_handler
     def sweep_around_axis(self, cs_axis, sweep_angle=360, draft_angle=0):
-        """Sweep around a specified axis
+        """Sweep around an axis.
 
         Parameters
         ----------
         cs_axis :
-            Application.CoordinateSystemAxis object
-        sweep_angle : float
-             Sweep Angle in degrees
-        draft_angle : float
-            Draft Angle
+            Coordinate system of the axis. Application.CoordinateSystemAxis object
+        sweep_angle : float, optional
+             Sweep angle in degrees. The default is ``360``.
+        draft_angle : float, optional
+            Angle of the draft. The default is ``0``.
 
         Returns
         -------
-        Object3d
+        :class:`pyaedt.modeler.Object3d.Object3d`
+            3D object. 
+        
         """
         self._parent.modeler.sweep_around_axis(self, cs_axis, sweep_angle, draft_angle)
         return self
 
     @aedt_exception_handler
     def section(self, plane, create_new=True, section_cross_object=False):
-        """Section the object
+        """Section the object.
 
         Parameters
         ----------
         plane :
-            Application.CoordinateSystemPlane object
-        create_new : bool, default=True
-            Bool. (Default value = True)
-        section_cross_object : bool, default=False
-            Bool (Default value = False)
+            Coordinate system of the plane object. Application.CoordinateSystemPlane object
+        create_new : bool, optional
+            Whether to create an object. The default is ``True``.
+        section_cross_object : bool, optional
+            The default is ``False``.
 
         Returns
         -------
-        Object3d
+        :class:`pyaedt.modeler.Object3d.Object3d`
+            3D object. 
+        
         """
         #TODO Refactor plane !
         self._parent.modeler.section(self, plane, create_new, section_cross_object)
@@ -1102,41 +1212,44 @@ class Object3d(object):
 
     @aedt_exception_handler
     def clone(self):
-        """Clones the object and returns the Object3d object
+        """Clone the object and return the new 3D object.
 
         Returns
         -------
-        Object3d
+        :class:`pyaedt.modeler.Object3d.Object3d`
+            3D object that was added. 
+        
         """
         new_obj_tuple = self._parent.modeler.clone(self.id)
         success = new_obj_tuple[0]
-        assert success, "Could not clone the object {}".format(self.name)
+        assert success, "Could not clone the object {}.".format(self.name)
         new_name = new_obj_tuple[1][0]
         return self._parent[new_name]
 
     @aedt_exception_handler
     def subtract(self, tool_list, keep_originals=True):
-        """Subtract part(s) from the object
+        """Subtract one or more parts from the object.
 
         Parameters
         ----------
-        tool_list : str or Object3d or list of (str or Object3d)
-            List of parts to subtract from this part
-
-        keep_originals : bool
-            Keep the tool parts after subtraction, if False, then delete these parts
+        tool_list : str, Object3d, or list of str and Object3d.
+            List of parts to subtract from this part.
+        keep_originals : bool, optional
+            Whether to keep the tool parts after subtraction. The default
+            is ``True``. If ``False``, the parts are deleted.
 
         Returns
         -------
-        Object3d
-            Modified object following the subtraction
+        :class:`pyaedt.modeler.Object3d.Object3d`
+            Modified 3D object following the subtraction.
+        
         """
         self._parent.modeler.subtract(self.name, tool_list, keep_originals)
         return self
 
     @aedt_exception_handler
     def delete(self):
-        """Deletes the object
+        """Delete the object
 
         """
         arg = [
@@ -1173,8 +1286,18 @@ class Object3d(object):
 
 
 class Padstack(object):
-    """ """
-
+    """Manages properties of a padstack.
+    
+    Parameters
+    ----------
+    name: str, optional
+        Name of the padstack. The default is ``"Padstack"``.
+    padstackmanager : optional
+        The default is ``None``.
+    units: str, optional
+        The default is ``mm``.
+    
+    """
     def __init__(self, name="Padstack", padstackmanager=None, units="mm"):
         self.name = name
         self.padstackmgr = padstackmanager
@@ -1193,7 +1316,22 @@ class Padstack(object):
         self.layerid = 1
 
     class PDSHole(object):
-        """ """
+        """Manages properties of a padstack hole.
+        
+        Parameters
+        ----------
+        holetype: str, optional
+            Type of the hole. The default is ``Circular``.
+        sizes : str, optional
+            Diameter of the hole with units. The default is ``"1mm"``.
+        xpos : str, optional
+            The default is ``"0mm"``.
+        ypos : str, optional
+            The default is ``"0mm"``.
+        rot : str, otpional
+            Rotation in degrees. The default is ``"0deg"``. 
+        
+        """
         def __init__(self, holetype="Cir", sizes=["1mm"], xpos="0mm", ypos="0mm", rot="0deg"):
             self.shape = holetype
             self.sizes = sizes
@@ -1202,7 +1340,7 @@ class Padstack(object):
             self.rot = rot
 
     class PDSLayer(object):
-        """ """
+        """Manages properties of a padstack layer."""
 
         def __init__(self, layername="Default", id=1):
             self.layername = layername
@@ -1216,32 +1354,21 @@ class Padstack(object):
 
         @property
         def pad(self):
-            """ """
+            """Pad."""
             return self._pad
 
         @property
         def antipad(self):
-            """ """
+            """Antipad."""
             return self._antipad
 
         @property
         def thermal(self):
-            """ """
+            """Thermal."""
             return self._thermal
 
         @pad.setter
         def pad(self, value=None):
-            """
-
-            Parameters
-            ----------
-            value :
-                 (Default value = None)
-
-            Returns
-            -------
-
-            """
             if value:
                 self._pad = value
             else:
@@ -1249,22 +1376,11 @@ class Padstack(object):
 
         @property
         def antipad(self):
-            """ """
+            """Antipad."""
             return self._antipad
 
         @antipad.setter
-        def antipad(self, value=None):
-            """
-
-            Parameters
-            ----------
-            value :
-                 (Default value = None)
-
-            Returns
-            -------
-
-            """
+        def antipad(self, value=None): 
             if value:
                 self._antipad = value
             else:
@@ -1272,38 +1388,43 @@ class Padstack(object):
 
         @property
         def thermal(self):
-            """ """
+            """Thermal."""
             return self._thermal
 
         @thermal.setter
         def thermal(self, value=None):
-            """
-
-            Parameters
-            ----------
-            value :
-                 (Default value = None)
-
-            Returns
-            -------
-
-            """
             if value:
                 self._thermal = value
             else:
                 self._thermal = self.PDSHole(holetype="None", sizes=[])
 
         class PDSHole:
-            """ """
+            """Properties of a padstack hole.
+            
+            Parameters
+            ----------
+            holetype: str, optional
+                Type of the hole. The default is ``Circular``.
+            sizes : str, optional
+                Diameter of the hole with units. The default is ``"1mm"``.
+            xpos : str, optional
+                The default is ``"0mm"``.
+            ypos : str, optional
+                The default is ``"0mm"``.
+            rot : str, otpional
+                Rotation in degrees. The default is ``"0deg"``. 
+            
+            """
             def __init__(self, holetype="Cir", sizes=["1mm"], xpos="0mm", ypos="0mm", rot="0deg"):
                 self.shape = holetype
                 self.sizes = sizes
                 self.x = xpos
                 self.y = ypos
                 self.rot = rot
+    
     @property
     def pads_args(self):
-        """ """
+        """Pad properties."""
         arg = ["NAME:" + self.name, "ModTime:=", 1594101963, "Library:=", "", "ModSinceLib:=", False,
                "LibLocation:=", "Project"]
         arg2 = ["NAME:psd", "nam:=", self.name, "lib:=", "", "mat:=", self.mat,
@@ -1359,29 +1480,32 @@ class Padstack(object):
     @aedt_exception_handler
     def add_layer(self, layername="Start", pad_hole=None, antipad_hole=None, thermal_hole=None, connx=0, conny=0,
                   conndir=0):
-        """create a new layer in padstack
+        """Create a layer in the padstack.
 
         Parameters
         ----------
-        layername :
-            Name of layer (Default value = "Start")
-        pad_hole :
-            pad hole object. Create it with add_hole command (Default value = None)
+        layername : str, optional
+            Name of layer. The default is ``"Start"``.
+        pad_hole : 
+            Pad hole object, which you can create with the :func:`add_hole` method.
+            The default is ``None``.
         antipad_hole :
-            antipad hole object. Create it with add_hole command (Default value = None)
+            Antipad hole object, which you can create with the :func:`add_hole` method.
+            The default is ``None``.
         thermal_hole :
-            thermal hole object. Create it with add_hole command (Default value = None)
-        connx :
-            connection x direction (Default value = 0)
-        conny :
-            connection y direction (Default value = 0)
+            Thermal hole object, which you can create with the :func:`add_hole` method.
+            The default is ``None``.
+        connx : optional
+            Connection in the X-axis direction. The default is ``0.``
+        conny : optional
+            Connection in the Y-axis direction. The default is ``0.``
         conndir :
-            connection attach angle (Default value = 0)
+            Connection attach angle. The default is ``0.``
 
         Returns
         -------
-        type
-            True if succeeded
+        bool
+            ``True`` when successful, ``False`` when failed.
 
         """
         if layername in self.layers:
@@ -1400,35 +1524,40 @@ class Padstack(object):
 
     @aedt_exception_handler
     def add_hole(self, holetype="Cir", sizes=[1], xpos=0, ypos=0, rot=0):
-        """
+        """Add a hole.
 
         Parameters
         ----------
-        holetype :
-            No" // no pad
-            "Cir" // Circle
-            "Sq" // Square
-            "Rct" // Rectangle
-            "Ov" // Oval
-            "Blt" // Bullet
-            "Ply" // Polygons
-            "R45" // Round 45 thermal
-            "R90" // Round 90 thermal
-            "S45" // Square 45 thermal
-            "S90" // Square 90 thermal (Default value = "Cir")
-        sizes :
-            array of sizes. Depends on the object. eg. Circle is an array of 1 element (Default value = [1])
+        holetype : str, optional
+            Type of the hole. Options are:
+            
+            * No" - no pad
+            * "Cir" - Circle
+            * "Sq" - Square
+            * "Rct" - Rectangle
+            * "Ov" - Oval
+            * "Blt" - Bullet
+            * "Ply" - Polygons
+            * "R45" - Round 45 thermal
+            * "R90" - Round 90 thermal
+            * "S45" - Square 45 thermal
+            * "S90" - Square 90 thermal
+            
+            The default is ``"Cir"``.
+        sizes : array, optional
+            Array of sizes, which depends on the object. For example, a circle ias an array 
+            of one element. The default is ``[1]``.
         xpos :
-            xposition (Default value = 0)
+            Position on the X axis. The default is ``0``.
         ypos :
-            yposition of hole (Default value = 0)
-        rot :
-            rotation angle (Default value = 0)
+            Position on the Y axis. The default is ``0``.
+        rot : float, optional
+            Angle rotation in degrees. The default is ``0``.
 
         Returns
         -------
         type
-            hole object to be passed to padstack or layer
+            Hole object to be passed to padstack or layer.
 
         """
         hole = self.PDSHole()
@@ -1442,25 +1571,23 @@ class Padstack(object):
 
     @aedt_exception_handler
     def create(self):
-        """Create Padstack in AEDT
-
-        :return:
+        """Create a padstack in AEDT.
 
         Parameters
         ----------
 
         Returns
         -------
-
+        bool
+            ``True`` when successful, ``False`` when failed.
+        
         """
         self.padstackmgr.Add(self.pads_args)
         return True
 
     @aedt_exception_handler
     def update(self):
-        """Update Padstack in AEDT
-
-        :return:
+        """Update the padstack in AEDT.
 
         Parameters
         ----------
@@ -1473,9 +1600,7 @@ class Padstack(object):
 
     @aedt_exception_handler
     def remove(self):
-        """REmove Padstack in AEDT
-
-        :return:
+        """Remove the padstack in AEDT.
 
         Parameters
         ----------
@@ -1488,11 +1613,22 @@ class Padstack(object):
 
 
 class CircuitComponent(object):
-    """description of class"""
+    """Manage circuit components.
+    
+    Parameters
+    ----------
+    editor : optional
+    
+    units, str, optional
+       The default is ``"mm"``.
+    tabname, str, optional
+       The default is ``"PassedParameterTab"``.
+    
+    """
 
     @property
     def composed_name(self):
-        """ """
+        """Composed names."""
         if self.id:
             return self.name + ";" +str(self.id) + ";" + str(self.schematic_id)
         else:
@@ -1519,15 +1655,15 @@ class CircuitComponent(object):
 
     @aedt_exception_handler
     def set_location(self, x_location=None, y_location=None):
-        """Set part location
+        """Set the part location.
 
         Parameters
         ----------
         x_location :
-            x location (Default value = None)
+            Position on the X axis. The default is ``None``.
         y_location :
-            y location (Default value = None)
-
+            Position on the Y axis. The default is ``None``.
+       
         Returns
         -------
 
@@ -1550,8 +1686,8 @@ class CircuitComponent(object):
 
         Parameters
         ----------
-        angle :
-            angle (Default value = None)
+        angle : float, optional
+            Angle rotation in degrees. The default is ``None``.
 
         Returns
         -------
@@ -1566,12 +1702,12 @@ class CircuitComponent(object):
 
     @aedt_exception_handler
     def set_mirror(self, mirror_value=None):
-        """Mirror part
+        """Mirror part.
 
         Parameters
         ----------
         mirror_value :
-            mirror angle (Default value = None)
+            Angle for mirroring the part. The default is ``None``.
 
         Returns
         -------
@@ -1584,15 +1720,17 @@ class CircuitComponent(object):
 
     @aedt_exception_handler
     def set_use_symbol_color(self, symbol_color=None):
-        """Set Symbol Color usage
+        """Set symbol color usage.
 
         Parameters
         ----------
-        symbol_color :
-            Bool (Default value = None)
+        symbol_color : bool, optional
+            The default is ``None``.
 
         Returns
         -------
+        bool
+            ``True`` when successful, ``False`` when failed.
 
         """
         if not symbol_color:
@@ -1604,19 +1742,21 @@ class CircuitComponent(object):
 
     @aedt_exception_handler
     def set_color(self, R=255, G=128, B=0):
-        """Set Symbol Color
+        """Set symbol color.
 
         Parameters
         ----------
-        R :
-            red (Default value = 255)
-        G :
-            Green (Default value = 128)
-        B :
-            Blue (Default value = 0)
+        R : int, optional
+            Red color value. The default is ``255``.
+        G : int, optional
+            Green color value. The default is ``128``.
+        B : int, optional
+            Blue color value. The default is ``0``
 
         Returns
         -------
+        bool
+            ``True`` when successful, ``False`` when failed.
 
         """
         self.set_mirror(True)
@@ -1626,17 +1766,19 @@ class CircuitComponent(object):
 
     @aedt_exception_handler
     def set_property(self, property_name, property_value):
-        """Set part property
+        """Set a part property.
 
         Parameters
         ----------
-        property_name :
-            property name
-        property_value :
-            property value
+        property_name : str
+            Name of the property.
+        property_value : fl
+            Value for the property. 
 
         Returns
         -------
+        bool
+            ``True`` when successful, ``False`` when failed.
 
         """
         if type(property_name) is list:
@@ -1652,31 +1794,34 @@ class CircuitComponent(object):
 
     @aedt_exception_handler
     def _add_property(self, property_name, property_value):
-        """
+        """Add a property.
 
         Parameters
         ----------
-        property_name :
-
-        property_value :
+        property_name : str
+            Name of the property.
+        property_value : fl
+            Value for the property. 
 
 
         Returns
         -------
+        bool
+            ``True`` when successful, ``False`` when failed.
 
         """
         self.__dict__[property_name] = property_value
         return True
 
     def change_property(self, vPropChange, names_list=None):
-        """
+        """Modify a property
 
         Parameters
         ----------
         vPropChange :
 
-        names_list :
-             (Default value = None)
+        names_list : list, optional
+             The default is ``None``.
 
         Returns
         -------
@@ -1704,34 +1849,42 @@ class CircuitComponent(object):
 
 
 class Objec3DLayout(object):
-    """Class managing Objects Properties in HFSS 3DLauoit"""
+    """Manages properties of objects in HFSS 3D Lauout.
+    
+    Parameeters
+    -----------
+    parent :
+    
+    """
     def __init__(self, parent):
         self._parent = parent
         self._n = 10
 
     @property
     def m_Editor(self):
-        """ """
+        """Editor."""
         return self._parent.oeditor
 
     @property
     def object_units(self):
-        """ """
+        """Object units."""
         return self._parent.model_units
 
     @aedt_exception_handler
     def change_property(self, vPropChange, names_list=None):
-        """
+        """Modify a property.
 
         Parameters
         ----------
         vPropChange :
 
-        names_list :
-             (Default value = None)
+        names_list : list, optional
+             The default is ``None``.
 
         Returns
         -------
+        bool
+            ``True`` when successful, ``False`` when failed.
 
         """
         vChangedProps = ["NAME:ChangedProps", vPropChange]
@@ -1749,19 +1902,19 @@ class Objec3DLayout(object):
 
     @aedt_exception_handler
     def set_property_value(self, property_name, property_value):
-        """Set Property Value
+        """Set a property value.
 
         Parameters
         ----------
-        property_name :
-            property name
+        property_name : str
+            Name of the property.
         property_value :
-            property value
+            Value of the property.
 
         Returns
         -------
-        type
-            Bool
+        bool
+            ``True`` when successful, ``False`` when failed.
 
         """
         vProp = ["NAME:"+property_name, "Value:=",property_value]
@@ -1769,47 +1922,112 @@ class Objec3DLayout(object):
 
 
 class Components3DLayout(Objec3DLayout, object):
-    """Class Containing Components in HFSS 3D Layout"""
+    """Contains components in HFSS 3D Layout.
+    
+    Parameters
+    ----------
+    parent :
+    
+    name : string, optional
+        The default is ``""``.
+        
+    """
     def __init__(self, parent, name=""):
         Objec3DLayout.__init__(self, parent)
         self.name = name
 
     @aedt_exception_handler
     def get_location(self):
-        """:return:  Component location"""
+        """Retrieve the component location. 
+        
+        Returns
+        -------
+        list
+           List of ``(x, y, z) coordinates for the component location.
+           
+        """
         location = retry_ntimes(self._n, self.m_Editor.GetPropertyValue, "BaseElementTab", self.name, 'Location')
         return list(location)
 
     @aedt_exception_handler
     def get_placement_layer(self):
-        """:return:  Component Placement Layer"""
+        """Retrieve the component placement layer.
+        
+        Returns
+        -------
+        type
+            Component placement layer.
+        """
         return retry_ntimes(self._n, self.m_Editor.GetPropertyValue, "BaseElementTab", self.name, 'PlacementLayer')
 
     @aedt_exception_handler
     def get_part(self):
-        """:return:  Component Part"""
+        """Retrieve the component part.
+        
+        Returns
+        -------
+        type
+            Component part.
+        
+        """
         return retry_ntimes(self._n, self.m_Editor.GetPropertyValue, "BaseElementTab", self.name, 'Part')
 
     @aedt_exception_handler
     def get_part_type(self):
-        """:return:  Component Part Type"""
+        """Retrieve the component part type.
+        
+        Returns
+        -------
+        type
+            Component part type.
+        
+        """
         return retry_ntimes(self._n, self.m_Editor.GetPropertyValue, "BaseElementTab", self.name, 'Part Type')
 
     @aedt_exception_handler
     def get_angle(self):
-        """:return:  Component Angle"""
+        """Retrieve the component angle.
+        
+        Returns
+        -------
+        type
+            Component angle.
+        
+        """
         return retry_ntimes(self._n, self.m_Editor.GetPropertyValue, "BaseElementTab", self.name, 'Angle')
 
 
 class Nets3DLayout(Objec3DLayout, object):
-    """Class containing Netw in HFSS3D Layout"""
+    """Contains Nets in HFSS 3D Layout.
+    
+    Parameters
+    ----------
+    parent :
+    
+    name : str, optional
+        The default is ``""``.
+    
+    """
     def __init__(self, parent, name=""):
         Objec3DLayout.__init__(self, parent)
         self.name = name
 
 
 class Pins3DLayout(Objec3DLayout, object):
-    """Class containing Pins in HFSS3D Layout"""
+    """Contains the pins in  HFSS 3D Layout.
+    
+    Parameters
+    ----------
+    parent :
+    
+    componentname : str, optional
+        Name of the component. The default is ``""``.
+    pinname : str, optional
+        Name of the pin. The default is ``""``.
+    name : str, optional
+        The default is ``""``.
+    
+    """
     def __init__(self, parent, componentname="", pinname="", name=""):
         Objec3DLayout.__init__(self, parent)
         self.componentname = componentname
@@ -1818,33 +2036,79 @@ class Pins3DLayout(Objec3DLayout, object):
 
     @aedt_exception_handler
     def get_location(self):
-        """:return:  pin location"""
+        """Retrieve the pin locaton.
+        
+        Returns
+        -------
+        list
+           List of ``(x, y, z)`` coordinates for the pin location.
+           
+        """
         location = retry_ntimes(self._n, self.m_Editor.GetPropertyValue, "BaseElementTab", self.name, 'Location')
         return location
 
     @aedt_exception_handler
     def get_start_layer(self):
-        """:return:  pin start layer"""
+        """Retrieve the starting layer of the pin.
+        
+        Returns
+        -------
+        str
+            Name of the starting layer of the pin.
+        
+        """
         return retry_ntimes(self._n, self.m_Editor.GetPropertyValue, "BaseElementTab", self.name, 'Start Layer')
 
     @aedt_exception_handler
     def get_stop_layer(self):
-        """:return:  pin stop layer"""
+        """Retrieve the starting layer of the pin.
+        
+        Returns
+        -------
+        str
+            Name of the stopping layer of the pin.
+        
+        """
         return retry_ntimes(self._n, self.m_Editor.GetPropertyValue, "BaseElementTab", self.name, 'Stop Layer')
 
     @aedt_exception_handler
     def get_holediam(self):
-        """:return:  pin hole diameter"""
+        """Retrieve the hole diameter of the pin.
+        
+        Returns
+        --------
+        float
+           Hole diameter of the pin.
+       
+        """
         return retry_ntimes(self._n, self.m_Editor.GetPropertyValue, "BaseElementTab", self.name, 'HoleDiameter')
 
     @aedt_exception_handler
     def get_angle(self):
-        """:return:  pin angle"""
+        """Retrieve the rotation angle of the pin in degrees.
+        
+        Returns
+        -------
+        float
+            Rotation angle of the pin
+        
+        """
         return retry_ntimes(self._n, self.m_Editor.GetPropertyValue, "BaseElementTab", self.name, 'Angle')
 
 
 class Geometries3DLayout(Objec3DLayout, object):
-    """Class containing Geometries in HFSS3D Layout"""
+    """Contains geometries in HFSS 3D Layout.
+    
+    Parameters
+    ----------
+    parent :
+    
+    name :
+    
+    id : int, optional
+        The default is ``0``.
+        
+    """
     def __init__(self, parent, name, id=0):
         Objec3DLayout.__init__(self, parent)
         self.name = name
@@ -1852,42 +2116,57 @@ class Geometries3DLayout(Objec3DLayout, object):
 
     @aedt_exception_handler
     def get_placement_layer(self):
-        """:return:  object placement layer"""
+        """Retrieve the placement layer of the object.
+        
+        Returns
+        -------
+        type
+            Object placement layer.
+        
+        """
         return retry_ntimes(self._n, self.m_Editor.GetPropertyValue, "BaseElementTab", self.name, 'PlacementLayer')
 
     @aedt_exception_handler
     def get_net_name(self):
-        """:return:  object net name"""
+        """Retrive the net name.
+        
+        Returns
+        -------
+        str
+            Name of the net.
+        
+        """
         return retry_ntimes(self._n, self.m_Editor.GetPropertyValue, "BaseElementTab", self.name, 'Net')
 
     @aedt_exception_handler
     def get_property_value(self, propertyname):
-        """
+        """Retrieve a property value.
 
         Parameters
         ----------
-        propertyname :
-            property name
+        propertyname : str
+            Name of the property
 
         Returns
         -------
         type
-            object property value
+            Value of the property.
 
         """
         return retry_ntimes(self._n, self.m_Editor.GetPropertyValue, "BaseElementTab", self.name, propertyname)
 
     @aedt_exception_handler
     def set_layer(self, layer_name):
-        """Set object layer
+        """Set the object layer.
 
         Parameters
         ----------
-        layer_name :
-            layer name
+        layer_name : str
+            Name of the layer.
 
         Returns
         -------
+        type
 
         """
         vMaterial = ["NAME:PlacementLayer", "Value:=", layer_name]
@@ -1895,15 +2174,16 @@ class Geometries3DLayout(Objec3DLayout, object):
 
     @aedt_exception_handler
     def set_lock_position(self, lock_position=True):
-        """Set lock position
+        """Set the lock position
 
         Parameters
         ----------
-        lock_position :
-            bool (Default value = True)
+        lock_position : bool, optional
+            The default value is ``True``.
 
         Returns
         -------
+        type
 
         """
         vMaterial = ["NAME:LockPosition", "Value:=", lock_position]
@@ -1911,15 +2191,16 @@ class Geometries3DLayout(Objec3DLayout, object):
 
     @aedt_exception_handler
     def set_negative(self, negative=False):
-        """Set negative
+        """Set the negative.
 
         Parameters
         ----------
-        negative :
-            bool (Default value = False)
-
+        negative : bool, optional
+            The default is ``False``.
+            
         Returns
         -------
+        type
 
         """
         vMaterial = ["NAME:Negative", "Value:=", negative]
@@ -1927,15 +2208,16 @@ class Geometries3DLayout(Objec3DLayout, object):
 
     @aedt_exception_handler
     def set_net_name(self, netname=""):
-        """Set net name
+        """Set the net name
 
         Parameters
         ----------
-        netname :
-            net name (Default value = "")
+        netname : str, optional
+            Name of the net. The default is ``""``.
 
         Returns
         -------
+        type
 
         """
         vMaterial = ["NAME:Net", "Value:=", netname]
