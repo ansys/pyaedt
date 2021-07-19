@@ -1034,7 +1034,9 @@ class Design(object):
         if not proj_name:
             self._oproject = self._desktop.GetActiveProject()
         else:
-            if os.path.exists(proj_name):
+            if proj_name in self._desktop.GetProjectList():
+                self._oproject = self._desktop.SetActiveProject(proj_name)
+            elif os.path.exists(proj_name):
                 if ".aedtz" in proj_name:
                     name = self._generate_unique_project_name()
 
@@ -1053,8 +1055,6 @@ class Design(object):
                     proj = self._desktop.OpenProject(proj_name)
                     time.sleep(0.5)
                 self._oproject = proj
-            elif proj_name in self._desktop.GetProjectList():
-                self._oproject = self._desktop.SetActiveProject(proj_name)
             else:
                 self._oproject = self._desktop.NewProject()
                 self._oproject.Rename(os.path.join(self.project_path, proj_name+".aedt"), True)
