@@ -78,7 +78,7 @@ class FieldAnalysis3D(Analysis, object):
 
         Returns
         -------
-        Mesh
+        :class:`pyaedt.modules.Mesh.Mesh`
         """
         return self._mesh
 

@@ -61,12 +61,22 @@ class FieldAnalysis2D(Analysis):
 
     @property
     def modeler(self):
-        """Modeler object."""
+        """
+
+        Returns
+        -------
+        :class:`pyaedt.modeler.Model2D.Modeler2D`
+        """
         return self._modeler
 
     @property
     def mesh(self):
-        """Mesh object"""
+        """
+
+        Returns
+        -------
+        :class:`pyaedt.modules.Mesh.Mesh`
+        """
         return self._mesh
 
     # @property

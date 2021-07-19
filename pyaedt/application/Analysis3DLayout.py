@@ -70,7 +70,12 @@ class FieldAnalysis3DLayout(Analysis):
 
     @property
     def mesh(self):
-        """Mesh object."""
+        """
+
+        Returns
+        -------
+        :class:`pyaedt.modules.Mesh3DLayout.Mesh`
+        """
         return self._mesh
 
     @property
@@ -79,8 +84,8 @@ class FieldAnalysis3DLayout(Analysis):
         
         Returns
         -------
-        type
-            BoundarySetup module object.
+        list
+            list of all excitation
         
         """
         return list(self.oboundary.GetAllPortsList())

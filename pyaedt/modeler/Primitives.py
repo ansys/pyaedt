@@ -801,7 +801,12 @@ class Primitives(object):
 
     @property
     def materials(self):
-        """ """
+        """
+
+        Returns
+        -------
+        :class:`pyaedt.modules.MaterialLib.Materials`
+        """
         return self._parent.materials
 
     @property
@@ -891,7 +896,7 @@ class Primitives(object):
 
         Returns
         -------
-        Object3d
+        :class:`pyaedt.modeler.Object3d.Object3d`
         """
         o = self._resolve_object(obj)
         o._update()
@@ -978,7 +983,7 @@ class Primitives(object):
 
         Returns
         -------
-        Object3d
+        :class:`pyaedt.modeler.Object3d.Object3d`
 
         """
         if "Region" in self.object_names:
@@ -1023,7 +1028,7 @@ class Primitives(object):
 
         Returns
         -------
-        type
+        :class:`pyaedt.modeler.Object3d.Object3d`
             Object3d
         """
         if isinstance(edge, EdgePrimitive):
@@ -1054,7 +1059,7 @@ class Primitives(object):
                 Face id or FacePrimitive object of the
         Returns
         -------
-        type
+        :class:`pyaedt.modeler.Object3d.Object3d`
             Object3d
         """
         face_id = face
@@ -1227,7 +1232,7 @@ class Primitives(object):
 
         Returns
         -------
-        type
+        :class:`pyaedt.modeler.Object3d.Object3d`
             Object3d
 
         """
@@ -1368,7 +1373,7 @@ class Primitives(object):
 
         Returns
         -------
-        type
+        :class:`pyaedt.modeler.Object3d.Object3d`
             Object3d
         """
         if objname in self.object_id_dict:
@@ -2776,7 +2781,7 @@ class Primitives(object):
 
         Returns
         -------
-        Object3d
+        :class:`pyaedt.modeler.Object3d.Object3d`
             Returns None if the part id or object name is not found
 
         """
