@@ -289,7 +289,7 @@ class Maxwell(object):
         -------
         :class:`pyaedt.modules.Boundary.BoundaryObject`
             Boundary object.
-           
+
         """
         amplitude = str(amplitude) + "A"
 
@@ -326,7 +326,7 @@ class Maxwell(object):
         -------
         :class:`pyaedt.modules.Boundary.BoundaryObject`
             Boundary object.
-        
+
         """
 
         amplitude = str(amplitude) + "mV"
@@ -407,7 +407,8 @@ class Maxwell(object):
         Returns
         -------
         :class:`pyaedt.modules.Boundary.BoundaryObject`
-            Boundary object for the winding; otherwise only the bounding object.
+            Bounding object for the winding; otherwise only the bounding object.
+
         """
 
         if not name:
@@ -985,10 +986,10 @@ class Maxwell2d(Maxwell, FieldAnalysis2D, object):
         Returns
         -------
         :class:`pyaedt.modules.Boundary.BoundaryObject`
-            Boundary object.
+            Vector Potential Object
 
         """
-        input_edge= self.modeler._convert_list_to_ids(input_edge)
+        input_edge = self.modeler._convert_list_to_ids(input_edge)
 
         if not bound_name:
             bound_name=generate_unique_name("Vector")

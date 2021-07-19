@@ -980,16 +980,21 @@ class Hfss(FieldAnalysis3D, object):
         Returns
         -------
         :class:`pyaedt.modules.Boundary.BoundaryObject`
-            Boundary object.
+            Port object.
 
         Examples
         --------
         >>>  from pyaedt import Hfss
         >>> hfss = Hfss()
-        >>> ms = hfss.modeler.primitives.create_box([4,5,0],[1,100,0.2],name="MS1", matname="copper")
-        >>> sub = hfss.modeler.primitives.create_box([0,5,-2],[20,100,2],name="SUB1", matname="FR4_epoxy")
-        >>> gnd = hfss.modeler.primitives.create_box([0,5,-2.2],[20,100,0.2],name="GND1", matname="FR4_epoxy")
-        >>> port = hfss.create_wave_port_microstrip_between_objects("GND1", "MS1",   portname="MS1", axisdir=1)
+        >>> ms = hfss.modeler.primitives.create_box([4, 5, 0], [1, 100, 0.2],
+        ...                                         name="MS1", matname="copper")
+        >>> sub = hfss.modeler.primitives.create_box([0, 5, -2], [20, 100, 2],
+        ...                                          name="SUB1", matname="FR4_epoxy")
+        >>> gnd = hfss.modeler.primitives.create_box([0, 5, -2.2], [20, 100, 0.2],
+        ...                                          name="GND1", matname="FR4_epoxy")
+        >>> port = hfss.create_wave_port_microstrip_between_objects("GND1", "MS1",
+        ...                                                         portname="MS1",
+        ...                                                         axisdir=1)
 
         """
         if not self.modeler.primitives.does_object_exists(startobj) or not self.modeler.primitives.does_object_exists(

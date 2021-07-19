@@ -92,7 +92,7 @@ class FieldAnalysisSimplorer(Analysis):
 
         Returns
         -------
-        :class: SetupCircuit
+        :class:`pyaedt.modules.SolveSetup.SetupCircuit`
             setup object
 
         """

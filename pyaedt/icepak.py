@@ -281,12 +281,12 @@ class Icepak(FieldAnalysisIcepak):
             Whether to enable radiation. The default is ``False``.
         source_name : str, optional
             Name of the source. The default is ``None``.
-        
+
         Returns
         -------
         :class:`pyaedt.modules.Boundary.BoundaryObject`
-            Boundary object.
-        
+            Boundary object when successful or ``None`` when failed.
+
         """
         if not source_name:
             source_name = generate_unique_name("Source")

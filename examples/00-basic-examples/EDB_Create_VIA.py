@@ -17,9 +17,12 @@ from pyaedt import Edb
 from pyaedt.generic.general_methods import generate_unique_name
 start = time.time()
 if os.name == "posix":
-    aedb_path = os.path.join("/tmp", generate_unique_name("Edb_custom") + ".aedb")
+    tmpfold = os.environ.get("TMPDIR", '/tmp')
 else:
-    aedb_path=os.path.join(r"C:\Temp", generate_unique_name("Edb_custom")+".aedb")
+    tmpfold = os.environ["TEMP"]
+
+aedb_path = os.path.join(tmpfold, generate_unique_name("Edb_custom") + ".aedb")
+
 edb = Edb(edbpath=aedb_path, edbversion="2021.1")
 
 
