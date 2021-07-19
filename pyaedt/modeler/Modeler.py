@@ -17,6 +17,8 @@ import sys
 import os
 import string
 import random
+import warnings
+
 from collections import OrderedDict
 from .Primitives2D import Primitives2D
 from .Primitives3D import Primitives3D
@@ -510,7 +512,12 @@ class GeometryModeler(Modeler, object):
 
     @property
     def materials(self):
-        """ """
+        """
+
+        Returns
+        -------
+        :class:`pyaedt.modules.MaterialLib.Materials`
+        """
         return self._parent.materials
 
 
@@ -834,7 +841,11 @@ class GeometryModeler(Modeler, object):
 
     @aedt_exception_handler
     def add_workbench_link(self, objects, ambient_temp=22, create_project_var=False, enable_deformation=True):
-        """Assign Temperature and Deformation Objects for WorkBench Link. From 2020R2 Material needs to have Thermal Modifier
+        """Assign Temperature and Deformation Objects for WorkBench Link.
+
+        .. deprecated:: 0.3.1
+           Use :func:`GeometryModeler.set_objects_deformation` and :func:`GeometryModeler.set_objects_temperature`
+           instead.
 
         Parameters
         ----------
@@ -849,42 +860,39 @@ class GeometryModeler(Modeler, object):
 
         Returns
         -------
-
+        bool
+            `True` if operation succeeded, `False` otherwise
         """
+        warnings.warn('add_workbench_link is deprecated. '
+                      'Please use set_objects_temperature and set_objects_deformation instead.',
+                      DeprecationWarning)
+        self.set_objects_temperature(objects, ambient_temp, create_project_var)
         if enable_deformation:
-            self._messenger.add_debug_message("Set model temperature and enabling temperature and deformation feedback")
-        else:
-            self._messenger.add_debug_message("Set model temperature and enabling temperature feedback")
-        if create_project_var:
-            self._parent.variable_manager["$AmbientTemp"] = str(ambient_temp) + "cel"
-            var = "$AmbientTemp"
-        else:
-            var = str(ambient_temp) + "cel"
-        vargs1 = ["NAME:TemperatureSettings", "IncludeTemperatureDependence:=", True, "EnableFeedback:=", True,
-                  "Temperatures:="]
-        vargs2 = []
-        vdef = []
-        for obj in objects:
-            mat = self.primitives[obj].material_name
-            print("Material" + mat)
-            th = self._parent.materials.check_thermal_modifier(mat)
-            if th:
-                vargs2.append(obj)
-                vargs2.append(var)
-        if not vargs2:
-            return False
-        else:
-            vargs1.append(vargs2)
+            self.set_objects_deformation(objects)
+        return True
+
+    @aedt_exception_handler
+    def set_objects_deformation(self, objects):
+        """Assign Deformation Objects for WorkBench Link.
+
+        Parameters
+        ----------
+        objects :
+            list of the object to be included
+
+        Returns
+        -------
+        bool
+            `True` if operation succeeded, `False` otherwise
+        """
+        self._messenger.add_debug_message("Enabling deformation feedback")
         try:
-            self.odesign.SetObjectTemperature(vargs1)
-            if enable_deformation:
-                self.odesign.SetObjectDeformation(["EnabledObjects:=", vdef])
+            self.odesign.SetObjectDeformation(["EnabledObjects:=", objects])
         except:
-            self._messenger.add_error_message("Failed to enable the temperature and deformation dependence")
+            self._messenger.add_error_message("Failed to enable the deformation dependence")
             return False
         else:
-            self._messenger.add_debug_message(
-                "Assigned objects temperature and enabled temperature and deformation feedback")
+            self._messenger.add_debug_message("Successfully enabled deformation feedback")
             return True
 
     @aedt_exception_handler
@@ -903,7 +911,8 @@ class GeometryModeler(Modeler, object):
 
         Returns
         -------
-
+        bool
+            `True` if operation succeeded, `False` otherwise
         """
         self._messenger.add_debug_message("Set model temperature and enabling Thermal Feedback")
         if create_project_var:
@@ -1280,7 +1289,8 @@ class GeometryModeler(Modeler, object):
         all_objs = self.primitives.object_names
         objs_to_unmodel = [i for i in all_objs if i not in group_objs]
         if objs_to_unmodel:
-            self.set_object_model_state(objs_to_unmodel, False)
+            vArg1 = ["NAME:Model", "Value:=", False]
+            self.primitives._change_geometry_property(vArg1, objs_to_unmodel)
             bounding = self.get_model_bounding_box()
             self.odesign.Undo()
         else:
@@ -1519,7 +1529,7 @@ class GeometryModeler(Modeler, object):
 
         Returns
         -------
-        Object3d
+        :class:`pyaedt.modeler.Object3d.Object3d`
         """
         selections = self.convert_to_selections(objid)
 
@@ -1546,7 +1556,7 @@ class GeometryModeler(Modeler, object):
 
         Returns
         -------
-        Object3d
+        :class:`pyaedt.modeler.Object3d.Object3d`
         """
         selections = self.convert_to_selections(obj_name)
         vArg1 = ['NAME:Selections', 'Selections:=', selections, 'NewPartsModelFlag:=', 'Model']

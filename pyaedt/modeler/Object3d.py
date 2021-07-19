@@ -1108,7 +1108,7 @@ class Object3d(object):
         -------
         :class:`pyaedt.modeler.Object3d.Object3d`
             3D object. 
-        
+
         """
         self._parent.modeler.translate(self.id, vector)
         return self
@@ -1182,7 +1182,7 @@ class Object3d(object):
         -------
         :class:`pyaedt.modeler.Object3d.Object3d`
             3D object. 
-        
+
         """
         self._parent.modeler.sweep_around_axis(self, cs_axis, sweep_angle, draft_angle)
         return self
@@ -1218,7 +1218,7 @@ class Object3d(object):
         -------
         :class:`pyaedt.modeler.Object3d.Object3d`
             3D object that was added. 
-        
+
         """
         new_obj_tuple = self._parent.modeler.clone(self.id)
         success = new_obj_tuple[0]

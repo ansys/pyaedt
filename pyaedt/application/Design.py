@@ -2041,19 +2041,16 @@ class Design(object):
         if not name:
             name = self.design_name
         self.oproject.DeleteDesign(name)
-        try:
-            if fallback_design:
-                new_designname = fallback_design
-            else:
-                if not self._oproject.GetActiveDesign():
-                    new_designname = None
-                    self.odesign = None
-                else:
-                    new_designname = self._oproject.GetActiveDesign().GetName()
-            self.set_active_design(new_designname)
-        except:
-            pass
-
+        if name != self.design_name:
+            return True
+        if fallback_design and (fallback_design in
+                                [x for i in list(self._oproject.GetDesigns()) for x in (i.GetName(), i.GetName()[2:])]):
+            try:
+                self.set_active_design(fallback_design)
+            except:
+                return False
+        else:
+            self.odesign = None
         return True
 
 
@@ -2230,7 +2227,7 @@ class Design(object):
         else:
             return None
         # check if the requested design exists in the origin project
-        if design_name not in [i.GetName() for i in list(proj_from.GetDesigns())]:
+        if design_name not in [x for i in list(proj_from.GetDesigns()) for x in (i.GetName(), i.GetName()[2:])]:
             return None
         # copy the source design
         proj_from.CopyDesign(design_name)
@@ -2242,9 +2239,9 @@ class Design(object):
         # close the source project
         self._desktop.CloseProject(proj_from_name)
         # reset the active design (very important)
-        self._oproject.SetActiveDesign(active_design)
         self.save_project()
         self.__init__(self.project_name, new_designname)
+        self._oproject.SetActiveDesign(active_design)
 
         # return the pasted design name
         return new_designname
