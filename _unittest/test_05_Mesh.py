@@ -16,7 +16,6 @@ class TestMesh:
 
     def teardown_class(self):
         assert self.aedtapp.close_project(self.aedtapp.project_name)
-        #self.desktop.force_close_desktop()
         self.local_scratch.remove()
         gc.collect()
 

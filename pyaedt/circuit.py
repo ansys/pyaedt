@@ -65,7 +65,7 @@ def from_rkm(code):
     Returns
     -------
     str
-        String with a decimal point and R value.
+        String with a decimal point and an R value.
 
     Examples
     --------
@@ -126,11 +126,11 @@ def to_aedt(code):
     Parameters
     ----------
     code : str
-        
-
+    
     Returns
     -------
     str
+    
     """
     pattern = r'([{}]{})'.format(''.join(AEDT_MAPS.keys()), '{1}')
     regex = re.compile(pattern, re.I)
@@ -149,6 +149,7 @@ def from_rkm_to_aedt(code):
     Returns
     -------
     str
+    
     """
     return to_aedt(from_rkm(code))
 
@@ -187,73 +188,72 @@ class Circuit(FieldAnalysisCircuit, object):
     release_on_exit : bool, optional
         Whether to release AEDT on exit.
     student_version : bool, optional
-        Whether open AEDT Student Version. The default is ``False``.
+        Whether to open the AEDT student version. The default is ``False``.
 
     Examples
     --------
-    Create an instance of `Circuit` and connect to an existing HFSS
+    Create an instance of Circuit and connect to an existing HFSS
     design or create a new HFSS design if one does not exist.
 
     >>> from pyaedt import Circuit
     >>> aedtapp = Circuit()
 
-    Create an instance of `Circuit` and link to a project named
+    Create an instance of Circuit and link to a project named
     ``projectname``. If this project does not exist, create one with
     this name.
 
     >>> aedtapp = Circuit(projectname)
 
-    Create an instance of `Circuit` and link to a design named
+    Create an instance of Circuit and link to a design named
     ``designname`` in a project named ``projectname``.
 
     >>> aedtapp = Circuit(projectname,designame)
 
-    Create an instance of `Circuit` and open the specified project,
+    Create an instance of Circuit and open the specified project,
     which is ``myfie.aedt``.
 
     >>> aedtapp = Circuit("myfile.aedt")
 
-    Create an instance of `Circuit` using the 2021 R1 version and
+    Create an instance of Circuit using the 2021 R1 version and
     open the specified project, which is ``myfie.aedt``.
 
     >>> aedtapp = Circuit(specified_version="2021.1", projectname="myfile.aedt")
 
-    Create an instance of ``Circuit`` using the 2021 R2 student version and open
+    Create an instance of Circuit using the 2021 R2 student version and open
     the specified project, which is named ``"myfile.aedt"``.
 
     >>> hfss = Circuit(specified_version="2021.2", projectname="myfile.aedt", student_version=True)
 
     Examples
     --------
-    Create an instance of ``Circuit`` and connect to an existing HFSS
+    Create an instance of Circuit and connect to an existing HFSS
     design or create a new HFSS design if one does not exist.
 
     >>> from pyaedt import Circuit
     >>> aedtapp = Circuit()
 
-    Create an instance of ``Circuit`` and link to a project named
+    Create an instance of Circuit and link to a project named
     ``projectname``. If this project does not exist, create one with
     this name.
 
     >>> aedtapp = Circuit(projectname)
 
-    Create an instance of ``Circuit`` and link to a design named
+    Create an instance of Circuit and link to a design named
     ``designname`` in a project named ``projectname``.
 
     >>> aedtapp = Circuit(projectname,designame)
 
-    Create an instance of ``Circuit`` and open the specified project,
+    Create an instance of Circuit and open the specified project,
     which is ``myfie.aedt``.
 
     >>> aedtapp = Circuit("myfile.aedt")
 
-    Create an instance of ``Circuit`` using the 2021 R1 version and
+    Create an instance of Circuit using the 2021 R1 version and
     open the specified project, which is ``myfie.aedt``.
 
     >>> aedtapp = Circuit(specified_version="2021.1", projectname="myfile.aedt")
 
     """
-
     def __init__(self, projectname=None, designname=None, solution_type=None, setup_name=None,
                  specified_version=None, non_graphical=False, launch_new_desktop=True, release_on_exit=False, student_version=False):
         FieldAnalysisCircuit.__init__(self, "Circuit Design", projectname, designname, solution_type, setup_name,
@@ -301,6 +301,7 @@ class Circuit(FieldAnalysisCircuit, object):
         -------
         bool
              ``True`` when successful, ``False`` when failed.
+        
         """
         xpos = 0
         ypos = 0
@@ -509,6 +510,7 @@ class Circuit(FieldAnalysisCircuit, object):
         -------
         bool
             ``True`` when successful, ``False`` when failed.
+        
         """
         xpos = 0
         ypos = 0
@@ -596,7 +598,7 @@ class Circuit(FieldAnalysisCircuit, object):
                     if netname:
                         self.modeler.components.create_page_port(netname, pos[0], pos[1], angle)
                     else:
-                        self.messenger.add_info_message("Page Port Not Created", "Global")
+                        self._messenger.add_info_message("Page Port Not Created", "Global")
                     id += 1
                 ypos += delta
                 if ypos > delta * (column_number):
@@ -632,6 +634,7 @@ class Circuit(FieldAnalysisCircuit, object):
         -------
         str
             Type of Mentor net list comoponet.
+        
         """
         if refid[1] == "R":
             return "resistor:RES."
@@ -667,8 +670,8 @@ class Circuit(FieldAnalysisCircuit, object):
         -------
         list
             List of pin names.
+        
         """
-
         if not source_project_name or self.project_name == source_project_name:
             oSrcProject = self._desktop.GetActiveProject()
         else:
@@ -704,6 +707,7 @@ class Circuit(FieldAnalysisCircuit, object):
         -------
         list
             List of ports.
+        
         """
         if filename[-2:] == "ts":
             with open(filename, "r") as f:
@@ -767,8 +771,8 @@ class Circuit(FieldAnalysisCircuit, object):
         -------
         bool
             ``True`` when successful, ``False`` when failed.
+        
         """
-
         # Normalize the save path
         if not filename:
             appendix = ""
@@ -846,6 +850,7 @@ class Circuit(FieldAnalysisCircuit, object):
         -------
         str
             File name if the export is successful.
+        
         """
         if not designname:
             designname = self.design_name

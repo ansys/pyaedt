@@ -113,7 +113,7 @@ from functools import wraps
 def pyaedt_unittest_check_desktop_error(func):
     @wraps(func)
     def inner_function(*args, **kwargs):
-        #args[0].aedtapp.messenger("Test Function Here")
+        #args[0].aedtapp._messenger("Test Function Here")
         args[0].cache.update()
         ret_val = func(*args, **kwargs)
         try:

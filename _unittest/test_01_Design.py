@@ -91,7 +91,7 @@ class TestClass():
         print(self.aedtapp.oboundary)
         print(self.aedtapp.oanalysis)
         print(self.aedtapp.odesktop)
-        print(self.aedtapp.messenger)
+        print(self.aedtapp._messenger)
         print(self.aedtapp.variable_manager)
         print(self.aedtapp.materials)
 

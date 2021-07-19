@@ -1,7 +1,7 @@
 """
 This module contains these classes: `CSVDataset`, `DataSet`, `Expression`, `Variable`, and `VariableManager`.
 
-This module provides all functionalities for creating and editing design and project variables in the 3D tools.
+This module is used to create and edit design and project variables in the 3D tools.
 
 Examples
 --------
@@ -29,14 +29,19 @@ def dB(x, inverse=True):
 
 @aedt_exception_handler
 def fah2kel(val, inverse=True):
-    """Convert Fahrenheit to Kelvin.
+    """Convert a temperature from Fahrenheit to Kelvin.
     
     Parameters
     ----------
-    val :
-    
+    val : float
+        Temperature value in Fahrenheit.
     inverse : bool, optional
         The default is ``True``.
+	
+    Returns
+    -------
+    float
+        Temperature value converted to Kelvin.
     
     """
     if inverse:
@@ -47,15 +52,20 @@ def fah2kel(val, inverse=True):
 
 @aedt_exception_handler
 def cel2kel(val, inverse=True):
-    """Convert Celsius to Kelvin.
+    """Convert a temperature from Celsius to Kelvin.
     
     Parameters
     ----------
-    val :
-    
+    val : float
+        Temperature value in Celsius.
     inverse : bool, optional
         The default is ``True``.
-        
+    
+    Returns
+    -------
+    float
+        Temperature value converted to Kelvin.
+	
     """
     
     if inverse:
@@ -71,11 +81,13 @@ def unit_system(units):
     Parameters
     ----------
     units : str
+        Units for retrieving the associated unit system name.
     
     Returns
     -------
-    bool
-        ``True`` when successful, ``False`` when the specified units are not defined in AEDT units.
+    str
+        Key from the ``AEDT_units`` when successful. For example, ``"AngualrSpeed"``.
+	``False`` when the units specified are not defined in AEDT units.
     
     """
     found = False
@@ -198,7 +210,7 @@ def _resolve_unit_system(unit_system_1, unit_system_2, operation):
         return ""
 
 class CSVDataset:
-    """Read in a CSV file and extract data and augment data with constant values.
+    """Reads in a CSV file and extracts data, which can be augmented with constant values.
     
     Parameters
     ----------
@@ -207,15 +219,15 @@ class CSVDataset:
         The CSV value includes the header and data, which supports AEDT units information 
         such as ``"1.23Wb"``. You can also augment the data with constant values.
     separator: str, optional
-        Value to use for the delimiter. The default is "None", in which case a comma is 
+        Value to use for the delimiter. The default is``None`` in which case a comma is 
         assumed.
     units_dict: dict, optional
-        Dictionary consisting of ``{Variable Name: unit}`` to rescale the dataq
+        Dictionary consisting of ``{Variable Name: unit}`` to rescale the data
         if it is not in the desired unit system.
     append_dict: dict, optional
         Dictionary consisting of ``{New Variable Name: value}`` to add variables 
-        with constant values for all data points. This dictionary is used to add 
-        multiple sweeps to one result file,
+        with constant values to all data points. This dictionary is used to add 
+        multiple sweeps to one result file.
     valid_solutions : bool, optional
         The default is ``True``.
     invalid_solutions : bool, optional
@@ -431,13 +443,13 @@ def decompose_variable_value(variable_value):
 class VariableManager(object):
     """VariableManager class.
 
-    This class manages the design properties and projecct variables. Design properties
+    This class provides for managing design properties and project variables. Design properties
     are the local variables in a design. Project variables are defined at the project 
     level and start with ``$``. 
     
-    This class provides access to all or a subset of the variables. Manipulation
+    This class provides access to all variables or a subset of the variables. Manipulation
     of the numerical or string definitions of variable values is provided in the
-    'Variable' class.
+    :class:`pyaedt.application.Variables.Variable` class.
 
     Parameters
     ----------
@@ -461,9 +473,9 @@ class VariableManager(object):
     project_variable_names : str or list
         One or more project variable names.
     design_variable_names : str or list
-        One or more design variable
+        One or more design variable names.
     dependent_variable_names : str or list
-        All dependent variable names within the project;
+        All dependent variable names within the project.
     independent_variable_names : list of str
         All independent variable names within the project. These can be sweep variables for optimetrics.
     independent_project_variable_names : str or list
@@ -494,7 +506,6 @@ class VariableManager(object):
     Get a dictionary of all project and design variables.
     
     >>> v.variables
-
     {'Var1': <pyaedt.application.Variables.Variable at 0x2661f34c448>,
      'Var2': <pyaedt.application.Variables.Variable at 0x2661f34c308>,
      'Var3': <pyaedt.application.Variables.Expression at 0x2661f34cb48>,
@@ -515,9 +526,10 @@ class VariableManager(object):
 
     See Also
     --------
-    Variable class.
+    :class:`pyaedt.application.Variables.Variable` class.
     
     """
+
     @property
     def variables(self):
         """Variables.
@@ -525,7 +537,7 @@ class VariableManager(object):
         Returns
         -------
         dict
-            Dictionary of ``Variable`` objects for each project variable and each
+            Dictionary of the `Variable` objects for each project variable and each
             design property in the active design.
             
         """
@@ -538,7 +550,7 @@ class VariableManager(object):
         Returns
         -------
         dict
-            Dictionary of design properties (local properties) in the design.
+            Dictionary of the design properties (local properties) in the design.
         """
         return self._variable_dict([self.odesign])
 
@@ -549,7 +561,7 @@ class VariableManager(object):
         Returns
         -------
         dict
-            Dictionary of project properties.
+            Dictionary of the project properties.
         """
         return self._variable_dict([self.oproject])
 
@@ -560,7 +572,7 @@ class VariableManager(object):
         Returns
         -------
         dict
-            Dictionary of independent variables (constant numeric values) available to the design.
+            Dictionary of the independent variables (constant numeric values) available to the design.
         """
         return self._variable_dict([self.odesign, self.oproject], dependent=False)
 
@@ -571,7 +583,7 @@ class VariableManager(object):
         Returns
         -------
         dict
-            Dictionary of independent project variables available to the design.
+            Dictionary of the independent project variables available to the design.
         """
         return self._variable_dict([self.oproject], dependent=False)
 
@@ -582,7 +594,7 @@ class VariableManager(object):
         Returns
         -------
         dict
-            Dictionary of independent design properties (local variables) available to the design.
+            Dictionary of the independent design properties (local variables) available to the design.
         """
         return self._variable_dict([self.odesign], dependent=False)
 
@@ -593,7 +605,7 @@ class VariableManager(object):
         Returns
         -------
         dict
-            Dictionary of dependent design properties (local variables) and project variables available to the design.
+            Dictionary of the dependent design properties (local variables) and project variables available to the design.
         
         """
         return self._variable_dict([self.odesign, self.oproject], independent=False)
@@ -637,8 +649,8 @@ class VariableManager(object):
         return self._parent._odesign
 
     @property
-    def messenger(self):
-        """Messenger."""
+    def _messenger(self):
+        """_messenger."""
         return self._parent._messenger
 
     def __init__(self, parent):
@@ -731,11 +743,11 @@ class VariableManager(object):
             Whether to hide the design property or project variable. The 
            default is ``False``.
         description : str, optional 
-           Text to display for the variable in the ``Properties`` window. The 
-           default is ``None``.
+           Text to display for the design property or project variable in the 
+	     ``Properties`` window. The default is ``None``.
         overwrite : bool, optional
             Whether to overwrite an existing value for the design property or
-            project variable. The defaultis ``False``, in which case this method is 
+            project variable. The default is ``False``, in which case this method is 
             ignored. 
 
         Returns
@@ -794,7 +806,7 @@ class VariableManager(object):
             try:
                 if self.delete_separator(variable_name):
                     desktop_object.Undo()
-                    self.messenger.clear_messages()
+                    self._messenger.clear_messages()
                     return
             except:
                 pass
@@ -864,10 +876,12 @@ class VariableManager(object):
         
         Parameters
         ----------
-        separator_name: Value to use for the delimiter. 
+        separator_name : str
+	      Value to use for the delimiter. 
         
         Returns
         -------
+	  bool
             ``True`` when the separator exists and can be deleted, ``False`` otherwise.
             
         """
@@ -944,9 +958,11 @@ class VariableManager(object):
 
 
 class Variable(object):
-    """Variable class.
-    This class stores variables and allows operations on variables. It 
-    handles the contents of design properties and project variables.
+    """Stores variables and provides for performing operations on variables.
+    
+    This class stores variables and provides for performing operations 
+    on variables. It handles the contents of design properties and project 
+    variables.
 
     Parameters
     ----------
@@ -1028,7 +1044,7 @@ class Variable(object):
     def string_value(self):
         """String value.
         
-        The numeric value with the unit is concatenated and returned as string. The numeric display 
+        The numeric value with the unit is concatenated and returned as a string. The numeric display 
         in the modeler and the string value can differ. For example, you might see ``10mm`` in the 
         modeler and see ``10.0mm`` returned as the string value.
         
@@ -1037,7 +1053,12 @@ class Variable(object):
 
     @aedt_exception_handler
     def rescale_to(self, units):
-        """Change the unit system of the expression to a new unit within the same unit system.
+        """Rescale the expression to a new unit within the current unit system.
+	
+	  Parameters
+	  ----------
+	  units : str
+	      Units to rescale to.
 
         Examples
         --------
@@ -1060,7 +1081,7 @@ class Variable(object):
 
     @aedt_exception_handler
     def format(self, format):
-        """Return the string value with specified numerical formatting.
+        """Retrieve the string value with the specified numerical formatting.
 
         Parameters
         ----------
@@ -1305,7 +1326,15 @@ class Variable(object):
         return self.__rtruediv__(other)
 
 class Expression(Variable, object):
-    """Expression class for manipulating variable expressions."""
+    """Provides a framework for manipulating variable expressions.
+    
+    Parameters
+    ----------
+    expression :
+    
+    float_value :
+    
+    """
 
     def __init__(self, expression, float_value):
         self._expression = expression
@@ -1324,7 +1353,9 @@ class Expression(Variable, object):
 
 
 class DataSet(object):
-    """DastaSet class for managing data sets.
+    """DataSet class.
+    
+    This class provides for managing data sets.
     
     Parameters
     ----------
@@ -1332,9 +1363,9 @@ class DataSet(object):
     name :
     x : float
     y : float
-    z : float
+    z : float, optional
         The default is ``None``.
-    v : float
+    v : float, optional
        The default is ``None``.
     xunit : str, optional
        The default is ``""``.
@@ -1413,9 +1444,9 @@ class DataSet(object):
         ----------
         x : float
         y : float
-        z : float
+        z : float, optional
             The default is ``None``.
-        v : float
+        v : float, optional
             The default is ``None``.
 
         Returns
@@ -1517,7 +1548,7 @@ class DataSet(object):
 
     @aedt_exception_handler
     def export(self, dataset_path=None):
-        """Export a dataset.
+        """Export the dataset.
 
         Parameters
         ----------

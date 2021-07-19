@@ -113,9 +113,9 @@ class Maxwell(object):
         Version of AEDT to use. The default is ``None``, in which case
         the active version or latest installed version is used.
     non_graphical : bool, optional
-        Whether to run AEDT in the non-graphical mode. The default
+        Whether to launch AEDT in the non-graphical mode. The default
         is ``False``, in which case AEDT launches in the graphical mode.
-    launch_new_desktop : bool, optional
+    AlwaysNew : bool, optional
         Whether to launch an instance of AEDT in a new thread, even if
         another instance of the ``specified_version`` is active on the
         machine. The default is ``True``.
@@ -743,9 +743,9 @@ class Maxwell3d(Maxwell, FieldAnalysis3D, object):
         Version of AEDT to use. The default is ``None``, in which case
         the active version or latest installed version is used.
     non_graphical : bool, optional
-        Whether to run AEDT in the non-graphical mode. The default
+        Whether to launch AEDT in the non-graphical mode. The default
         is ``False``, in which case AEDT is launched in the graphical mode.
-    launch_new_desktop : bool, optional
+    AlwaysNew : bool, optional
         Whether to launch an instance of AEDT in a new thread, even if
         another instance of the ``specified_version`` is active on the
         machine. The default is ``True``.
@@ -775,12 +775,12 @@ class Maxwell3d(Maxwell, FieldAnalysis3D, object):
         return '3D'
 
     def __init__(self, projectname=None, designname=None, solution_type=None, setup_name=None,
-                 specified_version=None, non_graphical=False, launch_new_desktop=True, release_on_exit=False,student_version=False):
+                 specified_version=None, NG=False, AlwaysNew=False, release_on_exit=False,student_version=False):
         """
         Initialize the ``Maxwell`` class.
         """
         FieldAnalysis3D.__init__(self, "Maxwell 3D", projectname, designname, solution_type, setup_name,
-                                 specified_version, non_graphical, launch_new_desktop, release_on_exit, student_version)
+                                 specified_version, NG, AlwaysNew, release_on_exit, student_version)
         Maxwell.__init__(self)
 
 
@@ -812,9 +812,9 @@ class Maxwell2d(Maxwell, FieldAnalysis2D, object):
         Version of AEDT to use. The default is ``None``, in which case
         the active version or latest installed version is used.
     non_graphical : bool, optional
-        Whether to run AEDT in the non-graphical mode. The default
+        Whether to launch AEDT in the non-graphical mode. The default
         is ``False``, in which case AEDT is launched in the graphical mode.
-    launch_new_desktop : bool, optional
+    AlwaysNew : bool, optional
         Whether to launch an instance of AEDT in a new thread, even if
         another instance of the ``specified_version`` is active on the
         machine. The default is ``True``.
@@ -856,9 +856,9 @@ class Maxwell2d(Maxwell, FieldAnalysis2D, object):
         return self.odesign.GetGeometryMode()
 
     def __init__(self, projectname=None, designname=None, solution_type=None, setup_name=None,
-                 specified_version=None, non_graphical=False, launch_new_desktop=True, release_on_exit=False, student_version=False):
+                 specified_version=None, NG=False, AlwaysNew=False, release_on_exit=False, student_version=False):
         FieldAnalysis2D.__init__(self, "Maxwell 2D", projectname, designname, solution_type, setup_name,
-                                 specified_version, non_graphical, launch_new_desktop, release_on_exit, student_version)
+                                 specified_version, NG, AlwaysNew, release_on_exit, student_version)
         Maxwell.__init__(self)
 
     def get_model_depth(self):

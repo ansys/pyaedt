@@ -810,7 +810,7 @@ class Primitives(object):
         return default_materials[self._parent._design_type]
 
     @property
-    def messenger(self):
+    def _messenger(self):
         """ """
         return self._parent._messenger
 
@@ -866,6 +866,19 @@ class Primitives(object):
             "Non-Existent Objects": non_existent
         }
         return report
+
+    @aedt_exception_handler
+    def _change_geometry_property(self, vPropChange, names_list):
+        names = self._parent.modeler.convert_to_selections(names_list, True)
+        vChangedProps = ["NAME:ChangedProps", vPropChange]
+        vPropServers = ["NAME:PropServers"]
+        for el in names:
+            vPropServers.append(el)
+        vGeo3d = ["NAME:Geometry3DAttributeTab", vPropServers, vChangedProps]
+        vOut = ["NAME:AllTabs", vGeo3d]
+        self.oeditor.ChangeProperty(vOut)
+        return True
+
 
     @aedt_exception_handler
     def update_object(self, obj):
@@ -1257,7 +1270,7 @@ class Primitives(object):
             objects = self.object_names
         elif not isinstance(objects, list):
             objects = [objects]
-        self.messenger.logger.debug("Deleting objects: {}".format(objects))
+        self._messenger.logger.debug("Deleting objects: {}".format(objects))
 
         slice = min(100, len(objects))
         num_objects = len(objects)
@@ -1279,7 +1292,7 @@ class Primitives(object):
 
         if len(objects) > 0:
             self.cleanup_objects()
-            self.messenger.add_info_message("Deleted {} Objects".format(num_objects))
+            self._messenger.add_info_message("Deleted {} Objects".format(num_objects))
 
         return True
 
@@ -1311,16 +1324,20 @@ class Primitives(object):
                 if contained_string.lower() in el.lower():
                     self.delete(el)
                     num_del += 1
-        self.messenger.add_info_message("Deleted {} objects".format(num_del))
+        self._messenger.add_info_message("Deleted {} objects".format(num_del))
         return True
 
     @aedt_exception_handler
     def get_model_bounding_box(self):
-        """Retrieve the model's bounding box."""
-        bound = []
-        if self.oeditor is not None:
-            bound = self.oeditor.GetModelBoundingBox()
-        return bound
+        """GetModelBoundingbox and return it
+
+
+        Returns
+        -------
+        list
+            list of 6 float values [min_x, min_y, min_z, max_x, max_y, max_z]
+        """
+        return self._parent.modeler.get_model_bounding_box()
 
     @aedt_exception_handler
     def get_obj_id(self, objname):
@@ -1869,7 +1886,7 @@ class Primitives(object):
         try:
             c = self.oeditor.GetFaceCenter(face_id)
         except:
-            self.messenger.add_warning_message("Non Planar Faces doesn't provide any Face Center")
+            self._messenger.add_warning_message("Non Planar Faces doesn't provide any Face Center")
             return False
         center = [float(i) for i in c]
         return center
@@ -2505,7 +2522,7 @@ class Primitives(object):
                     return matname, True
 
             else:
-                self.messenger.add_warning_message(
+                self._messenger.add_warning_message(
                     "Material {} doesn not exists. Assigning default material".format(matname))
         if self._parent._design_type == "HFSS":
             return defaultmatname, self._parent.materials.material_keys[defaultmatname].is_dielectric()
@@ -2546,7 +2563,7 @@ class Primitives(object):
         test = retry_ntimes(10, self.oeditor.GetObjectsInGroup, "Unclassified")
         if test is None or test is False:
             self._unclassified = []
-            self.messenger.logger.debug("Unclassified is failing")
+            self._messenger.logger.debug("Unclassified is failing")
         elif test is True:
             self._unclassified = []     # In IronPython True is returned when no unclassified are present
         else:
@@ -2768,5 +2785,4 @@ class Primitives(object):
         elif partId in self.object_id_dict:
             return self.objects[self.object_id_dict[partId]]
         return None
-
 

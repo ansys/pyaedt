@@ -2,51 +2,11 @@ Application Modules
 ===================
 This section contains the following PyAEDT application modules:
 
-#. Modeler
-#. Objects
 #. Edb
-#. Design
 #. Variable
 #. DesignXPloration
 
 
-
-Modeler
-~~~~~~~
-
-This module contains all properties and methods needed to edit a
-modeler, including all primitives methods and properties.
-
-.. currentmodule:: pyaedt.modeler
-
-.. autosummary::
-   :toctree: _autosummary
-   :template: custom-class-template.rst
-   :nosignatures:
-
-   Modeler.Modeler
-   Modeler.GeometryModeler
-   Modeler.CoordinateSystem
-   GeometryOperators
-   Model2D.Modeler2D
-   Model3D.Modeler3D
-   Model3DLayout.Modeler3DLayout
-
-
-Objects
-~~~~~~~
-
-.. currentmodule:: pyaedt.modeler.Object3d
-
-.. autosummary::
-   :toctree: _autosummary
-   :template: custom-class-template.rst
-   :nosignatures:
-
-   Object3d
-   FacePrimitive
-   EdgePrimitive
-   VertexPrimitive
 
 
 EDB

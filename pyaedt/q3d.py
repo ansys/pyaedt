@@ -73,13 +73,13 @@ class QExtractor(FieldAnalysis3D, FieldAnalysis2D, object):
         return design_file
 
     def __init__(self, Q3DType, projectname=None, designname=None, solution_type=None, setup_name=None,
-                 specified_version=None, non_graphical=False, launch_new_desktop=True, release_on_exit=False, student_version=False):
+                 specified_version=None, NG=False, AlwaysNew=False, release_on_exit=False, student_version=False):
         if Q3DType == "Q3D Extractor":
             FieldAnalysis3D.__init__(self, "Q3D Extractor", projectname, designname, solution_type, setup_name,
-                                     specified_version, non_graphical, launch_new_desktop, release_on_exit, student_version)
+                                     specified_version, NG, AlwaysNew, release_on_exit, student_version)
         else:
             FieldAnalysis2D.__init__(self, "2D Extractor", projectname, designname, solution_type, setup_name,
-                                     specified_version, non_graphical, launch_new_desktop, release_on_exit, student_version)
+                                     specified_version, NG, AlwaysNew, release_on_exit, student_version)
 
     def __enter__(self):
         return self
@@ -118,9 +118,9 @@ class Q3d(QExtractor, object):
         Version of AEDT to use. The default is ``None``, in which case
         the active version or latest installed version is used.
     non_graphical : bool, optional
-        Whether to run AEDT in the non-graphical mode. The default
+        Whether to launch AEDT in the non-graphical mode. The default
         is ``False``, which launches AEDT in the graphical mode.
-    launch_new_desktop : bool, optional
+    AlwaysNew : bool, optional
         Whether to launch an instance of AEDT in a new thread, even if
         another instance of the ``specified_version`` is active on the
         machine. The default is ``True``.
@@ -140,9 +140,9 @@ class Q3d(QExtractor, object):
     >>> app = Q3d()
     """
     def __init__(self, projectname=None, designname=None, solution_type=None, setup_name=None,
-                 specified_version=None, non_graphical=False, launch_new_desktop=True, release_on_exit=False, student_version=True):
+                 specified_version=None, NG=False, AlwaysNew=False, release_on_exit=False, student_version=True):
         QExtractor.__init__(self, "Q3D Extractor", projectname, designname, solution_type, setup_name,
-                            specified_version, non_graphical, launch_new_desktop, release_on_exit, student_version)
+                            specified_version, NG, AlwaysNew, release_on_exit, student_version)
 
     @aedt_exception_handler
     def auto_identify_nets(self):
@@ -452,9 +452,9 @@ class Q2d(QExtractor, object):
         Version of AEDT to use. The default is ``None``, in which case
         the active version or latest installed version is used.
     non_graphical : bool, optional
-        Whether to run AEDT in the non-graphical mode. The default
+        Whether to launch AEDT in the non-graphical mode. The default
         is ``False``, which launches AEDT in the graphical mode.
-    launch_new_desktop : bool, optional
+    AlwaysNew : bool, optional
         Whether to launch an instance of AEDT in a new thread, even if
         another instance of the ``specified_version`` is active on the
         machine. The default is ``True``.
@@ -488,6 +488,6 @@ class Q2d(QExtractor, object):
 
 
     def __init__(self, projectname=None, designname=None, solution_type=None, setup_name=None,
-                 specified_version=None, non_graphical=False, launch_new_desktop=True, release_on_exit=False, student_version=False):
+                 specified_version=None, NG=False, AlwaysNew=False, release_on_exit=False, student_version=False):
         QExtractor.__init__(self, "2D Extractor", projectname, designname, solution_type, setup_name,
-                            specified_version, non_graphical, launch_new_desktop, release_on_exit, student_version)
+                            specified_version, NG, AlwaysNew, release_on_exit, student_version)

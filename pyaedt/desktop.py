@@ -214,7 +214,7 @@ def release_desktop(close_projects=True, close_desktop=True):
 
 
 def force_close_desktop():
-    """Close all AEDT projects and shut down AEDT.
+    """Close all AEDT projects and forcibly shut down AEDT.
 
     Returns
     -------
@@ -259,7 +259,7 @@ def force_close_desktop():
 
 
 class Desktop:
-    """Initialize AEDT based on the inputs provided.
+    """Initializes AEDT based on the inputs provided.
     
     .. note::
        On Windows, this class works without limitations in IronPython and CPython.
@@ -280,7 +280,7 @@ class Desktop:
     release_on_exit : bool, optional
         Whether to release AEDT on exit. The default is ``True``.
     student_version : bool, optional
-        Whether to enable the student version of AEDT. The default is
+        Whether to open the AEDT student version. The default is
         ``False``.
 
     Examples
@@ -626,7 +626,7 @@ class Desktop:
         force_close_desktop()
 
     def enable_autosave(self):
-        """Enable auto save option.
+        """Enable the auto save option.
 
         Examples
         --------
@@ -640,7 +640,7 @@ class Desktop:
         self._main.oDesktop.EnableAutoSave(True)
 
     def disable_autosave(self):
-        """Disable auto save option.
+        """Disable the auto save option.
 
         Examples
         --------
@@ -660,7 +660,7 @@ def get_version_env_variable(version_id):
     Parameters
     ----------
     version_id : str
-        Full AEDT version number, such as "2021.1".
+        Full AEDT version number, such as ``"2021.1"``.
 
     Returns
     -------

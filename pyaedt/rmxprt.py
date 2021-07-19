@@ -13,7 +13,7 @@ class RMXprtModule(object):
 
     @aedt_exception_handler
     def get_prop_server(self, parameter_name):
-        """
+        """Retrieve the properties of a paraemter.
 
         Parameters
         ----------
@@ -44,18 +44,19 @@ class RMXprtModule(object):
 
     @aedt_exception_handler
     def set_rmxprt_parameter(self, parameter_name, value):
-        """
+        """Modify a parameter value.
 
         Parameters
         ----------
         parameter_name : str
             Name of the parameter.  
         value :
-            Value to assign to the parameter.
-            
+            Value to assign to the parameter.   
 
         Returns
         -------
+        bool
+            ``True`` when successful, ``False`` when failed
 
         """
         prop_server = self.get_prop_server(parameter_name)
@@ -82,7 +83,7 @@ class RMXprtModule(object):
 
 
 class Stator(RMXprtModule):
-    """ """
+    """Stator class."""
     component = "Stator"
     prop_servers = {"":        ["Outer Diameter", "Inner Diameter", "Length", "Stacking Factor"
                                 "Steel Type", "Number of Slots", "Slot Type", "Lamination Sectors",
@@ -92,7 +93,7 @@ class Stator(RMXprtModule):
 
 
 class Rotor(RMXprtModule):
-    """ """
+    """Rotor class."""
     component = "Rotor"
     prop_servers = {"":        ["Outer Diameter"],
                     "Slot":    [],
@@ -102,13 +103,11 @@ class Rotor(RMXprtModule):
 class Rmxprt(FieldAnalysisRMxprt):
     """RMxprt application interface.
 
-    This class exposes functionality from RMxprt.
-
     Parameters
     ----------
     projectname : str, optional
         Name of the project to select or the full path to the project
-        or AEDTZ archive to open.  The default is ``None``, in which
+        or AEDTZ archive to open. The default is ``None``, in which
         case an attempt is made to get an active project. If no 
         projects are present, an empty project is created.
     designname : str, optional
@@ -117,7 +116,7 @@ class Rmxprt(FieldAnalysisRMxprt):
         designs are present, an empty design is created.
     solution_type : str, optional
         Solution type to apply to the design. The default is
-        ``None``, which applies the default type.
+        ``None``, in which ase the default type is applied.
     model_units : str, optional
         Model units.
     setup_name : str, optional
@@ -125,7 +124,7 @@ class Rmxprt(FieldAnalysisRMxprt):
         ``None``, in which case the active setup is used or 
         nothing is used.
     specified_version : str, optional
-        Version of AEDT to use. The default is ``None``. If ``None``,
+        Version of AEDT to use. The default is ``None``, in which case
         the active setup is used or the latest installed version is
         used.
     non_graphical : bool, optional
@@ -138,28 +137,28 @@ class Rmxprt(FieldAnalysisRMxprt):
     release_on_exit : bool, optional
         Whether to release AEDT on exit. The default is ``True``.
     student_version : bool, optional
-        Whether open AEDT Student Version. The default is ``False``.
+        Whether to open the AEDT student version. The default is ``False``.
 
     Examples
     --------
-    Create an instance of `Rmxprt` and connect to an existing RMxprt
+    Create an instance of Rmxprt and connect to an existing RMxprt
     design or create a new RMxprt design if one does not exist.
 
     >>> from pyaedt import Rmxprt
     >>> app = Rmxprt()
 
-    Create an instance of `Rmxprt` and link to a project named
+    Create an instance of Rmxprt and link to a project named
     ``"projectname"``. If this project does not exist, create one with
     this name.
 
     >>> app = Rmxprt(projectname)
 
-    Create an instance of `RMxprt` and link to a design named
+    Create an instance of RMxprt and link to a design named
     ``"designname"`` in a project named ``"projectname"``.
 
     >>> app = Rmxprt(projectname,designame)
 
-    Create an instance of `RMxprt` and open the specified project,
+    Create an instance of RMxprt and open the specified project,
     which is ``myfile.aedt``.
 
     >>> app = Rmxprt("myfile.aedt")
@@ -183,7 +182,7 @@ class Rmxprt(FieldAnalysisRMxprt):
         self.rotor = Rotor(self.modeler.oeditor)
 
     def __exit__(self, ex_type, ex_value, ex_traceback):
-        """ Push exit up to parent object Design """
+        """Push exit up to parent object Design."""
         Design.__exit__(self, ex_type, ex_value, ex_traceback)
 
     def __enter__(self):

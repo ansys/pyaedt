@@ -7,8 +7,8 @@ The PyAEDT API includes these classes for application classes and modules.
 .. autosummary::
    :toctree: _autosummary
    :template: custom-class-template.rst
-   :recursive:
 
+   Desktop
    Hfss
    Q3d
    Q2d
@@ -20,6 +20,8 @@ The PyAEDT API includes these classes for application classes and modules.
    Hfss3dLayout
    Mechanical
    Rmxprt
+   Circuit
+   Simplorer
    Emit
 
 

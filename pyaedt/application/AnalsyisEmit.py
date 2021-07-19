@@ -62,7 +62,7 @@ class FieldAnalysisEmit(Design):
         
         Returns
         -------
-        type
+        :class:`pyaedt.modeler.Circuit.ModelerEmit`
             Design oModeler
         """
         return self._modeler
@@ -73,7 +73,7 @@ class FieldAnalysisEmit(Design):
         
         Returns
         -------
-        type: 
+        int
            Design module ``"SimSetup"``
         """
         return None

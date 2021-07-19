@@ -21,7 +21,7 @@ class TestMessage:
 
         with Scratch(scratch_path) as self.local_scratch:
 
-            # Test the global messenger before opening the desktop
+            # Test the global _messenger before opening the desktop
             msg = AEDTMessageManager()
             msg.clear_messages()
             msg.add_info_message("Test desktop level - Info")
@@ -52,7 +52,7 @@ class TestMessage:
 
     @pytest.mark.skipif(config["build_machine"]==True, reason="Issue on Build machine")
     def test_01_get_messages(self, caplog):
-        msg = self.aedtapp.messenger
+        msg = self.aedtapp._messenger
         msg.clear_messages(level=3)
         msg.add_info_message("Test Info design level")
         msg.add_info_message("Test Info project level", "Project")
@@ -64,7 +64,7 @@ class TestMessage:
 
     @pytest.mark.skipif(config["build_machine"]==True, reason="Issue on Build machine")
     def test_02_messaging(self, caplog):
-        msg = self.aedtapp.messenger
+        msg = self.aedtapp._messenger
         msg.clear_messages(level=3)
         msg.add_info_message("Test Info")
         msg.add_info_message("Test Info", "Project")

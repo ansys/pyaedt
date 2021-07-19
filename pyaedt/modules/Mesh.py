@@ -154,8 +154,8 @@ class Mesh(object):
         return self.odesign.GetModule(meshers[design_type])
 
     @property
-    def messenger(self):
-        """Messenger."""
+    def _messenger(self):
+        """_messenger."""
         return self._parent._messenger
 
     @property
@@ -206,7 +206,7 @@ class Mesh(object):
 
         Returns
         -------
-        :class:`MeshOperation`
+        :class:`pyaedt.modules.Mesh.MeshOperation`
             Mesh operation object.
             
         """
@@ -217,7 +217,7 @@ class Mesh(object):
                     meshop_name = generate_unique_name(meshop_name)
         else:
             meshop_name = generate_unique_name("SurfApprox")
-        self.messenger.add_info_message("Assigning Mesh Level " + str(level) + " to " + str(names))
+        self._messenger.add_info_message("Assigning Mesh Level " + str(level) + " to " + str(names))
         names = self._parent._modeler._convert_list_to_ids(names)
 
         if type(names[0]) is int:
@@ -250,7 +250,7 @@ class Mesh(object):
 
         Returns
         -------
-        :class:`MeshOperation`
+        :class:`pyaedt.modules.Mesh.MeshOperation`
             Mesh operation object.
             
         """
@@ -305,7 +305,7 @@ class Mesh(object):
 
         Returns
         -------
-        :class:`MeshOperation`
+        :class:`pyaedt.modules.Mesh.MeshOperation`
             Mesh operation object.
         
         """
@@ -318,7 +318,7 @@ class Mesh(object):
             meshop_name = generate_unique_name("ModelResolution")
         for name in names:
             if type(name) is int:
-                self.messenger.add_error_message("Mesh Operation Applies to Objects only")
+                self._messenger.add_error_message("Mesh Operation Applies to Objects only")
                 return False
         if defeature_length is None:
             props = OrderedDict({"Objects": names, "UseAutoLength": True})
@@ -408,7 +408,7 @@ class Mesh(object):
 
         Returns
         -------
-        :class:`MeshOperation`
+        :class:`pyaedt.modules.Mesh.MeshOperation`
             Mesh operation object.
         
         """
@@ -496,7 +496,7 @@ class Mesh(object):
 
         Returns
         -------
-        :class:`MeshOperation`
+        :class:`pyaedt.modules.Mesh.MeshOperation`
             Mesh operation object.
 
         """
@@ -521,7 +521,7 @@ class Mesh(object):
             restrictel = True
             numel = str(maxel)
         if maxlength is None and maxel is None:
-            self.messenger.add_error_message("mesh not assigned due to incorrect settings")
+            self._messenger.add_error_message("mesh not assigned due to incorrect settings")
             return
         names = self._parent._modeler._convert_list_to_ids(names)
 
@@ -532,7 +532,7 @@ class Mesh(object):
         else:
             seltype = None
         if seltype is None:
-            self.messenger.add_error_message("Error in Assignment")
+            self._messenger.add_error_message("Error in Assignment")
             return
         props = OrderedDict({"Type": "LengthBased", "RefineInside": isinside, "Enabled": True, seltype: names,
                              "RestrictElem": restrictel, "NumMaxElem": numel, "RestrictLength": restrictlength,
@@ -568,7 +568,7 @@ class Mesh(object):
 
         Returns
         -------
-        :class:`MeshOperation`
+        :class:`pyaedt.modules.Mesh.MeshOperation`
             Mesh operation object.
             
         """
@@ -597,7 +597,7 @@ class Mesh(object):
         else:
             seltype = None
         if seltype is None:
-            self.messenger.add_error_message("Error in Assignment")
+            self._messenger.add_error_message("Error in Assignment")
             return
 
         props = OrderedDict({"Type": "SkinDepthBased", "Enabled": True, seltype: names,
@@ -625,7 +625,7 @@ class Mesh(object):
 
         Returns
         -------
-        :class:`MeshOperation`
+        :class:`pyaedt.modules.Mesh.MeshOperation`
             Mesh operation object.
             
         """
@@ -648,7 +648,7 @@ class Mesh(object):
         else:
             seltype = None
         if seltype is None:
-            self.messenger.add_error_message("Error in Assignment")
+            self._messenger.add_error_message("Error in Assignment")
             return
         props = OrderedDict({"Type": "Curvilinear", seltype: names, "Apply": enable})
         mop = MeshOperation(self, meshop_name, props, "Curvilinear")
@@ -673,7 +673,7 @@ class Mesh(object):
 
         Returns
         -------
-       :class:`MeshOperation`
+       :class:`pyaedt.modules.Mesh.MeshOperation`
             Mesh operation object.
         
         """
@@ -695,7 +695,7 @@ class Mesh(object):
         else:
             seltype = None
         if seltype is None:
-            self.messenger.add_error_message("Error in Assignment")
+            self._messenger.add_error_message("Error in Assignment")
             return
         props = OrderedDict(
             {"Type": "CurvatureExtraction", seltype: names, "DisableForFacetedSurfaces": disable_for_faceted_surf})
@@ -723,7 +723,7 @@ class Mesh(object):
 
         Returns
         -------
-        :class:`MeshOperation`
+        :class:`pyaedt.modules.Mesh.MeshOperation`
             Mesh operation object.
             
         """
@@ -762,7 +762,7 @@ class Mesh(object):
 
         Returns
         -------
-        :class:`MeshOperation`
+        :class:`pyaedt.modules.Mesh.MeshOperation`
             Mesh operation object.
             
         """
@@ -806,7 +806,7 @@ class Mesh(object):
 
         Returns
         -------
-        :class:`MeshOperation`
+        :class:`pyaedt.modules.Mesh.MeshOperation`
             Mesh operation object.
             
         """

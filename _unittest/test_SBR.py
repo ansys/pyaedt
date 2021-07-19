@@ -20,7 +20,6 @@ class TestHFSS:
 
     def teardown_class(self):
         assert self.aedtapp.close_project(self.aedtapp.project_name,saveproject=False)
-        #self.desktop.force_close_desktop()
         self.local_scratch.remove()
         gc.collect()
 

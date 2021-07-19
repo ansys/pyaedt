@@ -83,7 +83,7 @@ class IcepakMesh(object):
                    self.MaxSizeRatio, "NoOGrids:=", self.NoOGrids, "EnableMLM:=", self.EnableMLM, "EnforeMLMType:=",
                    self.EnforeMLMType, "MaxLevels:=", self.MaxLevels, "BufferLayers:=", self.BufferLayers,
                    "UniformMeshParametersType:=", self.UniformMeshParametersType, "StairStepMeshing:=",
-                   self.StairStepMeshing, "MinGapX:=",
+                   self.StairStepMeshing, "2DMLMType:=", self.DMLMType, "MinGapX:=",
                    self._dim_arg(self.MinGapX) , "MinGapY:=", self._dim_arg(self.MinGapY),
                    "MinGapZ:=", self._dim_arg(self.MinGapZ), "Objects:=", self.Objects]
             return arg

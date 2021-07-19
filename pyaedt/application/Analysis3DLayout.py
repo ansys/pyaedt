@@ -37,10 +37,10 @@ class FieldAnalysis3DLayout(Analysis):
     specified_version: str, optional
         Version of AEDT  to use. The default is ``None``, in which case
         the active version or latest installed version is used.
-    non_graphical : bool, optional
+    NG : bool, optional
         Whether to run AEDT in the non-graphical mode. The default 
         is ``False``, which launches AEDT in the graphical mode.  
-    launch_new_desktop : bool, optional
+    AlwaysNew : bool, optional
         Whether to launch an instance of AEDT in a new thread, even if
         another instance of the ``specified_version`` is active on the
         machine. The default is ``True``.
@@ -56,10 +56,10 @@ class FieldAnalysis3DLayout(Analysis):
 
         Analysis.__init__(self, application, projectname, designname, solution_type, setup_name,
                           specified_version, non_graphical, launch_new_desktop, release_on_exit, student_version)
-        self.messenger.add_info_message("Analysis Loaded")
+        self._messenger.add_info_message("Analysis Loaded")
         self._modeler = Modeler3DLayout(self)
         self._modeler.primitives.init_padstacks()
-        self.messenger.add_info_message("Modeler Loaded")
+        self._messenger.add_info_message("Modeler Loaded")
         self._mesh = Mesh(self)
         #self._post = PostProcessor(self)
 

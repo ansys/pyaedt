@@ -43,7 +43,6 @@ class TestIcepak:
                                               os.path.join(self.local_scratch.path, test_project_name + '.aedb'))
                 self.aedtapp = Icepak(self.test_project)
             except:
-                #self.desktop.force_close_desktop()
                 pass
 
     def teardown_class(self):
@@ -72,8 +71,8 @@ class TestIcepak:
         # self.aedtapp.mesh.global_mesh_region.update()
         # padding = [0,0,0,0,0,0]
         # self.aedtapp.modeler.edit_region_dimensions(padding)
-        self.aedtapp.create_assign_region2PCBComponent()
-        pcb_mesh_region = self.aedtapp.mesh.MeshRegion(self.aedtapp.mesh.omeshmodule,[1,1,1], "mm")
+        self.aedtapp.create_meshregion_component()
+        pcb_mesh_region = self.aedtapp.mesh.MeshRegion(self.aedtapp.mesh.omeshmodule, [1, 1, 1], "mm")
         pcb_mesh_region.name = "PCB_Region"
         pcb_mesh_region.UserSpecifiedSettings = True
         pcb_mesh_region.MaxElementSizeX = 2
@@ -84,6 +83,7 @@ class TestIcepak:
         pcb_mesh_region.MaxSizeRatio = 2
         pcb_mesh_region.NoOGrids = False
         pcb_mesh_region.EnableMLM = True
+        pcb_mesh_region.MaxLevels = 2
         pcb_mesh_region.MinGapX = 1
         pcb_mesh_region.MinGapY = 1
         pcb_mesh_region.MinGapZ = 1
@@ -118,7 +118,7 @@ class TestIcepak:
         my_setup.props["Convergence Criteria - Max Iterations"] = 10
         assert self.aedtapp.get_property_value("AnalysisSetup:DomSetup", "Iterations", "Setup")
         assert my_setup.update()
-        assert self.aedtapp.assign_2way_coupling(setup_name,2,True,20)
+        assert self.aedtapp.assign_2way_coupling(setup_name, 2, True, 20)
 
     def test_09_point_monitor(self):
         assert self.aedtapp.create_temp_point_monitor("P1", ["59mm", "40mm", "0mm"])
@@ -128,7 +128,7 @@ class TestIcepak:
 
     def test_10_DesignSettings(self):
         assert self.aedtapp.apply_icepak_settings()
-        self.aedtapp["amb"]="25deg"
+        self.aedtapp["amb"] = "25deg"
         assert self.aedtapp.apply_icepak_settings(ambienttemp="amb", perform_minimal_val=False)
 
     def test_11_mesh_level(self):
@@ -158,8 +158,8 @@ class TestIcepak:
     def test_15_insert_new_icepak(self):
         self.aedtapp.insert_design("Solve")
         self.aedtapp.solution_type = self.aedtapp.SolutionTypes.Icepak.SteadyTemperatureAndFlow
-        self.aedtapp.modeler.primitives.create_box([0,0,0], [10,10,10],"box", "copper")
-        self.aedtapp.modeler.primitives.create_box([9,9,9], [5,5,5],"box2", "copper")
+        self.aedtapp.modeler.primitives.create_box([0, 0, 0], [10, 10, 10], "box", "copper")
+        self.aedtapp.modeler.primitives.create_box([9, 9, 9], [5, 5, 5], "box2", "copper")
         self.aedtapp.create_source_block("box", "1W", False)
         setup=self.aedtapp.create_setup("SetupIPK")
         new_props = {"Convergence Criteria - Max Iterations": 3}
@@ -180,7 +180,7 @@ class TestIcepak:
     
     def test_17_get_output_variable(self):
         value = self.aedtapp.get_output_variable("OutputVariable1")
-        assert value ==  0.5235987755982988
+        assert value == 0.5235987755982988
 
     def test_18_export_summary(self):
         assert self.aedtapp.export_summary()
@@ -190,7 +190,7 @@ class TestIcepak:
         assert os.path.exists(self.aedtapp.eval_surface_quantity_from_field_summary(box, savedir=scratch_path))
 
     def test_20_eval_tempc(self):
-        assert os.path.exists(self.aedtapp.eval_volume_quantity_from_field_summary(["box"],"Temperature", savedir=scratch_path))
+        assert os.path.exists(self.aedtapp.eval_volume_quantity_from_field_summary(["box"], "Temperature", savedir=scratch_path))
 
     def test_21_ExportFLDFil(self):
         object_list = "box"
