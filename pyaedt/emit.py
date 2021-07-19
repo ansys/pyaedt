@@ -76,7 +76,7 @@ class Emit(FieldAnalysisEmit, object):
     """
 
     def __init__(self, projectname=None, designname=None, solution_type=None, setup_name=None,
-                 specified_version=None, non_graphical=False, launch_new_desktop=True, release_on_exit=True, student_version=False):
+                 specified_version=None, non_graphical=False, launch_new_desktop=False, release_on_exit=True, student_version=False):
         """Constructor."""
         FieldAnalysisEmit.__init__(self, "EMIT", projectname, designname, solution_type, setup_name,
                                         specified_version, non_graphical, launch_new_desktop, release_on_exit, student_version)

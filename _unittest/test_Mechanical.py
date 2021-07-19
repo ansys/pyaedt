@@ -6,14 +6,14 @@ import gc
 from pyaedt import Hfss, Mechanical, Icepak
 from pyaedt.generic.filesystem import Scratch
 import pytest
-from .conftest import config
+from .conftest import config, desktop_version
 test_project_name = "coax_Mech"
 
 
 class TestMechanical:
     def setup_class(self):
         with Scratch(scratch_path) as self.local_scratch:
-            self.aedtapp = Mechanical(solution_type="Thermal")
+            self.aedtapp = Mechanical(solution_type="Thermal", specified_version=desktop_version)
 
     def teardown_class(self):
         assert self.aedtapp.close_project(self.aedtapp.project_name)
@@ -42,7 +42,7 @@ class TestMechanical:
         assert bound.props["Temperature"] == "35deg"
 
     def test_05_assign_load(self):
-        hfss = Hfss()
+        hfss = Hfss(specified_version=desktop_version)
         udp = self.aedtapp.modeler.Position(0, 0, 0)
         coax_dimension = 30
         id1 = hfss.modeler.primitives.create_cylinder(self.aedtapp.CoordinateSystemPlane.XYPlane, udp, 3, coax_dimension, 0,
@@ -61,13 +61,13 @@ class TestMechanical:
 
     @pytest.mark.skipif(config["desktopVersion"] < "2021.2", reason="Skipped on versions lower than 2021.2")
     def test_07_assign_thermal_loss(self):
-        ipk = Icepak(solution_type=self.aedtapp.SolutionTypes.Icepak.SteadyTemperatureAndFlow)
+        ipk = Icepak(solution_type=self.aedtapp.SolutionTypes.Icepak.SteadyTemperatureAndFlow, specified_version=desktop_version)
         udp = self.aedtapp.modeler.Position(0, 0, 0)
         coax_dimension = 30
         id1 = ipk.modeler.primitives.create_cylinder(ipk.CoordinateSystemPlane.XYPlane, udp, 3, coax_dimension, 0,
                                                      "MyCylinder", "brass")
         setup = ipk.create_setup()
-        mech = Mechanical(solution_type=self.aedtapp.SolutionTypes.Mechanical.Structural)
+        mech = Mechanical(solution_type=self.aedtapp.SolutionTypes.Mechanical.Structural, specified_version=desktop_version)
         mech.modeler.primitives.create_cylinder(mech.CoordinateSystemPlane.XYPlane, udp, 3, coax_dimension, 0,
                                                "MyCylinder", "brass")
         assert mech.assign_thermal_map("MyCylinder", ipk.design_name)
@@ -75,7 +75,7 @@ class TestMechanical:
     def test_07_assign_mechanical_boundaries(self):
         udp = self.aedtapp.modeler.Position(0, 0, 0)
         coax_dimension = 30
-        mech = Mechanical(solution_type=self.aedtapp.SolutionTypes.Mechanical.Modal)
+        mech = Mechanical(solution_type=self.aedtapp.SolutionTypes.Mechanical.Modal, specified_version=desktop_version)
         mech.modeler.primitives.create_cylinder(mech.CoordinateSystemPlane.XYPlane, udp, 3, coax_dimension, 0,
                                                "MyCylinder", "brass")
         assert mech.assign_fixed_support(mech.modeler.primitives["MyCylinder"].faces[0].id)

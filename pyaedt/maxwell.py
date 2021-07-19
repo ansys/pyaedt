@@ -775,7 +775,7 @@ class Maxwell3d(Maxwell, FieldAnalysis3D, object):
         return '3D'
 
     def __init__(self, projectname=None, designname=None, solution_type=None, setup_name=None,
-                 specified_version=None, non_graphical=False, launch_new_desktop=True, release_on_exit=False,student_version=False):
+                 specified_version=None, non_graphical=False, launch_new_desktop=False, release_on_exit=False,student_version=False):
         """
         Initialize the ``Maxwell`` class.
         """
@@ -856,7 +856,7 @@ class Maxwell2d(Maxwell, FieldAnalysis2D, object):
         return self.odesign.GetGeometryMode()
 
     def __init__(self, projectname=None, designname=None, solution_type=None, setup_name=None,
-                 specified_version=None, non_graphical=False, launch_new_desktop=True, release_on_exit=False, student_version=False):
+                 specified_version=None, non_graphical=False, launch_new_desktop=False, release_on_exit=False, student_version=False):
         FieldAnalysis2D.__init__(self, "Maxwell 2D", projectname, designname, solution_type, setup_name,
                                  specified_version, non_graphical, launch_new_desktop, release_on_exit, student_version)
         Maxwell.__init__(self)

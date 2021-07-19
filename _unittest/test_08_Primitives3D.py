@@ -8,7 +8,7 @@ except:
     import _unittest_ironpython.conf_unittest as pytest
 
 # Setup paths for module imports
-from conftest import scratch_path, local_path, BasisTest, pyaedt_unittest_check_desktop_error, config
+from .conftest import scratch_path, local_path, BasisTest, pyaedt_unittest_check_desktop_error, config
 
 from pyaedt.generic.filesystem import Scratch
 from pyaedt.modeler.Primitives import Polyline, PolylineSegment

@@ -5,7 +5,7 @@ import math
 import os
 
 # Import required modules
-from .conftest import local_path, scratch_path, config
+from .conftest import local_path, scratch_path, config, desktop_version
 from pyaedt.hfss import Hfss
 from pyaedt.application.MessageManager import AEDTMessageManager
 from pyaedt.application.Variables import Variable
@@ -36,7 +36,7 @@ class TestMessage:
             #assert len(msg.messages.design_level) == 0
             msg.clear_messages(level=0)
 
-            self.aedtapp = Hfss()
+            self.aedtapp = Hfss(specified_version=desktop_version)
             msg.clear_messages(level=3)
     def teardown_class(self):
 

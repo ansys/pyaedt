@@ -16,8 +16,7 @@ class TestMaterial:
 
     def setup_class(self):
         with Scratch(scratch_path) as self.local_scratch:
-            self.aedtapp = Hfss(specified_version=desktop_version,
-                                launch_new_desktop=new_thread, non_graphical=non_graphical)
+            self.aedtapp = Hfss(specified_version=desktop_version)
 
     def teardown_class(self):
         assert self.aedtapp.close_project(self.aedtapp.project_name)
@@ -86,7 +85,7 @@ class TestMaterial:
         assert not self.aedtapp.materials.remove_material("copper4")
 
     def test_surface_material(self):
-        ipk = Icepak()
+        ipk = Icepak(specified_version=desktop_version)
         mat2 = ipk.materials.add_surface_material("Steel")
         mat2.emissivity.value = SurfMatProperties.get_defaultvalue(aedtname="surface_emissivity")
         mat2.surface_diffuse_absorptance.value = SurfMatProperties.get_defaultvalue(aedtname="surface_diffuse_absorptance")

@@ -1,7 +1,7 @@
 # standard imports
 import os
 # Setup paths for module imports
-from .conftest import local_path, scratch_path
+from .conftest import local_path, scratch_path, desktop_version
 
 # Import required modules
 from pyaedt import Hfss, Circuit
@@ -18,7 +18,7 @@ class TestDesign:
                 self.test_project = self.local_scratch.copyfile(example_project)
                 self.local_scratch.copyfolder(os.path.join(local_path, 'example_models', test_project_name + '.aedb'),
                                               os.path.join(self.local_scratch.path, test_project_name + '.aedb'))
-                self.aedtapp = Hfss(os.path.join(self.local_scratch.path, test_project_name + '.aedt'))
+                self.aedtapp = Hfss(os.path.join(self.local_scratch.path, test_project_name + '.aedt'), specified_version=desktop_version)
             except:
                 pass
 
@@ -53,7 +53,7 @@ class TestDesign:
         assert self.aedtapp.get_sweeps("My_HFSS_Setup")
 
     def test_02_create_circuit_setup(self):
-        circuit = Circuit()
+        circuit = Circuit(specified_version=desktop_version)
         setup1 = circuit.create_setup("circuit", self.aedtapp.SimulationSetupTypes.NexximLNA)
         assert setup1.name == "circuit"
         setup1.props["SweepDefinition"]['Data'] = 'LINC 0GHz 4GHz 501'

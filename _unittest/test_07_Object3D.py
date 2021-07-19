@@ -2,7 +2,7 @@
 import os
 import math
 
-from .conftest import local_path, scratch_path
+from .conftest import local_path, scratch_path, desktop_version
 
 # Import required modules
 from pyaedt import Hfss
@@ -16,7 +16,7 @@ class TestClass:
     def setup_class(self):
         with Scratch(scratch_path) as self.local_scratch:
             test_projectfile = os.path.join(self.local_scratch.path, 'test_object3d' + '.aedt')
-            self.aedtapp = Hfss(launch_new_desktop=False)
+            self.aedtapp = Hfss(specified_version=desktop_version)
             self.aedtapp.save_project(project_file=test_projectfile)
             self.prim = self.aedtapp.modeler.primitives
 

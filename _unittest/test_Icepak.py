@@ -2,7 +2,7 @@
 import os
 import time
 # Setup paths for module imports
-from .conftest import local_path, scratch_path, config
+from .conftest import local_path, scratch_path, config, desktop_version
 
 # Import required modules
 from pyaedt import Icepak
@@ -41,7 +41,7 @@ class TestIcepak:
                 self.test_src_project = self.local_scratch.copyfile(source_project)
                 self.local_scratch.copyfolder(os.path.join(local_path, 'example_models', test_project_name + '.aedb'),
                                               os.path.join(self.local_scratch.path, test_project_name + '.aedb'))
-                self.aedtapp = Icepak(self.test_project)
+                self.aedtapp = Icepak(self.test_project, specified_version=desktop_version)
             except:
                 pass
 
@@ -216,7 +216,7 @@ class TestIcepak:
     def test_25_copy_solid_bodies(self):
         project_name = "IcepakCopiedProject"
         design_name = "IcepakCopiedBodies"
-        new_design = Icepak(projectname=project_name, designname=design_name)
+        new_design = Icepak(projectname=project_name, designname=design_name, specified_version=desktop_version)
         assert new_design.copy_solid_bodies_from(self.aedtapp)
         assert sorted(new_design.modeler.solid_bodies) == ["Region", "box", "box2", "box3", "network_box", "network_box2"]
         new_design.delete_design(design_name)

@@ -2,7 +2,7 @@
 import os
 import pytest
 # Setup paths for module imports
-from .conftest import local_path, scratch_path
+from .conftest import local_path, scratch_path, desktop_version
 
 # Import required modules
 from pyaedt import Hfss
@@ -27,7 +27,7 @@ class TestDesign:
                 self.test_project = self.local_scratch.copyfile(example_project)
                 example_project2 = os.path.join(local_path, 'example_models', test_field_name + '.aedtz')
                 self.test_project2 = self.local_scratch.copyfile(example_project2)
-                self.aedtapp = Hfss(self.test_project)
+                self.aedtapp = Hfss(self.test_project, specified_version=desktop_version)
             except:
                 pass
 
@@ -147,7 +147,7 @@ class TestDesign:
         assert path
 
     def test_11_get_efields(self):
-        app2 = Hfss(self.test_project2)
+        app2 = Hfss(self.test_project2, specified_version=desktop_version)
         assert app2.post.get_efields_data(ff_setup="3D")
         app2.close_project(saveproject=False)
         pass

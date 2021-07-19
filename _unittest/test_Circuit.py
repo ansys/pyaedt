@@ -1,6 +1,6 @@
 import os
 # Setup paths for module imports
-from .conftest import local_path, scratch_path, config
+from .conftest import local_path, scratch_path, config, desktop_version
 import gc
 import pytest
 
@@ -32,7 +32,7 @@ class TestCircuit:
                 self.local_scratch.copyfile(touchstone_file2)
                 self.local_scratch.copyfolder(os.path.join(local_path, 'example_models', test_project_name + '.aedb'),
                                               os.path.join(self.local_scratch.path, test_project_name + '.aedb'))
-                self.aedtapp = Circuit(self.test_project)
+                self.aedtapp = Circuit(self.test_project, specified_version=desktop_version)
             except:
                 pass
 

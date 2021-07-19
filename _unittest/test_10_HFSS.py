@@ -1,7 +1,7 @@
 import os
 import pytest
 # Setup paths for module imports
-from .conftest import scratch_path
+from .conftest import scratch_path, desktop_version
 import gc
 # Import required modules
 from pyaedt import Hfss
@@ -13,7 +13,7 @@ test_project_name = "coax_HFSS"
 class TestHFSS:
     def setup_class(self):
         with Scratch(scratch_path) as self.local_scratch:
-            self.aedtapp = Hfss(launch_new_desktop=True)
+            self.aedtapp = Hfss(specified_version=desktop_version)
 
     def teardown_class(self):
         assert self.aedtapp.close_project(self.aedtapp.project_name)
@@ -362,7 +362,7 @@ class TestHFSS:
     def test_33_copy_solid_bodies(self):
         project_name = "HfssCopiedProject"
         design_name = "HfssCopiedBodies"
-        new_design = Hfss(projectname=project_name, designname=design_name)
+        new_design = Hfss(projectname=project_name, designname=design_name, specified_version=desktop_version)
         num_orig_bodies = len(self.aedtapp.modeler.primitives.solid_names)
         assert new_design.copy_solid_bodies_from(self.aedtapp, no_vacuum=False, no_pec=False)
         assert len(new_design.modeler.solid_bodies) == num_orig_bodies

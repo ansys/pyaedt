@@ -2,7 +2,7 @@ import os
 import pytest
 import time
 # Setup paths for module imports
-from .conftest import scratch_path
+from .conftest import scratch_path, desktop_version
 import gc
 
 # Import required modules
@@ -17,7 +17,7 @@ test_project_name = "Coax_HFSS"
 
 class Test3DLayout:
     def setup_class(self):
-        self.aedtapp = Hfss3dLayout()
+        self.aedtapp = Hfss3dLayout(specified_version=desktop_version)
 
     def teardown_class(self):
         assert self.aedtapp.close_project(self.aedtapp.project_name)

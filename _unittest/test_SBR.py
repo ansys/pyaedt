@@ -1,6 +1,6 @@
 import os
 # Setup paths for module imports
-from .conftest import scratch_path, local_path
+from .conftest import scratch_path, local_path, desktop_version
 import gc
 # Import required modules
 from pyaedt import Hfss
@@ -15,8 +15,8 @@ class TestHFSS:
         with Scratch(scratch_path) as self.local_scratch:
             example_project = os.path.join(local_path, 'example_models', test_project_name + '.aedt')
             self.test_project = self.local_scratch.copyfile(example_project)
-            self.aedtapp = Hfss(projectname=self.test_project, designname="Cassegrain_", solution_type="SBR+")
-            self.source = Hfss(projectname=test_project_name, designname="feeder")
+            self.aedtapp = Hfss(projectname=self.test_project, designname="Cassegrain_", solution_type="SBR+", specified_version=desktop_version)
+            self.source = Hfss(projectname=test_project_name, designname="feeder", specified_version=desktop_version)
 
     def teardown_class(self):
         assert self.aedtapp.close_project(self.aedtapp.project_name,saveproject=False)

@@ -1,6 +1,6 @@
 import os
 # Setup paths for module imports
-from .conftest import local_path, scratch_path
+from .conftest import local_path, scratch_path, desktop_version
 import gc
 import pytest
 import time
@@ -22,7 +22,7 @@ class Test3DLayoutEDB:
 
                 self.local_scratch.copyfolder(os.path.join(local_path, 'example_models', test_project_name + '.aedb'),
                                               os.path.join(self.local_scratch.path, test_project_name + '.aedb'))
-                self.aedtapp = Hfss3dLayout(self.test_project)
+                self.aedtapp = Hfss3dLayout(self.test_project, specified_version=desktop_version)
             except:
                 pass
 

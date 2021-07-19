@@ -1,6 +1,6 @@
 import os
 # Setup paths for module imports
-from .conftest import scratch_path
+from .conftest import scratch_path, desktop_version
 import gc
 # Import required modules
 from pyaedt import Q2d
@@ -13,7 +13,7 @@ class TestQ2D:
     def setup_class(self):
         # set a scratch directory and the environment / test data
         with Scratch(scratch_path) as self.local_scratch:
-            self.aedtapp = Q2d()
+            self.aedtapp = Q2d(specified_version=desktop_version)
 
     def teardown_class(self):
         assert self.aedtapp.close_project(self.aedtapp.project_name)

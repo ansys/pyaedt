@@ -1,6 +1,6 @@
 # standard imports
 import os
-from .conftest import local_path, scratch_path, config
+from .conftest import local_path, scratch_path, config, desktop_version
 
 from pyaedt import Circuit
 from pyaedt.generic.filesystem import Scratch
@@ -42,7 +42,7 @@ class TestCircuitDL:
                             found = True
                     outf.write(line+b"\n")
                 outf.close()
-                self.aedtapp = Circuit(self.test_project)
+                self.aedtapp = Circuit(self.test_project, specified_version=desktop_version)
             except:
                 pass
 

@@ -73,7 +73,7 @@ class QExtractor(FieldAnalysis3D, FieldAnalysis2D, object):
         return design_file
 
     def __init__(self, Q3DType, projectname=None, designname=None, solution_type=None, setup_name=None,
-                 specified_version=None, non_graphical=False, launch_new_desktop=True, release_on_exit=False, student_version=False):
+                 specified_version=None, non_graphical=False, launch_new_desktop=False, release_on_exit=False, student_version=False):
         if Q3DType == "Q3D Extractor":
             FieldAnalysis3D.__init__(self, "Q3D Extractor", projectname, designname, solution_type, setup_name,
                                      specified_version, non_graphical, launch_new_desktop, release_on_exit, student_version)
@@ -140,7 +140,7 @@ class Q3d(QExtractor, object):
     >>> app = Q3d()
     """
     def __init__(self, projectname=None, designname=None, solution_type=None, setup_name=None,
-                 specified_version=None, non_graphical=False, launch_new_desktop=True, release_on_exit=False, student_version=True):
+                 specified_version=None, non_graphical=False, launch_new_desktop=False, release_on_exit=False, student_version=True):
         QExtractor.__init__(self, "Q3D Extractor", projectname, designname, solution_type, setup_name,
                             specified_version, non_graphical, launch_new_desktop, release_on_exit, student_version)
 
@@ -488,6 +488,6 @@ class Q2d(QExtractor, object):
 
 
     def __init__(self, projectname=None, designname=None, solution_type=None, setup_name=None,
-                 specified_version=None, non_graphical=False, launch_new_desktop=True, release_on_exit=False, student_version=False):
+                 specified_version=None, non_graphical=False, launch_new_desktop=False, release_on_exit=False, student_version=False):
         QExtractor.__init__(self, "2D Extractor", projectname, designname, solution_type, setup_name,
                             specified_version, non_graphical, launch_new_desktop, release_on_exit, student_version)

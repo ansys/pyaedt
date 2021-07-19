@@ -1,5 +1,5 @@
 # Setup paths for module imports
-from .conftest import scratch_path
+from .conftest import scratch_path, desktop_version
 
 # Import required modules
 from pyaedt import Maxwell3d
@@ -12,7 +12,7 @@ class TestMaxwell3D:
     def setup_class(self):
         # set a scratch directory and the environment / test data
         with Scratch(scratch_path) as self.local_scratch:
-            self.aedtapp = Maxwell3d(solution_type="EddyCurrent")
+            self.aedtapp = Maxwell3d(solution_type="EddyCurrent", specified_version=desktop_version)
 
     def teardown_class(self):
         assert self.aedtapp.close_project(self.aedtapp.project_name)

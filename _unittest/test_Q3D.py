@@ -1,6 +1,6 @@
 import os
 # Setup paths for module imports
-from .conftest import scratch_path, local_path
+from .conftest import scratch_path, local_path, desktop_version
 import gc
 # Import required modules
 from pyaedt import Q3d, Q2d
@@ -13,7 +13,7 @@ class TestQ3D:
     def setup_class(self):
         # set a scratch directory and the environment / test data
         with Scratch(scratch_path) as self.local_scratch:
-            self.aedtapp = Q3d()
+            self.aedtapp = Q3d(specified_version=desktop_version)
             example_project = os.path.join(local_path, 'example_models', bondwire_project_name + '.aedt')
             self.test_project = self.local_scratch.copyfile(example_project)
 
@@ -92,7 +92,7 @@ class TestQ3D:
         pass
 
     def test_10_q2d(self):
-        q2d = Q2d()
+        q2d = Q2d(specified_version=desktop_version)
         assert q2d
         assert q2d.dim == '2D'
         pass

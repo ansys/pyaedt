@@ -4,7 +4,7 @@ import gc
 import math
 
 # Import required modules
-from .conftest import local_path, scratch_path
+from .conftest import local_path, scratch_path, desktop_version
 from pyaedt.hfss import Hfss
 from pyaedt.application.Variables import Variable
 from pyaedt.generic.filesystem import Scratch
@@ -14,7 +14,7 @@ class TestVariable:
     def setup_class(self):
 
         with Scratch(scratch_path) as self.local_scratch:
-            self.aedtapp = Hfss()
+            self.aedtapp = Hfss(specified_version=desktop_version)
             self._close_on_completion = True
 
     def teardown_class(self):

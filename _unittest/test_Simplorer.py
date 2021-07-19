@@ -1,5 +1,5 @@
 # Setup paths for module imports
-from .conftest import local_path, scratch_path
+from .conftest import local_path, scratch_path, desktop_version
 
 # Import required modules
 from pyaedt import Simplorer
@@ -18,7 +18,7 @@ class TestSimplorer:
             netlist_file1 = os.path.join(local_path, 'example_models', netlist1)
             self.local_scratch.copyfile(netlist_file1)
 
-            self.aedtapp = Simplorer(project_name, design_name)
+            self.aedtapp = Simplorer(project_name, design_name, specified_version=desktop_version)
 
     def teardown_class(self):
         assert self.aedtapp.close_project(self.aedtapp.project_name)
