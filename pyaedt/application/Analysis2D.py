@@ -1,3 +1,5 @@
+import warnings
+
 from .Analysis import Analysis
 from ..modeler.Model2D import Modeler2D
 from ..modules.Mesh import Mesh
@@ -72,6 +74,19 @@ class FieldAnalysis2D(Analysis):
     # @property
     # def post(self):
     #     return self._post
+
+    @aedt_exception_handler
+    def assignmaterial(self, obj, mat):
+        """Assign a material to one or more objects.
+
+        .. deprecated:: 0.3.1
+           Use :func:`FieldAnalysis2D.assign_material` instead.
+
+        """
+        # raise a DeprecationWarning.  User won't have to change anything
+        warnings.warn('assignmaterial is deprecated.  Please use assign_material instead.',
+                      DeprecationWarning)
+        self.assign_material(obj, mat)
 
     @aedt_exception_handler
     def assign_material(self, obj, mat):

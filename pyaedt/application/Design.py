@@ -2034,17 +2034,16 @@ class Design(object):
         if not name:
             name = self.design_name
         self.oproject.DeleteDesign(name)
-        try:
-            if not self._oproject.GetActiveDesign():
-                self.odesign = None
-        except:
-            pass
+        if name != self.design_name:
+            return True
         if fallback_design and (fallback_design in
                                 [x for i in list(self._oproject.GetDesigns()) for x in (i.GetName(), i.GetName()[2:])]):
             try:
                 self.set_active_design(fallback_design)
             except:
-                pass
+                return False
+        else:
+            self.odesign = None
         return True
 
 

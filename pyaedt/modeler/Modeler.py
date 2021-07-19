@@ -17,6 +17,8 @@ import sys
 import os
 import string
 import random
+import warnings
+
 from collections import OrderedDict
 from .Primitives2D import Primitives2D
 from .Primitives3D import Primitives3D
@@ -833,6 +835,38 @@ class GeometryModeler(Modeler, object):
         return True
 
     @aedt_exception_handler
+    def add_workbench_link(self, objects, ambient_temp=22, create_project_var=False, enable_deformation=True):
+        """Assign Temperature and Deformation Objects for WorkBench Link.
+
+        .. deprecated:: 0.3.1
+           Use :func:`GeometryModeler.set_objects_deformation` and :func:`GeometryModeler.set_objects_temperature`
+           instead.
+
+        Parameters
+        ----------
+        enable_deformation :
+            Boolean if True the deformation link is added (Default value = True)
+        create_project_var :
+            Boolean if True $AmbientTemp is created. (Default value = False)
+        ambient_temp :
+            ambient temperature default value
+        objects :
+            list of the object to be included
+
+        Returns
+        -------
+        bool
+            `True` if operation succeeded, `False` otherwise
+        """
+        warnings.warn('add_workbench_link is deprecated. '
+                      'Please use set_objects_temperature and set_objects_deformation instead.',
+                      DeprecationWarning)
+        self.set_objects_temperature(objects, ambient_temp, create_project_var)
+        if enable_deformation:
+            self.set_objects_deformation(objects)
+        return True
+
+    @aedt_exception_handler
     def set_objects_deformation(self, objects):
         """Assign Deformation Objects for WorkBench Link.
 
@@ -844,7 +878,7 @@ class GeometryModeler(Modeler, object):
         Returns
         -------
         bool
-            True if operation succeeded, False otherwise
+            `True` if operation succeeded, `False` otherwise
         """
         self._messenger.add_debug_message("Enabling deformation feedback")
         try:
@@ -873,7 +907,7 @@ class GeometryModeler(Modeler, object):
         Returns
         -------
         bool
-            True if operation succeeded, False otherwise
+            `True` if operation succeeded, `False` otherwise
         """
         self._messenger.add_debug_message("Set model temperature and enabling Thermal Feedback")
         if create_project_var:

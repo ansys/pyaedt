@@ -1,6 +1,7 @@
-import glob
 import os
 import ntpath
+import warnings
+
 from ..generic.general_methods import aedt_exception_handler, generate_unique_name
 from .Analysis import Analysis
 from ..modeler.Model3D import Modeler3D
@@ -292,6 +293,18 @@ class FieldAnalysis3D(Analysis, object):
         return True
 
     @aedt_exception_handler
+    def assignmaterial(self, obj, mat):
+        """Assign a material to one or more objects.
+
+        .. deprecated:: 0.3.1
+           Use :func:`FieldAnalysis3D.assign_material` instead.
+
+        """
+        warnings.warn('assignmaterial is deprecated.  Please use assign_material instead.',
+                      DeprecationWarning)
+        self.assign_material(obj, mat)
+
+    @aedt_exception_handler
     def assign_material(self, obj, mat):
         """Assign a material to one or more objects.
 
@@ -308,6 +321,18 @@ class FieldAnalysis3D(Analysis, object):
         bool
             ``True`` when successful, ``False`` when failed.
 
+        Examples
+        --------
+        The method assign_material is useful to assign a material to a list of objects.
+
+        >>> from pyaedt import Hfss
+        >>> hfss = Hfss()
+        >>> box1 = hfss.modeler.primitives.create_box([10, 10, 10], [4, 5, 5])
+        >>> box2 = hfss.modeler.primitives.create_box([0, 0, 0], [2, 3, 4])
+        >>> cylinder1 = hfss.modeler.primitives.create_cylinder(cs_axis="X", position=[5, 0, 0], radius=1, height=20)
+        >>> cylinder2 = hfss.modeler.primitives.create_cylinder(cs_axis="Z", position=[0, 0, 5], radius=1, height=10)
+        >>> objects_list = [box1.name, box2.name, cylinder1.nam, cylinder2.name]
+        >>> hfss.assign_material(objects_list, "copper")
         """
         mat = mat.lower()
         selections = self.modeler.convert_to_selections(obj)
