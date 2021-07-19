@@ -1,7 +1,7 @@
-Modeler & Primitives
-====================
+Modeler and  Primitives
+=======================
 
-This Section contains all Classes controlled by AEDT Modeler, including Primitives and Objects.
+This Section contains all classes controlled by AEDT Modeler, including Primitives and Objects.
 
 
 Modeler

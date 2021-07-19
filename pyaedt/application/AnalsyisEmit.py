@@ -73,7 +73,7 @@ class FieldAnalysisEmit(Design):
         
         Returns
         -------
-        int:
+        int
            Design module ``"SimSetup"``
         """
         return None

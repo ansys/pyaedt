@@ -119,7 +119,7 @@ class Edb(object):
                 working_dir = os.path.dirname(edbpath)
                 self.import_layout_pcb(edbpath, working_dir)
         else:
-            warnings.warn("Failed to Initialize Dlls")
+            warnings.warn("Failed to initialize Dlls")
 
 
     @aedt_exception_handler

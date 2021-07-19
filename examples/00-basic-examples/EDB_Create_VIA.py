@@ -17,7 +17,7 @@ from pyaedt import Edb
 from pyaedt.generic.general_methods import generate_unique_name
 start = time.time()
 if os.name == "posix":
-    tmpfold = os.environ["TMPDIR"]
+    tmpfold = os.environ.get("TMPDIR", '/tmp')
 else:
     tmpfold = os.environ["TEMP"]
 
