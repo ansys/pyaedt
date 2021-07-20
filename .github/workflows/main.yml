@@ -60,8 +60,14 @@ jobs:
           #sphinx-build -b html -a doc/source doc/_build/html -j 4
           
       - name: ' Deploy on Gh-pages'
-        working-directory: doc/_build/html
+        #working-directory: doc/_build/html
         run: |
+          New-Item -Path . -Name "doc" -ItemType "directory"
+          cd doc
+          New-Item -Path . -Name "_build" -ItemType "directory"
+          cd _build
+          New-Item -Path . -Name "html" -ItemType "directory"
+          cd html
           git init
           git checkout -b gh-pages
           git config --local user.name "pyansys-ci-bot"
