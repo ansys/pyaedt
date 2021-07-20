@@ -11439,10 +11439,10 @@ $begin 'AnsoftProject'
 				ImportMesh=false
 			$end 'DesignMeshLink'
 			$begin 'SolveSetups'
-				NextUniqueID=2
+				NextUniqueID=3
 				MoveBackwards=false
-				$begin 'DomSetup'
-					ID=1
+				$begin 'Setup1'
+					ID=2
 					SetupType='IcepakSteadyState'
 					Enabled=true
 					'Flow Regime'='Laminar'
@@ -11481,16 +11481,16 @@ $begin 'AnsoftProject'
 					'Solar Radiation - Sunshine Fraction'='0'
 					'Solar Radiation - North X'='0'
 					'Solar Radiation - North Y'='0'
-					'Solar Radiation - North Z'='0'
-					'Under-relaxation - Pressure'='0.7'
-					'Under-relaxation - Momentum'='0.3'
+					'Solar Radiation - North Z'='1'
+					'Under-relaxation - Pressure'='0.3'
+					'Under-relaxation - Momentum'='0.7'
 					'Under-relaxation - Temperature'='1'
 					'Under-relaxation - Turbulent Kinetic Energy'='0.8'
 					'Under-relaxation - Turbulent Dissipation Rate'='0.8'
 					'Under-relaxation - Specific Dissipation Rate'='0.8'
 					'Discretization Scheme - Pressure'='Standard'
 					'Discretization Scheme - Momentum'='First'
-					'Discretization Scheme - Temperature'='Second'
+					'Discretization Scheme - Temperature'='First'
 					'Secondary Gradient'=false
 					'Discretization Scheme - Turbulent Kinetic Energy'='First'
 					'Discretization Scheme - Turbulent Dissipation Rate'='First'
@@ -11518,14 +11518,9 @@ $begin 'AnsoftProject'
 					'Linear Solver Stabilization - Temperature'='None'
 					'Coupled pressure-velocity formulation'=false
 					'Frozen Flow Simulation'=false
-					$begin '2WayCoupling'
-						NumCouplingIters=2
-						ContinueIcepakIterations=true
-						IcepakIterationsPerCoupling=20
-					$end '2WayCoupling'
 					'Sequential Solve of Flow and Energy Equations'=false
-					'Convergence Criteria - Max Iterations'=10
-				$end 'DomSetup'
+					'Convergence Criteria - Max Iterations'=100
+				$end 'Setup1'
 			$end 'SolveSetups'
 		$end 'AnalysisSetup'
 		$begin 'Optimetrics'
@@ -11543,7 +11538,7 @@ $begin 'AnsoftProject'
 				Line_Discretization=1000
 			$end 'FieldsCalculator'
 			$begin 'PlotDefaults'
-				Default_SolutionId=22
+				Default_SolutionId=42
 				Default_PlotFolder='Automatic'
 			$end 'PlotDefaults'
 			$begin 'FieldsPlotManagerID'
@@ -11566,10 +11561,10 @@ $begin 'AnsoftProject'
 		$begin 'SolutionManager'
 			$begin 'SimSetup'
 				TypeName='BaseSetup'
-				ID=21
-				Name='DomSetup'
+				ID=41
+				Name='Setup1'
 				$begin 'Solution'
-					ID=22
+					ID=42
 					Name='SteadyState'
 					$begin 'SimDataExtractor'
 						$begin 'QuantityIDs'
@@ -11578,6 +11573,11 @@ $begin 'AnsoftProject'
 							IDMap()
 						$end 'QuantityIDs'
 						$begin 'Sweeps'
+							$begin 'Sweep'
+								Variable='amb'
+								Column='25deg'
+								Units='deg'
+							$end 'Sweep'
 							$begin 'PostprocessSweep'
 								Variable='NormalizedDistance'
 								RegularSweep=1
@@ -11614,11 +11614,6 @@ $begin 'AnsoftProject'
 								Increment=0.0872664625997165
 								CreateIndexedSubsweepFlag=false
 							$end 'PostprocessSweep'
-							$begin 'Sweep'
-								Variable='X'
-								Column='0mm'
-								Units='mm'
-							$end 'Sweep'
 						$end 'Sweeps'
 					$end 'SimDataExtractor'
 				$end 'Solution'
@@ -11626,16 +11621,16 @@ $begin 'AnsoftProject'
 			$begin 'Version ID Map'
 				V=31
 				$begin 'Setup'
-					N='DomSetup'
-					V=28
-					Soln(N='SteadyState', V=31)
+					N='Setup1'
+					V=0
+					Soln(N='SteadyState', V=0)
 				$end 'Setup'
 			$end 'Version ID Map'
 			$begin 'ID Map'
 				$begin 'Setup'
-					N='DomSetup'
-					I=21
-					Soln(N='SteadyState', I=22)
+					N='Setup1'
+					I=41
+					Soln(N='SteadyState', I=42)
 				$end 'Setup'
 			$end 'ID Map'
 			ValidationCacheHeader=''
@@ -11651,7 +11646,7 @@ $begin 'AnsoftProject'
 		Notes=$begin_cdata$ $end_cdata$
 		$begin 'AnimationSetups'
 		$end 'AnimationSetups'
-		CacheHeaderFile='HDR6D821013216263777647.tmp'
+		CacheHeaderFile='HDR98C807616267913713.tmp'
 	$end 'IcepakModel'
 	$begin 'DataInstances'
 		DesignEditor='TopLevel'
@@ -11724,8 +11719,8 @@ NumFiles= 18
 $begin 'sab'
 Design_1.setup/NativeGeometryFiles/0032090.sab
 BIN000000012823
-ACIS BinaryFileT             SpatialACIS 29.0.1 NTThu Jul 15 15:36:04 2021      ğ?íµ ÷Æ°>»½×Ùß|Û=
-MDVCTHJ9EGKPTRBU3FJCW7SV5726M7B6N5BCCGCP5FBJ4Q673QCNKKPP3YCSUPEQVX8M3KEQ3KCAMM	body%      ÿÿÿÿÿÿÿÿÿÿÿÿ       ÿÿÿÿ   
+ACIS BinaryFileT             SpatialACIS 29.0.1 NTTue Jul 20 10:29:31 2021      ğ?íµ ÷Æ°>»½×Ùß|Û=
+M4XA7F2JKWCS3VSND6F4Z8TKKT4P387P6WAMKMRPDFANVEEQBUB6MFE6VADT3QRP7KCP3FJQ2Y88ME	body%      ÿÿÿÿÿÿÿÿÿÿÿÿ       ÿÿÿÿ   
 cîZB>È@@pUjvÀ        “©‚Q©M@Å1w-)D@…ğhãˆµ¨?rgb_color%   st%   attrib%   ÿÿÿÿÿÿÿÿ   ÿÿÿÿ    Æîß òñññññá?öõõõõõå?òñññññá?	lump%   ÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿ       
 cîZB>È@@pUjvÀ        “©‚Q©M@Å1w-)D@…ğhãˆµ¨?transform%   ÿÿÿÿÿÿÿÿ      ğ?                              ğ?                              ğ?                              ğ?string_attrib%   name_attrib%   gen%	   %   ÿÿÿÿÿÿÿÿ          ¦îß AnsoftTransparency%100.80000000000000004
 shell%   ÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿ   ÿÿÿÿ   
@@ -11795,8 +11790,8 @@ point%   ÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿcîZB>È@@pUjvÀ…ğhãˆµ¨?%   %   %	   %
 # Ansoft project setting data. Non-Ansoft programs
 # should not read the rest of this file.
 B_SETNGS 1.03
-ACIS BinaryFileT             SpatialACIS 29.0.1 NTThu Jul 15 15:36:04 2021      ğ?íµ ÷Æ°>»½×Ùß|Û=
-MZ8AQGWESQ9J6Z_S839B7J6S4N9V4Z6PK_ASCK8QA79CMFPQHFCTUEM53Y8CMF87VTBUKRJN27C9VQtransform%      ÿÿÿÿ      ğ?                              ğ?                              ğ?                              ğ?
+ACIS BinaryFileT             SpatialACIS 29.0.1 NTTue Jul 20 10:29:31 2021      ğ?íµ ÷Æ°>»½×Ùß|Û=
+M54KJMBTSM9VDTKH2M2_EBUHHV3Q3YT6GSB44Q8Q879R4KAQ73BMBN6NHQA4CQJ66UCNBFAN7BBFMJtransform%      ÿÿÿÿ      ğ?                              ğ?                              ğ?                              ğ?
 point%      ÿÿÿÿÿÿÿÿÿÿÿÿ                        	flag%   ansoft%   attrib%   ÿÿÿÿÿÿÿÿ   ÿÿÿÿ    ¥îÛ     
 color%   %   %   ÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿ   ¥îÛ ÿ ÿ€
 units%   %   %   ÿÿÿÿÿÿÿÿ          ¥îÛ mm     @@%   %   %   ÿÿÿÿÿÿÿÿÿÿÿÿ       ¥îÛ ÀÀÀ€End-of-ACIS-data
@@ -11809,8 +11804,8 @@ $end 'sab'
 $begin 'sab'
 Design_1.setup/NativeGeometryFiles/0032117.sab
 BIN000000012795
-ACIS BinaryFileT             SpatialACIS 29.0.1 NTThu Jul 15 15:36:04 2021      ğ?íµ ÷Æ°>»½×Ùß|Û=
-MDVCTHJ9EGKPTRBU3FJCW7SV5726M7B6N5BCCGCP5FBJ4Q673QCNKKPP3YCSUPEQVX8M3KEQ3KCAMM	body%      ÿÿÿÿÿÿÿÿÿÿÿÿ       ÿÿÿÿ   
+ACIS BinaryFileT             SpatialACIS 29.0.1 NTTue Jul 20 10:29:31 2021      ğ?íµ ÷Æ°>»½×Ùß|Û=
+M4XA7F2JKWCS3VSND6F4Z8TKKT4P387P6WAMKMRPDFANVEEQBUB6MFE6VADT3QRP7KCP3FJQ2Y88ME	body%      ÿÿÿÿÿÿÿÿÿÿÿÿ       ÿÿÿÿ   
 cîZB>È@@pUjvÀ.‹‰ÍÇÿ?“©‚Q©M@Å1w-)D@;Sè¼F @rgb_color%   st%   attrib%   ÿÿÿÿÿÿÿÿ   ÿÿÿÿ    Æîß òñññññá?öõõõõõå?òñññññá?	lump%   ÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿ       
 cîZB>È@@pUjvÀ.‹‰ÍÇÿ?“©‚Q©M@Å1w-)D@;Sè¼F @transform%   ÿÿÿÿÿÿÿÿ      ğ?                              ğ?                              ğ?                              ğ?string_attrib%   name_attrib%   gen%	   %   ÿÿÿÿÿÿÿÿ          ¦îß AnsoftTransparency%100.80000000000000004
 shell%   ÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿ   ÿÿÿÿ   
@@ -11880,8 +11875,8 @@ point%   ÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿcîZB>È@@pUjvÀ;Sè¼F @%   %   %	   %
 # Ansoft project setting data. Non-Ansoft programs
 # should not read the rest of this file.
 B_SETNGS 1.03
-ACIS BinaryFileT             SpatialACIS 29.0.1 NTThu Jul 15 15:36:04 2021      ğ?íµ ÷Æ°>»½×Ùß|Û=
-MZ8AQGWESQ9J6Z_S839B7J6S4N9V4Z6PK_ASCK8QA79CMFPQHFCTUEM53Y8CMF87VTBUKRJN27C9VQtransform%      ÿÿÿÿ      ğ?                              ğ?                              ğ?                              ğ?
+ACIS BinaryFileT             SpatialACIS 29.0.1 NTTue Jul 20 10:29:31 2021      ğ?íµ ÷Æ°>»½×Ùß|Û=
+M54KJMBTSM9VDTKH2M2_EBUHHV3Q3YT6GSB44Q8Q879R4KAQ73BMBN6NHQA4CQJ66UCNBFAN7BBFMJtransform%      ÿÿÿÿ      ğ?                              ğ?                              ğ?                              ğ?
 point%      ÿÿÿÿÿÿÿÿÿÿÿÿ                        	flag%   ansoft%   attrib%   ÿÿÿÿÿÿÿÿ   ÿÿÿÿ    ¥îÛ     
 color%   %   %   ÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿ   ¥îÛ ÿ ÿ€
 units%   %   %   ÿÿÿÿÿÿÿÿ          ¥îÛ mm     @@%   %   %   ÿÿÿÿÿÿÿÿÿÿÿÿ       ¥îÛ ÀÀÀ€End-of-ACIS-data
@@ -11894,8 +11889,8 @@ $end 'sab'
 $begin 'sab'
 Design_1.setup/NativeGeometryFiles/0032144.sab
 BIN000000012803
-ACIS BinaryFileT             SpatialACIS 29.0.1 NTThu Jul 15 15:36:04 2021      ğ?íµ ÷Æ°>»½×Ùß|Û=
-MDVCTHJ9EGKPTRBU3FJCW7SV5726M7B6N5BCCGCP5FBJ4Q673QCNKKPP3YCSUPEQVX8M3KEQ3KCAMM	body%      ÿÿÿÿÿÿÿÿÿÿÿÿ       ÿÿÿÿ   
+ACIS BinaryFileT             SpatialACIS 29.0.1 NTTue Jul 20 10:29:31 2021      ğ?íµ ÷Æ°>»½×Ùß|Û=
+M4XA7F2JKWCS3VSND6F4Z8TKKT4P387P6WAMKMRPDFANVEEQBUB6MFE6VADT3QRP7KCP3FJQ2Y88ME	body%      ÿÿÿÿÿÿÿÿÿÿÿÿ       ÿÿÿÿ   
 cîZB>È@@pUjvÀù ã´ş?“©‚Q©M@Å1w-)D@.‹‰ÍÇÿ?rgb_color%   st%   attrib%   ÿÿÿÿÿÿÿÿ   ÿÿÿÿ    Æîß òñññññá?öõõõõõå?òñññññá?	lump%   ÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿ       
 cîZB>È@@pUjvÀù ã´ş?“©‚Q©M@Å1w-)D@.‹‰ÍÇÿ?transform%   ÿÿÿÿÿÿÿÿ      ğ?                              ğ?                              ğ?                              ğ?string_attrib%   name_attrib%   gen%	   %   ÿÿÿÿÿÿÿÿ          ¦îß AnsoftTransparency%100.80000000000000004
 shell%   ÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿ   ÿÿÿÿ   
@@ -11965,8 +11960,8 @@ point%   ÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿcîZB>È@@pUjvÀ.‹‰ÍÇÿ?%   %   %	   %
 # Ansoft project setting data. Non-Ansoft programs
 # should not read the rest of this file.
 B_SETNGS 1.03
-ACIS BinaryFileT             SpatialACIS 29.0.1 NTThu Jul 15 15:36:04 2021      ğ?íµ ÷Æ°>»½×Ùß|Û=
-MZ8AQGWESQ9J6Z_S839B7J6S4N9V4Z6PK_ASCK8QA79CMFPQHFCTUEM53Y8CMF87VTBUKRJN27C9VQtransform%      ÿÿÿÿ      ğ?                              ğ?                              ğ?                              ğ?
+ACIS BinaryFileT             SpatialACIS 29.0.1 NTTue Jul 20 10:29:31 2021      ğ?íµ ÷Æ°>»½×Ùß|Û=
+M54KJMBTSM9VDTKH2M2_EBUHHV3Q3YT6GSB44Q8Q879R4KAQ73BMBN6NHQA4CQJ66UCNBFAN7BBFMJtransform%      ÿÿÿÿ      ğ?                              ğ?                              ğ?                              ğ?
 point%      ÿÿÿÿÿÿÿÿÿÿÿÿ                        	flag%   ansoft%   attrib%   ÿÿÿÿÿÿÿÿ   ÿÿÿÿ    ¥îÛ     
 color%   %   %   ÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿ   ¥îÛ ÿ ÿ€
 units%   %   %   ÿÿÿÿÿÿÿÿ          ¥îÛ mm     @@%   %   %   ÿÿÿÿÿÿÿÿÿÿÿÿ       ¥îÛ ÀÀÀ€End-of-ACIS-data
@@ -11979,8 +11974,8 @@ $end 'sab'
 $begin 'sab'
 Design_1.setup/NativeGeometryFiles/0032171.sab
 BIN000000012823
-ACIS BinaryFileT             SpatialACIS 29.0.1 NTThu Jul 15 15:36:04 2021      ğ?íµ ÷Æ°>»½×Ùß|Û=
-MDVCTHJ9EGKPTRBU3FJCW7SV5726M7B6N5BCCGCP5FBJ4Q673QCNKKPP3YCSUPEQVX8M3KEQ3KCAMM	body%      ÿÿÿÿÿÿÿÿÿÿÿÿ       ÿÿÿÿ   
+ACIS BinaryFileT             SpatialACIS 29.0.1 NTTue Jul 20 10:29:31 2021      ğ?íµ ÷Æ°>»½×Ùß|Û=
+M4XA7F2JKWCS3VSND6F4Z8TKKT4P387P6WAMKMRPDFANVEEQBUB6MFE6VADT3QRP7KCP3FJQ2Y88ME	body%      ÿÿÿÿÿÿÿÿÿÿÿÿ       ÿÿÿÿ   
 cîZB>È@@pUjvÀ[B>èÙ,ş?“©‚Q©M@Å1w-)D@ù ã´ş?rgb_color%   st%   attrib%   ÿÿÿÿÿÿÿÿ   ÿÿÿÿ    Æîß òñññññá?öõõõõõå?òñññññá?	lump%   ÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿ       
 cîZB>È@@pUjvÀ[B>èÙ,ş?“©‚Q©M@Å1w-)D@ù ã´ş?transform%   ÿÿÿÿÿÿÿÿ      ğ?                              ğ?                              ğ?                              ğ?string_attrib%   name_attrib%   gen%	   %   ÿÿÿÿÿÿÿÿ          ¦îß AnsoftTransparency%100.80000000000000004
 shell%   ÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿ   ÿÿÿÿ   
@@ -12050,8 +12045,8 @@ point%   ÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿcîZB>È@@pUjvÀù ã´ş?%   %   %	   %
 # Ansoft project setting data. Non-Ansoft programs
 # should not read the rest of this file.
 B_SETNGS 1.03
-ACIS BinaryFileT             SpatialACIS 29.0.1 NTThu Jul 15 15:36:04 2021      ğ?íµ ÷Æ°>»½×Ùß|Û=
-MZ8AQGWESQ9J6Z_S839B7J6S4N9V4Z6PK_ASCK8QA79CMFPQHFCTUEM53Y8CMF87VTBUKRJN27C9VQtransform%      ÿÿÿÿ      ğ?                              ğ?                              ğ?                              ğ?
+ACIS BinaryFileT             SpatialACIS 29.0.1 NTTue Jul 20 10:29:31 2021      ğ?íµ ÷Æ°>»½×Ùß|Û=
+M54KJMBTSM9VDTKH2M2_EBUHHV3Q3YT6GSB44Q8Q879R4KAQ73BMBN6NHQA4CQJ66UCNBFAN7BBFMJtransform%      ÿÿÿÿ      ğ?                              ğ?                              ğ?                              ğ?
 point%      ÿÿÿÿÿÿÿÿÿÿÿÿ                        	flag%   ansoft%   attrib%   ÿÿÿÿÿÿÿÿ   ÿÿÿÿ    ¥îÛ     
 color%   %   %   ÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿ   ¥îÛ ÿ ÿ€
 units%   %   %   ÿÿÿÿÿÿÿÿ          ¥îÛ mm     @@%   %   %   ÿÿÿÿÿÿÿÿÿÿÿÿ       ¥îÛ ÀÀÀ€End-of-ACIS-data
@@ -12064,8 +12059,8 @@ $end 'sab'
 $begin 'sab'
 Design_1.setup/NativeGeometryFiles/0032198.sab
 BIN000000012830
-ACIS BinaryFileT             SpatialACIS 29.0.1 NTThu Jul 15 15:36:04 2021      ğ?íµ ÷Æ°>»½×Ùß|Û=
-MDVCTHJ9EGKPTRBU3FJCW7SV5726M7B6N5BCCGCP5FBJ4Q673QCNKKPP3YCSUPEQVX8M3KEQ3KCAMM	body%      ÿÿÿÿÿÿÿÿÿÿÿÿ       ÿÿÿÿ   
+ACIS BinaryFileT             SpatialACIS 29.0.1 NTTue Jul 20 10:29:31 2021      ğ?íµ ÷Æ°>»½×Ùß|Û=
+M4XA7F2JKWCS3VSND6F4Z8TKKT4P387P6WAMKMRPDFANVEEQBUB6MFE6VADT3QRP7KCP3FJQ2Y88ME	body%      ÿÿÿÿÿÿÿÿÿÿÿÿ       ÿÿÿÿ   
 cîZB>È@@pUjvÀ?ÆÜµã?“©‚Q©M@Å1w-)D@[B>èÙ,ş?rgb_color%   st%   attrib%   ÿÿÿÿÿÿÿÿ   ÿÿÿÿ    Æîß òñññññá?öõõõõõå?òñññññá?	lump%   ÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿ       
 cîZB>È@@pUjvÀ?ÆÜµã?“©‚Q©M@Å1w-)D@[B>èÙ,ş?transform%   ÿÿÿÿÿÿÿÿ      ğ?                              ğ?                              ğ?                              ğ?string_attrib%   name_attrib%   gen%	   %   ÿÿÿÿÿÿÿÿ          ¦îß AnsoftTransparency%100.80000000000000004
 shell%   ÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿ   ÿÿÿÿ   
@@ -12135,8 +12130,8 @@ point%   ÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿcîZB>È@@pUjvÀ[B>èÙ,ş?%   %   %	   %
 # Ansoft project setting data. Non-Ansoft programs
 # should not read the rest of this file.
 B_SETNGS 1.03
-ACIS BinaryFileT             SpatialACIS 29.0.1 NTThu Jul 15 15:36:04 2021      ğ?íµ ÷Æ°>»½×Ùß|Û=
-MZ8AQGWESQ9J6Z_S839B7J6S4N9V4Z6PK_ASCK8QA79CMFPQHFCTUEM53Y8CMF87VTBUKRJN27C9VQtransform%      ÿÿÿÿ      ğ?                              ğ?                              ğ?                              ğ?
+ACIS BinaryFileT             SpatialACIS 29.0.1 NTTue Jul 20 10:29:31 2021      ğ?íµ ÷Æ°>»½×Ùß|Û=
+M54KJMBTSM9VDTKH2M2_EBUHHV3Q3YT6GSB44Q8Q879R4KAQ73BMBN6NHQA4CQJ66UCNBFAN7BBFMJtransform%      ÿÿÿÿ      ğ?                              ğ?                              ğ?                              ğ?
 point%      ÿÿÿÿÿÿÿÿÿÿÿÿ                        	flag%   ansoft%   attrib%   ÿÿÿÿÿÿÿÿ   ÿÿÿÿ    ¥îÛ     
 color%   %   %   ÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿ   ¥îÛ ÿ ÿ€
 units%   %   %   ÿÿÿÿÿÿÿÿ          ¥îÛ mm     @@%   %   %   ÿÿÿÿÿÿÿÿÿÿÿÿ       ¥îÛ ÀÀÀ€End-of-ACIS-data
@@ -12149,8 +12144,8 @@ $end 'sab'
 $begin 'sab'
 Design_1.setup/NativeGeometryFiles/0032225.sab
 BIN000000012826
-ACIS BinaryFileT             SpatialACIS 29.0.1 NTThu Jul 15 15:36:04 2021      ğ?íµ ÷Æ°>»½×Ùß|Û=
-MDVCTHJ9EGKPTRBU3FJCW7SV5726M7B6N5BCCGCP5FBJ4Q673QCNKKPP3YCSUPEQVX8M3KEQ3KCAMM	body%      ÿÿÿÿÿÿÿÿÿÿÿÿ       ÿÿÿÿ   
+ACIS BinaryFileT             SpatialACIS 29.0.1 NTTue Jul 20 10:29:31 2021      ğ?íµ ÷Æ°>»½×Ùß|Û=
+M4XA7F2JKWCS3VSND6F4Z8TKKT4P387P6WAMKMRPDFANVEEQBUB6MFE6VADT3QRP7KCP3FJQ2Y88ME	body%      ÿÿÿÿÿÿÿÿÿÿÿÿ       ÿÿÿÿ   
 cîZB>È@@pUjvÀy@Ù”+¼â?“©‚Q©M@Å1w-)D@?ÆÜµã?rgb_color%   st%   attrib%   ÿÿÿÿÿÿÿÿ   ÿÿÿÿ    Æîß òñññññá?öõõõõõå?òñññññá?	lump%   ÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿ       
 cîZB>È@@pUjvÀy@Ù”+¼â?“©‚Q©M@Å1w-)D@?ÆÜµã?transform%   ÿÿÿÿÿÿÿÿ      ğ?                              ğ?                              ğ?                              ğ?string_attrib%   name_attrib%   gen%	   %   ÿÿÿÿÿÿÿÿ          ¦îß AnsoftTransparency%100.80000000000000004
 shell%   ÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿ   ÿÿÿÿ   
@@ -12220,8 +12215,8 @@ point%   ÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿcîZB>È@@pUjvÀ?ÆÜµã?%   %   %	   %
 # Ansoft project setting data. Non-Ansoft programs
 # should not read the rest of this file.
 B_SETNGS 1.03
-ACIS BinaryFileT             SpatialACIS 29.0.1 NTThu Jul 15 15:36:04 2021      ğ?íµ ÷Æ°>»½×Ùß|Û=
-MZ8AQGWESQ9J6Z_S839B7J6S4N9V4Z6PK_ASCK8QA79CMFPQHFCTUEM53Y8CMF87VTBUKRJN27C9VQtransform%      ÿÿÿÿ      ğ?                              ğ?                              ğ?                              ğ?
+ACIS BinaryFileT             SpatialACIS 29.0.1 NTTue Jul 20 10:29:31 2021      ğ?íµ ÷Æ°>»½×Ùß|Û=
+M54KJMBTSM9VDTKH2M2_EBUHHV3Q3YT6GSB44Q8Q879R4KAQ73BMBN6NHQA4CQJ66UCNBFAN7BBFMJtransform%      ÿÿÿÿ      ğ?                              ğ?                              ğ?                              ğ?
 point%      ÿÿÿÿÿÿÿÿÿÿÿÿ                        	flag%   ansoft%   attrib%   ÿÿÿÿÿÿÿÿ   ÿÿÿÿ    ¥îÛ     
 color%   %   %   ÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿ   ¥îÛ ÿ ÿ€
 units%   %   %   ÿÿÿÿÿÿÿÿ          ¥îÛ mm     @@%   %   %   ÿÿÿÿÿÿÿÿÿÿÿÿ       ¥îÛ ÀÀÀ€End-of-ACIS-data
@@ -12234,8 +12229,8 @@ $end 'sab'
 $begin 'sab'
 Design_1.setup/NativeGeometryFiles/0032252.sab
 BIN000000012830
-ACIS BinaryFileT             SpatialACIS 29.0.1 NTThu Jul 15 15:36:04 2021      ğ?íµ ÷Æ°>»½×Ùß|Û=
-MDVCTHJ9EGKPTRBU3FJCW7SV5726M7B6N5BCCGCP5FBJ4Q673QCNKKPP3YCSUPEQVX8M3KEQ3KCAMM	body%      ÿÿÿÿÿÿÿÿÿÿÿÿ       ÿÿÿÿ   
+ACIS BinaryFileT             SpatialACIS 29.0.1 NTTue Jul 20 10:29:31 2021      ğ?íµ ÷Æ°>»½×Ùß|Û=
+M4XA7F2JKWCS3VSND6F4Z8TKKT4P387P6WAMKMRPDFANVEEQBUB6MFE6VADT3QRP7KCP3FJQ2Y88ME	body%      ÿÿÿÿÿÿÿÿÿÿÿÿ       ÿÿÿÿ   
 cîZB>È@@pUjvÀ{—wØ?“©‚Q©M@Å1w-)D@x@Ù”+¼â?rgb_color%   st%   attrib%   ÿÿÿÿÿÿÿÿ   ÿÿÿÿ    Æîß òñññññá?öõõõõõå?òñññññá?	lump%   ÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿ       
 cîZB>È@@pUjvÀ{—wØ?“©‚Q©M@Å1w-)D@x@Ù”+¼â?transform%   ÿÿÿÿÿÿÿÿ      ğ?                              ğ?                              ğ?                              ğ?string_attrib%   name_attrib%   gen%	   %   ÿÿÿÿÿÿÿÿ          ¦îß AnsoftTransparency%100.80000000000000004
 shell%   ÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿ   ÿÿÿÿ   
@@ -12310,8 +12305,8 @@ F%uÊ¿Q           m      unknown
 # Ansoft project setting data. Non-Ansoft programs
 # should not read the rest of this file.
 B_SETNGS 1.03
-ACIS BinaryFileT             SpatialACIS 29.0.1 NTThu Jul 15 15:36:04 2021      ğ?íµ ÷Æ°>»½×Ùß|Û=
-MZ8AQGWESQ9J6Z_S839B7J6S4N9V4Z6PK_ASCK8QA79CMFPQHFCTUEM53Y8CMF87VTBUKRJN27C9VQtransform%      ÿÿÿÿ      ğ?                              ğ?                              ğ?                              ğ?
+ACIS BinaryFileT             SpatialACIS 29.0.1 NTTue Jul 20 10:29:31 2021      ğ?íµ ÷Æ°>»½×Ùß|Û=
+M54KJMBTSM9VDTKH2M2_EBUHHV3Q3YT6GSB44Q8Q879R4KAQ73BMBN6NHQA4CQJ66UCNBFAN7BBFMJtransform%      ÿÿÿÿ      ğ?                              ğ?                              ğ?                              ğ?
 point%      ÿÿÿÿÿÿÿÿÿÿÿÿ                        	flag%   ansoft%   attrib%   ÿÿÿÿÿÿÿÿ   ÿÿÿÿ    ¥îÛ     
 color%   %   %   ÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿ   ¥îÛ ÿ ÿ€
 units%   %   %   ÿÿÿÿÿÿÿÿ          ¥îÛ mm     @@%   %   %   ÿÿÿÿÿÿÿÿÿÿÿÿ       ¥îÛ ÀÀÀ€End-of-ACIS-data
@@ -12324,8 +12319,8 @@ $end 'sab'
 $begin 'sab'
 Design_1.setup/NativeGeometryFiles/0032279.sab
 BIN000000012826
-ACIS BinaryFileT             SpatialACIS 29.0.1 NTThu Jul 15 15:36:04 2021      ğ?íµ ÷Æ°>»½×Ùß|Û=
-MDVCTHJ9EGKPTRBU3FJCW7SV5726M7B6N5BCCGCP5FBJ4Q673QCNKKPP3YCSUPEQVX8M3KEQ3KCAMM	body%      ÿÿÿÿÿÿÿÿÿÿÿÿ       ÿÿÿÿ   
+ACIS BinaryFileT             SpatialACIS 29.0.1 NTTue Jul 20 10:29:31 2021      ğ?íµ ÷Æ°>»½×Ùß|Û=
+M4XA7F2JKWCS3VSND6F4Z8TKKT4P387P6WAMKMRPDFANVEEQBUB6MFE6VADT3QRP7KCP3FJQ2Y88ME	body%      ÿÿÿÿÿÿÿÿÿÿÿÿ       ÿÿÿÿ   
 cîZB>È@@pUjvÀkÔC4ºƒÖ?“©‚Q©M@Å1w-)D@{—wØ?rgb_color%   st%   attrib%   ÿÿÿÿÿÿÿÿ   ÿÿÿÿ    Æîß òñññññá?öõõõõõå?òñññññá?	lump%   ÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿ       
 cîZB>È@@pUjvÀkÔC4ºƒÖ?“©‚Q©M@Å1w-)D@{—wØ?transform%   ÿÿÿÿÿÿÿÿ      ğ?                              ğ?                              ğ?                              ğ?string_attrib%   name_attrib%   gen%	   %   ÿÿÿÿÿÿÿÿ          ¦îß AnsoftTransparency%100.80000000000000004
 shell%   ÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿ   ÿÿÿÿ   
@@ -12395,8 +12390,8 @@ point%   ÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿcîZB>È@@pUjvÀ{—wØ?%   %   %	   %
 # Ansoft project setting data. Non-Ansoft programs
 # should not read the rest of this file.
 B_SETNGS 1.03
-ACIS BinaryFileT             SpatialACIS 29.0.1 NTThu Jul 15 15:36:04 2021      ğ?íµ ÷Æ°>»½×Ùß|Û=
-MZ8AQGWESQ9J6Z_S839B7J6S4N9V4Z6PK_ASCK8QA79CMFPQHFCTUEM53Y8CMF87VTBUKRJN27C9VQtransform%      ÿÿÿÿ      ğ?                              ğ?                              ğ?                              ğ?
+ACIS BinaryFileT             SpatialACIS 29.0.1 NTTue Jul 20 10:29:31 2021      ğ?íµ ÷Æ°>»½×Ùß|Û=
+M54KJMBTSM9VDTKH2M2_EBUHHV3Q3YT6GSB44Q8Q879R4KAQ73BMBN6NHQA4CQJ66UCNBFAN7BBFMJtransform%      ÿÿÿÿ      ğ?                              ğ?                              ğ?                              ğ?
 point%      ÿÿÿÿÿÿÿÿÿÿÿÿ                        	flag%   ansoft%   attrib%   ÿÿÿÿÿÿÿÿ   ÿÿÿÿ    ¥îÛ     
 color%   %   %   ÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿ   ¥îÛ ÿ ÿ€
 units%   %   %   ÿÿÿÿÿÿÿÿ          ¥îÛ mm     @@%   %   %   ÿÿÿÿÿÿÿÿÿÿÿÿ       ¥îÛ ÀÀÀ€End-of-ACIS-data
@@ -12409,8 +12404,8 @@ $end 'sab'
 $begin 'sab'
 Design_1.setup/NativeGeometryFiles/0032306.sab
 BIN000000012830
-ACIS BinaryFileT             SpatialACIS 29.0.1 NTThu Jul 15 15:36:04 2021      ğ?íµ ÷Æ°>»½×Ùß|Û=
-MDVCTHJ9EGKPTRBU3FJCW7SV5726M7B6N5BCCGCP5FBJ4Q673QCNKKPP3YCSUPEQVX8M3KEQ3KCAMM	body%      ÿÿÿÿÿÿÿÿÿÿÿÿ       ÿÿÿÿ   
+ACIS BinaryFileT             SpatialACIS 29.0.1 NTTue Jul 20 10:29:31 2021      ğ?íµ ÷Æ°>»½×Ùß|Û=
+M4XA7F2JKWCS3VSND6F4Z8TKKT4P387P6WAMKMRPDFANVEEQBUB6MFE6VADT3QRP7KCP3FJQ2Y88ME	body%      ÿÿÿÿÿÿÿÿÿÿÿÿ       ÿÿÿÿ   
 cîZB>È@@pUjvÀ0ACÿÃ?“©‚Q©M@Å1w-)D@kÔC4ºƒÖ?rgb_color%   st%   attrib%   ÿÿÿÿÿÿÿÿ   ÿÿÿÿ    Æîß òñññññá?öõõõõõå?òñññññá?	lump%   ÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿ       
 cîZB>È@@pUjvÀ0ACÿÃ?“©‚Q©M@Å1w-)D@kÔC4ºƒÖ?transform%   ÿÿÿÿÿÿÿÿ      ğ?                              ğ?                              ğ?                              ğ?string_attrib%   name_attrib%   gen%	   %   ÿÿÿÿÿÿÿÿ          ¦îß AnsoftTransparency%100.80000000000000004
 shell%   ÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿ   ÿÿÿÿ   
@@ -12484,8 +12479,8 @@ F%uÊ¿Q           m      unknown
 # Ansoft project setting data. Non-Ansoft programs
 # should not read the rest of this file.
 B_SETNGS 1.03
-ACIS BinaryFileT             SpatialACIS 29.0.1 NTThu Jul 15 15:36:04 2021      ğ?íµ ÷Æ°>»½×Ùß|Û=
-MZ8AQGWESQ9J6Z_S839B7J6S4N9V4Z6PK_ASCK8QA79CMFPQHFCTUEM53Y8CMF87VTBUKRJN27C9VQtransform%      ÿÿÿÿ      ğ?                              ğ?                              ğ?                              ğ?
+ACIS BinaryFileT             SpatialACIS 29.0.1 NTTue Jul 20 10:29:31 2021      ğ?íµ ÷Æ°>»½×Ùß|Û=
+M54KJMBTSM9VDTKH2M2_EBUHHV3Q3YT6GSB44Q8Q879R4KAQ73BMBN6NHQA4CQJ66UCNBFAN7BBFMJtransform%      ÿÿÿÿ      ğ?                              ğ?                              ğ?                              ğ?
 point%      ÿÿÿÿÿÿÿÿÿÿÿÿ                        	flag%   ansoft%   attrib%   ÿÿÿÿÿÿÿÿ   ÿÿÿÿ    ¥îÛ     
 color%   %   %   ÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿ   ¥îÛ ÿ ÿ€
 units%   %   %   ÿÿÿÿÿÿÿÿ          ¥îÛ mm     @@%   %   %   ÿÿÿÿÿÿÿÿÿÿÿÿ       ¥îÛ ÀÀÀ€End-of-ACIS-data
@@ -12498,8 +12493,8 @@ $end 'sab'
 $begin 'sab'
 Design_1.setup/NativeGeometryFiles/0032333.sab
 BIN000000012824
-ACIS BinaryFileT             SpatialACIS 29.0.1 NTThu Jul 15 15:36:04 2021      ğ?íµ ÷Æ°>»½×Ùß|Û=
-MDVCTHJ9EGKPTRBU3FJCW7SV5726M7B6N5BCCGCP5FBJ4Q673QCNKKPP3YCSUPEQVX8M3KEQ3KCAMM	body%      ÿÿÿÿÿÿÿÿÿÿÿÿ       ÿÿÿÿ   
+ACIS BinaryFileT             SpatialACIS 29.0.1 NTTue Jul 20 10:29:31 2021      ğ?íµ ÷Æ°>»½×Ùß|Û=
+M4XA7F2JKWCS3VSND6F4Z8TKKT4P387P6WAMKMRPDFANVEEQBUB6MFE6VADT3QRP7KCP3FJQ2Y88ME	body%      ÿÿÿÿÿÿÿÿÿÿÿÿ       ÿÿÿÿ   
 cîZB>È@@pUjvÀ„fÚş•½?“©‚Q©M@Å1w-)D@0ACÿÃ?rgb_color%   st%   attrib%   ÿÿÿÿÿÿÿÿ   ÿÿÿÿ    Æîß òñññññá?öõõõõõå?òñññññá?	lump%   ÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿ       
 cîZB>È@@pUjvÀ„fÚş•½?“©‚Q©M@Å1w-)D@0ACÿÃ?transform%   ÿÿÿÿÿÿÿÿ      ğ?                              ğ?                              ğ?                              ğ?string_attrib%   name_attrib%   gen%	   %   ÿÿÿÿÿÿÿÿ          ¦îß AnsoftTransparency%100.80000000000000004
 shell%   ÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿ   ÿÿÿÿ   
@@ -12569,8 +12564,8 @@ point%   ÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿcîZB>È@@pUjvÀ0ACÿÃ?%   %   %	   %
 # Ansoft project setting data. Non-Ansoft programs
 # should not read the rest of this file.
 B_SETNGS 1.03
-ACIS BinaryFileT             SpatialACIS 29.0.1 NTThu Jul 15 15:36:04 2021      ğ?íµ ÷Æ°>»½×Ùß|Û=
-MZ8AQGWESQ9J6Z_S839B7J6S4N9V4Z6PK_ASCK8QA79CMFPQHFCTUEM53Y8CMF87VTBUKRJN27C9VQtransform%      ÿÿÿÿ      ğ?                              ğ?                              ğ?                              ğ?
+ACIS BinaryFileT             SpatialACIS 29.0.1 NTTue Jul 20 10:29:31 2021      ğ?íµ ÷Æ°>»½×Ùß|Û=
+M54KJMBTSM9VDTKH2M2_EBUHHV3Q3YT6GSB44Q8Q879R4KAQ73BMBN6NHQA4CQJ66UCNBFAN7BBFMJtransform%      ÿÿÿÿ      ğ?                              ğ?                              ğ?                              ğ?
 point%      ÿÿÿÿÿÿÿÿÿÿÿÿ                        	flag%   ansoft%   attrib%   ÿÿÿÿÿÿÿÿ   ÿÿÿÿ    ¥îÛ     
 color%   %   %   ÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿ   ¥îÛ ÿ ÿ€
 units%   %   %   ÿÿÿÿÿÿÿÿ          ¥îÛ mm     @@%   %   %   ÿÿÿÿÿÿÿÿÿÿÿÿ       ¥îÛ ÀÀÀ€End-of-ACIS-data
@@ -12583,8 +12578,8 @@ $end 'sab'
 $begin 'sab'
 Design_1.setup/NativeGeometryFiles/0032360.sab
 BIN000000012828
-ACIS BinaryFileT             SpatialACIS 29.0.1 NTThu Jul 15 15:36:04 2021      ğ?íµ ÷Æ°>»½×Ùß|Û=
-MDVCTHJ9EGKPTRBU3FJCW7SV5726M7B6N5BCCGCP5FBJ4Q673QCNKKPP3YCSUPEQVX8M3KEQ3KCAMM	body%      ÿÿÿÿÿÿÿÿÿÿÿÿ       ÿÿÿÿ   
+ACIS BinaryFileT             SpatialACIS 29.0.1 NTTue Jul 20 10:29:31 2021      ğ?íµ ÷Æ°>»½×Ùß|Û=
+M4XA7F2JKWCS3VSND6F4Z8TKKT4P387P6WAMKMRPDFANVEEQBUB6MFE6VADT3QRP7KCP3FJQ2Y88ME	body%      ÿÿÿÿÿÿÿÿÿÿÿÿ       ÿÿÿÿ   
 cîZB>È@@pUjvÀ„ğhãˆµ¨?“©‚Q©M@Å1w-)D@„fÚş•½?rgb_color%   st%   attrib%   ÿÿÿÿÿÿÿÿ   ÿÿÿÿ    Æîß òñññññá?öõõõõõå?òñññññá?	lump%   ÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿ       
 cîZB>È@@pUjvÀ„ğhãˆµ¨?“©‚Q©M@Å1w-)D@„fÚş•½?transform%   ÿÿÿÿÿÿÿÿ      ğ?                              ğ?                              ğ?                              ğ?string_attrib%   name_attrib%   gen%	   %   ÿÿÿÿÿÿÿÿ          ¦îß AnsoftTransparency%100.80000000000000004
 shell%   ÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿ   ÿÿÿÿ   
@@ -12654,8 +12649,8 @@ point%   ÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿcîZB>È@@pUjvÀ„fÚş•½?%   %   %	   %
 # Ansoft project setting data. Non-Ansoft programs
 # should not read the rest of this file.
 B_SETNGS 1.03
-ACIS BinaryFileT             SpatialACIS 29.0.1 NTThu Jul 15 15:36:04 2021      ğ?íµ ÷Æ°>»½×Ùß|Û=
-MZ8AQGWESQ9J6Z_S839B7J6S4N9V4Z6PK_ASCK8QA79CMFPQHFCTUEM53Y8CMF87VTBUKRJN27C9VQtransform%      ÿÿÿÿ      ğ?                              ğ?                              ğ?                              ğ?
+ACIS BinaryFileT             SpatialACIS 29.0.1 NTTue Jul 20 10:29:31 2021      ğ?íµ ÷Æ°>»½×Ùß|Û=
+M54KJMBTSM9VDTKH2M2_EBUHHV3Q3YT6GSB44Q8Q879R4KAQ73BMBN6NHQA4CQJ66UCNBFAN7BBFMJtransform%      ÿÿÿÿ      ğ?                              ğ?                              ğ?                              ğ?
 point%      ÿÿÿÿÿÿÿÿÿÿÿÿ                        	flag%   ansoft%   attrib%   ÿÿÿÿÿÿÿÿ   ÿÿÿÿ    ¥îÛ     
 color%   %   %   ÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿ   ¥îÛ ÿ ÿ€
 units%   %   %   ÿÿÿÿÿÿÿÿ          ¥îÛ mm     @@%   %   %   ÿÿÿÿÿÿÿÿÿÿÿÿ       ¥îÛ ÀÀÀ€End-of-ACIS-data
@@ -12668,8 +12663,8 @@ $end 'sab'
 $begin 'sab'
 Design_1.setup/NativeGeometryFiles/0032417.sab
 BIN000000089663
-ACIS BinaryFileT             SpatialACIS 29.0.1 NTThu Jul 15 15:36:04 2021      ğ?íµ ÷Æ°>»½×Ùß|Û=
-MDVCTHJ9EGKPTRBU3FJCW7SV5726M7B6N5BCCGCP5FBJ4Q673QCNKKPP3YCSUPEQVX8M3KEQ3KCAMM	body%      ÿÿÿÿÿÿÿÿÿÿÿÿ       ÿÿÿÿ   
+ACIS BinaryFileT             SpatialACIS 29.0.1 NTTue Jul 20 10:29:31 2021      ğ?íµ ÷Æ°>»½×Ùß|Û=
+M4XA7F2JKWCS3VSND6F4Z8TKKT4P387P6WAMKMRPDFANVEEQBUB6MFE6VADT3QRP7KCP3FJQ2Y88ME	body%      ÿÿÿÿÿÿÿÿÿÿÿÿ       ÿÿÿÿ   
 Ñö¬ŸzÀ~›òGq=Àñ›ÂøKCÀz~…Âõ(Ü¿Ã{ÜãôÀ*Mw$}'Àstring_attrib%   name_attrib%   gen%   attrib%   ÿÿÿÿÿÿÿÿ   ÿÿÿÿ    ¦îß ATTRIB_XACIS_NAME%6USB_VCC	lump%      ÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿ       
 Ñö¬ŸzÀ~›òGq=Àñ›ÂøKCÀz~…Âõ(Ü¿Ã{ÜãôÀ*Mw$}'Àtransform%   ÿÿÿÿÿÿÿÿ      ğ?                              ğ?                              ğ?                              ğ?rgb_color%	   st%
    %   ÿÿÿÿÿÿÿÿ          Æîß       ğ?                properties%   ansoft%   %   ÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿ   ¥îÛ USB_VCCÿÿÿÿ          ÿ€
@@ -13281,8 +13276,8 @@ Tz2Ï~6À%   ÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿ2  ‹  Œ    
 # Ansoft project setting data. Non-Ansoft programs
 # should not read the rest of this file.
 B_SETNGS 1.03
-ACIS BinaryFileT             SpatialACIS 29.0.1 NTThu Jul 15 15:36:04 2021      ğ?íµ ÷Æ°>»½×Ùß|Û=
-MZ8AQGWESQ9J6Z_S839B7J6S4N9V4Z6PK_ASCK8QA79CMFPQHFCTUEM53Y8CMF87VTBUKRJN27C9VQtransform%      ÿÿÿÿ      ğ?                              ğ?                              ğ?                              ğ?
+ACIS BinaryFileT             SpatialACIS 29.0.1 NTTue Jul 20 10:29:31 2021      ğ?íµ ÷Æ°>»½×Ùß|Û=
+M54KJMBTSM9VDTKH2M2_EBUHHV3Q3YT6GSB44Q8Q879R4KAQ73BMBN6NHQA4CQJ66UCNBFAN7BBFMJtransform%      ÿÿÿÿ      ğ?                              ğ?                              ğ?                              ğ?
 point%      ÿÿÿÿÿÿÿÿÿÿÿÿ                        	flag%   ansoft%   attrib%   ÿÿÿÿÿÿÿÿ   ÿÿÿÿ    ¥îÛ     
 color%   %   %   ÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿ   ¥îÛ ÿ ÿ€
 units%   %   %   ÿÿÿÿÿÿÿÿ          ¥îÛ mm     @@%   %   %   ÿÿÿÿÿÿÿÿÿÿÿÿ       ¥îÛ ÀÀÀ€End-of-ACIS-data
@@ -13295,8 +13290,8 @@ $end 'sab'
 $begin 'sab'
 Design_1.setup/NativeGeometryFiles/0032711.sab
 BIN000000046598
-ACIS BinaryFileT             SpatialACIS 29.0.1 NTThu Jul 15 15:36:04 2021      ğ?íµ ÷Æ°>»½×Ùß|Û=
-MDVCTHJ9EGKPTRBU3FJCW7SV5726M7B6N5BCCGCP5FBJ4Q673QCNKKPP3YCSUPEQVX8M3KEQ3KCAMM	body%      ÿÿÿÿÿÿÿÿÿÿÿÿ       ÿÿÿÿ   
+ACIS BinaryFileT             SpatialACIS 29.0.1 NTTue Jul 20 10:29:31 2021      ğ?íµ ÷Æ°>»½×Ùß|Û=
+M4XA7F2JKWCS3VSND6F4Z8TKKT4P387P6WAMKMRPDFANVEEQBUB6MFE6VADT3QRP7KCP3FJQ2Y88ME	body%      ÿÿÿÿÿÿÿÿÿÿÿÿ       ÿÿÿÿ   
 Ñö¬ŸzÀÚ	G8
 ÀU‰—.Q2Àz~…Âõ(Ü¿jfffffÀ*Mw$}'Àstring_attrib%   name_attrib%   gen%   attrib%   ÿÿÿÿÿÿÿÿ   ÿÿÿÿ    ¦îß ATTRIB_XACIS_NAME%6USB_ID	lump%      ÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿ       
 Ñö¬ŸzÀÚ	G8
@@ -13582,8 +13577,8 @@ point%   ÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿ€~…Âõ(Ü¿-™™™™™À*Mw$}'À%   %   %   ÿÿ
 # Ansoft project setting data. Non-Ansoft programs
 # should not read the rest of this file.
 B_SETNGS 1.03
-ACIS BinaryFileT             SpatialACIS 29.0.1 NTThu Jul 15 15:36:04 2021      ğ?íµ ÷Æ°>»½×Ùß|Û=
-MZ8AQGWESQ9J6Z_S839B7J6S4N9V4Z6PK_ASCK8QA79CMFPQHFCTUEM53Y8CMF87VTBUKRJN27C9VQtransform%      ÿÿÿÿ      ğ?                              ğ?                              ğ?                              ğ?
+ACIS BinaryFileT             SpatialACIS 29.0.1 NTTue Jul 20 10:29:31 2021      ğ?íµ ÷Æ°>»½×Ùß|Û=
+M54KJMBTSM9VDTKH2M2_EBUHHV3Q3YT6GSB44Q8Q879R4KAQ73BMBN6NHQA4CQJ66UCNBFAN7BBFMJtransform%      ÿÿÿÿ      ğ?                              ğ?                              ğ?                              ğ?
 point%      ÿÿÿÿÿÿÿÿÿÿÿÿ                        	flag%   ansoft%   attrib%   ÿÿÿÿÿÿÿÿ   ÿÿÿÿ    ¥îÛ     
 color%   %   %   ÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿ   ¥îÛ ÿ ÿ€
 units%   %   %   ÿÿÿÿÿÿÿÿ          ¥îÛ mm     @@%   %   %   ÿÿÿÿÿÿÿÿÿÿÿÿ       ¥îÛ ÀÀÀ€End-of-ACIS-data
@@ -13596,8 +13591,8 @@ $end 'sab'
 $begin 'sab'
 Design_1.setup/NativeGeometryFiles/0032873.sab
 BIN000000395077
-ACIS BinaryFileT             SpatialACIS 29.0.1 NTThu Jul 15 15:36:04 2021      ğ?íµ ÷Æ°>»½×Ùß|Û=
-MDVCTHJ9EGKPTRBU3FJCW7SV5726M7B6N5BCCGCP5FBJ4Q673QCNKKPP3YCSUPEQVX8M3KEQ3KCAMM	body%      ÿÿÿÿÿÿÿÿÿÿÿÿ       ÿÿÿÿ   
+ACIS BinaryFileT             SpatialACIS 29.0.1 NTTue Jul 20 10:29:31 2021      ğ?íµ ÷Æ°>»½×Ùß|Û=
+M4XA7F2JKWCS3VSND6F4Z8TKKT4P387P6WAMKMRPDFANVEEQBUB6MFE6VADT3QRP7KCP3FJQ2Y88ME	body%      ÿÿÿÿÿÿÿÿÿÿÿÿ       ÿÿÿÿ   
 Ñö¬ŸzÀá|m\9À÷˜0„¸OÀz~…Âõ(Ü¿†X)ìúÀ*Mw$}'Àstring_attrib%   name_attrib%   gen%   attrib%   ÿÿÿÿÿÿÿÿ   ÿÿÿÿ    ¦îß ATTRIB_XACIS_NAME%6USB_GND	lump%      ÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿ       
 Ñö¬ŸzÀá|m\9À÷˜0„¸OÀz~…Âõ(Ü¿†X)ìúÀ*Mw$}'Àtransform%   ÿÿÿÿÿÿÿÿ      ğ?                              ğ?                              ğ?                              ğ?rgb_color%	   st%
    %   ÿÿÿÿÿÿÿÿ          Æîß                         properties%   ansoft%   %   ÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿ   ¥îÛ  Polyline20_SweepFaceAlongNormal1ÿÿÿÿ            
@@ -16983,8 +16978,8 @@ VTµ•<%   %   %   ÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿŠ  ¥îÛ #…  %   ÿÿÿÿ
 # Ansoft project setting data. Non-Ansoft programs
 # should not read the rest of this file.
 B_SETNGS 1.03
-ACIS BinaryFileT             SpatialACIS 29.0.1 NTThu Jul 15 15:36:04 2021      ğ?íµ ÷Æ°>»½×Ùß|Û=
-MZ8AQGWESQ9J6Z_S839B7J6S4N9V4Z6PK_ASCK8QA79CMFPQHFCTUEM53Y8CMF87VTBUKRJN27C9VQtransform%      ÿÿÿÿ      ğ?                              ğ?                              ğ?                              ğ?
+ACIS BinaryFileT             SpatialACIS 29.0.1 NTTue Jul 20 10:29:31 2021      ğ?íµ ÷Æ°>»½×Ùß|Û=
+M54KJMBTSM9VDTKH2M2_EBUHHV3Q3YT6GSB44Q8Q879R4KAQ73BMBN6NHQA4CQJ66UCNBFAN7BBFMJtransform%      ÿÿÿÿ      ğ?                              ğ?                              ğ?                              ğ?
 point%      ÿÿÿÿÿÿÿÿÿÿÿÿ                        	flag%   ansoft%   attrib%   ÿÿÿÿÿÿÿÿ   ÿÿÿÿ    ¥îÛ     
 color%   %   %   ÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿ   ¥îÛ ÿ ÿ€
 units%   %   %   ÿÿÿÿÿÿÿÿ          ¥îÛ mm     @@%   %   %   ÿÿÿÿÿÿÿÿÿÿÿÿ       ¥îÛ ÀÀÀ€End-of-ACIS-data
@@ -16997,8 +16992,8 @@ $end 'sab'
 $begin 'sab'
 Design_1.setup/NativeGeometryFiles/0034155.sab
 BIN000000065484
-ACIS BinaryFileT             SpatialACIS 29.0.1 NTThu Jul 15 15:36:04 2021      ğ?íµ ÷Æ°>»½×Ùß|Û=
-MDVCTHJ9EGKPTRBU3FJCW7SV5726M7B6N5BCCGCP5FBJ4Q673QCNKKPP3YCSUPEQVX8M3KEQ3KCAMM	body%      ÿÿÿÿÿÿÿÿÿÿÿÿ       ÿÿÿÿ   
+ACIS BinaryFileT             SpatialACIS 29.0.1 NTTue Jul 20 10:29:31 2021      ğ?íµ ÷Æ°>»½×Ùß|Û=
+M4XA7F2JKWCS3VSND6F4Z8TKKT4P387P6WAMKMRPDFANVEEQBUB6MFE6VADT3QRP7KCP3FJQ2Y88ME	body%      ÿÿÿÿÿÿÿÿÿÿÿÿ       ÿÿÿÿ   
 Ñö¬ŸzÀû7åâ!Àb)_‚KÀz~…Âõ(Ü¿ëÿÿÿÿÿÀ*Mw$}'Àstring_attrib%   name_attrib%   gen%   attrib%   ÿÿÿÿÿÿÿÿ   ÿÿÿÿ    ¦îß ATTRIB_XACIS_NAME%6usb_N	lump%      ÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿ       
 Ñö¬ŸzÀû7åâ!Àb)_‚KÀz~…Âõ(Ü¿ëÿÿÿÿÿÀ*Mw$}'Àtransform%   ÿÿÿÿÿÿÿÿ      ğ?                              ğ?                              ğ?                              ğ?properties%	   ansoft%
    %   ÿÿÿÿÿÿÿÿ          ¥îÛ usb_Nk…          ÿÿÿ€%	   %
@@ -17605,8 +17600,8 @@ aX9ô@Ó  RbX9t@h  Ô  unknown
 # Ansoft project setting data. Non-Ansoft programs
 # should not read the rest of this file.
 B_SETNGS 1.03
-ACIS BinaryFileT             SpatialACIS 29.0.1 NTThu Jul 15 15:36:04 2021      ğ?íµ ÷Æ°>»½×Ùß|Û=
-MZ8AQGWESQ9J6Z_S839B7J6S4N9V4Z6PK_ASCK8QA79CMFPQHFCTUEM53Y8CMF87VTBUKRJN27C9VQtransform%      ÿÿÿÿ      ğ?                              ğ?                              ğ?                              ğ?
+ACIS BinaryFileT             SpatialACIS 29.0.1 NTTue Jul 20 10:29:31 2021      ğ?íµ ÷Æ°>»½×Ùß|Û=
+M54KJMBTSM9VDTKH2M2_EBUHHV3Q3YT6GSB44Q8Q879R4KAQ73BMBN6NHQA4CQJ66UCNBFAN7BBFMJtransform%      ÿÿÿÿ      ğ?                              ğ?                              ğ?                              ğ?
 point%      ÿÿÿÿÿÿÿÿÿÿÿÿ                        	flag%   ansoft%   attrib%   ÿÿÿÿÿÿÿÿ   ÿÿÿÿ    ¥îÛ     
 color%   %   %   ÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿ   ¥îÛ ÿ ÿ€
 units%   %   %   ÿÿÿÿÿÿÿÿ          ¥îÛ mm     @@%   %   %   ÿÿÿÿÿÿÿÿÿÿÿÿ       ¥îÛ ÀÀÀ€End-of-ACIS-data
@@ -17619,8 +17614,8 @@ $end 'sab'
 $begin 'sab'
 Design_1.setup/NativeGeometryFiles/0034377.sab
 BIN000000065639
-ACIS BinaryFileT             SpatialACIS 29.0.1 NTThu Jul 15 15:36:04 2021      ğ?íµ ÷Æ°>»½×Ùß|Û=
-MDVCTHJ9EGKPTRBU3FJCW7SV5726M7B6N5BCCGCP5FBJ4Q673QCNKKPP3YCSUPEQVX8M3KEQ3KCAMM	body%      ÿÿÿÿÿÿÿÿÿÿÿÿ       ÿÿÿÿ   
+ACIS BinaryFileT             SpatialACIS 29.0.1 NTTue Jul 20 10:29:31 2021      ğ?íµ ÷Æ°>»½×Ùß|Û=
+M4XA7F2JKWCS3VSND6F4Z8TKKT4P387P6WAMKMRPDFANVEEQBUB6MFE6VADT3QRP7KCP3FJQ2Y88ME	body%      ÿÿÿÿÿÿÿÿÿÿÿÿ       ÿÿÿÿ   
 Ñö¬ŸzÀû7åâ!À•€)_LÀz~…Âõ(Ü¿lÌÌÌÌÌÀ*Mw$}'Àstring_attrib%   name_attrib%   gen%   attrib%   ÿÿÿÿÿÿÿÿ   ÿÿÿÿ    ¦îß ATTRIB_XACIS_NAME%6usb_P	lump%      ÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿ       
 Ñö¬ŸzÀû7åâ!À•€)_LÀz~…Âõ(Ü¿lÌÌÌÌÌÀ*Mw$}'Àtransform%   ÿÿÿÿÿÿÿÿ      ğ?                              ğ?                              ğ?                              ğ?properties%	   ansoft%
    %   ÿÿÿÿÿÿÿÿ          ¥îÛ usb_PI†           ÿ €%	   %
@@ -18232,8 +18227,8 @@ C@%   %
 # Ansoft project setting data. Non-Ansoft programs
 # should not read the rest of this file.
 B_SETNGS 1.03
-ACIS BinaryFileT             SpatialACIS 29.0.1 NTThu Jul 15 15:36:04 2021      ğ?íµ ÷Æ°>»½×Ùß|Û=
-MZ8AQGWESQ9J6Z_S839B7J6S4N9V4Z6PK_ASCK8QA79CMFPQHFCTUEM53Y8CMF87VTBUKRJN27C9VQtransform%      ÿÿÿÿ      ğ?                              ğ?                              ğ?                              ğ?
+ACIS BinaryFileT             SpatialACIS 29.0.1 NTTue Jul 20 10:29:31 2021      ğ?íµ ÷Æ°>»½×Ùß|Û=
+M54KJMBTSM9VDTKH2M2_EBUHHV3Q3YT6GSB44Q8Q879R4KAQ73BMBN6NHQA4CQJ66UCNBFAN7BBFMJtransform%      ÿÿÿÿ      ğ?                              ğ?                              ğ?                              ğ?
 point%      ÿÿÿÿÿÿÿÿÿÿÿÿ                        	flag%   ansoft%   attrib%   ÿÿÿÿÿÿÿÿ   ÿÿÿÿ    ¥îÛ     
 color%   %   %   ÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿ   ¥îÛ ÿ ÿ€
 units%   %   %   ÿÿÿÿÿÿÿÿ          ¥îÛ mm     @@%   %   %   ÿÿÿÿÿÿÿÿÿÿÿÿ       ¥îÛ ÀÀÀ€End-of-ACIS-data
@@ -18246,8 +18241,8 @@ $end 'sab'
 $begin 'sab'
 Design_1.setup/NativeGeometryFiles/0034599.sab
 BIN000000277019
-ACIS BinaryFileT             SpatialACIS 29.0.1 NTThu Jul 15 15:36:04 2021      ğ?íµ ÷Æ°>»½×Ùß|Û=
-MDVCTHJ9EGKPTRBU3FJCW7SV5726M7B6N5BCCGCP5FBJ4Q673QCNKKPP3YCSUPEQVX8M3KEQ3KCAMM	body%      ÿÿÿÿÿÿÿÿÿÿÿÿ       ÿÿÿÿ   
+ACIS BinaryFileT             SpatialACIS 29.0.1 NTTue Jul 20 10:29:31 2021      ğ?íµ ÷Æ°>»½×Ùß|Û=
+M4XA7F2JKWCS3VSND6F4Z8TKKT4P387P6WAMKMRPDFANVEEQBUB6MFE6VADT3QRP7KCP3FJQ2Y88ME	body%      ÿÿÿÿÿÿÿÿÿÿÿÿ       ÿÿÿÿ   
 š™™™™ÀçÿÿÿÿÀ¼Õñt»ú.ÀwCSM{pè?ôuèz¶Ë?Îÿÿÿÿ#Àstring_attrib%   name_attrib%   gen%   attrib%   ÿÿÿÿÿÿÿÿ   ÿÿÿÿ    ¦îß ATTRIB_XACIS_NAME%6
 USB_Shiels	lump%   ÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿ       
 š™™™™ÀçÿÿÿÿÀ¼Õñt»ú.ÀwCSM{pè?ôuèz¶Ë?Îÿÿÿÿ#Àtransform%   ÿÿÿÿÿÿÿÿ      ğ?                              ğ?                              ğ?                              ğ?group_ptr%	   ct%
@@ -20685,8 +20680,8 @@ USB_Shiels'‡          ÀÀÀ€%   %   %   %   ÿÿÿÿÿÿÿÿŒ  ‚  
 # Ansoft project setting data. Non-Ansoft programs
 # should not read the rest of this file.
 B_SETNGS 1.03
-ACIS BinaryFileT             SpatialACIS 29.0.1 NTThu Jul 15 15:36:04 2021      ğ?íµ ÷Æ°>»½×Ùß|Û=
-MZ8AQGWESQ9J6Z_S839B7J6S4N9V4Z6PK_ASCK8QA79CMFPQHFCTUEM53Y8CMF87VTBUKRJN27C9VQtransform%      ÿÿÿÿ      ğ?                              ğ?                              ğ?                              ğ?
+ACIS BinaryFileT             SpatialACIS 29.0.1 NTTue Jul 20 10:29:31 2021      ğ?íµ ÷Æ°>»½×Ùß|Û=
+M54KJMBTSM9VDTKH2M2_EBUHHV3Q3YT6GSB44Q8Q879R4KAQ73BMBN6NHQA4CQJ66UCNBFAN7BBFMJtransform%      ÿÿÿÿ      ğ?                              ğ?                              ğ?                              ğ?
 point%      ÿÿÿÿÿÿÿÿÿÿÿÿ                        	flag%   ansoft%   attrib%   ÿÿÿÿÿÿÿÿ   ÿÿÿÿ    ¥îÛ     
 color%   %   %   ÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿ   ¥îÛ ÿ ÿ€
 units%   %   %   ÿÿÿÿÿÿÿÿ          ¥îÛ mm     @@%   %   %   ÿÿÿÿÿÿÿÿÿÿÿÿ       ¥îÛ ÀÀÀ€End-of-ACIS-data
@@ -20699,8 +20694,8 @@ $end 'sab'
 $begin 'sab'
 Design_1.setup/NativeGeometryFiles/0035429.sab
 BIN000000356709
-ACIS BinaryFileT             SpatialACIS 29.0.1 NTThu Jul 15 15:36:04 2021      ğ?íµ ÷Æ°>»½×Ùß|Û=
-MDVCTHJ9EGKPTRBU3FJCW7SV5726M7B6N5BCCGCP5FBJ4Q673QCNKKPP3YCSUPEQVX8M3KEQ3KCAMM	body%      ÿÿÿÿÿÿÿÿÿÿÿÿ       ÿÿÿÿ   
+ACIS BinaryFileT             SpatialACIS 29.0.1 NTTue Jul 20 10:29:31 2021      ğ?íµ ÷Æ°>»½×Ùß|Û=
+M4XA7F2JKWCS3VSND6F4Z8TKKT4P387P6WAMKMRPDFANVEEQBUB6MFE6VADT3QRP7KCP3FJQ2Y88ME	body%      ÿÿÿÿÿÿÿÿÿÿÿÿ       ÿÿÿÿ   
 Î\Âõ(ü¿ÆQ¸…kÀƒÕñt»ú.ÀìZÂõ(à?¿†Âõ(\Ï¿o‹U”&Àstring_attrib%   name_attrib%   gen%   attrib%   ÿÿÿÿÿÿÿÿ   ÿÿÿÿ    ¦îß ATTRIB_XACIS_NAME%6USBmale_ObjectFromFace1	lump%      ÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿ       
 Î\Âõ(ü¿ÆQ¸…kÀƒÕñt»ú.ÀìZÂõ(à?¿†Âõ(\Ï¿o‹U”&Àtransform%   ÿÿÿÿÿÿÿÿ      ğ?                              ğ?                              ğ?                              ğ?group_ptr%	   ct%
    %   ÿÿÿÿÿÿÿÿ          ¥îÛ    properties%   ansoft%   %   ÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿ   ¥îÛ USBmaleÿÿÿÿ          €
@@ -23662,8 +23657,8 @@ $(~ÌÀÊ‚"òj¼-À\3&¦¡¼\3&¦‘¼      ğ¿      ğ¿        \3&¦¡<%   %
 # Ansoft project setting data. Non-Ansoft programs
 # should not read the rest of this file.
 B_SETNGS 1.03
-ACIS BinaryFileT             SpatialACIS 29.0.1 NTThu Jul 15 15:36:04 2021      ğ?íµ ÷Æ°>»½×Ùß|Û=
-MZ8AQGWESQ9J6Z_S839B7J6S4N9V4Z6PK_ASCK8QA79CMFPQHFCTUEM53Y8CMF87VTBUKRJN27C9VQtransform%      ÿÿÿÿ      ğ?                              ğ?                              ğ?                              ğ?
+ACIS BinaryFileT             SpatialACIS 29.0.1 NTTue Jul 20 10:29:31 2021      ğ?íµ ÷Æ°>»½×Ùß|Û=
+M54KJMBTSM9VDTKH2M2_EBUHHV3Q3YT6GSB44Q8Q879R4KAQ73BMBN6NHQA4CQJ66UCNBFAN7BBFMJtransform%      ÿÿÿÿ      ğ?                              ğ?                              ğ?                              ğ?
 point%      ÿÿÿÿÿÿÿÿÿÿÿÿ                        	flag%   ansoft%   attrib%   ÿÿÿÿÿÿÿÿ   ÿÿÿÿ    ¥îÛ     
 color%   %   %   ÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿ   ¥îÛ ÿ ÿ€
 units%   %   %   ÿÿÿÿÿÿÿÿ          ¥îÛ mm     @@%   %   %   ÿÿÿÿÿÿÿÿÿÿÿÿ       ¥îÛ ÀÀÀ€End-of-ACIS-data
@@ -23801,7 +23796,7 @@ RVq169WVevXlKc5zk5TnOTcpSlKTblKTbcpNttttu4UUUUzMKKKKACiiigAooooAKKKKACiiigD//Z'
 		Notes=''
 		Factory='Icepak'
 		IsSolved=false
-		'Nominal Setups'[1: 'DomSetup']
+		'Nominal Setups'[1: 'Setup1']
 		'Nominal Setup Types'[1: '']
 		'Optimetrics Setups'[0:]
 		'Optimetrics Experiment Types'[0:]
