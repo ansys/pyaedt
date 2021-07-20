@@ -542,7 +542,8 @@ TransientFlowOnly = [("Enabled", True), ("Flow Regime", "Laminar"), ("Include Te
                      ("Time Step:=", "1s"), ("Iterations per Time Step", 20), ("Import Start Time", False),
                      ("Copy Fields From Source", False), ("SaveFieldsType", "Every N Steps"),
                      ("N Steps:=", "10s"), ("Enable Control Program", False), ("Control Program Name", "")]
-
+"""
+Icepak Transient Flow Setup Template"""
 
 def HFSS3DLayout_AdaptiveFrequencyData(freq):
     """Update HFSS 3D adaptive frequency data.
