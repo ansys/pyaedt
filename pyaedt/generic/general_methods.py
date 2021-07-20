@@ -20,6 +20,16 @@ class MethodNotSupportedError(Exception):
     """ """
     pass
 
+def _write_mes(mes_text, print_on_desktop=False):
+    if os.getenv('PYAEDT_SCREEN_LOGS', 'True').lower() in ('true', '1', 't'):
+        print(mes_text)
+    if logger and os.getenv('PYAEDT_FILE_LOGS', 'True').lower() in ('true', '1', 't'):
+        logger.error(str(mes_text))
+    if print_on_desktop and os.getenv('PYAEDT_DESKTOP_LOGS', 'True').lower() in ('true', '1', 't') and "oDesktop" in dir(
+            sys.modules["__main__"]):
+        sys.modules["__main__"].oDesktop.AddMessage("", "", 2, (str(mes_text)))
+
+
 def _exception(ex_info, func, args, kwargs, message="Type Error"):
     """Writes the trace stack to the desktop when a python error occurs
 
@@ -41,9 +51,10 @@ def _exception(ex_info, func, args, kwargs, message="Type Error"):
 
     """
     if  os.getenv('PYAEDT_SCREEN_LOGS','True').lower() in ('true', '1', 't'):
-        print("**************************************************************")
-        print("pyaedt Error on Method {}:  {}. Please Check again".format(func.__name__, message))
-        print("Arguments Provided: ")
+        _write_mes("**************************************************************")
+        _write_mes("pyaedt Error on Method {}:  {}. Please Check again".format(func.__name__, message), True)
+        _write_mes("Arguments Provided: ")
+
         try:
 
             if int(sys.version[0]) > 2:
@@ -55,12 +66,12 @@ def _exception(ex_info, func, args, kwargs, message="Type Error"):
 
             for el in args_dict:
                 if el != "self":
-                    print("    {} = {} ".format(el, args_dict[el]))
+                    _write_mes("    {} = {} ".format(el, args_dict[el]))
         except:
             if len(args) > 1:
-                print(args[1:], kwargs)
+                _write_mes(args[1:], kwargs)
             else:
-                print(kwargs)
+                _write_mes(kwargs)
     ex_value = ex_info[1]
     tb_data = ex_info[2]
     tb_trace = traceback.format_tb(tb_data)
@@ -68,35 +79,17 @@ def _exception(ex_info, func, args, kwargs, message="Type Error"):
         tblist = tb_trace[1].split('\n')
     else:
         tblist = tb_trace[0].split('\n')
-    if os.getenv('PYAEDT_SCREEN_LOGS', 'True').lower() in ('true', '1', 't'):
-        print("")
-        print(str(ex_value))
-    if logger and os.getenv('PYAEDT_FILE_LOGS', 'True').lower() in ('true', '1', 't'):
-        logger.error(str(ex_value))
-        for el in tblist:
-            # self._main.oDesktop.AddMessage(proj_name, des_name, 2, el)
-            if "inner_function" not in el and "**kwargs" not in el:
-                if logger:
-                    logger.error(el)
-    # self._main.oDesktop.AddMessage(proj_name, des_name, 2, str(ex_value))
-    if os.getenv('PYAEDT_DESKTOP_LOGS', 'True').lower() in ('true', '1', 't') and "oDesktop" in dir(sys.modules["__main__"]):
-        sys.modules["__main__"].oDesktop.AddMessage("", "", 2,(str(ex_value)))
-        for el in tblist:
-            # self._main.oDesktop.AddMessage(proj_name, des_name, 2, el)
-            if "inner_function" not in el and "**kwargs" not in el:
-                sys.modules["__main__"].oDesktop.AddMessage("", "", 2,el)
-
-    if os.getenv('PYAEDT_SCREEN_LOGS', 'True').lower() in ('true', '1', 't'):
-        for el in tblist:
-            # self._main.oDesktop.AddMessage(proj_name, des_name, 2, el)
-            if "inner_function" not in el and "**kwargs" not in el:
-                print(el)
-        print("")
-        print("")
-        print("Method Docstring: ")
-        print("")
-        print(func.__doc__)
-        print("************************************************************")
+    _write_mes(str(ex_value), True)
+    for el in tblist:
+        # self._main.oDesktop.AddMessage(proj_name, des_name, 2, el)
+        if "inner_function" not in el and "**kwargs" not in el:
+            _write_mes(el, True)
+    _write_mes("")
+    _write_mes("")
+    _write_mes("Method Docstring: ")
+    _write_mes("")
+    _write_mes(func.__doc__)
+    _write_mes("************************************************************")
 
 
 def aedt_exception_handler(func):
