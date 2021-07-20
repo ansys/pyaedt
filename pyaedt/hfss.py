@@ -59,7 +59,7 @@ class Hfss(FieldAnalysis3D, object):
     design or create a new `HFSS` design if one does not exist.
 
     >>> from pyaedt import Hfss
-    >>> hfss = Hfss()
+    >>> hfss2 = Hfss()
 
     Create an instance of `HFSS` and link to a project named
     ``HfssProject``. If this project does not exist, create one with
@@ -71,24 +71,24 @@ class Hfss(FieldAnalysis3D, object):
     Create an instance of `HFSS` and link to a design named
     ``HfssDesign1`` in a project named ``HfssProject``.
 
-    >>> hfss = Hfss("HfssProject","HfssDesign1")
+    >>> hfss2 = Hfss("HfssProject","HfssDesign1")
     pyaedt Info: Added design 'HfssDesign1' of type HFSS.
 
     Create an instance of `HFSS` and open the specified project,
     which is named ``"myfile.aedt"``.
 
-    >>> hfss = Hfss("myfile.aedt")
+    >>> hfss2 = Hfss("myfile.aedt")
     pyaedt Info: Added design 'HFSS_...' of type HFSS.
 
     Create an instance of `HFSS` using the 2021 R1 release and open
     the specified project, which is named ``"myfile.aedt"``.
 
-    >>> hfss = Hfss(specified_version="2021.1", projectname="myfile.aedt")
+    >>> hfss2 = Hfss(specified_version="2021.1", projectname="myfile.aedt")
 
     Create an instance of `HFSS` using the 2021 R2 student version and open
     the specified project, which is named ``"myfile.aedt"``.
 
-    >>> hfss = Hfss(specified_version="2021.2", projectname="myfile.aedt", student_version=True)
+    >>> hfss2 = Hfss(specified_version="2021.2", projectname="myfile.aedt", student_version=True)
 
     """
 
@@ -303,9 +303,12 @@ class Hfss(FieldAnalysis3D, object):
 
         Examples
         --------
-        
-        >>> id1 = hfss.modeler.primitives.get_obj_id("inner")
-        >>> coat = hfss.assigncoating([id1], "copper", usethickness=True, thickness="0.2mm")
+
+        >>> origin = hfss.modeler.Position(0, 0, 0)
+        >>> inner = hfss.modeler.primitives.create_cylinder(hfss.CoordinateSystemPlane.XYPlane, origin, 3, 200, 0, "inner")
+        >>> inner_id = hfss.modeler.primitives.get_obj_id("inner")
+        >>> coat = hfss.assigncoating([inner_id], "copper", usethickness=True, thickness="0.2mm")
+
 
         """
 
