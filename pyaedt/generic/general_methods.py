@@ -79,11 +79,18 @@ def _exception(ex_info, func, args, kwargs, message="Type Error"):
                 if logger:
                     logger.error(el)
     # self._main.oDesktop.AddMessage(proj_name, des_name, 2, str(ex_value))
-    for el in tblist:
-        # self._main.oDesktop.AddMessage(proj_name, des_name, 2, el)
-        if "inner_function" not in el and "**kwargs" not in el:
-            print(el)
+    if os.getenv('PYAEDT_DESKTOP_LOGS', 'True').lower() in ('true', '1', 't') and "oDesktop" in dir(sys.modules["__main__"]):
+        sys.modules["__main__"].oDesktop.AddMessage("", "", 2,(str(ex_value)))
+        for el in tblist:
+            # self._main.oDesktop.AddMessage(proj_name, des_name, 2, el)
+            if "inner_function" not in el and "**kwargs" not in el:
+                sys.modules["__main__"].oDesktop.AddMessage("", "", 2,el)
+
     if os.getenv('PYAEDT_SCREEN_LOGS', 'True').lower() in ('true', '1', 't'):
+        for el in tblist:
+            # self._main.oDesktop.AddMessage(proj_name, des_name, 2, el)
+            if "inner_function" not in el and "**kwargs" not in el:
+                print(el)
         print("")
         print("")
         print("Method Docstring: ")
@@ -140,11 +147,13 @@ def aedt_exception_handler(func):
                 return False
             except MethodNotSupportedError:
                 message = "This Method is not supported in current AEDT Design Type."
-                print("**************************************************************")
-                print("pyaedt Error on Method {}:  {}. Please Check again".format(func.__name__, message))
-                print("**************************************************************")
-                print("")
-                logger.error(message)
+                if os.getenv('PYAEDT_SCREEN_LOGS', 'True').lower() in ('true', '1', 't'):
+                    print("**************************************************************")
+                    print("pyaedt Error on Method {}:  {}. Please Check again".format(func.__name__, message))
+                    print("**************************************************************")
+                    print("")
+                if os.getenv('PYAEDT_FILE_LOGS', 'True').lower() in ('true', '1', 't'):
+                    logger.error(message)
                 return False
             except BaseException:
                 _exception(sys.exc_info(), func, args, kwargs, "General or AEDT Error")
