@@ -54,7 +54,7 @@ The same result can be obtained with the following code:
 Variables
 ~~~~~~~~~
 PyAEDT allows an easy way to get and set Variables inside a Project or a Design.
-User simply needs to initialize a variable as a dictionary key. if `$` is used as prefix of the variable name then a project variable will be created
+User simply needs to initialize a variable as a dictionary key. if ``$`` is used as prefix of the variable name then a project variable will be created
 
 .. code:: python
 
@@ -71,7 +71,7 @@ User simply needs to initialize a variable as a dictionary key. if `$` is used a
 
 Modeler
 ~~~~~~~
-Object oriented Programming is used to create and manage objects in 3D/2D Modelers. User can create an object and change properties using getters/setters:
+Object oriented programming is used to create and manage objects in 3D/2D Modelers. You can create an object and change properties using getters or setters:
 
 
 .. code:: python
@@ -80,10 +80,10 @@ Object oriented Programming is used to create and manage objects in 3D/2D Modele
 
     from pyaedt.hfss import Hfss
     with Hfss as hfss:
-         box=hfss.modeler.primitives.create_box([0, 0, 0], [10, "dim", 10],
-                                            "mybox", "aluminum")
+         box = hfss.modeler.primitives.create_box([0, 0, 0], [10, "dim", 10],
+                                                  "mybox", "aluminum")
          print(box.faces)
-         box.material_name="copper"
+         box.material_name = "copper"
          box.color = "Red"
 
 
@@ -91,15 +91,3 @@ Object oriented Programming is used to create and manage objects in 3D/2D Modele
 .. image:: ./aedt_box.png
   :width: 800
   :alt: Modeler Object
-
-License
--------
-PyAEDT is licensed under the MIT license.
-
-This PyAEDT module makes no commercial claim over Ansys
-whatsoever. PyAEDT extends the functionality of AEDT by adding
-an additional Python interface to AEDT without changing the core
-behavior or license of the original software. The use of the
-interactive APDL control of PyAEDT requires a legally licensed
-local copy of AEDT. For more information about AEDT,
-visit `Ansys <https://www.ansys.com/products/electronics>`_.
