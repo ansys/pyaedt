@@ -62,10 +62,6 @@ jobs:
       - name: ' Deploy on Gh-pages'
         #working-directory: doc/_build/html
         run: |
-          New-Item -Path . -Name "doc" -ItemType "directory"
-          cd doc
-          New-Item -Path . -Name "_build" -ItemType "directory"
-          cd _build
           New-Item -Path . -Name "html" -ItemType "directory"
           cd html
           git init
