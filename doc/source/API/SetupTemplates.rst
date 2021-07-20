@@ -1,6 +1,20 @@
 Setup Templates
 ===============
-This page contains all the Setup Default Templates values and keys.
+This page contains all the Setup Default Templates values and keys. it can be used to edit a setup after it is created
+Example
+
+.. code:: python
+
+    Launch AEDT 2021 R1 in Non-Graphical mode
+
+    from pyaedt import Hfss
+
+    hfss = Hfss()
+    # Any property of this setup can be found in this page.
+    hfss.props["AdaptMultipleFreqs"] = True
+    hfss.update()
+
+
 
 
 
@@ -152,3 +166,11 @@ Mechanical MechStructural
 -------------------------
 
 .. autodata:: pyaedt.modules.SetupTemplates.MechStructural
+
+
+RMXPrt Analysis
+===============
+
+
+
+.. autodata:: pyaedt.modules.SetupTemplates.GRM
