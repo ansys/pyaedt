@@ -304,7 +304,7 @@ class CoordinateSystem(object):
             If ``mode="zxz"`` or ``mode="zyz"``, the Euler angle psi in degrees. The
             default is ``0``.
         u : list
-            If ``mode="zxz"``, the ``[ux, uy, uz]`` coordiate for the rotation axis. The 
+            If ``mode="zxz"``, the ``[ux, uy, uz]`` coordinates for the rotation axis. The 
             default is ``[1, 0, 0]``.
 
         Returns
@@ -797,7 +797,7 @@ class GeometryModeler(Modeler, object):
             If ``mode="zxz"`` or ``mode="zyz"``, the Euler angle psi in degrees. The
             default is ``0``.
         u : list
-            If ``mode="zxz"``, the ``[ux, uy, uz]`` coordiate for the rotation axis. The 
+            If ``mode="zxz"``, the ``[ux, uy, uz]`` coordinates for the rotation axis. The 
             default is ``[1, 0, 0]``.
         
         Returns
@@ -875,7 +875,7 @@ class GeometryModeler(Modeler, object):
         Parameters
         ----------
         name : str
-            Name of the coordinateg system to set as the working coodinate system.
+            Name of the coordinate system to set as the working coordinate system.
 
         Returns
         -------
@@ -1046,7 +1046,7 @@ class GeometryModeler(Modeler, object):
         objectname : str
             Name of the object.
         startposition : list
-            List of ``[x, y, z]`` coodinates for the starting position of the object.
+            List of ``[x, y, z]`` coordinates for the starting position of the object.
         offset :
             Offset to apply.  
         plane :
@@ -1055,7 +1055,7 @@ class GeometryModeler(Modeler, object):
         Returns
         -------
         list
-            List of ``[x, y, z]`` coodinates for the position of the point.
+            List of ``[x, y, z]`` coordinates for the position of the point.
         
         """
         position = [0, 0, 0]
@@ -1098,7 +1098,7 @@ class GeometryModeler(Modeler, object):
         ----------
         objectname : str
             Name of the object.
-        groundname : str, optinal
+        groundname : str, optional
             Name of the ground. The default is ``None``, in which case the
             bounding box is used.
         axisdir : int, optional
@@ -1576,7 +1576,7 @@ class GeometryModeler(Modeler, object):
         vector : list
             List of ``[x1,y1,z1]`` coordinates or Application.Position object for 
             the vector.
-        attachObject : bool, optinal
+        attachObject : bool, optional
             The default is ``False``.
         nclones : int, optional
             Number of clones. The default is ``2``.
@@ -2337,7 +2337,7 @@ class GeometryModeler(Modeler, object):
         Parameters
         ----------
         startingposition : list
-            List of ``[x, y, z]`` coordinates for the starting postion.
+            List of ``[x, y, z]`` coordinates for the starting position.
         axis :
             Coordinate system axis.
         innerradius : float, optional
@@ -2613,7 +2613,7 @@ class GeometryModeler(Modeler, object):
         min_size : float
             Minimum size of the subsegment of the new polyline. The default is ``0.2``.
         numberofsegments : int, optional
-             Number of segements. The default is ``8``.
+             Number of segments. The default is ``8``.
 
         Returns
         -------
@@ -2813,7 +2813,7 @@ class GeometryModeler(Modeler, object):
         
         Starting from a list of input sheets, this method creates a list of output sheets 
         that represent the blank part (vaacum) and the tool part of all the intersections 
-        of solids on the sheets. After a vaccum on a sheet is found, a port can be 
+        of solids on the sheets. After a vacuum on a sheet is found, a port can be 
         created on it. 
 
         Parameters
@@ -2863,7 +2863,7 @@ class GeometryModeler(Modeler, object):
         Returns
         -------
         list
-            List of object names for the specifid type.     
+            List of object names for the specified type.     
 
         """
         objNames = list(self.oeditor.GetObjectsInGroup(type))
@@ -3007,7 +3007,7 @@ class GeometryModeler(Modeler, object):
             case healing is not performed. 
         refresh_all_ids : bool, optional
             Whether to refresh all IDs after the CAD file is loaded. The 
-            default is ``True``. Refeshing IDs can take a lot of time in
+            default is ``True``. Refreshing IDs can take a lot of time in
             a big project. 
 
         Returns
@@ -3469,7 +3469,7 @@ class GeometryModeler(Modeler, object):
         Parameters
         ----------
         args: list or int
-            Postion of the item as either a list of ``[x, y, z]`` coordinates 
+            Position of the item as either a list of ``[x, y, z]`` coordinates 
             or three separate values. If no or insufficient arguments 
             are specified, ``0`` is applied.
         
