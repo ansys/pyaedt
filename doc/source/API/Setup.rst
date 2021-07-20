@@ -16,13 +16,3 @@ The ``Setup`` module includes these classes:
    SetupTemplates.SweepHFSS3DLayout
    SetupTemplates.SweepQ3D
    SetupTemplates.SetupKeys
-
-
-Setup Templates
----------------
-
-.. autodata:: pyaedt.modules.SetupTemplates.HFSS3DLayout
-   :annotation:
-
-.. autodata:: pyaedt.modules.SetupTemplates.TransientFlowOnly
-   :annotation:

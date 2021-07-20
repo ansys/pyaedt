@@ -21,6 +21,8 @@ transienthfss = [("TimeProfile", "Broadband Pulse"), ("HfssFrequency", "1GHz"),
 HFSSDrivenAuto = [("IsEnabled", True), ("MeshLink", meshlink), ("AutoSolverSetting", "Balanced"),
                   ("Sweeps", autosweeps),
                   ("SaveRadFieldsOnly", False), ("SaveAnyFields", True), ("Type", "Discrete")]
+"""HFSS Automatic Setup Properties and default values"""
+
 HFSSDrivenDefault = [("AdaptMultipleFreqs", False), ("MultipleAdaptiveFreqsSetup", multifreq), ("Frequency", "5GHz"),
                      ("MaxDeltaS", 0.02), ("PortsOnly", False),
                      ("UseMatrixConv", False), ("MaximumPasses", 6), ("MinimumPasses", 1),
@@ -35,16 +37,24 @@ HFSSDrivenDefault = [("AdaptMultipleFreqs", False), ("MultipleAdaptiveFreqsSetup
                      ("IESolverType", "Auto"), ("LambdaTargetForIESolver", 0.15),
                      ("UseDefaultLambdaTgtForIESolver", True),
                      ("IE Solver Accuracy", "Balanced")]
+"""HFSS Driven Analysis Properties and default values"""
+
 HFSSEigen = [("MinimumFrequency", "2GHz"), ("NumModes", 1), ("MaxDeltaFreq", 10), ("ConvergeOnRealFreq", False),
              ("MaximumPasses", 3), ("MinimumPasses", 1), ("MinimumConvergedPasses", 1),
              ("PercentRefinement", 30), ("IsEnabled", True), ("MeshLink", meshlink),
              ("BasisOrder", 1), ("DoLambdaRefine", True), ("DoMaterialLambda", True),
              ("SetLambdaTarget", False), ("Target", 0.2), ("UseMaxTetIncrease", False)]
+"""HFSS Eigen Mode Properties and default values"""
+
 HFSSTransient = [("Frequency", "5GHz"), ("MaxDeltaS", 0.02), ("MaximumPasses", 20), ("UseImplicitSolver", True),
                  ("IsEnabled", True), ("MeshLink", meshlink), ("BasisOrder", -1), ("Transient", transienthfss)]
+"""HFSS Transient Analysis Setup Properties and default values"""
+
 HFSSSBR = [("IsEnabled", True), ("MeshLink", meshlink), ("IsSbrRangeDoppler", False),
            ("RayDensityPerWavelength", 4), ("MaxNumberOfBounces", 5), ("RadiationSetup", ""),
            ("PTDUTDSimulationSettings", "None"), ("Sweeps", sweepssbr), ("ComputeFarFields", False)]
+"""HFSS SBR+ Setup Properties and default values"""
+
 MaxwellTransient = [("Enabled", True), ("MeshLink", meshlink), ("NonlinearSolverResidual", "0.005"),
                     ("ScalarPotential", "Second Order"), ("SmoothBHCurve", False), ("StopTime", "10000000ns"),
                     ("TimeStep", "2000000ns"),
@@ -54,15 +64,21 @@ MaxwellTransient = [("Enabled", True), ("MeshLink", meshlink), ("NonlinearSolver
                     ("IsGeneralTransient", True), ("IsHalfPeriodicTransient", False),
                     ("SaveFieldsType", "None"), ("CacheSaveKind", "Count"), ("NumberSolveSteps", 1),
                     ("RangeStart", "0s"), ("RangeEnd", "0.1s")]
+"""Maxwell Transient Setup Properties and default values"""
+
 Magnetostatic = [("Enabled", True), ("MeshLink", meshlink), ("MaximumPasses", 10), ("MinimumPasses", 2),
                  ("MinimumConvergedPasses", 1), ("PercentRefinement", 30), ("SolveFieldOnly", False),
                  ("PercentError", 1), ("SolveMatrixAtLast", True), ("PercentError", 1),
                  ("UseIterativeSolver", False), ("RelativeResidual", 1E-06), ("NonLinearResidual", 0.001),
                  ("SmoothBHCurve", False), ("MuOption", muoption)]
+"""Maxwell Magnetostatic Setup Properties and default values"""
+
 Electrostatic = [("Enabled", True), ("MeshLink", meshlink), ("MaximumPasses", 10), ("MinimumPasses", 2),
                  ("MinimumConvergedPasses", 1), ("PercentRefinement", 30), ("SolveFieldOnly", False),
                  ("PercentError", 1), ("SolveMatrixAtLast", True), ("PercentError", 1),
                  ("UseIterativeSolver", False), ("RelativeResidual", 1E-06), ("NonLinearResidual", 0.001)]
+"""Maxwell Electrostatic Setup Properties and default values"""
+
 EddyCurrent = [("Enabled", True), ("MeshLink", meshlink), ("MaximumPasses", 6), ("MinimumPasses", 1),
                ("MinimumConvergedPasses", 1), ("PercentRefinement", 30), ("SolveFieldOnly", False), ("PercentError", 1),
                ("SolveMatrixAtLast", True), ("PercentError", 1), ("UseIterativeSolver", False),
@@ -70,9 +86,13 @@ EddyCurrent = [("Enabled", True), ("MeshLink", meshlink), ("MaximumPasses", 6), 
                ("Frequency", "60Hz"), ("HasSweepSetup", False), ("SweepSetupType", "LinearStep"),
                ("StartValue", "1e-08GHz"), ("StopValue", "1e-06GHz"), ("StepSize", "1e-08GHz"),
                ("UseHighOrderShapeFunc", False), ("UseMuLink", False)]
+"""Maxwell EddyCurrent Setup Properties and default values"""
+
 ElectricTransient = [("Enabled",), ("MeshLink", meshlink), ("Tolerance", 0.005), ("ComputePowerLoss", False),
                      ("Data", transientelectrostatic),
                      ("Initial Voltage", "0mV")]
+"""Maxwell ElectricTransient Setup Properties and default values"""
+
 SteadyTemperatureAndFlow = [("Enabled", True), ("Flow Regime", "Laminar"), ("Include Temperature", True),
                             ("Include Flow", True), ("Include Gravity", False),
                             ("Solution Initialization - X Velocity", "0m_per_sec"),
@@ -124,6 +144,8 @@ SteadyTemperatureAndFlow = [("Enabled", True), ("Flow Regime", "Laminar"), ("Inc
                             ("Frozen Flow Simulation", False),
                             ("Sequential Solve of Flow and Energy Equations", False),
                             ("Convergence Criteria - Max Iterations", 100)]
+"""Icepack SteadyTemperatureAndFlow Setup Properties and default values"""
+
 SteadyTemperatureOnly = [("Enabled", True), ("Flow Regime", "Laminar"), ("Include Temperature", True),
                          ("Include Gravity", False),
                          ("Solution Initialization - X Velocity", "0m_per_sec"),
@@ -174,6 +196,8 @@ SteadyTemperatureOnly = [("Enabled", True), ("Flow Regime", "Laminar"), ("Includ
                          ("Linear Solver Stabilization - Temperature", "None"),
                          ("Sequential Solve of Flow and Energy Equations", False),
                          ("Convergence Criteria - Max Iterations", 100)]
+"""Icepack SteadyTemperatureOnly Setup Properties and default values"""
+
 SteadyFlowOnly = [("Enabled", True), ("Flow Regime", "Laminar"), ("Include Flow", True), ("Include Gravity", False),
                   ("Solution Initialization - X Velocity", "0m_per_sec"),
                   ("Solution Initialization - Y Velocity", "0m_per_sec"),
@@ -222,6 +246,8 @@ SteadyFlowOnly = [("Enabled", True), ("Flow Regime", "Laminar"), ("Include Flow"
                   ("Frozen Flow Simulation", False),
                   ("Sequential Solve of Flow and Energy Equations", False),
                   ("Convergence Criteria - Max Iterations", 100)]
+"""Icepack SteadyFlowOnly Setup Properties and default values"""
+
 Q3DCond = [("MaxPass", 10), ("MinPass", 1), ("MinConvPass", 1), ("PerError", 1), ("PerRefine", 30)]
 Q3DMult = [("MaxPass", 1), ("MinPass", 1), ("MinConvPass", 1), ("PerError", 1), ("PerRefine", 30)]
 Q3DDC = [("SolveResOnly", False), ("Cond", Q3DCond), ("Mult", Q3DMult)]
@@ -231,6 +257,8 @@ Q3DCap = [("MaxPass", 10), ("MinPass", 1), ("MinConvPass", 1), ("PerError", 1),
 Q3DAC = [("MaxPass", 10), ("MinPass", 1), ("MinConvPass", 1), ("PerError", 1), ("PerRefine", 30)]
 Matrix = [("AdaptiveFreq", "1GHz"), ("SaveFields", False), ("Enabled", True), ("Cap", Q3DCap), ("DC", Q3DDC),
           ("AC", Q3DAC)]
+"""Q3D Properties and default values"""
+
 OutputQuantities = []
 NoiseOutputQuantities = []
 SweepDefinition = [("Variable", "Freq"), ("Data", "LINC 1GHz 5GHz 501"), ("OffsetF1", False),
@@ -240,15 +268,21 @@ NexximLNA = [("DataBlockID", 16), ("OptionName", "(Default Options)"), ("Additio
              ("NoiseOutputQuantities", NoiseOutputQuantities), ("Name", "LinearFrequency"),
              ("LinearFrequencyData", [False, 0.1, False, "", False]),
              ("SweepDefinition", SweepDefinition)]
+"""Nexxim LNA Setup Properties and default values"""
+
 NexximDC = [("DataBlockID", 15), ("OptionName", "(Default Options)"), ("AdditionalOptions", ""),
             ("AlterBlockName", ""), ("FilterText", ""), ("AnalysisEnabled", 1), ("OutputQuantities", OutputQuantities),
             ("NoiseOutputQuantities", NoiseOutputQuantities), ("Name", "LinearFrequency")]
+"""Nexxim DC Setup Properties and default values"""
+
 NexximTransient = [("DataBlockID", 10), ("OptionName", "(Default Options)"), ("AdditionalOptions", ""),
                    ("AlterBlockName", ""), ("FilterText", ""), ("AnalysisEnabled", 1),
                    ("OutputQuantities", OutputQuantities), ("NoiseOutputQuantities", NoiseOutputQuantities),
                    ("Name", "LinearFrequency"),
                    ("TransientData", ["0.1ns", "10ns"]), ("TransientNoiseData", [False, "", "", 0, 1, 0, False, 1]),
                    ("TransientOtherData", ["default"])]
+"""Nexxim Transient Setup Properties and default values"""
+
 NexximQuickEye = []
 NexximVerifEye = []
 NexximAMI = []
@@ -343,10 +377,13 @@ RLDataBlock = [("MaxPass", 10),
                ("UseLossConv", True)]
 Open = [("AdaptiveFreq", "1GHz"), ("SaveFields", True), ("Enabled", True), ("MeshLink", meshlink),
         ("CGDataBlock", CGDataBlock), ("RLDataBlock", RLDataBlock), ("CacheSaveKind", "Delta"), ("ConstantDelta", "0s")]
+"""Q2D Open Setup Properties and default values"""
 
 Close = [("AdaptiveFreq", "1GHz"), ("SaveFields", True), ("Enabled", True), ("MeshLink", meshlink),
          ("CGDataBlock", CGDataBlock), ("RLDataBlock", RLDataBlock), ("CacheSaveKind", "Delta"),
          ("ConstantDelta", "0s")]
+"""Q2D Closed Setup Properties and default values"""
+
 
 TransientTemperatureAndFlow = [("Enabled", True), ("Flow Regime", "Laminar"), ("Include Temperature", True),
                                ("Include Flow", True), ("Include Gravity", False), ("Include Solar", False),
@@ -542,8 +579,7 @@ TransientFlowOnly = [("Enabled", True), ("Flow Regime", "Laminar"), ("Include Te
                      ("Time Step:=", "1s"), ("Iterations per Time Step", 20), ("Import Start Time", False),
                      ("Copy Fields From Source", False), ("SaveFieldsType", "Every N Steps"),
                      ("N Steps:=", "10s"), ("Enable Control Program", False), ("Control Program Name", "")]
-"""
-Icepak Transient Flow Setup Template"""
+
 
 def HFSS3DLayout_AdaptiveFrequencyData(freq):
     """Update HFSS 3D adaptive frequency data.
@@ -649,15 +685,20 @@ HFSS3DLayout = [
     ("CurveApproximation", HFSS3DLayout_CurveApproximation),
     ("Q3D_DCSettings", HFSS3DLayout_Q3D_DCSettings),
     ("AdaptiveSettings", HFSS3DLayout_AdaptiveSettings)]
+"""HFSS3D Layout Setup Properties and default values"""
 
 MechTerm = [("Enabled", True), ("MeshLink", meshlink),
             ("Solver", "Program Controlled"), ("Stepping", "Program Controlled")]
+"""Mechanical Theraml Setup Properties and default values"""
+
 MechModal = [("Enabled", True), ("MeshLink", meshlink),
              ("Max Modes", 6), ("Limit Search", True), ("Range Max", "100MHz"), ("Range Min", "0Hz"),
              ("Solver", "Program Controlled")]
+"""Mechanical Modal Setup Properties and default values"""
 
 MechStructural = [("Enabled", True), ("MeshLink", meshlink), ("Solver", "Program Controlled"),
                   ("Stepping", "Program Controlled")]
+"""Mechanical Structural Setup Properties and default values"""
 
 # TODO complete the list of templates for other Solvers
 
