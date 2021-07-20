@@ -60,12 +60,12 @@ jobs:
           sphinx-build -b html -a doc/source doc/_build/html -j 4
 
 
-      - name: Upload Documentation
-        uses: actions/upload-artifact@v2.2.3
-        with:
-          name: Documentation
-          path: doc/_build/html
-          retention-days: 7
+      #- name: Upload Documentation
+      #  uses: actions/upload-artifact@v2.2.3
+      #  with:
+      #    name: Documentation
+      #    path: doc/_build/html
+      #    retention-days: 7
 
       - name: Deploy
         if: github.event_name == 'push' && startsWith(github.ref, 'refs/tags')
