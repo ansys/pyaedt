@@ -84,10 +84,10 @@ class Primitives3D(Primitives, object):
 
         Parameters
         ----------
-        cs_axis :
+        cs_axis : str
             Axis of rotation of the starting point around the center point.
         position : list
-            Center point of the cyliner in a list of ''(x, y, z)`` coordinates.
+            Center point of the cylinder in a list of ``(x, y, z)`` coordinates.
         radius : float
             Radius of the cylinder.
         height : float
@@ -109,7 +109,7 @@ class Primitives3D(Primitives, object):
 
         Examples
         --------
-                >>> from pyaedt import Hfss
+        >>> from pyaedt import Hfss
         >>> aedtapp = Hfss()
         >>> ret_object = aedtapp.modeler.primitives.create_cylinder(cs_axis='Z', position=[0,0,0], radius=2, height=3,
         ...                                                name="mycyl", matname="vacuum")
@@ -170,7 +170,7 @@ class Primitives3D(Primitives, object):
         >>> from pyaedt import Hfss
         >>> aedtapp = Hfss()
         >>> ret_obj = aedtapp.modeler.primitives.create_polyhedron(cs_axis='X', center_position=[0, 0, 0], start_position=[0,5,0],
-        ...                                                      height=0.5, num_sides=8, name="mybox", matname="copper")
+        ...                                                        height=0.5, num_sides=8, name="mybox", matname="copper")
         
         """
         test = cs_axis
@@ -302,9 +302,9 @@ class Primitives3D(Primitives, object):
         Parameters
         ----------
         start_position : list
-            List of [x, y, z] coordinates for the starting position of the bond pad.
+            List of ``[x, y, z]`` coordinates for the starting position of the bond pad.
         end_position :  list
-            List of [x, y, z] coordinates for the ending position of the bond pad.
+            List of ``[x, y, z]`` coordinates for the ending position of the bond pad.
         h1: float, optional
             Height between the IC  die I/O pad and the top of the bondwire.
             The default is ``0.2``.
@@ -399,7 +399,7 @@ class Primitives3D(Primitives, object):
         cs_plane : 
             Coordinate system plane for orienting the rectangle.
         position : list or Position
-            List of ``[x,y,z]`` coordinates for the center point of the rectangle or 
+            List of ``[x, y, z]`` coordinates for the center point of the rectangle or 
             the positionApplicationName.modeler.Position(x,y,z) object. 
         dimension_list : list
             List of ``[width, height]`` dimensions.
@@ -635,7 +635,7 @@ class Primitives3D(Primitives, object):
 
         Parameters
         ----------
-        object_name : int, str. or Object3d
+        object_name : int, str, or Object3d
             Specified for the object.
 
         Returns
@@ -683,7 +683,7 @@ class Primitives3D(Primitives, object):
         Returns
         -------
         :class:`pyaedt.modeler.Object3d.Object3d`
-           3D object.
+            3D object.
 
         """
         vArg1 = ["NAME:UserDefinedModelParameters",["NAME:Definition"], ["NAME:Options"]]
