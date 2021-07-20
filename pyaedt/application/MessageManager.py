@@ -108,7 +108,6 @@ class AEDTMessageManager(object):
                 self.MainModule = sys.modules['__main__']
                 self._desktop = self.MainModule.oDesktop
                 self._log_on_desktop = os.getenv('PYAEDT_DESKTOP_LOGS', 'True').lower() in ('true', '1', 't')
-
             else:
                 self._log_on_desktop = False
                 self._desktop = None
