@@ -9,6 +9,7 @@ from pyaedt.doctest_fixtures import *
 # Import fixtures from other files
 pytest_plugins = [
     "pyaedt.doctest_fixtures.icepak_fixtures",
+    "pyaedt.doctest_fixtures.hfss_fixtures",
 ]
 
 
