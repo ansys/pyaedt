@@ -464,7 +464,8 @@ class Icepak(FieldAnalysisIcepak):
 
         >>> box1 = icepak.modeler.primitives.create_box([1, 2, 3], [10, 10, 10], "NetworkBox2", "copper")
         >>> box2 = icepak.modeler.primitives.create_box([4, 5, 6], [5, 5, 5], "NetworkBox3", "copper")
-        >>> blocks = icepak.create_network_blocks([["NetworkBox2", 20, 10, 3], ["NetworkBox3", 4, 10, 2]], icepak.GravityDirection.ZNeg, 1.05918, False)
+        >>> blocks = icepak.create_network_blocks([["NetworkBox2", 20, 10, 3], ["NetworkBox3", 4, 10, 2]],
+                                                   icepak.GravityDirection.ZNeg, 1.05918, False)
         >>> blocks[0].props["Nodes"]["Internal"]
         ['3W']
         
