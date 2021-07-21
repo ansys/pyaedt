@@ -304,11 +304,12 @@ class Hfss(FieldAnalysis3D, object):
         Examples
         --------
 
+        Create a cylinder at the XY working plane and assign a copper coating of 0.2 mm to it.
+
         >>> origin = hfss.modeler.Position(0, 0, 0)
         >>> inner = hfss.modeler.primitives.create_cylinder(hfss.CoordinateSystemPlane.XYPlane, origin, 3, 200, 0, "inner")
         >>> inner_id = hfss.modeler.primitives.get_obj_id("inner")
         >>> coat = hfss.assigncoating([inner_id], "copper", usethickness=True, thickness="0.2mm")
-
 
         """
 
@@ -1000,8 +1001,9 @@ class Hfss(FieldAnalysis3D, object):
 
         Examples
         --------
-        >>> from pyaedt import Hfss
-        >>> hfss = Hfss()
+
+        Create a wave port supported by a microstrip line.
+
         >>> ms = hfss.modeler.primitives.create_box([4, 5, 0], [1, 100, 0.2],
         ...                                         name="MS1", matname="copper")
         >>> sub = hfss.modeler.primitives.create_box([0, 5, -2], [20, 100, 2],
