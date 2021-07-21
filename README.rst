@@ -30,7 +30,7 @@ possible across the API.
 
 Documentation and Issues
 ------------------------
-See the `API Documentation <https://aedtdocs.pyansys.com/API/API.html>`_ page for more
+See the `API Documentation <https://aedtdocs.pyansys.com/API/>`_ page for more
 details and the `Examples gallery
 <https://aedtdocs.pyansys.com/examples/index.html>`_ for some
 examples.

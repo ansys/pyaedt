@@ -74,11 +74,7 @@ class AEDTMessageManager(object):
     ----------
     parent :
         The default is ``None``.
-    loadondesktop : bool, optional
-        The default is ``True``.
-    loadonlog : bool, optional
-        The default is ``True``.
-    
+
     Attributes
     ----------
     messages : list
@@ -105,16 +101,23 @@ class AEDTMessageManager(object):
     >>> hfss._messenger.add_error_message("This is a project error message", "Project")
 
     """
-    def __init__(self, parent=None, loadondesktop=True, loadonlog=True):
+    def __init__(self, parent=None):
         self._parent = parent
         if not parent:
-            self.MainModule = sys.modules['__main__']
-            self._desktop = self.MainModule.oDesktop
+            if 'oDesktop' in dir(sys.modules['__main__']):
+                self.MainModule = sys.modules['__main__']
+                self._desktop = self.MainModule.oDesktop
+                self._log_on_desktop = os.getenv('PYAEDT_DESKTOP_LOGS', 'True').lower() in ('true', '1', 't', 'yes', 'y')
+            else:
+                self._log_on_desktop = False
+                self._desktop = None
         else:
             self._desktop = self._parent._desktop
+            self._log_on_desktop = os.getenv('PYAEDT_DESKTOP_LOGS', 'True').lower() in ('true', '1', 't')
+        self._log_on_file = os.getenv('PYAEDT_FILE_LOGS', 'True').lower() in ('true', '1', 't')
+        self._log_on_screen = os.getenv('PYAEDT_SCREEN_LOGS', 'True').lower() in ('true', '1', 't')
 
-        self.loadondesktop = loadondesktop
-        if loadonlog:
+        if self._log_on_file:
             self.logger = logging.getLogger(__name__)
         else:
             self.logger = None
@@ -150,9 +153,10 @@ class AEDTMessageManager(object):
             List of messages for the specified project and design.
 
         """
-        global_message_data = self._desktop.GetMessages("", "", 0)
-        message_data = MessageList(global_message_data, project_name, design_name)
-        return message_data
+        if self._log_on_desktop:
+            global_message_data = self._desktop.GetMessages("", "", 0)
+            message_data = MessageList(global_message_data, project_name, design_name)
+            return message_data
 
     @aedt_exception_handler
     def add_error_message(self, message_text, level=None):
@@ -273,7 +277,7 @@ class AEDTMessageManager(object):
 
         assert level in message_levels, "Message level must be `Design', 'Project', or 'Global'."
 
-        if self.loadondesktop:
+        if self._log_on_desktop:
             if not proj_name and message_levels[level] > 0:
                 proj_name = self._project_name
             if not des_name and message_levels[level] > 1:
@@ -286,19 +290,21 @@ class AEDTMessageManager(object):
             message_text = message_text[:250] + "..."
 
         # Print to stdout and to logger
-        
-        if type == 0:
-            print("pyaedt Info: {}".format(message_text))
-            if self.logger:
-              self.logger.info(message_text)
-        elif type == 1:
-            print("pyaedt Warning: {}".format(message_text))
-            if self.logger:
-              self.logger.warning(message_text)
-        elif type == 2:
-            print("pyaedt Error: {}".format(message_text))
-            if self.logger:
-              self.logger.error(message_text)
+
+        if self._log_on_screen:
+            if type == 0:
+                print("pyaedt Info: {}".format(message_text))
+            elif type == 1:
+                print("pyaedt Warning: {}".format(message_text))
+            elif type == 2:
+                print("pyaedt Error: {}".format(message_text))
+        if self._log_on_file:
+            if type == 0 and self.logger:
+                self.logger.info(message_text)
+            elif type == 1 and self.logger:
+                self.logger.warning(message_text)
+            elif type == 2 and self.logger:
+                self.logger.error(message_text)
 
     @aedt_exception_handler
     def clear_messages(self, proj_name=None, des_name=None, level=2):
@@ -332,9 +338,12 @@ class AEDTMessageManager(object):
         >>> hfss.clear_messages(level=3)
 
         """
-        proj_name = self._project_name
-        des_name = self._design_name
-        self._desktop.ClearMessages(proj_name, des_name, level)
+        if self._log_on_desktop:
+            if not proj_name:
+                proj_name = self._project_name
+            if not des_name:
+                des_name = self._design_name
+            self._desktop.ClearMessages(proj_name, des_name, level)
 
     @property
     def _oproject(self):
@@ -369,19 +378,24 @@ class EDBMessageManager(object):
     """
 
     def __init__(self, project_dir=None):
-        self.logger = logging.getLogger(__name__)
-        if not project_dir:
-            if os.name == "posix":
-                project_dir = "/tmp"
-            else:
-                project_dir = "C:\\Temp"
-        if not self.logger.handlers:
-            logging.basicConfig(
-                filename=os.path.join(project_dir, "EDBTLib.log"),
-                level=logging.DEBUG,
-                format='%(asctime)s:%(name)s:%(levelname)-8s:%(message)s',
-                datefmt='%Y/%m/%d %H.%M.%S')
+        self._log_on_file = os.getenv('PYAEDT_FILE_LOGS', 'True').lower() in ('true', '1', 't')
+        self._log_on_screen = os.getenv('PYAEDT_SCREEN_LOGS', 'True').lower() in ('true', '1', 't')
+        if self._log_on_file:
             self.logger = logging.getLogger(__name__)
+            if not project_dir:
+                if os.name == "posix":
+                    project_dir = "/tmp"
+                else:
+                    project_dir = "C:\\Temp"
+            if not self.logger.handlers:
+                logging.basicConfig(
+                    filename=os.path.join(project_dir, "EDBTLib.log"),
+                    level=logging.DEBUG,
+                    format='%(asctime)s:%(name)s:%(levelname)-8s:%(message)s',
+                    datefmt='%Y/%m/%d %H.%M.%S')
+                self.logger = logging.getLogger(__name__)
+        else:
+            self.logger = None
 
     def add_error_message(self, message_text):
         """Add a type 2 "Error" message to the logger.
@@ -392,8 +406,11 @@ class EDBMessageManager(object):
             Text to display as the message.
                 
         """
+        if self._log_on_file:
+            self.logger.error(message_text)
+        if self._log_on_screen:
+            print(message_text)
 
-        self.logger.error(message_text)
 
     def add_warning_message(self, message_text):
         """Add a "Warning" message to the logger.
@@ -402,7 +419,10 @@ class EDBMessageManager(object):
             Text to display as the message.
         
         """
-        self.logger.warning(message_text)
+        if self._log_on_file:
+            self.logger.warning(message_text)
+        if self._log_on_screen:
+            print(message_text)
 
     def add_info_message(self, message_text):
         """Add an "Info" message to the logger.
@@ -411,4 +431,7 @@ class EDBMessageManager(object):
             Text to display as the message.
 
         """
-        self.logger.info(message_text)
+        if self._log_on_file:
+            self.logger.info(message_text)
+        if self._log_on_screen:
+            print(message_text)

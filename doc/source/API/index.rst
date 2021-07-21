@@ -17,4 +17,5 @@ documentation.
    MaterialManagement
    Setup
    Post
+   SetupTemplates
 
