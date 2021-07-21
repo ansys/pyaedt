@@ -133,6 +133,8 @@ class Icepak(FieldAnalysisIcepak):
         Examples
         --------
 
+        Create an opening boundary for the faces of the "USB_GND" object.
+
         >>> faces = icepak.modeler.primitives["USB_GND"].faces
         >>> face_names = [face.id for face in faces]
         >>> boundary = icepak.assign_openings(face_names)
@@ -220,6 +222,8 @@ class Icepak(FieldAnalysisIcepak):
 
         Examples
         --------
+
+        Create block boundaries from each box in the list. 
 
         >>> box1 = icepak.modeler.primitives.create_box([1, 1, 1], [3, 3, 3], "BlockBox1", "copper")
         >>> box1 = icepak.modeler.primitives.create_box([2, 2, 2], [4, 4, 4], "BlockBox2", "copper")
@@ -327,6 +331,8 @@ class Icepak(FieldAnalysisIcepak):
 
         Examples
         --------
+
+        Create two source boundaries from one box, one on the top face and one on the bottom face.
 
         >>> box = icepak.modeler.primitives.create_box([0, 0, 0], [20, 20, 20], name="SourceBox")
         >>> source1 = icepak.create_source_power(box.top_face.id, input_power="2W")
@@ -461,6 +467,8 @@ class Icepak(FieldAnalysisIcepak):
 
         Examples
         --------
+
+        Create network boundaries from each box in the list. 
 
         >>> box1 = icepak.modeler.primitives.create_box([1, 2, 3], [10, 10, 10], "NetworkBox2", "copper")
         >>> box2 = icepak.modeler.primitives.create_box([4, 5, 6], [5, 5, 5], "NetworkBox3", "copper")
