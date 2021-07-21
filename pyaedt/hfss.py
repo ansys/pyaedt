@@ -59,7 +59,7 @@ class Hfss(FieldAnalysis3D, object):
     design or create a new `HFSS` design if one does not exist.
 
     >>> from pyaedt import Hfss
-    >>> hfss2 = Hfss()
+    >>> hfss = Hfss()
 
     Create an instance of `HFSS` and link to a project named
     ``HfssProject``. If this project does not exist, create one with
@@ -71,24 +71,24 @@ class Hfss(FieldAnalysis3D, object):
     Create an instance of `HFSS` and link to a design named
     ``HfssDesign1`` in a project named ``HfssProject``.
 
-    >>> hfss2 = Hfss("HfssProject","HfssDesign1")
+    >>> hfss = Hfss("HfssProject","HfssDesign1")
     pyaedt Info: Added design 'HfssDesign1' of type HFSS.
 
     Create an instance of `HFSS` and open the specified project,
     which is named ``"myfile.aedt"``.
 
-    >>> hfss2 = Hfss("myfile.aedt")
+    >>> hfss = Hfss("myfile.aedt")
     pyaedt Info: Added design 'HFSS_...' of type HFSS.
 
     Create an instance of `HFSS` using the 2021 R1 release and open
     the specified project, which is named ``"myfile.aedt"``.
 
-    >>> hfss2 = Hfss(specified_version="2021.1", projectname="myfile.aedt")
+    >>> hfss = Hfss(specified_version="2021.1", projectname="myfile.aedt")
 
     Create an instance of `HFSS` using the 2021 R2 student version and open
     the specified project, which is named ``"myfile.aedt"``.
 
-    >>> hfss2 = Hfss(specified_version="2021.2", projectname="myfile.aedt", student_version=True)
+    >>> hfss = Hfss(specified_version="2021.2", projectname="myfile.aedt", student_version=True)
 
     """
 
