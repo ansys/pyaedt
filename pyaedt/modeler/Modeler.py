@@ -1,16 +1,7 @@
 """
-Modeler Classes
-----------------------------------------------------------------
+This module contains these classes: `CoordinateSystem`, `Modeler`, `Position`, and `SweepOptions`.
 
-
-Description
-==================================================
-
-This class contains all the Modeler of AEDT. it includes 3D Modeler, 2D Modeler and 3D Layout Modeler as well as Circuit Modeler
-
-
-========================================================
-
+This modules provides functionalities for 3D Modeler, 2D Modeler, 3D Layout Modeler, and Circuit Modeler.
 """
 from __future__ import absolute_import
 import sys
@@ -32,7 +23,19 @@ from .Object3d import EdgePrimitive, FacePrimitive, VertexPrimitive, Object3d
 
 
 class CoordinateSystem(object):
-    """CS Data and execution class"""
+    """Manages coordinate system data and execution.
+    
+    Parameters
+    ----------
+    parent : 
+        Inherited parent object.
+    
+    props : dict, optional
+        Dictionary of properties. The default is ``None``.
+    name: optional
+        The default is ``None``.
+    
+    """
     def __init__(self, parent, props=None, name=None):
         self._parent = parent
         self.model_units = self._parent.model_units
@@ -48,14 +51,14 @@ class CoordinateSystem(object):
 
     @aedt_exception_handler
     def _dim_arg(self, Value, sUnits=None):
-        """
-
+        """Dimension argument.
+        
         Parameters
         ----------
-        Value :
+        Value : 
             
-        sUnits :
-             (Default value = None)
+        sUnits : optional
+             The default is ``None``.
 
         Returns
         -------
@@ -75,15 +78,14 @@ class CoordinateSystem(object):
 
     @aedt_exception_handler
     def _change_property(self, name, arg):
-        """ Updates the properties of coordinate system.
+        """Update properties of the coordinate system.
 
         Parameters
         ----------
         name : str
-            name of the coordinate system
-
+            Name of the coordinate system.
         arg : list
-            list with parameters about what to change, e.g. ["NAME:ChangedProps", ["NAME:Mode", "Value:=", "Axis/Position"]]
+            List of the properties to update. For example, ``["NAME:ChangedProps", ["NAME:Mode", "Value:=", "Axis/Position"]]``.
 
         Returns
         -------
@@ -94,15 +96,18 @@ class CoordinateSystem(object):
 
     @aedt_exception_handler
     def rename(self, newname):
-        """ Renames the Coordinate System.
+        """Rename the coordinate system.
 
         Parameters
         ----------
+        newname : str
+            New name for the coordinate system.
 
         Returns
         -------
         bool
-            True if succeeded, Flase otherwise
+            ``True`` when successful, ``False`` when failed.
+            
         """
         self._change_property(self.name, ["NAME:ChangedProps", ["NAME:Name", "Value:=", newname]])
         self.name = newname
@@ -110,7 +115,7 @@ class CoordinateSystem(object):
 
     @aedt_exception_handler
     def update(self):
-        """ Updates the Coordinate System properties.
+        """Update the coordinate system.
         
         Parameters
         ----------
@@ -118,7 +123,8 @@ class CoordinateSystem(object):
         Returns
         -------
         bool
-            True if succeeded, Flase otherwise
+            ``True`` when successful, ``False`` when failed.
+        
         """
         self._change_property(self.name, ["NAME:ChangedProps", ["NAME:Reference CS", "Value:=", self.ref_cs]])
 
@@ -126,7 +132,7 @@ class CoordinateSystem(object):
             self._change_property(self.name, ["NAME:ChangedProps", ["NAME:Mode", "Value:=", self.props["Mode"]]])
         except:
             raise ValueError(
-            "Mode must be 'Axis/Position', 'Euler Angle ZYZ' or 'Euler Angle ZXZ', not {}".format(self.props["Mode"]))
+            "Mode must be 'Axis/Position', 'Euler Angle ZYZ' or 'Euler Angle ZXZ', not {}.".format(self.props["Mode"]))
 
         props = ["NAME:ChangedProps"]
 
@@ -150,17 +156,24 @@ class CoordinateSystem(object):
 
     @aedt_exception_handler
     def change_cs_mode(self, mode_type=0):
-        """ Changes the Coordinate System mode.
+        """Change the mode of the coordinate system.
 
         Parameters
         ----------
         mode_type : int
-            0 for "Axis/Position", 1 for "Euler Angle ZXZ", 2 for "Euler Angle ZYZ" (Default value = 0)
+            Type of the mode. Options are:
+            
+            * 0 - Axis/Position
+            * 1 - Euler Angle ZXZ
+            * 2 - Euler Angle ZYZ
+            
+        The default is ``0``.
 
         Returns
         -------
         bool
-            True if succeeded, Flase otherwise
+            ``True`` when successful, ``False`` when failed.
+        
         """
         if mode_type == 0:  # "Axis/Position"
             if self.props and (self.props["Mode"] == "Euler Angle ZXZ" or self.props["Mode"] == "Euler Angle ZYZ"):
@@ -241,59 +254,65 @@ class CoordinateSystem(object):
                mode='axis', view='iso',
                x_pointing=None, y_pointing=None,
                phi=0, theta=0, psi=0, u=None):
-        """ Creates a Coordinate system.
-        Specify the mode = 'view', 'axis', 'zxz', 'zyz', 'axisrotation'. Default = 'axis'
-        If mode = 'view', specify view = 'XY', 'XZ', 'XY', 'iso', 'rotate' (obsolete)
-        If mode = 'axis', specify x_pointing and y_pointing
-        If mode = 'zxz' or 'zyz', specify phi, theta, psi
-        If mode = 'axisrotation', specify u, theta
-
-        Parameters not needed by the specified mode are ignored.
-        For back compatibility, view='rotate' is the same as mode='axis'.
-        Default is a coordinate system parallel to the Global centered in the Global origin.
-
+        """Create a coordinate system.  
+               
         Parameters
         ----------
         origin : list
-            origin of the CS (Default value = [0, 0, 0])
-
+            List of ``[x, y, z]`` coordinates for the origin of the coordinate system. 
+            The default is `None``, in which case ``[0, 0, 0]`` is used.
+        reference_cs : str, optional
+            Name of the reference coordinate system. The default is ``"Global"``.
         name : str
-            name of the CS (Default value = None)
+            Name of the coordinate system. The default is ``None``.
+        mode: str, optional
+            Definition mode. Options are ``"view"``, ``"axis"``, ``"zxz"``, ``"zyz"``, 
+            and ``"axisrotation"``. The default is ``"axis"``.
+            
+            * If ``mode="view"``, specify ``view``. 
+            * If ``mode="axis"``, specify ``x_pointing`` and ``y_pointing``.
+            * If ``mode="zxz"`` or ``mode="zyz"``, specify ``phi``, ``theta``, and ``psi``.
+            * If ``mode="axisrotation"``, specify ``theta`` and ``u``.
 
-        reference_cs : str
-             Reference coordinate system name (Default value = "Global")
+            Parameters not needed by the specified mode are ignored.
+            For back compatibility, ''view="rotate"`` is the same as ``mode="axis"``.
+            The default mode, ``"axisrotation"``, is a coordinate system parallel 
+            to the global coordinate system centered in the global origin.
 
-        mode: str
-            Definition mode. 'view', 'axis', 'zxz', 'zyz', 'axisrotation'. Default = 'axis'
-
-        view : str
-            View. Default "iso". possible "XY", "XZ", "XY", None, "rotate"
-            "rotate" is obsolete, simply specify mode = 'axis'.
-
-        x_pointing : list
-            if mode="axis", this is a 3 elements list specifying the X axis pointing in the global CS
-            (Default value = [1, 0, 0])
-
-        y_pointing : list
-            if mode="axis", this is a 3 elements list specifying the Y axis pointing in the global CS
-            (Default value = [0, 1, 0])
-
-        phi : float
-            Euler angle phi in degrees (Default value = 0)
-
-        theta : float
-            Euler angle theta in degrees, or orataion angle in degrees (Default value = 0)
-
-        psi : float
-            Euler angle psi in degrees (Default value = 0)
-
+        view : str, optional
+            If ``mode="view"``, the view for the coordinate system. Options are 
+            ``"XY"``, ``"XZ"``, ``"XY"``, ``"iso"``, ``None``, and ``"rotate"``
+            (obsolete). The default is ``"iso"``.
+            
+            .. note:: 
+               Because the ``"rotate"`` option is obsolete, use ``mode="axis"`` instead.
+               
+        x_pointing : list, optional
+            If ``mode="axis"``, the list of the ``[x, y, z]`` coordinates specifying 
+            the X axis pointing in the global coordinate system. The default is 
+            ``[1, 0, 0]``.
+        y_pointing : list, optional
+            If ``mode="axis"``, the list of the ``[x, y, z]`` coordinates specifying 
+            the Y axis pointing in the global coordinate system. The default is
+            ``[0, 1, 0]``.
+        phi : float, optional
+            If ``mode="zxz"`` or ``mode="zyz"``, the Euler angle phi in degrees. The
+            default is ``0``.
+        theta : float, optional
+            If ``mode="zxz"``, ``mode="zyz"``, or ``mode="axisrotation"``, the Euler angle 
+            theta or rotation angle in degrees. The default is ``0``.
+        psi : float, optional
+            If ``mode="zxz"`` or ``mode="zyz"``, the Euler angle psi in degrees. The
+            default is ``0``.
         u : list
-            rotation axis in format [ux, uy, uz] (Default value = [1, 0, 0])
+            If ``mode="zxz"``, the ``[ux, uy, uz]`` coordinates for the rotation axis. The 
+            default is ``[1, 0, 0]``.
 
         Returns
         -------
-        CoordinateSystem
-            CS object
+        :class:`pyaedt.modeler.Modeler.CoordinateSystem`
+            Coordinate system object.
+        
         """
         if not origin:
             origin = [0, 0, 0]
@@ -412,32 +431,26 @@ class CoordinateSystem(object):
 
     @property
     def orientation(self):
-        """
-        Construct the internal Named Array for orientation
-        """
+        """Internal named array for orientation."""
         arg = ["Name:RelativeCSParameters"]
         dict2arg(self.props, arg)
         return arg
 
     @property
     def attributes(self):
-        """
-        Construct the internal Named Array for the attributes
-        """
+        """Internal named array for the attributes."""
         coordinateSystemAttributes = ["NAME:Attributes", "Name:=", self.name]
         return coordinateSystemAttributes
 
     @aedt_exception_handler
     def delete(self):
-        """ Deletes the CS
-        
-        Parameters
-        ----------
+        """Delete the coordinate system.
 
         Returns
         -------
         bool
-            True if succeeded, Flase otherwise
+            ``True`` when successful, ``False`` when failed.
+        
         """
         self._parent.oeditor.Delete([
             "NAME:Selections",
@@ -447,15 +460,13 @@ class CoordinateSystem(object):
 
     @aedt_exception_handler
     def set_as_working_cs(self):
-        """ Sets the cs as working coordinate system.
-
-        Parameters
-        ----------
+        """Set the coordinate system as the working coordinate system.
 
         Returns
         -------
         bool
-            True if succeeded, Flase otherwise
+            ``True`` when successful, ``False`` when failed.
+        
         """
         self._parent.oeditor.SetWCS([
             "NAME:SetWCS Parameter",
@@ -465,45 +476,61 @@ class CoordinateSystem(object):
 
 
 class Modeler(object):
-    """Modeler application Class Inerithed by other modeler classes"""
+    """Provides the Modeler application class inherited by other Modeler classes.
+    
+    Parameters
+    ----------
+    parent :
+    
+    """
+
     def __init__(self, parent):
         self._parent = parent
 
     # Properties derived from internal parent data
     @property
     def _desktop(self):
-        """ """
+        """Desktop."""
         return self._parent._desktop
 
     @property
     def _messenger(self):
-        """ """
+        """Messager."""
         return self._parent._messenger
 
     @property
     def odesign(self):
-        """ """
+        """Design."""
         return self._parent._odesign
 
     @property
     def oimportexport(self):
-        """ """
+        """Import and Export."""
         return self._parent.oimportexport
 
     @property
     def projdir(self):
-        """ """
+        """Project directory."""
         return self._parent.project_path
 
 
 class GeometryModeler(Modeler, object):
-    """Manage Main AEDT Modeler Functions for geometry-based designs"""
-
+    """Manages the main AEDT Modeler functionalities for a geometry-based design.
+    
+    Parameters
+    ----------
+    parent :
+    
+    is3D : bool, optional
+        Check if the analysis is a 3D type.
+        
+    Returns
+    -------
+    bool
+        ``True`` when successful, ``False`` when failed.
+    
+    """
     def __init__(self, parent, is3d=True):
-        """
-        Initialize the Class
-        :return Nothing
-        """
         self._parent = parent
         Modeler.__init__(self, parent)
         #TODO Refactor this as a dictionary with names as key
@@ -512,29 +539,34 @@ class GeometryModeler(Modeler, object):
 
     @property
     def materials(self):
-        """
+        """Material library used in the project.
 
         Returns
         -------
         :class:`pyaedt.modules.MaterialLib.Materials`
+            Material library.
+        
         """
         return self._parent.materials
 
 
     @aedt_exception_handler
     def _convert_list_to_ids(self,input_list, convert_objects_ids_to_name=True):
-        """
+        """Convert a list to IDs.
 
         Parameters
         ----------
-        input_list :
-            
-        convert_objects_ids_to_name :
-             (Default value = True)
+        input_list : list
+           List of object IDs.
+        convert_objects_ids_to_name : bool, optional
+             Whether to covert the object IDs to object names.
+             The default is ``True``.
 
         Returns
         -------
-
+        list
+            List of object names.
+        
         """
         output_list = []
         if type(input_list) is not list:
@@ -552,7 +584,12 @@ class GeometryModeler(Modeler, object):
         return output_list
 
     def _get_coordinates_data(self):
-        """ """
+        """Get coordinate data.
+        
+        Returns
+        -------
+        
+        """
         coord = []
         id2name = {1: 'Global'}
         name2refid = {}
@@ -610,29 +647,27 @@ class GeometryModeler(Modeler, object):
 
     @property
     def oeditor(self):
-        """ """
+        """Editor.
+        
+        Returns
+        -------
+        :class:`pyaedt.modeler.Model3D.Modeler3D`
+            3D Modeler object.
+        
+        """
         return self.odesign.SetActiveEditor("3D Modeler")
 
     @property
     def model_units(self):
-        """ """
+        """Model units.
+
+        Get or set the model units as a string. For example ``"mm"``.
+        """
         return retry_ntimes(10, self.oeditor.GetModelUnits)
 
     @model_units.setter
     def model_units(self, units):
-        """
-
-        Parameters
-        ----------
-        units :
-            
-
-        Returns
-        -------
-
-        """
-        assert units in AEDT_units["Length"], "Invalid units string {0}".format(units)
-        ''' Set the model units as a string e.g. "mm" '''
+        assert units in AEDT_units["Length"], "Invalid units string {0}.".format(units)
         self.oeditor.SetModelUnits(
             [
                 "NAME:Units Parameter",
@@ -642,32 +677,46 @@ class GeometryModeler(Modeler, object):
 
     @property
     def selections(self):
-        """ """
+        """Selections."""
         return self.oeditor.GetSelections()
 
     @property
     def obounding_box(self):
-        """ """
+        """Bounding box."""
         return self.oeditor.GetModelBoundingBox()
 
     @property
     def odefinition_manager(self):
-        """ """
+        """Definition manager."""
         return self._parent._oproject.GetDefinitionManager()
 
     @property
     def omaterial_manager(self):
-        """ """
+        """Material manager used to manage materials in the project.
+
+        Returns
+        -------
+        :class:`pyaedt.modules.MaterialLib.Materials`
+            Material manager.
+        
+        """
         return self._parent._oproject.GetDefinitionManager().GetManager("Material")
 
     @aedt_exception_handler
     def fit_all(self):
-        """ """
+        """Fit all."""
         self.oeditor.FitAll()
 
     @property
     def dimension(self):
-        """ """
+        """Dimensions.
+        
+        Returns
+        --------
+        str
+            Dimensionality.  Either ``"2D"`` or ``"3D"``.
+        
+        """
         try:
             if self.odesign.Is2D():
                 return '2D'
@@ -681,17 +730,24 @@ class GeometryModeler(Modeler, object):
 
     @property
     def design_type(self):
-        """ """
+        """Design type."""
         return self.odesign.GetDesignType()
 
     @property
     def geometry_mode(self):
-        """ """
+        """Geometry mode."""
         return self.odesign.GetGeometryMode()
 
     @property
     def solid_bodies(self):
-        """Create a directory of object IDs with key as object name. Note that non-model objects are also returned"""
+        """Directory of object IDs with the object name as the key. 
+        
+        .. note::
+            Non-model objects are also returned.
+        Returns
+        --------
+        list
+        """
         if self.dimension == '3D':
             objects = self.oeditor.GetObjectsInGroup("Solids")
         else:
@@ -703,59 +759,65 @@ class GeometryModeler(Modeler, object):
                                  mode='axis', view='iso',
                                  x_pointing=None, y_pointing=None,
                                  psi=0, theta=0, phi=0, u=None):
-        """ Creates a Coordinate system.
-        Specify the mode = 'view', 'axis', 'zxz', 'zyz', 'axisrotation'. Default = 'axis'
-        If mode = 'view', specify view = 'XY', 'XZ', 'XY', 'iso', 'rotate' (obsolete)
-        If mode = 'axis', specify x_pointing and y_pointing
-        If mode = 'zxz' or 'zyz', specify phi, theta, psi
-        If mode = 'axisrotation', specify u, theta
-
-        Parameters not needed by the specified mode are ignored.
-        For back compatibility, view='rotate' is the same as mode='axis'.
-        Default is a coordinate system parallel to the Global centered in the Global origin.
-
+        """Create a coordinate system.
+        
         Parameters
         ----------
         origin : list
-            origin of the CS (Default value = [0, 0, 0])
-
+            List of ``[x, y, z]`` coordinates for the origin of the coordinate system. 
+            The default is `None``, in which case ``[0, 0, 0]`` is used.
+        reference_cs : str, optional
+            Name of the reference coordinate system. The default is ``"Global"``.
         name : str
-            name of the CS (Default value = None)
+            Name of the coordinate system. The default is ``None``.
+        mode: str, optional
+            Definition mode. Options are ``"view"``, ``"axis"``, ``"zxz"``, ``"zyz"``, 
+            and ``"axisrotation"``. The default is ``"axis"``.
+            
+            * If ``mode="view"``, specify ``view``. 
+            * If ``mode="axis"``, specify ``x_pointing`` and ``y_pointing``.
+            * If ``mode="zxz"`` or ``mode="zyz"``, specify ``phi``, ``theta``, and ``psi``.
+            * If ``mode="axisrotation"``, specify ``theta`` and ``u``.
 
-        reference_cs : str
-             Reference coordinate system name (Default value = "Global")
+            Parameters not needed by the specified mode are ignored.
+            For back compatibility, ``view="rotate"`` is the same as ``mode="axis"``.
+            The default mode, ``"axisrotation"``, is a coordinate system parallel 
+            to the global coordinate system centered in the global origin.
 
-        mode: str
-            Definition mode. 'view', 'axis', 'zxz', 'zyz', 'axisrotation'. Default = 'axis'
-
-        view : str
-            View. Default "iso". possible "XY", "XZ", "XY", None, "rotate"
-            "rotate" is obsolete, simply specify mode = 'axis'.
-
-        x_pointing : list
-            if mode="axis", this is a 3 elements list specifying the X axis pointing in the global CS
-            (Default value = [1, 0, 0])
-
-        y_pointing : list
-            if mode="axis", this is a 3 elements list specifying the Y axis pointing in the global CS
-            (Default value = [0, 1, 0])
-
-        phi : float
-            Euler angle phi in degrees (Default value = 0)
-
-        theta : float
-            Euler angle theta in degrees, or orataion angle in degrees (Default value = 0)
-
-        psi : float
-            Euler angle psi in degrees (Default value = 0)
-
+        view : str, optional
+            If ``mode="view"``, the view for the coordinate system. Options are 
+            ``"XY"``, ``"XZ"``, ``"XY"``, ``"iso"``, ``None``, and ``"rotate"``
+            (obsolete). The default is ``"iso"``.
+            
+            .. note:: 
+               Because the ``"rotate"`` option is obsolete, use ``mode="axis"`` instead.
+               
+        x_pointing : list, optional
+            If ``mode="axis"``, the list of the ``[x, y, z]`` coordinates specifying 
+            the X axis pointing in the global coordinate system. The default is 
+            ``[1, 0, 0]``.
+        y_pointing : list, optional
+            If ``mode="axis"``, the list of the ``[x, y, z]`` coordinates specifying 
+            the Y axis pointing in the global coordinate system. The default is
+            ``[0, 1, 0]``.
+        phi : float, optional
+            If ``mode="zxz"`` or ``mode="zyz"``, the Euler angle phi in degrees. The
+            default is ``0``.
+        theta : float, optional
+            If ``mode="zxz"``, ``mode="zyz"``, or ``mode="axisrotation"``, the Euler angle 
+            theta or rotation angle in degrees. The default is ``0``.
+        psi : float, optional
+            If ``mode="zxz"`` or ``mode="zyz"``, the Euler angle psi in degrees. The
+            default is ``0``.
         u : list
-            rotation axis in format [ux, uy, uz] (Default value = [1, 0, 0])
-
+            If ``mode="zxz"``, the ``[ux, uy, uz]`` coordinates for the rotation axis. The 
+            default is ``[1, 0, 0]``.
+        
         Returns
         -------
-        CoordinateSystem
-            CS object
+        :class:`pyaedt.modeler.Modeler.CoordinateSystem`
+            Coordinate system object.
+        
         """
         if name:
             cs_names = [i.name for i in self.coordinate_systems]
@@ -775,32 +837,32 @@ class GeometryModeler(Modeler, object):
 
     @aedt_exception_handler
     def global_to_cs(self, point, ref_cs):
-        """ Transforms a point from the global coordinate system to the specified coordinate system.
+        """Transform a point from the global coordinate system to another coordinate system.
 
         Parameters
         ----------
         point : list
-            point in format [x, y, z]
-
-        ref_cs : name
-            name of the destination reference system
+            List of ``[x, y, z]`` coordinates to transform.
+        ref_cs : str
+            Name of the destination reference system.
 
         Returns
         -------
         list
-            transformed point coordinates [x, y, z]
+            List of transformed ``[x, y, z]`` coordinates.
+            
         """
         if type(point) is not list or len(point) != 3:
-            raise AttributeError('point must be in format [x, y, z]')
+            raise AttributeError('Point must be in format [x, y, z].')
         try:
             point = [float(i) for i in point]
         except:
-            raise AttributeError('point must be in format [x, y, z]')
+            raise AttributeError('Point must be in format [x, y, z].')
         if ref_cs == 'Global':
             return point
         cs_names = [i.name for i in self.coordinate_systems]
         if ref_cs not in cs_names:
-            raise AttributeError('Specified coordinate system does not exist in the design!')
+            raise AttributeError('Specified coordinate system does not exist in the design.')
 
         def get_total_transformation(p, cs):
             idx = cs_names.index(cs)
@@ -821,17 +883,18 @@ class GeometryModeler(Modeler, object):
 
     @aedt_exception_handler
     def set_working_coordinate_system(self, name):
-        """ Set the working coordinate system to name.
+        """Set the working coordinate system to another coordinate system.
 
         Parameters
         ----------
         name : str
-            name of CS to become active
+            Name of the coordinate system to set as the working coordinate system.
 
         Returns
         -------
         bool
-            True if operation succeeded, False otherwise
+            ``True`` when successful, ``False`` when failed.
+        
         """
         self.oeditor.SetWCS([
             "NAME:SetWCS Parameter",
@@ -841,7 +904,7 @@ class GeometryModeler(Modeler, object):
 
     @aedt_exception_handler
     def add_workbench_link(self, objects, ambient_temp=22, create_project_var=False, enable_deformation=True):
-        """Assign Temperature and Deformation Objects for WorkBench Link.
+        """Assign temperature and deformation objects to a Workbench link.
 
         .. deprecated:: 0.3.1
            Use :func:`GeometryModeler.set_objects_deformation` and :func:`GeometryModeler.set_objects_temperature`
@@ -849,22 +912,24 @@ class GeometryModeler(Modeler, object):
 
         Parameters
         ----------
-        enable_deformation :
-            Boolean if True the deformation link is added (Default value = True)
-        create_project_var :
-            Boolean if True $AmbientTemp is created. (Default value = False)
-        ambient_temp :
-            ambient temperature default value
-        objects :
-            list of the object to be included
-
+        objects : list
+            List of the objects to assign to the Workbench link.
+        ambient_temp : float, optional
+            Ambient temperature. The default is ``22.``
+        create_project_var : bool, optional
+            Whether to create a project variable for the ambient temperature.
+            The default is ``False``. When ``True,`` ``$AmbientTemp`` is created. 
+        enable_deformation : bool, optional
+            Whether to add the deformation link. The default is ``True``.
+        
         Returns
         -------
         bool
-            `True` if operation succeeded, `False` otherwise
+            ``True`` when successful, ``False`` when failed.
+        
         """
         warnings.warn('add_workbench_link is deprecated. '
-                      'Please use set_objects_temperature and set_objects_deformation instead.',
+                      'Use set_objects_temperature and set_objects_deformation instead.',
                       DeprecationWarning)
         self.set_objects_temperature(objects, ambient_temp, create_project_var)
         if enable_deformation:
@@ -873,17 +938,18 @@ class GeometryModeler(Modeler, object):
 
     @aedt_exception_handler
     def set_objects_deformation(self, objects):
-        """Assign Deformation Objects for WorkBench Link.
+        """Assign deformation objects to a Workbench link.
 
         Parameters
         ----------
-        objects :
-            list of the object to be included
+        objects : list
+            List of the deformation objects to assign to the Workbench link.
 
         Returns
         -------
         bool
-            `True` if operation succeeded, `False` otherwise
+            ``True`` when successful, ``False`` when failed.
+        
         """
         self._messenger.add_debug_message("Enabling deformation feedback")
         try:
@@ -897,22 +963,25 @@ class GeometryModeler(Modeler, object):
 
     @aedt_exception_handler
     def set_objects_temperature(self, objects, ambient_temp=22, create_project_var=False):
-        """Assign Objects Temperature.
-        Material assigned to the objects needs to have Thermal Modifier.
+        """Assign temperatures to objects.
+        
+        The material assigned to the objects must have a thermal modifier.
 
         Parameters
         ----------
-        create_project_var :
-            Boolean if True $AmbientTemp is created. (Default value = False)
-        ambient_temp :
-            ambient temperature default value = 22
-        objects :
-            list of the object to be included
+        objects : list
+            List of objects.
+        ambient_temp : float, optional
+            Ambient temperature. The default is ``22``.
+        create_project_var : bool, optional
+            Whether to create a project variable for the ambient temperature.
+            The default is ``False``. When ``True,`` ``$AmbientTemp`` is created. 
 
         Returns
         -------
         bool
-            `True` if operation succeeded, `False` otherwise
+            ``True`` when successful, ``False`` when failed.
+        
         """
         self._messenger.add_debug_message("Set model temperature and enabling Thermal Feedback")
         if create_project_var:
@@ -944,21 +1013,25 @@ class GeometryModeler(Modeler, object):
 
     @aedt_exception_handler
     def _create_sheet_from_object_closest_edge(self, startobj, endobject, axisdir, portonplane):
-        """
+        """Create a sheet from the edge closest to the object.
 
         Parameters
         ----------
-        startobj :
-            
-        endobject :
-            
-        axisdir :
-            
-        portonplane :
-            
-
+        startobj : str
+            Name of the starting object.          
+        endobject : str
+            Name of the ending object.    
+        axisdir : int
+           Axis direction. Options are ``0`` through ``5``.
+        portonplane : bool
+            Whether edges are to be on the plane orthogonal to the axis
+            direction.
         Returns
         -------
+        str
+            Name of the sheet.
+        list 
+            List of the points.
 
         """
         out, parallel = self.primitives.find_closest_edges(startobj, endobject, axisdir)
@@ -978,22 +1051,24 @@ class GeometryModeler(Modeler, object):
 
     @aedt_exception_handler
     def find_point_around(self, objectname, startposition, offset, plane):
-        """
+        """Find the point around an object.
 
         Parameters
         ----------
         objectname : str
-            name of the object
-        startposition : list of float
-
+            Name of the object.
+        startposition : list
+            List of ``[x, y, z]`` coordinates for the starting position of the object.
         offset :
-            
+            Offset to apply.  
         plane :
             
 
         Returns
         -------
-        position : list of float
+        list
+            List of ``[x, y, z]`` coordinates for the position of the point.
+        
         """
         position = [0, 0, 0]
         angle = 0
@@ -1026,24 +1101,27 @@ class GeometryModeler(Modeler, object):
 
     @aedt_exception_handler
     def create_sheet_to_ground(self, objectname, groundname=None, axisdir=0, sheet_dim=1):
-        """Create a sheet between an object and a ground plane. The ground plane has to be bigger than the object and
-        perpendicular to one of the three axis.
+        """Create a sheet between an object and a ground plane. 
+        
+        The ground plane has to be bigger than the object and perpendicular 
+        to one of the three axes.
 
         Parameters
         ----------
         objectname : str
-            Object name
-        groundname : str, default=None
-            Ground Name - if not specified then use model bounding box
-        axisdir :
-            Axis Dir (Default value = 0)
-        sheet_dim :
-            Sheet dimension. Default 1mm
+            Name of the object.
+        groundname : str, optional
+            Name of the ground. The default is ``None``, in which case the
+            bounding box is used.
+        axisdir : int, optional
+            Axis direction. Options are ``0`` through ``5``. The default is ``0``.
+        sheet_dim : optional
+            Sheet dimension in millimeters. The default is ``1``.
 
         Returns
         -------
-        type
-            rectangle ID
+        int
+            ID of the created sheet.
 
         """
         if axisdir>2:
@@ -1112,17 +1190,19 @@ class GeometryModeler(Modeler, object):
 
     @aedt_exception_handler
     def _get_faceid_on_axis(self, objname, axisdir):
-        """
+        """Get the ID of the face on the axis.
 
         Parameters
         ----------
-        objname :
+        objname : str
+            Name of the object.
+        axisdir : int
+            Axis direction. Options are ``1`` through ``5``.
             
-        axisdir :
-            
-
         Returns
         -------
+        int
+            ID of the face.
 
         """
         faces = self.primitives.get_object_faces(objname)
@@ -1196,12 +1276,13 @@ class GeometryModeler(Modeler, object):
 
     @aedt_exception_handler
     def get_excitations_name(self):
-        """Get all the available excitation names.
+        """Get all excitation names.
 
         Returns
         -------
         list
-            Excitation names. Excitations with multiple modes will produce one excitation for each mode.
+            List of excitation names. Excitations with multiple modes will return one
+            excitation for each mode.
 
         """
         list_names = list(self._parent.oboundary.GetExcitations())
@@ -1210,12 +1291,13 @@ class GeometryModeler(Modeler, object):
 
     @aedt_exception_handler
     def get_boundaries_name(self):
-        """Get all the available boundary names.
+        """Get all boundary names.
 
         Returns
         -------
         list
-            Boundary names. Boundaries with multiple modes will produce one boundary for each mode.
+            List of boundary names. Boundaries with multiple modes will return one
+            boundary for each mode.
 
         """
         list_names = list(self._parent.oboundary.GetBoundaries())
@@ -1224,19 +1306,19 @@ class GeometryModeler(Modeler, object):
 
     @aedt_exception_handler
     def set_object_model_state(self, obj_list, model=True):
-        """Set a list of objects either to Model or Non Model
+        """Set a list of objects to either models or non-models.
 
         Parameters
         ----------
-        obj_list :
-            list of objects ids or name
-        model :
-            Bool set status (Default value = True)
+        obj_list : list
+            List of objects IDs or names.
+        model : bool, optional
+            Whether to set the objects as models. The default is ``True``.
 
         Returns
         -------
-        type
-            True if succeeded
+        bool
+            ``True`` when successful, ``False`` when failed.
 
         """
         selections = self.convert_to_selections(obj_list, True)
@@ -1246,17 +1328,17 @@ class GeometryModeler(Modeler, object):
 
     @aedt_exception_handler
     def get_objects_in_group(self, group):
-        """Get list of objects belonging to a group.
+        """Retrieve a list of objects belonging to a group.
 
         Parameters
         ----------
-        group :
-            group name
+        group : str
+            Name of the group.
 
         Returns
         -------
         list
-            Objects that belong to the group.
+            List of objects belonging to the group.
 
         """
         if type(group) is not str:
@@ -1268,17 +1350,17 @@ class GeometryModeler(Modeler, object):
 
     @aedt_exception_handler
     def get_group_bounding_box(self, group):
-        """return single object bounding box
+        """Retrieve the bounding box of a group.
 
         Parameters
         ----------
-        group :
-            group name
+        group : str
+            Name of the group.
 
         Returns
         -------
-        type
-            array of 6 elements representing bounding box
+        list
+            List of six float values representing the bounding box in the form ``[min_x, min_y, min_z, max_x, max_y, max_z]``.
 
         """
         if type(group) is not str:
@@ -1299,17 +1381,22 @@ class GeometryModeler(Modeler, object):
 
     @aedt_exception_handler
     def convert_to_selections(self, objtosplit, return_list=False):
-        """
+        """Convert one or more object to selections.
 
         Parameters
         ----------
-        objtosplit :
-            list of objects to convert to selection. it can be a string, int or list of mixed.
-        return_list :
-            Bool. if False it returns a string of the selections. if True it return the list (Default value = False)
+        objtosplit : str, int, or list
+            One or more objects to convert to selections. A list can contain
+            both strings (object names) and integers (object IDs).
+        return_list : bool, option
+            Whether to return a list of the selections. The default is
+            ``False``, in which case a string of the selections is returned.
+            When ``True``, a list of the selections is returned.
 
         Returns
         -------
+        str or list
+           String or list of selections.
 
         """
         if type(objtosplit) is not list:
@@ -1333,21 +1420,24 @@ class GeometryModeler(Modeler, object):
 
     @aedt_exception_handler
     def split(self, objects, plane, sides="Both"):
-        """Split object list
+        """Split a list of objects.
 
         Parameters
         ----------
-        objects :
-            it contains an object or a list of objects to be. if it is a string, it is expected an object name, otherwise and object id
-        plane :
-            plane of cut. Applications.CoordinateSystemPlane.XXXXXX
-        sides :
-            which side to keep. "Both" means that all the objects are kept after the split. PositiveOnly and NegativeOnly are allowed (Default value = "Both")
+        objects : str, int, or list
+            One or more objects to split. A list can contain
+            both strings (object names) and integers (object IDs).
+        plane : int
+            Plane of the cut. Applications.CoordinateSystemPlane.XXXXXX
+        sides : str
+            Which side to keep. Options are ``"Both", ``"PositiveOnly"``, 
+            and ``"NegativeOnly"``. The default is ``"Both"``, in which case 
+            all objects are kept after the split. 
 
         Returns
         -------
-        type
-            True if the split success
+        bool
+            ``True`` when successful, ``False`` when failed.
 
         """
         planes = {0: "XY", 1: "YZ", 2: "ZX"}
@@ -1372,21 +1462,23 @@ class GeometryModeler(Modeler, object):
 
     @aedt_exception_handler
     def duplicate_and_mirror(self, objid, position, vector):
-        """Duplicate and Mirror Selection
+        """Duplicate and mirror a selection.
 
         Parameters
         ----------
-        objid :
-            if str, it is considered an objecname. if Int it is considered an object id
-        position :
-            List of Position [x,y,z] or Application.Position object
-        vector :
-            List of Vector [x1,y1,z1] or Application.Position object
+        bjid : str, int
+            Name or ID of the object. 
+        position : float
+            List of ``[x, y, z]`` coordinates or 
+            Application.Position object for the selection.
+        vector : float
+            List of the ``[x1, y1, z1]``coordinates or 
+            Application.Position object for the vector.
 
         Returns
         -------
-        type
-            List of new objects created or Empty List
+        list
+            List of objects created or an empty list.
 
         """
         selections = self.convert_to_selections(objid)
@@ -1407,21 +1499,23 @@ class GeometryModeler(Modeler, object):
 
     @aedt_exception_handler
     def mirror(self, objid, position, vector):
-        """Mirror Selection
+        """Mirror a selection.
 
         Parameters
         ----------
-        objid :
-            if str, it is considered an objecname. if Int it is considered an object id
-        position :
-            array of position orApplication.Position object
-        vector :
-            array of vector for mirroring or Application.Position object
-
+        objid : str, int
+            Name or ID of the object. 
+        position : float
+            List of ``[x, y, z]`` coordinates or 
+            Application.Position object for the selection.
+        vector : float
+            List of the ``[x1, y1, z1]``coordinates or 
+            Application.Position object for the vector.
+        
         Returns
         -------
-        type
-            True if successful
+        bool
+            ``True`` when successful, ``False`` when failed.
 
         """
         selections = self.convert_to_selections(objid)
@@ -1443,24 +1537,25 @@ class GeometryModeler(Modeler, object):
 
     @aedt_exception_handler
     def duplicate_around_axis(self, objid, cs_axis, angle=90, nclones=2, create_new_objects=True):
-        """Duplicate selection around axis
+        """Duplicate a selection around an axis.
 
         Parameters
         ----------
-        objid :
-            if str, it is considered an object name. if Int it is considered an object id
+        objid : str, int
+            Name or ID of the object. 
         cs_axis :
-            Application.CoordinateSystemAxis object
-        angle :
-            Flaat angle of rotation (Default value = 90)
-        nclones :
-            number of clones (Default value = 2)
+            Coordinate system axis or Application.CoordinateSystemAxis object.
+        angle : float, optional
+            Angle rotation in degees. The default is ``90``.
+        nclones : int, optional
+            Number of clones. The default is ``2``.
         create_new_objects :
-            Flag whether to create create copies as new objects, defaults to True
+            Whether to create the copies as new objects. The default is ``True``.
 
         Returns
         -------
         tuple
+        
         """
         selections = self.convert_to_selections(objid)
 
@@ -1482,22 +1577,24 @@ class GeometryModeler(Modeler, object):
 
     @aedt_exception_handler
     def duplicate_along_line(self, objid, vector, nclones=2, attachObject=False):
-        """Duplicate selection along line
+        """Duplicate a selection along a line.
 
         Parameters
         ----------
         objid : str, int, Object3d
-            if str, it is considered an objecname. if Int it is considered an object id
-        vector :
-            List of Vector [x1,y1,z1] or  Application.Position object
-        attachObject :
-            Boolean (Default value = False)
-        nclones :
-            number of clones (Default value = 2)
+            Name or ID of the object.
+        vector : list
+            List of ``[x1,y1,z1]`` coordinates or Application.Position object for 
+            the vector.
+        attachObject : bool, optional
+            The default is ``False``.
+        nclones : int, optional
+            Number of clones. The default is ``2``.
 
         Returns
         -------
         tuple
+        
         """
         selections = self.convert_to_selections(objid)
         Xpos, Ypos, Zpos = self.primitives._pos_with_arg(vector)
@@ -1516,20 +1613,22 @@ class GeometryModeler(Modeler, object):
 
     @aedt_exception_handler
     def thicken_sheet(self, objid, thickness, bBothSides=False):
-        """Thicken Sheet of selection
+        """Thicken the sheet of the selection.
 
         Parameters
         ----------
         objid :
-            if str, it is considered an objecname. if Int it is considered an object id
-        thickness :
-            Thickness of thicken. Float
-        bBothSides :
-            Boolean. Thicken on both side (Default value = False)
+            Name or ID of the object.
+        thickness : float
+            Thickness to thicken the sheet by. 
+        bBothSides : bool, optional
+            Whether to thicken the sheet on both side. The default is ``False``.
 
         Returns
         -------
         :class:`pyaedt.modeler.Object3d.Object3d`
+           3D object.
+        
         """
         selections = self.convert_to_selections(objid)
 
@@ -1543,20 +1642,22 @@ class GeometryModeler(Modeler, object):
 
     @aedt_exception_handler
     def sweep_along_normal(self, obj_name, face_id, sweep_value=0.1):
-        """Sweep selection along vector
+        """Sweep the selection along the vector.
 
         Parameters
         ----------
         obj_name : str, int
-            if str, it is considered an objectname. if Int it is considered an object id
+            Name or ID of the object.
         face_id : int
-            face to sweep
-        sweep_value : float
-            sweep value
+            Face to sweep.
+        sweep_value : float, optional
+            Sweep value. The default is ``0.1``.
 
         Returns
         -------
         :class:`pyaedt.modeler.Object3d.Object3d`
+            3D object.
+        
         """
         selections = self.convert_to_selections(obj_name)
         vArg1 = ['NAME:Selections', 'Selections:=', selections, 'NewPartsModelFlag:=', 'Model']
@@ -1577,21 +1678,26 @@ class GeometryModeler(Modeler, object):
 
     @aedt_exception_handler
     def sweep_along_vector(self, objid, sweep_vector, draft_angle=0, draft_type="Round"):
-        """Sweep selection along vector
+        """Sweep the selection along a vector.
 
         Parameters
         ----------
         objid : str, int
-            if str, it is considered an objecname. if Int it is considered an object id
-        sweep_vector :
-            Application.Position object
-        draft_angle : float
-            Draft Angle
+            Name or ID of the object.
+        sweep_vector : float
+            List of ``[x1, y1, z1]`` coordinates or Application.Position object for 
+            the vector.
+        draft_angle : float, optional
+            Draft angle in degrees. The default is ``0``.
         draft_type : str
-            Draft Type. Default Round
+            Type of the draft. Options are ``"Round"``, ``"Natural"``, 
+            and ``"Extended"``. The default is ``"Round"``.
+        
         Returns
         -------
         bool
+            ``True`` when successful, ``False`` when failed.
+            
         """
         selections = self.convert_to_selections(objid)
         vectorx, vectory, vectorz = self.primitives._pos_with_arg(sweep_vector)
@@ -1609,23 +1715,29 @@ class GeometryModeler(Modeler, object):
 
     @aedt_exception_handler
     def sweep_along_path(self, objid, sweep_object, draft_angle=0, draft_type="Round", is_check_face_intersection=False, twist_angle=0):
-        """Sweep selection along vector
+        """Sweep the selection along a path.
 
         Parameters
         ----------
         objid: str, int
-            if str, it is considered an objecname. if Int it is considered an object id
-        sweep_object: if str, it is considered an objecname. if Int is considered an object id
-        draft_angle : float
-            Draft Angle
+            Name or ID of the object.
+        sweep_object: str, int
+            Name or ID of the sweep.
+        draft_angle : float, optional
+            Draft angle in degrees. The default is ``0``.
         draft_type : str
-            Draft Type. Default "Round"
-        is_check_face_intersection: Boolean, False by default
-        twist_angle: Float Angle in degres, 0 by default
+            Type of the draft. Options are ``"Round"``, ``"Natural"``, 
+            and ``"Extended"``. The default is ``"Round"``.
+        is_check_face_intersection: bool, optional
+            The default is ``False``.
+        twist_angle: float, optional
+           Twist angle in degrees. The default is ``0``.
 
         Returns
         -------
         bool
+            ``True`` when successful, ``False`` when failed.
+        
         """
         selections = self.convert_to_selections(objid) + "," + self.convert_to_selections(sweep_object)
         vArg1 = ['NAME:Selections', 'Selections:=', selections, 'NewPartsModelFlag:=', 'Model']
@@ -1641,18 +1753,18 @@ class GeometryModeler(Modeler, object):
 
     @aedt_exception_handler
     def sweep_around_axis(self, objid, cs_axis, sweep_angle=360, draft_angle=0):
-        """Sweep selection aroun axis
+        """Sweep the selection around the axis.
 
         Parameters
         ----------
-        objid :
-            if str, it is considered an objecname. if Int it is considered an object id
+        objid : str, int
+            Name or ID of the object.
         cs_axis :
-            Application.CoordinateSystemAxis object
+            Coordinate system axis or Application.CoordinateSystemAxis object.
         sweep_angle : float
-             Sweep Angle in degrees
+            Sweep angle in degrees. The default is ``360``.
         draft_angle : float
-            Draft Angle
+            Draft angle in degrees. The default is ``0``.
 
         Returns
         -------
@@ -1673,22 +1785,25 @@ class GeometryModeler(Modeler, object):
 
     @aedt_exception_handler
     def section(self, object_list, plane, create_new=True, section_cross_object=False):
-        """Section selection
+        """Section the selection.
 
         Parameters
         ----------
-        object_list :
-            list. if is list of string , it is considered an objecname. if Int it is considered an object id
-        plane : Application.CoordinateSystemPlane or str
-            Coordinate plane to be used: ''"XY"'', ''"YZ"'', ''"ZX"''
-        create_new : bool, default=True
-            no effect
-        section_cross_object : bool, default=False
-            no effect
+        object_list : str, list
+            One or more objects to section. 
+        plane : str 
+            Coordinate plane or Application.CoordinateSystemPlane object. 
+            Choices for the coordinate plane are ``"XY"``, ``"YZ"``, and ``"ZX"``.'
+        create_new : bool, optional 
+            The default is ``True``, but this parameter has no effect.
+        section_cross_object : bool, optional
+            The default is ``False``, but this parameter has no effect.
 
         Returns
         -------
-
+        bool
+            ``True`` when successful, ``False`` when failed.
+            
         """
         plane_ids = [0, 1, 2]
         plane_str = ["XY", "YZ", "ZX"]
@@ -1718,17 +1833,19 @@ class GeometryModeler(Modeler, object):
 
     @aedt_exception_handler
     def separate_bodies(self, object_list, create_group=False):
-        """Separate bodies of selection
+        """Separate bodies of the selection.
 
         Parameters
         ----------
-        object_list :
-            list of objects to separate
-        create_group :
-            return: (Default value = False)
+        object_list : list
+            List of objects to separate.
+        create_group : bool, optional
+            Whether to create a group. The default is ``False``.
 
         Returns
         -------
+        bool
+            ``True`` when successful, ``False`` when failed.
 
         """
         selections = self.convert_to_selections(object_list)
@@ -1739,21 +1856,26 @@ class GeometryModeler(Modeler, object):
 
     @aedt_exception_handler
     def rotate(self, objid, cs_axis, angle=90.0, unit='deg'):
-        """Rotate Selection
+        """Rotate the selection.
 
         Parameters
         ----------
-        objid :
-            param cs_axis:
-        angle :
-            param unit: 'deg' or 'rad' (Default value = 90.0)
-        cs_axis :
-            
-        unit :
-             (Default value = 'deg')
+        objid : int
+             ID of the object.
+        cs_axis:
+            Coordinate system axis or Application.CoordinateSystemAxis object.
+        angle : float
+            Angle of rotation. The units can be either degrees or radians.
+            The default is ``90.0``.
+        
+        unit : text, optional
+             Units for the angle. Options are ``"deg"`` or ``"rad"``. 
+             The default is ``"deg"``.
 
         Returns
         -------
+        bool
+            ``True`` when successful, ``False`` when failed.
 
         """
         selections = self.convert_to_selections(objid)
@@ -1769,21 +1891,23 @@ class GeometryModeler(Modeler, object):
 
     @aedt_exception_handler
     def subtract(self, blank_list, tool_list, keepOriginals=True):
-        """Subtract objects
+        """Subtract objects.
 
         Parameters
         ----------
         blank_list : list of Object3d or list of int
-            list of objects from which to subtract (either Object3d or integer object id allowed)
-        tool_list :
-            list of objects to subtract (either Object3d or integer object id allowed)
-        keepOriginals : bool
-            define to keep original or not (Default value = True)
+            List of objects from which to subtract. The list can be of
+            either Object3d objects or object IDs.
+        tool_list : list
+            List of objects to subtract. The list can be of
+            either Object3d objects or object IDs.
+        keepOriginals : bool, optional
+            Whether to keep the original objects. The default is ``True``.
 
         Returns
         -------
-        type
-            True if succeeded
+        bool
+            ``True`` when successful, ``False`` when failed.
 
         """
         szList = self.convert_to_selections(blank_list)
@@ -1800,17 +1924,17 @@ class GeometryModeler(Modeler, object):
 
     @aedt_exception_handler
     def purge_history(self, theList):
-        """Purge Object history objects from names
+        """Purge history objects from object names.
 
         Parameters
         ----------
-        theList :
-            list of object to purge
+        theList : list
+            List of object names to purge.
 
         Returns
         -------
-        type
-            True if succeeded
+        bool
+            ``True`` when successful, ``False`` when failed.
 
         """
         szList = self.convert_to_selections(theList)
@@ -1822,13 +1946,14 @@ class GeometryModeler(Modeler, object):
 
     @aedt_exception_handler
     def get_model_bounding_box(self):
-        """GetModelBoundingbox and return it
+        """Retrieve the model bounding box.
         
 
         Returns
         -------
         list
-            list of 6 float values [min_x, min_y, min_z, max_x, max_y, max_z]
+            List of six float values representing the bounding box in the form ``[min_x, min_y, min_z, max_x, max_y, max_z]``.
+        
         """
         bb = list(self.oeditor.GetModelBoundingBox())
         bound = [float(b) for b in bb]
@@ -1836,17 +1961,17 @@ class GeometryModeler(Modeler, object):
 
     @aedt_exception_handler
     def unite(self, theList):
-        """Unite Object from list
+        """Unite objects from a list.
 
         Parameters
         ----------
-        theList :
-            list of object
+        theList : list
+            List of objects.
 
         Returns
         -------
-        type
-            True if succeeded
+        bool
+            ``True`` when successful, ``False`` when failed.
 
         """
         szSelections = self.convert_to_selections(theList)
@@ -1859,17 +1984,19 @@ class GeometryModeler(Modeler, object):
 
     @aedt_exception_handler
     def clone(self, objid):
-        """Clone Object from list
+        """Clone objects from a list of object IDs.
 
         Parameters
         ----------
-        objid :
-            list of object
+        objid : list
+            List of object IDs.
 
         Returns
         -------
-        type
-            True if succeeded, object name cloned
+        bool
+            ``True`` when successful, ``False`` when failed.
+        str
+            Name of objects cloned when successful.
 
         """
 
@@ -1883,19 +2010,19 @@ class GeometryModeler(Modeler, object):
 
     @aedt_exception_handler
     def intersect(self, theList, keeporiginal=False):
-        """Intersect Object from list
+        """Intersect objects from a list.
 
         Parameters
         ----------
-        theList :
-            list of object
-        keeporiginal :
-            boolan Keep Original (Default value = False)
+        theList : list
+            List of objects.
+        keeporiginal : bool, optional
+            Whether to keep the original object. The default is ``False``.
 
         Returns
         -------
-        type
-            True if succeeded
+        bool
+            ``True`` when successful, ``False`` when failed.
 
         """
         unclassified = list(self.oeditor.GetObjectsInGroup("Unclassified"))
@@ -1916,17 +2043,17 @@ class GeometryModeler(Modeler, object):
 
     @aedt_exception_handler
     def connect(self, theList):
-        """Connect Object from list
+        """Connect objects from a list.
 
         Parameters
         ----------
-        theList :
-            list of object
+        theList : list
+            List of objects.
 
         Returns
         -------
         bool
-            True if succeeded
+            ``True`` when successful, ``False`` when failed.
 
         """
         unclassified_before = list(self.primitives.unclassified_names)
@@ -1946,19 +2073,20 @@ class GeometryModeler(Modeler, object):
 
     @aedt_exception_handler
     def translate(self, objid, vector):
-        """Translate Object from list
+        """Translate objects from a list.
 
         Parameters
         ----------
-        objid :
-            list of object
-        vector :
-            vector of direction move. It can be an array or a Position object
+        objid : list, Position object
+            List of object IDs.
+        vector : list 
+            Vector of direction move. It can be a list of ``[x, y, z]`` 
+            coordinates or a Position object.
 
         Returns
         -------
-        type
-            True if succeeded
+        bool
+            ``True`` when successful, ``False`` when failed.
 
         """
         Xvec, Yvec, Zvec = self.primitives._pos_with_arg(vector)
@@ -1976,12 +2104,12 @@ class GeometryModeler(Modeler, object):
 
     @aedt_exception_handler
     def chassis_subtraction(self, chassis_part):
-        """Routine to subtract all non vacuum objects from the main chassi object
+        """Routine to subtract all non-vacuum objects from the main chassis object.
 
         Parameters
         ----------
-        chassis_part :
-            object name belonging to chassis
+        chassis_part : str
+            Name of the main chasis object.
 
         Returns
         -------
@@ -2013,14 +2141,14 @@ class GeometryModeler(Modeler, object):
 
     @aedt_exception_handler
     def _offset_on_plane(self, i, offset):
-        """
+        """Offset the object on a plane.
 
         Parameters
         ----------
         i :
             
         offset :
-            
+            Offset to apply.          
 
         Returns
         -------
@@ -2048,21 +2176,21 @@ class GeometryModeler(Modeler, object):
 
     @aedt_exception_handler
     def check_plane(self, obj, faceposition, offset=1):
-        """check on which plane is defined a face of specified object
+        """Check for the plane that is defined as the face for an object.
 
         Parameters
         ----------
-        obj :
-            object name
-        faceposition :
-            face position
-        offset :
-            offset to apply (Default value = 1)
+        obj : str
+            Name of the object.
+        faceposition : list
+            List of the ``[x, y, z]`` coordinates for the position of the face.
+        offset : optional
+            Offset to apply. The default is ``1``.
 
         Returns
         -------
         type
-            plane string
+            Plane string
 
         """
 
@@ -2098,30 +2226,35 @@ class GeometryModeler(Modeler, object):
 
     @aedt_exception_handler
     def get_matched_object_name(self, search_string):
-        """
+        """Retrieve the name of the matched object.
 
         Parameters
         ----------
-        search_string :
+        search_string : str
+            Text string to search for.
             
 
         Returns
         -------
+        str
+            Name of the matched dobject.
 
         """
         return self.oeditor.GetMatchedObjectName(search_string)
 
     @aedt_exception_handler
     def clean_objects_name(self, main_part_name):
-        """
+        """Clean the names of the objects for a main part.
 
         Parameters
         ----------
-        main_part_name :
-            
-
+        main_part_name : str
+            Name of the main part.
+        
         Returns
         -------
+        bool
+            ``True`` when successful, ``False`` when failed.
 
         """
         # import os.path
@@ -2139,19 +2272,24 @@ class GeometryModeler(Modeler, object):
 
     @aedt_exception_handler
     def create_airbox(self, offset=0, offset_type="Absolute", defname="AirBox_Auto"):
-        """Add an Airbox to the project that is big as the bounding extension of the project
+        """Add an airbox that is big as the bounding extension of the project.
 
         Parameters
         ----------
         offset :
-            dBl offset value to be applied on airbox faces vs bounding box (Default value = 0)
-        offset_type :
-            Offset type, Default "Absolute". Optional "Relative" with offset input between 0 and 100
-        defname :
-            Name of the Airbox (Default value = "AirBox_Auto")
+            dBl offset value to apply on airbox faces versus the bounding box. 
+            The default is ``0``.
+        offset_type : str
+            Type of the offset. Options are ``"Absolute"`` and ``"Relative"``. 
+            The default is ``"Absolute"`. When ``"Relative"``, the offset input 
+            is between 0 and 100.
+        defname : str, optional
+            Name of the airbox. The default is ``"AirBox_Auto"``.
 
         Returns
         -------
+        int
+            ID of the added airbox.
 
         """
         self._messenger.add_info_message("Adding Airbox to the Bounding ")
@@ -2174,65 +2312,65 @@ class GeometryModeler(Modeler, object):
 
     @aedt_exception_handler
     def create_air_region(self, x_pos=0, y_pos=0, z_pos=0, x_neg=0, y_neg=0, z_neg=0):
-        """Create a Region Object
+        """Create a region object.
 
         Parameters
         ----------
-        x_pos :
-            padding in percent in +X direction (+R for 2D RZ) (Default value = 0)
-        y_pos :
-            padding in percent in +Y direction (Default value = 0)
-        z_pos :
-            padding in percent in +Z direction (Default value = 0)
-        x_neg :
-            padding in percent in -X direction (-R for 2D RZ) (Default value = 0)
-        y_neg :
-            padding in percent in -Y direction (Default value = 0)
-        z_neg :
-            padding in percent in -Z direction (Default value = 0)
+        x_pos : float, optional
+            Padding in percent in the +X direction (+R for 2D RZ).
+            The default is ``0``.
+        y_pos : float, optional
+            Padding in percent in the +Y direction. The default is ``0``.
+        z_pos : float, optional
+            Padding in percent in the +Z direction. The default is ``0``.
+        x_neg : float, optional
+            Padding in percent in the -X direction (-R for 2D RZ).
+            The default is ``0``.
+        y_neg : float, optional
+            Padding in percent in the -Y direction. The default is ``0``.
+        z_neg : float, optional
+            Padding in percent in the -Z direction. The default is ``0``.
 
         Returns
         -------
-        type
-            True if region is created
+        bool
+            ``True`` when successful, ``False`` when failed.
 
         """
-
         return self.primitives.create_region([x_pos, y_pos, z_pos, x_neg, y_neg, z_neg])
 
     @aedt_exception_handler
     def create_coaxial(self, startingposition, axis, innerradius=1, outerradius=2, dielradius=1.8, length=10,
                        matinner="copper", matouter="copper", matdiel="teflon_based"):
-        """Create a Coaxial based on input data
+        """Create a coaxial.
 
         Parameters
         ----------
-        startingposition : Position
-            starting Position
+        startingposition : list
+            List of ``[x, y, z]`` coordinates for the starting position.
         axis :
-            CoordinateSystemaxis
-        innerradius :
-            Inner Coax Radius (Default value = 1)
-        outerradius :
-            Outer  Coax Radius (Default value = 2)
-        dielradius :
-            Dielectric  Coax Radius (Default value = 1.8)
-        length :
-            Coaxial length (Default value = 10)
-        matinner :
-            Material for inner. Default "copper"
-        matouter :
-            Material for outer. Default "copper"
-        matdiel :
-            Material for dielectric. Default "teflon_based"
+            Coordinate system axis.
+        innerradius : float, optional
+            Inner coax radius. The default is ``1``.
+        outerradius : float, optional
+            Outer coax radius. The default is ``2``.
+        dielradius : float, optional
+            Dielectric coax radius. The default is ``1.8``.
+        length : float, optional
+            Coaxial length. The default is ``10``.
+        matinner : str, optional
+            Material for the inner coaxial. The default is ``"copper"``.
+        matouter : str, optional
+            Material for the outer coaxial. The default is ``"copper"``.
+        matdiel : str, optional
+            Material for the dielectric. The default is ``"teflon_based"``.
 
         Returns
         -------
-        tuple of Object3d
+        tuple of :class:`pyaedt.modeler.Object3d.Object3d`
             inner, outer, diel
 
         """
-
         inner = self.primitives.create_cylinder(axis, startingposition, innerradius, length, 0)
         outer = self.primitives.create_cylinder(axis, startingposition, outerradius, length, 0)
         diel = self.primitives.create_cylinder(axis, startingposition, dielradius, length, 0)
@@ -2247,36 +2385,40 @@ class GeometryModeler(Modeler, object):
     @aedt_exception_handler
     def create_waveguide(self, origin, wg_direction_axis, wgmodel="WG0", wg_length=100, wg_thickness=None,
                          wg_material="aluminum", parametrize_w=False, parametrize_h=False, create_sheets_on_openings=False, name=None):
-        """Create a Standard Waveguide. Optionally, W and H can be parametrized
-        Available models WG0.0, WG0, WG1, WG2, WG3, WG4, WG5, WG6, WG7, WG8, WG9, WG9A, WG10, WG11, WG11A, WG12, WG13,
-        WG14, WG15, WR102, WG16, WG17, WG18, WG19, WG20, WG21, WG22, WG24, WG25, WG26, WG27, WG28, WG29, WG29, WG30, WG31, WG32
+        """Create a standard waveguide and optionally parametrize `W` and `H`.
+        
+        Available models are: WG0.0, WG0, WG1, WG2, WG3, WG4, WG5, WG6, WG7, WG8, WG9, WG9A, WG10, WG11, WG11A, WG12, WG13,
+        WG14, WG15, WR102, WG16, WG17, WG18, WG19, WG20, WG21, WG22, WG24, WG25, WG26, WG27, WG28, WG29, WG29, WG30, WG31, 
+        and WG32.
 
         Parameters
         ----------
-        origin :
-            Original Position
+        origin : list
+            List of ``[x, y, z]`` coordinates for the original position.
         wg_direction_axis :
-            axis direction
-        wgmodel :
-            WG Model. (Default value = "WG0")
-        wg_length :
-            WG length (Default value = 100)
+            Axis direction.
+        wgmodel : str, optional
+            Waveguide model. The default is ``"WG0"``.
+        wg_length : float, optional
+            Waveguide length. The default is ``100``.
         wg_thickness :
-            WG Thickness. If None it will be wg_height/20 (Default value = None)
-        wg_material :
-            WG Material (Default value = "aluminum")
-        parametrize_w :
-            Parametrize W (Default value = False)
-        parametrize_h : bool
-            Parametrize H (Default value = False)
-        create_sheets_on_openings : bool
-            Create a sheet on both opening if True (Default value = False)
-        name : None
-            Optional, wg name
+            Waveguide thickness. The default is ``None``, in which case the
+            thickness is `wg_height/20`. 
+        wg_material : str, optional
+            Waveguide material. The default is ``"aluminum"``.
+        parametrize_w : bool, optional
+            Whether to parametrize `W`. The default is ``False``.
+        parametrize_h : bool, optional
+            Whether to parametrize `H`. The default is ``False``.
+        create_sheets_on_openings : bool, optional
+            Whether to create a sheet on both openings. The default is ``False``.
+        name : str, optional
+            Name of the waveguide. The default is ``None``.
+        
         Returns
         -------
-        type
-            id of WG
+        int
+            ID of the waveguide.
 
         """
         p1=-1
@@ -2367,17 +2509,18 @@ class GeometryModeler(Modeler, object):
 
     @aedt_exception_handler
     def edit_region_dimensions(self, listvalues):
-        """edit the region dimensions: listvalues=padding percentages of +X,-X,+Y,-Y,+Z,-Z
+        """Edit the dimensions of the region.
 
         Parameters
         ----------
-        listvalues :
-            list of region dimension along all 6 directions
+        listvalues : list
+            List of padding percentages along all six directions: 
+            ``[+X, -X, +Y, -Y, +Z, -Z]``.
 
         Returns
         -------
-        type
-            True if succeeded
+        bool
+            ``True`` when successful, ``False`` when failed.
 
         """
         arg = ["NAME:AllTabs"]
@@ -2397,20 +2540,22 @@ class GeometryModeler(Modeler, object):
 
     @aedt_exception_handler
     def create_face_list(self, fl, name):
-        """create_face_list create a face list give a list of faces and a name
+        """Create a list of faces given a list of face names.
 
         Parameters
         ----------
-        fl :
+        fl : list
+            List of face names.
             
-        name :
-            
-
+        name : str
+           Name of the new face list.
+    
         Returns
         -------
+        bool
+            ``True`` when successful, ``False`` when failed.
 
         """
-
         self.oeditor.CreateEntityList(["NAME:GeometryEntityListParameters", "EntityType:=", "Face",
                                        "EntityList:=", fl], ["NAME:Attributes", "Name:=", name])
         self._messenger.add_info_message("Face List " + name + " created")
@@ -2418,22 +2563,19 @@ class GeometryModeler(Modeler, object):
 
     @aedt_exception_handler
     def create_object_list(self, fl, name):
-        """create_object_list create an object list give a list of names
-        
-        fl: list of objects
-        name: name of entity list
-
+        """Create an object list given a list of object names.
+   
         Parameters
         ----------
-        fl :
+        fl: list
+            List of objects.
+        name: str
+            Name of the new object list.
             
-        name :
-            
-
         Returns
         -------
-        type
-            
+        int
+            ID of the new object list. 
 
         """
         listf = ",".join(fl)
@@ -2445,16 +2587,18 @@ class GeometryModeler(Modeler, object):
 
     @aedt_exception_handler
     def generate_object_history(self, objectname):
-        """
+        """Generate history for the object.
 
         Parameters
         ----------
         objectname : str
-            
+            Name of the history object.
 
         Returns
         -------
-
+        bool
+            ``True`` when successful, ``False`` when failed.
+            
         """
         objectname = self.convert_to_selections(objectname)
         self.oeditor.GenerateHistory(
@@ -2467,23 +2611,24 @@ class GeometryModeler(Modeler, object):
 
     @aedt_exception_handler
     def create_faceted_bondwire_from_true_surface(self, bondname, bond_direction, min_size = 0.2, numberofsegments=8):
-        """Create a new faceted bondwire from existing True Surface one
+        """Create a faceted bondwire from an existing true surface one.
 
         Parameters
         ----------
-        bondname :
-            name of bondwire to replace
-        min_size :
-            minimum size of the subsegment of the new polyline (Default value = 0.2)
-        bond_direction :
-            bondwire axis direction. 0 = X, 1=Y, 2=Z
-        numberofsegments :
-             (Default value = 8)
+        bondname : str
+            Name of bondwire to replace.
+        bond_direction : list
+            List of ``[x, y, z]`` coordinates for the bondwire axis direction. 
+            For example, ``[0, 1, 2]``.
+        min_size : float
+            Minimum size of the subsegment of the new polyline. The default is ``0.2``.
+        numberofsegments : int, optional
+             Number of segments. The default is ``8``.
 
         Returns
         -------
-        type
-            New Bondwirename
+        str
+            Name of the created bondwire.
 
         """
         old_bondwire = self.primitives.get_object_from_name(bondname)
@@ -2589,36 +2734,37 @@ class GeometryModeler(Modeler, object):
 
     @aedt_exception_handler
     def get_entitylist_id(self, name):
-        """
+        """Retrieve the ID of an entity list.
 
         Parameters
         ----------
-        name :
-            
+        name : str
+            Name of the entity list. 
 
         Returns
         -------
+        int
+            ID of the entity list.
 
         """
-
         id = self.oeditor.GetEntityListIDByName(name)
         return id
 
     @aedt_exception_handler
     def create_outer_facelist(self, externalobjects, name="outer_faces"):
-        """Create a facelist on a list of objcts
+        """Create a face list from a list of outer objects.
 
         Parameters
         ----------
-        externalobjects :
-            list of objects
-        name :
-            name of facelist (Default value = "outer_faces")
+        externalobjects : list
+            List of outer objects.
+        name : str, optional
+            Name of the face list. The default is ``"outer_faces"``.
 
         Returns
         -------
-        type
-            True if succeeded
+        bool
+            ``True`` when successful, ``False`` when failed.
 
         """
         list2 = self.select_allfaces_fromobjects(externalobjects)  # find ALL faces of outer objects
@@ -2628,22 +2774,22 @@ class GeometryModeler(Modeler, object):
 
     @aedt_exception_handler
     def explicitiyly_subtract(self, diellist, metallist):
-        """expliticiltySubtract all the elements in aSolveInside and aSolveSurface lists
+        """Expliticilty subtract all elements in a SolveInside list and a SolveSurface list.
 
         Parameters
         ----------
-        diellist :
-            list of dielectrics
-        metallist :
-            list of metals
+        diellist : list
+            List of dielectrics.
+        metallist : list
+            List of metals.
 
         Returns
         -------
-        type
-            True if operation succeeded
+        bool
+            ``True`` when successful, ``False`` when failed.
 
         """
-        self._messenger.add_info_message("Creating Explicit Subtraction between Objects")
+        self._messenger.add_info_message("Creating explicit subtraction between objects.")
         for el in diellist:
             list1 = el
             list2 = ""
@@ -2668,23 +2814,27 @@ class GeometryModeler(Modeler, object):
                 self.subtract(list1, list2, True)
                 self.purge_history(list1)
                 self.purge_history(list2)
-        self._messenger.add_info_message("Explicit Subtraction Completed")
+        self._messenger.add_info_message("Explicit subtraction is completed.")
         return True
 
     @aedt_exception_handler
     def find_port_faces(self, objs):
-        """Starting from a list of sheets it creates a list of sheets that represent the blank part (Vaacum) and the too
-        l part of all the solids intersections on the sheets. this function can be used to identify the vaacum on a sheet and create port on it
+        """Find the vaccums given a list of input sheets.
+        
+        Starting from a list of input sheets, this method creates a list of output sheets 
+        that represent the blank part (vaacum) and the tool part of all the intersections 
+        of solids on the sheets. After a vacuum on a sheet is found, a port can be 
+        created on it. 
 
         Parameters
         ----------
-        objs :
-            list of input sheets
+        objs : list
+            List of input sheets.
 
         Returns
         -------
-        type
-            list of output sheets (2x len(objs))
+        List
+            List of output sheets (2x len(objs)).
 
         """
         faces = []
@@ -2712,19 +2862,18 @@ class GeometryModeler(Modeler, object):
 
     @aedt_exception_handler
     def load_objects_bytype(self, type):
-        """loadObject: Load all the objects of Defined Type
+        """Load all objects of a specified type.
         
-        type: "Solids", "Sheets"
-
         Parameters
         ----------
-        type :
-            
-
+        type : str
+            Type of the objects to load. Options are 
+            ``"Solids"`` and ``"Sheets"``.
+      
         Returns
         -------
-        type
-            
+        list
+            List of object names for the specified type.     
 
         """
         objNames = list(self.oeditor.GetObjectsInGroup(type))
@@ -2732,7 +2881,7 @@ class GeometryModeler(Modeler, object):
 
     @aedt_exception_handler
     def get_line_ids(self):
-        """Create a dictionary of object IDs for the lines in the design with line name as key"""
+        """Create a dictionary of object IDs for the lines in the design with the line name as the key."""
         line_ids = {}
         line_list = list(self.oeditor.GetObjectsInGroup("Lines"))
         for line_object in line_list:
@@ -2745,7 +2894,14 @@ class GeometryModeler(Modeler, object):
 
     @aedt_exception_handler
     def get_bounding_dimension(self):
-        """:return: dimension array of x,y,z bounding box"""
+        """Retrieve the dimension array of the bounding box.
+        
+        Returns
+        -------
+        list
+            List of six float values representing the bounding box in the form ``[min_x, min_y, min_z, max_x, max_y, max_z]``.
+        
+        """      
         oBoundingBox = list(self.oeditor.GetModelBoundingBox())
         dimensions = []
         dimensions.append(abs(float(oBoundingBox[0]) - float(oBoundingBox[3])))
@@ -2755,18 +2911,18 @@ class GeometryModeler(Modeler, object):
 
     @aedt_exception_handler
     def get_object_name_from_edge_id(self, edge_id):
-        """Return object name for a predefined edge id
+        """Retrieve the object name for a predefined edge ID.
 
         Parameters
         ----------
         edge_id : int
-            Edge Id
-            
-
+            ID of the edge.
+       
         Returns
         -------
         str
-            Object name if exists
+            Name of the edge if it exists, ``False`` otherwise.
+        
         """
         for object in list(self.primitives.object_id_dict.keys()):
             try:
@@ -2779,7 +2935,13 @@ class GeometryModeler(Modeler, object):
 
     @aedt_exception_handler
     def get_solving_volume(self):
-        """Generate Mesh for Setup name. Return 0 if mesh failed or 1 if passed"""
+        """Generate a mesh for a setup.
+        
+        Returns
+        -------
+        ``1`` when successful, ``0`` when failed.
+        
+        """
         bound = self.get_model_bounding_box()
         volume = abs(bound[3] - bound[0]) * abs(bound[4] - bound[1]) * abs(bound[5] - bound[2])
         volume = str(round(volume, 0))
@@ -2787,20 +2949,18 @@ class GeometryModeler(Modeler, object):
 
     @aedt_exception_handler
     def vertex_data_of_lines(self, txtfilter=None):
-        """Generate a dictionary of line vertex data for all lines contained within the AEDT design
-        
-        Keyword arguments:
-        txtfilter -- an optional filter: only generate the line data if txtfilter is contained within the line name
+        """Generate a dictionary of line vertex data for all lines contained within the design.
 
         Parameters
         ----------
-        txtfilter :
-             (Default value = None)
+        txtfilter : str, optional
+            Text string for filtering. The default is ``None``. When a text string is specified, 
+            line data is generated only if this text string is continaed within the line name.
 
         Returns
         -------
-        line_data
-            Dictionary of line name: list of vertex positions in 2D/3D
+        dict
+            Dictionary of the line name with a list of vertex positions in either 2D or 3D.
 
         """
         line_data = {}
@@ -2814,20 +2974,17 @@ class GeometryModeler(Modeler, object):
 
     @aedt_exception_handler
     def get_vertices_of_line(self, sLineName):
-        """Generate a list of vertex positions for a line object from the AEDT desktop in model units
+        """Generate a list of vertex positions for a line object from the AEDT desktop in model units.
         
-        Keyword arguments:
-        linename -- the name of the line object in the AEDT desktop
-
         Parameters
         ----------
-        sLineName :
+        sLineName : str
+            Name of the line object in the AEDT desktop.
             
-
         Returns
         -------
-        position_list
-            list of positions in [x, y, (z)] form for 2D/3D
+        list
+            List of ``[x, y, (z)]`` coordinate for the 2D or 3D line object.
 
         """
         position_list = []
@@ -2849,21 +3006,24 @@ class GeometryModeler(Modeler, object):
 
     @aedt_exception_handler
     def import_3d_cad(self, filename, healing=0, refresh_all_ids=True):
-        """Import Cad Model
+        """Import a CAD model.
 
         Parameters
         ----------
-        filename :
-            full path file name
-        healing :
-            0,1 define if healing has to be performed (Default value = 0)
-        refresh_all_ids :
-            Boolean, refresh all ids after load. It can take a lot of time for big projects (Default value = True)
+        filename : str
+            Full path and name of the CAD file.
+        healing : bool, optional
+            Whether to perform healing. The default is ``0``, in which
+            case healing is not performed. 
+        refresh_all_ids : bool, optional
+            Whether to refresh all IDs after the CAD file is loaded. The 
+            default is ``True``. Refreshing IDs can take a lot of time in
+            a big project. 
 
         Returns
         -------
-        type
-            Boolean
+         bool
+            ``True`` when successful, ``False`` when failed.
 
         """
         vArg1 = ["NAME:NativeBodyParameters"]
@@ -2890,15 +3050,17 @@ class GeometryModeler(Modeler, object):
 
     @aedt_exception_handler
     def import_spaceclaim_document(self, SCFile):
-        """Import SpaceClaim Document SCFile in HFSS
+        """Import a SpaceClaim document in HFSS.
 
         Parameters
         ----------
         SCFile :
-            return:
+            Full path and name of the SpaceClaim file.
 
         Returns
         -------
+        bool
+            ``True`` when successful, ``False`` when failed.
 
         """
         environlist = os.environ
@@ -3037,7 +3199,7 @@ class GeometryModeler(Modeler, object):
 
     @aedt_exception_handler
     def modeler_variable(self, value):
-        """
+        """Modeler variable.
 
         Parameters
         ----------
@@ -3055,40 +3217,51 @@ class GeometryModeler(Modeler, object):
 
     @aedt_exception_handler
     def break_spaceclaim_connection(self):
-        """ """
+        """Break the connection with SpaceClaim.
+        
+        Returns
+        bool
+            ``True`` when successful, ``False`` when failed.
+        
+        """
         args = ["NAME:Selections", "Selections:=", "SpaceClaim1"]
         self.oeditor.BreakUDMConnection(args)
         return True
 
     @aedt_exception_handler
     def load_scdm_in_hfss(self, SpaceClaimFile):
-        """
+        """Load a SpaceClaim file in HFSS.
 
         Parameters
         ----------
-        SpaceClaimFile :
+        SpaceClaimFile : str
+            Full path and name of the SpaceClaim file.
             
 
         Returns
         -------
+         bool
+            ``True`` when successful, ``False`` when failed.
 
         """
-
         self.import_spaceclaim_document(SpaceClaimFile)
         self.break_spaceclaim_connection()
         return True
 
     @aedt_exception_handler
     def load_hfss(self, cadfile):
-        """
+        """Load HFSS.
 
         Parameters
         ----------
-        cadfile :
+        cadfile : str
+            Name of the CAD file to load in HFSS.
             
 
         Returns
         -------
+        bool
+            ``True`` when successful, ``False`` when failed.
 
         """
         self.import_3d_cad(cadfile, 1)
@@ -3096,19 +3269,21 @@ class GeometryModeler(Modeler, object):
 
     @aedt_exception_handler
     def select_allfaces_from_mat(self, mats):
-        """Select all external faces of a a list of objects
+        """Select all outer faces given a list of materials.
 
         Parameters
         ----------
-        mats :
-            list of materials to be included into the search. All objects with this materials will be included
-            :output sel: list of faces
+        mats : list
+            List of materials to include in the search for outer 
+            faces. All outer faces with these materials will be returned.
 
         Returns
         -------
+        list
+            List of outer faces.
 
         """
-        self._messenger.add_info_message("Selecting Outer Faces")
+        self._messenger.add_info_message("Selecting outer faces.")
 
         sel = []
         if type(mats) is str:
@@ -3127,19 +3302,20 @@ class GeometryModeler(Modeler, object):
 
     @aedt_exception_handler
     def select_allfaces_fromobjects(self, elements):
-        """Select all external faces of a a list of objects
+        """Select all outer faces given a list of objects.
 
         Parameters
         ----------
-        elements :
-            list of elements to be included into the search.
-            :output sel: list of faces
+        elements : list
+            List of objects to include in the search for outer faces.
 
         Returns
         -------
+        list
+            List of outer faces.
 
         """
-        self._messenger.add_info_message("Selecting Outer Faces")
+        self._messenger.add_info_message("Selecting outer faces.")
 
         sel = []
 
@@ -3153,7 +3329,14 @@ class GeometryModeler(Modeler, object):
 
     @aedt_exception_handler
     def setunassigned_mats(self):
-        """It checks for unassagned objects and set them to unmodel"""
+        """Find unassagned objects and set them to non-model.
+        
+        Returns
+        -------
+        bool
+            ``True`` when successful, ``False`` when failed.
+        
+        """
         oObjects = list(self.oeditor.GetObjectsInGroup("Solids"))
         for obj in oObjects:
             pro = self.oeditor.GetPropertyValue("Geometry3DAttributeTab", obj, "Material")
@@ -3163,23 +3346,27 @@ class GeometryModeler(Modeler, object):
 
     @aedt_exception_handler
     def automatic_thicken_sheets(self, inputlist, value, internalExtr=True, internalvalue=1):
-        """thicken_sheets: create thicken sheets of value "mm" over the full list of input faces inputlist.
-        The method automatically check which direction the thicken sheet
+        """Create thickened sheets for a list of input faces.
+        
+        This method automatically checks the direction in which to thicken the sheet.
 
         Parameters
         ----------
         inputlist : list
-            list of faces to thicken
-        value : str
-            value in mm to thicken
-        internalExtr :
-            define if the sheet must also be extruded internally (Default value = True)
-        internalvalue :
-            define the value in mm to thicken internally the sheet (vgoing into the model) (Default value = 1)
+            List of faces.
+        value : float
+            Value in millimeters to thicken the sheets.
+        internalExtr : bool, optional
+            Whether to extrude the sheet internally. The default is ``True``.
+        internalvalue : float, optional
+            Value in millimeters to thicken internally the sheet (vgoing into the model).
+            The default is ``1``.
 
         Returns
         -------
-
+        bool
+            ``True`` when successful, ``False`` when failed.
+        
         """
         aedt_bounding_box = self.get_model_bounding_box()
         directions = {}
@@ -3287,8 +3474,16 @@ class GeometryModeler(Modeler, object):
         return self
 
     class Position:
-        """ """
-
+        """Position.
+        
+        Parameters
+        ----------
+        args: list or int
+            Position of the item as either a list of ``[x, y, z]`` coordinates 
+            or three separate values. If no or insufficient arguments 
+            are specified, ``0`` is applied.
+        
+        """
         @aedt_exception_handler
         def __getitem__(self, item):
             if item == 0:
@@ -3314,11 +3509,6 @@ class GeometryModeler(Modeler, object):
             return 3
 
         def __init__(self, *args):
-            """class Position
-
-            :param args: it can be a list of orgs (x, y, z coordinates) or 3 separate values. if no or insufficient arguments, 0 is applied
-
-            """
             if len(args) == 1 and type(args[0]) is list:
                 try:
                     self.X = args[0][0]
@@ -3347,35 +3537,45 @@ class GeometryModeler(Modeler, object):
                     self.Z = 0
 
     class SweepOptions(object):
-        """ """
+        """Manages sweep options.
+        
+        Parameters
+        ----------
+        draftType : str, optional
+            Type of the draft. Options are ``"Round"``, ``"Natural"``, 
+            and ``"Extended"``. The default is ``"Round"``.
+        draftAngle : str, optional
+            Draft angle with units. The default is ``"0deg"``.
+        twistAngle : str, optional
+            Twist angle with units. The default is ``"0deg"``.
+        
+        """
         @aedt_exception_handler
         def __init__(self, draftType="Round", draftAngle="0deg", twistAngle="0deg"):
-            """
-            :param draftType: "Round", "Natural", "Extended"
-            :param draftAngle:
-            :param twistAngle:
-            """
             self.DraftType = draftType
             self.DraftAngle = draftAngle
             self.TwistAngle = twistAngle
 
     @aedt_exception_handler
     def create_group(self, objects=None, groups=None, group_name=None):
-        """Groups the objects or the groups into one group.
-        It is not possible to choose the name.
-        If objects is not specified it will reate a group with all the objects.
-
+        """Group objects or groups into one group.
+        
         Parameters
         ----------
-        group_name :
-            optional (Default value = None)
-        objects :
-            list of objects. (Default value = None)
-        groups :
-            list of groups. (Default value = None)
+        objects : list, optional
+            List of objects. The default is ``None``, in which case a group 
+            with all objects is created.
+        groups : list, optional
+            List of groups. The default is ``None``.
+        group_name : str, optional
+            Name of the new group. The default is ``None``.
+            It is not possible to choose the name but a name is
+            assigned automatically.        
 
         Returns
         -------
+        str
+           Name of the assigned group.
 
         """
         all_objects = self.primitives.object_names
@@ -3415,17 +3615,17 @@ class GeometryModeler(Modeler, object):
 
     @aedt_exception_handler
     def ungroup(self, groups):
-        """ugroup one or more groups
+        """Ungroup one or more groups.
 
         Parameters
         ----------
         groups : list
-            list of group names
+            List of group names.
 
         Returns
         -------
         bool
-            True if succeeded, False otherwise
+            ``True`` when successful, ``False`` when failed.
 
         """
         group_list = self.convert_to_selections(groups, return_list=True)
@@ -3435,14 +3635,13 @@ class GeometryModeler(Modeler, object):
 
     @aedt_exception_handler
     def flatten_assembly(self):
-        """flatten the entire assembly removing all group trees
-
-        :return: True if succeeded, False otherwise
-
+        """Flatten the assembly, removing all group trees.
 
         Returns
         -------
         bool
+            ``True`` when successful, ``False`` when failed.
+        
         """
         self.oeditor.FlattenGroup(
             [
