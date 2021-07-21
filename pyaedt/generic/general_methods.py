@@ -20,6 +20,16 @@ class MethodNotSupportedError(Exception):
     """ """
     pass
 
+def _write_mes(mes_text, print_on_desktop=False):
+    if os.getenv('PYAEDT_SCREEN_LOGS', 'True').lower() in ('true', '1', 't'):
+        print(mes_text)
+    if logger and os.getenv('PYAEDT_FILE_LOGS', 'True').lower() in ('true', '1', 't'):
+        logger.error(str(mes_text))
+    if print_on_desktop and os.getenv('PYAEDT_DESKTOP_LOGS', 'True').lower() in ('true', '1', 't') and "oDesktop" in dir(
+            sys.modules["__main__"]):
+        sys.modules["__main__"].oDesktop.AddMessage("", "", 2, (str(mes_text)))
+
+
 def _exception(ex_info, func, args, kwargs, message="Type Error"):
     """Writes the trace stack to the desktop when a python error occurs
 
@@ -40,26 +50,28 @@ def _exception(ex_info, func, args, kwargs, message="Type Error"):
     -------
 
     """
-    print("**************************************************************")
-    print("pyaedt Error on Method {}:  {}. Please Check again".format(func.__name__, message))
-    print("Arguments Provided: ")
-    try:
+    if  os.getenv('PYAEDT_SCREEN_LOGS','True').lower() in ('true', '1', 't'):
+        _write_mes("**************************************************************")
+        _write_mes("pyaedt Error on Method {}:  {}. Please Check again".format(func.__name__, message), True)
+        _write_mes("Arguments Provided: ")
 
-        if int(sys.version[0]) > 2:
-            args_name = list(OrderedDict.fromkeys(inspect.getfullargspec(func)[0] + list(kwargs.keys())))
-            args_dict = OrderedDict(list(itertools.zip_longest(args_name, args)) + list(kwargs.items()))
-        else:
-            args_name = list(OrderedDict.fromkeys(inspect.getargspec(func)[0] + list(kwargs.keys())))
-            args_dict = OrderedDict(list(itertools.izip(args_name, args)) + list(kwargs.iteritems()))
+        try:
 
-        for el in args_dict:
-            if el != "self":
-                print("    {} = {} ".format(el, args_dict[el]))
-    except:
-        if len(args) > 1:
-            print(args[1:], kwargs)
-        else:
-            print(kwargs)
+            if int(sys.version[0]) > 2:
+                args_name = list(OrderedDict.fromkeys(inspect.getfullargspec(func)[0] + list(kwargs.keys())))
+                args_dict = OrderedDict(list(itertools.zip_longest(args_name, args)) + list(kwargs.items()))
+            else:
+                args_name = list(OrderedDict.fromkeys(inspect.getargspec(func)[0] + list(kwargs.keys())))
+                args_dict = OrderedDict(list(itertools.izip(args_name, args)) + list(kwargs.iteritems()))
+
+            for el in args_dict:
+                if el != "self":
+                    _write_mes("    {} = {} ".format(el, args_dict[el]))
+        except:
+            if len(args) > 1:
+                _write_mes(args[1:], kwargs)
+            else:
+                _write_mes(kwargs)
     ex_value = ex_info[1]
     tb_data = ex_info[2]
     tb_trace = traceback.format_tb(tb_data)
@@ -67,23 +79,17 @@ def _exception(ex_info, func, args, kwargs, message="Type Error"):
         tblist = tb_trace[1].split('\n')
     else:
         tblist = tb_trace[0].split('\n')
-    print("")
-    print(str(ex_value))
-    if logger:
-        logger.error(str(ex_value))
-    # self._main.oDesktop.AddMessage(proj_name, des_name, 2, str(ex_value))
+    _write_mes(str(ex_value), True)
     for el in tblist:
         # self._main.oDesktop.AddMessage(proj_name, des_name, 2, el)
         if "inner_function" not in el and "**kwargs" not in el:
-            print(el)
-            if logger:
-                logger.error(el)
-    print("")
-    print("")
-    print("Method Docstring: ")
-    print("")
-    print(func.__doc__)
-    print("************************************************************")
+            _write_mes(el, True)
+    _write_mes("")
+    _write_mes("")
+    _write_mes("Method Docstring: ")
+    _write_mes("")
+    _write_mes(func.__doc__)
+    _write_mes("************************************************************")
 
 
 def aedt_exception_handler(func):
@@ -134,11 +140,13 @@ def aedt_exception_handler(func):
                 return False
             except MethodNotSupportedError:
                 message = "This Method is not supported in current AEDT Design Type."
-                print("**************************************************************")
-                print("pyaedt Error on Method {}:  {}. Please Check again".format(func.__name__, message))
-                print("**************************************************************")
-                print("")
-                logger.error(message)
+                if os.getenv('PYAEDT_SCREEN_LOGS', 'True').lower() in ('true', '1', 't'):
+                    print("**************************************************************")
+                    print("pyaedt Error on Method {}:  {}. Please Check again".format(func.__name__, message))
+                    print("**************************************************************")
+                    print("")
+                if os.getenv('PYAEDT_FILE_LOGS', 'True').lower() in ('true', '1', 't'):
+                    logger.error(message)
                 return False
             except BaseException:
                 _exception(sys.exc_info(), func, args, kwargs, "General or AEDT Error")
