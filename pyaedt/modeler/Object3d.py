@@ -1,5 +1,7 @@
+# -*- coding: utf-8 -*-
+
 """
-This module contains methods and data structures to manage all properties of objects (points, lines, sheeets, and
+This module contains methods and data structures for managing all properties of objects (points, lines, sheeets, and
 solids) within the AEDT 3D Modeler.
 
 """
@@ -525,15 +527,6 @@ class Object3d(object):
 
     >>> id = prim.create_box([0, 0, 0], [10, 10, 5], "Mybox", "Copper")
     >>> part = prim[id]
-
-    Properties are:
-    
-    * bounding_box
-    * faces
-    * edges
-    * vertices
-    * material_name
-    * object_units
 
     """
     def __init__(self, parent, name=None):
@@ -1585,11 +1578,10 @@ class Padstack(object):
     def update(self):
         """Update the padstack in AEDT.
 
-        Parameters
-        ----------
-
         Returns
         -------
+        bool
+            ``True`` when successful, ``False`` when failed.
 
         """
         self.padstackmgr.Edit(self.name, self.pads_args)
@@ -1598,11 +1590,10 @@ class Padstack(object):
     def remove(self):
         """Remove the padstack in AEDT.
 
-        Parameters
-        ----------
-
         Returns
         -------
+        bool
+            ``True`` when successful, ``False`` when failed.
 
         """
         self.padstackmgr.Remove(self.name, True, "", "Project")
