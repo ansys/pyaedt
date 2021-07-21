@@ -650,14 +650,14 @@ class Hfss(FieldAnalysis3D, object):
         Examples
         --------
 
-        Create a setup named ``'DiscreteSweepSetup'``.
-        Create a discrete sweep named ``'DiscreteSweep'`` for the analysis setup
-        created above.
-        
+        Create a setup named ``'DiscreteSweepSetup'`` and use it in a discrete sweep
+        named ``'DiscreteSweep'``.
+
         >>> setup = hfss.create_setup("DiscreteSweepSetup")
         >>> discrete_sweep = hfss.create_discrete_sweep(setupname="DiscreteSweepSetup",
         ...                                             sweepname="DiscreteSweep", freq="2GHz")
         pyaedt Info: Sweep Created Correctly
+
         """
 
         if sweepname is None:
