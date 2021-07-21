@@ -27,10 +27,11 @@ class CoordinateSystem(object):
     
     Parameters
     ----------
-    parent :
+    parent : 
+        Inherited parent object.
     
-    props : optional
-        The default is ``None``.
+    props : dict, optional
+        Dictionary of properties. The default is ``None``.
     name: optional
         The default is ``None``.
     
@@ -160,7 +161,7 @@ class CoordinateSystem(object):
         Parameters
         ----------
         mode_type : int
-            Tpe of the mode. Options are:
+            Type of the mode. Options are:
             
             * 0 - Axis/Position
             * 1 - Euler Angle ZXZ
@@ -299,7 +300,7 @@ class CoordinateSystem(object):
             default is ``0``.
         theta : float, optional
             If ``mode="zxz"``, ``mode="zyz"``, or ``mode="axisrotation"``, the Euler angle 
-            theta or orataion angle in degrees. The default is ``0``.
+            theta or rotation angle in degrees. The default is ``0``.
         psi : float, optional
             If ``mode="zxz"`` or ``mode="zyz"``, the Euler angle psi in degrees. The
             default is ``0``.
@@ -430,14 +431,14 @@ class CoordinateSystem(object):
 
     @property
     def orientation(self):
-        """Coordinate system orientation."""
+        """Internal named array for orientation."""
         arg = ["Name:RelativeCSParameters"]
         dict2arg(self.props, arg)
         return arg
 
     @property
     def attributes(self):
-        """Coordinate system attributes."""
+        """Internal named array for the attributes."""
         coordinateSystemAttributes = ["NAME:Attributes", "Name:=", self.name]
         return coordinateSystemAttributes
 
@@ -482,6 +483,7 @@ class Modeler(object):
     parent :
     
     """
+
     def __init__(self, parent):
         self._parent = parent
 
@@ -657,13 +659,15 @@ class GeometryModeler(Modeler, object):
 
     @property
     def model_units(self):
-        """Model units."""
+        """Model units.
+
+        Get or set the model units as a string. For example ``"mm"``.
+        """
         return retry_ntimes(10, self.oeditor.GetModelUnits)
 
     @model_units.setter
     def model_units(self, units):
         assert units in AEDT_units["Length"], "Invalid units string {0}.".format(units)
-        """Set the model units as a string. For example ``"mm"``."""
         self.oeditor.SetModelUnits(
             [
                 "NAME:Units Parameter",
@@ -705,7 +709,14 @@ class GeometryModeler(Modeler, object):
 
     @property
     def dimension(self):
-        """Dimensions."""
+        """Dimensions.
+        
+        Returns
+        --------
+        str
+            Dimensionality.  Either ``"2D"`` or ``"3D"``.
+        
+        """
         try:
             if self.odesign.Is2D():
                 return '2D'
@@ -733,7 +744,9 @@ class GeometryModeler(Modeler, object):
         
         .. note::
             Non-model objects are also returned.
-            
+        Returns
+        --------
+        list
         """
         if self.dimension == '3D':
             objects = self.oeditor.GetObjectsInGroup("Solids")
@@ -767,7 +780,7 @@ class GeometryModeler(Modeler, object):
             * If ``mode="axisrotation"``, specify ``theta`` and ``u``.
 
             Parameters not needed by the specified mode are ignored.
-            For back compatibility, ''view="rotate"`` is the same as ``mode="axis"``.
+            For back compatibility, ``view="rotate"`` is the same as ``mode="axis"``.
             The default mode, ``"axisrotation"``, is a coordinate system parallel 
             to the global coordinate system centered in the global origin.
 
@@ -792,7 +805,7 @@ class GeometryModeler(Modeler, object):
             default is ``0``.
         theta : float, optional
             If ``mode="zxz"``, ``mode="zyz"``, or ``mode="axisrotation"``, the Euler angle 
-            theta or orataion angle in degrees. The default is ``0``.
+            theta or rotation angle in degrees. The default is ``0``.
         psi : float, optional
             If ``mode="zxz"`` or ``mode="zyz"``, the Euler angle psi in degrees. The
             default is ``0``.
@@ -1013,7 +1026,6 @@ class GeometryModeler(Modeler, object):
         portonplane : bool
             Whether edges are to be on the plane orthogonal to the axis
             direction.
-       
         Returns
         -------
         str
@@ -1269,9 +1281,8 @@ class GeometryModeler(Modeler, object):
         Returns
         -------
         list
-            List of excitation names. 
-            
-            Excitations with multiple modes will return one excitation for each mode.
+            List of excitation names. Excitations with multiple modes will return one
+            excitation for each mode.
 
         """
         list_names = list(self._parent.oboundary.GetExcitations())
@@ -1285,9 +1296,8 @@ class GeometryModeler(Modeler, object):
         Returns
         -------
         list
-            List of boundary names. 
-            
-            Boundaries with multiple modes will return one boundary for each mode.
+            List of boundary names. Boundaries with multiple modes will return one
+            boundary for each mode.
 
         """
         list_names = list(self._parent.oboundary.GetBoundaries())
@@ -1417,7 +1427,7 @@ class GeometryModeler(Modeler, object):
         objects : str, int, or list
             One or more objects to split. A list can contain
             both strings (object names) and integers (object IDs).
-        plane :
+        plane : int
             Plane of the cut. Applications.CoordinateSystemPlane.XXXXXX
         sides : str
             Which side to keep. Options are ``"Both", ``"PositiveOnly"``, 
@@ -1462,7 +1472,7 @@ class GeometryModeler(Modeler, object):
             List of ``[x, y, z]`` coordinates or 
             Application.Position object for the selection.
         vector : float
-            List of the ``[x1,y1,z1]``coordinates or 
+            List of the ``[x1, y1, z1]``coordinates or 
             Application.Position object for the vector.
 
         Returns
@@ -1499,7 +1509,7 @@ class GeometryModeler(Modeler, object):
             List of ``[x, y, z]`` coordinates or 
             Application.Position object for the selection.
         vector : float
-            List of the ``[x1,y1,z1]``coordinates or 
+            List of the ``[x1, y1, z1]``coordinates or 
             Application.Position object for the vector.
         
         Returns
