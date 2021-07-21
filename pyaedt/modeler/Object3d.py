@@ -1189,7 +1189,7 @@ class Object3d(object):
 
         Parameters
         ----------
-        plane :
+        plane : pyaedt.modeler.modeler_constants.CoordinateSystemPlane
             Coordinate system of the plane object. Application.CoordinateSystemPlane object
         create_new : bool, optional
             Whether to create an object. The default is ``True``.
