@@ -226,7 +226,7 @@ class Icepak(FieldAnalysisIcepak):
         Create block boundaries from each box in the list. 
 
         >>> box1 = icepak.modeler.primitives.create_box([1, 1, 1], [3, 3, 3], "BlockBox1", "copper")
-        >>> box1 = icepak.modeler.primitives.create_box([2, 2, 2], [4, 4, 4], "BlockBox2", "copper")
+        >>> box2 = icepak.modeler.primitives.create_box([2, 2, 2], [4, 4, 4], "BlockBox2", "copper")
         >>> blocks = icepak.create_source_blocks_from_list([["BlockBox1", 2], ["BlockBox2", 4]])
         >>> blocks[1].props
         {'Objects': ['BlockBox1'], 'Block Type': 'Solid', 'Use External Conditions': False, 'Total Power': '2W'}
