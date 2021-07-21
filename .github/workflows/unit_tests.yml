@@ -62,7 +62,8 @@ jobs:
         run: |
           testenv\Scripts\Activate.ps1
           pip install pytest
-          pytest -v pyaedt/desktop.py -p no:faulthandler
+          pytest -v pyaedt/desktop.py pyaedt/icepak.py
+          pytest -v pyaedt/desktop.py pyaedt/hfss.py
 
       - name: 'Coverage'
         run: |
@@ -108,4 +109,3 @@ jobs:
         env:
           TWINE_USERNAME: __token__
           TWINE_PASSWORD: ${{ secrets.PYPI_TOKEN }}
-

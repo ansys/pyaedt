@@ -41,7 +41,7 @@ class Primitives2D(Primitives, object):
 
         Returns
         -------
-        Object3d
+        :class:`pyaedt.modeler.Object3d.Object3d`
             Object3d
 
         Examples
@@ -92,7 +92,7 @@ class Primitives2D(Primitives, object):
 
         Returns
         -------
-        type
+        :class:`pyaedt.modeler.Object3d.Object3d`
             Object3d
 
         Examples
@@ -138,7 +138,7 @@ class Primitives2D(Primitives, object):
 
         Returns
         -------
-        Object3d
+        :class:`pyaedt.modeler.Object3d.Object3d`
 
         >>> rect1 = aedtapp.modeler.primitives.create_rectangle([0, -2, -2], [3, 4])
         >>> rect2 = aedtapp.modeler.primitives.create_rectangle(position=[0, -2, -2], dimension_list=[3, 4],
@@ -190,7 +190,7 @@ class Primitives2D(Primitives, object):
 
         Returns
         -------
-        Object3d
+        :class:`pyaedt.modeler.Object3d.Object3d`
 
         >>> pg1 = aedtapp.modeler.primitives.create_regular_polygon([0, 0, 0], [0, 2, 0])
         >>> pg2 = aedtapp.modeler.primitives.create_regular_polygon(position=[0, 0, 0], start_point=[0, 2, 0],
@@ -230,7 +230,7 @@ class Primitives2D(Primitives, object):
 
         Returns
         -------
-        Object3d
+        :class:`pyaedt.modeler.Object3d.Object3d`
 
         """
         #TODO handle RZ!!

@@ -86,7 +86,7 @@ def exception_to_desktop(self, ex_value, tb_data):
         desktop.AddMessage(proj_name, des_name, 2, el)
 
 
-def update_aedt_registry(key, value, desktop_version="193"):
+def update_aedt_registry(key, value, desktop_version="211"):
     """Update the AEDT registry key.
     
     .. note::
@@ -99,8 +99,8 @@ def update_aedt_registry(key, value, desktop_version="193"):
     value : str
         Value for the registry key. The value includes "" if needed.
     desktop_version : str, optional
-        Version of AEDT to use. The default is ``"193"`` 
-        to use 2019 R3.
+        Version of AEDT to use. The default is ``"211"`` 
+        to use 2021 R1.
     
     Examples
     --------
@@ -406,6 +406,8 @@ class Desktop:
                     oAnsoftApp = StandalonePyScriptWrapper.CreateObjectNew(NG)
                 else:
                     oAnsoftApp = StandalonePyScriptWrapper.CreateObject(version)
+                if NG:
+                    os.environ['PYAEDT_DESKTOP_LOGS'] = 'False'
                 self._main.oDesktop = oAnsoftApp.GetAppDesktop()
                 self._main.isoutsideDesktop = True
             elif _com == 'pythonnet_v3':
@@ -445,6 +447,8 @@ class Desktop:
                     App = StandalonePyScriptWrapper.CreateObjectNew(NG)
                 else:
                     App = StandalonePyScriptWrapper.CreateObject(version)
+                if NG:
+                    os.environ['PYAEDT_DESKTOP_LOGS'] = 'False'
                 processID2 = []
                 if IsWindows:
                     module_logger.debug("Info: Using Windows TaskManager to Load processes")
@@ -500,7 +504,6 @@ class Desktop:
             self._main.oDesktop.RestoreWindow()
             self._main.oMessenger = AEDTMessageManager()
         self._main.pyaedt_initialized = True
-
         # Set up the log file in the AEDT project directory
         self.logger = logging.getLogger(__name__)
         if not self.logger.handlers:

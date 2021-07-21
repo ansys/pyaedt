@@ -363,3 +363,6 @@ dist/
 
 # Scratch Jupyter Notebooks
 scratch_notebooks/
+
+# Visual studio code local settings
+.vscode/

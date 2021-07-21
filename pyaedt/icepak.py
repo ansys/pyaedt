@@ -53,32 +53,36 @@ class Icepak(FieldAnalysisIcepak):
 
     Examples
     --------
-    Create an instance of Icepak and connect to an existing Icepak
+
+    Create an instance of `Icepak` and connect to an existing Icepak
     design or create a new Icepak design if one does not exist.
 
     >>> from pyaedt import Icepak
-    >>> aedtapp = Icepak()
+    >>> icepak = Icepak()
 
-    Create an instance of Icepak and link to a project named
-    ``projectname``. If this project does not exist, create one with
+    Create an instance of `Icepak` and link to a project named
+    ``IcepakProject``. If this project does not exist, create one with
     this name.
 
-    >>> aedtapp = Icepak(projectname)
+    >>> icepak = Icepak("IcepakProject")
+    pyaedt Info: Added design ...
 
-    Create an instance of Icepak and link to a design named
-    ``designname`` in a project named ``projectname``.
+    Create an instance of `Icepak` and link to a design named
+    ``IcepakDesign1`` in a project named ``IcepakProject``.
 
-    >>> aedtapp = Icepak(projectname,designame)
+    >>> icepak = Icepak("IcepakProject", "IcepakDesign1")
+    pyaedt Info: Added design 'IcepakDesign1' of type Icepak.
 
     Create an instance of `Icepak` and open the specified project,
     which is ``myfile.aedt``.
 
-    >>> aedtapp = Icepak("myfile.aedt")
+    >>> icepak = Icepak("myfile.aedt")
+    pyaedt Info: Added design ...
 
     Create an instance of Icepak using the 2021 R1 release and
     open the specified project, which is ``myfile.aedt``.
 
-    >>> aedtapp = Icepak(specified_version="2021.1", projectname="myfile.aedt")
+    >>> icepak = Icepak(specified_version="2021.1", projectname="myfile.aedt")
 
     """
     
@@ -103,7 +107,7 @@ class Icepak(FieldAnalysisIcepak):
         -------
         list
             List of all defined analysis setup names in the Maxwell design.
-            
+
         """
         setup_list = self.existing_analysis_setups
         sweep_list=[]
@@ -123,8 +127,19 @@ class Icepak(FieldAnalysisIcepak):
 
         Returns
         -------
-        type
-            Bound object when successful, ``None`` when failed.
+        :class:`pyaedt.modules.Boundary.BoundaryObject`
+            Boundary object when successful or ``None`` when failed.
+
+        Examples
+        --------
+
+        Create an opening boundary for the faces of the "USB_GND" object.
+
+        >>> faces = icepak.modeler.primitives["USB_GND"].faces
+        >>> face_names = [face.id for face in faces]
+        >>> boundary = icepak.assign_openings(face_names)
+        pyaedt Info: Face List boundary_faces created
+        pyaedt Info: Opening Assigned
 
         """
         boundary_name = generate_unique_name("Opening")
@@ -164,6 +179,12 @@ class Icepak(FieldAnalysisIcepak):
         bool
             ``True`` when successful, ``False`` when failed.
 
+        Examples
+        --------
+
+        >>> icepak.assign_2way_coupling("Setup1", 1, True, 10)
+        True
+
         """
         if not setup_name:
             if self.setups:
@@ -196,8 +217,21 @@ class Icepak(FieldAnalysisIcepak):
 
         Returns
         -------
-        type
+        list
             List of boundaries inserted.
+
+        Examples
+        --------
+
+        Create block boundaries from each box in the list. 
+
+        >>> box1 = icepak.modeler.primitives.create_box([1, 1, 1], [3, 3, 3], "BlockBox1", "copper")
+        >>> box2 = icepak.modeler.primitives.create_box([2, 2, 2], [4, 4, 4], "BlockBox2", "copper")
+        >>> blocks = icepak.create_source_blocks_from_list([["BlockBox1", 2], ["BlockBox2", 4]])
+        >>> blocks[1].props
+        {'Objects': ['BlockBox1'], 'Block Type': 'Solid', 'Use External Conditions': False, 'Total Power': '2W'}
+        >>> blocks[3].props
+        {'Objects': ['BlockBox2'], 'Block Type': 'Solid', 'Use External Conditions': False, 'Total Power': '4W'}
 
         """
         oObjects = self.modeler.primitives.solid_names
@@ -239,8 +273,16 @@ class Icepak(FieldAnalysisIcepak):
 
         Returns
         -------
-        type
-            Bound object when successful or ``None`` when failed.
+        :class:`pyaedt.modules.Boundary.BoundaryObject`
+            Boundary object when successful or ``None`` when failed.
+
+        Examples
+        --------
+
+        >>> box = icepak.modeler.primitives.create_box([5, 5, 5], [1, 2, 3], "BlockBox3", "copper")
+        >>> block = icepak.create_source_block("BlockBox3", "1W", False)
+        >>> block.props
+        {'Objects': ['BlockBox3'], 'Block Type': 'Solid', 'Use External Conditions': False, 'Total Power': '1W'}
 
         """
         if assign_material:
@@ -287,6 +329,19 @@ class Icepak(FieldAnalysisIcepak):
         :class:`pyaedt.modules.Boundary.BoundaryObject`
             Boundary object when successful or ``None`` when failed.
 
+        Examples
+        --------
+
+        Create two source boundaries from one box, one on the top face and one on the bottom face.
+
+        >>> box = icepak.modeler.primitives.create_box([0, 0, 0], [20, 20, 20], name="SourceBox")
+        >>> source1 = icepak.create_source_power(box.top_face.id, input_power="2W")
+        >>> source1.props["Total Power"]
+        '2W'
+        >>> source2 = icepak.create_source_power(box.bottom_face.id, thermal_condtion="Fixed Temperature", temperature="28cel")
+        >>> source2.props["Temperature"]
+        '28cel'
+
         """
         if not source_name:
             source_name = generate_unique_name("Source")
@@ -332,6 +387,14 @@ class Icepak(FieldAnalysisIcepak):
         -------
         :class:`pyaedt.modules.Boundary.BoundaryObject`
             Boundary object.
+
+        Examples
+        --------
+
+        >>> box = icepak.modeler.primitives.create_box([4, 5, 6], [5, 5, 5], "NetworkBox1", "copper")
+        >>> block = icepak.create_network_block("NetworkBox1", "2W", 20, 10, icepak.GravityDirection.ZNeg, 1.05918)
+        >>> block.props["Nodes"]["Internal"][0]
+        '2W'
         
         """
         if object_name in self.modeler.primitives.object_names:
@@ -399,8 +462,20 @@ class Icepak(FieldAnalysisIcepak):
        
         Returns
         -------
-        type
-            Networks boundary objects.
+        list
+            List of boundary objects created.
+
+        Examples
+        --------
+
+        Create network boundaries from each box in the list. 
+
+        >>> box1 = icepak.modeler.primitives.create_box([1, 2, 3], [10, 10, 10], "NetworkBox2", "copper")
+        >>> box2 = icepak.modeler.primitives.create_box([4, 5, 6], [5, 5, 5], "NetworkBox3", "copper")
+        >>> blocks = icepak.create_network_blocks([["NetworkBox2", 20, 10, 3], ["NetworkBox3", 4, 10, 2]],
+        ...                                        icepak.GravityDirection.ZNeg, 1.05918, False)
+        >>> blocks[0].props["Nodes"]["Internal"]
+        ['3W']
         
         """
         objs = self.modeler.primitives.solid_names

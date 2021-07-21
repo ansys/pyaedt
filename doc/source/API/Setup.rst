@@ -12,3 +12,7 @@ The ``Setup`` module includes these classes:
    SolveSetup.Setup
    SolveSetup.Setup3DLayout
    SolveSetup.SetupCircuit
+   SetupTemplates.SweepHFSS
+   SetupTemplates.SweepHFSS3DLayout
+   SetupTemplates.SweepQ3D
+   SetupTemplates.SetupKeys

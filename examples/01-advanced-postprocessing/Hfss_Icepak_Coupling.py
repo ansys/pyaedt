@@ -83,7 +83,7 @@ aedtapp["inner"] = "3mm"
 # Create the Coaxial, 3 Cylinders.
 # Parameters can be applied directly to create_cylinder method,
 # also material can be assigned directly to the object creation action.
-# Alternatively the material can be assigned usign assignmaterial function
+# Alternatively the material can be assigned using assign_material function
 
 #TODO: how does this work when two true-surfaces are defined ??
 o1 = aedtapp.modeler.primitives.create_cylinder(aedtapp.CoordinateSystemPlane.XYPlane, udp, "inner", "$coax_dimension",
