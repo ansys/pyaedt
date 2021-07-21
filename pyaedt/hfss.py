@@ -391,7 +391,13 @@ class Hfss(FieldAnalysis3D, object):
 
         Create a frequency sweep named ``'Sweep'`` for the analysis setup named ``'Setup1'``.
 
-        >>> frequency_sweep = hfss.create_frequency_sweep("Setup1", sweepname ="FrequencySweep")
+        >>> setup = hfss.create_setup("MySetup41")
+        >>> setup.props["Frequency"] = "1GHz"
+        >>> setup.props["BasisOrder"] = 2
+        >>> setup.props["MaximumPasses"] = 1
+        >>> frequency_sweep = hfss.create_frequency_sweep(setupname="MySetup41", sweepname="MySweepFast", unit="MHz",
+        ...                             freqstart=1.1e3, freqstop=1200.1, num_of_freq_points=1234,
+        ...                             sweeptype="Fast")
 
         """
 
