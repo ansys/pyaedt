@@ -389,17 +389,17 @@ class Hfss(FieldAnalysis3D, object):
         Examples
         --------
 
-        Create a setup named ``'MySetup'``.
+        Create a setup named ``'FrequencySweepSetup'``.
         Create a fast frequency sweep named ``'MySweepFast'`` for the analysis
         setup created above.
 
-        >>> setup = hfss.create_setup("MySetup")
+        >>> setup = hfss.create_setup("FrequencySweepSetup")
         >>> setup.props["Frequency"] = "1GHz"
         >>> setup.props["BasisOrder"] = 2
         >>> setup.props["MaximumPasses"] = 1
-        >>> frequency_sweep = hfss.create_frequency_sweep(setupname="MySetup", sweepname="MySweepFast", unit="MHz",
-        ...                                               freqstart=1.1e3, freqstop=1200.1, num_of_freq_points=1234,
-        ...                                               sweeptype="Fast")
+        >>> frequency_sweep = hfss.create_frequency_sweep(setupname="FrequencySweepSetup", sweepname="MySweepFast",
+        ...                                               unit="MHz", freqstart=1.1e3, freqstop=1200.1,
+        ...                                               num_of_freq_points=1234, sweeptype="Fast")
         >>> type(frequency_sweep)
         <class 'pyaedt.modules.SetupTemplates.SweepHFSS'>
 
