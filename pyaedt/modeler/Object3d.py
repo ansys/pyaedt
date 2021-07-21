@@ -166,7 +166,7 @@ class EdgeTypePrimitive(object):
             Right distance from the edge. The default is ``None``.
         angle : float, optional.
             Angle value for chamfer types 2 and 3. The default is ``0``.
-        chamfer_type : int, optiinal
+        chamfer_type : int, optional
             Type of the chamfer. Options are:
                 * 0 - Symmetric
                 * 1 - Left Distance-Right Distance
@@ -293,7 +293,7 @@ class EdgePrimitive(EdgeTypePrimitive, object):
         -------
         list of float values or ``None``
             Midpoint in ``[x, y, z]`` coordinates when the edge 
-            is a circle with only one vertex, ''None`` otherwise.
+            is a circle with only one vertex, ``None`` otherwise.
         
         """
 
@@ -309,7 +309,7 @@ class EdgePrimitive(EdgeTypePrimitive, object):
 
         Returns
         -------
-        float or ``False``
+        float or bool
             Edge length in model units when edge has two vertices, ``False`` othwerise.
         
         """
@@ -359,8 +359,8 @@ class FacePrimitive(object):
 
         Returns
         -------
-        list of float values or ``False``
-            Center position in [x, y, z] coordinates for the planar face, ``False`` otherwise.
+        list or bool
+            Center position in ``[x, y, z]`` coordinates for the planar face, ``False`` otherwise.
         
         """
         try:
@@ -562,7 +562,7 @@ class Object3d(object):
         Returns
         -------
         list of [list of float]
-            List of six `[x, y, z]` positions of the bounding box containing
+            List of six ``[x, y, z]`` positions of the bounding box containing
             Xmin, Ymin, Zmin, Xmax, Ymax, and Zmax values.
         
         """
@@ -594,8 +594,7 @@ class Object3d(object):
 
         Returns
         -------
-        list
-            List of FacePrimitive.
+        :class:`pyaedt.modeler.Object3d.FacePrimitive`
         
         """
         faces = []
@@ -610,7 +609,7 @@ class Object3d(object):
 
         Returns
         -------
-        FacePrimitive
+        :class:`pyaedt.modeler.Object3d.FacePrimitive`
         
         """
         result = [(float(face.center[2]), face) for face in self.faces]
@@ -623,8 +622,7 @@ class Object3d(object):
 
         Returns
         -------
-        list
-            List of FacePrimitive
+        :class:`pyaedt.modeler.Object3d.FacePrimitive`
         
         """
         result = [(float(face.center[2]), face) for face in self.faces]
@@ -652,8 +650,7 @@ class Object3d(object):
 
         Returns
         -------
-        list
-            List of VertexPrimitive.
+        :class:`pyaedt.modeler.Object3d.FacePrimitive`
         
         """
         vertices = []
@@ -692,7 +689,7 @@ class Object3d(object):
         
         Returns
         -------
-        str or ``None``
+        str or None
             Name of the surface material when successful, ``None`` and a warning message otherwise.
         
         """
@@ -721,7 +718,7 @@ class Object3d(object):
         
         Returns
         -------
-        str or ``None``
+        str or None
             Name of the material when successful, ``None`` and a warning message otherwise.
 
         """
@@ -760,7 +757,7 @@ class Object3d(object):
         
         Returns
         -------
-        int or ``None``
+        int or None
             ID of the object when successful, ``None`` otherwise.
         
         """
@@ -773,7 +770,6 @@ class Object3d(object):
     @property
     def object_type(self):
         """Type of the object. Options are:
-             
              * Solid
              * Sheet
              * Line
@@ -836,7 +832,7 @@ class Object3d(object):
 
     @property
     def valid_properties(self):
-        "Valid properties."
+        """Valid properties."""
         if not self._all_props:
             self._all_props = retry_ntimes(10, self.m_Editor.GetProperties, "Geometry3DAttributeTab", self._m_name)
         return self._all_props
@@ -849,7 +845,7 @@ class Object3d(object):
         
         Examples
         --------
-         >>> part.color = (255,255,0)
+        >>> part.color = (255,255,0)
         
         """
         if 'Color' in self.valid_properties:
@@ -955,7 +951,7 @@ class Object3d(object):
 
     @property
     def solve_inside(self):
-        """Part solve inside flag as a Boolean value.
+        """Part solve inside flag.
         
         Returns
         -------
@@ -986,7 +982,7 @@ class Object3d(object):
 
     @property
     def display_wireframe(self):
-        """Wireframe property of the part as a Boolean value.
+        """Wireframe property of the part.
         
         Returns
         -------
@@ -1013,7 +1009,7 @@ class Object3d(object):
 
     @property
     def model(self):
-        """Part Model/Non-model property as a Boolean value.
+        """Part Model/Non-model property.
         
         Returns
         -------
@@ -1042,7 +1038,7 @@ class Object3d(object):
 
         Parameters
         ----------
-        object_list : list of str or list of Object3d
+        object_list : list of str or list of :class:`pyaedt.modeler.Object3d.Object3d`
             List of objects.
 
         Returns
@@ -1157,8 +1153,8 @@ class Object3d(object):
 
         Returns
         -------
-        bool
-            ``True`` when model, ``False`` otherwise.  
+        :class:`pyaedt.modeler.Object3d.Object3d`
+            Swept object.
         
         """
         self._parent.modeler.sweep_along_path(self, sweep_object, draft_angle, draft_type,
@@ -1171,8 +1167,8 @@ class Object3d(object):
 
         Parameters
         ----------
-        cs_axis :
-            Coordinate system of the axis. Application.CoordinateSystemAxis object
+        cs_axis : pyaedt.modeler.modeler_constants.CoordinateSystemAxis
+            Coordinate system of the axis.
         sweep_angle : float, optional
              Sweep angle in degrees. The default is ``360``.
         draft_angle : float, optional
@@ -1181,7 +1177,7 @@ class Object3d(object):
         Returns
         -------
         :class:`pyaedt.modeler.Object3d.Object3d`
-            3D object. 
+            Swept object. 
 
         """
         self._parent.modeler.sweep_around_axis(self, cs_axis, sweep_angle, draft_angle)
@@ -1486,7 +1482,7 @@ class Padstack(object):
         ----------
         layername : str, optional
             Name of layer. The default is ``"Start"``.
-        pad_hole : 
+        pad_hole : pyaedt.modeler.Object3d.Object3d.PDSHole
             Pad hole object, which you can create with the :func:`add_hole` method.
             The default is ``None``.
         antipad_hole :
@@ -1556,7 +1552,7 @@ class Padstack(object):
 
         Returns
         -------
-        type
+        :class:`pyaedt.modeler.Object3d.Object3d.PDSHole`
             Hole object to be passed to padstack or layer.
 
         """
@@ -1772,7 +1768,7 @@ class CircuitComponent(object):
         ----------
         property_name : str
             Name of the property.
-        property_value : fl
+        property_value :
             Value for the property. 
 
         Returns
@@ -1800,7 +1796,7 @@ class CircuitComponent(object):
         ----------
         property_name : str
             Name of the property.
-        property_value : fl
+        property_value :
             Value for the property. 
 
 
@@ -1943,7 +1939,7 @@ class Components3DLayout(Objec3DLayout, object):
         Returns
         -------
         list
-           List of ``(x, y, z) coordinates for the component location.
+           List of ``(x, y, z)`` coordinates for the component location.
            
         """
         location = retry_ntimes(self._n, self.m_Editor.GetPropertyValue, "BaseElementTab", self.name, 'Location')
@@ -2014,7 +2010,7 @@ class Nets3DLayout(Objec3DLayout, object):
 
 
 class Pins3DLayout(Objec3DLayout, object):
-    """Contains the pins in  HFSS 3D Layout.
+    """Contains the pins in HFSS 3D Layout.
     
     Parameters
     ----------
@@ -2197,7 +2193,6 @@ class Geometries3DLayout(Objec3DLayout, object):
         ----------
         negative : bool, optional
             The default is ``False``.
-            
         Returns
         -------
         type
