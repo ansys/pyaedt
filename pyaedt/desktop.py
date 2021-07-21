@@ -407,7 +407,7 @@ class Desktop:
                 else:
                     oAnsoftApp = StandalonePyScriptWrapper.CreateObject(version)
                 if NG:
-                    os.environ['PYAEDT_DESKTOP_LOGS']='False'
+                    os.environ['PYAEDT_DESKTOP_LOGS'] = 'False'
                 self._main.oDesktop = oAnsoftApp.GetAppDesktop()
                 self._main.isoutsideDesktop = True
             elif _com == 'pythonnet_v3':
@@ -448,7 +448,7 @@ class Desktop:
                 else:
                     App = StandalonePyScriptWrapper.CreateObject(version)
                 if NG:
-                    os.environ['PYAEDT_DESKTOP_LOGS']='False'
+                    os.environ['PYAEDT_DESKTOP_LOGS'] = 'False'
                 processID2 = []
                 if IsWindows:
                     module_logger.debug("Info: Using Windows TaskManager to Load processes")

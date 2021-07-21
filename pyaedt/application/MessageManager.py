@@ -107,7 +107,7 @@ class AEDTMessageManager(object):
             if 'oDesktop' in dir(sys.modules['__main__']):
                 self.MainModule = sys.modules['__main__']
                 self._desktop = self.MainModule.oDesktop
-                self._log_on_desktop = os.getenv('PYAEDT_DESKTOP_LOGS', 'True').lower() in ('true', '1', 't')
+                self._log_on_desktop = os.getenv('PYAEDT_DESKTOP_LOGS', 'True').lower() in ('true', '1', 't', 'yes', 'y')
             else:
                 self._log_on_desktop = False
                 self._desktop = None
@@ -157,7 +157,6 @@ class AEDTMessageManager(object):
             global_message_data = self._desktop.GetMessages("", "", 0)
             message_data = MessageList(global_message_data, project_name, design_name)
             return message_data
-        return None
 
     @aedt_exception_handler
     def add_error_message(self, message_text, level=None):
@@ -424,6 +423,7 @@ class EDBMessageManager(object):
             self.logger.warning(message_text)
         if self._log_on_screen:
             print(message_text)
+
     def add_info_message(self, message_text):
         """Add an "Info" message to the logger.
 
