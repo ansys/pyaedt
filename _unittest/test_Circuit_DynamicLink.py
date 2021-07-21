@@ -1,11 +1,14 @@
 # standard imports
 import os
-from .conftest import local_path, scratch_path, config
+from _unittest.conftest import local_path, scratch_path, config
 
 from pyaedt import Circuit
 from pyaedt.generic.filesystem import Scratch
 import gc
-import pytest
+try:
+    import pytest
+except ImportError:
+    import _unittest_ironpython.conf_unittest as pytest
 
 # Access the desktop
 test_project_name = "Dynamic_Link"
@@ -14,7 +17,7 @@ src_project_name = "USB_Connector"
 source_project = os.path.join(local_path, 'example_models', src_project_name + '.aedt')
 linked_project_name = "Filter_Board"
 
-class TestCircuitDL:
+class TestClass:
 
     def setup_class(self):
         # set a scratch directory and the environment / test data

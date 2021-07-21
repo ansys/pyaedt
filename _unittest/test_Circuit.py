@@ -1,8 +1,11 @@
 import os
 # Setup paths for module imports
-from .conftest import local_path, scratch_path, config
+from _unittest.conftest import local_path, scratch_path, config
 import gc
-import pytest
+try:
+    import pytest
+except ImportError:
+    import _unittest_ironpython.conf_unittest as pytest
 
 # Import required modules
 from pyaedt import Circuit
@@ -16,7 +19,7 @@ touchstone = 'SSN_ssn.s6p'
 touchstone2 = 'Galileo_V3P3S0.ts'
 
 
-class TestCircuit:
+class TestClass:
     def setup_class(self):
         with Scratch(scratch_path) as self.local_scratch:
             try:

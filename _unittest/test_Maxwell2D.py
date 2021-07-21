@@ -1,9 +1,12 @@
 #!/ekm/software/anaconda3/bin/python
 
 import os
-import pytest
+try:
+    import pytest
+except ImportError:
+    import _unittest_ironpython.conf_unittest as pytest
 # Setup paths for module imports
-from .conftest import local_path, scratch_path, BasisTest, pyaedt_unittest_check_desktop_error
+from _unittest.conftest import local_path, scratch_path, BasisTest, pyaedt_unittest_check_desktop_error
 
 
 # Import required modules
@@ -12,7 +15,7 @@ from pyaedt.generic.filesystem import Scratch
 from pyaedt.modeler.Primitives import Polyline
 import gc
 
-class TestMaxwell2D(BasisTest):
+class TestClass(BasisTest):
     def setup_class(self):
         BasisTest.setup_class(self,
                               project_name="Motor_EM_R2019R3",

@@ -1,12 +1,15 @@
 import os
 # Setup paths for module imports
-from .conftest import scratch_path
+from _unittest.conftest import scratch_path, config
 import gc
 # Import required modules
 from pyaedt import Hfss, Mechanical, Icepak
 from pyaedt.generic.filesystem import Scratch
-import pytest
-from .conftest import config
+try:
+    import pytest
+except ImportError:
+    import _unittest_ironpython.conf_unittest as pytest
+
 test_project_name = "coax_Mech"
 
 

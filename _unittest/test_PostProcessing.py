@@ -1,14 +1,16 @@
 # standard imports
 import os
-import pytest
+try:
+    import pytest
+except ImportError:
+    import _unittest_ironpython.conf_unittest as pytest
 # Setup paths for module imports
-from .conftest import local_path, scratch_path
+from _unittest.conftest import local_path, scratch_path, config
 
 # Import required modules
 from pyaedt import Hfss
 from pyaedt.generic.filesystem import Scratch
 import gc
-from .conftest import config
 test_project_name = "coax_setup_solved"
 test_field_name = "Potter_Horn"
 
@@ -18,7 +20,7 @@ try:
 except ImportError:
     ipython_available = False
 
-class TestDesign:
+class TestClass:
     def setup_class(self):
         # set a scratch directory and the environment / test data
         with Scratch(scratch_path) as self.local_scratch:

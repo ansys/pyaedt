@@ -3,7 +3,7 @@ import os
 import gc
 
 # Setup paths for module imports
-from .conftest import local_path, scratch_path, desktop_version, new_thread, non_graphical
+from _unittest.conftest import local_path, scratch_path, desktop_version, new_thread, non_graphical
 
 # Import required modules
 from pyaedt import Hfss

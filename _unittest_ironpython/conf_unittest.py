@@ -1,4 +1,19 @@
 from functools import wraps
+from unittest import TestCase
+import sys
+
+class PytestMockup(TestCase):
+    def assertRaises(self, excClass, callableObj, *args, **kwargs):
+        try:
+            TestCase.assertRaises(self, excClass, callableObj, *args, **kwargs)
+        except:
+            print('\n    ' + repr(sys.exc_info()[1]))
+
+    def assertTrue(self, callableObj, *args, **kwargs):
+        try:
+            TestCase.assertTrue(self, callableObj, *args, **kwargs)
+        except:
+            print('\n    ' + repr(sys.exc_info()[1]))
 
 def test_generator(test_obj, test_function):
     def test(self):
@@ -25,6 +40,14 @@ class Mark:
             @wraps(func)
             def wrapper(*args, **kwargs):
                 pass
+            return wrapper
+        return inner_function
+
+    def parametrize(self, arg1=None, arg2=None):
+        def inner_function(func):
+            @wraps(func)
+            def wrapper(*args, **kwargs):
+                self.assertTrue(False, msg="pytest.mark.parametrize not implemented yet")
             return wrapper
         return inner_function
 

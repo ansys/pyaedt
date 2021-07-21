@@ -1,6 +1,6 @@
 import os
 # Setup paths for module imports
-from .conftest import scratch_path
+from _unittest.conftest import scratch_path
 import gc
 # Import required modules
 from pyaedt import Rmxprt
@@ -9,7 +9,7 @@ from pyaedt.generic.filesystem import Scratch
 test_project_name = "motor"
 
 
-class TestRmxprt:
+class TestClass:
     def setup_class(self):
         # set a scratch directory and the environment / test data
         with Scratch(scratch_path) as self.local_scratch:

@@ -2,7 +2,7 @@
 import os
 import math
 
-from .conftest import local_path, scratch_path
+from _unittest.conftest import local_path, scratch_path
 
 # Import required modules
 from pyaedt import Hfss

@@ -1,7 +1,10 @@
 import os
-import pytest
+try:
+    import pytest
+except ImportError:
+    import _unittest_ironpython.conf_unittest as pytest
 # Setup paths for module imports
-from .conftest import scratch_path
+from _unittest.conftest import scratch_path
 import gc
 # Import required modules
 from pyaedt import Hfss
@@ -10,7 +13,7 @@ from pyaedt.generic.filesystem import Scratch
 test_project_name = "coax_HFSS"
 
 
-class TestHFSS:
+class TestClass:
     def setup_class(self):
         # set a scratch directory and the environment / test data
         with Scratch(scratch_path) as self.local_scratch:

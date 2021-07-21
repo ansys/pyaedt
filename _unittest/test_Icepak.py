@@ -2,13 +2,16 @@
 import os
 import time
 # Setup paths for module imports
-from .conftest import local_path, scratch_path, config
+from _unittest.conftest import local_path, scratch_path, config
 
 # Import required modules
 from pyaedt import Icepak
 from pyaedt.generic.filesystem import Scratch
 import gc
-import pytest
+try:
+    import pytest
+except ImportError:
+    import _unittest_ironpython.conf_unittest as pytest
 
 # Access the desktop
 
@@ -29,7 +32,7 @@ source_project = os.path.join(local_path, 'example_models', src_project_name + '
 source_project_path = os.path.join(local_path, 'example_models', src_project_name)
 
 
-class TestIcepak:
+class TestClass:
 
     def setup_class(self):
         # set a scratch directory and the environment / test data

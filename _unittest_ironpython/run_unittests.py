@@ -1,6 +1,9 @@
 import unittest
 import os
 import sys
+from datetime import datetime
+
+
 sys.path.append(r"C:\Program Files\AnsysEM\AnsysEM21.1\Win64\PythonFiles\DesktopPlugin")
 sys.path.append(r"C:\data\pyaedt")
 
@@ -9,9 +12,6 @@ run_dir = r"C:\data\pyaedt\_unittest_ironpython"
 
 def discover_and_run(start_dir, pattern=None):
     """Discover and run tests cases, returning the result."""
-    if not pattern:
-        pattern = 'test*.py'
-
     # use the default shared TestLoader instance
     test_loader = unittest.defaultTestLoader
 
@@ -19,9 +19,10 @@ def discover_and_run(start_dir, pattern=None):
     test_suite = test_loader.discover(start_dir, pattern=pattern)
 
     # run the test suite
-    log_file = os.path.join(start_dir, 'unittest.log')
+    log_file = os.path.join(start_dir, 'runner_unittest.log')
     with open(log_file, "w") as f:
+        f.write("Test started {}\n".format(datetime.now()))
         runner = unittest.TextTestRunner(f, verbosity=2)
         result = runner.run(test_suite)
 
-discover_and_run(run_dir, pattern='test*.py')
+discover_and_run(run_dir, pattern='test_*.py')
