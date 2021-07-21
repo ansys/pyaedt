@@ -1,11 +1,15 @@
 # standard imports
 import math
+try:
+    import pytest
+except ImportError:
+    import _unittest_ironpython.conf_unittest as pytest
 
 # Setup paths for module imports
-from .conftest import local_path, scratch_path, BasisTest, pyaedt_unittest_check_desktop_error
+from _unittest.conftest import local_path, scratch_path, BasisTest, pyaedt_unittest_check_desktop_error
 from pyaedt.maxwell import Maxwell2d
 
-class TestModeler(BasisTest):
+class TestClass(BasisTest):
     def setup_class(self):
         BasisTest.setup_class(self, project_name="test_primitives", design_name="2D_Primitives", application=Maxwell2d)
 

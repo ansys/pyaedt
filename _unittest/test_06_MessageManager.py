@@ -1,11 +1,15 @@
-import pytest
+try:
+    import pytest
+except ImportError:
+    import _unittest_ironpython.conf_unittest as pytest
+
 # Setup paths for module imports
 import gc
 import math
 import os
 
 # Import required modules
-from .conftest import local_path, scratch_path, config
+from _unittest.conftest import local_path, scratch_path, config
 from pyaedt.hfss import Hfss
 from pyaedt.application.MessageManager import AEDTMessageManager
 from pyaedt.application.Variables import Variable
@@ -15,7 +19,7 @@ import logging
 
 LOGGER = logging.getLogger(__name__)
 
-class TestMessage:
+class TestClass:
 
     def setup_class(self):
 

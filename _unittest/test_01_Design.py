@@ -10,6 +10,11 @@ from pyaedt import Hfss
 from pyaedt.application.Design import DesignCache
 from pyaedt.generic.filesystem import Scratch
 
+try:
+    import pytest
+except ImportError:
+    import _unittest_ironpython.conf_unittest as pytest
+
 test_project_name = "Coax_HFSS"
 example_project = os.path.join(local_path, 'example_models', test_project_name + '.aedt')
 

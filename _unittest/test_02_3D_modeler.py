@@ -1,10 +1,13 @@
 # standard imports
-import pytest
+try:
+    import pytest
+except ImportError:
+    import _unittest_ironpython.conf_unittest as pytest
 
 # Setup paths for module imports
-from .conftest import BasisTest, pyaedt_unittest_check_desktop_error
+from _unittest.conftest import BasisTest, pyaedt_unittest_check_desktop_error
 
-class TestModeler(BasisTest):
+class TestClass(BasisTest):
     def setup_class(self):
         BasisTest.setup_class(self, project_name="Coax_HFSS")
 

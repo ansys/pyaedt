@@ -1,6 +1,7 @@
 from unittest import TestCase
 from conf_unittest import test_generator
 import os
+import sys
 
 test_filter = "test_"
 
@@ -14,6 +15,19 @@ class TestSequenceFunctionsGenerate(TestCase):
 
     def tearDown(self):
         test_obj.teardown_class()
+
+    def assertRaises(self, excClass, callableObj, *args, **kwargs):
+        try:
+            TestCase.assertRaises(self, excClass, callableObj, *args, **kwargs)
+        except:
+            print('\n    ' + repr(sys.exc_info()[1]))
+
+    def assertTrue(self, callableObj, *args, **kwargs):
+        try:
+            TestCase.assertTrue(self, callableObj, *args, **kwargs)
+        except:
+            print('\n    ' + repr(sys.exc_info()[1]))
+
 
 
 test_names = [name for name in dir(test_obj) if name.startswith(test_filter)]

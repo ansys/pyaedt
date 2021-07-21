@@ -1,19 +1,20 @@
 import os
 # Setup paths for module imports
-from .conftest import local_path, scratch_path
 import gc
 import time
 # Import required modules
 from pyaedt import Edb
 from pyaedt.edb_core.components import resistor_value_parser
 from pyaedt.generic.filesystem import Scratch
-from .conftest import desktop_version
 test_project_name = "Galileo"
 bom_example = "bom_example.csv"
-from .conftest import config
-import pytest
+from _unittest.conftest import config, desktop_version, local_path, scratch_path
+try:
+    import pytest
+except ImportError:
+    import _unittest_ironpython.conf_unittest as pytest
 
-class TestEDB:
+class TestClass:
     def setup_class(self):
         with Scratch(scratch_path) as self.local_scratch:
             try:
