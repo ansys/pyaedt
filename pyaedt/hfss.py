@@ -390,7 +390,8 @@ class Hfss(FieldAnalysis3D, object):
         --------
 
         Create a setup named ``'MySetup'``.
-        Create a fast frequency sweep named ``'MySweepFast'`` for the analysis setup created above.
+        Create a fast frequency sweep named ``'MySweepFast'`` for the analysis
+        setup created above.
 
         >>> setup = hfss.create_setup("MySetup")
         >>> setup.props["Frequency"] = "1GHz"
@@ -445,7 +446,7 @@ class Hfss(FieldAnalysis3D, object):
         unit : str
             Unit of the frequency. For example, ``"MHz`` or ``"GHz"``. The default is ``"GHz"``.
         freqstart : float
-            Starting frequency of the sweep,  such as ``1``.
+            Starting frequency of the sweep, such as ``1``.
         freqstop : float
             Stopping frequency of the sweep.
         num_of_freq_points : int
@@ -459,8 +460,24 @@ class Hfss(FieldAnalysis3D, object):
 
         Returns
         -------
-        SweepHFSS
-            Sweep object.
+        :class:`pyaedt.modules.SetupTemplates.SweepHFSS` or bool
+            Sweep object if successful. ``False`` if unsuccessful.
+
+        Examples
+        --------
+
+        Create a setup named ``'LinearCountSetup'``.
+        Create a linear count sweep named ``'LinearCountSweep'`` for the analysis setup
+        created above.
+
+        >>> setup = hfss.create_setup("LinearCountSetup")
+        >>> linear_count_sweep = hfss.create_linear_count_sweep(setupname="LinearCountSetup",
+        ...                                                     sweepname="LinearCountSweep",
+        ...                                                     unit="MHz", freqstart=1.1e3,
+        ...                                                     freqstop=1200.1, num_of_freq_points=1658)
+        >>> type(linear_count_sweep)
+        <class 'pyaedt.modules.SetupTemplates.SweepHFSS'>
+
         """
 
         if sweepname is None:
@@ -515,10 +532,26 @@ class Hfss(FieldAnalysis3D, object):
 
         Returns
         -------
-        SweepHFSS
-            Sweep object.
+        :class:`pyaedt.modules.SetupTemplates.SweepHFSS` or bool
+            Sweep object if successful. ``False`` if unsuccessful.
+
+        Examples
+        --------
+
+        Create a setup named ``'LinearStepSetup'``.
+        Create a linear step sweep named ``'LinearStepSweep'`` for the analysis setup
+        created above.
+
+        >>> setup = hfss.create_setup("LinearStepSetup")
+        >>> linear_step_sweep = hfss.create_linear_step_sweep(setupname="LinearStepSetup",
+        ...                                                   sweepname="LinearStepSweep",
+        ...                                                   unit="MHz", freqstart=1.1e3,
+        ...                                                   freqstop=1200.1, step_size=153.8)
+        >>> type(linear_step_sweep)
+        <class 'pyaedt.modules.SetupTemplates.SweepHFSS'>
 
         """
+
         if sweepname is None:
             sweepname = generate_unique_name("Sweep")
 
