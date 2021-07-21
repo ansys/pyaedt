@@ -389,9 +389,8 @@ class Hfss(FieldAnalysis3D, object):
         Examples
         --------
 
-        Create a setup named ``'FrequencySweepSetup'``.
-        Create a fast frequency sweep named ``'MySweepFast'`` for the analysis
-        setup created above.
+        Create a setup named ``'FrequencySweepSetup'`` and use it in a frequency sweep
+        named ``'MySweepFast'``.
 
         >>> setup = hfss.create_setup("FrequencySweepSetup")
         >>> setup.props["Frequency"] = "1GHz"
@@ -466,9 +465,8 @@ class Hfss(FieldAnalysis3D, object):
         Examples
         --------
 
-        Create a setup named ``'LinearCountSetup'``.
-        Create a linear count sweep named ``'LinearCountSweep'`` for the analysis setup
-        created above.
+        Create a setup named ``'LinearCountSetup'`` and use it in a linear count sweep
+        named ``'LinearCountSweep'``.
 
         >>> setup = hfss.create_setup("LinearCountSetup")
         >>> linear_count_sweep = hfss.create_linear_count_sweep(setupname="LinearCountSetup",
@@ -538,9 +536,8 @@ class Hfss(FieldAnalysis3D, object):
         Examples
         --------
 
-        Create a setup named ``'LinearStepSetup'``.
-        Create a linear step sweep named ``'LinearStepSweep'`` for the analysis setup
-        created above.
+        Create a setup named ``'LinearStepSetup'`` and use it in a linear step sweep
+        named ``'LinearStepSweep'``.
 
         >>> setup = hfss.create_setup("LinearStepSetup")
         >>> linear_step_sweep = hfss.create_linear_step_sweep(setupname="LinearStepSetup",
