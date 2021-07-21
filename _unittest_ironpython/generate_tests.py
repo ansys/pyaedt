@@ -14,10 +14,12 @@ mymodule = __import__('_unittest.' + test_name, fromlist=['TestClass'])
 test_obj = mymodule.TestClass()
 
 class TestSequenceFunctionsGenerate(PytestMockup):
-    def setUp(self):
+    @classmethod
+    def setUpClass(cls):
         test_obj.setup_class()
 
-    def tearDown(self):
+    @classmethod
+    def tearDownClass(cls):
         test_obj.teardown_class()
 
 test_names = [name for name in dir(test_obj) if name.startswith(test_filter)]

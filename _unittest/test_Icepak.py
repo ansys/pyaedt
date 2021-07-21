@@ -49,11 +49,7 @@ class TestClass:
                 pass
 
     def teardown_class(self):
-        assert self.aedtapp.close_project(self.aedtapp.project_name)
-        try:
-            self.aedtapp.odesktop.CloseProject(src_project_name)
-        except:
-            pass
+        self.aedtapp.close_project(self.aedtapp.project_name)
         time.sleep(2)
         self.local_scratch.remove()
         gc.collect()
