@@ -80,21 +80,21 @@ class PolylineSegment():
 
 class Polyline(Object3d):
     """Creates and manipulates a polyline. 
-    
+
     The constructor for this class is intended to be called from the 
-    :func:`pyaedt.modeler.Primitives3D.Primitives3D.create_polyline` method.
+    :func:`pyaedt.modeler.Primitives.Primitives.create_polyline` method.
     The documentation is provided there.
 
     The returned Polyline object exposes the methods for manipulating the polyline.
 
     Parameters
     ----------
-    parent : 
-    
+    parent : :class:`pyaedt.modeler.Primitives.Primitives`
+        Pointer to the parent Primitives object.
     src_object : optional
         The default is ``None``.
     position_list : list, optional
-        List of positions in the ``[x, y, z]`` form.The default is ``None``. 
+        List of positions in the ``[x, y, z]`` form. The default is ``None``. 
     object_id : optional
         The default is ``None``.
     segment_type : optional
@@ -235,7 +235,7 @@ class Polyline(Object3d):
 
     def _point_segment_string_array(self):
         """Retrieve the parameter arrays for specifying the points and segments of a polyline
-        for use by the :func:`pyaedt.modeler.Primitives3D.Primitives3D.create_polyline` method.
+        used in the :class:`pyaedt.modeler.Primitives.Polyline` constructor.
 
         Returns
         -------
@@ -329,7 +329,7 @@ class Polyline(Object3d):
 
     def _segment_array(self, segment_data, start_index=0, start_point=None):
         """Retrieve a property array for a polyline segment for use in the 
-        :func:`pyaedt.modeler.Primitives3D.Primitives3D.create_polyline` method.
+       :class:`pyaedt.modeler.Primitives.Polyline` constructor.
 
         Parameters
         ----------
@@ -345,8 +345,8 @@ class Polyline(Object3d):
 
         Returns
         ------
-        :class:`pyaedt.modeler.Primitives.PolylineSegment`
-            Polyline segment object.
+        list
+            List of properties defining a polyline segment. 
         
         """
         if isinstance(segment_data, str):
@@ -568,10 +568,10 @@ class Polyline(Object3d):
            Width or diameter of the cross-section for all types. The default is
            ``0``.
         topwidth : float or str
-           Top width of the cross-section for the type``"Isosceles Trapezoid"``
+           Top width of the cross-section for the type ``"Isosceles Trapezoid"``
            only. The default is ``0``.
         height : float or str
-            Height of the cross-section for the types``"Rectangle"`` and `"Isosceles
+            Height of the cross-section for the types ``"Rectangle"`` and `"Isosceles
             Trapezoid"`` only. The default is ``0``.
         num_seg : int, optional
             Number of segments in the cross-section surface for the types ``"Circle"``,
@@ -731,8 +731,9 @@ class Primitives(object):
     Parameters
     ----------
     parent :
-    
-    modeler :
+        Pointer to the parent object.
+    modeler : :class:`pyaedt.modeler.Modeler`
+        Pointer to the Modeler object.
     
     """
     def __init__(self, parent, modeler):
@@ -853,12 +854,12 @@ class Primitives(object):
 
     @property
     def model_objects(self):
-        """List of the names of all objects of type '`model'`."""
+        """List of the names of all model objects."""
         return self._get_model_objects(model=True)
 
     @property
     def non_model_objects(self):
-        """List of names of all objects of type ``non-model`'."""
+        """List of names of all non-model objects."""
         return self._get_model_objects(model=False)
 
     @property
@@ -911,7 +912,7 @@ class Primitives(object):
         Returns
         -------
         :class:`pyaedt.modeler.Object3d.Object3d`
-           3D object.
+           Updated 3D object.
         
         """
         o = self._resolve_object(obj)
@@ -931,7 +932,8 @@ class Primitives(object):
         
         Returns
         -------
-        float or list of floats in the defined object units :attr:`pyaedt.modeler.Primitives.Polyline.object_units`
+        float or list of floats
+            Defined in object units :attr:`pyaedt.modeler.Primitives.Polyline.object_units`
         
         """
         # Convert to a list if a scalar is presented
@@ -1108,7 +1110,7 @@ class Primitives(object):
                         xsection_num_seg=0, xsection_bend_type=None):
         """Draw a polyline object in the 3D modeler.
 
-        This method retrieve the :class:`pyaedt.modeler.Primitives.Polyline` object, which
+        This method retrieves the :class:`pyaedt.modeler.Primitives.Polyline` object, which
         has additional methods for manipulating the polyline. For example, you can use 
         the :funct:``pyaedt.modeler.Primitives.Polyline.insert_segment` method to insert a 
         segment or the :attr:``pyaedt.modeler.Primitives.Polyline.id` property to retrieve
@@ -1453,8 +1455,8 @@ class Primitives(object):
         they were removed by previous operations.
         
         This method also updates object IDs that may have changed via  
-        a modeler operation such as :funct:`pyaedt.modeler.Model3D.Modeler3D.unite` 
-        or :funct:`pyaedt.modeler.Model2D.Modeler2D.unite`.
+        a modeler operation such as :func:`pyaedt.modeler.Model3D.Modeler3D.unite` 
+        or :func:`pyaedt.modeler.Model2D.Modeler2D.unite`.
         
         Returns
         -------
@@ -1481,7 +1483,7 @@ class Primitives(object):
         
         Returns
         -------
-        Dict
+        dict
             Dictionary of new objects.
             
         """
@@ -1512,7 +1514,7 @@ class Primitives(object):
     # Should no longer be a problem
     @aedt_exception_handler
     def refresh_all_ids(self):
-        """Refresh all IDS."""
+        """Refresh all IDs."""
 
         self.add_new_objects()
         self.cleanup_objects()
@@ -1542,7 +1544,7 @@ class Primitives(object):
 
     @aedt_exception_handler
     def find_closest_edges(self, start_obj, end_obj, port_direction=0):
-        """Retrieve the two closet edges that are not perpendicular for two objects.
+        """Retrieve the two closest edges that are not perpendicular for two objects.
      
         Parameters
         ----------
@@ -1555,7 +1557,7 @@ class Primitives(object):
             are at the same distance. For example, for a coax or microstrip, precedence is given 
             to the edges that are on the given axis direction, such as ``"XNeg"``. Options are 
             ``"XNeg"``, ``"XPos"``, ``"YNeg"``, ``"YPos`"``, ``"ZNeg"``, and ``"ZPos"``. 
-            The default is ``0``,         
+            The default is ``0``.
 
         Returns
         -------
@@ -1828,8 +1830,8 @@ class Primitives(object):
         ----------
         face_id : int or str
             Object ID or object name, which is available
-            using the methods "func:`pyaedt.modeler.Primitives3D.Primitives3D.get_object_vertices`
-            or "func:`pyaedt.modeler.Primitives2D.Primitives2D.get_object_vertices`.
+            using the methods :func:`pyaedt.modeler.Primitives3D.Primitives3D.get_object_vertices`
+            or :func:`pyaedt.modeler.Primitives2D.Primitives2D.get_object_vertices`.
 
         Returns
         -------
@@ -1876,8 +1878,8 @@ class Primitives(object):
         ----------
         edgeID : int, str
             Object ID or object name, which is available using the
-            methods "func:`pyaedt.modeler.Primitives3D.Primitives3D.get_object_vertices`
-            or "func:`pyaedt.modeler.Primitives2D.Primitives2D.get_object_vertices`.
+            methods :func:`pyaedt.modeler.Primitives3D.Primitives3D.get_object_vertices`
+            or :func:`pyaedt.modeler.Primitives2D.Primitives2D.get_object_vertices`.
 
         Returns
         -------
@@ -1928,7 +1930,7 @@ class Primitives(object):
         Returns
         -------
         float
-           Value for the face area.
+            Value for the face area.
         
         """
 
@@ -2862,4 +2864,3 @@ class Primitives(object):
         elif isinstance(partId, Object3d):
             return partId
         return None
-
