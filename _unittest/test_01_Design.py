@@ -25,8 +25,8 @@ class TestClass():
         with Scratch(scratch_path) as self.local_scratch:
             self.test_project = self.local_scratch.copyfile(example_project)
             self.aedtapp = Hfss(projectname=self.test_project, specified_version=desktop_version, AlwaysNew=new_thread, NG=non_graphical)
-            self.aedtapp.save_project()
-            self.cache = DesignCache(self.aedtapp)
+            #self.aedtapp.save_project()
+            #self.cache = DesignCache(self.aedtapp)
 
     def teardown_class(self):
         assert self.aedtapp.close_project(self.aedtapp.project_name)
