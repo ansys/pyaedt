@@ -810,7 +810,25 @@ class Hfss(FieldAnalysis3D, object):
         -------
         str
             Name of port created when successful, ``False`` otherwise.
+
+        Examples
+        --------
+
+        Create two boxes that will be used to create a lumped port
+        named ``'LumpedPort'``.
+
+        >>> box1 = hfss.modeler.primitives.create_box([0, 0, 50], [10, 10, 5],
+        ...                                           "BoxLumped1","copper")
+        >>> box2 = hfss.modeler.primitives.create_box([0, 0, 60], [10, 10, 5],
+        ...                                           "BoxLumped2", "copper")
+        >>> hfss.create_lumped_port_between_objects("BoxLumped1", "BoxLumped2",
+        ...                                         hfss.AxisDir.XNeg, 50,
+        ...                                         "LumpedPort", True, False)
+        pyaedt Info: Connection Correctly created
+        'LumpedPort'
+
         """
+
         if not self.modeler.primitives.does_object_exists(startobj) or not self.modeler.primitives.does_object_exists(
                 endobject):
             self._messenger.add_error_message("One or both objects do not exist. Check and retry.")
