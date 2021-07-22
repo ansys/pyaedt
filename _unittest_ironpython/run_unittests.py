@@ -9,7 +9,8 @@ path_dir = os.path.join(os.path.abspath(os.path.dirname(__file__)), "..")
 sys.path.append(path_dir)
 
 os.environ["UNITTEST_CURRENT_TEST"] = "1"
-run_dir = os.path.join(path_dir, "_unittest_ironpython")
+run_dir = os.path.abspath(os.path.dirname(__file__))
+print(run_dir)
 
 def discover_and_run(start_dir, pattern=None):
     """Discover and run tests cases, returning the result."""
@@ -28,6 +29,6 @@ def discover_and_run(start_dir, pattern=None):
 
 discover_and_run(run_dir, pattern='test_01*.py')
 
-success_file = os.path.join(run_dir, 'tests_succeeded')
+success_file = os.path.join(run_dir, 'tests_succeeded.log')
 with open(success_file, "w") as f:
     f.write("ok")
