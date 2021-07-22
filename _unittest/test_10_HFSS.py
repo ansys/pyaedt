@@ -208,10 +208,10 @@ class TestClass:
 
 
     def test_12_create_perfects_on_objects(self):
-        box1 = self.aedtapp.modeler.primitives.create_box([0,0,0], [10,10,5], "p1", "Copper")
-        box2 = self.aedtapp.modeler.primitives.create_box([0, 0, 10], [10, 10, 5], "p2", "copper")
-        pe = self.aedtapp.create_perfecth_from_objects("p1","p2",self.aedtapp.AxisDir.ZPos,)
-        ph = self.aedtapp.create_perfecte_from_objects("p1","p2",self.aedtapp.AxisDir.ZNeg)
+        box1 = self.aedtapp.modeler.primitives.create_box([0,0,0], [10,10,5], "perfect1", "Copper")
+        box2 = self.aedtapp.modeler.primitives.create_box([0, 0, 10], [10, 10, 5], "perfect2", "copper")
+        pe = self.aedtapp.create_perfecth_from_objects("perfect1","perfect2",self.aedtapp.AxisDir.ZPos,)
+        ph = self.aedtapp.create_perfecte_from_objects("perfect1","perfect2",self.aedtapp.AxisDir.ZNeg)
         assert pe.name in self.aedtapp.modeler.get_boundaries_name()
         assert pe.update()
         assert ph.name in self.aedtapp.modeler.get_boundaries_name()

@@ -1347,7 +1347,6 @@ class Design(object):
         """
         arg = ["NAME:AllTabs"]
         self._optimetrics_variable_args(arg, "Sensitivity",variable_name, min_val, max_val)
-        print(arg)
         if "$" in variable_name:
             self.oproject.ChangeProperty(arg)
         else:
@@ -2106,10 +2105,8 @@ class Design(object):
 
         """
         if self.design_type == "Circuit Design" or self.design_type == "HFSS 3D Layout Design":
-            try:
+            if self.modeler.edb:
                 self.modeler.edb.close_edb()
-            except:
-                pass
         self.__init__(projectname=self.project_name, designname=design_name)
 
     def _insert_design(self, design_type, design_name=None, solution_type=None):
