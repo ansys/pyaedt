@@ -372,7 +372,7 @@ class SolutionData(object):
         Returns
         -------
         list
-            List of the imaginary data for the expresion.
+            List of the imaginary data for the expression.
 
         """
         if not expression:
