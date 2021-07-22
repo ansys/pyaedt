@@ -427,14 +427,14 @@ class CoordinateSystem(object):
 
     @property
     def orientation(self):
-        """Internal named array for orientation."""
+        """Internal named array for orientation of the coordinate system."""
         arg = ["Name:RelativeCSParameters"]
         dict2arg(self.props, arg)
         return arg
 
     @property
     def attributes(self):
-        """Internal named array for the attributes."""
+        """Internal named array for attributes of the coordinate system."""
         coordinateSystemAttributes = ["NAME:Attributes", "Name:=", self.name]
         return coordinateSystemAttributes
 
