@@ -826,7 +826,7 @@ class TestClass(BasisTest):
         pass
 
     @pyaedt_unittest_check_desktop_error
-    def test_create_equationbased_curve(self):
+    def test_50_create_equationbased_curve(self):
 
         eq_line = self.aedtapp.modeler.primitives.create_equationbased_curve(x_t="_t", y_t="_t*2", num_points = 0)
         assert len(eq_line.edges) == 1
@@ -836,7 +836,7 @@ class TestClass(BasisTest):
         eq_xsection = self.aedtapp.modeler.primitives.create_equationbased_curve(x_t="_t", y_t="_t*2", xsection_type="Circle")
         assert eq_xsection.name in self.aedtapp.modeler.primitives.solid_names
 
-    def test_create_3dcomponent(self):
+    def test_51_create_3dcomponent(self):
         self.aedtapp['l_dipole'] = "13.5cm"
 
         compfile = self.aedtapp.components3d['Dipole_Antenna_DM']
@@ -846,7 +846,7 @@ class TestClass(BasisTest):
         assert isinstance(name, str)
 
     @pyaedt_unittest_check_desktop_error
-    def test_assign_material(self):
+    def test_52_assign_material(self):
         box1 = self.aedtapp.modeler.primitives.create_box([60, 60, 60], [4, 5, 5])
         box2 = self.aedtapp.modeler.primitives.create_box([50, 50, 50], [2, 3, 4])
         cyl1 = self.aedtapp.modeler.primitives.create_cylinder(cs_axis="X", position=[50, 0, 0], radius=1, height=20)
