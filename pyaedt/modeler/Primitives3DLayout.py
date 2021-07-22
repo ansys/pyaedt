@@ -11,6 +11,7 @@ modules = [tup[1] for tup in pkgutil.iter_modules()]
 if 'clr' in modules or _ironpython:
     import clr
     from System import String
+    import System
 
 
 class Primitives3DLayout(object):

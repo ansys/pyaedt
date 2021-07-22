@@ -2,7 +2,7 @@
 import os
 import math
 
-from .conftest import local_path, scratch_path
+from _unittest.conftest import local_path, scratch_path
 
 # Import required modules
 from pyaedt import Hfss
@@ -52,7 +52,7 @@ class TestClass:
             name = "MyBox"
         o = self.aedtapp.modeler.primitives[name]
         if not o:
-            o = self.aedtapp.modeler.primitives.create_box([0, 0, 0], [10, 10, 5], "Mybox", "Copper")
+            o = self.aedtapp.modeler.primitives.create_box([0, 0, 0], [10, 10, 5], name, "Copper")
         return o
 
     def create_copper_box_test_performance(self):
@@ -170,7 +170,7 @@ class TestClass:
         assert o.transparency == 0.0
 
     def test_06_object3d_properties_color(self):
-        o = self.create_copper_box()
+        o = self.create_copper_box("color_box")
         o.color = (0, 0, 255)
         assert o.color == (0, 0, 255)
 

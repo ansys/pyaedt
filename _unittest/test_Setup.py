@@ -1,7 +1,7 @@
 # standard imports
 import os
 # Setup paths for module imports
-from .conftest import local_path, scratch_path
+from _unittest.conftest import local_path, scratch_path
 
 # Import required modules
 from pyaedt import Hfss, Circuit
@@ -10,7 +10,7 @@ import gc
 test_project_name = "coax_setup"
 
 
-class TestDesign:
+class TestClass:
     def setup_class(self):
         with Scratch(scratch_path) as self.local_scratch:
             try:

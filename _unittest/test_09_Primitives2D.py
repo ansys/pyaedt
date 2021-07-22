@@ -1,9 +1,13 @@
 #!/ekm/software/anaconda3/bin/python
 
 import os
-import pytest
+try:
+    import pytest
+except ImportError:
+    import _unittest_ironpython.conf_unittest as pytest
+
 # Setup paths for module imports
-from .conftest import local_path, scratch_path, BasisTest, pyaedt_unittest_check_desktop_error
+from _unittest.conftest import local_path, scratch_path, BasisTest, pyaedt_unittest_check_desktop_error
 
 
 # Import required modules
@@ -12,7 +16,7 @@ from pyaedt.generic.filesystem import Scratch
 from pyaedt.modeler.Primitives import Polyline
 import gc
 
-class TestMaxwell2DXY(BasisTest):
+class TestClass(BasisTest):
     def setup_class(self):
         BasisTest.setup_class(self,
                               design_name="2D_Primitives",
@@ -79,9 +83,23 @@ class TestMaxwell2DXY(BasisTest):
         region = self.aedtapp.modeler.primitives.create_region([100, 100, 100, 100, 100, 100])
         assert not region
 
+    #TODO Implement parametrize
+    '''
     @pytest.mark.parametrize("material", ["ceramic_material", # material not in library
-                                          "steel_stainless"])  # material already in library
+                                        "steel_stainless"])  # material already in library
     @pyaedt_unittest_check_desktop_error
     def test_07_assign_material(self, material):
         self.aedtapp.assign_material(["Rectangle1"], material)
+        assert self.aedtapp.modeler.primitives["Rectangle1"].material_name == material
+    '''
+
+    @pyaedt_unittest_check_desktop_error
+    def test_07_assign_material_ceramic(self, material="ceramic_material"):
+        self.aedtapp.assignmaterial(["Rectangle1"], material)
+        assert self.aedtapp.modeler.primitives["Rectangle1"].material_name == material
+
+
+    @pyaedt_unittest_check_desktop_error
+    def test_07_assign_material(self, material="steel_stainless"):
+        self.aedtapp.assignmaterial(["Rectangle1"], material)
         assert self.aedtapp.modeler.primitives["Rectangle1"].material_name == material

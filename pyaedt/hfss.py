@@ -55,34 +55,37 @@ class Hfss(FieldAnalysis3D, object):
     Examples
     --------
 
-    Create an instance of HFSS and connect to an existing HFSS
-    design or create a new HFSS design if one does not exist.
+    Create an instance of `HFSS` and connect to an existing HFSS
+    design or create a new `HFSS` design if one does not exist.
 
     >>> from pyaedt import Hfss
     >>> hfss = Hfss()
 
-    Create an instance of HFSS and link to a project named
-    ``projectname``. If this project does not exist, create one with
+    Create an instance of `HFSS` and link to a project named
+    ``HfssProject``. If this project does not exist, create one with
     this name.
 
-    >>> hfss = Hfss(projectname)
+    >>> hfss = Hfss("HfssProject")
+    pyaedt Info: Added design 'HFSS_...' of type HFSS.
 
-    Create an instance of HFSS and link to a design named
-    ``"designname"`` in a project named ``"projectname"``.
+    Create an instance of `HFSS` and link to a design named
+    ``HfssDesign1`` in a project named ``HfssProject``.
 
-    >>> hfss = Hfss(projectname,designame)
+    >>> hfss = Hfss("HfssProject","HfssDesign1")
+    pyaedt Info: Added design 'HfssDesign1' of type HFSS.
 
-    Create an instance of HFSS and open the specified project,
+    Create an instance of `HFSS` and open the specified project,
     which is named ``"myfile.aedt"``.
 
     >>> hfss = Hfss("myfile.aedt")
+    pyaedt Info: Added design 'HFSS_...' of type HFSS.
 
-    Create an instance of HFSS using the 2021 R1 release and open
+    Create an instance of `HFSS` using the 2021 R1 release and open
     the specified project, which is named ``"myfile.aedt"``.
 
     >>> hfss = Hfss(specified_version="2021.1", projectname="myfile.aedt")
 
-    Create an instance of HFSS using the 2021 R2 student version and open
+    Create an instance of `HFSS` using the 2021 R2 student version and open
     the specified project, which is named ``"myfile.aedt"``.
 
     >>> hfss = Hfss(specified_version="2021.2", projectname="myfile.aedt", student_version=True)
@@ -300,8 +303,14 @@ class Hfss(FieldAnalysis3D, object):
 
         Examples
         --------
-        >>> id1 = aedtapp.modeler.primitives.get_obj_id("inner")
-        >>> coat = aedtapp.assigncoating([id1], "copper",usethickness=True, thickness="0.2mm")
+
+        Create a cylinder at the XY working plane and assign a copper coating of 0.2 mm to it.
+
+        >>> origin = hfss.modeler.Position(0, 0, 0)
+        >>> inner = hfss.modeler.primitives.create_cylinder(hfss.CoordinateSystemPlane.XYPlane, origin, 3, 200, 0, "inner")
+        >>> inner_id = hfss.modeler.primitives.get_obj_id("inner")
+        >>> coat = hfss.assigncoating([inner_id], "copper", usethickness=True, thickness="0.2mm")
+
         """
 
         listobj = self.modeler.convert_to_selections(obj, True)
@@ -374,8 +383,25 @@ class Hfss(FieldAnalysis3D, object):
         
         Returns
         -------
-        SweepHFSS
-            Sweep object.
+        :class:`pyaedt.modules.SetupTemplates.SweepHFSS`, :class:`pyaedt.modules.SetupTemplates.SweepQ3D`, or bool
+            Sweep object if successful. ``False`` if unsuccessful.
+
+        Examples
+        --------
+
+        Create a setup named ``'FrequencySweepSetup'`` and use it in a frequency sweep
+        named ``'MySweepFast'``.
+
+        >>> setup = hfss.create_setup("FrequencySweepSetup")
+        >>> setup.props["Frequency"] = "1GHz"
+        >>> setup.props["BasisOrder"] = 2
+        >>> setup.props["MaximumPasses"] = 1
+        >>> frequency_sweep = hfss.create_frequency_sweep(setupname="FrequencySweepSetup", sweepname="MySweepFast",
+        ...                                               unit="MHz", freqstart=1.1e3, freqstop=1200.1,
+        ...                                               num_of_freq_points=1234, sweeptype="Fast")
+        >>> type(frequency_sweep)
+        <class 'pyaedt.modules.SetupTemplates.SweepHFSS'>
+
         """
 
         if sweepname is None:
@@ -419,7 +445,7 @@ class Hfss(FieldAnalysis3D, object):
         unit : str
             Unit of the frequency. For example, ``"MHz`` or ``"GHz"``. The default is ``"GHz"``.
         freqstart : float
-            Starting frequency of the sweep,  such as ``1``.
+            Starting frequency of the sweep, such as ``1``.
         freqstop : float
             Stopping frequency of the sweep.
         num_of_freq_points : int
@@ -433,8 +459,23 @@ class Hfss(FieldAnalysis3D, object):
 
         Returns
         -------
-        SweepHFSS
-            Sweep object.
+        :class:`pyaedt.modules.SetupTemplates.SweepHFSS` or bool
+            Sweep object if successful. ``False`` if unsuccessful.
+
+        Examples
+        --------
+
+        Create a setup named ``'LinearCountSetup'`` and use it in a linear count sweep
+        named ``'LinearCountSweep'``.
+
+        >>> setup = hfss.create_setup("LinearCountSetup")
+        >>> linear_count_sweep = hfss.create_linear_count_sweep(setupname="LinearCountSetup",
+        ...                                                     sweepname="LinearCountSweep",
+        ...                                                     unit="MHz", freqstart=1.1e3,
+        ...                                                     freqstop=1200.1, num_of_freq_points=1658)
+        >>> type(linear_count_sweep)
+        <class 'pyaedt.modules.SetupTemplates.SweepHFSS'>
+
         """
 
         if sweepname is None:
@@ -489,10 +530,25 @@ class Hfss(FieldAnalysis3D, object):
 
         Returns
         -------
-        SweepHFSS
-            Sweep object.
+        :class:`pyaedt.modules.SetupTemplates.SweepHFSS` or bool
+            Sweep object if successful. ``False`` if unsuccessful.
+
+        Examples
+        --------
+
+        Create a setup named ``'LinearStepSetup'`` and use it in a linear step sweep
+        named ``'LinearStepSweep'``.
+
+        >>> setup = hfss.create_setup("LinearStepSetup")
+        >>> linear_step_sweep = hfss.create_linear_step_sweep(setupname="LinearStepSetup",
+        ...                                                   sweepname="LinearStepSweep",
+        ...                                                   unit="MHz", freqstart=1.1e3,
+        ...                                                   freqstop=1200.1, step_size=153.8)
+        >>> type(linear_step_sweep)
+        <class 'pyaedt.modules.SetupTemplates.SweepHFSS'>
 
         """
+
         if sweepname is None:
             sweepname = generate_unique_name("Sweep")
 
@@ -618,10 +674,22 @@ class Hfss(FieldAnalysis3D, object):
 
         Returns
         -------
-        SweepHFSS
-            Sweep object.
-        
+        :class:`pyaedt.modules.SetupTemplates.SweepHFSS` or bool
+            Sweep object if successful. ``False`` if unsuccessful.
+
+        Examples
+        --------
+
+        Create a setup named ``'DiscreteSweepSetup'`` and use it in a discrete sweep
+        named ``'DiscreteSweep'``.
+
+        >>> setup = hfss.create_setup("DiscreteSweepSetup")
+        >>> discrete_sweep = hfss.create_discrete_sweep(setupname="DiscreteSweepSetup",
+        ...                                             sweepname="DiscreteSweep", freq="2GHz")
+        pyaedt Info: Sweep Created Correctly
+
         """
+
         if sweepname is None:
             sweepname = generate_unique_name("Sweep")
 
@@ -957,10 +1025,11 @@ class Hfss(FieldAnalysis3D, object):
             First (starting) object for the integration line. This is typically the reference plane. 
         endobject :
             Second (ending) object for the integration line.
-        axisdir : str, optional
+        axisdir : int, optional
             Position of the port. It should be one of the values for ``Application.AxisDir``, 
-            which are: ``"XNeg"``, ``"YNeg"``, ``"ZNeg"``, ``"XPos"``, ``"YPos"``, and ``"ZPos"``. 
-            The default is ``"0"``.
+            which are: ``0`` for ``"XNeg"``,``1`` for ``"YNeg"``,``2`` for ``"ZNeg"``, ``3`` for``"XPos"``,
+            ``4`` for``"YPos"``, and ``5`` for``"ZPos"``.
+            The default is ``0``.
         impedance : float, optional
             Port impedance. The default is ``50``.
         nummodes : int, optional
@@ -984,8 +1053,9 @@ class Hfss(FieldAnalysis3D, object):
 
         Examples
         --------
-        >>>  from pyaedt import Hfss
-        >>> hfss = Hfss()
+
+        Create a wave port supported by a microstrip line.
+
         >>> ms = hfss.modeler.primitives.create_box([4, 5, 0], [1, 100, 0.2],
         ...                                         name="MS1", matname="copper")
         >>> sub = hfss.modeler.primitives.create_box([0, 5, -2], [20, 100, 2],
@@ -995,6 +1065,7 @@ class Hfss(FieldAnalysis3D, object):
         >>> port = hfss.create_wave_port_microstrip_between_objects("GND1", "MS1",
         ...                                                         portname="MS1",
         ...                                                         axisdir=1)
+        pyaedt Info: Connection Correctly created
 
         """
         if not self.modeler.primitives.does_object_exists(startobj) or not self.modeler.primitives.does_object_exists(

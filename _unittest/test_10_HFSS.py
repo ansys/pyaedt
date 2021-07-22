@@ -1,7 +1,10 @@
 import os
-import pytest
+try:
+    import pytest
+except ImportError:
+    import _unittest_ironpython.conf_unittest as pytest
 # Setup paths for module imports
-from .conftest import scratch_path
+from _unittest.conftest import scratch_path
 import gc
 # Import required modules
 from pyaedt import Hfss
@@ -10,7 +13,7 @@ from pyaedt.generic.filesystem import Scratch
 test_project_name = "coax_HFSS"
 
 
-class TestHFSS:
+class TestClass:
     def setup_class(self):
         # set a scratch directory and the environment / test data
         with Scratch(scratch_path) as self.local_scratch:
@@ -205,10 +208,10 @@ class TestHFSS:
 
 
     def test_12_create_perfects_on_objects(self):
-        box1 = self.aedtapp.modeler.primitives.create_box([0,0,0], [10,10,5], "p1", "Copper")
-        box2 = self.aedtapp.modeler.primitives.create_box([0, 0, 10], [10, 10, 5], "p2", "copper")
-        pe = self.aedtapp.create_perfecth_from_objects("p1","p2",self.aedtapp.AxisDir.ZPos,)
-        ph = self.aedtapp.create_perfecte_from_objects("p1","p2",self.aedtapp.AxisDir.ZNeg)
+        box1 = self.aedtapp.modeler.primitives.create_box([0,0,0], [10,10,5], "perfect1", "Copper")
+        box2 = self.aedtapp.modeler.primitives.create_box([0, 0, 10], [10, 10, 5], "perfect2", "copper")
+        pe = self.aedtapp.create_perfecth_from_objects("perfect1","perfect2",self.aedtapp.AxisDir.ZPos,)
+        ph = self.aedtapp.create_perfecte_from_objects("perfect1","perfect2",self.aedtapp.AxisDir.ZNeg)
         assert pe.name in self.aedtapp.modeler.get_boundaries_name()
         assert pe.update()
         assert ph.name in self.aedtapp.modeler.get_boundaries_name()

@@ -1,4 +1,7 @@
-import pytest
+try:
+    import pytest
+except ImportError:
+    import _unittest_ironpython.conf_unittest as pytest
 import math
 from pyaedt.modeler.GeometryOperators import GeometryOperators as go
 import clr
@@ -20,7 +23,7 @@ def is_vector_equal(v, r):
     return n < 1e-12
 
 
-class TestGeometryOperators:
+class TestClass:
 
     def setup_class(self):
         pass
