@@ -674,10 +674,22 @@ class Hfss(FieldAnalysis3D, object):
 
         Returns
         -------
-        SweepHFSS
-            Sweep object.
-        
+        :class:`pyaedt.modules.SetupTemplates.SweepHFSS` or bool
+            Sweep object if successful. ``False`` if unsuccessful.
+
+        Examples
+        --------
+
+        Create a setup named ``'DiscreteSweepSetup'`` and use it in a discrete sweep
+        named ``'DiscreteSweep'``.
+
+        >>> setup = hfss.create_setup("DiscreteSweepSetup")
+        >>> discrete_sweep = hfss.create_discrete_sweep(setupname="DiscreteSweepSetup",
+        ...                                             sweepname="DiscreteSweep", freq="2GHz")
+        pyaedt Info: Sweep Created Correctly
+
         """
+
         if sweepname is None:
             sweepname = generate_unique_name("Sweep")
 
