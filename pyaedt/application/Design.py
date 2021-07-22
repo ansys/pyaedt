@@ -1250,19 +1250,19 @@ class Design(object):
         arg2 = ["NAME:"+optimetrics_type, "Included:=", enable]
         if min_val:
             arg2.append("Min:=")
-        arg2.append(min_val)
+            arg2.append(min_val)
         if max_val:
             arg2.append("Max:=")
-        arg2.append(max_val)
+            arg2.append(max_val)
         if tolerance:
             arg2.append("Tol:=")
-        arg2.append(tolerance)
+            arg2.append(tolerance)
         if probability:
             arg2.append("Prob:=")
-        arg2.append(probability)
+            arg2.append(probability)
         if mean:
             arg2.append("Mean:=")
-        arg2.append(mean)
+            arg2.append(mean)
         arg3 = [tab, ["NAME:PropServers", propserver], ["NAME:ChangedProps", ["NAME:" + variable_name, arg2]]]
         arg.append(arg3)
 
@@ -1347,6 +1347,7 @@ class Design(object):
         """
         arg = ["NAME:AllTabs"]
         self._optimetrics_variable_args(arg, "Sensitivity",variable_name, min_val, max_val)
+        print(arg)
         if "$" in variable_name:
             self.oproject.ChangeProperty(arg)
         else:
