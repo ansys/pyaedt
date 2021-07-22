@@ -957,6 +957,20 @@ class Hfss(FieldAnalysis3D, object):
         :class:`pyaedt.modules.Boundary.BoundaryObject`
             Boundary object.
 
+        Examples
+        --------
+
+        Create two boxes that will be used to create a current source
+        named ``'SourceExcitation'``.
+
+        >>> point1 = [0, 0, 0]
+        >>> point2 = [0, 0, 10]
+        >>> hfss.create_source_excitation("MySheet", point1, point2, "SourceExcitation")
+        pyaedt Info: Connection Correctly created
+        'CurrentSource'
+        >>> import pdb
+        >>> pdb.set_trace()
+
         """
         props = OrderedDict({"Objects": [sheet_name],
                              "Direction": OrderedDict({"Start": point1, "End": point2})})
