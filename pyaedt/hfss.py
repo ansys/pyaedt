@@ -916,6 +916,7 @@ class Hfss(FieldAnalysis3D, object):
         'CurrentSource'
 
         """
+
         if not self.modeler.primitives.does_object_exists(startobj) or not self.modeler.primitives.does_object_exists(
                 endobject):
             self._messenger.add_error_message("One or both objects do not exist. Check and retry.")
