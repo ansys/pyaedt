@@ -52,7 +52,7 @@ class TestClass:
             name = "MyBox"
         o = self.aedtapp.modeler.primitives[name]
         if not o:
-            o = self.aedtapp.modeler.primitives.create_box([0, 0, 0], [10, 10, 5], "Mybox", "Copper")
+            o = self.aedtapp.modeler.primitives.create_box([0, 0, 0], [10, 10, 5], name, "Copper")
         return o
 
     def create_copper_box_test_performance(self):
