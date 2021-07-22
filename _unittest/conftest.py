@@ -23,12 +23,13 @@ import shutil
 import json
 import gc
 import sys
-try:
+
+if "IronPython" in sys.version or ".NETFramework" in sys.version:
+    import _unittest_ironpython.conf_unittest as pytest
+else:
     import pytest
     if "UNITTEST_CURRENT_TEST" in os.environ:
         os.environ.pop("UNITTEST_CURRENT_TEST")
-except:
-    import _unittest_ironpython.conf_unittest as pytest
 
 local_path = os.path.dirname(os.path.realpath(__file__))
 

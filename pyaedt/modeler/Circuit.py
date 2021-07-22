@@ -10,7 +10,7 @@ from .PrimitivesSimplorer import SimplorerComponents
 from .PrimitivesNexxim import NexximComponents
 from .Primitives3DLayout import Primitives3DLayout
 from ..modules.LayerStackup import Layers
-
+import sys
 
 class ModelerCircuit(Modeler):
     """ModelerCircuit class.
@@ -112,17 +112,21 @@ class ModelerNexxim(ModelerCircuit):
         self.layers = Layers(parent, self, roughnessunits="um")
         self._primitives = Primitives3DLayout(self._parent, self)
         self._primitivesDes = self._parent.project_name + self._parent.design_name
-        edb_folder = os.path.join(self._parent.project_path, self._parent.project_name + ".aedb")
-        edb_file = os.path.join(edb_folder, "edb.def")
-        if os.path.exists(edb_file):
-            self._mttime = os.path.getmtime(edb_file)
-            try:
-                self._edb = Edb(edb_folder, self._parent.design_name, True, self._parent._aedt_version, isaedtowned=True,
-                                oproject=self._parent.oproject)
-            except:
-                self._edb = None
-        else:
-            self._mttime = 0
+        # edb_folder = os.path.join(self._parent.project_path, self._parent.project_name + ".aedb")
+        # edb_file = os.path.join(edb_folder, "edb.def")
+        # if os.path.exists(edb_file):
+        #     self._mttime = os.path.getmtime(edb_file)
+        #     _main = sys.modules['__main__']
+        #     if "isoutsideDesktop" in dir(_main) and not _main.isoutsideDesktop and self._parent.oproject.GetEDBHandle():
+        #         try:
+        #             self._edb = Edb(edb_folder, self._parent.design_name, True, self._parent._aedt_version, isaedtowned=True,
+        #                             oproject=self._parent.oproject)
+        #         except:
+        #             self._edb = None
+        #     else:
+        #         self._edb = None
+        # else:
+        #     self._mttime = 0
 
     @property
     def edb(self):
@@ -134,16 +138,25 @@ class ModelerNexxim(ModelerCircuit):
             edb_core object if it exists.
         
         """
-        if self._parent.design_type == "Twin Builder":
-            return
-        edb_folder = os.path.join(self._parent.project_path, self._parent.project_name + ".aedb")
-        edb_file = os.path.join(edb_folder, "edb.def")
-        _mttime = os.path.getmtime(edb_file)
-        if _mttime != self._mttime:
-            self._edb = Edb(edb_folder, self._parent.design_name, True, self._parent._aedt_version,
-                            isaedtowned=True, oproject=self._parent.oproject)
-            self._mttime = _mttime
-        return self._edb
+        #TODO Check while it crashes when multiple circuits are created
+        return None
+        # if self._parent.design_type == "Twin Builder":
+        #     return
+        # _main = sys.modules['__main__']
+        # if "isoutsideDesktop" in dir(_main) and not _main.isoutsideDesktop and self._parent.oproject.GetEDBHandle():
+        #     try:
+        #         edb_folder = os.path.join(self._parent.project_path, self._parent.project_name + ".aedb")
+        #         edb_file = os.path.join(edb_folder, "edb.def")
+        #         _mttime = os.path.getmtime(edb_file)
+        #         if _mttime != self._mttime:
+        #             self._edb = Edb(edb_folder, self._parent.design_name, True, self._parent._aedt_version,
+        #                             isaedtowned=True, oproject=self._parent.oproject)
+        #             self._mttime = _mttime
+        #         return self._edb
+        #     except:
+        #         self._edb = None
+        # else:
+        #     self._edb = None
 
     @property
     def layouteditor(self):

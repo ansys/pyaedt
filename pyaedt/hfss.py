@@ -1025,10 +1025,11 @@ class Hfss(FieldAnalysis3D, object):
             First (starting) object for the integration line. This is typically the reference plane. 
         endobject :
             Second (ending) object for the integration line.
-        axisdir : str, optional
+        axisdir : int, optional
             Position of the port. It should be one of the values for ``Application.AxisDir``, 
-            which are: ``"XNeg"``, ``"YNeg"``, ``"ZNeg"``, ``"XPos"``, ``"YPos"``, and ``"ZPos"``. 
-            The default is ``"0"``.
+            which are: ``0`` for ``"XNeg"``,``1`` for ``"YNeg"``,``2`` for ``"ZNeg"``, ``3`` for``"XPos"``,
+            ``4`` for``"YPos"``, and ``5`` for``"ZPos"``.
+            The default is ``0``.
         impedance : float, optional
             Port impedance. The default is ``50``.
         nummodes : int, optional

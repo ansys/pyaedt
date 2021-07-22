@@ -1,5 +1,5 @@
 # Setup paths for module imports
-from .conftest import scratch_path
+from _unittest.conftest import scratch_path
 
 # Import required modules
 from pyaedt import Maxwell3d
@@ -8,7 +8,7 @@ import gc
 test_project_name = "eddy"
 
 
-class TestMaxwell3D:
+class TestClass:
     def setup_class(self):
         # set a scratch directory and the environment / test data
         with Scratch(scratch_path) as self.local_scratch:
@@ -171,8 +171,8 @@ class TestMaxwell3D:
         assert self.aedtapp.modeler.primitives.create_udm(udmfullname="Maxwell3D/OnDieSpiralInductor.py",
                                                           udm_params_list=my_udmPairs, udm_library='syslib')
 
-    def test_assign_torque(self):
+    def test_28_assign_torque(self):
         assert self.aedtapp.assign_torque("Coil")
 
-    def test_assign_force(self):
+    def test_29_assign_force(self):
         assert self.aedtapp.assign_force("Coil")

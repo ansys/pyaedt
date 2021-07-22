@@ -1,4 +1,4 @@
-from ..generic.general_methods import aedt_exception_handler
+from ..generic.general_methods import aedt_exception_handler, retry_ntimes
 from .PrimitivesCircuit import CircuitComponents
 
 
@@ -690,7 +690,7 @@ class NexximComponents(CircuitComponents):
         name = o.composed_name
         proparray = self.oeditor.GetProperties("PassedParameterTab", name)
         for j in proparray:
-            propval = self.oeditor.GetPropertyValue("PassedParameterTab", name, j)
+            propval = retry_ntimes(10, self.oeditor.GetPropertyValue,"PassedParameterTab", name, j)
             o._add_property(j, propval)
         return o
 

@@ -1,8 +1,7 @@
 import os
 # Setup paths for module imports
-from .conftest import local_path, scratch_path
+from _unittest.conftest import local_path, scratch_path
 import gc
-import pytest
 import time
 
 # Import required modules
@@ -11,7 +10,7 @@ from pyaedt.generic.filesystem import Scratch
 test_project_name = "Galileo"
 
 
-class Test3DLayoutEDB:
+class TestClass:
     def setup_class(self):
         with Scratch(scratch_path) as self.local_scratch:
             try:

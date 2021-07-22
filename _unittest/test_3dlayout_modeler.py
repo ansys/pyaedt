@@ -1,8 +1,12 @@
 import os
-import pytest
 import time
+try:
+    import pytest
+except ImportError:
+    import _unittest_ironpython.conf_unittest as pytest
+
 # Setup paths for module imports
-from .conftest import scratch_path
+from _unittest.conftest import scratch_path
 import gc
 
 # Import required modules
@@ -15,7 +19,7 @@ from pyaedt.generic.filesystem import Scratch
 test_project_name = "Coax_HFSS"
 
 
-class Test3DLayout:
+class TestClass:
     def setup_class(self):
         self.aedtapp = Hfss3dLayout()
 
