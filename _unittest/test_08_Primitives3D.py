@@ -547,8 +547,8 @@ class TestClass(BasisTest):
     @pyaedt_unittest_check_desktop_error
     def test_31a_create_rect_sheet_to_region(self):
         self.aedtapp.modeler.primitives.create_region()
-        self.create_copper_box(name="MyBox")
-        groundplane = self.aedtapp.modeler.create_sheet_to_ground("MyBox")
+        self.create_copper_box(name="MyBox_to_gnd")
+        groundplane = self.aedtapp.modeler.create_sheet_to_ground("MyBox_to_gnd")
         assert groundplane.id > 0
 
     @pyaedt_unittest_check_desktop_error
@@ -720,9 +720,9 @@ class TestClass(BasisTest):
     @pyaedt_unittest_check_desktop_error
     def test_40_remove_vertex_from_polyline(self):
 
-        p1, p2, test_points = self.create_polylines()
+        p1, p2, test_points = self.create_polylines("Poly_remove_")
 
-        P = self.aedtapp.modeler.primitives["Poly_segmented"]
+        P = self.aedtapp.modeler.primitives["Poly_remove__segmented"]
         P.remove_vertex(test_points[2])
 
         P1 = self.aedtapp.modeler.primitives.create_polyline([[0, 1, 2], [0, 2, 3], [2, 1, 4]])
