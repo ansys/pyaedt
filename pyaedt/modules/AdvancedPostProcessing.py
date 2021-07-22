@@ -1,5 +1,5 @@
 """
-This module contains the ``PostProcessor`` class.
+This module contains the `PostProcessor` class.
 
 It contains all advanced postprocessing functionalities that require Python 3.x packages like NumPy and Matplotlib.
 """
@@ -16,27 +16,27 @@ try:
     import numpy as np
 except ImportError:
     warnings.warn("The NumPy module is required to run some functionalities of PostProcess.\n"
-                  "Install with \n\npip install numpy\n\nRequires CPython")
+                  "Install with \n\npip install numpy\n\nRequires CPython.")
 
 try:
     import pyvista as pv
     pyvista_available = True
 except ImportError:
-    warnings.warn("The PyVista module required to run some functionalities of PostProcess.\n"
-                  "Install with \n\npip install pyvista\n\nRequires CPython")
+    warnings.warn("The PyVista module is required to run some functionalities of PostProcess.\n"
+                  "Install with \n\npip install pyvista\n\nRequires CPython.")
 
 try:
     from IPython.display import Image, display
     ipython_available = True
 except ImportError:
-    warnings.warn("The Ipython module required to run some functionalities of PostProcess.\n"
-                  "Install with \n\npip install ipython\n\nRequires CPython")
+    warnings.warn("The Ipython module is required to run some functionalities of PostProcess.\n"
+                  "Install with \n\npip install ipython\n\nRequires CPython.")
 
 try:
     import matplotlib.pyplot as plt
 except ImportError:
-    warnings.warn("The Matplotlib module required to run some functionalities of PostProcess.\n"
-                  "Install with \n\npip install matplotlib\n\nRequires CPython")
+    warnings.warn("The Matplotlib module is required to run some functionalities of PostProcess.\n"
+                  "Install with \n\npip install matplotlib\n\nRequires CPython.")
 
 
 def is_float(istring):
@@ -58,19 +58,40 @@ def is_float(istring):
         return 0
 
 class PostProcessor(Post):
-    """ """
+    """Contains advanced postprocessing functionalities that require Python 3.x packages like NumPy and Matplotlib.
+    
+    Parameters
+    ----------
+    parent :
+        Inherited parent object.
+        
+    """
     def __init__(self, parent):
         Post.__init__(self, parent)
 
     @aedt_exception_handler
     def nb_display(self, show_axis=True, show_grid=True, show_ruler=True):
-        """Jupyter Notebook is not supported by IronPython!"""
+        """Show the Jupyter Notebook display.
+        
+        .. note::
+           Jupyter Notebook is not supported by IronPython.
+        
+        Parameters
+        ----------
+        show_axis : bool, optional
+            Whether to show the axes. The default is ``True``.
+        show_grid : bool, optional
+            Whether to show the grid. The default is ``True``.
+        show_ruler : bool, optional
+            Whehter to show the ruler. The default is ``True``.
+       
+        """
         file_name = self.export_model_picture(show_axis=show_axis, show_grid=show_grid, show_ruler=show_ruler)
         return Image(file_name, width=500)
 
     @aedt_exception_handler
     def get_efields_data(self, setup_sweep_name='', ff_setup="Infinite Sphere1", freq='All'):
-        """Compute ``Etheta`` and ``EPhi`` and returns an array of ``[theta_range, phi_range, Etheta, Ephi]``.
+        """Compute Etheta and EPhi.
         
         .. warning::
            This method requires NumPy to be installed on your machine.
@@ -79,8 +100,8 @@ class PostProcessor(Post):
         Parameters
         ----------
         setup_sweep_name : str, optional
-            Name of the setup on which to compute the report. The default is ``""``, which means that
-            the nominal adaptive is to be applied.
+            Name of the setup for computing the report. The default is ``""``, in 
+            which case the nominal adaptive is applied.
         ff_setup : str, optional
             Far field setup. The default is ``"Infinite Sphere1"``.
         freq : str, optional
@@ -146,7 +167,7 @@ class PostProcessor(Post):
 
     @aedt_exception_handler
     def ff_sum_with_delta_phase(self, ff_data, xphase=0, yphase=0):
-        """
+        """Generate a far field sum with a delta phase.
 
         Parameters
         ----------
@@ -248,10 +269,10 @@ class PostProcessor(Post):
     @aedt_exception_handler
     def _plot_from_aedtplt(self, aedtplt_files=None, imageformat="jpg", view="iso", plot_type="Full",
                            plot_label="Temperature", model_color="#8faf8f", show_model_edge=False, off_screen=False):
-        """Export the 3D field solver mesh, fields, or both mesh and field as images using Python Plotly. 
+        """Export the 3D field solver mesh, fields, or both mesh and fields as images using Python Plotly. 
         
         .. note::
-           This function is currently supported only on Windows using CPython.
+           This method is currently supported only on Windows using CPython.
 
         Parameters
         ----------
@@ -501,7 +522,7 @@ class PostProcessor(Post):
 
         if plot:
             end = time.time() - start
-            self._messenger.add_info_message("PyVista Generation tooks {} secs".format(end))
+            self._messenger.add_info_message("PyVista plot generation took {} seconds.".format(end))
             if off_screen:
                 if imageformat:
                     plot.show(screenshot=filename + "." + imageformat)
@@ -545,7 +566,7 @@ class PostProcessor(Post):
         """Export the 3D field solver mesh, fields, or both mesh and fields as images using Python Plotly. 
         
           .. note::
-           This function is currently supported only on Windows using CPython.
+           This method is currently supported only on Windows using CPython.
 
         Parameters
         ----------
@@ -769,7 +790,7 @@ class PostProcessor(Post):
     @aedt_exception_handler
     def export_model_obj(self):
         """Export the model."""
-        assert self._parent._aedt_version >= "2021.2", self._messenger.add_error_message("Obj supported from AEDT 2021R2")
+        assert self._parent._aedt_version >= "2021.2", self._messenger.add_error_message("Object is supported from AEDT 2021 R2.")
         project_path = self._parent.project_path
         obj_list = self._parent.modeler.primitives.object_names
         obj_list = [i for i in obj_list if not self._parent.modeler.primitives.objects[
@@ -824,16 +845,17 @@ class PostProcessor(Post):
         Parameters
         ----------
         export_afterplot : bool, optional
-             Whether to export the plot. The default is ``True``.
+             Whether to export the plot after it is generated. The 
+             default is ``True``.
         jupyter : bool, optional
-             Plot using jupyter.  The default is ``False``.
+             Generate the plot using Jupyter Notebook.  The default is ``False``.
 
         Returns
         -------
         list
-            List of AEDTPLT files.
+            List of PLT files.
         """
-        assert self._parent._aedt_version >= "2021.2", self._messenger.add_error_message("Obj supported from AEDT 2021R2")
+        assert self._parent._aedt_version >= "2021.2", self._messenger.add_error_message("Object is supported from AEDT 2021 R2.")
         files = [self.export_model_obj()]
         if export_afterplot:
             imageformat='jpg'
@@ -853,9 +875,9 @@ class PostProcessor(Post):
         Parameters
         ----------
         plotname : str
-            Name of the plot to export.
+            Name of the field plot to export.
         project_path : str, optional
-            Path where the image file is to be saved. The default is ``""``.
+            Path for saving the image file. The default is ``""``.
         meshplot : bool, optional
             Whether to create and plot the mesh over the fields. The
             default is ``False``.
@@ -870,14 +892,14 @@ class PostProcessor(Post):
             ``"jpg"``.
         view : str, optional
             View to export. Options are ``"iso"``, ``"x"`` , ``"y"``,
-            ``"z"``, and ``"all"``.  The default is ``"iso"``. The
-            ``"all"`` option exports all views.
+            ``"z"``, and ``"all"``.  The default is ``"iso"``. If 
+            ``"all"`, all views are exported.
         plot_label : str, optional
             Type of the plot. The default is ``"Temperature"``.
         plot_folder : str, optional
             Plot folder to forcibly update before exporting the
-            field. The default is ``None``, which updates all of the
-            plots.
+            field. The default is ``None``, in which case all plots 
+            are updated.
 
         Returns
         -------
@@ -998,7 +1020,7 @@ class PostProcessor(Post):
          .. note::
             The PyVista method rebuilds the mesh and overlap fields on the mesh.
             
-        This method creates the plot and exports it. It is alternative to the method ``animate_fields_from_aedtplt``, 
+        This method creates the plot and exports it. It is an alternative to the method :func:`animate_fields_from_aedtplt`, 
         which uses an existing plot.
 
         Parameters
@@ -1006,7 +1028,7 @@ class PostProcessor(Post):
         quantityname : str
             Name of the plot or the name of the object.
         object_list : list, optional
-            Name of the folderplot_folder
+            Name of the folderplot_folder.
         plottype : str 
             Type of the plot. Options are ``"Surface"``, ``"Volume"``, and 
             ``"CutPlane"``.
@@ -1026,7 +1048,8 @@ class PostProcessor(Post):
         project_path : str, optional
             Path for the export. The default is ``""``.
         export_gif : bool, optional
-             The default is ``False``.
+             Whether to export to a GIF file. The default is ``False``,
+             in which case the plot is exported to a JPG file.
         off_screen : bool, optional
              The default is ``False``.
 
@@ -1066,7 +1089,7 @@ class PostProcessor(Post):
 
     @aedt_exception_handler
     def far_field_plot(self, ff_data, x=0, y=0, qty='rETotal', dB=True, array_size=[4, 4]):
-        """
+        """Generate a far field plot.
 
         Parameters
         ----------
@@ -1174,7 +1197,7 @@ class PostProcessor(Post):
     @aedt_exception_handler
     def create_3d_plot(self, solution_data, nominal_sweep="Freq", nominal_value=1, primary_sweep="Theta",
                        secondary_sweep="Phi"):
-        """Create a 3D plot with Matplotlib.
+        """Create a 3D plot using Matplotlib.
 
         Parameters
         ----------
