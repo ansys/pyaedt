@@ -110,13 +110,13 @@ class TestClass(BasisTest):
 
     @pyaedt_unittest_check_desktop_error
     def test_create_box(self):
-        o = self.aedtapp.modeler.primitives.create_box([0, 0, 0], [10, 10, 5], "MyCreatedBox", "Copper")
+        o = self.aedtapp.modeler.primitives.create_box([0, 0, 0], [10, 10, 5], "MyCreatedBox_11", "Copper")
         assert o.id > 0
-        assert o.name.startswith("MyCreatedBox")
+        assert o.name.startswith("MyCreatedBox_11")
         assert o.object_type == "Solid"
         assert o.is3d == True
         assert o.material_name == "copper"
-        assert "MyCreatedBox" in self.aedtapp.modeler.primitives.solid_names
+        assert "MyCreatedBox_11" in self.aedtapp.modeler.primitives.solid_names
         assert len(self.aedtapp.modeler.primitives.object_names) == len(self.aedtapp.modeler.primitives.objects)
 
 

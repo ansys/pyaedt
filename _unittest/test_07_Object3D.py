@@ -170,7 +170,7 @@ class TestClass:
         assert o.transparency == 0.0
 
     def test_06_object3d_properties_color(self):
-        o = self.create_copper_box()
+        o = self.create_copper_box("color_box")
         o.color = (0, 0, 255)
         assert o.color == (0, 0, 255)
 
