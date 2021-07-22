@@ -6,7 +6,7 @@ try:
     import pytest
 except ImportError:
     import _unittest_ironpython.conf_unittest as pytest
-
+import time
 # Import required modules
 from pyaedt import Circuit
 from pyaedt.generic.filesystem import Scratch
@@ -23,6 +23,7 @@ class TestClass:
     def setup_class(self):
         with Scratch(scratch_path) as self.local_scratch:
             try:
+                time.sleep(2)
                 example_project = os.path.join(local_path, 'example_models', test_project_name + '.aedt')
                 netlist_file1 = os.path.join(local_path, 'example_models', netlist1)
                 netlist_file2 = os.path.join(local_path, 'example_models', netlist2)

@@ -9,7 +9,7 @@ try:
     import pytest
 except ImportError:
     import _unittest_ironpython.conf_unittest as pytest
-
+import time
 # Access the desktop
 test_project_name = "Dynamic_Link"
 src_design_name = "uUSB"
@@ -23,6 +23,7 @@ class TestClass:
         # set a scratch directory and the environment / test data
         with Scratch(scratch_path) as self.local_scratch:
             try:
+                time.sleep(2)
                 example_project = os.path.join(local_path, 'example_models', test_project_name + '.aedt')
                 source_project = os.path.join(local_path, 'example_models', src_project_name + '.aedt')
                 linked_project = os.path.join(local_path, 'example_models', linked_project_name + '.aedt')
