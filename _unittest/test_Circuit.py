@@ -136,7 +136,7 @@ class TestClass:
                                                      C1_pin2location["negative"][1])
 
     def test_13_properties(self):
-        assert self.aedtapp.modeler.edb
+        #assert self.aedtapp.modeler.edb
         assert self.aedtapp.modeler.model_units
 
     def test_14_move(self):
