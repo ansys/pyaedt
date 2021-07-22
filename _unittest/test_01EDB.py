@@ -6,7 +6,7 @@ import time
 from pyaedt import Edb
 from pyaedt.edb_core.components import resistor_value_parser
 from pyaedt.generic.filesystem import Scratch
-test_project_name = "Galileo"
+test_project_name = "Galileo_edb"
 bom_example = "bom_example.csv"
 from _unittest.conftest import config, desktop_version, local_path, scratch_path
 try:
