@@ -83,7 +83,7 @@ class PostProcessor(Post):
         show_grid : bool, optional
             Whether to show the grid. The default is ``True``.
         show_ruler : bool, optional
-            Whehter to show the ruler. The default is ``True``.
+            Whether to show the ruler. The default is ``True``.
        
         """
         file_name = self.export_model_picture(show_axis=show_axis, show_grid=show_grid, show_ruler=show_ruler)
