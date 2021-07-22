@@ -265,7 +265,12 @@ class Edb(object):
             self._init_dlls()
         self._messenger.add_warning_message("EDB Path {}".format(self.edbpath))
         self._messenger.add_warning_message("EDB Version {}".format(self.edbversion))
-        self.edb.Database.SetRunAsStandAlone(True)
+        if _ironpython and inside_desktop:
+
+            self.edb.Database.SetRunAsStandAlone(False)
+        else:
+            self.edb.Database.SetRunAsStandAlone(True)
+
         self._db = self.edb.Database.Open(self.edbpath, self.isreadonly)
         self._active_cell = None
         if self.cellname:
@@ -274,6 +279,7 @@ class Edb(object):
                     self._active_cell = cell
         else:
             self._active_cell = list(self._db.TopCircuitCells)[0]
+
         if self._active_cell:
             self.builder = self.layout_methods.GetBuilder(self._db, self._active_cell)
         else:
@@ -323,11 +329,13 @@ class Edb(object):
         """
         if init_dlls:
             self._init_dlls()
-        self.edb.Database.SetRunAsStandAlone(True)
+        if _ironpython and inside_desktop:
+            self.edb.Database.SetRunAsStandAlone(False)
+        else:
+            self.edb.Database.SetRunAsStandAlone(True)
         self._db = self.edb.Database.Create(self.edbpath)
         if not self.cellname:
             self.cellname = generate_unique_name("Cell")
-
         self._active_cell = self.edb.Cell.Cell.Create(self._db,  self.edb.Cell.CellType.CircuitCell, self.cellname)
         self.builder = self.layout_methods.GetBuilder(self.db, self._active_cell)
         print("active cell set")

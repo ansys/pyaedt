@@ -15,8 +15,8 @@ import logging
 import pkgutil
 import getpass
 import re
-from .application.MessageManager import AEDTMessageManager
-from .misc import list_installed_ansysem
+from pyaedt.application.MessageManager import AEDTMessageManager
+from pyaedt.misc import list_installed_ansysem
 
 pathname = os.path.dirname(__file__)
 if os.path.exists(os.path.join(pathname,'version.txt')):
