@@ -240,25 +240,25 @@ class TestClass(BasisTest):
         assert self.aedtapp.activate_variable_optimization("$test_opti1", "2mm", "5mm")
         assert self.aedtapp.deactivate_variable_optimization("test_opti")
 
-    def test_35_activate_variable_for_sensitivity(self):
+    def test_37_activate_variable_for_sensitivity(self):
 
         assert self.aedtapp.activate_variable_sensitivity("test_opti")
         assert self.aedtapp.activate_variable_sensitivity("$test_opti1", "1mm", "10mm")
         assert self.aedtapp.deactivate_variable_sensitivity("$test_opti1")
 
-    def test_35_activate_variable_for_statistical(self):
+    def test_38_activate_variable_for_statistical(self):
 
         assert self.aedtapp.activate_variable_statistical("test_opti")
         assert self.aedtapp.activate_variable_statistical("$test_opti1", "1mm", "10mm", "3%", mean="2mm")
         assert self.aedtapp.deactivate_variable_statistical("test_opti")
 
-    def test_36_create_coaxial(self):
+    def test_39_create_coaxial(self):
         coax = self.aedtapp.modeler.create_coaxial([0, 0, 0], self.aedtapp.CoordinateSystemAxis.XAxis)
         assert isinstance(coax[0].id, int)
         assert isinstance(coax[1].id, int)
         assert isinstance(coax[2].id, int)
 
-    def test_37_create_coordinate(self):
+    def test_40_create_coordinate(self):
         cs = self.aedtapp.modeler.create_coordinate_system()
         assert cs
         assert cs.update()
@@ -274,14 +274,14 @@ class TestClass(BasisTest):
         assert cs.change_cs_mode(0)
         assert cs.delete()
 
-    def test_38_rename_coordinate(self):
+    def test_41_rename_coordinate(self):
         cs = self.aedtapp.modeler.create_coordinate_system(name='oldname')
         assert cs.name == 'oldname'
         assert cs.rename('newname')
         assert cs.name == 'newname'
         assert cs.delete()
 
-    def test_39_update_coordinate_system(self):
+    def test_42_update_coordinate_system(self):
         for cs in self.aedtapp.modeler.coordinate_systems:
             cs.delete()
         cs1 = self.aedtapp.modeler.create_coordinate_system(name="CS1", view="rotate")
@@ -302,7 +302,7 @@ class TestClass(BasisTest):
         assert len(self.aedtapp.modeler.coordinate_systems) == 2
         assert cs2.delete()
 
-    def test_40_set_as_working_cs(self):
+    def test_42_set_as_working_cs(self):
         for cs in self.aedtapp.modeler.coordinate_systems:
             cs.delete()
         cs1 = self.aedtapp.modeler.create_coordinate_system(name="first")
@@ -310,28 +310,28 @@ class TestClass(BasisTest):
         assert cs1.set_as_working_cs()
         assert cs2.set_as_working_cs()
 
-    def test_41_set_working_coordinate_system(self):
+    def test_43_set_working_coordinate_system(self):
         cs1 = self.aedtapp.modeler.create_coordinate_system(name="new1")
         self.aedtapp.modeler.set_working_coordinate_system("Global")
         self.aedtapp.modeler.set_working_coordinate_system("new1")
 
-    def test_sweep_around_axis(self):
+    def test_44_sweep_around_axis(self):
         box1 = self.aedtapp.modeler.primitives.create_box([-10, -10, -10], [20, 20, 20], "box_to_split")
         box1.sweep_around_axis("Z", sweep_angle=360, draft_angle=0)
 
-    def test_sweep_along_path(self):
+    def test_45_sweep_along_path(self):
         udp1 = [0, 0, 0]
         udp2 = [5, 0, 0]
         path = self.aedtapp.modeler.primitives.create_polyline([udp1, udp2], name="Poly1")
         box1 = self.aedtapp.modeler.primitives.create_box([-10, -10, -10], [20, 20, 20], "box_to_split")
         box1.sweep_along_path(path)
 
-    def test_section_object(self):
+    def test_46_section_object(self):
         box1 = self.aedtapp.modeler.primitives.create_box([-10, -10, -10], [20, 20, 20], "box_to_split")
         self.aedtapp.modeler.section(box1, 0, create_new=True, section_cross_object=False)
         pass
 
-    def test_sweep_along_vector(self):
+    def test_47_sweep_along_vector(self):
         sweep_vector = [5, 0, 0]
         box1 = self.aedtapp.modeler.primitives.create_box([-10, -10, -10], [20, 20, 20], "box_to_split")
         box1.sweep_along_vector(sweep_vector)
