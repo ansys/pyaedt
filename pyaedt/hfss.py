@@ -1002,8 +1002,8 @@ class Hfss(FieldAnalysis3D, object):
         Examples
         --------
 
-        Create two boxes that will be used to create a lumped port
-        named ``'LumpedPort'``.
+        Create two boxes that will be used to create a wave port
+        named ``'WavePort'``.
 
         >>> box1 = hfss.modeler.primitives.create_box([0,0,0], [10,10,5],
         ...                                           "BoxWave1", "copper")
@@ -1011,7 +1011,7 @@ class Hfss(FieldAnalysis3D, object):
         ...                                           "BoxWave2", "copper")
         >>> wave_port = hfss.create_wave_port_between_objects("BoxWave1", "BoxWave2",
         ...                                                   hfss.AxisDir.XNeg, 50, 1,
-        ...                                                   "Wave1", False)
+        ...                                                   "WavePort", False)
         pyaedt Info: Connection Correctly created
 
         """
