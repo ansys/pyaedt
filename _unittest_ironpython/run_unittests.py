@@ -30,4 +30,4 @@ discover_and_run(run_dir, pattern='test_01*.py')
 
 success_file = os.path.join(run_dir, 'tests_succeeded')
 with open(success_file, "w") as f:
-    success_file.write("ok")
+    f.write("ok")
