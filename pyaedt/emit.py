@@ -9,7 +9,7 @@ from .generic.general_methods import aedt_exception_handler, generate_unique_nam
 
 
 class Emit(FieldAnalysisEmit, object):
-    """Creates only a skeleton for an empty design.
+    """Creates only a skeleton for an empty design currently.
 
     .. note::
        This object has very limited functionalities. No methods
@@ -51,7 +51,7 @@ class Emit(FieldAnalysisEmit, object):
 
     Examples
     --------
-    Create an instance of Emit and connect to an existing Maxwell
+    Create an instance of Emit and connect to an existing Emit
     design or create a new Emit design if one does not exist.
 
     >>> from pyaedt import Emit
@@ -68,7 +68,8 @@ class Emit(FieldAnalysisEmit, object):
     
     >>> app = Emit(projectname,designame)
 
-    Create an instance of Emit and open the specified project.
+    Create an instance of Emit and open the specified project,
+    which is named ``Myfile.aedt``.
 
     >>> app = Emit("myfile.aedt")
 
