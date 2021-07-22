@@ -1,1 +1,1 @@
-"C:\Program Files\AnsysEM\AnsysEM21.1\Win64\ansysedt.exe" -RunScriptAndExit _unittest_ironpython\run_unittests.py
+"C:\Program Files\AnsysEM\AnsysEM21.1\Win64\ansysedt.exe" -RunScriptAndExit "C:\actions-runner\_work\PyAEDT\PyAEDT\_unittest_ironpython\run_unittests.py"
