@@ -3,8 +3,6 @@ This module contains these classes: `FieldPlot`, `PostProcessor`, and `SolutionD
 
 This module provides all functionalities for creating and editing plots in the 3D tools.
 
-.. note::
-   Some functionalities are available only in graphical mode.
 """
 from __future__ import absolute_import
 import os
@@ -32,9 +30,7 @@ report_type = {"DrivenModal": "Modal Solution Data", "DrivenTerminal": "Terminal
 
 
 class SolutionData(object):
-    """SolutionData class.
-    
-    This data class contains information from the `GetSolutionfromVariation` AEDT call.
+    """Contains information from the :func:`GetSolutionDataPerVariation` method.
     """
     @property
     def sweeps(self):
@@ -135,6 +131,7 @@ class SolutionData(object):
         Returns
         -------
         type
+        
         """
       
         self._sweeps = OrderedDict({})
@@ -288,7 +285,7 @@ class SolutionData(object):
         Returns
         -------
         list
-           List of the converted data.
+           List of the data converted to the SI unit system.
 
         """
         sol = datalist
@@ -311,7 +308,7 @@ class SolutionData(object):
         Returns
         -------
         list
-            List of the data in the database.
+            List of the data in the database for the expression.
 
         """
         if not expression:
@@ -334,7 +331,7 @@ class SolutionData(object):
         Returns
         -------
         list
-            List of the real data.
+            List of the real data for the expression.
 
         """
         if not expression:
@@ -375,7 +372,7 @@ class SolutionData(object):
         Returns
         -------
         list
-            List of the imaginary data.
+            List of the imaginary data for the expresion.
 
         """
         if not expression:
@@ -404,7 +401,7 @@ class SolutionData(object):
 
 
 class FieldPlot:
-    """FieldPlot class.
+    """Manages field plots.
     
     Parameters
     ----------
@@ -537,11 +534,11 @@ class FieldPlot:
     @property
     def plotsettings(self):
         """Plot settings.
-        
+                
         Returns
         -------
         list
-            List of properties for the plot.
+            List of plot settings.
         """
         if self.objtype == "Surface":
             arg = [
@@ -584,7 +581,14 @@ class FieldPlot:
 
     @property
     def surfacePlotInstruction(self):
-        """Surface plot settings."""
+        """Surface plot settings.
+        
+        Returns
+        -------
+        list
+            List of surface plot settings.
+            
+        """
         return [
             "NAME:" + self.name,
             "SolutionName:=", self.solutionName,
@@ -602,18 +606,21 @@ class FieldPlot:
 
 
 class PostProcessor(object):
-    """PostProcessor class.
+    """Manages main AEDT postprocessing functions.
     
-    This class contains all functionalities for managing main AEDT postprocess functions.
     The inherited `AEDTConfig` class contains all `_desktop` hierarchical calls 
     needed for the class inititialization data `_desktop` and the design types ``"HFSS"``,
     ``"Icepak"``, and ``"HFSS3DLayout"``.
+    
+    .. note::
+   Some functionalities are available only in graphical mode.
 
     Parameters
     ----------
     parent: 
-        Parent object, such as the AEDT application. The parent object must
-        provide the members `_modeler`, `_desktop`, `_odesign`, and `_messenger`.
+        The inherited parent object. The parent object must provide the members 
+        `_modeler`, `_desktop`, `_odesign`, and `_messenger`.
+    
     """
     def __init__(self, parent):
         self._parent = parent
@@ -622,7 +629,13 @@ class PostProcessor(object):
 
     @property
     def _primitives(self):
-        """Parameters.
+        """Primitives.
+        
+        Returns
+        -------
+        type
+            Primitives object.
+        
         """
         return self._parent._modeler.primitives
 
@@ -654,18 +667,18 @@ class PostProcessor(object):
 
         Returns
         -------
-        type
+        :attr:`pyaedt.modules.PostProcessor.PostProcessor.ofieldsreporter`
             Fields Reporter module.
         """
         return self.odesign.GetModule("FieldsReporter")
 
     @property
     def oreportsetup(self):
-        """Report setup module.
+        """Report Setup module.
 
         Returns
         -------
-        type
+        :attr:`pyaedt.modules.PostProcessor.PostProcessor.oreportsetup`
             Report setup module.
         """
         return self.odesign.GetModule("ReportSetup")
@@ -722,7 +735,7 @@ class PostProcessor(object):
 
     @aedt_exception_handler
     def display_types(self, report_type):
-        """Retrieve display types.
+        """Retrieve display types for a report type.
 
         Parameters
         ----------
@@ -731,15 +744,15 @@ class PostProcessor(object):
 
         Returns
         -------
-        type
-            Display types.
+        :attr:`pyaedt.modules.PostProcessor.PostProcessor.report_types`
+            Display types for the report type.
         """
         return self.oreportsetup.GetAvailableDisplayTypes(report_type)
 
     # TODO: define a fields calculator module and make robust !!
     @aedt_exception_handler
     def volumetric_loss(self, object_name):
-        """Create a variable for volumetric losses using the field calculator.
+        """Use the field calculator to create a variable for volumetric losses.
 
         Parameters
         ----------
@@ -769,7 +782,7 @@ class PostProcessor(object):
         plotname : str
             Name of the plot.
         propertyname : str
-            Name of the property to edit.   
+            Name of the property.   
         propertyval :
             Value for the property.
 
@@ -801,7 +814,7 @@ class PostProcessor(object):
     def export_field_file_on_grid(self, quantity_name, solution=None, variation_dict=None, filename=None,
                                   gridtype="Cartesian", grid_center=[0, 0, 0],
                                   grid_start=[0, 0, 0], grid_stop=[0, 0, 0], grid_step=[0, 0, 0], isvector = False, intrinsics=None, phase=None):
-        """Create a field file based on a solution and variation using the field calculator.
+        """Use the field calculator to create a field file based on a solution and variation.
 
         Parameters
         ----------
@@ -809,11 +822,11 @@ class PostProcessor(object):
             Name of the quantity to export. For example, ``"Temp"``.
         solution : str, optional
             Name of the solution in the format ``"solution : sweep"``. The default is ``None``.
-        variations_dict : dict, optional
+        variation_dict : dict, optional
             Dictionary of all variation variables with their values.
             The default is ``None``.
         filename : str, optional
-            Full path and file name to savethe file to. 
+            Full path and name to save the file to. 
             The default is ``None``.
         gridtype : str, optional
             Type of the grid to export. The default is ``"Cartesian"``.
@@ -843,7 +856,7 @@ class PostProcessor(object):
         bool
             ``True`` when successful, ``False`` when failed.
         """
-        self._messenger.add_info_message("Exporting {} Field. Be Patient".format(quantity_name))
+        self._messenger.add_info_message("Exporting {} field. Be patient".format(quantity_name))
         if not solution:
             solution = self._parent.existing_analysis_sweeps[0]
         if not filename:
@@ -882,7 +895,7 @@ class PostProcessor(object):
             grid_stop_wu = [str(grid_stop[0])+units, str(grid_stop[1])+ang_units, str(grid_stop[2])+ang_units]
             grid_step_wu = [str(grid_step[0])+units, str(grid_step[1])+ang_units, str(grid_step[2])+ang_units]
         else:
-            self._parent._messenger.add_error_message("Error in Type of Grid")
+            self._parent._messenger.add_error_message("Error in the type of the grid.")
             return False
         if not variation_dict:
             variation_dict = self._parent.available_variations.nominal_w_values
@@ -911,7 +924,7 @@ class PostProcessor(object):
     def export_field_file(self, quantity_name, solution=None, variation_dict=None, filename=None,
                           obj_list="AllObjects", obj_type="Vol", intrinsics=None, phase=None,
                           sample_points_file=None, sample_points_lists=None, export_with_sample_points=True):
-        """Create a field file based on a solution and variation using the field calculator.
+        """Use the field calculator to create a field file based on a solution and variation.
 
         Parameters
         ----------
@@ -921,10 +934,10 @@ class PostProcessor(object):
             Name of the solution in the format ``"solution: sweep"``. 
             The default is ``None``.
         variation_dict : dict, optional
-            Dictionary of all variation variables with their values,
+            Dictionary of all variation variables with their values.
             The default is ``None``.
         filename : str, optional
-            Full path and file name to save the file to. 
+            Full path and name to save the file to. 
             The default is ``None``.
         obj_list : str, optional
             List of objects to export. The default is ``"AllObjects"``.
@@ -949,7 +962,7 @@ class PostProcessor(object):
         bool
             ``True`` when successful, ``False`` when failed.
         """
-        self._messenger.add_info_message("Exporting {} Field. Be Patient".format(quantity_name))
+        self._messenger.add_info_message("Exporting {} field. Be patient".format(quantity_name))
         if not solution:
             solution = self._parent.existing_analysis_sweeps[0]
         if not filename:
@@ -969,7 +982,7 @@ class PostProcessor(object):
                 elif obj_type == "Surf":
                     self.ofieldsreporter.EnterSurf(obj_list)
                 else:
-                    self._messenger.add_error_message("No correct choice")
+                    self._messenger.add_error_message("No correct choice.")
                     return False
                 self.ofieldsreporter.CalcOp("Value")
                 variation_dict = self._parent.available_variations.nominal_w_values
@@ -1017,7 +1030,7 @@ class PostProcessor(object):
             Name of the plot.
             
         filepath : str
-            Path to save the file to.
+            Path for saving the file.
             
         filename : str, optional
             Name of the file. The default is ``""``.
@@ -1157,7 +1170,7 @@ class PostProcessor(object):
         Parameters
         ----------
         fileName : str
-            Full path and file name to save the JPG file to.
+            Full path and name to save the JPG file to.
         plotName : str
             Name of the plot.
         coordinateSystemName :str
@@ -1186,7 +1199,7 @@ class PostProcessor(object):
         plotName : str
             Name of the plot.
         exportFilePath :
-            Path to export the image file to.
+            Path for exporting the image file.
         view : str, optional
             View to export. Options are ``"iso"``, ``"XZ"``, ``"XY"``, and ``"YZ"``. 
             The default is ``"iso"``.
@@ -1244,12 +1257,12 @@ class PostProcessor(object):
         Parameters
         ----------
         dir : str, optional
-            Path to export the JPG file to. If none, use an internal volatile scratch in the temp-directory
+            Path for exporting the JPG file. If none, use an internal volatile scratch in the temp-directory
         name : str, optional
             Name of the project, which is used to compose the directory path.
         picturename : str, optional
-            Name of the JPG file. If not specfified, an automatic name will be generated
-            ``".jpg"`` is added automatically.
+            Name of the JPG file. The default is ``None``, in which case the default
+            name is assigned. The extension ``".jpg"`` is added automatically.
         show_axis : bool, optional
             Whether to show the axes. The default is ``True``.
         show_grid : bool, optional
@@ -1260,7 +1273,7 @@ class PostProcessor(object):
         Returns
         -------
         str
-            file path of the generated jpg file
+            file path of the generated JPG file.
         """
         # Setup arguments list for createReport function
         if not dir:
@@ -1405,7 +1418,7 @@ class PostProcessor(object):
 
     @aedt_exception_handler
     def get_far_field_data(self, expression="GainTotal", setup_sweep_name='', domain="Infinite Sphere1", families_dict=None):
-        """Generate far field data using the `GetSolutionDataPerVariation` function. 
+        """Generate far field data using the :func:`GetSolutionDataPerVariation` method. 
         
         This function returns the data ``solData``, ``ThetaVals``, ``PhiVals``, ``ScanPhiVals,`` 
         ``ScanThetaVals,`` and ``FreqVals``.
@@ -1420,12 +1433,13 @@ class PostProcessor(object):
         domain : str, optional
             Context type (sweep or time). The default is ``"Infinite Sphere1"``.
         families_dict : dict, optional
-            Dictionary of variables and values. The default is ``{"Freq": ["All"]}``
+            Dictionary of variables and values. The default is ``{"Freq": ["All"]}``.
         
         Returns
         -------
-        type
-            SolutionData object if successful.
+        :class:`pyaedt.modules.PostProcessor.SolutionData`
+            SolutionData object.
+        
         """
         if type(expression) is not list:
             expression = [expression]
@@ -1441,7 +1455,7 @@ class PostProcessor(object):
 
     @aedt_exception_handler
     def get_report_data(self, expression="dB(S(1,1))", setup_sweep_name='', domain='Sweep', families_dict=None, report_input_type=None):
-        """Generate report data using the `GetSolutionDataPerVariation` function.
+        """Generate report data using the :func:`GetSolutionDataPerVariation` method.
         
         This function returns the data object and the arrays ``solData`` and
         ``FreqVals``.
@@ -1466,8 +1480,8 @@ class PostProcessor(object):
 
         Returns
         -------
-        SolutionData
-            SolutionData object if successful.
+        :class:`pyaedt.modules.PostProcessor.SolutionData`
+            SolutionData object.
 
         Examples
         --------
