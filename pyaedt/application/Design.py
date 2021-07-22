@@ -2105,7 +2105,10 @@ class Design(object):
 
         """
         if self.design_type == "Circuit Design" or self.design_type == "HFSS 3D Layout Design":
-            self.modeler.edb.close_edb()
+            try:
+                self.modeler.edb.close_edb()
+            except:
+                pass
         self.__init__(projectname=self.project_name, designname=design_name)
 
     def _insert_design(self, design_type, design_name=None, solution_type=None):
