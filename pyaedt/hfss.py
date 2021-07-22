@@ -878,7 +878,7 @@ class Hfss(FieldAnalysis3D, object):
 
     @aedt_exception_handler
     def create_current_source_from_objects(self, startobj, endobject, axisdir=0, sourcename=None, source_on_plane=True):
-        """Create a voltage source taking the closest edges of two objects.
+        """Create a current source taking the closest edges of two objects.
 
         Parameters
         ----------
@@ -887,7 +887,7 @@ class Hfss(FieldAnalysis3D, object):
         endobject :
             Second (ending) object for the integration line.
         axisdir : optional
-            Position of the voltage source. It should be one of the values for ``Application.AxisDir``, which are:
+            Position of the current source. It should be one of the values for ``Application.AxisDir``, which are:
             ``"XNeg"``, ``"YNeg"``, ``"ZNeg"``, ``"XPos"``, ``"YPos"``, and ``"ZPos"``. The default is ``"0"``.
         sourcename : str, optional
             Name of the source. The default is ``None``.
