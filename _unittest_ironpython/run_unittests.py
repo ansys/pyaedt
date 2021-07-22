@@ -4,7 +4,7 @@ import sys
 from datetime import datetime
 import time
 
-sys.path.append(r"C:\Program Files\AnsysEM\AnsysEM21.1\Win64\PythonFiles\DesktopPlugin")
+sys.path.append(os.path.join(os.environ["ANSYSEM_ROOT211"],"PythonFiles","DesktopPlugin"))
 path_dir = os.path.join(os.path.abspath(os.path.dirname(__file__)), "..")
 sys.path.append(path_dir)
 
