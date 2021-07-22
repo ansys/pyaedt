@@ -1,5 +1,6 @@
 # standard imports
 import os
+import sys
 try:
     import pytest
 except ImportError:
@@ -149,7 +150,8 @@ class TestClass:
         assert path
 
     def test_11_get_efields(self):
-        if os.name == "posix":
+        if "IronPython" in sys.version or ".NETFramework" in sys.version:
+
             assert True
         else:
             app2 = Hfss(self.test_project2)
