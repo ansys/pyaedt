@@ -873,7 +873,7 @@ class EDBPadstack(object):
         str
             Name of the starting layer.
         """
-        return self.via_layers[0]
+        return list(self.via_layers)[0]
 
     @property
     def via_stop_layer(self):
@@ -884,7 +884,7 @@ class EDBPadstack(object):
         str
             Name of the stopping layer.
         """
-        return self.via_layers[-1]
+        return list(self.via_layers)[-1]
 
     @property
     def _hole_params(self):

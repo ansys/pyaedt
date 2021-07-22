@@ -2,7 +2,7 @@ import unittest
 import os
 import sys
 from datetime import datetime
-
+import time
 
 sys.path.append(r"C:\Program Files\AnsysEM\AnsysEM21.1\Win64\PythonFiles\DesktopPlugin")
 path_dir = os.path.join(os.path.abspath(os.path.dirname(__file__)), "..")
@@ -27,7 +27,8 @@ def discover_and_run(start_dir, pattern=None):
         runner = unittest.TextTestRunner(f, verbosity=2)
         result = runner.run(test_suite)
 
-discover_and_run(run_dir, pattern='test_*.py')
+
+discover_and_run(run_dir, pattern='test_01EDB*.py')
 
 success_file = os.path.join(run_dir, 'tests_succeeded.log')
 with open(success_file, "w") as f:
