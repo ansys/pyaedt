@@ -1,65 +1,938 @@
-Test started 2021-07-22 14:35:05.365000
-test_01_find_by_name (test_01EDB.TestSequenceFunctionsGenerate) ... ok
-test_02_get_properties (test_01EDB.TestSequenceFunctionsGenerate) ... ok
-test_03_get_primitives (test_01EDB.TestSequenceFunctionsGenerate) ... ok
-test_04_get_stackup (test_01EDB.TestSequenceFunctionsGenerate) ... ok
-test_05_get_signal_layers (test_01EDB.TestSequenceFunctionsGenerate) ... ok
-test_06_component_lists (test_01EDB.TestSequenceFunctionsGenerate) ... ok
-test_07_vias_creation (test_01EDB.TestSequenceFunctionsGenerate) ... ok
-test_08_nets_query (test_01EDB.TestSequenceFunctionsGenerate) ... ok
-test_09_assign_rlc (test_01EDB.TestSequenceFunctionsGenerate) ... ok
-test_10_add_layer (test_01EDB.TestSequenceFunctionsGenerate) ... ok
-test_11_add_dielectric (test_01EDB.TestSequenceFunctionsGenerate) ... ok
-test_12_add_conductor (test_01EDB.TestSequenceFunctionsGenerate) ... ok
-test_13add_djordievic (test_01EDB.TestSequenceFunctionsGenerate) ... ok
-test_14_add_debye (test_01EDB.TestSequenceFunctionsGenerate) ... ok
-test_15_update_layer (test_01EDB.TestSequenceFunctionsGenerate) ... ok
-test_16_remove_layer (test_01EDB.TestSequenceFunctionsGenerate) ... ok
-test_17_components (test_01EDB.TestSequenceFunctionsGenerate) ... ok
-test_18_components_from_net (test_01EDB.TestSequenceFunctionsGenerate) ... ok
-test_19_resistors (test_01EDB.TestSequenceFunctionsGenerate) ... ok
-test_20_capacitors (test_01EDB.TestSequenceFunctionsGenerate) ... ok
-test_21_inductors (test_01EDB.TestSequenceFunctionsGenerate) ... ok
-test_22_ICs (test_01EDB.TestSequenceFunctionsGenerate) ... ok
-test_23_IOs (test_01EDB.TestSequenceFunctionsGenerate) ... ok
-test_24_Others (test_01EDB.TestSequenceFunctionsGenerate) ... ok
-test_25_Components_by_PartName (test_01EDB.TestSequenceFunctionsGenerate) ... ok
-test_26_get_through_resistor_list (test_01EDB.TestSequenceFunctionsGenerate) ... ok
-test_27_get_rats (test_01EDB.TestSequenceFunctionsGenerate) ... ok
-test_28_get_component_connections (test_01EDB.TestSequenceFunctionsGenerate) ... ok
-test_29_get_power_tree (test_01EDB.TestSequenceFunctionsGenerate) ... ok
-test_30_aedt_pinname_pin_position (test_01EDB.TestSequenceFunctionsGenerate) ... ok
-test_31_get_pins_name_from_net (test_01EDB.TestSequenceFunctionsGenerate) ... ok
-test_32_delete_single_pin_rlc (test_01EDB.TestSequenceFunctionsGenerate) ... ok
-test_33_component_rlc (test_01EDB.TestSequenceFunctionsGenerate) ... ok
-test_34_disable_component (test_01EDB.TestSequenceFunctionsGenerate) ... ok
-test_35_delete_component (test_01EDB.TestSequenceFunctionsGenerate) ... ok
-test_36_create_coax_port (test_01EDB.TestSequenceFunctionsGenerate) ... ok
-test_37_create_siwave_circuit_port (test_01EDB.TestSequenceFunctionsGenerate) ... ok
-test_38_create_siwave_voltage_source (test_01EDB.TestSequenceFunctionsGenerate) ... ERROR
-test_39_create_siwave_current_source (test_01EDB.TestSequenceFunctionsGenerate) ... ok
-test_40_create_siwave_ac_analsyis (test_01EDB.TestSequenceFunctionsGenerate) ... ok
-test_41_create_siwave_dc_analsyis (test_01EDB.TestSequenceFunctionsGenerate) ... ok
-test_42_get_nets_from_pin_list (test_01EDB.TestSequenceFunctionsGenerate) ... ok
-test_43_mesh_operations (test_01EDB.TestSequenceFunctionsGenerate) ... ok
-test_44_assign_model (test_01EDB.TestSequenceFunctionsGenerate) ... ok
-test_45_delete_net (test_01EDB.TestSequenceFunctionsGenerate) ... ok
-test_46_get_polygons_bounding (test_01EDB.TestSequenceFunctionsGenerate) ... ok
-test_47_get_polygons_bbylayerandnets (test_01EDB.TestSequenceFunctionsGenerate) ... ok
-test_48_get_polygons_points (test_01EDB.TestSequenceFunctionsGenerate) ... ok
-test_49_get_padstack (test_01EDB.TestSequenceFunctionsGenerate) ... ok
-test_50_set_padstack (test_01EDB.TestSequenceFunctionsGenerate) ... ERROR
-test_51_save_edb_as (test_01EDB.TestSequenceFunctionsGenerate) ... ok
-test_52_parametrize_layout (test_01EDB.TestSequenceFunctionsGenerate) ... ok
-test_53_import_bom (test_01EDB.TestSequenceFunctionsGenerate) ... ok
-test_54_create_component_from_pins (test_01EDB.TestSequenceFunctionsGenerate) ... ok
-test_55_create_cutout (test_01EDB.TestSequenceFunctionsGenerate) ... ok
-test_56_rvalue (test_01EDB.TestSequenceFunctionsGenerate) ... ok
-test_57_stackup_limits (test_01EDB.TestSequenceFunctionsGenerate) ... ok
-test_58_create_polygon (test_01EDB.TestSequenceFunctionsGenerate) ... ok
-test_59_create_path (test_01EDB.TestSequenceFunctionsGenerate) ... ok
-test_60_create_outline (test_01EDB.TestSequenceFunctionsGenerate) ... ok
-test_61_create_edb (test_01EDB.TestSequenceFunctionsGenerate) ... ok
-test_62_export_to_hfss (test_01EDB.TestSequenceFunctionsGenerate) ... ok
-test_63_export_to_q3d (test_01EDB.TestSequenceFunctionsGenerate) ... ok
-test_64_export_to_maxwell (test_01EDB.TestSequenceFunctionsGenerate) ... 
+Test started 2021-07-22 14:39:45.733000
+test_01_designname (test_01_Design.TestSequenceFunctionsGenerate) ... ok
+test_02_design_list (test_01_Design.TestSequenceFunctionsGenerate) ... ok
+test_03_design_type (test_01_Design.TestSequenceFunctionsGenerate) ... ok
+test_04_projectname (test_01_Design.TestSequenceFunctionsGenerate) ... ok
+test_05_lock (test_01_Design.TestSequenceFunctionsGenerate) ... ok
+test_05_resultsfolder (test_01_Design.TestSequenceFunctionsGenerate) ... ok
+test_05_solution_type (test_01_Design.TestSequenceFunctionsGenerate) ... ok
+test_06_libs (test_01_Design.TestSequenceFunctionsGenerate) ... ok
+test_08_objects (test_01_Design.TestSequenceFunctionsGenerate) ... ok
+test_09_set_objects_deformation (test_01_Design.TestSequenceFunctionsGenerate) ... ok
+test_09_set_objects_temperature (test_01_Design.TestSequenceFunctionsGenerate) ... ok
+test_10_change_material_override (test_01_Design.TestSequenceFunctionsGenerate) ... ok
+test_11_change_validation_settings (test_01_Design.TestSequenceFunctionsGenerate) ... ok
+test_12_variables (test_01_Design.TestSequenceFunctionsGenerate) ... ok
+test_13_designs (test_01_Design.TestSequenceFunctionsGenerate) ... ok
+test_14_get_nominal_variation (test_01_Design.TestSequenceFunctionsGenerate) ... ok
+test_15a_duplicate_design (test_01_Design.TestSequenceFunctionsGenerate) ... ok
+test_15b_copy_design_from (test_01_Design.TestSequenceFunctionsGenerate) ... ok
+test_16_renamedesign (test_01_Design.TestSequenceFunctionsGenerate) ... ok
+test_17_export_proj_var (test_01_Design.TestSequenceFunctionsGenerate) ... ok
+test_18_reload_project (test_01_Design.TestSequenceFunctionsGenerate) ... ok
+test_19_create_3dproject_dataset (test_01_Design.TestSequenceFunctionsGenerate) ... ok
+test_19_create_design_dataset (test_01_Design.TestSequenceFunctionsGenerate) ... ok
+test_19_create_project_dataset (test_01_Design.TestSequenceFunctionsGenerate) ... ok
+test_19_edit_existing_dataset (test_01_Design.TestSequenceFunctionsGenerate) ... ok
+test_20_get_3dComponents_properties (test_01_Design.TestSequenceFunctionsGenerate) ... ok
+test_21_generate_temp_project_directory (test_01_Design.TestSequenceFunctionsGenerate) ... ERROR
+test_app (test_01_Design.TestSequenceFunctionsGenerate) ... ok
+test_change_use_causalmaterial (test_01_Design.TestSequenceFunctionsGenerate) ... ok
+test_clean_proj_folder (test_01_Design.TestSequenceFunctionsGenerate) ... ok
+test_copy_project (test_01_Design.TestSequenceFunctionsGenerate) ... ok
+test_valid_design (test_01_Design.TestSequenceFunctionsGenerate) ... ok
+test_version_id (test_01_Design.TestSequenceFunctionsGenerate) ... ok
+test_01_model_units (test_02_2D_modeler.TestSequenceFunctionsGenerate) ... ok
+test_02_boundingbox (test_02_2D_modeler.TestSequenceFunctionsGenerate) ... ok
+test_03_objects (test_02_2D_modeler.TestSequenceFunctionsGenerate) ... ok
+test_create_circle (test_02_2D_modeler.TestSequenceFunctionsGenerate) ... ERROR
+test_create_ellipse (test_02_2D_modeler.TestSequenceFunctionsGenerate) ... ERROR
+test_create_rectangle (test_02_2D_modeler.TestSequenceFunctionsGenerate) ... ERROR
+test_create_regular_polygon (test_02_2D_modeler.TestSequenceFunctionsGenerate) ... ERROR
+test_01_model_units (test_02_3D_modeler.TestSequenceFunctionsGenerate) ... ok
+test_02_boundingbox (test_02_3D_modeler.TestSequenceFunctionsGenerate) ... ok
+test_03_objects (test_02_3D_modeler.TestSequenceFunctionsGenerate) ... ok
+test_04_convert_to_selection (test_02_3D_modeler.TestSequenceFunctionsGenerate) ... ok
+test_05_split (test_02_3D_modeler.TestSequenceFunctionsGenerate) ... ok
+test_06_duplicate_and_mirror (test_02_3D_modeler.TestSequenceFunctionsGenerate) ... ok
+test_07_mirror (test_02_3D_modeler.TestSequenceFunctionsGenerate) ... ok
+test_08_duplicate_along_line (test_02_3D_modeler.TestSequenceFunctionsGenerate) ... ok
+test_08_duplicate_around_axis (test_02_3D_modeler.TestSequenceFunctionsGenerate) ... ok
+test_09_thicken_sheet (test_02_3D_modeler.TestSequenceFunctionsGenerate) ... ok
+test_11_split (test_02_3D_modeler.TestSequenceFunctionsGenerate) ... ok
+test_12_separate_Bodies (test_02_3D_modeler.TestSequenceFunctionsGenerate) ... ok
+test_13_rotate (test_02_3D_modeler.TestSequenceFunctionsGenerate) ... ok
+test_14_subtract (test_02_3D_modeler.TestSequenceFunctionsGenerate) ... ok
+test_15_purge_history (test_02_3D_modeler.TestSequenceFunctionsGenerate) ... ok
+test_16_get_model_bounding_box (test_02_3D_modeler.TestSequenceFunctionsGenerate) ... ok
+test_17_unite (test_02_3D_modeler.TestSequenceFunctionsGenerate) ... ok
+test_18_chamfer (test_02_3D_modeler.TestSequenceFunctionsGenerate) ... ok
+test_19_clone (test_02_3D_modeler.TestSequenceFunctionsGenerate) ... ok
+test_20_intersect (test_02_3D_modeler.TestSequenceFunctionsGenerate) ... ok
+test_21_connect (test_02_3D_modeler.TestSequenceFunctionsGenerate) ... ok
+test_22_translate (test_02_3D_modeler.TestSequenceFunctionsGenerate) ... ok
+test_23_chassis_subtraction (test_02_3D_modeler.TestSequenceFunctionsGenerate) ... ok
+test_24_check_plane (test_02_3D_modeler.TestSequenceFunctionsGenerate) ... ok
+test_25_clean_object_name (test_02_3D_modeler.TestSequenceFunctionsGenerate) ... ok
+test_26_create_airbox (test_02_3D_modeler.TestSequenceFunctionsGenerate) ... ok
+test_27_create_region (test_02_3D_modeler.TestSequenceFunctionsGenerate) ... ok
+test_28B_create_object_list (test_02_3D_modeler.TestSequenceFunctionsGenerate) ... ok
+test_28_create_face_list (test_02_3D_modeler.TestSequenceFunctionsGenerate) ... ok
+test_29_create_outer_face_list (test_02_3D_modeler.TestSequenceFunctionsGenerate) ... ok
+test_30_create_waveguide (test_02_3D_modeler.TestSequenceFunctionsGenerate) ... ok
+test_31_set_objects_unmodel (test_02_3D_modeler.TestSequenceFunctionsGenerate) ... ok
+test_33_duplicate_around_axis (test_02_3D_modeler.TestSequenceFunctionsGenerate) ... ok
+test_35_activate_variable_for_sensitivity (test_02_3D_modeler.TestSequenceFunctionsGenerate) ... ERROR
+test_35_activate_variable_for_statistical (test_02_3D_modeler.TestSequenceFunctionsGenerate) ... ERROR
+test_35_activate_variable_for_tuning (test_02_3D_modeler.TestSequenceFunctionsGenerate) ... ERROR
+test_36_activate_variable_for_optimization (test_02_3D_modeler.TestSequenceFunctionsGenerate) ... ERROR
+test_36_create_coaxial (test_02_3D_modeler.TestSequenceFunctionsGenerate) ... ok
+test_37_create_coordinate (test_02_3D_modeler.TestSequenceFunctionsGenerate) ... ok
+test_38_rename_coordinate (test_02_3D_modeler.TestSequenceFunctionsGenerate) ... ok
+test_39_update_coordinate_system (test_02_3D_modeler.TestSequenceFunctionsGenerate) ... ok
+test_40_set_as_working_cs (test_02_3D_modeler.TestSequenceFunctionsGenerate) ... ok
+test_41_set_working_coordinate_system (test_02_3D_modeler.TestSequenceFunctionsGenerate) ... ok
+test_section_object (test_02_3D_modeler.TestSequenceFunctionsGenerate) ... ok
+test_sweep_along_path (test_02_3D_modeler.TestSequenceFunctionsGenerate) ... ok
+test_sweep_along_vector (test_02_3D_modeler.TestSequenceFunctionsGenerate) ... ok
+test_sweep_around_axis (test_02_3D_modeler.TestSequenceFunctionsGenerate) ... ok
+test_assign_model_resolution (test_05_Mesh.TestSequenceFunctionsGenerate) ... ok
+test_assign_surface_mesh (test_05_Mesh.TestSequenceFunctionsGenerate) ... ok
+test_assign_surface_mesh_manual (test_05_Mesh.TestSequenceFunctionsGenerate) ... ok
+test_assign_surface_priority (test_05_Mesh.TestSequenceFunctionsGenerate) ... ok
+test_curvature_extraction (test_05_Mesh.TestSequenceFunctionsGenerate) ... ok
+test_delete_mesh_ops (test_05_Mesh.TestSequenceFunctionsGenerate) ... ok
+test_maxwell_mesh (test_05_Mesh.TestSequenceFunctionsGenerate) ... ok
+test_00_test_global_messenger (test_06_MessageManager.TestSequenceFunctionsGenerate) ... ERROR
+test_01_get_messages (test_06_MessageManager.TestSequenceFunctionsGenerate) ... ERROR
+test_02_messaging (test_06_MessageManager.TestSequenceFunctionsGenerate) ... ERROR
+test_01_bounding_box (test_07_Object3D.TestSequenceFunctionsGenerate) ... ok
+test_01_delete_object (test_07_Object3D.TestSequenceFunctionsGenerate) ... ok
+test_01_subtract_object (test_07_Object3D.TestSequenceFunctionsGenerate) ... ok
+test_02_face_edge_vertex (test_07_Object3D.TestSequenceFunctionsGenerate) ... ok
+test_03_FacePrimitive (test_07_Object3D.TestSequenceFunctionsGenerate) ... ok
+test_04_object_material_property_invalid (test_07_Object3D.TestSequenceFunctionsGenerate) ... ok
+test_04_object_material_property_valid (test_07_Object3D.TestSequenceFunctionsGenerate) ... ok
+test_05_object3d_properties_transparency (test_07_Object3D.TestSequenceFunctionsGenerate) ... ok
+test_06_object3d_properties_color (test_07_Object3D.TestSequenceFunctionsGenerate) ... ok
+test_07_object_clone_and_get_properties (test_07_Object3D.TestSequenceFunctionsGenerate) ... ok
+test_08_set_model (test_07_Object3D.TestSequenceFunctionsGenerate) ... ok
+test_09_to_boolean (test_07_Object3D.TestSequenceFunctionsGenerate) ... ok
+test_10_chamfer (test_07_Object3D.TestSequenceFunctionsGenerate) ... ok
+test_11_fillet (test_07_Object3D.TestSequenceFunctionsGenerate) ... ok
+test_12_set_color (test_07_Object3D.TestSequenceFunctionsGenerate) ... ok
+test_bottom_face (test_07_Object3D.TestSequenceFunctionsGenerate) ... ok
+test_delete_self (test_07_Object3D.TestSequenceFunctionsGenerate) ... ok
+test_duplicate_around_axis_and_unite (test_07_Object3D.TestSequenceFunctionsGenerate) ... ok
+test_object_length (test_07_Object3D.TestSequenceFunctionsGenerate) ... ok
+test_object_performance (test_07_Object3D.TestSequenceFunctionsGenerate) ... ok
+test_print_object (test_07_Object3D.TestSequenceFunctionsGenerate) ... ok
+test_section_object (test_07_Object3D.TestSequenceFunctionsGenerate) ... ok
+test_top_face (test_07_Object3D.TestSequenceFunctionsGenerate) ... ok
+test_translate_delete_self (test_07_Object3D.TestSequenceFunctionsGenerate) ... ok
+test_uname (test_07_Object3D.TestSequenceFunctionsGenerate) ... ok
+test_01_check_object_edges (test_08_Primitives3D.TestSequenceFunctionsGenerate) ... ok
+test_01_check_object_vertices (test_08_Primitives3D.TestSequenceFunctionsGenerate) ... ok
+test_01_get_object_name_from_edge (test_08_Primitives3D.TestSequenceFunctionsGenerate) ... ok
+test_01a_get_faces_from_mat (test_08_Primitives3D.TestSequenceFunctionsGenerate) ... ok
+test_01b_check_object_faces (test_08_Primitives3D.TestSequenceFunctionsGenerate) ... ok
+test_02_get_objects_in_group (test_08_Primitives3D.TestSequenceFunctionsGenerate) ... ok
+test_03_create_circle (test_08_Primitives3D.TestSequenceFunctionsGenerate) ... ok
+test_04_create_sphere (test_08_Primitives3D.TestSequenceFunctionsGenerate) ... ok
+test_05_create_cylinder (test_08_Primitives3D.TestSequenceFunctionsGenerate) ... ok
+test_06_create_ellipse (test_08_Primitives3D.TestSequenceFunctionsGenerate) ... ok
+test_07_create_object_from_edge (test_08_Primitives3D.TestSequenceFunctionsGenerate) ... ok
+test_08_create_object_from_face (test_08_Primitives3D.TestSequenceFunctionsGenerate) ... ok
+test_09_create_polyline (test_08_Primitives3D.TestSequenceFunctionsGenerate) ... ok
+test_10_create_polyline_with_crosssection (test_08_Primitives3D.TestSequenceFunctionsGenerate) ... ok
+test_10_sweep_along_path (test_08_Primitives3D.TestSequenceFunctionsGenerate) ... ok
+test_10_sweep_along_vector (test_08_Primitives3D.TestSequenceFunctionsGenerate) ... ok
+test_11_create_rectangle (test_08_Primitives3D.TestSequenceFunctionsGenerate) ... ok
+test_12_create_cone (test_08_Primitives3D.TestSequenceFunctionsGenerate) ... ok
+test_13_get_object_id (test_08_Primitives3D.TestSequenceFunctionsGenerate) ... ok
+test_14_get_object_names (test_08_Primitives3D.TestSequenceFunctionsGenerate) ... ok
+test_15_get_object_by_material (test_08_Primitives3D.TestSequenceFunctionsGenerate) ... ok
+test_16_get_object_faces (test_08_Primitives3D.TestSequenceFunctionsGenerate) ... ok
+test_19_get_edges_from_position (test_08_Primitives3D.TestSequenceFunctionsGenerate) ... ok
+test_20_get_faces_from_position (test_08_Primitives3D.TestSequenceFunctionsGenerate) ... ok
+test_21_delete_object (test_08_Primitives3D.TestSequenceFunctionsGenerate) ... ok
+test_22_get_face_vertices (test_08_Primitives3D.TestSequenceFunctionsGenerate) ... ok
+test_23_get_edge_vertices (test_08_Primitives3D.TestSequenceFunctionsGenerate) ... ok
+test_24_get_vertex_position (test_08_Primitives3D.TestSequenceFunctionsGenerate) ... ok
+test_25_get_face_area (test_08_Primitives3D.TestSequenceFunctionsGenerate) ... ok
+test_26_get_face_center (test_08_Primitives3D.TestSequenceFunctionsGenerate) ... ok
+test_27_get_edge_midpoint (test_08_Primitives3D.TestSequenceFunctionsGenerate) ... ok
+test_28_get_bodynames_from_position (test_08_Primitives3D.TestSequenceFunctionsGenerate) ... ok
+test_29_getobjects_with_strings (test_08_Primitives3D.TestSequenceFunctionsGenerate) ... ok
+test_30_getmodel_objects (test_08_Primitives3D.TestSequenceFunctionsGenerate) ... ok
+test_31a_create_rect_sheet_to_region (test_08_Primitives3D.TestSequenceFunctionsGenerate) ... ok
+test_31b_create_rect_sheet_to_groundplane (test_08_Primitives3D.TestSequenceFunctionsGenerate) ... ok
+test_31b_get_edges_for_circuit_port (test_08_Primitives3D.TestSequenceFunctionsGenerate) ... ok
+test_32_chamfer (test_08_Primitives3D.TestSequenceFunctionsGenerate) ... ok
+test_33_fillet_and_undo (test_08_Primitives3D.TestSequenceFunctionsGenerate) ... ok
+test_34_create_polyline_basic_segments (test_08_Primitives3D.TestSequenceFunctionsGenerate) ... ok
+test_35_create_circle_from_2_arc_segments (test_08_Primitives3D.TestSequenceFunctionsGenerate) ... ok
+test_36_compound_polylines_segments (test_08_Primitives3D.TestSequenceFunctionsGenerate) ... ok
+test_37_insert_polylines_segments_test1 (test_08_Primitives3D.TestSequenceFunctionsGenerate) ... ok
+test_38_insert_polylines_segments_test2 (test_08_Primitives3D.TestSequenceFunctionsGenerate) ... ok
+test_39_modify_crossection (test_08_Primitives3D.TestSequenceFunctionsGenerate) ... ok
+test_40_remove_vertex_from_polyline (test_08_Primitives3D.TestSequenceFunctionsGenerate) ... ok
+test_41_remove_edges_from_polyline (test_08_Primitives3D.TestSequenceFunctionsGenerate) ... ok
+test_41_remove_edges_from_polyline_invalid (test_08_Primitives3D.TestSequenceFunctionsGenerate) ... ok
+test_42_duplicate_polyline_and_manipulate (test_08_Primitives3D.TestSequenceFunctionsGenerate) ... ok
+test_43_create_bond_wires (test_08_Primitives3D.TestSequenceFunctionsGenerate) ... ok
+test_44_create_group (test_08_Primitives3D.TestSequenceFunctionsGenerate) ... ok
+test_45_flatten_assembly (test_08_Primitives3D.TestSequenceFunctionsGenerate) ... ok
+test_46_lines (test_08_Primitives3D.TestSequenceFunctionsGenerate) ... ok
+test_46_solving_volume (test_08_Primitives3D.TestSequenceFunctionsGenerate) ... ok
+test_47_get_edges_on_bounding_box (test_08_Primitives3D.TestSequenceFunctionsGenerate) ... ok
+test_48_get_closest_edge_to_position (test_08_Primitives3D.TestSequenceFunctionsGenerate) ... ok
+test_48_import_space_claim (test_08_Primitives3D.TestSequenceFunctionsGenerate) ... ERROR
+test_49_import_step (test_08_Primitives3D.TestSequenceFunctionsGenerate) ... ok
+test_assign_material (test_08_Primitives3D.TestSequenceFunctionsGenerate) ... ok
+test_center_and_centroid (test_08_Primitives3D.TestSequenceFunctionsGenerate) ... ok
+test_create_3dcomponent (test_08_Primitives3D.TestSequenceFunctionsGenerate) ... ok
+test_create_box (test_08_Primitives3D.TestSequenceFunctionsGenerate) ... ok
+test_create_box_assertions (test_08_Primitives3D.TestSequenceFunctionsGenerate) ... ok
+test_create_equationbased_curve (test_08_Primitives3D.TestSequenceFunctionsGenerate) ... ok
+test_create_polyhedron (test_08_Primitives3D.TestSequenceFunctionsGenerate) ... ok
+test_resolve_object (test_08_Primitives3D.TestSequenceFunctionsGenerate) ... ERROR
+test_02_create_primitive (test_09_Primitives2D.TestSequenceFunctionsGenerate) ... ok
+test_03_create_circle (test_09_Primitives2D.TestSequenceFunctionsGenerate) ... ok
+test_04_create_ellipse (test_09_Primitives2D.TestSequenceFunctionsGenerate) ... ok
+test_05_create_poly (test_09_Primitives2D.TestSequenceFunctionsGenerate) ... ok
+test_06_create_region (test_09_Primitives2D.TestSequenceFunctionsGenerate) ... ok
+test_07_assign_material (test_09_Primitives2D.TestSequenceFunctionsGenerate) ... ok
+test_07_assign_material_ceramic (test_09_Primitives2D.TestSequenceFunctionsGenerate) ... ok
+test_chamfer_vertex (test_09_Primitives2D.TestSequenceFunctionsGenerate) ... ok
+test_fillet_vertex (test_09_Primitives2D.TestSequenceFunctionsGenerate) ... ok
+test_01_set_globals (test_09_VariableManager.TestSequenceFunctionsGenerate) ... ok
+test_01_set_var_simple (test_09_VariableManager.TestSequenceFunctionsGenerate) ... ok
+test_02_test_formula (test_09_VariableManager.TestSequenceFunctionsGenerate) ... ok
+test_03_test_evaluated_value (test_09_VariableManager.TestSequenceFunctionsGenerate) ... ok
+test_04_set_variable (test_09_VariableManager.TestSequenceFunctionsGenerate) ... ok
+test_05_variable_class (test_09_VariableManager.TestSequenceFunctionsGenerate) ... ok
+test_06_multiplication (test_09_VariableManager.TestSequenceFunctionsGenerate) ... ERROR
+test_07_addition (test_09_VariableManager.TestSequenceFunctionsGenerate) ... ok
+test_08_subtraction (test_09_VariableManager.TestSequenceFunctionsGenerate) ... ok
+test_09_specify_units (test_09_VariableManager.TestSequenceFunctionsGenerate) ... ERROR
+test_10_division (test_09_VariableManager.TestSequenceFunctionsGenerate) ... ok
+test_11_delete_variable (test_09_VariableManager.TestSequenceFunctionsGenerate) ... ok
+test_01A_check_setup (test_10_HFSS.TestSequenceFunctionsGenerate) ... ok
+test_01_save (test_10_HFSS.TestSequenceFunctionsGenerate) ... ok
+test_02_create_primitive (test_10_HFSS.TestSequenceFunctionsGenerate) ... ok
+test_03_2_assign_material (test_10_HFSS.TestSequenceFunctionsGenerate) ... ok
+test_04_assign_coating (test_10_HFSS.TestSequenceFunctionsGenerate) ... ERROR
+test_05_create_wave_port_from_sheets (test_10_HFSS.TestSequenceFunctionsGenerate) ... ok
+test_06B_setup_exists (test_10_HFSS.TestSequenceFunctionsGenerate) ... ok
+test_06a_create_sweep (test_10_HFSS.TestSequenceFunctionsGenerate) ... ok
+test_06b_create_linear_count_sweep (test_10_HFSS.TestSequenceFunctionsGenerate) ... ok
+test_06c_create_linear_step_sweep (test_10_HFSS.TestSequenceFunctionsGenerate) ... ok
+test_06z_validate_setup (test_10_HFSS.TestSequenceFunctionsGenerate) ... ok
+test_07_set_power (test_10_HFSS.TestSequenceFunctionsGenerate) ... ok
+test_08_create_circuit_port_from_edges (test_10_HFSS.TestSequenceFunctionsGenerate) ... ok
+test_09_create_waveport_on_objects (test_10_HFSS.TestSequenceFunctionsGenerate) ... ok
+test_09a_create_waveport_on_true_surface_objects (test_10_HFSS.TestSequenceFunctionsGenerate) ... ok
+test_10_create_lumped_on_objects (test_10_HFSS.TestSequenceFunctionsGenerate) ... ok
+test_11_create_circuit_on_objects (test_10_HFSS.TestSequenceFunctionsGenerate) ... ok
+test_12_create_perfects_on_objects (test_10_HFSS.TestSequenceFunctionsGenerate) ... ok
+test_13_create_impedance_on_objects (test_10_HFSS.TestSequenceFunctionsGenerate) ... ok
+test_14_create_lumpedrlc_on_objects (test_10_HFSS.TestSequenceFunctionsGenerate) ... ok
+test_15_create_perfects_on_sheets (test_10_HFSS.TestSequenceFunctionsGenerate) ... ok
+test_16_create_impedance_on_sheets (test_10_HFSS.TestSequenceFunctionsGenerate) ... ok
+test_17B_update_assignment (test_10_HFSS.TestSequenceFunctionsGenerate) ... ok
+test_17_create_lumpedrlc_on_sheets (test_10_HFSS.TestSequenceFunctionsGenerate) ... ok
+test_18_create_sources_on_objects (test_10_HFSS.TestSequenceFunctionsGenerate) ... ok
+test_19_create_lumped_on_sheet (test_10_HFSS.TestSequenceFunctionsGenerate) ... ok
+test_20_create_voltage_on_sheet (test_10_HFSS.TestSequenceFunctionsGenerate) ... ok
+test_21_create_open_region (test_10_HFSS.TestSequenceFunctionsGenerate) ... ok
+test_22_create_length_mesh (test_10_HFSS.TestSequenceFunctionsGenerate) ... ok
+test_23_create_skin_depth (test_10_HFSS.TestSequenceFunctionsGenerate) ... ok
+test_24_create_curvilinear (test_10_HFSS.TestSequenceFunctionsGenerate) ... ok
+test_25_create_parametrics (test_10_HFSS.TestSequenceFunctionsGenerate) ... ok
+test_26_create_optimization (test_10_HFSS.TestSequenceFunctionsGenerate) ... ok
+test_27_create_doe (test_10_HFSS.TestSequenceFunctionsGenerate) ... ok
+test_28_create_dx (test_10_HFSS.TestSequenceFunctionsGenerate) ... ok
+test_29_create_sensitivity (test_10_HFSS.TestSequenceFunctionsGenerate) ... ok
+test_29_create_statistical (test_10_HFSS.TestSequenceFunctionsGenerate) ... ok
+test_30_assign_initial_mesh (test_10_HFSS.TestSequenceFunctionsGenerate) ... ok
+test_31_create_microstrip_port (test_10_HFSS.TestSequenceFunctionsGenerate) ... ERROR
+test_32_get_property_value (test_10_HFSS.TestSequenceFunctionsGenerate) ... ERROR
+test_33_copy_solid_bodies (test_10_HFSS.TestSequenceFunctionsGenerate) ... ok
+test_34_object_material_properties (test_10_HFSS.TestSequenceFunctionsGenerate) ... ok
+test_35_set_export_touchstone (test_10_HFSS.TestSequenceFunctionsGenerate) ... ok
+test_36_assign_radiation_to_objects (test_10_HFSS.TestSequenceFunctionsGenerate) ... ok
+test_37_assign_radiation_to_objects (test_10_HFSS.TestSequenceFunctionsGenerate) ... ok
+test_38_get_all_sources (test_10_HFSS.TestSequenceFunctionsGenerate) ... ok
+test_39_set_source_contexts (test_10_HFSS.TestSequenceFunctionsGenerate) ... ok
+test_40_assign_current_source_to_sheet (test_10_HFSS.TestSequenceFunctionsGenerate) ... ok
+test_add_mesh_operations (test_3dlayout_edb.TestSequenceFunctionsGenerate) ... ok
+test_get_components (test_3dlayout_edb.TestSequenceFunctionsGenerate) ... ok
+test_get_geometries (test_3dlayout_edb.TestSequenceFunctionsGenerate) ... ok
+test_get_pins (test_3dlayout_edb.TestSequenceFunctionsGenerate) ... ERROR
+test_01_creatematerial (test_3dlayout_modeler.TestSequenceFunctionsGenerate) ... ok
+test_02_add_layer_to_stackup (test_3dlayout_modeler.TestSequenceFunctionsGenerate) ... ok
+test_03_create_circle (test_3dlayout_modeler.TestSequenceFunctionsGenerate) ... ok
+test_04_create_create_rectangle (test_3dlayout_modeler.TestSequenceFunctionsGenerate) ... ok
+test_05_subtract (test_3dlayout_modeler.TestSequenceFunctionsGenerate) ... ok
+test_06_unite (test_3dlayout_modeler.TestSequenceFunctionsGenerate) ... ok
+test_07_intersect (test_3dlayout_modeler.TestSequenceFunctionsGenerate) ... ok
+test_08_objectlist (test_3dlayout_modeler.TestSequenceFunctionsGenerate) ... ok
+test_09_modify_padstack (test_3dlayout_modeler.TestSequenceFunctionsGenerate) ... ok
+test_10_create_padstack (test_3dlayout_modeler.TestSequenceFunctionsGenerate) ... ok
+test_11_create_via (test_3dlayout_modeler.TestSequenceFunctionsGenerate) ... ok
+test_12_create_line (test_3dlayout_modeler.TestSequenceFunctionsGenerate) ... ok
+test_13a_create_edge_port (test_3dlayout_modeler.TestSequenceFunctionsGenerate) ... ok
+test_14_create_setup (test_3dlayout_modeler.TestSequenceFunctionsGenerate) ... ok
+test_14a_create_coaxial_port (test_3dlayout_modeler.TestSequenceFunctionsGenerate) ... ok
+test_15_edit_setup (test_3dlayout_modeler.TestSequenceFunctionsGenerate) ... ok
+test_16_disable_enable_setup (test_3dlayout_modeler.TestSequenceFunctionsGenerate) ... ok
+test_17_get_setup (test_3dlayout_modeler.TestSequenceFunctionsGenerate) ... ok
+test_18_add_sweep (test_3dlayout_modeler.TestSequenceFunctionsGenerate) ... ok
+test_19A_analyse_setup (test_3dlayout_modeler.TestSequenceFunctionsGenerate) ... ok
+test_19B_export_touchsthone (test_3dlayout_modeler.TestSequenceFunctionsGenerate) ... ERROR
+test_19_export_to_hfss (test_3dlayout_modeler.TestSequenceFunctionsGenerate) ... ok
+test_19_validate (test_3dlayout_modeler.TestSequenceFunctionsGenerate) ... ok
+test_20_set_export_touchstone (test_3dlayout_modeler.TestSequenceFunctionsGenerate) ... ok
+test_21_get_all_sparameter_list (test_3dlayout_modeler.TestSequenceFunctionsGenerate) ... ok
+test_21_variables (test_3dlayout_modeler.TestSequenceFunctionsGenerate) ... ok
+test_22_get_all_return_loss_list (test_3dlayout_modeler.TestSequenceFunctionsGenerate) ... ok
+test_23_get_all_insertion_loss_list (test_3dlayout_modeler.TestSequenceFunctionsGenerate) ... ok
+test_24_get_next_xtalk_list (test_3dlayout_modeler.TestSequenceFunctionsGenerate) ... ok
+test_25_get_fext_xtalk_list (test_3dlayout_modeler.TestSequenceFunctionsGenerate) ... ok
+test_create_pin_port (test_3dlayout_modeler.TestSequenceFunctionsGenerate) ... ok
+test_create_scattering (test_3dlayout_modeler.TestSequenceFunctionsGenerate) ... ok
+test_duplicate (test_3dlayout_modeler.TestSequenceFunctionsGenerate) ... ok
+test_duplicate_material (test_3dlayout_modeler.TestSequenceFunctionsGenerate) ... ok
+test_expand (test_3dlayout_modeler.TestSequenceFunctionsGenerate) ... ok
+test_heal (test_3dlayout_modeler.TestSequenceFunctionsGenerate) ... ok
+test_sweep_not_supported_type (test_3dlayout_modeler.TestSequenceFunctionsGenerate) ... ok
+test_sweep_string_linear_step (test_3dlayout_modeler.TestSequenceFunctionsGenerate) ... ok
+test_sweep_string_log_scale (test_3dlayout_modeler.TestSequenceFunctionsGenerate) ... ok
+test_01_create_inductor (test_Circuit.TestSequenceFunctionsGenerate) ... ok
+test_02_create_resistor (test_Circuit.TestSequenceFunctionsGenerate) ... ok
+test_03_create_capacitor (test_Circuit.TestSequenceFunctionsGenerate) ... ok
+test_04_getpin_names (test_Circuit.TestSequenceFunctionsGenerate) ... ok
+test_05_getpin_location (test_Circuit.TestSequenceFunctionsGenerate) ... ok
+test_06_add_3dlayout_component (test_Circuit.TestSequenceFunctionsGenerate) ... ok
+test_07_add_hfss_component (test_Circuit.TestSequenceFunctionsGenerate) ... ok
+test_08_import_mentor_netlist (test_Circuit.TestSequenceFunctionsGenerate) ... ERROR
+test_09_import_netlist (test_Circuit.TestSequenceFunctionsGenerate) ... ok
+test_10_import_touchstone (test_Circuit.TestSequenceFunctionsGenerate) ... ok
+test_11_export_fullwave (test_Circuit.TestSequenceFunctionsGenerate) ... ok
+test_12_connect_components (test_Circuit.TestSequenceFunctionsGenerate) ... ok
+test_13_properties (test_Circuit.TestSequenceFunctionsGenerate) ... ok
+test_14_move (test_Circuit.TestSequenceFunctionsGenerate) ... ok
+test_15_rotate (test_Circuit.TestSequenceFunctionsGenerate) ... ok
+test_16_read_touchstone (test_Circuit.TestSequenceFunctionsGenerate) ... ok
+test_17_create_setup (test_Circuit.TestSequenceFunctionsGenerate) ... ok
+test_18_export_touchstone (test_Circuit.TestSequenceFunctionsGenerate) ... ok
+test_01_save (test_Circuit_DynamicLink.TestSequenceFunctionsGenerate) ... ok
+test_02_add_subcircuits (test_Circuit_DynamicLink.TestSequenceFunctionsGenerate) ... ok
+test_03_assign_excitations (test_Circuit_DynamicLink.TestSequenceFunctionsGenerate) ... ok
+test_04_setup (test_Circuit_DynamicLink.TestSequenceFunctionsGenerate) ... ok
+test_download_antenna_array (test_downloads.TestSequenceFunctionsGenerate) ... ok
+test_download_antenna_sherlock (test_downloads.TestSequenceFunctionsGenerate) ... ok
+test_download_edb (test_downloads.TestSequenceFunctionsGenerate) ... ok
+test_download_netlist (test_downloads.TestSequenceFunctionsGenerate) ... ok
+test_download_sbr (test_downloads.TestSequenceFunctionsGenerate) ... ok
+test_download_touchstone (test_downloads.TestSequenceFunctionsGenerate) ... ok
+test_objects (test_emit.TestSequenceFunctionsGenerate) ... ok
+test_List2list (test_GeometryOperators.TestSequenceFunctionsGenerate) ... ok
+test_arrays_positions_sum (test_GeometryOperators.TestSequenceFunctionsGenerate) ... ok
+test_atan2 (test_GeometryOperators.TestSequenceFunctionsGenerate) ... ok
+test_axis_angle_to_quaternion (test_GeometryOperators.TestSequenceFunctionsGenerate) ... ok
+test_axis_to_euler_zxz (test_GeometryOperators.TestSequenceFunctionsGenerate) ... ok
+test_axis_to_euler_zyz (test_GeometryOperators.TestSequenceFunctionsGenerate) ... ok
+test_cs_axis_str (test_GeometryOperators.TestSequenceFunctionsGenerate) ... ok
+test_cs_plane_str (test_GeometryOperators.TestSequenceFunctionsGenerate) ... ok
+test_deg2rad (test_GeometryOperators.TestSequenceFunctionsGenerate) ... ok
+test_distance_vector (test_GeometryOperators.TestSequenceFunctionsGenerate) ... ok
+test_draft_type_str (test_GeometryOperators.TestSequenceFunctionsGenerate) ... ok
+test_euler_zxz_to_quaternion (test_GeometryOperators.TestSequenceFunctionsGenerate) ... ok
+test_euler_zyz_to_quaternion (test_GeometryOperators.TestSequenceFunctionsGenerate) ... ok
+test_find_point_on_plane (test_GeometryOperators.TestSequenceFunctionsGenerate) ... ok
+test_get_mid_point (test_GeometryOperators.TestSequenceFunctionsGenerate) ... ok
+test_get_polygon_centroid (test_GeometryOperators.TestSequenceFunctionsGenerate) ... ok
+test_get_triangle_area (test_GeometryOperators.TestSequenceFunctionsGenerate) ... ok
+test_is_between_points (test_GeometryOperators.TestSequenceFunctionsGenerate) ... ok
+test_is_parallel (test_GeometryOperators.TestSequenceFunctionsGenerate) ... ok
+test_is_projection_inside (test_GeometryOperators.TestSequenceFunctionsGenerate) ... ok
+test_normalize_vector (test_GeometryOperators.TestSequenceFunctionsGenerate) ... ok
+test_parallel_coeff (test_GeometryOperators.TestSequenceFunctionsGenerate) ... ok
+test_parse_dim_arg (test_GeometryOperators.TestSequenceFunctionsGenerate) ... ok
+test_pointing_to_axis (test_GeometryOperators.TestSequenceFunctionsGenerate) ... ok
+test_points_distance (test_GeometryOperators.TestSequenceFunctionsGenerate) ... ok
+test_q_prod (test_GeometryOperators.TestSequenceFunctionsGenerate) ... ok
+test_q_rotation (test_GeometryOperators.TestSequenceFunctionsGenerate) ... ok
+test_q_rotation_inv (test_GeometryOperators.TestSequenceFunctionsGenerate) ... ok
+test_quaternion_to_axis (test_GeometryOperators.TestSequenceFunctionsGenerate) ... ok
+test_quaternion_to_axis_angle (test_GeometryOperators.TestSequenceFunctionsGenerate) ... ok
+test_quaternion_to_euler_zxz (test_GeometryOperators.TestSequenceFunctionsGenerate) ... ok
+test_quaternion_to_euler_zyz (test_GeometryOperators.TestSequenceFunctionsGenerate) ... ok
+test_rad2deg (test_GeometryOperators.TestSequenceFunctionsGenerate) ... ok
+test_v_angle (test_GeometryOperators.TestSequenceFunctionsGenerate) ... ok
+test_v_cross (test_GeometryOperators.TestSequenceFunctionsGenerate) ... ok
+test_v_dot (test_GeometryOperators.TestSequenceFunctionsGenerate) ... ok
+test_v_norm (test_GeometryOperators.TestSequenceFunctionsGenerate) ... ok
+test_v_points (test_GeometryOperators.TestSequenceFunctionsGenerate) ... ok
+test_v_prod (test_GeometryOperators.TestSequenceFunctionsGenerate) ... ok
+test_v_sub (test_GeometryOperators.TestSequenceFunctionsGenerate) ... ok
+test_v_sum (test_GeometryOperators.TestSequenceFunctionsGenerate) ... ok
+test_01_save (test_Icepak.TestSequenceFunctionsGenerate) ... ok
+test_02A_find_top (test_Icepak.TestSequenceFunctionsGenerate) ... ok
+test_02_ImportPCB (test_Icepak.TestSequenceFunctionsGenerate) ... ok
+test_03_AssignPCBRegion (test_Icepak.TestSequenceFunctionsGenerate) ... ok
+test_04_ImportGroup (test_Icepak.TestSequenceFunctionsGenerate) ... ok
+test_05_EMLoss (test_Icepak.TestSequenceFunctionsGenerate) ... ERROR
+test_07_ExportStepForWB (test_Icepak.TestSequenceFunctionsGenerate) ... ok
+test_08_Setup (test_Icepak.TestSequenceFunctionsGenerate) ... ok
+test_08b_existing_sweeps (test_Icepak.TestSequenceFunctionsGenerate) ... ok
+test_09_point_monitor (test_Icepak.TestSequenceFunctionsGenerate) ... ok
+test_10_DesignSettings (test_Icepak.TestSequenceFunctionsGenerate) ... ok
+test_11_mesh_level (test_Icepak.TestSequenceFunctionsGenerate) ... ok
+test_12_AssignMeshOperation (test_Icepak.TestSequenceFunctionsGenerate) ... ok
+test_13_assign_openings (test_Icepak.TestSequenceFunctionsGenerate) ... ok
+test_14_edit_design_settings (test_Icepak.TestSequenceFunctionsGenerate) ... ok
+test_15_insert_new_icepak (test_Icepak.TestSequenceFunctionsGenerate) ... ok
+test_16_check_priorities (test_Icepak.TestSequenceFunctionsGenerate) ... ok
+test_16_create_output_variable (test_Icepak.TestSequenceFunctionsGenerate) ... ok
+test_17_analyse (test_Icepak.TestSequenceFunctionsGenerate) ... ok
+test_17_get_output_variable (test_Icepak.TestSequenceFunctionsGenerate) ... ok
+test_18_export_summary (test_Icepak.TestSequenceFunctionsGenerate) ... ok
+test_19_eval_htc (test_Icepak.TestSequenceFunctionsGenerate) ... ok
+test_20_eval_tempc (test_Icepak.TestSequenceFunctionsGenerate) ... ok
+test_21_ExportFLDFil (test_Icepak.TestSequenceFunctionsGenerate) ... ok
+test_22_create_source_blocks_from_list (test_Icepak.TestSequenceFunctionsGenerate) ... ok
+test_23_create_network_blocks (test_Icepak.TestSequenceFunctionsGenerate) ... ok
+test_24_get_boundary_property_value (test_Icepak.TestSequenceFunctionsGenerate) ... ok
+test_25_copy_solid_bodies (test_Icepak.TestSequenceFunctionsGenerate) ... ok
+test_26_get_all_conductors (test_Icepak.TestSequenceFunctionsGenerate) ... ok
+test_27_get_all_dielectrics (test_Icepak.TestSequenceFunctionsGenerate) ... ok
+test_28_assign_surface_material (test_Icepak.TestSequenceFunctionsGenerate) ... ok
+test_33_create_region (test_Icepak.TestSequenceFunctionsGenerate) ... ok
+test_34_automatic_mesh_pcb (test_Icepak.TestSequenceFunctionsGenerate) ... ok
+test_35_automatic_mesh_3d (test_Icepak.TestSequenceFunctionsGenerate) ... ok
+test_88_create_heat_sink (test_Icepak.TestSequenceFunctionsGenerate) ... ok
+test_create_source (test_Icepak.TestSequenceFunctionsGenerate) ... ok
+test_poin_monitor (test_Icepak.TestSequenceFunctionsGenerate) ... ok
+test_surface_monitor (test_Icepak.TestSequenceFunctionsGenerate) ... ok
+test_add_material_sweep (test_Materials.TestSequenceFunctionsGenerate) ... ok
+test_create_material (test_Materials.TestSequenceFunctionsGenerate) ... ok
+test_create_thermal_modifier (test_Materials.TestSequenceFunctionsGenerate) ... ok
+test_delete_material (test_Materials.TestSequenceFunctionsGenerate) ... ok
+test_duplicate_material (test_Materials.TestSequenceFunctionsGenerate) ... ok
+test_export_materials (test_Materials.TestSequenceFunctionsGenerate) ... ok
+test_import_materials (test_Materials.TestSequenceFunctionsGenerate) ... ok
+test_surface_material (test_Materials.TestSequenceFunctionsGenerate) ... ok
+test_vaacum (test_Materials.TestSequenceFunctionsGenerate) ... ok
+test_03_assign_initial_mesh_from_slider (test_Maxwell2D.TestSequenceFunctionsGenerate) ... ok
+test_04_create_winding (test_Maxwell2D.TestSequenceFunctionsGenerate) ... ok
+test_05_create_vector_potential (test_Maxwell2D.TestSequenceFunctionsGenerate) ... ok
+test_06a_create_setup (test_Maxwell2D.TestSequenceFunctionsGenerate) ... ok
+test_08_generate_design_data (test_Maxwell2D.TestSequenceFunctionsGenerate) ... ok
+test_assign_force (test_Maxwell2D.TestSequenceFunctionsGenerate) ... ok
+test_assign_torque (test_Maxwell2D.TestSequenceFunctionsGenerate) ... ok
+test_read_design_data (test_Maxwell2D.TestSequenceFunctionsGenerate) ... ok
+test_01_create_primitive (test_Maxwell3D.TestSequenceFunctionsGenerate) ... ok
+test_02_create_coil (test_Maxwell3D.TestSequenceFunctionsGenerate) ... ok
+test_03_coordinate_system (test_Maxwell3D.TestSequenceFunctionsGenerate) ... ok
+test_04_coil_terminal (test_Maxwell3D.TestSequenceFunctionsGenerate) ... ok
+test_05_draw_region (test_Maxwell3D.TestSequenceFunctionsGenerate) ... ok
+test_05_winding (test_Maxwell3D.TestSequenceFunctionsGenerate) ... ok
+test_06_eddycurrent (test_Maxwell3D.TestSequenceFunctionsGenerate) ... ok
+test_07_setup (test_Maxwell3D.TestSequenceFunctionsGenerate) ... ok
+test_22_create_length_mesh (test_Maxwell3D.TestSequenceFunctionsGenerate) ... ok
+test_23_create_skin_depth (test_Maxwell3D.TestSequenceFunctionsGenerate) ... ok
+test_24_create_curvilinear (test_Maxwell3D.TestSequenceFunctionsGenerate) ... ok
+test_24_create_edge_cut (test_Maxwell3D.TestSequenceFunctionsGenerate) ... ok
+test_24_density_control (test_Maxwell3D.TestSequenceFunctionsGenerate) ... ok
+test_25_assign_initial_mesh (test_Maxwell3D.TestSequenceFunctionsGenerate) ... ok
+test_26_create_udp (test_Maxwell3D.TestSequenceFunctionsGenerate) ... ok
+test_27_create_udm (test_Maxwell3D.TestSequenceFunctionsGenerate) ... ok
+test_assign_force (test_Maxwell3D.TestSequenceFunctionsGenerate) ... ok
+test_assign_torque (test_Maxwell3D.TestSequenceFunctionsGenerate) ... ok
+test_Mechanical (__builtin__.ModuleImportFailure) ... ERROR
+test_01_Animate_plt (test_PostProcessing.TestSequenceFunctionsGenerate) ... ERROR
+test_01_Field_Ploton_cutplanedesignname (test_PostProcessing.TestSequenceFunctionsGenerate) ... ERROR
+test_02_export_fields (test_PostProcessing.TestSequenceFunctionsGenerate) ... ok
+test_03_create_scattering (test_PostProcessing.TestSequenceFunctionsGenerate) ... ok
+test_03_get_solution_data (test_PostProcessing.TestSequenceFunctionsGenerate) ... ok
+test_04_export_touchstone (test_PostProcessing.TestSequenceFunctionsGenerate) ... ok
+test_05_export_report_to_jpg (test_PostProcessing.TestSequenceFunctionsGenerate) ... ok
+test_06_export_report_to_csv (test_PostProcessing.TestSequenceFunctionsGenerate) ... ok
+test_07_copydata (test_PostProcessing.TestSequenceFunctionsGenerate) ... ok
+test_07_export_fields_from_Calculator (test_PostProcessing.TestSequenceFunctionsGenerate) ... ok
+test_08_manipulate_report (test_PostProcessing.TestSequenceFunctionsGenerate) ... ok
+test_09_manipulate_report (test_PostProcessing.TestSequenceFunctionsGenerate) ... ok
+test_10_delete_report (test_PostProcessing.TestSequenceFunctionsGenerate) ... ok
+test_11_get_efields (test_PostProcessing.TestSequenceFunctionsGenerate) ... ERROR
+test_12_steal_on_focus (test_PostProcessing.TestSequenceFunctionsGenerate) ... ok
+test_13_export_model_picture (test_PostProcessing.TestSequenceFunctionsGenerate) ... ok
+test_nb_display (test_PostProcessing.TestSequenceFunctionsGenerate) ... ok
+test_01_save (test_Q2D.TestSequenceFunctionsGenerate) ... ok
+test_02_create_primitive (test_Q2D.TestSequenceFunctionsGenerate) ... ok
+test_06a_create_setup (test_Q2D.TestSequenceFunctionsGenerate) ... ok
+test_01_save (test_Q3D.TestSequenceFunctionsGenerate) ... ok
+test_02_create_primitive (test_Q3D.TestSequenceFunctionsGenerate) ... ok
+test_03_get_properties (test_Q3D.TestSequenceFunctionsGenerate) ... ok
+test_06a_create_setup (test_Q3D.TestSequenceFunctionsGenerate) ... ok
+test_06b_create_setup (test_Q3D.TestSequenceFunctionsGenerate) ... ok
+test_07B_create_source_tosheet (test_Q3D.TestSequenceFunctionsGenerate) ... ok
+test_07_create_source_sinks (test_Q3D.TestSequenceFunctionsGenerate) ... ok
+test_08_create_faceted_bondwire (test_Q3D.TestSequenceFunctionsGenerate) ... ok
+test_09_autoidentify (test_Q3D.TestSequenceFunctionsGenerate) ... ok
+test_10_q2d (test_Q3D.TestSequenceFunctionsGenerate) ... ok
+test_01_save (test_RMxprt.TestSequenceFunctionsGenerate) ... ok
+test_02_changeesolution (test_RMxprt.TestSequenceFunctionsGenerate) ... ok
+test_06a_create_setup (test_RMxprt.TestSequenceFunctionsGenerate) ... ok
+test_01A_open_source (test_SBR.TestSequenceFunctionsGenerate) ... ok
+test_01_create_hfss_setup (test_Setup.TestSequenceFunctionsGenerate) ... ok
+test_01b_create_hfss_sweep (test_Setup.TestSequenceFunctionsGenerate) ... ok
+test_02_create_circuit_setup (test_Setup.TestSequenceFunctionsGenerate) ... ok
+test_01_create_resistor (test_Simplorer.TestSequenceFunctionsGenerate) ... ok
+test_02_create_inductor (test_Simplorer.TestSequenceFunctionsGenerate) ... ok
+test_03_create_capacitor (test_Simplorer.TestSequenceFunctionsGenerate) ... ok
+test_04_create_diode (test_Simplorer.TestSequenceFunctionsGenerate) ... ok
+test_05_create_npn (test_Simplorer.TestSequenceFunctionsGenerate) ... ok
+test_06_create_pnp (test_Simplorer.TestSequenceFunctionsGenerate) ... ok
+test_07_import_netlist (test_Simplorer.TestSequenceFunctionsGenerate) ... ok
+test_08_set_hmax (test_Simplorer.TestSequenceFunctionsGenerate) ... ok
+test_09_set_hmin (test_Simplorer.TestSequenceFunctionsGenerate) ... ok
+test_10_set_hmin (test_Simplorer.TestSequenceFunctionsGenerate) ... ok
+test_11_set_end_time (test_Simplorer.TestSequenceFunctionsGenerate) ... ok
+test_01_find_by_name (test_zEDB.TestSequenceFunctionsGenerate) ... ok
+test_02_get_properties (test_zEDB.TestSequenceFunctionsGenerate) ... ok
+test_03_get_primitives (test_zEDB.TestSequenceFunctionsGenerate) ... ok
+test_04_get_stackup (test_zEDB.TestSequenceFunctionsGenerate) ... ok
+test_05_get_signal_layers (test_zEDB.TestSequenceFunctionsGenerate) ... ok
+test_06_component_lists (test_zEDB.TestSequenceFunctionsGenerate) ... ok
+test_07_vias_creation (test_zEDB.TestSequenceFunctionsGenerate) ... ok
+test_08_nets_query (test_zEDB.TestSequenceFunctionsGenerate) ... ok
+test_09_assign_rlc (test_zEDB.TestSequenceFunctionsGenerate) ... ok
+test_10_add_layer (test_zEDB.TestSequenceFunctionsGenerate) ... ok
+test_11_add_dielectric (test_zEDB.TestSequenceFunctionsGenerate) ... ok
+test_12_add_conductor (test_zEDB.TestSequenceFunctionsGenerate) ... ok
+test_13add_djordievic (test_zEDB.TestSequenceFunctionsGenerate) ... ok
+test_14_add_debye (test_zEDB.TestSequenceFunctionsGenerate) ... ok
+test_15_update_layer (test_zEDB.TestSequenceFunctionsGenerate) ... ok
+test_16_remove_layer (test_zEDB.TestSequenceFunctionsGenerate) ... ok
+test_17_components (test_zEDB.TestSequenceFunctionsGenerate) ... ok
+test_18_components_from_net (test_zEDB.TestSequenceFunctionsGenerate) ... ok
+test_19_resistors (test_zEDB.TestSequenceFunctionsGenerate) ... ok
+test_20_capacitors (test_zEDB.TestSequenceFunctionsGenerate) ... ok
+test_21_inductors (test_zEDB.TestSequenceFunctionsGenerate) ... ok
+test_22_ICs (test_zEDB.TestSequenceFunctionsGenerate) ... ok
+test_23_IOs (test_zEDB.TestSequenceFunctionsGenerate) ... ok
+test_24_Others (test_zEDB.TestSequenceFunctionsGenerate) ... ok
+test_25_Components_by_PartName (test_zEDB.TestSequenceFunctionsGenerate) ... ok
+test_26_get_through_resistor_list (test_zEDB.TestSequenceFunctionsGenerate) ... ok
+test_27_get_rats (test_zEDB.TestSequenceFunctionsGenerate) ... ok
+test_28_get_component_connections (test_zEDB.TestSequenceFunctionsGenerate) ... ok
+test_29_get_power_tree (test_zEDB.TestSequenceFunctionsGenerate) ... ok
+test_30_aedt_pinname_pin_position (test_zEDB.TestSequenceFunctionsGenerate) ... ok
+test_31_get_pins_name_from_net (test_zEDB.TestSequenceFunctionsGenerate) ... ok
+test_32_delete_single_pin_rlc (test_zEDB.TestSequenceFunctionsGenerate) ... ok
+test_33_component_rlc (test_zEDB.TestSequenceFunctionsGenerate) ... ok
+test_34_disable_component (test_zEDB.TestSequenceFunctionsGenerate) ... ok
+test_35_delete_component (test_zEDB.TestSequenceFunctionsGenerate) ... ok
+test_36_create_coax_port (test_zEDB.TestSequenceFunctionsGenerate) ... ok
+test_37_create_siwave_circuit_port (test_zEDB.TestSequenceFunctionsGenerate) ... ok
+test_38_create_siwave_voltage_source (test_zEDB.TestSequenceFunctionsGenerate) ... ok
+test_39_create_siwave_current_source (test_zEDB.TestSequenceFunctionsGenerate) ... ok
+test_40_create_siwave_ac_analsyis (test_zEDB.TestSequenceFunctionsGenerate) ... ok
+test_41_create_siwave_dc_analsyis (test_zEDB.TestSequenceFunctionsGenerate) ... ok
+test_42_get_nets_from_pin_list (test_zEDB.TestSequenceFunctionsGenerate) ... ok
+test_43_mesh_operations (test_zEDB.TestSequenceFunctionsGenerate) ... ok
+test_44_assign_model (test_zEDB.TestSequenceFunctionsGenerate) ... ok
+test_45_delete_net (test_zEDB.TestSequenceFunctionsGenerate) ... ok
+test_46_get_polygons_bounding (test_zEDB.TestSequenceFunctionsGenerate) ... ok
+test_47_get_polygons_bbylayerandnets (test_zEDB.TestSequenceFunctionsGenerate) ... ok
+test_48_get_polygons_points (test_zEDB.TestSequenceFunctionsGenerate) ... ok
+test_49_get_padstack (test_zEDB.TestSequenceFunctionsGenerate) ... ok
+test_50_set_padstack (test_zEDB.TestSequenceFunctionsGenerate) ... ERROR
+test_51_save_edb_as (test_zEDB.TestSequenceFunctionsGenerate) ... ok
+test_52_parametrize_layout (test_zEDB.TestSequenceFunctionsGenerate) ... ok
+test_53_import_bom (test_zEDB.TestSequenceFunctionsGenerate) ... ok
+test_54_create_component_from_pins (test_zEDB.TestSequenceFunctionsGenerate) ... ok
+test_55_create_cutout (test_zEDB.TestSequenceFunctionsGenerate) ... ok
+test_56_rvalue (test_zEDB.TestSequenceFunctionsGenerate) ... ok
+test_57_stackup_limits (test_zEDB.TestSequenceFunctionsGenerate) ... ok
+test_58_create_polygon (test_zEDB.TestSequenceFunctionsGenerate) ... ok
+test_59_create_path (test_zEDB.TestSequenceFunctionsGenerate) ... ok
+test_60_create_outline (test_zEDB.TestSequenceFunctionsGenerate) ... ok
+test_61_create_edb (test_zEDB.TestSequenceFunctionsGenerate) ... ok
+test_62_export_to_hfss (test_zEDB.TestSequenceFunctionsGenerate) ... ok
+test_63_export_to_q3d (test_zEDB.TestSequenceFunctionsGenerate) ... ok
+test_64_export_to_maxwell (test_zEDB.TestSequenceFunctionsGenerate) ... ok
+
+======================================================================
+ERROR: test_21_generate_temp_project_directory (test_01_Design.TestSequenceFunctionsGenerate)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "D:\ansysdev\GIT\repos\pyaedt\_unittest_ironpython\conf_unittest.py", line 21, in test
+    getattr(test_obj, test_function)()
+  File "D:\ansysdev\GIT\repos\pyaedt\_unittest\test_01_Design.py", line 212, in test_21_generate_temp_project_directory
+    assert os.path.exists(proj_dir4)
+  File "C:\Program Files\AnsysEM\AnsysEM21.1\Win64\common\IronPython\Lib\genericpath.py", line 18, in exists
+    os.stat(path)
+TypeError: expected str, got bool
+
+======================================================================
+ERROR: test_create_circle (test_02_2D_modeler.TestSequenceFunctionsGenerate)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "D:\ansysdev\GIT\repos\pyaedt\_unittest_ironpython\conf_unittest.py", line 21, in test
+    getattr(test_obj, test_function)()
+  File "D:\ansysdev\GIT\repos\pyaedt\_unittest\test_02_2D_modeler.py", line 52, in test_create_circle
+    assert math.isclose(circle1.faces[0].area, math.pi * 3.0 * 3.0)
+AttributeError: 'module' object has no attribute 'isclose'
+
+======================================================================
+ERROR: test_create_ellipse (test_02_2D_modeler.TestSequenceFunctionsGenerate)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "D:\ansysdev\GIT\repos\pyaedt\_unittest_ironpython\conf_unittest.py", line 21, in test
+    getattr(test_obj, test_function)()
+  File "D:\ansysdev\GIT\repos\pyaedt\_unittest\test_02_2D_modeler.py", line 66, in test_create_ellipse
+    assert math.isclose(ellipse2.faces[0].area, math.pi * 4.0 * 4.0 * 0.2)
+AttributeError: 'module' object has no attribute 'isclose'
+
+======================================================================
+ERROR: test_create_rectangle (test_02_2D_modeler.TestSequenceFunctionsGenerate)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "D:\ansysdev\GIT\repos\pyaedt\_unittest_ironpython\conf_unittest.py", line 21, in test
+    getattr(test_obj, test_function)()
+  File "D:\ansysdev\GIT\repos\pyaedt\_unittest\test_02_2D_modeler.py", line 38, in test_create_rectangle
+    assert math.isclose(rect1.faces[0].area, 3.0 * 4.0)
+AttributeError: 'module' object has no attribute 'isclose'
+
+======================================================================
+ERROR: test_create_regular_polygon (test_02_2D_modeler.TestSequenceFunctionsGenerate)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "D:\ansysdev\GIT\repos\pyaedt\_unittest_ironpython\conf_unittest.py", line 21, in test
+    getattr(test_obj, test_function)()
+  File "D:\ansysdev\GIT\repos\pyaedt\_unittest\test_02_2D_modeler.py", line 80, in test_create_regular_polygon
+    assert math.isclose(pg1.faces[0].area, 10.392304845413264)
+AttributeError: 'module' object has no attribute 'isclose'
+
+======================================================================
+ERROR: test_35_activate_variable_for_sensitivity (test_02_3D_modeler.TestSequenceFunctionsGenerate)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "D:\ansysdev\GIT\repos\pyaedt\_unittest_ironpython\conf_unittest.py", line 21, in test
+    getattr(test_obj, test_function)()
+  File "D:\ansysdev\GIT\repos\pyaedt\_unittest\test_02_3D_modeler.py", line 245, in test_35_activate_variable_for_sensitivity
+    assert self.aedtapp.activate_variable_sensitivity("test_opti")
+  File "D:\ansysdev\Simulation\PersonalLib\pyaedt\generic\general_methods.py", line 113, in inner_function
+    return func(*args, **kwargs)
+  File "D:\ansysdev\Simulation\PersonalLib\pyaedt\application\Design.py", line 1353, in activate_variable_sensitivity
+    self.odesign.ChangeProperty(arg)
+SystemError: Object reference not set to an instance of an object.
+
+======================================================================
+ERROR: test_35_activate_variable_for_statistical (test_02_3D_modeler.TestSequenceFunctionsGenerate)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "D:\ansysdev\GIT\repos\pyaedt\_unittest_ironpython\conf_unittest.py", line 21, in test
+    getattr(test_obj, test_function)()
+  File "D:\ansysdev\GIT\repos\pyaedt\_unittest\test_02_3D_modeler.py", line 251, in test_35_activate_variable_for_statistical
+    assert self.aedtapp.activate_variable_statistical("test_opti")
+  File "D:\ansysdev\Simulation\PersonalLib\pyaedt\generic\general_methods.py", line 113, in inner_function
+    return func(*args, **kwargs)
+  File "D:\ansysdev\Simulation\PersonalLib\pyaedt\application\Design.py", line 1299, in activate_variable_statistical
+    self.odesign.ChangeProperty(arg)
+SystemError: Object reference not set to an instance of an object.
+
+======================================================================
+ERROR: test_35_activate_variable_for_tuning (test_02_3D_modeler.TestSequenceFunctionsGenerate)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "D:\ansysdev\GIT\repos\pyaedt\_unittest_ironpython\conf_unittest.py", line 21, in test
+    getattr(test_obj, test_function)()
+  File "D:\ansysdev\GIT\repos\pyaedt\_unittest\test_02_3D_modeler.py", line 234, in test_35_activate_variable_for_tuning
+    assert self.aedtapp.activate_variable_tuning("test_opti")
+  File "D:\ansysdev\Simulation\PersonalLib\pyaedt\generic\general_methods.py", line 113, in inner_function
+    return func(*args, **kwargs)
+  File "D:\ansysdev\Simulation\PersonalLib\pyaedt\application\Design.py", line 1380, in activate_variable_tuning
+    self.odesign.ChangeProperty(arg)
+SystemError: Object reference not set to an instance of an object.
+
+======================================================================
+ERROR: test_36_activate_variable_for_optimization (test_02_3D_modeler.TestSequenceFunctionsGenerate)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "D:\ansysdev\GIT\repos\pyaedt\_unittest_ironpython\conf_unittest.py", line 21, in test
+    getattr(test_obj, test_function)()
+  File "D:\ansysdev\GIT\repos\pyaedt\_unittest\test_02_3D_modeler.py", line 239, in test_36_activate_variable_for_optimization
+    assert self.aedtapp.activate_variable_optimization("test_opti")
+  File "D:\ansysdev\Simulation\PersonalLib\pyaedt\generic\general_methods.py", line 113, in inner_function
+    return func(*args, **kwargs)
+  File "D:\ansysdev\Simulation\PersonalLib\pyaedt\application\Design.py", line 1326, in activate_variable_optimization
+    self.odesign.ChangeProperty(arg)
+SystemError: Object reference not set to an instance of an object.
+
+======================================================================
+ERROR: test_00_test_global_messenger (test_06_MessageManager.TestSequenceFunctionsGenerate)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "D:\ansysdev\GIT\repos\pyaedt\_unittest_ironpython\conf_unittest.py", line 21, in test
+    getattr(test_obj, test_function)()
+TypeError: test_00_test_global_messenger() takes exactly 2 arguments (1 given)
+
+======================================================================
+ERROR: test_01_get_messages (test_06_MessageManager.TestSequenceFunctionsGenerate)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "D:\ansysdev\GIT\repos\pyaedt\_unittest_ironpython\conf_unittest.py", line 21, in test
+    getattr(test_obj, test_function)()
+  File "D:\ansysdev\GIT\repos\pyaedt\_unittest_ironpython\conf_unittest.py", line 34, in wrapper
+    func(*args, **kwargs)
+TypeError: test_01_get_messages() takes exactly 2 arguments (1 given)
+
+======================================================================
+ERROR: test_02_messaging (test_06_MessageManager.TestSequenceFunctionsGenerate)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "D:\ansysdev\GIT\repos\pyaedt\_unittest_ironpython\conf_unittest.py", line 21, in test
+    getattr(test_obj, test_function)()
+  File "D:\ansysdev\GIT\repos\pyaedt\_unittest_ironpython\conf_unittest.py", line 34, in wrapper
+    func(*args, **kwargs)
+TypeError: test_02_messaging() takes exactly 2 arguments (1 given)
+
+======================================================================
+ERROR: test_48_import_space_claim (test_08_Primitives3D.TestSequenceFunctionsGenerate)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "D:\ansysdev\GIT\repos\pyaedt\_unittest_ironpython\conf_unittest.py", line 21, in test
+    getattr(test_obj, test_function)()
+  File "D:\ansysdev\GIT\repos\pyaedt\_unittest_ironpython\conf_unittest.py", line 34, in wrapper
+    func(*args, **kwargs)
+  File "D:\ansysdev\GIT\repos\pyaedt\_unittest\conftest.py", line 133, in inner_function
+    ret_val = func(*args, **kwargs)
+  File "D:\ansysdev\GIT\repos\pyaedt\_unittest\test_08_Primitives3D.py", line 818, in test_48_import_space_claim
+    assert self.aedtapp.modeler.import_spaceclaim_document(os.path.join(self.local_scratch.path, scdoc))
+  File "D:\ansysdev\Simulation\PersonalLib\pyaedt\generic\general_methods.py", line 113, in inner_function
+    return func(*args, **kwargs)
+  File "D:\ansysdev\Simulation\PersonalLib\pyaedt\modeler\Modeler.py", line 3076, in import_spaceclaim_document
+    self.oeditor.CreateUserDefinedModel(
+Exception: CreateUserDefinedModel(Structured Array argParameters) -> string(IronPython.Runtime.List) - call failed. Logs or message window might have more details
+
+======================================================================
+ERROR: test_resolve_object (test_08_Primitives3D.TestSequenceFunctionsGenerate)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "D:\ansysdev\GIT\repos\pyaedt\_unittest_ironpython\conf_unittest.py", line 21, in test
+    getattr(test_obj, test_function)()
+  File "D:\ansysdev\GIT\repos\pyaedt\_unittest\conftest.py", line 133, in inner_function
+    ret_val = func(*args, **kwargs)
+  File "D:\ansysdev\GIT\repos\pyaedt\_unittest\test_08_Primitives3D.py", line 94, in test_resolve_object
+    o = self.aedtapp.modeler.primitives.create_box([0, 0, 0], [10, 10, 5], "MyCreatedBox", "Copper")
+  File "D:\ansysdev\Simulation\PersonalLib\pyaedt\generic\general_methods.py", line 113, in inner_function
+    return func(*args, **kwargs)
+  File "D:\ansysdev\Simulation\PersonalLib\pyaedt\modeler\Primitives3D.py", line 78, in create_box
+    new_object_name = self.oeditor.CreateBox(vArg1, vArg2)
+Exception: CreateBox(Structured Array argParamters, Structured Array argAttributes) -> string(IronPython.Runtime.List,IronPython.Runtime.List) - call failed. Logs or message window might have more details
+
+======================================================================
+ERROR: test_06_multiplication (test_09_VariableManager.TestSequenceFunctionsGenerate)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "D:\ansysdev\GIT\repos\pyaedt\_unittest_ironpython\conf_unittest.py", line 21, in test
+    getattr(test_obj, test_function)()
+  File "D:\ansysdev\GIT\repos\pyaedt\_unittest\test_09_VariableManager.py", line 150, in test_06_multiplication
+    assert math.isclose(result_6.numeric_value, 10471.975511965977)
+AttributeError: 'module' object has no attribute 'isclose'
+
+======================================================================
+ERROR: test_09_specify_units (test_09_VariableManager.TestSequenceFunctionsGenerate)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "D:\ansysdev\GIT\repos\pyaedt\_unittest_ironpython\conf_unittest.py", line 21, in test
+    getattr(test_obj, test_function)()
+  File "D:\ansysdev\GIT\repos\pyaedt\_unittest\test_09_VariableManager.py", line 234, in test_09_specify_units
+    assert math.isclose(angle.numeric_value, 57.29577951308232)
+AttributeError: 'module' object has no attribute 'isclose'
+
+======================================================================
+ERROR: test_04_assign_coating (test_10_HFSS.TestSequenceFunctionsGenerate)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "D:\ansysdev\GIT\repos\pyaedt\_unittest_ironpython\conf_unittest.py", line 21, in test
+    getattr(test_obj, test_function)()
+  File "D:\ansysdev\GIT\repos\pyaedt\_unittest_ironpython\conf_unittest.py", line 50, in wrapper
+    self.assertTrue(False, msg="pytest.mark.parametrize not implemented yet")
+AttributeError: Mark instance has no attribute 'assertTrue'
+
+======================================================================
+ERROR: test_31_create_microstrip_port (test_10_HFSS.TestSequenceFunctionsGenerate)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "D:\ansysdev\GIT\repos\pyaedt\_unittest_ironpython\conf_unittest.py", line 21, in test
+    getattr(test_obj, test_function)()
+  File "D:\ansysdev\GIT\repos\pyaedt\_unittest\test_10_HFSS.py", line 355, in test_31_create_microstrip_port
+    port = self.aedtapp.create_wave_port_microstrip_between_objects(gnd.name, ms.name,   portname="MS1", axisdir=1)
+  File "D:\ansysdev\Simulation\PersonalLib\pyaedt\generic\general_methods.py", line 113, in inner_function
+    return func(*args, **kwargs)
+  File "D:\ansysdev\Simulation\PersonalLib\pyaedt\hfss.py", line 1033, in create_wave_port_microstrip_between_objects
+    sheet_name, point0, point1 = self.modeler._create_microstrip_sheet_from_object_closest_edge(startobj,
+  File "D:\ansysdev\Simulation\PersonalLib\pyaedt\generic\general_methods.py", line 113, in inner_function
+    return func(*args, **kwargs)
+  File "D:\ansysdev\Simulation\PersonalLib\pyaedt\modeler\Modeler.py", line 1266, in _create_microstrip_sheet_from_object_closest_edge
+    duplicate_and_unite(sheet_name, [len * coeff, 0, 0], [-len * coeff, 0, 0], dup_factor)
+  File "D:\ansysdev\Simulation\PersonalLib\pyaedt\modeler\Modeler.py", line 1230, in duplicate_and_unite
+    status, list = self.duplicate_along_line(sheet_name, array1, dup_factor + 1)
+  File "D:\ansysdev\Simulation\PersonalLib\pyaedt\generic\general_methods.py", line 113, in inner_function
+    return func(*args, **kwargs)
+  File "D:\ansysdev\Simulation\PersonalLib\pyaedt\modeler\Modeler.py", line 1611, in duplicate_along_line
+    self.oeditor.DuplicateAlongLine(vArg1, vArg2, vArg3)
+Exception: DuplicateAlongLine(Structured Array argSelections, Structured Array argParamters, Structured Array argOptions, [Structured Array argCreateGroup /*optional*/]) -> Structured Array(IronPython.Runtime.List,IronPython.Runtime.List,IronPython.Runtime.List) - call failed. Logs or message window might have more details
+
+======================================================================
+ERROR: test_32_get_property_value (test_10_HFSS.TestSequenceFunctionsGenerate)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "D:\ansysdev\GIT\repos\pyaedt\_unittest_ironpython\conf_unittest.py", line 21, in test
+    getattr(test_obj, test_function)()
+  File "D:\ansysdev\GIT\repos\pyaedt\_unittest\test_10_HFSS.py", line 362, in test_32_get_property_value
+    assert self.aedtapp.get_property_value("BoundarySetup:Coating_inner", "Inf Ground Plane", "Boundary") == "false"
+  File "D:\ansysdev\Simulation\PersonalLib\pyaedt\generic\general_methods.py", line 113, in inner_function
+    return func(*args, **kwargs)
+  File "D:\ansysdev\Simulation\PersonalLib\pyaedt\application\Analysis3D.py", line 185, in get_property_value
+    val = self.odesign.GetPropertyValue(propserv, objectname, property)
+Exception: GetPropertyValue(string tabArg, string serverArg, string propArg) -> string(HfssTab,BoundarySetup:Coating_inner,Inf Ground Plane) - call failed. Logs or message window might have more details
+
+======================================================================
+ERROR: test_get_pins (test_3dlayout_edb.TestSequenceFunctionsGenerate)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "D:\ansysdev\GIT\repos\pyaedt\_unittest_ironpython\conf_unittest.py", line 21, in test
+    getattr(test_obj, test_function)()
+  File "D:\ansysdev\GIT\repos\pyaedt\_unittest\test_3dlayout_edb.py", line 57, in test_get_pins
+    pins = self.aedtapp.modeler.primitives.pins
+  File "D:\ansysdev\Simulation\PersonalLib\pyaedt\modeler\Primitives3DLayout.py", line 136, in pins
+    name = clr.Reference[System.String]()
+NameError: global name 'System' is not defined
+
+======================================================================
+ERROR: test_19B_export_touchsthone (test_3dlayout_modeler.TestSequenceFunctionsGenerate)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "D:\ansysdev\GIT\repos\pyaedt\_unittest_ironpython\conf_unittest.py", line 21, in test
+    getattr(test_obj, test_function)()
+  File "D:\ansysdev\GIT\repos\pyaedt\_unittest\test_3dlayout_modeler.py", line 171, in test_19B_export_touchsthone
+    assert self.aedtapp.export_touchstone("RFBoardSetup3", "Last Adaptive",
+  File "D:\ansysdev\Simulation\PersonalLib\pyaedt\generic\general_methods.py", line 113, in inner_function
+    return func(*args, **kwargs)
+  File "D:\ansysdev\Simulation\PersonalLib\pyaedt\hfss3dlayout.py", line 532, in export_touchstone
+    self.odesign.ExportNetworkData(variation_str, SolutionSelectionArray, FileFormat,
+Exception: ExportNetworkData(string variationkey, Structured Array sourcenames, int format, string filename, Structured Array freqargs, long bRenormalize, long double ref_impedance, [string displaytype /*optional*/], [int pass /*optional*/], [int complexFormat /*optional*/], [int precision /*optional*/], [long useExportFreqs /*optional*/], [long includeGammaComments /*optional*/], [long supportNonStdExport /*optional*/])(,IronPython.Runtime.List,3,c:/users/mcapodif/appdata/local/temp/touchstone.s2p,IronPython.Runtime.List,True,50,S,-1,0,15,True,True,False) - call failed. Logs or message window might have more details
+
+======================================================================
+ERROR: test_08_import_mentor_netlist (test_Circuit.TestSequenceFunctionsGenerate)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "D:\ansysdev\GIT\repos\pyaedt\_unittest_ironpython\conf_unittest.py", line 21, in test
+    getattr(test_obj, test_function)()
+  File "D:\ansysdev\GIT\repos\pyaedt\_unittest\test_Circuit.py", line 87, in test_08_import_mentor_netlist
+    assert self.aedtapp.create_schematic_from_mentor_netlist(os.path.join(self.local_scratch.path, netlist2))
+  File "D:\ansysdev\Simulation\PersonalLib\pyaedt\generic\general_methods.py", line 113, in inner_function
+    return func(*args, **kwargs)
+  File "D:\ansysdev\Simulation\PersonalLib\pyaedt\circuit.py", line 563, in create_schematic_from_mentor_netlist
+    mycomp, mycompname = self.modeler.components.create_capacitor(name, value, xpos, ypos,
+  File "D:\ansysdev\Simulation\PersonalLib\pyaedt\generic\general_methods.py", line 113, in inner_function
+    return func(*args, **kwargs)
+  File "D:\ansysdev\Simulation\PersonalLib\pyaedt\modeler\PrimitivesNexxim.py", line 292, in create_capacitor
+    cmpid, cmpname = self.create_component(compname,component_library="Capacitors", component_name="CAP_", xpos=xpos, ypos=ypos,
+  File "D:\ansysdev\Simulation\PersonalLib\pyaedt\generic\general_methods.py", line 113, in inner_function
+    return func(*args, **kwargs)
+  File "D:\ansysdev\Simulation\PersonalLib\pyaedt\modeler\PrimitivesCircuit.py", line 398, in create_component
+    self.add_id_to_component(id)
+  File "D:\ansysdev\Simulation\PersonalLib\pyaedt\generic\general_methods.py", line 113, in inner_function
+    return func(*args, **kwargs)
+  File "D:\ansysdev\Simulation\PersonalLib\pyaedt\modeler\PrimitivesCircuit.py", line 687, in add_id_to_component
+    o_update = self.update_object_properties(o)
+  File "D:\ansysdev\Simulation\PersonalLib\pyaedt\generic\general_methods.py", line 113, in inner_function
+    return func(*args, **kwargs)
+  File "D:\ansysdev\Simulation\PersonalLib\pyaedt\modeler\PrimitivesNexxim.py", line 693, in update_object_properties
+    propval = self.oeditor.GetPropertyValue("PassedParameterTab", name, j)
+Exception: GetPropertyValue(string tabArg, string serverArg, string propArg) -> string(PassedParameterTab,CompInst@CAP_;63127;59852,CosimDefinition) - call failed. Logs or message window might have more details
+
+======================================================================
+ERROR: test_05_EMLoss (test_Icepak.TestSequenceFunctionsGenerate)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "D:\ansysdev\GIT\repos\pyaedt\_unittest_ironpython\conf_unittest.py", line 21, in test
+    getattr(test_obj, test_function)()
+  File "D:\ansysdev\GIT\repos\pyaedt\_unittest\test_Icepak.py", line 107, in test_05_EMLoss
+    assert self.aedtapp.assign_em_losses("uUSB", "Setup1", "LastAdaptive", ["2.5GHz"], surface_list, HFSSpath, param_list, object_list)
+  File "D:\ansysdev\Simulation\PersonalLib\pyaedt\generic\general_methods.py", line 113, in inner_function
+    return func(*args, **kwargs)
+  File "D:\ansysdev\Simulation\PersonalLib\pyaedt\icepak.py", line 956, in assign_em_losses
+    if bound.create():
+  File "D:\ansysdev\Simulation\PersonalLib\pyaedt\generic\general_methods.py", line 113, in inner_function
+    return func(*args, **kwargs)
+  File "D:\ansysdev\Simulation\PersonalLib\pyaedt\modules\Boundary.py", line 165, in create
+    self._parent.oboundary.AssignEMLoss(self._get_args())
+Exception: A block func can only have primitives, or keyed nested block_funcs.
+
+======================================================================
+ERROR: test_Mechanical (__builtin__.ModuleImportFailure)
+----------------------------------------------------------------------
+ImportError: Failed to import test module: test_Mechanical
+Traceback (most recent call last):
+  File "C:\Program Files\AnsysEM\AnsysEM21.1\Win64\common\IronPython\Lib\unittest\loader.py", line 252, in _find_tests
+    module = self._get_module_from_name(name)
+  File "C:\Program Files\AnsysEM\AnsysEM21.1\Win64\common\IronPython\Lib\unittest\loader.py", line 230, in _get_module_from_name
+    __import__(name)
+  File "D:\ansysdev\GIT\repos\pyaedt\_unittest_ironpython\test_Mechanical.py", line 9, in <module>
+    test_obj = mymodule.TestClass()
+AttributeError: 'module' object has no attribute 'TestClass'
+
+
+======================================================================
+ERROR: test_01_Animate_plt (test_PostProcessing.TestSequenceFunctionsGenerate)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "D:\ansysdev\GIT\repos\pyaedt\_unittest_ironpython\conf_unittest.py", line 21, in test
+    getattr(test_obj, test_function)()
+  File "D:\ansysdev\GIT\repos\pyaedt\_unittest_ironpython\conf_unittest.py", line 34, in wrapper
+    func(*args, **kwargs)
+  File "D:\ansysdev\GIT\repos\pyaedt\_unittest\test_PostProcessing.py", line 59, in test_01_Animate_plt
+    gif_file=self.aedtapp.post.animate_fields_from_aedtplt_2(quantityname="Mag_E", object_list=cutlist, plottype="CutPlane",
+AttributeError: 'PostProcessor' object has no attribute 'animate_fields_from_aedtplt_2'
+
+======================================================================
+ERROR: test_01_Field_Ploton_cutplanedesignname (test_PostProcessing.TestSequenceFunctionsGenerate)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "D:\ansysdev\GIT\repos\pyaedt\_unittest_ironpython\conf_unittest.py", line 21, in test
+    getattr(test_obj, test_function)()
+  File "D:\ansysdev\GIT\repos\pyaedt\_unittest_ironpython\conf_unittest.py", line 34, in wrapper
+    func(*args, **kwargs)
+  File "D:\ansysdev\GIT\repos\pyaedt\_unittest\test_PostProcessing.py", line 51, in test_01_Field_Ploton_cutplanedesignname
+    image_file = self.aedtapp.post.plot_field_from_fieldplot(plot1.name, project_path=self.local_scratch.path, meshplot=False,
+AttributeError: 'PostProcessor' object has no attribute 'plot_field_from_fieldplot'
+
+======================================================================
+ERROR: test_11_get_efields (test_PostProcessing.TestSequenceFunctionsGenerate)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "D:\ansysdev\GIT\repos\pyaedt\_unittest_ironpython\conf_unittest.py", line 21, in test
+    getattr(test_obj, test_function)()
+  File "D:\ansysdev\GIT\repos\pyaedt\_unittest\test_PostProcessing.py", line 153, in test_11_get_efields
+    assert app2.post.get_efields_data(ff_setup="3D")
+AttributeError: 'PostProcessor' object has no attribute 'get_efields_data'
+
+======================================================================
+ERROR: test_50_set_padstack (test_zEDB.TestSequenceFunctionsGenerate)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "D:\ansysdev\GIT\repos\pyaedt\_unittest_ironpython\conf_unittest.py", line 21, in test
+    getattr(test_obj, test_function)()
+  File "D:\ansysdev\GIT\repos\pyaedt\_unittest\test_zEDB.py", line 309, in test_50_set_padstack
+    pad.hole_offset_x = 0
+  File "D:\ansysdev\Simulation\PersonalLib\pyaedt\edb_core\EDB_Data.py", line 1002, in hole_offset_x
+    self._update_hole_parameters(offsetx=offset)
+  File "D:\ansysdev\Simulation\PersonalLib\pyaedt\generic\general_methods.py", line 113, in inner_function
+    return func(*args, **kwargs)
+  File "D:\ansysdev\Simulation\PersonalLib\pyaedt\edb_core\EDB_Data.py", line 947, in _update_hole_parameters
+    newPadstackDefinitionData.SetHoleParameters(hole_type, convert_py_list_to_net_list(params),
+TypeError: expected IList[Value], got List[List[Value]]
+
+----------------------------------------------------------------------
+Ran 556 tests in 724.030s
+
+FAILED (errors=28)

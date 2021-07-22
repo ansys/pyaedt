@@ -12,7 +12,7 @@ from _unittest.conftest import local_path, scratch_path
 from pyaedt.hfss import Hfss
 from pyaedt.application.Variables import Variable
 from pyaedt.generic.filesystem import Scratch
-
+from pyaedt.generic.general_methods import isclose
 class TestClass:
 
     def setup_class(self):
@@ -147,15 +147,15 @@ class TestClass:
         assert result_5.units == "W"
         assert result_5.unit_system == "Power"
 
-        assert math.isclose(result_6.numeric_value, 10471.975511965977)
+        assert isclose(result_6.numeric_value, 10471.975511965977)
         assert result_6.units == "W"
         assert result_6.unit_system == "Power"
 
-        assert math.isclose(result_7.numeric_value, 10471.975511965977)
+        assert isclose(result_7.numeric_value, 10471.975511965977)
         assert result_7.units == "W"
         assert result_7.unit_system == "Power"
 
-        assert math.isclose(result_8.numeric_value, 10.471975511965977)
+        assert isclose(result_8.numeric_value, 10.471975511965977)
         assert result_8.units == "kW"
         assert result_8.unit_system == "Power"
 
@@ -231,41 +231,41 @@ class TestClass:
         # Scaling of the unit system "Angle"
         angle = Variable("1rad")
         angle.rescale_to("deg")
-        assert math.isclose(angle.numeric_value, 57.29577951308232)
+        assert isclose(angle.numeric_value, 57.29577951308232)
         angle.rescale_to("degmin")
-        assert math.isclose(angle.numeric_value, 57.29577951308232 * 60.0)
+        assert isclose(angle.numeric_value, 57.29577951308232 * 60.0)
         angle.rescale_to("degsec")
-        assert math.isclose(angle.numeric_value, 57.29577951308232 * 3600.0)
+        assert isclose(angle.numeric_value, 57.29577951308232 * 3600.0)
 
         # Convert 200Hz to Angular speed numerically
         omega = Variable(200 * math.pi*2, "rad_per_sec")
         assert omega.unit_system == 'AngularSpeed'
-        assert math.isclose(omega.value, 1256.6370614359173)
+        assert isclose(omega.value, 1256.6370614359173)
         omega.rescale_to('rpm')
-        assert math.isclose(omega.numeric_value, 12000.0)
+        assert isclose(omega.numeric_value, 12000.0)
         omega.rescale_to('rev_per_sec')
-        assert math.isclose(omega.numeric_value, 200.0)
+        assert isclose(omega.numeric_value, 200.0)
 
         # test speed times time equals diestance
         v = Variable("100m_per_sec")
         assert v.unit_system == "Speed"
         v.rescale_to('feet_per_sec')
-        assert math.isclose(v.numeric_value, 328.08398950131)
+        assert isclose(v.numeric_value, 328.08398950131)
         v.rescale_to('feet_per_min')
-        assert math.isclose(v.numeric_value, 328.08398950131 * 60)
+        assert isclose(v.numeric_value, 328.08398950131 * 60)
         v.rescale_to('miles_per_sec')
-        assert math.isclose(v.numeric_value, 0.06213711723534)
+        assert isclose(v.numeric_value, 0.06213711723534)
         v.rescale_to('miles_per_minute')
-        assert math.isclose(v.numeric_value, 3.72822703412)
+        assert isclose(v.numeric_value, 3.72822703412)
         v.rescale_to('miles_per_hour')
-        assert math.isclose(v.numeric_value, 223.69362204724)
+        assert isclose(v.numeric_value, 223.69362204724)
 
         t = Variable("20s")
         distance = v * t
         assert distance.unit_system == "Length"
         assert distance.string_value == "2000.0meter"
         distance.rescale_to("in")
-        assert math.isclose(distance.numeric_value, 2000 / 0.0254)
+        assert isclose(distance.numeric_value, 2000 / 0.0254)
 
     def test_10_division(self):
         '''
@@ -318,7 +318,7 @@ class TestClass:
         assert result_5.unit_system == "None"
 
         result_6 = v1 / v5 + v6
-        assert math.isclose(result_6.numeric_value, 104.81975511965)
+        assert isclose(result_6.numeric_value, 104.81975511965)
         assert result_6.units == "rad_per_sec"
         assert result_6.unit_system == "AngularSpeed"
 

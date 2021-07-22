@@ -8,6 +8,7 @@ except ImportError:
 # Setup paths for module imports
 from _unittest.conftest import local_path, scratch_path, BasisTest, pyaedt_unittest_check_desktop_error
 from pyaedt.maxwell import Maxwell2d
+from pyaedt.generic.general_methods import isclose
 
 class TestClass(BasisTest):
     def setup_class(self):
@@ -35,12 +36,12 @@ class TestClass(BasisTest):
         assert rect1.solve_inside
         assert rect1.model
         assert rect1.material_name == "vacuum"
-        assert math.isclose(rect1.faces[0].area, 3.0 * 4.0)
+        assert isclose(rect1.faces[0].area, 3.0 * 4.0)
 
         assert rect2.solve_inside
         assert rect2.model
         assert rect2.material_name == "copper"
-        assert math.isclose(rect1.faces[0].area, 3.0 * 4.0)
+        assert isclose(rect1.faces[0].area, 3.0 * 4.0)
 
     def test_create_circle(self):
         circle1 = self.aedtapp.modeler.primitives.create_circle([0, -2, 0], 3)
@@ -49,12 +50,12 @@ class TestClass(BasisTest):
         assert circle1.solve_inside
         assert circle1.model
         assert circle1.material_name == "vacuum"
-        assert math.isclose(circle1.faces[0].area, math.pi * 3.0 * 3.0)
+        assert isclose(circle1.faces[0].area, math.pi * 3.0 * 3.0)
 
         assert circle2.solve_inside
         assert circle2.model
         assert circle2.material_name == "copper"
-        assert math.isclose(circle1.faces[0].area, math.pi * 3.0 * 3.0)
+        assert isclose(circle1.faces[0].area, math.pi * 3.0 * 3.0)
 
     def test_create_ellipse(self):
         ellipse1 = self.aedtapp.modeler.primitives.create_ellipse([0, -2, 0], 4.0, 0.2)
@@ -63,12 +64,12 @@ class TestClass(BasisTest):
         assert ellipse1.solve_inside
         assert ellipse1.model
         assert ellipse1.material_name == "vacuum"
-        assert math.isclose(ellipse2.faces[0].area, math.pi * 4.0 * 4.0 * 0.2)
+        assert isclose(ellipse2.faces[0].area, math.pi * 4.0 * 4.0 * 0.2)
 
         assert ellipse2.solve_inside
         assert ellipse2.model
         assert ellipse2.material_name == "copper"
-        assert math.isclose(ellipse2.faces[0].area, math.pi * 4.0 * 4.0 * 0.2)
+        assert isclose(ellipse2.faces[0].area, math.pi * 4.0 * 4.0 * 0.2)
 
     def test_create_regular_polygon(self):
         pg1 = self.aedtapp.modeler.primitives.create_regular_polygon([0, 0, 0], [0, 2, 0])
@@ -77,12 +78,12 @@ class TestClass(BasisTest):
         assert pg1.solve_inside
         assert pg1.model
         assert pg1.material_name == "vacuum"
-        assert math.isclose(pg1.faces[0].area, 10.392304845413264)
+        assert isclose(pg1.faces[0].area, 10.392304845413264)
 
         assert pg2.solve_inside
         assert pg2.model
         assert pg2.material_name == "copper"
-        assert math.isclose(pg2.faces[0].area, 5.196152422706631)
+        assert isclose(pg2.faces[0].area, 5.196152422706631)
 
 
 
