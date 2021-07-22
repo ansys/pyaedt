@@ -22,7 +22,8 @@ jobs:
 
       - name: 'Run Unit Tests in Ironpython'
         run: |
-          Get-Location
-          start-process 'C:\Program Files\AnsysEM\AnsysEM21.1\Win64\ansysedt.exe' -ArgumentList '-ng -RunScriptAndExit "_unittest_ironpython/run_unittests.py"'
+          cmd
+          "C:\Program Files\AnsysEM\AnsysEM21.1\Win64\ansysedt.exe" -ng -RunScriptAndExit "_unittest_ironpython/run_unittests.py"
+          powershell
           while (!(Test-Path ".\_unittest_ironpython\tests_succeded")) { Start-Sleep 10 }
           get-content .\_unittest_ironpython\runner_unittest.log
