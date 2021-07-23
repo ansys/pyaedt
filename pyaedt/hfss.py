@@ -1157,8 +1157,7 @@ class Hfss(FieldAnalysis3D, object):
         Examples
         --------
 
-        Create two boxes that will be used to create a Perfect E named
-        named ``'PerfectE'``.
+        Create two boxes that will be used to create a Perfect E named ``'PerfectE'``.
 
         >>> box1 = hfss.modeler.primitives.create_box([0,0,0], [10,10,5],
         ...                                           "perfect1", "Copper")
@@ -1214,8 +1213,7 @@ class Hfss(FieldAnalysis3D, object):
         Examples
         --------
 
-        Create two boxes that will be used to create a Perfect H named
-        named ``'PerfectH'``.
+        Create two boxes that will be used to create a Perfect H named ``'PerfectH'``.
 
         >>> box1 = hfss.modeler.primitives.create_box([0,0,20], [10,10,5],
         ...                                           "perfect1", "Copper")
@@ -1226,6 +1224,7 @@ class Hfss(FieldAnalysis3D, object):
         pyaedt Info: Connection Correctly created
         >>> type(perfect_h)
         <class 'pyaedt.modules.Boundary.BoundaryObject'>
+
         """
 
         if not self.modeler.primitives.does_object_exists(startobj) or not self.modeler.primitives.does_object_exists(
@@ -1306,7 +1305,7 @@ class Hfss(FieldAnalysis3D, object):
     @aedt_exception_handler
     def create_lumped_rlc_between_objects(self, startobj, endobject, axisdir=0, sourcename=None, rlctype="Parallel",
                                           Rvalue=None, Lvalue=None, Cvalue=None, bound_on_plane=True):
-        """Creates a Perfect H taking the closest edges of two objects.
+        """Creates a lumped RLC taking the closest edges of two objects.
 
         Parameters
         ----------
@@ -1338,10 +1337,26 @@ class Hfss(FieldAnalysis3D, object):
 
         Returns
         -------
-        :class:`pyaedt.modules.Boundary.BoundaryObject`
-            Boundary object.
-        
+        :class:`pyaedt.modules.Boundary.BoundaryObject` or bool
+            Boundary object if successful. ``False`` if unsuccessful.
+
+        Examples
+        --------
+
+        Create two boxes that will be used to create a lumped RLC named 
+        ``'LumpedRLC'``.
+
+        >>> box1 = hfss.modeler.primitives.create_box([0, 0, 50], [10, 10, 5],
+        ...                                           "rlc1", "copper")
+        >>> box2 = hfss.modeler.primitives.create_box([0, 0, 60], [10, 10, 5],
+        ...                                           "rlc2", "copper")
+        >>> rlc = hfss.create_lumped_rlc_between_objects("rlc1", "rlc2", hfss.AxisDir.XPos,
+        ...                                              "LumpedRLC", Rvalue=50,
+        ...                                              Lvalue=1e-9, Cvalue = 1e-6)
+        pyaedt Info: Connection Correctly created
+
         """
+
         if not self.modeler.primitives.does_object_exists(startobj) or not self.modeler.primitives.does_object_exists(
                 endobject):
             self._messenger.add_error_message("One or both objects do not exist. Check and retry.")
@@ -1407,10 +1422,25 @@ class Hfss(FieldAnalysis3D, object):
 
         Returns
         -------
-        :class:`pyaedt.modules.Boundary.BoundaryObject`
-            Boundary object.
+        :class:`pyaedt.modules.Boundary.BoundaryObject` or bool
+            Boundary object if successful. ``False`` if unsuccessful.
+
+        Examples
+        --------
+
+        Create two boxes that will be used to create an impedance named
+        named ``'ImpedanceExample'``.
+
+        >>> box1 = hfss.modeler.primitives.create_box([0, 0, 70], [10, 10, 5],
+        ...                                           "box1", "copper")
+        >>> box2 = hfss.modeler.primitives.create_box([0, 0, 80], [10, 10, 5],
+        ...                                           "box2", "copper")
+        >>> impedance = hfss.create_impedance_between_objects("box1", "box2", hfss.AxisDir.XPos,
+        ...                                                   "ImpedanceExample", 100, 50)
+        pyaedt Info: Connection Correctly created
 
         """
+
         if not self.modeler.primitives.does_object_exists(startobj) or not self.modeler.primitives.does_object_exists(
                 endobject):
             self._messenger.add_error_message("One or both objects do not exist. Check and retry.")
