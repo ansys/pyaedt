@@ -371,13 +371,25 @@ class Edb(object):
         if init_dlls:
             self._init_dlls()
         aedb_name= os.path.splitext(os.path.basename(input_file))[0] + ".aedb"
-        output = self.layout_methods.ImportCadToEdb(input_file, os.path.join(working_dir, aedb_name), self.edbversion, self.standalone)
+        command = os.path.join(self.base_path, "anstranslator")
 
-        assert output.Item1, "Error Importing File"
-        self.builder = output.Item2
-        self._db = self.builder.EdbHandler.dB
-        self._active_cell = self.builder.EdbHandler.cell
-        return self.builder
+        if os.name != "posix":
+            command +=  ".exe"
+
+        translatorSetup = self.edbutils.AnsTranslatorRunner(
+            input_file,
+            os.path.join(os.path.dirname(input_file),aedb_name),
+            os.path.join(os.path.dirname(input_file), "Translator.log"),
+            os.path.dirname(input_file),
+            True,
+            command)
+
+        if not translatorSetup.Translate():
+            self._messenger.add_error_message("Translator failed to translate.")
+            return False
+        self.edbpath = os.path.join(os.path.dirname(input_file),aedb_name)
+        return self.open_edb()
+
 
     def __enter__(self):
         return self
