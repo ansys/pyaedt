@@ -203,8 +203,8 @@ class Materials(object):
         
         Returns
         -------
-        str
-            Name of the surface material added.
+        :class:`pyaedt.modules.SurfaceMaterial`
+            Surface Material object added.
             
         Examples
         --------
