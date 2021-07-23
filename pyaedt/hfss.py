@@ -730,7 +730,7 @@ class Hfss(FieldAnalysis3D, object):
             Second (ending) object for the integration line.
         axisdir : str, optional
             Position of the port. It should be one of the values for ``Application.AxisDir``, 
-            which are: ``"XNeg"``, ``"YNeg"``, ``"ZNeg"``, ``"XPos"``, ``"YPos"``, and ``"ZPos"``.
+            which are:  ``"XNeg"``, ``"YNeg"``, ``"ZNeg"``, ``"XPos"``, ``"YPos"``, and ``"ZPos"``. 
             The default is ``"XYNeg"``.
         impedance : float, optional
             Port impedance. The default is ``50``.
@@ -748,23 +748,7 @@ class Hfss(FieldAnalysis3D, object):
         str
             Name of port created when successful, ``False`` otherwise.
 
-        Examples
-        --------
-
-        Create two boxes that will be used to create a circuit port
-        named ``'CircuitExample'``.
-
-        >>> box1 = hfss.modeler.primitives.create_box([0, 0, 80], [10, 10, 5],
-        ...                                           "BoxCircuit1", "copper")
-        >>> box2 = hfss.modeler.primitives.create_box([0, 0, 100], [10, 10, 5],
-        ...                                           "BoxCircuit2", "copper")
-        >>> hfss.create_circuit_port_between_objects("BoxCircuit1", "BoxCircuit2",
-        ...                                          hfss.AxisDir.XNeg, 50,
-        ...                                          "CircuitExample", True, 50, False)
-        'CircuitExample'
-
         """
-
         if not self.modeler.primitives.does_object_exists(startobj) or not self.modeler.primitives.does_object_exists(
                 endobject):
             self._messenger.add_error_message("One or both objects doesn't exists. Check and retry")
@@ -803,32 +787,14 @@ class Hfss(FieldAnalysis3D, object):
         deemb : bool, optional
             Whether to deembed the port. The default is ``False``.
         port_on_plane : bool, optional
-            Whether to create the source on the plane orthogonal to ``AxisDir``.
+            Whether to create the source on the plane orthogonal to ``AxisDir``. 
             The default is ``True``.
 
         Returns
         -------
         str
             Name of port created when successful, ``False`` otherwise.
-
-        Examples
-        --------
-
-        Create two boxes that will be used to create a lumped port
-        named ``'LumpedPort'``.
-
-        >>> box1 = hfss.modeler.primitives.create_box([0, 0, 50], [10, 10, 5],
-        ...                                           "BoxLumped1","copper")
-        >>> box2 = hfss.modeler.primitives.create_box([0, 0, 60], [10, 10, 5],
-        ...                                           "BoxLumped2", "copper")
-        >>> hfss.create_lumped_port_between_objects("BoxLumped1", "BoxLumped2",
-        ...                                         hfss.AxisDir.XNeg, 50,
-        ...                                         "LumpedPort", True, False)
-        pyaedt Info: Connection Correctly created
-        'LumpedPort'
-
         """
-
         if not self.modeler.primitives.does_object_exists(startobj) or not self.modeler.primitives.does_object_exists(
                 endobject):
             self._messenger.add_error_message("One or both objects do not exist. Check and retry.")
@@ -862,7 +828,7 @@ class Hfss(FieldAnalysis3D, object):
             Second (ending) object for the integration line.
         axisdir : str, optional
             Position of the port. It should be one of the values for ``Application.AxisDir``, 
-            which are: ``"XNeg"``, ``"YNeg"``, ``"ZNeg"``, ``"XPos"``, ``"YPos"``, and ``"ZPos"``.
+            which are: ``"XNeg"``, ``"YNeg"``, ``"ZNeg"``, ``"XPos"``, ``"YPos"``, and ``"ZPos"``. 
             The default value is ``"0"``.
         sourcename : str, optional
             Name of the source. The default is ``None``.
@@ -1011,7 +977,7 @@ class Hfss(FieldAnalysis3D, object):
             Second (ending) object for the integration line.
         axisdir : str, optional
             Position of the port. It should be one of the values for ``Application.AxisDir``, 
-            which are: ``"XNeg"``, ``"YNeg"``, ``"ZNeg"``, ``"XPos"``, ``"YPos"``, and ``"ZPos"``.
+            which are: ``"XNeg"``, ``"YNeg"``, ``"ZNeg"``, ``"XPos"``, ``"YPos"``, and ``"ZPos"``. 
             The default is ``"0"``.
         impedance : float, optional
             Port impedance. The default is ``50``.
@@ -1033,24 +999,8 @@ class Hfss(FieldAnalysis3D, object):
         -------
         :class:`pyaedt.modules.Boundary.BoundaryObject`
             Boundary object.
-
-        Examples
-        --------
-
-        Create two boxes that will be used to create a wave port
-        named ``'WavePort'``.
-
-        >>> box1 = hfss.modeler.primitives.create_box([0,0,0], [10,10,5],
-        ...                                           "BoxWave1", "copper")
-        >>> box2 = hfss.modeler.primitives.create_box([0, 0, 10], [10, 10, 5],
-        ...                                           "BoxWave2", "copper")
-        >>> wave_port = hfss.create_wave_port_between_objects("BoxWave1", "BoxWave2",
-        ...                                                   hfss.AxisDir.XNeg, 50, 1,
-        ...                                                   "WavePort", False)
-        pyaedt Info: Connection Correctly created
-
+        
         """
-
         if not self.modeler.primitives.does_object_exists(startobj) or not self.modeler.primitives.does_object_exists(
                 endobject):
             self._messenger.add_error_message("One or both objects do not exist. Check and retry.")
@@ -1107,7 +1057,7 @@ class Hfss(FieldAnalysis3D, object):
         Parameters
         ----------
         startobj : 
-            First (starting) object for the integration line. This is typically the reference plane.
+            First (starting) object for the integration line. This is typically the reference plane. 
         endobject :
             Second (ending) object for the integration line.
         axisdir : int, optional
@@ -1201,10 +1151,26 @@ class Hfss(FieldAnalysis3D, object):
         
         Returns
         -------
-        :class:`pyaedt.modules.Boundary.BoundaryObject`
-            Boundary object.
+        :class:`pyaedt.modules.Boundary.BoundaryObject` or bool
+            Boundary object if successful. ``False`` if unsuccessful.
+
+        Examples
+        --------
+
+        Create two boxes that will be used to create a Perfect E named ``'PerfectE'``.
+
+        >>> box1 = hfss.modeler.primitives.create_box([0,0,0], [10,10,5],
+        ...                                           "perfect1", "Copper")
+        >>> box2 = hfss.modeler.primitives.create_box([0, 0, 10], [10, 10, 5],
+        ...                                           "perfect2", "copper")
+        >>> perfect_e = hfss.create_perfecte_from_objects("perfect1", "perfect2", 
+        ...                                               hfss.AxisDir.ZNeg, "PerfectE")
+        pyaedt Info: Connection Correctly created
+        >>> type(perfect_e)
+        <class 'pyaedt.modules.Boundary.BoundaryObject'>
 
         """
+
         if not self.modeler.primitives.does_object_exists(startobj) or not self.modeler.primitives.does_object_exists(
                 endobject):
             self._messenger.add_error_message("One or both objects do not exist. Check and retry.")
@@ -1241,10 +1207,26 @@ class Hfss(FieldAnalysis3D, object):
 
         Returns
         -------
-        :class:`pyaedt.modules.Boundary.BoundaryObject`
-            Boundary object.
+        :class:`pyaedt.modules.Boundary.BoundaryObject` or bool
+            Boundary object if successful. ``False`` if unsuccessful.
+
+        Examples
+        --------
+
+        Create two boxes that will be used to create a Perfect H named ``'PerfectH'``.
+
+        >>> box1 = hfss.modeler.primitives.create_box([0,0,20], [10,10,5],
+        ...                                           "perfect1", "Copper")
+        >>> box2 = hfss.modeler.primitives.create_box([0, 0, 30], [10, 10, 5],
+        ...                                           "perfect2", "copper")
+        >>> perfect_h = hfss.create_perfecth_from_objects("perfect1", "perfect2", 
+        ...                                               hfss.AxisDir.ZNeg, "PerfectH")
+        pyaedt Info: Connection Correctly created
+        >>> type(perfect_h)
+        <class 'pyaedt.modules.Boundary.BoundaryObject'>
 
         """
+
         if not self.modeler.primitives.does_object_exists(startobj) or not self.modeler.primitives.does_object_exists(
                 endobject):
             self._messenger.add_error_message("One or both objects do not exist. Check and retry.")
@@ -1323,7 +1305,7 @@ class Hfss(FieldAnalysis3D, object):
     @aedt_exception_handler
     def create_lumped_rlc_between_objects(self, startobj, endobject, axisdir=0, sourcename=None, rlctype="Parallel",
                                           Rvalue=None, Lvalue=None, Cvalue=None, bound_on_plane=True):
-        """Creates a Perfect H taking the closest edges of two objects.
+        """Creates a lumped RLC taking the closest edges of two objects.
 
         Parameters
         ----------
@@ -1355,10 +1337,26 @@ class Hfss(FieldAnalysis3D, object):
 
         Returns
         -------
-        :class:`pyaedt.modules.Boundary.BoundaryObject`
-            Boundary object.
-        
+        :class:`pyaedt.modules.Boundary.BoundaryObject` or bool
+            Boundary object if successful. ``False`` if unsuccessful.
+
+        Examples
+        --------
+
+        Create two boxes that will be used to create a lumped RLC named 
+        ``'LumpedRLC'``.
+
+        >>> box1 = hfss.modeler.primitives.create_box([0, 0, 50], [10, 10, 5],
+        ...                                           "rlc1", "copper")
+        >>> box2 = hfss.modeler.primitives.create_box([0, 0, 60], [10, 10, 5],
+        ...                                           "rlc2", "copper")
+        >>> rlc = hfss.create_lumped_rlc_between_objects("rlc1", "rlc2", hfss.AxisDir.XPos,
+        ...                                              "LumpedRLC", Rvalue=50,
+        ...                                              Lvalue=1e-9, Cvalue = 1e-6)
+        pyaedt Info: Connection Correctly created
+
         """
+
         if not self.modeler.primitives.does_object_exists(startobj) or not self.modeler.primitives.does_object_exists(
                 endobject):
             self._messenger.add_error_message("One or both objects do not exist. Check and retry.")
@@ -1424,10 +1422,25 @@ class Hfss(FieldAnalysis3D, object):
 
         Returns
         -------
-        :class:`pyaedt.modules.Boundary.BoundaryObject`
-            Boundary object.
+        :class:`pyaedt.modules.Boundary.BoundaryObject` or bool
+            Boundary object if successful. ``False`` if unsuccessful.
+
+        Examples
+        --------
+
+        Create two boxes that will be used to create an impedance named
+        named ``'ImpedanceExample'``.
+
+        >>> box1 = hfss.modeler.primitives.create_box([0, 0, 70], [10, 10, 5],
+        ...                                           "box1", "copper")
+        >>> box2 = hfss.modeler.primitives.create_box([0, 0, 80], [10, 10, 5],
+        ...                                           "box2", "copper")
+        >>> impedance = hfss.create_impedance_between_objects("box1", "box2", hfss.AxisDir.XPos,
+        ...                                                   "ImpedanceExample", 100, 50)
+        pyaedt Info: Connection Correctly created
 
         """
+
         if not self.modeler.primitives.does_object_exists(startobj) or not self.modeler.primitives.does_object_exists(
                 endobject):
             self._messenger.add_error_message("One or both objects do not exist. Check and retry.")
@@ -1560,8 +1573,24 @@ class Hfss(FieldAnalysis3D, object):
         -------
         list
             List of names for the ports created when successful, ``False`` otherwise.
-        
+
+        Examples
+        --------
+
+        Create two boxes that will be used to create a wave port named 
+        ``'WavePortFromSheet'``.
+
+        >>> origin_position = hfss.modeler.Position(0, 0, 0)
+        >>> circle = hfss.modeler.primitives.create_circle(hfss.CoordinateSystemPlane.YZPlane,
+        ...                                                origin_position, 10, name="WaveCircle")
+        >>> hfss.solution_type ="DrivenTerminal"
+        >>> ports = hfss.create_wave_port_from_sheet(circle, 5, hfss.AxisDir.XNeg, 40, 2,
+        ...                                          "WavePortFromSheet", True)
+        >>> ports[0].name
+        'WavePortFromSheet'
+
         """
+
         sheet = self.modeler.convert_to_selections(sheet, True)
         portnames = []
         for obj in sheet:
