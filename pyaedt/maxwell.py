@@ -273,7 +273,7 @@ class Maxwell(object):
         Parameters
         ----------
         object_list : list
-            List of objects to assign the current souce to.
+            List of objects to assign the current source to.
         amplitude : float, optional
             The default is ``1``.
         phase : str, optional
@@ -559,7 +559,7 @@ class Maxwell(object):
         input_object : str or list
            One or more objects to assign the torque to.
         reference_cs : str, optional
-            Name of the reference coodinate system. The default is ``"Global"``.
+            Name of the reference coordinate system. The default is ``"Global"``.
         is_positive : bool, optional
             Whether the torque is positive. The default is ``True``. 
         is_virtual : bool, optional
@@ -597,7 +597,7 @@ class Maxwell(object):
         input_object : str, list
             One or more objects to assign a force to.
         reference_cs : str, optional
-            Name of the reference coodinate system. The default is ``Global``.
+            Name of the reference coordinate system. The default is ``Global``.
         is_virtual : bool, optional
             Whether the force is virtual. The default is ``True``.
         force_name : str, optional

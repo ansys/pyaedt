@@ -317,7 +317,7 @@ class Icepak(FieldAnalysisIcepak):
         input_power : str, float, or int, optional
             Input power. The default is ``"0W"``.
         thermal_condtion : str, optional
-            Thermal condition. The defaul is ``"Total Power"``.
+            Thermal condition. The default is ``"Total Power"``.
         surface_heat : str, optional
             Surface heat.  The default is ``"0irrad_W_per_m2"``.
         temperature : str, optional
@@ -718,7 +718,7 @@ class Icepak(FieldAnalysisIcepak):
         matname : str, optional
             Name of the material. The default is ``Al-Extruded``.
         center : list, optional
-           List of ``[x, y, z]`` corrdinates for the center of 
+           List of ``[x, y, z]`` coordinates for the center of 
            the heatsink.  The default is ``[0, 0, 0]``.
         plane_enum : optional
             The default is ``0``.
