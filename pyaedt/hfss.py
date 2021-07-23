@@ -759,8 +759,8 @@ class Hfss(FieldAnalysis3D, object):
         >>> box2 = hfss.modeler.primitives.create_box([0, 0, 100], [10, 10, 5],
         ...                                           "BoxCircuit2", "copper")
         >>> hfss.create_circuit_port_between_objects("BoxCircuit1", "BoxCircuit2",
-        ...                                                 hfss.AxisDir.XNeg, 50,
-        ...                                                 "CircuitExample", True, 50, False)
+        ...                                          hfss.AxisDir.XNeg, 50,
+        ...                                          "CircuitExample", True, 50, False)
         'CircuitExample'
 
         """
