@@ -840,7 +840,24 @@ class Hfss(FieldAnalysis3D, object):
         str
            Name of source created when successful, ``False`` otherwise.
 
+        Examples
+        --------
+
+        Create two boxes that will be used to create a voltage source
+        named ``'VoltageSource'``.
+
+        >>> box1 = hfss.modeler.primitives.create_box([30, 0, 0], [40, 10, 5],
+        ...                                           "BoxVolt1", "copper")
+        >>> box2 = hfss.modeler.primitives.create_box([30, 0, 10], [40, 10, 5],
+        ...                                           "BoxVolt2", "copper")
+        >>> hfss.create_voltage_source_from_objects("BoxVolt1", "BoxVolt2",
+        ...                                         hfss.AxisDir.XNeg,
+        ...                                         "VoltageSource")
+        pyaedt Info: Connection Correctly created
+        'VoltageSource'
+
         """
+
         if not self.modeler.primitives.does_object_exists(startobj) or not self.modeler.primitives.does_object_exists(
                 endobject):
             self._messenger.add_error_message("One or both objects doesn't exists. Check and retry")
@@ -861,7 +878,7 @@ class Hfss(FieldAnalysis3D, object):
 
     @aedt_exception_handler
     def create_current_source_from_objects(self, startobj, endobject, axisdir=0, sourcename=None, source_on_plane=True):
-        """Create a voltage source taking the closest edges of two objects.
+        """Create a current source taking the closest edges of two objects.
 
         Parameters
         ----------
@@ -870,7 +887,7 @@ class Hfss(FieldAnalysis3D, object):
         endobject :
             Second (ending) object for the integration line.
         axisdir : optional
-            Position of the voltage source. It should be one of the values for ``Application.AxisDir``, which are:
+            Position of the current source. It should be one of the values for ``Application.AxisDir``, which are:
             ``"XNeg"``, ``"YNeg"``, ``"ZNeg"``, ``"XPos"``, ``"YPos"``, and ``"ZPos"``. The default is ``"0"``.
         sourcename : str, optional
             Name of the source. The default is ``None``.
@@ -882,7 +899,24 @@ class Hfss(FieldAnalysis3D, object):
         str
             Name of source created when successful, ``False`` otherwise.
 
+        Examples
+        --------
+
+        Create two boxes that will be used to create a current source
+        named ``'CurrentSource'``.
+
+        >>> box1 = hfss.modeler.primitives.create_box([30, 0, 20], [40, 10, 5],
+        ...                                           "BoxCurrent1", "copper")
+        >>> box2 = hfss.modeler.primitives.create_box([30, 0, 30], [40, 10, 5],
+        ...                                           "BoxCurrent2", "copper")
+        >>> hfss.create_current_source_from_objects("BoxCurrent1", "BoxCurrent2",
+        ...                                         hfss.AxisDir.XPos,
+        ...                                         "CurrentSource")
+        pyaedt Info: Connection Correctly created
+        'CurrentSource'
+
         """
+
         if not self.modeler.primitives.does_object_exists(startobj) or not self.modeler.primitives.does_object_exists(
                 endobject):
             self._messenger.add_error_message("One or both objects do not exist. Check and retry.")
@@ -925,6 +959,7 @@ class Hfss(FieldAnalysis3D, object):
             Boundary object.
 
         """
+
         props = OrderedDict({"Objects": [sheet_name],
                              "Direction": OrderedDict({"Start": point1, "End": point2})})
         return self._create_boundary(sourcename, props, sourcetype)
