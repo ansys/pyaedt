@@ -1577,16 +1577,16 @@ class Hfss(FieldAnalysis3D, object):
         Examples
         --------
 
-        Create two boxes that will be used to create a wave port named 
+        Create a circle sheet that will be used to create a wave port named
         ``'WavePortFromSheet'``.
 
         >>> origin_position = hfss.modeler.Position(0, 0, 0)
         >>> circle = hfss.modeler.primitives.create_circle(hfss.CoordinateSystemPlane.YZPlane,
         ...                                                origin_position, 10, name="WaveCircle")
         >>> hfss.solution_type ="DrivenTerminal"
-        >>> ports = hfss.create_wave_port_from_sheet(circle, 5, hfss.AxisDir.XNeg, 40, 2,
+        >>> port = hfss.create_wave_port_from_sheet(circle, 5, hfss.AxisDir.XNeg, 40, 2,
         ...                                          "WavePortFromSheet", True)
-        >>> ports[0].name
+        >>> port[0].name
         'WavePortFromSheet'
 
         """
@@ -1643,6 +1643,20 @@ class Hfss(FieldAnalysis3D, object):
         -------
         str
             Name of the port created when successful, ``False`` otherwise.
+
+        Examples
+        --------
+
+        Create a rectangle sheet that will be used to create a lumped port named
+        ``'LumpPortFromSheet'``.
+
+        >>> rectangle = hfss.modeler.primitives.create_rectangle(hfss.CoordinateSystemPlane.XYPlane,
+        ...                                                      [0, 0, 0], [10, 2], name="lump_port",
+        ...                                                      matname="copper")
+        >>> hfss.create_lumped_port_to_sheet(rectangle.name, hfss.AxisDir.XNeg, 50,
+        ...                                         "LumpPortFromSheet", True, False)
+        'LumpPortFromSheet'
+
         """
 
         if self.solution_type in ["DrivenModal", "DrivenTerminal", "Transient Network"]:
