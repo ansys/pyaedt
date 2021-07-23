@@ -28,8 +28,7 @@ class CoordinateSystem(object):
     Parameters
     ----------
     parent : 
-        Inherited parent object.
-    
+        Inherited parent object. 
     props : dict, optional
         Dictionary of properties. The default is ``None``.
     name: optional
@@ -117,9 +116,6 @@ class CoordinateSystem(object):
     def update(self):
         """Update the coordinate system.
         
-        Parameters
-        ----------
-
         Returns
         -------
         bool
@@ -431,14 +427,14 @@ class CoordinateSystem(object):
 
     @property
     def orientation(self):
-        """Internal named array for orientation."""
+        """Internal named array for orientation of the coordinate system."""
         arg = ["Name:RelativeCSParameters"]
         dict2arg(self.props, arg)
         return arg
 
     @property
     def attributes(self):
-        """Internal named array for the attributes."""
+        """Internal named array for attributes of the coordinate system."""
         coordinateSystemAttributes = ["NAME:Attributes", "Name:=", self.name]
         return coordinateSystemAttributes
 
@@ -480,7 +476,8 @@ class Modeler(object):
     
     Parameters
     ----------
-    parent :
+    parent : 
+        Inherited parent object.
     
     """
 
@@ -520,7 +517,7 @@ class GeometryModeler(Modeler, object):
     Parameters
     ----------
     parent :
-    
+        Inherited parent object.
     is3D : bool, optional
         Check if the analysis is a 3D type.
         
@@ -588,6 +585,8 @@ class GeometryModeler(Modeler, object):
         
         Returns
         -------
+        list
+            List of coordinates.
         
         """
         coord = []
@@ -714,7 +713,7 @@ class GeometryModeler(Modeler, object):
         Returns
         --------
         str
-            Dimensionality.  Either ``"2D"`` or ``"3D"``.
+            Dimensionality, which is either ``"2D"`` or ``"3D"``.
         
         """
         try:
@@ -744,9 +743,12 @@ class GeometryModeler(Modeler, object):
         
         .. note::
             Non-model objects are also returned.
+        
         Returns
         --------
         list
+            List of object IDs with the object name as the key.
+        
         """
         if self.dimension == '3D':
             objects = self.oeditor.GetObjectsInGroup("Solids")
@@ -765,7 +767,7 @@ class GeometryModeler(Modeler, object):
         ----------
         origin : list
             List of ``[x, y, z]`` coordinates for the origin of the coordinate system. 
-            The default is `None``, in which case ``[0, 0, 0]`` is used.
+            The default is ``None``, in which case ``[0, 0, 0]`` is used.
         reference_cs : str, optional
             Name of the reference coordinate system. The default is ``"Global"``.
         name : str
@@ -785,7 +787,7 @@ class GeometryModeler(Modeler, object):
             to the global coordinate system centered in the global origin.
 
         view : str, optional
-            If ``mode="view"``, the view for the coordinate system. Options are 
+            View for the coordinate system if ``mode="view"``. Options are 
             ``"XY"``, ``"XZ"``, ``"XY"``, ``"iso"``, ``None``, and ``"rotate"``
             (obsolete). The default is ``"iso"``.
             
@@ -793,25 +795,25 @@ class GeometryModeler(Modeler, object):
                Because the ``"rotate"`` option is obsolete, use ``mode="axis"`` instead.
                
         x_pointing : list, optional
-            If ``mode="axis"``, the list of the ``[x, y, z]`` coordinates specifying 
-            the X axis pointing in the global coordinate system. The default is 
-            ``[1, 0, 0]``.
+            List of the ``[x, y, z]`` coordinates specifying the X axis 
+            pointing in the global coordinate system if ``mode="axis"``. 
+            The default is ``[1, 0, 0]``.
         y_pointing : list, optional
-            If ``mode="axis"``, the list of the ``[x, y, z]`` coordinates specifying 
-            the Y axis pointing in the global coordinate system. The default is
-            ``[0, 1, 0]``.
+            List of the ``[x, y, z]`` coordinates specifying the Y axis 
+            pointing in the global coordinate system if ``mode="axis"``. 
+            The default is ``[0, 1, 0]``.
         phi : float, optional
-            If ``mode="zxz"`` or ``mode="zyz"``, the Euler angle phi in degrees. The
-            default is ``0``.
+            Euler angle phi in degrees if ``mode="zxz"`` or ``mode="zyz"``. 
+            The default is ``0``.
         theta : float, optional
-            If ``mode="zxz"``, ``mode="zyz"``, or ``mode="axisrotation"``, the Euler angle 
-            theta or rotation angle in degrees. The default is ``0``.
+            Euler angle theta or rotation angle in degrees if ``mode="zxz"``, 
+            ``mode="zyz"``, or ``mode="axisrotation"``. The default is ``0``.
         psi : float, optional
-            If ``mode="zxz"`` or ``mode="zyz"``, the Euler angle psi in degrees. The
-            default is ``0``.
+            Euler angle psi in degrees if ``mode="zxz"`` or ``mode="zyz"``. 
+            The default is ``0``.
         u : list
-            If ``mode="zxz"``, the ``[ux, uy, uz]`` coordinates for the rotation axis. The 
-            default is ``[1, 0, 0]``.
+            List of the ``[ux, uy, uz]`` coordinates for the rotation axis 
+            if ``mode="zxz"``. The default is ``[1, 0, 0]``.
         
         Returns
         -------
@@ -842,14 +844,14 @@ class GeometryModeler(Modeler, object):
         Parameters
         ----------
         point : list
-            List of ``[x, y, z]`` coordinates to transform.
+            List of the ``[x, y, z]`` coordinates to transform.
         ref_cs : str
             Name of the destination reference system.
 
         Returns
         -------
         list
-            List of transformed ``[x, y, z]`` coordinates.
+            List of the transformed ``[x, y, z]`` coordinates.
             
         """
         if type(point) is not list or len(point) != 3:
@@ -907,7 +909,7 @@ class GeometryModeler(Modeler, object):
         """Assign temperature and deformation objects to a Workbench link.
 
         .. deprecated:: 0.3.1
-           Use :func:`GeometryModeler.set_objects_deformation` and :func:`GeometryModeler.set_objects_temperature`
+           Use :func:`GeometryModeler.set_objects_temperature` and :func:`GeometryModeler.set_objects_deformation` 
            instead.
 
         Parameters
@@ -918,7 +920,7 @@ class GeometryModeler(Modeler, object):
             Ambient temperature. The default is ``22.``
         create_project_var : bool, optional
             Whether to create a project variable for the ambient temperature.
-            The default is ``False``. When ``True,`` ``$AmbientTemp`` is created. 
+            The default is ``False``. If ``True,`` ``$AmbientTemp`` is created. 
         enable_deformation : bool, optional
             Whether to add the deformation link. The default is ``True``.
         
@@ -965,7 +967,7 @@ class GeometryModeler(Modeler, object):
     def set_objects_temperature(self, objects, ambient_temp=22, create_project_var=False):
         """Assign temperatures to objects.
         
-        The material assigned to the objects must have a thermal modifier.
+        The materials assigned to the objects must have a thermal modifier.
 
         Parameters
         ----------
@@ -1058,16 +1060,17 @@ class GeometryModeler(Modeler, object):
         objectname : str
             Name of the object.
         startposition : list
-            List of ``[x, y, z]`` coordinates for the starting position of the object.
+            List of the ``[x, y, z]`` coordinates for the starting position of the object.
         offset :
             Offset to apply.  
         plane :
+            Plane of the arc. Choices are ``"YZ"``, ``"ZX"``, and ``"XY"``.
             
 
         Returns
         -------
         list
-            List of ``[x, y, z]`` coordinates for the position of the point.
+            List of the ``[x, y, z]`` coordinates for the position of the point.
         
         """
         position = [0, 0, 0]
@@ -1103,7 +1106,7 @@ class GeometryModeler(Modeler, object):
     def create_sheet_to_ground(self, objectname, groundname=None, axisdir=0, sheet_dim=1):
         """Create a sheet between an object and a ground plane. 
         
-        The ground plane has to be bigger than the object and perpendicular 
+        The ground plane must be bigger than the object and perpendicular 
         to one of the three axes.
 
         Parameters
@@ -1121,7 +1124,7 @@ class GeometryModeler(Modeler, object):
         Returns
         -------
         int
-            ID of the created sheet.
+            ID of the sheet created.
 
         """
         if axisdir>2:
@@ -1291,7 +1294,7 @@ class GeometryModeler(Modeler, object):
 
     @aedt_exception_handler
     def get_boundaries_name(self):
-        """Get all boundary names.
+        """Retrieve all boundary names.
 
         Returns
         -------
@@ -1391,12 +1394,12 @@ class GeometryModeler(Modeler, object):
         return_list : bool, option
             Whether to return a list of the selections. The default is
             ``False``, in which case a string of the selections is returned.
-            When ``True``, a list of the selections is returned.
+            If ``True``, a list of the selections is returned.
 
         Returns
         -------
         str or list
-           String or list of selections.
+           String or list of the selections.
 
         """
         if type(objtosplit) is not list:
@@ -1427,10 +1430,11 @@ class GeometryModeler(Modeler, object):
         objects : str, int, or list
             One or more objects to split. A list can contain
             both strings (object names) and integers (object IDs).
-        plane : int
-            Plane of the cut. Applications.CoordinateSystemPlane.XXXXXX
+        plane : str
+            Plane of the cut or the Application.CoordinateSystemPlane object. 
+            Choices for the coordinate plane are ``"XY"``, ``"YZ"``, and ``"ZX"``.
         sides : str
-            Which side to keep. Options are ``"Both", ``"PositiveOnly"``, 
+            Which side to keep. Options are ``"Both"``, ``"PositiveOnly"``, 
             and ``"NegativeOnly"``. The default is ``"Both"``, in which case 
             all objects are kept after the split. 
 
@@ -1469,10 +1473,10 @@ class GeometryModeler(Modeler, object):
         bjid : str, int
             Name or ID of the object. 
         position : float
-            List of ``[x, y, z]`` coordinates or 
+            List of the ``[x, y, z]`` coordinates or 
             Application.Position object for the selection.
         vector : float
-            List of the ``[x1, y1, z1]``coordinates or 
+            List of the ``[x1, y1, z1]`` coordinates or 
             Application.Position object for the vector.
 
         Returns
@@ -1506,11 +1510,11 @@ class GeometryModeler(Modeler, object):
         objid : str, int
             Name or ID of the object. 
         position : float
-            List of ``[x, y, z]`` coordinates or 
+            List of the ``[x, y, z]`` coordinates or the
             Application.Position object for the selection.
         vector : float
-            List of the ``[x1, y1, z1]``coordinates or 
-            Application.Position object for the vector.
+            List of the ``[x1, y1, z1]`` coordinates or 
+            the Application.Position object for the vector.
         
         Returns
         -------
@@ -1544,13 +1548,14 @@ class GeometryModeler(Modeler, object):
         objid : str, int
             Name or ID of the object. 
         cs_axis :
-            Coordinate system axis or Application.CoordinateSystemAxis object.
+            Coordinate system axis or the Application.CoordinateSystemAxis object.
         angle : float, optional
             Angle rotation in degees. The default is ``90``.
         nclones : int, optional
             Number of clones. The default is ``2``.
         create_new_objects :
-            Whether to create the copies as new objects. The default is ``True``.
+            Whether the copies are to be created as new objects. The 
+            default is ``True``.
 
         Returns
         -------
@@ -1584,7 +1589,7 @@ class GeometryModeler(Modeler, object):
         objid : str, int, Object3d
             Name or ID of the object.
         vector : list
-            List of ``[x1,y1,z1]`` coordinates or Application.Position object for 
+            List of ``[x1,y1,z1]`` coordinates or the Application.Position object for 
             the vector.
         attachObject : bool, optional
             The default is ``False``.
@@ -1620,7 +1625,7 @@ class GeometryModeler(Modeler, object):
         objid :
             Name or ID of the object.
         thickness : float
-            Thickness to thicken the sheet by. 
+            Amount to thicken the sheet by. 
         bBothSides : bool, optional
             Whether to thicken the sheet on both side. The default is ``False``.
 
@@ -1760,7 +1765,7 @@ class GeometryModeler(Modeler, object):
         objid : str, int
             Name or ID of the object.
         cs_axis :
-            Coordinate system axis or Application.CoordinateSystemAxis object.
+            Coordinate system axis or the Application.CoordinateSystemAxis object.
         sweep_angle : float
             Sweep angle in degrees. The default is ``360``.
         draft_angle : float
@@ -1863,10 +1868,10 @@ class GeometryModeler(Modeler, object):
         objid : int
              ID of the object.
         cs_axis:
-            Coordinate system axis or Application.CoordinateSystemAxis object.
+            Coordinate system axis or the Application.CoordinateSystemAxis object.
         angle : float
-            Angle of rotation. The units can be either degrees or radians.
-            The default is ``90.0``.
+            Angle of rotation. The units, defined by ``unit``, can be either 
+            degrees or radians. The default is ``90.0``.
         
         unit : text, optional
              Units for the angle. Options are ``"deg"`` or ``"rad"``. 
@@ -1897,7 +1902,7 @@ class GeometryModeler(Modeler, object):
         ----------
         blank_list : list of Object3d or list of int
             List of objects from which to subtract. The list can be of
-            either Object3d objects or object IDs.
+            either :class:`pyaedt.modeler.Object3d.Object3d` objects or object IDs.
         tool_list : list
             List of objects to subtract. The list can be of
             either Object3d objects or object IDs.
@@ -2080,7 +2085,7 @@ class GeometryModeler(Modeler, object):
         objid : list, Position object
             List of object IDs.
         vector : list 
-            Vector of direction move. It can be a list of ``[x, y, z]`` 
+            Vector of the direction move. It can be a list of the ``[x, y, z]`` 
             coordinates or a Position object.
 
         Returns
@@ -2104,15 +2109,13 @@ class GeometryModeler(Modeler, object):
 
     @aedt_exception_handler
     def chassis_subtraction(self, chassis_part):
-        """Routine to subtract all non-vacuum objects from the main chassis object.
+        """Subtract all non-vacuum objects from the main chassis object.
 
         Parameters
         ----------
         chassis_part : str
             Name of the main chasis object.
 
-        Returns
-        -------
 
         """
         self._messenger.add_info_message("Subtract all objects from Chassis object - exclude vacuum objs")
@@ -2152,6 +2155,8 @@ class GeometryModeler(Modeler, object):
 
         Returns
         -------
+        tuple
+           Position of object after offset is applied.
 
         """
         if i > 7:
@@ -2237,7 +2242,7 @@ class GeometryModeler(Modeler, object):
         Returns
         -------
         str
-            Name of the matched dobject.
+            Name of the matched object.
 
         """
         return self.oeditor.GetMatchedObjectName(search_string)
@@ -2272,7 +2277,7 @@ class GeometryModeler(Modeler, object):
 
     @aedt_exception_handler
     def create_airbox(self, offset=0, offset_type="Absolute", defname="AirBox_Auto"):
-        """Add an airbox that is big as the bounding extension of the project.
+        """Create an airbox that is as big as the bounding extension of the project.
 
         Parameters
         ----------
@@ -2281,7 +2286,7 @@ class GeometryModeler(Modeler, object):
             The default is ``0``.
         offset_type : str
             Type of the offset. Options are ``"Absolute"`` and ``"Relative"``. 
-            The default is ``"Absolute"`. When ``"Relative"``, the offset input 
+            The default is ``"Absolute"``. If ``"Relative"``, the offset input 
             is between 0 and 100.
         defname : str, optional
             Name of the airbox. The default is ``"AirBox_Auto"``.
@@ -2289,7 +2294,7 @@ class GeometryModeler(Modeler, object):
         Returns
         -------
         int
-            ID of the added airbox.
+            ID of the airbox created.
 
         """
         self._messenger.add_info_message("Adding Airbox to the Bounding ")
@@ -2312,7 +2317,7 @@ class GeometryModeler(Modeler, object):
 
     @aedt_exception_handler
     def create_air_region(self, x_pos=0, y_pos=0, z_pos=0, x_neg=0, y_neg=0, z_neg=0):
-        """Create a region object.
+        """Create an air region.
 
         Parameters
         ----------
@@ -2333,8 +2338,9 @@ class GeometryModeler(Modeler, object):
 
         Returns
         -------
-        bool
-            ``True`` when successful, ``False`` when failed.
+        list
+            List of ``[x_pos, y_pos, z_pos, x_neg, y_neg, z_neg]`` 
+            coordinates for the region created.
 
         """
         return self.primitives.create_region([x_pos, y_pos, z_pos, x_neg, y_neg, z_neg])
@@ -2349,7 +2355,7 @@ class GeometryModeler(Modeler, object):
         startingposition : list
             List of ``[x, y, z]`` coordinates for the starting position.
         axis :
-            Coordinate system axis.
+            Coordinate system axis or the Application.CoordinateSystemAxis object.
         innerradius : float, optional
             Inner coax radius. The default is ``1``.
         outerradius : float, optional
@@ -2387,7 +2393,7 @@ class GeometryModeler(Modeler, object):
                          wg_material="aluminum", parametrize_w=False, parametrize_h=False, create_sheets_on_openings=False, name=None):
         """Create a standard waveguide and optionally parametrize `W` and `H`.
         
-        Available models are: WG0.0, WG0, WG1, WG2, WG3, WG4, WG5, WG6, WG7, WG8, WG9, WG9A, WG10, WG11, WG11A, WG12, WG13,
+        Available models are WG0.0, WG0, WG1, WG2, WG3, WG4, WG5, WG6, WG7, WG8, WG9, WG9A, WG10, WG11, WG11A, WG12, WG13,
         WG14, WG15, WR102, WG16, WG17, WG18, WG19, WG20, WG21, WG22, WG24, WG25, WG26, WG27, WG28, WG29, WG29, WG30, WG31, 
         and WG32.
 
@@ -2401,7 +2407,7 @@ class GeometryModeler(Modeler, object):
             Waveguide model. The default is ``"WG0"``.
         wg_length : float, optional
             Waveguide length. The default is ``100``.
-        wg_thickness :
+        wg_thickness : float, optional
             Waveguide thickness. The default is ``None``, in which case the
             thickness is `wg_height/20`. 
         wg_material : str, optional
@@ -2418,7 +2424,7 @@ class GeometryModeler(Modeler, object):
         Returns
         -------
         int
-            ID of the waveguide.
+            ID of the waveguide created.
 
         """
         p1=-1
@@ -2514,8 +2520,8 @@ class GeometryModeler(Modeler, object):
         Parameters
         ----------
         listvalues : list
-            List of padding percentages along all six directions: 
-            ``[+X, -X, +Y, -Y, +Z, -Z]``.
+            List of the padding percentages along all six directions in 
+            the form ``[+X, -X, +Y, -Y, +Z, -Z]``.
 
         Returns
         -------
@@ -2548,7 +2554,7 @@ class GeometryModeler(Modeler, object):
             List of face names.
             
         name : str
-           Name of the new face list.
+           Name of the new list.
     
         Returns
         -------
@@ -2611,15 +2617,15 @@ class GeometryModeler(Modeler, object):
 
     @aedt_exception_handler
     def create_faceted_bondwire_from_true_surface(self, bondname, bond_direction, min_size = 0.2, numberofsegments=8):
-        """Create a faceted bondwire from an existing true surface one.
+        """Create a faceted bondwire from an existing true surface bondwire.
 
         Parameters
         ----------
         bondname : str
-            Name of bondwire to replace.
+            Name of the bondwire to replace.
         bond_direction : list
-            List of ``[x, y, z]`` coordinates for the bondwire axis direction. 
-            For example, ``[0, 1, 2]``.
+            List of the ``[x, y, z]`` coordinates for the axis direction 
+            of the bondwire. For example, ``[0, 1, 2]``.
         min_size : float
             Minimum size of the subsegment of the new polyline. The default is ``0.2``.
         numberofsegments : int, optional
@@ -2628,7 +2634,7 @@ class GeometryModeler(Modeler, object):
         Returns
         -------
         str
-            Name of the created bondwire.
+            Name of the bondwire created.
 
         """
         old_bondwire = self.primitives.get_object_from_name(bondname)
@@ -2759,7 +2765,7 @@ class GeometryModeler(Modeler, object):
         externalobjects : list
             List of outer objects.
         name : str, optional
-            Name of the face list. The default is ``"outer_faces"``.
+            Name of the new list. The default is ``"outer_faces"``.
 
         Returns
         -------
@@ -2774,7 +2780,7 @@ class GeometryModeler(Modeler, object):
 
     @aedt_exception_handler
     def explicitiyly_subtract(self, diellist, metallist):
-        """Expliticilty subtract all elements in a SolveInside list and a SolveSurface list.
+        """Explicitly subtract all elements in a SolveInside list and a SolveSurface list.
 
         Parameters
         ----------
@@ -2822,7 +2828,7 @@ class GeometryModeler(Modeler, object):
         """Find the vaccums given a list of input sheets.
         
         Starting from a list of input sheets, this method creates a list of output sheets 
-        that represent the blank part (vaacum) and the tool part of all the intersections 
+        that represent the blank parts (vacuums) and the tool parts of all the intersections 
         of solids on the sheets. After a vacuum on a sheet is found, a port can be 
         created on it. 
 
@@ -2834,7 +2840,7 @@ class GeometryModeler(Modeler, object):
         Returns
         -------
         List
-            List of output sheets (2x len(objs)).
+            List of output sheets (`2x len(objs)`).
 
         """
         faces = []
@@ -2873,7 +2879,7 @@ class GeometryModeler(Modeler, object):
         Returns
         -------
         list
-            List of object names for the specified type.     
+            List of the object names for the specified type.     
 
         """
         objNames = list(self.oeditor.GetObjectsInGroup(type))
@@ -2955,7 +2961,7 @@ class GeometryModeler(Modeler, object):
         ----------
         txtfilter : str, optional
             Text string for filtering. The default is ``None``. When a text string is specified, 
-            line data is generated only if this text string is continaed within the line name.
+            line data is generated only if this text string is contained within the line name.
 
         Returns
         -------
@@ -2984,7 +2990,7 @@ class GeometryModeler(Modeler, object):
         Returns
         -------
         list
-            List of ``[x, y, (z)]`` coordinate for the 2D or 3D line object.
+            List of the ``[x, y, (z)]`` coordinates for the 2D or 3D line object.
 
         """
         position_list = []
@@ -3050,7 +3056,7 @@ class GeometryModeler(Modeler, object):
 
     @aedt_exception_handler
     def import_spaceclaim_document(self, SCFile):
-        """Import a SpaceClaim document in HFSS.
+        """Import a SpaceClaim document into HFSS.
 
         Parameters
         ----------
@@ -3220,6 +3226,7 @@ class GeometryModeler(Modeler, object):
         """Break the connection with SpaceClaim.
         
         Returns
+        -------
         bool
             ``True`` when successful, ``False`` when failed.
         
@@ -3275,12 +3282,12 @@ class GeometryModeler(Modeler, object):
         ----------
         mats : list
             List of materials to include in the search for outer 
-            faces. All outer faces with these materials will be returned.
+            faces.
 
         Returns
         -------
         list
-            List of outer faces.
+            List of all outer faces of the specified materials.
 
         """
         self._messenger.add_info_message("Selecting outer faces.")
@@ -3312,7 +3319,7 @@ class GeometryModeler(Modeler, object):
         Returns
         -------
         list
-            List of outer faces.
+            List of outer faces in the given list of objects.
 
         """
         self._messenger.add_info_message("Selecting outer faces.")
@@ -3348,7 +3355,7 @@ class GeometryModeler(Modeler, object):
     def automatic_thicken_sheets(self, inputlist, value, internalExtr=True, internalvalue=1):
         """Create thickened sheets for a list of input faces.
         
-        This method automatically checks the direction in which to thicken the sheet.
+        This method automatically checks the direction in which to thicken the sheets.
 
         Parameters
         ----------
@@ -3357,9 +3364,9 @@ class GeometryModeler(Modeler, object):
         value : float
             Value in millimeters to thicken the sheets.
         internalExtr : bool, optional
-            Whether to extrude the sheet internally. The default is ``True``.
+            Whether to extrude sheets internally. The default is ``True``.
         internalvalue : float, optional
-            Value in millimeters to thicken internally the sheet (vgoing into the model).
+            Value in millimeters to thicken the sheets internally (vgoing into the model).
             The default is ``1``.
 
         Returns
@@ -3479,7 +3486,7 @@ class GeometryModeler(Modeler, object):
         Parameters
         ----------
         args: list or int
-            Position of the item as either a list of ``[x, y, z]`` coordinates 
+            Position of the item as either a list of the ``[x, y, z]`` coordinates 
             or three separate values. If no or insufficient arguments 
             are specified, ``0`` is applied.
         
@@ -3575,7 +3582,7 @@ class GeometryModeler(Modeler, object):
         Returns
         -------
         str
-           Name of the assigned group.
+           Name assigned to the new group.
 
         """
         all_objects = self.primitives.object_names
