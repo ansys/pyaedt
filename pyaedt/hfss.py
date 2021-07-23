@@ -1664,7 +1664,18 @@ class Hfss(FieldAnalysis3D, object):
         -------
         str
             Name of the source created when successful, ``False`` otherwise.
-        
+
+        Examples
+        --------
+
+        Create a sheet and assign to it some voltage.
+
+        >>> sheet = hfss.modeler.primitives.create_rectangle(hfss.CoordinateSystemPlane.XYPlane,
+        ...                                                  [0, 0, -70], [10, 2], name="VoltageSheet",
+        ...                                                  matname="copper")
+        >>> hfss.assig_voltage_source_to_sheet(sheet.name, hfss.AxisDir.XNeg, "VoltageSheetExample")
+        'VoltageSheetExample'
+
         """
 
         if self.solution_type in ["DrivenModal", "DrivenTerminal", "Transient Network"]:
@@ -1680,15 +1691,15 @@ class Hfss(FieldAnalysis3D, object):
 
     @aedt_exception_handler
     def assign_current_source_to_sheet(self, sheet_name, axisdir=0, sourcename=None):
-        """Create a voltage source taking one sheet.
+        """Create a current source taking one sheet.
 
         Parameters
         ----------
         sheet_name : str
             Name of the sheet to apply the boundary to.
         axisdir : str, optional
-            Position of the voltage source. It should be one of the values for ``Application.AxisDir``, 
-            which are: ``"XNeg"``, ``"YNeg"``, ``"ZNeg"``, ``"XPos"``, ``"YPos"``, and ``"ZPos"``. 
+            Position of the current source. It should be one of the values for ``Application.AxisDir``,
+            which are: ``"XNeg"``, ``"YNeg"``, ``"ZNeg"``, ``"XPos"``, ``"YPos"``, and ``"ZPos"``.
             The default is ``"0"``.
         sourcename : str, optional
             Name of the source. The default is ``None``.
@@ -1697,7 +1708,17 @@ class Hfss(FieldAnalysis3D, object):
         -------
         str
             Name of the source created when successful, ``False`` otherwise.
-        
+
+        Examples
+        --------
+
+        Create a sheet and assign to it some current.
+
+        >>> sheet = hfss.modeler.primitives.create_rectangle(hfss.CoordinateSystemPlane.XYPlane, [0, 0, -50],
+        ...                                                  [5, 1], name="CurrentSheet", matname="copper")
+        >>> hfss.assign_current_source_to_sheet(sheet.name, hfss.AxisDir.XNeg, "CurrentSheetExample")
+        'CurrentSheetExample'
+
         """
 
         if self.solution_type in ["DrivenModal", "DrivenTerminal", "Transient Network"]:
@@ -1729,7 +1750,19 @@ class Hfss(FieldAnalysis3D, object):
         :class:`pyaedt.modules.Boundary.BoundaryObject`
             Boundary object.
 
+        Examples
+        --------
+
+        Create a sheet and use it to create a Perfect E.
+
+        >>> sheet = hfss.modeler.primitives.create_rectangle(hfss.CoordinateSystemPlane.XYPlane, [0, 0, -90],
+        ...                                                  [10, 2], name="PerfectESheet", matname="Copper")
+        >>> perfect_e_from_sheet = hfss.assign_perfecte_to_sheets(sheet.name, "PerfectEFromSheet")
+        >>> type(perfect_e_from_sheet)
+        <class 'pyaedt.modules.Boundary.BoundaryObject'>
+
         """
+
         if self.solution_type in ["DrivenModal", "DrivenTerminal", "Transient Network", "SBR+"]:
             if not sourcename:
                 sourcename = generate_unique_name("PerfE")
@@ -1754,7 +1787,19 @@ class Hfss(FieldAnalysis3D, object):
         :class:`pyaedt.modules.Boundary.BoundaryObject`
             Boundary object.
 
+        Examples
+        --------
+
+        Create a sheet and use it to create a Perfect H.
+
+        >>> sheet = hfss.modeler.primitives.create_rectangle(hfss.CoordinateSystemPlane.XYPlane, [0, 0, -90],
+        ...                                                  [10, 2], name="PerfectHSheet", matname="Copper")
+        >>> perfect_h_from_sheet = hfss.assign_perfecth_to_sheets(sheet.name, "PerfectHFromSheet")
+        >>> type(perfect_h_from_sheet)
+        <class 'pyaedt.modules.Boundary.BoundaryObject'>
+
         """
+
         if self.solution_type in ["DrivenModal", "DrivenTerminal", "Transient Network", "SBR+"]:
 
             if not sourcename:
@@ -1767,18 +1812,18 @@ class Hfss(FieldAnalysis3D, object):
     @aedt_exception_handler
     def assign_lumped_rlc_to_sheet(self, sheet_name, axisdir=0, sourcename=None, rlctype="Parallel",
                                    Rvalue=None, Lvalue=None, Cvalue=None):
-        """Create a Perfect H taking one sheet.
+        """Create a lumped RLC taking one sheet.
 
         Parameters
         ----------
         sheet_name : str
             Name of the sheet to apply the boundary to.
-        axisdir : st, optional
-            Position of the port. It should be one of the values for ``Application.AxisDir``, 
-            which are: ``"XNeg"``, ``"YNeg"``, ``"ZNeg"``, ``"XPos"``, ``"YPos"``, and ``"ZPos"``. 
+        axisdir : str, optional
+            Position of the port. It should be one of the values for ``Application.AxisDir``,
+            which are: ``"XNeg"``, ``"YNeg"``, ``"ZNeg"``, ``"XPos"``, ``"YPos"``, and ``"ZPos"``.
             The default is ``"0"``.
         sourcename : str, optional
-            Perfect H name. The default is ``None``.
+            Lumped RLC name. The default is ``None``.
         rlctype : str, optional
             Type of the RLC. Options are ``"Parallel"`` or ``"Series"``. The default is ``"Parallel"``.
         Rvalue : float, optional
@@ -1793,8 +1838,22 @@ class Hfss(FieldAnalysis3D, object):
        
         Returns
         -------
-        str
-            Name of the Perfect H created when successful, ``False`` otherwise.
+        :class:`pyaedt.modules.Boundary.BoundaryObject`
+            Boundary object if successful. ``False`` if unsuccessful.
+
+        Examples
+        --------
+
+        Create a sheet and use it to create a lumped RLC.
+
+        >>> sheet = hfss.modeler.primitives.create_rectangle(hfss.CoordinateSystemPlane.XYPlane,
+        ...                                                  [0, 0, -90], [10, 2], name="RLCSheet",
+        ...                                                  matname="Copper")
+        >>> lumped_rlc_to_sheet = hfss.assign_lumped_rlc_to_sheet(sheet.name, hfss.AxisDir.XPos,
+        ...                                                       Rvalue=50, Lvalue=1e-9,
+        ...                                                       Cvalue=1e-6)
+        >>> type(lumped_rlc_to_sheet)
+        <class 'pyaedt.modules.Boundary.BoundaryObject'>
 
         """
 
@@ -1845,9 +1904,21 @@ class Hfss(FieldAnalysis3D, object):
 
         Returns
         -------
-        str
-            Name of the impedance created when successful, ``False`` otherwise.
-        
+        :class:`pyaedt.modules.Boundary.BoundaryObject`
+            Boundary object if successful. ``False`` if unsuccessful.
+
+        Examples
+        --------
+
+        Create a sheet and use it to create an impedance.
+
+        >>> sheet = hfss.modeler.primitives.create_rectangle(hfss.CoordinateSystemPlane.XYPlane,
+        ...                                                  [0, 0, -90], [10, 2], name="ImpedanceSheet",
+        ...                                                  matname="Copper")
+        >>> impedance_to_sheet = hfss.assign_impedance_to_sheet(sheet.name, "ImpedanceFromSheet", 100, 50)
+        >>> type(impedance_to_sheet)
+        <class 'pyaedt.modules.Boundary.BoundaryObject'>
+
         """
 
         if self.solution_type in ["DrivenModal", "DrivenTerminal", "Transient Network"]:
