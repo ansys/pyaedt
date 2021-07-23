@@ -1151,19 +1151,19 @@ class Hfss(FieldAnalysis3D, object):
         
         Returns
         -------
-        :class:`pyaedt.modules.Boundary.BoundaryObject`
-            Boundary object.
+        :class:`pyaedt.modules.Boundary.BoundaryObject` or bool
+            Boundary object if successful. ``False`` if unsuccessful.
 
         Examples
         --------
 
-        Create two boxes that will be used to create a perfect E named
+        Create two boxes that will be used to create a Perfect E named
         named ``'PerfectE'``.
 
         >>> box1 = hfss.modeler.primitives.create_box([0,0,0], [10,10,5],
-        ...                                                   "perfect1", "Copper")
+        ...                                           "perfect1", "Copper")
         >>> box2 = hfss.modeler.primitives.create_box([0, 0, 10], [10, 10, 5],
-        ...                                                   "perfect2", "copper")
+        ...                                           "perfect2", "copper")
         >>> perfect_e = hfss.create_perfecte_from_objects("perfect1", "perfect2", 
         ...                                               hfss.AxisDir.ZNeg, "PerfectE")
         pyaedt Info: Connection Correctly created
@@ -1208,17 +1208,19 @@ class Hfss(FieldAnalysis3D, object):
 
         Returns
         -------
-        :class:`pyaedt.modules.Boundary.BoundaryObject`
-            Boundary object.
+        :class:`pyaedt.modules.Boundary.BoundaryObject` or bool
+            Boundary object if successful. ``False`` if unsuccessful.
 
+        Examples
+        --------
 
-        Create two boxes that will be used to create a perfect H named
+        Create two boxes that will be used to create a Perfect H named
         named ``'PerfectH'``.
 
         >>> box1 = hfss.modeler.primitives.create_box([0,0,20], [10,10,5],
-        ...                                                   "perfect1", "Copper")
+        ...                                           "perfect1", "Copper")
         >>> box2 = hfss.modeler.primitives.create_box([0, 0, 30], [10, 10, 5],
-        ...                                                   "perfect2", "copper")
+        ...                                           "perfect2", "copper")
         >>> perfect_h = hfss.create_perfecth_from_objects("perfect1", "perfect2", 
         ...                                               hfss.AxisDir.ZNeg, "PerfectH")
         pyaedt Info: Connection Correctly created
