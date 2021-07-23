@@ -730,7 +730,7 @@ class Hfss(FieldAnalysis3D, object):
             Second (ending) object for the integration line.
         axisdir : str, optional
             Position of the port. It should be one of the values for ``Application.AxisDir``, 
-            which are:  ``"XNeg"``, ``"YNeg"``, ``"ZNeg"``, ``"XPos"``, ``"YPos"``, and ``"ZPos"``. 
+            which are: ``"XNeg"``, ``"YNeg"``, ``"ZNeg"``, ``"XPos"``, ``"YPos"``, and ``"ZPos"``.
             The default is ``"XYNeg"``.
         impedance : float, optional
             Port impedance. The default is ``50``.
@@ -748,7 +748,23 @@ class Hfss(FieldAnalysis3D, object):
         str
             Name of port created when successful, ``False`` otherwise.
 
+        Examples
+        --------
+
+        Create two boxes that will be used to create a circuit port
+        named ``'CircuitExample'``.
+
+        >>> box1 = hfss.modeler.primitives.create_box([0, 0, 80], [10, 10, 5],
+        ...                                           "BoxCircuit1", "copper")
+        >>> box2 = hfss.modeler.primitives.create_box([0, 0, 100], [10, 10, 5],
+        ...                                           "BoxCircuit2", "copper")
+        >>> hfss.create_circuit_port_between_objects("BoxCircuit1", "BoxCircuit2",
+        ...                                          hfss.AxisDir.XNeg, 50,
+        ...                                          "CircuitExample", True, 50, False)
+        'CircuitExample'
+
         """
+
         if not self.modeler.primitives.does_object_exists(startobj) or not self.modeler.primitives.does_object_exists(
                 endobject):
             self._messenger.add_error_message("One or both objects doesn't exists. Check and retry")
@@ -787,14 +803,32 @@ class Hfss(FieldAnalysis3D, object):
         deemb : bool, optional
             Whether to deembed the port. The default is ``False``.
         port_on_plane : bool, optional
-            Whether to create the source on the plane orthogonal to ``AxisDir``. 
+            Whether to create the source on the plane orthogonal to ``AxisDir``.
             The default is ``True``.
 
         Returns
         -------
         str
             Name of port created when successful, ``False`` otherwise.
+
+        Examples
+        --------
+
+        Create two boxes that will be used to create a lumped port
+        named ``'LumpedPort'``.
+
+        >>> box1 = hfss.modeler.primitives.create_box([0, 0, 50], [10, 10, 5],
+        ...                                           "BoxLumped1","copper")
+        >>> box2 = hfss.modeler.primitives.create_box([0, 0, 60], [10, 10, 5],
+        ...                                           "BoxLumped2", "copper")
+        >>> hfss.create_lumped_port_between_objects("BoxLumped1", "BoxLumped2",
+        ...                                         hfss.AxisDir.XNeg, 50,
+        ...                                         "LumpedPort", True, False)
+        pyaedt Info: Connection Correctly created
+        'LumpedPort'
+
         """
+
         if not self.modeler.primitives.does_object_exists(startobj) or not self.modeler.primitives.does_object_exists(
                 endobject):
             self._messenger.add_error_message("One or both objects do not exist. Check and retry.")
@@ -828,7 +862,7 @@ class Hfss(FieldAnalysis3D, object):
             Second (ending) object for the integration line.
         axisdir : str, optional
             Position of the port. It should be one of the values for ``Application.AxisDir``, 
-            which are: ``"XNeg"``, ``"YNeg"``, ``"ZNeg"``, ``"XPos"``, ``"YPos"``, and ``"ZPos"``. 
+            which are: ``"XNeg"``, ``"YNeg"``, ``"ZNeg"``, ``"XPos"``, ``"YPos"``, and ``"ZPos"``.
             The default value is ``"0"``.
         sourcename : str, optional
             Name of the source. The default is ``None``.
@@ -977,7 +1011,7 @@ class Hfss(FieldAnalysis3D, object):
             Second (ending) object for the integration line.
         axisdir : str, optional
             Position of the port. It should be one of the values for ``Application.AxisDir``, 
-            which are: ``"XNeg"``, ``"YNeg"``, ``"ZNeg"``, ``"XPos"``, ``"YPos"``, and ``"ZPos"``. 
+            which are: ``"XNeg"``, ``"YNeg"``, ``"ZNeg"``, ``"XPos"``, ``"YPos"``, and ``"ZPos"``.
             The default is ``"0"``.
         impedance : float, optional
             Port impedance. The default is ``50``.
@@ -999,8 +1033,24 @@ class Hfss(FieldAnalysis3D, object):
         -------
         :class:`pyaedt.modules.Boundary.BoundaryObject`
             Boundary object.
-        
+
+        Examples
+        --------
+
+        Create two boxes that will be used to create a wave port
+        named ``'WavePort'``.
+
+        >>> box1 = hfss.modeler.primitives.create_box([0,0,0], [10,10,5],
+        ...                                           "BoxWave1", "copper")
+        >>> box2 = hfss.modeler.primitives.create_box([0, 0, 10], [10, 10, 5],
+        ...                                           "BoxWave2", "copper")
+        >>> wave_port = hfss.create_wave_port_between_objects("BoxWave1", "BoxWave2",
+        ...                                                   hfss.AxisDir.XNeg, 50, 1,
+        ...                                                   "WavePort", False)
+        pyaedt Info: Connection Correctly created
+
         """
+
         if not self.modeler.primitives.does_object_exists(startobj) or not self.modeler.primitives.does_object_exists(
                 endobject):
             self._messenger.add_error_message("One or both objects do not exist. Check and retry.")
@@ -1057,7 +1107,7 @@ class Hfss(FieldAnalysis3D, object):
         Parameters
         ----------
         startobj : 
-            First (starting) object for the integration line. This is typically the reference plane. 
+            First (starting) object for the integration line. This is typically the reference plane.
         endobject :
             Second (ending) object for the integration line.
         axisdir : int, optional
