@@ -730,7 +730,7 @@ class Hfss(FieldAnalysis3D, object):
             Second (ending) object for the integration line.
         axisdir : str, optional
             Position of the port. It should be one of the values for ``Application.AxisDir``, 
-            which are:  ``"XNeg"``, ``"YNeg"``, ``"ZNeg"``, ``"XPos"``, ``"YPos"``, and ``"ZPos"``. 
+            which are: ``"XNeg"``, ``"YNeg"``, ``"ZNeg"``, ``"XPos"``, ``"YPos"``, and ``"ZPos"``. 
             The default is ``"XYNeg"``.
         impedance : float, optional
             Port impedance. The default is ``50``.
