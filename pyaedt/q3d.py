@@ -93,7 +93,7 @@ class Q3d(QExtractor, object):
         the active version or latest installed version is used.
     NG : bool, optional
         Whether to launch AEDT in the non-graphical mode. The default
-        is ``False``, which launches AEDT in the graphical mode.
+        is ``False``, in which case AEDT launches in the graphical mode.
     AlwaysNew : bool, optional
         Whether to launch an instance of AEDT in a new thread, even if
         another instance of the ``specified_version`` is active on the
@@ -132,7 +132,7 @@ class Q3d(QExtractor, object):
 
     @aedt_exception_handler
     def assign_source_to_objectface(self, object_name, axisdir=0, source_name=None, net_name=None):
-        """Generate a source on a face ID of an object. 
+        """Generate a source on a face of an object. 
         
         The face ID is selected based on ``axisdir``. It is the face that 
         has the maximum/minimum in this axis direction.
@@ -172,14 +172,12 @@ class Q3d(QExtractor, object):
 
     @aedt_exception_handler
     def assign_source_to_sheet(self, sheetname, objectname=None, netname=None, sourcename=None):
-        """Generate a source on an object.
-
-        It is the face that has the maximum/minimum in this axis direction.
+        """Generate a source on a sheet.
 
         Parameters
         ----------
         sheetname : str
-            Name of the sheet or object to create the source on.
+            Name of the sheet to create the source on.
         objectname :  str, optional
             Name of the parent object. The default is ``None``.
         netname : str, optional
@@ -211,7 +209,7 @@ class Q3d(QExtractor, object):
 
     @aedt_exception_handler
     def assign_sink_to_objectface(self, object_name, axisdir=0, sink_name=None, net_name=None):
-        """Generate a sink on a face ID of an object.
+        """Generate a sink on a face of an object.
         
         The face ID is selected based on ``axisdir``. It is the face that has 
         the maximum/minimum in this axis direction.
@@ -250,14 +248,12 @@ class Q3d(QExtractor, object):
 
     @aedt_exception_handler
     def assign_sink_to_sheet(self, sheetname, objectname=None, netname=None, sinkname=None):
-        """Generate a sink on an object.  
+        """Generate a sink on a sheet.  
         
-        It is the face that has the maximum/minimum in this axis direction.
-
         Parameters
         ----------
         sheetname :
-            Name of the sheet or object to create the sink on.
+            Name of the sheet to create the sink on.
         objectname : str, optional
             Name of the parent object. The default is ``None``.
         netname : str, optional
