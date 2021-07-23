@@ -305,7 +305,7 @@ class Desktop:
             
     @property
     def version_keys(self):
-        """Version keys."""
+        """Version keys for AEDT."""
 
         self._version_keys = []
         self._version_ids = {}
@@ -612,7 +612,7 @@ class Desktop:
         release_desktop(close_projects, close_on_exit)
 
     def force_close_desktop(self):
-        """Close all AEDT projects and shut down AEDT.
+        """Forcibly close all AEDT projects and shut down AEDT.
     
         Examples
         --------
