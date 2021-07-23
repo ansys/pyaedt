@@ -94,7 +94,7 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
         designs are present, an empty design is created.
     solution_type : str, optional
         Solution type to apply to the design. The default is
-        ``None``, which applies the default type.
+        ``None``, in which case the default type is applied.
     setup_name : str, optional
         Name of the setup to use as the nominal. The default is
         ``None``, in which case the active setup is used or 
@@ -104,7 +104,7 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
         the active version or latest installed version is used.
     NG : bool, optional
         Whether to launch AEDT in the non-graphical mode. The default 
-        is``False``, which launches AEDT in the graphical mode.  
+        is``False``, in which case AEDT is launched in the graphical mode.  
     AlwaysNew : bool, optional
         Whether to launch an instance of AEDT in a new thread, even if
         another instance of the ``specified_version`` is active on the
@@ -137,7 +137,7 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
 
     >>> aedtapp = Hfss3dLayout("myfile.aedt")
 
-    Create a `Desktop on 2021R1` object and then create a
+    Create an AEDT 2021 R1 object and then create a
     `Hfss3dLayout` object and open the specified project.
 
     >>> aedtapp = Hfss3dLayout(specified_version="2021.1", projectname="myfile.aedt")
@@ -158,14 +158,14 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
 
     @aedt_exception_handler
     def create_edge_port(self, primivitivename, edgenumber, iscircuit=True):
-        """Create a new edge port.
+        """Create an edge port.
 
         Parameters
         ----------
         primivitivename : str
-            Name of the primitive.
+            Name of the edge port.
         edgenumber :
-            Edge number to create the port on.
+            Edge number to create the edge port on.
         iscircuit : bool, optional
             Whether the edge port is a circuit port. The default is ``False``.
 
@@ -252,7 +252,7 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
             layer is assigned automatically.
         bot_layer : str
             Bottom layer of the pin. The default is ``None``, in which case the
-            bottom is assigned automatically.
+            bottom layer is assigned automatically.
 
         Returns
         -------
@@ -430,9 +430,9 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
              Name of the plot. The default is ``"S Parameter Plot Nominal"``.
         sweep_name : str, optional
              Name of the sweep. The default is ``None``.
-        PortNames : str or list, optional
-             Names of one or more ports. The default is ``None``.
-        PortExcited : optional
+        port_names : str or list, optional
+             One or more port names. The default is ``None``.
+        port_excited : optional
              The default is ``None``.
         variations : optional
              The default is ``None``.
@@ -577,9 +577,9 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
         Parameters
         ----------
         setupname : str
-            Name of the setup that is attached to the sweep.
+            Name of the setup to attach to the sweep.
         unit : str
-            Units, such as ``"MHz"`` or ``"GHz"``.
+            Unit of the frequency, such as ``"MHz"`` or ``"GHz"``.
         freqstart : float
             Starting frequency of the sweep.
         freqstop : float
