@@ -851,8 +851,8 @@ class Hfss(FieldAnalysis3D, object):
         >>> box2 = hfss.modeler.primitives.create_box([30, 0, 10], [40, 10, 5],
         ...                                           "BoxVolt2", "copper")
         >>> hfss.create_voltage_source_from_objects("BoxVolt1", "BoxVolt2",
-        ...                                                  hfss.AxisDir.XNeg,
-        ...                                                  "VoltageSource")
+        ...                                         hfss.AxisDir.XNeg,
+        ...                                         "VoltageSource")
         pyaedt Info: Connection Correctly created
         'VoltageSource'
 
@@ -910,8 +910,8 @@ class Hfss(FieldAnalysis3D, object):
         >>> box2 = hfss.modeler.primitives.create_box([30, 0, 30], [40, 10, 5],
         ...                                           "BoxCurrent2", "copper")
         >>> hfss.create_current_source_from_objects("BoxCurrent1", "BoxCurrent2",
-        ...                                                  hfss.AxisDir.XPos,
-        ...                                                  "CurrentSource")
+        ...                                         hfss.AxisDir.XPos,
+        ...                                         "CurrentSource")
         pyaedt Info: Connection Correctly created
         'CurrentSource'
 
