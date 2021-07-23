@@ -585,7 +585,8 @@ class GeometryModeler(Modeler, object):
         
         Returns
         -------
-        type
+        list
+            List of coordinates.
         
         """
         coord = []
@@ -2115,9 +2116,6 @@ class GeometryModeler(Modeler, object):
         chassis_part : str
             Name of the main chasis object.
 
-        Returns
-        -------
-        type
 
         """
         self._messenger.add_info_message("Subtract all objects from Chassis object - exclude vacuum objs")
@@ -2157,7 +2155,8 @@ class GeometryModeler(Modeler, object):
 
         Returns
         -------
-        type
+        tuple
+           Position of object after offset is applied.
 
         """
         if i > 7:
@@ -2829,7 +2828,7 @@ class GeometryModeler(Modeler, object):
         """Find the vaccums given a list of input sheets.
         
         Starting from a list of input sheets, this method creates a list of output sheets 
-        that represent the blank parts (vaacums) and the tool parts of all the intersections 
+        that represent the blank parts (vacuums) and the tool parts of all the intersections 
         of solids on the sheets. After a vacuum on a sheet is found, a port can be 
         created on it. 
 

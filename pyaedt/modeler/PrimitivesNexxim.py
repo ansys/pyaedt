@@ -703,7 +703,7 @@ class NexximComponents(CircuitComponents):
 
         Returns
         -------
-        type
+        :class:`pyaedt.modeler.Object3d.CircuitComponent`
             Object with properties.
         
         """
@@ -977,7 +977,7 @@ class NexximComponents(CircuitComponents):
         thevenin_calculation : bool, optional
             Whether to perform the Thevenin equivalent calculation. The default is ``False``.
         setup_name : str
-            Name of the solution detup to push.
+            Name of the solution setup to push.
 
         Returns
         -------
