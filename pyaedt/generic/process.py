@@ -224,7 +224,7 @@ class SiwaveSolve(object):
             p = subprocess.Popen(command)
             p.wait()
 
-    def export_3d_cad(self, format_3d="Q3D", output_folder=None, net_list=None, unite_nets=False):
+    def export_3d_cad(self, format_3d="Q3D", output_folder=None, net_list=None):
         """Export edb to Q3D or HFSS
 
         Parameters
@@ -234,8 +234,7 @@ class SiwaveSolve(object):
             Output file folder. If `` then the aedb parent folder is used
         net_list : list, default ``None``
             Define Nets to Export. if None, all nets will be exported
-        unite_nets: bool, default ``False``
-            it defines if unite has to be applied
+
         Returns
         -------
         str
@@ -250,13 +249,10 @@ class SiwaveSolve(object):
             f.write("exportOptions = os.path.join(r'{}', 'options.config')\n".format(output_folder))
             f.write("oDoc.ScrImportEDB(edbpath)\n")
             f.write("oDoc.ScrSaveProjectAs(os.path.join(r'{}','{}'))\n".format(output_folder, 'test.siw'))
-            if not net_list:
-                f.write("allnets = oDoc.ScrGetNetNameList()\n")
-            else:
+            if net_list:
                 f.write("allnets = []\n")
                 for el in net_list:
                     f.write("allnets.append('{}')\n".format(el))
-            if not unite_nets:
                 f.write("for i in range(0, len(allnets)):\n")
                 f.write("    if allnets[i] != 'DUMMY':\n")
                 f.write("        oDoc.ScrSelectNet(allnets[i], 1)\n")
