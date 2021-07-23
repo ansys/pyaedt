@@ -9,14 +9,12 @@ from ..generic.general_methods import aedt_exception_handler
 import json
 
 class Materials(object):
-    """Materials class.
-    
-    This class contains the AEDT materials database and all methods for creating and editing materials.
+    """Contains the AEDT materials database and all methods for creating and editing materials.
     
     Parameters
     ----------
     parent : str
-        Name of the parent AEDT application.
+        Inherited parent object.
 
     """
     @property
@@ -43,7 +41,7 @@ class Materials(object):
 
     @property
     def oproject(self):
-        """Project object."""
+        """Project."""
         return self._parent.oproject
 
     def __init__(self, parent):
@@ -70,7 +68,7 @@ class Materials(object):
 
     @aedt_exception_handler
     def _get_materials(self):
-        """ """
+        """Get materials."""
         mats = {}
         try:
             for ds in self._parent.project_properies['AnsoftProject']['Definitions']['Materials']:
@@ -98,7 +96,7 @@ class Materials(object):
         ----------
         mat : str
             Name of the material. If the material exists and is not in the materials database, 
-            it is added to the materials database.
+            it is added to this database.
 
         Returns
         -------
@@ -125,7 +123,7 @@ class Materials(object):
         Parameters
         ----------
         mat : str
-            Name of the material. All propperties for this material are checked
+            Name of the material. All properties for this material are checked
             for thermal modifiers.
 
         Returns
@@ -150,9 +148,9 @@ class Materials(object):
 
     @aedt_exception_handler
     def add_material(self, materialname, props=None):
-        """Create a material with default values. 
+        """Add a material with default values. 
         
-        When the created material object is returned, you can customize 
+        When the added material object is returned, you can customize 
         the material. This method does not update the material.
         
         Parameters
@@ -199,14 +197,14 @@ class Materials(object):
         Parameters
         ----------
         material_name : str
-            Name of the material.
+            Name of the surface material.
         emissivity : float, optional
             Emissivity value.
         
         Returns
         -------
-        SurfaceMaterial
-            Material emissivity.
+        :class:`pyaedt.modules.SurfaceMaterial`
+            Surface Material object added.
             
         Examples
         --------
@@ -218,17 +216,17 @@ class Materials(object):
         """
         
         materialname = material_name.lower()
-        self._messenger.add_info_message('Adding New Surface Material material to Project Library: ' + materialname)
+        self._messenger.add_info_message('Adding a surface material to the project library: ' + materialname)
         if materialname in self.surface_material_keys:
             self._messenger.add_warning_message(
-                "Warning. The material is already in database. Please change name or edit it")
+                "Warning. The material is already in the database. Change the name or edit it.")
             return self.surface_material_keys[materialname]
         else:
             material = SurfaceMaterial(self._parent, materialname)
             if emissivity:
                 material.emissivity = emissivity
                 material.update()
-            self._messenger.add_info_message("Material added. Please edit it to update in Desktop")
+            self._messenger.add_info_message("Material has been added. Edit it to update in Desktop.")
             self.surface_material_keys[materialname] = material
             return self.surface_material_keys[materialname]
 
@@ -255,7 +253,7 @@ class Materials(object):
 
     @aedt_exception_handler
     def add_material_sweep(self, swargs, matname):
-        """Create a new sweep material made of an array of materials.
+        """Create a sweep material made of an array of materials.
         
         If a material needs to have a dataset (thermal modifier), then a 
         dataset is created. Material properties are loaded from the XML file 
@@ -268,7 +266,8 @@ class Materials(object):
         matname : str
             Name of the sweep material.
         enableTM : bool, optional
-            Unavailable currently. The default is ``True``.
+            Unavailable currently. Whether to enable the thermal modifier.
+            The default is ``True``.
 
         Returns
         -------
@@ -416,7 +415,7 @@ class Materials(object):
         Returns
         -------
         list
-            List of conductor names.
+            List of conductor in the material database.
             
         """
         data = []
@@ -432,7 +431,7 @@ class Materials(object):
         Returns
         -------
         list
-            List of dielctric names.
+            List of dielctrics in the material database.
             
         """
         data = []
@@ -469,7 +468,7 @@ class Materials(object):
         Parameters
         ----------
         full_json_path : str
-            Full path to export the JSON file to.
+            Full path and name of the JSON file to export to.
 
         Returns
         -------
