@@ -48,7 +48,8 @@ class Edb(object):
     Parameters
     ----------
     edbpath : str
-        Full path to the ``aedb`` folder.
+        Full path to the ``aedb`` folder. the variable can also contain the path to a layout to import. Allowed formarts are
+        brd, xml (IPC2581), gds, dxf
     cellname : str
         Name of the cell to select.
     isreadonly : bool, optional
@@ -86,6 +87,10 @@ class Edb(object):
         self._nets = None
         self._db = None
         self._edb = None
+        if _ironpython and inside_desktop:
+            self.standalone = False
+        else:
+            self.standalone = True
         if edb_initialized:
             self.oproject = oproject
             if isaedtowned:
@@ -95,7 +100,7 @@ class Edb(object):
                 if not edbpath or not os.path.exists(edbpath):
                     self._messenger = EDBMessageManager()
                 elif os.path.exists(edbpath):
-                    self._messenger = EDBMessageManager(edbpath)
+                    self._messenger = EDBMessageManager(os.path.dirname(edbpath))
 
             self.student_version = student_version
             self._messenger.add_info_message("Messenger Initialized in EDB")
@@ -265,11 +270,7 @@ class Edb(object):
             self._init_dlls()
         self._messenger.add_warning_message("EDB Path {}".format(self.edbpath))
         self._messenger.add_warning_message("EDB Version {}".format(self.edbversion))
-        if _ironpython and inside_desktop:
-
-            self.edb.Database.SetRunAsStandAlone(False)
-        else:
-            self.edb.Database.SetRunAsStandAlone(True)
+        self.edb.Database.SetRunAsStandAlone(self.standalone)
 
         self._db = self.edb.Database.Open(self.edbpath, self.isreadonly)
         self._active_cell = None
@@ -281,7 +282,7 @@ class Edb(object):
             self._active_cell = list(self._db.TopCircuitCells)[0]
 
         if self._active_cell:
-            self.builder = self.layout_methods.GetBuilder(self._db, self._active_cell)
+            self.builder = self.layout_methods.GetBuilder(self._db, self._active_cell, self.standalone)
         else:
             self.builder = None
         return self.builder
@@ -306,7 +307,7 @@ class Edb(object):
             hdl = Convert.ToUInt64(self.oproject.GetEDBHandle())
             self._db = self.edb.Database.Attach(hdl)
             self._active_cell = self.edb.Cell.Cell.FindByName(self.db, self.edb.Cell.CellType.CircuitCell, self.cellname)
-            self.builder = self.layout_methods.GetBuilder(self.db, self._active_cell)
+            self.builder = self.layout_methods.GetBuilder(self.db, self._active_cell, self.standalone, True)
             return self.builder
         else:
             self._db = None
@@ -329,15 +330,13 @@ class Edb(object):
         """
         if init_dlls:
             self._init_dlls()
-        if _ironpython and inside_desktop:
-            self.edb.Database.SetRunAsStandAlone(False)
-        else:
-            self.edb.Database.SetRunAsStandAlone(True)
+        self.edb.Database.SetRunAsStandAlone(self.standalone)
+
         self._db = self.edb.Database.Create(self.edbpath)
         if not self.cellname:
             self.cellname = generate_unique_name("Cell")
         self._active_cell = self.edb.Cell.Cell.Create(self._db,  self.edb.Cell.CellType.CircuitCell, self.cellname)
-        self.builder = self.layout_methods.GetBuilder(self.db, self._active_cell)
+        self.builder = self.layout_methods.GetBuilder(self.db, self._active_cell, self.standalone)
         print("active cell set")
         return self.builder
 
@@ -361,10 +360,19 @@ class Edb(object):
             Full path to the AEDB file.
 
         """
+        self._components = None
+        self._core_primitives = None
+        self._stackup = None
+        self._padstack = None
+        self._siwave = None
+        self._hfss = None
+        self._nets = None
+        self._db = None
         if init_dlls:
             self._init_dlls()
         aedb_name= os.path.splitext(os.path.basename(input_file))[0] + ".aedb"
-        output = self.layout_methods.ImportCadToEdb(input_file, os.path.join(working_dir, aedb_name), self.edbversion)
+        output = self.layout_methods.ImportCadToEdb(input_file, os.path.join(working_dir, aedb_name), self.edbversion, self.standalone)
+
         assert output.Item1, "Error Importing File"
         self.builder = output.Item2
         self._db = self.builder.EdbHandler.dB
