@@ -1,5 +1,5 @@
 # Setup paths for module imports
-from .conftest import local_path, scratch_path
+from _unittest.conftest import local_path, scratch_path
 
 # Import required modules
 from pyaedt import Simplorer
@@ -8,7 +8,7 @@ import gc
 import os
 netlist1 = 'netlist_small.cir'
 
-class TestSimplorer:
+class TestClass:
 
     def setup_class(self):
         project_name = "SimplorerProject"

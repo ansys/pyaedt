@@ -2,7 +2,7 @@ import os
 import ntpath
 import warnings
 
-from ..generic.general_methods import aedt_exception_handler, generate_unique_name
+from ..generic.general_methods import aedt_exception_handler, generate_unique_name, retry_ntimes
 from .Analysis import Analysis
 from ..modeler.Model3D import Modeler3D
 from ..modules.Mesh import Mesh
@@ -182,28 +182,28 @@ class FieldAnalysis3D(Analysis, object):
                "Maxwell3D": ["Maxwell3D", "General"]}
         if type == "Boundary":
             propserv = boundary[self._design_type]
-            val = self.odesign.GetPropertyValue(propserv, objectname, property)
+            val = retry_ntimes(10, self.odesign.GetPropertyValue, propserv, objectname, property)
             return val
         elif type == "Setup":
             propserv = setup[self._design_type]
-            val = self.odesign.GetPropertyValue(propserv, objectname, property)
+            val = retry_ntimes(10, self.odesign.GetPropertyValue, propserv, objectname, property)
             return val
 
         elif type == "Excitation":
             propserv = excitation[self._design_type]
-            val = self.odesign.GetPropertyValue(propserv, objectname, property)
+            val = retry_ntimes(10, self.odesign.GetPropertyValue, propserv, objectname, property)
             return val
 
         elif type == "Mesh":
             propserv = mesh[self._design_type]
-            val = self.odesign.GetPropertyValue(propserv, objectname, property)
+            val = retry_ntimes(10, self.odesign.GetPropertyValue, propserv, objectname, property)
             return val
         else:
             propservs = all[self._design_type]
             for propserv in propservs:
                 properties = list(self.odesign.GetProperties(propserv, objectname))
                 if property in properties:
-                    val = self.odesign.GetPropertyValue(propserv, objectname, property)
+                    val = retry_ntimes(10, self.odesign.GetPropertyValue, propserv, objectname, property)
                     return val
         return None
 

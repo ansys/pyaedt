@@ -122,6 +122,7 @@ class Edb(object):
                 self.import_layout_pcb(edbpath, working_dir)
         else:
             warnings.warn("Failed to initialize Dlls")
+        self._messenger.add_info_message("Edb Initialized")
 
 
     @aedt_exception_handler
@@ -232,12 +233,12 @@ class Edb(object):
             clr.AddReference('Ansys.Ansoft.EdbBuilderUtils')
             clr.AddReference('EdbLib')
             clr.AddReference('Ansys.Ansoft.SimSetupData')
-
         os.environ["ECAD_TRANSLATORS_INSTALL_DIR"] = self.base_path
         oaDirectory = os.path.join(self.base_path, 'common', 'oa')
         os.environ['ANSYS_OADIR'] = oaDirectory
         os.environ['PATH'] = '{};{}'.format(os.environ['PATH'], self.base_path)
         edb =__import__('Ansys.Ansoft.Edb')
+
         self.edb = edb.Ansoft.Edb
         edbbuilder=__import__('Ansys.Ansoft.EdbBuilderUtils')
         self.edblib = __import__('EdbLib')
@@ -264,7 +265,12 @@ class Edb(object):
             self._init_dlls()
         self._messenger.add_warning_message("EDB Path {}".format(self.edbpath))
         self._messenger.add_warning_message("EDB Version {}".format(self.edbversion))
-        self.edb.Database.SetRunAsStandAlone(True)
+        if _ironpython and inside_desktop:
+
+            self.edb.Database.SetRunAsStandAlone(False)
+        else:
+            self.edb.Database.SetRunAsStandAlone(True)
+
         self._db = self.edb.Database.Open(self.edbpath, self.isreadonly)
         self._active_cell = None
         if self.cellname:
@@ -273,6 +279,7 @@ class Edb(object):
                     self._active_cell = cell
         else:
             self._active_cell = list(self._db.TopCircuitCells)[0]
+
         if self._active_cell:
             self.builder = self.layout_methods.GetBuilder(self._db, self._active_cell)
         else:
@@ -295,15 +302,17 @@ class Edb(object):
             self._init_dlls()
         self._messenger.add_info_message("Opening EDB from HDL")
         self.edb.Database.SetRunAsStandAlone(False)
-        hdl = Convert.ToUInt64(self.oproject.GetEDBHandle())
-        print(hdl)
-        self._db = self.edb.Database.Attach(hdl)
-        print(self._db)
-        print(self.cellname)
-        self._active_cell = self.edb.Cell.Cell.FindByName(self.db, self.edb.Cell.CellType.CircuitCell, self.cellname)
-        self.builder = self.layout_methods.GetBuilder(self.db, self._active_cell)
-        print("active cell set")
-        return self.builder
+        if self.oproject.GetEDBHandle():
+            hdl = Convert.ToUInt64(self.oproject.GetEDBHandle())
+            self._db = self.edb.Database.Attach(hdl)
+            self._active_cell = self.edb.Cell.Cell.FindByName(self.db, self.edb.Cell.CellType.CircuitCell, self.cellname)
+            self.builder = self.layout_methods.GetBuilder(self.db, self._active_cell)
+            return self.builder
+        else:
+            self._db = None
+            self._active_cell = None
+            self.builder = None
+            return None
 
     @aedt_exception_handler
     def create_edb(self, init_dlls=False):
@@ -320,11 +329,13 @@ class Edb(object):
         """
         if init_dlls:
             self._init_dlls()
-        self.edb.Database.SetRunAsStandAlone(True)
+        if _ironpython and inside_desktop:
+            self.edb.Database.SetRunAsStandAlone(False)
+        else:
+            self.edb.Database.SetRunAsStandAlone(True)
         self._db = self.edb.Database.Create(self.edbpath)
         if not self.cellname:
             self.cellname = generate_unique_name("Cell")
-
         self._active_cell = self.edb.Cell.Cell.Create(self._db,  self.edb.Cell.CellType.CircuitCell, self.cellname)
         self.builder = self.layout_methods.GetBuilder(self.db, self._active_cell)
         print("active cell set")

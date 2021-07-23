@@ -1275,7 +1275,13 @@ class Primitives(object):
             objects = self.object_names
         elif not isinstance(objects, list):
             objects = [objects]
-        self._messenger.logger.debug("Deleting objects: {}".format(objects))
+        for el in objects:
+            if el not in self.object_names:
+                objects.remove(el)
+        if not objects:
+            self._messenger.add_warning_message("No objects to delete")
+            return False
+        self._messenger.add_info_message("Deleting objects: {}".format(objects))
 
         slice = min(100, len(objects))
         num_objects = len(objects)

@@ -1,6 +1,6 @@
 import os
 # Setup paths for module imports
-from .conftest import scratch_path, local_path
+from _unittest.conftest import scratch_path, local_path
 import gc
 # Import required modules
 from pyaedt import Q3d, Q2d
@@ -9,7 +9,7 @@ from pyaedt.generic.filesystem import Scratch
 test_project_name = "coax_Q3D"
 bondwire_project_name = "bondwireq3d"
 
-class TestQ3D:
+class TestClass:
     def setup_class(self):
         # set a scratch directory and the environment / test data
         with Scratch(scratch_path) as self.local_scratch:

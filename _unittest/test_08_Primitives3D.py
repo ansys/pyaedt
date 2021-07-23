@@ -110,13 +110,13 @@ class TestClass(BasisTest):
 
     @pyaedt_unittest_check_desktop_error
     def test_create_box(self):
-        o = self.aedtapp.modeler.primitives.create_box([0, 0, 0], [10, 10, 5], "MyCreatedBox", "Copper")
+        o = self.aedtapp.modeler.primitives.create_box([0, 0, 0], [10, 10, 5], "MyCreatedBox_11", "Copper")
         assert o.id > 0
-        assert o.name.startswith("MyCreatedBox")
+        assert o.name.startswith("MyCreatedBox_11")
         assert o.object_type == "Solid"
         assert o.is3d == True
         assert o.material_name == "copper"
-        assert "MyCreatedBox" in self.aedtapp.modeler.primitives.solid_names
+        assert "MyCreatedBox_11" in self.aedtapp.modeler.primitives.solid_names
         assert len(self.aedtapp.modeler.primitives.object_names) == len(self.aedtapp.modeler.primitives.objects)
 
 
@@ -547,8 +547,8 @@ class TestClass(BasisTest):
     @pyaedt_unittest_check_desktop_error
     def test_31a_create_rect_sheet_to_region(self):
         self.aedtapp.modeler.primitives.create_region()
-        self.create_copper_box(name="MyBox")
-        groundplane = self.aedtapp.modeler.create_sheet_to_ground("MyBox")
+        self.create_copper_box(name="MyBox_to_gnd")
+        groundplane = self.aedtapp.modeler.create_sheet_to_ground("MyBox_to_gnd")
         assert groundplane.id > 0
 
     @pyaedt_unittest_check_desktop_error
@@ -720,9 +720,9 @@ class TestClass(BasisTest):
     @pyaedt_unittest_check_desktop_error
     def test_40_remove_vertex_from_polyline(self):
 
-        p1, p2, test_points = self.create_polylines()
+        p1, p2, test_points = self.create_polylines("Poly_remove_")
 
-        P = self.aedtapp.modeler.primitives["Poly_segmented"]
+        P = self.aedtapp.modeler.primitives["Poly_remove_segmented"]
         P.remove_vertex(test_points[2])
 
         P1 = self.aedtapp.modeler.primitives.create_polyline([[0, 1, 2], [0, 2, 3], [2, 1, 4]])
@@ -826,7 +826,7 @@ class TestClass(BasisTest):
         pass
 
     @pyaedt_unittest_check_desktop_error
-    def test_create_equationbased_curve(self):
+    def test_50_create_equationbased_curve(self):
 
         eq_line = self.aedtapp.modeler.primitives.create_equationbased_curve(x_t="_t", y_t="_t*2", num_points = 0)
         assert len(eq_line.edges) == 1
@@ -836,7 +836,7 @@ class TestClass(BasisTest):
         eq_xsection = self.aedtapp.modeler.primitives.create_equationbased_curve(x_t="_t", y_t="_t*2", xsection_type="Circle")
         assert eq_xsection.name in self.aedtapp.modeler.primitives.solid_names
 
-    def test_create_3dcomponent(self):
+    def test_51_create_3dcomponent(self):
         self.aedtapp['l_dipole'] = "13.5cm"
 
         compfile = self.aedtapp.components3d['Dipole_Antenna_DM']
@@ -846,7 +846,7 @@ class TestClass(BasisTest):
         assert isinstance(name, str)
 
     @pyaedt_unittest_check_desktop_error
-    def test_assign_material(self):
+    def test_52_assign_material(self):
         box1 = self.aedtapp.modeler.primitives.create_box([60, 60, 60], [4, 5, 5])
         box2 = self.aedtapp.modeler.primitives.create_box([50, 50, 50], [2, 3, 4])
         cyl1 = self.aedtapp.modeler.primitives.create_cylinder(cs_axis="X", position=[50, 0, 0], radius=1, height=20)
