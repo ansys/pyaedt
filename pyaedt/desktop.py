@@ -272,7 +272,7 @@ class Desktop:
         active setup or latest installed version is used.
     NG: bool, optional
         Whether to launch AEDT in the non-graphical mode. The default 
-        is ``False``, in which case AEDT launches in the graphical mode.
+        is ``False``, in which case AEDT is launched in the graphical mode.
     AlwaysNew : bool, optional
         Whether to launch an instance of AEDT in a new thread, even if 
         another instance of the ``specified_version`` is active on the machine.
