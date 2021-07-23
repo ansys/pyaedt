@@ -31,11 +31,12 @@ jobs:
           }
           if ( $Timeout  -eq 0)
           {
+            get-content .\_unittest_ironpython\runner_unittest.log
             exit 1
           }
           else
           {
+            get-content .\_unittest_ironpython\runner_unittest.log
             exit 0
           }
-          get-content .\_unittest_ironpython\runner_unittest.log
 
