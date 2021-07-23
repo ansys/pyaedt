@@ -130,8 +130,8 @@ class SolutionData(object):
         
         Returns
         -------
-        type
-        
+        dict
+            Updated sweeps.
         """
       
         self._sweeps = OrderedDict({})
@@ -534,7 +534,7 @@ class FieldPlot:
     @property
     def plotsettings(self):
         """Plot settings.
-                
+         
         Returns
         -------
         list
@@ -633,7 +633,7 @@ class PostProcessor(object):
         
         Returns
         -------
-        type
+        :class:`pyaedt.modeler.Primitives`
             Primitives object.
         
         """
@@ -1273,7 +1273,7 @@ class PostProcessor(object):
         Returns
         -------
         str
-            file path of the generated JPG file.
+            File path of the generated JPG file.
         """
         # Setup arguments list for createReport function
         if not dir:
