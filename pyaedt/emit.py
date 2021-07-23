@@ -9,11 +9,12 @@ from .generic.general_methods import aedt_exception_handler, generate_unique_nam
 
 
 class Emit(FieldAnalysisEmit, object):
-    """Creates only a skeleton for an empty design.
+    """Emit application interface. 
 
     .. note::
-       This object has very limited functionalities. No methods
-       have been implemented yet.
+       This object creates only a skeleton for an empty design.
+       It has very limited functionalities, and no methods
+       are implemented yet.
 
     Parameters
     ----------
@@ -39,7 +40,7 @@ class Emit(FieldAnalysisEmit, object):
         used.
     NG : bool, optional
         Whether to launch AEDT in the non-graphical mode. The default
-        is ``False``, which launches AEDT in the graphical mode.
+        is ``False``, in which case AEDT is launched in the graphical mode.
     AlwaysNew : bool, optional
         Whether to launch an instance of AEDT in a new thread, even if
         another instance of the ``specified_version`` is active on the
@@ -68,7 +69,8 @@ class Emit(FieldAnalysisEmit, object):
     
     >>> app = Emit(projectname,designame)
 
-    Create an instance of Emit and open the specified project.
+    Create an instance of Emit and open the specified project, which is 
+    named ``"myfile.aedt"``.
 
     >>> app = Emit("myfile.aedt")
 
