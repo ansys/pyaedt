@@ -52,7 +52,7 @@ class Emit(FieldAnalysisEmit, object):
 
     Examples
     --------
-    Create an instance of Emit and connect to an existing Maxwell
+    Create an instance of Emit and connect to an existing Emit
     design or create a new Emit design if one does not exist.
 
     >>> from pyaedt import Emit
@@ -69,8 +69,8 @@ class Emit(FieldAnalysisEmit, object):
     
     >>> app = Emit(projectname,designame)
 
-    Create an instance of Emit and open the specified project, which is 
-    named ``"myfile.aedt"``.
+    Create an instance of Emit and open the specified project,
+    which is named ``Myfile.aedt``.
 
     >>> app = Emit("myfile.aedt")
 
