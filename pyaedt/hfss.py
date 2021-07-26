@@ -2017,7 +2017,7 @@ class Hfss(FieldAnalysis3D, object):
         Examples
         --------
 
-        Create a rectangle sheet and use it to create a wave port.
+        Create a circle sheet and use it to create a wave port.
         Set up the thermal power for the port created above.
 
         >>> sheet = hfss.modeler.primitives.create_circle(hfss.CoordinateSystemPlane.YZPlane,
@@ -2046,12 +2046,12 @@ class Hfss(FieldAnalysis3D, object):
 
     @aedt_exception_handler
     def thicken_port_sheets(self, inputlist, value, internalExtr=True, internalvalue=1):
-        """Create thickened sheets over a list of input port faces.
+        """Create thickened sheets over a list of input port sheets.
        
         Parameters
         ----------
         inputlist : list
-            List of the faces to thicken.
+            List of the sheets to thicken.
         value :
             Value in millimeters for thickening the faces.
         internalExtr : bool, optional
@@ -2066,7 +2066,23 @@ class Hfss(FieldAnalysis3D, object):
         list
             List of the port IDs where thickened sheets were created.
 
+        Examples
+        --------
+
+        Create a circle sheet and use it to create a wave port.
+        Set up the thermal power for the port created above.
+
+        >>> sheet = hfss.modeler.primitives.create_circle(hfss.CoordinateSystemPlane.YZPlane,
+        ...                                               [-20, 0, 0], 10,
+        ...                                               name="sheet_for_source")
+        >>> wave_port = hfss.create_wave_port_from_sheet(sheet, 5, hfss.AxisDir.XNeg, 40,
+        ...                                              2, "SheetWavePort", True)
+        >>> hfss.thicken_port_sheets(["sheet_for_source"], 2)
+        pyaedt Info: done
+        {}
+
         """
+
         tol = 1e-6
         ports_ID = {}
         aedt_bounding_box = self.modeler.primitives.get_model_bounding_box()
