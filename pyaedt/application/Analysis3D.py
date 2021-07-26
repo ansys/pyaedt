@@ -39,7 +39,7 @@ class FieldAnalysis3D(Analysis, object):
         the active version or latest installed version is used.
     NG : bool, optional
         Whether to run AEDT in the non-graphical mode. The default 
-        is ``False``, which launches AEDT in the graphical mode.  
+        is ``False``, in which case AEDT is launched in the graphical mode.  
     AlwaysNew : bool, optional
         Whether to launch an instance of AEDT in a new thread, even if
         another instance of the ``specified_version`` is active on the
