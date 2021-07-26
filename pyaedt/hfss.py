@@ -687,7 +687,7 @@ class Hfss(FieldAnalysis3D, object):
         >>> setup = hfss.create_setup("DiscreteSweepSetup")
         >>> discrete_sweep = hfss.create_discrete_sweep(setupname="DiscreteSweepSetup",
         ...                                             sweepname="DiscreteSweep", freq="2GHz")
-        pyaedt Info: Sweep Created Correctly
+        pyaedt Info: Sweep was created correctly.
 
         """
 
