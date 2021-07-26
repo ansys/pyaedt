@@ -11,7 +11,7 @@ from ..modules.MeshIcepak import IcepakMesh
 class FieldAnalysisIcepak(Analysis, object):
     """Manages 3D field analysis setup in Icepak.
 
-    This calss is automatically initialized by an appliation call from 
+    This class is automatically initialized by an appliation call from 
     HFSS, Icepak, Q3D, or Maxwell 3D. See the application function 
     for parameter definitions.
 
@@ -40,7 +40,7 @@ class FieldAnalysisIcepak(Analysis, object):
         the active version or latest installed version is used.
     NG : bool, optional
         Whether to run AEDT in the non-graphical mode. The default 
-        is ``False``, which launches AEDT in the graphical mode.  
+        is ``False``, in which case AEDT launches in the graphical mode.  
     AlwaysNew : bool, optional
         Whether to launch an instance of AEDT in a new thread, even if
         another instance of the ``specified_version`` is active on the
@@ -92,18 +92,18 @@ class FieldAnalysisIcepak(Analysis, object):
         ----------
         ambienttemp : int, optional
             Ambient temperature, which can be an integer or a parameter already 
-            created in AEDT. The default is 20.
+            created in AEDT. The default is ``20``.
         gravityDir : int, optional
             Gravity direction index in the range ``[0, 5]``. The default is ``5``.
         perform_minimal_val : bool, optional
             Whether to perform minimal validation. The default is ``True``. 
-            When ``False``, full validation is performend.
+            If ``False``, full validation is performend.
         default_fluid : str, optional
             Default for the type of fluid. The default is ``"Air"``.
         default_solid :
             Default for  the type of solid. The default is ``"Al-Extruded"``.
         default_surface :
-            Default for the type of surface. The defaultis ``"Steel-oxidised-surface"``.
+            Default for the type of surface. The default is ``"Steel-oxidised-surface"``.
 
         Returns
         -------
@@ -349,7 +349,7 @@ class FieldAnalysisIcepak(Analysis, object):
 
     @aedt_exception_handler
     def assignmaterial_from_sherlock_files(self, csv_component, csv_material):
-        """Assign material to objects in a design based on a CSV files obtained from Sherlock.
+        """Assign material to objects in a design based on a CSV file obtained from Sherlock.
 
         Parameters
         ----------
