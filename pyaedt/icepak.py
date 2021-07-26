@@ -155,7 +155,7 @@ class Icepak(FieldAnalysisIcepak):
         bound = BoundaryObject(self, boundary_name, props, 'Opening')
         if bound.create():
             self.boundaries.append(bound)
-            self._messenger.add_info_message("Opening assigned.")
+            self._messenger.add_info_message("Opening Assigned")
             return bound
         return None
 
@@ -692,7 +692,7 @@ class Icepak(FieldAnalysisIcepak):
         hs_width: int, optional
             Width of the heat sink. The default is ``100``.
         hs_basethick : int, optional
-            Thickness of the heat sink base. The default is ``20``.
+            Thickness of the heat sink base. The default is ``10``.
         pitch: optional
             Pitch of the heat sink. The default is ``10``.
         thick : optional
