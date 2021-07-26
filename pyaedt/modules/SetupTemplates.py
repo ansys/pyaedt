@@ -1058,7 +1058,7 @@ class SweepQ3D(object):
         if props:
             self.props = props
         else:
-            self.props["Type"] = sweeptypeInitializes, creates, and updates sweeps in HFSS
+            self.props["Type"] = sweeptype
             self.props["isenabled"] = True
             self.props["RangeType"] = "LinearCount"
             self.props["RangeStart"] = "2.5GHz"
