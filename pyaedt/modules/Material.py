@@ -11,20 +11,16 @@ This module contains these data classes for creating a material library:
 * `SurMatProperties`
 * `SufaceMaterial`
 
-.. note::
-    This module is for internal use only.
-
 """
 from collections import defaultdict, OrderedDict
 from ..generic.general_methods import aedt_exception_handler, generate_unique_name
 from ..application.DataHandlers import dict2arg, arg2dict
 
 class MatProperties(object):
-    """MatProperties class.
+    """Contains a list of constant names for all possible materials with 
+    mappings to their internal XML names. 
     
-    This class contains a list of constant names for all possible materials with 
-    mappings to their internal XML names. Internal names are used in scripts, and 
-    XML names are used in the XML syntax.
+    Internal names are used in scripts, and XML names are used in the XML syntax.
     
     """
     aedtname =     ['permittivity', 'permeability', 'conductivity', 'dielectric_loss_tangent', 'magnetic_loss_tangent', 'thermal_conductivity', 'mass_density', 'specific_heat', 'thermal_expansion_coefficient', 'youngs_modulus',   'poissons_ratio',   'diffusivity', 'molecular_mass', 'viscosity', 'core_loss_kh', 'core_loss_kc', 'core_loss_ke']
@@ -51,7 +47,7 @@ class MatProperties(object):
         if aedtname:
             return cls.defaultunit[cls.aedtname.index(aedtname)]
         else:
-            raise TypeError("get_defaultunit: either fullname or catname MUST be defined")
+            raise TypeError("get_defaultunit: Either the full name or category name must be defined.")
 
 
     @classmethod
@@ -75,11 +71,10 @@ class MatProperties(object):
             raise TypeError("get_defaultunit: Either the full name or category name must be defined.")
 
 class SurfMatProperties(object):
-    """SurfMatProperties class.
+    """Contains a list of constant names for all possible materials with 
+    mappings to their internal XML names. 
     
-    The class contains a list of constant names for all possible materials with 
-    mappings to their internal XML names. Internal names are used in scripts, and 
-    XML names are used in the XML syntax.
+    Internal names are used in scripts, and XML names are used in the XML syntax.
  
     """
     aedtname =     ['surface_emissivity', 'surface_roughness', 'surface_diffuse_absorptance', 'surface_incident_absorptance']
@@ -129,9 +124,7 @@ class SurfMatProperties(object):
 
 
 class ClosedFormTM(object):
-    """ClosedFormTM class.
-    
-    This class provides all functionalities for manging closed-form thermal modifiers."""
+    """Manges closed-form thermal modifiers."""
     Tref = '22cel'
     C1 = 0
     C2 = 0
@@ -142,10 +135,7 @@ class ClosedFormTM(object):
     TMU = 1000
 
 class Dataset(object):
-    """Dataset class.
-    
-    This class provides all functionalities for managing datasets.
-    """
+    """Manages datasets."""
     ds = []
     unitx = ""
     unity = ""
@@ -156,10 +146,7 @@ class Dataset(object):
     namez = None
 
 class BasicValue(object):
-    """BasicValue class.
-    
-    This class provides all functionalities needed for 
-    thermal modifier calculations.
+    """Manages thermal modifier calculations.
     """
     value = None
     dataset = None
@@ -168,10 +155,7 @@ class BasicValue(object):
 
 
 class MatProperty(object):
-    """MatProperty class.
-    
-    This class provides all functionalities for managing simple, anisotropic, 
-    tensor, and non-linear properties.
+    """Manages simple, anisotropic, tensor, and non-linear properties.
     
     Parameters
     ----------
@@ -187,7 +171,7 @@ class MatProperty(object):
 
     @property
     def _messenger(self):
-        """_messenger."""
+        """Messenger."""
         return self._parent._messenger
 
     def __init__(self, parent, name, val=None, thermalmodifier=None):
@@ -218,20 +202,18 @@ class MatProperty(object):
 
     @property
     def type(self):
-        """Material property type."""
-        return self._type
-
-    @type.setter
-    def type(self, type):
-        """Set the material property type.
-
+        """Material property type.
+        
         Parameters
         ----------
         type : str
             Type of properties. Options are ``simple"``, 
             ``"anisotropic",`` ``"tensor"``, and ``"nonlinear",`` 
-            
         """
+        return self._type
+
+    @type.setter
+    def type(self, type):
         self._type = type
         if self._type == "simple":
             self._property_value = [self._property_value[0]]
@@ -369,8 +351,8 @@ class MatProperty(object):
 
         Returns
         -------
-        bool
-            ``True`` when successful, ``False`` when failed.
+        type
+        
 
         Examples
         --------
@@ -396,8 +378,8 @@ class MatProperty(object):
 
         Returns
         -------
-        bool
-            ``True`` when successful, ``False`` when failed.
+        type
+            
 
         Examples
         --------
@@ -446,8 +428,8 @@ class MatProperty(object):
 
         Returns
         -------
-        bool
-            ``True`` when successful, ``False`` when failed.
+        type
+            
 
         Examples
         --------
@@ -531,9 +513,7 @@ class MatProperty(object):
         return self._parent.update()
 
 class CommonMaterial(object):
-    """CommonMaterial class.
-    
-    This class provides all functionalities for datasets with frequency-dependent materials.
+    """Manages datasets with frequency-dependent materials.
     
     Parameters
     ----------
@@ -558,12 +538,12 @@ class CommonMaterial(object):
 
     @property
     def _messenger(self):
-        """_messenger."""
+        """Messenger."""
         return self._parent._messenger
 
     @property
     def oproject(self):
-        """Project object."""
+        """Project."""
         return self._parent._oproject
 
     @property
@@ -624,7 +604,7 @@ class CommonMaterial(object):
         provpavlue :
             Value of the property.
         update_aedt : bool, optional
-            The default is ``True``.
+            Whether to update the property in AEDT. The default is ``True``.
         
         """
         if isinstance(provpavlue, list) and self.__dict__["_"+propname].type != "simple" and self.__dict__["_"+propname].type != "nonlinear":
@@ -643,14 +623,12 @@ class CommonMaterial(object):
 
 
 class Material(CommonMaterial, object):
-    """Material class.
-    
-    This class provides all functionalities for material properties.
+    """Manages material properties.
     
     Parameters
     ----------
-    parent : 
-    
+    parent : str
+        Inherited AEDT object.
     name :
     
     props  :
@@ -984,7 +962,7 @@ class Material(CommonMaterial, object):
         self._update_props("core_loss_ke", value)
 
     def is_conductor(self, threshold=100000):
-        """Check if material is a conductor.
+        """Check if the material is a conductor.
 
         Parameters
         ----------
