@@ -110,7 +110,7 @@ class FieldAnalysisRMxprt(Analysis):
 
     @aedt_exception_handler
     def _check_design_consistency(self):
-        """Check design consitency."""
+        """Check design consistency."""
         consistent = False
         destype = self._odesign.GetDesignType()
         if destype == "RMxprt":

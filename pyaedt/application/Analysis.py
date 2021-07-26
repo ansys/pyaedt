@@ -745,7 +745,7 @@ class Analysis(Design, object):
         ----------
         object_list : list, optional
             List of objects for which to get material_properties. The default is ``None``,  
-            in wihch case all objects are considered. 
+            in which case all objects are considered. 
         prop_names : str or list
             The property or list of properties to export.  The default is ``None``, in  
             which case all properties are exported. 
