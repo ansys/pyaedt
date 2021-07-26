@@ -184,7 +184,7 @@ class Mechanical(FieldAnalysis3D, object):
             Name of the EM sweep to use for the mapping. The default is ``"SteadyState"``.
         source_project_name : str, optional
             Name of the source project. The default is ``None``, in which case the
-	    source from the same project is used.
+	      source from the same project is used.
         paramlist : list, optional
             List of all parameters in the EM to map. The default is ``[]``.
         

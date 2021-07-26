@@ -163,7 +163,7 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
         Parameters
         ----------
         primivitivename : str
-            Name of the edge port.
+            Name of the primitive to create the edge port on.
         edgenumber :
             Edge number to create the edge port on.
         iscircuit : bool, optional

@@ -61,8 +61,8 @@ class Edb(object):
     isaedtowned : bool, optional
         Whether to launch ``edb_core`` from HFSS 3D Layout. The
         default is ``False``.
-    oproject : str, optional
-        Name of the project to open.
+    oproject : optional
+        Reference to the AEDT project object.
     student_version : bool, optional
         Whether to open the AEDT student version. The default is ``False.``
 
