@@ -1,7 +1,9 @@
 Setup Templates
 ===============
-This page contains all the Setup Default Templates values and keys. it can be used to edit a setup after it is created. 
- Here's an example:
+
+This page lists all setup templates with their default values and keys. 
+
+You can edit a setup after it is created. Here an example:
 
 .. code:: python
 
@@ -97,7 +99,7 @@ Mechanical Analysis
    MechStructural
 
 
-RMXPrt Analysis
+RMXprt Analysis
 ===============
 
 .. autosummary::
