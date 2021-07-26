@@ -2779,7 +2779,7 @@ class GeometryModeler(Modeler, object):
         return True
 
     @aedt_exception_handler
-    def explicitiyly_subtract(self, diellist, metallist):
+    def explicitly_subtract(self, diellist, metallist):
         """Explicitly subtract all elements in a SolveInside list and a SolveSurface list.
 
         Parameters
