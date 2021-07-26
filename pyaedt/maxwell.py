@@ -1,4 +1,4 @@
-"""This module contains these Maxwell classes: ``Maxwell``, ``Maxwell2d``, and ``Maxwell3d``."""
+"""This module contains these Maxwell classes: `Maxwell`, `Maxwell2d`, and `Maxwell3d`."""
 
 from __future__ import absolute_import
 import math
@@ -62,7 +62,7 @@ def float_units(val_str, units=""):
     Parameters
     ----------
     val_str : str
-        Name of the float  
+        Name of the float value.  
         
     units : str, optional
          The default is ``""``.
@@ -164,7 +164,7 @@ class Maxwell(object):
 
     @property
     def design_file(self):
-        """Design files."""
+        """Design file."""
         design_file = os.path.join(self.working_directory, "design_data.json")
         return design_file
 
@@ -183,7 +183,7 @@ class Maxwell(object):
         python_interpreter : optional
              The default value is ``None``.
         aedt_lib_dir : str, optional
-             The default value is ``None``.
+             Full path to the ``AEDTLib`` directory. The default value is ``None``.
 
         Returns
         -------
@@ -245,7 +245,7 @@ class Maxwell(object):
         object_list : list
             List of objects.    
         activate : bool, optional
-            Whether to activate. The default is ``True``.
+            Whether to activate eddy effects. The default is ``True``.
 
         Returns
         -------
@@ -275,7 +275,7 @@ class Maxwell(object):
         object_list : list
             List of objects to assign to the source of the current.
         amplitude : float, optional
-            The default is ``1``.
+            Voltage amplitude in mV. The default is ``1``.
         phase : str, optional
             The default is ``"0deg"``.
         solid : bool, optional
@@ -398,11 +398,11 @@ class Maxwell(object):
         ind : float, optional
             Henry. The default is ``0``.
         voltage : float, optional
-            Voltage. The default is ``0``.
+            Voltage value. The default is ``0``.
         parallel_branches : int, optional
             The default is ``1``.
         name : str, optional
-            Name to assign the winding. The default is ``None``.
+            Name of the boundary. The default is ``None``.
 
         Returns
         -------
@@ -662,8 +662,8 @@ class Maxwell(object):
         ----------
         motion_setup : str
             Name of the motion setup.
-        val : 
-            Value of the angle.
+        val : float
+            Value of the angle in degrees.
 
         Returns
         -------
@@ -695,7 +695,7 @@ class Maxwell(object):
         return self
 
     def __exit__(self, ex_type, ex_value, ex_traceback):
-        """ Push exit up to parent object Design """
+        """Push exit up to parent object Design."""
         if ex_type:
             exception_to_desktop(self, ex_value, ex_traceback)
 
@@ -756,13 +756,13 @@ class Maxwell3d(Maxwell, FieldAnalysis3D, object):
 
     @property  # for legacy purposes
     def dim(self):
-        """ """
+        """Dimensions."""
         return '3D'
 
     def __init__(self, projectname=None, designname=None, solution_type=None, setup_name=None,
                  specified_version=None, NG=False, AlwaysNew=False, release_on_exit=False,student_version=False):
         """
-        Initialize the ``Maxwell`` class.
+        Initialize the `Maxwell` class.
         """
         FieldAnalysis3D.__init__(self, "Maxwell 3D", projectname, designname, solution_type, setup_name,
                                  specified_version, NG, AlwaysNew, release_on_exit, student_version)
@@ -832,7 +832,7 @@ class Maxwell2d(Maxwell, FieldAnalysis2D, object):
 
     @property  # for legacy purposes
     def dim(self):
-        """Dimension."""
+        """Dimensions."""
         return self.modeler.dimension
 
     @property
