@@ -712,7 +712,7 @@ TR = []
 
 
 class SweepHFSS(object):
-    """SweepHFSS class.
+    """Initializes, creates, and updates sweeps in HFSS.
     
     Parameters
     ----------
@@ -856,7 +856,7 @@ class SweepHFSS(object):
 
 
 class SweepHFSS3DLayout(object):
-    """SweepHFSS3DLayout class.
+    """Initializes, creates, and updates sweeps in HFSS 3D Layout.
 
     Parameters
     ----------
@@ -1032,7 +1032,7 @@ class SweepHFSS3DLayout(object):
 
 
 class SweepQ3D(object):
-    """SweepQ3D class.
+    """Initializes, creates, and updates sweeps in Q3D.
 
     Parameters
     ----------
@@ -1158,7 +1158,7 @@ class SweepQ3D(object):
 
 
 class SetupKeys(object):
-    """SetupKeys class."""
+    """Provides setup keys."""
     defaultSetups = {"DrivenModal": 1, "DrivenTerminal": 1, "Eigenmode": 2,
                      "Transient Network": 3, "SBR+": 4, "Transient": 5, "Magnetostatic": 6, "EddyCurrent": 7,
                      "Electrostatic": 8, "ElectroDCConduction": 9,
