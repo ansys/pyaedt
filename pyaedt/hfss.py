@@ -284,7 +284,7 @@ class Hfss(FieldAnalysis3D, object):
             Whether the finite conductivity is an infinite ground. The default is ``False``.
         istwoside : bool, optional
             The default is ``False``.
-        isInternal : bool, optionals
+        isInternal : bool, optional
             The default is ``True``.
         issheelElement : bool, optional
             The default is ``False``.
