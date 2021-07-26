@@ -9,11 +9,9 @@ from ..modules.MeshIcepak import IcepakMesh
 
 
 class FieldAnalysisIcepak(Analysis, object):
-    """FieldAnalysisIcepak class.
-    
-    This class is for 3D field analysis setup in Icepak.
+    """Manages 3D field analysis setup in Icepak.
 
-    It is automatically initialized by an appliation call from 
+    This calss is automatically initialized by an appliation call from 
     HFSS, Icepak, Q3D, or Maxwell 3D. See the application function 
     for parameter definitions.
 
@@ -63,12 +61,17 @@ class FieldAnalysisIcepak(Analysis, object):
 
     @property
     def modeler(self):
-        """Modeler object."""
+        """Modeler.
+        
+        Returns
+        -------
+        :class:`pyaedt.modules.Modeler`
+        """
         return self._modeler
 
     @property
     def mesh(self):
-        """
+        """Mesh.
 
         Returns
         -------
@@ -236,7 +239,7 @@ class FieldAnalysisIcepak(Analysis, object):
 
         """
         # raise a DeprecationWarning.  User won't have to change anything
-        warnings.warn('assignmaterial is deprecated.  Please use assign_material instead.',
+        warnings.warn('assignmaterial is deprecated.  Use assign_material instead.',
                       DeprecationWarning)
         self.assign_material(obj, mat)
 
