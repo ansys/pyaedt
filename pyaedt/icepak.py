@@ -1156,7 +1156,7 @@ class Icepak(FieldAnalysisIcepak):
         all_objs_NonModeled = list(self.modeler.oeditor.GetObjectsInGroup("Non Model"))
         all_objs_model = [item for item in all_objs if item not in all_objs_NonModeled]
         arg = []
-        self._messenger.add_info_message("Objects lists " + str(all_objs_model).)
+        self._messenger.add_info_message("Objects lists " + str(all_objs_model))
         for el in all_objs_model:
             try:
                 self.osolution.EditFieldsSummarySetting(
