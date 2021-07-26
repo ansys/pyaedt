@@ -2313,7 +2313,7 @@ class Hfss(FieldAnalysis3D, object):
         if type(port_names) is str:
             port_names = [port_names]
         if type(port_excited) is str:
-            port_excited = [port_excited]Create a new setup
+            port_excited = [port_excited]
         list_y = []
         for p in list(port_names):
             for q in list(port_excited):
