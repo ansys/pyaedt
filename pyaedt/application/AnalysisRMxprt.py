@@ -5,14 +5,10 @@ from ..modeler.Model2D import ModelerRMxprt
 
 
 class FieldAnalysisRMxprt(Analysis):
-    """**AEDT_RMxprtAnalysis**
-    
-    
-    To BE Implemented
-    Class for RMXpert Field Analysis Setup
-    
-    It is automatically initialized by Application call (like HFSS,
-    Q3D...). Refer to Application function for inputs definition
+    """Manages RMXpert field analysis setup. (To be implemented.)
+        
+    This class is automatically initialized by an application call (like HFSS,
+    Q3D...). Refer to the application function for inputs definition.
 
     Parameters
     ----------
@@ -24,23 +20,11 @@ class FieldAnalysisRMxprt(Analysis):
 
     @property
     def solution_type(self):
-        """ """
+        """Solution type."""
         return self._solution_type
 
     @solution_type.setter
     def solution_type(self, soltype):
-        """
-
-        Parameters
-        ----------
-        soltype :
-            SolutionType object
-
-        Returns
-        -------
-
-        """
-
         sol = design_solutions[self._design_type]
         if not soltype:
             soltype = sol[0]
@@ -61,22 +45,28 @@ class FieldAnalysisRMxprt(Analysis):
 
     @property
     def modeler(self):
-        """ """
+        """Modeler.
+        
+        Returns
+        -------
+      	:class:`pyaedt.modules.Modeler`
+
+        """
         return self._modeler
 
     @aedt_exception_handler
     def disable_modelcreation(self, solution_type=None):
-        """It Enables RMxprtSolution
+        """Enable the RMxprt solution.
 
         Parameters
         ----------
-        solution_type :
-            solutionType (Default value = None)
+        solution_type : 
+            Type of the solution. The default is ``None``.
 
         Returns
         -------
-        type
-            Bool
+        bool
+            ``True`` when successful, ``False`` when failed.
 
         """
         self._design_type = "RMxprtSolution"
@@ -86,17 +76,17 @@ class FieldAnalysisRMxprt(Analysis):
 
     @aedt_exception_handler
     def enable_modelcreation(self, solution_type = None):
-        """It Enables ModelCreation  for Maxwell Model Wizard
+        """Enable model creation for the Maxwell model wizard.
 
         Parameters
         ----------
         solution_type :
-            solutionType (Default value = None)
+            Type of the solution. The default is ``None``.
 
         Returns
         -------
-        type
-            Bool
+        bool
+            ``True`` when successful, ``False`` when failed.
 
         """
         self._design_type = "ModelCreation"
@@ -112,7 +102,7 @@ class FieldAnalysisRMxprt(Analysis):
 
     @aedt_exception_handler
     def _check_solution_consistency(self):
-        """ """
+        """Check solution consistency."""
         if self._solution_type:
             return self._odesign.GetSolutionType() == self._solution_type
         else:
@@ -120,7 +110,7 @@ class FieldAnalysisRMxprt(Analysis):
 
     @aedt_exception_handler
     def _check_design_consistency(self):
-        """ """
+        """Check design consitency."""
         consistent = False
         destype = self._odesign.GetDesignType()
         if destype == "RMxprt":
