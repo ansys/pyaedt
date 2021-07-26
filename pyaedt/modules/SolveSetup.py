@@ -17,9 +17,7 @@ from ..application.DataHandlers import tuple2dict, dict2arg
 
 
 class Setup(object):
-    """Setup class.
-    
-    This class provides the functionalities needed to initialize, create, and update a 3D setup.
+    """Initializes, creates, and updates a 3D setup.
     
     Parameters
     ----------
@@ -404,9 +402,7 @@ class Setup(object):
         return True
 
 class SetupCircuit(object):
-    """SetupCircuit class.
-    
-    This class provides the functionalities needed to initialize, create, and update a circuit setup.
+    """Initializes, creates, and updates a circuit setup.
     
     Parameters
     ----------
@@ -765,9 +761,7 @@ class SetupCircuit(object):
 
 
 class Setup3DLayout(object):
-    """Setup3DLayout class.
-    
-    This class provides the functionalities needed to initialize, create, and update a 3D Layout setup.
+    """Initializes, creates, and updates a 3D Layout setup.
     
     Parameters
     ----------
