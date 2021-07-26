@@ -712,7 +712,7 @@ TR = []
 
 
 class SweepHFSS(object):
-    """SweepHFSS class.
+    """Initializes, creates, and updates sweeps in HFSS.
     
     Parameters
     ----------
@@ -856,7 +856,7 @@ class SweepHFSS(object):
 
 
 class SweepHFSS3DLayout(object):
-    """SweepHFSS3DLayout class.
+    """Initializes, creates, and updates sweeps in HFSS 3D Layout.
 
     Parameters
     ----------
@@ -866,7 +866,7 @@ class SweepHFSS3DLayout(object):
         Name of the setup.
     sweepname : str
         Name of the sweep.
-    ssweeptype : str, optional
+    sweeptype : str, optional
         Type of the sweep. Options are ``"Fast"``, ``"Interpolating"``, 
         and ``"Discrete"``. The default is ``"Interpolating"``.
     props : dict, optional
@@ -958,7 +958,7 @@ class SweepHFSS3DLayout(object):
         rangetype : str
             rangetype : str
             Type of the subrange. Options are ``"LinearCount"``, 
-           ``"LinearStep"``, and ``"LogScale"``.   
+            ``"LinearStep"``, and ``"LogScale"``.   
         start : float
             Starting frequency.
         end : float
@@ -1032,7 +1032,7 @@ class SweepHFSS3DLayout(object):
 
 
 class SweepQ3D(object):
-    """SweepQ3D class.
+    """Initializes, creates, and updates sweeps in Q3D.
 
     Parameters
     ----------
@@ -1043,7 +1043,8 @@ class SweepQ3D(object):
     sweepname: str
         Name of the sweep.
     sweeptype : str, optional
-        Type of the sweep. The default is ``"Interpolating"``.
+        Type of the sweep. Options are ``"Fast"``, ``"Interpolating"``, 
+        and ``"Discrete"``. The default is ``"Interpolating"``.
     props : dict
         Dictionary of the properties.  The default is ``None``, in which case
         the default properties are retrieved.
@@ -1158,7 +1159,7 @@ class SweepQ3D(object):
 
 
 class SetupKeys(object):
-    """SetupKeys class."""
+    """Provides setup keys."""
     defaultSetups = {"DrivenModal": 1, "DrivenTerminal": 1, "Eigenmode": 2,
                      "Transient Network": 3, "SBR+": 4, "Transient": 5, "Magnetostatic": 6, "EddyCurrent": 7,
                      "Electrostatic": 8, "ElectroDCConduction": 9,

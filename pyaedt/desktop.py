@@ -305,7 +305,7 @@ class Desktop:
             
     @property
     def version_keys(self):
-        """Version keys."""
+        """Version keys for AEDT."""
 
         self._version_keys = []
         self._version_ids = {}
