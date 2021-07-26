@@ -866,7 +866,7 @@ class SweepHFSS3DLayout(object):
         Name of the setup.
     sweepname : str
         Name of the sweep.
-    ssweeptype : str, optional
+    sweeptype : str, optional
         Type of the sweep. Options are ``"Fast"``, ``"Interpolating"``, 
         and ``"Discrete"``. The default is ``"Interpolating"``.
     props : dict, optional
@@ -958,7 +958,7 @@ class SweepHFSS3DLayout(object):
         rangetype : str
             rangetype : str
             Type of the subrange. Options are ``"LinearCount"``, 
-           ``"LinearStep"``, and ``"LogScale"``.   
+            ``"LinearStep"``, and ``"LogScale"``.   
         start : float
             Starting frequency.
         end : float
@@ -1043,7 +1043,8 @@ class SweepQ3D(object):
     sweepname: str
         Name of the sweep.
     sweeptype : str, optional
-        Type of the sweep. The default is ``"Interpolating"``.
+        Type of the sweep. Options are ``"Fast"``, ``"Interpolating"``, 
+        and ``"Discrete"``. The default is ``"Interpolating"``.
     props : dict
         Dictionary of the properties.  The default is ``None``, in which case
         the default properties are retrieved.
@@ -1057,7 +1058,7 @@ class SweepQ3D(object):
         if props:
             self.props = props
         else:
-            self.props["Type"] = sweeptype
+            self.props["Type"] = sweeptypeInitializes, creates, and updates sweeps in HFSS
             self.props["isenabled"] = True
             self.props["RangeType"] = "LinearCount"
             self.props["RangeStart"] = "2.5GHz"
