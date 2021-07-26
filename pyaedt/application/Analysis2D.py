@@ -9,7 +9,7 @@ from ..generic.general_methods import aedt_exception_handler, generate_unique_na
 class FieldAnalysis2D(Analysis):
     """**Manages 2D field analysis setup in Maxwell2D and Q2D.
     
-    It is automatically initialized by an application call from one of 
+    This class is automatically initialized by an application call from one of 
     the 2D tools. See the application function for parameter definitions.
 
     Parameters
