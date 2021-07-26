@@ -182,8 +182,8 @@ class VoltageSource(Source):
         self._impedance = value
 
     @property
-    """Property."""
     def source_type(self):
+    """Property."""
         return self.source_type
 
 
