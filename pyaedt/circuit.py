@@ -898,7 +898,7 @@ class Circuit(FieldAnalysisCircuit, object):
         ----------
         plot_name : str
             Name of the plot.
-        curvenames : str
+        curvenames : list
             List of the curves to plot.
         solution_name : str, optional
             Name of the solution. The default value is ``None``.
@@ -913,13 +913,38 @@ class Circuit(FieldAnalysisCircuit, object):
         """
         if not solution_name:
             solution_name = self.nominal_sweep
-        variations = ["Freq:=", ["All"]]
+        variations = {"Freq": ["All"]}
         if variation_dict:
             for el in variation_dict:
-                variations.append(el + ":=")
-                variations.append([variation_dict[el]])
-        self.post.oreportsetup.CreateReport(plot_name, "Standard", "Rectangular Plot", solution_name,
-                                            ["NAME:Context", "SimValueContext:=",
-                                             [3, 0, 2, 0, False, False, -1, 1, 0, 1, 1, "", 0, 0]], variations,
-                                            ["X Component:=", "Freq", "Y Component:=", curvenames])
-        return True
+                variations[el] = [variation_dict[el]]
+        ctxt = ["NAME:Context", "SimValueContext:=",[3, 0, 2, 0, False, False, -1, 1, 0, 1, 1, "", 0, 0]]
+        return self.post.create_rectangular_plot(curvenames,solution_name, variations, plotname=plot_name, context=ctxt)
+
+    @aedt_exception_handler
+    def get_touchstone_data(self, curvenames, solution_name=None, variation_dict=None):
+        """Return Touchstone Data plot.
+
+        Parameters
+        ----------
+        curvenames : list
+            List of the curves to plot.
+        solution_name : str, optional
+            Name of the solution. The default value is ``None``.
+        variation_dict : dict, optional
+            Dictionary of variation names. The default value is ``None``.
+
+        Returns
+        -------
+        :class:`pyaedt.modules.PostProcessor.SolutionData`
+           Class containing all Requested Data
+
+        """
+        if not solution_name:
+            solution_name = self.nominal_sweep
+        variations = {"Freq": ["All"]}
+        if variation_dict:
+            for el in variation_dict:
+                variations[el] = [variation_dict[el]]
+        ctxt = ["NAME:Context", "SimValueContext:=", [3, 0, 2, 0, False, False, -1, 1, 0, 1, 1, "", 0, 0]]
+        return self.post.get_solution_data_per_variation("Standard", solution_name, ctxt, variations, curvenames)
+

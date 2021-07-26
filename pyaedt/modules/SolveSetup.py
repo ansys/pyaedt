@@ -472,11 +472,11 @@ class SetupCircuit(object):
     def __init__(self, parent, solutiontype, setupname="MySetupAuto", isnewsetup=True):
         self._parent = None
         self.parent = parent
-        self.setuptype = solutiontype
+        self.setuptype = SetupKeys.defaultSetups[solutiontype]
         self._Name = "LinearFrequency"
         self.props = {}
         if isnewsetup:
-            setup_template = SetupKeys.SetupTemplates[solutiontype]
+            setup_template = SetupKeys.SetupTemplates[self.setuptype]
             for t in setup_template:
                 tuple2dict(t, self.props)
         else:
@@ -536,6 +536,12 @@ class SetupCircuit(object):
                 self.omodule.AddDCAnalysis(arg)
             elif soltype == "NexximTransient":
                 self.omodule.AddTransient(arg)
+            elif soltype == "NexximQuickEye":
+                self.omodule.AddQuickEyeAnalysis(arg)
+            elif soltype == "NexximVerifEye":
+                self.omodule.AddVerifEyeAnalysis(arg)
+            elif soltype == "NexximAMI":
+                self.omodule.AddAMIAnalysis(arg)
             else:
                 print("Not Implemented Yet")
         else:
@@ -545,6 +551,13 @@ class SetupCircuit(object):
                 self.omodule.EditDCAnalysis(self.name, arg)
             elif soltype == "NexximTransient":
                 self.omodule.EditTransient(self.name, arg)
+            elif soltype == "NexximQuickEye":
+                self.omodule.EditQuickEyeAnalysis(self.name,arg)
+            elif soltype == "NexximVerifEye":
+                self.omodule.EditVerifEyeAnalysis(self.name,arg)
+            elif soltype == "NexximAMI":
+                self.omodule.EditAMIAnalysis(self.name,arg)
+
             else:
                 print("Not Implemented Yet")
         return True

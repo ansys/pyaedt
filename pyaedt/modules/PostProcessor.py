@@ -24,7 +24,7 @@ report_type = {"DrivenModal": "Modal Solution Data", "DrivenTerminal": "Terminal
                "EddyCurrent": "EddyCurrent",
                "SteadyTemperatureAndFlow": "Monitor", "SteadyTemperatureOnly": "Monitor", "SteadyFlowOnly": "Monitor",
                "SteadyState": "Monitor", "NexximLNA": "Standard", "NexximDC": "Standard",
-               "Magnetostatic": "Magnetostatic", "Electrostatic": "Electrostatic",
+               "Magnetostatic": "Magnetostatic", "Electrostatic": "Electrostatic", "Circuit Design":"Standard",
                "NexximTransient": "Standard", "HFSS3DLayout": "Terminal Solution Data", "Matrix": "Matrix",
                "HFSS 3D Layout Design": "Standard", "Q3D Extractor": "Matrix", "2D Extractor": "Matrix"}
 

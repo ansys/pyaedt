@@ -273,8 +273,7 @@ class FieldAnalysisCircuit(Analysis):
             Setup object.
 
         """
-        setuptype = SetupKeys.defaultSetups[self.solution_type]
-        setup = SetupCircuit(self, setuptype, setupname, isnewsetup=False)
+        setup = SetupCircuit(self, self.solution_type, setupname, isnewsetup=False)
         if setup.props:
             self.analysis_setup = setupname
         return setup
