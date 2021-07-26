@@ -2013,9 +2013,29 @@ class Hfss(FieldAnalysis3D, object):
         -------
         bool
             ``True`` when successful, ``False`` when failed.
-        
+
+        Examples
+        --------
+
+        Create a rectangle sheet and use it to create a wave port.
+        Set up the thermal power for the port created above.
+
+        >>> sheet = hfss.modeler.primitives.create_circle(hfss.CoordinateSystemPlane.YZPlane,
+        ...                                               [-20, 0, 0], 10,
+        ...                                               name="sheet_for_source")
+        >>> wave_port = hfss.create_wave_port_from_sheet(sheet, 5, hfss.AxisDir.XNeg, 40,
+        ...                                              2, "SheetWavePort", True)
+        >>> hfss.edit_source("SheetWavePort" + ":1", "10W")
+        pyaedt Info: Setting Up Power to Eigemode 10WWatt
+        True
+
         """
+<<<<<<< HEAD
         self._messenger.add_info_message("Setting up power to Eigenmode " + powerin + "Watt")
+=======
+
+        self._messenger.add_info_message("Setting Up Power to Eigemode " + powerin + "Watt")
+>>>>>>> 9cd340c (Add an example for the Hfss method cedit_source().)
         if self.solution_type != "Eigenmode":
             self.osolution.EditSources([["IncludePortPostProcessing:=", True, "SpecifySystemPower:=", False],
                                         ["Name:=", portandmode, "Magnitude:=", powerin, "Phase:=", phase]])
