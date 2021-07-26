@@ -7,9 +7,7 @@ from ..generic.general_methods import aedt_exception_handler, generate_unique_na
 
 
 class FieldAnalysis2D(Analysis):
-    """**FieldAnalysis2D class.**
-    
-    This class is for 2D field analysis setup in Maxwell2D and Q2D.
+    """**Manages 2D field analysis setup in Maxwell2D and Q2D.
     
     It is automatically initialized by an application call from one of 
     the 2D tools. See the application function for parameter definitions.
@@ -63,7 +61,7 @@ class FieldAnalysis2D(Analysis):
 
     @property
     def modeler(self):
-        """
+        """Modeler.
 
         Returns
         -------
@@ -73,7 +71,7 @@ class FieldAnalysis2D(Analysis):
 
     @property
     def mesh(self):
-        """
+        """Mesh.
 
         Returns
         -------
@@ -94,7 +92,7 @@ class FieldAnalysis2D(Analysis):
 
         """
         # raise a DeprecationWarning.  User won't have to change anything
-        warnings.warn('assignmaterial is deprecated.  Please use assign_material instead.',
+        warnings.warn('assignmaterial is deprecated. Use assign_material instead.',
                       DeprecationWarning)
         self.assign_material(obj, mat)
 
