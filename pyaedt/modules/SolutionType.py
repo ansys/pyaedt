@@ -7,7 +7,7 @@ class SolutionType(object):
             "DrivenModal", "DrivenTerminal", "EigenMode", "Transient Network", "SBR+")
 
     class Maxwell3d(object):
-        """Provides Maxwell3d solution types."""
+        """Provides Maxwell 3D solution types."""
         (Transient, Magnetostatic, EddyCurrent, ElectroStatic, ElectroDCConduction, ElectroDCTransient) = \
             ("Transient", "Magnetostatic", "EddyCurrent", "Electrostatic", "ElectroDCConduction",
              "ElectricTransient")
