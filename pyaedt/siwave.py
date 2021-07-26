@@ -221,7 +221,7 @@ class Siwave:
 
     @aedt_exception_handler
     def quit_application(self):
-    """Quit the application."""
+        """Quit the application."""
 
         self._main.oSiwave.Quit()
         return True
