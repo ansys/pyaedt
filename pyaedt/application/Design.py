@@ -1649,8 +1649,8 @@ class Design(object):
 
         Returns
         -------
-        type
-            Dataset object when the dataset is created,
+        :class:`pyaedt.application.Variables.DataSet`
+            DataSet object when the dataset is created,
             ``False`` otherwise.
 
         """
