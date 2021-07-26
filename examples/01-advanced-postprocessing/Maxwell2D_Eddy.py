@@ -100,7 +100,7 @@ Setup.enable_expression_cache([p_plate, p_coil], "Fields", "Phase=\'0deg\' ", Tr
 ###################################################
 #  Solve
 
-M3D.analyse_nominal()
+M3D.analyze_nominal()
 
 
 ###################################################

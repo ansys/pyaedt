@@ -604,7 +604,7 @@ class Analysis(Design, object):
 
 
     @aedt_exception_handler
-    def analyse_from_initial_mesh(self):
+    def analyze_from_initial_mesh(self):
         """Revert the solution to the initial mesh and re-run the solve.
                 
         Returns
@@ -613,12 +613,12 @@ class Analysis(Design, object):
            ``True`` when successful, ``False`` when failed.
         """
         self.oanalysis.RevertSetupToInitial(self._setup)
-        self.analyse_nominal()
+        self.analyze_nominal()
         return True
 
 
     @aedt_exception_handler
-    def analyse_nominal(self):
+    def analyze_nominal(self):
         """Revert the solution to the initial mesh and re-run the solve.
        
         Returns
