@@ -183,7 +183,7 @@ class VoltageSource(Source):
 
     @property
     def source_type(self):
-    """Property."""
+        """Property."""
         return self.source_type
 
 
