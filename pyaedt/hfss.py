@@ -2070,7 +2070,7 @@ class Hfss(FieldAnalysis3D, object):
         --------
 
         Create a circle sheet and use it to create a wave port.
-        Set the thickness of this circle sheet to ``2 mm``.
+        Set the thickness of this circle sheet to ``"2 mm"``.
 
         >>> sheet = hfss.modeler.primitives.create_circle(hfss.CoordinateSystemPlane.YZPlane,
         ...                                               [-20, 0, 0], 10,
