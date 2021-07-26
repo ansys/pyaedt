@@ -1,4 +1,4 @@
-"""This module contains the ``Mechanical`` class."""
+"""This module contains the `Mechanical` class."""
 
 from __future__ import absolute_import
 
@@ -35,7 +35,7 @@ class Mechanical(FieldAnalysis3D, object):
         the active version or latest installed version is used.
     NG : bool, optional
         Whether to launch AEDT in the non-graphical mode. The default
-        is``False``, which launches AEDT in the graphical mode.
+        is``False``, in which case AEDT is launched in the graphical mode.
     AlwaysNew : bool, optional
         Whether to launch an instance of AEDT in a new thread, even if
         another instance of the ``specified_version`` is active on the
@@ -60,18 +60,18 @@ class Mechanical(FieldAnalysis3D, object):
     >>> aedtapp = Mechanical(projectname)
 
     Create an instance of Mechanical and link to a design named
-    ``"designname"`` in a project named ``projectname``.
+    ``"designname"`` in a project named ``"projectname"``.
 
     >>> aedtapp = Mechanical(projectname,designame)
 
     Create an instance of Mechanical and open the specified
-    project, which is named ``myfile.aedt``.
+    project, which is named ``"myfile.aedt"``.
 
     >>> aedtapp = Mechanical("myfile.aedt")
 
     Create a ``Desktop on 2021R1`` object and then create an
     ``Mechanical`` object and open the specified project, which is
-    named ``myfile.aedt``.
+    named ``"myfile.aedt"``.
 
     >>> aedtapp = Mechanical(specified_version="2021.1", projectname="myfile.aedt")
 
@@ -177,7 +177,7 @@ class Mechanical(FieldAnalysis3D, object):
         object_list : list
         
         designname : str, optional
-            Name of the design of the source mapping. The default is ``"IcepakDesign1"``.
+            Name of the design with the source mapping. The default is ``"IcepakDesign1"``.
         setupname : str, optional
             Name of the EM setup. The default is ``"Setup1"``.
         sweepname :str, optional
@@ -188,11 +188,9 @@ class Mechanical(FieldAnalysis3D, object):
         paramlist : list, optional
             List of all parameters in the EM to map. The default is ``[]``.
         
-            
-
         Returns
         -------
-	  :class:`aedt.modules.Boundary.Boundary object
+	  :class:`aedt.modules.Boundary.Boundary object`
 	      Boundary object.
         """
 
@@ -242,7 +240,7 @@ class Mechanical(FieldAnalysis3D, object):
         ----------
         objects_list : list
             List of objects, faces, or both.
-        convection_value :
+        convection_value : float
             Convection value.
         convection_unit : str, optional
             Units for the convection value. The default is ``"w_per_m2kel"``.
@@ -253,7 +251,7 @@ class Mechanical(FieldAnalysis3D, object):
 
         Returns
         -------
-        :class:`aedt.modules.Boundary.Boundary object
+        :class:`aedt.modules.Boundary.Boundary object`
 	      Boundary object.
 
         """
@@ -292,13 +290,13 @@ class Mechanical(FieldAnalysis3D, object):
         objects_list : list
             List of objects, faces, or both.
         temperature : str, optional.
-            Type of temperature. The default is ``"AmbientTemp"``.
+            Type of the temperature. The default is ``"AmbientTemp"``.
         boundary_name : str, optional
             Name of the boundary. The default is ``""``.
 
         Returns
         -------
-        :class:`aedt.modules.Boundary.Boundary object
+        :class:`aedt.modules.Boundary.Boundary object`
 	      Boundary object.
 
         """
@@ -340,7 +338,7 @@ class Mechanical(FieldAnalysis3D, object):
 
         Returns
         -------
-        :class:`aedt.modules.Boundary.Boundary object
+        :class:`aedt.modules.Boundary.Boundary object`
 	      Boundary object.
 
         """
