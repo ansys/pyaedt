@@ -219,7 +219,7 @@ class Setup(object):
     @aedt_exception_handler
     def enable_expression_cache(self, expressions, report_type="Fields", intrinsics='', isconvergence=True,
                                 isrelativeconvergence=True, conv_criteria=1):
-        """Enable a setup expression cache.
+        """Enable an expression cache.
 
         Parameters
         ----------
