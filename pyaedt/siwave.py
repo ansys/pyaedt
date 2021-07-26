@@ -1,7 +1,7 @@
 """
-This module contains the `siwave` class.  
+This module contains the `Siwave` class.  
 
-The `siwave` module can be initialized as standalone before launching an app or automatically initialized by an app to the latest installed AEDT version.
+The `Siwave` module can be initialized as standalone before launching an app or automatically initialized by an app to the latest installed AEDT version.
 
 """
 from __future__ import absolute_import
@@ -38,7 +38,7 @@ elif os.name == 'nt':
 
 
 class Siwave:
-    """Initializes SIwave based on the inputs provided and manages Siwave release and closing.
+    """Initializes Siwave based on the inputs provided and manages Siwave release and closing.
 
     Parameters
     ----------
@@ -158,7 +158,7 @@ class Siwave:
 
     @property
     def results_directory(self):
-        """Results. directory."""
+        """Results directory."""
         return os.path.join(self.project_path, self.project_name + '.siwresults')
 
 

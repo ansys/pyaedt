@@ -1,6 +1,6 @@
 """
 This module contains these clases: `CircuitPort`, `CurrentSource`, `EdbSiwave`, 
-`PinGroup`, `ResistorSource`, `Source`, `SourceType`, and VoltageSource.
+`PinGroup`, `ResistorSource`, `Source`, `SourceType`, and `VoltageSource`.
 """
 
 import warnings
@@ -124,7 +124,7 @@ class Source(object):
 
 
 class CircuitPort(Source):
-    """Manages circuit ports."""
+    """Manages a circuit port."""
     def __init(self):
         super(CircuitPort, self).__init__()
         self._impedance = "50"
@@ -183,7 +183,7 @@ class VoltageSource(Source):
 
     @property
     def source_type(self):
-        """Property."""
+        """Source type."""
         return self.source_type
 
 
@@ -256,7 +256,7 @@ class EdbSiwave(object):
 
     Parameters
     ----------
-    parent : str
+    parent :
         Inherited parent object.
         
     Examples
@@ -277,7 +277,7 @@ class EdbSiwave(object):
 
     @property
     def _siwave_setup(self):
-        """SI setup."""
+        """SIwave setup."""
         return self.parent.edblib.SIwave.SiwaveSimulationSetupMethods
 
     @property
@@ -633,10 +633,6 @@ class EdbSiwave(object):
         ----------
         source : str
             Name of the source.
-        
-        Returns
-        -------
-        type
         
         """
         pos_pin_group = self.parent.core_components.create_pingroup_from_pins(source.positive_node.node_pins)

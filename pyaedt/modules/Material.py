@@ -351,7 +351,8 @@ class MatProperty(object):
 
         Returns
         -------
-        type
+        bool
+            ``True`` when successful, ``False`` when failed.
         
 
         Examples
@@ -378,7 +379,8 @@ class MatProperty(object):
 
         Returns
         -------
-        type
+        bool
+            ``True`` when successful, ``False`` when failed.
             
 
         Examples
@@ -428,7 +430,8 @@ class MatProperty(object):
 
         Returns
         -------
-        type
+        bool
+            ``True`` when successful, ``False`` when failed.
             
 
         Examples
@@ -627,7 +630,7 @@ class Material(CommonMaterial, object):
     
     Parameters
     ----------
-    parent : str
+    parent :
         Inherited AEDT object.
     name :
     

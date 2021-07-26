@@ -1,5 +1,5 @@
 """
-This module contains these classes: 'Layer' and 'Layers'.  
+This module contains these classes: `Layer` and `Layers`.  
 
 This module provides all layer stackup functionalities for the Circuit and HFSS 3D Layout tools.
 """
@@ -394,7 +394,7 @@ class Layers(object):
     
     Parameters
     ----------
-    parent : str
+    parent :
         Inherited AEDT object.
     
     modeler :

@@ -477,16 +477,6 @@ class Materials(object):
             
         """
         def find_datasets(d, out_list):
-            """Find datasets.
-            
-            Parameters
-            ----------
-            d :
-            
-            out_list : list
-            
-            """
-            
             for k, v in d.items():
                 if isinstance(v, dict):
                     find_datasets(v, out_list)
