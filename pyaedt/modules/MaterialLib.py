@@ -30,7 +30,7 @@ class Materials(object):
 
     @property
     def _messenger(self):
-        """_messenger.
+        """Messenger.
         
         Returns
         -------
@@ -162,8 +162,8 @@ class Materials(object):
 
         Returns
         -------
-        type
-            Material Object
+        :class:`pyaedt.modules.Material.Material`
+            Material object added.
 
         Examples
         --------
@@ -204,7 +204,7 @@ class Materials(object):
         Returns
         -------
         :class:`pyaedt.modules.SurfaceMaterial`
-            Surface Material object added.
+            Surface material object added.
             
         Examples
         --------
@@ -321,8 +321,8 @@ class Materials(object):
 
         Returns
         -------
-        Material
-            Material object that was created.
+        :class:`pyaedt.modules.Material.Material`
+            Material object added.
 
         Examples
         --------
@@ -354,8 +354,8 @@ class Materials(object):
 
         Returns
         -------
-        SurfaceMaterial
-            Surface Material object that was created.
+        :class:`pyaedt.modules.SurfaceMaterial`
+            Surface Material object added.
 
         Examples
         --------
@@ -477,6 +477,16 @@ class Materials(object):
             
         """
         def find_datasets(d, out_list):
+            """Find datasets.
+            
+            Parameters
+            ----------
+            d :
+            
+            out_list : list
+            
+            """
+            
             for k, v in d.items():
                 if isinstance(v, dict):
                     find_datasets(v, out_list)
