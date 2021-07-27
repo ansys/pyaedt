@@ -67,7 +67,8 @@ class FieldAnalysis3DLayout(Analysis):
         
         Returns
         -------
-        :class:`pyaedt.modeler.Object3d.Object3d` 
+        AEDT object
+            Boundaries module object.
         
         """
         return self._odesign.GetModule("Excitations")

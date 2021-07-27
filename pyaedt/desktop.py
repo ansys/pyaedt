@@ -143,7 +143,7 @@ def release_desktop(close_projects=True, close_desktop=True):
     Parameters
     ----------
     close_projects : bool, optional
-        Whether to close the AEDT projects opened in the session. The default is ``True``.
+        Whether to close the AEDT projects open in the session. The default is ``True``.
     close_desktop : bool, optional
         Whether to close the active AEDT session. The default is ``True``.
 

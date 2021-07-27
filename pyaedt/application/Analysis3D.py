@@ -297,7 +297,7 @@ class FieldAnalysis3D(Analysis, object):
            Use :func:`FieldAnalysis3D.assign_material` instead.
 
         """
-        warnings.warn('assignmaterial is deprecated.  Use assign_material instead.',
+        warnings.warn('assignmaterial is deprecated. Use assign_material instead.',
                       DeprecationWarning)
         self.assign_material(obj, mat)
 

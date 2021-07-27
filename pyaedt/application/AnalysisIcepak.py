@@ -239,7 +239,7 @@ class FieldAnalysisIcepak(Analysis, object):
 
         """
         # raise a DeprecationWarning.  User won't have to change anything
-        warnings.warn('assignmaterial is deprecated.  Use assign_material instead.',
+        warnings.warn('assignmaterial is deprecated. Use assign_material instead.',
                       DeprecationWarning)
         self.assign_material(obj, mat)
 

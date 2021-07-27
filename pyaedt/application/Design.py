@@ -647,7 +647,7 @@ class Design(object):
         Returns
         --------
         str
-            Type of the design type. See above for a list of possible return values.
+            Type of the design. See above for a list of possible return values.
 
         """
         #return self._odesign.GetDesignType()

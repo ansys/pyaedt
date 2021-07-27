@@ -33,9 +33,29 @@ class Analysis(Design, object):
 
     Parameters
     ----------
-    Design :
-    
-    object :
+    application : str
+        Application that is to initialize the call.
+    projectname : str
+        Name of the project to select or the full path to the project
+        or AEDTZ archive to open.
+    designname : str
+        Name of the design to select.
+    solution_type : str
+        Solution type to apply to the design.
+    setup_name : str
+        Name of the setup to use as the nominal.
+    specified_version: str
+        Version of AEDT  to use.
+    NG : bool
+        Whether to run AEDT in the non-graphical mode. 
+    AlwaysNew : bool
+        Whether to launch an instance of AEDT in a new thread, even if
+        another instance of the ``specified_version`` is active on the
+        machine.
+    release_on_exit : bool
+        Whether to release  AEDT on exit.
+    student_version : bool
+        Whether to enable the student version of AEDT. 
     
     """
 
@@ -64,12 +84,12 @@ class Analysis(Design, object):
 
     @property
     def materials(self):
-        """Material manager for managing materials in the project.
+        """Manages materials in the project.
         
         Returns
         -------
         :class:`pyaedt.modules.MaterialLib.Materials`
-            Material manager for managing materials in the project.     
+            Manages materials in the project.
 
         """
         return self._materials
@@ -93,7 +113,7 @@ class Analysis(Design, object):
         
         Returns
         -------
-        type
+        :class:`pyaedt.application.Analysis.Analysis.AvailableVariations`
             Available variation object.
 
         """
@@ -105,8 +125,8 @@ class Analysis(Design, object):
         
         Returns
         -------
-        type
-            Coordinate System Axis Constants Tuple (.X, .Y, .Z).
+        tuple
+            Coordinate system axis constants tuple (.X, .Y, .Z).
 
         """
         return CoordinateSystemAxis()
@@ -117,8 +137,8 @@ class Analysis(Design, object):
         
         Returns
         -------
-        type
-            Coordinate system plane constants tuple(.XY, .YZ, .XZ).
+        tuple
+            Coordinate system plane constants tuple (.XY, .YZ, .XZ).
 
         """
         return CoordinateSystemPlane()
@@ -126,12 +146,12 @@ class Analysis(Design, object):
     @property
     def View(self):
         """Planes. (To check if redundant to CoordinateSystemPlane.)
-             
+       
         
         Returns
         -------
-        type
-            Coordinate System Plane String Tuple("XY", "YZ", "XZ").
+        tuple
+            Coordinate system plane string tuple ("XY", "YZ", "XZ").
 
         """
         return Plane()
@@ -142,7 +162,8 @@ class Analysis(Design, object):
         
         Returns
         -------
-        Gravity direction tuple (XNeg, YNeg, ZNeg, XPos, YPos, ZPos).
+        tuple
+            Gravity direction tuple (XNeg, YNeg, ZNeg, XPos, YPos, ZPos).
 
         """
         return GravityDirection()
@@ -164,7 +185,7 @@ class Analysis(Design, object):
         
         Returns
         -------
-        type
+        :class:`pyaedt.modules.Mesh.Mesh`
             Mesh object.
         """
         return self._mesh
@@ -186,7 +207,7 @@ class Analysis(Design, object):
         
         Returns
         -------
-        :class:`pyaedt.modules.AdvancedPostProcessing.PostProcessor.post_osolution`
+        AEDT object
             Solution module.
 
         """
@@ -276,7 +297,7 @@ class Analysis(Design, object):
         -------
         str
             Name of the last adaptive if a sweep is available or 
-            the name of the nominal setup sweep if present.
+            the name of the nominal adaptive sweep if present.
         """
 
         if len(self.existing_analysis_sweeps)>1:
@@ -303,8 +324,8 @@ class Analysis(Design, object):
      
         Returns
         -------
-        type
-            Solutions output variable object.
+        list
+            List of output variables.
 
         """
         oModule = self.odesign.GetModule("OutputVariable")
@@ -331,8 +352,8 @@ class Analysis(Design, object):
         
         Returns
         -------
-        type
-            Solutions optimetrics object.
+        AEDT object
+            Optimetrics module object.
 
         """
         return self.odesign.GetModule("Optimetrics")
@@ -343,8 +364,8 @@ class Analysis(Design, object):
         
         Returns
         -------
-        type
-            Solutions output variable object/
+        AEDT object
+            Output variable module object.
 
         """
         return self.odesign.GetModule("OutputVariable")
@@ -385,7 +406,7 @@ class Analysis(Design, object):
 
             Returns
             -------
-            type
+            object
                 Parent object.
 
             """
@@ -508,8 +529,8 @@ class Analysis(Design, object):
         
         Returns
         -------
-        type
-            Nominal variation.
+        list
+            List of nominal variations.
         """
         return self.available_variations.nominal
 
@@ -623,7 +644,7 @@ class Analysis(Design, object):
 
         Returns
         -------
-        type
+        :class:`pyaedt.modules.SolveSetup.Setup`
             Setup object.
 
         """
