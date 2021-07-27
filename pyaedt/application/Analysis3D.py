@@ -9,11 +9,9 @@ from ..modules.Mesh import Mesh
 
 
 class FieldAnalysis3D(Analysis, object):
-    """FieldAnalysis3D class.
+    """Manages 3D field analysis setup in HFSS, Maxwell 3D, and Q3D.
 
-    This class is for 3D field analysis setup in HFSS, Maxwell 3D, and Q3D.
-
-    It is automatically initialized by an application call from one of
+    This class is automatically initialized by an application call from one of
     the 3D tools. See the application function for parameter definitions.
 
     Parameters
@@ -41,7 +39,7 @@ class FieldAnalysis3D(Analysis, object):
         the active version or latest installed version is used.
     NG : bool, optional
         Whether to run AEDT in the non-graphical mode. The default 
-        is ``False``, which launches AEDT in the graphical mode.  
+        is ``False``, in which case AEDT is launched in the graphical mode.  
     AlwaysNew : bool, optional
         Whether to launch an instance of AEDT in a new thread, even if
         another instance of the ``specified_version`` is active on the
@@ -64,18 +62,17 @@ class FieldAnalysis3D(Analysis, object):
 
     @property
     def modeler(self):
-        """Modeler object.
+        """Modeler.
 
         Returns
         -------
         :class:`modeler.Model3D.Modeler3D`
-            Modeler Object
         """
         return self._modeler
 
     @property
     def mesh(self):
-        """Mesh object.
+        """Mesh.
 
         Returns
         -------
@@ -85,7 +82,7 @@ class FieldAnalysis3D(Analysis, object):
 
     @property
     def components3d(self):
-        """Components 3D object.
+        """Components 3D.
 
         Returns
         -------
@@ -300,7 +297,7 @@ class FieldAnalysis3D(Analysis, object):
            Use :func:`FieldAnalysis3D.assign_material` instead.
 
         """
-        warnings.warn('assignmaterial is deprecated.  Please use assign_material instead.',
+        warnings.warn('assignmaterial is deprecated. Use assign_material instead.',
                       DeprecationWarning)
         self.assign_material(obj, mat)
 
@@ -323,7 +320,7 @@ class FieldAnalysis3D(Analysis, object):
 
         Examples
         --------
-        The method assign_material is useful to assign a material to a list of objects.
+        The method :func:`assign_material` is used to assign a material to a list of objects.
 
         Open a design and create the objects.
 
@@ -334,7 +331,7 @@ class FieldAnalysis3D(Analysis, object):
         >>> cylinder1 = hfss.modeler.primitives.create_cylinder(cs_axis="X", position=[5, 0, 0], radius=1, height=20)
         >>> cylinder2 = hfss.modeler.primitives.create_cylinder(cs_axis="Z", position=[0, 0, 5], radius=1, height=10)
 
-        Assign the material "copper" to all the objects.
+        Assign the material ``"copper"`` to all the objects.
 
         >>> objects_list = [box1, box2, cylinder1, cylinder2]
         >>> hfss.assign_material(objects_list, "copper")
