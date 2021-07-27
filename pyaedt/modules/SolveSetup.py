@@ -17,9 +17,7 @@ from ..application.DataHandlers import tuple2dict, dict2arg
 
 
 class Setup(object):
-    """Setup class.
-    
-    This class provides the functionalities needed to initialize, create, and update a 3D setup.
+    """Initializes, creates, and updates a 3D setup.
     
     Parameters
     ----------
@@ -56,12 +54,16 @@ class Setup(object):
         
         self._parent = None
         self.parent = parent
-        self.setuptype = solutiontype
+        if isinstance(solutiontype, int):
+            self.setuptype = solutiontype
+        else:
+            self.setuptype = SetupKeys.defaultSetups[solutiontype]
+
         self.name = setupname
         self.props = {}
         self.sweeps = []
         if isnewsetup:
-            setup_template = SetupKeys.SetupTemplates[solutiontype]
+            setup_template = SetupKeys.SetupTemplates[self.setuptype]
             for t in setup_template:
                 tuple2dict(t, self.props)
         else:
@@ -221,7 +223,7 @@ class Setup(object):
     @aedt_exception_handler
     def enable_expression_cache(self, expressions, report_type="Fields", intrinsics='', isconvergence=True,
                                 isrelativeconvergence=True, conv_criteria=1):
-        """Enable a setup expression cache.
+        """Enable an expression cache.
 
         Parameters
         ----------
@@ -404,9 +406,7 @@ class Setup(object):
         return True
 
 class SetupCircuit(object):
-    """SetupCircuit class.
-    
-    This class provides the functionalities needed to initialize, create, and update a circuit setup.
+    """Initializes, creates, and updates a circuit setup.
     
     Parameters
     ----------
@@ -472,11 +472,14 @@ class SetupCircuit(object):
     def __init__(self, parent, solutiontype, setupname="MySetupAuto", isnewsetup=True):
         self._parent = None
         self.parent = parent
-        self.setuptype = solutiontype
+        if isinstance(solutiontype, int):
+            self.setuptype = solutiontype
+        else:
+            self.setuptype = SetupKeys.defaultSetups[solutiontype]
         self._Name = "LinearFrequency"
         self.props = {}
         if isnewsetup:
-            setup_template = SetupKeys.SetupTemplates[solutiontype]
+            setup_template = SetupKeys.SetupTemplates[self.setuptype]
             for t in setup_template:
                 tuple2dict(t, self.props)
         else:
@@ -536,6 +539,12 @@ class SetupCircuit(object):
                 self.omodule.AddDCAnalysis(arg)
             elif soltype == "NexximTransient":
                 self.omodule.AddTransient(arg)
+            elif soltype == "NexximQuickEye":
+                self.omodule.AddQuickEyeAnalysis(arg)
+            elif soltype == "NexximVerifEye":
+                self.omodule.AddVerifEyeAnalysis(arg)
+            elif soltype == "NexximAMI":
+                self.omodule.AddAMIAnalysis(arg)
             else:
                 print("Not Implemented Yet")
         else:
@@ -545,6 +554,13 @@ class SetupCircuit(object):
                 self.omodule.EditDCAnalysis(self.name, arg)
             elif soltype == "NexximTransient":
                 self.omodule.EditTransient(self.name, arg)
+            elif soltype == "NexximQuickEye":
+                self.omodule.EditQuickEyeAnalysis(self.name,arg)
+            elif soltype == "NexximVerifEye":
+                self.omodule.EditVerifEyeAnalysis(self.name,arg)
+            elif soltype == "NexximAMI":
+                self.omodule.EditAMIAnalysis(self.name,arg)
+
             else:
                 print("Not Implemented Yet")
         return True
@@ -765,9 +781,7 @@ class SetupCircuit(object):
 
 
 class Setup3DLayout(object):
-    """Setup3DLayout class.
-    
-    This class provides the functionalities needed to initialize, create, and update a 3D Layout setup.
+    """Initializes, creates, and updates a 3D Layout setup.
     
     Parameters
     ----------
@@ -809,7 +823,10 @@ class Setup3DLayout(object):
 
     def __init__(self, parent, solutiontype, setupname="MySetupAuto", isnewsetup=True):
         self.parent = parent
-        self._solutiontype = solutiontype
+        if isinstance(solutiontype, int):
+            self._solutiontype = solutiontype
+        else:
+            self._solutiontype =SetupKeys.defaultSetups[self._solutiontype]
         self.name = setupname
         self.props = OrderedDict()
         self.sweeps = []

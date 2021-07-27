@@ -1,7 +1,7 @@
 Introduction
 ------------
 PyAEDT is intended to consolidate and extend all existing
-functionalities around scripting for Ansys Electronics Dekstop (AEDT)
+functionalities around scripting for Ansys Electronics Desktop (AEDT)
 to allow reuse of existing code, sharing of best practices, and increased
 collaboration. PyAEDT is licensed under the `MIT License
 <https://github.com/pyansys/PyAEDT/blob/main/LICENSE>`_.
@@ -20,7 +20,7 @@ PyAEDT includes functionality for interacting with the following AEDT tools and 
 What is PyAEDT?
 ---------------
 PyAEDT is a Python library that interacts directly with the AEDT API
-to make scripting simpler for the end user.  It uses an architecture
+to make scripting simpler for the end user. It uses an architecture
 that can be reused for all AEDT 3D products (HFSS, Icepak, Maxwell 3D,
 Q3D and Mechanical) as well as 2D tools and circuit tools like
 Nexxim and Simplorer. Finally it provides scripting capabilities in Ansys
