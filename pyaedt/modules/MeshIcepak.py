@@ -5,7 +5,7 @@ from .Mesh import meshers, MeshOperation
 
 
 class IcepakMesh(object):
-    """IcepakMesh class."""
+    """Manages Icepak meshes."""
     def __init__(self, parent):
         self._parent = parent
         self.id = 0
@@ -17,9 +17,7 @@ class IcepakMesh(object):
         self._priorities_args = []
 
     class MeshRegion(object):
-        """MessRegion class.
-        
-        This class manages Icepak mesh region settings.
+        """Manages Icepak mesh region settings.
         """
         def __init__(self, meshmodule, dimension, units):
             self.name = "Settings"
@@ -95,7 +93,7 @@ class IcepakMesh(object):
 
         @aedt_exception_handler
         def update(self):
-            """Update mesh region settings with the ones in the object variable.
+            """Update mesh region settings with the settings in the object variable.
             
             Returns
             -------
@@ -137,7 +135,7 @@ class IcepakMesh(object):
 
     @property
     def omeshmodule(self):
-        """Instance ofa mesh module in a project."""
+        """Mesh module."""
         design_type = self.odesign.GetDesignType()
         assert design_type in meshers, "Invalid design type {}".format(design_type)
         return self.odesign.GetModule(meshers[design_type])
@@ -149,12 +147,25 @@ class IcepakMesh(object):
 
     @property
     def odesign(self):
-        """Instance of a design in a project."""
+        """Design.
+        
+        Returns
+        -------
+        type
+            Design object.
+        
+        """
         return self._parent._odesign
 
     @property
     def modeler(self):
-        """Modeler."""
+        """Modeler.
+        
+        Returns
+        -------
+        :class:`pyaedt.modules.Modeler`
+        
+        """
         return self._parent._modeler
 
     @aedt_exception_handler
@@ -190,7 +201,7 @@ class IcepakMesh(object):
 
     @aedt_exception_handler
     def assign_mesh_level(self, mesh_order, meshop_name=None):
-        """Assign a given mesh level to objects.
+        """Assign a mesh level to objects.
 
         Parameters
         ----------
@@ -272,6 +283,7 @@ class IcepakMesh(object):
         -------
          bool
             ``True`` when successful, ``False`` when failed.
+        
         """
         xsize = self.boundingdimension[0] / (10 * accuracy2 * accuracy2)
         ysize = self.boundingdimension[1] / (10 * accuracy2 * accuracy2)
@@ -351,8 +363,8 @@ class IcepakMesh(object):
 
         Returns
         -------
-        IcepakMesh.MeshRegion
-            Mesh region object.
+        :class:`pyaedt.modules.MeshIcepak.IcepakMesh.MeshRegion`
+        
         """
         if not name:
             name = generate_unique_name("MeshRegion")
@@ -388,7 +400,7 @@ class IcepakMesh(object):
 
     @aedt_exception_handler
     def assign_mesh_level_to_group(self, mesh_level, groupName, localMeshParamEn=False,
-                                   localMeshParameters="No Local Mesh Parameters", meshop_name=None):
+                                   localMeshParameters="No local mesh parameters", meshop_name=None):
         """Assign a mesh level to a group.
 
         Parameters
@@ -406,8 +418,8 @@ class IcepakMesh(object):
 
         Returns
         -------
-        type
-            Mesh operation object.
+        :class:`pyaedt.modules.Mesh.MeshOperation`
+       
         """
         if meshop_name:
             for el in self.meshoperations:
