@@ -6,19 +6,19 @@ from .Primitives2D import Primitives2D
 
 
 class ModelerRMxprt(Modeler):
-    """ """
+    """Provides the Modeler RMxprt application interface."""
 
     def __init__(self, parent):
         Modeler.__init__(self, parent)
 
     @property
     def oeditor(self):
-        """ """
+        """Editor."""
         return self.odesign.SetActiveEditor("Machine")
 
 
 class Modeler2D(GeometryModeler):
-    """Modeler 2D application inteface.
+    """Provides the Modeler 2D application interface.
     
     Parameters
     ----------
@@ -65,8 +65,8 @@ class Modeler2D(GeometryModeler):
 
         Returns
         -------
-        type
-            Radius.
+        float
+            Radius value.
             .. note::
                 If ``inner=True``, then the maximum is returned; otherwise,
                 the minimum is returned.
@@ -97,13 +97,15 @@ class Modeler2D(GeometryModeler):
 
         Parameters
         ----------
-        radius :
+        radius : float
+            Radius of the circle.   
+        name : str
+            Name of the circle. 
             
-        name :
-            
-
         Returns
         -------
+        bool
+            ``True`` when successful, ``False`` when failed.
 
         """
         self.oeditor.CreateCircle(
