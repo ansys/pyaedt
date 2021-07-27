@@ -73,11 +73,11 @@ class TestClass:
             self.aedtapp.modeler.primitives.delete(name)
         return self.aedtapp.modeler.primitives.create_cylinder(cs_axis="Y", position=[0, 0, 0], radius=1, height=20,
                                                             numSides=8, name=name, matname="Copper")
-    def test_uname(self):
+    def test_00_uname(self):
         test = _uname()
         assert test.startswith("NewObject")
 
-    def test_object_performance(self):
+    def test_00_object_performance(self):
         time_fn(self.create_copper_box_test_performance)
 
     def test_01_bounding_box(self):
@@ -295,14 +295,14 @@ class TestClass:
         assert "Vertex" in test_vertex.__repr__()
         assert "Vertex" in test_vertex.__str__()
 
-    def test_delete_self(self):
+    def test_13_delete_self(self):
         o = self.create_copper_box()
         my_name = o.name
         assert my_name in self.aedtapp.modeler.primitives.object_names
         o.delete()
         assert my_name not in self.aedtapp.modeler.primitives.object_names
 
-    def test_translate_delete_self(self):
+    def test_14_translate_delete_self(self):
         o = self.create_copper_box()
         v0 = o.vertices[0].position
         o.translate([1, 0, 0])
@@ -311,21 +311,21 @@ class TestClass:
         assert v1[1] == v0[1]
         assert v1[2] == v0[2]
 
-    def test_duplicate_around_axis_and_unite(self):
+    def test_15_duplicate_around_axis_and_unite(self):
         turn = self.create_example_coil("single_turn")
         added_objects = turn.duplicate_around_axis(cs_axis="Z", angle=8, nclones=19)
         turn.unite(added_objects)
         assert len(added_objects) == 18
         assert "single_turn" in self.aedtapp.modeler.primitives.line_names
 
-    def test_duplicate_around_axis_and_unite(self):
+    def test_16_duplicate_around_axis_and_unite(self):
         turn = self.create_example_coil("single_turn")
         added_objects = turn.duplicate_along_line([0, 0, 15], nclones=3, attachObject=False)
         assert len(added_objects) == 2
         assert "single_turn" in self.aedtapp.modeler.primitives.line_names
 
     #TODO: Finish asserts anc check the boolean inputs - they are not present in the GUI ??
-    def test_section_object(self):
+    def test_17_section_object(self):
         o = self.aedtapp.modeler.primitives.create_box([-10, 0, 0], [10, 10, 5], "SectionBox", "Copper")
         o.section(plane="YZ", create_new=True, section_cross_object=False)
 
