@@ -209,7 +209,7 @@ def list_difference(list1, list2):
     return list(set(list1) - set(list2))
 
 class DesignCache(object):
-    """Provides for analyzing the differences in the state of a design between two points in time.
+    """Analyzes the differences in the state of a design between two points in time.
     
     The contents of the design tracked in the Message Manager currently are:
 
@@ -629,21 +629,12 @@ class Design(object):
     def design_type(self):
         """Design type.
         
-        Options are:
-        - ``'Maxwell 2D'``
-        - ``'Maxwell 3D'``
-        - ``'Twin Builder'``
-        - ``'Circuit Design'``
-        - ``'2D Extractor'``
-        - ``'Q3D Extractor'``
-        - ``'HFSS'``
-        - ``'Icepak'``
-        - ``'RMxprtSolution'``
-        - ``'ModelCreation'``
-        - ``'HFSS 3D Layout Design'``
-        - ``'Mechanical'``
-        - ``'EMIT'
-
+        Options are ``"Circuit Design"``, ``"Emit"``, ``"HFSS"``, 
+        ``"HFSS 3D Layout Design"``, ``"Icepak"``, ``"Maxwell 2D"``, 
+        ``"Maxwell 3D"``, ``"Mechanical"``, ``"ModelCreation"``, 
+        ``"Q2D Extractor"``, ``"Q3D Extractor"``, ``"RMxprtSolution"``, 
+        and ``"Twin Builder"``.
+    
         Returns
         --------
         str
