@@ -1304,7 +1304,7 @@ class Primitives(object):
         elif not isinstance(objects, list):
             objects = [objects]
         for el in objects:
-            if el not in self.object_names:
+            if el not in self.object_names and not list(self.oeditor.GetObjectsInGroup(el)):
                 objects.remove(el)
         if not objects:
             self._messenger.add_warning_message("No objects to delete")

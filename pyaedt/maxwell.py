@@ -297,14 +297,23 @@ class Maxwell(object):
             name = generate_unique_name("Current")
         
         object_list = self.modeler._convert_list_to_ids(object_list)
-        if type(object_list[0]) is int:
-            props = OrderedDict(
-                {"Faces": object_list, "Current": amplitude, "IsSolid": solid, "Point out of terminal": swap_direction})
+        if self.is3d:
+            if type(object_list[0]) is int:
+                props = OrderedDict(
+                    {"Faces": object_list, "Current": amplitude, "IsSolid": solid, "Point out of terminal": swap_direction})
+            else:
+                props = OrderedDict(
+                    {"Objects": object_list, "Current": amplitude,"Phase":phase, "IsSolid": solid, "Point out of terminal": swap_direction})
         else:
-            props = OrderedDict(
-                {"Objects": object_list, "Current": amplitude,"Phase":phase, "IsSolid": solid, "Point out of terminal": swap_direction})
+            if type(object_list[0]) is str:
+                props = OrderedDict(
+                    {"Objects": object_list, "Current": amplitude,"IsPositive": swap_direction})
+            else:
+                self._messenger.add_warning_message("Input has to be a 2D Object")
+                return False
         bound = BoundaryObject(self, name, props, "Current")
         if bound.create():
+
             self.boundaries.append(bound)
             return bound
         return False
@@ -765,6 +774,7 @@ class Maxwell3d(Maxwell, FieldAnalysis3D, object):
         """
         Initialize the ``Maxwell`` class.
         """
+        self.is3d = True
         FieldAnalysis3D.__init__(self, "Maxwell 3D", projectname, designname, solution_type, setup_name,
                                  specified_version, NG, AlwaysNew, release_on_exit, student_version)
         Maxwell.__init__(self)
@@ -843,6 +853,7 @@ class Maxwell2d(Maxwell, FieldAnalysis2D, object):
 
     def __init__(self, projectname=None, designname=None, solution_type=None, setup_name=None,
                  specified_version=None, NG=False, AlwaysNew=False, release_on_exit=False, student_version=False):
+        self.is3d = False
         FieldAnalysis2D.__init__(self, "Maxwell 2D", projectname, designname, solution_type, setup_name,
                                  specified_version, NG, AlwaysNew, release_on_exit, student_version)
         Maxwell.__init__(self)

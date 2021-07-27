@@ -283,17 +283,42 @@ NexximTransient = [("DataBlockID", 10), ("OptionName", "(Default Options)"), ("A
                    ("TransientOtherData", ["default"])]
 """Nexxim transient setup properties and default values."""
 
-NexximQuickEye = []
-NexximVerifEye = []
-NexximAMI = []
+NexximQuickEye = [("DataBlockID", 28), ("OptionName", "(Default Options)"),
+                  ("AdditionalOptions", ""), ("AlterBlockName", ""),
+                  ("FilterText", ""), ("AnalysisEnabled", 1), ("OutputQuantities", OutputQuantities),
+                  ("NoiseOutputQuantities", NoiseOutputQuantities),
+                  ("Name", "QuickEyeAnalysis"),
+                  ("QuickEyeAnalysis", [False, "1e-9", False, "0", "", True])]
+NexximVerifEye = [("DataBlockID", 27), ("OptionName", "(Default Options)"),
+                  ("AdditionalOptions", ""), ("AlterBlockName", ""),
+                  ("FilterText", ""), ("AnalysisEnabled", 1), ("OutputQuantities", OutputQuantities),
+                  ("NoiseOutputQuantities", NoiseOutputQuantities),
+                  ("Name", "VerifEyeAnalysis"),
+                  ("VerifEyeAnalysis", [False, "1e-9", False, "0", "", True])]
+NexximAMI = [("DataBlockID", 29), ("OptionName", "(Default Options)"),
+                  ("AdditionalOptions", ""), ("AlterBlockName", ""),
+                  ("FilterText", ""), ("AnalysisEnabled", 1), ("OutputQuantities", OutputQuantities),
+                  ("NoiseOutputQuantities", NoiseOutputQuantities),
+                  ("Name", "AMIAnalysis"),
+                  ("AMIAnalysis", [32, False, False])]
 NexximOscillatorRSF = []
 NexximOscillator1T = []
 NexximOscillatorNT = []
 NexximHarmonicBalance1T = []
 NexximHarmonicBalanceNT = []
-NexximSystem = []
+NexximSystem = [("DataBlockID", 32), ("OptionName", "(Default Options)"),
+                  ("AdditionalOptions", ""), ("AlterBlockName", ""),
+                  ("FilterText", ""), ("AnalysisEnabled", 1), ("OutputQuantities", OutputQuantities),
+                  ("NoiseOutputQuantities", NoiseOutputQuantities),
+                  ("Name", "HSPICETransient"),
+                  ("HSPICETransientData", ["0.1ns","10ns"]), ("HSPICETransientOtherData", [3])]
 NexximTVNoise = []
-HSPICE = []
+HSPICE = [("DataBlockID", 30), ("OptionName", "(Default Options)"),
+                  ("AdditionalOptions", ""), ("AlterBlockName", ""),
+                  ("FilterText", ""), ("AnalysisEnabled", 1), ("OutputQuantities", OutputQuantities),
+                  ("NoiseOutputQuantities", NoiseOutputQuantities),
+                  ("Name", "SystemFDAnalysis"),
+                  ("SystemFDAnalysis", [False])]
 
 HFSS3DLayout_Properties = [("Enable", "true")]
 HFSS3DLayout_AdvancedSettings = [

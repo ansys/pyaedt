@@ -69,3 +69,10 @@ class TestClass(BasisTest):
     @pyaedt_unittest_check_desktop_error
     def test_assign_force(self):
         assert self.aedtapp.assign_force("Magnet2_Section1")
+
+    @pyaedt_unittest_check_desktop_error
+    def test_assign_current_source(self):
+        coil = self.aedtapp.modeler.primitives.create_circle(position=[0, 0, 0], radius="5", num_sides="8", is_covered=True,
+                                                    name="Coil", matname="Copper")
+        assert self.aedtapp.assign_current([coil])
+        assert not self.aedtapp.assign_current([coil.faces[0].id])
