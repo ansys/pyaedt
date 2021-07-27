@@ -15,8 +15,8 @@ import logging
 import pkgutil
 import getpass
 import re
-from .application.MessageManager import AEDTMessageManager
-from .misc import list_installed_ansysem
+from pyaedt.application.MessageManager import AEDTMessageManager
+from pyaedt.misc import list_installed_ansysem
 
 pathname = os.path.dirname(__file__)
 if os.path.exists(os.path.join(pathname,'version.txt')):
@@ -143,7 +143,7 @@ def release_desktop(close_projects=True, close_desktop=True):
     Parameters
     ----------
     close_projects : bool, optional
-        Whether to close the projects opened in the session. The default is ``True``.
+        Whether to close the AEDT projects open in the session. The default is ``True``.
     close_desktop : bool, optional
         Whether to close the active AEDT session. The default is ``True``.
 
@@ -213,7 +213,7 @@ def release_desktop(close_projects=True, close_desktop=True):
 
 
 def force_close_desktop():
-    """Close all AEDT projects and forcibly shut down AEDT.
+    """Forcibly close all AEDT projects and shut down AEDT.
 
     Returns
     -------
@@ -272,7 +272,7 @@ class Desktop:
         active setup or latest installed version is used.
     NG: bool, optional
         Whether to launch AEDT in the non-graphical mode. The default 
-        is ``False``, in which case AEDT launches in the graphical mode.
+        is ``False``, in which case AEDT is launched in the graphical mode.
     AlwaysNew : bool, optional
         Whether to launch an instance of AEDT in a new thread, even if 
         another instance of the ``specified_version`` is active on the machine.
@@ -305,7 +305,7 @@ class Desktop:
             
     @property
     def version_keys(self):
-        """Version keys."""
+        """Version keys for AEDT."""
 
         self._version_keys = []
         self._version_ids = {}
@@ -558,14 +558,14 @@ class Desktop:
         Parameters
         ----------
         ex_value : str
-            Type of exception.
+            Type of the exception.
         tb_data : str
-            Traceback information.
+            Traceback data.
             
         Returns
         -------
         str
-            Type of exception.
+            Type of the exception.
 
         """
         try:
@@ -594,7 +594,7 @@ class Desktop:
         Parameters
         ----------
         close_projects : bool, optional
-            Whether to close the projects opened in the session. 
+            Whether to close the AEDT projects opened in the session. 
             The default is ``True``.
         close_on_exit : bool, optional
             Whether to close the active AEDT session on exiting AEDT. 
@@ -612,7 +612,7 @@ class Desktop:
         release_desktop(close_projects, close_on_exit)
 
     def force_close_desktop(self):
-        """Close all AEDT projects and shut down AEDT.
+        """Forcibly close all AEDT projects and shut down AEDT.
     
         Examples
         --------

@@ -3,12 +3,17 @@ import os
 import gc
 
 # Setup paths for module imports
-from .conftest import local_path, scratch_path, desktop_version, new_thread, non_graphical
+from _unittest.conftest import local_path, scratch_path, desktop_version, new_thread, non_graphical
 
 # Import required modules
 from pyaedt import Hfss
 from pyaedt.application.Design import DesignCache
 from pyaedt.generic.filesystem import Scratch
+
+try:
+    import pytest
+except ImportError:
+    import _unittest_ironpython.conf_unittest as pytest
 
 test_project_name = "Coax_HFSS"
 example_project = os.path.join(local_path, 'example_models', test_project_name + '.aedt')
@@ -20,8 +25,8 @@ class TestClass():
         with Scratch(scratch_path) as self.local_scratch:
             self.test_project = self.local_scratch.copyfile(example_project)
             self.aedtapp = Hfss(projectname=self.test_project, specified_version=desktop_version, AlwaysNew=new_thread, NG=non_graphical)
-            self.aedtapp.save_project()
-            self.cache = DesignCache(self.aedtapp)
+            #self.aedtapp.save_project()
+            #self.cache = DesignCache(self.aedtapp)
 
     def teardown_class(self):
         assert self.aedtapp.close_project(self.aedtapp.project_name)
@@ -204,7 +209,7 @@ class TestClass():
         proj_dir2 = self.aedtapp.generate_temp_project_directory("")
         assert os.path.exists(proj_dir2)
         proj_dir4 = self.aedtapp.generate_temp_project_directory(34)
-        assert os.path.exists(proj_dir4)
+        assert not proj_dir4
         proj_dir5 = self.aedtapp.generate_temp_project_directory(":_34")
         assert not proj_dir5
 

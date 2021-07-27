@@ -249,15 +249,13 @@ class SiwaveSolve(object):
             f.write("exportOptions = os.path.join(r'{}', 'options.config')\n".format(output_folder))
             f.write("oDoc.ScrImportEDB(edbpath)\n")
             f.write("oDoc.ScrSaveProjectAs(os.path.join(r'{}','{}'))\n".format(output_folder, 'test.siw'))
-            if not net_list:
-                f.write("allnets = oDoc.ScrGetNetNameList()\n")
-            else:
+            if net_list:
                 f.write("allnets = []\n")
                 for el in net_list:
                     f.write("allnets.append('{}')\n".format(el))
-            f.write("for i in range(0, len(allnets)):\n")
-            f.write("    if allnets[i] != 'DUMMY':\n")
-            f.write("        oDoc.ScrSelectNet(allnets[i], 1)\n")
+                f.write("for i in range(0, len(allnets)):\n")
+                f.write("    if allnets[i] != 'DUMMY':\n")
+                f.write("        oDoc.ScrSelectNet(allnets[i], 1)\n")
             f.write("oDoc.ScrSetOptionsFor3DModelExport(exportOptions)\n")
             f.write("q3d_filename = os.path.join(r'{}', '{}')\n".format(output_folder, format_3d+"_siwave.aedt"))
             f.write("oDoc.ScrExport3DModel('{}', q3d_filename)\n".format(format_3d))

@@ -1,8 +1,12 @@
 import os
-import pytest
 import time
+try:
+    import pytest
+except ImportError:
+    import _unittest_ironpython.conf_unittest as pytest
+
 # Setup paths for module imports
-from .conftest import scratch_path
+from _unittest.conftest import scratch_path
 import gc
 
 # Import required modules
@@ -15,7 +19,7 @@ from pyaedt.generic.filesystem import Scratch
 test_project_name = "Coax_HFSS"
 
 
-class Test3DLayout:
+class TestClass:
     def setup_class(self):
         self.aedtapp = Hfss3dLayout()
 
@@ -154,21 +158,21 @@ class Test3DLayout:
                                                    interpolation_tol_percent=0.4, interpolation_max_solutions=255,
                                                    save_fields=True, save_rad_fields_only=True, use_q3d_for_dc=True)
 
-    def test_19_validate(self):
+    def test_19A_validate(self):
         assert self.aedtapp.validate_full_design()
         self.aedtapp.delete_port("Port3")
         assert self.aedtapp.validate_full_design(ports=3)
 
-    def test_19A_analyse_setup(self):
+    def test_19B_analyse_setup(self):
         assert self.aedtapp.analyze_setup("RFBoardSetup3")
 
-    def test_19B_export_touchsthone(self):
+    def test_19C_export_touchsthone(self):
         filename = os.path.join(scratch_path, 'touchstone.s2p')
         assert self.aedtapp.export_touchstone("RFBoardSetup3", "Last Adaptive",
                                               filename, [], [])
         assert os.path.exists(filename)
 
-    def test_19_export_to_hfss(self):
+    def test_19D_export_to_hfss(self):
         with Scratch(scratch_path) as local_scratch:
             filename = 'export_to_hfss_test'
             file_fullname = os.path.join(local_scratch.path, filename)

@@ -47,10 +47,12 @@ class Edb(object):
 
     Parameters
     ----------
-    edbpath : str
-        Full path to the ``aedb`` folder.
-    cellname : str
-        Name of the cell to select.
+    edbpath : str, optional
+        Full path to the ``aedb`` folder. The variable can also contain 
+        the path to a layout to import. Allowed formarts are BRD, 
+        XML (IPC2581), GDS, and DXF. The default is ``None``.
+    cellname : str, optional
+        Name of the cell to select. The default is ``None``.
     isreadonly : bool, optional
         Whether to open ``edb_core`` in read-only mode when it is
         owned by HFSS 3D Layout. The default is ``False``.
@@ -60,7 +62,7 @@ class Edb(object):
         Whether to launch ``edb_core`` from HFSS 3D Layout. The
         default is ``False``.
     oproject : optional
-    
+        Reference to the AEDT project object.
     student_version : bool, optional
         Whether to open the AEDT student version. The default is ``False.``
 
@@ -86,6 +88,10 @@ class Edb(object):
         self._nets = None
         self._db = None
         self._edb = None
+        if _ironpython and inside_desktop:
+            self.standalone = False
+        else:
+            self.standalone = True
         if edb_initialized:
             self.oproject = oproject
             if isaedtowned:
@@ -95,7 +101,7 @@ class Edb(object):
                 if not edbpath or not os.path.exists(edbpath):
                     self._messenger = EDBMessageManager()
                 elif os.path.exists(edbpath):
-                    self._messenger = EDBMessageManager(edbpath)
+                    self._messenger = EDBMessageManager(os.path.dirname(edbpath))
 
             self.student_version = student_version
             self._messenger.add_info_message("Messenger Initialized in EDB")
@@ -122,6 +128,7 @@ class Edb(object):
                 self.import_layout_pcb(edbpath, working_dir)
         else:
             warnings.warn("Failed to initialize Dlls")
+        self._messenger.add_info_message("Edb Initialized")
 
 
     @aedt_exception_handler
@@ -232,12 +239,12 @@ class Edb(object):
             clr.AddReference('Ansys.Ansoft.EdbBuilderUtils')
             clr.AddReference('EdbLib')
             clr.AddReference('Ansys.Ansoft.SimSetupData')
-
         os.environ["ECAD_TRANSLATORS_INSTALL_DIR"] = self.base_path
         oaDirectory = os.path.join(self.base_path, 'common', 'oa')
         os.environ['ANSYS_OADIR'] = oaDirectory
         os.environ['PATH'] = '{};{}'.format(os.environ['PATH'], self.base_path)
         edb =__import__('Ansys.Ansoft.Edb')
+
         self.edb = edb.Ansoft.Edb
         edbbuilder=__import__('Ansys.Ansoft.EdbBuilderUtils')
         self.edblib = __import__('EdbLib')
@@ -253,7 +260,7 @@ class Edb(object):
 
         Parameters
         ----------
-        init_dlls : bool
+        init_dlls : bool, optional
             Whether to initialize DLLs. The default is ``False``.
 
         Returns
@@ -264,7 +271,8 @@ class Edb(object):
             self._init_dlls()
         self._messenger.add_warning_message("EDB Path {}".format(self.edbpath))
         self._messenger.add_warning_message("EDB Version {}".format(self.edbversion))
-        self.edb.Database.SetRunAsStandAlone(True)
+        self.edb.Database.SetRunAsStandAlone(self.standalone)
+
         self._db = self.edb.Database.Open(self.edbpath, self.isreadonly)
         self._active_cell = None
         if self.cellname:
@@ -273,8 +281,9 @@ class Edb(object):
                     self._active_cell = cell
         else:
             self._active_cell = list(self._db.TopCircuitCells)[0]
+
         if self._active_cell:
-            self.builder = self.layout_methods.GetBuilder(self._db, self._active_cell)
+            self.builder = self.layout_methods.GetBuilder(self._db, self._active_cell, self.standalone)
         else:
             self.builder = None
         return self.builder
@@ -282,9 +291,10 @@ class Edb(object):
     @aedt_exception_handler
     def open_edb_inside_aedt(self, init_dlls=False):
         """Open EDB inside of AEDT.
+        
         Parameters
         ----------
-        init_dlls :
+        init_dlls : bool, optional
             Whether to initialize DLLs. The default is ``False``.
 
         Returns
@@ -295,15 +305,17 @@ class Edb(object):
             self._init_dlls()
         self._messenger.add_info_message("Opening EDB from HDL")
         self.edb.Database.SetRunAsStandAlone(False)
-        hdl = Convert.ToUInt64(self.oproject.GetEDBHandle())
-        print(hdl)
-        self._db = self.edb.Database.Attach(hdl)
-        print(self._db)
-        print(self.cellname)
-        self._active_cell = self.edb.Cell.Cell.FindByName(self.db, self.edb.Cell.CellType.CircuitCell, self.cellname)
-        self.builder = self.layout_methods.GetBuilder(self.db, self._active_cell)
-        print("active cell set")
-        return self.builder
+        if self.oproject.GetEDBHandle():
+            hdl = Convert.ToUInt64(self.oproject.GetEDBHandle())
+            self._db = self.edb.Database.Attach(hdl)
+            self._active_cell = self.edb.Cell.Cell.FindByName(self.db, self.edb.Cell.CellType.CircuitCell, self.cellname)
+            self.builder = self.layout_methods.GetBuilder(self.db, self._active_cell, self.standalone, True)
+            return self.builder
+        else:
+            self._db = None
+            self._active_cell = None
+            self.builder = None
+            return None
 
     @aedt_exception_handler
     def create_edb(self, init_dlls=False):
@@ -311,7 +323,7 @@ class Edb(object):
 
         Parameters
         ----------
-        init_dlls :
+        init_dlls : bool, optional
             Whether to initialize DLLs. The default is ``False``.
 
         Returns
@@ -320,13 +332,13 @@ class Edb(object):
         """
         if init_dlls:
             self._init_dlls()
-        self.edb.Database.SetRunAsStandAlone(True)
+        self.edb.Database.SetRunAsStandAlone(self.standalone)
+
         self._db = self.edb.Database.Create(self.edbpath)
         if not self.cellname:
             self.cellname = generate_unique_name("Cell")
-
         self._active_cell = self.edb.Cell.Cell.Create(self._db,  self.edb.Cell.CellType.CircuitCell, self.cellname)
-        self.builder = self.layout_methods.GetBuilder(self.db, self._active_cell)
+        self.builder = self.layout_methods.GetBuilder(self.db, self._active_cell, self.standalone)
         print("active cell set")
         return self.builder
 
@@ -350,15 +362,36 @@ class Edb(object):
             Full path to the AEDB file.
 
         """
+        self._components = None
+        self._core_primitives = None
+        self._stackup = None
+        self._padstack = None
+        self._siwave = None
+        self._hfss = None
+        self._nets = None
+        self._db = None
         if init_dlls:
             self._init_dlls()
         aedb_name= os.path.splitext(os.path.basename(input_file))[0] + ".aedb"
-        output = self.layout_methods.ImportCadToEdb(input_file, os.path.join(working_dir, aedb_name), self.edbversion)
-        assert output.Item1, "Error Importing File"
-        self.builder = output.Item2
-        self._db = self.builder.EdbHandler.dB
-        self._active_cell = self.builder.EdbHandler.cell
-        return self.builder
+        command = os.path.join(self.base_path, "anstranslator")
+
+        if os.name != "posix":
+            command +=  ".exe"
+
+        translatorSetup = self.edbutils.AnsTranslatorRunner(
+            input_file,
+            os.path.join(os.path.dirname(input_file),aedb_name),
+            os.path.join(os.path.dirname(input_file), "Translator.log"),
+            os.path.dirname(input_file),
+            True,
+            command)
+
+        if not translatorSetup.Translate():
+            self._messenger.add_error_message("Translator failed to translate.")
+            return False
+        self.edbpath = os.path.join(os.path.dirname(input_file),aedb_name)
+        return self.open_edb()
+
 
     def __enter__(self):
         return self
@@ -368,7 +401,7 @@ class Edb(object):
             self.edb_exception(ex_value, ex_traceback)
 
     def edb_exception(self, ex_value, tb_data):
-        """Write the trace stack to the desktop when a Python error occurs.
+        """Write the trace stack to AEDT when a Python error occurs.
 
         Parameters
         ----------
@@ -576,7 +609,7 @@ class Edb(object):
 
     @aedt_exception_handler
     def save_edb(self):
-        """Save EDB.
+        """Save the EDB file.
         
        Returns
         -------
@@ -589,12 +622,12 @@ class Edb(object):
 
     @aedt_exception_handler
     def save_edb_as(self, fname):
-        """Save EDB as.
+        """Save the EDB as another file.
 
         Parameters
         ----------
         fname : str
-            Name of the file to save EDB to.
+            Name of the new file to save to.
 
         Returns
         -------
@@ -649,15 +682,15 @@ class Edb(object):
 
     @aedt_exception_handler
     def import_gds_file(self, inputGDS, WorkDir=None):
-        """Import a BRD file and generate an ``edb.def`` file in the working directory.
+        """Import a GDS file and generate an ``edb.def`` file in the working directory.
 
         Parameters
         ----------
         inputGDS : str
-            Full path to the BRD file.
+            Full path to the GDS file.
         WorkDir : str
-            Directory in which to create the ``aedb` folder. The AEDB file name will be 
-            the same as the BRD file name. The default value is ``None``.
+            Directory in which to create the ``aedb`` folder. The AEDB file name will be 
+            the same as the GDS file name. The default value is ``None``.
 
         Returns
         -------
@@ -677,18 +710,18 @@ class Edb(object):
         Parameters
         ----------
         signal_list : list
-            List of signal strings
-        reference_list : list
+            List of signal strings.
+        reference_list : list, optional
             List of references to add. The default is ``["GND"]``.
-        extent_type : str
+        extent_type : str, optional
             Type of the extension. Options are ``"Conforming"`` and 
             ``"Bounding"``. The default is ``"Conforming"``.
-        expansion_size : float
+        expansion_size : float, optional
             Expansion size ratio in meters. The default is ``0.002``.
         use_round_corner : bool, optional
             Whether to use round corners. The default is ``False``.
         output_aedb_path : str, optional
-            Full path to the new AEDB file.
+            Full path and name for the new AEDB file.
         replace_design_with_cutout : bool, optional
             Whether to replace the design with the cutout. The default 
             is ``True``.      
@@ -766,7 +799,7 @@ class Edb(object):
         Parameters
         ----------
         path_to_output : str
-            Full path to the configuration file where the 3D export optons are to be saved.
+            Full path to the configuration file where the 3D export options are to be saved.
         
         config_dictionaries : dict, optional
         
@@ -800,14 +833,15 @@ class Edb(object):
         Parameters
         ----------
         path_to_output : str
-            Full path to where to save the AEDT file.
+            Full path and name for saving the AEDT file.
         net_list : list, optional
-            If provided, export only the nets in the list.
+            List of nets to export if only certain ones are to be
+            included.
 
         Returns
         -------
         str
-            Path to the AEDT file.
+            Full path to the AEDT file.
 
         Examples
         --------
@@ -827,14 +861,15 @@ class Edb(object):
 
     @aedt_exception_handler
     def export_q3d(self, path_to_output, net_list=None):
-        """Export EDB to HFSS.
+        """Export EDB to Q3D.
 
         Parameters
         ----------
         path_to_output : str
-            Full path to where to save the AEDT file.
+            Full path and name for saving the AEDT file.
         net_list : list, optional
-            If provided, export only the nets in the list.
+            List of nets only if certain ones are to be
+            exported.
 
         Returns
         -------
@@ -866,9 +901,10 @@ class Edb(object):
         Parameters
         ----------
         path_to_output : str
-            Full path to where to save the AEDT file.
+            Full path and name for saving the AEDT file.
         net_list : list, optional
-            If provided, export only the nets in the list.
+            List of nets only if certain ones are to be
+            exported.
 
         Returns
         -------

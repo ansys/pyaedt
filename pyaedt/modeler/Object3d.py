@@ -108,7 +108,7 @@ def _dim_arg(value, units):
     try:
         val = float(value)
         return str(val) + units
-    except ValueError:
+    except:
         return value
 
 

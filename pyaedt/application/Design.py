@@ -211,8 +211,6 @@ def list_difference(list1, list2):
 class DesignCache(object):
     """Provides for analyzing the differences in the state of a design between two points in time.
     
-    This class provides for analyzing the differences in the state of a design between two points in time.
-
     The contents of the design tracked in the Message Manager currently are:
 
         * global-level messages
@@ -244,7 +242,7 @@ class DesignCache(object):
 
     @property
     def no_change(self):
-        """Whether the design snapshot is unchanged since the last update.
+        """Check if the design snapshot is unchanged since the last update.
         
         Returns
         --------
@@ -255,7 +253,7 @@ class DesignCache(object):
 
     @property
     def delta_global_messages(self):
-        """List of any new or missing global-level messages since the last update.
+        """Check for any new or missing global-level messages since the last update.
         
         Returns
         -------
@@ -266,7 +264,7 @@ class DesignCache(object):
 
     @property
     def delta_project_messages(self):
-        """List of any new or missing project-level messages since the last update.
+        """Check for any new or missing project-level messages since the last update.
         
         Returns
         -------
@@ -277,7 +275,7 @@ class DesignCache(object):
 
     @property
     def delta_design_messages(self):
-        """List of any new or missing design-level messages since the last update.
+        """Check for any new or missing design-level messages since the last update.
         
         Returns
         -------
@@ -288,7 +286,7 @@ class DesignCache(object):
 
     @property
     def delta_error_messages(self):
-        """List of any new or missing error messages since the last update.
+        """Check for any new or missing error messages since the last update.
         
         Returns
         -------
@@ -299,7 +297,7 @@ class DesignCache(object):
 
     @property
     def no_new_messages(self):
-        """Whether new messages have appeared since the last update or since the Message Manager was cleared.
+        """Check for any new messages that have appeared since the last update or since the Message Manager was cleared.
         
         Returns
         -------
@@ -311,7 +309,7 @@ class DesignCache(object):
 
     @property
     def no_new_errors(self):
-        """Whether any new error messages have appeared since the last uodate.
+        """Check for any new error messages that have appeared since the last uodate.
         
         Returns
         -------
@@ -322,7 +320,7 @@ class DesignCache(object):
 
     @property
     def no_new_warnings(self):
-        """Whether any new warning messages have appeared since the last uodate.
+        """Check for any new warning messages that have appeared since the last uodate.
         
         Returns
         -------
@@ -333,7 +331,7 @@ class DesignCache(object):
 
     @property
     def no_change(self):
-        """Whether cache elements are unchanged since the last update.
+        """Check if cache elements are unchanged since the last update.
         
         Returns
         -------
@@ -414,9 +412,7 @@ class DesignCache(object):
 
 
 class Design(object):
-    """Design class. 
-    
-    This class contains all functions and objects connected to the active project and design.
+    """Contains all functions and objects connected to the active project and design.
     
     Parameters
     ----------
@@ -513,7 +509,13 @@ class Design(object):
 
     @property
     def project_properies(self):
-        """Project properties."""
+        """Project properties.
+        
+        Returns
+        -------
+        dict
+            Dictionary of the project properties.
+        """
         if os.path.exists(self.project_file):
             _mttime = os.path.getmtime(self.project_file)
             if _mttime != self._mttime:
@@ -535,7 +537,7 @@ class Design(object):
         Returns
         -------
         dict
-           Dictionary of design properties.
+           Dictionary of the design properties.
 
         """
         if not design_name:
@@ -627,7 +629,7 @@ class Design(object):
     def design_type(self):
         """Design type.
         
-        One of the following:
+        Options are:
         - ``'Maxwell 2D'``
         - ``'Maxwell 3D'``
         - ``'Twin Builder'``
@@ -645,7 +647,7 @@ class Design(object):
         Returns
         --------
         str
-            Design type.  See above for one of the possible return values.
+            Type of the design. See above for a list of possible return values.
 
         """
         #return self._odesign.GetDesignType()
@@ -717,7 +719,7 @@ class Design(object):
 
     @property
     def results_directory(self):
-        """Property
+        """Results directory.
        
         Returns
         -------
@@ -729,7 +731,7 @@ class Design(object):
 
     @property
     def solution_type(self):
-        """Solutiion type.
+        """Solution type.
 
         Returns
         -------
@@ -749,18 +751,6 @@ class Design(object):
 
     @solution_type.setter
     def solution_type(self, soltype):
-        """
-
-        Parameters
-        ----------
-        soltype :
-            SolutionType object
-
-        Returns
-        -------
-
-        """
-
         if soltype:
             sol = solutions_settings[soltype]
             try:
@@ -855,7 +845,7 @@ class Design(object):
         Returns
         -------
         list
-            List of libraries: ``[syslib, userlib, personallib]``
+            List of libraries: ``[syslib, userlib, personallib]``.
 
         """
         return [self.syslib, self.userlib, self.personallib]
@@ -918,7 +908,7 @@ class Design(object):
 
     @property
     def odesign(self):
-        """Design object.
+        """Design.
 
         Returns
         -------
@@ -930,17 +920,6 @@ class Design(object):
 
     @odesign.setter
     def odesign(self, des_name):
-        """
-
-        Parameters
-        ----------
-        des_name :
-
-
-        Returns
-        -------
-
-        """
         warning_msg = None
         activedes = des_name
         if des_name:
@@ -971,7 +950,7 @@ class Design(object):
 
     @property
     def oboundary(self):
-        """BoundarySetup module object.
+        """Boundary.
 
         Returns
         -------
@@ -983,7 +962,7 @@ class Design(object):
 
     @property
     def omodelsetup(self):
-        """ModelSetup module object.
+        """Model setup.
 
         Returns
         -------
@@ -996,19 +975,19 @@ class Design(object):
 
     @property
     def oimportexport(self):
-        """ImportExport module object.
+        """Import/Export.
 
         Returns
         -------
         type
-            ImportExport module object.
+            Import/Export module object.
 
         """
         return self.odesktop.GetTool("ImportExport")
 
     @property
     def oproject(self):
-        """Property object.
+        """Property.
 
         Returns
         -------
@@ -1020,17 +999,6 @@ class Design(object):
 
     @oproject.setter
     def oproject(self, proj_name=None):
-        """
-
-        Parameters
-        ----------
-        proj_name :
-             (Default value = None)
-
-        Returns
-        -------
-
-        """
         if not proj_name:
             self._oproject = self._desktop.GetActiveProject()
         else:
@@ -1064,7 +1032,7 @@ class Design(object):
 
     @property
     def oanalysis_setup(self):
-        """AnalysisSetup module object.
+        """Analysis setup.
 
         Returns
         -------
@@ -1076,7 +1044,7 @@ class Design(object):
 
     @property
     def odesktop(self):
-        """Desktop module object.
+        """Desktop.
 
         Returns
         -------
@@ -1200,14 +1168,11 @@ class Design(object):
 
     @property
     def variable_manager(self):
-        """Variable manager.
-        
-        This object is used to create and manage project design and postprocessing variables.
+        """Variable manager for creating and managing project design and postprocessing variables.
 
         Returns
         -------
-        VariableManager
-            Variable manager object.
+        :class:`pyaedt.application.Variables.VariableManager
             
         """
         return self._variable_manager
@@ -1250,19 +1215,19 @@ class Design(object):
         arg2 = ["NAME:"+optimetrics_type, "Included:=", enable]
         if min_val:
             arg2.append("Min:=")
-        arg2.append(min_val)
+            arg2.append(min_val)
         if max_val:
             arg2.append("Max:=")
-        arg2.append(max_val)
+            arg2.append(max_val)
         if tolerance:
             arg2.append("Tol:=")
-        arg2.append(tolerance)
+            arg2.append(tolerance)
         if probability:
             arg2.append("Prob:=")
-        arg2.append(probability)
+            arg2.append(probability)
         if mean:
             arg2.append("Mean:=")
-        arg2.append(mean)
+            arg2.append(mean)
         arg3 = [tab, ["NAME:PropServers", propserver], ["NAME:ChangedProps", ["NAME:" + variable_name, arg2]]]
         arg.append(arg3)
 
@@ -1474,7 +1439,7 @@ class Design(object):
 
     @aedt_exception_handler
     def _get_boundaries_data(self):
-        """Retrieve data for boundaries."""
+        """Retrieve boundary data."""
         boundaries = []
         if self.design_properties and 'BoundarySetup' in self.design_properties:
             for ds in self.design_properties['BoundarySetup']["Boundaries"]:
@@ -1684,8 +1649,8 @@ class Design(object):
 
         Returns
         -------
-        type
-            Dataset object when the dataset is created,
+        :class:`pyaedt.application.Variables.DataSet`
+            DataSet object when the dataset is created,
             ``False`` otherwise.
 
         """
@@ -1817,20 +1782,20 @@ class Design(object):
 
         """
         if is_project_dataset and "$"+name in self.project_datasets:
-            self._messenger.add_info_message("DATASET {} exists.".format("$"+name))
+            self._messenger.add_info_message("Dataset {} exists.".format("$"+name))
             return True
             #self.oproject.ExportDataSet("$"+name, os.path.join(self.temp_directory, "ds.tab"))
         elif not is_project_dataset and name in self.design_datasets:
-            self._messenger.add_info_message("DATASET {} exists.".format(name))
+            self._messenger.add_info_message("Dataset {} exists.".format(name))
             return True
             #self.odesign.ExportDataSet(name, os.path.join(self.temp_directory, "ds.tab"))
-        self._messenger.add_info_message("DATASET {} doesn't exists.".format(name))
+        self._messenger.add_info_message("Dataset {} doesn't exist.".format(name))
         return False
 
 
     @aedt_exception_handler
     def change_automatically_use_causal_materials(self, lossy_dielectric=True):
-        """Enable or disable the automatic use of causal material for lossy dielectrics.
+        """Enable or disable the automatic use of causal materials for lossy dielectrics.
 
         Parameters
         ----------
@@ -1884,7 +1849,7 @@ class Design(object):
         Parameters
         ----------
         entity_check_level : str, optional
-            Entity Level. The default is ``"Strict"``.
+            Entity check level. The default is ``"Strict"``.
         ignore_unclassified : bool, optional
             Whether to ignore unclassified elements. The default is ``False``.
         skip_intersections : bool, optional
@@ -1984,7 +1949,7 @@ class Design(object):
 
     @aedt_exception_handler
     def close_project(self, name=None, saveproject=True):
-        """Close a project.
+        """Close an AEDT project.
 
         Parameters
         ----------
@@ -2105,7 +2070,8 @@ class Design(object):
 
         """
         if self.design_type == "Circuit Design" or self.design_type == "HFSS 3D Layout Design":
-            self.modeler.edb.close_edb()
+            if self.modeler.edb:
+                self.modeler.edb.close_edb()
         self.__init__(projectname=self.project_name, designname=design_name)
 
     def _insert_design(self, design_type, design_name=None, solution_type=None):

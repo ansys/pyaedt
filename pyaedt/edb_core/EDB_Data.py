@@ -873,7 +873,7 @@ class EDBPadstack(object):
         str
             Name of the starting layer.
         """
-        return self.via_layers[0]
+        return list(self.via_layers)[0]
 
     @property
     def via_stop_layer(self):
@@ -884,7 +884,7 @@ class EDBPadstack(object):
         str
             Name of the stopping layer.
         """
-        return self.via_layers[-1]
+        return list(self.via_layers)[-1]
 
     @property
     def _hole_params(self):
@@ -944,10 +944,16 @@ class EDBPadstack(object):
             offsety = self.hole_offset_y
         if not rotation:
             rotation = self.hole_rotation
-        newPadstackDefinitionData.SetHoleParameters(hole_type, convert_py_list_to_net_list(params),
-                                                      self._edb_value(offsetx),
-                                                      self._edb_value(offsety),
-                                                      self._edb_value(rotation))
+        if "IronPython" in sys.version or ".NETFramework" in sys.version:
+            newPadstackDefinitionData.SetHoleParameters(hole_type, params,
+                                                        self._edb_value(offsetx),
+                                                        self._edb_value(offsety),
+                                                        self._edb_value(rotation))
+        else:
+            newPadstackDefinitionData.SetHoleParameters(hole_type, convert_py_list_to_net_list(params),
+                                                          self._edb_value(offsetx),
+                                                          self._edb_value(offsety),
+                                                          self._edb_value(rotation))
         self.edb_padstack.SetData(newPadstackDefinitionData)
 
     @property

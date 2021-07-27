@@ -16,7 +16,6 @@ The PyAEDT API includes these classes for application classes and modules.
    Maxwell2d
    Maxwell3d
    Icepak
-   Icepak
    Hfss3dLayout
    Mechanical
    Rmxprt

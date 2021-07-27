@@ -1,11 +1,15 @@
-import pytest
+try:
+    import pytest
+except ImportError:
+    import _unittest_ironpython.conf_unittest as pytest
+
 # Setup paths for module imports
 import gc
 import math
 import os
 
 # Import required modules
-from .conftest import local_path, scratch_path, config
+from _unittest.conftest import local_path, scratch_path, config
 from pyaedt.hfss import Hfss
 from pyaedt.application.MessageManager import AEDTMessageManager
 from pyaedt.application.Variables import Variable
@@ -15,7 +19,7 @@ import logging
 
 LOGGER = logging.getLogger(__name__)
 
-class TestMessage:
+class TestClass:
 
     def setup_class(self):
 
@@ -44,14 +48,14 @@ class TestMessage:
         self.local_scratch.remove()
         gc.collect()
 
-    def test_00_test_global_messenger(self, caplog):
+    def test_00_test_global_messenger(self):
         #TODO: close_project causes a crash ... refactor the project/desktop stuff !
         #self.aedtapp.close_project()
         #self.aedtapp = Hfss()
         pass
 
     @pytest.mark.skipif(config["build_machine"]==True, reason="Issue on Build machine")
-    def test_01_get_messages(self, caplog):
+    def test_01_get_messages(self):
         msg = self.aedtapp._messenger
         msg.clear_messages(level=3)
         msg.add_info_message("Test Info design level")
@@ -63,7 +67,7 @@ class TestMessage:
         pass
 
     @pytest.mark.skipif(config["build_machine"]==True, reason="Issue on Build machine")
-    def test_02_messaging(self, caplog):
+    def test_02_messaging(self):
         msg = self.aedtapp._messenger
         msg.clear_messages(level=3)
         msg.add_info_message("Test Info")
@@ -78,10 +82,6 @@ class TestMessage:
         msg.add_debug_message("Test Debug")
         msg.add_debug_message("Test Debug", "Project")
         msg.add_debug_message("Test Debug", 'Global')
-        assert caplog.messages[0] == "Test Warning at Design Level"
-        assert caplog.messages[1] == "Test Warning at Project Level"
-        assert caplog.messages[2] == "Test Warning at Global Level"
-        assert len(caplog.messages) >= 6
         assert len(msg.messages.global_level) >= 5
         assert len(msg.messages.project_level) >= 6
         assert len(msg.messages.design_level) >= 4

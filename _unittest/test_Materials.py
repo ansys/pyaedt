@@ -1,10 +1,13 @@
 # standard imports
 import os
 import gc
-import pytest
+try:
+    import pytest
+except ImportError:
+    import _unittest_ironpython.conf_unittest as pytest
 
 # Setup paths for module imports
-from .conftest import local_path, scratch_path, desktop_version, new_thread, non_graphical
+from _unittest.conftest import local_path, scratch_path, desktop_version, new_thread, non_graphical
 
 # Import required modules
 from pyaedt import Hfss, Icepak
@@ -12,7 +15,7 @@ from pyaedt.generic.filesystem import Scratch
 
 from pyaedt.modules.Material import MatProperties, SurfMatProperties
 
-class TestMaterial:
+class TestClass:
 
     def setup_class(self):
         with Scratch(scratch_path) as self.local_scratch:

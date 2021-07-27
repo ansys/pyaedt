@@ -1,9 +1,12 @@
 import os
 # Setup paths for module imports
-from .conftest import local_path, scratch_path, config
+from _unittest.conftest import local_path, scratch_path, config
 import gc
-import pytest
-
+try:
+    import pytest
+except ImportError:
+    import _unittest_ironpython.conf_unittest as pytest
+import time
 # Import required modules
 from pyaedt import Circuit
 from pyaedt.generic.filesystem import Scratch
@@ -16,10 +19,11 @@ touchstone = 'SSN_ssn.s6p'
 touchstone2 = 'Galileo_V3P3S0.ts'
 
 
-class TestCircuit:
+class TestClass:
     def setup_class(self):
         with Scratch(scratch_path) as self.local_scratch:
             try:
+                time.sleep(2)
                 example_project = os.path.join(local_path, 'example_models', test_project_name + '.aedt')
                 netlist_file1 = os.path.join(local_path, 'example_models', netlist1)
                 netlist_file2 = os.path.join(local_path, 'example_models', netlist2)
@@ -100,6 +104,8 @@ class TestCircuit:
         rx = ports[int(numports / 2):]
         insertions = ["dB(S({},{}))".format(i, j) for i, j in zip(tx, rx)]
         assert self.aedtapp.create_touchstone_report("Insertion Losses", insertions)
+        touchstone_data = self.aedtapp.get_touchstone_data(insertions)
+        assert touchstone_data
 
     def test_11_export_fullwave(self):
         output = self.aedtapp.export_fullwave_spice(os.path.join(self.local_scratch.path, touchstone),
@@ -133,7 +139,7 @@ class TestCircuit:
                                                      C1_pin2location["negative"][1])
 
     def test_13_properties(self):
-        assert self.aedtapp.modeler.edb
+        #assert self.aedtapp.modeler.edb
         assert self.aedtapp.modeler.model_units
 
     def test_14_move(self):
@@ -160,3 +166,12 @@ class TestCircuit:
     def test_18_export_touchstone(self):
         assert self.aedtapp.analyse_nominal()
         assert self.aedtapp.export_touchstone("Dom_LNA", "Dom_LNA", os.path.join(self.local_scratch.path, "new.s2p"))
+
+    def test_19_create_EyE_setups(self):
+        setup_name = "Dom_Verify"
+        assert self.aedtapp.create_setup(setup_name,"NexximVerifEye")
+        setup_name = "Dom_Quick"
+        assert self.aedtapp.create_setup(setup_name,"NexximQuickEye")
+        setup_name = "Dom_AMI"
+        assert self.aedtapp.create_setup(setup_name,"NexximAMI")
+        pass
