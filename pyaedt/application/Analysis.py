@@ -9,6 +9,7 @@ import os
 import itertools
 import threading
 import shutil
+import warnings
 from ..modeler.modeler_constants import CoordinateSystemPlane, CoordinateSystemAxis, GravityDirection, Plane
 from ..modules.SolveSetup import Setup
 from ..modules.SolutionType import SolutionType, SetupTypes
