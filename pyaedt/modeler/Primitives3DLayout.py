@@ -1,7 +1,7 @@
 import sys
 from collections import defaultdict
 
-from ..generic.general_methods import aedt_exception_handler
+from ..generic.general_methods import aedt_exception_handler, retry_ntimes
 from .Object3d import Padstack, Components3DLayout, Geometries3DLayout, Pins3DLayout, Nets3DLayout, \
     _uname
 from .Primitives import _ironpython, default_materials
@@ -203,7 +203,7 @@ class Primitives3DLayout(object):
     @property
     def opadstackmanager(self):
         """Padstack manager. """
-        return self._parent._oproject.GetDefinitionManager().GetManager("Padstack")
+        return retry_ntimes(10, self._parent._oproject.GetDefinitionManager().GetManager, "Padstack")
 
     @property
     def model_units(self):
