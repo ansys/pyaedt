@@ -569,7 +569,9 @@ class GeometryModeler(Modeler, object):
         if type(input_list) is not list:
             input_list = [input_list]
         for el in input_list:
-            if type(el) is EdgePrimitive or type(el) is FacePrimitive or type(el) is VertexPrimitive:
+            if type(el) is Object3d:
+                output_list = [i.name for i in input_list]
+            elif type(el) is EdgePrimitive or type(el) is FacePrimitive or type(el) is VertexPrimitive:
                 output_list = [i.id for i in input_list]
             elif type(el) is int and convert_objects_ids_to_name:
                 if el in self.primitives.objects:
