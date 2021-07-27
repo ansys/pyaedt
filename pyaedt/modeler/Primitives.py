@@ -27,7 +27,7 @@ aedt_wait_time = 0.1
 
 
 class PolylineSegment():
-    """Create and manipulate a segment of a polyline.
+    """Creates and manipulates a segment of a polyline.
 
     Parameters
     ----------
