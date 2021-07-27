@@ -754,6 +754,7 @@ class Hfss(FieldAnalysis3D, object):
 
         Create two boxes that will be used to create a circuit port
         named ``'CircuitExample'``.
+
         >>> box1 = hfss.modeler.primitives.create_box([0, 0, 80], [10, 10, 5],
         ...                                           "BoxCircuit1", "copper")
         >>> box2 = hfss.modeler.primitives.create_box([0, 0, 100], [10, 10, 5],
@@ -816,6 +817,7 @@ class Hfss(FieldAnalysis3D, object):
 
         Create two boxes that will be used to create a lumped port
         named ``'LumpedPort'``.
+
         >>> box1 = hfss.modeler.primitives.create_box([0, 0, 50], [10, 10, 5],
         ...                                           "BoxLumped1","copper")
         >>> box2 = hfss.modeler.primitives.create_box([0, 0, 60], [10, 10, 5],
@@ -1039,6 +1041,7 @@ class Hfss(FieldAnalysis3D, object):
 
         Create two boxes that will be used to create a wave port
         named ``'WavePort'``.
+
         >>> box1 = hfss.modeler.primitives.create_box([0,0,0], [10,10,5],
         ...                                           "BoxWave1", "copper")
         >>> box2 = hfss.modeler.primitives.create_box([0, 0, 10], [10, 10, 5],
