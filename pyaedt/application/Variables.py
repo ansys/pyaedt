@@ -86,7 +86,7 @@ def unit_system(units):
     Returns
     -------
     str
-        Key from the ``AEDT_units`` when successful. For example, ``"AngualrSpeed"``.
+        Key from the ``AEDT_units`` when successful. For example, ``"AngularSpeed"``.
 	``False`` when the units specified are not defined in AEDT units.
     
     """
@@ -611,12 +611,11 @@ class VariableManager(object):
 
     @property
     def variable_names(self):
-	"""Names of design properties and project variables.
+	"""Names of variables.
 	
 	Returns
-	-------
 	list
-	    List of names of all design properties and project variables.
+	    List of the names of all variables.
 	"""
         return [var_name for var_name in self.variables]
 
