@@ -2531,7 +2531,7 @@ class GeometryModeler(Modeler, object):
             padding.append("NAME:" + label + " Padding Data")
             padding.append("Value:=")
             padding.append(str(value))
-        arg3.append(padding) Object3d
+        arg3.append(padding)
         arg2.append(arg3)
         arg.append(arg2)
         self.oeditor.ChangeProperty(arg)
