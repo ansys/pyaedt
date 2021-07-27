@@ -92,7 +92,7 @@ class CommonOptimetrics(object):
 
     @property
     def omodule(self):
-        """Optimetrics module.
+        """Module.
         
         Returns
         -------
@@ -423,7 +423,7 @@ class DXSetups(object):
                                   goal_weight=goal_weight, goal_value=goal_value, condition=condition)
     @property
     def parent(self):
-        """Parent object."""
+        """Parent."""
         return self._parent
     
     @property
@@ -432,7 +432,6 @@ class DXSetups(object):
         
         Returns
         :class:`Optimetrics`
-            Optimetrics object.
         
         """
         return self.parent.odesign.GetModule("Optimetrics")
@@ -470,7 +469,6 @@ class DXSetups(object):
         Returns
         -------
         :class:`Optimetrics`
-            Optimetrics object.
         
         """
         if not setupname:
@@ -507,7 +505,7 @@ class DXSetups(object):
 
 
 class ParametericsSetups(object):
-    """Sets up a parametric analysis.
+    """Sets up parametric analyses.
     
     Parameters
     ----------
@@ -520,7 +518,8 @@ class ParametericsSetups(object):
         
         Parameters
         ----------
-        parent :
+        parent : str
+            Inherited AEDT object.
         
         name :
         
@@ -595,7 +594,7 @@ class ParametericsSetups(object):
 
     @property
     def parent(self):
-        """Parent object."""
+        """Parent."""
         return self._parent
 
     @property
@@ -605,7 +604,7 @@ class ParametericsSetups(object):
         Returns
         -------
         :class:`Optimetrics`
-            Optimetrics object.
+        
         """
         return self.parent.odesign.GetModule("Optimetrics")
 
@@ -666,7 +665,7 @@ class ParametericsSetups(object):
 
 
 class SensitivitySetups(object):
-    """Sets up a sensitivity analysis.
+    """Sets up sensitivity analyses.
     
     Parameters
     ----------
@@ -724,7 +723,7 @@ class SensitivitySetups(object):
 
     @property
     def parent(self):
-        """Parent object."""
+        """Parent."""
         return self._parent
    
     @property
@@ -734,8 +733,7 @@ class SensitivitySetups(object):
         Returns
         -------
         :class:`Optimetrics`
-            Optimetrics object.
-            
+                    
         """
         return self.parent.odesign.GetModule("Optimetrics")
 
@@ -781,8 +779,7 @@ class SensitivitySetups(object):
         Returns
         -------
         :class:`Sensitivity`
-            Sensitivity object.
-
+   
         """
         if not parametricname:
             parametricname = generate_unique_name("Sensitivity")
@@ -804,7 +801,7 @@ class SensitivitySetups(object):
 
 
 class StatisticalSetups(object):
-    """Sets up a statistical analysis.
+    """Sets up statistical analyses.
     
     Parameters
     ----------
@@ -862,7 +859,7 @@ class StatisticalSetups(object):
 
     @property
     def parent(self):
-        """Parent object."""
+        """Parent."""
         return self._parent
     
     @property
@@ -872,7 +869,6 @@ class StatisticalSetups(object):
         Returns
         -------
         :class:`Optimetrics`
-            Optimetrics object.
             
         """
         return self.parent.odesign.GetModule("Optimetrics")
@@ -919,7 +915,6 @@ class StatisticalSetups(object):
         Returns
         -------
         :class:`Statistical`
-            Statistical object.
      
         """
         if not parametricname:
@@ -954,8 +949,8 @@ class DOESetups(object):
         
         Parameters
         ----------
-        parent :
-        
+        parent : str
+            Inherited AEDT object.
         name :
         
         dictinputs : optional
@@ -1047,7 +1042,7 @@ class DOESetups(object):
 
     @property
     def parent(self):
-        """Parent object."""
+        """Parent."""
         return self._parent
 
     @property
@@ -1057,8 +1052,7 @@ class DOESetups(object):
         Returns
         -------
         :class:`Optimetrics`
-            Optimetrics object.
-        
+            
         """
         return self.parent.odesign.GetModule("Optimetrics")
 
@@ -1155,8 +1149,8 @@ class OptimizationSetups(object):
         
         Parameters
         ----------
-        parent :
-        
+        parent : str
+            Inherited AEDT object.
         name :
         
         dictinputs : optional
@@ -1216,7 +1210,7 @@ class OptimizationSetups(object):
 
     @property
     def parent(self):
-        """Parent object."""
+        """Parent."""
         return self._parent
 
     @property
@@ -1226,7 +1220,6 @@ class OptimizationSetups(object):
         Returns
         -------
         :class:`Optimetrics`
-            Optimetrics object.
         
         """
         return self.parent.odesign.GetModule("Optimetrics")
