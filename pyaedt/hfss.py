@@ -1710,7 +1710,7 @@ class Hfss(FieldAnalysis3D, object):
         return False
 
     @aedt_exception_handler
-    def assig_voltage_source_to_sheet(self, sheet_name, axisdir=0, sourcename=None):
+    def assign_voltage_source_to_sheet(self, sheet_name, axisdir=0, sourcename=None):
         """Create a voltage source taking one sheet.
 
         Parameters
@@ -1737,7 +1737,7 @@ class Hfss(FieldAnalysis3D, object):
         >>> sheet = hfss.modeler.primitives.create_rectangle(hfss.CoordinateSystemPlane.XYPlane,
         ...                                                  [0, 0, -70], [10, 2], name="VoltageSheet",
         ...                                                  matname="copper")
-        >>> hfss.assig_voltage_source_to_sheet(sheet.name, hfss.AxisDir.XNeg, "VoltageSheetExample")
+        >>> hfss.assign_voltage_source_to_sheet(sheet.name, hfss.AxisDir.XNeg, "VoltageSheetExample")
         'VoltageSheetExample'
 
         """
