@@ -4,7 +4,7 @@ from .Modeler import GeometryModeler
 from  .Primitives3D import Primitives3D
 
 class Modeler3D(GeometryModeler):
-    """Provides the Modeler 3D application inteface.
+    """Provides the Modeler 3D application interface.
     
     Parameters
     ----------
@@ -47,7 +47,7 @@ class Modeler3D(GeometryModeler):
             Full path to the A3DCOMP file.
         component_name : str, optional
             Name of the component. The default is ``None``.
-        variables_to_include : list, optinal
+        variables_to_include : list, optional
              List of variables to include. The default is ``[]``.
         exclude_region : bool, optional
              Whether to exclude the region. The default is ``False``.

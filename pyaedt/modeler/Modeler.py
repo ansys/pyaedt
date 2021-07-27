@@ -1311,7 +1311,7 @@ class GeometryModeler(Modeler, object):
             List of objects IDs or names.
         model : bool, optional
             Whether to set the objects as models. The default is ``True``.
-            If ``False``, the objets are set as non-models.
+            If ``False``, the objects are set as non-models.
 
         Returns
         -------
