@@ -104,6 +104,8 @@ class TestClass:
         rx = ports[int(numports / 2):]
         insertions = ["dB(S({},{}))".format(i, j) for i, j in zip(tx, rx)]
         assert self.aedtapp.create_touchstone_report("Insertion Losses", insertions)
+        touchstone_data = self.aedtapp.get_touchstone_data(insertions)
+        assert touchstone_data
 
     def test_11_export_fullwave(self):
         output = self.aedtapp.export_fullwave_spice(os.path.join(self.local_scratch.path, touchstone),
@@ -164,3 +166,12 @@ class TestClass:
     def test_18_export_touchstone(self):
         assert self.aedtapp.analyse_nominal()
         assert self.aedtapp.export_touchstone("Dom_LNA", "Dom_LNA", os.path.join(self.local_scratch.path, "new.s2p"))
+
+    def test_19_create_EyE_setups(self):
+        setup_name = "Dom_Verify"
+        assert self.aedtapp.create_setup(setup_name,"NexximVerifEye")
+        setup_name = "Dom_Quick"
+        assert self.aedtapp.create_setup(setup_name,"NexximQuickEye")
+        setup_name = "Dom_AMI"
+        assert self.aedtapp.create_setup(setup_name,"NexximAMI")
+        pass

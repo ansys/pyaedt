@@ -170,7 +170,7 @@ class Circuit(FieldAnalysisCircuit, object):
         designs are present, an empty design is created.
     solution_type : str, optional
         Solution type to apply to the design. The default is
-        ``None``, which applies the default type.
+        ``None``, in which case the default type is applied.
     setup_name : str, optional
         Name of the setup to use as the nominal. The default is
         ``None``, in which case the active setup is used or
@@ -180,7 +180,7 @@ class Circuit(FieldAnalysisCircuit, object):
         the active version or latest installed version is  used.
     NG : bool, optional
         Whether to run AEDT in the non-graphical mode. The default
-        is``False``, which launches AEDT in the graphical mode.
+        is``False``, in which case AEDT is launched in the graphical mode.
     AlwaysNew : bool, optional
         Whether to launch an instance of AEDT in a new thread, even if
         another instance of the ``specified_version`` is active on the
@@ -199,23 +199,23 @@ class Circuit(FieldAnalysisCircuit, object):
     >>> aedtapp = Circuit()
 
     Create an instance of Circuit and link to a project named
-    ``projectname``. If this project does not exist, create one with
+    ``"projectname"``. If this project does not exist, create one with
     this name.
 
     >>> aedtapp = Circuit(projectname)
 
     Create an instance of Circuit and link to a design named
-    ``designname`` in a project named ``projectname``.
+    ``"designname"`` in a project named ``"projectname"``.
 
     >>> aedtapp = Circuit(projectname,designame)
 
     Create an instance of Circuit and open the specified project,
-    which is ``myfie.aedt``.
+    which is ``"myfie.aedt"``.
 
     >>> aedtapp = Circuit("myfile.aedt")
 
     Create an instance of Circuit using the 2021 R1 version and
-    open the specified project, which is ``myfie.aedt``.
+    open the specified project, which is ``"myfile.aedt"``.
 
     >>> aedtapp = Circuit(specified_version="2021.1", projectname="myfile.aedt")
 
@@ -223,35 +223,6 @@ class Circuit(FieldAnalysisCircuit, object):
     the specified project, which is named ``"myfile.aedt"``.
 
     >>> hfss = Circuit(specified_version="2021.2", projectname="myfile.aedt", student_version=True)
-
-    Examples
-    --------
-    Create an instance of Circuit and connect to an existing HFSS
-    design or create a new HFSS design if one does not exist.
-
-    >>> from pyaedt import Circuit
-    >>> aedtapp = Circuit()
-
-    Create an instance of Circuit and link to a project named
-    ``projectname``. If this project does not exist, create one with
-    this name.
-
-    >>> aedtapp = Circuit(projectname)
-
-    Create an instance of Circuit and link to a design named
-    ``designname`` in a project named ``projectname``.
-
-    >>> aedtapp = Circuit(projectname,designame)
-
-    Create an instance of Circuit and open the specified project,
-    which is ``myfie.aedt``.
-
-    >>> aedtapp = Circuit("myfile.aedt")
-
-    Create an instance of Circuit using the 2021 R1 version and
-    open the specified project, which is ``myfie.aedt``.
-
-    >>> aedtapp = Circuit(specified_version="2021.1", projectname="myfile.aedt")
 
     """
     def __init__(self, projectname=None, designname=None, solution_type=None, setup_name=None,
@@ -281,9 +252,9 @@ class Circuit(FieldAnalysisCircuit, object):
 
     @aedt_exception_handler
     def create_schematic_from_netlist(self, file_to_import):
-        """Create a circuit schematic from an HSpice netlist.
+        """Create a circuit schematic from an HSpice net list.
 
-        Supported currently:
+        Supported currently are:
         
         * R
         * L
@@ -492,7 +463,7 @@ class Circuit(FieldAnalysisCircuit, object):
     def create_schematic_from_mentor_netlist(self, file_to_import):
         """Create a circuit schematic from a Mentor net list.
         
-        Supported currently:
+        Supported currently are:
         
         * R
         * L
@@ -627,13 +598,13 @@ class Circuit(FieldAnalysisCircuit, object):
 
         Parameters
         ----------
-        refid : str
+        refid : int
             Reference ID.
 
         Returns
         -------
         str
-            Type of Mentor net list comoponet.
+            Type of the Mentor net list component.
         
         """
         if refid[1] == "R":
@@ -759,7 +730,7 @@ class Circuit(FieldAnalysisCircuit, object):
         sweepname : str
              Name of the sweep that has been solved.
         filename : str, optional
-             Full path to the output file. The default is ``None``.
+             Full path and name for the Touchstone file. The default is ``None``.
         variation : list, optional
              List of all parameter variations. For example, ``["$AmbientTemp", "$PowerIn"]``.
              The default is ``[]``.
@@ -842,14 +813,14 @@ class Circuit(FieldAnalysisCircuit, object):
         impedance: float, optional
             Impedance value if ``renormalize=True``. The default is ``50``.
         error: float, optional
-            Fitting error. The default is ``0.05``.
+            Fitting error. The default is ``0.5``.
         poles: int, optional
             Number of fitting poles. The default is ``10000``.
 
         Returns
         -------
         str
-            File name if the export is successful.
+            Name of the HSpice file if the export is successful.
         
         """
         if not designname:
@@ -898,8 +869,8 @@ class Circuit(FieldAnalysisCircuit, object):
         ----------
         plot_name : str
             Name of the plot.
-        curvenames : str
-            List of the curves to plot.
+        curvenames : list
+            List of names for the curves to plot.
         solution_name : str, optional
             Name of the solution. The default value is ``None``.
         variation_dict : dict, optional
@@ -913,13 +884,38 @@ class Circuit(FieldAnalysisCircuit, object):
         """
         if not solution_name:
             solution_name = self.nominal_sweep
-        variations = ["Freq:=", ["All"]]
+        variations = {"Freq": ["All"]}
         if variation_dict:
             for el in variation_dict:
-                variations.append(el + ":=")
-                variations.append([variation_dict[el]])
-        self.post.oreportsetup.CreateReport(plot_name, "Standard", "Rectangular Plot", solution_name,
-                                            ["NAME:Context", "SimValueContext:=",
-                                             [3, 0, 2, 0, False, False, -1, 1, 0, 1, 1, "", 0, 0]], variations,
-                                            ["X Component:=", "Freq", "Y Component:=", curvenames])
-        return True
+                variations[el] = [variation_dict[el]]
+        ctxt = ["NAME:Context", "SimValueContext:=",[3, 0, 2, 0, False, False, -1, 1, 0, 1, 1, "", 0, 0]]
+        return self.post.create_rectangular_plot(curvenames,solution_name, variations, plotname=plot_name, context=ctxt)
+
+    @aedt_exception_handler
+    def get_touchstone_data(self, curvenames, solution_name=None, variation_dict=None):
+        """Return Touchstone Data plot.
+
+        Parameters
+        ----------
+        curvenames : list
+            List of the curves to plot.
+        solution_name : str, optional
+            Name of the solution. The default value is ``None``.
+        variation_dict : dict, optional
+            Dictionary of variation names. The default value is ``None``.
+
+        Returns
+        -------
+        :class:`pyaedt.modules.PostProcessor.SolutionData`
+           Class containing all Requested Data
+
+        """
+        if not solution_name:
+            solution_name = self.nominal_sweep
+        variations = {"Freq": ["All"]}
+        if variation_dict:
+            for el in variation_dict:
+                variations[el] = [variation_dict[el]]
+        ctxt = ["NAME:Context", "SimValueContext:=", [3, 0, 2, 0, False, False, -1, 1, 0, 1, 1, "", 0, 0]]
+        return self.post.get_solution_data_per_variation("Standard", solution_name, ctxt, variations, curvenames)
+

@@ -1,5 +1,5 @@
 """
-This module contains these classes: ''Layer'' and ''Layers''.  
+This module contains these classes: `Layer` and `Layers`.  
 
 This module provides all layer stackup functionalities for the Circuit and HFSS 3D Layout tools.
 """
@@ -79,7 +79,7 @@ def getIfromRGB(rgb):
 
 
 class Layer(object):
-    """Layer class.
+    """Manages a layer.
     
     Parameters
     ----------
@@ -274,7 +274,7 @@ class Layer(object):
 
     @aedt_exception_handler
     def arg_with_dim(self, Value, sUnits=None):
-        """
+        """Property with dimensions.
 
         Parameters
         ----------
@@ -390,11 +390,12 @@ class Layer(object):
 
 
 class Layers(object):
-    """Layers class.
+    """Manages layers for the Circuit and HFSS 3D Layout tools.
     
     Parameters
     ----------
     parent :
+        Inherited AEDT object.
     
     modeler :
     
@@ -405,7 +406,7 @@ class Layers(object):
 
     @property
     def _messenger(self):
-        """_messenger."""
+        """Messenger."""
         return self._parent._messenger
 
     @property
@@ -415,7 +416,7 @@ class Layers(object):
 
     @property
     def oeditor(self):
-        """Editor object."""
+        """Editor."""
         return self.modeler.oeditor
 
     @property
@@ -425,7 +426,7 @@ class Layers(object):
 
     @property
     def all_layers(self):
-        """Stackup layers.
+        """All stackup layers.
         
         Returns
         -------
@@ -436,7 +437,7 @@ class Layers(object):
 
     @property
     def all_signal_layers(self):
-        """Signal layers.
+        """All signal layers.
         
         Returns
         -------
@@ -455,7 +456,7 @@ class Layers(object):
 
     @property
     def all_diel_layers(self):
-        """Dielectric layers.
+        """All dielectric layers.
         
         Returns
         -------
@@ -566,7 +567,7 @@ class Layers(object):
 
         Returns
         -------
-        type
+        :class:`pyaedt.modules.LayerStackup.Layer`
             Layer object.
         """
         newlayer = Layer(self.oeditor, layertype, self.LengthUnit, self.lengthUnitRough, isnegative)
