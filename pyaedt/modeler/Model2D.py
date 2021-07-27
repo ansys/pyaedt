@@ -18,7 +18,16 @@ class ModelerRMxprt(Modeler):
 
 
 class Modeler2D(GeometryModeler):
-    """ """
+    """Modeler 2D application inteface.
+    
+    Parameters
+    ----------
+    application :
+    
+    is3d : bool, optional
+        Whether the model is 3D. The default is ``False``.
+    
+    """
 
     def __init__(self, application):
         GeometryModeler.__init__(self, application, is3d=False)
@@ -31,7 +40,13 @@ class Modeler2D(GeometryModeler):
 
     @property
     def primitives(self):
-        """ """
+        """Primitives.
+        
+        Returns
+        -------
+        :class:`pyaedt.modeler.Primitives2D.Primitives2D` 
+        
+        """
         if self._primitivesDes != self._parent.project_name + self._parent.design_name:
             self._primitives.refresh()
             self._primitivesDes = self._parent.project_name + self._parent.design_name
