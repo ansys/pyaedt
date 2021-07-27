@@ -11,7 +11,7 @@ from .generic.general_methods import aedt_exception_handler, generate_unique_nam
 
 
 class Simplorer(FieldAnalysisSimplorer, object):
-    """Simplorer class.
+    """Simplorer application interface.
 
     Parameters
     ----------
@@ -26,7 +26,7 @@ class Simplorer(FieldAnalysisSimplorer, object):
         designs are present, an empty design is created.
     solution_type : str, optional
         Solution type to apply to the design. The default is
-        ``None``, which applies the default type.
+        ``None``, in which case the default type is applied.
     setup_name : str, optional
         Name of the setup to use as the nominal. The default is
         ``None``, in which case the active setup is used or 
@@ -37,7 +37,7 @@ class Simplorer(FieldAnalysisSimplorer, object):
         used.
     NG : bool, optional
         Whether to launch AEDT in the non-graphical mode. The default
-        is ``False``, which launches AEDT in the graphical mode.
+        is ``False``, in which case AEDT is launched in the graphical mode.
     AlwaysNew : bool, optional
         Whether to launch an instance of AEDT in a new thread, even if
         another instance of the ``specified_version`` is active on the
@@ -49,25 +49,25 @@ class Simplorer(FieldAnalysisSimplorer, object):
 
     Examples
     --------
-    Create an instance of `Simplorer` and connect to an existing
+    Create an instance of Simplorer and connect to an existing
     Maxwell design or create a new Maxwell design if one does not
     exist.
 
     >>> from pyaedt import Simplorer
     >>> app = Simplorer()
 
-    Create a instance of `Simplorer` and link to a project named
+    Create a instance of Simplorer and link to a project named
     ``"projectname"``. If this project does not exist, create one with
     this name.
 
     >>> app = Simplorer(projectname)
 
-    Create an instance of `Simplorer` and link to a design named
+    Create an instance of Simplorer and link to a design named
     ``"designname"`` in a project named ``"projectname"``.
 
     >>> app = Simplorer(projectname, designame)
 
-    Create an instance of `Simplorer` and open the specified
+    Create an instance of Simplorer and open the specified
     project, which is named ``"myfile.aedt"``.
 
     >>> app = Simplorer("myfile.aedt")
@@ -84,7 +84,7 @@ class Simplorer(FieldAnalysisSimplorer, object):
     def create_schematic_from_netlist(self, file_to_import):
         """Create a circuit schematic from an HSpice net list.
         
-        Supported currently:
+        Supported currently are:
         
         * R
         * L
@@ -173,7 +173,7 @@ class Simplorer(FieldAnalysisSimplorer, object):
 
     @aedt_exception_handler
     def set_hmin(self, expression):
-        """
+        """Set hmin.
 
         Parameters
         ----------
@@ -182,6 +182,8 @@ class Simplorer(FieldAnalysisSimplorer, object):
 
         Returns
         -------
+        bool
+            ``True`` when successful, ``False`` when failed.
 
         """
         self.set_sim_setup_parameter('Hmin', expression)
@@ -189,7 +191,7 @@ class Simplorer(FieldAnalysisSimplorer, object):
 
     @aedt_exception_handler
     def set_hmax(self, expression):
-        """
+        """Set hmax.
 
         Parameters
         ----------
@@ -198,6 +200,8 @@ class Simplorer(FieldAnalysisSimplorer, object):
 
         Returns
         -------
+        bool
+            ``True`` when successful, ``False`` when failed.
 
         """
         self.set_sim_setup_parameter('Hmax', expression)
@@ -205,13 +209,12 @@ class Simplorer(FieldAnalysisSimplorer, object):
 
     @aedt_exception_handler
     def set_sim_setup_parameter(self, var_str, expression, analysis_name="TR"):
-        """
+        """Set simulation setup parameters.
 
         Parameters
         ----------
         var_str : string
-            Name of the variable.
-            
+            Name of the variable.   
         expression :
             
         analysis_name : str, optional
@@ -219,6 +222,8 @@ class Simplorer(FieldAnalysisSimplorer, object):
 
         Returns
         -------
+        bool
+            ``True`` when successful, ``False`` when failed.
 
         """
         if isinstance(expression, Variable):

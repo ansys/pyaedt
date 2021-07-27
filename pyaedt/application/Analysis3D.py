@@ -29,7 +29,7 @@ class FieldAnalysis3D(Analysis, object):
         Name of the design to select. The default is ``None``, in 
         which case an attempt is made to get an active design. If no
         designs are present, an empty design is created.
-    solutiontype : str, optional
+    solution_type : str, optional
         Solution type to apply to the design. The default is
         ``None``, in which case the default type is applied.
     setup_name : str, optional
@@ -53,9 +53,9 @@ class FieldAnalysis3D(Analysis, object):
         is ``False``.
    
     """
-    def __init__(self, application, projectname, designname, solutiontype, setup_name=None,
+    def __init__(self, application, projectname, designname, solution_type, setup_name=None,
                  specified_version=None, NG=False, AlwaysNew=False, release_on_exit=False, student_version=False):
-        Analysis.__init__(self, application, projectname, designname, solutiontype, setup_name,
+        Analysis.__init__(self, application, projectname, designname, solution_type, setup_name,
                           specified_version, NG, AlwaysNew, release_on_exit, student_version)
         self._modeler = Modeler3D(self)
         self._mesh = Mesh(self)

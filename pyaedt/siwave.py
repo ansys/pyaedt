@@ -1,10 +1,7 @@
 """
-This module initializes Siwave and MessageManager and manages Siwave release and closing.
+This module contains the `Siwave` class.  
 
-The ``siwave`` module can be initialized as standalone before launching an app or automatically initialized by an app to the latest installed AEDT version.
-
-
-================
+The `Siwave` module can be initialized as standalone before launching an app or automatically initialized by an app to the latest installed AEDT version.
 
 """
 from __future__ import absolute_import
@@ -41,19 +38,15 @@ elif os.name == 'nt':
 
 
 class Siwave:
-    """
-    This class initializes Siwave based on the inputs provided.
+    """Initializes Siwave based on the inputs provided and manages Siwave release and closing.
 
     Parameters
     ----------
 
-    Returns
-    -------
-
     """
     @property
     def version_keys(self):
-        """ """
+        """Version keys."""
 
         self._version_keys = []
         self._version_ids = {}
@@ -75,7 +68,7 @@ class Siwave:
 
     @property
     def current_version(self):
-        """ """
+        """Current version."""
         return self.version_keys[0]
 
     def __init__(self, specified_version=None):
@@ -144,50 +137,50 @@ class Siwave:
 
     @property
     def project_name(self):
-        """ """
+        """Project name."""
         return self._oproject.GetName()
 
 
     @property
     def project_path(self):
-        """ """
+        """Project path."""
         return os.path.normpath(self.oSiwave.GetProjectDirectory())
 
     @property
     def project_file(self):
-        """ """
+        """Project file."""
         return os.path.join(self.project_path, self.project_name + '.siw')
 
     @property
     def lock_file(self):
-        """ """
+        """Lock file."""
         return os.path.join(self.project_path, self.project_name + '.siw.lock')
 
     @property
     def results_directory(self):
-        """ """
+        """Results directory."""
         return os.path.join(self.project_path, self.project_name + '.siwresults')
 
 
     @property
     def src_dir(self):
-        """ """
+        """Source directory."""
         return os.path.dirname(os.path.realpath(__file__))
 
     @property
     def pyaedt_dir(self):
-        """ """
+        """PyAEDT directory."""
         return os.path.realpath(os.path.join(self.src_dir, '..'))
 
 
     @property
     def oproject(self):
-        """ """
+        """Project."""
         return self._oproject
 
     @aedt_exception_handler
     def open_project(self, proj_path=None):
-        """
+        """Open a project.
 
         Parameters
         ----------
@@ -206,7 +199,7 @@ class Siwave:
 
     @aedt_exception_handler
     def save_project(self, projectpath=None, projectName=None):
-        """
+        """Save the project.
 
         Parameters
         ----------
@@ -228,7 +221,7 @@ class Siwave:
 
     @aedt_exception_handler
     def quit_application(self):
-        """ """
+        """Quit the application."""
 
         self._main.oSiwave.Quit()
         return True

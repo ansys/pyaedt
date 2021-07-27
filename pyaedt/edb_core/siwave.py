@@ -1,5 +1,6 @@
 """
-This module contains the ``EdbSiwave`` class.
+This module contains these clases: `CircuitPort`, `CurrentSource`, `EdbSiwave`, 
+`PinGroup`, `ResistorSource`, `Source`, `SourceType`, and `VoltageSource`.
 """
 
 import warnings
@@ -17,11 +18,12 @@ except ImportError:
 
 
 class SourceType(object):
+    """Manages source types."""
     (Port, CurrentSource, VoltageSource, Resistor) = (1, 2, 3, 4)
 
 
 class PinGroup(object):
-
+    """Manages pin groups.""" 
     def __init__(self):
         self._name = ""
         self._component = ""
@@ -30,6 +32,7 @@ class PinGroup(object):
 
     @property
     def name(self):
+        """Name."""
         return self._name
 
     @name.setter
@@ -38,6 +41,7 @@ class PinGroup(object):
 
     @property
     def component(self):
+        """Component."""
         return self._component
 
     @component.setter
@@ -46,6 +50,7 @@ class PinGroup(object):
 
     @property
     def node_pins(self):
+        """Node pins."""
         return self._node_pins
 
     @node_pins.setter
@@ -54,6 +59,7 @@ class PinGroup(object):
 
     @property
     def net(self):
+        """Net."""
         return self._net
 
     @net.setter
@@ -62,6 +68,7 @@ class PinGroup(object):
 
 
 class Source(object):
+    """Manages sources."""
 
     def __init__(self):
         self._name = ""
@@ -72,6 +79,7 @@ class Source(object):
 
     @property
     def name(self):
+        """Name."""
         return self._name
 
     @name.setter
@@ -80,6 +88,7 @@ class Source(object):
 
     @property
     def type(self):
+        """Type."""
         return self._type
 
     @type.setter
@@ -88,6 +97,7 @@ class Source(object):
 
     @property
     def positive_node(self):
+        """Positive node."""
         return self._positive_node
 
     @positive_node.setter
@@ -96,6 +106,7 @@ class Source(object):
 
     @property
     def negative_node(self):
+        """Negative node."""
         return self._negative_node
 
     @negative_node.setter
@@ -104,6 +115,7 @@ class Source(object):
 
     @property
     def do_pin_grouping(self):
+        """Do pin groupings."""
         return self._do_pin_grouping
 
     @do_pin_grouping.setter
@@ -112,6 +124,7 @@ class Source(object):
 
 
 class CircuitPort(Source):
+    """Manages a circuit port."""
     def __init(self):
         super(CircuitPort, self).__init__()
         self._impedance = "50"
@@ -119,6 +132,7 @@ class CircuitPort(Source):
 
     @property
     def impedance(self):
+        """Impedance."""
         return self._impedance
 
     @impedance.setter
@@ -127,10 +141,12 @@ class CircuitPort(Source):
 
     @property
     def get_type(self):
+        """Get type."""
         return self.type
 
 
 class VoltageSource(Source):
+    """Manages a voltage source."""
     def __init__(self):
         super(VoltageSource, self).__init__()
         self._magnitude = "1V"
@@ -140,6 +156,7 @@ class VoltageSource(Source):
 
     @property
     def magnitude(self):
+        """Magnitude."""
         return  self._magnitude
 
     @magnitude.setter
@@ -148,6 +165,7 @@ class VoltageSource(Source):
 
     @property
     def phase(self):
+        """Phase."""
         return self._phase
 
     @phase.setter
@@ -156,6 +174,7 @@ class VoltageSource(Source):
 
     @property
     def impedance(self):
+        """Impedance."""
         return self._impedance
 
     @impedance.setter
@@ -164,10 +183,12 @@ class VoltageSource(Source):
 
     @property
     def source_type(self):
+        """Source type."""
         return self.source_type
 
 
 class CurrentSource(Source):
+    """Manages a current source."""
     def __init__(self):
         super(CurrentSource, self).__init__()
         self._magnitude = "0.1A"
@@ -177,6 +198,7 @@ class CurrentSource(Source):
 
     @property
     def magnitude(self):
+        """Magnitude."""
         return  self._magnitude
 
     @magnitude.setter
@@ -185,6 +207,7 @@ class CurrentSource(Source):
 
     @property
     def phase(self):
+        """Phase."""
         return self._phase
 
     @phase.setter
@@ -193,6 +216,7 @@ class CurrentSource(Source):
 
     @property
     def impedance(self):
+        """Impedance."""
         return self._impedance
 
     @impedance.setter
@@ -201,10 +225,12 @@ class CurrentSource(Source):
 
     @property
     def source_type(self):
+        """Source type."""
         return self.source_type
 
 
 class ResistorSource(Source):
+    """Manages a resistor source."""
     def __init__(self):
         super(ResistorSource, self).__init__()
         self._rvalue = "50"
@@ -212,6 +238,7 @@ class ResistorSource(Source):
 
     @property
     def rvalue(self):
+        """Resistance value."""
         return  self._rvalue
 
     @rvalue.setter
@@ -220,12 +247,18 @@ class ResistorSource(Source):
 
     @property
     def source_type(self):
+        """Source type."""
         return self.source_type
 
 
 class EdbSiwave(object):
-    """EdbSiwave class.
+    """EDB Siwave application interface.
 
+    Parameters
+    ----------
+    parent :
+        Inherited parent object.
+        
     Examples
     --------
     >>> from pyaedt import Edb
@@ -239,32 +272,32 @@ class EdbSiwave(object):
 
     @property
     def _siwave_source(self):
-        """ """
+        """SIwave source."""
         return self.parent.edblib.SIwave.SiwaveSourceMethods
 
     @property
     def _siwave_setup(self):
-        """ """
+        """SIwave setup."""
         return self.parent.edblib.SIwave.SiwaveSimulationSetupMethods
 
     @property
     def _builder(self):
-        """ """
+        """Builder."""
         return self.parent.builder
 
     @property
     def _edb(self):
-        """ """
+        """EDB."""
         return self.parent.edb
 
     @property
     def _active_layout(self):
-        """ """
+        """Active layout."""
         return self.parent.active_layout
 
     @property
     def _cell(self):
-        """ """
+        """Cell."""
         return self.parent.cell
 
     @property
@@ -276,8 +309,7 @@ class EdbSiwave(object):
     @aedt_exception_handler
     def create_circuit_port(self, positive_component_name, positive_net_name, negative_component_name=None,
                               negative_net_name="GND", impedance_value=50, port_name=""):
-        """
-        Create a circuit port.
+        """Create a circuit port.
         
         Parameters
         ----------
@@ -293,7 +325,7 @@ class EdbSiwave(object):
         impedance_value : float, optional
             Port impedance value. The default is ``50``.
         port_name: str, optional
-            Name of the port.
+            Name of the port. The default is ``""``.
         
         Returns
         -------
@@ -459,7 +491,7 @@ class EdbSiwave(object):
         negative_net_name : str, optional
             Name of the negative net. The default is ``"GND"``.
         rvalue : float, optional
-            Value for the resistance. The default is ``1``.
+            Resistance value. The default is ``1``.
         resistor_name : str, optional
             Name of the resistor. The default is ``""``.
         
@@ -497,6 +529,7 @@ class EdbSiwave(object):
 
     @aedt_exception_handler
     def create_exec_file(self):
+        """Create an executable file."""
         workdir = os.path.dirname(self.parent.edbpath)
         file_name = os.path.join(workdir,os.path.splitext(os.path.basename(self.parent.edbpath))[0] + '.exec')
         if os.path.isfile(file_name):
@@ -519,9 +552,9 @@ class EdbSiwave(object):
         start_freq : float, optional
             Starting frequency. The default is ``1``. 
         stop_freq : float, optional
-            Stopping frequency. The default is ``1``.
+            Stopping frequency. The default is ``1e9``.
         step_freq : float, optional
-            Frequency size of the step. The default is ``1e9``.
+            Frequency size of the step. The default is ``1e6``.
         discrete_sweep: bool, optonal
             Whether the sweep is discrete. The default is ``False``.
 
@@ -552,7 +585,7 @@ class EdbSiwave(object):
         start_freq : float, optional
             Starting frequency. The default is ``1``. 
         stop_freq : float, optional
-            Stopping frequency. The default is ``1``.
+            Stopping frequency. The default is ``1e9``.
         step_freq : float, optional
             Frequency size of the step. The default is ``1e6``.
         discrete_sweep: bool, optonal
@@ -594,6 +627,14 @@ class EdbSiwave(object):
 
     @aedt_exception_handler
     def create_pin_group_terminal(self, source):
+        """Create a pin group terminal.
+        
+        Parameters
+        ----------
+        source : str
+            Name of the source.
+        
+        """
         pos_pin_group = self.parent.core_components.create_pingroup_from_pins(source.positive_node.node_pins)
         neg_pin_group = self.parent.core_components.create_pingroup_from_pins(source.negative_node.node_pins)
         pos_node_net = self.parent.core_nets.get_net_by_name(source.positive_node.net)

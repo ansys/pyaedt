@@ -1,4 +1,4 @@
-"""This module contains these Maxwell classes: ``Maxwell``, ``Maxwell2d``, and ``Maxwell3d``."""
+"""This module contains these Maxwell classes: `Maxwell`, `Maxwell2d`, and `Maxwell3d`."""
 
 from __future__ import absolute_import
 import math
@@ -112,7 +112,7 @@ class Maxwell(object):
         the active version or latest installed version is used.
     NG : bool, optional
         Whether to launch AEDT in the non-graphical mode. The default
-        is ``False``, in which case AEDT launches in the graphical mode.
+        is ``False``, in which case AEDT is launched in the graphical mode.
     AlwaysNew : bool, optional
         Whether to launch an instance of AEDT in a new thread, even if
         another instance of the ``specified_version`` is active on the
@@ -179,7 +179,7 @@ class Maxwell(object):
         file_str : str, optional
             Name of the file. The default value is ``None``.
         keep_modifications : bool, optional
-            Whether to save changes. The default value is ``False``.
+            Whether to save the changes. The default value is ``False``.
         python_interpreter : optional
              The default value is ``None``.
         aedt_lib_dir : str, optional
@@ -273,7 +273,7 @@ class Maxwell(object):
         Parameters
         ----------
         object_list : list
-            List of objects to assign to the source of the current.
+            List of objects to assign the current source to.
         amplitude : float, optional
             The default is ``1``.
         phase : str, optional
@@ -316,7 +316,7 @@ class Maxwell(object):
         Parameters
         ----------
         face_list : list
-            List of faces.
+            List of faces to assign a voltrage source to.
         amplitude : float, optional
             Voltage amplitude in mV. The default is ``1``.
         name : str, optional
@@ -351,7 +351,7 @@ class Maxwell(object):
         Parameters
         ----------
         face_list : list
-            List of faces.
+            List of faces to assign a voltage drop to.
         amplitude : float, optional
             Voltage amplitude in mV. The default is ``1``.
         swap_direction : bool, optional
@@ -402,12 +402,12 @@ class Maxwell(object):
         parallel_branches : int, optional
             The default is ``1``.
         name : str, optional
-            Name to assign the winding. The default is ``None``.
+            Name of the winding. The default is ``None``.
 
         Returns
         -------
         :class:`pyaedt.modules.Boundary.BoundaryObject`
-            Bounding object for the winding; otherwise only the bounding object.
+            Bounding object for the winding, otherwise only the bounding object.
 
         """
 
@@ -441,7 +441,7 @@ class Maxwell(object):
         windingname : str
             Name of the winding.
         coil_names : list
-            List of the one or more coil names.
+            List of the coil names.
 
         Returns
         -------
@@ -462,7 +462,7 @@ class Maxwell(object):
         Parameters
         ----------
         input_object : list
-            List of objects or face IDs to input.
+            List of objects or face IDs.
         conductor_number : int, optional
             Number of conductors. The default is ``1``.
         polarity : str, optional
@@ -557,9 +557,9 @@ class Maxwell(object):
         Parameters
         ----------
         input_object : str or list
-           One or objects to assign the torque to
+           One or more objects to assign the torque to.
         reference_cs : str, optional
-            The default is ``"Global"``.
+            Name of the reference coordinate system. The default is ``"Global"``.
         is_positive : bool, optional
             Whether the torque is positive. The default is ``True``. 
         is_virtual : bool, optional
@@ -590,13 +590,14 @@ class Maxwell(object):
 
     @aedt_exception_handler
     def assign_force(self, input_object, reference_cs="Global", is_virtual=True, force_name=None):
-        """
-        Assign a force to the selection.
+        """Assign a force to the selection.
 
         Parameters
         ----------
         input_object : str, list
+            One or more objects to assign a force to.
         reference_cs : str, optional
+            Name of the reference coordinate system. The default is ``Global``.
         is_virtual : bool, optional
             Whether the force is virtual. The default is ``True``.
         force_name : str, optional
@@ -662,8 +663,8 @@ class Maxwell(object):
         ----------
         motion_setup : str
             Name of the motion setup.
-        val : 
-            Value of the angle.
+        val : float
+            Value of the angle in degrees.
 
         Returns
         -------
@@ -972,12 +973,12 @@ class Maxwell2d(Maxwell, FieldAnalysis2D, object):
 
     @aedt_exception_handler
     def assign_vector_potential(self, input_edge, vectorvalue=0, bound_name=None):
-        """Assign coils to a list of objects or face IDs.
+        """Assign a vector to a list of edges.
 
         Parameters
         ----------
         input_edge : list
-            List of edges or edge IDs to input.
+            List of edge names or edge IDs to assign a vector to.
         vectorvalue : float, optional
             Value of the vector. The default is ``0``.
         bound_name : str, optional

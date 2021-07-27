@@ -1,5 +1,5 @@
 """
-This module contains these classes: ``BoundaryCommon`` and ``BoundaryObject``.
+This module contains these classes: `BoundaryCommon` and `BoundaryObject`.
 """
 from collections import OrderedDict
 from ..generic.general_methods import aedt_exception_handler
@@ -30,7 +30,7 @@ class BoundaryCommon(object):
 
     @aedt_exception_handler
     def delete(self):
-        """Delete boundaries.
+        """Delete the boundary.
         
         Returns
         -------
@@ -45,7 +45,7 @@ class BoundaryCommon(object):
         return True
 
 class BoundaryObject(BoundaryCommon, object):
-    """Boundary data and execution class.
+    """Manages boundary data and execution.
     
     Parameters
     ----------
@@ -76,7 +76,8 @@ class BoundaryObject(BoundaryCommon, object):
 
         Returns
         -------
-        type
+        list
+            List of boundary properties.
             
         """
         if props is None:
@@ -317,7 +318,7 @@ class BoundaryObject(BoundaryCommon, object):
 
     @aedt_exception_handler
     def update_assignment(self):
-        """Update the assignment.
+        """Update the boundary assignment.
         
         Returns
         -------

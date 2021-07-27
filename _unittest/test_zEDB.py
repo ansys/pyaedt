@@ -428,7 +428,7 @@ class TestClass:
         options_config = {'UNITE_NETS' : 1, 'LAUNCH_Q3D' : 0}
         out = edb.write_export3d_option_config_file(scratch_path, options_config)
         assert os.path.exists(out)
-        out= edb.export_q3d(scratch_path,  net_list=["NET1", "NET2", "GND"])
+        out= edb.export_q3d(scratch_path,  net_list=["ANALOG_A0", "ANALOG_A1", "ANALOG_A2"])
         assert os.path.exists(out)
         edb.close_edb()
 
