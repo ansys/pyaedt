@@ -133,7 +133,7 @@ class Icepak(FieldAnalysisIcepak):
         Examples
         --------
 
-        Create an opening boundary for the faces of the ``'USB_GND'`` object.
+        Create an opening boundary for the faces of the ``"USB_GND"`` object.
 
         >>> faces = icepak.modeler.primitives["USB_GND"].faces
         >>> face_names = [face.id for face in faces]
@@ -523,7 +523,7 @@ class Icepak(FieldAnalysisIcepak):
         Examples
         --------
 
-        Create a rectangle named ``'Surface1'`` and assign a temperature monitor to that surface.
+        Create a rectangle named ``"Surface1"`` and assign a temperature monitor to that surface.
 
         >>> surface = icepak.modeler.primitives.create_rectangle(icepak.CoordinateSystemPlane.XYPlane,
         ...                                                      [0, 0, 0], [10, 20], name="Surface1")
