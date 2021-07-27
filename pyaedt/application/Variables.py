@@ -611,13 +611,12 @@ class VariableManager(object):
 
     @property
     def variable_names(self):
-	"""Names of all design properties and project variables.
+	"""Names of design properties and project variables.
 	
 	Returns
 	-------
 	list
-	    List of the names of all design properties and project variables.
-	
+	    List of names of all design properties and project variables.
 	"""
         return [var_name for var_name in self.variables]
 
