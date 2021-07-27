@@ -41,7 +41,7 @@ from .generic.general_methods import get_filename_without_extension, generate_un
 from .generic.process import SiwaveSolve
 
 class Edb(object):
-    """EDB instance interface.
+    """EDB application interface.
 
     This module inherits all objects that belong to EDB.
 
