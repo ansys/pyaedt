@@ -129,7 +129,7 @@ class Rmxprt(FieldAnalysisRMxprt):
         used.
     NG : bool, optional
         Whether to launch AEDT in the non-graphical mode. The default
-        is ``False``, which launches AEDT in the graphical mode.
+        is ``False``, in which case AEDT is launched in the graphical mode.
     AlwaysNew : bool, optional
         Whether to launch an instance of AEDT in a new thread, even if
         another instance of the ``specified_version`` is active on the
@@ -141,7 +141,7 @@ class Rmxprt(FieldAnalysisRMxprt):
 
     Examples
     --------
-    Create an instance of Rmxprt and connect to an existing RMxprt
+    Create an instance of RMxprt and connect to an existing RMxprt
     design or create a new RMxprt design if one does not exist.
 
     >>> from pyaedt import Rmxprt
@@ -159,7 +159,7 @@ class Rmxprt(FieldAnalysisRMxprt):
     >>> app = Rmxprt(projectname,designame)
 
     Create an instance of RMxprt and open the specified project,
-    which is ``myfile.aedt``.
+    which is ``"myfile.aedt"``.
 
     >>> app = Rmxprt("myfile.aedt")
     """

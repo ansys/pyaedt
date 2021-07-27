@@ -272,7 +272,7 @@ class Desktop:
         active setup or latest installed version is used.
     NG: bool, optional
         Whether to launch AEDT in the non-graphical mode. The default 
-        is ``False``, in which case AEDT launches in the graphical mode.
+        is ``False``, in which case AEDT is launched in the graphical mode.
     AlwaysNew : bool, optional
         Whether to launch an instance of AEDT in a new thread, even if 
         another instance of the ``specified_version`` is active on the machine.
@@ -305,7 +305,7 @@ class Desktop:
             
     @property
     def version_keys(self):
-        """Version keys."""
+        """Version keys for AEDT."""
 
         self._version_keys = []
         self._version_ids = {}
@@ -612,7 +612,7 @@ class Desktop:
         release_desktop(close_projects, close_on_exit)
 
     def force_close_desktop(self):
-        """Close all AEDT projects and shut down AEDT.
+        """Forcibly close all AEDT projects and shut down AEDT.
     
         Examples
         --------

@@ -69,23 +69,17 @@ class SolutionData(object):
 
     @property
     def primary_sweep(self):
-        """Primary sweep."""
-        return self._primary_sweep
-
-    @primary_sweep.setter
-    def primary_sweep(self, ps):
-        """Set the primary sweep to the source perimeter.
-
+        """Primary sweep.
+        
         Parameters
         ----------
         ps : float
             Perimeter of the source.
-            
-
-        Returns
-        -------
-
         """
+        return self._primary_sweep
+
+    @primary_sweep.setter
+    def primary_sweep(self, ps):
         if ps in self.sweeps.keys():
             self._primary_sweep = ps
 
@@ -700,7 +694,7 @@ class PostProcessor(object):
 
     @property
     def _messenger(self):
-        """_messenger."""
+        """Messenger."""
         return self._parent._messenger
 
     @property
@@ -730,7 +724,7 @@ class PostProcessor(object):
 
     @property
     def report_types(self):
-        """Report type."""
+        """Report types."""
         return list(self.oreportsetup.GetAvailableReportTypes())
 
     @aedt_exception_handler
@@ -739,7 +733,7 @@ class PostProcessor(object):
 
         Parameters
         ----------
-        report_type :
+        report_type : str
             Type of the report.
 
         Returns
@@ -757,7 +751,7 @@ class PostProcessor(object):
         Parameters
         ----------
         object_name : str
-            Name of the object on which to compute volumetric losses.
+            Name of the object to compute volumetric losses on.
 
         Returns
         -------
