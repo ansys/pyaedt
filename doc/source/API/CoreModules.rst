@@ -1,17 +1,18 @@
 Application Modules
 ===================
-This section contains the following PyAEDT application modules:
+This section lists the core PyAEDT application modules:
 
-#. Edb
-#. Variable
-#. DesignXPloration
+* EDB
+* Design
+* Variable
+* DesignXPloration
 
 
 
 
 EDB
 ~~~
-This module contains all EDT functionalities for reading and writing
+This module contains all EDB functionalities for reading and writing
 information to AEDB files.
 
 .. currentmodule:: pyaedt.edb_core

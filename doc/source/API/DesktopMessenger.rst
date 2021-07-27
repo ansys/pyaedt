@@ -1,7 +1,7 @@
-Desktop and Messenger
-=====================
+Message Manager
+===============
 
-The PyAEDT API includes these classes for Desktop Message Manager:
+The PyAEDT API includes these classes for AEDT and EDB Message managers:
 
 .. currentmodule:: pyaedt
 

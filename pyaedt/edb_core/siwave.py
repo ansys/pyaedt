@@ -252,7 +252,7 @@ class ResistorSource(Source):
 
 
 class EdbSiwave(object):
-    """EDB Siwave application interface.
+    """Manages EDB functionalities for SIwave.
 
     Parameters
     ----------

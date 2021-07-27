@@ -209,7 +209,7 @@ def list_difference(list1, list2):
     return list(set(list1) - set(list2))
 
 class DesignCache(object):
-    """Provides for analyzing the differences in the state of a design between two points in time.
+    """Analyzes the differences in the state of a design between two points in time.
     
     The contents of the design tracked in the Message Manager currently are:
 
@@ -629,21 +629,12 @@ class Design(object):
     def design_type(self):
         """Design type.
         
-        Options are:
-        - ``'Maxwell 2D'``
-        - ``'Maxwell 3D'``
-        - ``'Twin Builder'``
-        - ``'Circuit Design'``
-        - ``'2D Extractor'``
-        - ``'Q3D Extractor'``
-        - ``'HFSS'``
-        - ``'Icepak'``
-        - ``'RMxprtSolution'``
-        - ``'ModelCreation'``
-        - ``'HFSS 3D Layout Design'``
-        - ``'Mechanical'``
-        - ``'EMIT'
-
+        Options are ``"Circuit Design"``, ``"Emit"``, ``"HFSS"``, 
+        ``"HFSS 3D Layout Design"``, ``"Icepak"``, ``"Maxwell 2D"``, 
+        ``"Maxwell 3D"``, ``"Mechanical"``, ``"ModelCreation"``, 
+        ``"Q2D Extractor"``, ``"Q3D Extractor"``, ``"RMxprtSolution"``, 
+        and ``"Twin Builder"``.
+    
         Returns
         --------
         str
@@ -1639,7 +1630,7 @@ class Design(object):
         dsname : str
             Name of the dataset (without a prefix for a project dataset).
         xlist : list
-            List of X-axisvalues for the dataset.
+            List of X-axis values for the dataset.
         ylist : list
             List of Y-axis values for the dataset.
         xunit : str, optional
@@ -1650,8 +1641,6 @@ class Design(object):
         Returns
         -------
         :class:`pyaedt.application.Variables.DataSet`
-            DataSet object when the dataset is created,
-            ``False`` otherwise.
 
         """
         return self.create_dataset(dsname, xlist,ylist, is_project_dataset=False, xunit=xunit, yunit=yunit)
@@ -2479,7 +2468,7 @@ class Design(object):
         Parameters
         ----------
         variation_string : str, optional
-            Variation string. For example, ``"p1=1mm" or ``"p2=3mm"``.
+            Variation string. For example, ``"p1=1mm"`` or ``"p2=3mm"``.
 
         Returns
         -------

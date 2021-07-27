@@ -86,7 +86,7 @@ def unit_system(units):
     Returns
     -------
     str
-        Key from the ``AEDT_units`` when successful. For example, ``"AngualrSpeed"``.
+        Key from the ``AEDT_units`` when successful. For example, ``"AngularSpeed"``.
 	``False`` when the units specified are not defined in AEDT units.
     
     """
@@ -441,10 +441,9 @@ def decompose_variable_value(variable_value):
 
 
 class VariableManager(object):
-    """VariableManager class.
-
-    This class provides for managing design properties and project variables. Design properties
-    are the local variables in a design. Project variables are defined at the project 
+    """Manages design properties and project variables. 
+    
+    Design properties are the local variables in a design. Project variables are defined at the project 
     level and start with ``$``. 
     
     This class provides access to all variables or a subset of the variables. Manipulation
@@ -640,17 +639,17 @@ class VariableManager(object):
 
     @property
     def oproject(self):
-        """Project object."""
+        """Project."""
         return self._parent._oproject
 
     @property
     def odesign(self):
-        """Design object."""
+        """Design."""
         return self._parent._odesign
 
     @property
     def _messenger(self):
-        """_messenger."""
+        """Messenger."""
         return self._parent._messenger
 
     def __init__(self, parent):
@@ -715,7 +714,8 @@ class VariableManager(object):
         
         Parameters
         ----------
-        variable
+        variable : str
+	    Name of the variable.
         
         """
         if variable[0] == "$":
@@ -958,11 +958,7 @@ class VariableManager(object):
 
 
 class Variable(object):
-    """Stores variables and provides for performing operations on variables.
-    
-    This class stores variables and provides for performing operations 
-    on variables. It handles the contents of design properties and project 
-    variables.
+    """Stores design properties and project variables and provides operations to perform on them.
 
     Parameters
     ----------
@@ -1206,7 +1202,7 @@ class Variable(object):
 
     @aedt_exception_handler
     def __sub__(self, other):
-        """Subtract another variable from the variable and return a new object.
+        """Subtract another variable from the variable to return a new object.
 
         Parameters
         ---------
@@ -1246,7 +1242,7 @@ class Variable(object):
     # Python 3.x version
     @aedt_exception_handler
     def __truediv__(self, other):
-        """Divide the variable by a number or another variable and return a new object
+        """Divide the variable by a number or another variable to return a new object.
 
         Parameters
         ---------
@@ -1353,9 +1349,7 @@ class Expression(Variable, object):
 
 
 class DataSet(object):
-    """DataSet class.
-    
-    This class provides for managing data sets.
+    """Manages datasets.
     
     Parameters
     ----------
@@ -1438,7 +1432,7 @@ class DataSet(object):
 
     @aedt_exception_handler
     def add_point(self, x, y, z=None, v=None):
-        """Add a point to the existing dataset.
+        """Add a point to the dataset.
 
         Parameters
         ----------

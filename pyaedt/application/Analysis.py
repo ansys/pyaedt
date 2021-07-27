@@ -248,12 +248,12 @@ class Analysis(Design, object):
 
     @property
     def existing_analysis_sweeps(self):
-        """Analysis setup list.
+        """Existing analysis sweeps.
         
         Returns
         -------
         list
-            List of all names for analysis setups in the design.
+            List of all analysis sweeps in the design.
 
         """
         setup_list = self.existing_analysis_setups
@@ -273,15 +273,12 @@ class Analysis(Design, object):
 
     @property
     def nominal_adaptive(self):
-        """Nominal adaptive.
-
-        Parameters
-        ----------
+        """Nominal adaptive sweep.
 
         Returns
         -------
         str
-            Name of the nominal adaptive setup.
+            Name of the nominal adaptive sweep.
 
         """
         if len(self.existing_analysis_sweeps)>0:
@@ -296,7 +293,7 @@ class Analysis(Design, object):
         Returns
         -------
         str
-            Name of the last adaptive if a sweep is available or 
+            Name of the last adaptive sweep if a sweep is available or 
             the name of the nominal adaptive sweep if present.
         """
 
@@ -312,7 +309,7 @@ class Analysis(Design, object):
         Returns
         -------
         list
-            List of names of all existing analysis setups in the design.
+            List of all analysis setups in the design.
 
         """
         setups = list(self.oanalysis.GetSetups())
@@ -614,11 +611,12 @@ class Analysis(Design, object):
         ----------
         setup_name : str, optional
             Name of the setup. The default is ``None``.
-
+ 
         Returns
         -------
         str
             Name of the setup.
+        
         """
         if not setup_name:
             setup_name = "Setup"
@@ -645,7 +643,6 @@ class Analysis(Design, object):
         Returns
         -------
         :class:`pyaedt.modules.SolveSetup.Setup`
-            Setup object.
 
         """
         if setuptype is None:
@@ -666,7 +663,7 @@ class Analysis(Design, object):
 
     @aedt_exception_handler
     def edit_setup(self, setupname, properties_dict):
-        """Edit the current setup.
+        """Modify a setup.
 
         Parameters
         ----------
@@ -677,8 +674,8 @@ class Analysis(Design, object):
 
         Returns
         -------
-        type
-            Setup object.
+        :class:`pyaedt.modules.SolveSetup.Setup`
+        
         """
         setuptype = SetupKeys.defaultSetups[self.solution_type]
         setup = Setup(self, setuptype, setupname, isnewsetup=False)
@@ -698,8 +695,8 @@ class Analysis(Design, object):
 
         Returns
         -------
-        type
-            Setup object.
+        :class:`pyaedt.modules.SolveSetup.Setup`
+
         """
 
         setuptype = SetupKeys.defaultSetups[self.solution_type]
@@ -891,15 +888,15 @@ class Analysis(Design, object):
         Parameters
         ----------
         clustername : str
-            Name of the cluster to which to submit the job.
+            Name of the cluster to submit the job to.
         aedt_full_exe_path : str, optional
-            Full path to the AEDT executable file. The default is ``None``, which uses
-            ``"/clustername/AnsysEM/AnsysEM2x.x/Win64/ansysedt.exe"``.
+            Full path to the AEDT executable file. The default is ``None``, in which 
+            case ``"/clustername/AnsysEM/AnsysEM2x.x/Win64/ansysedt.exe"`` is used.
         numnodes : int, optional
             Number of nodes. The default is ``1``.
         numcores : int, optional
             Number of cores. The default is ``32``.
-        wait_for_license : bool, option
+        wait_for_license : bool, optional
              Whether to wait for the license to be validated. The default is ``True``.
         setting_file : str, optional
             Name of the file to use as a template. The default value is ``None``.
