@@ -1,5 +1,5 @@
 """
-This module contains the ``EdbPadstacks`` class.
+This module contains the `EdbPadstacks` class.
 """
 
 import warnings
@@ -12,11 +12,11 @@ try:
     from System import Double, Array
     from System.Collections.Generic import List
 except ImportError:
-    warnings.warn('This module requires pythonnet.')
+    warnings.warn('This module requires Python.NET.')
 
 
 class EdbPadstacks(object):
-    """EdbPadstacks class."""
+    """Manages EDB functionalities for padstacks."""
 
     def __init__(self, parent):
         self.parent = parent
@@ -63,7 +63,7 @@ class EdbPadstacks(object):
 
     @property
     def padstacks(self):
-        """List of padstacks via padstack definitions.
+        """Padstacks via padstack definitions.
         
         Returns
         -------
@@ -81,7 +81,7 @@ class EdbPadstacks(object):
     @aedt_exception_handler
     def create_circular_padstack(self, padstackname=None, holediam='300um', paddiam='400um', antipaddiam='600um',
                         startlayer=None, endlayer=None):
-        """Create a new circular padstack.
+        """Create a circular padstack.
 
         Parameters
         ----------
@@ -134,7 +134,7 @@ class EdbPadstacks(object):
     @aedt_exception_handler
     def create_padstack(self, padstackname=None, holediam='300um', paddiam='400um', antipaddiam='600um',
                         startlayer=None, endlayer=None):
-        """Create a new padstack.
+        """Create a padstack.
 
         Parameters
         ----------
