@@ -611,12 +611,6 @@ class VariableManager(object):
 
     @property
     def variable_names(self):
-	"""Names of variables.
-	
-	Returns
-	list
-	    List of the names of all variables.
-	"""
         return [var_name for var_name in self.variables]
 
     @property
