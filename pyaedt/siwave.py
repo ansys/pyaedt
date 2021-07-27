@@ -28,7 +28,7 @@ elif os.name == 'nt':
         import win32com.client
         _com = 'pywin32'
     else:
-        raise Exception("Error. No win32com.client or Pythonnet modules found. Please install them")
+        raise Exception("Error. No win32com.client or Python.NET modules found. They need to be installed.")
 
 
 # if _pythonver == 3:
@@ -38,15 +38,18 @@ elif os.name == 'nt':
 
 
 class Siwave:
-    """Initializes Siwave based on the inputs provided and manages Siwave release and closing.
+    """Initializes SIwave based on the inputs provided and manages SIwave release and closing.
 
     Parameters
     ----------
+    specified_version : str, optional
+        Version of AEDT to use. The default is ``None``, in which case 
+        the active setup is used or the latest installed version is used.
 
     """
     @property
     def version_keys(self):
-        """Version keys."""
+        """Version keys for AEDT."""
 
         self._version_keys = []
         self._version_ids = {}
@@ -68,7 +71,7 @@ class Siwave:
 
     @property
     def current_version(self):
-        """Current version."""
+        """Current version of AEDT."""
         return self.version_keys[0]
 
     def __init__(self, specified_version=None):
@@ -137,39 +140,85 @@ class Siwave:
 
     @property
     def project_name(self):
-        """Project name."""
+        """Project name.
+        
+        Returns
+        -------
+        str
+            Name of the project.
+        
+        """
         return self._oproject.GetName()
 
 
     @property
     def project_path(self):
-        """Project path."""
+        """Project path.
+        
+        Returns
+        -------
+        str
+            Full absolute path for the project.
+        
+        """
         return os.path.normpath(self.oSiwave.GetProjectDirectory())
 
     @property
     def project_file(self):
-        """Project file."""
+        """Project file.
+        
+        Returns
+        -------
+        str
+            Full absolute path and name for the project file.
+        
+        """
         return os.path.join(self.project_path, self.project_name + '.siw')
 
     @property
     def lock_file(self):
-        """Lock file."""
+        """Lock file.
+        
+        Returns
+        -------
+        str
+            Full absolute path and name for the project lock file.
+            
+        """
         return os.path.join(self.project_path, self.project_name + '.siw.lock')
 
     @property
     def results_directory(self):
-        """Results directory."""
+        """Results directory.
+        
+        Returns
+        -------
+        str
+            Full absolute path to the ``aedtresults`` directory.
+        """
         return os.path.join(self.project_path, self.project_name + '.siwresults')
 
 
     @property
     def src_dir(self):
-        """Source directory."""
+        """Source directory.
+        
+        Returns
+        -------
+        str
+            Full absolute path to the ``python`` directory.
+        """
         return os.path.dirname(os.path.realpath(__file__))
 
     @property
     def pyaedt_dir(self):
-        """PyAEDT directory."""
+        """PyAEDT directory.
+        
+        Returns
+        -------
+        str
+            Full absolute path to the ``pyaedt`` directory.
+        """
         return os.path.realpath(os.path.join(self.src_dir, '..'))
 
 
@@ -210,6 +259,8 @@ class Siwave:
 
         Returns
         -------
+        bool
+            ``True`` when successful, ``False`` when failed.
 
         """
         if projectName and projectpath:
@@ -221,7 +272,13 @@ class Siwave:
 
     @aedt_exception_handler
     def quit_application(self):
-        """Quit the application."""
-
+        """Quit the application.
+        
+        Returns
+        -------
+        bool
+            ``True`` when successful, ``False`` when failed.
+        
+        """
         self._main.oSiwave.Quit()
         return True
