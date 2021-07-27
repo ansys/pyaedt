@@ -1,6 +1,6 @@
 Application
 ===========
-The PyAEDT API includes these classes for application classes and modules.
+The PyAEDT API includes these classes for applications and modules.
 
 .. currentmodule:: pyaedt
 
