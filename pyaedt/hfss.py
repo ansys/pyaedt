@@ -1,6 +1,7 @@
 """This module contains these classes: `Hfss` and 'BoundaryType`."""
 from __future__ import absolute_import
 import os
+import warnings
 from .application.Analysis3D import FieldAnalysis3D
 from .desktop import exception_to_desktop
 from .modeler.GeometryOperators import GeometryOperators
