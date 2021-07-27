@@ -195,7 +195,7 @@ class Modeler3DLayout(Modeler):
 
     @aedt_exception_handler
     def import_cadence_brd(self, brd_filename, edb_path=None, edb_name=None):
-        """Import a cadence board.
+        """Import a Cadence board.
 
         Parameters
         ----------
