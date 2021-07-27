@@ -347,15 +347,4 @@ def isclose(a, b, rel_tol=1e-9, abs_tol=0.0):
 
 
 def is_number(a):
-    if isinstance(a, list):
-        return False
-    if isinstance(a, tuple):
-        return False
-    if isinstance(a, dict):
-        return False
-    try:
-        float(a)
-        return True
-    except ValueError:
-        return False
-    #return str(a).replace(".", "").replace("-", "").replace("e","").replace("E","").isnumeric()
+    return str(a).replace(".", "").replace("+", "").replace("-", "").replace("e","").replace("E","").isnumeric()
