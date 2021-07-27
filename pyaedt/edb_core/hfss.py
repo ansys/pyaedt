@@ -17,7 +17,7 @@ except ImportError:
 
 
 class Edb3DLayout(object):
-    """Manages EDB functionalities for HFSS 3DLayout."""
+    """Manages EDB functionalities for 3D layouts."""
 
     def __init__(self, parent):
         self.parent = parent
