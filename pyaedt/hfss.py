@@ -2030,7 +2030,31 @@ class Hfss(FieldAnalysis3D, object):
         str
             Name of the port created when successful, ``False`` otherwise.
 
+        Examples
+        --------
+
+        Create two rectangles in the XY plane.
+        Select the first edge of each rectangle created previously.
+        Create a circuit port from the first edge of the first rectangle
+        toward the first edge of the second rectangle.
+
+        >>> plane = hfss.CoordinateSystemPlane.XYPlane
+        >>> rectangle1 = hfss.modeler.primitives.create_rectangle(plane, [10, 10, 10], [10, 10],
+        ...                                                       name="rectangle1_for_port")
+        >>> edges1 = hfss.modeler.primitives.get_object_edges(rectangle1.id)
+        >>> first_edge = edges1[0]
+        >>> rectangle2 = hfss.modeler.primitives.create_rectangle(plane, [30, 10, 10], [10, 10],
+        ...                                                       name="rectangle2_for_port")
+        >>> edges2 = hfss.modeler.primitives.get_object_edges(rectangle2.id)
+        >>> second_edge = edges2[0]
+        >>> hfss.solution_type = "DrivenModal"
+        >>> hfss.create_circuit_port_from_edges(first_edge, second_edge, port_name="PortExample",
+        ...                                     port_impedance=50.1, renormalize=False,
+        ...                                     renorm_impedance="50")
+        'PortExample'
+
         """
+
         edge_list = [edge_signal, edge_gnd]
         if not port_name:
             port_name = generate_unique_name("Port")
@@ -2060,7 +2084,22 @@ class Hfss(FieldAnalysis3D, object):
         -------
         bool
             ``True`` when successful, ``False`` when failed.
-        
+
+        Examples
+        --------
+
+        Create a rectangle sheet and use it to create a wave port.
+        Set up the thermal power for the port created above.
+
+        >>> sheet = hfss.modeler.primitives.create_circle(hfss.CoordinateSystemPlane.YZPlane,
+        ...                                               [-20, 0, 0], 10,
+        ...                                               name="sheet_for_source")
+        >>> wave_port = hfss.create_wave_port_from_sheet(sheet, 5, hfss.AxisDir.XNeg, 40,
+        ...                                              2, "SheetWavePort", True)
+        >>> hfss.edit_source("SheetWavePort" + ":1", "10W")
+        pyaedt Info: Setting up power to Eigenmode 10WWatt
+        True
+
         """
         self._messenger.add_info_message("Setting up power to Eigenmode " + powerin + "Watt")
         if self.solution_type != "Eigenmode":
