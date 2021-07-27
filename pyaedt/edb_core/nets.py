@@ -13,7 +13,7 @@ except ImportError:
 
 
 class EdbNets(object):
-    """EdbNets class"""
+    """Manages EDB functionalities  for nets."""
 
     def __init__(self, parent):
         self.parent = parent
