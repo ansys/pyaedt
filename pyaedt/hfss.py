@@ -749,7 +749,22 @@ class Hfss(FieldAnalysis3D, object):
         str
             Name of port created when successful, ``False`` otherwise.
 
+        Examples
+        --------
+
+        Create two boxes that will be used to create a circuit port
+        named ``'CircuitExample'``.
+        >>> box1 = hfss.modeler.primitives.create_box([0, 0, 80], [10, 10, 5],
+        ...                                           "BoxCircuit1", "copper")
+        >>> box2 = hfss.modeler.primitives.create_box([0, 0, 100], [10, 10, 5],
+        ...                                           "BoxCircuit2", "copper")
+        >>> hfss.create_circuit_port_between_objects("BoxCircuit1", "BoxCircuit2",
+        ...                                          hfss.AxisDir.XNeg, 50,
+        ...                                          "CircuitExample", True, 50, False)
+        'CircuitExample'
+
         """
+
         if not self.modeler.primitives.does_object_exists(startobj) or not self.modeler.primitives.does_object_exists(
                 endobject):
             self._messenger.add_error_message("One or both objects doesn't exists. Check and retry")
