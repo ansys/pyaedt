@@ -1630,7 +1630,7 @@ class Design(object):
         dsname : str
             Name of the dataset (without a prefix for a project dataset).
         xlist : list
-            List of X-axisvalues for the dataset.
+            List of X-axis values for the dataset.
         ylist : list
             List of Y-axis values for the dataset.
         xunit : str, optional
@@ -1641,8 +1641,6 @@ class Design(object):
         Returns
         -------
         :class:`pyaedt.application.Variables.DataSet`
-            DataSet object when the dataset is created,
-            ``False`` otherwise.
 
         """
         return self.create_dataset(dsname, xlist,ylist, is_project_dataset=False, xunit=xunit, yunit=yunit)
@@ -2470,7 +2468,7 @@ class Design(object):
         Parameters
         ----------
         variation_string : str, optional
-            Variation string. For example, ``"p1=1mm" or ``"p2=3mm"``.
+            Variation string. For example, ``"p1=1mm"`` or ``"p2=3mm"``.
 
         Returns
         -------
