@@ -76,7 +76,7 @@ class SweepString(object):
 
 
 class Hfss3dLayout(FieldAnalysis3DLayout):
-    """HFSS 3D Layout instance interface.
+    """HFSS 3D Layout application interface.
 
     This class inherits all objects that belong to HFSS 3D Layout, including EDB
     API queries.
