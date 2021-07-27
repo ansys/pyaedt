@@ -663,7 +663,7 @@ class Analysis(Design, object):
 
     @aedt_exception_handler
     def edit_setup(self, setupname, properties_dict):
-        """Edit the current setup.
+        """Modify a setup.
 
         Parameters
         ----------
@@ -674,8 +674,8 @@ class Analysis(Design, object):
 
         Returns
         -------
-        type
-            Setup object.
+        :class:`pyaedt.modules.SolveSetup.Setup`
+        
         """
         setuptype = SetupKeys.defaultSetups[self.solution_type]
         setup = Setup(self, setuptype, setupname, isnewsetup=False)
