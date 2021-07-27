@@ -299,7 +299,7 @@ class FieldAnalysisCircuit(Analysis):
 
         """
         if setuptype is None:
-            setuptype = SetupKeys.defaultSetups[self.solution_type]
+            setuptype = self.solution_type
 
         name = self.generate_unique_setup_name(setupname)
         setup = SetupCircuit(self, setuptype, name)
