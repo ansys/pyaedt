@@ -369,13 +369,13 @@ class Setup(object):
             Name of the design.
         solution_name : str
             Name of the solution in the format ``"setupname : solutionname"``.
-            Optionally use ``appname.nominal_adaptive`` to get the
-            nominal adaptive or ``appname.nominal_sweep`` to get the
+            Optionally use :attr:`appname.nominal_adaptive` to get the
+            nominal adaptive or :attr:`appname.nominal_sweep` to get the
             nominal sweep.
         parameters_dict : dict
-            Dictionary of the parameters. Optionally use the
-            ``appname.available_variations.nominal_w_values_dict``
-            property to get the nominal values.
+            Dictionary of the parameters. Optionally use 
+            :attr:`appname.available_variations.nominal_w_values_dict`
+            to get the nominal values.
         project_name : str, optional
             Name of the project with the design. The default is ``"This Project"``. 
             However, you can supply the full path and name to another project.
@@ -979,7 +979,7 @@ class Setup3DLayout(object):
 
         Returns
         -------
-        SweeHFSS3DLayout
+        SweepHFSS3DLayout
             Sweep object.
 
         """
