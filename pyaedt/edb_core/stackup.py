@@ -1,5 +1,5 @@
 """
-This module contains the ``EdbStackup`` class.
+This module contains the `EdbStackup` class.
 
 """
 from __future__ import absolute_import
@@ -10,14 +10,14 @@ try:
     from System import Double
     from System.Collections.Generic import List
 except ImportError:
-    warnings.warn('This module requires pythonnet.')
+    warnings.warn('This module requires Python.NET.')
 
 
 from .EDB_Data import EDBLayers, EDBLayer
 
 
 class EdbStackup(object):
-    """EdbStackup class."""
+    """Manages EDB functionalities for stackups."""
 
     def __init__(self, parent):
         self.parent = parent
@@ -65,7 +65,7 @@ class EdbStackup(object):
 
     @property
     def stackup_layers(self):
-        """Dictionary of all the stackup layers.
+        """Stackup layers.
 
         Returns
         -------
@@ -100,7 +100,7 @@ class EdbStackup(object):
 
     @property
     def materials(self):
-        """Dictionary of materials.
+        """Materials.
 
         Returns
         -------
@@ -114,7 +114,7 @@ class EdbStackup(object):
 
     @aedt_exception_handler
     def create_dielectric(self, name, permittivity=1, loss_tangent=0):
-        """Create a new dielectric with simple properties.
+        """Create a dielectric with simple properties.
 
         Parameters
         ----------
@@ -141,7 +141,7 @@ class EdbStackup(object):
 
     @aedt_exception_handler
     def create_conductor(self, name, conductivity=1e6):
-        """Create a new conductor with simple properties.
+        """Create a conductor with simple properties.
 
         Parameters
         ----------
@@ -164,7 +164,7 @@ class EdbStackup(object):
 
     @aedt_exception_handler
     def create_debye_material(self, name, relative_permittivity_low, relative_permittivity_high, loss_tangent_low, loss_tangent_high, lower_freqency, higher_frequency):
-        """Create a new dielectric with the Debye model.
+        """Create a dielectric with the Debye model.
 
         Parameters
         ----------
@@ -202,7 +202,7 @@ class EdbStackup(object):
 
     @aedt_exception_handler
     def create_djordjevicsarkar_material(self, name, relative_permittivity, loss_tangent, test_frequency):
-        """Create a new Djordjevic_Sarkar dielectric.
+        """Create a Djordjevic_Sarkar dielectric.
 
         Parameters
         ----------
