@@ -1710,6 +1710,19 @@ class Hfss(FieldAnalysis3D, object):
         return False
 
     @aedt_exception_handler
+    def assig_voltage_source_to_sheet(self, sheet_name, axisdir=0, sourcename=None):
+        """Create a voltage source taking one sheet.
+
+        .. deprecated:: 0.4.0
+           Use :func:`Hfss.assign_voltage_source_to_sheet` instead.
+
+        """
+
+        warnings.warn('assig_voltage_source_to_sheet is deprecated. Use assign_voltage_source_to_sheet instead',
+                      DeprecationWarning)
+        self.assign_voltage_source_to_sheet(sheet_name, axisdir=0, sourcename=None)
+
+    @aedt_exception_handler
     def assign_voltage_source_to_sheet(self, sheet_name, axisdir=0, sourcename=None):
         """Create a voltage source taking one sheet.
 
