@@ -248,12 +248,12 @@ class Analysis(Design, object):
 
     @property
     def existing_analysis_sweeps(self):
-        """Analysis setup list.
+        """Existing analysis sweeps.
         
         Returns
         -------
         list
-            List of all names for analysis setups in the design.
+            List of all analysis sweeps in the design.
 
         """
         setup_list = self.existing_analysis_setups
@@ -273,12 +273,12 @@ class Analysis(Design, object):
 
     @property
     def nominal_adaptive(self):
-        """Nominal adaptive.
+        """Nominal adaptive sweep.
 
         Returns
         -------
         str
-            Name of the nominal adaptive setup.
+            Name of the nominal adaptive sweep.
 
         """
         if len(self.existing_analysis_sweeps)>0:
@@ -293,7 +293,7 @@ class Analysis(Design, object):
         Returns
         -------
         str
-            Name of the last adaptive if a sweep is available or 
+            Name of the last adaptive sweep if a sweep is available or 
             the name of the nominal adaptive sweep if present.
         """
 
@@ -309,7 +309,7 @@ class Analysis(Design, object):
         Returns
         -------
         list
-            List of names of all existing analysis setups in the design.
+            List of all analysis setups in the design.
 
         """
         setups = list(self.oanalysis.GetSetups())
