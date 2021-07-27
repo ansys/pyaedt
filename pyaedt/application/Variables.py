@@ -633,7 +633,7 @@ class VariableManager(object):
 
     @property
     def independent_project_variable_names(self):
-	"""Names of indepedent project variables.
+	"""Names of independent project variables.
 	
 	Returns
 	-------

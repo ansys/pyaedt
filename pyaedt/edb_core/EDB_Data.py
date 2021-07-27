@@ -682,7 +682,7 @@ class EDBLayers(object):
 
 
 class EDBPadProperties(object):
-    """Manages EDB functionalities fpr pad properties.
+    """Manages EDB functionalities for pad properties.
     
     Parameters
     ----------
