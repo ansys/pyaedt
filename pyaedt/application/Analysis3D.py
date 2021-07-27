@@ -122,8 +122,8 @@ class FieldAnalysis3D(Analysis, object):
         Parameters
         ----------
         component3dname :
-            Name of the 3D component, which must be in the ``syslib`` or ``userlib`` directory or the 
-            full absolute path to the AEDCOMP file with the extension.
+            Name of the 3D component, which must be in the ``syslib`` or ``userlib`` directory. Otherwise, 
+            you must specify the full absolute path to the AEDCOMP file with the file name and the extension.
 
         Returns
         -------
