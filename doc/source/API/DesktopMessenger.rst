@@ -1,7 +1,7 @@
 Message Manager
 ===============
 
-The PyAEDT API includes these classes for AEDT and EDT Message managers:
+The PyAEDT API includes these classes for AEDT and EDB Message managers:
 
 .. currentmodule:: pyaedt
 

@@ -958,7 +958,7 @@ class VariableManager(object):
 
 
 class Variable(object):
-    """Stores design properties and project variables and provides for performing operations on them.
+    """Stores design properties and project variables and provides operations to perform on them.
 
     Parameters
     ----------
@@ -1242,7 +1242,7 @@ class Variable(object):
     # Python 3.x version
     @aedt_exception_handler
     def __truediv__(self, other):
-        """Divide the variable by a number or another variable to return a new object
+        """Divide the variable by a number or another variable to return a new object.
 
         Parameters
         ---------

@@ -362,7 +362,8 @@ class EDBLayers(object):
     
     Parameters
     ----------
-    parent : Inherited AEDT object.
+    parent : 
+        Inherited AEDT object.
     
     """
 
@@ -631,7 +632,7 @@ class EDBLayers(object):
 
     def add_outline_layer(self, outline_name="Outline"):
         """
-        Add an outline ;ayer named ``"Outline"`` if it is not present.
+        Add an outline layer named ``"Outline"`` if it is not present.
 
         Returns
         -------
@@ -1139,7 +1140,7 @@ class EDBPadstack(object):
 
     @property
     def material(self):
-        """Hole material
+        """Hole material.
 
         Returns
         -------
@@ -1176,7 +1177,7 @@ class EDBPinInstances(object):
         Returns
         -------
         str
-           Name of the net
+           Name of the net.
         """
         return self.pin.GetNet().GetName()
 
@@ -1198,7 +1199,7 @@ class EDBPinInstances(object):
         Returns
         -------
         list
-            List of ``[x. y]``` coordinates for the pin position.
+            List of ``[x, y]``` coordinates for the pin position.
         """
         self.parent._edb.Geometry.PointData(self.parent._edb_value(0.0), self.parent._edb_value(0.0))
         out = self.pin.GetPositionAndRotationValue(

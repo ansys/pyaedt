@@ -12,7 +12,7 @@ try:
     from System import Double, Array
     from System.Collections.Generic import List
 except ImportError:
-    warnings.warn('This module requires Python.NET.')
+    warnings.warn('This module requires the "pythonnet" package.')
 
 
 class EdbPadstacks(object):

@@ -611,7 +611,7 @@ class Analysis(Design, object):
         ----------
         setup_name : str, optional
             Name of the setup. The default is ``None``.
-            
+ 
         Returns
         -------
         str

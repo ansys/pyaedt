@@ -10,7 +10,7 @@ try:
     from System import Double
     from System.Collections.Generic import List
 except ImportError:
-    warnings.warn('This module requires Python.NET.')
+    warnings.warn('This module requires the "pythonnet" package.')
 
 
 from .EDB_Data import EDBLayers, EDBLayer
