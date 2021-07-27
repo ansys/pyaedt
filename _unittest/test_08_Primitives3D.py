@@ -436,7 +436,7 @@ class TestClass(BasisTest):
     @pyaedt_unittest_check_desktop_error
     def test_19_get_edges_from_position(self):
         self.cache.ignore_error_message_local("Script macro error: Can't find face by name and position.")
-        o = self.create_rectangle(name="MyRectangle")
+        o = self.create_rectangle(name="MyRectangle_for_primitives")
         udp = self.aedtapp.modeler.Position(5, 3, 8)
         edge_id = self.aedtapp.modeler.primitives.get_edgeid_from_position(udp, o.name)
         assert edge_id > 0

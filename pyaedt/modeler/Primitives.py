@@ -1321,8 +1321,10 @@ class Primitives(object):
                 "NAME:Selections",
                 "Selections:="	, objects_str
                 ]
-            self.oeditor.Delete(arg)
-
+            try:
+                self.oeditor.Delete(arg)
+            except:
+                self._messenger.add_warning_message("Failed to delete {}".format(objects_str))
             remaining -= slice
             if remaining > 0:
                 objects = objects[slice:]
