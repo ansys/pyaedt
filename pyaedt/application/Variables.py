@@ -617,6 +617,7 @@ class VariableManager(object):
 	-------
 	list
 	    List of the names of all design properties and project variables.
+	
 	"""
         return [var_name for var_name in self.variables]
 
