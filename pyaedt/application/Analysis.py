@@ -616,6 +616,17 @@ class Analysis(Design, object):
         self.analyze_nominal()
         return True
 
+    @aedt_exception_handler
+    def analyse_nominal(self):
+        """Revert the solution to the initial mesh and re-run the solve.
+       
+        .. deprecated:: 0.4.0
+           Use :func:`Analysis.analyze_nominal` instead.
+        """
+        warnings.warn('`analyse_nominal` is deprecated. Use `analyze_nominal` instead.',
+                      DeprecationWarning)
+        self.analyze_nominal()
+
 
     @aedt_exception_handler
     def analyze_nominal(self):
