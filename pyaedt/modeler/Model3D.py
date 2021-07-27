@@ -4,7 +4,16 @@ from .Modeler import GeometryModeler
 from  .Primitives3D import Primitives3D
 
 class Modeler3D(GeometryModeler):
-    """Modeler 3D application inteface."""
+    """Modeler 3D application inteface.
+    
+    Parameters
+    ----------
+    application :
+    
+    is3D : bool, optional
+        Whether the model is 3D. The default is ``True``.
+    
+    """
     def __init__(self, application):
         GeometryModeler.__init__(self, application, is3d=True)
         self._primitives = Primitives3D(self._parent, self)
