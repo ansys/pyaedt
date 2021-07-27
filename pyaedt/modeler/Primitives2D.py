@@ -1,4 +1,4 @@
-from ..generic.general_methods import aedt_exception_handler
+from ..generic.general_methods import aedt_exception_handler, is_number
 from .Primitives import Primitives
 import numbers
 
@@ -234,7 +234,7 @@ class Primitives2D(Primitives, object):
 
         """
         #TODO handle RZ!!
-        if isinstance(pad_percent, numbers.Number):
+        if is_number(pad_percent):
             pad_percent = [pad_percent, pad_percent, 0, pad_percent, pad_percent, 0]
         else:
             pad_percent = [pad_percent[0], pad_percent[1], 0, pad_percent[2], pad_percent[3], 0]
