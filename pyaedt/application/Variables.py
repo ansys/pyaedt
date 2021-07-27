@@ -615,69 +615,26 @@ class VariableManager(object):
 
     @property
     def project_variable_names(self):
-	"""Names of project variables.
-	
-	Returns
-	-------
-	list
-	    List of the names of all project variables.
-	"""
         return [var_name for var_name in self.project_variables]
 
     @property
     def independent_project_variable_names(self):
-	"""Names of independent project variables.
-	
-	Returns
-	-------
-	list
-	    List of the names of all independent project variables.
-	"""
         return [var_name for var_name in self.independent_project_variables]
 
     @property
     def design_variable_names(self):
-	"""Names of design properties.
-	
-	Returns
-	-------
-	list
-	    List of the names of all design properties.
-	"""
         return [var_name for var_name in self.design_variables]
 
     @property
     def independent_design_variable_names(self):
-	"""Names of independent design properties.
-	
-	Returns
-	-------
-	list
-	    List of the names of all independent properties.
-	"""
         return [var_name for var_name in self.independent_design_variables]
 
     @property
     def independent_variable_names(self):
-	"""Names of independent variables.
-	
-	Returns
-	-------
-	list
-	    List of the names of all independent variables.
-	"""
         return [var_name for var_name in self.independent_variables]
 
     @property
     def dependent_variable_names(self):
-	
-	"""Names of dependent variables.
-	
-	Returns
-	-------
-	list
-	    List of the names of all dependent variables.
-	"""
         return [var_name for var_name in self.dependent_variables]
 
     @property
