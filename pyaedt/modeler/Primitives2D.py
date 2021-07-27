@@ -4,7 +4,7 @@ import numbers
 
 
 class Primitives2D(Primitives, object):
-    """Primitives2D class."""
+    """Manages primitives in 2D tools."""
 
     @property
     def plane2d(self):
