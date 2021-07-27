@@ -47,9 +47,7 @@ def resistor_value_parser(RValue):
 
 
 class Components(object):
-    """HFSS 3D application interface.
-
-    This class manages EDB components and related methods.
+    """Manages EDB components and related methods.
 
     Parameters
     ----------
@@ -77,7 +75,7 @@ class Components(object):
 
     @property
     def _messenger(self):
-        """_messenger."""
+        """Messenger."""
         return self.parent._messenger
 
     @property
@@ -334,7 +332,7 @@ class Components(object):
 
     @aedt_exception_handler
     def get_component_list(self):
-        """Retrieve a list of the component's EDB objects.
+        """Retrieve conponent setup information.
 
         Returns
         -------
