@@ -15,9 +15,7 @@ if 'clr' in modules or _ironpython:
 
 
 class Primitives3DLayout(object):
-    """Primitives3DLayout class.
-    
-    This class provides all functionalities for managing primitives in HFSS 3D Layout.
+    """Manages primitives in HFSS 3D Layout.
     
     Parameters
     ----------
@@ -67,7 +65,7 @@ class Primitives3DLayout(object):
         Returns
         -------
         list
-            List of components from EDB. If no EDB is present, ``None`` is returned.
+            List of components from EDB. If EDB is not present, ``None`` is returned.
         
         """
         try:
@@ -85,7 +83,7 @@ class Primitives3DLayout(object):
         Returns
         -------
         list
-            List of geometries from EDB. If no EDB is present, ``None`` is returned.
+            List of geometries from EDB. If EDB is not present, ``None`` is returned.
            
            """
         try:
@@ -125,7 +123,7 @@ class Primitives3DLayout(object):
         Returns
         -------
         list
-            List of pins from EDB. If no EDB is present, ``None`` is returned.
+            List of pins from EDB. If EDB is not present, ``None`` is returned.
         
         """
         try:
@@ -150,7 +148,7 @@ class Primitives3DLayout(object):
         Returns
         -------
         list
-            List of nets from EDB. If no EDB is present, ``None`` is returned.
+            List of nets from EDB. If EDB is not present, ``None`` is returned.
         
         """
         try:
@@ -175,7 +173,7 @@ class Primitives3DLayout(object):
 
     @property
     def _messenger(self):
-        """_messenger."""
+        """Messenger."""
         return self._parent._messenger
 
     @property
@@ -197,7 +195,7 @@ class Primitives3DLayout(object):
 
     @property
     def oeditor(self):
-        """Editor object."""
+        """Editor."""
         return self.modeler.oeditor
 
     @property
@@ -372,7 +370,7 @@ class Primitives3DLayout(object):
         Returns
         -------
         str
-            Name of the created via when successful.
+            Name of the via created when successful.
 
         """
         layers = self.modeler.layers.all_signal_layers
@@ -434,7 +432,7 @@ class Primitives3DLayout(object):
         Returns
         -------
         str
-            Name of the created circle when successful.
+            Name of the circle created when successful.
 
         """
         if not name:
@@ -485,7 +483,7 @@ class Primitives3DLayout(object):
         Returns
         -------
         str
-            Name of the created rectangle when successful.
+            Name of the rectangle created when successful.
 
         """
 
@@ -548,7 +546,7 @@ class Primitives3DLayout(object):
         Returns
         -------
         str
-            Name of the created line when successful.
+            Name of the line created when successful.
 
         """
         if not name:
@@ -576,7 +574,7 @@ class Primitives3DLayout(object):
 
     @aedt_exception_handler
     def arg_with_dim(self, Value, sUnits=None):
-        """
+        """Retrieve arguments with dimensions.
 
         Parameters
         ----------
