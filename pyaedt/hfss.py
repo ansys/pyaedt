@@ -1035,7 +1035,6 @@ class Hfss(FieldAnalysis3D, object):
         :class:`pyaedt.modules.Boundary.BoundaryObject`
             Boundary object.
 
-
         Examples
         --------
 
