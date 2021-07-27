@@ -1,7 +1,7 @@
 """
 This module contains these classes: `CoordinateSystem`, `Modeler`, `Position`, and `SweepOptions`.
 
-This modules provides functionalities for 3D Modeler, 2D Modeler, 3D Layout Modeler, and Circuit Modeler.
+This modules provides functionalities for the 3D Modeler, 2D Modeler, 3D Layout Modeler, and Circuit Modeler.
 """
 from __future__ import absolute_import
 import sys
@@ -472,7 +472,7 @@ class CoordinateSystem(object):
 
 
 class Modeler(object):
-    """Provides the Modeler application class inherited by other Modeler classes.
+    """Provides the `Modeler` application class that other `Modeler` classes inherit.
     
     Parameters
     ----------
@@ -512,7 +512,7 @@ class Modeler(object):
 
 
 class GeometryModeler(Modeler, object):
-    """Manages the main AEDT Modeler functionalities for a geometry-based design.
+    """Manages the main AEDT Modeler functionalities for geometry-based designs.
     
     Parameters
     ----------
