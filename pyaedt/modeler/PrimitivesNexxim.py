@@ -1058,7 +1058,7 @@ class NexximComponents(CircuitComponents):
 
         for prt in ports:
             arg_temp = []
-            arg_temp = ["NAME:Enabledanalyzes", ["NAME:"+str(prt), str(prt)+":=", [] ], ["NAME:VoltageSinusoidal"+str(id), str(prt)+":=", [] ] ]
+            arg_temp = ["NAME:EnabledAnalyses", ["NAME:"+str(prt), str(prt)+":=", [] ], ["NAME:VoltageSinusoidal"+str(id), str(prt)+":=", [] ] ]
             arg3.append(arg_temp)
 
         arg2.append(arg3)
