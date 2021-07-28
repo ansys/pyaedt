@@ -895,7 +895,7 @@ class Primitives(object):
             vPropServers.append(el)
         vGeo3d = ["NAME:Geometry3DAttributeTab", vPropServers, vChangedProps]
         vOut = ["NAME:AllTabs", vGeo3d]
-        retry_ntimes(10,self.oeditor.ChangeProperty, vOut)
+        retry_ntimes(10, self.oeditor.ChangeProperty, vOut)
         return True
 
 
