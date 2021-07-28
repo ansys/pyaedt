@@ -85,6 +85,11 @@ class PostProcessor(Post):
         show_ruler : bool, optional
             Whether to show the ruler. The default is ``True``.
        
+       Returns
+       -------
+       type
+           Jupyter Notebook display.
+           
         """
         file_name = self.export_model_picture(show_axis=show_axis, show_grid=show_grid, show_ruler=show_ruler)
         return Image(file_name, width=500)
@@ -110,7 +115,7 @@ class PostProcessor(Post):
         Returns
         -------
         np.ndarray
-            ``numpy`` array containing ``[theta_range, phi_range, Etheta, Ephi]``.
+            numpy array containing ``[theta_range, phi_range, Etheta, Ephi]``.
         """
         if not setup_sweep_name:
             setup_sweep_name = self._parent.nominal_adaptive
@@ -174,9 +179,9 @@ class PostProcessor(Post):
         ff_data :
             
         xphase : float, optional
-            Phase in x the direction.  The default is ``0``.
+            Phase in the X-axis direction. The default is ``0``.
         yphase : float, optional
-            Phase in the y direction.  The default is ``0``.
+            Phase in the Y-axis direction. The default is ``0``.
 
         Returns
         -------
@@ -812,7 +817,7 @@ class PostProcessor(Post):
         setup_name : str, optional
             Name of the setup. The default is ``None``.
         intrinsic_dict : dict, optipnal.
-            Intrinsic dictionary needed for the export. 
+            Intrinsic dictionary that is needed for the export. 
             The default is ``{}``. 
           
         Returns
@@ -848,12 +853,12 @@ class PostProcessor(Post):
              Whether to export the plot after it is generated. The 
              default is ``True``.
         jupyter : bool, optional
-             Generate the plot using Jupyter Notebook.  The default is ``False``.
+             Whether to generate the plot using Jupyter Notebook.  The default is ``False``.
 
         Returns
         -------
         list
-            List of PLT files.
+            List of plot files.
         """
         assert self._parent._aedt_version >= "2021.2", self._messenger.add_error_message("Object is supported from AEDT 2021 R2.")
         files = [self.export_model_obj()]
@@ -870,7 +875,7 @@ class PostProcessor(Post):
         """Export a field plot to an image file (JPG or PNG) using Python Plotly.
         
         .. note::
-           The Plotly method rebuilds the mesh and overlap fields on the mesh.
+           The Plotly module rebuilds the mesh and the overlap fields on the mesh.
 
         Parameters
         ----------
@@ -884,7 +889,7 @@ class PostProcessor(Post):
         setup_name : str, optional
             Name of the setup or sweep to use for the export. The default is ``None``.
         intrinsic_dict : dict, optional
-            Intrinsic dictionary needed for the export when ``meshplot="True"``. 
+            Intrinsic dictionary that is needed for the export when ``meshplot="True"``. 
             The default is ``{}``. 
         imageformat : str, optional
             Format of the image file. Options are ``"jpg"``,
@@ -892,14 +897,14 @@ class PostProcessor(Post):
             ``"jpg"``.
         view : str, optional
             View to export. Options are ``"iso"``, ``"x"`` , ``"y"``,
-            ``"z"``, and ``"all"``.  The default is ``"iso"``. If 
-            ``"all"`, all views are exported.
+            ``"z"``, and ``"all"``. The default is ``"iso"``. If 
+            ``"all"``, all views are exported.
         plot_label : str, optional
             Type of the plot. The default is ``"Temperature"``.
         plot_folder : str, optional
-            Plot folder to forcibly update before exporting the
-            field. The default is ``None``, in which case all plots 
-            are updated.
+            Plot folder to update before exporting the
+            field. The default is ``None``, in which case all plot 
+            folders are updated.
 
         Returns
         -------
@@ -941,7 +946,7 @@ class PostProcessor(Post):
         """Generate a field plot to an image file (JPG or PNG) using PyVista.
         
         .. note::
-           The PyVista method rebuilds the mesh and overlap fields on the mesh.
+           The PyVista module rebuilds the mesh and the overlap fields on the mesh.
 
         Parameters
         ----------
@@ -954,13 +959,13 @@ class PostProcessor(Post):
             Name of the setup (sweep) to use for the export. The 
             default is ``None``.
         intrinsic_dict : dict, optional
-            Intrinsic dictionary needed for the export. The default 
+            Intrinsic dictionary that is needed for the export. The default 
             is ``{}``. 
         variation_variable : str, optional
             Variable to vary. The default is ``"Phi"``.
         variation_list : list, optional
             List of variation values with units. The default is 
-            ``['0deg']``.
+            ``["0deg"]``.
         project_path : str, optional
             Path for the export. The default is ``""``.
         meshplot : bool, optional
@@ -1018,7 +1023,7 @@ class PostProcessor(Post):
         """Generate a field plot to an image file (JPG or PNG) using PyVista.
         
          .. note::
-            The PyVista method rebuilds the mesh and overlap fields on the mesh.
+            The PyVista module rebuilds the mesh and the overlap fields on the mesh.
             
         This method creates the plot and exports it. It is an alternative to the method :func:`animate_fields_from_aedtplt`, 
         which uses an existing plot.
@@ -1028,7 +1033,7 @@ class PostProcessor(Post):
         quantityname : str
             Name of the plot or the name of the object.
         object_list : list, optional
-            Name of the folderplot_folder.
+            Name of the ``folderplot`` folder.
         plottype : str 
             Type of the plot. Options are ``"Surface"``, ``"Volume"``, and 
             ``"CutPlane"``.
@@ -1038,13 +1043,13 @@ class PostProcessor(Post):
             Name of the setup (sweep) to use for the export. The default is 
             ``None``.
         intrinsic_dict : dict, optional
-            Intrinsic dictionary needed for the export. 
+            Intrinsic dictionary that is needed for the export. 
             The default is ``{}``. 
         variation_variable : str, optional
             Variable to vary. The default is ``"Phi"``.
         variation_list : list, option
             List of variation values with units. The default is 
-            ``['0deg']``.
+            ``["0deg"]``.
         project_path : str, optional
             Path for the export. The default is ``""``.
         export_gif : bool, optional
