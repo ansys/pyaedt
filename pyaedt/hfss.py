@@ -2611,7 +2611,19 @@ class Hfss(FieldAnalysis3D, object):
         :class:`pyaedt.modules.Boundary.BoundaryObject`
             Boundary object.
 
+        Examples
+        --------
+
+        Create a box and assign a radiation boundary to it.
+
+        >>> radiation_box = hfss.modeler.primitives.create_box([0, -200, -200], [200, 200, 200],
+        ...                                                    name="Radiation_box")
+        >>> radiation = hfss.assign_radiation_boundary_to_objects("Radiation_box")
+        >>> type(radiation)
+        <class 'pyaedt.modules.Boundary.BoundaryObject'>
+
         """
+
         object_list = self.modeler.convert_to_selections(obj_names, return_list=True)
         if boundary_name:
             rad_name = boundary_name
@@ -2621,7 +2633,7 @@ class Hfss(FieldAnalysis3D, object):
 
     @aedt_exception_handler
     def assign_radiation_boundary_to_faces(self, faces_id, boundary_name=""):
-        """Assign a radiation boundary to one or more objects (usually airbox objects).
+        """Assign a radiation boundary to one or more faces.
 
         Parameters
         ----------
@@ -2632,10 +2644,24 @@ class Hfss(FieldAnalysis3D, object):
 
         Returns
         -------
-        bool
-             ``True`` when successful, ``False`` when failed.
+        :class:`pyaedt.modules.Boundary.BoundaryObject`
+            Boundary object.
+
+        Examples
+        --------
+
+        Create a box. Select the faces of this box and assign a radiation
+        boundary to them.
+
+        >>> radiation_box = hfss.modeler.primitives.create_box([0 , -100, 0], [200, 200, 200],
+        ...                                                    name="RadiationForFaces")
+        >>> ids = [i.id for i in hfss.modeler.primitives["RadiationForFaces"].faces]
+        >>> radiation = hfss.assign_radiation_boundary_to_faces(ids)
+        >>> type(radiation)
+        <class 'pyaedt.modules.Boundary.BoundaryObject'>
 
         """
+
         if type(faces_id) is not list:
             faces_list = [int(faces_id)]
         else:
