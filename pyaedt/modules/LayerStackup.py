@@ -79,7 +79,7 @@ def getIfromRGB(rgb):
 
 
 class Layer(object):
-    """Manages stackup layers.
+    """Manages the stackup layer.
     
     Parameters
     ----------
@@ -274,7 +274,7 @@ class Layer(object):
 
     @aedt_exception_handler
     def arg_with_dim(self, Value, sUnits=None):
-        """Property with dimensions.
+        """Argument with dimensions.
 
         Parameters
         ----------
