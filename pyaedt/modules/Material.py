@@ -160,9 +160,9 @@ class MatProperty(object):
     Parameters
     ----------
     parent :
-    
-    name :
-    
+        Inherited parent object.
+    name : str
+        Name of the material property.
     val :
         The default is ``None``.
     thermalmodifier
@@ -202,7 +202,7 @@ class MatProperty(object):
 
     @property
     def type(self):
-        """Material property type.
+        """Type of the material property.
         
         Parameters
         ----------
@@ -226,7 +226,7 @@ class MatProperty(object):
 
     @property
     def value(self):
-        """Property value."""
+        """Value for a material property."""
         if len(self._property_value) == 1:
             return self._property_value[0].value
         else:
@@ -247,7 +247,7 @@ class MatProperty(object):
 
     @property
     def unit(self):
-        """Units."""
+        """Units for a material property value."""
         return self._unit
 
     @unit.setter
@@ -256,7 +256,7 @@ class MatProperty(object):
 
     @property
     def data_set(self):
-        """Data set."""
+        """Dataset."""
         if len(self._property_value) == 1:
             return self._property_value[0].dataset
         else:
@@ -287,7 +287,7 @@ class MatProperty(object):
         Parameters
         ----------
         formula : str
-            Full formula to apply.
+            Formula to apply.
         index : int 
             Value for the index. 
         
@@ -405,9 +405,9 @@ class MatProperty(object):
         tref : float, optional
             Reference temperature. The default is ``22``.
         c1 : float, optional
-            Coefficient 1 value. The default is ``0.0001``.
+            First coefficient value. The default is ``0.0001``.
         c2 : float, optional
-            Coefficient 2 value. The default is ``1e-6``.
+            Second coefficient value. The default is ``1e-6``.
         tl : float, optional
             Lower temperature limit. The default is ``273.15``.
         tu : float, optional
@@ -631,9 +631,9 @@ class Material(CommonMaterial, object):
     Parameters
     ----------
     parent :
-        Inherited AEDT object.
-    name :
-    
+        Inherited parent object.
+    name : str
+        Name of the material.
     props  :
         The default is ``None``.
         
@@ -1040,13 +1040,13 @@ class Material(CommonMaterial, object):
 
 class SurfaceMaterial(CommonMaterial, object):
     """Manages surface material properties.
-    
-    The class provides all functionalities for surface material properties.
-    
+       
     Parameters
     ----------
     parent :
-    name :
+        Inherited parent object.
+    name : str
+        Name of the surface material
     props :
         The default is ``None``.
     """
