@@ -60,7 +60,7 @@ class TestClass(BasisTest):
 
     @pyaedt_unittest_check_desktop_error
     def test_09_read_design_data(self):
-        self.aedtapp.read_design_data()
+        assert self.aedtapp.read_design_data()
 
     @pyaedt_unittest_check_desktop_error
     def test_10_assign_torque(self):

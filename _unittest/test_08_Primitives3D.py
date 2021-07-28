@@ -1,7 +1,7 @@
 # standard imports
 import os
 import sys
-
+import time
 try:
     import pytest
 except:
@@ -724,12 +724,14 @@ class TestClass(BasisTest):
 
         P = self.aedtapp.modeler.primitives["Poly_remove_segmented"]
         P.remove_vertex(test_points[2])
-
+        time.sleep(0.1)
         P1 = self.aedtapp.modeler.primitives.create_polyline([[0, 1, 2], [0, 2, 3], [2, 1, 4]])
         P1.remove_vertex([0, 1, 2])
+        time.sleep(0.1)
 
         P2 = self.aedtapp.modeler.primitives.create_polyline([[0, 1, 2], [0, 2, 3], [2, 1, 4]])
         P2.remove_vertex(["0mm", "1mm", "2mm"])
+        time.sleep(0.1)
 
         P3 = self.aedtapp.modeler.primitives.create_polyline([[0, 1, 2], [0, 2, 3], [2, 1, 4]])
         P3.remove_vertex(["0mm", "1mm", "2mm"], abstol=1e-6)
