@@ -1719,7 +1719,7 @@ class Hfss(FieldAnalysis3D, object):
 
         """
 
-        warnings.warn('`assig_voltage_source_to_sheet is deprecated`. Use `assign_voltage_source_to_sheet` instead',
+        warnings.warn('`assig_voltage_source_to_sheet is deprecated`. Use `assign_voltage_source_to_sheet` instead.',
                       DeprecationWarning)
         self.assign_voltage_source_to_sheet(sheet_name, axisdir=0, sourcename=None)
 
