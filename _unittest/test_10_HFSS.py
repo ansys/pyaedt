@@ -278,7 +278,7 @@ class TestClass:
     def test_20_create_voltage_on_sheet(self):
         rect = self.aedtapp.modeler.primitives.create_rectangle(self.aedtapp.CoordinateSystemPlane.XYPlane, [0, 0, 0],
                                                                 [10, 2], name="lump_volt", matname="Copper")
-        port = self.aedtapp.assig_voltage_source_to_sheet(rect.name, self.aedtapp.AxisDir.XNeg,  "LumpVolt1")
+        port = self.aedtapp.assign_voltage_source_to_sheet(rect.name, self.aedtapp.AxisDir.XNeg,  "LumpVolt1")
         assert port in self.aedtapp.modeler.get_excitations_name()
         assert self.aedtapp.get_property_value("BoundarySetup:LumpVolt1", "VoltageMag", "Excitation") == "1V"
 
