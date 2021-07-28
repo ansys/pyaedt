@@ -59,19 +59,19 @@ class TestClass(BasisTest):
         assert self.aedtapp.generate_design_data()
 
     @pyaedt_unittest_check_desktop_error
-    def test_read_design_data(self):
+    def test_09_read_design_data(self):
         self.aedtapp.read_design_data()
 
     @pyaedt_unittest_check_desktop_error
-    def test_assign_torque(self):
+    def test_10_assign_torque(self):
         assert self.aedtapp.assign_torque("Rotor_Section1")
 
     @pyaedt_unittest_check_desktop_error
-    def test_assign_force(self):
+    def test_11_assign_force(self):
         assert self.aedtapp.assign_force("Magnet2_Section1")
 
     @pyaedt_unittest_check_desktop_error
-    def test_assign_current_source(self):
+    def test_12_assign_current_source(self):
         coil = self.aedtapp.modeler.primitives.create_circle(position=[0, 0, 0], radius="5", num_sides="8", is_covered=True,
                                                     name="Coil", matname="Copper")
         assert self.aedtapp.assign_current([coil])
