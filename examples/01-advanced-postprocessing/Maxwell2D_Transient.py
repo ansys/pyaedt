@@ -66,7 +66,7 @@ m2d.post.create_rectangular_plot("InputCurrent(PHA)",primary_sweep_variable="Tim
 ##################################################
 # Solve the Model
 
-m2d.analyse_nominal()
+m2d.analyze_nominal()
 
 ##################################################
 # Create the Output and plot it using pyvista

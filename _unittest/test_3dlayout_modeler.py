@@ -163,7 +163,7 @@ class TestClass:
         self.aedtapp.delete_port("Port3")
         assert self.aedtapp.validate_full_design(ports=3)
 
-    def test_19B_analyse_setup(self):
+    def test_19B_analyze_setup(self):
         assert self.aedtapp.analyze_setup("RFBoardSetup3")
 
     def test_19C_export_touchsthone(self):

@@ -651,7 +651,7 @@ class Maxwell(object):
         return True
 
     @aedt_exception_handler
-    def analyse_from_zero(self):
+    def analyze_from_zero(self):
         """Analyze from zero.
         
         Returns
@@ -661,7 +661,7 @@ class Maxwell(object):
         
         """
         self.oanalysis.ResetSetupToTimeZero(self._setup)
-        self.analyse_nominal()
+        self.analyze_nominal()
         return True
 
     @aedt_exception_handler

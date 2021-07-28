@@ -164,7 +164,7 @@ class TestClass:
         assert LNA_setup.update()
 
     def test_18_export_touchstone(self):
-        assert self.aedtapp.analyse_nominal()
+        assert self.aedtapp.analyze_nominal()
         assert self.aedtapp.export_touchstone("Dom_LNA", "Dom_LNA", os.path.join(self.local_scratch.path, "new.s2p"))
 
     def test_19_create_EyE_setups(self):
