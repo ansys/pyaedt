@@ -22,13 +22,13 @@ class Setup(object):
     Parameters
     ----------
     parent: str
-        AEDT module for analysis setup.
+        Inherited parent object.
     solutiontype: 
         Type of the setup.
     setupname: str, optional
         Name of the setup. The default is ``"MySetupAuto"``.
     isnewsetup: bool, optional
-        Whether to create the new setup from a template. The default is ``True.``
+        Whether to create the setup from a template. The default is ``True.``
         If ``False``, access is to the existing setup.
      
     """
@@ -235,12 +235,14 @@ class Setup(object):
         intrinsics : str or list, optional
             Intrinsic functions for the expressions. The default is ``""``. If a list of expressions
             is supplied, a corresponding list of intrinsic functions must be supplied.
-        isconvergence, bool, str, or list, optional
+        isconvergence, bool or str or list, optional
             Whether the expression is in the convergence criteria. The default is ``True``.
             If a list of expressions is supplied, a corresponding list of Boolean values must be
             supplied.
         isrelativeconvergence : bool, optional
             The default is ``True``.
+        conv_criteria :
+            The defaut is ``1``.
                 
         Returns
         -------
@@ -377,7 +379,7 @@ class Setup(object):
             :attr:`appname.available_variations.nominal_w_values_dict`
             to get the nominal values.
         project_name : str, optional
-            Name of the project with the design. The default is ``"This Project"``. 
+            Name of the project with the design. The default is ``"This Project*"``. 
             However, you can supply the full path and name to another project.
 
         Returns
@@ -411,13 +413,13 @@ class SetupCircuit(object):
     Parameters
     ----------
     parent: str
-        AEDT module for analysis setup.
+        Inherited parent object.
     solutiontype: 
         Type of the setup.
     setupname: str, optional
         Name of the setup. The default is ``"MySetupAuto"``.
     isnewsetup: bool, optional
-      Whether to create the new setup from a template. The default is ``True.``
+      Whether to create the setup from a template. The default is ``True.``
       If ``False``, access is to the existing setup.     
 
     """
@@ -433,7 +435,7 @@ class SetupCircuit(object):
 
     @property
     def parent(self):
-        """Parent."""
+        """AEDT parent module for setting up the analysis."""
         return self._parent
 
     @parent.setter
@@ -452,13 +454,13 @@ class SetupCircuit(object):
         Parameters
         ----------
         parent: str
-            AEDT module for analysis setup.
+            Inherited parent object.
         solutiontype:
             Type of the setup.
         setupname: str, optional
             Name of the setup. The default is ``"MySetupAuto"``.
         isnewsetup: bool, optional
-          Whether to create the new setup from a template. The default is ``True.``
+          Whether to create the setup from a template. The default is ``True.``
           If ``False``, access is to the existing setup.
 
         Returns
@@ -562,7 +564,7 @@ class SetupCircuit(object):
                 self.omodule.EditAMIAnalysis(self.name,arg)
 
             else:
-                print("Not Implemented Yet")
+                print("Not implemented yet.")
         return True
 
     @aedt_exception_handler
@@ -786,13 +788,13 @@ class Setup3DLayout(object):
     Parameters
     ----------
     parent: str
-        AEDT module for analysis setup.
+        Inherited parent object.
     solutiontype: 
         Type of the setup.
     setupname: str, optional
         Name of the setup. The default is ``"MySetupAuto"``.
     isnewsetup: bool, optional
-        Whether to create the new setup from a template. The default is ``True.``
+        Whether to create the setup from a template. The default is ``True.``
         If ``False``, access is to the existing setup.
     
     """
@@ -800,19 +802,7 @@ class Setup3DLayout(object):
     @property
     def omodule(self):
         """Analysis module.
-
-        Parameters
-        ----------
-        parent: str
-           AEDT module for analysis setup.
-        solutiontype:
-            Type of the setup.
-        setupname: str, optional
-            Name of the setup. The default is ``"MySetupAuto"``.
-        isnewsetup: bool, optional
-            Whether to create the new setup from a template. The default is ``True.``
-            If ``False``, access is to the existing setup.
-
+      
         Returns
         -------
         type
@@ -949,7 +939,7 @@ class Setup3DLayout(object):
         Parameters
         ----------
         file_fullname : str
-            Full path and name to export the project to.
+            Full path and file name for exporting the project.
 
         Returns
         -------
@@ -975,7 +965,8 @@ class Setup3DLayout(object):
         sweepname : str, optional
             Name of the sweep. The default is ``None``.
         sweeptype : str, optional
-            Type of the sweep. The default is ``"Interpolating"``.
+            Type of the sweep. Options are ``"Fast"``, ``"Interpolating"``, and 
+            ``"Discrete"``. The default is ``"Interpolating"``.
 
         Returns
         -------
