@@ -1,7 +1,11 @@
 Modeler and  Primitives
 =======================
 
-This Section contains all classes controlled by AEDT Modeler, including Primitives and Objects.
+This section lists the core AEDT Modeler modules:
+
+* Modeler
+* Primitives
+* Objects
 
 
 Modeler

@@ -6,19 +6,28 @@ from .Primitives2D import Primitives2D
 
 
 class ModelerRMxprt(Modeler):
-    """ """
+    """Provides the Modeler RMxprt application interface."""
 
     def __init__(self, parent):
         Modeler.__init__(self, parent)
 
     @property
     def oeditor(self):
-        """ """
+        """Editor."""
         return self.odesign.SetActiveEditor("Machine")
 
 
 class Modeler2D(GeometryModeler):
-    """ """
+    """Provides the Modeler 2D application interface.
+    
+    Parameters
+    ----------
+    application :
+    
+    is3d : bool, optional
+        Whether the model is 3D. The default is ``False``.
+    
+    """
 
     def __init__(self, application):
         GeometryModeler.__init__(self, application, is3d=False)
@@ -31,7 +40,13 @@ class Modeler2D(GeometryModeler):
 
     @property
     def primitives(self):
-        """ """
+        """Primitives.
+        
+        Returns
+        -------
+        :class:`pyaedt.modeler.Primitives2D.Primitives2D` 
+        
+        """
         if self._primitivesDes != self._parent.project_name + self._parent.design_name:
             self._primitives.refresh()
             self._primitivesDes = self._parent.project_name + self._parent.design_name
@@ -50,8 +65,8 @@ class Modeler2D(GeometryModeler):
 
         Returns
         -------
-        type
-            Radius.
+        float
+            Radius value.
             .. note::
                 If ``inner=True``, then the maximum is returned; otherwise,
                 the minimum is returned.
@@ -82,13 +97,15 @@ class Modeler2D(GeometryModeler):
 
         Parameters
         ----------
-        radius :
+        radius : float
+            Radius of the circle.   
+        name : str
+            Name of the circle. 
             
-        name :
-            
-
         Returns
         -------
+        bool
+            ``True`` when successful, ``False`` when failed.
 
         """
         self.oeditor.CreateCircle(
