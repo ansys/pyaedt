@@ -242,7 +242,7 @@ class Setup(object):
         isrelativeconvergence : bool, optional
             The default is ``True``.
         conv_criteria :
-            The defaut is ``1``.
+            The default is ``1``.
                 
         Returns
         -------
