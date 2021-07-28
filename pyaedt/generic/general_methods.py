@@ -351,7 +351,7 @@ def is_number(a):
         return True
     elif isinstance(a, str):
         try:
-            float(eval(a))
+            float(a)
             return True
         except ValueError:
             return False
