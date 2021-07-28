@@ -1,7 +1,7 @@
 Postprocessing
 ==============
-This module provides all functionalities for creating and editing
-plots in the 3D tools and includes the following classes:
+This section lists modules for creating and editing
+plots in the 3D tools:
 
 .. note::
    The ``AdvancedPostProcessing`` module requires Python 3 and
