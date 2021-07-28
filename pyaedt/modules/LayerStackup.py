@@ -60,11 +60,11 @@ def conv_number(number, typen=float):
 
 @aedt_exception_handler
 def getIfromRGB(rgb):
-    """
+    """Retrieve if from a specific layer color.
 
     Parameters
     ----------
-    rgb :
+    rgb : 
         
 
     Returns
@@ -79,7 +79,7 @@ def getIfromRGB(rgb):
 
 
 class Layer(object):
-    """Manages a layer.
+    """Manages stackup layers.
     
     Parameters
     ----------
@@ -98,7 +98,7 @@ class Layer(object):
 
     @property
     def visflag(self):
-        """Visibility flag for objects on the layer. """
+        """Visibility flag for objects on the layer."""
         visflag = 0
         if not self.IsVisible:
             visflag = 0
