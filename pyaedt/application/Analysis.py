@@ -617,6 +617,7 @@ class Analysis(Design, object):
         self.analyze_nominal()
         return True
 
+
     @aedt_exception_handler
     def analyse_nominal(self):
         """Revert the solution to the initial mesh and re-run the solve.
