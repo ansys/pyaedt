@@ -1,6 +1,7 @@
 """This module contains these classes: `Hfss` and 'BoundaryType`."""
 from __future__ import absolute_import
 import os
+import warnings
 from .application.Analysis3D import FieldAnalysis3D
 from .desktop import exception_to_desktop
 from .modeler.GeometryOperators import GeometryOperators
@@ -1743,6 +1744,19 @@ class Hfss(FieldAnalysis3D, object):
     def assig_voltage_source_to_sheet(self, sheet_name, axisdir=0, sourcename=None):
         """Create a voltage source taking one sheet.
 
+        .. deprecated:: 0.4.0
+           Use :func:`Hfss.assign_voltage_source_to_sheet` instead.
+
+        """
+
+        warnings.warn('`assig_voltage_source_to_sheet is deprecated`. Use `assign_voltage_source_to_sheet` instead.',
+                      DeprecationWarning)
+        self.assign_voltage_source_to_sheet(sheet_name, axisdir=0, sourcename=None)
+
+    @aedt_exception_handler
+    def assign_voltage_source_to_sheet(self, sheet_name, axisdir=0, sourcename=None):
+        """Create a voltage source taking one sheet.
+
         Parameters
         ----------
         sheet_name : str
@@ -1767,7 +1781,7 @@ class Hfss(FieldAnalysis3D, object):
         >>> sheet = hfss.modeler.primitives.create_rectangle(hfss.CoordinateSystemPlane.XYPlane,
         ...                                                  [0, 0, -70], [10, 2], name="VoltageSheet",
         ...                                                  matname="copper")
-        >>> hfss.assig_voltage_source_to_sheet(sheet.name, hfss.AxisDir.XNeg, "VoltageSheetExample")
+        >>> hfss.assign_voltage_source_to_sheet(sheet.name, hfss.AxisDir.XNeg, "VoltageSheetExample")
         'VoltageSheetExample'
 
         """

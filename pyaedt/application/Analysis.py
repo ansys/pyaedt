@@ -1,5 +1,5 @@
 """
-This module contains the ``analysis`` class.
+This module contains the `analysis` class.
 
 It includes common classes for file management and messaging and all 
 calls to AEDT modules like the modeler, mesh, postprocessing, and setup.
@@ -9,6 +9,7 @@ import os
 import itertools
 import threading
 import shutil
+import warnings
 from ..modeler.modeler_constants import CoordinateSystemPlane, CoordinateSystemAxis, GravityDirection, Plane
 from ..modules.SolveSetup import Setup
 from ..modules.SolutionType import SolutionType, SetupTypes
@@ -26,15 +27,36 @@ else:
 
 
 class Analysis(Design, object):
-    """Analysis class.
-    
-    This is the main class, serving as a container for all common functions.
+    """Contains all common analysis functions.
     
     It is automatically initialized by a call from an application, such as HFSS or Q3D. 
     See the application function for its parameter descriptions.
 
     Parameters
     ----------
+    application : str
+        Application that is to initialize the call.
+    projectname : str
+        Name of the project to select or the full path to the project
+        or AEDTZ archive to open.
+    designname : str
+        Name of the design to select.
+    solution_type : str
+        Solution type to apply to the design.
+    setup_name : str
+        Name of the setup to use as the nominal.
+    specified_version: str
+        Version of AEDT  to use.
+    NG : bool
+        Whether to run AEDT in the non-graphical mode. 
+    AlwaysNew : bool
+        Whether to launch an instance of AEDT in a new thread, even if
+        another instance of the ``specified_version`` is active on the
+        machine.
+    release_on_exit : bool
+        Whether to release  AEDT on exit.
+    student_version : bool
+        Whether to enable the student version of AEDT. 
     
     """
 
@@ -63,16 +85,12 @@ class Analysis(Design, object):
 
     @property
     def materials(self):
-        """Material Manager that is used to manage materials in the project.
+        """Manages materials in the project.
         
-        Parameters
-        ----------
-
         Returns
         -------
         :class:`pyaedt.modules.MaterialLib.Materials`
-            Material Manager that is used to manage materials in the project.
-           
+            Manages materials in the project.
 
         """
         return self._materials
@@ -81,9 +99,6 @@ class Analysis(Design, object):
     def Position(self):
         """Position of the object.
         
-        Parameters
-        ----------
-
         Returns
         -------
         type
@@ -95,148 +110,123 @@ class Analysis(Design, object):
 
     @property
     def available_variations(self):
-        """Available Variation Object
+        """Available variation object.
         
-        :return: Available Variation Object
-
-        Parameters
-        ----------
-
         Returns
         -------
+        :class:`pyaedt.application.Analysis.Analysis.AvailableVariations`
+            Available variation object.
 
         """
-
         return self._available_variations
 
     @property
     def CoordinateSystemAxis(self):
-        """CoordinateSystemAxis Constant
+        """Coordinate system axis constant.
         
-        :return: Coordinate System Axis Constants Tuple (.X, .Y, .Z)
-
-        Parameters
-        ----------
-
         Returns
         -------
+        tuple
+            Coordinate system axis constants tuple (.X, .Y, .Z).
 
         """
         return CoordinateSystemAxis()
 
     @property
     def CoordinateSystemPlane(self):
-        """CoordinateSystemPlane Constants
+        """Coordinate system plane constants.
         
-        :return: Coordinate System Plane Constants Tuple(.XY, .YZ, .XZ)
-
-        Parameters
-        ----------
-
         Returns
         -------
+        tuple
+            Coordinate system plane constants tuple (.XY, .YZ, .XZ).
 
         """
         return CoordinateSystemPlane()
 
     @property
     def View(self):
-        """Planes To check if redundant to CoordinateSystemPlane
+        """Planes. (To check if redundant to CoordinateSystemPlane.)
+       
         
-        
-        :return: Coordinate System Plane String Tuple("XY", "YZ", "XZ")
-
-        Parameters
-        ----------
-
         Returns
         -------
+        tuple
+            Coordinate system plane string tuple ("XY", "YZ", "XZ").
 
         """
         return Plane()
 
     @property
     def GravityDirection(self):
-        """To check if redundant
+        """Gravity direction. (To check if redundant.)
         
-        :return: Gravity Direction Tuple (XNeg, YNeg, ZNeg, XPos, YPos, ZPos)
-
-        Parameters
-        ----------
-
         Returns
         -------
+        tuple
+            Gravity direction tuple (XNeg, YNeg, ZNeg, XPos, YPos, ZPos).
 
         """
         return GravityDirection()
 
     @property
     def modeler(self):
-        """:return: modeler object"""
+        """Modeler.
+        
+        Returns
+        -------
+        :class:`pyaedt.modeler.Modeler.Modeler`
+            Modeler object.
+        """
         return self._modeler
 
     @property
     def mesh(self):
-        """Mesh Object
+        """Mesh.
         
-        :return: mesh object
-
-        Parameters
-        ----------
-
         Returns
         -------
-
+        :class:`pyaedt.modules.Mesh.Mesh`
+            Mesh object.
         """
         return self._mesh
 
     @property
     def post(self):
-        """Post Processor Object
+        """PostProcessor.
         
-        :return: post processor object
-
-        Parameters
-        ----------
-
         Returns
         -------
-        :class:`pyaedt.modules.AdvancedPostProcessing.PostProcessor`
+        :class:`pyaedt.modules.PostProcessor.PostProcessor`
+            PostProcessor object.
         """
         return self._post
 
     @property
     def osolution(self):
-        """osolution Object
+        """Solution.
         
-        :return: Solutions Module object
-
-        Parameters
-        ----------
-
         Returns
         -------
+        AEDT object
+            Solution module.
 
         """
         return self.odesign.GetModule("Solutions")
 
     @property
     def oanalysis(self):
-        """ """
+        """Analysis."""
         return self.odesign.GetModule("AnalysisSetup")
 
     @property
     def analysis_setup(self):
-        """Analysis Setup
-        
-        
-        :return: Active or first Analysis Setup Name
-
-        Parameters
-        ----------
-
+        """Analysis setup.
+       
         Returns
         -------
+        str
+            Name of the active or first analysis setup.
 
         """
         if self._setup:
@@ -249,17 +239,6 @@ class Analysis(Design, object):
 
     @analysis_setup.setter
     def analysis_setup(self, setup_name):
-        """
-
-        Parameters
-        ----------
-        setup_name :
-            
-
-        Returns
-        -------
-
-        """
         setup_list = self.existing_analysis_setups
         if setup_list:
             assert setup_name in setup_list, "Invalid setup name {}".format(setup_name)
@@ -270,16 +249,12 @@ class Analysis(Design, object):
 
     @property
     def existing_analysis_sweeps(self):
-        """Existing Analysis Setup List
+        """Existing analysis sweeps.
         
-        
-        :return: Return a list of all defined analysis setup names in the maxwell design.
-
-        Parameters
-        ----------
-
         Returns
         -------
+        list
+            List of all analysis sweeps in the design.
 
         """
         setup_list = self.existing_analysis_setups
@@ -299,15 +274,12 @@ class Analysis(Design, object):
 
     @property
     def nominal_adaptive(self):
-        """
-
-        Parameters
-        ----------
+        """Nominal adaptive sweep.
 
         Returns
         -------
-        type
-            :return: str nominal adaptive setup
+        str
+            Name of the nominal adaptive sweep.
 
         """
         if len(self.existing_analysis_sweeps)>0:
@@ -317,14 +289,13 @@ class Analysis(Design, object):
 
     @property
     def nominal_sweep(self):
-        """Return nominal sweep
+        """Nominal sweep.
 
         Returns
         -------
         str
-            sweep is available it will return the lastadaptive
-            
-            :return: str nominal setup sweep if present
+            Name of the last adaptive sweep if a sweep is available or 
+            the name of the nominal adaptive sweep if present.
         """
 
         if len(self.existing_analysis_sweeps)>1:
@@ -334,16 +305,12 @@ class Analysis(Design, object):
 
     @property
     def existing_analysis_setups(self):
-        """Existing Analysis Setup List
-        
-        
-        :return: Return a list of all defined analysis setup names in the maxwell design.
-
-        Parameters
-        ----------
-
+        """Existing analysis setups.
+               
         Returns
         -------
+        list
+            List of all analysis setups in the design.
 
         """
         setups = list(self.oanalysis.GetSetups())
@@ -351,16 +318,12 @@ class Analysis(Design, object):
 
     @property
     def output_variables(self):
-        """OutputVariable Object
-        
-        
-        :return: Solutions OutputVariable object
-
-        Parameters
-        ----------
-
+        """Output variables.
+     
         Returns
         -------
+        list
+            List of output variables.
 
         """
         oModule = self.odesign.GetModule("OutputVariable")
@@ -368,16 +331,12 @@ class Analysis(Design, object):
 
     @property
     def setup_names(self):
-        """Setup Lists
-        
-        
-        :return:  list of all defined analysis setup names in the design
-
-        Parameters
-        ----------
+        """Setup names.
 
         Returns
         -------
+        list
+            List of names of all analysis setups in the design.
 
         """
         setups = self.oanalysis.GetSetups()
@@ -387,80 +346,94 @@ class Analysis(Design, object):
 
     @property
     def ooptimetrics(self):
-        """Optimetrics Object
+        """Optimetrics. 
         
-        :return: Solutions Optimetrics object
-
-        Parameters
-        ----------
-
         Returns
         -------
+        AEDT object
+            Optimetrics module object.
 
         """
         return self.odesign.GetModule("Optimetrics")
 
     @property
     def ooutput_variable(self):
-        """OutputVariable Object
+        """Output variable
         
-        :return: Solutions OutputVariable object
-
-        Parameters
-        ----------
-
         Returns
         -------
+        AEDT object
+            Output variable module object.
 
         """
         return self.odesign.GetModule("OutputVariable")
 
     @property
     def SimulationSetupTypes(self):
-        """:return:List of all Simulation Setup Types categorized by Application"""
+        """Simulation setup types.
+        
+        Returns
+        -------
+        list
+            List of all simulation setup types categorized by application.
+        """
         return SetupTypes()
 
 
     @property
     def SolutionTypes(self):
-        """:return:List of all Solution type categorized by Application"""
+        """Solution types.
+        
+        Returns
+        -------
+        list
+            List of all solution type categorized by application.
+        """
         return SolutionType()
 
 
     class AvailableVariations(object):
 
         def __init__(self, parent):
-            """class Containing Available Variations
+            """Contains available variations.
 
             Parameters
             ----------
             parent :
-                parent object
+                Inherited parent object.
 
             Returns
             -------
+            object
+                Parent object.
 
             """
             self._parent = parent
 
         @property
         def variables(self):
-            """:return:List of independent variables"""
+            """Variables.
+            
+            Returns
+            -------
+            list
+                List of names of independent variables.
+            """
             return [i for i in self._parent.variable_manager.independent_variables]
 
         @aedt_exception_handler
         def variations(self, setup_sweep=None):
-            """
+            """Variations.
 
             Parameters
             ----------
-            setup_sweep :
-                Setup and Sweep on which search variations (Default value = None)
+            setup_sweep : str, optional
+                Setup name with the sweep to search for variations on. The default is ``None``.
 
             Returns
             -------
-            type
-                variation families list
+            list
+                List of variation families.
 
             """
             if not setup_sweep:
@@ -482,7 +455,7 @@ class Analysis(Design, object):
 
         @property
         def nominal(self):
-            """ """
+            """Nominal."""
             families = []
             for el in self.variables:
                 families.append(el+":=")
@@ -491,7 +464,7 @@ class Analysis(Design, object):
 
         @property
         def nominal_w_values(self):
-            """ """
+            """Nominal with values."""
             families = []
             if self._parent.design_type == "HFSS 3D Layout Design":
                 listvar = list(self._parent.odesign.GetVariables())
@@ -507,7 +480,7 @@ class Analysis(Design, object):
 
         @property
         def nominal_w_values_dict(self):
-            """ """
+            """Nominal with values in a dictionary."""
             families = {}
             if self._parent.design_type == "HFSS 3D Layout Design":
                 listvar = list(self._parent.odesign.GetVariables())
@@ -521,7 +494,7 @@ class Analysis(Design, object):
 
         @property
         def all(self):
-            """ """
+            """All."""
             families=[]
             for el in self.variables:
                 families.append(el+":=")
@@ -531,23 +504,18 @@ class Analysis(Design, object):
 
 
     class AxisDir(object):
-        """AxisDir class.
-        
-        This data class contains constants for the axis directions.
+        """Contains constants for the axis directions.
         """
         (XNeg, YNeg, ZNeg, XPos, YPos, ZPos) = range(0, 6)
 
     @aedt_exception_handler
     def get_setups(self):
-        """
-
-        Parameters
-        ----------
+        """Retrieve setups.
 
         Returns
         -------
         list
-            List of all setup names.
+            List of names of all setups.
 
         """
         setups = self.oanalysis.GetSetups()
@@ -555,7 +523,13 @@ class Analysis(Design, object):
 
     @aedt_exception_handler
     def get_nominal_variation(self):
-        """:return: nominal variation"""
+        """Retrieve the nominal variation.
+        
+        Returns
+        -------
+        list
+            List of nominal variations.
+        """
         return self.available_variations.nominal
 
     @aedt_exception_handler
@@ -570,7 +544,7 @@ class Analysis(Design, object):
         Returns
         -------
         list
-            List of all sweep names for the setup.
+            List of names of all sweeps for the setup.
 
         """
         sweeps=[]
@@ -581,16 +555,16 @@ class Analysis(Design, object):
 
     @aedt_exception_handler
     def export_parametric_results(self, sweepname, filename, exportunits=True):
-        """Export a list of all parametric variations solved to a CSV file for a sweep.
+        """Export a list of all parametric variations solved for a sweep to a CSV file.
 
         Parameters
         ----------
         sweepname : str
             Name of the optimetrics sweep.
         filename : str
-            Full path to the CSV file.
+            Full path and name for the CSV file.
         exportunits : bool, optional
-            Whether to export units with the value. The default is ``True`. When ``False``, 
+            Whether to export units with the value. The default is ``True``. When ``False``, 
             only the value is exported.
 
         Returns
@@ -604,7 +578,7 @@ class Analysis(Design, object):
 
 
     @aedt_exception_handler
-    def analyse_from_initial_mesh(self):
+    def analyze_from_initial_mesh(self):
         """Revert the solution to the initial mesh and re-run the solve.
                 
         Returns
@@ -613,12 +587,24 @@ class Analysis(Design, object):
            ``True`` when successful, ``False`` when failed.
         """
         self.oanalysis.RevertSetupToInitial(self._setup)
-        self.analyse_nominal()
+        self.analyze_nominal()
         return True
 
 
     @aedt_exception_handler
     def analyse_nominal(self):
+        """Revert the solution to the initial mesh and re-run the solve.
+       
+        .. deprecated:: 0.4.0
+           Use :func:`Analysis.analyze_nominal` instead.
+        """
+        warnings.warn('`analyse_nominal` is deprecated. Use `analyze_nominal` instead.',
+                      DeprecationWarning)
+        self.analyze_nominal()
+
+
+    @aedt_exception_handler
+    def analyze_nominal(self):
         """Revert the solution to the initial mesh and re-run the solve.
        
         Returns
@@ -638,11 +624,12 @@ class Analysis(Design, object):
         ----------
         setup_name : str, optional
             Name of the setup. The default is ``None``.
-
+ 
         Returns
         -------
         str
-        Name of the setup.
+            Name of the setup.
+        
         """
         if not setup_name:
             setup_name = "Setup"
@@ -654,22 +641,21 @@ class Analysis(Design, object):
 
     @aedt_exception_handler
     def create_setup(self, setupname="MySetupAuto", setuptype=None, props={}):
-        """Create a new setup.
+        """Create a setup.
 
         Parameters
         ----------
         setupname : str, optional
             Name of the setup. The default is ``"MySetupAuto"``.
         setuptype : optional
-            Type of the setup. The default is ``None``, which means that the
-            default type is applied.
+            Type of the setup. The default is ``None``, in which case 
+            the default type is applied.
         props : dict, optional
             Dictionary of properties with values. The default is ``{}``.
 
         Returns
         -------
-        Setup
-            Setup object.
+        :class:`pyaedt.modules.SolveSetup.Setup`
 
         """
         if setuptype is None:
@@ -690,7 +676,7 @@ class Analysis(Design, object):
 
     @aedt_exception_handler
     def edit_setup(self, setupname, properties_dict):
-        """Edit the current setup.
+        """Modify a setup.
 
         Parameters
         ----------
@@ -701,8 +687,8 @@ class Analysis(Design, object):
 
         Returns
         -------
-        type
-            Setup object.
+        :class:`pyaedt.modules.SolveSetup.Setup`
+        
         """
         setuptype = SetupKeys.defaultSetups[self.solution_type]
         setup = Setup(self, setuptype, setupname, isnewsetup=False)
@@ -722,8 +708,8 @@ class Analysis(Design, object):
 
         Returns
         -------
-        type
-            Setup object.
+        :class:`pyaedt.modules.SolveSetup.Setup`
+
         """
 
         setuptype = SetupKeys.defaultSetups[self.solution_type]
@@ -734,14 +720,14 @@ class Analysis(Design, object):
 
     @aedt_exception_handler
     def create_output_variable(self, variable, expression):
-        """Create or modify the output variable.
+        """Create or modify an output variable.
 
         Parameters
         ----------
         variable : str
             Name of the variable.
         expression :
-            New value for the variable.
+            Value for the variable.
 
         Returns
         -------
@@ -774,7 +760,7 @@ class Analysis(Design, object):
             Value of the output variable.
         """
         oModule = self.odesign.GetModule("OutputVariable")
-        assert variable in self.output_variables, "Output Variable {} does not exist".format(variable)
+        assert variable in self.output_variables, "Output variable {} does not exist.".format(variable)
         nominal_variation = self.odesign.GetNominalVariation()
         sol_type = self.solution_type
         value = oModule.GetOutputVariableValue(variable, nominal_variation, self.existing_analysis_sweeps[0], self.solution_type, [])
@@ -789,11 +775,11 @@ class Analysis(Design, object):
         Parameters
         ----------
         object_list : list, optional
-            List of objects for which to get material_properties. The default is ``None``. 
-            If ``None``, all objects are considered. 
+            List of objects for which to get material_properties. The default is ``None``,  
+            in which case all objects are considered. 
         prop_names : str or list
-            The property or list of properties to export.  The default is ``None``. 
-            If ``None``, all properties are exported. 
+            The property or list of properties to export.  The default is ``None``, in  
+            which case all properties are exported. 
 
         Returns
         -------
@@ -915,15 +901,15 @@ class Analysis(Design, object):
         Parameters
         ----------
         clustername : str
-            Name of the cluster to which to submit the job.
+            Name of the cluster to submit the job to.
         aedt_full_exe_path : str, optional
-            Full path to the AEDT executable file. The default is ``None``, which uses
-            ``"/clustername/AnsysEM/AnsysEM2x.x/Win64/ansysedt.exe"``.
+            Full path to the AEDT executable file. The default is ``None``, in which 
+            case ``"/clustername/AnsysEM/AnsysEM2x.x/Win64/ansysedt.exe"`` is used.
         numnodes : int, optional
             Number of nodes. The default is ``1``.
         numcores : int, optional
             Number of cores. The default is ``32``.
-        wait_for_license : bool, option
+        wait_for_license : bool, optional
              Whether to wait for the license to be validated. The default is ``True``.
         setting_file : str, optional
             Name of the file to use as a template. The default value is ``None``.

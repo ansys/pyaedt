@@ -30,8 +30,7 @@ report_type = {"DrivenModal": "Modal Solution Data", "DrivenTerminal": "Terminal
 
 
 class SolutionData(object):
-    """Contains information from the :func:`GetSolutionDataPerVariation` method.
-    """
+    """Contains information from the :func:`GetSolutionDataPerVariation` method."""
     @property
     def sweeps(self):
         """Sweeps."""
@@ -1269,7 +1268,7 @@ class PostProcessor(object):
         str
             File path of the generated JPG file.
         """
-        # Setup arguments list for createReport function
+        # Set up arguments list for createReport function
         if not dir:
             dir = self._scratch.path
             self._messenger.logger.debug("Using scratch path {}".format(self._scratch.path))
@@ -1432,7 +1431,6 @@ class PostProcessor(object):
         Returns
         -------
         :class:`pyaedt.modules.PostProcessor.SolutionData`
-            SolutionData object.
         
         """
         if type(expression) is not list:
@@ -1475,11 +1473,10 @@ class PostProcessor(object):
         Returns
         -------
         :class:`pyaedt.modules.PostProcessor.SolutionData`
-            SolutionData object.
 
         Examples
         --------
-        Generate a report with the default sweep and default variation
+        Generate a report with the default sweep and default variation.
 
         >>> hfss = HFSS()
         >>> hfss.post.get_report_data("S(1,1)")
@@ -1531,7 +1528,7 @@ class PostProcessor(object):
         expression : str or list, optional
             One or more formulas to add to the report. The default is value = ``"dB(S(1,1))"``.
         setup_sweep_name : str, optional
-            setup name with sweep. The default is ``""``.
+            Setup name with the sweep. The default is ``""``.
         families_dict : dict, optional
             Dictionary of all families including the primary sweep. The default is ``{"Freq": ["All"]}``.
         primary_sweep_variable : str, optional
@@ -1624,8 +1621,8 @@ class PostProcessor(object):
 
         Returns
         -------
-        type
-            Solution data.
+        :class:`pyaedt.modules.PostProcessor.SolutionData`
+      
         """
         if sweeps is None:
             sweeps = {'Theta': 'All', 'Phi': 'All', 'Freq': 'All'}

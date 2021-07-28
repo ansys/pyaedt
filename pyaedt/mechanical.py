@@ -404,12 +404,12 @@ class Mechanical(FieldAnalysis3D, object):
 
     @property
     def existing_analysis_sweeps(self):
-        """List of existing analysis setups in the Mechanical design.
+        """Existing analysis sweeps in the design.
 
         Returns
         -------
         list
-            List of existing analysis setups.
+            List of existing analysis sweeps.
 
         """
         setup_list = self.existing_analysis_setups

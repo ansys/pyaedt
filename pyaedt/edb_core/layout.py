@@ -1,5 +1,5 @@
 """
-This module contains these classes: ``EdbLayout`` and ''Shape``.
+This module contains these classes: `EdbLayout` and `Shape`.
 """
 
 import warnings
@@ -12,11 +12,11 @@ try:
     from System import Double, Array
     from System.Collections.Generic import List
 except ImportError:
-    warnings.warn('This module requires pythonnet.')
+    warnings.warn('This module requires the "pythonnet" package.')
 
 
 class EdbLayout(object):
-    """EdbLayout class."""
+    """Manages EDB functionalities for layouts."""
 
     def __init__(self, parent):
         self._prims = []
@@ -89,7 +89,7 @@ class EdbLayout(object):
 
     @property
     def primitives(self):
-        """List of primitives.
+        """Primitives.
 
         Returns
         -------
@@ -102,7 +102,7 @@ class EdbLayout(object):
 
     @property
     def polygons_by_layer(self):
-        """Dictionary of primitives with layer names as keys.
+        """Primitives with layer names as keys.
 
         Returns
         -------
@@ -115,7 +115,7 @@ class EdbLayout(object):
 
     @property
     def rectangles(self):
-        """List of rectangles.
+        """Rectangles.
 
         Returns
         -------
@@ -131,7 +131,7 @@ class EdbLayout(object):
 
     @property
     def circles(self):
-        """List of circles.
+        """Circles.
 
         Returns
         -------
@@ -147,7 +147,7 @@ class EdbLayout(object):
 
     @property
     def paths(self):
-        """List of paths.
+        """Paths.
 
         Returns
         -------
@@ -162,7 +162,7 @@ class EdbLayout(object):
 
     @property
     def bondwires(self):
-        """List of bondwires.
+        """Bondwires.
 
         Returns
         -------
@@ -177,7 +177,7 @@ class EdbLayout(object):
 
     @property
     def polygons(self):
-        """List of polygons.
+        """Polygons.
 
         Returns
         -------
@@ -443,7 +443,7 @@ class EdbLayout(object):
 
     @aedt_exception_handler
     def create_polygon(self, main_shape,  layer_name, voids=[], net_name=""):
-        """Create a new polygon based on a list of points and voids.
+        """Create a polygon based on a list of points and voids.
 
         Parameters
         ----------

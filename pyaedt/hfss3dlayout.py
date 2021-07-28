@@ -76,7 +76,7 @@ class SweepString(object):
 
 
 class Hfss3dLayout(FieldAnalysis3DLayout):
-    """HFSS 3D Layout instance interface.
+    """HFSS 3D Layout application interface.
 
     This class inherits all objects that belong to HFSS 3D Layout, including EDB
     API queries.
@@ -99,7 +99,7 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
         Name of the setup to use as the nominal. The default is
         ``None``, in which case the active setup is used or 
         nothing is used.
-    specified_version: str, optional
+    specified_version : str, optional
         Version of AEDT to use. The default is ``None``, in which case
         the active version or latest installed version is used.
     NG : bool, optional

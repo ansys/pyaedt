@@ -174,8 +174,8 @@ class TestClass:
         assert self.aedtapp.create_output_variable("OutputVariable1", "abs(Variable1)") # test creation
         assert self.aedtapp.create_output_variable("OutputVariable1", "asin(Variable1)") # test update
 
-    def test_17_analyse(self):
-        self.aedtapp.analyse_nominal()
+    def test_17_analyze(self):
+        self.aedtapp.analyze_nominal()
     
     def test_17_get_output_variable(self):
         value = self.aedtapp.get_output_variable("OutputVariable1")
