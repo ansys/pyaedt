@@ -1636,7 +1636,7 @@ class Hfss(FieldAnalysis3D, object):
         ...                                                origin_position, 10, name="WaveCircle")
         >>> hfss.solution_type ="DrivenTerminal"
         >>> port = hfss.create_wave_port_from_sheet(circle, 5, hfss.AxisDir.XNeg, 40, 2,
-        ...                                          "WavePortFromSheet", True)
+        ...                                         "WavePortFromSheet", True)
         >>> port[0].name
         'WavePortFromSheet'
 
@@ -1699,14 +1699,14 @@ class Hfss(FieldAnalysis3D, object):
         --------
 
         Create a rectangle sheet that will be used to create a lumped port named
-        ``'LumpPortFromSheet'``.
+        ``'LumpedPortFromSheet'``.
 
         >>> rectangle = hfss.modeler.primitives.create_rectangle(hfss.CoordinateSystemPlane.XYPlane,
         ...                                                      [0, 0, 0], [10, 2], name="lump_port",
         ...                                                      matname="copper")
         >>> hfss.create_lumped_port_to_sheet(rectangle.name, hfss.AxisDir.XNeg, 50,
-        ...                                         "LumpPortFromSheet", True, False)
-        'LumpPortFromSheet'
+        ...                                  "LumpedPortFromSheet", True, False)
+        'LumpedPortFromSheet'
 
         """
 
