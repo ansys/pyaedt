@@ -858,37 +858,16 @@ class Maxwell2d(Maxwell, FieldAnalysis2D, object):
                                  specified_version, NG, AlwaysNew, release_on_exit, student_version)
         Maxwell.__init__(self)
 
+    @aedt_exception_handler
     def get_model_depth(self):
         """Get model depth."""
-        if self.modeler.dimension == '2D':
-            with open(self.project_file, 'r') as fi:
-                design_str = "\t$begin 'Maxwell2DModel'"
-                found_design = False
-                found_correct_design = False
-                item_str = "\t\tModelDepth='"
-                for line in fi:
-                    if not found_design:
-                        if line.startswith(design_str):
-                            found_design = True
-                    else:
-                        if line.startswith("\t\tName='"):
-                            if self.design_name in line:
-                                found_correct_design = True
-                            else:
-                                found_design = False
-                    if found_correct_design:
-                        if line.startswith(item_str):
-                            break
-                if found_correct_design:
-                    value_str = line.replace(item_str, "").replace("'\n", "")
-                    # TODO Still messy!
-                    try:
-                        a = float_units(value_str)
-                    except:
-                        a = self.variable_manager[value_str].value
-                    return a
-                else:
-                    raise RuntimeError('Design data is not found by the get_model_depth function. Find and fix the inconsistency.')
+        if "ModelDepth" in self.design_properties:
+            value_str=self.design_properties["ModelDepth"]
+            try:
+                a = float_units(value_str)
+            except:
+                a = self.variable_manager[value_str].value
+            return a
         else:
             return None
 
@@ -909,6 +888,15 @@ class Maxwell2d(Maxwell, FieldAnalysis2D, object):
             ``True`` when successful, ``False`` when failed.
 
         """
+
+        def convert(obj):
+            if isinstance(obj, bool):
+                return str(obj).lower()
+            if isinstance(obj, (list, tuple)):
+                return [convert(item) for item in obj]
+            if isinstance(obj, dict):
+                return {convert(key): convert(value) for key, value in obj.items()}
+            return obj
         solid_bodies = self.modeler.solid_bodies
         if objectfilter:
             solid_ids = [i for i,j in self.modeler.primitives.object_id_dict.items() if j.name in objectfilter]
@@ -933,7 +921,7 @@ class Maxwell2d(Maxwell, FieldAnalysis2D, object):
 
         design_file = os.path.join(self.working_directory, "design_data.json")
         with open(design_file, 'w') as fps:
-            json.dump(self.design_data, fps, indent=4)
+            json.dump(convert(self.design_data), fps, indent=4)
         return True
 
     @aedt_exception_handler

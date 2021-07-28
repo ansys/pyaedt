@@ -7,7 +7,7 @@ import numbers
 from .application.AnalysisSimplorer import FieldAnalysisSimplorer
 from .application.Variables import Variable
 from .desktop import exception_to_desktop
-from .generic.general_methods import aedt_exception_handler, generate_unique_name
+from .generic.general_methods import aedt_exception_handler, generate_unique_name, is_number
 
 
 class Simplorer(FieldAnalysisSimplorer, object):
@@ -229,7 +229,7 @@ class Simplorer(FieldAnalysisSimplorer, object):
         if isinstance(expression, Variable):
             value_str = expression.string_value
         # Handle input type int/float, etc (including numeric 0)
-        elif isinstance(expression, numbers.Number):
+        elif is_number(expression):
             value_str = str(expression)
         else:
             value_str = expression

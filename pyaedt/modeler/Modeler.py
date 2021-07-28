@@ -1252,7 +1252,7 @@ class GeometryModeler(Modeler, object):
         self.connect(port_edges)
         list_unite = [sheet_name]
         dup_factor = divmod((hfactor + 1), 2)[0]
-        coeff = (hfactor - 1) / 2 / dup_factor
+        coeff = float(hfactor - 1) / 2 / dup_factor
 
 
         if divmod(axisdir, 3)[1] == 0 and abs(vect[1]) < tol:
