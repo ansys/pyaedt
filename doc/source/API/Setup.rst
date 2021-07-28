@@ -1,6 +1,6 @@
 Setup
 =====
-The ``Setup`` module includes these classes:
+This section lists setup modules:
 
 .. currentmodule:: pyaedt.modules
 
