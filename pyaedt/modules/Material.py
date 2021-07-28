@@ -17,7 +17,7 @@ from ..generic.general_methods import aedt_exception_handler, generate_unique_na
 from ..application.DataHandlers import dict2arg, arg2dict
 
 class MatProperties(object):
-    """Contains a list of constant names for all possible materials with 
+    """Contains a list of constant names for all materials with 
     mappings to their internal XML names. 
     
     Internal names are used in scripts, and XML names are used in the XML syntax.
@@ -71,7 +71,7 @@ class MatProperties(object):
             raise TypeError("get_defaultunit: Either the full name or category name must be defined.")
 
 class SurfMatProperties(object):
-    """Contains a list of constant names for all possible materials with 
+    """Contains a list of constant names for all surface materials with 
     mappings to their internal XML names. 
     
     Internal names are used in scripts, and XML names are used in the XML syntax.
@@ -1039,7 +1039,7 @@ class Material(CommonMaterial, object):
 
 
 class SurfaceMaterial(CommonMaterial, object):
-    """SurfaceMaterial class.
+    """Manages surface material properties.
     
     The class provides all functionalities for surface material properties.
     
