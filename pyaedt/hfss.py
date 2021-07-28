@@ -1635,7 +1635,7 @@ class Hfss(FieldAnalysis3D, object):
         >>> origin_position = hfss.modeler.Position(0, 0, 0)
         >>> circle = hfss.modeler.primitives.create_circle(hfss.CoordinateSystemPlane.YZPlane,
         ...                                                origin_position, 10, name="WaveCircle")
-        >>> hfss.solution_type ="DrivenTerminal"
+        >>> hfss.solution_type ="DrivenModal"
         >>> port = hfss.create_wave_port_from_sheet(circle, 5, hfss.AxisDir.XNeg, 40, 2,
         ...                                         "WavePortFromSheet", True)
         >>> port[0].name
@@ -2138,6 +2138,7 @@ class Hfss(FieldAnalysis3D, object):
         >>> sheet = hfss.modeler.primitives.create_circle(hfss.CoordinateSystemPlane.YZPlane,
         ...                                               [-20, 0, 0], 10,
         ...                                               name="sheet_for_source")
+        >>> hfss.solution_type ="DrivenModal"
         >>> wave_port = hfss.create_wave_port_from_sheet(sheet, 5, hfss.AxisDir.XNeg, 40,
         ...                                              2, "SheetWavePort", True)
         >>> hfss.edit_source("SheetWavePort" + ":1", "10W")
