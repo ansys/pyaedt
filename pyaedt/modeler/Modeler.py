@@ -158,12 +158,14 @@ class CoordinateSystem(object):
 
         Parameters
         ----------
-        mode_type : int
+        mode_type : int, optional
             Type of the mode. Options are:
-            * 0 - Axis/Position
-            * 1 - Euler Angle ZXZ
-            * 2 - Euler Angle ZYZ
-        The default is ``0``.
+
+            * ``0`` - Axis/Position
+            * ``1`` - Euler Angle ZXZ
+            * ``2`` - Euler Angle ZYZ
+
+            The default is ``0``.
 
         Returns
         -------
