@@ -948,7 +948,7 @@ class PostProcessor(object):
         sample_points_file : str, optional
             Name of the file with sample points. The default is ``None``.
         sample_points_lists : list, optional
-            List of the sample  points. The default is ``None``.
+            List of the sample points. The default is ``None``.
         export_with_sample_points : bool, optional
             Whether to include the sample points in the file to export.
             The default is ``True``.

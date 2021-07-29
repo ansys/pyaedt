@@ -28,7 +28,7 @@ class Setup(object):
     setupname: str, optional
         Name of the setup. The default is ``"MySetupAuto"``.
     isnewsetup: bool, optional
-        Whether to create the setup from a template. The default is ``True.``
+        Whether to create the setup from a template. The default is ``True``.
         If ``False``, access is to the existing setup.
      
     """
@@ -564,7 +564,7 @@ class SetupCircuit(object):
                 self.omodule.EditAMIAnalysis(self.name,arg)
 
             else:
-                print("Not implemented yet.")
+                raise NotImplementedError("Solution type '{}' is not implemented yet".format(soltype))
         return True
 
     @aedt_exception_handler

@@ -87,8 +87,8 @@ class PostProcessor(Post):
        
        Returns
        -------
-       type
-           Jupyter Notebook display.
+       :class:`IPython.core.display.Image`
+           Jupyter notebook image.
            
         """
         file_name = self.export_model_picture(show_axis=show_axis, show_grid=show_grid, show_ruler=show_ruler)
