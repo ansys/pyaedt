@@ -1,3 +1,5 @@
+Uer Guide
+---------
 
 PyAEDT works both inside AEDT and as a standalone application.
 It automatically detects whether it is running in an IronPython or CPython
@@ -46,7 +48,7 @@ The same result can be obtained with the following code:
 
 Variables
 ~~~~~~~~~
-PyAEDT provides a simplified interface getting and setting variables inside a project or a design.
+PyAEDT provides a simplified interface for getting and setting variables inside a project or a design.
 You simply need to initialize a variable as a dictionary key. If you use ``$`` as the prefix 
 for the variable name, a project-wide variable is created.
 
