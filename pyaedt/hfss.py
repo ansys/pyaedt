@@ -2326,8 +2326,9 @@ class Hfss(FieldAnalysis3D, object):
 
         Returns
         -------
-        list
-            List of all the validation information for later use.
+        tuple
+            Tuple containing a list of all the validation information for later use
+            and a bool indicating if the validation was succesful or not.
 
         Examples
         --------
@@ -2335,8 +2336,10 @@ class Hfss(FieldAnalysis3D, object):
         Validate the current design and save the log file into
         the current project directory.
 
-        >>> wave_port = hfss.validate_full_design()
+        >>> validation = hfss.validate_full_design()
         pyaedt Info: Design Validation Checks
+        >>> validation[1]
+        False
 
         """
 
@@ -2375,7 +2378,7 @@ class Hfss(FieldAnalysis3D, object):
                 val_list.extend(temp)
             os.remove(temp_val_file)
         else:
-            msg = "** No design validation file isfound. **"
+            msg = "** No design validation file is found. **"
             self._messenger.add_debug_message(msg)
             val_list.append(msg)
         msg = "** End of design validation messages. **"
