@@ -2311,7 +2311,7 @@ class Hfss(FieldAnalysis3D, object):
 
     @aedt_exception_handler
     def validate_full_design(self, dname=None, outputdir=None, ports=None):
-        """Validate a design based on a expected value and save information to the log file.
+        """Validate a design based on an expected value and save information to the log file.
 
         Parameters
         ----------
@@ -2329,7 +2329,17 @@ class Hfss(FieldAnalysis3D, object):
         list
             List of all the validation information for later use.
 
+        Examples
+        --------
+
+        Validate the current design and save the log file into
+        the current project directory.
+
+        >>> wave_port = hfss.validate_full_design()
+        pyaedt Info: Design Validation Checks
+
         """
+
         self._messenger.add_debug_message("Design Validation Checks")
         validation_ok = True
         val_list = []
