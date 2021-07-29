@@ -2158,12 +2158,12 @@ class Hfss(FieldAnalysis3D, object):
 
     @aedt_exception_handler
     def thicken_port_sheets(self, inputlist, value, internalExtr=True, internalvalue=1):
-        """Create thickened sheets over a list of input port faces.
+        """Create thickened sheets over a list of input port sheets.
        
         Parameters
         ----------
         inputlist : list
-            List of the faces to thicken.
+            List of the sheets to thicken.
         value :
             Value in millimeters for thickening the faces.
         internalExtr : bool, optional
@@ -2181,8 +2181,8 @@ class Hfss(FieldAnalysis3D, object):
         Examples
         --------
 
-        Create a rectangle sheet and use it to create a wave port.
-        Set up the thermal power for the port created above.
+        Create a circle sheet and use it to create a wave port.
+        Set the thickness of this circle sheet to ``"2 mm"``.
 
         >>> sheet_for_thickness = hfss.modeler.primitives.create_circle(hfss.CoordinateSystemPlane.YZPlane,
         ...                                                             [60, 60, 60], 10,
@@ -2192,6 +2192,7 @@ class Hfss(FieldAnalysis3D, object):
         >>> hfss.thicken_port_sheets(["SheetForThickness"], 2)
         pyaedt Info: done
         {}
+
         """
 
         tol = 1e-6
