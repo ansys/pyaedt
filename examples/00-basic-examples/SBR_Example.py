@@ -46,7 +46,7 @@ setup1.props["Sweeps"]["Sweep"]["RangeType"]="SinglePoints"
 setup1.props["Sweeps"]["Sweep"]["RangeStart"]="10GHz"
 setup1.props["RadiationSetup"]="ATK_3D"
 setup1.update()
-target.analyse_nominal()
+target.analyze_nominal()
 
 #####################################
 # Plot Results

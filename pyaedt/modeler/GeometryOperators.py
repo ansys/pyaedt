@@ -6,7 +6,7 @@ import re
 
 
 class GeometryOperators(object):
-    """GeometryOperators class."""
+    """Manages geometry operators."""
 
     @staticmethod
     @aedt_exception_handler

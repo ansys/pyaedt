@@ -4,7 +4,16 @@ from .Modeler import GeometryModeler
 from  .Primitives3D import Primitives3D
 
 class Modeler3D(GeometryModeler):
-    """Modeler 3D class."""
+    """Provides the Modeler 3D application interface.
+    
+    Parameters
+    ----------
+    application :
+    
+    is3D : bool, optional
+        Whether the model is 3D. The default is ``True``.
+    
+    """
     def __init__(self, application):
         GeometryModeler.__init__(self, application, is3d=True)
         self._primitives = Primitives3D(self._parent, self)
@@ -16,7 +25,13 @@ class Modeler3D(GeometryModeler):
 
     @property
     def primitives(self):
-        """ """
+        """Primitives.
+        
+        Returns
+        -------
+        :class:`pyaedt.modeler.Primitives3D.Primitives3D`
+        
+        """
         if self._primitivesDes != self._parent.project_name + self._parent.design_name:
             self._primitives.refresh()
             self._primitivesDes = self._parent.project_name + self._parent.design_name
@@ -24,7 +39,7 @@ class Modeler3D(GeometryModeler):
 
     @aedt_exception_handler
     def create_3dcomponent(self, component_file, component_name=None, variables_to_include=[], exclude_region=False):
-        """Create 3D component file.
+        """Create a 3D component file.
 
         Parameters
         ----------
@@ -32,9 +47,9 @@ class Modeler3D(GeometryModeler):
             Full path to the A3DCOMP file.
         component_name : str, optional
             Name of the component. The default is ``None``.
-        variables_to_include : list
+        variables_to_include : list, optional
              List of variables to include. The default is ``[]``.
-        exclude_region :
+        exclude_region : bool, optional
              Whether to exclude the region. The default is ``False``.
 
         Returns

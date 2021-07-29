@@ -116,7 +116,7 @@ class EdgeTypePrimitive(object):
     """Provides common methods for EdgePrimitive and FacePrimitive."""
     @aedt_exception_handler
     def fillet(self, radius=0.1, setback=0.0):
-        """Add fillet to an edge.
+        """Add a fillet to the selected edge.
 
         Parameters
         ----------
@@ -352,7 +352,7 @@ class FacePrimitive(object):
 
     @property
     def id(self):
-        """ID of the face."""
+        """Face ID."""
         return self._id
 
     @property
@@ -404,7 +404,7 @@ class FacePrimitive(object):
 
     @aedt_exception_handler
     def move_with_offset(self, offset=1.0):
-        """Move a face along the normal.
+        """Move the face along the normal.
 
         Parameters
         ----------
@@ -512,7 +512,8 @@ class Object3d(object):
     
     Parameters
     ----------
-    parent :
+    parent : 
+        Inherited parent object.
     name :
 
     Examples
@@ -762,7 +763,9 @@ class Object3d(object):
 
     @property
     def object_type(self):
-        """Type of the object. Options are:
+        """Type of the object. 
+        
+        Options are:
              * Solid
              * Sheet
              * Line
@@ -889,7 +892,7 @@ class Object3d(object):
 
     @property
     def transparency(self):
-        """Part transparency as a value between 0.0 and 1.0
+        """Part transparency as a value between 0.0 and 1.0.
         
         If the value is outside the range, then apply a limit. If the value is not a valid number, set to ``0.0``.
         
@@ -920,6 +923,7 @@ class Object3d(object):
 
     @property
     def object_units(self):
+        """Object units."""
         return self._parent.model_units
 
     @property

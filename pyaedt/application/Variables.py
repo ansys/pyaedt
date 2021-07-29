@@ -18,6 +18,7 @@ import re
 import numbers
 import os
 from .. import aedt_exception_handler
+from ..generic.general_methods import is_number
 
 @aedt_exception_handler
 def dB(x, inverse=True):
@@ -418,8 +419,8 @@ def decompose_variable_value(variable_value):
     float_value = variable_value
     units =''
 
-    if isinstance(variable_value, numbers.Number):
-        float_value = variable_value
+    if is_number(variable_value):
+        float_value = float(variable_value)
     elif isinstance(variable_value, str) and variable_value != 'nan':
         try:
             # Handle a numerical value in string form
@@ -691,7 +692,7 @@ class VariableManager(object):
                 variable_expression = self.get_expression(variable_name)
                 try:
                     value = Variable(variable_expression)
-                    if independent and isinstance(value.value, numbers.Number) :
+                    if independent and is_number(value.value):
                         var_dict[variable_name] = value
                     elif dependent and type(value.value) is str:
                         float_value = self._parent.get_evaluated_value(variable_name)
@@ -794,7 +795,7 @@ class VariableManager(object):
         elif isinstance(expression, Variable):
             # Handle input type variable
             variable = expression.string_value
-        elif isinstance(expression, numbers.Number):
+        elif is_number(expression):
             # Handle input type int/float, etc (including numeric 0)
             variable = str(expression)
         # Handle None, "" as Separator
@@ -1004,7 +1005,7 @@ class Variable(object):
                 "The unit specification {} is inconsistent with the identified units {}.".format(specified_units, self._units)
             self._units = specified_units
 
-        if isinstance(self._value, numbers.Number):
+        if is_number(self._value):
             scale = AEDT_units[self.unit_system][self._units]
             if isinstance(scale, tuple):
                 self._value = scale[0](self._value, inverse=False)
@@ -1029,7 +1030,7 @@ class Variable(object):
     @property
     def numeric_value(self):
         """Numeric part of the expression as a float value."""
-        if isinstance(self._value, numbers.Number):
+        if is_number(self._value):
             scale = AEDT_units[self.unit_system][self._units]
         if isinstance(scale, tuple):
             return scale[0](self._value, True)
@@ -1142,8 +1143,8 @@ class Variable(object):
         >>> assert result_3.unit_system == "Power"
 
         """
-        assert isinstance(other, numbers.Number) or isinstance(other, Variable), "Multiplier must be a scalar quantity or a variable."
-        if isinstance(other, numbers.Number):
+        assert is_number(other) or isinstance(other, Variable), "Multiplier must be a scalar quantity or a variable."
+        if is_number(other):
             result_value = self.numeric_value * other
             result_units = self.units
         else:
@@ -1269,8 +1270,8 @@ class Variable(object):
         >>> assert result_1.unit_system == "Current"
 
         """
-        assert isinstance(other, numbers.Number) or isinstance(other, Variable), "Divisor must be a scalar quantity or a variable."
-        if isinstance(other, numbers.Number):
+        assert is_number(other) or isinstance(other, Variable), "Divisor must be a scalar quantity or a variable."
+        if is_number(other):
             result_value = self.numeric_value / other
             result_units = self.units
         else:
@@ -1311,7 +1312,7 @@ class Variable(object):
         >>> assert result.unit_system == "Freq"
 
         """
-        assert isinstance(other, numbers.Number), "Dividend must be a numerical quantity!"
+        assert is_number(other), "Dividend must be a numerical quantity!"
         result_value = other / self.value
         result_units = _resolve_unit_system("None", self.unit_system, "divide")
         return Variable("{}{}".format(result_value, result_units))

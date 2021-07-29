@@ -12,7 +12,7 @@ class CircuitComponents(object):
 
     @property
     def oeditor(self):
-        """Editor object."""
+        """Editor."""
         return self.modeler.oeditor
 
     @property
@@ -37,22 +37,22 @@ class CircuitComponents(object):
 
     @property
     def o_model_manager(self):
-        """Model manager object."""
+        """Model manager."""
         return self.modeler.o_model_manager
 
     @property
     def o_definition_manager(self):
-        """Definition manager object."""
+        """Definition manager."""
         return self._parent._oproject.GetDefinitionManager()
 
     @property
     def o_symbol_manager(self):
-        """Symbol manager object."""
+        """Symbol manager."""
         return self.o_definition_manager.GetManager("Symbol")
 
     @property
     def o_component_manager(self):
-        """Component manager object."""
+        """Component manager."""
         return self.o_definition_manager.GetManager("Component")
 
     @property
@@ -603,7 +603,7 @@ class CircuitComponents(object):
     @aedt_exception_handler
     def enable_use_instance_name(self, component_library="Resistors",
                                  component_name="RES_"):
-        """
+        """Enable the use of the instance name.
 
         Parameters
         ----------

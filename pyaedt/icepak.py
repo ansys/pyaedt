@@ -950,7 +950,7 @@ class Icepak(FieldAnalysisIcepak):
             argparam[el]=el
 
         props = OrderedDict(
-            {"Objects": allObjects, "Project": projname, "projname": "ElectronicsDesktop",
+            {"Objects": allObjects, "Project": projname, "Product": "ElectronicsDesktop",
              "Design": designname, "Soln": setupname + " : " + sweepname, "Params": argparam,
              "ForceSourceToSolve": True, "PreservePartnerSoln": True, "PathRelativeTo": "TargetProject"})
         props["Intrinsics"]= intr

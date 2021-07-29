@@ -11,7 +11,7 @@ import os
 from copy import copy
 from .GeometryOperators import GeometryOperators
 from .Object3d import Object3d, EdgePrimitive, FacePrimitive, VertexPrimitive, _dim_arg, _uname
-from ..generic.general_methods import aedt_exception_handler, retry_ntimes
+from ..generic.general_methods import aedt_exception_handler, retry_ntimes, is_number
 from ..application.Variables import Variable
 from collections import OrderedDict
 if "IronPython" in sys.version or ".NETFramework" in sys.version:
@@ -27,7 +27,7 @@ aedt_wait_time = 0.1
 
 
 class PolylineSegment():
-    """Create and manipulate a segment of a polyline.
+    """Creates and manipulates a segment of a polyline.
 
     Parameters
     ----------
@@ -895,7 +895,7 @@ class Primitives(object):
             vPropServers.append(el)
         vGeo3d = ["NAME:Geometry3DAttributeTab", vPropServers, vChangedProps]
         vOut = ["NAME:AllTabs", vGeo3d]
-        self.oeditor.ChangeProperty(vOut)
+        retry_ntimes(10, self.oeditor.ChangeProperty, vOut)
         return True
 
 
@@ -945,7 +945,7 @@ class Primitives(object):
 
         numeric_list = []
         for element in value:
-            if isinstance(element, numbers.Number):
+            if is_number(element):
                 num_val = element
             elif isinstance(element, str):
                 # element is an existing variable
@@ -1008,7 +1008,7 @@ class Primitives(object):
         """
         if "Region" in self.object_names:
             return None
-        if isinstance(pad_percent, numbers.Number):
+        if is_number(pad_percent):
             pad_percent = [pad_percent] * 6
 
         arg = ["NAME:RegionParameters"]
@@ -1321,8 +1321,10 @@ class Primitives(object):
                 "NAME:Selections",
                 "Selections:="	, objects_str
                 ]
-            self.oeditor.Delete(arg)
-
+            try:
+                self.oeditor.Delete(arg)
+            except:
+                self._messenger.add_warning_message("Failed to delete {}".format(objects_str))
             remaining -= slice
             if remaining > 0:
                 objects = objects[slice:]
@@ -2797,7 +2799,8 @@ class Primitives(object):
         else:
             if units is None:
                 units = self.model_units
-                assert isinstance(prop_value, numbers.Number), "Argument {} must be a numeric value".format(prop_value)
+
+                assert is_number(prop_value), "Argument {} must be a numeric value".format(prop_value)
             val = "{0}{1}".format(prop_value, units)
         return val
 
