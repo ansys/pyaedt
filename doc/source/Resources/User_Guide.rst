@@ -1,4 +1,4 @@
-Uer Guide
+User Guide
 ---------
 
 PyAEDT works both inside AEDT and as a standalone application.
