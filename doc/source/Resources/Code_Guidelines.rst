@@ -27,7 +27,7 @@ Imports
 ~~~~~~~
 Imports should always be placed at the top of the file, just after any
 module comments and docstrings and before module globals and
-constants.  This reduces the likelihood of an import error that might only
+constants.  This reduces the likelihood of an ``ImportError`` that might only
 be discovered during runtime.
 
 Avoid this:
@@ -440,12 +440,14 @@ methods should have comments that describe what they do.
 To create a docstring, surround the comments with three double quotes
 on either side.
 
-For a one-line docstring, keep both the starting and ending """ on the
+For a one-line docstring, keep both the starting and ending ``"""`` on the
 same line. For example:
 
-"""This is a docstring.""".  
+.. code:: python
 
-For a multi-line docstring, put the ending """ on a line by itself.
+   """This is a docstring.""".  
+
+For a multi-line docstring, put the ending ``"""`` on a line by itself.
 
 PyAEDT follows the `numpydoc
 <https://numpydoc.readthedocs.io/en/latest/format.html>`_
@@ -653,8 +655,7 @@ within one single code block. For example:
 
 Aside from the lack of comments, this complex nested validation method
 is difficult to debug and validate with unit testing. It would
-be far better to implement more validation methods, join conditionals,
-and so on.
+be far better to implement more validation methods and join conditionals.
 
 For a conditional block, the maximum depth recommended is four. If you
 think you need more for the algorithm, create small functions that are
@@ -723,7 +724,7 @@ implement a unit test for ``is_consonant``.
 
 
 PyAEDT-Specific Coding Guidelines
--------------------------------
+---------------------------------
 These guidelines are specific to PyAEDT.
 
 
@@ -742,7 +743,7 @@ write both to the internal AEDT message windows and the log file:
     self.messenger.add_warning_message("This is a warning message.")
     self.messenger.add_info_message("This is an info message.")
 
-These exmaples demonstratw how to to write messages only to the log file:
+These examples demonstrate how to to write messages only to the log file:
 
 .. code:: python
 
@@ -797,5 +798,4 @@ log file. Here is an example of an error:
 
 Hard-Coding Values
 ~~~~~~~~~~~~~~~~~~
-Do not write hard-coded values that the code is to
-use to the registry. Instead, use the Configuration service.
+Do not write hard-coded values to the registry. Instead, use the Configuration service.
