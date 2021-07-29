@@ -1,5 +1,3 @@
-PyAEDT Overview
----------------
 
 PyAEDT works both inside AEDT and as a standalone application.
 It automatically detects whether it is running in an IronPython or CPython
@@ -29,7 +27,7 @@ The previous command launches AEDT and initializes a new Circuit design.
   :alt: Electronics Desktop Launched
 
 
-The same result can be obtained with the following code.
+The same result can be obtained with the following code:
 
 .. code:: python
 
@@ -48,9 +46,9 @@ The same result can be obtained with the following code.
 
 Variables
 ~~~~~~~~~
-PyAEDT provides for easily getting and setting variables inside a project or a design.
+PyAEDT provides a simplified interface getting and setting variables inside a project or a design.
 You simply need to initialize a variable as a dictionary key. If you use ``$`` as the prefix 
-for the variable name, a project variable is created.
+for the variable name, a project-wide variable is created.
 
 .. code:: python
 
@@ -69,7 +67,6 @@ Modeler
 ~~~~~~~
 Object-oriented programming is used to create and manage objects in the AEDT 3D and 2D Modelers. 
 You can create an object and change properties using getters and setters.
-
 
 .. code:: python
 
