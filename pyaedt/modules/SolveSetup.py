@@ -235,7 +235,7 @@ class Setup(object):
         intrinsics : str or list, optional
             Intrinsic functions for the expressions. The default is ``""``. If a list of expressions
             is supplied, a corresponding list of intrinsic functions must be supplied.
-        isconvergence, bool or str or list, optional
+        isconvergence : bool or str or list, optional
             Whether the expression is in the convergence criteria. The default is ``True``.
             If a list of expressions is supplied, a corresponding list of Boolean values must be
             supplied.
