@@ -1,9 +1,9 @@
 Setup Templates
 ===============
 
-This page lists all setup templates with their default values and keys. 
+This section lists all setup templates with their default values and keys. 
 
-You can edit a setup after it is created. Here an example:
+You can edit a setup after it is created. Here is an example:
 
 .. code:: python
 

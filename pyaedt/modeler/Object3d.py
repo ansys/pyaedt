@@ -1,8 +1,13 @@
 # -*- coding: utf-8 -*-
 
 """
-This module contains methods and data structures for managing all properties of objects (points, lines, sheeets, and
-solids) within the AEDT 3D Modeler.
+This module contains these classes: `Components3DLayout`,`CircuitComponent', 
+`EdgePrimitive`, `EdgeTypePrimitive`, `FacePrimitive`, `Geometries3DLayout`, 
+`Nets3DLayout`, `Objec3DLayout`, `Object3d`, `Padstack`, `PDSHole`, `PDSLayer`, 
+`Pins3DLayout', and `VertexPrimitive`.
+
+This module provides methods and data structures for managing all properties of 
+objects (points, lines, sheeets, and solids) within the AEDT 3D Modeler.
 
 """
 from __future__ import absolute_import
@@ -835,7 +840,7 @@ class Object3d(object):
 
     @property
     def color(self):
-        """Part color as a tuple of integer values for `(Red, Green, Blue)` color valeus.
+        """Part color as a tuple of integer values for `(Red, Green, Blue)` color values.
         
         If the integer values are outside the range 0-255, then limit the values. Invalid inputs are ignored.
         
@@ -1604,7 +1609,7 @@ class Padstack(object):
 
 
 class CircuitComponent(object):
-    """Manage circuit components.
+    """Manages circuit components.
     
     Parameters
     ----------

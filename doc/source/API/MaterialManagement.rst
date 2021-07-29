@@ -1,6 +1,6 @@
 Material and Stackup
 ====================
-The ``Material and Stackup`` module includes these classes:
+This section lists material and stackup modules:
 
 .. currentmodule:: pyaedt.modules
 

@@ -48,7 +48,7 @@ HFSSEigen = [("MinimumFrequency", "2GHz"), ("NumModes", 1), ("MaxDeltaFreq", 10)
 
 HFSSTransient = [("Frequency", "5GHz"), ("MaxDeltaS", 0.02), ("MaximumPasses", 20), ("UseImplicitSolver", True),
                  ("IsEnabled", True), ("MeshLink", meshlink), ("BasisOrder", -1), ("Transient", transienthfss)]
-"""HFSS transient analysis setup properties and default values."""
+"""HFSS transient setup properties and default values."""
 
 HFSSSBR = [("IsEnabled", True), ("MeshLink", meshlink), ("IsSbrRangeDoppler", False),
            ("RayDensityPerWavelength", 4), ("MaxNumberOfBounces", 5), ("RadiationSetup", ""),
@@ -407,7 +407,7 @@ Open = [("AdaptiveFreq", "1GHz"), ("SaveFields", True), ("Enabled", True), ("Mes
 Close = [("AdaptiveFreq", "1GHz"), ("SaveFields", True), ("Enabled", True), ("MeshLink", meshlink),
          ("CGDataBlock", CGDataBlock), ("RLDataBlock", RLDataBlock), ("CacheSaveKind", "Delta"),
          ("ConstantDelta", "0s")]
-"""Q2D closed setup properties and default values."""
+"""Q2D close setup properties and default values."""
 
 
 TransientTemperatureAndFlow = [("Enabled", True), ("Flow Regime", "Laminar"), ("Include Temperature", True),
