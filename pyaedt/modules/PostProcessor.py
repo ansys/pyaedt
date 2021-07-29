@@ -1248,7 +1248,7 @@ class PostProcessor(object):
         """Export a snapshot of the model to a JPG file. 
         
         .. note::
-           This function works only when AEDT is running in the graphical mode.
+           This method works only when AEDT is running in the graphical mode.
         
         Parameters
         ----------
