@@ -731,8 +731,8 @@ class Hfss(FieldAnalysis3D, object):
         endobject :
             Second (ending) object for the integration line.
         axisdir : str, optional
-            Position of the port. It should be one of the values for ``Application.AxisDir``, 
-            which are: ``"XNeg"``, ``"YNeg"``, ``"ZNeg"``, ``"XPos"``, ``"YPos"``, and ``"ZPos"``. 
+            Position of the port. It should be one of the values for ``Application.AxisDir``,
+            which are: ``"XNeg"``, ``"YNeg"``, ``"ZNeg"``, ``"XPos"``, ``"YPos"``, and ``"ZPos"``.
             The default is ``"XYNeg"``.
         impedance : float, optional
             Port impedance. The default is ``50``.
@@ -805,7 +805,7 @@ class Hfss(FieldAnalysis3D, object):
         deemb : bool, optional
             Whether to deembed the port. The default is ``False``.
         port_on_plane : bool, optional
-            Whether to create the source on the plane orthogonal to ``AxisDir``. 
+            Whether to create the source on the plane orthogonal to ``AxisDir``.
             The default is ``True``.
 
         Returns
@@ -863,8 +863,8 @@ class Hfss(FieldAnalysis3D, object):
         endobject :
             Second (ending) object for the integration line.
         axisdir : str, optional
-            Position of the port. It should be one of the values for ``Application.AxisDir``, 
-            which are: ``"XNeg"``, ``"YNeg"``, ``"ZNeg"``, ``"XPos"``, ``"YPos"``, and ``"ZPos"``. 
+            Position of the port. It should be one of the values for ``Application.AxisDir``,
+            which are: ``"XNeg"``, ``"YNeg"``, ``"ZNeg"``, ``"XPos"``, ``"YPos"``, and ``"ZPos"``.
             The default value is ``"0"``.
         sourcename : str, optional
             Name of the source. The default is ``None``.
@@ -1108,12 +1108,12 @@ class Hfss(FieldAnalysis3D, object):
 
         Parameters
         ----------
-        startobj : 
-            First (starting) object for the integration line. This is typically the reference plane. 
+        startobj :
+            First (starting) object for the integration line. This is typically the reference plane.
         endobject :
             Second (ending) object for the integration line.
         axisdir : int, optional
-            Position of the port. It should be one of the values for ``Application.AxisDir``, 
+            Position of the port. It should be one of the values for ``Application.AxisDir``,
             which are: ``0`` for ``"XNeg"``,``1`` for ``"YNeg"``,``2`` for ``"ZNeg"``, ``3`` for``"XPos"``,
             ``4`` for``"YPos"``, and ``5`` for``"ZPos"``.
             The default is ``0``.
@@ -1635,7 +1635,7 @@ class Hfss(FieldAnalysis3D, object):
         >>> origin_position = hfss.modeler.Position(0, 0, 0)
         >>> circle = hfss.modeler.primitives.create_circle(hfss.CoordinateSystemPlane.YZPlane,
         ...                                                origin_position, 10, name="WaveCircle")
-        >>> hfss.solution_type ="DrivenModal"
+        >>> hfss.solution_type = "DrivenModal"
         >>> port = hfss.create_wave_port_from_sheet(circle, 5, hfss.AxisDir.XNeg, 40, 2,
         ...                                         "WavePortFromSheet", True)
         >>> port[0].name
