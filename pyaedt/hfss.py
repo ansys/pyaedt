@@ -2328,7 +2328,7 @@ class Hfss(FieldAnalysis3D, object):
         -------
         tuple
             Tuple containing a list of all the validation information for later use
-            and a bool indicating if the validation was succesful or not.
+            and a bool indicating if the validation was successful or not.
 
         Examples
         --------
