@@ -1,17 +1,12 @@
 User Guide
-----------
-This guide provides a general overview of the basics and usage of the PyAEDT library.
-
-
-PyAEDT Overview
----------------
+---------
 
 PyAEDT works both inside AEDT and as a standalone application.
 It automatically detects whether it is running in an IronPython or CPython
-environment and initializes the Desktop accordingly. PyAEDT also provides
+environment and initializes AEDT accordingly. PyAEDT also provides
 advanced error management.
 
-AEDT can be started from python in mode using Desktop():
+AEDT can be started from Python in the non-graphical mode using AEDT.
 
 .. code:: python
 
@@ -27,7 +22,7 @@ AEDT can be started from python in mode using Desktop():
     # Desktop is automatically released here.
 
 
-The command above will launch Electronics Desktop and initialize a new Circuit Design
+The previous command launches AEDT and initializes a new Circuit design.
 
 .. image:: ./aedt_first_page.png
   :width: 800
@@ -53,8 +48,9 @@ The same result can be obtained with the following code:
 
 Variables
 ~~~~~~~~~
-PyAEDT allows an easy way to get and set Variables inside a Project or a Design.
-User simply needs to initialize a variable as a dictionary key. if ``$`` is used as prefix of the variable name then a project variable will be created
+PyAEDT provides a simplified interface for getting and setting variables inside a project or a design.
+You simply need to initialize a variable as a dictionary key. If you use ``$`` as the prefix 
+for the variable name, a project-wide variable is created.
 
 .. code:: python
 
@@ -71,8 +67,8 @@ User simply needs to initialize a variable as a dictionary key. if ``$`` is used
 
 Modeler
 ~~~~~~~
-Object oriented programming is used to create and manage objects in 3D/2D Modelers. You can create an object and change properties using getters or setters:
-
+Object-oriented programming is used to create and manage objects in the AEDT 3D and 2D Modelers. 
+You can create an object and change properties using getters and setters.
 
 .. code:: python
 

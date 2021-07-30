@@ -13,7 +13,7 @@ except ImportError:
 
 
 class EDBLayer(object):
-    """EDBLayer class."""
+    """Manages EDB functionalities for a layer."""
 
 
     def __init__(self, edblayer, parent):
@@ -113,7 +113,7 @@ class EDBLayer(object):
 
     @property
     def thickness_value(self):
-        """Retrieve or update the thickness value.
+        """Thickness value.
 
         Returns
         -------
@@ -133,7 +133,7 @@ class EDBLayer(object):
 
     @property
     def filling_material_name(self):
-        """Retrieve or update the filling material.
+        """Filling material.
 
         Returns
         -------
@@ -178,7 +178,7 @@ class EDBLayer(object):
 
     @property
     def lower_elevation(self):
-        """Retrieve or update the lower elevation.
+        """Lower elevation.
 
         Returns
         -------
@@ -214,7 +214,7 @@ class EDBLayer(object):
 
     @property
     def etch_factor(self):
-        """Retrieve or update the etch factor.
+        """Etch factor.
 
         Returns
         -------
@@ -254,6 +254,28 @@ class EDBLayer(object):
 
     @aedt_exception_handler
     def update_layer_vals(self, layerName, newLayer, etchMap, materialMap, fillMaterialMap, thicknessMap, layerTypeMap):
+        """Update layer properties.
+        
+        Parameters
+        ----------
+        layerName :
+        
+        newLayer :
+        
+        materialMap :
+        
+        fillMaterialMap :
+        
+        thicknessMap :
+        
+        layerTypeMap :
+        
+        Returns
+        -------
+        type
+            Layer object.
+            
+        """
         newLayer.SetName(layerName)
 
         try:
@@ -336,9 +358,13 @@ class EDBLayer(object):
 
 
 class EDBLayers(object):
-    """EDBLayers object.
-
-    This class manages all primitives.
+    """Manages EDB functionalities for all primitive layers.
+    
+    Parameters
+    ----------
+    parent : 
+        Inherited AEDT object.
+    
     """
 
     def __init__(self, parent):
@@ -399,12 +425,12 @@ class EDBLayers(object):
 
     @property
     def edb_layers(self):
-        """List of EDB layers.
+        """EDB layers.
 
         Returns
         -------
         list
-            List of EDB layers
+            List of EDB layers.
         """
         allLayers = list(list(self.layer_collection.Layers(self._edb.Cell.LayerTypeSet.AllLayerSet)))
         allStckuplayers = filter(lambda lyr: (lyr.GetLayerType() == self._edb.Cell.LayerType.DielectricLayer) or (
@@ -413,7 +439,7 @@ class EDBLayers(object):
 
     @property
     def signal_layers(self):
-        """Dictionry of signal layers.
+        """Signal layers.
 
         Returns
         -------
@@ -429,7 +455,7 @@ class EDBLayers(object):
 
     @property
     def layer_collection(self):
-        """Collection of layers.
+        """Layer collection.
 
         Returns
         -------
@@ -455,12 +481,12 @@ class EDBLayers(object):
 
     @property
     def stackup_mode(self):
-        """Retrieve or update the stackup mode.
+        """Stackup mode.
 
         Returns
         -------
         int
-            Stackup mode, where:
+            Type of the stackup mode, where:
 
             * 0 - Laminate
             * 1 - Overlapping
@@ -529,7 +555,7 @@ class EDBLayers(object):
     @aedt_exception_handler
     def add_layer(self, layerName, start_layer=None, material="copper", fillMaterial="", thickness="35um", layerType=0,
                   etchMap=None):
-        """Add an additional layer after a specific layer.
+        """Add a layer after a specific layer.
 
         Parameters
         ----------
@@ -606,7 +632,7 @@ class EDBLayers(object):
 
     def add_outline_layer(self, outline_name="Outline"):
         """
-        Adds an Outline Layer named "Outline" if not present
+        Add an outline layer named ``"Outline"`` if it is not present.
 
         Returns
         -------
@@ -657,7 +683,20 @@ class EDBLayers(object):
 
 
 class EDBPadProperties(object):
-    """EDBPadProperties class."""
+    """Manages EDB functionalities for pad properties.
+    
+    Parameters
+    ----------
+    edb_padstack :
+    
+    layer_name : str
+        Name of the layer.
+    pad_type : 
+        Type of the pad.
+    parent : str
+        Inherited AEDT object.
+        
+    """
 
     def __init__(self, edb_padstack, layer_name, pad_type, parent):
         self._edb_padstack = edb_padstack
@@ -700,7 +739,7 @@ class EDBPadProperties(object):
 
     @property
     def parameters(self):
-        """Retrieve or update a list of parameters.
+        """Parameters.
 
         Returns
         -------
@@ -721,7 +760,7 @@ class EDBPadProperties(object):
 
     @property
     def offset_x(self):
-        """Retrieve or update the offset for the X axis.
+        """Offset for the X axis.
 
         Returns
         -------
@@ -737,7 +776,7 @@ class EDBPadProperties(object):
         self._update_pad_parameters_parameters(offsetx= offset_value)
     @property
     def offset_y(self):
-        """Retrieve or update the offset for the Y axis.
+        """Offset for the Y axis.
 
         Returns
         -------
@@ -819,7 +858,16 @@ class EDBPadProperties(object):
 
 
 class EDBPadstack(object):
-    """EDBPadstacks object."""
+    """Manages EDB functionalities for a padstack.
+    
+    Parameters
+    ----------
+    edb_padstack :
+    
+    parent : str
+        Inherited AEDT object.
+        
+    """
 
     def __init__(self, edb_padstack, parent):
         self.edb_padstack = edb_padstack
@@ -855,7 +903,7 @@ class EDBPadstack(object):
 
     @property
     def via_layers(self):
-        """List of layers.
+        """Layers.
 
         Returns
         -------
@@ -916,16 +964,16 @@ class EDBPadstack(object):
 
         Parameters
         ----------
-        hole_type :
+        hole_type : optional
             Type of the hole. The default is ``None``.
-        params :
+        params : optional
             The default is ``None``.
         offsetx : float, optional
             Offset value for the X axis. The default is ``None``.
         offsety :  float, optional
             Offset value for the Y axis. The default is ``None``.
         rotation: float, optional
-            Rotation value. The default is ``None``.
+            Rotation value in degrees. The default is ``None``.
 
         Returns
         -------
@@ -958,7 +1006,7 @@ class EDBPadstack(object):
 
     @property
     def hole_properties(self):
-        """Retrieve or update the hole properties.
+        """Hole properties.
 
         Returns
         -------
@@ -991,7 +1039,7 @@ class EDBPadstack(object):
 
     @property
     def hole_offset_x(self):
-        """Retrieve or update the hole offset for the X axis.
+        """Hole offset for the X axis.
 
         Returns
         -------
@@ -1009,7 +1057,7 @@ class EDBPadstack(object):
 
     @property
     def hole_offset_y(self):
-        """Retrieve or update the hole offset for the Y axis.
+        """Hole offset for the Y axis.
 
         Returns
         -------
@@ -1027,7 +1075,7 @@ class EDBPadstack(object):
 
     @property
     def hole_rotation(self):
-        """Retrieve or update the hole rotation.
+        """Hole rotation.
 
         Returns
         -------
@@ -1045,7 +1093,7 @@ class EDBPadstack(object):
 
     @property
     def hole_plating_ratio(self):
-        """Retrieve or update the hole plating ratio.
+        """Hole plating ratio.
 
         Returns
         -------
@@ -1092,7 +1140,7 @@ class EDBPadstack(object):
 
     @property
     def material(self):
-        """Retrieve or update the hole material
+        """Hole material.
 
         Returns
         -------
@@ -1111,7 +1159,7 @@ class EDBPadstack(object):
 
 
 class EDBPinInstances(object):
-    """EDBPinInstances class."""
+    """Manages EDB functionalities in instances."""
 
     def __init__(self,parent, pin):
         self.parent = parent
@@ -1119,26 +1167,28 @@ class EDBPinInstances(object):
 
     @property
     def placement_layer(self):
+        """Placement layer."""
         return self.pin.GetGroup().GetPlacementLayer().GetName()
 
     @property
     def net(self):
-        """
+        """Net.
 
         Returns
         -------
         str
+           Name of the net.
         """
         return self.pin.GetNet().GetName()
 
     @property
     def pingroups(self):
-        """Pin groups to which the pin belongs.
+        """Pin groups that the pin belongs to.
 
         Returns
         -------
         list
-            List of pin groups to which the pin belongs.
+            List of pin groups that the pin belongs to.
         """
         return self.pin.GetPinGroups()
 
@@ -1149,7 +1199,7 @@ class EDBPinInstances(object):
         Returns
         -------
         list
-            List of the pin position in the format ``[x, y]``.
+            List of ``[x, y]``` coordinates for the pin position.
         """
         self.parent._edb.Geometry.PointData(self.parent._edb_value(0.0), self.parent._edb_value(0.0))
         out = self.pin.GetPositionAndRotationValue(
@@ -1181,7 +1231,7 @@ class EDBPinInstances(object):
         Returns
         -------
         str
-            Placement layer.
+            Name of the placement layer.
         """
         return self.pin.GetGroup().GetPlacementLayer().GetName()
 
@@ -1226,7 +1276,17 @@ class EDBPinInstances(object):
 
 
 class EDBComponent(object):
-    """EDBComponent class."""
+    """Manages EDB functionalities for components.
+    
+    Parameters
+    ----------
+    parent : str
+        Inherited AEDT object.
+    component :
+    
+    name : 
+    
+    """
 
     def __init__(self, parent, component, name):
         self.parent = parent

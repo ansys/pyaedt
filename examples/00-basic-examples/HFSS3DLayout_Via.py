@@ -73,7 +73,7 @@ h3d.create_frequency_sweep(setupname=setup.name, unit='GHz', freqstart=3, freqst
 # Solve and plot results
 #
 
-h3d.analyse_nominal()
+h3d.analyze_nominal()
 h3d.post.create_rectangular_plot(["db(S(Port1,Port1))","db(S(Port1,Port2))"],families_dict=h3d.available_variations.nominal_w_values_dict)
 
 #########################################

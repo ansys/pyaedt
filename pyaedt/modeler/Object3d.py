@@ -1,8 +1,13 @@
 # -*- coding: utf-8 -*-
 
 """
-This module contains methods and data structures for managing all properties of objects (points, lines, sheeets, and
-solids) within the AEDT 3D Modeler.
+This module contains these classes: `Components3DLayout`,`CircuitComponent', 
+`EdgePrimitive`, `EdgeTypePrimitive`, `FacePrimitive`, `Geometries3DLayout`, 
+`Nets3DLayout`, `Objec3DLayout`, `Object3d`, `Padstack`, `PDSHole`, `PDSLayer`, 
+`Pins3DLayout', and `VertexPrimitive`.
+
+This module provides methods and data structures for managing all properties of 
+objects (points, lines, sheeets, and solids) within the AEDT 3D Modeler.
 
 """
 from __future__ import absolute_import
@@ -116,7 +121,7 @@ class EdgeTypePrimitive(object):
     """Provides common methods for EdgePrimitive and FacePrimitive."""
     @aedt_exception_handler
     def fillet(self, radius=0.1, setback=0.0):
-        """Add fillet to an edge.
+        """Add a fillet to the selected edge.
 
         Parameters
         ----------
@@ -352,7 +357,7 @@ class FacePrimitive(object):
 
     @property
     def id(self):
-        """ID of the face."""
+        """Face ID."""
         return self._id
 
     @property
@@ -404,7 +409,7 @@ class FacePrimitive(object):
 
     @aedt_exception_handler
     def move_with_offset(self, offset=1.0):
-        """Move a face along the normal.
+        """Move the face along the normal.
 
         Parameters
         ----------
@@ -512,7 +517,8 @@ class Object3d(object):
     
     Parameters
     ----------
-    parent :
+    parent : 
+        Inherited parent object.
     name :
 
     Examples
@@ -762,7 +768,9 @@ class Object3d(object):
 
     @property
     def object_type(self):
-        """Type of the object. Options are:
+        """Type of the object. 
+        
+        Options are:
              * Solid
              * Sheet
              * Line
@@ -832,7 +840,7 @@ class Object3d(object):
 
     @property
     def color(self):
-        """Part color as a tuple of integer values for `(Red, Green, Blue)` color valeus.
+        """Part color as a tuple of integer values for `(Red, Green, Blue)` color values.
         
         If the integer values are outside the range 0-255, then limit the values. Invalid inputs are ignored.
         
@@ -889,7 +897,7 @@ class Object3d(object):
 
     @property
     def transparency(self):
-        """Part transparency as a value between 0.0 and 1.0
+        """Part transparency as a value between 0.0 and 1.0.
         
         If the value is outside the range, then apply a limit. If the value is not a valid number, set to ``0.0``.
         
@@ -920,6 +928,7 @@ class Object3d(object):
 
     @property
     def object_units(self):
+        """Object units."""
         return self._parent.model_units
 
     @property
@@ -1600,7 +1609,7 @@ class Padstack(object):
 
 
 class CircuitComponent(object):
-    """Manage circuit components.
+    """Manages circuit components.
     
     Parameters
     ----------

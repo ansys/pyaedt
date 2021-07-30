@@ -24,19 +24,6 @@ class TestClass:
         self.local_scratch.remove()
         gc.collect()
 
-    def restore_geometry(self):
-        udp = self.aedtapp.modeler.Position(0, 0, 0)
-        coax_dimension = 200
-        object_list = ["inner", "outer"]
-        for name in object_list:
-            if self.aedtapp.modeler.primitives[name]:
-                self.aedtapp.modeler.primitives.delete(name)
-        inner = self.aedtapp.modeler.primitives.create_cylinder(self.aedtapp.CoordinateSystemPlane.XYPlane, udp, 3, coax_dimension, 0, "inner")
-        outer = self.aedtapp.modeler.primitives.create_cylinder(self.aedtapp.CoordinateSystemPlane.XYPlane, udp, 10, coax_dimension, 0, "outer")
-        cyl_1 = self.aedtapp.modeler.primitives.create_cylinder(self.aedtapp.CoordinateSystemPlane.XYPlane, udp, 10, coax_dimension, 0, "die")
-        self.aedtapp.modeler.subtract(cyl_1, inner, True)
-        return inner, outer, cyl_1
-
     def test_01_save(self):
         project_name = "Test_Exercse201119"
         test_project = os.path.join(self.local_scratch.path, project_name + ".aedt")
@@ -58,13 +45,14 @@ class TestClass:
         assert self.aedtapp.modeler.subtract(o2, o1, True)
 
     def test_03_2_assign_material(self):
-        inner, outer, cyl_1 = self.restore_geometry()
-        inner.material_name = "Copper"
+        udp = self.aedtapp.modeler.Position(0, 0, 0)
+        coax_dimension = 200
+        cyl_1 = self.aedtapp.modeler.primitives.create_cylinder(self.aedtapp.CoordinateSystemPlane.XYPlane, udp, 10, coax_dimension, 0, "die")
+        self.aedtapp.modeler.subtract(cyl_1, "inner", True)
+        self.aedtapp.modeler.primitives["inner"].material_name = "Copper"
         cyl_1.material_name = "teflon_based"
-        outer.material_name = "Copper"
-        assert inner.material_name == "copper"
+        assert self.aedtapp.modeler.primitives["inner"].material_name == "copper"
         assert cyl_1.material_name == "teflon_based"
-        assert outer.material_name == "copper"
 
     @pytest.mark.parametrize(
         "object_name, kwargs",
@@ -278,7 +266,7 @@ class TestClass:
     def test_20_create_voltage_on_sheet(self):
         rect = self.aedtapp.modeler.primitives.create_rectangle(self.aedtapp.CoordinateSystemPlane.XYPlane, [0, 0, 0],
                                                                 [10, 2], name="lump_volt", matname="Copper")
-        port = self.aedtapp.assig_voltage_source_to_sheet(rect.name, self.aedtapp.AxisDir.XNeg,  "LumpVolt1")
+        port = self.aedtapp.assign_voltage_source_to_sheet(rect.name, self.aedtapp.AxisDir.XNeg,  "LumpVolt1")
         assert port in self.aedtapp.modeler.get_excitations_name()
         assert self.aedtapp.get_property_value("BoundarySetup:LumpVolt1", "VoltageMag", "Excitation") == "1V"
 

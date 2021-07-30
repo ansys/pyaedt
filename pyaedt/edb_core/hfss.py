@@ -1,5 +1,5 @@
 """
-This module contains the ``Edb3DLayout`` class.
+This module contains the `Edb3DLayout` class.
 """
 
 import warnings
@@ -17,7 +17,7 @@ except ImportError:
 
 
 class Edb3DLayout(object):
-    """Edb3DLayout class."""
+    """Manages EDB functionalities for 3D layouts."""
 
     def __init__(self, parent):
         self.parent = parent

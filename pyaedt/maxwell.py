@@ -62,7 +62,7 @@ def float_units(val_str, units=""):
     Parameters
     ----------
     val_str : str
-        Name of the float  
+        Name of the float value.  
         
     units : str, optional
          The default is ``""``.
@@ -164,7 +164,7 @@ class Maxwell(object):
 
     @property
     def design_file(self):
-        """Design files."""
+        """Design file."""
         design_file = os.path.join(self.working_directory, "design_data.json")
         return design_file
 
@@ -183,7 +183,7 @@ class Maxwell(object):
         python_interpreter : optional
              The default value is ``None``.
         aedt_lib_dir : str, optional
-             The default value is ``None``.
+             Full path to the ``AEDTLib`` directory. The default value is ``None``.
 
         Returns
         -------
@@ -245,7 +245,7 @@ class Maxwell(object):
         object_list : list
             List of objects.    
         activate : bool, optional
-            Whether to activate. The default is ``True``.
+            Whether to activate eddy effects. The default is ``True``.
 
         Returns
         -------
@@ -275,7 +275,7 @@ class Maxwell(object):
         object_list : list
             List of objects to assign the current source to.
         amplitude : float, optional
-            The default is ``1``.
+            Voltage amplitude in mV. The default is ``1``.
         phase : str, optional
             The default is ``"0deg"``.
         solid : bool, optional
@@ -407,11 +407,11 @@ class Maxwell(object):
         ind : float, optional
             Henry. The default is ``0``.
         voltage : float, optional
-            Voltage. The default is ``0``.
+            Voltage value. The default is ``0``.
         parallel_branches : int, optional
             The default is ``1``.
         name : str, optional
-            Name of the winding. The default is ``None``.
+            Name of the boundary. The default is ``None``.
 
         Returns
         -------
@@ -651,7 +651,7 @@ class Maxwell(object):
         return True
 
     @aedt_exception_handler
-    def analyse_from_zero(self):
+    def analyze_from_zero(self):
         """Analyze from zero.
         
         Returns
@@ -661,7 +661,7 @@ class Maxwell(object):
         
         """
         self.oanalysis.ResetSetupToTimeZero(self._setup)
-        self.analyse_nominal()
+        self.analyze_nominal()
         return True
 
     @aedt_exception_handler
@@ -705,7 +705,7 @@ class Maxwell(object):
         return self
 
     def __exit__(self, ex_type, ex_value, ex_traceback):
-        """ Push exit up to parent object Design """
+        """Push exit up to parent object Design."""
         if ex_type:
             exception_to_desktop(self, ex_value, ex_traceback)
 
@@ -766,13 +766,13 @@ class Maxwell3d(Maxwell, FieldAnalysis3D, object):
 
     @property  # for legacy purposes
     def dim(self):
-        """ """
+        """Dimensions."""
         return '3D'
 
     def __init__(self, projectname=None, designname=None, solution_type=None, setup_name=None,
                  specified_version=None, NG=False, AlwaysNew=False, release_on_exit=False,student_version=False):
         """
-        Initialize the ``Maxwell`` class.
+        Initialize the `Maxwell` class.
         """
         self.is3d = True
         FieldAnalysis3D.__init__(self, "Maxwell 3D", projectname, designname, solution_type, setup_name,
@@ -843,7 +843,7 @@ class Maxwell2d(Maxwell, FieldAnalysis2D, object):
 
     @property  # for legacy purposes
     def dim(self):
-        """Dimension."""
+        """Dimensions."""
         return self.modeler.dimension
 
     @property
@@ -858,37 +858,16 @@ class Maxwell2d(Maxwell, FieldAnalysis2D, object):
                                  specified_version, NG, AlwaysNew, release_on_exit, student_version)
         Maxwell.__init__(self)
 
+    @aedt_exception_handler
     def get_model_depth(self):
         """Get model depth."""
-        if self.modeler.dimension == '2D':
-            with open(self.project_file, 'r') as fi:
-                design_str = "\t$begin 'Maxwell2DModel'"
-                found_design = False
-                found_correct_design = False
-                item_str = "\t\tModelDepth='"
-                for line in fi:
-                    if not found_design:
-                        if line.startswith(design_str):
-                            found_design = True
-                    else:
-                        if line.startswith("\t\tName='"):
-                            if self.design_name in line:
-                                found_correct_design = True
-                            else:
-                                found_design = False
-                    if found_correct_design:
-                        if line.startswith(item_str):
-                            break
-                if found_correct_design:
-                    value_str = line.replace(item_str, "").replace("'\n", "")
-                    # TODO Still messy!
-                    try:
-                        a = float_units(value_str)
-                    except:
-                        a = self.variable_manager[value_str].value
-                    return a
-                else:
-                    raise RuntimeError('Design data is not found by the get_model_depth function. Find and fix the inconsistency.')
+        if "ModelDepth" in self.design_properties:
+            value_str=self.design_properties["ModelDepth"]
+            try:
+                a = float_units(value_str)
+            except:
+                a = self.variable_manager[value_str].value
+            return a
         else:
             return None
 
@@ -909,6 +888,15 @@ class Maxwell2d(Maxwell, FieldAnalysis2D, object):
             ``True`` when successful, ``False`` when failed.
 
         """
+
+        def convert(obj):
+            if isinstance(obj, bool):
+                return str(obj).lower()
+            if isinstance(obj, (list, tuple)):
+                return [convert(item) for item in obj]
+            if isinstance(obj, dict):
+                return {convert(key): convert(value) for key, value in obj.items()}
+            return obj
         solid_bodies = self.modeler.solid_bodies
         if objectfilter:
             solid_ids = [i for i,j in self.modeler.primitives.object_id_dict.items() if j.name in objectfilter]
@@ -933,7 +921,7 @@ class Maxwell2d(Maxwell, FieldAnalysis2D, object):
 
         design_file = os.path.join(self.working_directory, "design_data.json")
         with open(design_file, 'w') as fps:
-            json.dump(self.design_data, fps, indent=4)
+            json.dump(convert(self.design_data), fps, indent=4)
         return True
 
     @aedt_exception_handler

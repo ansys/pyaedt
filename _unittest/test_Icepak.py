@@ -104,7 +104,7 @@ class TestClass:
                        "Rectangle3_1", "Rectangle3_1_1", "Rectangle3_1_2", "Rectangle3_1_3", "Rectangle4", "Rectangle5",
                        "Rectangle6", "Rectangle7"]
         param_list = []
-        assert self.aedtapp.assign_em_losses("uUSB", "Setup1", "LastAdaptive", ["2.5GHz"], surface_list, HFSSpath, param_list, object_list)
+        assert self.aedtapp.assign_em_losses("uUSB", "Setup1", "LastAdaptive", "2.5GHz", surface_list, HFSSpath, param_list, object_list)
 
     def test_07_ExportStepForWB(self):
         file_path = self.local_scratch.path
@@ -174,8 +174,8 @@ class TestClass:
         assert self.aedtapp.create_output_variable("OutputVariable1", "abs(Variable1)") # test creation
         assert self.aedtapp.create_output_variable("OutputVariable1", "asin(Variable1)") # test update
 
-    def test_17_analyse(self):
-        self.aedtapp.analyse_nominal()
+    def test_17_analyze(self):
+        self.aedtapp.analyze_nominal()
     
     def test_17_get_output_variable(self):
         value = self.aedtapp.get_output_variable("OutputVariable1")

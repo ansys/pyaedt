@@ -95,7 +95,7 @@ def arg2dict(arg, dict_out):
     -------
 
     """
-    if arg[0] == "NAME:DimUnits" or arg[0] == "NAME:Points":
+    if arg[0] == "NAME:DimUnits" or "NAME:Point" in arg[0]:
         dict_out[arg[0][5:]] = list(arg[1:])
     elif arg[0][:5] == 'NAME:':
         top_key = arg[0][5:]

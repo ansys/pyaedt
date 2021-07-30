@@ -82,7 +82,7 @@ q.post.create_rectangular_plot("C(Bar1,Bar1)",context="Original")
 # Solve Setup
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # This method solve setup
-q.analyse_nominal()
+q.analyze_nominal()
 
 ###############################################################################
 # Close Desktop

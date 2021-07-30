@@ -1,6 +1,7 @@
 """This module contains these classes: `Hfss` and 'BoundaryType`."""
 from __future__ import absolute_import
 import os
+import warnings
 from .application.Analysis3D import FieldAnalysis3D
 from .desktop import exception_to_desktop
 from .modeler.GeometryOperators import GeometryOperators
@@ -730,7 +731,7 @@ class Hfss(FieldAnalysis3D, object):
         endobject :
             Second (ending) object for the integration line.
         axisdir : str, optional
-            Position of the port. It should be one of the values for ``Application.AxisDir``, 
+            Position of the port. It should be one of the values for ``Application.AxisDir``,
             which are: ``"XNeg"``, ``"YNeg"``, ``"ZNeg"``, ``"XPos"``, ``"YPos"``, and ``"ZPos"``.
             The default is ``"XYNeg"``.
         impedance : float, optional
@@ -862,7 +863,7 @@ class Hfss(FieldAnalysis3D, object):
         endobject :
             Second (ending) object for the integration line.
         axisdir : str, optional
-            Position of the port. It should be one of the values for ``Application.AxisDir``, 
+            Position of the port. It should be one of the values for ``Application.AxisDir``,
             which are: ``"XNeg"``, ``"YNeg"``, ``"ZNeg"``, ``"XPos"``, ``"YPos"``, and ``"ZPos"``.
             The default value is ``"0"``.
         sourcename : str, optional
@@ -1011,7 +1012,7 @@ class Hfss(FieldAnalysis3D, object):
         endobject :
             Second (ending) object for the integration line.
         axisdir : str, optional
-            Position of the port. It should be one of the values for ``Application.AxisDir``, 
+            Position of the port. It should be one of the values for ``Application.AxisDir``,
             which are: ``"XNeg"``, ``"YNeg"``, ``"ZNeg"``, ``"XPos"``, ``"YPos"``, and ``"ZPos"``.
             The default is ``"0"``.
         impedance : float, optional
@@ -1107,12 +1108,12 @@ class Hfss(FieldAnalysis3D, object):
 
         Parameters
         ----------
-        startobj : 
+        startobj :
             First (starting) object for the integration line. This is typically the reference plane.
         endobject :
             Second (ending) object for the integration line.
         axisdir : int, optional
-            Position of the port. It should be one of the values for ``Application.AxisDir``, 
+            Position of the port. It should be one of the values for ``Application.AxisDir``,
             which are: ``0`` for ``"XNeg"``,``1`` for ``"YNeg"``,``2`` for ``"ZNeg"``, ``3`` for``"XPos"``,
             ``4`` for``"YPos"``, and ``5`` for``"ZPos"``.
             The default is ``0``.
@@ -1624,8 +1625,24 @@ class Hfss(FieldAnalysis3D, object):
         -------
         list
             List of names for the ports created when successful, ``False`` otherwise.
-        
+
+        Examples
+        --------
+
+        Create a circle sheet that will be used to create a wave port named
+        ``'WavePortFromSheet'``.
+
+        >>> origin_position = hfss.modeler.Position(0, 0, 0)
+        >>> circle = hfss.modeler.primitives.create_circle(hfss.CoordinateSystemPlane.YZPlane,
+        ...                                                origin_position, 10, name="WaveCircle")
+        >>> hfss.solution_type = "DrivenModal"
+        >>> port = hfss.create_wave_port_from_sheet(circle, 5, hfss.AxisDir.XNeg, 40, 2,
+        ...                                         "WavePortFromSheet", True)
+        >>> port[0].name
+        'WavePortFromSheet'
+
         """
+
         sheet = self.modeler.convert_to_selections(sheet, True)
         portnames = []
         for obj in sheet:
@@ -1678,6 +1695,20 @@ class Hfss(FieldAnalysis3D, object):
         -------
         str
             Name of the port created when successful, ``False`` otherwise.
+
+        Examples
+        --------
+
+        Create a rectangle sheet that will be used to create a lumped port named
+        ``'LumpedPortFromSheet'``.
+
+        >>> rectangle = hfss.modeler.primitives.create_rectangle(hfss.CoordinateSystemPlane.XYPlane,
+        ...                                                      [0, 0, 0], [10, 2], name="lump_port",
+        ...                                                      matname="copper")
+        >>> hfss.create_lumped_port_to_sheet(rectangle.name, hfss.AxisDir.XNeg, 50,
+        ...                                  "LumpedPortFromSheet", True, False)
+        'LumpedPortFromSheet'
+
         """
 
         if self.solution_type in ["DrivenModal", "DrivenTerminal", "Transient Network"]:
@@ -1713,6 +1744,19 @@ class Hfss(FieldAnalysis3D, object):
     def assig_voltage_source_to_sheet(self, sheet_name, axisdir=0, sourcename=None):
         """Create a voltage source taking one sheet.
 
+        .. deprecated:: 0.4.0
+           Use :func:`Hfss.assign_voltage_source_to_sheet` instead.
+
+        """
+
+        warnings.warn('`assig_voltage_source_to_sheet is deprecated`. Use `assign_voltage_source_to_sheet` instead.',
+                      DeprecationWarning)
+        self.assign_voltage_source_to_sheet(sheet_name, axisdir=0, sourcename=None)
+
+    @aedt_exception_handler
+    def assign_voltage_source_to_sheet(self, sheet_name, axisdir=0, sourcename=None):
+        """Create a voltage source taking one sheet.
+
         Parameters
         ----------
         sheet_name : str
@@ -1737,7 +1781,7 @@ class Hfss(FieldAnalysis3D, object):
         >>> sheet = hfss.modeler.primitives.create_rectangle(hfss.CoordinateSystemPlane.XYPlane,
         ...                                                  [0, 0, -70], [10, 2], name="VoltageSheet",
         ...                                                  matname="copper")
-        >>> hfss.assig_voltage_source_to_sheet(sheet.name, hfss.AxisDir.XNeg, "VoltageSheetExample")
+        >>> hfss.assign_voltage_source_to_sheet(sheet.name, hfss.AxisDir.XNeg, "VoltageSheetExample")
         'VoltageSheetExample'
 
         """
@@ -2030,7 +2074,31 @@ class Hfss(FieldAnalysis3D, object):
         str
             Name of the port created when successful, ``False`` otherwise.
 
+        Examples
+        --------
+
+        Create two rectangles in the XY plane.
+        Select the first edge of each rectangle created previously.
+        Create a circuit port from the first edge of the first rectangle
+        toward the first edge of the second rectangle.
+
+        >>> plane = hfss.CoordinateSystemPlane.XYPlane
+        >>> rectangle1 = hfss.modeler.primitives.create_rectangle(plane, [10, 10, 10], [10, 10],
+        ...                                                       name="rectangle1_for_port")
+        >>> edges1 = hfss.modeler.primitives.get_object_edges(rectangle1.id)
+        >>> first_edge = edges1[0]
+        >>> rectangle2 = hfss.modeler.primitives.create_rectangle(plane, [30, 10, 10], [10, 10],
+        ...                                                       name="rectangle2_for_port")
+        >>> edges2 = hfss.modeler.primitives.get_object_edges(rectangle2.id)
+        >>> second_edge = edges2[0]
+        >>> hfss.solution_type = "DrivenModal"
+        >>> hfss.create_circuit_port_from_edges(first_edge, second_edge, port_name="PortExample",
+        ...                                     port_impedance=50.1, renormalize=False,
+        ...                                     renorm_impedance="50")
+        'PortExample'
+
         """
+
         edge_list = [edge_signal, edge_gnd]
         if not port_name:
             port_name = generate_unique_name("Port")
@@ -2060,7 +2128,23 @@ class Hfss(FieldAnalysis3D, object):
         -------
         bool
             ``True`` when successful, ``False`` when failed.
-        
+
+        Examples
+        --------
+
+        Create a rectangle sheet and use it to create a wave port.
+        Set up the thermal power for the port created above.
+
+        >>> sheet = hfss.modeler.primitives.create_circle(hfss.CoordinateSystemPlane.YZPlane,
+        ...                                               [-20, 0, 0], 10,
+        ...                                               name="sheet_for_source")
+        >>> hfss.solution_type = "DrivenModal"
+        >>> wave_port = hfss.create_wave_port_from_sheet(sheet, 5, hfss.AxisDir.XNeg, 40,
+        ...                                              2, "SheetWavePort", True)
+        >>> hfss.edit_source("SheetWavePort" + ":1", "10W")
+        pyaedt Info: Setting up power to Eigenmode 10WWatt
+        True
+
         """
         self._messenger.add_info_message("Setting up power to Eigenmode " + powerin + "Watt")
         if self.solution_type != "Eigenmode":

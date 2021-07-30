@@ -101,12 +101,12 @@ class Icepak(FieldAnalysisIcepak):
 
     @property
     def existing_analysis_sweeps(self):
-        """List the existing analysis setups.       
+        """Existing analysis setups.       
 
         Returns
         -------
         list
-            List of all defined analysis setup names in the Maxwell design.
+            List of all analysis setups in the design.
 
         """
         setup_list = self.existing_analysis_setups
@@ -950,7 +950,7 @@ class Icepak(FieldAnalysisIcepak):
             argparam[el]=el
 
         props = OrderedDict(
-            {"Objects": allObjects, "Project": projname, "projname": "ElectronicsDesktop",
+            {"Objects": allObjects, "Project": projname, "Product": "ElectronicsDesktop",
              "Design": designname, "Soln": setupname + " : " + sweepname, "Params": argparam,
              "ForceSourceToSolve": True, "PreservePartnerSoln": True, "PathRelativeTo": "TargetProject"})
         props["Intrinsics"]= intr

@@ -344,3 +344,17 @@ def time_fn( fn, *args, **kwargs ):
 
 def isclose(a, b, rel_tol=1e-9, abs_tol=0.0):
     return abs(a-b) <= max( rel_tol * max(abs(a), abs(b)), abs_tol )
+
+
+def is_number(a):
+    if isinstance(a, float) or isinstance(a, int):
+        return True
+    elif isinstance(a, str):
+        try:
+            float(a)
+            return True
+        except ValueError:
+            return False
+    else:
+        return False
+    #return str(a).replace(".", "").replace("+", "").replace("-", "").replace("e","").replace("E","").isnumeric()

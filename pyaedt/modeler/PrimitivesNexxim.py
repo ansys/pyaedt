@@ -547,14 +547,14 @@ class NexximComponents(CircuitComponents):
 
     @aedt_exception_handler
     def create_npn(self, compname=None, value=None, xpos=0, ypos=0, angle=0, use_instance_id_netlist=False):
-        """Create a transistor NPN.
+        """Create an NPN transistor.
 
         Parameters
         ----------
         compname : str
-            Name of the transistor NPN. The default is ``None``.
+            Name of the NPN transistor. The default is ``None``.
         value : float, optional
-            Value for the transistor NPN. The default is ``None``.
+            Value for the NPN transistor. The default is ``None``.
         xpos : float, optional
             Position on the X axis. The default is ``0``.    
         ypos: float, optional
@@ -568,9 +568,9 @@ class NexximComponents(CircuitComponents):
         Returns
         -------
         int
-            ID of the transistor NPN.
+            ID of the NPN transistor.
         str
-            Name of the transistor NPN.
+            Name of the NPN transistor.
         
         """
         id, name = self.create_component(compname,component_library="BJTs", component_name="Level01_NPN", xpos=xpos, ypos=ypos,
@@ -581,14 +581,14 @@ class NexximComponents(CircuitComponents):
 
     @aedt_exception_handler
     def create_pnp(self, compname=None,value=50, xpos=0, ypos=0, angle=0, use_instance_id_netlist=False):
-        """Create a transistor PNP.
+        """Create a PNP transistor.
 
         Parameters
         ----------
         compname : str
-            Name of the transistor PNP. The default is ``None``.
+            Name of the PNP transistor. The default is ``None``.
         value : float, optional
-            Value for the transistor PPP. The default is ``None``.
+            Value for the PNP transistor. The default is ``None``.
         xpos : float, optional
             Position on the X axis. The default is ``0``.    
         ypos: float, optional
@@ -602,9 +602,9 @@ class NexximComponents(CircuitComponents):
         Returns
         -------
         int
-            ID of the transistor PNP.
+            ID of the PNP transistor.
         str
-            Name of the transistor PNP.
+            Name of the PNP transistor.
         
         """
         id, name = self.create_component(compname, component_library="BJTs", component_name="Level01_PNP", xpos=xpos, ypos=ypos,

@@ -41,7 +41,7 @@ from .generic.general_methods import get_filename_without_extension, generate_un
 from .generic.process import SiwaveSolve
 
 class Edb(object):
-    """EDB instance interface.
+    """EDB application interface.
 
     This module inherits all objects that belong to EDB.
 
@@ -114,7 +114,7 @@ class Edb(object):
             self.isreadonly = isreadonly
             self.cellname = cellname
             self.edbpath = edbpath
-            if not os.path.exists(self.edbpath):
+            if not os.path.exists(os.path.join(self.edbpath, "edb.def")):
                 self.create_edb()
             elif ".aedb" in edbpath:
                 self.edbpath = edbpath
@@ -283,7 +283,8 @@ class Edb(object):
             self._active_cell = list(self._db.TopCircuitCells)[0]
 
         if self._active_cell:
-            self.builder = self.layout_methods.GetBuilder(self._db, self._active_cell, self.standalone)
+            dllpath=os.path.join(os.path.abspath(os.path.dirname(__file__)), "dlls", "EDBLib", "DataModel.dll")
+            self.builder = self.layout_methods.GetBuilder(self._db, self._active_cell, self.edbpath, self.edbversion, dllpath, self.standalone)
         else:
             self.builder = None
         return self.builder
@@ -309,7 +310,8 @@ class Edb(object):
             hdl = Convert.ToUInt64(self.oproject.GetEDBHandle())
             self._db = self.edb.Database.Attach(hdl)
             self._active_cell = self.edb.Cell.Cell.FindByName(self.db, self.edb.Cell.CellType.CircuitCell, self.cellname)
-            self.builder = self.layout_methods.GetBuilder(self.db, self._active_cell, self.standalone, True)
+            dllpath=os.path.join(os.path.abspath(os.path.dirname(__file__)), "dlls", "EDBLib", "DataModel.dll")
+            self.builder = self.layout_methods.GetBuilder(self.db, self._active_cell, self.edbpath, self.edbversion,dllpath, self.standalone, True)
             return self.builder
         else:
             self._db = None
@@ -338,12 +340,13 @@ class Edb(object):
         if not self.cellname:
             self.cellname = generate_unique_name("Cell")
         self._active_cell = self.edb.Cell.Cell.Create(self._db,  self.edb.Cell.CellType.CircuitCell, self.cellname)
-        self.builder = self.layout_methods.GetBuilder(self.db, self._active_cell, self.standalone)
+        dllpath = os.path.join(os.path.dirname(__file__), "dlls", "EDBLib", "DataModel.dll")
+        self.builder = self.layout_methods.GetBuilder(self.db, self._active_cell, self.edbpath, self.edbversion,dllpath, self.standalone)
         print("active cell set")
         return self.builder
 
     @aedt_exception_handler
-    def import_layout_pcb(self, input_file, working_dir, init_dlls=False):
+    def import_layout_pcb(self, input_file, working_dir, init_dlls=False, anstranslator_full_path=None):
         """Import a BRD file and generate an ``edb.def`` file in the working directory.
 
         Parameters
@@ -373,15 +376,20 @@ class Edb(object):
         if init_dlls:
             self._init_dlls()
         aedb_name= os.path.splitext(os.path.basename(input_file))[0] + ".aedb"
-        command = os.path.join(self.base_path, "anstranslator")
+        if anstranslator_full_path and os.path.exists(anstranslator_full_path):
+            command = anstranslator_full_path
+        else:
+            command = os.path.join(self.base_path, "anstranslator")
+            if os.name != "posix":
+                command += ".exe"
+        if not working_dir:
+            working_dir = os.path.dirname(input_file)
 
-        if os.name != "posix":
-            command +=  ".exe"
 
         translatorSetup = self.edbutils.AnsTranslatorRunner(
             input_file,
-            os.path.join(os.path.dirname(input_file),aedb_name),
-            os.path.join(os.path.dirname(input_file), "Translator.log"),
+            os.path.join(working_dir,aedb_name),
+            os.path.join(working_dir, "Translator.log"),
             os.path.dirname(input_file),
             True,
             command)
@@ -389,7 +397,7 @@ class Edb(object):
         if not translatorSetup.Translate():
             self._messenger.add_error_message("Translator failed to translate.")
             return False
-        self.edbpath = os.path.join(os.path.dirname(input_file),aedb_name)
+        self.edbpath = os.path.join(working_dir,aedb_name)
         return self.open_edb()
 
 

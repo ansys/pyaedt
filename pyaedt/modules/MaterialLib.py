@@ -163,7 +163,6 @@ class Materials(object):
         Returns
         -------
         :class:`pyaedt.modules.Material.Material`
-            Material object added.
 
         Examples
         --------
@@ -191,7 +190,7 @@ class Materials(object):
     def add_surface_material(self, material_name, emissivity=None):
         """Add a surface material.
         
-        In AEDT, base properties are loaded from the XML file database ``amat.xml`` 
+        In AEDT, base properties are loaded from the XML database file ``amat.xml`` 
         or from the emissivity.
 
         Parameters
@@ -204,7 +203,6 @@ class Materials(object):
         Returns
         -------
         :class:`pyaedt.modules.SurfaceMaterial`
-            Surface material object added.
             
         Examples
         --------
@@ -315,14 +313,13 @@ class Materials(object):
         Parameters
         ----------
         material : str
-            Name of the material to duplicate.
+            Name of the material.
         new_name : str
             Name for the copy of the material.
 
         Returns
         -------
         :class:`pyaedt.modules.Material.Material`
-            Material object added.
 
         Examples
         --------
@@ -348,14 +345,13 @@ class Materials(object):
         Parameters
         ----------
          material : str
-            Name of the surface material to duplicate.
+            Name of the surface material.
         new_name : str
             Name for the copy of the surface material.
 
         Returns
         -------
         :class:`pyaedt.modules.SurfaceMaterial`
-            Surface Material object added.
 
         Examples
         --------
@@ -415,7 +411,7 @@ class Materials(object):
         Returns
         -------
         list
-            List of conductor in the material database.
+            List of conductors in the material database.
             
         """
         data = []

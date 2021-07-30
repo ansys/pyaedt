@@ -7,11 +7,9 @@ from ..modules.Mesh3DLayout import Mesh
 
 
 class FieldAnalysis3DLayout(Analysis):
-    """FieldAnalysis3DLayout class.
-    
-    This class is for 3D field analysis setup in HFSS 3D Layout.
+    """Manages 3D field analysis setup in HFSS 3D Layout.
 
-    It is automatically initialized by an application call from this
+    This class is automatically initialized by an application call from this
     3D tool. See the application function for parameter definitions.
 
     Parameters
@@ -39,7 +37,7 @@ class FieldAnalysis3DLayout(Analysis):
         the active version or latest installed version is used.
     NG : bool, optional
         Whether to run AEDT in the non-graphical mode. The default 
-        is ``False``, which launches AEDT in the graphical mode.  
+        is ``False``, in which case AEDT is launched in the graphical mode.  
     AlwaysNew : bool, optional
         Whether to launch an instance of AEDT in a new thread, even if
         another instance of the ``specified_version`` is active on the
@@ -65,12 +63,19 @@ class FieldAnalysis3DLayout(Analysis):
 
     @property
     def oboundary(self):
-        """Boundary object."""
+        """Boundary.
+        
+        Returns
+        -------
+        AEDT object
+            Boundaries module object.
+        
+        """
         return self._odesign.GetModule("Excitations")
 
     @property
     def mesh(self):
-        """
+        """Mesh.
 
         Returns
         -------
@@ -134,7 +139,7 @@ class FieldAnalysis3DLayout(Analysis):
 
         Returns
         -------
-        type
+        list
             List of strings representing the return losses of the excitations.
             For example, ``["S(1, 1)", "S(2, 2)"]``. 
        
@@ -220,11 +225,11 @@ class FieldAnalysis3DLayout(Analysis):
         trlist : list, optional
             List of drivers. The default is ``[]``. For example, ``["1", "2"]``.
         reclist : list, optional
-            List of receiver. The default is ``[]``. For example, ``["3", "4"]``.
+            List of receivers. The default is ``[]``. For example, ``["3", "4"]``.
         tx_prefix : str, optional
-            Prefix for driver names. For example, ``"DIE"``.  The default is ``""``.
+            Prefix to add to the driver names. For example, ``"DIE"``.  The default is ``""``.
         rx_prefix : str, optional
-            Prefix for receiver names. For examples, ``"BGA"`` The default is ``""``.
+            Prefix to add to the receiver names. For examples, ``"BGA"``. The default is ``""``.
         skip_same_index_couples : bool, optional
             Whether to skip driver and receiver couples with the same index position.
             The default is ``True``, in which case the drivers and receivers 
@@ -279,19 +284,26 @@ class FieldAnalysis3DLayout(Analysis):
 
     @property
     def oanalysis(self):
-        """Analysis object."""
+        """Analysis."""
         return self.odesign.GetModule("SolveSetups")
 
     @property
     def existing_analysis_setups(self):
-        """Retrieve a list of all analysis setup names in the Maxwell design."""
+        """Existing analysis setups in the design.
+        
+        Returns
+        -------
+        list
+            List of names of all analysis setups in the design.
+       
+        """
         oModule = self.odesign.GetModule("SolveSetups")
         setups = list(oModule.GetSetups())
         return setups
 
     @aedt_exception_handler
     def create_setup(self, setupname="MySetupAuto", setuptype=None, props={}):
-        """Create a new setup.
+        """Create a setup.
 
         Parameters
         ----------
@@ -305,8 +317,7 @@ class FieldAnalysis3DLayout(Analysis):
 
         Returns
         -------
-        Setup3DLayout
-            Setup object.
+        :class:`pyaedt.modules.SolveSetup.Setup3DLayout`
 
         """
         if setuptype is None:
@@ -324,7 +335,7 @@ class FieldAnalysis3DLayout(Analysis):
 
     @aedt_exception_handler
     def get_setup(self, setupname, setuptype=None):
-        """Get an existing setup.
+        """Retrieve a setup.
 
         Parameters
         ----------

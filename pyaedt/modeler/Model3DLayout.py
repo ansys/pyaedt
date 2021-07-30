@@ -9,18 +9,19 @@ from ..modules.LayerStackup import Layers
 import sys
 
 class Modeler3DLayout(Modeler):
-    """Modeler3DLayout class.
+    """Manages Modeler 3D layouts.
 
     Parameters
     ----------
     parent :
+        Inherited parent object.
 
     """
     def __init__(self, parent):
         self._parent = parent
-        self._messenger.add_info_message("Loading Modeler")
+        self._messenger.add_info_message("Loading Modeler.")
         Modeler.__init__(self, parent)
-        self._messenger.add_info_message("Modeler Loaded")
+        self._messenger.add_info_message("Modeler loaded.")
         self._primitivesDes = self._parent.project_name + self._parent.design_name
         edb_folder = os.path.join(self._parent.project_path, self._parent.project_name + ".aedb")
         edb_file = os.path.join(edb_folder, "edb.def")
@@ -31,12 +32,12 @@ class Modeler3DLayout(Modeler):
                             oproject=self._parent.oproject)
         else:
             self._mttime = 0
-        self._messenger.add_info_message("EDB Loaded")
+        self._messenger.add_info_message("EDB loaded.")
 
         self.layers = Layers(self._parent,self, roughnessunits="um")
-        self._messenger.add_info_message("Layers Loaded")
+        self._messenger.add_info_message("Layers loaded.")
         self._primitives = Primitives3DLayout(self._parent, self)
-        self._messenger.add_info_message("Primitives Loaded")
+        self._messenger.add_info_message("Primitives loaded.")
         self.layers.refresh_all_layers()
 
         pass
@@ -70,7 +71,7 @@ class Modeler3DLayout(Modeler):
 
     @property
     def oeditor(self):
-        """Layout."""
+        """Editor."""
         return self._parent.odesign.SetActiveEditor("Layout")
 
     @aedt_exception_handler
@@ -85,18 +86,7 @@ class Modeler3DLayout(Modeler):
 
     @model_units.setter
     def model_units(self, units):
-        """
-
-        Parameters
-        ----------
-        units :
-            
-
-        Returns
-        -------
-
-        """
-        assert units in AEDT_units["Length"], "Invalid units string {0}".format(units)
+        assert units in AEDT_units["Length"], "Invalid units string {0}.".format(units)
         ''' Set the model units as a string e.g. "mm" '''
         self.oeditor.SetActivelUnits(
             [
@@ -128,7 +118,7 @@ class Modeler3DLayout(Modeler):
         selection : str or list
             One or more primitives to heal.
         tolerance :  float, optional
-            Tolerance value. The default is `0.1`.
+            Tolerance value. The default is ``0.1``.
 
         Returns
         -------
@@ -205,7 +195,7 @@ class Modeler3DLayout(Modeler):
 
     @aedt_exception_handler
     def import_cadence_brd(self, brd_filename, edb_path=None, edb_name=None):
-        """Import a cadence board.
+        """Import a Cadence board.
 
         Parameters
         ----------
@@ -245,12 +235,11 @@ class Modeler3DLayout(Modeler):
 
     @aedt_exception_handler
     def modeler_variable(self, value):
-        """
+        """Retrieve a modeler variable.
 
         Parameters
         ----------
-        value :
-            
+        value :      
 
         Returns
         -------
@@ -268,12 +257,12 @@ class Modeler3DLayout(Modeler):
         Parameters
         ----------
         ipc_filename :
-            Full path and name of the IPC file to import.
+            Full path and name of the IPC file.
         edb_path : str, optional
             Path where the EDB is to be created. The default is ``None``, in which
             case the project directory is used.
         edb_name : str, optional
-            name of the EDB. The default is ``None``, in which
+            Name of the EDB. The default is ``None``, in which
             case the board name is used.
 
         Returns
@@ -303,7 +292,7 @@ class Modeler3DLayout(Modeler):
         blank : str
             Name of the geometry to subtract from.
         tool : str or list
-            One or more names of the geometries to be subtracted.
+            One or more names of the geometries to subtract.
 
         Returns
         -------
@@ -354,7 +343,7 @@ class Modeler3DLayout(Modeler):
                         self.primitives._geometries.pop(el)
             return True
         else:
-            self._messenger.add_error_message("Input list must contain at least 2 elements")
+            self._messenger.add_error_message("Input list must contain at least two elements.")
             return False
 
     @aedt_exception_handler
@@ -383,7 +372,7 @@ class Modeler3DLayout(Modeler):
                         self.primitives._geometries.pop(el)
             return True
         else:
-            self._messenger.add_error_message("Input list must contain at least 2 elements")
+            self._messenger.add_error_message("Input list must contain at least two elements.")
             return False
 
     @aedt_exception_handler
@@ -397,7 +386,7 @@ class Modeler3DLayout(Modeler):
         count : int
 
         direction_vector : list
-            List of `[x, y]` coordinates for the direction vector.
+            List of ``[x, y]`` coordinates for the direction vector.
 
         Returns
         -------

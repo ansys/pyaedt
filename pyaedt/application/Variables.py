@@ -18,6 +18,7 @@ import re
 import numbers
 import os
 from .. import aedt_exception_handler
+from ..generic.general_methods import is_number
 
 @aedt_exception_handler
 def dB(x, inverse=True):
@@ -86,7 +87,7 @@ def unit_system(units):
     Returns
     -------
     str
-        Key from the ``AEDT_units`` when successful. For example, ``"AngualrSpeed"``.
+        Key from the ``AEDT_units`` when successful. For example, ``"AngularSpeed"``.
 	``False`` when the units specified are not defined in AEDT units.
     
     """
@@ -418,8 +419,8 @@ def decompose_variable_value(variable_value):
     float_value = variable_value
     units =''
 
-    if isinstance(variable_value, numbers.Number):
-        float_value = variable_value
+    if is_number(variable_value):
+        float_value = float(variable_value)
     elif isinstance(variable_value, str) and variable_value != 'nan':
         try:
             # Handle a numerical value in string form
@@ -441,10 +442,9 @@ def decompose_variable_value(variable_value):
 
 
 class VariableManager(object):
-    """VariableManager class.
-
-    This class provides for managing design properties and project variables. Design properties
-    are the local variables in a design. Project variables are defined at the project 
+    """Manages design properties and project variables. 
+    
+    Design properties are the local variables in a design. Project variables are defined at the project 
     level and start with ``$``. 
     
     This class provides access to all variables or a subset of the variables. Manipulation
@@ -640,17 +640,17 @@ class VariableManager(object):
 
     @property
     def oproject(self):
-        """Project object."""
+        """Project."""
         return self._parent._oproject
 
     @property
     def odesign(self):
-        """Design object."""
+        """Design."""
         return self._parent._odesign
 
     @property
     def _messenger(self):
-        """_messenger."""
+        """Messenger."""
         return self._parent._messenger
 
     def __init__(self, parent):
@@ -692,7 +692,7 @@ class VariableManager(object):
                 variable_expression = self.get_expression(variable_name)
                 try:
                     value = Variable(variable_expression)
-                    if independent and isinstance(value.value, numbers.Number) :
+                    if independent and is_number(value.value):
                         var_dict[variable_name] = value
                     elif dependent and type(value.value) is str:
                         float_value = self._parent.get_evaluated_value(variable_name)
@@ -715,7 +715,8 @@ class VariableManager(object):
         
         Parameters
         ----------
-        variable
+        variable : str
+	    Name of the variable.
         
         """
         if variable[0] == "$":
@@ -794,7 +795,7 @@ class VariableManager(object):
         elif isinstance(expression, Variable):
             # Handle input type variable
             variable = expression.string_value
-        elif isinstance(expression, numbers.Number):
+        elif is_number(expression):
             # Handle input type int/float, etc (including numeric 0)
             variable = str(expression)
         # Handle None, "" as Separator
@@ -958,11 +959,7 @@ class VariableManager(object):
 
 
 class Variable(object):
-    """Stores variables and provides for performing operations on variables.
-    
-    This class stores variables and provides for performing operations 
-    on variables. It handles the contents of design properties and project 
-    variables.
+    """Stores design properties and project variables and provides operations to perform on them.
 
     Parameters
     ----------
@@ -1008,7 +1005,7 @@ class Variable(object):
                 "The unit specification {} is inconsistent with the identified units {}.".format(specified_units, self._units)
             self._units = specified_units
 
-        if isinstance(self._value, numbers.Number):
+        if is_number(self._value):
             scale = AEDT_units[self.unit_system][self._units]
             if isinstance(scale, tuple):
                 self._value = scale[0](self._value, inverse=False)
@@ -1033,7 +1030,7 @@ class Variable(object):
     @property
     def numeric_value(self):
         """Numeric part of the expression as a float value."""
-        if isinstance(self._value, numbers.Number):
+        if is_number(self._value):
             scale = AEDT_units[self.unit_system][self._units]
         if isinstance(scale, tuple):
             return scale[0](self._value, True)
@@ -1126,7 +1123,7 @@ class Variable(object):
 
         Multiply ``'Length1'`` by unitless ``'None'``` to obtain ``'Length'``. 
         A numerical value is also considered to be unitless.
-        
+
         >>> v1 = Variable("10mm")
         >>> v2 = Variable(3)
         >>> result_1 = v1 * v2
@@ -1146,8 +1143,8 @@ class Variable(object):
         >>> assert result_3.unit_system == "Power"
 
         """
-        assert isinstance(other, numbers.Number) or isinstance(other, Variable), "Multiplier must be a scalar quantity or a variable."
-        if isinstance(other, numbers.Number):
+        assert is_number(other) or isinstance(other, Variable), "Multiplier must be a scalar quantity or a variable."
+        if is_number(other):
             result_value = self.numeric_value * other
             result_units = self.units
         else:
@@ -1206,7 +1203,7 @@ class Variable(object):
 
     @aedt_exception_handler
     def __sub__(self, other):
-        """Subtract another variable from the variable and return a new object.
+        """Subtract another variable from the variable to return a new object.
 
         Parameters
         ---------
@@ -1246,7 +1243,7 @@ class Variable(object):
     # Python 3.x version
     @aedt_exception_handler
     def __truediv__(self, other):
-        """Divide the variable by a number or another variable and return a new object
+        """Divide the variable by a number or another variable to return a new object.
 
         Parameters
         ---------
@@ -1273,8 +1270,8 @@ class Variable(object):
         >>> assert result_1.unit_system == "Current"
 
         """
-        assert isinstance(other, numbers.Number) or isinstance(other, Variable), "Divisor must be a scalar quantity or a variable."
-        if isinstance(other, numbers.Number):
+        assert is_number(other) or isinstance(other, Variable), "Divisor must be a scalar quantity or a variable."
+        if is_number(other):
             result_value = self.numeric_value / other
             result_units = self.units
         else:
@@ -1315,7 +1312,7 @@ class Variable(object):
         >>> assert result.unit_system == "Freq"
 
         """
-        assert isinstance(other, numbers.Number), "Dividend must be a numerical quantity!"
+        assert is_number(other), "Dividend must be a numerical quantity!"
         result_value = other / self.value
         result_units = _resolve_unit_system("None", self.unit_system, "divide")
         return Variable("{}{}".format(result_value, result_units))
@@ -1353,9 +1350,7 @@ class Expression(Variable, object):
 
 
 class DataSet(object):
-    """DataSet class.
-    
-    This class provides for managing data sets.
+    """Manages datasets.
     
     Parameters
     ----------
@@ -1438,7 +1433,7 @@ class DataSet(object):
 
     @aedt_exception_handler
     def add_point(self, x, y, z=None, v=None):
-        """Add a point to the existing dataset.
+        """Add a point to the dataset.
 
         Parameters
         ----------

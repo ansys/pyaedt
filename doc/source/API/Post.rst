@@ -1,14 +1,15 @@
 Postprocessing
 ==============
-This module provides all functionalities for creating and editing
-plots in the 3D tools and includes the following classes:
+This section lists modules for creating and editing
+plots in the 3D tools:
 
 .. note::
-   The ``AdvancedPostProcessing`` module requires Python 3 and
-   requires ``numpy``, ``matplotlib``, and ``pyvista``.
+   The `AdvancedPostProcessing` module requires Python 3 and
+   requires `NumPy <https://numpy.org/doc/stable/>`_, `Matplotlib <https://matplotlib.org/>`_, and `PyVista <https://docs.pyvista.org/>`_.
 
 .. note::
-   Some functionalities are available only in graphical mode.
+   Some functionalities are available only when AEDT is running 
+   in graphical mode.
 
 
 .. currentmodule:: pyaedt.modules
