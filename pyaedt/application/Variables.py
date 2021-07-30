@@ -1126,7 +1126,7 @@ class Variable(object):
 
         Multiply ``'Length1'`` by unitless ``'None'``` to obtain ``'Length'``. 
         A numerical value is also considered to be unitless.
-        A
+
         >>> v1 = Variable("10mm")
         >>> v2 = Variable(3)
         >>> result_1 = v1 * v2
