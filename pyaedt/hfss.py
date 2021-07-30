@@ -2465,7 +2465,8 @@ class Hfss(FieldAnalysis3D, object):
         Examples
         --------
 
-        Create a scattering named ``"S Parameter Plot Nominal"``.
+        Create a scattering named ``"S Parameter Plot Nominal"`` using
+        the default parameters.
 
         >>> hfss.create_scattering()
         True
