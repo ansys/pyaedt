@@ -2460,8 +2460,17 @@ class Hfss(FieldAnalysis3D, object):
         -------
         bool
             ``True`` when successful, ``False`` when failed.
-            
+
+        Examples
+        --------
+
+        Create a scattering named ``"S Parameter Plot Nominal"``.
+
+        >>> hfss.create_scattering()
+        True
+
         """
+
         Families = ["Freq:=", ["All"]]
         if variations:
             Families += variations
