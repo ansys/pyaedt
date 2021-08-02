@@ -2311,7 +2311,7 @@ class Hfss(FieldAnalysis3D, object):
 
     @aedt_exception_handler
     def validate_full_design(self, dname=None, outputdir=None, ports=None):
-        """Validate a design based on a expected value and save information to the log file.
+        """Validate a design based on an expected value and save information to the log file.
 
         Parameters
         ----------
@@ -2328,8 +2328,22 @@ class Hfss(FieldAnalysis3D, object):
         -------
         list
             List of all the validation information for later use.
+        bool
+            Indicates if the validation was successful or not.
+
+        Examples
+        --------
+
+        Validate the current design and save the log file into
+        the current project directory.
+
+        >>> validation = hfss.validate_full_design()
+        pyaedt Info: Design Validation Checks
+        >>> validation[1]
+        False
 
         """
+
         self._messenger.add_debug_message("Design Validation Checks")
         validation_ok = True
         val_list = []
@@ -2365,7 +2379,7 @@ class Hfss(FieldAnalysis3D, object):
                 val_list.extend(temp)
             os.remove(temp_val_file)
         else:
-            msg = "** No design validation file isfound. **"
+            msg = "** No design validation file is found. **"
             self._messenger.add_debug_message(msg)
             val_list.append(msg)
         msg = "** End of design validation messages. **"
@@ -2447,8 +2461,18 @@ class Hfss(FieldAnalysis3D, object):
         -------
         bool
             ``True`` when successful, ``False`` when failed.
-            
+
+        Examples
+        --------
+
+        Create a scattering named ``"S Parameter Plot Nominal"`` using
+        the default parameters.
+
+        >>> hfss.create_scattering()
+        True
+
         """
+
         Families = ["Freq:=", ["All"]]
         if variations:
             Families += variations
