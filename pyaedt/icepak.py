@@ -562,7 +562,7 @@ class Icepak(FieldAnalysisIcepak):
         Examples
         --------
 
-        Create a temperature monitor at the point [1, 1, 1].
+        Create a temperature monitor at the point ``[1, 1, 1]``.
 
         >>> icepak.assign_point_monitor([1, 1, 1])
         True
