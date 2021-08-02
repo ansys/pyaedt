@@ -10,6 +10,7 @@ import traceback
 import warnings
 
 import pyaedt.edb_core.EDB_Data
+import time
 try:
     import ScriptEnv
     ScriptEnv.Initialize("Ansoft.ElectronicsDesktop")
@@ -88,6 +89,7 @@ class Edb(object):
         self._nets = None
         self._db = None
         self._edb = None
+        self.builder = None
         if _ironpython and inside_desktop:
             self.standalone = False
         else:
@@ -126,10 +128,26 @@ class Edb(object):
                 self.edbpath = edbpath[-3:] + ".aedb"
                 working_dir = os.path.dirname(edbpath)
                 self.import_layout_pcb(edbpath, working_dir)
+            if self.builder:
+                self._messenger.add_info_message("Edb Initialized")
+            else:
+                self._messenger.add_info_message("Failed to initialize Dlls")
         else:
             warnings.warn("Failed to initialize Dlls")
-        self._messenger.add_info_message("Edb Initialized")
 
+
+
+
+    @aedt_exception_handler
+    def _init_objects(self):
+        self._components = Components(self)
+        self._stackup = EdbStackup(self)
+        self._padstack = EdbPadstacks(self)
+        self._siwave = EdbSiwave(self)
+        self._hfss = Edb3DLayout(self)
+        self._nets = EdbNets(self)
+        self._core_primitives = EdbLayout(self)
+        self._messenger.add_info_message("Objects Initialized")
 
     @aedt_exception_handler
     def add_info_message(self, message_text):
@@ -269,11 +287,25 @@ class Edb(object):
         """
         if init_dlls:
             self._init_dlls()
-        self._messenger.add_warning_message("EDB Path {}".format(self.edbpath))
-        self._messenger.add_warning_message("EDB Version {}".format(self.edbversion))
+        self._messenger.add_info_message("EDB Path {}".format(self.edbpath))
+        self._messenger.add_info_message("EDB Version {}".format(self.edbversion))
         self.edb.Database.SetRunAsStandAlone(self.standalone)
+        self._messenger.add_info_message("EDB Standalone {}".format(self.standalone))
+        db =  self.edb.Database.Open(self.edbpath, self.isreadonly)
+        if not db:
+            self._messenger.add_warning_message("Error Opening db")
+            self._db = None
+            self._active_cell = None
+            self.builder = None
+            return None
+        self._db = db
+        if not self._db:
+            self._messenger.add_warning_message("Error Opening DB")
+            self.builder = None
+            self._active_cell = None
+            return None
+        self._messenger.add_info_message("Database Opened")
 
-        self._db = self.edb.Database.Open(self.edbpath, self.isreadonly)
         self._active_cell = None
         if self.cellname:
             for cell in list(self._db.TopCircuitCells):
@@ -281,12 +313,19 @@ class Edb(object):
                     self._active_cell = cell
         else:
             self._active_cell = list(self._db.TopCircuitCells)[0]
+        self._messenger.add_info_message("Cell {} Opened".format(self._active_cell.GetName()))
 
-        if self._active_cell:
+        if self._db and self._active_cell:
+            time.sleep(1)
             dllpath=os.path.join(os.path.abspath(os.path.dirname(__file__)), "dlls", "EDBLib", "DataModel.dll")
-            self.builder = self.layout_methods.GetBuilder(self._db, self._active_cell, self.edbpath, self.edbversion, dllpath, self.standalone)
+            self._messenger.add_info_message(dllpath)
+            self.layout_methods.LoadDataModel(dllpath)
+            self.builder = self.layout_methods.GetBuilder(self._db, self._active_cell, self.edbpath,
+                                                          self.edbversion,  self.standalone)
+            self._init_objects()
         else:
             self.builder = None
+        self._messenger.add_info_message("Builder Initialized")
         return self.builder
 
     @aedt_exception_handler
@@ -308,16 +347,29 @@ class Edb(object):
         self.edb.Database.SetRunAsStandAlone(False)
         if self.oproject.GetEDBHandle():
             hdl = Convert.ToUInt64(self.oproject.GetEDBHandle())
-            self._db = self.edb.Database.Attach(hdl)
+            db = self.edb.Database.Attach(hdl)
+            if not db:
+                self._messenger.add_warning_message("Error Getting db")
+                self._db = None
+                self._active_cell = None
+                self.builder = None
+                return None
+            self._db = db
             self._active_cell = self.edb.Cell.Cell.FindByName(self.db, self.edb.Cell.CellType.CircuitCell, self.cellname)
             dllpath=os.path.join(os.path.abspath(os.path.dirname(__file__)), "dlls", "EDBLib", "DataModel.dll")
-            self.builder = self.layout_methods.GetBuilder(self.db, self._active_cell, self.edbpath, self.edbversion,dllpath, self.standalone, True)
-            return self.builder
+            time.sleep(1)
+            if self._db and self._active_cell:
+                self.layout_methods.LoadDataModel(dllpath)
+                self.builder = self.layout_methods.GetBuilder(self._db, self._active_cell, self.edbpath,
+                                                              self.edbversion, self.standalone, True)
+                self._init_objects()
+                return self.builder
         else:
             self._db = None
             self._active_cell = None
             self.builder = None
             return None
+        return None
 
     @aedt_exception_handler
     def create_edb(self, init_dlls=False):
@@ -335,15 +387,26 @@ class Edb(object):
         if init_dlls:
             self._init_dlls()
         self.edb.Database.SetRunAsStandAlone(self.standalone)
-
-        self._db = self.edb.Database.Create(self.edbpath)
+        db =  self.edb.Database.Create(self.edbpath)
+        if not db:
+            self._messenger.add_warning_message("Error Creating db")
+            self._db = None
+            self._active_cell = None
+            self.builder = None
+            return None
+        self._db = db
         if not self.cellname:
             self.cellname = generate_unique_name("Cell")
         self._active_cell = self.edb.Cell.Cell.Create(self._db,  self.edb.Cell.CellType.CircuitCell, self.cellname)
+        time.sleep(1)
         dllpath = os.path.join(os.path.dirname(__file__), "dlls", "EDBLib", "DataModel.dll")
-        self.builder = self.layout_methods.GetBuilder(self.db, self._active_cell, self.edbpath, self.edbversion,dllpath, self.standalone)
-        print("active cell set")
-        return self.builder
+        if self._db and self._active_cell:
+            self.layout_methods.LoadDataModel(dllpath)
+            self.builder = self.layout_methods.GetBuilder(self._db, self._active_cell, self.edbpath, self.edbversion, self.standalone)
+            self._init_objects()
+            return self.builder
+        self.builder = None
+        return None
 
     @aedt_exception_handler
     def import_layout_pcb(self, input_file, working_dir, init_dlls=False, anstranslator_full_path=None):
@@ -486,56 +549,58 @@ class Edb(object):
     @property
     def core_components(self):
         """Core components."""
-        if not self._components:
+        if not self._components and self.builder:
             self._components = Components(self)
         return self._components
 
     @property
     def core_stackup(self):
         """Core stackup."""
-        if not self._stackup:
+        if not self._stackup and self.builder:
             self._stackup = EdbStackup(self)
         return self._stackup
 
     @property
     def core_padstack(self):
         """Core padstack."""
-        if not self._padstack:
+        if not self._padstack and self.builder:
             self._padstack = EdbPadstacks(self)
         return self._padstack
 
     @property
     def core_siwave(self):
         """Core SI Wave."""
-        if not self._siwave:
+        if not self._siwave and self.builder:
             self._siwave = EdbSiwave(self)
         return self._siwave
 
     @property
     def core_hfss(self):
         """Core HFSS."""
-        if not self._hfss:
+        if not self._hfss and self.builder:
             self._hfss = Edb3DLayout(self)
         return self._hfss
 
     @property
     def core_nets(self):
         """Core nets."""
-        if not self._nets:
+        if not self._nets and self.builder:
             self._nets = EdbNets(self)
         return self._nets
 
     @property
     def core_primitives(self):
         """Core primitives."""
-        if not self._core_primitives:
+        if not self._core_primitives and self.builder:
             self._core_primitives = EdbLayout(self)
         return self._core_primitives
 
     @property
     def active_layout(self):
         """Active layout."""
-        return self.active_cell.GetLayout()
+        if self._active_cell:
+            return self.active_cell.GetLayout()
+        return None
 
     # @property
     # def builder(self):
@@ -552,11 +617,12 @@ class Edb(object):
         """
         
         pins=[]
-        for el in self.core_components.components:
-            comp = self.edb.Cell.Hierarchy.Component.FindByName(self.active_layout, el)
-            temp = [p for p in comp.LayoutObjs if
-                    p.GetObjType() == self.edb.Cell.LayoutObjType.PadstackInstance and p.IsLayoutPin()]
-            pins += temp
+        if self.core_components:
+            for el in self.core_components.components:
+                comp = self.edb.Cell.Hierarchy.Component.FindByName(self.active_layout, el)
+                temp = [p for p in comp.LayoutObjs if
+                        p.GetObjType() == self.edb.Cell.LayoutObjType.PadstackInstance and p.IsLayoutPin()]
+                pins += temp
         return pins
 
 
