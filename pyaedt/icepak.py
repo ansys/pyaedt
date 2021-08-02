@@ -133,7 +133,7 @@ class Icepak(FieldAnalysisIcepak):
         Examples
         --------
 
-        Create an opening boundary for the faces of the "USB_GND" object.
+        Create an opening boundary for the faces of the ``"USB_GND"`` object.
 
         >>> faces = icepak.modeler.primitives["USB_GND"].faces
         >>> face_names = [face.id for face in faces]
@@ -341,7 +341,9 @@ class Icepak(FieldAnalysisIcepak):
         >>> source1 = icepak.create_source_power(box.top_face.id, input_power="2W")
         >>> source1.props["Total Power"]
         '2W'
-        >>> source2 = icepak.create_source_power(box.bottom_face.id, thermal_condtion="Fixed Temperature", temperature="28cel")
+        >>> source2 = icepak.create_source_power(box.bottom_face.id,
+        ...                                      thermal_condtion="Fixed Temperature",
+        ...                                      temperature="28cel")
         >>> source2.props["Temperature"]
         '28cel'
 
@@ -520,6 +522,16 @@ class Icepak(FieldAnalysisIcepak):
         -------
         bool
             ``True`` when successful, ``False`` when failed.
+
+        Examples
+        --------
+
+        Create a rectangle named ``"Surface1"`` and assign a temperature monitor to that surface.
+
+        >>> surface = icepak.modeler.primitives.create_rectangle(icepak.CoordinateSystemPlane.XYPlane,
+        ...                                                      [0, 0, 0], [10, 20], name="Surface1")
+        >>> icepak.assign_surface_monitor("Surface1")
+        True
         
         """
         if not monitor_name:
@@ -546,6 +558,14 @@ class Icepak(FieldAnalysisIcepak):
         -------
         bool
             ``True`` when successful, ``False`` when failed.
+
+        Examples
+        --------
+
+        Create a temperature monitor at the point ``[1, 1, 1]``.
+
+        >>> icepak.assign_point_monitor([1, 1, 1])
+        True
         
         """
         point_name = generate_unique_name("Point")
