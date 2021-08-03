@@ -8,7 +8,7 @@ from argparse import ArgumentParser
 import pyaedt
 import pdb
 
-def discover_modules(entry=pyaedt, recurse=False):
+def discover_modules(entry=pyaedt, recurse=True):
     """Discover the submodules present under an entry point.
 
     If ``recurse=True``, search goes all the way into descendants of the
@@ -63,15 +63,10 @@ def discover_modules(entry=pyaedt, recurse=False):
 
         found_modules.update(next_modules)
 
-        # for k in list(next_modules.keys()):
-        #     if next_modules[k].__file__.endswith("__init__.py"):
-        #         del next_modules[k]
-
-
     # Remove the name package folders from the 'found_modules' dicationary.
-    for k in list(found_modules.keys()):
-        if found_modules[k].__file__.endswith("__init__.py"):
-            del found_modules[k]
+    for key in list(found_modules.keys()):
+        if found_modules[key].__file__.endswith("__init__.py"):
+            del found_modules[key]
 
     return found_modules
 
@@ -101,7 +96,6 @@ def evaluate_examples_coverage(modules=None):
     print ("Name                                      Methods     Miss     Cover")
     print ('-' * 79)
 
-
     # loop over doctests in alphabetical order for sanity
     sorted_module_names = sorted(doctests)
     all_methods_with_example = []
@@ -111,6 +105,7 @@ def evaluate_examples_coverage(modules=None):
         methods_without_example = []
 
         for dt_name in doctests[module_name]:
+            # private methods should not be considered.
             if (not doctests[module_name][dt_name].examples) & (not dt_name.startswith("_")):
                 all_methods_without_example.append(dt_name)
                 methods_without_example.append(dt_name)
@@ -132,9 +127,9 @@ def evaluate_examples_coverage(modules=None):
     # Get the stats for the entire package
     package_total = len(all_methods_with_example) + len(all_methods_without_example)
     package_missing = len(all_methods_without_example)
-    package_percentage_covering = (package_total - package_missing) / package_total * 100
+    package_percentage_covered = (package_total - package_missing) / package_total * 100
     print ('-' * 79)
-    print(f'{"Total" : <37}{package_total : ^19}{package_missing : ^4}{package_percentage_covering:8.2f}')
+    print(f'{"Total" : <37}{package_total : ^19}{package_missing : ^4}{package_percentage_covered:8.2f}')
 
 
 if __name__ == "__main__":
