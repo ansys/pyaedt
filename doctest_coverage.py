@@ -2,11 +2,8 @@ import re
 import sys
 from doctest import DocTestFinder
 from types import ModuleType
-from textwrap import indent
-from argparse import ArgumentParser
 
 import pyaedt
-import pdb
 
 def discover_modules(entry=pyaedt, recurse=True):
     """Discover the submodules present under an entry point.
@@ -50,7 +47,7 @@ def discover_modules(entry=pyaedt, recurse=True):
                 if module_name.startswith(entry_name):
                     next_modules[module_name] = attribute_value
 
-        # find as-of-yet-undiscovered submodules
+        # Find as-of-yet-undiscovered submodules.
         next_entries = [
             module
             for module_name, module in next_modules.items()
@@ -81,10 +78,11 @@ def evaluate_examples_coverage(modules=None):
 
     """
 
+    # Get the modules to analyze.
     if modules is None:
         modules = discover_modules()
 
-    # find and parse all docstrings; this will also remove any duplicates
+    # Find and parse all docstrings.
     doctests = {}
     for module_name, module in modules.items():
         doctests[module_name] = {
@@ -95,26 +93,27 @@ def evaluate_examples_coverage(modules=None):
     print ("Name                                      Methods     Miss     Cover")
     print ('-' * 79)
 
-    # Those dictionaries can latter be used to extract 
-    # the name of the method without example for each module.
-    # This can be done easily because the key of the dictionaries
+    # Those dictionaries can later be used to extract 
+    # the name of the methods without example for each module.
+    # This can be done easily because the keys of the dictionaries
     # are the module names.
     all_methods_with_example = {}
     all_methods_without_example = {}
-    # loop over doctests in alphabetical order for sanity
+
+    # Get the stats for the entire package.
+    # Loop over doctests in alphabetical order for sanity.
     sorted_module_names = sorted(doctests)
     for module_name in sorted_module_names:
         methods_with_example = []
         methods_without_example = []
 
         for dt_name in doctests[module_name]:
-            # private methods should not be considered.
+            # Private methods should not be considered.
             if (not doctests[module_name][dt_name].examples) & (not dt_name.startswith("_")):
 
                 methods_without_example.append(dt_name)
             else:
                 methods_with_example.append(dt_name)
-
 
         all_methods_without_example[module_name] = methods_without_example
         all_methods_with_example[module_name] = methods_with_example
@@ -125,12 +124,12 @@ def evaluate_examples_coverage(modules=None):
         if total!=0:
             percentage_covered = covered/total*100
         else:
-            # If no docstring is found in the module, coverage is considered to be 100%.
+            # If no docstring is available in the module, coverage is considered to be 100%.
             percentage_covered = 100
 
         print(f'{module_name : <37}{total : ^19}{missing : ^4}{percentage_covered:8.2f}')
 
-    # Get the stats for the entire package
+    # Get the stats for the entire package.
     all_methods_with_example_list = []
     for method_list in list(all_methods_with_example.values()):
         all_methods_with_example_list.extend(method_list)
