@@ -50,10 +50,6 @@ def discover_modules(entry=pyaedt, recurse=True):
                 if module_name.startswith(entry_name):
                     next_modules[module_name] = attribute_value
 
-        if not recurse:
-            found_modules.update(next_modules)
-            break
-
         # find as-of-yet-undiscovered submodules
         next_entries = [
             module
@@ -62,6 +58,9 @@ def discover_modules(entry=pyaedt, recurse=True):
         ]
 
         found_modules.update(next_modules)
+
+        if not recurse:
+            break
 
     # Remove the name package folders from the 'found_modules' dicationary.
     for key in list(found_modules.keys()):
