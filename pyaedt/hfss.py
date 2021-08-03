@@ -2132,7 +2132,7 @@ class Hfss(FieldAnalysis3D, object):
         Examples
         --------
 
-        Create a rectangle sheet and use it to create a wave port.
+        Create a circle sheet and use it to create a wave port.
         Set up the thermal power for the port created above.
 
         >>> sheet = hfss.modeler.primitives.create_circle(hfss.CoordinateSystemPlane.YZPlane,
@@ -2146,6 +2146,7 @@ class Hfss(FieldAnalysis3D, object):
         True
 
         """
+
         self._messenger.add_info_message("Setting up power to Eigenmode " + powerin + "Watt")
         if self.solution_type != "Eigenmode":
             self.osolution.EditSources([["IncludePortPostProcessing:=", True, "SpecifySystemPower:=", False],
@@ -2157,12 +2158,12 @@ class Hfss(FieldAnalysis3D, object):
 
     @aedt_exception_handler
     def thicken_port_sheets(self, inputlist, value, internalExtr=True, internalvalue=1):
-        """Create thickened sheets over a list of input port faces.
+        """Create thickened sheets over a list of input port sheets.
        
         Parameters
         ----------
         inputlist : list
-            List of the faces to thicken.
+            List of the sheets to thicken.
         value :
             Value in millimeters for thickening the faces.
         internalExtr : bool, optional
@@ -2177,7 +2178,23 @@ class Hfss(FieldAnalysis3D, object):
         list
             List of the port IDs where thickened sheets were created.
 
+        Examples
+        --------
+
+        Create a circle sheet and use it to create a wave port.
+        Set the thickness of this circle sheet to ``"2 mm"``.
+
+        >>> sheet_for_thickness = hfss.modeler.primitives.create_circle(hfss.CoordinateSystemPlane.YZPlane,
+        ...                                                             [60, 60, 60], 10,
+        ...                                                             name="SheetForThickness")
+        >>> port_for_thickness = hfss.create_wave_port_from_sheet(sheet_for_thickness, 5, hfss.AxisDir.XNeg,
+        ...                                                       40, 2, "WavePortForThickness", True)
+        >>> hfss.thicken_port_sheets(["SheetForThickness"], 2)
+        pyaedt Info: done
+        {}
+
         """
+
         tol = 1e-6
         ports_ID = {}
         aedt_bounding_box = self.modeler.primitives.get_model_bounding_box()
@@ -2657,7 +2674,7 @@ class Hfss(FieldAnalysis3D, object):
         Parameters
         ----------
         obj_names : str or list
-             One or more object names.       
+             One or more object names.
         boundary_name : str, optional
              Name of the boundary. The default is ``""``.
 
@@ -2666,7 +2683,19 @@ class Hfss(FieldAnalysis3D, object):
         :class:`pyaedt.modules.Boundary.BoundaryObject`
             Boundary object.
 
+        Examples
+        --------
+
+        Create a box and assign a radiation boundary to it.
+
+        >>> radiation_box = hfss.modeler.primitives.create_box([0, -200, -200], [200, 200, 200],
+        ...                                                    name="Radiation_box")
+        >>> radiation = hfss.assign_radiation_boundary_to_objects("Radiation_box")
+        >>> type(radiation)
+        <class 'pyaedt.modules.Boundary.BoundaryObject'>
+
         """
+
         object_list = self.modeler.convert_to_selections(obj_names, return_list=True)
         if boundary_name:
             rad_name = boundary_name
@@ -2676,7 +2705,7 @@ class Hfss(FieldAnalysis3D, object):
 
     @aedt_exception_handler
     def assign_radiation_boundary_to_faces(self, faces_id, boundary_name=""):
-        """Assign a radiation boundary to one or more objects (usually airbox objects).
+        """Assign a radiation boundary to one or more faces.
 
         Parameters
         ----------
@@ -2687,10 +2716,24 @@ class Hfss(FieldAnalysis3D, object):
 
         Returns
         -------
-        bool
-             ``True`` when successful, ``False`` when failed.
+        :class:`pyaedt.modules.Boundary.BoundaryObject`
+            Boundary object.
+
+        Examples
+        --------
+
+        Create a box. Select the faces of this box and assign a radiation
+        boundary to them.
+
+        >>> radiation_box = hfss.modeler.primitives.create_box([0 , -100, 0], [200, 200, 200],
+        ...                                                    name="RadiationForFaces")
+        >>> ids = [i.id for i in hfss.modeler.primitives["RadiationForFaces"].faces]
+        >>> radiation = hfss.assign_radiation_boundary_to_faces(ids)
+        >>> type(radiation)
+        <class 'pyaedt.modules.Boundary.BoundaryObject'>
 
         """
+
         if type(faces_id) is not list:
             faces_list = [int(faces_id)]
         else:
