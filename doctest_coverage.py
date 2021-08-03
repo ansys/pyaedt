@@ -95,10 +95,14 @@ def evaluate_examples_coverage(modules=None):
     print ("Name                                      Methods     Miss     Cover")
     print ('-' * 79)
 
+    # Those dictionaries can latter be used to extract 
+    # the name of the method without example for each module.
+    # This can be done easily because the key of the dictionaries
+    # are the module names.
+    all_methods_with_example = {}
+    all_methods_without_example = {}
     # loop over doctests in alphabetical order for sanity
     sorted_module_names = sorted(doctests)
-    all_methods_with_example = []
-    all_methods_without_example = []
     for module_name in sorted_module_names:
         methods_with_example = []
         methods_without_example = []
@@ -106,11 +110,14 @@ def evaluate_examples_coverage(modules=None):
         for dt_name in doctests[module_name]:
             # private methods should not be considered.
             if (not doctests[module_name][dt_name].examples) & (not dt_name.startswith("_")):
-                all_methods_without_example.append(dt_name)
+
                 methods_without_example.append(dt_name)
             else:
                 methods_with_example.append(dt_name)
-                all_methods_with_example.append(dt_name)
+
+
+        all_methods_without_example[module_name] = methods_without_example
+        all_methods_with_example[module_name] = methods_with_example
 
         total = len(doctests[module_name])
         missing = len(methods_without_example)
@@ -124,8 +131,16 @@ def evaluate_examples_coverage(modules=None):
         print(f'{module_name : <37}{total : ^19}{missing : ^4}{percentage_covered:8.2f}')
 
     # Get the stats for the entire package
-    package_total = len(all_methods_with_example) + len(all_methods_without_example)
-    package_missing = len(all_methods_without_example)
+    all_methods_with_example_list = []
+    for method_list in list(all_methods_with_example.values()):
+        all_methods_with_example_list.extend(method_list)
+
+    all_methods_without_example_list = []
+    for method_list in list(all_methods_without_example.values()):
+        all_methods_without_example_list.extend(method_list)
+
+    package_total = len(all_methods_with_example_list) + len(all_methods_without_example_list)
+    package_missing = len(all_methods_without_example_list)
     package_percentage_covered = (package_total - package_missing) / package_total * 100
     print ('-' * 79)
     print(f'{"Total" : <37}{package_total : ^19}{package_missing : ^4}{package_percentage_covered:8.2f}')
