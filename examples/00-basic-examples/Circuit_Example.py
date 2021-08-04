@@ -1,5 +1,4 @@
 """
-
 Circuit Example Analysis
 ------------------------
 This example shows how you can use PyAEDT to create a Circut design 
@@ -10,6 +9,7 @@ and run a Nexxim time-domain simulation.
 from pyaedt import Circuit
 from pyaedt import Desktop
 import os
+
 ###############################################################################
 # Launch AEDT and Circuit.
 # ~~~~~~~~~~~~~~~~~~~~~~~~
@@ -34,6 +34,7 @@ NewThread = True
 # The `Desktop` class initializes AEDT and starts it on a specified version in 
 # a specified graphical mode. The Boolean parameter ``NewThread`` defines whether
 # to create a new instance of AEDT or try to connect to existing instance of it.
+
 d = Desktop(desktopVersion, NonGraphical, NewThread)
 aedtapp = Circuit()
 
