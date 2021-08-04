@@ -2,7 +2,7 @@
 
 Circuit Example Analysis
 ------------------------
-This example shows how you can use PyAEDT to create a Circut project 
+This example shows how you can use PyAEDT to create a Circut design 
 and run a Nexxim time-domain simulation.
 """
 # sphinx_gallery_thumbnail_path = 'Resources/circuit.png'
