@@ -1,8 +1,7 @@
 """
-
-Edb Parametric Via Creation
+EDB Parametric Via Creation
 --------------------------------------------
-This Example shows how to use EDB to create a Layout
+This example shows how to use EDB to create a layout.
 """
 # sphinx_gallery_thumbnail_path = 'Resources/3dlayout.png'
 
@@ -27,14 +26,14 @@ edb = Edb(edbpath=aedb_path, edbversion="2021.1")
 
 
 #########################################
-# Create a stackup
+# Create a stackup.
 #
 if edb:
     edb.core_stackup.stackup_layers.add_layer("GND")
     edb.core_stackup.stackup_layers.add_layer("Diel","GND", layerType=1, thickness="0.1mm", material="FR4_epoxy")
     edb.core_stackup.stackup_layers.add_layer("TOP","Diel", thickness="0.05mm")
 #########################################
-# Create of signal net and ground planes
+# Create a signal net and ground planes.
 #
 if edb:
     points = [
@@ -52,7 +51,7 @@ if edb:
     edb.core_primitives.create_polygon(plane, "TOP")
 
 #########################################
-# Create of vias with parametric position
+# Create vias with parametric positions.
 #
 if edb:
     edb.core_padstack.create_padstack("MyVia")
@@ -67,11 +66,11 @@ if edb:
 
 
 #########################################
-# Save and Close EDB
+# Save and close EDB.
 #
 if edb:
     edb.save_edb()
     edb.close_edb()
-print("EDB Saved Correctly to {}. You can import in AEDT".format(aedb_path))
+print("EDB saved correctly to {}. You can import in AEDT.".format(aedb_path))
 end = time.time()-start
 print(end)
