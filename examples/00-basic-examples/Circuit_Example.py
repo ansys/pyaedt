@@ -31,7 +31,7 @@ NewThread = True
 ###############################################################################
 # Launch AEDT and Circuit.
 # ~~~~~~~~~~~~~~~~~~~~~~~~
-# The `desktop` class initializes AEDT and starts it on a specified version in 
+# The `Desktop` class initializes AEDT and starts it on a specified version in 
 # a specified graphical mode. The Boolean parameter ``NewThread`` defines whether
 # to create a new instance of AEDT or try to connect to existing instance of it.
 d = Desktop(desktopVersion, NonGraphical, NewThread)
