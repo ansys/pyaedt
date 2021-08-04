@@ -1,5 +1,3 @@
-import re
-import sys
 from doctest import DocTestFinder
 from types import ModuleType
 import pyaedt
