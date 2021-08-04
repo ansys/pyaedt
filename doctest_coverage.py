@@ -2,7 +2,6 @@ import re
 import sys
 from doctest import DocTestFinder
 from types import ModuleType
-
 import pyaedt
 
 def discover_modules(entry=pyaedt, recurse=True):
@@ -30,7 +29,6 @@ def discover_modules(entry=pyaedt, recurse=True):
         A (module name -> module) mapping of submodules under ``entry``.
 
     """
-
     entry_name = entry.__name__
     found_modules = {}
     next_entries = [entry]
@@ -77,7 +75,6 @@ def evaluate_examples_coverage(modules=None):
         ``discover_modules()`` will be called for ``pyaedt``.
 
     """
-
     # Get the modules to analyze.
     if modules is None:
         modules = discover_modules()
