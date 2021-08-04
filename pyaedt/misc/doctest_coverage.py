@@ -55,7 +55,7 @@ def discover_modules(entry=pyaedt, recurse=True):
         if not recurse:
             break
 
-    # Remove the name package folders from the 'found_modules' dicationary.
+    # Remove the name package folders from the 'found_modules' dictionary.
     for key in list(found_modules.keys()):
         if found_modules[key].__file__.endswith("__init__.py"):
             del found_modules[key]
