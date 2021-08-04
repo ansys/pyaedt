@@ -1,14 +1,12 @@
 """
 EDB Parametric Via Creation
---------------------------------------------
+---------------------------
 This example shows how to use EDB to create a layout.
 """
 # sphinx_gallery_thumbnail_path = 'Resources/3dlayout.png'
 
-
-
-#########################################
-# Import Edb Layout object and initialize it on version 2021.1
+###############################################################################
+# Import the EDB layout object and initialize it on version 2021.1.
 #
 import time
 import os
@@ -24,15 +22,15 @@ aedb_path = os.path.join(tmpfold, generate_unique_name("Edb_custom") + ".aedb")
 
 edb = Edb(edbpath=aedb_path, edbversion="2021.1")
 
-
-#########################################
+###############################################################################
 # Create a stackup.
 #
 if edb:
     edb.core_stackup.stackup_layers.add_layer("GND")
     edb.core_stackup.stackup_layers.add_layer("Diel","GND", layerType=1, thickness="0.1mm", material="FR4_epoxy")
     edb.core_stackup.stackup_layers.add_layer("TOP","Diel", thickness="0.05mm")
-#########################################
+
+###############################################################################
 # Create a signal net and ground planes.
 #
 if edb:
@@ -50,7 +48,7 @@ if edb:
     plane = edb.core_primitives.Shape('polygon', points=points)
     edb.core_primitives.create_polygon(plane, "TOP")
 
-#########################################
+###############################################################################
 # Create vias with parametric positions.
 #
 if edb:
