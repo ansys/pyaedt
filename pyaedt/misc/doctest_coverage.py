@@ -85,7 +85,7 @@ def evaluate_examples_coverage(modules=None):
             for doctest in DocTestFinder(recurse=True).find(module, globs={})
             }
 
-    print ("Name                                      Methods     Miss     Cover")
+    print ("Name                                      Methods     Missed   Covered")
     print ('-' * 79)
 
     # Those dictionaries can later be used to extract 
