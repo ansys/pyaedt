@@ -95,7 +95,6 @@ def evaluate_examples_coverage(modules=None):
     all_methods_with_example = {}
     all_methods_without_example = {}
 
-    # Get the stats for the entire package.
     # Loop over doctests in alphabetical order for sanity.
     sorted_module_names = sorted(doctests)
     for module_name in sorted_module_names:
