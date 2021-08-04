@@ -1,9 +1,8 @@
 """
-
 Q3D Bus Bar Analysis
---------------------------------------------
-This tutorial shows how you can use PyAedt to create a BusBar Project in
-in Q3D and run a simulation
+---------------------
+This example shows how you can use PyAEDT to create a busbar design in
+in Q3D and run a simulation.
 """
 # sphinx_gallery_thumbnail_path = 'Resources/busbar.png'
 
@@ -13,18 +12,19 @@ from pyaedt.desktop import Desktop
 from pyaedt import Q3d
 
 ###############################################################################
-# NonGraphical
-# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-# Change Boolean to False to open AEDT in graphical mode
+# Launch AEDT in non-graphical mode.
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# You can change the Boolean parameter ``NonGraphical`` to ``False`` to launch 
+# AEDT in graphical mode.
 
 NonGraphical = True
 
 ###############################################################################
-# Launch Desktop and Q3D
-# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-# This examples will use AEDT 2021.1 in Graphical mode
+# Launch AEDT and Q3D.
+# ~~~~~~~~~~~~~~~~~~~~
+# This example uses AEDT 2021.1 in graphical mode.
 
-# This examples will use SI units.
+# This example use SI units.
 
 d = Desktop("2021.1", NonGraphical, False)
 
@@ -32,9 +32,8 @@ q=Q3d()
 
 ###############################################################################
 # Primitives Creation
-# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-# Here pyaedt will create polylines for the three busbar and box for the substrate
-
+# ~~~~~~~~~~~~~~~~~~~
+# Create polylines for the three busbars and box for the substrate.
 
 q.modeler.primitives.create_polyline([[0, 0, 0], [-100, 0, 0]], name="Bar1", matname="copper", xsection_type="Rectangle",
                                      xsection_width="5mm", xsection_height="1mm")
@@ -48,10 +47,10 @@ q.modeler.primitives.create_polyline([[0, -30, 0], [-175, -30, 0], [-175, -10, 0
 q.modeler.primitives.create_box([50,30,-0.5], [-250,-100,-3], name="substrate", matname="FR4_epoxy")
 
 ###############################################################################
-# Boundary Setup
-# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-# Here pyaedt will identify nets and assign source and sink to all nets
-# There will be a source and sink for each bus bar
+# Set up boundaries.
+# ~~~~~~~~~~~~~~~~~~
+# Identify nets and assign sources and sinks to all nets.
+# There is a source and sink for each busbar.
 
 q.auto_identify_nets()
 
@@ -66,30 +65,30 @@ q.assign_sink_to_objectface("Bar3",axisdir=q.AxisDir.YPos, sink_name="Sink3")
 
 
 ###############################################################################
-# Add a Q3D Setup
-# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-# This method add a setup to the project and define Adaptive Frequency value
+# Add a Q3D setup.
+# ~~~~~~~~~~~~~~~~
+# This method adds a setup to the project and defines the adaptive frequency 
+# value
 
 q.create_setup(props={"AdaptiveFreq":"100MHz"})
 
 ###############################################################################
-# Create AEDT Rectangular Plot
-# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-# This method add a rectangular plot to Aedt
+# Create a rectangular plot.
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~
+
 q.post.create_rectangular_plot("C(Bar1,Bar1)",context="Original")
 
 ###############################################################################
-# Solve Setup
-# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-# This method solve setup
+# Solve the setup.
+# ~~~~~~~~~~~~~~~~
+
 q.analyze_nominal()
 
 ###############################################################################
-# Close Desktop
+# Close AEDT.
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-# After the simulaton is completed user can close the desktop or release it (using release_desktop method).
-# All methods give possibility to save projects before exit
+# After the simulaton is completed, you can close AEDT or release it using the 
+# `release_desktop` method.
+# All methods provide for saving projects before exiting.
 if os.name != "posix":
     d.force_close_desktop()
-
-
