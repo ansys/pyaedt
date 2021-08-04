@@ -1,3 +1,3 @@
 Basic Examples
 ===============
-Here are a series of examples using AEDT with ``pyaedt`` that can be run both on Python and Ironpython in Windows and Linux
+This series of examples use AEDT with PyAEDT, which can be run both on Python and IronPython on Windows and Linux.
