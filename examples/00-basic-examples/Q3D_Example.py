@@ -1,6 +1,6 @@
 """
-Q3D Bus Bar Analysis
----------------------
+Q3D Busbar Analysis
+-------------------
 This example shows how you can use PyAEDT to create a busbar design in
 in Q3D and run a simulation.
 """
