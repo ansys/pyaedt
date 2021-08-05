@@ -22,8 +22,8 @@ desktopVersion = "2021.1"
 ###############################################################################
 # Launch AEDT in Non-Graphical Mode
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-# Change the Boolean parameter ``NonGraphical`` to ``False`` to launch AEDT in 
-# graphical mode.
+# You can change the Boolean parameter ``NonGraphical`` to ``False`` to launch  
+# AEDT in graphical mode.
 
 NonGraphical = True
 NewThread = True
