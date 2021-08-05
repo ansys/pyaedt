@@ -2,4 +2,4 @@
 
 Examples
 ==========
-Here are a series of examples using AEDT with ``pyaedt``.
+This series of examples uses AEDT with PyAEDT.
