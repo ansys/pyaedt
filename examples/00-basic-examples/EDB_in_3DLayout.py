@@ -1,5 +1,4 @@
 """
-
 HFSS 3D Layout Analysis
 -----------------------
 This example shows how to use HFSS 3D Layout combined with EDB to interact with a layout.
@@ -21,8 +20,9 @@ if not os.path.exists(temp_folder): os.makedirs(temp_folder)
 print(temp_folder)
 
 ###############################################################################
-# Copying an example in the temp folder.
-
+# Copy an Example in the Temp Folder
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# This exammple copies an example in the temp folder.
 
 from pyaedt import Desktop
 from pyaedt import Hfss3dLayout
@@ -55,9 +55,10 @@ NonGraphical = True
 NewThread = False
 
 ###############################################################################
-# Initialize AEDT.
+# Initialize AEDT
+# ~~~~~~~~~~~~~~~
 # Launch HFSS 3D Layout.
-# The `h3d` object will contain the `Edb` class query methods.
+# The `h3d` object will contain the :class:`pyaedt.Edb` class query methods.
 
 d = Desktop(desktopVersion, NonGraphical, NewThread)
 if os.path.exists(aedt_file): os.remove(aedt_file)
@@ -65,7 +66,9 @@ h3d = Hfss3dLayout(targetfile)
 h3d.save_project(os.path.join(temp_folder,"edb_demo.aedt"))
 
 ###############################################################################
-# Print setups from the `setups` object.
+# Print Setups
+# ~~~~~~~~~~~~
+# The example prints setups from the `setups` object.
 
 h3d.setups[0].props
 
@@ -75,17 +78,23 @@ h3d.setups[0].props
 h3d.boundaries
 
 ###############################################################################
-# Hide all nets.
+# Hide All Nets
+# ~~~~~~~~~~~~~
+# This example hides all nets.
 
 h3d.modeler.primitives.change_net_visibility(visible=False)
 
 ###############################################################################
-# Show only two nets.
+# Show Only Two Nets
+# ~~~~~~~~~~~~~~~~~~
+# This examples shows only the two specified nets.
 
 h3d.modeler.primitives.change_net_visibility(["A0_GPIO", "A0_MUX"], visible=True)
 
 ###############################################################################
-# Show all layers.
+# Show All Layers
+# ~~~~~~~~~~~~~~~
+# This example shows all layers.
 
 layers = h3d.modeler.layers.all_signal_layers
 for lay in layers:
@@ -94,15 +103,20 @@ for lay in layers:
     layer.update_stackup_layer()
 
 ###############################################################################
-# Change the layer color.
+# Change the Layer Color
+# ~~~~~~~~~~~~~~~~~~~~~~
+# This examples changes the layer color.
 
 layer = h3d.modeler.layers.layers[h3d.modeler.layers.layer_id("TOP")]
 layer.set_layer_color(0,255,0)
 h3d.modeler.fit_all()
 
 ###############################################################################
-# Disable component visibility for ``"TOP"`` and ``"BOTTOM"``.
-# The method `update_stackup_layer` will apply modifications to the layout.
+# Disable Component Visibility
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# The example disable component visibility for ``"TOP"`` and ``"BOTTOM"``.
+# The :func:`pyaedt.modules.LayerStackup.Layer.update_stackup_layer` method 
+# will apply modifications to the layout.
 
 top = h3d.modeler.layers.layers[h3d.modeler.layers.layer_id("TOP")]
 top.IsVisibleComponent = False
@@ -114,7 +128,9 @@ bot.update_stackup_layer()
 
 ###############################################################################
 
-# Fit all to visualize all.
+# Fit All
+# ~~~~~~~
+# This method fits all so that you can visualize all.
 
 h3d.modeler.fit_all()
 
@@ -122,8 +138,9 @@ h3d.modeler.fit_all()
 # Close AEDT
 # ~~~~~~~~~~
 # After the simulaton is completed, you can close AEDT or release it using the 
-# `release_desktop` method.
-# All methods provide for saving projects before exiting.
+# :func:`pyaedt.Desktop.release_desktop` method.
+# All methods provide for saving the project before exiting.
+
 if os.name != "posix":
     h3d.close_project()
     d.force_close_desktop()
