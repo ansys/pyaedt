@@ -5,7 +5,7 @@ This example shows how to create a full project from scratch in HFSS and Icepak 
 The project creates a setup, solves it, and creates postprocessing output. It includes a lot of 
 commands to show PyAedt capabilities.
 
-To provide the advanced postprocessing features needed for this example, NumPy, Matplotlib, and 
+To provide the advanced postprocessing features needed for this example, Matplotlib, NumPy, and 
 PyVista must be installed on the machine.
 
 This examples runs only on Windows using CPython.
