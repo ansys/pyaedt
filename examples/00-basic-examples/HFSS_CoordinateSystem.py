@@ -19,22 +19,22 @@ if not os.path.exists(temp_folder):
     os.mkdir(temp_folder)
 
 ###############################################################################
-# Launch AEDT in graphical mode.
-# ------------------------------
+# Launch AEDT in Graphical Mode
+# -----------------------------
 # This example launches AEDT 2021.1 in graphical mode.
 
 nongraphical = False
 d = Desktop("2021.1", NG=nongraphical)
 
 ###############################################################################
-# Insert an HFSS design.
-# ----------------------
+# Insert an HFSS Design
+# ---------------------
 # This command inserts an HFSS design with the default name.
 hfss = Hfss()
 
 ###############################################################################
-# Create a coordinate system.
-# ---------------------------
+# Create a Coordinate System
+# --------------------------
 # The coordinate system is centered on the ``Global`` origin and has the axis 
 # aligned to the ``Global`` coordinate system.
 # The new coordinate system is saved in the object `cs1`.
@@ -42,8 +42,8 @@ hfss = Hfss()
 cs1 = hfss.modeler.create_coordinate_system()
 
 ###############################################################################
-# Modify the coordinate system.
-# -----------------------------
+# Modify the Coordinate system
+# ----------------------------
 # The `cs1` object exposes properties and methods to manipulate the coordinate system.
 # The origin can be changed.
 
@@ -61,14 +61,14 @@ cs1.props["YAxisZvec"] = ypoint[2]
 cs1.update()
 
 ###############################################################################
-# Rename the coordinate system.
-# -----------------------------
+# Rename the Coordinate System
+# ----------------------------
 
 cs1.rename('newCS')
 
 ###############################################################################
-# Change the coordinate system mode.
-# ----------------------------------
+# Change the Coordinate System Mode
+# ---------------------------------
 # Use the function `change_cs_mode` to change the mode: ``0`` for "Axis/Position", 
 # ``1`` for "Euler Angle ZXZ", or ``2`` for "Euler Angle ZYZ".
 # This command changes the mode to "Euler Angle ZXZ".
@@ -76,21 +76,20 @@ cs1.rename('newCS')
 cs1.change_cs_mode(1)
 
 # In the new mode, there are properties that can be edited.
-
 cs1.props["Phi"] = "10deg"
 cs1.props["Theta"] = "22deg"
 cs1.props["Psi"] = "30deg"
 cs1.update()
 
 ###############################################################################
-# Delete the coordinate system.
-# -----------------------------
+# Delete the Coordinate System
+# ----------------------------
 
 cs1.delete()
 
 ###############################################################################
-# Create a coordinate system, defining the axes.
-# ----------------------------------------------
+# Create a Coordinate System Defining Axes
+# ----------------------------------------
 # All coordinate system properties can be specified at the creation.
 # Here the axes are specified.
 
@@ -100,8 +99,8 @@ cs2 = hfss.modeler.create_coordinate_system(name='CS2',
                                             x_pointing=[1, 0, 1], y_pointing=[0, -1, 0])
 
 ###############################################################################
-# Create a coordinate system defining the Euler angles.
-# -----------------------------------------------------
+# Create a Coordinate System Defining Euler Angles
+# -----------------------------------------------
 # All coordinate system properties can be specified at the creation.
 # Here Euler angles are specified.
 
@@ -111,10 +110,10 @@ cs3 = hfss.modeler.create_coordinate_system(name='CS3',
                                             phi=10, theta=20, psi=30)
 
 ###############################################################################
-# Create a coordinate system defining the view.
-# ---------------------------------------------
+# Create a Coordinate System Defining the View
+# --------------------------------------------
 # Any of these views can be specified: ``"iso"``, ``"XY"``, ``"XZ"``, or ``"XY"``.
-# Here the ``"iso"` view is specified.
+# Here the ``"iso"`` view is specified.
 # The axes are set automatically.
 
 cs4 = hfss.modeler.create_coordinate_system(name='CS4',
@@ -124,7 +123,7 @@ cs4 = hfss.modeler.create_coordinate_system(name='CS4',
                                             view='iso')
 
 ###############################################################################
-# Create a coordinate system defining the axis and angle rotation.
+# Create a Coordinate System Defining the Axis and Angle Rotation
 # ----------------------------------------------------------------
 # When the axis and angle rotation are specified, this data is automatically 
 # translated to Euler angles.
@@ -134,24 +133,24 @@ cs5 = hfss.modeler.create_coordinate_system(name='CS5',
                                             u=[1, 0, 0], theta=123)
 
 ###############################################################################
-# Get all coordinate systems.
-# ---------------------------
+# Get all Coordinate Systems
+# --------------------------
 
 css = hfss.modeler.coordinate_systems
 names = [i.name for i in css]
 print(names)
 
 ###############################################################################
-# Select a coordinate system.
-# ---------------------------
+# Select a Coordinate System
+# --------------------------
 # select a previously created coordinate system
 css = hfss.modeler.coordinate_systems
 cs_selected = css[0]
 cs_selected.delete()
 
 ###############################################################################
-# Get a point coordinate under another coordinate system.
-# -------------------------------------------------------
+# Get a Point Coordinate Under Another Coordinate System
+# ------------------------------------------------------
 # A point coordinate can be translated in respect to any coordinate system.
 
 hfss.modeler.primitives.create_box([-10, -10, -10], [20, 20, 20], "Box1")
@@ -161,7 +160,7 @@ p2 = hfss.modeler.global_to_cs(p, 'CS5')
 print('CS5 :', p2)
 
 ###############################################################################
-# Close AEDT.
-# -----------
+# Close AEDT
+# ----------
 if os.name != "posix":
     d.close_desktop()

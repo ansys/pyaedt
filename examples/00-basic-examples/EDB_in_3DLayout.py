@@ -21,7 +21,7 @@ if not os.path.exists(temp_folder): os.makedirs(temp_folder)
 print(temp_folder)
 
 ###############################################################################
-#Copying example in Temp Folder
+# Copying an example in the temp folder.
 
 
 from pyaedt import Desktop
@@ -36,8 +36,8 @@ aedt_file = targetfile[:-12]+"aedt"
 
 
 ###############################################################################
-# Launch AEDT.
-# ~~~~~~~~~~~~
+# Launch AEDT
+# ~~~~~~~~~~~
 # This example launches AEDT 2021.1 in graphical model.
 
 # This example uses SI units.
@@ -46,8 +46,8 @@ desktopVersion = "2021.1"
 
 
 ###############################################################################
-# Launch AEDT in non-graphical model.
-# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# Launch AEDT in Non-Graphical Mode
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # Change the Boolean parameter ``NonGraphical`` to ``False`` to launch AEDT in 
 # graphical mode.
 
@@ -61,7 +61,7 @@ NewThread = False
 
 d = Desktop(desktopVersion, NonGraphical, NewThread)
 if os.path.exists(aedt_file): os.remove(aedt_file)
-h3d=Hfss3dLayout(targetfile)
+h3d = Hfss3dLayout(targetfile)
 h3d.save_project(os.path.join(temp_folder,"edb_demo.aedt"))
 
 ###############################################################################
@@ -89,14 +89,14 @@ h3d.modeler.primitives.change_net_visibility(["A0_GPIO", "A0_MUX"], visible=True
 
 layers = h3d.modeler.layers.all_signal_layers
 for lay in layers:
-    layer=h3d.modeler.layers.layers[h3d.modeler.layers.layer_id(lay)]
+    layer = h3d.modeler.layers.layers[h3d.modeler.layers.layer_id(lay)]
     layer.IsVisible = True
     layer.update_stackup_layer()
 
 ###############################################################################
 # Change the layer color.
 
-layer=h3d.modeler.layers.layers[h3d.modeler.layers.layer_id("TOP")]
+layer = h3d.modeler.layers.layers[h3d.modeler.layers.layer_id("TOP")]
 layer.set_layer_color(0,255,0)
 h3d.modeler.fit_all()
 
@@ -119,8 +119,8 @@ bot.update_stackup_layer()
 h3d.modeler.fit_all()
 
 ###############################################################################
-# Close AEDT.
-# ~~~~~~~~~~~
+# Close AEDT
+# ~~~~~~~~~~
 # After the simulaton is completed, you can close AEDT or release it using the 
 # `release_desktop` method.
 # All methods provide for saving projects before exiting.

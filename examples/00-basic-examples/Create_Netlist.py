@@ -10,7 +10,7 @@ import sys
 import os
 
 ###############################################################################
-# Import packages.
+# Import Packages
 # Set the local path to the path for AEDTLib.
 
 from pyaedt import examples
@@ -28,14 +28,14 @@ myfile = os.path.join(netlist)
 print(temp_folder)
 
 ###############################################################################
-# Import the main classes needed: `Desktop` and `Circuit`.
+# Import the main classes needed: :class:`pyaedt.Desktop` and :class:`pyaedt.Circuit`.
 
 from pyaedt import Circuit
 from pyaedt import Desktop
 
 ###############################################################################
-# Launch AEDT and Circuit.
-# ~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# Launch AEDT and Circuit
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~
 # This example launches AEDT 2021.1 in graphical mode.
 
 # This examples uses SI units.

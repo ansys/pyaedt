@@ -16,11 +16,11 @@ h3d = Hfss3dLayout(specified_version="2021.1", AlwaysNew=False)
 ###############################################################################
 # Set up all parametric variables to be used in the layout.
 
-h3d["viatotrace"]="5mm"
-h3d["viatovia"]="10mm"
-h3d["w1"]="1mm"
-h3d["sp"]="0.5mm"
-h3d["len"]="50mm"
+h3d["viatotrace"] = "5mm"
+h3d["viatovia"] = "10mm"
+h3d["w1"] = "1mm"
+h3d["sp"] = "0.5mm"
+h3d["len"] = "50mm"
 
 ###############################################################################
 # Create a stackup.
@@ -33,18 +33,18 @@ h3d.modeler.layers.add_layer("TOP","signal",thickness="0.035mm", elevation="0.2m
 # Create a signal net and ground planes.
 
 h3d.modeler.primitives.create_line("TOP", [[0,0],["len",0]],lw="w1", netname="microstrip", name="microstrip")
-h3d.modeler.primitives.create_rectangle("TOP",[0,"-w1/2-sp"],["len","-w1/2-sp-20mm"])
-h3d.modeler.primitives.create_rectangle("TOP",[0,"w1/2+sp"],["len","w1/2+sp+20mm"])
+h3d.modeler.primitives.create_rectangle("TOP", [0, "-w1/2-sp"], ["len", "-w1/2-sp-20mm"])
+h3d.modeler.primitives.create_rectangle("TOP", [0, "w1/2+sp"], ["len", "w1/2+sp+20mm"])
 
 ###############################################################################
 # Create vias with parametric positions.
 
-h3d.modeler.primitives.create_via(x="viatovia",y="-viatotrace",name="via1")
-h3d.modeler.primitives.create_via(x="viatovia",y="viatotrace", name="via2")
+h3d.modeler.primitives.create_via(x="viatovia", y="-viatotrace", name="via1")
+h3d.modeler.primitives.create_via(x="viatovia", y="viatotrace", name="via2")
 h3d.modeler.primitives.create_via(x="2*viatovia",y="-viatotrace")
 h3d.modeler.primitives.create_via(x="2*viatovia",y="viatotrace")
-h3d.modeler.primitives.create_via(x="3*viatovia",y="-viatotrace")
-h3d.modeler.primitives.create_via(x="3*viatovia",y="viatotrace")
+h3d.modeler.primitives.create_via(x="3*viatovia", y="-viatotrace")
+h3d.modeler.primitives.create_via(x="3*viatovia", y="viatotrace")
 
 ###############################################################################
 # Add circuit ports to the setup.
@@ -65,7 +65,8 @@ h3d.create_frequency_sweep(setupname=setup.name, unit='GHz', freqstart=3, freqst
 # Solve and plot results.
 
 h3d.analyze_nominal()
-h3d.post.create_rectangular_plot(["db(S(Port1,Port1))","db(S(Port1,Port2))"],families_dict=h3d.available_variations.nominal_w_values_dict)
+h3d.post.create_rectangular_plot(["db(S(Port1,Port1))", "db(S(Port1,Port2))"],
+                                 families_dict=h3d.available_variations.nominal_w_values_dict)
 
 #########################################
 # Close AEDT.
