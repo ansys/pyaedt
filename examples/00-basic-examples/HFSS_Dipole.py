@@ -20,26 +20,33 @@ if not os.path.exists(temp_folder):
     os.mkdir(temp_folder)
 
 ###############################################################################  
-# Launch AEDT in graphical mode.
-#
+# Launch AEDT in Graphical Mode
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# This examples launches AEDT 2021.1 in graphical mode.
+
 nongraphical = False
 d = Desktop("2021.1", NG=nongraphical)
 
 ###############################################################################
-# Launch HFSS in graphical mode.
-#
+# Launch HFSS in Graphical Mode
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# This examples launches HFSS 2021.1 in graphical mode.
+
 hfss=Hfss()
 
 ###############################################################################
-# Define a dipole length variable.
+# Define a Dipole Length Variable
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# This command defines a dipole length variable.
 
 hfss['l_dipole'] = "13.5cm"
 
 ###############################################################################
 # Get a 3D Component from the `syslib` Directory
 # ----------------------------------------------
-# To run correctly, you must get all geometry parameters of the 3D component 
-# or, in case of an encrypted 3D component, create a dictionary of parameters. 
+# To run this example correctly, you must get all geometry parameters of the  
+# 3D component or, in case of an encrypted 3D component, create a dictionary 
+# of the parameters. 
 
 compfile = hfss.components3d['Dipole_Antenna_DM']
 geometryparams = hfss.get_components3d_vars('Dipole_Antenna_DM')
@@ -54,7 +61,7 @@ hfss.modeler.primitives.insert_3d_component(compfile, geometryparams)
 hfss.create_open_region(Frequency="1GHz")
 
 ###############################################################################
-# Create the setup
+# Create the Setup
 # ----------------
 # A setup with a sweep will be used to run the simulation.
 
@@ -68,7 +75,9 @@ setup.props["Sweeps"]['Sweep']['AutoSolverSetting'] = "Higher Speed"
 setup.update()
 
 ###############################################################################
-# Save and run the simulation.
+# Save and Run the Simulation
+# ---------------------------
+# A setup with a sweep will be used to run the simulation.
 
 hfss.save_project(os.path.join(temp_folder, "MyDipole.aedt"))
 hfss.analyze_setup("MySetup")
@@ -86,6 +95,11 @@ variations["Phi"] = ["All"]
 hfss.post.create_rectangular_plot("db(GainTotal)",hfss.nominal_adaptive, variations, "Theta", "3D",plottype="Far Fields")
 
 ###############################################################################
-# Close AEDT.
+# Close AEDT
+# ~~~~~~~~~~
+# After the simulaton is completed, you can close AEDT or release it using the 
+# :func:`pyaedt.Desktop.release_desktop` method.
+# All methods provide for saving the project before exiting.
+
 if os.name != "posix":
     d.force_close_desktop()
