@@ -5,8 +5,9 @@ This example shows how you can use PyAEDT to create a Busbar project in
 in Q3D and run a simulation.
 """
 ###############################################################################
-# Import packages.
-# Set up the local path to the path for the ``AEDTLib`` directory.
+# Import Packages
+# ~~~~~~~~~~~~~~~
+# This example sets up the local path to the path for the ``AEDTLib`` directory.
 
 import os
 
@@ -24,6 +25,8 @@ if not os.path.exists(temp_folder):
 from pyaedt import Hfss
 
 ###############################################################################
+# Define Designs
+# ~~~~~~~~~~~~~~
 # Define two designs, one source and one target, with each one connected to 
 # a different object.
 
@@ -32,19 +35,24 @@ target.save_project(os.path.join(temp_folder,project_name+".aedt"))
 source = Hfss(projectname=project_name, designname="feeder", specified_version="2021.1", AlwaysNew=False)
 
 ###############################################################################
-# Define a linked antenna. 
+# Define a Linked Antenna
+# ~~~~~~~~~~~~~~~~~~~~~~~
 # This is HFSS Far Field applied to SBR+.
 
 target.create_sbr_linked_antenna(source, target_cs="feederPosition", fieldtype="farfield")
 
 ###############################################################################
-# Assign boundaries.
+# Assign Boundaries
+# ~~~~~~~~~~~~~~~~~
+# These commands assign boundaries.
 
 target.assign_perfecte_to_sheets(["Reflector","Subreflector"])
 target.mesh.assign_curvilinear_elements(["Reflector", "Subreflector"])
 
 ###############################################################################
-# Create a setup and solve.
+# Create a Setup and Solve
+# ~~~~~~~~~~~~~~~~~~~~~~~~
+# This example creates a setup and then solves it.
 
 setup1=target.create_setup()
 setup1.props["RayDensityPerWavelength"]=2
@@ -57,7 +65,9 @@ setup1.update()
 target.analyze_nominal()
 
 ###############################################################################
-# Plot results.
+# Plot Results
+# ~~~~~~~~~~~~
+# This example plots results.
 
 variations = target.available_variations.nominal_w_values_dict
 variations["Freq"] = ["10GHz"]
