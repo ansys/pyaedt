@@ -42,7 +42,7 @@ hfss = Hfss()
 cs1 = hfss.modeler.create_coordinate_system()
 
 ###############################################################################
-# Modify the Coordinate system
+# Modify the Coordinate System
 # ----------------------------
 # The `cs1` object exposes properties and methods to manipulate the coordinate system.
 # The origin can be changed.
@@ -63,6 +63,7 @@ cs1.update()
 ###############################################################################
 # Rename the Coordinate System
 # ----------------------------
+# This command renames the coordinate system.
 
 cs1.rename('newCS')
 
@@ -84,12 +85,13 @@ cs1.update()
 ###############################################################################
 # Delete the Coordinate System
 # ----------------------------
+# This command deletes the coordinate system.
 
 cs1.delete()
 
 ###############################################################################
-# Create a Coordinate System Defining Axes
-# ----------------------------------------
+# Create a Coordinate System by Defining Axes
+# -------------------------------------------
 # All coordinate system properties can be specified at the creation.
 # Here the axes are specified.
 
@@ -99,9 +101,8 @@ cs2 = hfss.modeler.create_coordinate_system(name='CS2',
                                             x_pointing=[1, 0, 1], y_pointing=[0, -1, 0])
 
 ###############################################################################
-# Create a Coordinate System Defining Euler Angles
-# -----------------------------------------------
-# All coordinate system properties can be specified at the creation.
+# Create a Coordinate System by Defining Euler Angles
+# ---------------------------------------------------
 # Here Euler angles are specified.
 
 cs3 = hfss.modeler.create_coordinate_system(name='CS3',
@@ -110,8 +111,8 @@ cs3 = hfss.modeler.create_coordinate_system(name='CS3',
                                             phi=10, theta=20, psi=30)
 
 ###############################################################################
-# Create a Coordinate System Defining the View
-# --------------------------------------------
+# Create a Coordinate System by Defining the View
+# -----------------------------------------------
 # Any of these views can be specified: ``"iso"``, ``"XY"``, ``"XZ"``, or ``"XY"``.
 # Here the ``"iso"`` view is specified.
 # The axes are set automatically.
@@ -123,7 +124,7 @@ cs4 = hfss.modeler.create_coordinate_system(name='CS4',
                                             view='iso')
 
 ###############################################################################
-# Create a Coordinate System Defining the Axis and Angle Rotation
+# Create a Coordinate System by Defining the Axis and Angle Rotation
 # ----------------------------------------------------------------
 # When the axis and angle rotation are specified, this data is automatically 
 # translated to Euler angles.
@@ -133,8 +134,9 @@ cs5 = hfss.modeler.create_coordinate_system(name='CS5',
                                             u=[1, 0, 0], theta=123)
 
 ###############################################################################
-# Get all Coordinate Systems
+# Get All Coordinate Systems
 # --------------------------
+# This example gets all coordinate systems.
 
 css = hfss.modeler.coordinate_systems
 names = [i.name for i in css]
@@ -143,7 +145,8 @@ print(names)
 ###############################################################################
 # Select a Coordinate System
 # --------------------------
-# select a previously created coordinate system
+# This example selects an exisitng coordinate system.
+
 css = hfss.modeler.coordinate_systems
 cs_selected = css[0]
 cs_selected.delete()
@@ -162,5 +165,10 @@ print('CS5 :', p2)
 ###############################################################################
 # Close AEDT
 # ----------
+# ~~~~~~~~~~
+# After the simulaton is completed, you can close AEDT or release it using the 
+# :func:`pyaedt.Desktop.release_desktop` method.
+# All methods provide for saving the project before exiting.
+
 if os.name != "posix":
     d.close_desktop()
