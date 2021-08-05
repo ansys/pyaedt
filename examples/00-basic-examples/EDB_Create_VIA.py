@@ -1,16 +1,15 @@
 """
-
-Edb Parametric Via Creation
---------------------------------------------
-This Example shows how to use EDB to create a Layout
+EDB Parametric Via Creation
+---------------------------
+This example shows how to use EDB to create a layout.
 """
 # sphinx_gallery_thumbnail_path = 'Resources/3dlayout.png'
 
+###############################################################################
+# Import the EDB Layout Object
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# This example imports the EDB layout object and initializes it on version 2021.1.
 
-
-#########################################
-# Import Edb Layout object and initialize it on version 2021.1
-#
 import time
 import os
 from pyaedt import Edb
@@ -25,17 +24,21 @@ aedb_path = os.path.join(tmpfold, generate_unique_name("Edb_custom") + ".aedb")
 
 edb = Edb(edbpath=aedb_path, edbversion="2021.1")
 
-
-#########################################
-# Create a stackup
+###############################################################################
+# Create a Stackup
+# ~~~~~~~~~~~~~~~~
+# This method adds the stackup layers.
 #
 if edb:
     edb.core_stackup.stackup_layers.add_layer("GND")
     edb.core_stackup.stackup_layers.add_layer("Diel","GND", layerType=1, thickness="0.1mm", material="FR4_epoxy")
     edb.core_stackup.stackup_layers.add_layer("TOP","Diel", thickness="0.05mm")
-#########################################
-# Create of signal net and ground planes
-#
+
+###############################################################################
+# Create a Signal Net and Ground Planes
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# This example creates a signal net and ground planes.
+
 if edb:
     points = [
         [0.0, 0],
@@ -51,9 +54,11 @@ if edb:
     plane = edb.core_primitives.Shape('polygon', points=points)
     edb.core_primitives.create_polygon(plane, "TOP")
 
-#########################################
-# Create of vias with parametric position
-#
+###############################################################################
+# Create Vias with Parametric Positions
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# This example creates vias with parametric positions.
+
 if edb:
     edb.core_padstack.create_padstack("MyVia")
     edb.core_padstack.place_padstack([5e-3,5e-3], "MyVia")
@@ -66,12 +71,14 @@ if edb:
     edb.core_padstack.place_padstack([45e-3,-5e-3], "MyVia")
 
 
-#########################################
+###############################################################################
 # Save and Close EDB
-#
+# ~~~~~~~~~~~~~~~~~~
+# This example saves and closes EDB.
+
 if edb:
     edb.save_edb()
     edb.close_edb()
-print("EDB Saved Correctly to {}. You can import in AEDT".format(aedb_path))
+print("EDB saved correctly to {}. You can import in AEDT.".format(aedb_path))
 end = time.time()-start
 print(end)
