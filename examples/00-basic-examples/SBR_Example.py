@@ -1,7 +1,7 @@
 """
 SBR+ Example
 ------------
-This example shows how you can use PyAEDT to create a Busbar Project in
+This example shows how you can use PyAEDT to create a Busbar project in
 in Q3D and run a simulation.
 """
 ###############################################################################

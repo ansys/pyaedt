@@ -12,16 +12,16 @@ from pyaedt.desktop import Desktop
 from pyaedt import Q3d
 
 ###############################################################################
-# Launch AEDT in non-graphical mode.
-# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# Launch AEDT in Non-Graphical Mode
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # You can change the Boolean parameter ``NonGraphical`` to ``False`` to launch 
 # AEDT in graphical mode.
 
 NonGraphical = True
 
 ###############################################################################
-# Launch AEDT and Q3D.
-# ~~~~~~~~~~~~~~~~~~~~
+# Launch AEDT and Q3D
+# ~~~~~~~~~~~~~~~~~~~
 # This example uses AEDT 2021.1 in graphical mode.
 
 # This example use SI units.
@@ -33,7 +33,7 @@ q=Q3d()
 ###############################################################################
 # Primitives Creation
 # ~~~~~~~~~~~~~~~~~~~
-# Create polylines for the three busbars and box for the substrate.
+# Create polylines for three busbars and a box for the substrate.
 
 q.modeler.primitives.create_polyline([[0, 0, 0], [-100, 0, 0]], name="Bar1", matname="copper", xsection_type="Rectangle",
                                      xsection_width="5mm", xsection_height="1mm")
@@ -47,8 +47,8 @@ q.modeler.primitives.create_polyline([[0, -30, 0], [-175, -30, 0], [-175, -10, 0
 q.modeler.primitives.create_box([50,30,-0.5], [-250,-100,-3], name="substrate", matname="FR4_epoxy")
 
 ###############################################################################
-# Set up boundaries.
-# ~~~~~~~~~~~~~~~~~~
+# Set Up Boundaries
+# ~~~~~~~~~~~~~~~~~
 # Identify nets and assign sources and sinks to all nets.
 # There is a source and sink for each busbar.
 
@@ -65,28 +65,28 @@ q.assign_sink_to_objectface("Bar3",axisdir=q.AxisDir.YPos, sink_name="Sink3")
 
 
 ###############################################################################
-# Add a Q3D setup.
-# ~~~~~~~~~~~~~~~~
+# Add a Q3D Setup
+# ~~~~~~~~~~~~~~~
 # This method adds a setup to the project and defines the adaptive frequency 
 # value
 
 q.create_setup(props={"AdaptiveFreq":"100MHz"})
 
 ###############################################################################
-# Create a rectangular plot.
-# ~~~~~~~~~~~~~~~~~~~~~~~~~~
+# Create a Rectangular Plot
+# ~~~~~~~~~~~~~~~~~~~~~~~~~
 
 q.post.create_rectangular_plot("C(Bar1,Bar1)",context="Original")
 
 ###############################################################################
-# Solve the setup.
-# ~~~~~~~~~~~~~~~~
+# Solve the Setup.
+# ~~~~~~~~~~~~~~~
 
 q.analyze_nominal()
 
 ###############################################################################
-# Close AEDT.
-# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# Close AEDT
+# ~~~~~~~~~~
 # After the simulaton is completed, you can close AEDT or release it using the 
 # `release_desktop` method.
 # All methods provide for saving projects before exiting.

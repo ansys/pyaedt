@@ -40,8 +40,8 @@ from pyaedt import Icepak
 from pyaedt import Desktop
 
 ###############################################################################
-# Launch AEDT in non-graphical mode.
-# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# Launch AEDT in Non-Graphical mode
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # Change the Boolean parameter ``NonGraphical`` to ``False`` to launch AEDT in 
 # graphical mode.
 
@@ -72,7 +72,7 @@ component_name = "from_ODB"
 # Import a PCB from AEDB file.
 
 odb_path = os.path.join(input_dir, aedt_odb_project)
-ipk.create_pcb_from_3dlayout(component_name, odb_path, aedt_odb_design_name,extenttype="Polygon",
+ipk.create_pcb_from_3dlayout(component_name, odb_path, aedt_odb_design_name, extenttype="Polygon",
                                outlinepolygon=outline_polygon_name)
 
 ###############################################################################

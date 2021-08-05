@@ -25,7 +25,7 @@ if os.path.exists(targetfolder):
 shutil.copytree(example_path[:-8], targetfolder)
 targetfile=os.path.join(targetfolder)
 print(targetfile)
-aedt_file = targetfile[:-12]+"aedt"
+aedt_file = targetfile[:-12] + "aedt"
 
 
 ###############################################################################
@@ -33,7 +33,7 @@ aedt_file = targetfile[:-12]+"aedt"
 from pyaedt import Edb
 
 ###############################################################################
-# Launch the ``Edb`` class.
+# Launch the :class:`pyaedt.Edb` class.
 # ~~~~~~~~~~~~~~~~~~~~~~~~~
 # This example uses EDB 2021.1.
 
@@ -52,7 +52,8 @@ print("Components {}".format(len(edb.core_components.components.keys())))
 print("elapsed time = ", time.time() - start)
 
 ###############################################################################
-# Get a pin position.
+# Get a pin position
+# ~~~~~~~~~~~~~~~~~~
 # The next example shows how to get all pins for a specific component and get 
 # the position of each of them.
 # Each pin is a list of ``[X, Y]`` coordinate postions.
