@@ -22,7 +22,7 @@ NonGraphical = True
 ###############################################################################
 # Launch AEDT and Q3D
 # ~~~~~~~~~~~~~~~~~~~
-# This example uses AEDT 2021.1 in graphical mode.
+# This example launches AEDT 2021.1 in graphical mode.
 
 # This example use SI units.
 
@@ -31,8 +31,8 @@ d = Desktop("2021.1", NonGraphical, False)
 q=Q3d()
 
 ###############################################################################
-# Primitives Creation
-# ~~~~~~~~~~~~~~~~~~~
+# Create Primitives
+# ~~~~~~~~~~~~~~~~~
 # Create polylines for three busbars and a box for the substrate.
 
 q.modeler.primitives.create_polyline([[0, 0, 0], [-100, 0, 0]], name="Bar1", matname="copper", xsection_type="Rectangle",
@@ -67,20 +67,22 @@ q.assign_sink_to_objectface("Bar3",axisdir=q.AxisDir.YPos, sink_name="Sink3")
 ###############################################################################
 # Add a Q3D Setup
 # ~~~~~~~~~~~~~~~
-# This method adds a setup to the project and defines the adaptive frequency 
-# value
+# This command adds a setup to the project and defines the adaptive frequency 
+# value.
 
 q.create_setup(props={"AdaptiveFreq":"100MHz"})
 
 ###############################################################################
 # Create a Rectangular Plot
 # ~~~~~~~~~~~~~~~~~~~~~~~~~
+# This command creates a rectangular plot.
 
 q.post.create_rectangular_plot("C(Bar1,Bar1)",context="Original")
 
 ###############################################################################
-# Solve the Setup.
+# Solve the Setup
 # ~~~~~~~~~~~~~~~
+# This command solves the setup.
 
 q.analyze_nominal()
 
