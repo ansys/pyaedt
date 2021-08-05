@@ -33,17 +33,18 @@ aedt_file = targetfile[:-12] + "aedt"
 from pyaedt import Edb
 
 ###############################################################################
-# Launch the :class:`pyaedt.Edb` class.
-# ~~~~~~~~~~~~~~~~~~~~~~~~~
-# This example uses EDB 2021.1.
-
-# This example uses SI units.
+# Launch EDB
+# ~~~~~~~~~~
+# This example launches the :class:`pyaedt.Edb` class.
+# This example uses EDB 2021.1 and uses SI units.
 
 if os.path.exists(aedt_file): os.remove(aedt_file)
 edb = Edb(edbpath=targetfile)
 
 ###############################################################################
-# Compute nets and components.
+# Compute Nets and Components
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# This example computes nets and components.
 # There are queries for nets, stackups, layers, components, and geometries.
 
 print("Nets {}".format(len(edb.core_nets.nets.keys())))
@@ -52,10 +53,11 @@ print("Components {}".format(len(edb.core_components.components.keys())))
 print("elapsed time = ", time.time() - start)
 
 ###############################################################################
-# Get a pin position
-# ~~~~~~~~~~~~~~~~~~
+# Get Pin Position
+# ~~~~~~~~~~~~~~~~
+# This example gets the position for a specific pin.
 # The next example shows how to get all pins for a specific component and get 
-# the position of each of them.
+# the positions of each of them.
 # Each pin is a list of ``[X, Y]`` coordinate postions.
 
 pins = edb.core_components.get_pin_from_component("U2")
@@ -63,26 +65,34 @@ for pin in pins:
     print(edb.core_components.get_pin_position(pin))
 
 ###############################################################################
-# Get all nets connected to a specific component.
+# Get All Nets Connected to a Component
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# This example get all nets connected to a specific component.
 
 edb.core_components.get_component_net_connection_info("U2")
 
 ###############################################################################
-# Compute rats.
+# Compute Rats
+# ~~~~~~~~~~~~
+# This comman computes rats.
 
 rats = edb.core_components.get_rats()
 
 ###############################################################################
-# Get all DC-connected net lists through inductance.
-# Inputs needed are ground net lists. This method returns a list of all nets 
-# connected to a ground thorugh an inductor.
+# Get All DC-Connected Net Lists Through Inductance
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# This example gets all DC-connected net lists through inductance.
+# The inputs needed are ground net lists. A list of all nets 
+# connected to a ground through an inductor is returned.
 
 GROUND_NETS = ["GND", "PGND"]
 dc_connected_net_list = edb.core_nets.get_dcconnected_net_list(GROUND_NETS)
 print(dc_connected_net_list)
 
 ###############################################################################
-# Get the power tree based on a specific net.
+# Get the Power Tree Based on a Specific Net
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# This example gets the power tree based on a specific net.
 
 VRM = "U3A1"
 OUTPUT_NET = "BST_V1P0_S0"
@@ -91,44 +101,55 @@ for el in powertree_df:
     print(el)
 
 ###############################################################################
-# Delete all RLCs with only one pin.
-# This method is useful for removing components not needed in the simulation.
+# Delete all RLCs with Only One Pin
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# This command deletes all RLCs with only one pin, providing a useful way of 
+# removing components not needed in the simulation.
 
 edb.core_components.delete_single_pin_rlc()
 
 ###############################################################################
-# Delete a component.
-# You can manually delete one or more components.
+# Delete a Component
+# ~~~~~~~~~~~~~~~~~~
+# This command can be used to manually delete one or more components.
 
 edb.core_components.delete_component("C3B17")
 
 ###############################################################################
-# Delete one or more nets.
-# You can manually delete one or more nets.
+# Delete a Net
+# ~~~~~~~~~~~~
+# This command can be used to manually delete one or more nets.
 
 edb.core_nets.delete_nets("A0_N")
 
 ###############################################################################
-# Get the stackup limits, top and bottom layers, and elevations.
+# Get Stackup Limits
+# ~~~~~~~~~~~~~~~~~~
+# This command gets the stackup limits, top and bottom layers, and elevations.
 
 print(edb.core_stackup.stackup_limits())
 
 ###############################################################################
-# Create a new coaxial port for HFSS simulation.
+# Create a Coaxial Port
+# ~~~~~~~~~~~~~~~~~~~~~
+# This command creates a coaxial port for the HFSS simulation.
 
 edb.core_hfss.create_coax_port_on_component("U2A5", "V1P0_S0")
 
 ###############################################################################
-# Edit the stackup and material.
-# You can change stackup properties with assignment.
-# Materials can be created and assigned to layers.
+# Edit the Stackup and Material
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# THis example edits the stackup and the material. You can change stackup 
+# properties with assignment. Materials can be created and assigned to layers.
 
 edb.core_stackup.stackup_layers.layers['TOP'].thickness = "75um"
 edb.core_stackup.create_debye_material("My_Debye", 5, 3, 0.02, 0.05, 1e5, 1e9)
 edb.core_stackup.stackup_layers.layers['UNNAMED_002'].material_name = "My_Debye"
 
 ###############################################################################
-# Create a circuit port for SIwave simulation.
+# Create a Circuit Port for SIwave Simulation
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# This example creates a circuit port for SIwave simulation.
 
 edb.core_siwave.create_circuit_port("U2A5", "DDR3_DM0")
 
@@ -137,12 +158,16 @@ edb.core_siwave.add_siwave_ac_analysis()
 edb.core_siwave.add_siwave_dc_analysis()
 
 ###############################################################################
-# Save modifications.
+# Save Modifications
+# ~~~~~~~~~~~~~~~~~~
+# This command saves modifications.
 
 edb.save_edb()
 
 ###############################################################################
-# Close EDB. 
+# Close EDB
+# ~~~~~~~~~
+# This command closes EDB.
 # After EDB is closed, it can be opened by AEDT.
 
 edb.close_edb()
