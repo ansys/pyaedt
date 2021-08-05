@@ -121,7 +121,7 @@ def evaluate_examples_coverage(modules=None):
             # If no docstring is available in the module, coverage is considered to be 100%.
             percentage_covered = 100
 
-        print(f'{module_name : <37}{total : ^19}{missing : ^4}{percentage_covered:8.2f}')
+        print(f'{module_name : <37}{total : ^19}{missing : ^4}{percentage_covered:8.1f}%')
 
     # Get the stats for the entire package.
     all_methods_with_example_list = []
@@ -136,7 +136,7 @@ def evaluate_examples_coverage(modules=None):
     package_missing = len(all_methods_without_example_list)
     package_percentage_covered = (package_total - package_missing) / package_total * 100
     print ('-' * 79)
-    print(f'{"Total" : <37}{package_total : ^19}{package_missing : ^4}{package_percentage_covered:8.2f}')
+    print(f'{"Total" : <37}{package_total : ^19}{package_missing : ^4}{package_percentage_covered:8.1f}%')
 
 
 if __name__ == "__main__":
