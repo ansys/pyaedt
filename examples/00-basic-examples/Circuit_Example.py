@@ -11,8 +11,8 @@ from pyaedt import Desktop
 import os
 
 ###############################################################################
-# Launch AEDT and Circuit.
-# ~~~~~~~~~~~~~~~~~~~~~~~~
+# Launch AEDT and Circuit
+# ~~~~~~~~~~~~~~~~~~~~~~~
 # This examples launches AEDT 2021.1 in graphical mode.
 
 # This examples uses SI units.
@@ -20,8 +20,8 @@ import os
 desktopVersion = "2021.1"
 
 ###############################################################################
-# Launch AEDT in non-graphical mode.
-# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# Launch AEDT in Non-Graphical Mode
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # Change the Boolean parameter ``NonGraphical`` to ``False`` to launch AEDT in 
 # graphical mode.
 
