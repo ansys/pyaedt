@@ -1,7 +1,8 @@
 """
 Icepack Setup from Sherlock Inputs
 ----------------------------------
-This example shows how to create an Icepak project starting from Sherlock files (STEP and CSV) and AEDB board.
+This example shows how to create an Icepak project starting from Sherlock 
+# files (STEP and CSV) and an AEDB board.
 """
 # sphinx_gallery_thumbnail_path = 'Resources/sherlock.png'
 
@@ -21,8 +22,9 @@ if not os.path.exists(temp_folder): os.makedirs(temp_folder)
 print(temp_folder)
 
 ###############################################################################
-# Input variables.
-# This lists all input variables needed to run the example.
+# Input Variables
+# ~~~~~~~~~~~~~~~
+# This example creates all input variables needed to run the example.
 
 material_name = 'MaterialExport.csv'
 component_properties =  'TutorialBoardPartsList.csv'
@@ -33,17 +35,18 @@ stackup_thickness = 2.11836
 outline_polygon_name = "poly_14188"
 
 ###############################################################################
-# Import PyAEDT and launch AEDT.
+# Import PyAEDT and Launch AEDT
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # This example launches AEDT 2021.1 in graphical mode.
 
 from pyaedt import Icepak
 from pyaedt import Desktop
 
 ###############################################################################
-# Launch AEDT in Non-Graphical mode
+# Launch AEDT in Non-Graphical Mode
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-# Change the Boolean parameter ``NonGraphical`` to ``False`` to launch AEDT in 
-# graphical mode.
+# You can change the Boolean parameter ``NonGraphical`` to ``False`` to launch  
+# AEDT in graphical mode.
 
 NonGraphical = False
 
@@ -57,73 +60,101 @@ file_path = os.path.join(input_dir, component_step)
 project_name = os.path.join(temp_folder, component_step[:-3] + "aedt")
 
 ###############################################################################
-# Create an Icepak project and delete the region to improve performance.
+# Create an Icepak Project
+# ~~~~~~~~~~~~~~~~~~~~~~~~
+# This command create an Icepak project
 
 ipk = Icepak()
 
 ###############################################################################
-# Remove the region and disable autosave to speed up the import.
+# Delete the Region to Improve Performance
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# This example remove the region and disables autosave to speed up the import.
 
 d.disable_autosave()
 ipk.modeler.primitives.delete("Region")
 component_name = "from_ODB"
 
 ###############################################################################
-# Import a PCB from AEDB file.
+# Import a PCB from an AEDB File
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# This example imports a PCB from an AEDB file.
 
 odb_path = os.path.join(input_dir, aedt_odb_project)
 ipk.create_pcb_from_3dlayout(component_name, odb_path, aedt_odb_design_name, extenttype="Polygon",
                                outlinepolygon=outline_polygon_name)
 
 ###############################################################################
-# Create an offset coordinate system to match odb++ with the Sherlock STEP file.
+# Create an Offset Ccoordinate System
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# This command create an offset coordinate system to match odb++ with the 
+# Sherlock STEP file.
 
 ipk.modeler.create_coordinate_system([0, 0, stackup_thickness/2], mode="view", view="XY")
 
 ###############################################################################
-# Import a CAD file.
+# Import a CAD File
+# ~~~~~~~~~~~~~~~~~
+# This command imports a CAD file.
 
 ipk.modeler.import_3d_cad(file_path, refresh_all_ids=False)
 
 ###############################################################################
-# Save the CAD file and refresh properties from AEDT file parsing.
+# Save the CAD File 
+# ~~~~~~~~~~~~~~~~~
+# This command saves the CAD file and refreshes properties from AEDT file 
+# parsing.
 
 ipk.save_project(project_name, refresh_obj_ids_after_save=True)
 
 ###############################################################################
-# Remove PCB objects.
+# Remove PCB Objects
+# ~~~~~~~~~~~~~~~~~~
+# This command removes the PCB objects.
 
 ipk.modeler.primitives.delete_objects_containing("pcb", False)
 
 ###############################################################################
-# Create a region.
+# Create a Region
+# ~~~~~~~~~~~~~~~
+# This command creates an air region.
 
 ipk.modeler.create_air_region(*[20,20,300,20,20,300])
 
 ###############################################################################
-# Assign materials.
+# Assign Materials
+# ~~~~~~~~~~~~~~~~
+# This command assigns materials from Sherlock files.
 
 ipk.assignmaterial_from_sherlock_files(component_list, material_list)
 
 ###############################################################################
-# Delete objects with no material assignments.
+# Delete Objects With No Material Assignments
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# This example deletes objects that have no materials assigned.
 
 no_material_objs = ipk.modeler.primitives.get_objects_by_material("")
 ipk.modeler.primitives.delete(no_material_objs)
 ipk.save_project()
 
 ###############################################################################
-# Assign power to component blocks.
+# Assign Power to Component Blocks
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# This command assigns power to component blocks.
 
 all_objects = ipk.modeler.primitives.object_names
 
 ###############################################################################
-# Assign power blocks.
+# Assign Power Blocks
+# ~~~~~~~~~~~~~~~~~~~
+# This command assigns power blocks from the Sherlock file.
 
 total_power = ipk.assign_block_from_sherlock_file(component_list)
 
 ###############################################################################
-# Set up boundaries
+# Set Up Boundaries
+# ~~~~~~~~~~~~~~~~~
+# This example sets up boundaries.
 
 ipk.mesh.automatic_mesh_pcb(4)
 
@@ -136,12 +167,17 @@ setup1.update()
 ipk.assign_openings(ipk.modeler.primitives.get_object_faces("Region"))
 
 ###############################################################################
-# Check for intersection using validation and fix it by assigning priorities.
+# Check for Intersection
+# ~~~~~~~~~~~~~~~~~~~~~~
+# This command checks for intersection using validation and fixes it by 
+# assigning priorities.
 
 ipk.assign_priority_on_intersections()
 
 ###############################################################################
-# Save and close the project.
+# Save and Close the Project
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~
+# This example saves and closes the project.
 
 ipk.save_project()
 
