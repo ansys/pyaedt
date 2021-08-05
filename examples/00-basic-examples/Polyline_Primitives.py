@@ -12,7 +12,7 @@ from pyaedt.maxwell import Maxwell3d
 from pyaedt.modeler.Primitives import Polyline, PolylineSegment
 
 ###############################################################################
-# Create a `Maxwell3d` object and set the unit type to ``"mm"``.
+# Create a :class:`pyaedt.Maxwell3d` object and set the unit type to ``"mm"``.
 
 M3D = Maxwell3d(solution_type="Transient", designname="test_polyline_3D", specified_version="2021.1")
 M3D.modeler.model_units = "mm"
@@ -35,10 +35,10 @@ M3D["p2"] = "71mm"
 # values or strings. Floating point values are assumed to be in model units
 # (``M3D.modeler.model_units``).
 
-test_points = [ ["0mm",       "p1",    "0mm"],
-                ["-p1",       "0mm",   "0mm"],
-                ["-p1/2",     "-p1/2",   "0mm"],
-                ["0mm",         "0mm", "0mm"]]
+test_points = [ ["0mm", "p1", "0mm"],
+                ["-p1", "0mm", "0mm"],
+                ["-p1/2", "-p1/2", "0mm"],
+                ["0mm", "0mm", "0mm"]]
 
 ###############################################################################
 # Polyline Primitive Examples
@@ -73,14 +73,15 @@ print("Created object with id {} and name {}.".format(P.id, prim3D.objects[P.id]
 # Create a spline primitive. 
 # Here the segement is defined using a `PolylineSegment` object. This allows
 # you to prove additional input parameters to define the spine, such as the 
-# number of points (in this case 4). The parameter ``input position_list`` 
+# number of points (in this case 4). The parameter ``position_list`` 
 # must contain at least four position values.
 
 P = prim3D.create_polyline(position_list=test_points, segment_type=PolylineSegment("Spline", num_points=4),
                            name="PL03_spline_4pt")
 
 ###############################################################################
-# Create a center-point arc primitive.
+# Create a center-point arc primitive
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # A center-point arc segment is defined by a starting point, a center point, 
 # and an angle of rotation around the center point. The rotation occurs in a 
 # plane parallel to the XY, YZ or ZX plane of the active coordinate system. 
@@ -97,7 +98,7 @@ P = prim3D.create_polyline(position_list=[start_point],
                            name="PL04_center_point_arc")
 
 ###############################################################################
-# Here ``start-point`` and ``center-point`` have the same values for the Y and 
+# Here ``start_point`` and ``center_point`` have the same values for the Y and 
 # Z coordinates, so the plane or rotation could be either XY or ZX. 
 # For these special cases when the rotation plane is ambiguous, the plane can 
 # be specified explicitly. 
@@ -125,7 +126,7 @@ P = prim3D.create_polyline(position_list=test_points, name="PL06_segmented_compo
 ###############################################################################
 # You can specify the segment type with the parameter ``segment_type``. 
 # In this case, you must specify that the four input points in ``position_list`` 
-# are to be connected as a ``"Line"`` segment followed by a 3-point ``Arc`` segment.
+# are to be connected as a ``"Line"`` segment followed by a 3-point ``"Arc"`` segment.
 
 P = prim3D.create_polyline(position_list=test_points, segment_type=["Line", "Arc"], name="PL05_compound_line_arc")
 
@@ -243,9 +244,9 @@ P = prim3D.create_polyline(position_list=[[34.1004, 14.1248, 0],
 ###############################################################################
 # Here is another example of a complex polyline where the number of points is 
 # insufficient to populate the requested segments. This results in an 
-# ``IndexError`` that is caught silently within AEDTLib. The return value of 
+# ``IndexError`` that is caught silently within PyAEDT. The return value of 
 # the command is ``False``, which can be caught at the application level. 
-# Whilte this example maybe not so useful in a Jupyter Notebook, it is important 
+# While this example maybe not so useful in a Jupyter Notebook, it is important 
 # for the unit tests.
 
 MDL_points = [["67.1332mm", "2.9901mm", "0mm"],
@@ -262,7 +263,7 @@ MDL_segments = [
     "Line", "Arc", "Line", "Arc", "Line"
 ]
 return_value = prim3D.create_polyline(MDL_points, segment_type=MDL_segments, name="MDL_Polyline")
-assert return_value   # triggers an error at the application error
+assert return_value  # triggers an error at the application error
 
 ###############################################################################
 # This example provides more points than the segment list requires.
@@ -275,8 +276,8 @@ P = prim3D.create_polyline(MDL_points, segment_type=MDL_segments, name="MDL_Poly
 ###############################################################################
 # Save the project file.
 
-project_dir=r'C:\temp'
-project_name='Polylines'
+project_dir = r'C:\temp'
+project_name = 'Polylines'
 project_file = os.path.join(project_dir, project_name + '.aedt')
 
 M3D.save_project(project_file)
