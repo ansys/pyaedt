@@ -36,8 +36,8 @@ hfss=Hfss()
 hfss['l_dipole'] = "13.5cm"
 
 ###############################################################################
-# Get a 3D component from the `syslib` directory.
-# -----------------------------------------------
+# Get a 3D Component from the `syslib` Directory
+# ----------------------------------------------
 # To run correctly, you must get all geometry parameters of the 3D component 
 # or, in case of an encrypted 3D component, create a dictionary of parameters. 
 
@@ -47,15 +47,15 @@ geometryparams['dipole_length'] = "l_dipole"
 hfss.modeler.primitives.insert_3d_component(compfile, geometryparams)
 
 ###############################################################################
-# Create boundaries.
-# ------------------
+# Create Boundaries
+# -----------------
 # A region with openings is needed to run the analysis.
 
 hfss.create_open_region(Frequency="1GHz")
 
 ###############################################################################
-# Create the setup.
-# ---------------------------------
+# Create the setup
+# ----------------
 # A setup with a sweep will be used to run the simulation.
 
 setup = hfss.create_setup("MySetup", hfss.SimulationSetupTypes.HFSSDrivenAuto)

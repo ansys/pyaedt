@@ -47,7 +47,7 @@ hfss.create_linear_step_sweep(setupname=setup.name, unit='GHz', freqstart=1, fre
 
 ###############################################################################
 # Optimetrics Parametrics Setup
-# ------------------------------
+# -----------------------------
 # Simple parametrics analysis with output calculations.
 
 sweep = hfss.opti_parametric.add_parametric_setup("w2", "LIN 90mm 200mm 5mm")
@@ -71,7 +71,7 @@ sweep2.add_calculation(calculation="dB(S(1,1))", calculation_value="2.6GHz")
 sweep3 = hfss.opti_optimization.add_optimization(calculation="dB(S(1,1))", calculation_value="2.5GHz")
 sweep3.add_goal(calculation="dB(S(1,1))", calculation_value="2.6GHz")
 sweep3.add_goal(calculation="dB(S(1,1))", calculation_value="2.6GHz", calculation_type="rd", calculation_stop="5GHz")
-sweep3.add_goal(calculation="dB(S(1,1))", calculation_value="2.6GHz", calculation_type="rd", calculation_stop="5GHz",condition="Maximize")
+sweep3.add_goal(calculation="dB(S(1,1))", calculation_value="2.6GHz", calculation_type="rd", calculation_stop="5GHz", condition="Maximize")
 
 ###############################################################################
 # Optimetrics DesignXplorer (DX) Setup
@@ -92,8 +92,8 @@ sweep5.add_goal(calculation="dB(S(1,1))", calculation_value="2.6GHz")
 sweep5.add_calculation(calculation="dB(S(1,1))", calculation_value="2.5GHz")
 
 ###############################################################################
-# Close AEDT.
-# -----------
+# Close AEDT
+# ----------
 
 if os.name != "posix":
     d.force_close_desktop()
