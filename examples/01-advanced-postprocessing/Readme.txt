@@ -1,7 +1,8 @@
-Advanced Post-Processing Examples
-=======================================
-Here are a series of examples using AEDT with ``pyaedt`` that requires advanced packages to be run. The can be run only
-on CPython an requires:
-- numpy
-- matplotlib
-- pyvista
+Advanced Postprocessing Examples
+================================
+This series of examples uses AEDT with PyAEDT. It requires that these advanced packages are running: 
+- Matplotlib
+- Numpy
+- PyVista
+
+These examples can be run only on CPython.
