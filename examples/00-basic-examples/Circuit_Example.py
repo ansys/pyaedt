@@ -64,8 +64,8 @@ capacitor_id, capacitor = aedt_app.modeler.components.create_capacitor("C1", 1e-
 
 pins_res = aedt_app.modeler.components.get_pins(resistor)
 
-ind1 = aedt_app.modeler.components[inductor]
-res1 = aedt_app.modeler.components[resistor]
+inductor_component = aedt_app.modeler.components[inductor]
+resistor_component = aedt_app.modeler.components[resistor]
 
 ###############################################################################
 # Create a Port and a Ground
