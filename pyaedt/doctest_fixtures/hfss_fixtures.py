@@ -19,7 +19,7 @@ def create_hfss(request, doctest_namespace):
     if request.module != hfss_module:
         return
 
-    # Use RadioBoardHfss.aedt project to test
+    # Use USB_Connector.aedt project to test
     project_path = os.path.join(doctest_namespace["projects_path"], "USB_Connector.aedt")
     doctest_namespace["hfss"] = Hfss(projectname=project_path, designname="HfssDesign1")
 
