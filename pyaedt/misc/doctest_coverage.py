@@ -104,7 +104,6 @@ def evaluate_examples_coverage(modules=None):
         for dt_name in doctests[module_name]:
             # Private methods should not be considered.
             if (not doctests[module_name][dt_name].examples) & (not dt_name.startswith("_")):
-
                 methods_without_example.append(dt_name)
             else:
                 methods_with_example.append(dt_name)
