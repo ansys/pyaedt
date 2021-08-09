@@ -2,8 +2,8 @@
 HFSS-Icepack Coupling Analysis
 ------------------------------
 This example shows how to create a full project from scratch in HFSS and Icepak (linked to HFSS). 
-The project creates a setup, solves it, and creates postprocessing output. It includes a lot of 
-commands to show PyAedt capabilities.
+The project creates a setup, solves it, and creates post-processing output. It includes several
+commands to show PyAEDT's capabilities.
 
 To provide the advanced postprocessing features needed for this example, Matplotlib, NumPy, and 
 PyVista must be installed on the machine.
@@ -165,7 +165,7 @@ sweepname = aedtapp.create_frequency_sweep("MySetup", "GHz", 0.8, 1.2)
 # ~~~~~~~~~~~~~~~~~~~~~~
 # After an HFSS setup is ready, link it to an Icepak project to run a 
 # coupled physics analysis.
-# The command ``ipkapp.copy_solid_bodies_from(aedtapp)`` imports a model 
+# The :func:`FieldAnalysisIcepak.copy_solid_bodies_from` imports a model 
 # from HFSS with all material settings.
 
 ipkapp = Icepak()
@@ -252,7 +252,7 @@ if not os.path.exists(results_folder):
     os.mkdir(results_folder)
 
 aedtapp.post.plot_field_from_fieldplot(plot1.name, project_path=results_folder, meshplot=False, setup_name=setup_name,
-                                             intrinsic_dict=intrinsic, imageformat="jpg", view="iso", off_screen=True)
+                                       intrinsic_dict=intrinsic, imageformat="jpg", view="iso", off_screen=True)
 
 ################################################################################
 # Generate Animation from Field Plots

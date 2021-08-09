@@ -121,7 +121,7 @@ M3D.analyze_nominal()
 ###############################################################################
 # Get Report Data 
 # ~~~~~~~~~~~~~~~
-# The :func:`get_report_data` returns a data class with all data produced from 
+# :func:`PostProcessor.get_report_data` returns a data class with all data produced from 
 # the simulation.
 
 val = M3D.post.get_report_data(expression="SolidLoss")

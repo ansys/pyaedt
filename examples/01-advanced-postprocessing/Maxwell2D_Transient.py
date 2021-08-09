@@ -36,7 +36,7 @@ m2d.save_project(os.path.join(project_dir,"M2d.aedt"))
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # This example creates a rectangle and then duplicates it.
 
-rect1 = m2d.modeler.primitives.create_rectangle([0,0,0],[20,10],"Rectangle1", "copper")
+rect1 = m2d.modeler.primitives.create_rectangle([0, 0, 0],[20, 10], "Rectangle1", "copper")
 added = rect1.duplicate_along_line([14,0,0])
 rect2 = m2d.modeler.primitives[added[0]]
 
@@ -45,11 +45,11 @@ rect2 = m2d.modeler.primitives[added[0]]
 # ~~~~~~~~~~~~~~~~~~~
 # This comman creates an air region.
 
-region = m2d.modeler.primitives.create_region([100,100,100,100,100,100])
+region = m2d.modeler.primitives.create_region([100, 100, 100, 100, 100, 100])
 
 ###############################################################################
 # Assign Windings to Sheets and a Balloon to the Air Region
-# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 m2d.assign_winding([rect1.name, rect2.name], name="PHA")
 m2d.assign_balloon(region.edges)
 
