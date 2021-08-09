@@ -1,10 +1,12 @@
 """
+Manage Touchstone Objects
+--------------------------
+This example shows how to use Touchstone objects without opening AEDT.
 
-Touchstone Management
---------------------------------------------
-This Example shows how to use Touchstone objects without opening AEDT
-This Example needs numpy and matplotlib,  to be installed on the machine to provide advanced post processing features
-This Examples runs on Windows Only using CPython
+To provide the advanced postprocessing features needed for this example, Matplotlib and NumPy 
+must be installed on the machine.
+
+This example runs only on Windows using CPython.
 """
 
 import sys
@@ -24,20 +26,21 @@ sys.path.append(path2)
 from pyaedt import examples
 example_path = examples.download_touchstone()
 
-#################################
+###############################################################################
 
 from pyaedt.generic.TouchstoneParser import *
 import numpy as np
 import matplotlib.pyplot as plt
 
-#################################
+###############################################################################
 
 data = read_touchstone(example_path)
 
-#################################
-# Get Curves names
-# those methods allows to identify the list of insertion losses, return losses, fext and next based on few inputs
-# and port names
+###############################################################################
+# Get Curve Names
+# ~~~~~~~~~~~~~~~
+# These methods identify the list of insertion losses, return losses, fext, 
+# and next based on a few inputs and port names.
 
 rl_list = get_return_losses(data.ports)
 il_list = get_insertion_losses_from_prefix(data.ports,"U1", "U7")
@@ -45,17 +48,20 @@ fext_list = get_fext_xtalk_from_prefix(data.ports,"U1","U7")
 next_list = get_next_xtalk(data.ports,"U1")
 
 
+###############################################################################
+# Get Curve Worst Cases
+# ~~~~~~~~~~~~~~~~~~~~~
+# These example get the worst cases for the curve.
 
-#################################
-# Get Curves worst Cases
+worst_rl, global_mean = get_worst_curve_from_solution_data(data, freq_min=1, freq_max=20, worst_is_higher=True, curve_list=rl_list)
+worst_il, mean2 = get_worst_curve_from_solution_data(data,freq_min=1, freq_max=20, worst_is_higher=False, curve_list=il_list)
+worst_fext, mean3 = get_worst_curve_from_solution_data(data,freq_min=1, freq_max=20, worst_is_higher=True, curve_list=fext_list)
+worst_next, mean4 = get_worst_curve_from_solution_data(data,freq_min=1, freq_max=20, worst_is_higher=True, curve_list=next_list)
 
-worst_rl, global_mean = get_worst_curve_from_solution_data(data,freq_min=1, freq_max=20,worst_is_higher=True,curve_list=rl_list)
-worst_il, mean2 = get_worst_curve_from_solution_data(data,freq_min=1, freq_max=20,worst_is_higher=False,curve_list=il_list)
-worst_fext, mean3 = get_worst_curve_from_solution_data(data,freq_min=1, freq_max=20,worst_is_higher=True,curve_list=fext_list)
-worst_next, mean4 = get_worst_curve_from_solution_data(data,freq_min=1, freq_max=20,worst_is_higher=True,curve_list=next_list)
-
-#################################
-# Plot Curves on Matplotlib
+###############################################################################
+# Use Matplotlib to Plot the Curves
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# This example uses Matplotlib to plot the curves.
 
 fig, ax = plt.subplots(figsize=(20, 10))
 ax.set(xlabel='Frequency (Hz)', ylabel='Return Loss (dB)', title='Return Loss')
@@ -69,11 +75,5 @@ mag_data3 = 20*np.log10(np.array(data.solutions_data_mag[worst_fext]))
 ax.plot(freq_data, mag_data3, label=worst_fext)
 mag_data4 = 20*np.log10(np.array(data.solutions_data_mag[worst_next]))
 ax.plot(freq_data, mag_data4,label=worst_next)
-ax.legend(["Worst RL="+worst_rl,"Worst IL="+worst_il,"Worst FEXT="+worst_fext,"Worst NEXT="+worst_next])
+ax.legend(["Worst RL = " + worst_rl, "Worst IL = " + worst_il, "Worst FEXT = " + worst_fext, "Worst NEXT = " + worst_next])
 plt.show()
-
-
-
-#################################
-
-
