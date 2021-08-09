@@ -30,7 +30,7 @@ from pyaedt import Hfss
 
 ###############################################################################
 # Import All Modules for Postprocessing
-# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # This example imports all modules for postprocessing.
 
 import numpy as np
