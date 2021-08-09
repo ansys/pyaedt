@@ -1,5 +1,4 @@
 """
-
 Advanced Far Field Postprocessing Example
 -----------------------------------------
 This example shows how to use advanced postprocessing functions to create plots 
