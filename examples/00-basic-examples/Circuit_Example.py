@@ -62,7 +62,7 @@ capacitor_id, capacitor = aedt_app.modeler.components.create_capacitor("C1", 1e-
 # ~~~~~~~~~~~~~~~~~~
 # This method gets all pins of a specified component.
 
-pins_res = aedt_app.modeler.components.get_pins(resistor)
+pins_resistor = aedt_app.modeler.components.get_pins(resistor)
 
 inductor_component = aedt_app.modeler.components[inductor]
 resistor_component = aedt_app.modeler.components[resistor]
