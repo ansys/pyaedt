@@ -2,13 +2,15 @@
 
 Maxwell 2D Analysis
 -------------------
-This example shows how you can use PyAedt to create a project in Maxwell 2D
+This example shows how you can use PyAEDT to create a project in Maxwell 2D
 and run a transient simulation.
 
-To provide the advanced postprocessing features needed for this example,
-Matplotlib: <https://pypi.org/project/matplotlib/>,
-NumPy: <https://pypi.org/project/numpy/>,
-and PyVista https://pypi.org/project/pyvista/ must be installed on the machine.
+To provide the advanced postprocessing features needed for this example, 
+these Python packages must be installed on the machine:
+
+- `Matplotlib <https://pypi.org/project/matplotlib/>`_
+- `Numpty <https://pypi.org/project/numpy/>`_
+- `PyVista <<https://pypi.org/project/pyvista/>`_
 
 This example runs only on Windows using CPython.
 """
@@ -52,6 +54,8 @@ region = maxwell_2d.modeler.primitives.create_region([100, 100, 100, 100, 100, 1
 ###############################################################################
 # Assign Windings to Sheets and a Balloon to the Air Region
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# This example assigns windings to shhets and a balloon too the air region.
+
 maxwell_2d.assign_winding([rect1.name, rect2.name], name="PHA")
 maxwell_2d.assign_balloon(region.edges)
 
