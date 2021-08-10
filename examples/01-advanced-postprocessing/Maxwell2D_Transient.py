@@ -41,9 +41,9 @@ added = rect1.duplicate_along_line([14,0,0])
 rect2 = maxwell_2d.modeler.primitives[added[0]]
 
 ###############################################################################
-# Create a Air Region
+# Create an Air Region
 # ~~~~~~~~~~~~~~~~~~~
-# This comman creates an air region.
+# This command creates an air region.
 
 region = maxwell_2d.modeler.primitives.create_region([100, 100, 100, 100, 100, 100])
 
