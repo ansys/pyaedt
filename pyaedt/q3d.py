@@ -65,7 +65,7 @@ class QExtractor(FieldAnalysis3D, FieldAnalysis2D, object):
 
 
 class Q3d(QExtractor, object):
-    """Q3D application interface.
+    """Provides the Q3D application interface.
 
     This class allows you to create an instance of Q3D and link to an
     existing project or create a new one.
