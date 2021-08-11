@@ -37,14 +37,17 @@ d = Desktop(desktopVersion, NonGraphical, NewThread)
 aedtapp = Emit()
 #aedtapp = Circuit()
 
-rad1 = aedtapp.modeler.components.create_component("New Radio")
+rad1 = aedtapp.modeler.components.create_component("UE - Handheld")
 ant1 = aedtapp.modeler.components.create_component("Antenna")
+ant1.move_and_connect_to(rad1)
 
-rad2 = aedtapp.modeler.components.create_component("New Radio")
+rad2 = aedtapp.modeler.components.create_component("GPS Receiver")
 ant2 = aedtapp.modeler.components.create_component("Antenna")
+ant2.move_and_connect_to(rad2)
 
-rad3 = aedtapp.modeler.components.create_component("New Radio")
+rad3 = aedtapp.modeler.components.create_component("Bluetooth")
 ant3 = aedtapp.modeler.components.create_component("Antenna")
+ant3.move_and_connect_to(rad3)
 
 
 ###############################################################################
