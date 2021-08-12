@@ -12,7 +12,7 @@ from .application.DataHandlers import random_string
 
 
 class Hfss(FieldAnalysis3D, object):
-    """HFSS application interface.
+    """Provides the HFSS application interface.
 
     This class allows you to create an interactive instance of HfSS and
     connect to an existing HFSS design or create a new HFSS design if

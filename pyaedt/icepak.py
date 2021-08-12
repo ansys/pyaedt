@@ -13,7 +13,7 @@ from  collections import OrderedDict
 
 
 class Icepak(FieldAnalysisIcepak):
-    """Icepak application interface.
+    """Provides the Icepak application interface.
 
     This class allows you to connect to an existing Icepack design or create a
     new Icepak design if one does not exist.
