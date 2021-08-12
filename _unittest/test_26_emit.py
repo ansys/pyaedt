@@ -52,3 +52,15 @@ class TestEmit:
         connected_comp, connected_port = radio2.port_connection(radio2_port)
         assert connected_comp == None
         assert connected_port == None
+
+    def test_radio_component(self):
+        radio = self.aedtapp.modeler.components.create_component("New Radio")
+        # default radio has 1 Tx channel and 1 Rx channel
+        assert radio.has_rx_channels()
+        assert radio.has_tx_channels()
+        # test band.enabled to confirm component properties can be get/set
+        assert len(radio.bands()) > 0
+        band = radio.bands()[0]
+        assert band.enabled
+        band.enabled = False
+        assert not band.enabled

@@ -124,23 +124,11 @@ class EmitComponents(object):
         if library is None:
             library = ""
         new_comp_name = self.oeditor.CreateComponent(name, component_type, library)
-        o = EmitComponent(self.oeditor, self.odesign)
+        o = EmitComponent.create(self, new_comp_name)
         o.name = new_comp_name
         o_update = self.update_object_properties(o)
         self.components[new_comp_name] = o_update
         return o_update
-
-    def _get_node_props(self, comp_name, node_name):
-        prop_list = self.odesign.GetComponentNodeProperties(comp_name, node_name)
-        props = dict(p.split('=') for p in prop_list)
-        return props
-    def _get_node_type(self, comp_name, node_name):
-        return self._get_node_props(comp_name, node_name)['Type']
-    def _get_comp_type(self, comp_name):
-        nodes = self.odesign.GetComponentNodeNames(comp_name)
-        root_node = nodes[0]
-        return self._get_node_type(comp_name, root_node)
-
 
     @aedt_exception_handler
     def refresh_all_ids(self):
@@ -148,12 +136,7 @@ class EmitComponents(object):
         all_comps = self.oeditor.GetAllComponents()
         for comp_name in all_comps:
             if not self.get_obj_id(comp_name):
-                comp_type = self._get_comp_type(comp_name)
-                if comp_type == 'RadioNode':
-                    o = EmitRadioComponent(self.oeditor, self.odesign)
-                else:
-                    o = EmitComponent(self.oeditor, self.odesign)
-                o.name = comp_name
+                o = EmitComponent.create(self, comp_name)
                 o_update = self.update_object_properties(o)
                 self.components[comp_name] = o_update
         return len(self.components)
@@ -276,6 +259,31 @@ class EmitComponents(object):
 class EmitComponent(object):
     """A component in the EMIT schematic."""
 
+    # Dictionary of subclass types. Register each subclass types with 
+    # class decorator and use EmitComponent.create to create the correct
+    # object type.
+    subclasses = {}
+
+    @classmethod
+    def register_subclass(cls, root_node_type):
+        def decorator(subclass):
+            cls.subclasses[root_node_type] = subclass
+            return subclass
+        return decorator
+
+    @classmethod
+    def create(cls, components, component_name):
+        nodes = components.odesign.GetComponentNodeNames(component_name)
+        root_node = nodes[0]
+        prop_list = components.odesign.GetComponentNodeProperties(component_name, root_node)
+        props = dict(p.split('=') for p in prop_list)
+        root_node_type = props['Type']
+        if root_node_type.endswith('Node'):
+            root_node_type = root_node_type[:-len('Node')]
+        if root_node_type not in cls.subclasses:
+            return EmitComponent(components, component_name)
+        return cls.subclasses[root_node_type](components, component_name)
+
     @property
     def composed_name(self):
         """ """
@@ -284,24 +292,11 @@ class EmitComponent(object):
         else:
             return self.name + ";" + str(self.schematic_id)
 
-    def __init__(self, editor=None, design=None, units="mm", tabname="PassedParameterTab"):
-        self.name = None
-        self.oeditor = editor
-        self.odesign = design
+    def __init__(self, components, component_name):
+        self.name = component_name
+        self.oeditor = components.oeditor
+        self.odesign = components.odesign
         self.root_prop_node = None
-        self.modelName = None
-        self.status = "Active"
-        self.id = 0
-        self.refdes = ""
-        self.schematic_id = 0
-        self.levels = 0.1
-        self.angle = 0
-        self.x_location = "0mil"
-        self.y_location = "0mil"
-        self.mirror = False
-        self.usesymbolcolor = True
-        self.units = "mm"
-        self.tabname = tabname
 
     @aedt_exception_handler
     def move_and_connect_to(self, component):
@@ -597,11 +592,12 @@ class EmitComponent(object):
                 filtered_nodes.append(node)
         return filtered_nodes
 
+@EmitComponent.register_subclass("Radio")
 class EmitRadioComponent(EmitComponent):
     """A Radio component in the EMIT schematic."""
 
-    def __init__(self, editor=None, design=None, units="mm", tabname="PassedParameterTab"):
-        super(EmitRadioComponent, self) .__init__(editor, design, units, tabname)
+    def __init__(self, components, component_name):
+        super(EmitRadioComponent, self) .__init__(components, component_name)
 
     def bands(self):
         band_nodes = self.get_prop_nodes({'Type':'Band'})
