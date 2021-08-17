@@ -38,7 +38,8 @@ hfss['l_dipole'] = "13.5cm"
 #####################################################
 # Get 3D Component from syslib
 # ---------------------------------
-# in order to run correctly user needs to get all the geometry parameters of the 3D component or needs to create a
+# in order to run correctly user needs to get all the geometry parameters
+# of the 3D component or needs to create a
 # dictionary of parameters in case of encrypted 3D Component
 
 compfile = hfss.components3d['Dipole_Antenna_DM']

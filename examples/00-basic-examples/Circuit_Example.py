@@ -38,7 +38,7 @@ aedtapp = Circuit()
 ###############################################################################
 # Create Circuit Setup
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-# This method create and customize a Linear Network Analysis Setup
+# This method creates and customizes a Linear Network Analysis Setup
 
 setup1 = aedtapp.create_setup("MyLNA")
 setup1.SweepDefinition = [('Variable', 'Freq'), ('Data', 'LINC 0GHz 4GHz 10001'), ('OffsetF1', False),
@@ -84,7 +84,7 @@ aedtapp.modeler.connect_schematic_components(mycapid, gndid)
 ###############################################################################
 # Add a transient Setup
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-# This method add a transient setup
+# This method adds a transient analysis
 
 setup2 = aedtapp.create_setup("MyTransient", aedtapp.SimulationSetupTypes.NexximTransient)
 setup2.TransientData = ["0.01ns", "200ns"]
@@ -102,7 +102,7 @@ aedtapp.export_fullwave_spice()
 ###############################################################################
 # Close Desktop
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-# After the simulaton is completed user can close the desktop or release it (using release_desktop method).
+# After the simulation is completed user can close the desktop or release it (using release_desktop method).
 # All methods give possibility to save projects before exit
 if os.name != "posix":
     d.force_close_desktop()

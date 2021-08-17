@@ -38,7 +38,7 @@ def fah2kel(val, inverse=True):
         Temperature value in Fahrenheit.
     inverse : bool, optional
         The default is ``True``.
-	
+
     Returns
     -------
     float
@@ -66,7 +66,7 @@ def cel2kel(val, inverse=True):
     -------
     float
         Temperature value converted to Kelvin.
-	
+
     """
     
     if inverse:
@@ -88,8 +88,8 @@ def unit_system(units):
     -------
     str
         Key from the ``AEDT_units`` when successful. For example, ``"AngularSpeed"``.
-	``False`` when the units specified are not defined in AEDT units.
-    
+    ``False`` when the units specified are not defined in AEDT units.
+
     """
     found = False
     for unit_type, unit_list in AEDT_units.items():
