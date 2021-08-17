@@ -287,11 +287,11 @@ class CoordinateSystem(object):
                
         x_pointing : list, optional
             List of the ``[x, y, z]`` coordinates specifying the X axis 
-            pointing in the global coordinate system if ``mode="axis"``. 
+            pointing in the local coordinate system if ``mode="axis"``.
             The default is ``[1, 0, 0]``.
         y_pointing : list, optional
             List of the ``[x, y, z]`` coordinates specifying the Y axis 
-            pointing in the global coordinate system if ``mode="axis"``. 
+            pointing in the local coordinate system if ``mode="axis"``.
             The default is ``[0, 1, 0]``.
         phi : float, optional
             Euler angle phi in degrees if ``mode="zxz"`` or ``mode="zyz"``. 
@@ -376,12 +376,12 @@ class CoordinateSystem(object):
             self.quaternion = GeometryOperators.euler_zyz_to_quaternion(a, b, g)
         elif mode == "axis":
             orientationParameters["Mode"] = "Axis/Position"
-            orientationParameters["XAxisXvec"] = self._dim_arg((x_pointing[0] - origin[0]), self.model_units)
-            orientationParameters["XAxisYvec"] = self._dim_arg((x_pointing[1] - origin[1]), self.model_units)
-            orientationParameters["XAxisZvec"] = self._dim_arg((x_pointing[2] - origin[2]), self.model_units)
-            orientationParameters["YAxisXvec"] = self._dim_arg((y_pointing[0] - origin[0]), self.model_units)
-            orientationParameters["YAxisYvec"] = self._dim_arg((y_pointing[1] - origin[1]), self.model_units)
-            orientationParameters["YAxisZvec"] = self._dim_arg((y_pointing[2] - origin[2]), self.model_units)
+            orientationParameters["XAxisXvec"] = self._dim_arg((x_pointing[0]), self.model_units)
+            orientationParameters["XAxisYvec"] = self._dim_arg((x_pointing[1]), self.model_units)
+            orientationParameters["XAxisZvec"] = self._dim_arg((x_pointing[2]), self.model_units)
+            orientationParameters["YAxisXvec"] = self._dim_arg((y_pointing[0]), self.model_units)
+            orientationParameters["YAxisYvec"] = self._dim_arg((y_pointing[1]), self.model_units)
+            orientationParameters["YAxisZvec"] = self._dim_arg((y_pointing[2]), self.model_units)
             x, y, z = GeometryOperators.pointing_to_axis(x_pointing, y_pointing)
             a, b, g = GeometryOperators.axis_to_euler_zyz(x, y, z)
             self.quaternion = GeometryOperators.euler_zyz_to_quaternion(a, b, g)

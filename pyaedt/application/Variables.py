@@ -716,8 +716,8 @@ class VariableManager(object):
         Parameters
         ----------
         variable : str
-	    Name of the variable.
-        
+        Name of the variable.
+
         """
         if variable[0] == "$":
             return self.oproject
@@ -745,7 +745,7 @@ class VariableManager(object):
            default is ``False``.
         description : str, optional 
            Text to display for the design property or project variable in the 
-	     ``Properties`` window. The default is ``None``.
+            ``Properties`` window. The default is ``None``.
         overwrite : bool, optional
             Whether to overwrite an existing value for the design property or
             project variable. The default is ``False``, in which case this method is 
