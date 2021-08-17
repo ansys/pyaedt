@@ -331,6 +331,10 @@ class EdbSiwave(object):
         -------
         bool
             ``True`` when successful, ``False`` when failed.
+            :param accuracy_level:
+            :param workdir:
+            :param exec_file_name:
+            :return:
 
         Examples
         --------
