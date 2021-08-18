@@ -41,6 +41,7 @@ from .generic.general_methods import get_filename_without_extension, generate_un
     env_path, env_value, env_path_student, env_value_student
 from .generic.process import SiwaveSolve
 
+
 class Edb(object):
     """Provides the EDB application interface.
 
@@ -135,9 +136,6 @@ class Edb(object):
         else:
             warnings.warn("Failed to initialize Dlls")
 
-
-
-
     @aedt_exception_handler
     def _init_objects(self):
         self._components = Components(self)
@@ -228,7 +226,6 @@ class Edb(object):
         self._messenger.add_error_message(message_text)
         return True
 
-
     @aedt_exception_handler
     def _init_dlls(self):
         """Initialize DLLs."""
@@ -261,16 +258,15 @@ class Edb(object):
         oaDirectory = os.path.join(self.base_path, 'common', 'oa')
         os.environ['ANSYS_OADIR'] = oaDirectory
         os.environ['PATH'] = '{};{}'.format(os.environ['PATH'], self.base_path)
-        edb =__import__('Ansys.Ansoft.Edb')
+        edb = __import__('Ansys.Ansoft.Edb')
 
         self.edb = edb.Ansoft.Edb
-        edbbuilder=__import__('Ansys.Ansoft.EdbBuilderUtils')
+        edbbuilder = __import__('Ansys.Ansoft.EdbBuilderUtils')
         self.edblib = __import__('EdbLib')
         self.edbutils = edbbuilder.Ansoft.EdbBuilderUtils
         self.simSetup = __import__('Ansys.Ansoft.SimSetupData')
         self.layout_methods = self.edblib.Layout.LayoutMethods
         self.simsetupdata = self.simSetup.Ansoft.SimSetupData.Data
-
 
     @aedt_exception_handler
     def open_edb(self, init_dlls=False):
@@ -291,7 +287,7 @@ class Edb(object):
         self._messenger.add_info_message("EDB Version {}".format(self.edbversion))
         self.edb.Database.SetRunAsStandAlone(self.standalone)
         self._messenger.add_info_message("EDB Standalone {}".format(self.standalone))
-        db =  self.edb.Database.Open(self.edbpath, self.isreadonly)
+        db = self.edb.Database.Open(self.edbpath, self.isreadonly)
         if not db:
             self._messenger.add_warning_message("Error Opening db")
             self._db = None
@@ -311,13 +307,14 @@ class Edb(object):
             for cell in list(self._db.TopCircuitCells):
                 if cell.GetName() == self.cellname:
                     self._active_cell = cell
-        else:
+        # if self._active_cell is still None, set it to default cell
+        if self._active_cell is None:
             self._active_cell = list(self._db.TopCircuitCells)[0]
         self._messenger.add_info_message("Cell {} Opened".format(self._active_cell.GetName()))
 
         if self._db and self._active_cell:
             time.sleep(1)
-            dllpath=os.path.join(os.path.abspath(os.path.dirname(__file__)), "dlls", "EDBLib", "DataModel.dll")
+            dllpath = os.path.join(os.path.abspath(os.path.dirname(__file__)), "dlls", "EDBLib", "DataModel.dll")
             self._messenger.add_info_message(dllpath)
             self.layout_methods.LoadDataModel(dllpath)
             self.builder = self.layout_methods.GetBuilder(self._db, self._active_cell, self.edbpath,
@@ -356,7 +353,7 @@ class Edb(object):
                 return None
             self._db = db
             self._active_cell = self.edb.Cell.Cell.FindByName(self.db, self.edb.Cell.CellType.CircuitCell, self.cellname)
-            dllpath=os.path.join(os.path.abspath(os.path.dirname(__file__)), "dlls", "EDBLib", "DataModel.dll")
+            dllpath = os.path.join(os.path.abspath(os.path.dirname(__file__)), "dlls", "EDBLib", "DataModel.dll")
             time.sleep(1)
             if self._db and self._active_cell:
                 self.layout_methods.LoadDataModel(dllpath)
@@ -387,7 +384,7 @@ class Edb(object):
         if init_dlls:
             self._init_dlls()
         self.edb.Database.SetRunAsStandAlone(self.standalone)
-        db =  self.edb.Database.Create(self.edbpath)
+        db = self.edb.Database.Create(self.edbpath)
         if not db:
             self._messenger.add_warning_message("Error Creating db")
             self._db = None
@@ -438,7 +435,7 @@ class Edb(object):
         self._db = None
         if init_dlls:
             self._init_dlls()
-        aedb_name= os.path.splitext(os.path.basename(input_file))[0] + ".aedb"
+        aedb_name = os.path.splitext(os.path.basename(input_file))[0] + ".aedb"
         if anstranslator_full_path and os.path.exists(anstranslator_full_path):
             command = anstranslator_full_path
         else:
@@ -447,7 +444,6 @@ class Edb(object):
                 command += ".exe"
         if not working_dir:
             working_dir = os.path.dirname(input_file)
-
 
         translatorSetup = self.edbutils.AnsTranslatorRunner(
             input_file,
@@ -462,7 +458,6 @@ class Edb(object):
             return False
         self.edbpath = os.path.join(working_dir,aedb_name)
         return self.open_edb()
-
 
     def __enter__(self):
         return self
@@ -544,7 +539,6 @@ class Edb(object):
     def active_cell(self):
         """Active cell."""
         return self._active_cell
-
 
     @property
     def core_components(self):
@@ -729,7 +723,6 @@ class Edb(object):
 
         """
         return self.edb.Utility.Command.Execute(func)
-
 
     @aedt_exception_handler
     def import_cadence_file(self, inputBrd, WorkDir=None):
