@@ -331,10 +331,6 @@ class EdbSiwave(object):
         -------
         bool
             ``True`` when successful, ``False`` when failed.
-            :param accuracy_level:
-            :param workdir:
-            :param exec_file_name:
-            :return:
 
         Examples
         --------
@@ -664,6 +660,7 @@ class EdbSiwave(object):
             pos_pingroup_terminal.SetIsCircuitPort(True)
             neg_pingroup_terminal.SetIsCircuitPort(True)
             pos_pingroup_terminal.SetReferenceTerminal(neg_pingroup_terminal)
+            pos_pingroup_terminal.SetName(source.name)
 
         elif source.type == SourceType.VoltageSource:
             pos_pingroup_terminal.SetBoundaryType(self._edb.Cell.Terminal.BoundaryType.kVoltageSource)
@@ -673,6 +670,7 @@ class EdbSiwave(object):
             pos_pingroup_terminal.SetIsCircuitPort(True)
             neg_pingroup_terminal.SetIsCircuitPort(True)
             pos_pingroup_terminal.SetReferenceTerminal(neg_pingroup_terminal)
+            pos_pingroup_terminal.SetName(source.name)
 
         elif source.type == SourceType.Resistor:
             pos_pingroup_terminal.SetBoundaryType(self._edb.Cell.Terminal.BoundaryType.RlcBoundary)
