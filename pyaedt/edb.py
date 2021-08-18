@@ -447,7 +447,7 @@ class Edb(object):
 
         translatorSetup = self.edbutils.AnsTranslatorRunner(
             input_file,
-            os.path.join(working_dir,aedb_name),
+            os.path.join(working_dir, aedb_name),
             os.path.join(working_dir, "Translator.log"),
             os.path.dirname(input_file),
             True,
