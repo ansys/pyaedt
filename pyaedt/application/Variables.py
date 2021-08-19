@@ -658,6 +658,10 @@ class VariableManager(object):
         # Global Desktop Environment
         self._parent = parent
 
+    def __del__(self, key):
+        """Implement del with array name or index."""
+        del self.variable[key]
+
     @aedt_exception_handler
     def __getitem__(self, variable_name):
         return self.variables[variable_name]
