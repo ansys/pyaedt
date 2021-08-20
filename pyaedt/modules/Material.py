@@ -361,7 +361,7 @@ class MatProperty(object):
         >>> from pyaedt import Hfss
         >>> hfss = Hfss(specified_version="2021.1")
         >>> mat1 = hfss.materials.add_material("new_copper2")
-        >>> mat1.aadd_thermal_modifier_free_form("if(Temp > 1000cel, 1, if(Temp < -273.15cel, 1, 1))")
+        >>> mat1.add_thermal_modifier_free_form("if(Temp > 1000cel, 1, if(Temp < -273.15cel, 1, 1))")
         """
         self._property_value[index].thermalmodifier = formula
         return self._add_thermal_modifier(formula, index)
@@ -691,31 +691,38 @@ class Material(CommonMaterial, object):
 
         Returns
         -------
-        type
+        list
             Appearance of the material.
+
+        Examples
+        --------
+
+        >>> from pyaedt import Hfss
+        >>> hfss = Hfss(specified_version="2021.1")
+        >>> mat1 = hfss.materials.add_material("new_material")
+        >>> rgbcolor = mat1.material_appearance
+        >>> mat1.material_appearance = [0, 153, 153]
         """
         return self._material_appearance
 
     @material_appearance.setter
-    def material_appearance(self, value):
-        if type(value) is list and len(value) == 3:
-            value_int = []
-            for i in value:
-                try:
-                    tmp = int(i)
-                except ValueError:
-                    raise
-                if tmp < 0 or tmp > 255:
-                    raise ValueError
-                value_int.append(tmp)
-            self._material_appearance = value_int
-            self._props["AttachedData"] = OrderedDict({"MatAppearanceData":
-                                                       OrderedDict({'property_data': 'appearance_data',
-                                                                    'Red': value_int[0],
-                                                                    'Green': value_int[1],
-                                                                    'Blue': value_int[2]})})
-        else:
-            raise ValueError
+    def material_appearance(self, rgb):
+        if not isinstance(rgb, (list, tuple)):
+            raise TypeError('`material_apperance` must be a list or tuple')
+        if len(rgb) != 3:
+            raise ValueError('`material_appearance` must be three items (RGB)')
+        value_int = []
+        for rgb_item in rgb:
+            rgb_int = int(rgb_item)
+            if rgb_int < 0 or rgb_int > 255:
+                raise ValueError('RGB value must be between 0 and 255')
+            value_int.append(rgb_int)
+        self._material_appearance = value_int
+        self._props["AttachedData"] = OrderedDict({"MatAppearanceData":
+                                                   OrderedDict({'property_data': 'appearance_data',
+                                                                'Red': value_int[0],
+                                                                'Green': value_int[1],
+                                                                'Blue': value_int[2]})})
 
     @property
     def permittivity(self):
