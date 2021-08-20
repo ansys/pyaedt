@@ -648,7 +648,17 @@ class Material(CommonMaterial, object):
             self.physics_type = self._props["PhysicsTypes"]["set"]
         else:
             self.physics_type = ['Electromagnetic', 'Thermal', 'Structural']
-            self._props["PhysicsTypes"] = OrderedDict({"set":['Electromagnetic', 'Thermal', 'Structural']})
+            self._props["PhysicsTypes"] = OrderedDict({"set": ['Electromagnetic', 'Thermal', 'Structural']})
+        if "AttachedData" in self._props:
+            self._material_appearance = []
+            self._material_appearance.append(self._props["AttachedData"]["MatAppearanceData"]["Red"])
+            self._material_appearance.append(self._props["AttachedData"]["MatAppearanceData"]["Green"])
+            self._material_appearance.append(self._props["AttachedData"]["MatAppearanceData"]["Blue"])
+        else:
+            self._material_appearance = [128, 128, 128]
+            self._props["AttachedData"] = OrderedDict({"MatAppearanceData":
+                                                       OrderedDict({'property_data': 'appearance_data',
+                                                                    'Red': 128, 'Green': 128, 'Blue': 128})})
 
         for property in MatProperties.aedtname:
             if property in self._props:
@@ -674,6 +684,38 @@ class Material(CommonMaterial, object):
                 self.__dict__["_" + property] = MatProperty(self, property,
                                                             MatProperties.get_defaultvalue(aedtname=property), None)
         pass
+
+    @property
+    def material_appearance(self):
+        """Material Appearance specified as an RGB list.
+
+        Returns
+        -------
+        type
+            Appearance of the material.
+        """
+        return self._material_appearance
+
+    @material_appearance.setter
+    def material_appearance(self, value):
+        if type(value) is list and len(value) == 3:
+            value_int = []
+            for i in value:
+                try:
+                    tmp = int(i)
+                except ValueError:
+                    return False
+                if tmp < 0 or tmp > 255:
+                    return False
+                value_int.append(tmp)
+            self._material_appearance = value_int
+            self._props["AttachedData"] = OrderedDict({"MatAppearanceData":
+                                                       OrderedDict({'property_data': 'appearance_data',
+                                                                    'Red': value_int[0],
+                                                                    'Green': value_int[1],
+                                                                    'Blue': value_int[2]})})
+        else:
+            return False
 
     @property
     def permittivity(self):
