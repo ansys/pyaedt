@@ -704,9 +704,9 @@ class Material(CommonMaterial, object):
                 try:
                     tmp = int(i)
                 except ValueError:
-                    return False
+                    raise
                 if tmp < 0 or tmp > 255:
-                    return False
+                    raise ValueError
                 value_int.append(tmp)
             self._material_appearance = value_int
             self._props["AttachedData"] = OrderedDict({"MatAppearanceData":
@@ -715,7 +715,7 @@ class Material(CommonMaterial, object):
                                                                     'Green': value_int[1],
                                                                     'Blue': value_int[2]})})
         else:
-            return False
+            raise ValueError
 
     @property
     def permittivity(self):
