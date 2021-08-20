@@ -116,7 +116,11 @@ class Edb(object):
             self.isreadonly = isreadonly
             self.cellname = cellname
             self.edbpath = edbpath
-            if not os.path.exists(os.path.join(self.edbpath, "edb.def")):
+            if edbpath[-3:] in ["brd", "gds", "xml", "dxf", "tgz"]:
+                self.edbpath = edbpath[-3:] + ".aedb"
+                working_dir = os.path.dirname(edbpath)
+                self.import_layout_pcb(edbpath, working_dir)
+            elif not os.path.exists(os.path.join(self.edbpath, "edb.def")):
                 self.create_edb()
             elif ".aedb" in edbpath:
                 self.edbpath = edbpath
@@ -124,10 +128,6 @@ class Edb(object):
                     self.open_edb_inside_aedt()
                 else:
                     self.open_edb()
-            elif edbpath[-3:] in ["brd", "gds", "xml", "dxf"]:
-                self.edbpath = edbpath[-3:] + ".aedb"
-                working_dir = os.path.dirname(edbpath)
-                self.import_layout_pcb(edbpath, working_dir)
             if self.builder:
                 self._messenger.add_info_message("Edb Initialized")
             else:
