@@ -726,14 +726,14 @@ class Primitives3D(Primitives, object):
             return False
 
     @aedt_exception_handler
-    def insert_3d_component(self, compFile, geoParams, szMatParams='', szDesignParams='', targetCS='Global'):
+    def insert_3d_component(self, compFile, geoParams='', szMatParams='', szDesignParams='', targetCS='Global'):
         """Insert a new 3D component.
 
         Parameters
         ----------
         compFile : str
             Name of the component file.
-        geoParams :
+        geoParams : str, optional
             Geometrical parameters.
         szMatParams : str, optional
             Material parameters. The default is ``""``.
