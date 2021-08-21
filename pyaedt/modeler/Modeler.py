@@ -3597,8 +3597,8 @@ class GeometryModeler(Modeler, object):
         arg = [
             "NAME:GroupParameter",
             "ParentGroupID:=", "Model",
-            "Parts:=", object_selection,
-            "SubmodelInstances:=", "",
+            "Parts:=", "",
+            "SubmodelInstances:=", object_selection,
             "Groups:=", group_selection
         ]
         assigned_name = self.oeditor.CreateGroup(arg)
