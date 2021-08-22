@@ -696,6 +696,7 @@ class Material(CommonMaterial, object):
 
         Examples
         --------
+        Create a new material with color ``[0, 153, 153]`` (darker cyan).
 
         >>> from pyaedt import Hfss
         >>> hfss = Hfss(specified_version="2021.1")
