@@ -692,7 +692,7 @@ class Material(CommonMaterial, object):
         Returns
         -------
         list
-            Appearance of the material.
+            Color of the material in RGB.  Values are in the range ``[0, 255]``.
 
         Examples
         --------
