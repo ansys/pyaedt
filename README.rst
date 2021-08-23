@@ -30,10 +30,8 @@ possible across the API.
 
 Documentation and Issues
 ------------------------
-See the `API Documentation <https://aedtdocs.pyansys.com/API/>`_ page for more
-details and the `Examples gallery
-<https://aedtdocs.pyansys.com/examples/index.html>`_ for some
-examples.
+See the `API Documentation <https://aedtdocs.pyansys.com/API/>`_ and explore 
+the `Examples <https://aedtdocs.pyansys.com/examples/index.html>`_.
 
 To post issues, questions, and code, go to `PyAEDT Issues
 <https://github.com/pyansys/PyAEDT/issues>`_.
@@ -82,7 +80,7 @@ The main advantages of PyAEDT are:
 
 Example Workflow
 -----------------
-1. Initialize the ``Desktop`` class with the version of AEDT to use.
+1. Initialize the `Desktop` class with the version of AEDT to use.
 2. Initialize the application to use within AEDT.
 
 
@@ -93,7 +91,7 @@ It automatically detects whether it is running in an IronPython or CPython
 environment and initializes the Desktop accordingly. PyAEDT also provides
 advanced error management. Usage examples follow.
 
-Explicit Desktop declaration and error management
+Explicit Desktop Declaration and Error Management
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 .. code:: python
@@ -110,7 +108,7 @@ Explicit Desktop declaration and error management
     # Desktop is automatically released here.
 
 
-Implicit Desktop declaration and error management
+Implicit Desktop Declaration and Error Management
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 .. code:: python
@@ -159,4 +157,5 @@ an additional Python interface to AEDT without changing the core
 behavior or license of the original software. The use of the
 interactive APDL control of PyAEDT requires a legally licensed
 local copy of AEDT. For more information about AEDT, 
-visit `Ansys <https://www.ansys.com/products/electronics>`_.
+visit the `AEDT page <https://www.ansys.com/products/electronics>`_ 
+on the Ansys website.

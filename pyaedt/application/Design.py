@@ -982,7 +982,6 @@ class Design(object):
 
         Returns
         -------
-        type
             Project object
 
         """
@@ -1016,8 +1015,10 @@ class Design(object):
                 self._oproject = proj
             else:
                 self._oproject = self._desktop.NewProject()
-                self._oproject.Rename(os.path.join(self.project_path, proj_name+".aedt"), True)
-
+                if ".aedt" in proj_name:
+                    self._oproject.Rename(proj_name, True)
+                else:
+                    self._oproject.Rename(os.path.join(self.project_path, proj_name+".aedt"), True)
         if not self._oproject:
             self._oproject = self._desktop.NewProject()
 
@@ -2320,6 +2321,39 @@ class Design(object):
         return True
 
     @aedt_exception_handler
+    def archive_project(self, project_file=None, include_external_files=True, include_results_file=True,
+                        additional_file_lists=[], notes=""):
+        """Archive the AEDT project and add a message.
+
+        Parameters
+        ----------
+        project_file : str, optional
+            Full path and project file name. The default is ``None``.
+        include_external_files : bool, optional
+            Whether to include external files to the archive. The default is ``True``.
+        include_results_file : bool, optional
+            Whether to include simulation results files to the archive. The default is ``True``.
+        additional_file_lists : list, optional
+            List of additional files to add to the archive. The default is ``[]``.
+        notes : str, optional
+            Simulation notes to be added to the archive. The default is ``""``.
+        Returns
+        -------
+        bool
+            ``True`` when successful, ``False`` when failed.
+
+        """
+        msg_text = "Archiving {0} Project".format(self.project_name)
+        self._messenger.add_info_message(msg_text, level='Global')
+        if not project_file:
+            project_file = os.path.join(self.project_path , self.project_name + ".aedtz")
+        self.oproject.Save()
+        self.oproject.SaveProjectArchive(project_file, include_external_files, include_results_file,
+                                         additional_file_lists, notes)
+
+        return True
+
+    @aedt_exception_handler
     def delete_project(self, project_name):
         """Delete a project.
 
@@ -2403,7 +2437,7 @@ class Design(object):
         Examples
         --------
 
-        >>> M3D = Maxwell3D()
+        >>> M3D = Maxwell3d()
         >>> M3D["p1"] = "10mm"
         >>> M3D["p2"] = "20mm"
         >>> M3D["p3"] = "P1 * p2"

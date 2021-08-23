@@ -9,7 +9,7 @@ from .generic.general_methods import aedt_exception_handler, generate_unique_nam
 
 
 class Emit(FieldAnalysisEmit, object):
-    """Emit application interface. 
+    """Provides the Emit application interface. 
 
     .. note::
        This object creates only a skeleton for an empty design.

@@ -283,9 +283,12 @@ class EDBLayer(object):
         except:
             self._messenger.add_error_message('Layer {0} has unknown type {1}'.format(layerName, layerTypeMap))
             return False
-        newLayer.SetThickness(self._edb.Utility.Value(thicknessMap))
-        newLayer.SetMaterial(materialMap)
-        newLayer.SetFillMaterial(fillMaterialMap)
+        if thicknessMap:
+            newLayer.SetThickness(self._edb.Utility.Value(thicknessMap))
+        if materialMap:
+            newLayer.SetMaterial(materialMap)
+        if fillMaterialMap:
+            newLayer.SetFillMaterial(fillMaterialMap)
         if etchMap and layerTypeMap == 0 or layerTypeMap==2:
             etchVal = float(etchMap)
         else:

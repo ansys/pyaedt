@@ -12,7 +12,7 @@ from .application.DataHandlers import random_string
 
 
 class Hfss(FieldAnalysis3D, object):
-    """HFSS application interface.
+    """Provides the HFSS application interface.
 
     This class allows you to create an interactive instance of HfSS and
     connect to an existing HFSS design or create a new HFSS design if
@@ -81,14 +81,16 @@ class Hfss(FieldAnalysis3D, object):
     pyaedt Info: Added design 'HFSS_...' of type HFSS.
 
     Create an instance of HFSS using the 2021 R1 release and open
-    the specified project, which is named ``"myfile.aedt"``.
+    the specified project, which is named ``"myfile2.aedt"``.
 
-    >>> hfss = Hfss(specified_version="2021.1", projectname="myfile.aedt")
+    >>> hfss = Hfss(specified_version="2021.1", projectname="myfile2.aedt")
+    pyaedt Info: Added design 'HFSS_...' of type HFSS.
 
     Create an instance of HFSS using the 2021 R2 student version and open
-    the specified project, which is named ``"myfile.aedt"``.
+    the specified project, which is named ``"myfile3.aedt"``.
 
-    >>> hfss = Hfss(specified_version="2021.2", projectname="myfile.aedt", student_version=True)
+    >>> hfss = Hfss(specified_version="2021.2", projectname="myfile3.aedt", student_version=True)
+    pyaedt Info: Added design 'HFSS_...' of type HFSS.
 
     """
 

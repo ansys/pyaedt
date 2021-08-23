@@ -11,7 +11,7 @@ from .generic.general_methods import aedt_exception_handler, generate_unique_nam
 
 
 class Simplorer(FieldAnalysisSimplorer, object):
-    """Simplorer application interface.
+    """Provides the Simplorer application interface.
 
     Parameters
     ----------
