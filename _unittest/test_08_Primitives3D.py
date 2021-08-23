@@ -498,6 +498,7 @@ class TestClass(BasisTest):
         center = self.aedtapp.modeler.primitives.get_face_center(listfaces[0])
         assert center == [4.5, 8.5, 3.0]
 
+
     @pyaedt_unittest_check_desktop_error
     def test_37_get_edge_midpoint(self):
         listedges = self.aedtapp.modeler.primitives.get_object_edges("rect_for_get")
