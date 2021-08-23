@@ -2343,7 +2343,7 @@ class Design(object):
             ``True`` when successful, ``False`` when failed.
 
         """
-        msg_text = "Archiving {0} Project".format(self.project_name)
+        msg_text = "Saving {0} Project".format(self.project_name)
         self._messenger.add_info_message(msg_text, level='Global')
         if not project_file:
             project_file = os.path.join(self.project_path , self.project_name + ".aedtz")
