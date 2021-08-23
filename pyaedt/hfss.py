@@ -84,12 +84,10 @@ class Hfss(FieldAnalysis3D, object):
     the specified project, which is named ``"myfile2.aedt"``.
 
     >>> hfss = Hfss(specified_version="2021.1", projectname="myfile2.aedt")
-
     Create an instance of HFSS using the 2021 R2 student version and open
     the specified project, which is named ``"myfile3.aedt"``.
 
     >>> hfss = Hfss(specified_version="2021.2", projectname="myfile3.aedt", student_version=True)
-
     """
 
     def __repr__(self):

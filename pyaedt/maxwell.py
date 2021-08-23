@@ -761,7 +761,6 @@ class Maxwell3d(Maxwell, FieldAnalysis3D, object):
     the specified project, which is named ``mymaxwell2.aedt``.
 
     >>> aedtapp = Maxwell3d(specified_version="2021.1", projectname="mymaxwell2.aedt")
-
     """
 
     @property  # for legacy purposes
