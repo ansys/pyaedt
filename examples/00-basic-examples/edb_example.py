@@ -97,7 +97,7 @@ print(dc_connected_net_list)
 
 VRM = "U3A1"
 OUTPUT_NET = "BST_V1P0_S0"
-powertree_df, power_nets = edb.core_nets.get_powertree(OUTPUT_NET, GROUND_NETS)
+powertree_df, component_list_columns, net_group = edb.core_nets.get_powertree(OUTPUT_NET, GROUND_NETS)
 for el in powertree_df:
     print(el)
 
