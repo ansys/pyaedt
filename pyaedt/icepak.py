@@ -74,16 +74,16 @@ class Icepak(FieldAnalysisIcepak):
     pyaedt Info: Added design 'IcepakDesign1' of type Icepak.
 
     Create an instance of `Icepak` and open the specified project,
-    which is ``myfile.aedt``.
+    which is ``myipk.aedt``.
 
-    >>> icepak = Icepak("myfile.aedt")
+    >>> icepak = Icepak("myipk.aedt")
     pyaedt Info: Added design ...
 
     Create an instance of Icepak using the 2021 R1 release and
-    open the specified project, which is ``myfile.aedt``.
+    open the specified project, which is ``myipk2.aedt``.
 
-    >>> icepak = Icepak(specified_version="2021.1", projectname="myfile.aedt")
-
+    >>> icepak = Icepak(specified_version="2021.1", projectname="myipk2.aedt")
+    pyaedt Info: Added design ...
     """
     
     def __init__(self, projectname=None, designname=None, solution_type=None, setup_name=None,

@@ -752,15 +752,17 @@ class Maxwell3d(Maxwell, FieldAnalysis3D, object):
     Examples
     --------
     Create an instance of Maxwell 3D and open the specified
-    project, which is named ``myfile.aedt``.
+    project, which is named ``mymaxwell.aedt``.
 
     >>> from pyaedt import Maxwell3d
-    >>> aedtapp = Maxwell3d("myfile.aedt")
+    >>> aedtapp = Maxwell3d("mymaxwell.aedt")
+    pyaedt Info: Added design ...
 
     Create an instance of Maxwell 3D using the 2021 R1 release and open
-    the specified project, which is named ``myfile.aedt``.
+    the specified project, which is named ``mymaxwell2.aedt``.
 
-    >>> aedtapp = Maxwell3d(specified_version="2021.1", projectname="myfile.aedt")
+    >>> aedtapp = Maxwell3d(specified_version="2021.1", projectname="mymaxwell2.aedt")
+    pyaedt Info: Added design ...
 
     """
 

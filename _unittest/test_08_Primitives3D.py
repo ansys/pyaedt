@@ -847,6 +847,16 @@ class TestClass(BasisTest):
         name = self.aedtapp.modeler.primitives.insert_3d_component(compfile, geometryparams)
         assert isinstance(name, str)
 
+    def test_65b_group_components(self):
+        self.aedtapp['l_dipole'] = "13.5cm"
+
+        compfile = self.aedtapp.components3d['Dipole_Antenna_DM']
+        geometryparams = self.aedtapp.get_components3d_vars('Dipole_Antenna_DM')
+        geometryparams['dipole_length'] = "l_dipole"
+        name = self.aedtapp.modeler.primitives.insert_3d_component(compfile, geometryparams)
+        name2 = self.aedtapp.modeler.primitives.insert_3d_component(compfile, geometryparams)
+        assert self.aedtapp.modeler.create_group(components=[name, name2], group_name="test_group") == "test_group"
+
     @pyaedt_unittest_check_desktop_error
     def test_66_assign_material(self):
         box1 = self.aedtapp.modeler.primitives.create_box([60, 60, 60], [4, 5, 5])
