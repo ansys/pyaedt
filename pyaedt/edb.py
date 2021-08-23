@@ -129,7 +129,6 @@ class Edb(object):
                     self.open_edb_inside_aedt()
                 else:
                     self.open_edb()
-
             if self.builder:
                 self._messenger.add_info_message("Edb Initialized")
             else:
