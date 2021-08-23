@@ -19,6 +19,7 @@ RKM_MAPS = {
     'M': 'M',
     'G': 'G',
     'T': 'T',
+    'f': 'f',
     # Capacitors/Inductors
     'F': '',
     'H': '',
@@ -241,7 +242,6 @@ class Circuit(FieldAnalysisCircuit, object):
     def onetwork_data_explorer(self):
         return self._desktop.GetTool("NdExplorer")
 
-    @aedt_exception_handler
     def _get_number_from_string(self, stringval):
         value = stringval[stringval.find("=") + 1:].strip().replace("{", "").replace("}", "").replace(",", ".")
         try:
