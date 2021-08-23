@@ -388,7 +388,7 @@ class Maxwell(object):
         return False
 
     @aedt_exception_handler
-    def assign_winding(self, coil_terminals=None, winding_type="Current", current_value=1, res=0, ind=0, voltage=0,
+    def assign_winding(self, coil_terminals=None, winding_type="Current", is_solid=True, current_value=1, res=0, ind=0, voltage=0,
                        parallel_branches=1, name=None):
         """Assign a winding to a Maxwell design.
 
@@ -400,6 +400,8 @@ class Maxwell(object):
         winding_type : str, optional
             Type of the winding. Options are ``"Current"``, ``"Voltage"``, 
             and ``"External"``. The default is ``"Current"``.
+        is_solid : bool, optional
+            Type of the winding.  ``True`` is solid, ``False`` is stranded. The default is ``True``.
         current_value : float, optional
             Value of the current in amperes. The default is ``1``.
         res : float, optional
@@ -423,7 +425,7 @@ class Maxwell(object):
         if not name:
             name = generate_unique_name("Winding")
 
-        props = OrderedDict({"Type": winding_type, "IsSolid": True, "Current": str(current_value) + "A",
+        props = OrderedDict({"Type": winding_type, "IsSolid": is_solid, "Current": str(current_value) + "A",
                              "Resistance": str(res) + "ohm", "Inductance": str(ind) + "H",
                              "Voltage": str(voltage) + "V", "ParallelBranchesNum": str(parallel_branches)})
         bound = BoundaryObject(self, name, props, "Winding")
