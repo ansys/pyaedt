@@ -711,7 +711,7 @@ class Maxwell(object):
 
 
 class Maxwell3d(Maxwell, FieldAnalysis3D, object):
-    """Maxwell 3D application interface.
+    """Provides the Maxwell 3D application interface.
 
     This class allows you to connect to an existing Maxwell 3D design or create a
     new Maxwell 3D design if one does not exist.
@@ -781,7 +781,7 @@ class Maxwell3d(Maxwell, FieldAnalysis3D, object):
 
 
 class Maxwell2d(Maxwell, FieldAnalysis2D, object):
-    """Maxwell 2D application interface.
+    """Provides the Maxwell 2D application interface.
 
     This class allows you to connect to an existing Maxwell 2D design or create a
     new Maxwell 2D design if one does not exist.
