@@ -1,108 +1,112 @@
 """
-
 Circuit Example Analysis
---------------------------------------------
-This tutorial shows how you can use PyAedt to create a project in
-in NEXXIM Circuit and run a simulation
+------------------------
+This example shows how you can use PyAEDT to create a Circuit design 
+and run a Nexxim time-domain simulation.
 """
 # sphinx_gallery_thumbnail_path = 'Resources/circuit.png'
 
 from pyaedt import Circuit
 from pyaedt import Desktop
 import os
-###############################################################################
-# Launch Desktop and Circuit
-# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-# This examples will use AEDT 2021.1 in Graphical mode
-
-# This examples will use SI units.
-
-desktopVersion = "2021.1"
 
 ###############################################################################
-# NonGraphical
-# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-# Change Boolean to False to open AEDT in graphical mode
+# Launch AEDT and Circuit
+# ~~~~~~~~~~~~~~~~~~~~~~~
+# This examples launches AEDT 2021.1 in graphical mode.
 
-NonGraphical = True
-NewThread = True
+# This examples uses SI units.
 
-###############################################################################
-# Launch AEDT and Circuit Design
-# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-# Desktop Class initialize Aedt and start it on specified version and specified graphical mode. NewThread Boolean variables defines if
-# a user wants to create a new instance of AEDT or try to connect to existing instance of it
-d = Desktop(desktopVersion, NonGraphical, NewThread)
-aedtapp = Circuit()
+desktop_version = "2021.1"
 
 ###############################################################################
-# Create Circuit Setup
-# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-# This method create and customize a Linear Network Analysis Setup
+# Launch AEDT in Non-Graphical Mode
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# You can change the Boolean parameter ``non_graphical`` to ``False`` to launch  
+# AEDT in graphical mode.
 
-setup1 = aedtapp.create_setup("MyLNA")
+non_graphical = True
+new_thread = True
+
+###############################################################################
+# Launch AEDT and Circuit
+# ~~~~~~~~~~~~~~~~~~~~~~~
+# The :class:`pyaedt.Desktop` class initializes AEDT and starts it on a specified version in 
+# a specified graphical mode. The Boolean parameter ``new_thread`` defines whether
+# to create a new instance of AEDT or try to connect to existing instance of it.
+
+desktop = Desktop(desktop_version, non_graphical, new_thread)
+aedt_app = Circuit()
+
+###############################################################################
+# Create a Circuit Setup
+# ~~~~~~~~~~~~~~~~~~~~~~
+# This method creates and customizes a Linear Network Analysis (LNA) setup.
+
+setup1 = aedt_app.create_setup("MyLNA")
 setup1.SweepDefinition = [('Variable', 'Freq'), ('Data', 'LINC 0GHz 4GHz 10001'), ('OffsetF1', False),
                           ('Synchronize', 0)]
 setup1.update()
 
 ###############################################################################
 # Create Components
-# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-# This method create components. there are methods to create inductors, resistors or capacitors.
+# ~~~~~~~~~~~~~~~~~
+# These methods create components, such as inductors, resistors, and capacitors.
 
-myindid, myind = aedtapp.modeler.components.create_inductor("L1", 1e-9, 0, 0)
-myresid, myres = aedtapp.modeler.components.create_resistor("R1", 50, 0.0254, 0)
-mycapid, mycap = aedtapp.modeler.components.create_capacitor("C1", 1e-12, 0.0400, 0)
-
-###############################################################################
-# Get Components pins
-# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-# This method allows to get all pins of specified component
-
-pins_res = aedtapp.modeler.components.get_pins(myres)
-
-ind1 = aedtapp.modeler.components[myind]
-res1 = aedtapp.modeler.components[myres]
+inductor_id, inductor = aedt_app.modeler.components.create_inductor("L1", 1e-9, 0, 0)
+resistor_id, resistor = aedt_app.modeler.components.create_resistor("R1", 50, 0.0254, 0)
+capacitor_id, capacitor = aedt_app.modeler.components.create_capacitor("C1", 1e-12, 0.0400, 0)
 
 ###############################################################################
-# Create Ports
-# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-# This method create ports and Ground. those are needed for a circuit anlaysis
+# Get Component Pins
+# ~~~~~~~~~~~~~~~~~~
+# This method gets all pins of a specified component.
 
-portid, portname = aedtapp.modeler.components.create_iport("myport", -0.0254, 0)
-gndid, gndname = aedtapp.modeler.components.create_gnd(0.0508, -0.00254)
+pins_resistor = aedt_app.modeler.components.get_pins(resistor)
+
+inductor_component = aedt_app.modeler.components[inductor]
+resistor_component = aedt_app.modeler.components[resistor]
+
+###############################################################################
+# Create a Port and a Ground
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~
+# These methods create a port and a ground, which are needed for a circuit anlaysis.
+
+port_id, port_name = aedt_app.modeler.components.create_iport("myport", -0.0254, 0)
+gnd_id, gnd_name = aedt_app.modeler.components.create_gnd(0.0508, -0.00254)
 ###############################################################################
 # Connect Components
-# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-# This method connect components with wires
+# ~~~~~~~~~~~~~~~~~~
+# This method connects components with wires.
 
-aedtapp.modeler.connect_schematic_components(portid, myindid)
-aedtapp.modeler.connect_schematic_components(myindid, myresid, pinnum_second=2)
-aedtapp.modeler.connect_schematic_components(myresid, mycapid, pinnum_first=1)
-aedtapp.modeler.connect_schematic_components(mycapid, gndid)
+aedt_app.modeler.connect_schematic_components(port_id, inductor_id)
+aedt_app.modeler.connect_schematic_components(inductor_id, resistor_id, pinnum_second=2)
+aedt_app.modeler.connect_schematic_components(resistor_id, capacitor_id, pinnum_first=1)
+aedt_app.modeler.connect_schematic_components(capacitor_id, gnd_id)
 
 ###############################################################################
-# Add a transient Setup
-# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-# This method add a transient setup
+# Add a Transient Setup
+# ~~~~~~~~~~~~~~~~~~~~~
+# This method adds a transient setup.
 
-setup2 = aedtapp.create_setup("MyTransient", aedtapp.SimulationSetupTypes.NexximTransient)
+setup2 = aedt_app.create_setup("MyTransient", aedt_app.SimulationSetupTypes.NexximTransient)
 setup2.TransientData = ["0.01ns", "200ns"]
 setup2.update()
-setup3 = aedtapp.create_setup("MyDC", aedtapp.SimulationSetupTypes.NexximDC)
+setup3 = aedt_app.create_setup("MyDC", aedt_app.SimulationSetupTypes.NexximDC)
 
 ###############################################################################
-# Solve Setup
-# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-# This method solve transient setup
+# Solve the Transient Setup
+# ~~~~~~~~~~~~~~~~~~~~~~~~
+# This method solves the transient setup.
 
-aedtapp.analyze_setup("MyLNA")
+aedt_app.analyze_setup("MyLNA")
 
-aedtapp.export_fullwave_spice()
+aedt_app.export_fullwave_spice()
 ###############################################################################
-# Close Desktop
-# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-# After the simulaton is completed user can close the desktop or release it (using release_desktop method).
-# All methods give possibility to save projects before exit
+# Close AEDT
+# ~~~~~~~~~~
+# After the simulaton is completed, you can close AEDT or release it using the 
+# :func:`pyaedt.Desktop.force_close_desktop` method.
+# All methods provide for saving the project before exiting.
 if os.name != "posix":
-    d.force_close_desktop()
+    desktop.force_close_desktop()
