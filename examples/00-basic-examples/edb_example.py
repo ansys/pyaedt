@@ -10,12 +10,13 @@ import shutil
 import os
 import time
 from pyaedt import generate_unique_name, examples
-
-if os.name == "posix":
-    tmpfold = os.environ["TMPDIR"]
-else:
+try:
+    if os.name == "posix":
+        tmpfold = os.environ["TMPDIR"]
+    else:
+        tmpfold = os.environ["TEMP"]
+except:
     tmpfold = os.environ["TEMP"]
-
 temp_folder = os.path.join(tmpfold, generate_unique_name("Example"))
 if not os.path.exists(temp_folder): os.makedirs(temp_folder)
 example_path = examples.download_aedb()
