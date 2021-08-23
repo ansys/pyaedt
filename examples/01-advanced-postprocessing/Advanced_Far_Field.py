@@ -1,13 +1,15 @@
 """
-
-Advanced Far Field Post Processing Example
---------------------------------------------
-This Example shows how to use advanced postprocessing functions to create plots using MatPlotLib without opening HFSS UI
-This Examples runs on Windows Only using CPython
+Advanced Far Field Postprocessing Example
+-----------------------------------------
+This example shows how to use advanced postprocessing functions to create plots 
+using Matplotlib without opening the HFSS user interface.
+This examples runs only on Windows using CPython.
 """
-#########################################################
+###############################################################################
 # Import Packages
-# Setup The local path to the Path Containing AEDTLIb
+# ~~~~~~~~~~~~~~~
+# Set the local path to the path for the AEDTLib.
+
 import os
 import pathlib
 
@@ -25,10 +27,10 @@ from pyaedt import Desktop
 from pyaedt import Hfss
 
 
-#######################################
-# Importing all the module for postprocessing
-
-
+###############################################################################
+# Import All Modules for Postprocessing
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# This example imports all modules for postprocessing.
 
 import numpy as np
 import matplotlib.pyplot as plt
@@ -36,30 +38,28 @@ import math
 import ipywidgets as widgets
 from ipywidgets import interact, interact_manual
 
-#######################################
-# Setting up Desktop and initializing it
-# Desktop is launched in Non - Graphical Mode
-
-
+###############################################################################
+# Launch AEDT in Non-Graphical Mode
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# This example launches AEDT 2021.1 in graphical mode.
 
 desktopVersion = "2021.1"
 NonGraphical = True
 NewThread = False
 desktop = Desktop(desktopVersion, NonGraphical, NewThread)
 
-
-
-#######################################
-# HFSS Open the project
-
-
+###############################################################################
+# Open the HFSS Project
+# ~~~~~~~~~~~~~~~~~~~~~
+# This command opens the HFSS project.
 
 hfss = Hfss(project_name, "4X4_MultiCell_CA-Array")
 
-#######################################
-# Solve HFSS Project. Solution time is computed
-
-
+###############################################################################
+# Solve the HFSS Project 
+# ~~~~~~~~~~~~~~~~~~~~~~
+# This command solves the HFSS. project. 
+# Solution time is computed.
 
 start = time.time()
 hfss.analyze_setup("Setup1")
@@ -69,20 +69,19 @@ print("Solution Time", end)
 
 #######################################
 #  Get EFields from Solution
-
-
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~
+# This example gets efields data from the solution.
 
 start = time.time()
 ff_data = hfss.post.get_efields_data(ff_setup="3D")
 end = time.time() - start
 print("Post Processing Time", end)
 
-#######################################
+###############################################################################
 # Function to Calculate Far Field Values
-# -----------------------------------------
-# This function generated the plot using matplotlib by reading the solution generated in ff_data and processing the field based on Phi and Theta
-
-
+# --------------------------------------
+# This example generates the plot using Matplotlib by reading the solution 
+# generated in ``ff_data`` and processing the field based on Phi and Theta.
 
 def ff_calc(x=0, y=0, qty='rETotal', dB=True):
     array_size = [4, 4]
@@ -167,8 +166,10 @@ def ff_calc(x=0, y=0, qty='rETotal', dB=True):
     np.max(qty_to_plot)
 
 
-##########################################
-#  Create the plot and interact with it
+###############################################################################
+#  Create the Plot and Interact with It
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# This example creates the plot and interacts with it.
 
 ff_calc()
 
@@ -219,10 +220,10 @@ Polar_Plot()
 # interact(Polar_Plot, Phase=widgets.FloatSlider(value=0, min=-90, max=90, step=90),
 #          Freq=widgets.FloatSlider(value=76, min=75, max=77, step=1))
 
-#######################################
-# Generation of Plot Using Phi as primary sweep
-
-
+###############################################################################
+# Generate Plot Using Phi as the Primary Sweep
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# This example generates the plot using Phi as the primary sweep.
 
 vals3d = hfss.post.get_far_field_data(setup_sweep_name=hfss.nominal_sweep, expression="RealizedGainTotal",
                                       domain="Infinite Sphere1")
@@ -257,14 +258,9 @@ plot = ax1.plot_surface(
 fig1.set_size_inches(22.5, 22.5)
 
 #######################################
-# Close Desktop
-
+# Close the HFSS Project and AEDT
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# The following example closes the HFSS project and AEDT.
 
 hfss.close_project()
 desktop.force_close_desktop()
-
-
-
-
-
-

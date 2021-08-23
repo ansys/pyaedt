@@ -101,7 +101,7 @@ class Rotor(RMXprtModule):
 
 
 class Rmxprt(FieldAnalysisRMxprt):
-    """RMxprt application interface.
+    """Provides the RMxprt application interface.
 
     Parameters
     ----------
