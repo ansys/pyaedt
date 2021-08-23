@@ -83,6 +83,7 @@ class Icepak(FieldAnalysisIcepak):
     open the specified project, which is ``myipk2.aedt``.
 
     >>> icepak = Icepak(specified_version="2021.1", projectname="myipk2.aedt")
+    pyaedt Info: Added design ...
     """
     
     def __init__(self, projectname=None, designname=None, solution_type=None, setup_name=None,
