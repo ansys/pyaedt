@@ -1703,7 +1703,7 @@ class CircuitPostProcessor(PostProcessorCommon, object):
     def __init__(self, parent):
         PostProcessorCommon.__init__(self, parent)
 
-    def create_ami_initial_response_plot(self, setupname, probe_id, variation_list_w_value, plot_type="Rectangular Plot", plot_initial_response=True, plot_intermediate_response=False, plot_final_response=False,plotname=None):
+    def create_ami_initial_response_plot(self, setupname, ami_name, variation_list_w_value, plot_type="Rectangular Plot", plot_initial_response=True, plot_intermediate_response=False, plot_final_response=False,plotname=None):
         """
         Creates an AMI Initial Response Plot
 
@@ -1712,8 +1712,8 @@ class CircuitPostProcessor(PostProcessorCommon, object):
         ----------
         setupname: str
             Name of the setup
-        probe_id: int
-            id of AMI Probe to use
+        ami_name: str
+            AMI Probe name to use
         variation_list_w_value: list
             list of variations with relative values
         plot_type: str, Default ``"Rectangular Plot"``
@@ -1750,11 +1750,11 @@ class CircuitPostProcessor(PostProcessorCommon, object):
             i+=1
         ycomponents = []
         if plot_initial_response:
-            ycomponents.append("InitialImpulseResponse<b_input_{}.int_ami_rx>".format(probe_id))
+            ycomponents.append("InitialImpulseResponse<{}.int_ami_rx>".format(ami_name))
         if plot_intermediate_response:
-            ycomponents.append("IntermediateImpulseResponse<b_input_{}.int_ami_rx>".format(probe_id))
+            ycomponents.append("IntermediateImpulseResponse<{}.int_ami_rx>".format(ami_name))
         if plot_final_response:
-            ycomponents.append("FinalImpulseResponse<b_input_{}.int_ami_rx>".format(probe_id))
+            ycomponents.append("FinalImpulseResponse<{}.int_ami_rx>".format(ami_name))
         self.oreportsetup.CreateReport(plotname, "Standard", plot_type, setupname, ["NAME:Context", "SimValueContext:=",
                                                                                     [55824, 0, 2, 0, False, False, -1,
                                                                                      1, 0, 1, 1, "", 0, 0, "NUMLEVELS",
@@ -1765,23 +1765,21 @@ class CircuitPostProcessor(PostProcessorCommon, object):
         return plotname
 
 
-    def create_statistical_eye_plot(self, setupname, probe_id, variation_list_w_value, is_ami_plot=False, ami_plot_type="InitialEye",plotname=None):
+    def create_ami_statistical_eye_plot(self, setupname, ami_name, variation_list_w_value, ami_plot_type="InitialEye",plotname=None):
         """
-                Creates an AMI Initial Response Plot
+                Creates an AMI Statistical Eye Plot
 
 
                 Parameters
                 ----------
                 setupname: str
                     Name of the setup
-                probe_id: int
-                    id of AMI Probe to use
+                probe_id: str
+                    AMI Probe Name to use
                 variation_list_w_value: list
                     list of variations with relative values
                 plot_type: str, Default ``"Rectangular Plot"``
                     String containing the report type. Default is ``"Rectangular Plot"``. it can be ``"Data Table"``, ``"Rectangular Stacked Plot"`` and all other valid AEDT Report types
-                is_ami_plot: bool, Optional
-                    Define if the plot is originated by an AMI Analyisis or not
                 ami_plot_type: str, Default ``"InitialEye"``
                     String containing the report AMI type. Default is ``"InitialEye"``. it can be ``"EyeAfterSource"``, ``"EyeAfterChannel"`` or ``"EyeAfterProbe"``
                 plotname: str, Optional
@@ -1809,16 +1807,11 @@ class CircuitPostProcessor(PostProcessorCommon, object):
                     variations.append([a])
             i += 1
         ycomponents = []
-        if not is_ami_plot:
-            ycomponents.append("b_input_{}.int_ami_rx.eye_probe".format(probe_id))
+        if ami_plot_type == "InitialEye" or ami_plot_type == "EyeAfterSource":
+            ibs_type = "tx"
         else:
-            if ami_plot_type == "InitialEye" or ami_plot_type == "EyeAfterSource":
-                ibs = "output"
-                ibs_type = "tx"
-            else:
-                ibs = "input"
-                ibs_type = "rx"
-            ycomponents.append("{}Response<b_{}_{}.int_ami_{}>".format(ami_plot_type, ibs, probe_id, ibs_type))
+            ibs_type = "rx"
+        ycomponents.append("{}Response<{}.int_ami_{}>".format(ami_plot_type, ami_name, ibs_type))
 
         self.oreportsetup.CreateReport(plotname, "Statistical Eye", "Statistical Eye Plot", setupname,
                              [
@@ -1834,3 +1827,62 @@ class CircuitPostProcessor(PostProcessorCommon, object):
                                  "Eye Diagram Component:=", ycomponents
                              ])
         return plotname
+
+
+    def create_statistical_eye_plot(self, setupname, probe_names, variation_list_w_value, ami_plot_type="InitialEye",plotname=None):
+        """
+                Creates a QuickEye, VerifEye Statistical Eye
+
+
+                Parameters
+                ----------
+                setupname: str
+                    Name of the setup
+                probe_names: str, list
+                    name of the Probe to plot EYE Diagram
+                variation_list_w_value: list
+                    list of variations with relative values
+                plotname: str, Optional
+                    Defines the plot name
+
+                Returns
+                -------
+                str
+                    plot name
+                """
+        if not plotname:
+            plotname = generate_unique_name("AMYAanalysis")
+        variations = ["__UnitInterval:=", ["All"],"__Amplitude:="	, ["All"],]
+        i = 0
+        for a in variation_list_w_value:
+            if (i % 2) == 0:
+                if ":=" in a:
+                    variations.append(a)
+                else:
+                    variations.append(a + ":=")
+            else:
+                if isinstance(a, list):
+                    variations.append(a)
+                else:
+                    variations.append([a])
+            i += 1
+        if isinstance(probe_names, list):
+            ycomponents = probe_names
+        else:
+            ycomponents = [probe_names]
+
+        self.oreportsetup.CreateReport(plotname, "Statistical Eye", "Statistical Eye Plot", setupname,
+                             [
+                                 "NAME:Context",
+                                 "SimValueContext:=",
+                                 [55819, 0, 2, 0, False, False, -1, 1, 0, 1, 1, "", 0, 0, "NUMLEVELS", False, "1",
+                                  "QTID", False, "1", "SCID", False, "-1", "SID", False, "0"]
+                             ],
+                             variations,
+                             [
+                                 "X Component:="		, "__UnitInterval",
+                                 "Y Component:="		, "__Amplitude",
+                                 "Eye Diagram Component:=", ycomponents
+                             ])
+        return plotname
+

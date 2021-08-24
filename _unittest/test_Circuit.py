@@ -182,19 +182,20 @@ class TestClass:
 
     def test_20_create_AMI_plots(self):
         self.aedtapp.load_project(self.ami_example_project, close_active_proj=True)
-        assert self.aedtapp.post.create_ami_initial_response_plot("AMIAnalysis", 15, self.aedtapp.available_variations.nominal,
+        assert self.aedtapp.post.create_ami_initial_response_plot("AMIAnalysis", "b_input_15", self.aedtapp.available_variations.nominal,
                                                       plot_type="Rectangular Stacked Plot", plot_final_response=True,
                                                       plot_intermediate_response=True, plotname="MyReport") == "MyReport"
         setup_name = "Dom_Verify"
         assert self.aedtapp.create_setup(setup_name,"NexximVerifEye")
         setup_name = "Dom_Quick"
         assert self.aedtapp.create_setup(setup_name,"NexximQuickEye")
-        assert self.aedtapp.post.create_statistical_eye_plot("AMIAnalysis", 14,
+        assert self.aedtapp.post.create_ami_statistical_eye_plot("AMIAnalysis", "b_output4_14",
                                                                   self.aedtapp.available_variations.nominal,
                                                                   plotname="MyReport") == "MyReport"
-        assert self.aedtapp.post.create_statistical_eye_plot("Dom_Quick", 15,
+        assert self.aedtapp.post.create_statistical_eye_plot("Dom_Quick", "b_input_15.int_ami_rx.eye_probe",
                                                                   self.aedtapp.available_variations.nominal,
                                                                   plotname="MyReportQ") == "MyReportQ"
-        assert self.aedtapp.post.create_statistical_eye_plot("Dom_Verify", 14,
+        assert self.aedtapp.post.create_statistical_eye_plot("Dom_Verify", "b_input_15.int_ami_rx.eye_probe",
                                                                   self.aedtapp.available_variations.nominal,
                                                                   plotname="MyReportV") == "MyReportV"
+        pass
