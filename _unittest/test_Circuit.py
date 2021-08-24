@@ -191,7 +191,7 @@ class TestClass:
         assert self.aedtapp.create_setup(setup_name,"NexximQuickEye")
         assert self.aedtapp.post.create_ami_statistical_eye_plot("AMIAnalysis", "b_output4_14",
                                                                   self.aedtapp.available_variations.nominal,
-                                                                  plotname="MyReport") == "MyReport"
+                                                                  plotname="MyReport1") == "MyReport1"
         assert self.aedtapp.post.create_statistical_eye_plot("Dom_Quick", "b_input_15.int_ami_rx.eye_probe",
                                                                   self.aedtapp.available_variations.nominal,
                                                                   plotname="MyReportQ") == "MyReportQ"

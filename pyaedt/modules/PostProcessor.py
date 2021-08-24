@@ -1811,14 +1811,21 @@ class CircuitPostProcessor(PostProcessorCommon, object):
             ibs_type = "tx"
         else:
             ibs_type = "rx"
-        ycomponents.append("{}Response<{}.int_ami_{}>".format(ami_plot_type, ami_name, ibs_type))
+        ycomponents.append("{}<{}.int_ami_{}>".format(ami_plot_type, ami_name, ibs_type))
 
+        ami_id = "0"
+        if ami_plot_type == "EyeAfterSource":
+            ami_id = "1"
+        elif ami_plot_type == "EyeAfterChannel":
+            ami_id = "2"
+        elif ami_plot_type == "EyeAfterProbe":
+            ami_id = "3"
         self.oreportsetup.CreateReport(plotname, "Statistical Eye", "Statistical Eye Plot", setupname,
                              [
                                  "NAME:Context",
                                  "SimValueContext:=",
                                  [55819, 0, 2, 0, False, False, -1, 1, 0, 1, 1, "", 0, 0, "NUMLEVELS", False, "1",
-                                  "QTID", False, "1", "SCID", False, "-1", "SID", False, "0"]
+                                  "QTID", False, ami_id, "SCID", False, "-1", "SID", False, "0"]
                              ],
                              variations,
                              [
