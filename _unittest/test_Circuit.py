@@ -17,7 +17,7 @@ netlist1 = 'netlist_small.cir'
 netlist2 = 'Schematic1.qcv'
 touchstone = 'SSN_ssn.s6p'
 touchstone2 = 'Galileo_V3P3S0.ts'
-
+ami_project = "AMI_Example"
 
 class TestClass:
     def setup_class(self):
@@ -36,6 +36,10 @@ class TestClass:
                 self.local_scratch.copyfile(touchstone_file2)
                 self.local_scratch.copyfolder(os.path.join(local_path, 'example_models', test_project_name + '.aedb'),
                                               os.path.join(self.local_scratch.path, test_project_name + '.aedb'))
+                ami_example_project = os.path.join(local_path, 'example_models', ami_project + '.aedt')
+                self.ami_example_project = self.local_scratch.copyfile(ami_example_project)
+                self.local_scratch.copyfolder(os.path.join(local_path, 'example_models', ami_project + '.aedb'),
+                                              os.path.join(self.local_scratch.path, ami_project + '.aedb'))
                 self.aedtapp = Circuit(self.test_project)
             except:
                 pass
@@ -175,3 +179,22 @@ class TestClass:
         setup_name = "Dom_AMI"
         assert self.aedtapp.create_setup(setup_name,"NexximAMI")
         pass
+
+    def test_20_create_AMI_plots(self):
+        self.aedtapp.load_project(self.ami_example_project, close_active_proj=True)
+        assert self.aedtapp.post.create_ami_initial_response_plot("AMIAnalysis", 15, self.aedtapp.available_variations.nominal,
+                                                      plot_type="Rectangular Stacked Plot", plot_final_response=True,
+                                                      plot_intermediate_response=True, plotname="MyReport") == "MyReport"
+        setup_name = "Dom_Verify"
+        assert self.aedtapp.create_setup(setup_name,"NexximVerifEye")
+        setup_name = "Dom_Quick"
+        assert self.aedtapp.create_setup(setup_name,"NexximQuickEye")
+        assert self.aedtapp.post.create_statistical_eye_plot("AMIAnalysis", 14,
+                                                                  self.aedtapp.available_variations.nominal,
+                                                                  plotname="MyReport") == "MyReport"
+        assert self.aedtapp.post.create_statistical_eye_plot("Dom_Quick", 15,
+                                                                  self.aedtapp.available_variations.nominal,
+                                                                  plotname="MyReportQ") == "MyReportQ"
+        assert self.aedtapp.post.create_statistical_eye_plot("Dom_Verify", 14,
+                                                                  self.aedtapp.available_variations.nominal,
+                                                                  plotname="MyReportV") == "MyReportV"
