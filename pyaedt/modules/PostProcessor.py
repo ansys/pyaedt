@@ -945,6 +945,59 @@ class PostProcessorCommon(object):
         self.oeditor.Delete(["NAME:Selections", "Selections:=", "DUMMYSPHERE1"])
         return True
 
+    @aedt_exception_handler
+    def export_report_to_csv(self, project_dir, plot_name):
+        """Export the SParameter plot data to a CSV file.
+
+        This method leaves the data in the plot (as data) as a reference
+        for the Sparameters plot after the loops.
+
+        Parameters
+        ----------
+        project_dir : str
+            Path to the project directory.
+        plot_name : str
+            Name of the plot to export.
+
+        Returns
+        -------
+        bool
+            ``True`` when successful, ``False`` when failed.)
+        """
+        # path
+        npath = os.path.normpath(project_dir)
+        # set name for the csv file
+
+        csvFileName = os.path.join(npath, plot_name + ".csv")
+        # export the csv
+        self.oreportsetup.ExportToFile(plot_name, csvFileName)
+        return True
+
+    @aedt_exception_handler
+    def export_report_to_jpg(self, project_dir, plot_name):
+        """Export the SParameter plot to a JPG file.
+
+        Parameters
+        ----------
+        project_dir : str
+            Path to the project directory.
+        plot_name : str
+            Name of the plot to export.
+
+        Returns
+        -------
+        bool
+            ``True`` when successful, ``False`` when failed.
+        """
+        # path
+        npath = os.path.normpath(project_dir)
+        # set name for the plot image file
+        jpgFileName = os.path.join(npath, plot_name + ".jpg")
+
+        self.oreportsetup.ExportImageToFile(plot_name, jpgFileName, 0, 0)
+        return True
+
+
 class PostProcessor(PostProcessorCommon, object):
     """Manages the main AEDT postprocessing functions.
     
@@ -1593,59 +1646,6 @@ class PostProcessor(PostProcessorCommon, object):
         file_name = os.path.join(file_path, picturename + ".jpg")
         self.oeditor.ExportModelImageToFile(file_name, 0, 0, arg)
         return file_name
-
-
-    @aedt_exception_handler
-    def export_report_to_csv(self, ProjectDir, PlotName):
-        """Export the SParameter plot data to a CSV file.
-        
-        This method leaves the data in the plot (as data) as a reference 
-        for the Sparameters plot after the loops.
-
-        Parameters
-        ----------
-        ProjectDir : str
-            Path to the project directory.
-        PlotName : str
-            Name of the plot to export.
-
-        Returns
-        -------
-        bool
-            ``True`` when successful, ``False`` when failed.)
-        """
-        # path
-        npath = os.path.normpath(ProjectDir)
-        # set name for the csv file
-
-        csvFileName = os.path.join(npath, PlotName+".csv")
-        # export the csv
-        self.oreportsetup.ExportToFile(PlotName, csvFileName)
-        return True
-
-    @aedt_exception_handler
-    def export_report_to_jpg(self, ProjectDir, PlotName):
-        """Export the SParameter plot to a JPG file.
-
-        Parameters
-        ----------
-        ProjectDir : str
-            Path to the project directory.
-        PlotName : str
-            Name of the plot to export.
-
-        Returns
-        -------
-        bool
-            ``True`` when successful, ``False`` when failed.
-        """
-        # path
-        npath = os.path.normpath(ProjectDir)
-        # set name for the plot image file
-        jpgFileName = os.path.join(npath, PlotName+".jpg")
-
-        self.oreportsetup.ExportImageToFile(PlotName, jpgFileName, 0, 0)
-        return True
 
     @aedt_exception_handler
     def get_far_field_data(self, expression="GainTotal", setup_sweep_name='', domain="Infinite Sphere1", families_dict=None):
