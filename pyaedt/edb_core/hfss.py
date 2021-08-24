@@ -121,7 +121,7 @@ class Edb3DLayout(object):
         if not isinstance(ref_des_list, list):
             ref_des_list = [ref_des_list]
         if not isinstance(net_list, list):
-            ref_des_list = [net_list]
+            net_list = [net_list]
         for ref in ref_des_list:
             for pinname, pin in self.parent.core_components.components[ref].pins.items():
                 if pin.net in net_list and pin.pin.IsLayoutPin():
