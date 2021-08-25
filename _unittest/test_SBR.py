@@ -29,12 +29,17 @@ class TestClass:
 
 
     def test_01A_open_source(self):
-         assert self.aedtapp.create_sbr_linked_antenna(self.source, target_cs="feederPosition", fieldtype="farfield")
+        assert self.aedtapp.create_sbr_linked_antenna(self.source, target_cs="feederPosition", fieldtype="farfield")
+        assert len(self.aedtapp.native_components) == 1
 
     def test_02_add_parametric_beam(self):
         dict1 = {"polarization": "Vertical"}
-        assert self.aedtapp.create_sbr_parametric_beam_antenna(parameters_dict=dict1, antenna_name="TX1")
+        par_beam = self.aedtapp.create_sbr_parametric_beam_antenna(parameters_dict=dict1, antenna_name="TX1")
         assert self.aedtapp.create_sbr_parametric_beam_antenna()
+        par_beam.props["NativeComponentDefinitionProvider"]["Unit"] = "in"
+        assert par_beam.update()
+        assert len(self.aedtapp.native_components) == 3
 
     def test_03_add_ffd_antenna(self):
         assert self.aedtapp.create_sbr_file_based_antenna(ffd_full_path=os.path.join(local_path, 'example_models', 'test.ffd'))
+        assert len(self.aedtapp.native_components) == 4

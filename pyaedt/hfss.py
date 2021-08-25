@@ -5,7 +5,7 @@ import warnings
 from .application.Analysis3D import FieldAnalysis3D
 from .desktop import exception_to_desktop
 from .modeler.GeometryOperators import GeometryOperators
-from .modules.Boundary import BoundaryObject
+from .modules.Boundary import BoundaryObject, NativeComponentObject
 from .generic.general_methods import generate_unique_name, aedt_exception_handler
 from collections import OrderedDict
 from .application.DataHandlers import random_string
@@ -604,8 +604,8 @@ class Hfss(FieldAnalysis3D, object):
 
         Returns
         -------
-        bool
-            ``True`` when successful, ``False`` when failed.
+        :class:`pyaedt.modules.Boundary.NativeComponentObject`
+            NativeComponentObject object.
 
         """
 
@@ -618,75 +618,45 @@ class Hfss(FieldAnalysis3D, object):
         design_name = source_object.design_name
         if not solution:
             solution = source_object.nominal_adaptive
-        params = ["NAME:Params"]
-        pars = source_object.available_variations.nominal_w_values
+        params =OrderedDict({})
+        pars = source_object.available_variations.nominal_w_values_dict
         for el in pars:
-            if type(el) is list:
-                params.append(el[0])
-            else:
-                params.append(el)
-        native_props = ["NAME:NativeComponentDefinitionProvider", "Type:=", "Linked Antenna",
-                        "Unit:=", self.modeler.model_units, "Is Parametric Array:=", False, "Project:=", project_name,
-                        "Product:=", "HFSS", "Design:=", design_name, "Soln:=", solution, params,
-                        "ForceSourceToSolve:=", True, "PreservePartnerSoln:=", True, "PathRelativeTo:=",
-                        "TargetProject",
-                        "FieldType:=", fieldtype, "UseCompositePort:=", use_composite_ports,
-                        ["NAME:SourceBlockageStructure", "NonModelObject:=", []]]
+           params[el] =pars[el]
+        native_props = OrderedDict({"Type": "Linked Antenna",
+                        "Unit": self.modeler.model_units, "Is Parametric Array": False, "Project": project_name,
+                        "Product": "HFSS", "Design": design_name, "Soln": solution, "Params": params,
+                        "ForceSourceToSolve": True, "PreservePartnerSoln": True, "PathRelativeTo":
+                        "TargetProject", "FieldType": fieldtype, "UseCompositePort": use_composite_ports,
+                        "SourceBlockageStructure": OrderedDict({"NonModelObject": []})})
         if fieldtype == "nearfield":
-            native_props.extend(
-                ["UseGlobalCurrentSrcOption:=", use_global_current, "Current Source Conformance:=", current_conformance,
-                 "Thin Sources:=",
-                 thin_sources, "Power Fraction:=", power_fraction])
-        self.modeler.oeditor.InsertNativeComponent(
-            ["NAME:InsertNativeComponentData", "TargetCS:=", target_cs,
-             "SubmodelDefinitionName:=", uniquename, ["NAME:ComponentPriorityLists"],
-             "NextUniqueID:=", 0, "MoveBackwards:=", False, "DatasetType:=", "ComponentDatasetType",
-             ["NAME:DatasetDefinitions"],
-             ["NAME:BasicComponentInfo", "ComponentName:=", uniquename, "Company:=", "",
-              "Company URL:=", "", "Model Number:=", "", "Help URL:=", "",
-              "Version:=", "1.0", "Notes:=", "", "IconType:=", "Linked Antenna"],
-             ["NAME:GeometryDefinitionParameters", ["NAME:VariableOrders"]],
-             ["NAME:DesignDefinitionParameters", ["NAME:VariableOrders"]],
-             ["NAME:MaterialDefinitionParameters", ["NAME:VariableOrders"]],
-             "MapInstanceParameters:=", "DesignVariable",
-             "UniqueDefinitionIdentifier:=", "50f4783d-0ef1-4f06-a809-8cbf64c07462",
-             "OriginFilePath:=", "", "IsLocal:=", False, "ChecksumString:=", "", "ChecksumHistory:=", [],
-             "VersionHistory:=", [],             native_props,
-             ["NAME:InstanceParameters", "GeometryParameters:=", "", "MaterialParameters:=", "", "DesignParameters:=",
-              ""]])
-        return True
+            native_props["UseGlobalCurrentSrcOption"] = use_global_current
+            native_props["Current Source Conformance"]= current_conformance
+            native_props["Thin Sources"] = thin_sources
+            native_props[ "Power Fraction"] = power_fraction
+        return self._create_native_component("Linked Antenna",target_cs, self.modeler.model_units, native_props,uniquename )
+
 
     @aedt_exception_handler
-    def _create_sbr_parametric_antenna(self, antenna_type, target_cs=None, model_units=None, parameters_dict=None, antenna_name=None):
+    def _create_native_component(self, antenna_type, target_cs=None, model_units=None, parameters_dict=None,
+                                       antenna_name=None):
         if antenna_name is None:
             antenna_name = generate_unique_name(antenna_type)
         if not model_units:
             model_units = self.modeler.model_units
-        native_props = ["NAME:NativeComponentDefinitionProvider", "Type:=", antenna_type,
-                        "Unit:=", model_units, "Is Parametric Array:=", False]
+
+        native_props = OrderedDict({"NativeComponentDefinitionProvider": OrderedDict({"Type": antenna_type,
+                        "Unit": model_units})})
+        native_props["TargetCS"] = target_cs
         if isinstance(parameters_dict, dict):
             for el in parameters_dict:
                 if el not in ["antenna_type","offset","rotation","rotation_axis", "mode"] and parameters_dict[el] is not None:
-                    native_props.append(el.replace("_", " ").title() +":=")
-                    native_props.append(parameters_dict[el])
-        self.modeler.oeditor.InsertNativeComponent(
-            ["NAME:InsertNativeComponentData", "TargetCS:=", target_cs,
-             "SubmodelDefinitionName:=", antenna_name, ["NAME:ComponentPriorityLists"],
-             "NextUniqueID:=", 0, "MoveBackwards:=", False, "DatasetType:=", "ComponentDatasetType",
-             ["NAME:DatasetDefinitions"],
-             ["NAME:BasicComponentInfo", "ComponentName:=", antenna_name, "Company:=", "",
-              "Company URL:=", "", "Model Number:=", "", "Help URL:=", "",
-              "Version:=", "1.0", "Notes:=", "", "IconType:=", "Linked Antenna"],
-             ["NAME:GeometryDefinitionParameters", ["NAME:VariableOrders"]],
-             ["NAME:DesignDefinitionParameters", ["NAME:VariableOrders"]],
-             ["NAME:MaterialDefinitionParameters", ["NAME:VariableOrders"]],
-             "MapInstanceParameters:=", "DesignVariable",
-             "UniqueDefinitionIdentifier:=", "50f4783d-0ef1-4f06-a809-"+random_string(12),
-             "OriginFilePath:=", "", "IsLocal:=", False, "ChecksumString:=", "", "ChecksumHistory:=", [],
-             "VersionHistory:=", [],             native_props,
-             ["NAME:InstanceParameters", "GeometryParameters:=", "", "MaterialParameters:=", "", "DesignParameters:=",
-              ""]])
-        return True
+                    native_props["NativeComponentDefinitionProvider"][el.replace("_", " ").title()] = parameters_dict[el]
+        native = NativeComponentObject(self, antenna_type,antenna_name, native_props)
+        if native.create():
+            self.native_components.append(native)
+            return native
+        return None
+
 
     @aedt_exception_handler
     def create_sbr_parametric_beam_antenna(self, target_cs=None, model_units=None, parameters_dict=None, antenna_name=None):
@@ -702,16 +672,17 @@ class Hfss(FieldAnalysis3D, object):
             The default is ``"nearfield"``.
         antenna_name : str, optional
             3D Component Name. The default is the autogenerated based on the antenna type.
+
         Returns
         -------
-        bool
-            ``True`` when successful, ``False`` when failed.
+        :class:`pyaedt.modules.Boundary.NativeComponentObject`
+            NativeComponentObject object.
 
         """
         if target_cs is None:
             target_cs = self.modeler.oeditor.GetActiveCoordinateSystem()
-        self._create_sbr_parametric_antenna("Parametric Beam", target_cs, model_units, parameters_dict, antenna_name)
-        return True
+
+        return self._create_native_component("Parametric Beam", target_cs, model_units, parameters_dict, antenna_name)
 
     @aedt_exception_handler
     def create_sbr_file_based_antenna(self, ffd_full_path, antenna_size="1mm", antenna_impedance="50ohm",
@@ -737,8 +708,8 @@ class Hfss(FieldAnalysis3D, object):
             3D Component Name. The default is the autogenerated based on the antenna type.
         Returns
         -------
-        bool
-            ``True`` when successful, ``False`` when failed.
+        :class:`pyaedt.modules.Boundary.NativeComponentObject`
+            NativeComponentObject object.
 
         """
         if target_cs is None:
@@ -749,8 +720,9 @@ class Hfss(FieldAnalysis3D, object):
              "ExternalFile": ffd_full_path})
         if not antenna_name:
             antenna_name = generate_unique_name(os.path.basename(ffd_full_path).split(".")[0])
-        self._create_sbr_parametric_antenna("File Based Antenna", target_cs, model_units, par_dicts, antenna_name)
-        return True
+
+        return self._create_native_component("File Based Antenna", target_cs, model_units, par_dicts, antenna_name)
+
 
     @aedt_exception_handler
     def set_sbr_txrx_settings(self, txrx_dictionary):

@@ -5,6 +5,8 @@ from collections import OrderedDict
 from ..generic.general_methods import aedt_exception_handler
 from ..application.DataHandlers import dict2arg
 from ..modeler.Object3d import EdgePrimitive, FacePrimitive, VertexPrimitive
+from ..application.DataHandlers import random_string
+
 class BoundaryCommon(object):
     """ """
     @aedt_exception_handler
@@ -74,7 +76,7 @@ class NativeComponentObject(BoundaryCommon, object):
              "DesignDefinitionParameters": OrderedDict({"VariableOrders": OrderedDict({})}),
              "MaterialDefinitionParameters": OrderedDict({"VariableOrders": OrderedDict({})}),
              "MapInstanceParameters": "NotVariable",
-             "UniqueDefinitionIdentifier": "89d26167-fb77-480e-a7ab-02e73efa4d23", "OriginFilePath": "",
+             "UniqueDefinitionIdentifier": "89d26167-fb77-480e-a7ab-"+random_string(12), "OriginFilePath": "",
              "IsLocal": False, "ChecksumString": "", "ChecksumHistory": [], "VersionHistory": [],
              "NativeComponentDefinitionProvider": OrderedDict({"Type": component_type}),
              "InstanceParameters": OrderedDict(
@@ -85,6 +87,8 @@ class NativeComponentObject(BoundaryCommon, object):
     def _update_props(self,d, u):
         for k, v in u.items():
             if isinstance(v, dict) or type(v) is OrderedDict:
+                if k not in d:
+                    d[k] = OrderedDict({})
                 d[k] = self._update_props(d[k], v)
             else:
                 d[k] = v
@@ -121,8 +125,9 @@ class NativeComponentObject(BoundaryCommon, object):
             ``True`` when successful, ``False`` when failed.
 
         """
-
-        self._parent.modeler.oeditor.EditNativeComponent(self.name, self._get_args())
+        self.name = "EditNativeComponentDefinitionData"
+        self.props["DefinitionName"]=self.props["SubmodelDefinitionName"]
+        self._parent.modeler.oeditor.EditNativeComponentDefinition(self._get_args())
 
         return True
 

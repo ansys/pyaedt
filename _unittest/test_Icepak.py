@@ -59,7 +59,8 @@ class TestClass:
 
     def test_02_ImportPCB(self):
         component_name = "RadioBoard1"
-        assert self.aedtapp.create_ipk_3dcomponent_pcb(component_name, link_data, solution_freq, resolution)
+        assert self.aedtapp.create_ipk_3dcomponent_pcb(component_name, link_data, solution_freq, resolution, custom_x_resolution=400, custom_y_resolution=500)
+        assert len(self.aedtapp.native_components) == 1
 
     def test_02A_find_top(self):
         assert self.aedtapp.find_top(0)
