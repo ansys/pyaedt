@@ -1688,7 +1688,7 @@ class CircuitPostProcessor(PostProcessorCommon, object):
 
 
     .. note::
-   Some functionalities are available only when AEDT is running in the graphical mode.
+       Some functionalities are available only when AEDT is running in the graphical mode.
 
     Parameters
     ----------
@@ -1701,9 +1701,10 @@ class CircuitPostProcessor(PostProcessorCommon, object):
     def __init__(self, parent):
         PostProcessorCommon.__init__(self, parent)
 
-    def create_ami_initial_response_plot(self, setupname, ami_name, variation_list_w_value, plot_type="Rectangular Plot", plot_initial_response=True, plot_intermediate_response=False, plot_final_response=False,plotname=None):
-        """
-        Creates an AMI Initial Response Plot
+    def create_ami_initial_response_plot(self, setupname, ami_name, variation_list_w_value, 
+                                         plot_type="Rectangular Plot", plot_initial_response=True,
+                                         plot_intermediate_response=False, plot_final_response=False, plotname=None):
+        """Create an AMI initial response plot.
 
 
         Parameters
@@ -1715,37 +1716,38 @@ class CircuitPostProcessor(PostProcessorCommon, object):
         variation_list_w_value: list
             list of variations with relative values
         plot_type: str, Default ``"Rectangular Plot"``
-            String containing the report type. Default is ``"Rectangular Plot"``. it can be ``"Data Table"``, ``"Rectangular Stacked Plot"`` and all other valid AEDT Report types
-        plot_initial_response: bool, Optional
-            Setup either to plot or not Initial input response
-        plot_intermediate_response: bool, Optional
-            Setup either to plot or not Intermediate input response
-        plot_final_response: bool, Optional
-            Setup either to plot or not Final input response
-        plotname: str, Optional
-            Defines the plot name
+            String containing the report type. Default is ``"Rectangular Plot"``. It can be ``"Data Table"``,
+            ``"Rectangular Stacked Plot"``or any of the other valid AEDT Report types.
+        plot_initial_response: bool, optional
+            Set either to plot the initial input response.  Default is ``True``.
+        plot_intermediate_response: bool, optional
+            Set whether to plot the intermediate input response.  Default is ``False``.
+        plot_final_response: bool, optional
+            Set whether to plot the final input response.  Default is ``False``.
+        plotname: str, optional
+            The plot name.  Default is a unique name.
 
         Returns
         -------
         str
-            plot name
+            Name of the plot.
         """
         if not plotname:
             plotname = generate_unique_name("AMIAnalysis")
         variations = [ "__InitialTime:=", ["All"]]
-        i=0
+        i = 0
         for a in variation_list_w_value:
             if (i % 2) == 0:
                 if ":=" in a:
                     variations.append(a)
                 else:
-                    variations.append(a+":=")
+                    variations.append(a + ":=")
             else:
                 if isinstance(a, list):
                     variations.append(a)
                 else:
                     variations.append([a])
-            i+=1
+            i += 1
         ycomponents = []
         if plot_initial_response:
             ycomponents.append("InitialImpulseResponse<{}.int_ami_rx>".format(ami_name))
@@ -1763,31 +1765,31 @@ class CircuitPostProcessor(PostProcessorCommon, object):
         return plotname
 
 
-    def create_ami_statistical_eye_plot(self, setupname, ami_name, variation_list_w_value, ami_plot_type="InitialEye",plotname=None):
+    def create_ami_statistical_eye_plot(self, setupname, ami_name, variation_list_w_value, ami_plot_type="InitialEye", plotname=None):
+        """Create an AMI statistical eye plot.
+
+        Parameters
+        ----------
+        setupname : str
+            Name of the setup.
+        probe_id : str
+            AMI Probe Name to use
+        variation_list_w_value : list
+            List of variations with relative values.
+        plot_type : str, optional
+            String containing the report type. Default is ``"Rectangular Plot"``. It can be ``"Data Table"``, 
+            ``"Rectangular Stacked Plot"``, or any other valid AEDT report types.
+        ami_plot_type : str, optional
+            String containing the report AMI type. Default is ``"InitialEye"``. It can be ``"EyeAfterSource"``,
+            ``"EyeAfterChannel"`` or ``"EyeAfterProbe"``.
+        plotname: str, optional
+            The name of the plot.  Defaults to a unique name starting with ``"Plot"``.
+
+        Returns
+        -------
+        str
+           The name of the plot.
         """
-                Creates an AMI Statistical Eye Plot
-
-
-                Parameters
-                ----------
-                setupname: str
-                    Name of the setup
-                probe_id: str
-                    AMI Probe Name to use
-                variation_list_w_value: list
-                    list of variations with relative values
-                plot_type: str, Default ``"Rectangular Plot"``
-                    String containing the report type. Default is ``"Rectangular Plot"``. it can be ``"Data Table"``, ``"Rectangular Stacked Plot"`` and all other valid AEDT Report types
-                ami_plot_type: str, Default ``"InitialEye"``
-                    String containing the report AMI type. Default is ``"InitialEye"``. it can be ``"EyeAfterSource"``, ``"EyeAfterChannel"`` or ``"EyeAfterProbe"``
-                plotname: str, Optional
-                    Defines the plot name
-
-                Returns
-                -------
-                str
-                    plot name
-                """
         if not plotname:
             plotname = generate_unique_name("AMYAanalysis")
         variations = ["__UnitInterval:=", ["All"],"__Amplitude:="	, ["All"],]
@@ -1833,28 +1835,25 @@ class CircuitPostProcessor(PostProcessorCommon, object):
                              ])
         return plotname
 
+    def create_statistical_eye_plot(self, setupname, probe_names, variation_list_w_value, ami_plot_type="InitialEye", plotname=None):
+        """Create a statistical QuickEye, VerifEye, and/or Statistical Eye plot.
 
-    def create_statistical_eye_plot(self, setupname, probe_names, variation_list_w_value, ami_plot_type="InitialEye",plotname=None):
+        Parameters
+        ----------
+        setupname: str
+            Name of the setup
+        probe_names: str or list
+            Name of the probe to plot in the EYE diagram.
+        variation_list_w_value : list
+            List of variations with relative values.
+        plotname: str, optional
+            The name of the plot.
+
+        Returns
+        -------
+        str
+            The name of the plot.
         """
-                Creates a QuickEye, VerifEye Statistical Eye
-
-
-                Parameters
-                ----------
-                setupname: str
-                    Name of the setup
-                probe_names: str, list
-                    name of the Probe to plot EYE Diagram
-                variation_list_w_value: list
-                    list of variations with relative values
-                plotname: str, Optional
-                    Defines the plot name
-
-                Returns
-                -------
-                str
-                    plot name
-                """
         if not plotname:
             plotname = generate_unique_name("AMIAanalysis")
         variations = ["__UnitInterval:=", ["All"],"__Amplitude:="	, ["All"],]
