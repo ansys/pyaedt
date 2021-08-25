@@ -780,7 +780,7 @@ class Object3d(object):
         str
             Type of the object.
         
-        """       
+        """
         if self._m_name in self._parent.solid_names:
             self._object_type = "Solid"
         else:
@@ -1378,7 +1378,7 @@ class Padstack(object):
             return self._antipad
 
         @antipad.setter
-        def antipad(self, value=None): 
+        def antipad(self, value=None):
             if value:
                 self._antipad = value
             else:

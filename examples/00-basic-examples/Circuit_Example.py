@@ -22,7 +22,7 @@ desktop_version = "2021.1"
 ###############################################################################
 # Launch AEDT in Non-Graphical Mode
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-# You can change the Boolean parameter ``non_graphical`` to ``False`` to launch  
+# You can change the Boolean parameter ``non_graphical`` to ``False`` to launch
 # AEDT in graphical mode.
 
 non_graphical = True
@@ -31,7 +31,7 @@ new_thread = True
 ###############################################################################
 # Launch AEDT and Circuit
 # ~~~~~~~~~~~~~~~~~~~~~~~
-# The :class:`pyaedt.Desktop` class initializes AEDT and starts it on a specified version in 
+# The :class:`pyaedt.Desktop` class initializes AEDT and starts it on a specified version in
 # a specified graphical mode. The Boolean parameter ``new_thread`` defines whether
 # to create a new instance of AEDT or try to connect to existing instance of it.
 
@@ -105,7 +105,7 @@ aedt_app.export_fullwave_spice()
 ###############################################################################
 # Close AEDT
 # ~~~~~~~~~~
-# After the simulaton is completed, you can close AEDT or release it using the 
+# After the simulaton is completed, you can close AEDT or release it using the
 # :func:`pyaedt.Desktop.force_close_desktop` method.
 # All methods provide for saving the project before exiting.
 if os.name != "posix":

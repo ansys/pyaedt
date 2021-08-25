@@ -2902,7 +2902,7 @@ class GeometryModeler(Modeler, object):
         list
             List of six float values representing the bounding box in the form ``[min_x, min_y, min_z, max_x, max_y, max_z]``.
         
-        """      
+        """
         oBoundingBox = list(self.oeditor.GetModelBoundingBox())
         dimensions = []
         dimensions.append(abs(float(oBoundingBox[0]) - float(oBoundingBox[3])))

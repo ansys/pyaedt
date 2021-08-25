@@ -26,7 +26,7 @@ from pyaedt import Maxwell2d
 ###############################################################################
 # Launch AEDT in Graphical Mode
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-# You change the Boolean parameter ``non_graphical`` to ``False`` to launch  
+# You change the Boolean parameter ``non_graphical`` to ``False`` to launch
 # AEDT in graphical mode.
 
 non_graphical = True

@@ -306,7 +306,7 @@ class Icepak(FieldAnalysisIcepak):
 
     @aedt_exception_handler
     def create_source_power(self, face_id, input_power="0W", thermal_condtion="Total Power",
-                            surface_heat="0irrad_W_per_m2", temperature="AmbientTemp", 
+                            surface_heat="0irrad_W_per_m2", temperature="AmbientTemp",
                             radiate=False, source_name=None):
         """Create a source power for a face.
 

@@ -39,7 +39,7 @@ data = read_touchstone(example_path)
 ###############################################################################
 # Get Curve Names
 # ~~~~~~~~~~~~~~~
-# These methods identify the list of insertion losses, return losses, fext, 
+# These methods identify the list of insertion losses, return losses, fext,
 # and next based on a few inputs and port names.
 
 rl_list = get_return_losses(data.ports)
