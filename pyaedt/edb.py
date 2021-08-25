@@ -121,7 +121,6 @@ class Edb(object):
                     self.open_edb_inside_aedt()
                 else:
                     self.open_edb()
-
             if self.builder:
                 self._messenger.add_info_message("Edb Initialized")
             else:
@@ -263,6 +262,7 @@ class Edb(object):
             clr.AddReferenceToFile('Ansys.Ansoft.Edb.dll')
             clr.AddReferenceToFile('Ansys.Ansoft.EdbBuilderUtils.dll')
             clr.AddReferenceToFile('EdbLib.dll')
+            clr.AddReferenceToFile('DataModel.dll')
             clr.AddReferenceToFileAndPath(os.path.join(self.base_path, 'Ansys.Ansoft.SimSetupData.dll'))
         else:
             if self.student_version:
@@ -273,6 +273,7 @@ class Edb(object):
             clr.AddReference('Ansys.Ansoft.Edb')
             clr.AddReference('Ansys.Ansoft.EdbBuilderUtils')
             clr.AddReference('EdbLib')
+            clr.AddReference('DataModel')
             clr.AddReference('Ansys.Ansoft.SimSetupData')
         os.environ["ECAD_TRANSLATORS_INSTALL_DIR"] = self.base_path
         oaDirectory = os.path.join(self.base_path, 'common', 'oa')
@@ -315,11 +316,6 @@ class Edb(object):
             self.builder = None
             return None
         self._db = db
-        if not self._db:
-            self._messenger.add_warning_message("Error Opening DB")
-            self.builder = None
-            self._active_cell = None
-            return None
         self._messenger.add_info_message("Database Opened")
 
         self._active_cell = None
@@ -340,9 +336,12 @@ class Edb(object):
             self.builder = self.layout_methods.GetBuilder(self._db, self._active_cell, self.edbpath,
                                                           self.edbversion,  self.standalone)
             self._init_objects()
+            self._messenger.add_info_message("Builder Initialized")
+
         else:
             self.builder = None
-        self._messenger.add_info_message("Builder Initialized")
+            self._messenger.add_error_message("Builder Not Initialized")
+
         return self.builder
 
     @aedt_exception_handler
@@ -373,20 +372,23 @@ class Edb(object):
                 return None
             self._db = db
             self._active_cell = self.edb.Cell.Cell.FindByName(self.db, self.edb.Cell.CellType.CircuitCell, self.cellname)
+            if self._active_cell is None:
+                self._active_cell = list(self._db.TopCircuitCells)[0]
             dllpath = os.path.join(os.path.abspath(os.path.dirname(__file__)), "dlls", "EDBLib", "DataModel.dll")
-            time.sleep(1)
             if self._db and self._active_cell:
                 self.layout_methods.LoadDataModel(dllpath)
                 self.builder = self.layout_methods.GetBuilder(self._db, self._active_cell, self.edbpath,
                                                               self.edbversion, self.standalone, True)
                 self._init_objects()
                 return self.builder
+            else:
+                self.builder = None
+                return None
         else:
             self._db = None
             self._active_cell = None
             self.builder = None
             return None
-        return None
 
     @aedt_exception_handler
     def create_edb(self, init_dlls=False):
@@ -415,7 +417,6 @@ class Edb(object):
         if not self.cellname:
             self.cellname = generate_unique_name("Cell")
         self._active_cell = self.edb.Cell.Cell.Create(self._db,  self.edb.Cell.CellType.CircuitCell, self.cellname)
-        time.sleep(1)
         dllpath = os.path.join(os.path.dirname(__file__), "dlls", "EDBLib", "DataModel.dll")
         if self._db and self._active_cell:
             self.layout_methods.LoadDataModel(dllpath)

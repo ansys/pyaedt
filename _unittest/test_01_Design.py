@@ -213,6 +213,12 @@ class TestClass():
         proj_dir5 = self.aedtapp.generate_temp_project_directory(":_34")
         assert not proj_dir5
 
+    def test_22_export_aedtz(self):
+        aedtz_proj=os.path.join(self.local_scratch.path,"test.aedtz")
+        assert self.aedtapp.archive_project(aedtz_proj)
+        assert os.path.exists(aedtz_proj)
+
+
     '''
     def test_01_close_project(self):
         self.aedtapp.close_project()

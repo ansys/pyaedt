@@ -195,9 +195,10 @@ class TestClass:
     def test_29_get_power_tree(self):
         OUTPUT_NET = "BST_V1P0_S0"
         GROUND_NETS = ["GND", "PGND"]
-        powertree_df, power_nets = self.edbapp.core_nets.get_powertree(OUTPUT_NET, GROUND_NETS)
-        assert len(powertree_df) > 0
-        assert len (power_nets) > 0
+        component_list, component_list_columns, net_group = self.edbapp.core_nets.get_powertree(OUTPUT_NET, GROUND_NETS)
+        assert component_list
+        assert component_list_columns
+        assert net_group
 
     def test_30_aedt_pinname_pin_position(self):
         cmp_pinlist = self.edbapp.core_padstack.get_pinlist_from_component_and_net("U2A5", "GND")
