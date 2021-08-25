@@ -657,11 +657,13 @@ class Hfss(FieldAnalysis3D, object):
         return True
 
     @aedt_exception_handler
-    def _create_sbr_parametric_antenna(self, antenna_type, target_cs=None, parameters_dict=None, antenna_name=None):
+    def _create_sbr_parametric_antenna(self, antenna_type, target_cs=None, model_units=None, parameters_dict=None, antenna_name=None):
         if antenna_name is None:
             antenna_name = generate_unique_name(antenna_type)
+        if not model_units:
+            model_units = self.modeler.model_units
         native_props = ["NAME:NativeComponentDefinitionProvider", "Type:=", antenna_type,
-                        "Unit:=", self.modeler.model_units, "Is Parametric Array:=", False]
+                        "Unit:=", model_units, "Is Parametric Array:=", False]
         if isinstance(parameters_dict, dict):
             for el in parameters_dict:
                 if el not in ["antenna_type","offset","rotation","rotation_axis", "mode"] and parameters_dict[el] is not None:
@@ -687,13 +689,15 @@ class Hfss(FieldAnalysis3D, object):
         return True
 
     @aedt_exception_handler
-    def create_sbr_parametric_beam_antenna(self, target_cs=None, parameters_dict=None, antenna_name=None):
+    def create_sbr_parametric_beam_antenna(self, target_cs=None, model_units=None, parameters_dict=None, antenna_name=None):
         """Create a linked antenna.
 
         Parameters
         -------------
         target_cs : str, optional
             Target coordinate system. The default is the active one.
+        model_units: str, optional
+            Model units to be applied to the object. Default is ``None`` which is the active Modeler units
         parameters_dict : dict, optional
             The default is ``"nearfield"``.
         antenna_name : str, optional
@@ -706,7 +710,7 @@ class Hfss(FieldAnalysis3D, object):
         """
         if target_cs is None:
             target_cs = self.modeler.oeditor.GetActiveCoordinateSystem()
-        self._create_sbr_parametric_antenna("Parametric Beam", target_cs, parameters_dict, antenna_name)
+        self._create_sbr_parametric_antenna("Parametric Beam", target_cs, model_units, parameters_dict, antenna_name)
         return True
 
     @aedt_exception_handler
