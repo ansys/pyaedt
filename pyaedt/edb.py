@@ -8,6 +8,7 @@ import os
 import sys
 import traceback
 import warnings
+import gc
 
 import pyaedt.edb_core.EDB_Data
 import time
@@ -81,16 +82,7 @@ class Edb(object):
 
     """
     def __init__(self, edbpath=None, cellname=None, isreadonly=False, edbversion="2021.1", isaedtowned=False, oproject=None, student_version=False):
-        self._components = None
-        self._core_primitives = None
-        self._stackup = None
-        self._padstack = None
-        self._siwave = None
-        self._hfss = None
-        self._nets = None
-        self._db = None
-        self._edb = None
-        self.builder = None
+        self.clean_variables()
         if _ironpython and inside_desktop:
             self.standalone = False
         else:
@@ -136,6 +128,33 @@ class Edb(object):
                 self._messenger.add_info_message("Failed to initialize Dlls")
         else:
             warnings.warn("Failed to initialize Dlls")
+
+    def clean_variables(self):
+        # try:
+        #     del self._components
+        #     del self._core_primitives
+        #     del self._stackup
+        #     del self._padstack
+        #     del self._siwave
+        #     del self._hfss
+        #     del self._nets
+        #     del self._db
+        #     del self._edb
+        #     del self.builder
+        # except:
+        #     pass
+        self._components = None
+        self._core_primitives = None
+        self._stackup = None
+        self._padstack = None
+        self._siwave = None
+        self._hfss = None
+        self._nets = None
+        self._db = None
+        self._edb = None
+        self.builder = None
+        gc.collect()
+
 
     @aedt_exception_handler
     def _init_objects(self):
@@ -674,6 +693,7 @@ class Edb(object):
         
         """
         self._db.Close()
+        self.clean_variables()
         return True
 
     @aedt_exception_handler
