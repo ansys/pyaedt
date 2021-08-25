@@ -178,17 +178,17 @@ class TestClass:
         assert self.aedtapp.create_setup(setup_name,"NexximQuickEye")
         setup_name = "Dom_AMI"
         assert self.aedtapp.create_setup(setup_name,"NexximAMI")
-        pass
 
     def test_20_create_AMI_plots(self):
         self.aedtapp.load_project(self.ami_example_project, close_active_proj=True)
+        report_name = "MyReport"
         assert self.aedtapp.post.create_ami_initial_response_plot("AMIAnalysis", "b_input_15", self.aedtapp.available_variations.nominal,
                                                       plot_type="Rectangular Stacked Plot", plot_final_response=True,
-                                                      plot_intermediate_response=True, plotname="MyReport") == "MyReport"
+                                                      plot_intermediate_response=True, plotname=report_name) == report_name
         setup_name = "Dom_Verify"
-        assert self.aedtapp.create_setup(setup_name,"NexximVerifEye")
+        assert self.aedtapp.create_setup(setup_name, "NexximVerifEye")
         setup_name = "Dom_Quick"
-        assert self.aedtapp.create_setup(setup_name,"NexximQuickEye")
+        assert self.aedtapp.create_setup(setup_name, "NexximQuickEye")
         assert self.aedtapp.post.create_ami_statistical_eye_plot("AMIAnalysis", "b_output4_14",
                                                                   self.aedtapp.available_variations.nominal,
                                                                   plotname="MyReport1") == "MyReport1"
@@ -198,4 +198,3 @@ class TestClass:
         assert self.aedtapp.post.create_statistical_eye_plot("Dom_Verify", "b_input_15.int_ami_rx.eye_probe",
                                                                   self.aedtapp.available_variations.nominal,
                                                                   plotname="MyReportV") == "MyReportV"
-        pass

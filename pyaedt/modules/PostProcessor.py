@@ -736,7 +736,7 @@ class PostProcessorCommon(object):
     @aedt_exception_handler
     def get_report_data(self, expression="dB(S(1,1))", setup_sweep_name='', domain='Sweep', families_dict=None,
                         report_input_type=None):
-        """Generate report data using the :func:`GetSolutionDataPerVariation` method.
+        """Generate report data.
 
         This method returns the data object and the arrays ``solData`` and
         ``FreqVals``.
@@ -782,12 +782,12 @@ class PostProcessorCommon(object):
                 did = 1
             ctxt = ["NAME:Context", "SimValueContext:=",
                     [did, 0, 2, 0, False, False, -1, 1, 0, 1, 1, "", 0, 0, "IDIID", False, "1"]]
-        elif type(domain) is list:
+        elif isinstance(domain, list):
             ctxt = domain
         else:
             ctxt = ["Domain:=", domain]
 
-        if type(expression) is not list:
+        if not isinstance(expression, list):
             expression = [expression]
         if not setup_sweep_name:
             setup_sweep_name = self._parent.nominal_sweep
@@ -834,7 +834,7 @@ class PostProcessorCommon(object):
         ctxt = []
         if not setup_sweep_name:
             setup_sweep_name = self._parent.nominal_sweep
-        if self.post_solution_type == "HFSS 3D Layout Design" or self.post_solution_type == "NexximLNA" or self.post_solution_type == "NexximTransient":
+        if self.post_solution_type in ["HFSS 3D Layout Design", "NexximLNA", "NexximTransient"]:
             if "Freq" == primary_sweep_variable or "Freq" in list(families_dict.keys()):
                 did = 3
             else:
@@ -847,7 +847,7 @@ class PostProcessorCommon(object):
             else:
                 ctxt = ["Context:=", context]
 
-        if type(expression) is not list:
+        if not isinstance(expression, list):
             expression = [expression]
         if not setup_sweep_name:
             setup_sweep_name = self._parent.nominal_sweep
@@ -862,9 +862,9 @@ class PostProcessorCommon(object):
             plotname = generate_unique_name("Plot")
         families_input = []
         families_input.append(primary_sweep_variable + ":=")
-        if not primary_sweep_variable in list(families_dict.keys()):
+        if not primary_sweep_variable in families_dict:
             families_input.append(["All"])
-        elif type(families_dict[primary_sweep_variable]) is list:
+        elif isinstance(families_dict[primary_sweep_variable], list):
             families_input.append(families_dict[primary_sweep_variable])
         else:
             families_input.append([families_dict[primary_sweep_variable]])
@@ -872,7 +872,7 @@ class PostProcessorCommon(object):
             if el == primary_sweep_variable:
                 continue
             families_input.append(el + ":=")
-            if type(families_dict[el]) is list:
+            if isinstance(families_dict[el], list):
                 families_input.append(families_dict[el])
             else:
                 families_input.append([families_dict[el]])
@@ -914,7 +914,7 @@ class PostProcessorCommon(object):
             sweeps = {'Theta': 'All', 'Phi': 'All', 'Freq': 'All'}
         if not ctxt:
             ctxt = []
-        if type(expression) is not list:
+        if not isinstance(expression, list):
             expression = [expression]
         if not setup_sweep_name:
             setup_sweep_name = self._parent.nominal_adaptive
@@ -962,15 +962,12 @@ class PostProcessorCommon(object):
         Returns
         -------
         bool
-            ``True`` when successful, ``False`` when failed.)
+            ``True`` when successful, ``False`` when failed.
         """
-        # path
         npath = os.path.normpath(project_dir)
-        # set name for the csv file
 
-        csvFileName = os.path.join(npath, plot_name + ".csv")
-        # export the csv
-        self.oreportsetup.ExportToFile(plot_name, csvFileName)
+        csv_file_name = os.path.join(npath, plot_name + ".csv")
+        self.oreportsetup.ExportToFile(plot_name, csv_file_name)
         return True
 
     @aedt_exception_handler
@@ -991,10 +988,8 @@ class PostProcessorCommon(object):
         """
         # path
         npath = os.path.normpath(project_dir)
-        # set name for the plot image file
-        jpgFileName = os.path.join(npath, plot_name + ".jpg")
-
-        self.oreportsetup.ExportImageToFile(plot_name, jpgFileName, 0, 0)
+        file_name = os.path.join(npath, plot_name + ".jpg")  # name of the image file
+        self.oreportsetup.ExportImageToFile(plot_name, file_name, 0, 0)
         return True
 
 
