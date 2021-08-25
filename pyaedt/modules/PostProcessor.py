@@ -17,7 +17,7 @@ from ..modeler.Modeler import CoordinateSystem
 from ..generic.general_methods import aedt_exception_handler, generate_unique_name, retry_ntimes
 from ..generic.filesystem import Scratch
 from ..application.Variables import AEDT_units
-
+import warnings
 report_type = {"DrivenModal": "Modal Solution Data", "DrivenTerminal": "Terminal Solution Data",
                "Eigenmode": "EigenMode Parameters",
                "Transient Network": "Terminal Solution Data", "SBR+": "Modal Solution Data", "Transient": "Transient",
@@ -802,7 +802,7 @@ class PostProcessorCommon(object):
                                                              expression)
 
         if not solution_data:
-            print("No Data Available. Check inputs")
+            warnings.warn("No Data Available. Check inputs")
             return False
         return solution_data
 

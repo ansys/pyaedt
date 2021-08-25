@@ -1608,13 +1608,7 @@ class Design(object):
         """
         legacy_project = self.project_name
         proj = self._desktop.OpenProject(project_file)
-        # time.sleep(0.5)
-        # self._odesign = None
-        # self._oproject = None
-        # self.oproject = proj.GetName()
-        # time.sleep(0.5)
-        # self.odesign = design_name
-        # time.sleep(0.5)
+
         if proj:
             self.__init__(projectname=proj.GetName(), designname=design_name)
             if close_active_proj:

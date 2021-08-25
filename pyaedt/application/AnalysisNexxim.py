@@ -48,17 +48,6 @@ class FieldAnalysisCircuit(Analysis):
 
     @solution_type.setter
     def solution_type(self, soltype):
-        """
-
-        Parameters
-        ----------
-        soltype :
-            SolutionType object
-
-        Returns
-        -------
-
-        """
         if soltype:
             self._solution_type = solutions_settings[soltype]
         else:
