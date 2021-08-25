@@ -17,7 +17,7 @@ from ..modeler.Modeler import CoordinateSystem
 from ..generic.general_methods import aedt_exception_handler, generate_unique_name, retry_ntimes
 from ..generic.filesystem import Scratch
 from ..application.Variables import AEDT_units
-
+import warnings
 report_type = {"DrivenModal": "Modal Solution Data", "DrivenTerminal": "Terminal Solution Data",
                "Eigenmode": "EigenMode Parameters",
                "Transient Network": "Terminal Solution Data", "SBR+": "Modal Solution Data", "Transient": "Transient",
@@ -601,7 +601,399 @@ class FieldPlot:
             self.plotsettings, "EnableGaussianSmoothing:=", False]
 
 
-class PostProcessor(object):
+class PostProcessorCommon(object):
+    """Manages the main AEDT postprocessing functions.
+
+    The inherited `AEDTConfig` class contains all `_desktop` hierarchical calls
+    needed for the class inititialization data `_desktop` and the design types ``"HFSS"``,
+    ``"Icepak"``, and ``"HFSS3DLayout"``.
+
+    .. note::
+   Some functionalities are available only when AEDT is running in the graphical mode.
+
+    Parameters
+    ----------
+    parent:
+        Inherited parent object. The parent object must provide the members
+        `_modeler`, `_desktop`, `_odesign`, and `_messenger`.
+
+    """
+
+    def __init__(self, parent):
+        self._parent = parent
+        self._scratch = Scratch(self._parent.temp_directory, volatile=True)
+
+    @property
+    def oreportsetup(self):
+        """Report setup.
+
+        Returns
+        -------
+        :attr:`pyaedt.modules.PostProcessor.PostProcessor.oreportsetup`
+
+        """
+        return self.odesign.GetModule("ReportSetup")
+
+    @property
+    def _messenger(self):
+        """Messenger."""
+        return self._parent._messenger
+
+    @property
+    def _desktop(self):
+        """Desktop."""
+        return self._parent._desktop
+
+    @property
+    def odesign(self):
+        """Design."""
+        return self._parent._odesign
+
+    @property
+    def oproject(self):
+        """Project."""
+        return self._parent._oproject
+
+    @property
+    def modeler(self):
+        """Modeler."""
+        return self._parent._modeler
+
+    @property
+    def oeditor(self):
+        """Editor."""
+        return self.modeler.oeditor
+
+
+    @property
+    def post_solution_type(self):
+        """Design solution type.
+
+        Return
+        ------
+        type
+            Design solution type.
+        """
+        try:
+            return self.odesign.GetSolutionType()
+        except:
+            return self._parent._design_type
+
+    @aedt_exception_handler
+    def copy_report_data(self, PlotName):
+        """Copy report data as static data.
+
+        Parameters
+        ----------
+        PlotName :
+            Name of the report.
+
+        Returns
+        -------
+        bool
+            ``True`` when successful, ``False`` when failed.
+        """
+        self.oreportsetup.CopyReportsData([PlotName])
+        self.oreportsetup.PasteReports()
+        return True
+
+    @aedt_exception_handler
+    def delete_report(self, PlotName):
+        """Delete a field plot report.
+
+        Parameters
+        ----------
+        PlotName : str
+            Name of the field plot report.
+
+        Returns
+        -------
+        bool
+            ``True`` when successful, ``False`` when failed.
+        """
+        self.oreportsetup.DeleteReports([PlotName])
+        return True
+
+    @aedt_exception_handler
+    def rename_report(self, PlotName, newname):
+        """Rename a plot.
+
+        Parameters
+        ----------
+        PlotName : str
+            Name of the plot.
+        newname : str
+            New name of the plot.
+
+        Returns
+        -------
+        bool
+            ``True`` when successful, ``False`` when failed.
+        """
+        self.oreportsetup.RenameReport(PlotName, newname)
+        return True
+
+    @aedt_exception_handler
+    def get_report_data(self, expression="dB(S(1,1))", setup_sweep_name='', domain='Sweep', families_dict=None,
+                        report_input_type=None):
+        """Generate report data.
+
+        This method returns the data object and the arrays ``solData`` and
+        ``FreqVals``.
+
+        Parameters
+        ----------
+        expression : str or list
+            One or more formulas to add to the report. The default is
+            ``"dB(S(1,1))"``.
+        setup_sweep_name : str, optional
+            Name of the setup for computing the report. The
+            default is ``""``, in which case the nominal sweep is
+            used.
+        domain : str or list, optional
+            Context type. The options are ``"Sweep"`` or
+            ``"Time"``. The default is ``"Sweep".``
+        families_dict : dict, optional
+            Dictionary of all families including the primary
+            sweep. The default is ``{"Freq": ["All"]}``.
+        report_input_type :  str
+            Type of input data for the report.
+
+        Returns
+        -------
+        :class:`pyaedt.modules.PostProcessor.SolutionData`
+
+        Examples
+        --------
+        Generate a report with the default sweep and default variation.
+
+        >>> hfss = HFSS()
+        >>> hfss.post.get_report_data("S(1,1)")
+
+        >>> m3d = Maxwell3D()
+        >>> m3d.post.get_report_data("SurfaceLoss")   # Eddy Current examples
+        >>> m3d.post.get_report_data("Wind(LoadA,LaodA)")    # TransientAnalsysis
+
+        """
+        if self.post_solution_type in ["3DLayout", "NexximLNA", "NexximTransient"]:
+            if domain == "Sweep":
+                did = 3
+            else:
+                did = 1
+            ctxt = ["NAME:Context", "SimValueContext:=",
+                    [did, 0, 2, 0, False, False, -1, 1, 0, 1, 1, "", 0, 0, "IDIID", False, "1"]]
+        elif isinstance(domain, list):
+            ctxt = domain
+        else:
+            ctxt = ["Domain:=", domain]
+
+        if not isinstance(expression, list):
+            expression = [expression]
+        if not setup_sweep_name:
+            setup_sweep_name = self._parent.nominal_sweep
+
+        if not report_input_type:
+            report_input_type = report_type[self.post_solution_type]
+
+        if families_dict is None:
+            families_dict = {"Freq": ["All"]}
+
+        solution_data = self.get_solution_data_per_variation(report_input_type, setup_sweep_name, ctxt, families_dict,
+                                                             expression)
+
+        if not solution_data:
+            warnings.warn("No Data Available. Check inputs")
+            return False
+        return solution_data
+
+    @aedt_exception_handler
+    def create_rectangular_plot(self, expression="dB(S(1,1))", setup_sweep_name='', families_dict={"Freq": ["All"]},
+                                primary_sweep_variable="Freq", context=None, plotname=None, plottype=None):
+        """Create a 2D rectangular plot in AEDT.
+
+        Parameters
+        ----------
+        expression : str or list, optional
+            One or more formulas to add to the report. The default is value = ``"dB(S(1,1))"``.
+        setup_sweep_name : str, optional
+            Setup name with the sweep. The default is ``""``.
+        families_dict : dict, optional
+            Dictionary of all families including the primary sweep. The default is ``{"Freq": ["All"]}``.
+        primary_sweep_variable : str, optional
+            Name of the primary sweep. The default is ``"Freq"``.
+        context : str, optional
+            The default is ``None``.
+        plotname : str, optional
+            Name of the plot. The default is ``None``.
+
+        Returns
+        -------
+        bool
+            ``True`` when successful, ``False`` when failed.
+        """
+        ctxt = []
+        if not setup_sweep_name:
+            setup_sweep_name = self._parent.nominal_sweep
+        if self.post_solution_type in ["HFSS 3D Layout Design", "NexximLNA", "NexximTransient"]:
+            if "Freq" == primary_sweep_variable or "Freq" in list(families_dict.keys()):
+                did = 3
+            else:
+                did = 1
+            ctxt = ["NAME:Context", "SimValueContext:=",
+                    [did, 0, 2, 0, False, False, -1, 1, 0, 1, 1, "", 0, 0, "IDIID", False, "1"]]
+        elif context:
+            if type(context) is list:
+                ctxt = context
+            else:
+                ctxt = ["Context:=", context]
+
+        if not isinstance(expression, list):
+            expression = [expression]
+        if not setup_sweep_name:
+            setup_sweep_name = self._parent.nominal_sweep
+        if self.post_solution_type not in report_type:
+            print("Solution not supported")
+            return False
+        if not plottype:
+            modal_data = report_type[self.post_solution_type]
+        else:
+            modal_data = plottype
+        if not plotname:
+            plotname = generate_unique_name("Plot")
+        families_input = []
+        families_input.append(primary_sweep_variable + ":=")
+        if not primary_sweep_variable in families_dict:
+            families_input.append(["All"])
+        elif isinstance(families_dict[primary_sweep_variable], list):
+            families_input.append(families_dict[primary_sweep_variable])
+        else:
+            families_input.append([families_dict[primary_sweep_variable]])
+        for el in families_dict:
+            if el == primary_sweep_variable:
+                continue
+            families_input.append(el + ":=")
+            if isinstance(families_dict[el], list):
+                families_input.append(families_dict[el])
+            else:
+                families_input.append([families_dict[el]])
+
+        self.oreportsetup.CreateReport(plotname, modal_data, "Rectangular Plot", setup_sweep_name, ctxt, families_input,
+                                       ["X Component:=", primary_sweep_variable, "Y Component:=",
+                                        expression])
+
+        return True
+
+    @aedt_exception_handler
+    def get_solution_data_per_variation(self, soltype='Far Fields', setup_sweep_name='', ctxt=None,
+                                        sweeps=None, expression=''):
+        """Retrieve solution data for each variation.
+
+        Parameters
+        ----------
+        soltype : str, optional
+            Type of the solution. For example, ``"Far Fields"`` or ``"Modal Solution Data"``. The default
+            is ``"Far Fields"``.
+        setup_sweep_name : str, optional
+            Name of the setup for computing the report. The default is ``""``,
+            in which case ``"nominal adaptive"`` is used.
+        ctxt : list, optional
+            List of context variables. The default is ``None``.
+        sweeps : dict, optional
+            Dictionary of variables and values. The default is ``None``,
+            in which case this list is used:
+            ``{'Theta': 'All', 'Phi': 'All', 'Freq': 'All'}``.
+        expression : str or list, optional
+            One or more traces to include. The default is ``""``.
+
+        Returns
+        -------
+        :class:`pyaedt.modules.PostProcessor.SolutionData`
+
+        """
+        if sweeps is None:
+            sweeps = {'Theta': 'All', 'Phi': 'All', 'Freq': 'All'}
+        if not ctxt:
+            ctxt = []
+        if not isinstance(expression, list):
+            expression = [expression]
+        if not setup_sweep_name:
+            setup_sweep_name = self._parent.nominal_adaptive
+        sweep_list = []
+        for el in sweeps:
+            sweep_list.append(el + ":=")
+            if type(sweeps[el]) is list:
+                sweep_list.append(sweeps[el])
+            else:
+                sweep_list.append([sweeps[el]])
+
+        data = self.oreportsetup.GetSolutionDataPerVariation(soltype, setup_sweep_name, ctxt, sweep_list, expression)
+        return SolutionData(data)
+
+    @aedt_exception_handler
+    def steal_focus_oneditor(self):
+        """Remove the selection of an object that would prevent the image from exporting correctly.
+
+        Returns
+        -------
+        bool
+            ``True`` when successful, ``False`` when failed.
+        """
+        self._desktop.RestoreWindow()
+        param = ["NAME:SphereParameters", "XCenter:=", "0mm", "YCenter:=", "0mm", "ZCenter:=", "0mm", "Radius:=", "1mm"]
+        attr = ["NAME:Attributes", "Name:=", "DUMMYSPHERE1", "Flags:=", "NonModel#"]
+        self.oeditor.CreateSphere(param, attr)
+        self.oeditor.Delete(["NAME:Selections", "Selections:=", "DUMMYSPHERE1"])
+        return True
+
+    @aedt_exception_handler
+    def export_report_to_csv(self, project_dir, plot_name):
+        """Export the SParameter plot data to a CSV file.
+
+        This method leaves the data in the plot (as data) as a reference
+        for the Sparameters plot after the loops.
+
+        Parameters
+        ----------
+        project_dir : str
+            Path to the project directory.
+        plot_name : str
+            Name of the plot to export.
+
+        Returns
+        -------
+        bool
+            ``True`` when successful, ``False`` when failed.
+        """
+        npath = os.path.normpath(project_dir)
+
+        csv_file_name = os.path.join(npath, plot_name + ".csv")
+        self.oreportsetup.ExportToFile(plot_name, csv_file_name)
+        return True
+
+    @aedt_exception_handler
+    def export_report_to_jpg(self, project_dir, plot_name):
+        """Export the SParameter plot to a JPG file.
+
+        Parameters
+        ----------
+        project_dir : str
+            Path to the project directory.
+        plot_name : str
+            Name of the plot to export.
+
+        Returns
+        -------
+        bool
+            ``True`` when successful, ``False`` when failed.
+        """
+        # path
+        npath = os.path.normpath(project_dir)
+        file_name = os.path.join(npath, plot_name + ".jpg")  # name of the image file
+        self.oreportsetup.ExportImageToFile(plot_name, file_name, 0, 0)
+        return True
+
+
+class PostProcessor(PostProcessorCommon, object):
     """Manages the main AEDT postprocessing functions.
     
     The inherited `AEDTConfig` class contains all `_desktop` hierarchical calls 
@@ -621,7 +1013,7 @@ class PostProcessor(object):
     def __init__(self, parent):
         self._parent = parent
         self.FieldsPlot = {}
-        self._scratch = Scratch(self._parent.temp_directory, volatile=True)
+        PostProcessorCommon.__init__(self, parent)
 
     @property
     def _primitives(self):
@@ -667,62 +1059,6 @@ class PostProcessor(object):
         
         """
         return self.odesign.GetModule("FieldsReporter")
-
-    @property
-    def oreportsetup(self):
-        """Report setup.
-
-        Returns
-        -------
-        :attr:`pyaedt.modules.PostProcessor.PostProcessor.oreportsetup`
-        
-        """
-        return self.odesign.GetModule("ReportSetup")
-
-    @property
-    def post_solution_type(self):
-        """Design solution type.
-
-        Return
-        ------
-        type
-            Design solution type.
-        """
-        try:
-            return self.odesign.GetSolutionType()
-        except:
-            return self._parent._design_type
-
-
-    @property
-    def _messenger(self):
-        """Messenger."""
-        return self._parent._messenger
-
-    @property
-    def _desktop(self):
-        """Desktop."""
-        return self._parent._desktop
-
-    @property
-    def odesign(self):
-        """Design."""
-        return self._parent._odesign
-
-    @property
-    def oproject(self):
-        """Project."""
-        return self._parent._oproject
-
-    @property
-    def modeler(self):
-        """Modeler."""
-        return self._parent._modeler
-
-    @property
-    def oeditor(self):
-        """Editor."""
-        return self.modeler.oeditor
 
     @property
     def report_types(self):
@@ -1068,8 +1404,11 @@ class PostProcessor(object):
         if not setup_name:
             setup_name = self._parent.existing_analysis_sweeps[0]
         self._desktop.CloseAllWindows()
-        self.oproject.SetActiveDesign(self.odesign.GetName())
-        self.oeditor.FitAll()
+        self.oproject.SetActiveDesign(self._parent.design_name)
+        try:
+            self.oeditor.FitAll()
+        except:
+            self.oeditor.ZoomToFit()
         char_set = string.ascii_uppercase + string.digits
         uName = quantityName + '_' + ''.join(random.sample(char_set, 6))
         plot = FieldPlot(self.ofieldsreporter, objlist, setup_name, quantityName, intrinsincList)
@@ -1307,113 +1646,6 @@ class PostProcessor(object):
         return file_name
 
     @aedt_exception_handler
-    def copy_report_data(self, PlotName):
-        """Copy report data as static data.
-
-        Parameters
-        ----------
-        PlotName :
-            Name of the report.
-
-        Returns
-        -------
-        bool
-            ``True`` when successful, ``False`` when failed.
-        """
-        self.oreportsetup.CopyReportsData([PlotName])
-        self.oreportsetup.PasteReports()
-        return True
-
-    @aedt_exception_handler
-    def delete_report(self, PlotName):
-        """Delete a field plot report.
-
-        Parameters
-        ----------
-        PlotName : str
-            Name of the field plot report.
-
-        Returns
-        -------
-        bool
-            ``True`` when successful, ``False`` when failed.
-        """
-        self.oreportsetup.DeleteReports([PlotName])
-        return True
-
-    @aedt_exception_handler
-    def rename_report(self, PlotName, newname):
-        """Rename a plot.
-
-        Parameters
-        ----------
-        PlotName : str
-            Name of the plot.
-        newname : str
-            New name of the plot.
-
-        Returns
-        -------
-        bool
-            ``True`` when successful, ``False`` when failed.
-        """
-        self.oreportsetup.RenameReport(PlotName, newname)
-        return True
-
-
-    @aedt_exception_handler
-    def export_report_to_csv(self, ProjectDir, PlotName):
-        """Export the SParameter plot data to a CSV file.
-        
-        This method leaves the data in the plot (as data) as a reference 
-        for the Sparameters plot after the loops.
-
-        Parameters
-        ----------
-        ProjectDir : str
-            Path to the project directory.
-        PlotName : str
-            Name of the plot to export.
-
-        Returns
-        -------
-        bool
-            ``True`` when successful, ``False`` when failed.)
-        """
-        # path
-        npath = os.path.normpath(ProjectDir)
-        # set name for the csv file
-
-        csvFileName = os.path.join(npath, PlotName+".csv")
-        # export the csv
-        self.oreportsetup.ExportToFile(PlotName, csvFileName)
-        return True
-
-    @aedt_exception_handler
-    def export_report_to_jpg(self, ProjectDir, PlotName):
-        """Export the SParameter plot to a JPG file.
-
-        Parameters
-        ----------
-        ProjectDir : str
-            Path to the project directory.
-        PlotName : str
-            Name of the plot to export.
-
-        Returns
-        -------
-        bool
-            ``True`` when successful, ``False`` when failed.
-        """
-        # path
-        npath = os.path.normpath(ProjectDir)
-        # set name for the plot image file
-        jpgFileName = os.path.join(npath, PlotName+".jpg")
-
-        self.oreportsetup.ExportImageToFile(PlotName, jpgFileName, 0, 0)
-        return True
-
-    @aedt_exception_handler
     def get_far_field_data(self, expression="GainTotal", setup_sweep_name='', domain="Infinite Sphere1", families_dict=None):
         """Generate far field data using the :func:`GetSolutionDataPerVariation` method. 
         
@@ -1449,218 +1681,212 @@ class PostProcessor(object):
             return False
         return solution_data
 
-    @aedt_exception_handler
-    def get_report_data(self, expression="dB(S(1,1))", setup_sweep_name='', domain='Sweep', families_dict=None, report_input_type=None):
-        """Generate report data using the :func:`GetSolutionDataPerVariation` method.
-        
-        This method returns the data object and the arrays ``solData`` and
-        ``FreqVals``.
-               
-        Parameters
-        ----------
-        expression : str or list
-            One or more formulas to add to the report. The default is
-            ``"dB(S(1,1))"``.
-        setup_sweep_name : str, optional
-            Name of the setup for computing the report. The
-            default is ``""``, in which case the nominal sweep is
-            used.
-        domain : str or list, optional
-            Context type. The options are ``"Sweep"`` or
-            ``"Time"``. The default is ``"Sweep".``
-        families_dict : dict, optional
-            Dictionary of all families including the primary
-            sweep. The default is ``{"Freq": ["All"]}``.
-        report_input_type :  str
-            Type of input data for the report.
-
-        Returns
-        -------
-        :class:`pyaedt.modules.PostProcessor.SolutionData`
-
-        Examples
-        --------
-        Generate a report with the default sweep and default variation.
-
-        >>> hfss = HFSS()
-        >>> hfss.post.get_report_data("S(1,1)")
-
-        >>> m3d = Maxwell3D()
-        >>> m3d.post.get_report_data("SurfaceLoss")   # Eddy Current examples
-        >>> m3d.post.get_report_data("Wind(LoadA,LaodA)")    # TransientAnalsysis
-
-        """
-        if self.post_solution_type in ["3DLayout", "NexximLNA", "NexximTransient"]:
-            if domain == "Sweep":
-                did = 3
-            else:
-                did = 1
-            ctxt = ["NAME:Context", "SimValueContext:=",
-                    [did, 0, 2, 0, False, False, -1, 1, 0, 1, 1, "", 0, 0, "IDIID", False, "1"]]
-        elif type(domain) is list:
-            ctxt = domain
-        else:
-            ctxt = ["Domain:=", domain]
-
-        if type(expression) is not list:
-            expression = [expression]
-        if not setup_sweep_name:
-            setup_sweep_name = self._parent.nominal_sweep
 
 
-        if not report_input_type:
-            report_input_type = report_type[self.post_solution_type]
+class CircuitPostProcessor(PostProcessorCommon, object):
+    """Manages the main AEDT Nexxim postprocessing functions.
 
 
-        if families_dict is None:
-            families_dict = {"Freq": ["All"]}
+    .. note::
+       Some functionalities are available only when AEDT is running in the graphical mode.
 
-        solution_data = self.get_solution_data_per_variation(report_input_type, setup_sweep_name, ctxt, families_dict, expression)
+    Parameters
+    ----------
+    parent:
+        Inherited parent object. The parent object must provide the members
+        `_modeler`, `_desktop`, `_odesign`, and `_messenger`.
 
-        if not solution_data:
-            print("No Data Available. Check inputs")
-            return False
-        return solution_data
+    """
 
-    @aedt_exception_handler
-    def create_rectangular_plot(self, expression="dB(S(1,1))", setup_sweep_name='', families_dict={"Freq": ["All"]},
-                                primary_sweep_variable="Freq", context=None, plotname=None,plottype=None):
-        """Create a 2D rectangular plot in AEDT.
+    def __init__(self, parent):
+        PostProcessorCommon.__init__(self, parent)
+
+    def create_ami_initial_response_plot(self, setupname, ami_name, variation_list_w_value, 
+                                         plot_type="Rectangular Plot", plot_initial_response=True,
+                                         plot_intermediate_response=False, plot_final_response=False, plotname=None):
+        """Create an AMI initial response plot.
+
 
         Parameters
         ----------
-        expression : str or list, optional
-            One or more formulas to add to the report. The default is value = ``"dB(S(1,1))"``.
-        setup_sweep_name : str, optional
-            Setup name with the sweep. The default is ``""``.
-        families_dict : dict, optional
-            Dictionary of all families including the primary sweep. The default is ``{"Freq": ["All"]}``.
-        primary_sweep_variable : str, optional
-            Name of the primary sweep. The default is ``"Freq"``.
-        context : str, optional
-            The default is ``None``.
-        plotname : str, optional
-            Name of the plot. The default is ``None``. 
+        setupname: str
+            Name of the setup
+        ami_name: str
+            AMI Probe name to use
+        variation_list_w_value: list
+            list of variations with relative values
+        plot_type: str, Default ``"Rectangular Plot"``
+            String containing the report type. Default is ``"Rectangular Plot"``. It can be ``"Data Table"``,
+            ``"Rectangular Stacked Plot"``or any of the other valid AEDT Report types.
+        plot_initial_response: bool, optional
+            Set either to plot the initial input response.  Default is ``True``.
+        plot_intermediate_response: bool, optional
+            Set whether to plot the intermediate input response.  Default is ``False``.
+        plot_final_response: bool, optional
+            Set whether to plot the final input response.  Default is ``False``.
+        plotname: str, optional
+            The plot name.  Default is a unique name.
 
         Returns
         -------
-        bool
-            ``True`` when successful, ``False`` when failed.
+        str
+            Name of the plot.
         """
-        ctxt=[]
-        if not setup_sweep_name:
-            setup_sweep_name = self._parent.nominal_sweep
-        if self.post_solution_type == "HFSS 3D Layout Design" or self.post_solution_type == "NexximLNA" or self.post_solution_type == "NexximTransient":
-            if "Freq" == primary_sweep_variable or "Freq" in list(families_dict.keys()):
-                did = 3
-            else:
-                did = 1
-            ctxt = ["NAME:Context", "SimValueContext:=",
-                    [did, 0, 2, 0, False, False, -1, 1, 0, 1, 1, "", 0, 0, "IDIID", False, "1"]]
-        elif context:
-            if type(context) is  list:
-                ctxt = context
-            else:
-                ctxt = ["Context:=", context]
-
-        if type(expression) is not list:
-            expression = [expression]
-        if not setup_sweep_name:
-            setup_sweep_name = self._parent.nominal_sweep
-        if self.post_solution_type not in report_type:
-            print("Solution not supported")
-            return False
-        if not plottype:
-            modal_data = report_type[self.post_solution_type]
-        else:
-            modal_data = plottype
         if not plotname:
-            plotname = generate_unique_name("Plot")
-        families_input = []
-        families_input.append(primary_sweep_variable+":=")
-        if not primary_sweep_variable in list(families_dict.keys()):
-            families_input.append(["All"])
-        elif type(families_dict[primary_sweep_variable]) is list:
-            families_input.append(families_dict[primary_sweep_variable])
-        else:
-            families_input.append([families_dict[primary_sweep_variable]])
-        for el in families_dict:
-            if el == primary_sweep_variable:
-                continue
-            families_input.append(el+":=")
-            if type(families_dict[el]) is list:
-                families_input.append(families_dict[el])
+            plotname = generate_unique_name("AMIAnalysis")
+        variations = [ "__InitialTime:=", ["All"]]
+        i = 0
+        for a in variation_list_w_value:
+            if (i % 2) == 0:
+                if ":=" in a:
+                    variations.append(a)
+                else:
+                    variations.append(a + ":=")
             else:
-                families_input.append([families_dict[el]])
+                if isinstance(a, list):
+                    variations.append(a)
+                else:
+                    variations.append([a])
+            i += 1
+        ycomponents = []
+        if plot_initial_response:
+            ycomponents.append("InitialImpulseResponse<{}.int_ami_rx>".format(ami_name))
+        if plot_intermediate_response:
+            ycomponents.append("IntermediateImpulseResponse<{}.int_ami_rx>".format(ami_name))
+        if plot_final_response:
+            ycomponents.append("FinalImpulseResponse<{}.int_ami_rx>".format(ami_name))
+        self.oreportsetup.CreateReport(plotname, "Standard", plot_type, setupname, ["NAME:Context", "SimValueContext:=",
+                                                                                    [55824, 0, 2, 0, False, False, -1,
+                                                                                     1, 0, 1, 1, "", 0, 0, "NUMLEVELS",
+                                                                                     False, "1", "PCID", False, "-1",
+                                                                                     "PID", False, "1", "SCID", False,
+                                                                                     "-1", "SID", False, "0"]],
+                                       variations, ["X Component:=", "__InitialTime", "Y Component:=", ycomponents])
+        return plotname
 
 
-
-        self.oreportsetup.CreateReport(plotname, modal_data, "Rectangular Plot", setup_sweep_name, ctxt, families_input,
-                                                       ["X Component:=", primary_sweep_variable, "Y Component:=",
-                                                   expression])
-
-        return True
-
-    @aedt_exception_handler
-    def get_solution_data_per_variation(self, soltype='Far Fields', setup_sweep_name='', ctxt=None,
-                                        sweeps=None, expression=''):
-        """Retrieve solution data for each variation.
+    def create_ami_statistical_eye_plot(self, setupname, ami_name, variation_list_w_value, ami_plot_type="InitialEye", plotname=None):
+        """Create an AMI statistical eye plot.
 
         Parameters
         ----------
-        soltype : str, optional
-            Type of the solution. For example, ``"Far Fields"`` or ``"Modal Solution Data"``. The default
-            is ``"Far Fields"``.
-        setup_sweep_name : str, optional
-            Name of the setup for computing the report. The default is ``""``, 
-            in which case ``"nominal adaptive"`` is used.
-        ctxt : list, optional
-            List of context variables. The default is ``None``.
-        sweeps : dict, optional
-            Dictionary of variables and values. The default is ``None``, 
-            in which case this list is used: 
-            ``{'Theta': 'All', 'Phi': 'All', 'Freq': 'All'}``.
-        expression : str or list, optional
-            One or more traces to include. The default is ``""``.
+        setupname : str
+            Name of the setup.
+        probe_id : str
+            AMI Probe Name to use
+        variation_list_w_value : list
+            List of variations with relative values.
+        plot_type : str, optional
+            String containing the report type. Default is ``"Rectangular Plot"``. It can be ``"Data Table"``, 
+            ``"Rectangular Stacked Plot"``, or any other valid AEDT report types.
+        ami_plot_type : str, optional
+            String containing the report AMI type. Default is ``"InitialEye"``. It can be ``"EyeAfterSource"``,
+            ``"EyeAfterChannel"`` or ``"EyeAfterProbe"``.
+        plotname: str, optional
+            The name of the plot.  Defaults to a unique name starting with ``"Plot"``.
 
         Returns
         -------
-        :class:`pyaedt.modules.PostProcessor.SolutionData`
-      
+        str
+           The name of the plot.
         """
-        if sweeps is None:
-            sweeps = {'Theta': 'All', 'Phi': 'All', 'Freq': 'All'}
-        if not ctxt:
-            ctxt = []
-        if type(expression) is not list:
-            expression = [expression]
-        if not setup_sweep_name:
-            setup_sweep_name = self._parent.nominal_adaptive
-        sweep_list=[]
-        for el in sweeps:
-            sweep_list.append(el+":=")
-            if type(sweeps[el]) is list:
-                sweep_list.append(sweeps[el])
+        if not plotname:
+            plotname = generate_unique_name("AMYAanalysis")
+        variations = ["__UnitInterval:=", ["All"],"__Amplitude:="	, ["All"],]
+        i = 0
+        for a in variation_list_w_value:
+            if (i % 2) == 0:
+                if ":=" in a:
+                    variations.append(a)
+                else:
+                    variations.append(a + ":=")
             else:
-                sweep_list.append([sweeps[el]])
+                if isinstance(a, list):
+                    variations.append(a)
+                else:
+                    variations.append([a])
+            i += 1
+        ycomponents = []
+        if ami_plot_type == "InitialEye" or ami_plot_type == "EyeAfterSource":
+            ibs_type = "tx"
+        else:
+            ibs_type = "rx"
+        ycomponents.append("{}<{}.int_ami_{}>".format(ami_plot_type, ami_name, ibs_type))
 
+        ami_id = "0"
+        if ami_plot_type == "EyeAfterSource":
+            ami_id = "1"
+        elif ami_plot_type == "EyeAfterChannel":
+            ami_id = "2"
+        elif ami_plot_type == "EyeAfterProbe":
+            ami_id = "3"
+        self.oreportsetup.CreateReport(plotname, "Statistical Eye", "Statistical Eye Plot", setupname,
+                             [
+                                 "NAME:Context",
+                                 "SimValueContext:=",
+                                 [55819, 0, 2, 0, False, False, -1, 1, 0, 1, 1, "", 0, 0, "NUMLEVELS", False, "1",
+                                  "QTID", False, ami_id, "SCID", False, "-1", "SID", False, "0"]
+                             ],
+                             variations,
+                             [
+                                 "X Component:="		, "__UnitInterval",
+                                 "Y Component:="		, "__Amplitude",
+                                 "Eye Diagram Component:=", ycomponents
+                             ])
+        return plotname
 
+    def create_statistical_eye_plot(self, setupname, probe_names, variation_list_w_value, ami_plot_type="InitialEye", plotname=None):
+        """Create a statistical QuickEye, VerifEye, and/or Statistical Eye plot.
 
-        data = self.oreportsetup.GetSolutionDataPerVariation(soltype, setup_sweep_name, ctxt, sweep_list, expression)
-        return SolutionData(data)
-
-    @aedt_exception_handler
-    def steal_focus_oneditor(self):
-        """Remove the selection of an object that would prevent the image from exporting correctly.
+        Parameters
+        ----------
+        setupname: str
+            Name of the setup
+        probe_names: str or list
+            Name of the probe to plot in the EYE diagram.
+        variation_list_w_value : list
+            List of variations with relative values.
+        plotname: str, optional
+            The name of the plot.
 
         Returns
         -------
-        bool
-            ``True`` when successful, ``False`` when failed.
+        str
+            The name of the plot.
         """
-        self._desktop.RestoreWindow()
-        param = ["NAME:SphereParameters", "XCenter:=", "0mm", "YCenter:=", "0mm", "ZCenter:=", "0mm", "Radius:=", "1mm"]
-        attr = ["NAME:Attributes", "Name:=", "DUMMYSPHERE1", "Flags:=", "NonModel#"]
-        self.oeditor.CreateSphere(param, attr)
-        self.oeditor.Delete(["NAME:Selections", "Selections:=", "DUMMYSPHERE1"])
-        return True
+        if not plotname:
+            plotname = generate_unique_name("AMIAanalysis")
+        variations = ["__UnitInterval:=", ["All"],"__Amplitude:="	, ["All"],]
+        i = 0
+        for a in variation_list_w_value:
+            if (i % 2) == 0:
+                if ":=" in a:
+                    variations.append(a)
+                else:
+                    variations.append(a + ":=")
+            else:
+                if isinstance(a, list):
+                    variations.append(a)
+                else:
+                    variations.append([a])
+            i += 1
+        if isinstance(probe_names, list):
+            ycomponents = probe_names
+        else:
+            ycomponents = [probe_names]
+
+        self.oreportsetup.CreateReport(plotname, "Statistical Eye", "Statistical Eye Plot", setupname,
+                             [
+                                 "NAME:Context",
+                                 "SimValueContext:=",
+                                 [55819, 0, 2, 0, False, False, -1, 1, 0, 1, 1, "", 0, 0, "NUMLEVELS", False, "1",
+                                  "QTID", False, "1", "SCID", False, "-1", "SID", False, "0"]
+                             ],
+                             variations,
+                             [
+                                 "X Component:="		, "__UnitInterval",
+                                 "Y Component:="		, "__Amplitude",
+                                 "Eye Diagram Component:=", ycomponents
+                             ])
+        return plotname
+
