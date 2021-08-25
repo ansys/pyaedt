@@ -1404,8 +1404,11 @@ class PostProcessor(PostProcessorCommon, object):
         if not setup_name:
             setup_name = self._parent.existing_analysis_sweeps[0]
         self._desktop.CloseAllWindows()
-        self.oproject.SetActiveDesign(self.odesign.GetName())
-        self.oeditor.FitAll()
+        self.oproject.SetActiveDesign(self._parent.design_name)
+        try:
+            self.oeditor.FitAll()
+        except:
+            self.oeditor.ZoomToFit()
         char_set = string.ascii_uppercase + string.digits
         uName = quantityName + '_' + ''.join(random.sample(char_set, 6))
         plot = FieldPlot(self.ofieldsreporter, objlist, setup_name, quantityName, intrinsincList)
