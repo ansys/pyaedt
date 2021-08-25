@@ -1731,7 +1731,7 @@ class CircuitPostProcessor(PostProcessorCommon, object):
             plot name
         """
         if not plotname:
-            plotname = generate_unique_name("AMYAanalysis")
+            plotname = generate_unique_name("AMIAnalysis")
         variations = [ "__InitialTime:=", ["All"]]
         i=0
         for a in variation_list_w_value:
