@@ -44,6 +44,89 @@ class BoundaryCommon(object):
                 self._parent.boundaries.remove(el)
         return True
 
+
+class NativeComponentObject(BoundaryCommon, object):
+    """Manages Native Component data and execution.
+
+    Parameters
+    ----------
+    parent:
+
+    component_type :
+
+    component_name :
+
+    props :
+
+
+    """
+
+    def __init__(self, parent,component_type, component_name, props):
+        self._parent = parent
+        self.name = "InsertNativeComponentData"
+        self.props = OrderedDict(
+            {"TargetCS": "Global", "SubmodelDefinitionName": component_name, "ComponentPriorityLists": OrderedDict({}),
+             "NextUniqueID": 0, "MoveBackwards": False, "DatasetType": "ComponentDatasetType",
+             "DatasetDefinitions": OrderedDict({}), "BasicComponentInfo": OrderedDict(
+                {"ComponentName": component_name, "Company": "", "Company URL": "", "Model Number": "", "Help URL": "",
+                 "Version": "1.0", "Notes": "", "IconType": "File Based Antenna"}),
+             "GeometryDefinitionParameters": OrderedDict({"VariableOrders": OrderedDict({})}),
+             "DesignDefinitionParameters": OrderedDict({"VariableOrders": OrderedDict({})}),
+             "MaterialDefinitionParameters": OrderedDict({"VariableOrders": OrderedDict({})}),
+             "MapInstanceParameters": "NotVariable",
+             "UniqueDefinitionIdentifier": "89d26167-fb77-480e-a7ab-02e73efa4d23", "OriginFilePath": "",
+             "IsLocal": False, "ChecksumString": "", "ChecksumHistory": [], "VersionHistory": [],
+             "NativeComponentDefinitionProvider": OrderedDict({"Type": component_type}),
+             "InstanceParameters": OrderedDict(
+                 {"GeometryParameters": "", "MaterialParameters": "", "DesignParameters": ""})})
+        if props:
+            self._update_props(self.props,props)
+
+    def _update_props(self,d, u):
+        for k, v in u.items():
+            if isinstance(v, dict) or type(v) is OrderedDict:
+                d[k] = self._update_props(d[k], v)
+            else:
+                d[k] = v
+        return d
+
+    @aedt_exception_handler
+    def _get_args(self, props=None):
+        if props is None:
+            props = self.props
+        arg = ["NAME:" + self.name]
+        dict2arg(props, arg)
+        return arg
+
+    @aedt_exception_handler
+    def create(self):
+        """Create a boundary.
+
+        Returns
+        -------
+        bool
+            ``True`` when successful, ``False`` when failed.
+
+        """
+        self._parent.modeler.oeditor.InsertNativeComponent(self._get_args())
+        return True
+
+    @aedt_exception_handler
+    def update(self):
+        """Update the boundary.
+
+        Returns
+        -------
+        bool
+            ``True`` when successful, ``False`` when failed.
+
+        """
+
+        self._parent.modeler.oeditor.EditNativeComponent(self.name, self._get_args())
+
+        return True
+
+
 class BoundaryObject(BoundaryCommon, object):
     """Manages boundary data and execution.
     
@@ -206,6 +289,8 @@ class BoundaryObject(BoundaryCommon, object):
             self._parent.oboundary.AutoIdentifyPorts(["NAME:Faces", self.props["Faces"]],self.props["IsWavePort"],
                    ["NAME:ReferenceConductors", self.props["ReferenceConductors"]], self.name,
                    self.props["RenormalizeModes"])
+        elif self.type == 'SBRTxRxSettings':
+            self._parent.oboundary.SetSBRTxRxSettings(self._get_args())
         else:
             return False
         return True
@@ -312,6 +397,8 @@ class BoundaryObject(BoundaryCommon, object):
             self._parent.oboundary.EditLumpedPort(self.name, self._get_args())
         elif self.type == 'WavePort':
             self._parent.oboundary.EditWavePort(self.name, self._get_args())
+        elif self.type == 'SetSBRTxRxSettings':
+            self._parent.oboundary.SetSBRTxRxSettings(self._get_args())
         else:
             return False
         return True

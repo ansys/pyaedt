@@ -714,7 +714,9 @@ class Hfss(FieldAnalysis3D, object):
         return True
 
     @aedt_exception_handler
-    def create_sbr_file_based_antenna(self, ffd_full_path, antenna_size="1mm", antenna_impedance="50ohm", representation_type="Far Field", target_cs=None, model_units=None, antenna_name=None):
+    def create_sbr_file_based_antenna(self, ffd_full_path, antenna_size="1mm", antenna_impedance="50ohm",
+                                      representation_type="Far Field", target_cs=None, model_units=None,
+                                      antenna_name=None):
         """Create a linked antenna.
 
         Parameters
@@ -749,6 +751,29 @@ class Hfss(FieldAnalysis3D, object):
             antenna_name = generate_unique_name(os.path.basename(ffd_full_path).split(".")[0])
         self._create_sbr_parametric_antenna("File Based Antenna", target_cs, model_units, par_dicts, antenna_name)
         return True
+
+    @aedt_exception_handler
+    def set_sbr_txrx_settings(self, txrx_dictionary):
+        """
+        Sets Sbr+ TX RX Antenna Settings
+
+        Parameters
+        ----------
+        txrx_dictionary : dict
+            Dictionary containing the TX as key and RX as values
+
+        Returns
+        -------
+        :class:`pyaedt.modules.Boundary.BoundaryObject`
+            Boundary object.
+        """
+        id = 0
+        props=OrderedDict({})
+        for el, val in txrx_dictionary.items():
+            props["Tx/Rx List " + str(id)] = OrderedDict({"Tx Antenna": el, "Rx Antennas": txrx_dictionary[el]})
+            id += 1
+        return self._create_boundary("SBRTxRxSettings", props, "SBRTxRxSettings")
+
     @aedt_exception_handler
     def create_discrete_sweep(self, setupname, sweepname="SinglePoint", freq="1GHz", save_field=True,
                               save_radiating_field=False):
