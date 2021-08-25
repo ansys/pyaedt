@@ -82,7 +82,7 @@ class Edb(object):
 
     """
     def __init__(self, edbpath=None, cellname=None, isreadonly=False, edbversion="2021.1", isaedtowned=False, oproject=None, student_version=False):
-        self.clean_variables()
+        self._clean_variables()
         if _ironpython and inside_desktop:
             self.standalone = False
         else:
@@ -128,7 +128,8 @@ class Edb(object):
         else:
             warnings.warn("Failed to initialize Dlls")
 
-    def clean_variables(self):
+    def _clean_variables(self):
+        """Initialize internal variables and perform garbage collection."""
         # try:
         #     del self._components
         #     del self._core_primitives
@@ -153,7 +154,6 @@ class Edb(object):
         self._edb = None
         self.builder = None
         gc.collect()
-
 
     @aedt_exception_handler
     def _init_objects(self):
@@ -694,7 +694,7 @@ class Edb(object):
         
         """
         self._db.Close()
-        self.clean_variables()
+        self._clean_variables()
         return True
 
     @aedt_exception_handler
