@@ -47,7 +47,7 @@ desktopVersion = "2021.1"
 ###############################################################################
 # Launch AEDT in Non-Graphical Mode
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-# Change the Boolean parameter ``NonGraphical`` to ``False`` to launch AEDT in 
+# Change the Boolean parameter ``NonGraphical`` to ``False`` to launch AEDT in
 # graphical mode.
 
 NonGraphical = False
@@ -56,7 +56,7 @@ NewThread = True
 ###############################################################################
 # Launch AEDT and Circuit
 # ~~~~~~~~~~~~~~~~~~~~~~~
-# The :class:`pyaedt.Desktop` class initializes AEDT and starts it on a specified version in 
+# The :class:`pyaedt.Desktop` class initializes AEDT and starts it on a specified version in
 # a specified graphical mode. The Boolean parameter ``NewThread`` defines whether
 # to create a new instance of AEDT or try to connect to existing instance of it.
 
@@ -81,8 +81,8 @@ aedtapp["Voltage"]="5"
 ###############################################################################
 # Create a Schematic from a Netlist File
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-# This method reads the netlist file and parses it. All components will be parsed 
-# but only specified categories will be mapped. In particular, R, L, C, Q, U, J, V, 
+# This method reads the netlist file and parses it. All components will be parsed
+# but only specified categories will be mapped. In particular, R, L, C, Q, U, J, V,
 # and I components will be mapped.
 
 aedtapp.create_schematic_from_netlist(myfile)

@@ -887,7 +887,7 @@ class Components(object):
         >>> edbapp = Edb("myaedbfolder", "project name", "release version")
         >>> edbapp.core_components.get_pin_position(pin)
         
-        """ 
+        """
         if is_ironpython:
             res, pt_pos, rot_pos = pin.GetPositionAndRotation()
         else:

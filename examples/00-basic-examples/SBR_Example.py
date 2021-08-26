@@ -27,7 +27,7 @@ from pyaedt import Hfss
 ###############################################################################
 # Define Designs
 # ~~~~~~~~~~~~~~
-# Define two designs, one source and one target, with each one connected to 
+# Define two designs, one source and one target, with each one connected to
 # a different object.
 
 target = Hfss(projectname=project_full_name, designname="Cassegrain_", solution_type="SBR+", specified_version="2021.1", AlwaysNew=False)

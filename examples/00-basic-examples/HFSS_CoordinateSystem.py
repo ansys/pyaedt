@@ -35,7 +35,7 @@ hfss = Hfss()
 ###############################################################################
 # Create a Coordinate System
 # --------------------------
-# The coordinate system is centered on the ``Global`` origin and has the axis 
+# The coordinate system is centered on the ``Global`` origin and has the axis
 # aligned to the ``Global`` coordinate system.
 # The new coordinate system is saved in the object `cs1`.
 
@@ -70,7 +70,7 @@ cs1.rename('newCS')
 ###############################################################################
 # Change the Coordinate System Mode
 # ---------------------------------
-# Use the function `change_cs_mode` to change the mode: ``0`` for "Axis/Position", 
+# Use the function `change_cs_mode` to change the mode: ``0`` for "Axis/Position",
 # ``1`` for "Euler Angle ZXZ", or ``2`` for "Euler Angle ZYZ".
 # This command changes the mode to "Euler Angle ZXZ".
 
@@ -126,7 +126,7 @@ cs4 = hfss.modeler.create_coordinate_system(name='CS4',
 ###############################################################################
 # Create a Coordinate System by Defining the Axis and Angle Rotation
 # ----------------------------------------------------------------
-# When the axis and angle rotation are specified, this data is automatically 
+# When the axis and angle rotation are specified, this data is automatically
 # translated to Euler angles.
 
 cs5 = hfss.modeler.create_coordinate_system(name='CS5',
@@ -166,7 +166,7 @@ print('CS5 :', p2)
 # Close AEDT
 # ----------
 # ~~~~~~~~~~
-# After the simulaton is completed, you can close AEDT or release it using the 
+# After the simulaton is completed, you can close AEDT or release it using the
 # :func:`pyaedt.Desktop.release_desktop` method.
 # All methods provide for saving the project before exiting.
 
