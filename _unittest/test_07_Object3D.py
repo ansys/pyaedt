@@ -328,4 +328,3 @@ class TestClass:
     def test_17_section_object(self):
         o = self.aedtapp.modeler.primitives.create_box([-10, 0, 0], [10, 10, 5], "SectionBox", "Copper")
         o.section(plane="YZ", create_new=True, section_cross_object=False)
-
