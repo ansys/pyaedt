@@ -343,4 +343,3 @@ class BoundaryObject(BoundaryCommon, object):
         else:
             return False
         return True
-    
