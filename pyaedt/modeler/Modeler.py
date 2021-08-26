@@ -2349,8 +2349,8 @@ class GeometryModeler(Modeler, object):
         ----------
         startingposition : list
             List of ``[x, y, z]`` coordinates for the starting position.
-        axis :
-            Coordinate system axis or the Application.CoordinateSystemAxis object.
+        axis : int
+            Coordinate system axis (integer ``0`` for XAxis, ``1`` for YAxis, ``2`` for ZAxis) or the Application.CoordinateSystemAxis enumerator.
         innerradius : float, optional
             Inner coax radius. The default is ``1``.
         outerradius : float, optional
@@ -2366,12 +2366,24 @@ class GeometryModeler(Modeler, object):
         matdiel : str, optional
             Material for the dielectric. The default is ``"teflon_based"``.
 
+
+        Examples
+        --------
+
+        This example shows how to create a Coaxial Along X Axis waveguide
+        >>> from pyaedt import Hfss
+        >>> app = Hfss()
+        >>> position = [0,0,0]
+        >>> coax = app.modeler.create_coaxial(position, app.CoordinateSystemAxis.XAxis, innerradius=0.5, outerradius=0.8, dielradius=0.78, length=50)
+
         Returns
         -------
         tuple of :class:`pyaedt.modeler.Object3d.Object3d`
             inner, outer, diel
 
         """
+        if not (outerradius>dielradius and dielradius>innerradius):
+            self._messenger.add_error_message("Error in coaxial radius.")
         inner = self.primitives.create_cylinder(axis, startingposition, innerradius, length, 0)
         outer = self.primitives.create_cylinder(axis, startingposition, outerradius, length, 0)
         diel = self.primitives.create_cylinder(axis, startingposition, dielradius, length, 0)
@@ -2396,8 +2408,8 @@ class GeometryModeler(Modeler, object):
         ----------
         origin : list
             List of ``[x, y, z]`` coordinates for the original position.
-        wg_direction_axis :
-            Waveguide axis direction.
+        wg_direction_axis : int
+            Coordinate system axis (integer ``0`` for XAxis, ``1`` for YAxis, ``2`` for ZAxis) or the Application.CoordinateSystemAxis enumerator.
         wgmodel : str, optional
             Waveguide model. The default is ``"WG0"``.
         wg_length : float, optional
@@ -2415,11 +2427,20 @@ class GeometryModeler(Modeler, object):
             Whether to create sheets on both openings. The default is ``False``.
         name : str, optional
             Name of the waveguide. The default is ``None``.
-        
+
+        Examples
+        --------
+
+        This example shows how to create a WG9 waveguide
+        >>> from pyaedt import Hfss
+        >>> app = Hfss()
+        >>> position = [0,0,0]
+        >>> wg1 = app.modeler.create_waveguide(position, app.CoordinateSystemAxis.XAxis, wgmodel="WG9", wg_length=2000)
+
         Returns
         -------
-        int
-            ID of the waveguide created.
+        tuple of :class:`pyaedt.modeler.Object3d.Object3d`
+            tuple of objects created of the waveguide created.
 
         """
         p1=-1

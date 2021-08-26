@@ -190,7 +190,7 @@ def format_decimals(el):
 
 
 @aedt_exception_handler
-def random_string(length=6, only_digits=False):
+def random_string(length=6, only_digits=False, char_set=None):
     """Generate a random string
 
     Parameters
@@ -199,6 +199,8 @@ def random_string(length=6, only_digits=False):
         length of the random string (Default value = 6)
     only_digits : bool
         ``True`` if only digits has to be included
+    char_set : str, Optional
+        Custom Character Set
 
     Returns
     -------
@@ -206,9 +208,11 @@ def random_string(length=6, only_digits=False):
         random string
 
     """
-    if only_digits:
-        char_set = string.digits
-    else:
-        char_set = string.ascii_uppercase + string.digits
-    random_str = ''.join(random.sample(char_set, int(length)))
+    if not char_set:
+        if only_digits:
+            char_set = string.digits
+        else:
+            char_set = string.ascii_uppercase + string.digits
+    random_str = ''.join(random.choice(char_set) for _ in range(int(length)))
+    #random_str = ''.join(random.(char_set, int(length)))
     return random_str
