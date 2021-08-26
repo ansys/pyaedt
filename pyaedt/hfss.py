@@ -731,7 +731,8 @@ class Hfss(FieldAnalysis3D, object):
         target_cs : str, optional
             Target coordinate system. The default is the active one.
         model_units: str, optional
-            Model units to be applied to the object. Default is ``None`` which is the active modeler units.
+            Model units to be applied to the object. Default is
+            ``None`` which is the active modeler units.
         parameters_dict : dict, optional
             The default is ``"nearfield"``.
         antenna_name : str, optional
@@ -741,8 +742,11 @@ class Hfss(FieldAnalysis3D, object):
         --------
         >>> from pyaedt import Hfss
         >>> hfss = Hfss(solution_type="SBR+")
+        pyaedt Info: Added design 'HFSS_IPO' of type HFSS.
         >>> parm = {"polarization": "Vertical"}
-        >>> par_beam = hfss.create_sbr_antenna(hfss.SbrAntennas.ShortDipole, parameters_dict=parm, antenna_name="TX1")
+        >>> par_beam = hfss.create_sbr_antenna(hfss.SbrAntennas.ShortDipole, 
+        ...                                    parameters_dict=parm,
+        ...                                    antenna_name="TX1")
 
         Returns
         -------
