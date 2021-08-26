@@ -197,10 +197,11 @@ def random_string(length=6, only_digits=False, char_set=None):
     ----------
     length :
         length of the random string (Default value = 6)
-    only_digits : bool
-        ``True`` if only digits has to be included
-    char_set : str, Optional
-        Custom Character Set
+    only_digits : bool, optional
+        ``True`` if only digits are to be included.
+    char_set : str, optional
+        Custom character set to pick the characters from.  By default chooses from
+        ASCII and digit characters or just digits if ``only_digits`` is ``True``.
 
     Returns
     -------
@@ -214,5 +215,4 @@ def random_string(length=6, only_digits=False, char_set=None):
         else:
             char_set = string.ascii_uppercase + string.digits
     random_str = ''.join(random.choice(char_set) for _ in range(int(length)))
-    #random_str = ''.join(random.(char_set, int(length)))
     return random_str
