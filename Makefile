@@ -11,3 +11,7 @@ doctest: codespell
 codespell:
 	@echo "Running codespell"
 	@codespell $(CODESPELL_DIRS) -S $(CODESPELL_SKIP) -I $(CODESPELL_IGNORE)
+
+flake8:
+	@echo "Running flake8"
+	@flake8 .
