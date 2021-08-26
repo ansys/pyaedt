@@ -128,5 +128,3 @@ class TestClass:
         sweep_list = ["LINC", "1GHz", "2GHz", "1001"]
         LNA_setup.props["SweepDefinition"]["Data"] = " ".join(sweep_list)
         assert LNA_setup.update()
-
-

@@ -918,4 +918,3 @@ class Circuit(FieldAnalysisCircuit, object):
                 variations[el] = [variation_dict[el]]
         ctxt = ["NAME:Context", "SimValueContext:=", [3, 0, 2, 0, False, False, -1, 1, 0, 1, 1, "", 0, 0]]
         return self.post.get_solution_data_per_variation("Standard", solution_name, ctxt, variations, curvenames)
-

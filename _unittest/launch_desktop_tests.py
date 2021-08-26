@@ -56,4 +56,3 @@ def run_desktop_tests():
     assert aedtapp.solution_type == "Magnetostatic"
     aedtapp.close_desktop()
     pass
-

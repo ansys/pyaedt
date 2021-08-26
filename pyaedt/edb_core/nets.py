@@ -269,5 +269,3 @@ class EdbNets(object):
         if net.IsNull():
             net = self._edb.Cell.Net.Create(self._active_layout, net_name)
         return net
-
-

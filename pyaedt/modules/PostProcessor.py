@@ -1889,4 +1889,3 @@ class CircuitPostProcessor(PostProcessorCommon, object):
                                  "Eye Diagram Component:=", ycomponents
                              ])
         return plotname
-
