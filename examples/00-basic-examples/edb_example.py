@@ -10,12 +10,13 @@ import shutil
 import os
 import time
 from pyaedt import generate_unique_name, examples
-
-if os.name == "posix":
-    tmpfold = os.environ["TMPDIR"]
-else:
+try:
+    if os.name == "posix":
+        tmpfold = os.environ["TMPDIR"]
+    else:
+        tmpfold = os.environ["TEMP"]
+except:
     tmpfold = os.environ["TEMP"]
-
 temp_folder = os.path.join(tmpfold, generate_unique_name("Example"))
 if not os.path.exists(temp_folder): os.makedirs(temp_folder)
 example_path = examples.download_aedb()
@@ -96,7 +97,7 @@ print(dc_connected_net_list)
 
 VRM = "U3A1"
 OUTPUT_NET = "BST_V1P0_S0"
-powertree_df, power_nets = edb.core_nets.get_powertree(OUTPUT_NET, GROUND_NETS)
+powertree_df, component_list_columns, net_group = edb.core_nets.get_powertree(OUTPUT_NET, GROUND_NETS)
 for el in powertree_df:
     print(el)
 

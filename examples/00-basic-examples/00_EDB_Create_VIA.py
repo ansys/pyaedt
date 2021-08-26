@@ -15,13 +15,16 @@ import os
 from pyaedt import Edb
 from pyaedt.generic.general_methods import generate_unique_name
 start = time.time()
-if os.name == "posix":
-    tmpfold = os.environ.get("TMPDIR", '/tmp')
-else:
+try:
+    if os.name == "posix":
+        tmpfold = os.environ["TMPDIR"]
+    else:
+        tmpfold = os.environ["TEMP"]
+except:
     tmpfold = os.environ["TEMP"]
 
-aedb_path = os.path.join(tmpfold, generate_unique_name("Edb_custom") + ".aedb")
-
+aedb_path = os.path.join(tmpfold, generate_unique_name("pcb") + ".aedb")
+print(aedb_path)
 edb = Edb(edbpath=aedb_path, edbversion="2021.1")
 
 ###############################################################################

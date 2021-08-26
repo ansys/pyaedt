@@ -156,10 +156,6 @@ class TestClass():
         assert os.path.exists(os.path.join(self.local_scratch.path,"my_variables.csv"))
 
 
-    def test_18_reload_project(self):
-        #self.aedtapp.close_project(test_project_name, saveproject=False)
-        assert self.aedtapp.load_project(self.test_project, design_name="HFSSDesign",close_active_proj=True)
-
     def test_19_create_design_dataset(self):
         x = [1, 100]
         y = [1000, 980]
@@ -212,6 +208,12 @@ class TestClass():
         assert not proj_dir4
         proj_dir5 = self.aedtapp.generate_temp_project_directory(":_34")
         assert not proj_dir5
+
+    def test_22_export_aedtz(self):
+        aedtz_proj=os.path.join(self.local_scratch.path,"test.aedtz")
+        assert self.aedtapp.archive_project(aedtz_proj)
+        assert os.path.exists(aedtz_proj)
+
 
     '''
     def test_01_close_project(self):

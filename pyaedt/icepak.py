@@ -40,18 +40,18 @@ class Icepak(FieldAnalysisIcepak):
         nothing is used.
     specified_version: str, optional
         Version of AEDT to use. The default is ``None``, in which case
-        the active version or latest installed version is  used.
+        the active version or latest installed version is  used. This parameter is ignored when Script is launched within AEDT.
     NG : bool, optional
         Whether to launch AEDT in the non-graphical mode. The default 
-        is ``False``, in which case AEDT is launched in the graphical mode.  
+        is ``False``, in which case AEDT is launched in the graphical mode.   This parameter is ignored when Script is launched within AEDT.
     AlwaysNew : bool, optional
         Whether to launch an instance of AEDT in a new thread, even if
         another instance of the ``specified_version`` is active on the
-        machine.  The default is ``True``.
+        machine.  The default is ``True``. This parameter is ignored when Script is launched within AEDT.
     release_on_exit : bool, optional
         Whether to release AEDT on exit. 
     student_version : bool, optional
-        Whether to open the AEDT student version. The default is ``False``.
+        Whether to open the AEDT student version. The default is ``False``. This parameter is ignored when Script is launched within AEDT.
 
     Examples
     --------
@@ -76,16 +76,16 @@ class Icepak(FieldAnalysisIcepak):
     pyaedt Info: Added design 'IcepakDesign1' of type Icepak.
 
     Create an instance of `Icepak` and open the specified project,
-    which is ``myfile.aedt``.
+    which is ``myipk.aedt``.
 
-    >>> icepak = Icepak("myfile.aedt")
+    >>> icepak = Icepak("myipk.aedt")
     pyaedt Info: Added design ...
 
     Create an instance of Icepak using the 2021 R1 release and
-    open the specified project, which is ``myfile.aedt``.
+    open the specified project, which is ``myipk2.aedt``.
 
-    >>> icepak = Icepak(specified_version="2021.1", projectname="myfile.aedt")
-
+    >>> icepak = Icepak(specified_version="2021.1", projectname="myipk2.aedt")
+    pyaedt Info: Added design ...
     """
     
     def __init__(self, projectname=None, designname=None, solution_type=None, setup_name=None,

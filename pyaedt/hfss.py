@@ -38,19 +38,19 @@ class Hfss(FieldAnalysis3D, object):
         nothing is used.
     specified_version: str, optional
         Version of AEDT to use. The default is ``None``, in which case
-        the active version or latest installed version is used.
+        the active version or latest installed version is used. This parameter is ignored when Script is launched within AEDT.
     NG : bool, optional
         Whether to run AEDT in the non-graphical mode. The default
-        is ``False``, in which case AEDT is launched in the graphical mode.
+        is ``False``, in which case AEDT is launched in the graphical mode. This parameter is ignored when Script is launched within AEDT.
     AlwaysNew : bool, optional
         Whether to launch an instance of AEDT in a new thread, even if
         another instance of the ``specified_version`` is active on the
-        machine. The default is ``True``.
+        machine. The default is ``True``. This parameter is ignored when Script is launched within AEDT.
     release_on_exit : bool, optional
         Whether to release AEDT on exit. The default is ``False``.
     student_version : bool, optional
         Whether to open the AEDT student version. The default is 
-        ``False``.
+        ``False``. This parameter is ignored when Script is launched within AEDT.
 
     Examples
     --------
@@ -81,14 +81,16 @@ class Hfss(FieldAnalysis3D, object):
     pyaedt Info: Added design 'HFSS_...' of type HFSS.
 
     Create an instance of HFSS using the 2021 R1 release and open
-    the specified project, which is named ``"myfile.aedt"``.
+    the specified project, which is named ``"myfile2.aedt"``.
 
-    >>> hfss = Hfss(specified_version="2021.1", projectname="myfile.aedt")
+    >>> hfss = Hfss(specified_version="2021.1", projectname="myfile2.aedt")
+    pyaedt Info: Added design 'HFSS_...' of type HFSS.
 
     Create an instance of HFSS using the 2021 R2 student version and open
-    the specified project, which is named ``"myfile.aedt"``.
+    the specified project, which is named ``"myfile3.aedt"``.
 
-    >>> hfss = Hfss(specified_version="2021.2", projectname="myfile.aedt", student_version=True)
+    >>> hfss = Hfss(specified_version="2021.2", projectname="myfile3.aedt", student_version=True)
+    pyaedt Info: Added design 'HFSS_...' of type HFSS.
 
     """
 

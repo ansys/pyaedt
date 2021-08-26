@@ -376,12 +376,12 @@ class CoordinateSystem(object):
             self.quaternion = GeometryOperators.euler_zyz_to_quaternion(a, b, g)
         elif mode == "axis":
             orientationParameters["Mode"] = "Axis/Position"
-            orientationParameters["XAxisXvec"] = self._dim_arg((x_pointing[0]), self.model_units)
-            orientationParameters["XAxisYvec"] = self._dim_arg((x_pointing[1]), self.model_units)
-            orientationParameters["XAxisZvec"] = self._dim_arg((x_pointing[2]), self.model_units)
-            orientationParameters["YAxisXvec"] = self._dim_arg((y_pointing[0]), self.model_units)
-            orientationParameters["YAxisYvec"] = self._dim_arg((y_pointing[1]), self.model_units)
-            orientationParameters["YAxisZvec"] = self._dim_arg((y_pointing[2]), self.model_units)
+            orientationParameters["XAxisXvec"] = self._dim_arg((x_pointing[0]), self.model_units) + " - " + self._dim_arg((origin[0]), self.model_units)
+            orientationParameters["XAxisYvec"] = self._dim_arg((x_pointing[1]), self.model_units) + " - " + self._dim_arg((origin[1]), self.model_units)
+            orientationParameters["XAxisZvec"] = self._dim_arg((x_pointing[2]), self.model_units) + " - " + self._dim_arg((origin[2]), self.model_units)
+            orientationParameters["YAxisXvec"] = self._dim_arg((y_pointing[0]), self.model_units) + " - " + self._dim_arg((origin[0]), self.model_units)
+            orientationParameters["YAxisYvec"] = self._dim_arg((y_pointing[1]), self.model_units) + " - " + self._dim_arg((origin[1]), self.model_units)
+            orientationParameters["YAxisZvec"] = self._dim_arg((y_pointing[2]), self.model_units) + " - " + self._dim_arg((origin[2]), self.model_units)
             x, y, z = GeometryOperators.pointing_to_axis(x_pointing, y_pointing)
             a, b, g = GeometryOperators.axis_to_euler_zyz(x, y, z)
             self.quaternion = GeometryOperators.euler_zyz_to_quaternion(a, b, g)
@@ -3585,14 +3585,16 @@ class GeometryModeler(Modeler, object):
             self.TwistAngle = twistAngle
 
     @aedt_exception_handler
-    def create_group(self, objects=None, groups=None, group_name=None):
-        """Group objects or groups into one group.
+    def create_group(self, objects=None, components=None, groups=None, group_name=None):
+        """Group objects or groups into one group. At least one between ``objects``, ``components``, ``groups`` has to be defined.
         
         Parameters
         ----------
         objects : list, optional
             List of objects. The default is ``None``, in which case a group 
             with all objects is created.
+        components : list, optional
+            List of 3d components to group. The default is ``None``.
         groups : list, optional
             List of groups. The default is ``None``.
         group_name : str, optional
@@ -3606,24 +3608,28 @@ class GeometryModeler(Modeler, object):
            Name assigned to the new group.
 
         """
+        if components is None and groups is None and objects is None:
+            raise AttributeError("At least one between ``objects``, ``components``, ``groups`` has to be defined.")
+
         all_objects = self.primitives.object_names
-        if objects and groups:
+        if objects:
             object_selection = self.convert_to_selections(objects, return_list=False)
-            group_selection = self.convert_to_selections(groups, return_list=False)
-        elif objects and not groups:
-            object_selection = self.convert_to_selections(objects, return_list=False)
-            group_selection = ""
-        elif not objects and groups:
+        else:
             object_selection = ""
+        if groups:
             group_selection = self.convert_to_selections(groups, return_list=False)
         else:
-            object_selection = self.convert_to_selections(all_objects, return_list=False)
             group_selection = ""
+        if components:
+            component_selection = self.convert_to_selections(components, return_list=False)
+        else:
+            component_selection = ""
+
         arg = [
             "NAME:GroupParameter",
             "ParentGroupID:=", "Model",
-            "Parts:=", "",
-            "SubmodelInstances:=", object_selection,
+            "Parts:=", object_selection,
+            "SubmodelInstances:=", component_selection,
             "Groups:=", group_selection
         ]
         assigned_name = self.oeditor.CreateGroup(arg)
