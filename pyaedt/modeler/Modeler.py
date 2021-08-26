@@ -1495,8 +1495,9 @@ class GeometryModeler(Modeler, object):
         vArg2.append('DuplicateMirrorNormalY:='), vArg2.append(Ynorm)
         vArg2.append('DuplicateMirrorNormalZ:='), vArg2.append(Znorm)
         vArg3 = ['NAME:Options', 'DuplicateAssignments:=', False]
-        self.oeditor.DuplicateMirror(vArg1, vArg2, vArg3)
-        return True, self.primitives.add_new_objects()
+        added_objs = self.oeditor.DuplicateMirror(vArg1, vArg2, vArg3)
+        self.primitives.add_new_objects()
+        return True, added_objs
 
     @aedt_exception_handler
     def mirror(self, objid, position, vector):
@@ -1567,8 +1568,9 @@ class GeometryModeler(Modeler, object):
                  str(nclones)]
         vArg3 = ["NAME:Options", "DuplicateBoundaries:=", "true"]
 
-        self.oeditor.DuplicateAroundAxis(vArg1, vArg2, vArg3)
-        return self._duplicate_added_objects_tuple()
+        added_objs = self.oeditor.DuplicateAroundAxis(vArg1, vArg2, vArg3)
+        self._duplicate_added_objects_tuple()
+        return True, list(added_objs)
 
     def _duplicate_added_objects_tuple(self):
         added_objects = self.primitives.add_new_objects()
@@ -1610,8 +1612,10 @@ class GeometryModeler(Modeler, object):
         vArg2.append("Numclones:="), vArg2.append(str(nclones))
         vArg3 = ["NAME:Options", "DuplicateBoundaries:=", "true"]
 
-        self.oeditor.DuplicateAlongLine(vArg1, vArg2, vArg3)
-        return self._duplicate_added_objects_tuple()
+        added_objs = self.oeditor.DuplicateAlongLine(vArg1, vArg2, vArg3)
+        self._duplicate_added_objects_tuple()
+        return True, list(added_objs)
+        #return self._duplicate_added_objects_tuple()
 
     @aedt_exception_handler
     def thicken_sheet(self, objid, thickness, bBothSides=False):

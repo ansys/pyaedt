@@ -69,6 +69,7 @@ class TestClass(BasisTest):
         udp2 = self.aedtapp.modeler.Position(30, 40, 40)
         out = self.aedtapp.modeler.duplicate_and_mirror("outer", udp, udp2)
         assert out[0]
+        assert len(out[1])>0
 
     @pyaedt_unittest_check_desktop_error
     def test_07_mirror(self):
@@ -80,16 +81,20 @@ class TestClass(BasisTest):
     @pyaedt_unittest_check_desktop_error
     def test_08_duplicate_around_axis(self):
         udp = self.aedtapp.modeler.Position(0, 0, 0)
-        status, mirror = self.aedtapp.modeler.duplicate_around_axis("outer", udp, 45, 3)
+        num_clones = 3
+        status, mirror = self.aedtapp.modeler.duplicate_around_axis("outer", udp, 45, num_clones)
         assert status
         assert type(mirror) is list
+        assert len(mirror) == num_clones-1
 
     @pyaedt_unittest_check_desktop_error
     def test_08_duplicate_along_line(self):
         udp = self.aedtapp.modeler.Position(5, 5, 5)
-        status, mirror = self.aedtapp.modeler.duplicate_along_line("outer", udp, 5)
+        num_clones = 5
+        status, mirror = self.aedtapp.modeler.duplicate_along_line("outer", udp, num_clones)
         assert status
         assert type(mirror) is list
+        assert len(mirror) == num_clones-1
 
     @pyaedt_unittest_check_desktop_error
     def test_09_thicken_sheet(self):
