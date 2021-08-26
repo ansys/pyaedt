@@ -856,13 +856,13 @@ class Hfss(FieldAnalysis3D, object):
 
 
     @aedt_exception_handler
-    def set_sbr_txrx_settings(self, txrx_dictionary):
+    def set_sbr_txrx_settings(self, txrx_settings):
         """
         Sets Sbr+ TX RX Antenna Settings
 
         Parameters
         ----------
-        txrx_dictionary : dict
+        txrx_settings : dict
             Dictionary containing the TX as key and RX as values
 
         Examples
@@ -878,8 +878,8 @@ class Hfss(FieldAnalysis3D, object):
             return False
         id = 0
         props=OrderedDict({})
-        for el, val in txrx_dictionary.items():
-            props["Tx/Rx List " + str(id)] = OrderedDict({"Tx Antenna": el, "Rx Antennas": txrx_dictionary[el]})
+        for el, val in txrx_settings.items():
+            props["Tx/Rx List " + str(id)] = OrderedDict({"Tx Antenna": el, "Rx Antennas": txrx_settings[el]})
             id += 1
         return self._create_boundary("SBRTxRxSettings", props, "SBRTxRxSettings")
 

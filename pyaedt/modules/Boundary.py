@@ -50,17 +50,16 @@ class BoundaryCommon(object):
 class NativeComponentObject(BoundaryCommon, object):
     """Manages Native Component data and execution.
 
-    Parameters
-    ----------
-    parent:
-
-    component_type :
-
-    component_name :
-
-    props :
-
-
+    Examples
+    --------
+    in this example the par_beam returned object is a ``pyaedt.modules.Boundary.NativeComponentObject``
+    >>> from pyaedt import Hfss
+    >>> hfss = Hfss(solution_type="SBR+")
+    >>> ffd_file ="path/to/ffdfile.ffd"
+    >>> par_beam = hfss.create_sbr_file_based_antenna(ffd_file)
+    >>> par_beam.native_properties["Size"] = "0.1mm"
+    >>> par_beam.update()
+    >>> par_beam.delete()
     """
 
     def __init__(self, parent,component_type, component_name, props):
@@ -88,6 +87,12 @@ class NativeComponentObject(BoundaryCommon, object):
 
     @property
     def targetcs(self):
+        """
+        Returns
+        -------
+        str
+            Native Component Coordinate System
+        """
         return self.props["TargetCS"]
 
     @targetcs.setter
@@ -114,7 +119,7 @@ class NativeComponentObject(BoundaryCommon, object):
 
     @aedt_exception_handler
     def create(self):
-        """Create a boundary.
+        """Create a Native Component in AEDT
 
         Returns
         -------
@@ -129,7 +134,7 @@ class NativeComponentObject(BoundaryCommon, object):
 
     @aedt_exception_handler
     def update(self):
-        """Update the boundary.
+        """Update the Native Component in AEDT.
 
         Returns
         -------
@@ -162,6 +167,14 @@ class NativeComponentObject(BoundaryCommon, object):
 
     @aedt_exception_handler
     def delete(self):
+        """Delete the Native Component in AEDT.
+
+        Returns
+        -------
+        bool
+            ``True`` when successful, ``False`` when failed.
+
+        """
         self._parent.modeler.oeditor.Delete(["NAME:Selections", "Selections:=", self.antennaname])
         for el in self._parent.native_components:
             if el.component_name == self.component_name:

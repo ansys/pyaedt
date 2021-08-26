@@ -2387,7 +2387,7 @@ class GeometryModeler(Modeler, object):
 
         """
         if not (outerradius>dielradius and dielradius>innerradius):
-            self._messenger.add_error_message("Error in coaxial radius.")
+            raise ValueError("Error in coaxial radius.")
         inner = self.primitives.create_cylinder(axis, startingposition, innerradius, length, 0)
         outer = self.primitives.create_cylinder(axis, startingposition, outerradius, length, 0)
         diel = self.primitives.create_cylinder(axis, startingposition, dielradius, length, 0)
