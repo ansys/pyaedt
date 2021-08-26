@@ -1328,14 +1328,11 @@ class Icepak(FieldAnalysisIcepak):
         hfssLinkInfo = OrderedDict({})
         arg2dict(self.get_link_data(setupLinkInfo), hfssLinkInfo)
 
-        native_props = OrderedDict({"NativeComponentDefinitionProvider" : OrderedDict({"Type": "PCB",
-                        "Unit": self.modeler.model_units, "MovePlane": "XY",
-                          "Use3DLayoutExtents": False,
-                          "ExtentsType": extenttype,
-                          "OutlinePolygon": outlinepolygon, "CreateDevices": False,
-                            "CreateTopSolderballs": False,
-                            "CreateBottomSolderballs": False, "Resolution": int(resolution),
-                           "LowSide": OrderedDict({"Radiate": lowRad}),"HighSide": OrderedDict({"Radiate": highRad})})})
+        native_props = OrderedDict({"NativeComponentDefinitionProvider": OrderedDict(
+            {"Type": "PCB", "Unit": self.modeler.model_units, "MovePlane": "XY", "Use3DLayoutExtents": False,
+             "ExtentsType": extenttype, "OutlinePolygon": outlinepolygon, "CreateDevices": False,
+             "CreateTopSolderballs": False, "CreateBottomSolderballs": False, "Resolution": int(resolution),
+             "LowSide": OrderedDict({"Radiate": lowRad}), "HighSide": OrderedDict({"Radiate": highRad})})})
         native_props["BasicComponentInfo"] = OrderedDict({"IconType":"PCB"})
 
 

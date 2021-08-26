@@ -145,22 +145,22 @@ class NativeComponentObject(BoundaryCommon, object):
 
         self.name = "EditNativeComponentDefinitionData"
         self.update_props = OrderedDict({})
-        self.update_props["DefinitionName"]=self.props["SubmodelDefinitionName"]
-        self.update_props["GeometryDefinitionParameters"]=self.props["GeometryDefinitionParameters"]
-        self.update_props["DesignDefinitionParameters"]=self.props["DesignDefinitionParameters"]
-        self.update_props["MaterialDefinitionParameters"]=self.props["MaterialDefinitionParameters"]
-        self.update_props["NextUniqueID"]=self.props["NextUniqueID"]
-        self.update_props["MoveBackwards"]=self.props["MoveBackwards"]
-        self.update_props["DatasetType"]=self.props["DatasetType"]
-        self.update_props["DatasetDefinitions"]=self.props["DatasetDefinitions"]
-        self.update_props["NativeComponentDefinitionProvider"]=self.props["NativeComponentDefinitionProvider"]
-        self.update_props["ComponentName"]=self.props["BasicComponentInfo"]["ComponentName"]
-        self.update_props["Company"]=self.props["BasicComponentInfo"]["Company"]
-        self.update_props["Model Number"]=self.props["BasicComponentInfo"]["Model Number"]
-        self.update_props["Help URL"]=self.props["BasicComponentInfo"]["Help URL"]
-        self.update_props["Version"]=self.props["BasicComponentInfo"]["Version"]
-        self.update_props["Notes"]=self.props["BasicComponentInfo"]["Notes"]
-        self.update_props["IconType"]=self.props["BasicComponentInfo"]["IconType"]
+        self.update_props["DefinitionName"] = self.props["SubmodelDefinitionName"]
+        self.update_props["GeometryDefinitionParameters"] = self.props["GeometryDefinitionParameters"]
+        self.update_props["DesignDefinitionParameters"] = self.props["DesignDefinitionParameters"]
+        self.update_props["MaterialDefinitionParameters"] = self.props["MaterialDefinitionParameters"]
+        self.update_props["NextUniqueID"] = self.props["NextUniqueID"]
+        self.update_props["MoveBackwards"] = self.props["MoveBackwards"]
+        self.update_props["DatasetType"] = self.props["DatasetType"]
+        self.update_props["DatasetDefinitions"] = self.props["DatasetDefinitions"]
+        self.update_props["NativeComponentDefinitionProvider"] = self.props["NativeComponentDefinitionProvider"]
+        self.update_props["ComponentName"] = self.props["BasicComponentInfo"]["ComponentName"]
+        self.update_props["Company"] = self.props["BasicComponentInfo"]["Company"]
+        self.update_props["Model Number"] = self.props["BasicComponentInfo"]["Model Number"]
+        self.update_props["Help URL"] = self.props["BasicComponentInfo"]["Help URL"]
+        self.update_props["Version"] = self.props["BasicComponentInfo"]["Version"]
+        self.update_props["Notes"] = self.props["BasicComponentInfo"]["Notes"]
+        self.update_props["IconType"] = self.props["BasicComponentInfo"]["IconType"]
         self._parent.modeler.oeditor.EditNativeComponentDefinition(self._get_args(self.update_props))
 
         return True
