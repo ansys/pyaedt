@@ -130,19 +130,6 @@ class Edb(object):
 
     def _clean_variables(self):
         """Initialize internal variables and perform garbage collection."""
-        # try:
-        #     del self._components
-        #     del self._core_primitives
-        #     del self._stackup
-        #     del self._padstack
-        #     del self._siwave
-        #     del self._hfss
-        #     del self._nets
-        #     del self._db
-        #     del self._edb
-        #     del self.builder
-        # except:
-        #     pass
         self._components = None
         self._core_primitives = None
         self._stackup = None

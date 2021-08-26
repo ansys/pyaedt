@@ -127,7 +127,7 @@ class Layer(object):
         self.type = type
         self.id = 0
         self.color = 8026109
-        self.transparency = 0.3
+        self.transparency = 60
         self.IsVisible = True
         self.IsVisibleShape = True
         self.IsVisiblePath = True
@@ -140,7 +140,6 @@ class Layer(object):
         self.topbottom = "neither"
         self.pattern = 1
         self.drawoverride = 0
-        self.regions = []
         self.thickness = 0
         self.lowerelevation = 0
         self.roughness = 0
@@ -216,7 +215,6 @@ class Layer(object):
                 "VisFlag:=", self.visflag,
                 "Locked:=", self.locked,
                 "DrawOverride:=", self.drawoverride,
-                "Regions:=", self.regions,
                 [
                     "NAME:Sublayer",
                     "Thickness:=", self.thickness,
@@ -254,7 +252,6 @@ class Layer(object):
                 "VisFlag:=", self.visflag,
                 "Locked:=", self.locked,
                 "DrawOverride:=", self.drawoverride,
-                "Regions:=", self.regions,
                 [
                     "NAME:Sublayer",
                     "Thickness:=", self.thickness,
@@ -302,6 +299,7 @@ class Layer(object):
         
         .. note::
            This method is valid for release 2021 R1 and later.
+           This method works only for signal and dielectric layers.
         
         Returns
         -------
@@ -346,9 +344,9 @@ class Layer(object):
                 "SNR:=", self.arg_with_dim(self.SNR, self.LengthUnitRough),
                 "SHRatio:=", str(self.SHRatio)
             ])
-        else:
+        elif self.type == "dielectric":
             self.oeditor.ChangeLayer([
-                "NAME:stackup layer",
+                "NAME:SLayer",
                 "Name:=", self.name,
                 "ID:=", self.id,
                 "Type:=", self.type,
@@ -359,7 +357,7 @@ class Layer(object):
                 "VisFlag:=", self.visflag,
                 "Locked:=", self.locked,
                 "DrawOverride:=", self.drawoverride,
-                "Regions:=", self.regions,
+                "Zones:=", [],
                 [
                     "NAME:Sublayer",
                     "Thickness:=", self.thickness,
@@ -368,9 +366,10 @@ class Layer(object):
                     "BotRoughness:=", 0,
                     "SideRoughness:=", 0,
                     "Material:=", self.material,
-                    "FillMaterial:=", ""
                 ]
             ])
+        else:
+            return False
         return True
 
 
@@ -515,11 +514,11 @@ class Layers(object):
             o.name = el
             infos = self.oeditor.GetLayerInfo(el)
             infos = [i.split(": ") for i in infos]
-            infosdict = {i[0]: i[1] for i in infos}
+            infosdict = {i[0].strip(): i[1].strip() for i in infos}
             o.type = infosdict["Type"]
             o.locked = str2bool(infosdict["IsLocked"])
             o.id = int(infosdict["LayerId"])
-            o.topbottom = infosdict["TopBottomAssociation"]
+            o.topbottom = infosdict["TopBottomAssociation"].lower()
             o.IsVisible = infosdict["IsVisible"]
             if "IsVisiblePath" in infosdict:
                 o.IsVisiblePath = infosdict["IsVisiblePath"]
