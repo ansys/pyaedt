@@ -84,7 +84,3 @@ class TestClass:
                                                "MyCylinder", "brass")
         assert mech.assign_fixed_support(mech.modeler.primitives["MyCylinder"].faces[0].id)
         assert mech.assign_frictionless_support(mech.modeler.primitives["MyCylinder"].faces[1].id)
-
-
-
-

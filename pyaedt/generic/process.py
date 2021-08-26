@@ -272,5 +272,3 @@ class SiwaveSolve(object):
         os.system(" ".join(command))
 
         return os.path.join(output_folder, format_3d+"_siwave.aedt")
-
-

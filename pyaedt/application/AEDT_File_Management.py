@@ -205,4 +205,3 @@ def change_model_orientation(origfile, bottom_dir):
 
     else:  # project is locked
         print("change_model_orientation: Project %s is still locked." % origfile)
-
