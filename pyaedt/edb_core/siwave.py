@@ -1,5 +1,5 @@
 """
-This module contains these clases: `CircuitPort`, `CurrentSource`, `EdbSiwave`, 
+This module contains these clases: `CircuitPort`, `CurrentSource`, `EdbSiwave`,
 `PinGroup`, `ResistorSource`, `Source`, `SourceType`, and `VoltageSource`.
 """
 
@@ -258,7 +258,7 @@ class EdbSiwave(object):
     ----------
     parent :
         Inherited parent object.
-        
+
     Examples
     --------
     >>> from pyaedt import Edb
@@ -310,7 +310,7 @@ class EdbSiwave(object):
     def create_circuit_port(self, positive_component_name, positive_net_name, negative_component_name=None,
                               negative_net_name="GND", impedance_value=50, port_name=""):
         """Create a circuit port.
-        
+
         Parameters
         ----------
         positive_component_name : str
@@ -318,7 +318,7 @@ class EdbSiwave(object):
         positive_net_name : str
             Name of the positive net.
         negative_component_name : str, optional
-            Name of the negative component. The default is ``None``, in which case the name of 
+            Name of the negative component. The default is ``None``, in which case the name of
             the positive net is assigned.
         negative_net_name : str, optional
             Name of the negative net name. The default is ``"GND"``.
@@ -326,7 +326,7 @@ class EdbSiwave(object):
             Port impedance value. The default is ``50``.
         port_name: str, optional
             Name of the port. The default is ``""``.
-        
+
         Returns
         -------
         bool
@@ -366,15 +366,15 @@ class EdbSiwave(object):
     def create_voltage_source(self, positive_component_name, positive_net_name, negative_component_name=None,
                               negative_net_name="GND", voltage_value=3.3, phase_value=0,source_name=""):
         """Create a voltage source.
-        
+
         Parameters
         ----------
         positive_component_name : str
             Name of the positive component.
         positive_net_name : str
             Name of the positive net.
-        negative_component_name : str, optional 
-            Name of the negative component. The default is ``None``, in which case the name of 
+        negative_component_name : str, optional
+            Name of the negative component. The default is ``None``, in which case the name of
             the positive net is assigned.
         negative_net_name : str, optional
             Name of the negative net. The default is ``"GND"``.
@@ -384,12 +384,12 @@ class EdbSiwave(object):
             Value for the phase. The default is ``0``.
         source_name : str, optional
             Name of the source. The default is ``""``.
-        
+
         Returns
         -------
         bool
             ``True`` when successful, ``False`` when failed.
-            
+
         Examples
         --------
 
@@ -422,15 +422,15 @@ class EdbSiwave(object):
     def create_current_source(self, positive_component_name, positive_net_name, negative_component_name=None,
                               negative_net_name="GND", current_value=0.1, phase_value=0, source_name=""):
         """Create a current source.
-        
+
         Parameters
         ----------
         positive_component_name : str
             Name of the positive component.
         positive_net_name : str
             Name of the positive net.
-        negative_component_name : str, optional 
-            Name of the negative component. The default is ``None``, in which case the name of 
+        negative_component_name : str, optional
+            Name of the negative component. The default is ``None``, in which case the name of
             the positive net is assigned.
         negative_net_name : str, optional
             Name of the negative net. The default is ``"GND"``.
@@ -440,18 +440,18 @@ class EdbSiwave(object):
             Value for the phase. The default is ``0``.
         source_name : str, optional
             Name of the source. The default is ``""``.
-        
+
         Returns
         -------
         bool
             ``True`` when successful, ``False`` when failed.
-        
+
         Examples
         --------
 
         >>> from pyaedt import Edb
         >>> edbapp = Edb("myaedbfolder", "project name", "release version")
-        >>> edb.core_siwave.create_current_source("U2A5","V1P5_S3","U2A5","GND",0.1,0,"source_name")   
+        >>> edb.core_siwave.create_current_source("U2A5","V1P5_S3","U2A5","GND",0.1,0,"source_name")
         """
         current_source = CurrentSource()
         current_source.positive_node.net = positive_net_name
@@ -478,15 +478,15 @@ class EdbSiwave(object):
     def create_resistor(self, positive_component_name, positive_net_name, negative_component_name=None,
                               negative_net_name="GND", rvalue=1, resistor_name=""):
         """Create a voltage source.
-        
+
         Parameters
         ----------
         positive_component_name : str
             Name of the positive component.
         positive_net_name : str
             Name of the positive net.
-        negative_component_name : str, optional 
-            Name of the negative component. The default is ``None``, in which case the name of 
+        negative_component_name : str, optional
+            Name of the negative component. The default is ``None``, in which case the name of
             the positive net is assigned.
         negative_net_name : str, optional
             Name of the negative net. The default is ``"GND"``.
@@ -494,18 +494,18 @@ class EdbSiwave(object):
             Resistance value. The default is ``1``.
         resistor_name : str, optional
             Name of the resistor. The default is ``""``.
-        
+
         Returns
         -------
         bool
             ``True`` when successful, ``False`` when failed.
-        
+
         Examples
         --------
-        
+
         >>> from pyaedt import Edb
         >>> edbapp = Edb("myaedbfolder", "project name", "release version")
-        >>> edb.core_siwave.create_resistor("U2A5", "V1P5_S3", "U2A5", "GND", 1, "resistor_name")        
+        >>> edb.core_siwave.create_resistor("U2A5", "V1P5_S3", "U2A5", "GND", 1, "resistor_name")
         """
         resistor = ResistorSource()
         resistor.positive_node.net = positive_net_name
@@ -546,11 +546,11 @@ class EdbSiwave(object):
         accuracy_level : int, optional
            Level of accuracy. The default is ``1``.
         decade_count : int
-            The default is ``10``.    
+            The default is ``10``.
         sweeptype : int, optional
             Type of the sweep. The default is ``1``.
         start_freq : float, optional
-            Starting frequency. The default is ``1``. 
+            Starting frequency. The default is ``1``.
         stop_freq : float, optional
             Stopping frequency. The default is ``1e9``.
         step_freq : float, optional
@@ -561,7 +561,7 @@ class EdbSiwave(object):
         Returns
         -------
         bool
-            ``True`` when successful, ``False`` when failed.  
+            ``True`` when successful, ``False`` when failed.
         """
         self._siwave_setup.AddACSimSetup(self._builder, accuracy_level, str(decade_count), sweeptype, str(start_freq), str(stop_freq), str(step_freq), discrete_sweep)
         exec_file = self.create_exec_file()
@@ -579,11 +579,11 @@ class EdbSiwave(object):
         accuracy_level : int, optional
            Level of accuracy. The default is ``1``.
         decade_count : int, optional
-            Number of points to calculate in each decade. The default is ``10``.    
+            Number of points to calculate in each decade. The default is ``10``.
         sweeptype : int, optional
             Type of the sweep. The default is ``1``.
         start_freq : float, optional
-            Starting frequency. The default is ``1``. 
+            Starting frequency. The default is ``1``.
         stop_freq : float, optional
             Stopping frequency. The default is ``1e9``.
         step_freq : float, optional
@@ -594,7 +594,7 @@ class EdbSiwave(object):
         Returns
         -------
         bool
-            ``True`` when successful, ``False`` when failed.       
+            ``True`` when successful, ``False`` when failed.
         """
 
         self._siwave_setup.AddSYZSimSetup(self._builder, accuracy_level, str(decade_count), sweeptype, str(start_freq),
@@ -628,12 +628,12 @@ class EdbSiwave(object):
     @aedt_exception_handler
     def create_pin_group_terminal(self, source):
         """Create a pin group terminal.
-        
+
         Parameters
         ----------
         source : str
             Name of the source.
-        
+
         """
         pos_pin_group = self.parent.core_components.create_pingroup_from_pins(source.positive_node.node_pins)
         neg_pin_group = self.parent.core_components.create_pingroup_from_pins(source.negative_node.node_pins)

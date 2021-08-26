@@ -84,13 +84,13 @@ class Edb3DLayout(object):
         Parameters
         ----------
         pin_list : list
-            Pin object or a pin list object.          
+            Pin object or a pin list object.
 
         Returns
         -------
         list
            List of names of the created ports.
-        
+
         """
         pinList = convert_py_list_to_net_list(pin_list)
         if self._hfss_terminals.CreateHfssPorts(self._builder, pinList):
@@ -99,7 +99,7 @@ class Edb3DLayout(object):
     @aedt_exception_handler
     def create_coax_port_on_component(self, ref_des_list, net_list):
         """Create a coaxial port on a component or component list on a net or net list.
-        
+
         .. note::
            The name of the new coaxial port is automatically assigned.
 
@@ -107,15 +107,15 @@ class Edb3DLayout(object):
         ----------
         ref_des_list : list, str
             List of one or more reference designators.
-            
+
         net_list : list, str
-            List of one or more nets.  
+            List of one or more nets.
 
         Returns
         -------
         bool
             ``True`` when successful, ``False`` when failed.
-        
+
         """
         coax = []
         if not isinstance(ref_des_list, list):
@@ -140,9 +140,9 @@ class Edb3DLayout(object):
 
         Parameters
         ----------
-        pinpos : 
+        pinpos :
             Position of the pin.
-            
+
         portname : str, optional
              Name of the port. The default is ``None``.
 

@@ -12,7 +12,7 @@ def read_info_fromcsv(projdir, name):
     Parameters
     ----------
     projdir : str
-        Full path to the file. 
+        Full path to the file.
     name : str
         Name of the file,
 
@@ -97,7 +97,7 @@ def change_objects_visibility(origfile, solid_list):
         Full path to the project file, which has an ``.aedt``  extension.
     solid_list : list
         List of names for the solid to make visible. All other solides are hidden.
-   
+
     Returns
     -------
     bool
@@ -144,7 +144,7 @@ def change_model_orientation(origfile, bottom_dir):
     origfile : str
         Full path to the project file, which has an ``.aedt``  extension.
     bottom_dir : str
-        Bottom direction as specified in the properties file.    
+        Bottom direction as specified in the properties file.
 
     Returns
     -------

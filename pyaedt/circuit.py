@@ -127,11 +127,11 @@ def to_aedt(code):
     Parameters
     ----------
     code : str
-    
+
     Returns
     -------
     str
-    
+
     """
     pattern = r'([{}]{})'.format(''.join(AEDT_MAPS.keys()), '{1}')
     regex = re.compile(pattern, re.I)
@@ -145,12 +145,12 @@ def from_rkm_to_aedt(code):
     Parameters
     ----------
     code : str
-        
+
 
     Returns
     -------
     str
-    
+
     """
     return to_aedt(from_rkm(code))
 
@@ -255,7 +255,7 @@ class Circuit(FieldAnalysisCircuit, object):
         """Create a circuit schematic from an HSpice net list.
 
         Supported currently are:
-        
+
         * R
         * L
         * C
@@ -272,7 +272,7 @@ class Circuit(FieldAnalysisCircuit, object):
         -------
         bool
              ``True`` when successful, ``False`` when failed.
-        
+
         """
         xpos = 0
         ypos = 0
@@ -462,9 +462,9 @@ class Circuit(FieldAnalysisCircuit, object):
     @aedt_exception_handler
     def create_schematic_from_mentor_netlist(self, file_to_import):
         """Create a circuit schematic from a Mentor net list.
-        
+
         Supported currently are:
-        
+
         * R
         * L
         * C
@@ -481,7 +481,7 @@ class Circuit(FieldAnalysisCircuit, object):
         -------
         bool
             ``True`` when successful, ``False`` when failed.
-        
+
         """
         xpos = 0
         ypos = 0
@@ -605,7 +605,7 @@ class Circuit(FieldAnalysisCircuit, object):
         -------
         str
             Type of the Mentor net list component.
-        
+
         """
         if refid[1] == "R":
             return "resistor:RES."
@@ -624,7 +624,7 @@ class Circuit(FieldAnalysisCircuit, object):
     def get_source_pin_names(self, source_design_name, source_project_name=None, source_project_path=None,
                              port_selector=3):
         """List the pin names.
-        
+
         Parameters
         ----------
         source_design_name : str
@@ -641,7 +641,7 @@ class Circuit(FieldAnalysisCircuit, object):
         -------
         list
             List of pin names.
-        
+
         """
         if not source_project_name or self.project_name == source_project_name:
             oSrcProject = self._desktop.GetActiveProject()
@@ -673,12 +673,12 @@ class Circuit(FieldAnalysisCircuit, object):
             Name of the Touchstone file.
         solution_name : str, optional
             Name of the solution. The default is ``"Imported_Data"``.
-        
+
         Returns
         -------
         list
             List of ports.
-        
+
         """
         if filename[-2:] == "ts":
             with open(filename, "r") as f:
@@ -742,7 +742,7 @@ class Circuit(FieldAnalysisCircuit, object):
         -------
         bool
             ``True`` when successful, ``False`` when failed.
-        
+
         """
         # Normalize the save path
         if not filename:
@@ -796,11 +796,11 @@ class Circuit(FieldAnalysisCircuit, object):
         ----------
         designname : str, optional
             Name of the design or the full path to the solution file if it is an imported file.
-            The default is ``None``.    
+            The default is ``None``.
         setupname : str, optional
             Name of the setup if it is a design. The default is ``None``.
         is_solution_file: bool, optional
-            Whether it is an imported solution file. The default is ``False``. 
+            Whether it is an imported solution file. The default is ``False``.
         filename: str, optional
             Full path and name for exporting the HSpice file. The default is ``None``.
         passivity: bool, optional
@@ -821,7 +821,7 @@ class Circuit(FieldAnalysisCircuit, object):
         -------
         str
             Name of the HSpice file if the export is successful.
-        
+
         """
         if not designname:
             designname = self.design_name

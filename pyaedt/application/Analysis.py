@@ -1,7 +1,7 @@
 """
 This module contains the `analysis` class.
 
-It includes common classes for file management and messaging and all 
+It includes common classes for file management and messaging and all
 calls to AEDT modules like the modeler, mesh, postprocessing, and setup.
 """
 from __future__ import absolute_import
@@ -28,8 +28,8 @@ else:
 
 class Analysis(Design, object):
     """Contains all common analysis functions.
-    
-    It is automatically initialized by a call from an application, such as HFSS or Q3D. 
+
+    It is automatically initialized by a call from an application, such as HFSS or Q3D.
     See the application function for its parameter descriptions.
 
     Parameters
@@ -48,7 +48,7 @@ class Analysis(Design, object):
     specified_version: str
         Version of AEDT  to use.
     NG : bool
-        Whether to run AEDT in the non-graphical mode. 
+        Whether to run AEDT in the non-graphical mode.
     AlwaysNew : bool
         Whether to launch an instance of AEDT in a new thread, even if
         another instance of the ``specified_version`` is active on the
@@ -56,8 +56,8 @@ class Analysis(Design, object):
     release_on_exit : bool
         Whether to release  AEDT on exit.
     student_version : bool
-        Whether to enable the student version of AEDT. 
-    
+        Whether to enable the student version of AEDT.
+
     """
 
     def __init__(self, application, projectname, designname, solution_type, setup_name,
@@ -86,7 +86,7 @@ class Analysis(Design, object):
     @property
     def materials(self):
         """Manages materials in the project.
-        
+
         Returns
         -------
         :class:`pyaedt.modules.MaterialLib.Materials`
@@ -98,7 +98,7 @@ class Analysis(Design, object):
     @property
     def Position(self):
         """Position of the object.
-        
+
         Returns
         -------
         type
@@ -111,7 +111,7 @@ class Analysis(Design, object):
     @property
     def available_variations(self):
         """Available variation object.
-        
+
         Returns
         -------
         :class:`pyaedt.application.Analysis.Analysis.AvailableVariations`
@@ -123,7 +123,7 @@ class Analysis(Design, object):
     @property
     def CoordinateSystemAxis(self):
         """Coordinate system axis constant.
-        
+
         Returns
         -------
         tuple
@@ -135,7 +135,7 @@ class Analysis(Design, object):
     @property
     def CoordinateSystemPlane(self):
         """Coordinate system plane constants.
-        
+
         Returns
         -------
         tuple
@@ -147,8 +147,8 @@ class Analysis(Design, object):
     @property
     def View(self):
         """Planes. (To check if redundant to CoordinateSystemPlane.)
-       
-        
+
+
         Returns
         -------
         tuple
@@ -160,7 +160,7 @@ class Analysis(Design, object):
     @property
     def GravityDirection(self):
         """Gravity direction. (To check if redundant.)
-        
+
         Returns
         -------
         tuple
@@ -172,7 +172,7 @@ class Analysis(Design, object):
     @property
     def modeler(self):
         """Modeler.
-        
+
         Returns
         -------
         :class:`pyaedt.modeler.Modeler.Modeler`
@@ -183,7 +183,7 @@ class Analysis(Design, object):
     @property
     def mesh(self):
         """Mesh.
-        
+
         Returns
         -------
         :class:`pyaedt.modules.Mesh.Mesh`
@@ -194,7 +194,7 @@ class Analysis(Design, object):
     @property
     def post(self):
         """PostProcessor.
-        
+
         Returns
         -------
         :class:`pyaedt.modules.PostProcessor.PostProcessor`
@@ -205,7 +205,7 @@ class Analysis(Design, object):
     @property
     def osolution(self):
         """Solution.
-        
+
         Returns
         -------
         AEDT object
@@ -222,7 +222,7 @@ class Analysis(Design, object):
     @property
     def analysis_setup(self):
         """Analysis setup.
-       
+
         Returns
         -------
         str
@@ -250,7 +250,7 @@ class Analysis(Design, object):
     @property
     def existing_analysis_sweeps(self):
         """Existing analysis sweeps.
-        
+
         Returns
         -------
         list
@@ -294,7 +294,7 @@ class Analysis(Design, object):
         Returns
         -------
         str
-            Name of the last adaptive sweep if a sweep is available or 
+            Name of the last adaptive sweep if a sweep is available or
             the name of the nominal adaptive sweep if present.
         """
 
@@ -306,7 +306,7 @@ class Analysis(Design, object):
     @property
     def existing_analysis_setups(self):
         """Existing analysis setups.
-               
+
         Returns
         -------
         list
@@ -319,7 +319,7 @@ class Analysis(Design, object):
     @property
     def output_variables(self):
         """Output variables.
-     
+
         Returns
         -------
         list
@@ -346,8 +346,8 @@ class Analysis(Design, object):
 
     @property
     def ooptimetrics(self):
-        """Optimetrics. 
-        
+        """Optimetrics.
+
         Returns
         -------
         AEDT object
@@ -359,7 +359,7 @@ class Analysis(Design, object):
     @property
     def ooutput_variable(self):
         """Output variable
-        
+
         Returns
         -------
         AEDT object
@@ -371,7 +371,7 @@ class Analysis(Design, object):
     @property
     def SimulationSetupTypes(self):
         """Simulation setup types.
-        
+
         Returns
         -------
         list
@@ -383,7 +383,7 @@ class Analysis(Design, object):
     @property
     def SolutionTypes(self):
         """Solution types.
-        
+
         Returns
         -------
         list
@@ -413,7 +413,7 @@ class Analysis(Design, object):
         @property
         def variables(self):
             """Variables.
-            
+
             Returns
             -------
             list
@@ -524,7 +524,7 @@ class Analysis(Design, object):
     @aedt_exception_handler
     def get_nominal_variation(self):
         """Retrieve the nominal variation.
-        
+
         Returns
         -------
         list
@@ -540,7 +540,7 @@ class Analysis(Design, object):
         ----------
         name : str
             Name of the setup.
-            
+
         Returns
         -------
         list
@@ -564,7 +564,7 @@ class Analysis(Design, object):
         filename : str
             Full path and name for the CSV file.
         exportunits : bool, optional
-            Whether to export units with the value. The default is ``True``. When ``False``, 
+            Whether to export units with the value. The default is ``True``. When ``False``,
             only the value is exported.
 
         Returns
@@ -580,7 +580,7 @@ class Analysis(Design, object):
     @aedt_exception_handler
     def analyze_from_initial_mesh(self):
         """Revert the solution to the initial mesh and re-run the solve.
-                
+
         Returns
         -------
         bool
@@ -594,7 +594,7 @@ class Analysis(Design, object):
     @aedt_exception_handler
     def analyse_nominal(self):
         """Revert the solution to the initial mesh and re-run the solve.
-       
+
         .. deprecated:: 0.4.0
            Use :func:`Analysis.analyze_nominal` instead.
         """
@@ -606,7 +606,7 @@ class Analysis(Design, object):
     @aedt_exception_handler
     def analyze_nominal(self):
         """Revert the solution to the initial mesh and re-run the solve.
-       
+
         Returns
         -------
         bool
@@ -619,17 +619,17 @@ class Analysis(Design, object):
     @aedt_exception_handler
     def generate_unique_setup_name(self, setup_name=None):
         """Generate a new setup with an unique name.
-        
+
         Parameters
         ----------
         setup_name : str, optional
             Name of the setup. The default is ``None``.
- 
+
         Returns
         -------
         str
             Name of the setup.
-        
+
         """
         if not setup_name:
             setup_name = "Setup"
@@ -648,7 +648,7 @@ class Analysis(Design, object):
         setupname : str, optional
             Name of the setup. The default is ``"MySetupAuto"``.
         setuptype : optional
-            Type of the setup. The default is ``None``, in which case 
+            Type of the setup. The default is ``None``, in which case
             the default type is applied.
         props : dict, optional
             Dictionary of properties with values. The default is ``{}``.
@@ -682,13 +682,13 @@ class Analysis(Design, object):
         ----------
         setupname : str
             Name of the setup.
-        properties_dict : dict 
+        properties_dict : dict
             Dictionary containing the property to update with the value.
 
         Returns
         -------
         :class:`pyaedt.modules.SolveSetup.Setup`
-        
+
         """
         setuptype = SetupKeys.defaultSetups[self.solution_type]
         setup = Setup(self, setuptype, setupname, isnewsetup=False)
@@ -769,17 +769,17 @@ class Analysis(Design, object):
     @aedt_exception_handler
     def get_object_material_properties(self, object_list=None, prop_names=None):
         """Retrieve the material properties for a list of given objects and return them in a dictionary.
-        
+
         This high-level function ignores objects with no defined material properties.
 
         Parameters
         ----------
         object_list : list, optional
-            List of objects for which to get material_properties. The default is ``None``,  
-            in which case all objects are considered. 
+            List of objects for which to get material_properties. The default is ``None``,
+            in which case all objects are considered.
         prop_names : str or list
-            The property or list of properties to export.  The default is ``None``, in  
-            which case all properties are exported. 
+            The property or list of properties to export.  The default is ``None``, in
+            which case all properties are exported.
 
         Returns
         -------
@@ -837,21 +837,21 @@ class Analysis(Design, object):
 
     @aedt_exception_handler
     def solve_in_batch(self, filename=None, machine="local", run_in_thread=False):
-        """Analyze a design setup in batch mode. 
-        
+        """Analyze a design setup in batch mode.
+
         .. note::
            To use this function, the AEDT project must be closed.
 
         Parameters
         ----------
         filename : str, optional
-            Name of the setup. The default is ``None``, which means that the active project 
+            Name of the setup. The default is ``None``, which means that the active project
             is to be solved.
         machine : str, optional
-            Name of the machine if remote.  The default is ``"local"``. 
+            Name of the machine if remote.  The default is ``"local"``.
         run_in_thread : bool, optional
             Whether the batch command is to be submitted as a thread. The default is
-            ``False``. 
+            ``False``.
 
         Returns
         -------
@@ -903,7 +903,7 @@ class Analysis(Design, object):
         clustername : str
             Name of the cluster to submit the job to.
         aedt_full_exe_path : str, optional
-            Full path to the AEDT executable file. The default is ``None``, in which 
+            Full path to the AEDT executable file. The default is ``None``, in which
             case ``"/clustername/AnsysEM/AnsysEM2x.x/Win64/ansysedt.exe"`` is used.
         numnodes : int, optional
             Number of nodes. The default is ``1``.
@@ -913,7 +913,7 @@ class Analysis(Design, object):
              Whether to wait for the license to be validated. The default is ``True``.
         setting_file : str, optional
             Name of the file to use as a template. The default value is ``None``.
-        
+
         Returns
         -------
         type

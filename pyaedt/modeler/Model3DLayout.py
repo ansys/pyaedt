@@ -239,7 +239,7 @@ class Modeler3DLayout(Modeler):
 
         Parameters
         ----------
-        value :      
+        value :
 
         Returns
         -------

@@ -64,7 +64,7 @@ class EdbPadstacks(object):
     @property
     def padstacks(self):
         """Padstacks via padstack definitions.
-        
+
         Returns
         -------
         list
@@ -99,7 +99,7 @@ class EdbPadstacks(object):
         endlayer : str, optional
             Ending layer. The default is ``None``, in which case the bottom
             is the ending layer.
-     
+
         Returns
         -------
         str
@@ -118,11 +118,11 @@ class EdbPadstacks(object):
             Reference designator of the component. The default is ``None``.
         netname : str optional
             Name of the net. The default is ``None``.
-        
+
         Returns
         -------
         dict
-            Dictionary of pins if the operation is successful. 
+            Dictionary of pins if the operation is successful.
             ``False`` is returned if the net does not belong to the component.
 
         """
@@ -152,7 +152,7 @@ class EdbPadstacks(object):
         endlayer : str, optional
             Ending layer. The default is ``None``, in which case the bottom
             is the ending layer.
-            
+
         Returns
         -------
         str
@@ -220,11 +220,11 @@ class EdbPadstacks(object):
     def place_padstack(self, position, definition_name, net_name='',
                        via_name="", rotation=0, fromlayer=None, tolayer=None, solderlayer=None):
         """Place the padstack.
-        
+
         Parameters
         ----------
         position : list
-            List of float values for the [x,y] positions where the via is to be placed. 
+            List of float values for the [x,y] positions where the via is to be placed.
         definition_name : str
             Name of the padstack definition.
         net_name : str, optional
@@ -232,7 +232,7 @@ class EdbPadstacks(object):
         via_name : str, optional
             The default is ``""``.
         rotation : float, optional
-            Rotation of the padstack in degrees. The default  
+            Rotation of the padstack in degrees. The default
             is ``0``.
         fromlayer :
             The default is ``None``.
@@ -240,10 +240,10 @@ class EdbPadstacks(object):
             The default is ``None``.
         solderlayer :
             The default is ``None``.
-            
+
         Returns
         -------
-        
+
         """
         padstack = None
         for pad in list(self.padstacks.keys()):

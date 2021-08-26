@@ -1,5 +1,5 @@
 """
-This module contains these classes: `Layer` and `Layers`.  
+This module contains these classes: `Layer` and `Layers`.
 
 This module provides all layer stackup functionalities for the Circuit and HFSS 3D Layout tools.
 """
@@ -17,7 +17,7 @@ def str2bool(str0):
     Parameters
     ----------
     str0 : str
-       String to convert.   
+       String to convert.
 
     Returns
     -------
@@ -38,8 +38,8 @@ def conv_number(number, typen=float):
     ----------
     float
        Number represented a float.
-        
-    typen : 
+
+    typen :
          The default is ``float``.
 
     Returns
@@ -64,8 +64,8 @@ def getIfromRGB(rgb):
 
     Parameters
     ----------
-    rgb : 
-        
+    rgb :
+
 
     Returns
     -------
@@ -80,11 +80,11 @@ def getIfromRGB(rgb):
 
 class Layer(object):
     """Manages the stackup layer.
-    
+
     Parameters
     ----------
     editor :
-    
+
     type : string, optional
         The default is ``"signal"``.
     layerunits : str, optional
@@ -92,7 +92,7 @@ class Layer(object):
     roughunit: str, optional
         The default is ``"um"``.
     negative: bool, optional
-        Whether the geometry on the layer is cut away 
+        Whether the geometry on the layer is cut away
         from the layer. The default is ``False``.
     """
 
@@ -194,7 +194,7 @@ class Layer(object):
     @aedt_exception_handler
     def create_stackup_layer(self):
         """Create a stackup layer.
-        
+
         Parameters
         ----------
 
@@ -279,7 +279,7 @@ class Layer(object):
         Parameters
         ----------
         Value :
-            
+
         sUnits :
              The default is ``None``.
 
@@ -299,10 +299,10 @@ class Layer(object):
     @aedt_exception_handler
     def update_stackup_layer(self):
         """Update the stackup layer.
-        
+
         .. note::
            This method is valid for release 2021 R1 and later.
-        
+
         Returns
         -------
         bool
@@ -377,7 +377,7 @@ class Layer(object):
     @aedt_exception_handler
     def remove_stackup_layer(self):
         """Remove the stackup layer.
-        
+
         Returns
         -------
         bool
@@ -391,17 +391,17 @@ class Layer(object):
 
 class Layers(object):
     """Manages layers for the Circuit and HFSS 3D Layout tools.
-    
+
     Parameters
     ----------
     parent :
         Inherited AEDT object.
-    
+
     modeler :
-    
+
     roughnessunits : str, optional
        Units for the roughness of layers. The default is ``"um"``.
-    
+
     """
 
     @property
@@ -427,7 +427,7 @@ class Layers(object):
     @property
     def all_layers(self):
         """All stackup layers.
-        
+
         Returns
         -------
         list
@@ -438,7 +438,7 @@ class Layers(object):
     @property
     def all_signal_layers(self):
         """All signal layers.
-        
+
         Returns
         -------
         list
@@ -457,7 +457,7 @@ class Layers(object):
     @property
     def all_diel_layers(self):
         """All dielectric layers.
-        
+
         Returns
         -------
         list
@@ -488,7 +488,7 @@ class Layers(object):
         Parameters
         ----------
         name :  str
-            Name of the layer. 
+            Name of the layer.
 
         Returns
         -------
@@ -503,7 +503,7 @@ class Layers(object):
     @aedt_exception_handler
     def refresh_all_layers(self):
         """Refresh all layers in the current stackup.
-       
+
         Returns
         -------
         int

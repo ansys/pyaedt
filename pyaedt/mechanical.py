@@ -167,15 +167,15 @@ class Mechanical(FieldAnalysis3D, object):
     @aedt_exception_handler
     def assign_thermal_map(self, object_list, designname="IcepakDesign1", setupname="Setup1", sweepname="SteadyState",
                            source_project_name=None, paramlist=[]):
-        """Map thermal losses to a Mechanical design. 
-        
+        """Map thermal losses to a Mechanical design.
+
         .. note::
            This method works in 2021 R2 only when coupled with Icepak.
 
         Parameters
         ----------
         object_list : list
-        
+
         designname : str, optional
             Name of the design with the source mapping. The default is ``"IcepakDesign1"``.
         setupname : str, optional
@@ -187,7 +187,7 @@ class Mechanical(FieldAnalysis3D, object):
 	      source from the same project is used.
         paramlist : list, optional
             List of all parameters in the EM to map. The default is ``[]``.
-        
+
         Returns
         -------
 	  :class:`aedt.modules.Boundary.Boundary object`
@@ -281,8 +281,8 @@ class Mechanical(FieldAnalysis3D, object):
     @aedt_exception_handler
     def assign_uniform_temperature(self, objects_list, temperature="AmbientTemp", boundary_name=""):
         """Assign a uniform temperature boundary.
-        
-        .. note::	
+
+        .. note::
 	     This method works only in a Mechanical thermal analysis.
 
         Parameters
@@ -324,8 +324,8 @@ class Mechanical(FieldAnalysis3D, object):
 
     @aedt_exception_handler
     def assign_frictionless_support(self, objects_list,  boundary_name=""):
-        """Assign a Mechanical frictionless support. 
-        
+        """Assign a Mechanical frictionless support.
+
         .. note::
 	     This method works only in a Mechanical structural analysis.
 
@@ -366,9 +366,9 @@ class Mechanical(FieldAnalysis3D, object):
 
     @aedt_exception_handler
     def assign_fixed_support(self, objects_list,  boundary_name=""):
-        """Assign a Mechanical fixed support. 
-        
-        .. note::	
+        """Assign a Mechanical fixed support.
+
+        .. note::
            This method works only in a Mechanical structural analysis.
 
         Parameters

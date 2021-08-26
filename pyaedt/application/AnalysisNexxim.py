@@ -8,9 +8,9 @@ from ..modules.PostProcessor import CircuitPostProcessor
 
 class FieldAnalysisCircuit(Analysis):
     """FieldCircuitAnalysis class.
-    
+
     This class is for circuit analysis setup in Nexxim.
-    
+
     It is automatically initialized by a call from an application,
     such as HFSS or Q3D. See the application function for its
     parameter definitions.
@@ -86,33 +86,33 @@ class FieldAnalysisCircuit(Analysis):
     @property
     def get_excitations_name(self):
         """Excitation names.
-        
+
         Returns
         -------
         type
             BoundarySetup Module object
-        
+
         """
         ports = [p.replace('IPort@', '').split(';')[0] for p in self.modeler.oeditor.GetAllPorts()]
         return ports
 
     @property
     def get_all_sparameter_list(self, excitation_names=[]):
-        """List of all S parameters for a list of exctitations. 
+        """List of all S parameters for a list of exctitations.
 
         Parameters
         ----------
         eexcitation_names : list, optional
             List of excitations. The default is ``[]``, in which case
-            the S parameters for all excitations are to be provided. 
+            the S parameters for all excitations are to be provided.
             For example, ``["1", "2"]``.
-            
+
         Returns
         -------
         list
             List of strings representing the S parameters of the excitations.
             For example, ``"S(1,1)", "S(1,2)", "S(2,2)"``.
-            
+
 
         """
         if not excitation_names:
@@ -137,8 +137,8 @@ class FieldAnalysisCircuit(Analysis):
             the return losses for all excitations are to be provided.
             For example ``["1", "2"]``.
         excitation_name_prefix : string, optional
-             Prefix to add to the excitation names. The default is ``""``, 
-             
+             Prefix to add to the excitation names. The default is ``""``,
+
         Returns
         -------
         list
@@ -158,25 +158,25 @@ class FieldAnalysisCircuit(Analysis):
     @aedt_exception_handler
     def get_all_insertion_loss_list(self, trlist=[], reclist=[], tx_prefix='', rx_prefix=''):
         """Retrieve a list of all insertion losses from two lists of excitations (driver and receiver).
-       
+
         Parameters
         ----------
         trlist : list, optional
             List of drivers. The default is ``[]``. For example, ``["1"]``.
         reclist : list, optional
-            List of receivers. The default is ``[]``. The number of drivers equals 
+            List of receivers. The default is ``[]``. The number of drivers equals
             the number of receivers. For example, ``["2"]``.
         tx_prefix : str, optional
             Prefix to add to driver names. For example, ``"DIE"``. The default is ``""``.
         rx_prefix : str, optional
             Prefix to add to receiver names. For example, ``"BGA"``. The default is ``""``.
-        
+
         Returns
         -------
         list
             List of strings representing insertion losses of the excitations.
             For example, ``["S(1,2)"]``.
-        
+
         """
         spar = []
         if not trlist:
@@ -193,7 +193,7 @@ class FieldAnalysisCircuit(Analysis):
     @aedt_exception_handler
     def get_next_xtalk_list(self, trlist=[], tx_prefix=""):
         """Retrieve a list of all the near end XTalks from a list of excitations (driver and receiver).
-        
+
         Parameters
         ----------
         trlist : list, optional
@@ -222,7 +222,7 @@ class FieldAnalysisCircuit(Analysis):
     @aedt_exception_handler
     def get_fext_xtalk_list(self, trlist=[], reclist=[], tx_prefix='', rx_prefix='', skip_same_index_couples=True):
         """Retrieve a list of all the far end XTalks from two lists of exctitations (driver and receiver).
-        
+
         Parameters
         ----------
         trlist : list, optional
@@ -237,16 +237,16 @@ class FieldAnalysisCircuit(Analysis):
             Prefix for receiver names. For examples, ``"BGA"`` The default is ``""``.
         skip_same_index_couples : bool, optional
             Whether to skip driver and receiver couples with the same index position.
-            The default is ``True``, in which case the drivers and receivers 
-            with the same index position are considered insertion losses and 
+            The default is ``True``, in which case the drivers and receivers
+            with the same index position are considered insertion losses and
             excluded from the list.
-        
+
         Returns
         -------
         list
             List of strings representing the far end XTalks of the excitations.
             For example, ``["S(1, 4)", "S(2, 3)"]``.
-            
+
         """
         fext = []
         if not trlist:

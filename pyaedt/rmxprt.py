@@ -19,7 +19,7 @@ class RMXprtModule(object):
         ----------
         parameter_name : str
             Name of the parameter.
-            
+
 
         Returns
         -------
@@ -49,9 +49,9 @@ class RMXprtModule(object):
         Parameters
         ----------
         parameter_name : str
-            Name of the parameter.  
+            Name of the parameter.
         value :
-            Value to assign to the parameter.   
+            Value to assign to the parameter.
 
         Returns
         -------
@@ -108,10 +108,10 @@ class Rmxprt(FieldAnalysisRMxprt):
     projectname : str, optional
         Name of the project to select or the full path to the project
         or AEDTZ archive to open. The default is ``None``, in which
-        case an attempt is made to get an active project. If no 
+        case an attempt is made to get an active project. If no
         projects are present, an empty project is created.
     designname : str, optional
-        Name of the design to select. The default is ``None``, in 
+        Name of the design to select. The default is ``None``, in
         which case an attempt is made to get an active design. If no
         designs are present, an empty design is created.
     solution_type : str, optional
@@ -121,7 +121,7 @@ class Rmxprt(FieldAnalysisRMxprt):
         Model units.
     setup_name : str, optional
         Name of the setup to use as the nominal. The default is
-        ``None``, in which case the active setup is used or 
+        ``None``, in which case the active setup is used or
         nothing is used.
     specified_version : str, optional
         Version of AEDT to use. The default is ``None``, in which case
