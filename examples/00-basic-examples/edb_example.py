@@ -40,7 +40,7 @@ from pyaedt import Edb
 # This example uses EDB 2021.1 and uses SI units.
 
 if os.path.exists(aedt_file): os.remove(aedt_file)
-edb = Edb(edbpath=targetfile)
+edb = Edb(edbpath=targetfile, edbversion="2021.2")
 
 ###############################################################################
 # Compute Nets and Components
@@ -156,7 +156,19 @@ edb.core_siwave.create_circuit_port("U2A5", "DDR3_DM0")
 
 edb.core_siwave.add_siwave_ac_analysis()
 
-edb.core_siwave.add_siwave_dc_analysis()
+###############################################################################
+# Create a Voltage Source and Siwave DC IR Simulation
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# This example creates a Voltage Source and then setup a DCIR Analysis.
+
+edb.core_siwave.create_voltage_source("U2A5","V1P5_S3","U2A5","GND",3.3,0,"V1")
+settings = edb.core_siwave.get_siwave_dc_setup_template()
+settings.accuracy_level = 0
+settings.use_dc_custom_settings  = True
+settings.name = "myDCIR_4"
+# settings.pos_term_to_ground = "I1"
+settings.neg_term_to_ground = "V1"
+edb.core_siwave.add_siwave_dc_analysis(settings)
 
 ###############################################################################
 # Save Modifications
