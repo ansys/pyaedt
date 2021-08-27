@@ -749,14 +749,11 @@ class Primitives3D(Primitives, object):
 
         """
         vArg1 = ["NAME:InsertComponentData"]
-
-        szGeoParams = ""
+        sz_geo_params = ""
         if geoParams:
-            for par, val in geoParams.items():
-                szGeoParams += "{0}='{1}' ".format(par, val)
-
+            sz_geo_params = "".join(["{0}='{1}' ".format(par, val) for par, val in geoParams.items()])
         vArg1.append("GeometryParameters:=")
-        vArg1.append(szGeoParams)
+        vArg1.append(sz_geo_params)
         vArg1.append("MaterialParameters:=")
         vArg1.append(szMatParams)
         vArg1.append("DesignParameters:=")
