@@ -376,12 +376,12 @@ class CoordinateSystem(object):
             self.quaternion = GeometryOperators.euler_zyz_to_quaternion(a, b, g)
         elif mode == "axis":
             orientationParameters["Mode"] = "Axis/Position"
-            orientationParameters["XAxisXvec"] = self._dim_arg((x_pointing[0]), self.model_units) + " - " + self._dim_arg((origin[0]), self.model_units)
-            orientationParameters["XAxisYvec"] = self._dim_arg((x_pointing[1]), self.model_units) + " - " + self._dim_arg((origin[1]), self.model_units)
-            orientationParameters["XAxisZvec"] = self._dim_arg((x_pointing[2]), self.model_units) + " - " + self._dim_arg((origin[2]), self.model_units)
-            orientationParameters["YAxisXvec"] = self._dim_arg((y_pointing[0]), self.model_units) + " - " + self._dim_arg((origin[0]), self.model_units)
-            orientationParameters["YAxisYvec"] = self._dim_arg((y_pointing[1]), self.model_units) + " - " + self._dim_arg((origin[1]), self.model_units)
-            orientationParameters["YAxisZvec"] = self._dim_arg((y_pointing[2]), self.model_units) + " - " + self._dim_arg((origin[2]), self.model_units)
+            orientationParameters["XAxisXvec"] = self._dim_arg((x_pointing[0]), self.model_units)
+            orientationParameters["XAxisYvec"] = self._dim_arg((x_pointing[1]), self.model_units)
+            orientationParameters["XAxisZvec"] = self._dim_arg((x_pointing[2]), self.model_units)
+            orientationParameters["YAxisXvec"] = self._dim_arg((y_pointing[0]), self.model_units)
+            orientationParameters["YAxisYvec"] = self._dim_arg((y_pointing[1]), self.model_units)
+            orientationParameters["YAxisZvec"] = self._dim_arg((y_pointing[2]), self.model_units)
             x, y, z = GeometryOperators.pointing_to_axis(x_pointing, y_pointing)
             a, b, g = GeometryOperators.axis_to_euler_zyz(x, y, z)
             self.quaternion = GeometryOperators.euler_zyz_to_quaternion(a, b, g)
