@@ -40,8 +40,8 @@ from pyaedt import Edb
 # This example uses EDB 2021.1 and uses SI units.
 
 if os.path.exists(aedt_file): os.remove(aedt_file)
-edb = Edb(edbpath=targetfile)
-
+#edb = Edb(edbpath=targetfile, edbversion="2021.2")
+edb = Edb(edbpath=r"C:\Users\mcapodif\AppData\Local\Temp\Example_TE6DEL\Galileo.aedb", edbversion="2021.2")
 ###############################################################################
 # Compute Nets and Components
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -155,8 +155,13 @@ edb.core_stackup.stackup_layers.layers['UNNAMED_002'].material_name = "My_Debye"
 edb.core_siwave.create_circuit_port("U2A5", "DDR3_DM0")
 
 edb.core_siwave.add_siwave_ac_analysis()
-
-edb.core_siwave.add_siwave_dc_analysis()
+settings = edb.core_siwave.get_siwave_dc_setup_template()
+settings.accuracy_level = 0
+settings.use_dc_custom_settings  = True
+settings.name = "myDCIR_3"
+# settings.pos_term_to_ground = "I1"
+# settings.neg_term_to_ground = "V1"
+edb.core_siwave.add_siwave_dc_analysis(settings)
 
 ###############################################################################
 # Save Modifications

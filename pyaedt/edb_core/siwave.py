@@ -12,9 +12,66 @@ try:
     import clr
     from System import Convert, String
     from System import Double, Array
-    from System.Collections.Generic import List
+    from System.Collections.Generic import List, Dictionary
 except ImportError:
     warnings.warn('This module requires pythonnet.')
+
+
+class SiwaveDCSetupTemplate(object):
+    def __init__(self):
+        self.name = "DC IR 1"
+        self.dcreport_show_active_devices = True
+        self.export_dcthermal_data = False
+        self.full_dcreport_path = ""
+        self.use_loopres_forperpin = True
+        self.via_report_path = ""
+        self.compute_inductance = True
+        self.accuracy_level = 1
+        self.plotjv = True
+        self.min_passes = 1
+        self.max_passes = 5
+        self.percent_localrefinement = 20
+        self.energy_error = 2
+        self.refine_bondwires = False
+        self.refine_vias = False
+        self.num_bondwire_sides = 8
+        self.num_via_sides = 8
+        self.mesh_bondwires = False
+        self.mesh_vias = False
+        self.perform_adaptive_refinement = False
+        self.use_dc_custom_settings = False
+        a = Dictionary[String, int]()
+        self._SourceTermsToGround = a
+        self._pos_term_to_ground = []
+        self._neg_term_to_ground = []
+
+    @property
+    def pos_term_to_ground(self):
+        return self._pos_term_to_ground
+
+    @pos_term_to_ground.setter
+    def pos_term_to_ground(self, terms):
+        if not isinstance(terms, list):
+            self._pos_term_to_ground = [terms]
+
+    @property
+    def neg_term_to_ground(self):
+        return self._neg_term_to_ground
+
+    @neg_term_to_ground.setter
+    def neg_term_to_ground(self, terms):
+        if not isinstance(terms, list):
+            self._neg_term_to_ground = [terms]
+
+    @property
+    def source_terms_toground(self):
+        a = Dictionary[String, int]()
+        for el in self._neg_term_to_ground:
+            a[el] = 1
+        for el in self._pos_term_to_ground:
+            a[el] = 2
+        self._SourceTermsToGround = a
+        return self._SourceTermsToGround
 
 
 class SourceType(object):
@@ -291,6 +348,11 @@ class EdbSiwave(object):
         return self.parent.edb
 
     @property
+    def _messenger(self):
+        """EDB."""
+        return self.parent.messenger
+
+    @property
     def _active_layout(self):
         """Active layout."""
         return self.parent.active_layout
@@ -298,7 +360,7 @@ class EdbSiwave(object):
     @property
     def _cell(self):
         """Cell."""
-        return self.parent.cell
+        return self.parent.active_cell
 
     @property
     def _db(self):
@@ -605,25 +667,78 @@ class EdbSiwave(object):
         exec_file.close()
         return True
 
+
     @aedt_exception_handler
-    def add_siwave_dc_analysis(self, accuracy_level=1):
-        """Add a SIwave DC analysis.
+    def get_siwave_dc_setup_template(self):
+        """
+
+        Returns
+        -------
+        :class: `pyaedt.edb_core.siwave.SiwaveDCSetupTemplate``
+        """
+        settings = SiwaveDCSetupTemplate()
+        return settings
+
+
+    @aedt_exception_handler
+    def add_siwave_dc_analysis(self,  setup_settings=SiwaveDCSetupTemplate()):
+        """This method creates a Siwave DC Analysis in EDB
+
+        .. note::
+           Source Reference to Ground settings works only from 2021.2
 
         Parameters
         ----------
-        accuracy_level : int, optional
-            Level of accuracy. The default is ``1``.
+        setup_settings : ``pyaedt.edb_core.siwave.SiwaveDCSetupTemplate``
+
+        Examples
+        --------
+        >>> from pyaedt import Edb
+        >>> edb  = Edb("pathtoaedb", edbversion="2021.2")
+        >>> edb.core_siwave.add_siwave_ac_analysis()
+        >>> settings = edb.core_siwave.get_siwave_dc_setup_template()
+        >>> settings.accuracy_level = 0
+        >>> settings.use_dc_custom_settings  = True
+        >>> settings.name = "myDCIR_3"
+        >>> settings.pos_term_to_ground = "I1"
+        >>> settings.neg_term_to_ground = "V1"
+        >>> edb.core_siwave.add_siwave_dc_analysis2(settings)
 
         Returns
         -------
         bool
-            ``True`` when successful, ``False`` when failed.
+            Command Execution Result.
         """
-        self._siwave_setup.AddDCSimSetup(self._builder, accuracy_level)
-        exec_file = self.create_exec_file()
-        exec_file.write("ExecDcSim\n")
-        exec_file.close()
-        return True
+        sim_setup_info = self.parent.simsetupdata.SimSetupInfo[self.parent.simsetupdata.SIwave.SIWDCIRSimulationSettings]()
+        sim_setup_info.Name = setup_settings.name
+        sim_setup_info.SimulationSettings.DCIRSettings.DCReportShowActiveDevices = setup_settings.dcreport_show_active_devices
+        sim_setup_info.SimulationSettings.DCIRSettings.ExportDCThermalData = setup_settings.export_dcthermal_data
+        sim_setup_info.SimulationSettings.DCIRSettings.FullDCReportPath = setup_settings.full_dcreport_path
+        sim_setup_info.SimulationSettings.DCIRSettings.UseLoopResForPerPin = setup_settings.use_loopres_forperpin
+        sim_setup_info.SimulationSettings.DCIRSettings.ViaReportPath = setup_settings.via_report_path
+        sim_setup_info.SimulationSettings.DCSettings.ComputeInductance = setup_settings.compute_inductance
+        sim_setup_info.SimulationSettings.DCSettings.DCSliderPos = setup_settings.accuracy_level
+        sim_setup_info.SimulationSettings.DCSettings.PlotJV = setup_settings.plotjv
+        sim_setup_info.SimulationSettings.DCAdvancedSettings.MinNumPasses = setup_settings.min_passes
+        sim_setup_info.SimulationSettings.DCAdvancedSettings.MaxNumPasses = setup_settings.max_passes
+        sim_setup_info.SimulationSettings.DCAdvancedSettings.PercentLocalRefinement = setup_settings.percent_localrefinement
+        sim_setup_info.SimulationSettings.DCAdvancedSettings.EnergyError = setup_settings.energy_error
+        sim_setup_info.SimulationSettings.DCAdvancedSettings.RefineBws = setup_settings.refine_bondwires
+        sim_setup_info.SimulationSettings.DCAdvancedSettings.RefineVias = setup_settings.refine_vias
+        sim_setup_info.SimulationSettings.DCAdvancedSettings.NumViaSides = setup_settings.num_via_sides
+        sim_setup_info.SimulationSettings.DCAdvancedSettings.NumBwSides = setup_settings.num_bondwire_sides
+        sim_setup_info.SimulationSettings.DCAdvancedSettings.MeshBws = setup_settings.mesh_bondwires
+        sim_setup_info.SimulationSettings.DCAdvancedSettings.MeshVias = setup_settings.mesh_vias
+        sim_setup_info.SimulationSettings.DCAdvancedSettings.PerformAdaptiveRefinement = setup_settings.perform_adaptive_refinement
+        sim_setup_info.SimulationSettings.DCSettings.UseDCCustomSettings = setup_settings.use_dc_custom_settings
+        sim_setup_info.SimulationSettings.DCIRSettings.SourceTermsToGround = setup_settings.source_terms_toground
+        simulationSetup = self._edb.Utility.SIWaveDCIRSimulationSetup(sim_setup_info)
+        if self._cell.AddSimulationSetup(simulationSetup):
+            exec_file = self.create_exec_file()
+            exec_file.write("ExecDcSim\n")
+            exec_file.close()
+            return True
+        return False
 
     @aedt_exception_handler
     def create_pin_group_terminal(self, source):
