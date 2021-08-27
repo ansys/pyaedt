@@ -14,11 +14,11 @@ import sys
 
 class ModelerCircuit(Modeler):
     """ModelerCircuit class.
-    
+
     Parameters
     ----------
     parent :
-    
+
     """
     def __init__(self, parent):
         self._parent = parent
@@ -60,7 +60,7 @@ class ModelerCircuit(Modeler):
         secondcomponent : str
            Ending (left) component for the connection line.
         pinnum_first : str, optional
-             Number of the pin at which to terminate the connection from the right end of the 
+             Number of the pin at which to terminate the connection from the right end of the
              starting component. The default is ``2``.
         pinnum_second : str, optional
              Number of the pin at which to termiante the connection from the left end of the
@@ -97,11 +97,11 @@ class ModelerCircuit(Modeler):
 
 class ModelerNexxim(ModelerCircuit):
     """ModelerNexxim class.
-    
+
     Parameters
     ----------
     parent :
-    
+
     """
 
     def __init__(self, parent):
@@ -136,7 +136,7 @@ class ModelerNexxim(ModelerCircuit):
         -------
         :class:`pyaedt.Edb`
             edb_core object if it exists.
-        
+
         """
         #TODO Check while it crashes when multiple circuits are created
         return None
@@ -177,7 +177,7 @@ class ModelerNexxim(ModelerCircuit):
         Returns
         -------
         :class:`pyaedt.modeler.Primitives3DLayout.Primitives3DLayout`
-        
+
         """
         if self._parent.design_type == "Twin Builder":
             return
@@ -276,11 +276,11 @@ class ModelerNexxim(ModelerCircuit):
 
 class ModelerSimplorer(ModelerCircuit):
     """ModelerSimplorer class.
-    
+
     Parameters
     ----------
     parent :
-    
+
     """
 
     def __init__(self, parent):
@@ -290,11 +290,11 @@ class ModelerSimplorer(ModelerCircuit):
 
 class ModelerEmit(ModelerCircuit):
     """ModelerEmit class.
-    
+
     Parameters
     ----------
     parent :
-    
+
     """
 
     def __init__(self, parent):

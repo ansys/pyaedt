@@ -1,5 +1,5 @@
 """
-This module contains these data classes for creating a material library: 
+This module contains these data classes for creating a material library:
 
 * `BasicValue`
 * `ClosedFormTM`
@@ -17,11 +17,11 @@ from ..generic.general_methods import aedt_exception_handler, generate_unique_na
 from ..application.DataHandlers import dict2arg, arg2dict
 
 class MatProperties(object):
-    """Contains a list of constant names for all materials with 
-    mappings to their internal XML names. 
-    
+    """Contains a list of constant names for all materials with
+    mappings to their internal XML names.
+
     Internal names are used in scripts, and XML names are used in the XML syntax.
-    
+
     """
     aedtname =     ['permittivity', 'permeability', 'conductivity', 'dielectric_loss_tangent', 'magnetic_loss_tangent', 'thermal_conductivity', 'mass_density', 'specific_heat', 'thermal_expansion_coefficient', 'youngs_modulus',   'poissons_ratio',   'diffusivity', 'molecular_mass', 'viscosity', 'core_loss_kh', 'core_loss_kc', 'core_loss_ke']
     defaultvalue = [1.0,             1.0,            0,              0,                         0,                       0.01,                      0,              0,               0,                               0,                  0,                  0.8,         0,                   0,                 0,                   0,                      0,                          0]
@@ -71,11 +71,11 @@ class MatProperties(object):
             raise TypeError("get_defaultunit: Either the full name or category name must be defined.")
 
 class SurfMatProperties(object):
-    """Contains a list of constant names for all surface materials with 
-    mappings to their internal XML names. 
-    
+    """Contains a list of constant names for all surface materials with
+    mappings to their internal XML names.
+
     Internal names are used in scripts, and XML names are used in the XML syntax.
- 
+
     """
     aedtname =     ['surface_emissivity', 'surface_roughness', 'surface_diffuse_absorptance', 'surface_incident_absorptance']
     defaultvalue = [1.0,             0,            0.4,              0.4]
@@ -156,7 +156,7 @@ class BasicValue(object):
 
 class MatProperty(object):
     """Manages simple, anisotropic, tensor, and non-linear properties.
-    
+
     Parameters
     ----------
     parent :
@@ -203,12 +203,12 @@ class MatProperty(object):
     @property
     def type(self):
         """Type of the material property.
-        
+
         Parameters
         ----------
         type : str
-            Type of properties. Options are ``simple"``, 
-            ``"anisotropic",`` ``"tensor"``, and ``"nonlinear",`` 
+            Type of properties. Options are ``simple"``,
+            ``"anisotropic",`` ``"tensor"``, and ``"nonlinear",``
         """
         return self._type
 
@@ -283,18 +283,18 @@ class MatProperty(object):
 
     def _add_thermal_modifier(self,formula, index):
         """Add a thermal modifier.
-        
+
         Parameters
         ----------
         formula : str
             Formula to apply.
-        index : int 
-            Value for the index. 
-        
+        index : int
+            Value for the index.
+
         Returns
         -------
         type
-        
+
         """
         if "ModifierData" not in self._parent._props:
             tm = OrderedDict({'Property:': self.name, 'Index:': index, "prop_modifier": "thermal_modifier",
@@ -353,7 +353,7 @@ class MatProperty(object):
         -------
         bool
             ``True`` when successful, ``False`` when failed.
-        
+
 
         Examples
         --------
@@ -381,7 +381,7 @@ class MatProperty(object):
         -------
         bool
             ``True`` when successful, ``False`` when failed.
-            
+
 
         Examples
         --------
@@ -413,17 +413,17 @@ class MatProperty(object):
         tu : float, optional
             Upper temperature limit. The default is ``1000``.
         units : str, optional
-            Units for the reference temperature. The default 
+            Units for the reference temperature. The default
             is ``"cel"``.
         auto_calc : bool, optional
             Whether to calculate the lower and upper
-            temperature limits automatically. The default is 
+            temperature limits automatically. The default is
             ``True``.
         tml : float, optional
-            Lower temperature limit when ``auto_calc=True.`` 
+            Lower temperature limit when ``auto_calc=True.``
             The default is ``1000``.
         tmu : float, optional
-            Upper temperature limit when ``auto_calc=True.`` 
+            Upper temperature limit when ``auto_calc=True.``
             The default is ``1000``.
         index : int, optional
             Value for the index. The default is ``0``.
@@ -432,7 +432,7 @@ class MatProperty(object):
         -------
         bool
             ``True`` when successful, ``False`` when failed.
-            
+
 
         Examples
         --------
@@ -517,16 +517,16 @@ class MatProperty(object):
 
 class CommonMaterial(object):
     """Manages datasets with frequency-dependent materials.
-    
+
     Parameters
     ----------
     parent :
-    
+
     name :
-    
-    props :  
+
+    props :
         The default is ``None``.
-    
+
     """
 
     @property
@@ -585,7 +585,7 @@ class CommonMaterial(object):
     @aedt_exception_handler
     def _get_args(self, props=None):
         """Retrieve the arguments for a property.
-        
+
         Parameters:
             prop: str, optoinal
                 Name of the property.
@@ -599,7 +599,7 @@ class CommonMaterial(object):
 
     def _update_props(self, propname, provpavlue, update_aedt=True):
         """Update properties.
-        
+
         Parameters
         ----------
         propname: str
@@ -608,7 +608,7 @@ class CommonMaterial(object):
             Value of the property.
         update_aedt : bool, optional
             Whether to update the property in AEDT. The default is ``True``.
-        
+
         """
         if isinstance(provpavlue, list) and self.__dict__["_"+propname].type != "simple" and self.__dict__["_"+propname].type != "nonlinear":
                 i=1
@@ -627,7 +627,7 @@ class CommonMaterial(object):
 
 class Material(CommonMaterial, object):
     """Manages material properties.
-    
+
     Parameters
     ----------
     parent :
@@ -636,9 +636,9 @@ class Material(CommonMaterial, object):
         Name of the material.
     props  :
         The default is ``None``.
-        
+
     """
-    
+
     def __init__(self, parent, name, props=None):
         CommonMaterial.__init__(self, parent, name, props)
         self.thermal_material_type = "Solid"
@@ -921,7 +921,7 @@ class Material(CommonMaterial, object):
     @property
     def diffusivity(self):
         """Diffusivity.
-        
+
         Returns
         -------
         type
@@ -937,7 +937,7 @@ class Material(CommonMaterial, object):
     @property
     def molecular_mass(self):
         """Molecular mass.
-        
+
         Returns
         -------
         type
@@ -953,7 +953,7 @@ class Material(CommonMaterial, object):
     @property
     def viscosity(self):
         """Viscosity.
-         
+
         Returns
         -------
         type
@@ -969,7 +969,7 @@ class Material(CommonMaterial, object):
     @property
     def core_loss_kh(self):
         """Core loss in kilohertz.
-        
+
         Returns
         -------
         type
@@ -985,7 +985,7 @@ class Material(CommonMaterial, object):
     @property
     def core_loss_kc(self):
         """Core loss in kilocalories.
-        
+
         Returns
         -------
         type
@@ -1001,7 +1001,7 @@ class Material(CommonMaterial, object):
     @property
     def core_loss_ke(self):
         """Core loss in kinetic energy.
-        
+
         Returns
         -------
         type
@@ -1022,8 +1022,8 @@ class Material(CommonMaterial, object):
         threshold : float, optional
             Threshold to define if a material is a conductor. The
             default is ``100000``. If the conductivity is equal to or
-            greater than the threshold, the material is 
-            considered a conductor.  
+            greater than the threshold, the material is
+            considered a conductor.
 
         Returns
         -------
@@ -1051,8 +1051,8 @@ class Material(CommonMaterial, object):
         threshold : float, optional
             Threshold to define if a material is dielectric. The
             default is ``100000``. If the conductivity is equal to or
-            greater than the threshold, the material is 
-            considered dielectric. 
+            greater than the threshold, the material is
+            considered dielectric.
 
         Returns
         -------
@@ -1090,7 +1090,7 @@ class Material(CommonMaterial, object):
 
 class SurfaceMaterial(CommonMaterial, object):
     """Manages surface material properties.
-       
+
     Parameters
     ----------
     parent :
@@ -1137,7 +1137,7 @@ class SurfaceMaterial(CommonMaterial, object):
     @property
     def emissivity(self):
         """Emissivity.
-        
+
         Returns
         -------
         type
@@ -1154,7 +1154,7 @@ class SurfaceMaterial(CommonMaterial, object):
     @property
     def surface_diffuse_absorptance(self):
         """Surface diffuse absorptance.
-        
+
         Returns
         -------
         type
@@ -1171,7 +1171,7 @@ class SurfaceMaterial(CommonMaterial, object):
     @property
     def surface_incident_absorptance(self):
         """Surface incident absorptance.
-        
+
         Returns
         -------
         type
@@ -1188,7 +1188,7 @@ class SurfaceMaterial(CommonMaterial, object):
     @property
     def surface_roughness(self):
         """Surface roughness.
-        
+
         Returns
         -------
         type

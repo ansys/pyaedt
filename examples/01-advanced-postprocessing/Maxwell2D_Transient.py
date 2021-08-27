@@ -5,7 +5,7 @@ Maxwell 2D Analysis
 This example shows how you can use PyAEDT to create a project in Maxwell 2D
 and run a transient simulation. It runs only on Windows using CPython.
 
-The following libraries are required for the advanced postprocessing features 
+The following libraries are required for the advanced postprocessing features
 used in this example:
 
 - `Matplotlib <https://pypi.org/project/matplotlib/>`_
