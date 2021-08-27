@@ -4,7 +4,7 @@ from .Design import solutions_settings
 from ..modeler.Circuit import ModelerNexxim
 from ..modules.SetupTemplates import SetupKeys
 from ..modules.SolveSetup import SetupCircuit
-
+from ..modules.PostProcessor import CircuitPostProcessor
 
 class FieldAnalysisCircuit(Analysis):
     """FieldCircuitAnalysis class.
@@ -19,6 +19,27 @@ class FieldAnalysisCircuit(Analysis):
     ----------
 
     """
+    def __init__(self, application, projectname, designname, solution_type, setup_name=None,
+                 specified_version=None, NG=False, AlwaysNew=False, release_on_exit=False, student_version=False):
+        self.solution_type = solution_type
+        Analysis.__init__(self, application, projectname, designname, solution_type, setup_name,
+                          specified_version, NG, AlwaysNew, release_on_exit, student_version)
+        self._modeler = ModelerNexxim(self)
+        self._modeler.primitives.init_padstacks()
+        self._post = CircuitPostProcessor(self)
+
+
+    @property
+    def post(self):
+        """PostProcessor.
+
+        Returns
+        -------
+        :class:`pyaedt.modules.PostProcessor.CircuitPostProcessor`
+            PostProcessor object.
+        """
+        return self._post
+
     @property
     def solution_type(self):
         """Solution type. """
@@ -27,17 +48,6 @@ class FieldAnalysisCircuit(Analysis):
 
     @solution_type.setter
     def solution_type(self, soltype):
-        """
-
-        Parameters
-        ----------
-        soltype : 
-            SolutionType object
-
-        Returns
-        -------
-
-        """
         if soltype:
             self._solution_type = solutions_settings[soltype]
         else:
@@ -57,15 +67,6 @@ class FieldAnalysisCircuit(Analysis):
             return self.existing_analysis_setups[0]
         else:
             return ""
-
-    def __init__(self, application, projectname, designname, solution_type, setup_name=None,
-                 specified_version=None, NG=False, AlwaysNew=False, release_on_exit=False, student_version=False):
-        self.solution_type = solution_type
-        Analysis.__init__(self, application, projectname, designname, solution_type, setup_name,
-                          specified_version, NG, AlwaysNew, release_on_exit, student_version)
-        self._modeler = ModelerNexxim(self)
-        self._modeler.primitives.init_padstacks()
-        #self._post = PostProcessor(self)
 
     @property
     def modeler(self):

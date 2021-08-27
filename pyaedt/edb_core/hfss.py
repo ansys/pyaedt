@@ -164,5 +164,3 @@ class Edb3DLayout(object):
             return True
         else:
             return False
-
-

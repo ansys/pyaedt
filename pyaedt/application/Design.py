@@ -1606,21 +1606,17 @@ class Design(object):
             ``True`` when successful, ``False`` when failed.
 
         """
-        if close_active_proj:
-            self._desktop.CloseProject(self.project_name)
+        legacy_project = self.project_name
         proj = self._desktop.OpenProject(project_file)
-        time.sleep(0.5)
-        self._odesign = None
-        self._oproject = None
-        self.oproject = proj.GetName()
-        time.sleep(0.5)
-        self.odesign = design_name
-        time.sleep(0.5)
+
         if proj:
             self.__init__(projectname=proj.GetName(), designname=design_name)
+            if close_active_proj:
+                self._desktop.CloseProject(legacy_project)
             return True
         else:
             return False
+
 
     @aedt_exception_handler
     def create_dataset1d_design(self, dsname, xlist, ylist, xunit="", yunit=""):

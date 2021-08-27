@@ -57,7 +57,7 @@ print("elapsed time = ", time.time() - start)
 # Get Pin Position
 # ~~~~~~~~~~~~~~~~
 # This example gets the position for a specific pin.
-# The next example shows how to get all pins for a specific component and get 
+# The next example shows how to get all pins for a specific component and get
 # the positions of each of them.
 # Each pin is a list of ``[X, Y]`` coordinate postions.
 
@@ -83,7 +83,7 @@ rats = edb.core_components.get_rats()
 # Get All DC-Connected Net Lists Through Inductance
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # This example gets all DC-connected net lists through inductance.
-# The inputs needed are ground net lists. A list of all nets 
+# The inputs needed are ground net lists. A list of all nets
 # connected to a ground through an inductor is returned.
 
 GROUND_NETS = ["GND", "PGND"]
@@ -104,7 +104,7 @@ for el in powertree_df:
 ###############################################################################
 # Delete all RLCs with Only One Pin
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-# This command deletes all RLCs with only one pin, providing a useful way of 
+# This command deletes all RLCs with only one pin, providing a useful way of
 # removing components not needed in the simulation.
 
 edb.core_components.delete_single_pin_rlc()
@@ -140,7 +140,7 @@ edb.core_hfss.create_coax_port_on_component("U2A5", "V1P0_S0")
 ###############################################################################
 # Edit the Stackup and Material
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-# THis example edits the stackup and the material. You can change stackup 
+# THis example edits the stackup and the material. You can change stackup
 # properties with assignment. Materials can be created and assigned to layers.
 
 edb.core_stackup.stackup_layers.layers['TOP'].thickness = "75um"

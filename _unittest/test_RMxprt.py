@@ -38,9 +38,3 @@ class TestClass:
         mysetup = self.aedtapp.create_setup()
         mysetup.props["Rated Output Power"] = "100W"
         assert mysetup.update()
-
-
-
-
-
-

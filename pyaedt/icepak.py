@@ -5,11 +5,13 @@ import csv
 import math
 import os
 import re
+from  collections import OrderedDict
+
 from .application.AnalysisIcepak import FieldAnalysisIcepak
 from .desktop import exception_to_desktop
 from .generic.general_methods import generate_unique_name, aedt_exception_handler
-from .modules.Boundary import BoundaryObject
-from  collections import OrderedDict
+from .application.DataHandlers import arg2dict
+from .modules.Boundary import BoundaryObject, NativeComponentObject
 
 
 class Icepak(FieldAnalysisIcepak):
@@ -38,18 +40,18 @@ class Icepak(FieldAnalysisIcepak):
         nothing is used.
     specified_version: str, optional
         Version of AEDT to use. The default is ``None``, in which case
-        the active version or latest installed version is  used.
+        the active version or latest installed version is  used. This parameter is ignored when Script is launched within AEDT.
     NG : bool, optional
         Whether to launch AEDT in the non-graphical mode. The default 
-        is ``False``, in which case AEDT is launched in the graphical mode.  
+        is ``False``, in which case AEDT is launched in the graphical mode.   This parameter is ignored when Script is launched within AEDT.
     AlwaysNew : bool, optional
         Whether to launch an instance of AEDT in a new thread, even if
         another instance of the ``specified_version`` is active on the
-        machine.  The default is ``True``.
+        machine.  The default is ``True``. This parameter is ignored when Script is launched within AEDT.
     release_on_exit : bool, optional
         Whether to release AEDT on exit. 
     student_version : bool, optional
-        Whether to open the AEDT student version. The default is ``False``.
+        Whether to open the AEDT student version. The default is ``False``. This parameter is ignored when Script is launched within AEDT.
 
     Examples
     --------
@@ -306,7 +308,7 @@ class Icepak(FieldAnalysisIcepak):
 
     @aedt_exception_handler
     def create_source_power(self, face_id, input_power="0W", thermal_condtion="Total Power",
-                            surface_heat="0irrad_W_per_m2", temperature="AmbientTemp", 
+                            surface_heat="0irrad_W_per_m2", temperature="AmbientTemp",
                             radiate=False, source_name=None):
         """Create a source power for a face.
 
@@ -1318,80 +1320,52 @@ class Icepak(FieldAnalysisIcepak):
 
         Returns
         -------
-        bool
-             ``True`` when successful, ``False`` when failed.
+        :class:`pyaedt.modules.Boundary.NativeComponentObject`
+            NativeComponentObject object.
         
         """
         lowRad, highRad = self.get_radiation_settings(rad)
-        hfssLinkInfo = self.get_link_data(setupLinkInfo)
-        compInfo = ["NAME:BasicComponentInfo",
-                    "ComponentName:=", compName,
-                    "Company:=", "",
-                    "Company URL:=", "",
-                    "Model Number:=", "",
-                    "Help URL:=", "",
-                    "Version:=", "1.0",
-                    "Notes:=", "",
-                    "IconType:=", "PCB"]
-        compDefinition = ["NAME:NativeComponentDefinitionProvider",
-                          "Type:=", "PCB",
-                          "Unit:="	, self.modeler.model_units,
-                          "MovePlane:="		, "XY",
-                          "Use3DLayoutExtents:="	, False,
-                          "ExtentsType:="		, extenttype,
-                          "OutlinePolygon:="	, outlinepolygon]
+        hfssLinkInfo = OrderedDict({})
+        arg2dict(self.get_link_data(setupLinkInfo), hfssLinkInfo)
 
-        compDefinition += ["CreateDevices:=", False,
-                            "CreateTopSolderballs:=", False,
-                            "CreateBottomSolderballs:=", False, ]
-        compDefinition += ["Resolution:=", int(resolution),
-                           ["NAME:LowSide", "Radiate:=", lowRad],
-                           ["NAME:HighSide", "Radiate:=", highRad]]
+        native_props = OrderedDict({"NativeComponentDefinitionProvider": OrderedDict(
+            {"Type": "PCB", "Unit": self.modeler.model_units, "MovePlane": "XY", "Use3DLayoutExtents": False,
+             "ExtentsType": extenttype, "OutlinePolygon": outlinepolygon, "CreateDevices": False,
+             "CreateTopSolderballs": False, "CreateBottomSolderballs": False, "Resolution": int(resolution),
+             "LowSide": OrderedDict({"Radiate": lowRad}), "HighSide": OrderedDict({"Radiate": highRad})})})
+        native_props["BasicComponentInfo"] = OrderedDict({"IconType":"PCB"})
 
 
         if custom_x_resolution and custom_y_resolution:
-            compDefinition += ["UseThermalLink:=", solutionFreq!="",
-                               "CustomResolution:=", True, "CustomResolutionRow:=", custom_x_resolution,
-                               "CustomResolutionCol:=", 600]
+            native_props["NativeComponentDefinitionProvider"]["UseThermalLink"] = solutionFreq != ""
+            native_props["NativeComponentDefinitionProvider"]["CustomResolution"] = True
+            native_props["NativeComponentDefinitionProvider"]["CustomResolutionRow"] = custom_x_resolution
+            native_props["NativeComponentDefinitionProvider"]["CustomResolutionCol"] = 600
+            # compDefinition += ["UseThermalLink:=", solutionFreq!="",
+            #                    "CustomResolution:=", True, "CustomResolutionRow:=", custom_x_resolution,
+            #                    "CustomResolutionCol:=", 600]
         else:
-            compDefinition += ["UseThermalLink:=", solutionFreq != "",
-                               "CustomResolution:=", False]
+            native_props["NativeComponentDefinitionProvider"]["UseThermalLink"] = solutionFreq != ""
+            native_props["NativeComponentDefinitionProvider"]["CustomResolution"] = False
+            # compDefinition += ["UseThermalLink:=", solutionFreq != "",
+            #                    "CustomResolution:=", False]
         if solutionFreq:
-                compDefinition += ["Frequency:=", solutionFreq, hfssLinkInfo]
+            native_props["NativeComponentDefinitionProvider"]["Frequency"] = solutionFreq
+            native_props["NativeComponentDefinitionProvider"]["DefnLink"] = hfssLinkInfo["DefnLink"]
+            #compDefinition += ["Frequency:=", solutionFreq, hfssLinkInfo]
         else:
-            compDefinition += ["Power:=", powerin, hfssLinkInfo]
+            native_props["NativeComponentDefinitionProvider"]["Power"] = powerin
+            native_props["NativeComponentDefinitionProvider"]["DefnLink"] = hfssLinkInfo["DefnLink"]
+            #compDefinition += ["Power:=", powerin, hfssLinkInfo]
 
-        compInstancePar = ["NAME:InstanceParameters",
-                           "GeometryParameters:="	, "",
-                           "MaterialParameters:="	, "",
-                           "DesignParameters:="	, ""]
-
-        compData = ["NAME:InsertNativeComponentData",
-                    "TargetCS:=", PCB_CS,
-                    "SubmodelDefinitionName:=", compName,
-                    ["NAME:ComponentPriorityLists"],
-                    "NextUniqueID:=", 0,
-                    "MoveBackwards:=", False,
-                    "DatasetType:=", "ComponentDatasetType",
-                    ["NAME:DatasetDefinitions"],
-                    compInfo,
-                    ["NAME:GeometryDefinitionParameters" ,["NAME:VariableOrders"] ],
-                    ["NAME:DesignDefinitionParameters",	["NAME:VariableOrders"]	],
-                    ["NAME:MaterialDefinitionParameters", ["NAME:VariableOrders"] ],
-                    "MapInstanceParameters:=", "DesignVariable",
-                    "UniqueDefinitionIdentifier:=", "a731a7c3-f557-4ab7-ae80-6bf8520c6129",
-                    "OriginFilePath:="	, "",
-                    "IsLocal:="		, False,
-                    "ChecksumString:="	, "",
-                    "ChecksumHistory:="	, [],
-                    "VersionHistory:="	, [],
-                    compDefinition,
-                    compInstancePar]
-
-        self.modeler.oeditor.InsertNativeComponent(compData)
-        self.modeler.primitives.refresh_all_ids()
-        self.materials._load_from_project()
-        return True
+        native_props["TargetCS"] = PCB_CS
+        native = NativeComponentObject(self, "PCB", compName, native_props)
+        if native.create():
+            self.modeler.primitives.refresh_all_ids()
+            self.materials._load_from_project()
+            self.native_components.append(native)
+            return native
+        return False
 
     @aedt_exception_handler
     def create_pcb_from_3dlayout(self, component_name, project_name, design_name, resolution=2,

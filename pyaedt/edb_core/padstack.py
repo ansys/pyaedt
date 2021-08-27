@@ -244,7 +244,7 @@ class EdbPadstacks(object):
         Returns
         -------
         
-        """    
+        """
         padstack = None
         for pad in list(self.padstacks.keys()):
             if pad == definition_name:

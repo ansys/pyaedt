@@ -153,8 +153,8 @@ def release_desktop(close_projects=True, close_desktop=True):
         ``True`` when successful, ``False`` when failed.
 
     """
-    if _com == "pythonnet":
-        Module = sys.modules['__main__']
+    Module = sys.modules['__main__']
+    if sys.modules['__main__'].interpreter == "ironpython":
         desktop = Module.oDesktop
         scopeID = desktop.ScopeID
         i = 0
@@ -162,19 +162,25 @@ def release_desktop(close_projects=True, close_desktop=True):
             proj_list = desktop.GetProjectList()
             for prj in proj_list:
                 desktop.CloseProject(prj)
-
-        while i <= scopeID:
-            Module.COMUtil.ReleaseCOMObjectScope(Module.COMUtil.PInvokeProxyAPI, i)
-            i += 1
-        try:
-            del Module.oDesktop
-            return True
-        except:
-            Module.oMessenger.add_info_message("Attributes not present")
-            return False
-
-    elif _com == "pythonnet_v3":
-        Module = sys.modules['__main__']
+        if "COMUtil" in dir(Module):
+            while i <= scopeID:
+                Module.COMUtil.ReleaseCOMObjectScope(Module.COMUtil.PInvokeProxyAPI, i)
+                i += 1
+            try:
+                del Module.oDesktop
+                return True
+            except:
+                Module.oMessenger.add_info_message("Attributes not present")
+                return False
+        else:
+            pid = Module.oDesktop.GetProcessID()
+            try:
+                os.kill(pid, 9)
+                return True
+            except:
+                Module.oMessenger.add_error_message("something went wrong in Closing AEDT")
+                return False
+    else:
         desktop = Module.oDesktop
         i = 0
         if close_projects:
@@ -351,6 +357,8 @@ class Desktop:
     def __init__(self, specified_version=None, NG=False, AlwaysNew=True, release_on_exit=True, student_version=False):
         """Initialize desktop."""
         self._main = sys.modules['__main__']
+        self._main.interpreter = _com
+
         self._main.close_on_exit = False
         self._main.isoutsideDesktop = False
         self._main.pyaedt_version = pyaedtversion
@@ -389,7 +397,6 @@ class Desktop:
             else:
                 version = "Ansoft.ElectronicsDesktop." + version_key
             self._main.AEDTVersion = version_key
-            self._main.interpreter = _com
             self._main.interpreter_ver = _pythonver
             if "oDesktop" in dir(self._main):
                 del self._main.oDesktop

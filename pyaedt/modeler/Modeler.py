@@ -1495,8 +1495,9 @@ class GeometryModeler(Modeler, object):
         vArg2.append('DuplicateMirrorNormalY:='), vArg2.append(Ynorm)
         vArg2.append('DuplicateMirrorNormalZ:='), vArg2.append(Znorm)
         vArg3 = ['NAME:Options', 'DuplicateAssignments:=', False]
-        self.oeditor.DuplicateMirror(vArg1, vArg2, vArg3)
-        return True, self.primitives.add_new_objects()
+        added_objs = self.oeditor.DuplicateMirror(vArg1, vArg2, vArg3)
+        self.primitives.add_new_objects()
+        return True, added_objs
 
     @aedt_exception_handler
     def mirror(self, objid, position, vector):
@@ -1567,8 +1568,9 @@ class GeometryModeler(Modeler, object):
                  str(nclones)]
         vArg3 = ["NAME:Options", "DuplicateBoundaries:=", "true"]
 
-        self.oeditor.DuplicateAroundAxis(vArg1, vArg2, vArg3)
-        return self._duplicate_added_objects_tuple()
+        added_objs = self.oeditor.DuplicateAroundAxis(vArg1, vArg2, vArg3)
+        self._duplicate_added_objects_tuple()
+        return True, list(added_objs)
 
     def _duplicate_added_objects_tuple(self):
         added_objects = self.primitives.add_new_objects()
@@ -1610,8 +1612,10 @@ class GeometryModeler(Modeler, object):
         vArg2.append("Numclones:="), vArg2.append(str(nclones))
         vArg3 = ["NAME:Options", "DuplicateBoundaries:=", "true"]
 
-        self.oeditor.DuplicateAlongLine(vArg1, vArg2, vArg3)
-        return self._duplicate_added_objects_tuple()
+        added_objs = self.oeditor.DuplicateAlongLine(vArg1, vArg2, vArg3)
+        self._duplicate_added_objects_tuple()
+        return True, list(added_objs)
+        #return self._duplicate_added_objects_tuple()
 
     @aedt_exception_handler
     def thicken_sheet(self, objid, thickness, bBothSides=False):
@@ -2349,8 +2353,9 @@ class GeometryModeler(Modeler, object):
         ----------
         startingposition : list
             List of ``[x, y, z]`` coordinates for the starting position.
-        axis :
-            Coordinate system axis or the Application.CoordinateSystemAxis object.
+        axis : int
+            Coordinate system axis (integer ``0`` for XAxis, ``1`` for YAxis, ``2`` for ZAxis) or
+            the :class:`Application.CoordinateSystemAxis` enumerator.
         innerradius : float, optional
             Inner coax radius. The default is ``1``.
         outerradius : float, optional
@@ -2366,12 +2371,25 @@ class GeometryModeler(Modeler, object):
         matdiel : str, optional
             Material for the dielectric. The default is ``"teflon_based"``.
 
+
+        Examples
+        --------
+
+        This example shows how to create a Coaxial Along X Axis waveguide.
+
+        >>> from pyaedt import Hfss
+        >>> app = Hfss()
+        >>> position = [0,0,0]
+        >>> coax = app.modeler.create_coaxial(position, app.CoordinateSystemAxis.XAxis, innerradius=0.5, outerradius=0.8, dielradius=0.78, length=50)
+
         Returns
         -------
-        tuple of :class:`pyaedt.modeler.Object3d.Object3d`
-            inner, outer, diel
+        tuple
+            Contains the inner, outer, and dielectric coax as :class:`pyaedt.modeler.Object3d.Object3d` objects.
 
         """
+        if not (outerradius>dielradius and dielradius>innerradius):
+            raise ValueError("Error in coaxial radius.")
         inner = self.primitives.create_cylinder(axis, startingposition, innerradius, length, 0)
         outer = self.primitives.create_cylinder(axis, startingposition, outerradius, length, 0)
         diel = self.primitives.create_cylinder(axis, startingposition, dielradius, length, 0)
@@ -2396,8 +2414,9 @@ class GeometryModeler(Modeler, object):
         ----------
         origin : list
             List of ``[x, y, z]`` coordinates for the original position.
-        wg_direction_axis :
-            Waveguide axis direction.
+        wg_direction_axis : int
+            Coordinate system axis (integer ``0`` for XAxis, ``1`` for YAxis, ``2`` for ZAxis) or
+            the :class:`Application.CoordinateSystemAxis` enumerator.
         wgmodel : str, optional
             Waveguide model. The default is ``"WG0"``.
         wg_length : float, optional
@@ -2415,11 +2434,21 @@ class GeometryModeler(Modeler, object):
             Whether to create sheets on both openings. The default is ``False``.
         name : str, optional
             Name of the waveguide. The default is ``None``.
-        
+
+        Examples
+        --------
+
+        This example shows how to create a WG9 waveguide.
+
+        >>> from pyaedt import Hfss
+        >>> app = Hfss()
+        >>> position = [0, 0, 0]
+        >>> wg1 = app.modeler.create_waveguide(position, app.CoordinateSystemAxis.XAxis, wgmodel="WG9", wg_length=2000)
+
         Returns
         -------
-        int
-            ID of the waveguide created.
+        tuple
+            Tuple of :class:`Object3d <pyaedt.modeler.Object3d.Object3d>` objects created of the waveguide created.
 
         """
         p1=-1
@@ -2902,7 +2931,7 @@ class GeometryModeler(Modeler, object):
         list
             List of six float values representing the bounding box in the form ``[min_x, min_y, min_z, max_x, max_y, max_z]``.
         
-        """      
+        """
         oBoundingBox = list(self.oeditor.GetModelBoundingBox())
         dimensions = []
         dimensions.append(abs(float(oBoundingBox[0]) - float(oBoundingBox[3])))
