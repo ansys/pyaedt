@@ -40,8 +40,7 @@ class SiwaveDCSetupTemplate(object):
         self.mesh_vias = False
         self.perform_adaptive_refinement = False
         self.use_dc_custom_settings = False
-        a = Dictionary[String, int]()
-        self._SourceTermsToGround = a
+        self._SourceTermsToGround = None
         self._pos_term_to_ground = []
         self._neg_term_to_ground = []
 
