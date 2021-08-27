@@ -5,13 +5,13 @@ import csv
 import math
 import os
 import re
+from  collections import OrderedDict
+
 from .application.AnalysisIcepak import FieldAnalysisIcepak
 from .desktop import exception_to_desktop
 from .generic.general_methods import generate_unique_name, aedt_exception_handler
 from .application.DataHandlers import arg2dict
-
 from .modules.Boundary import BoundaryObject, NativeComponentObject
-from  collections import OrderedDict
 
 
 class Icepak(FieldAnalysisIcepak):
@@ -40,18 +40,18 @@ class Icepak(FieldAnalysisIcepak):
         nothing is used.
     specified_version: str, optional
         Version of AEDT to use. The default is ``None``, in which case
-        the active version or latest installed version is  used.
+        the active version or latest installed version is  used. This parameter is ignored when Script is launched within AEDT.
     NG : bool, optional
         Whether to launch AEDT in the non-graphical mode. The default 
-        is ``False``, in which case AEDT is launched in the graphical mode.  
+        is ``False``, in which case AEDT is launched in the graphical mode.   This parameter is ignored when Script is launched within AEDT.
     AlwaysNew : bool, optional
         Whether to launch an instance of AEDT in a new thread, even if
         another instance of the ``specified_version`` is active on the
-        machine.  The default is ``True``.
+        machine.  The default is ``True``. This parameter is ignored when Script is launched within AEDT.
     release_on_exit : bool, optional
         Whether to release AEDT on exit. 
     student_version : bool, optional
-        Whether to open the AEDT student version. The default is ``False``.
+        Whether to open the AEDT student version. The default is ``False``. This parameter is ignored when Script is launched within AEDT.
 
     Examples
     --------
@@ -76,16 +76,16 @@ class Icepak(FieldAnalysisIcepak):
     pyaedt Info: Added design 'IcepakDesign1' of type Icepak.
 
     Create an instance of `Icepak` and open the specified project,
-    which is ``myfile.aedt``.
+    which is ``myipk.aedt``.
 
-    >>> icepak = Icepak("myfile.aedt")
+    >>> icepak = Icepak("myipk.aedt")
     pyaedt Info: Added design ...
 
     Create an instance of Icepak using the 2021 R1 release and
-    open the specified project, which is ``myfile.aedt``.
+    open the specified project, which is ``myipk2.aedt``.
 
-    >>> icepak = Icepak(specified_version="2021.1", projectname="myfile.aedt")
-
+    >>> icepak = Icepak(specified_version="2021.1", projectname="myipk2.aedt")
+    pyaedt Info: Added design ...
     """
     
     def __init__(self, projectname=None, designname=None, solution_type=None, setup_name=None,
@@ -308,7 +308,7 @@ class Icepak(FieldAnalysisIcepak):
 
     @aedt_exception_handler
     def create_source_power(self, face_id, input_power="0W", thermal_condtion="Total Power",
-                            surface_heat="0irrad_W_per_m2", temperature="AmbientTemp", 
+                            surface_heat="0irrad_W_per_m2", temperature="AmbientTemp",
                             radiate=False, source_name=None):
         """Create a source power for a face.
 
@@ -1328,14 +1328,11 @@ class Icepak(FieldAnalysisIcepak):
         hfssLinkInfo = OrderedDict({})
         arg2dict(self.get_link_data(setupLinkInfo), hfssLinkInfo)
 
-        native_props = OrderedDict({"NativeComponentDefinitionProvider" : OrderedDict({"Type": "PCB",
-                        "Unit": self.modeler.model_units, "MovePlane": "XY",
-                          "Use3DLayoutExtents": False,
-                          "ExtentsType": extenttype,
-                          "OutlinePolygon": outlinepolygon, "CreateDevices": False,
-                            "CreateTopSolderballs": False,
-                            "CreateBottomSolderballs": False, "Resolution": int(resolution),
-                           "LowSide": OrderedDict({"Radiate": lowRad}),"HighSide": OrderedDict({"Radiate": highRad})})})
+        native_props = OrderedDict({"NativeComponentDefinitionProvider": OrderedDict(
+            {"Type": "PCB", "Unit": self.modeler.model_units, "MovePlane": "XY", "Use3DLayoutExtents": False,
+             "ExtentsType": extenttype, "OutlinePolygon": outlinepolygon, "CreateDevices": False,
+             "CreateTopSolderballs": False, "CreateBottomSolderballs": False, "Resolution": int(resolution),
+             "LowSide": OrderedDict({"Radiate": lowRad}), "HighSide": OrderedDict({"Radiate": highRad})})})
         native_props["BasicComponentInfo"] = OrderedDict({"IconType":"PCB"})
 
 

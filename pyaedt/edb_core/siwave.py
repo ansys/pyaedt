@@ -23,7 +23,7 @@ class SourceType(object):
 
 
 class PinGroup(object):
-    """Manages pin groups.""" 
+    """Manages pin groups."""
     def __init__(self):
         self._name = ""
         self._component = ""
@@ -660,6 +660,7 @@ class EdbSiwave(object):
             pos_pingroup_terminal.SetIsCircuitPort(True)
             neg_pingroup_terminal.SetIsCircuitPort(True)
             pos_pingroup_terminal.SetReferenceTerminal(neg_pingroup_terminal)
+            pos_pingroup_terminal.SetName(source.name)
 
         elif source.type == SourceType.VoltageSource:
             pos_pingroup_terminal.SetBoundaryType(self._edb.Cell.Terminal.BoundaryType.kVoltageSource)
@@ -669,6 +670,7 @@ class EdbSiwave(object):
             pos_pingroup_terminal.SetIsCircuitPort(True)
             neg_pingroup_terminal.SetIsCircuitPort(True)
             pos_pingroup_terminal.SetReferenceTerminal(neg_pingroup_terminal)
+            pos_pingroup_terminal.SetName(source.name)
 
         elif source.type == SourceType.Resistor:
             pos_pingroup_terminal.SetBoundaryType(self._edb.Cell.Terminal.BoundaryType.RlcBoundary)

@@ -19,6 +19,7 @@ RKM_MAPS = {
     'M': 'M',
     'G': 'G',
     'T': 'T',
+    'f': 'f',
     # Capacitors/Inductors
     'F': '',
     'H': '',
@@ -177,18 +178,18 @@ class Circuit(FieldAnalysisCircuit, object):
         nothing is used.
     specified_version: str, optional
         Version of AEDT to use. The default is ``None``, in which case
-        the active version or latest installed version is  used.
+        the active version or latest installed version is  used. This parameter is ignored when Script is launched within AEDT.
     NG : bool, optional
         Whether to run AEDT in the non-graphical mode. The default
-        is``False``, in which case AEDT is launched in the graphical mode.
+        is``False``, in which case AEDT is launched in the graphical mode. This parameter is ignored when Script is launched within AEDT.
     AlwaysNew : bool, optional
         Whether to launch an instance of AEDT in a new thread, even if
         another instance of the ``specified_version`` is active on the
-        machine.  The default is ``True``.
+        machine.  The default is ``True``. This parameter is ignored when Script is launched within AEDT.
     release_on_exit : bool, optional
         Whether to release AEDT on exit.
     student_version : bool, optional
-        Whether to open the AEDT student version. The default is ``False``.
+        Whether to open the AEDT student version. The default is ``False``. This parameter is ignored when Script is launched within AEDT.
 
     Examples
     --------
@@ -241,7 +242,6 @@ class Circuit(FieldAnalysisCircuit, object):
     def onetwork_data_explorer(self):
         return self._desktop.GetTool("NdExplorer")
 
-    @aedt_exception_handler
     def _get_number_from_string(self, stringval):
         value = stringval[stringval.find("=") + 1:].strip().replace("{", "").replace("}", "").replace(",", ".")
         try:
@@ -918,4 +918,3 @@ class Circuit(FieldAnalysisCircuit, object):
                 variations[el] = [variation_dict[el]]
         ctxt = ["NAME:Context", "SimValueContext:=", [3, 0, 2, 0, False, False, -1, 1, 0, 1, 1, "", 0, 0]]
         return self.post.get_solution_data_per_variation("Standard", solution_name, ctxt, variations, curvenames)
-

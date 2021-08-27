@@ -38,19 +38,19 @@ class Hfss(FieldAnalysis3D, object):
         nothing is used.
     specified_version: str, optional
         Version of AEDT to use. The default is ``None``, in which case
-        the active version or latest installed version is used.
+        the active version or latest installed version is used. This parameter is ignored when Script is launched within AEDT.
     NG : bool, optional
         Whether to run AEDT in the non-graphical mode. The default
-        is ``False``, in which case AEDT is launched in the graphical mode.
+        is ``False``, in which case AEDT is launched in the graphical mode. This parameter is ignored when Script is launched within AEDT.
     AlwaysNew : bool, optional
         Whether to launch an instance of AEDT in a new thread, even if
         another instance of the ``specified_version`` is active on the
-        machine. The default is ``True``.
+        machine. The default is ``True``. This parameter is ignored when Script is launched within AEDT.
     release_on_exit : bool, optional
         Whether to release AEDT on exit. The default is ``False``.
     student_version : bool, optional
         Whether to open the AEDT student version. The default is 
-        ``False``.
+        ``False``. This parameter is ignored when Script is launched within AEDT.
 
     Examples
     --------
@@ -81,14 +81,16 @@ class Hfss(FieldAnalysis3D, object):
     pyaedt Info: Added design 'HFSS_...' of type HFSS.
 
     Create an instance of HFSS using the 2021 R1 release and open
-    the specified project, which is named ``"myfile.aedt"``.
+    the specified project, which is named ``"myfile2.aedt"``.
 
-    >>> hfss = Hfss(specified_version="2021.1", projectname="myfile.aedt")
+    >>> hfss = Hfss(specified_version="2021.1", projectname="myfile2.aedt")
+    pyaedt Info: Added design 'HFSS_...' of type HFSS.
 
     Create an instance of HFSS using the 2021 R2 student version and open
-    the specified project, which is named ``"myfile.aedt"``.
+    the specified project, which is named ``"myfile3.aedt"``.
 
-    >>> hfss = Hfss(specified_version="2021.2", projectname="myfile.aedt", student_version=True)
+    >>> hfss = Hfss(specified_version="2021.2", projectname="myfile3.aedt", student_version=True)
+    pyaedt Info: Added design 'HFSS_...' of type HFSS.
 
     """
 
@@ -583,7 +585,7 @@ class Hfss(FieldAnalysis3D, object):
 
         Parameters
         -------------
-        source_object :
+        source_object : ``pyaedt.Hfss``
 
         target_cs : str, optional
             Target coordinate system. The default is ``"Global"``.
@@ -602,13 +604,24 @@ class Hfss(FieldAnalysis3D, object):
         power_fraction : str, optional
              The default is ``"0.95"``.
 
+        Examples
+        --------
+        >>> from pyaedt import Hfss
+        >>> target_project = "my/path/to/targetProject.aedt"
+        >>> source_project = "my/path/to/sourceProject.aedt"
+        >>> target = Hfss(projectname=target_project, solution_type="SBR+", specified_version="2021.1", AlwaysNew=False)  # doctest: +SKIP
+        >>> source = Hfss(projectname=source_project, designname="feeder", specified_version="2021.1", AlwaysNew=False)  # doctest: +SKIP
+        >>> target.create_sbr_linked_antenna(source, target_cs="feederPosition", fieldtype="farfield")  # doctest: +SKIP
+
         Returns
         -------
         :class:`pyaedt.modules.Boundary.NativeComponentObject`
             NativeComponentObject object.
 
         """
-
+        if self.solution_type != "SBR+":
+            self.add_error_message("This Native components only applies to SBR+ Solution")
+            return False
         compName = source_object.design_name
         uniquename = generate_unique_name(compName)
         if source_object.project_name == self.project_name:
@@ -618,10 +631,10 @@ class Hfss(FieldAnalysis3D, object):
         design_name = source_object.design_name
         if not solution:
             solution = source_object.nominal_adaptive
-        params =OrderedDict({})
+        params = OrderedDict({})
         pars = source_object.available_variations.nominal_w_values_dict
         for el in pars:
-           params[el] =pars[el]
+            params[el] = pars[el]
         native_props = OrderedDict({"Type": "Linked Antenna",
                         "Unit": self.modeler.model_units, "Is Parametric Array": False, "Project": project_name,
                         "Product": "HFSS", "Design": design_name, "Soln": solution, "Params": params,
@@ -633,23 +646,23 @@ class Hfss(FieldAnalysis3D, object):
             native_props["Current Source Conformance"]= current_conformance
             native_props["Thin Sources"] = thin_sources
             native_props[ "Power Fraction"] = power_fraction
-        return self._create_native_component("Linked Antenna",target_cs, self.modeler.model_units, native_props,uniquename )
+        return self._create_native_component("Linked Antenna", target_cs, self.modeler.model_units, native_props, uniquename )
 
 
     @aedt_exception_handler
     def _create_native_component(self, antenna_type, target_cs=None, model_units=None, parameters_dict=None,
-                                       antenna_name=None):
+                                 antenna_name=None):
         if antenna_name is None:
-            antenna_name = generate_unique_name(antenna_type)
+            antenna_name = generate_unique_name(antenna_type.replace(" ", "").replace("-",""))
         if not model_units:
             model_units = self.modeler.model_units
 
         native_props = OrderedDict({"NativeComponentDefinitionProvider": OrderedDict({"Type": antenna_type,
-                        "Unit": model_units})})
+                                                                                      "Unit": model_units})})
         native_props["TargetCS"] = target_cs
         if isinstance(parameters_dict, dict):
             for el in parameters_dict:
-                if el not in ["antenna_type","offset","rotation","rotation_axis", "mode"] and parameters_dict[el] is not None:
+                if el not in ["antenna_type", "offset", "rotation", "rotation_axis", "mode"] and parameters_dict[el] is not None:
                     native_props["NativeComponentDefinitionProvider"][el.replace("_", " ").title()] = parameters_dict[el]
         native = NativeComponentObject(self, antenna_type,antenna_name, native_props)
         if native.create():
@@ -657,21 +670,83 @@ class Hfss(FieldAnalysis3D, object):
             return native
         return None
 
+    class SbrAntennas:
+        (ConicalHorn, CrossDipole, HalfWaveDipole, HorizontalDipole, ParametricBeam, ParametricSlot, PyramidalHorn,
+         QuarterWaveMonopole, ShortDipole, SmallLoop, WireDipole, WireMonopole) = (
+        "Conical Horn", "Cross Dipole", "Half-Wave Dipole", "Horizontal Dipole", "Parametric Beam", "Parametric Slot",
+        "Pyramidal Horn", "Quarter-Wave Monopole", "Short Dipole", "Small Loop", "Wire Dipole", "Wire Monopole")
+
+    class SBRAntennaDefaults:
+        _conical = OrderedDict(
+            {"Is Parametric Array": False, "MatchedPortImpedance": "50ohm", "Polarization": "Vertical",
+             "Representation": "Far Field", "Mouth Diameter": "0.3meter", "Flare Half Angle": "20deg"})
+        _cross = OrderedDict(
+            {"Is Parametric Array": False, "MatchedPortImpedance": "50ohm", "Polarization": "RHCP",
+             "Representation": "Current Source", "Density": "1", "UseGlobalCurrentSrcOption": True,
+             "Resonant Frequency": "0.3GHz", "Wire Length": "499.654096666667mm", "Mode": 0})
+        _horizontal = OrderedDict(
+            {"Is Parametric Array": False, "MatchedPortImpedance": "50ohm", "Polarization": "Vertical",
+             "Representation": "Current Source", "Density": "1", "UseGlobalCurrentSrcOption": False,
+             "Resonant Frequency": "0.3GHz", "Wire Length": "499.654096666667mm",
+             "Height Over Ground Plane": "249.827048333333mm", "Use Default Height": True})
+        _parametricbeam = OrderedDict(
+            {"Is Parametric Array": False, "Size": "0.1mm", "MatchedPortImpedance": "50ohm", "Polarization": "Vertical",
+             "Representation": "Far Field", "Vertical BeamWidth": "30deg", "Horizontal BeamWidth": "60deg"})
+        _slot = OrderedDict(
+            {"Is Parametric Array": False, "MatchedPortImpedance": "50ohm", "Representation": "Far Field",
+             "Resonant Frequency": "0.3GHz", "Slot Length": "499.654096666667mm"})
+        _horn = OrderedDict(
+            {"Is Parametric Array": False, "MatchedPortImpedance": "50ohm", "Representation": "Far Field",
+             "Mouth Width": "0.3meter", "Mouth Height": "0.5meter", "Waveguide Width": "0.15meter",
+             "Width Flare Half Angle": "20deg", "Height Flare Half Angle": "35deg"})
+        _dipole = OrderedDict(
+            {"Is Parametric Array": False, "Size": "1mm", "MatchedPortImpedance": "50ohm",
+             "Representation": "Far Field"})
+        _smallloop = OrderedDict(
+            {"Is Parametric Array": False, "MatchedPortImpedance": "50ohm", "Polarization": "Vertical",
+             "Representation": "Current Source", "Density": "1", "UseGlobalCurrentSrcOption": False,
+             "Current Source Conformance": "Disable", "Thin Sources": True, "Power Fraction": "0.95",
+             "Mouth Diameter": "0.3meter", "Flare Half Angle": "20deg"})
+        _wiredipole = OrderedDict(
+            {"Is Parametric Array": False, "MatchedPortImpedance": "50ohm", "Representation": "Far Field",
+             "Resonant Frequency": "0.3GHz", "Wire Length": "499.654096666667mm"})
+        parameters = {"Conical Horn": _conical, "Cross Dipole": _cross, "Half-Wave Dipole": _dipole,
+                      "Horizontal Dipole": _horizontal, "Parametric Beam": _parametricbeam, "Parametric Slot": _slot,
+                      "Pyramidal Horn": _horn, "Quarter-Wave Monopole": _dipole, "Short Dipole": _dipole,
+                      "Small Loop": _dipole, "Wire Dipole": _wiredipole, "Wire Monopole": _wiredipole}
+        default_type_id = {"Conical Horn": 11, "Cross Dipole": 12, "Half-Wave Dipole": 3,
+                      "Horizontal Dipole": 13, "Parametric Beam": 0, "Parametric Slot": 7,
+                      "Pyramidal Horn": _horn, "Quarter-Wave Monopole": 4, "Short Dipole": 1,
+                      "Small Loop": 2, "Wire Dipole": 5, "Wire Monopole": 6, "File Based Antenna": 8}
 
     @aedt_exception_handler
-    def create_sbr_parametric_beam_antenna(self, target_cs=None, model_units=None, parameters_dict=None, antenna_name=None):
-        """Create a linked antenna.
+    def create_sbr_antenna(self, antenna_type=SbrAntennas.ConicalHorn, target_cs=None, model_units=None,
+                           parameters_dict=None, use_current_source_representation=False, is_array=False, antenna_name=None):
+        """Create a Parametric Beam antenna in SBR+.
 
         Parameters
-        -------------
+        ----------
+        antenna_type: str, `SbrAntennas.ConicalHorn`
+            Name of the Antenna type. Enumerator SbrAntennas can also be used.
         target_cs : str, optional
             Target coordinate system. The default is the active one.
         model_units: str, optional
-            Model units to be applied to the object. Default is ``None`` which is the active Modeler units
+            Model units to be applied to the object. Default is
+            ``None`` which is the active modeler units.
         parameters_dict : dict, optional
             The default is ``"nearfield"``.
         antenna_name : str, optional
-            3D Component Name. The default is the autogenerated based on the antenna type.
+            3D component name. The default is auto-generated based on the antenna type.
+
+        Examples
+        --------
+        >>> from pyaedt import Hfss
+        >>> hfss = Hfss(solution_type="SBR+")  # doctest: +SKIP
+        pyaedt Info: Added design 'HFSS_IPO' of type HFSS.
+        >>> parm = {"polarization": "Vertical"}  # doctest: +SKIP
+        >>> par_beam = hfss.create_sbr_antenna(hfss.SbrAntennas.ShortDipole, 
+        ...                                    parameters_dict=parm,
+        ...                                    antenna_name="TX1")  # doctest: +SKIP
 
         Returns
         -------
@@ -679,10 +754,59 @@ class Hfss(FieldAnalysis3D, object):
             NativeComponentObject object.
 
         """
+        if self.solution_type != "SBR+":
+            self.add_error_message("This Native component only applies to a SBR+ Solution.")
+            return False
         if target_cs is None:
             target_cs = self.modeler.oeditor.GetActiveCoordinateSystem()
-
-        return self._create_native_component("Parametric Beam", target_cs, model_units, parameters_dict, antenna_name)
+        parameters_defaults = self.SBRAntennaDefaults.parameters[antenna_type].copy()
+        if use_current_source_representation and antenna_type in ["Conical Horn", "Horizontal Dipole",
+                                                                  "Parametric Slot", "Pyramidal Horn", "Wire Dipole",
+                                                                  "Wire Monopole"]:
+            parameters_defaults["Representation"] = "Current Source"
+            parameters_defaults["Density"] = "1"
+            parameters_defaults["UseGlobalCurrentSrcOption"] =  False
+            parameters_defaults["Current Source Conformance"] =  "Disable"
+            parameters_defaults["Thin Sources"] = False
+            parameters_defaults["Power Fraction"] = "0.95"
+        if is_array:
+            parameters_defaults["Is Parametric Array"] = True
+            parameters_defaults["Array Element Type"]= self.SBRAntennaDefaults.default_type_id[antenna_type]
+            parameters_defaults["Array Element Angle Phi"]= "0deg",
+            parameters_defaults["Array Element Angle Theta"]= "0deg",
+            parameters_defaults["Array Element Offset X"]= "0meter"
+            parameters_defaults["Array Element Offset Y"]= "0meter"
+            parameters_defaults["Array Element Offset Z"]= "0meter"
+            parameters_defaults["Array Element Conformance Type"]= 0
+            parameters_defaults["Array Element Conformance Type"]= 0
+            parameters_defaults["Array Element Conformance Type"]= 0
+            parameters_defaults["Array Element Conform Orientation"]= False
+            parameters_defaults["Array Design Frequency"]= "1GHz"
+            parameters_defaults["Array Layout Type"]= 1
+            parameters_defaults["Array Specify Design In Wavelength"]= True
+            parameters_defaults["Array Element Num"]= 5
+            parameters_defaults["Array Length"]= "1meter"
+            parameters_defaults["Array Width"]= "1meter"
+            parameters_defaults["Array Length Spacing"]= "0.1meter"
+            parameters_defaults["Array Width Spacing"]= "0.1meter"
+            parameters_defaults["Array Length In Wavelength"]= "3"
+            parameters_defaults["Array Width In Wavelength"]= "4"
+            parameters_defaults["Array Length Spacing In Wavelength"]= "0.5"
+            parameters_defaults["Array Stagger Type"]= 0
+            parameters_defaults["Array Stagger Angle"]= "0deg"
+            parameters_defaults["Array Symmetry Type"]= 0
+            parameters_defaults["Array Weight Type"]= 3
+            parameters_defaults["Array Beam Angle Theta"]= "0deg"
+            parameters_defaults["Array Weight Edge TaperX"]= -200
+            parameters_defaults["Array Weight Edge TaperY"]= -200
+            parameters_defaults["Array Weight Cosine Exp"]= 1
+            parameters_defaults["Array Differential Pattern Type"]= 0
+            if is_array:
+                antenna_name = generate_unique_name("pAntArray")
+        if parameters_dict:
+            for el, value in parameters_dict.items():
+                parameters_defaults[el] = value
+        return self._create_native_component(antenna_type, target_cs, model_units, parameters_defaults, antenna_name)
 
     @aedt_exception_handler
     def create_sbr_file_based_antenna(self, ffd_full_path, antenna_size="1mm", antenna_impedance="50ohm",
@@ -691,27 +815,40 @@ class Hfss(FieldAnalysis3D, object):
         """Create a linked antenna.
 
         Parameters
-        -------------
+        ----------
         ffd_full_path: str
-            full path to ffd file
+            Full path to the ffd file.
         antenna_size: str, optional
-            Antenna size with units
+            Antenna size with units.
         antenna_impedance: str, optional
-            Antenna Impedance with units
+            Antenna impedance with units.
         representation_type: str, optional
-            Antenna type ``Far Field`` or ``Near Field``
+            Antenna type.  Either ``"Far Field"`` or ``"Near Field"``.
         target_cs : str, optional
-            Target coordinate system. The default is the active one.
+            Target coordinate system. The default is the active coordinate system.
         model_units: str, optional
-            Model units to be applied to the object. Default is ``None`` which is the active Modeler units
+            Model units to be applied to the object. Default is
+            ``None`` which is the active modeler units.
         antenna_name : str, optional
-            3D Component Name. The default is the autogenerated based on the antenna type.
+            3D component name. The default is the auto-generated based
+            on the antenna type.
+
+        Examples
+        --------
+        >>> from pyaedt import Hfss
+        >>> hfss = Hfss(solution_type="SBR+")  # doctest: +SKIP
+        >>> ffd_file = "full_path/to/ffdfile.ffd"
+        >>> par_beam = hfss.create_sbr_file_based_antenna(ffd_file)  # doctest: +SKIP
+
         Returns
         -------
         :class:`pyaedt.modules.Boundary.NativeComponentObject`
             NativeComponentObject object.
 
         """
+        if self.solution_type != "SBR+":
+            self.add_error_message("This Native component only applies to a SBR+ Solution.")
+            return False
         if target_cs is None:
             target_cs = self.modeler.oeditor.GetActiveCoordinateSystem()
 
@@ -723,26 +860,30 @@ class Hfss(FieldAnalysis3D, object):
 
         return self._create_native_component("File Based Antenna", target_cs, model_units, par_dicts, antenna_name)
 
-
     @aedt_exception_handler
-    def set_sbr_txrx_settings(self, txrx_dictionary):
-        """
-        Sets Sbr+ TX RX Antenna Settings
+    def set_sbr_txrx_settings(self, txrx_settings):
+        """Sets Sbr+ TX RX Antenna Settings
 
         Parameters
         ----------
-        txrx_dictionary : dict
+        txrx_settings : dict
             Dictionary containing the TX as key and RX as values
+
+        Examples
+        --------
 
         Returns
         -------
         :class:`pyaedt.modules.Boundary.BoundaryObject`
             Boundary object.
         """
+        if self.solution_type != "SBR+":
+            self.add_error_message("This Boundary only applies to SBR+ Solution")
+            return False
         id = 0
         props=OrderedDict({})
-        for el, val in txrx_dictionary.items():
-            props["Tx/Rx List " + str(id)] = OrderedDict({"Tx Antenna": el, "Rx Antennas": txrx_dictionary[el]})
+        for el, val in txrx_settings.items():
+            props["Tx/Rx List " + str(id)] = OrderedDict({"Tx Antenna": el, "Rx Antennas": txrx_settings[el]})
             id += 1
         return self._create_boundary("SBRTxRxSettings", props, "SBRTxRxSettings")
 

@@ -12,14 +12,14 @@ import os
 ###############################################################################
 # Launch AEDT in Non-Graphical Mode
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-# You can change the Boolean parameter ``NonGraphical`` to ``False`` to launch  
+# You can change the Boolean parameter ``NonGraphical`` to ``False`` to launch
 # AEDT in graphical mode.
 
 NG = False
 d =Desktop("2021.1", NG=NG)
 
 ###############################################################################
-# Initialize the `Hfss` Object and Create the Needed Design Variables 
+# Initialize the `Hfss` Object and Create the Needed Design Variables
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # In this example, HFSS is to have two design variables, ``w1`` and ``w2``.
 
@@ -28,7 +28,7 @@ hfss["w1"] = "1mm"
 hfss["w2"] = "100mm"
 
 ###############################################################################
-# Create a Waveguide with Sheets on It 
+# Create a Waveguide with Sheets on It
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # This method creates one of the standard waveguide structures and parametrizes it.
 # You can also create rectangles of waveguide openings and assign ports later.
@@ -46,7 +46,7 @@ hfss.create_wave_port_from_sheet(p2, axisdir=hfss.AxisDir.ZPos, portname="2")
 ###############################################################################
 # Create a Setup and a Frequency Sweep
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-# This example creates a setup and a frequency sweep to use as the base for 
+# This example creates a setup and a frequency sweep to use as the base for
 # Optimetrics setups.
 
 setup = hfss.create_setup()
@@ -111,7 +111,7 @@ sweep5.add_calculation(calculation="dB(S(1,1))", calculation_value="2.5GHz")
 ###############################################################################
 # Close AEDT
 # ----------
-# After the simulaton is completed, you can close AEDT or release it using the 
+# After the simulaton is completed, you can close AEDT or release it using the
 # :func:`pyaedt.Desktop.release_desktop` method.
 # All methods provide for saving the project before exiting.
 

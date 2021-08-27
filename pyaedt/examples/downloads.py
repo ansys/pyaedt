@@ -186,4 +186,3 @@ def download_sherlock():
     _download_file('sherlock/SherlockTutorial.aedb', 'edb.def')
 
     return os.path.join(EXAMPLES_PATH, "sherlock")
-

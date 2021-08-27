@@ -50,39 +50,54 @@ class BoundaryCommon(object):
 class NativeComponentObject(BoundaryCommon, object):
     """Manages Native Component data and execution.
 
-    Parameters
-    ----------
-    parent:
-
-    component_type :
-
-    component_name :
-
-    props :
-
-
+    Examples
+    --------
+    in this example the par_beam returned object is a ``pyaedt.modules.Boundary.NativeComponentObject``
+    >>> from pyaedt import Hfss
+    >>> hfss = Hfss(solution_type="SBR+")
+    >>> ffd_file ="path/to/ffdfile.ffd"
+    >>> par_beam = hfss.create_sbr_file_based_antenna(ffd_file)
+    >>> par_beam.native_properties["Size"] = "0.1mm"
+    >>> par_beam.update()
+    >>> par_beam.delete()
     """
 
     def __init__(self, parent,component_type, component_name, props):
         self._parent = parent
         self.name = "InsertNativeComponentData"
+        self.component_name = component_name
         self.props = OrderedDict(
-            {"TargetCS": "Global", "SubmodelDefinitionName": component_name, "ComponentPriorityLists": OrderedDict({}),
+            {"TargetCS": "Global", "SubmodelDefinitionName": self.component_name, "ComponentPriorityLists": OrderedDict({}),
              "NextUniqueID": 0, "MoveBackwards": False, "DatasetType": "ComponentDatasetType",
              "DatasetDefinitions": OrderedDict({}), "BasicComponentInfo": OrderedDict(
-                {"ComponentName": component_name, "Company": "", "Company URL": "", "Model Number": "", "Help URL": "",
-                 "Version": "1.0", "Notes": "", "IconType": "File Based Antenna"}),
+                {"ComponentName": self.component_name, "Company": "", "Company URL": "", "Model Number": "", "Help URL": "",
+                 "Version": "1.0", "Notes": "", "IconType": ""}),
              "GeometryDefinitionParameters": OrderedDict({"VariableOrders": OrderedDict({})}),
              "DesignDefinitionParameters": OrderedDict({"VariableOrders": OrderedDict({})}),
              "MaterialDefinitionParameters": OrderedDict({"VariableOrders": OrderedDict({})}),
-             "MapInstanceParameters": "NotVariable",
-             "UniqueDefinitionIdentifier": "89d26167-fb77-480e-a7ab-"+random_string(12), "OriginFilePath": "",
+             "MapInstanceParameters": "DesignVariable",
+             "UniqueDefinitionIdentifier": "89d26167-fb77-480e-a7ab-"+random_string(12,char_set='abcdef0123456789'), "OriginFilePath": "",
              "IsLocal": False, "ChecksumString": "", "ChecksumHistory": [], "VersionHistory": [],
              "NativeComponentDefinitionProvider": OrderedDict({"Type": component_type}),
              "InstanceParameters": OrderedDict(
                  {"GeometryParameters": "", "MaterialParameters": "", "DesignParameters": ""})})
         if props:
             self._update_props(self.props,props)
+        self.native_properties = self.props["NativeComponentDefinitionProvider"]
+
+    @property
+    def targetcs(self):
+        """
+        Returns
+        -------
+        str
+            Native Component Coordinate System
+        """
+        return self.props["TargetCS"]
+
+    @targetcs.setter
+    def targetcs(self, cs):
+        self.props["TargetCS"] = cs
 
     def _update_props(self,d, u):
         for k, v in u.items():
@@ -104,7 +119,7 @@ class NativeComponentObject(BoundaryCommon, object):
 
     @aedt_exception_handler
     def create(self):
-        """Create a boundary.
+        """Create a Native Component in AEDT
 
         Returns
         -------
@@ -112,12 +127,14 @@ class NativeComponentObject(BoundaryCommon, object):
             ``True`` when successful, ``False`` when failed.
 
         """
-        self._parent.modeler.oeditor.InsertNativeComponent(self._get_args())
+        self.name = "InsertNativeComponentData"
+
+        self.antennaname = self._parent.modeler.oeditor.InsertNativeComponent(self._get_args())
         return True
 
     @aedt_exception_handler
     def update(self):
-        """Update the boundary.
+        """Update the Native Component in AEDT.
 
         Returns
         -------
@@ -125,10 +142,43 @@ class NativeComponentObject(BoundaryCommon, object):
             ``True`` when successful, ``False`` when failed.
 
         """
-        self.name = "EditNativeComponentDefinitionData"
-        self.props["DefinitionName"]=self.props["SubmodelDefinitionName"]
-        self._parent.modeler.oeditor.EditNativeComponentDefinition(self._get_args())
 
+        self.name = "EditNativeComponentDefinitionData"
+        self.update_props = OrderedDict({})
+        self.update_props["DefinitionName"] = self.props["SubmodelDefinitionName"]
+        self.update_props["GeometryDefinitionParameters"] = self.props["GeometryDefinitionParameters"]
+        self.update_props["DesignDefinitionParameters"] = self.props["DesignDefinitionParameters"]
+        self.update_props["MaterialDefinitionParameters"] = self.props["MaterialDefinitionParameters"]
+        self.update_props["NextUniqueID"] = self.props["NextUniqueID"]
+        self.update_props["MoveBackwards"] = self.props["MoveBackwards"]
+        self.update_props["DatasetType"] = self.props["DatasetType"]
+        self.update_props["DatasetDefinitions"] = self.props["DatasetDefinitions"]
+        self.update_props["NativeComponentDefinitionProvider"] = self.props["NativeComponentDefinitionProvider"]
+        self.update_props["ComponentName"] = self.props["BasicComponentInfo"]["ComponentName"]
+        self.update_props["Company"] = self.props["BasicComponentInfo"]["Company"]
+        self.update_props["Model Number"] = self.props["BasicComponentInfo"]["Model Number"]
+        self.update_props["Help URL"] = self.props["BasicComponentInfo"]["Help URL"]
+        self.update_props["Version"] = self.props["BasicComponentInfo"]["Version"]
+        self.update_props["Notes"] = self.props["BasicComponentInfo"]["Notes"]
+        self.update_props["IconType"] = self.props["BasicComponentInfo"]["IconType"]
+        self._parent.modeler.oeditor.EditNativeComponentDefinition(self._get_args(self.update_props))
+
+        return True
+
+    @aedt_exception_handler
+    def delete(self):
+        """Delete the Native Component in AEDT.
+
+        Returns
+        -------
+        bool
+            ``True`` when successful, ``False`` when failed.
+
+        """
+        self._parent.modeler.oeditor.Delete(["NAME:Selections", "Selections:=", self.antennaname])
+        for el in self._parent.native_components:
+            if el.component_name == self.component_name:
+                self._parent.native_components.remove(el)
         return True
 
 
@@ -435,4 +485,3 @@ class BoundaryObject(BoundaryCommon, object):
         else:
             return False
         return True
-    

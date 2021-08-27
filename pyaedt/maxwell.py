@@ -109,18 +109,18 @@ class Maxwell(object):
         nothing is used.
     specified_version: str, optional
         Version of AEDT to use. The default is ``None``, in which case
-        the active version or latest installed version is used.
+        the active version or latest installed version is used. This parameter is ignored when Script is launched within AEDT.
     NG : bool, optional
         Whether to launch AEDT in the non-graphical mode. The default
-        is ``False``, in which case AEDT is launched in the graphical mode.
+        is ``False``, in which case AEDT is launched in the graphical mode. This parameter is ignored when Script is launched within AEDT.
     AlwaysNew : bool, optional
         Whether to launch an instance of AEDT in a new thread, even if
         another instance of the ``specified_version`` is active on the
-        machine. The default is ``True``.
+        machine. The default is ``True``. This parameter is ignored when Script is launched within AEDT.
     release_on_exit : bool, optional
         Whether to release AEDT on exit. The default is ``False``.
     student_version : bool, optional
-        Whether to open the AEDT student version. The default is ``False``.
+        Whether to open the AEDT student version. The default is ``False``. This parameter is ignored when Script is launched within AEDT.
 
     """
 
@@ -388,7 +388,7 @@ class Maxwell(object):
         return False
 
     @aedt_exception_handler
-    def assign_winding(self, coil_terminals=None, winding_type="Current", current_value=1, res=0, ind=0, voltage=0,
+    def assign_winding(self, coil_terminals=None, winding_type="Current", is_solid=True, current_value=1, res=0, ind=0, voltage=0,
                        parallel_branches=1, name=None):
         """Assign a winding to a Maxwell design.
 
@@ -400,6 +400,8 @@ class Maxwell(object):
         winding_type : str, optional
             Type of the winding. Options are ``"Current"``, ``"Voltage"``, 
             and ``"External"``. The default is ``"Current"``.
+        is_solid : bool, optional
+            Type of the winding.  ``True`` is solid, ``False`` is stranded. The default is ``True``.
         current_value : float, optional
             Value of the current in amperes. The default is ``1``.
         res : float, optional
@@ -423,7 +425,7 @@ class Maxwell(object):
         if not name:
             name = generate_unique_name("Winding")
 
-        props = OrderedDict({"Type": winding_type, "IsSolid": True, "Current": str(current_value) + "A",
+        props = OrderedDict({"Type": winding_type, "IsSolid": is_solid, "Current": str(current_value) + "A",
                              "Resistance": str(res) + "ohm", "Inductance": str(ind) + "H",
                              "Voltage": str(voltage) + "V", "ParallelBranchesNum": str(parallel_branches)})
         bound = BoundaryObject(self, name, props, "Winding")
@@ -736,31 +738,33 @@ class Maxwell3d(Maxwell, FieldAnalysis3D, object):
         nothing is used.
     specified_version: str, optional
         Version of AEDT to use. The default is ``None``, in which case
-        the active version or latest installed version is used.
+        the active version or latest installed version is used. This parameter is ignored when Script is launched within AEDT.
     NG : bool, optional
         Whether to launch AEDT in the non-graphical mode. The default
-        is ``False``, in which case AEDT is launched in the graphical mode.
+        is ``False``, in which case AEDT is launched in the graphical mode. This parameter is ignored when Script is launched within AEDT.
     AlwaysNew : bool, optional
         Whether to launch an instance of AEDT in a new thread, even if
         another instance of the ``specified_version`` is active on the
-        machine. The default is ``True``.
+        machine. The default is ``True``. This parameter is ignored when Script is launched within AEDT.
     release_on_exit : bool, optional
         Whether to release AEDT on exit. The default is ``False``.
      student_version : bool, optional
-        Whether to open the AEDT student version. The default is ``False``.
+        Whether to open the AEDT student version. The default is ``False``. This parameter is ignored when Script is launched within AEDT.
 
     Examples
     --------
     Create an instance of Maxwell 3D and open the specified
-    project, which is named ``myfile.aedt``.
+    project, which is named ``mymaxwell.aedt``.
 
     >>> from pyaedt import Maxwell3d
-    >>> aedtapp = Maxwell3d("myfile.aedt")
+    >>> aedtapp = Maxwell3d("mymaxwell.aedt")
+    pyaedt Info: Added design ...
 
     Create an instance of Maxwell 3D using the 2021 R1 release and open
-    the specified project, which is named ``myfile.aedt``.
+    the specified project, which is named ``mymaxwell2.aedt``.
 
-    >>> aedtapp = Maxwell3d(specified_version="2021.1", projectname="myfile.aedt")
+    >>> aedtapp = Maxwell3d(specified_version="2021.1", projectname="mymaxwell2.aedt")
+    pyaedt Info: Added design ...
 
     """
 
@@ -806,18 +810,18 @@ class Maxwell2d(Maxwell, FieldAnalysis2D, object):
         nothing is used.
     specified_version: str, optional
         Version of AEDT to use. The default is ``None``, in which case
-        the active version or latest installed version is used.
+        the active version or latest installed version is used. This parameter is ignored when Script is launched within AEDT.
     NG : bool, optional
         Whether to launch AEDT in the non-graphical mode. The default
-        is ``False``, in which case AEDT is launched in the graphical mode.
+        is ``False``, in which case AEDT is launched in the graphical mode. This parameter is ignored when Script is launched within AEDT.
     AlwaysNew : bool, optional
         Whether to launch an instance of AEDT in a new thread, even if
         another instance of the ``specified_version`` is active on the
-        machine. The default is ``True``.
+        machine. The default is ``True``. This parameter is ignored when Script is launched within AEDT.
     release_on_exit : bool, optional
         Whether to release AEDT on exit. The default is ``False``.
     student_version : bool, optional
-        Whether to open the AEDT student version. The default is ``False``.
+        Whether to open the AEDT student version. The default is ``False``. This parameter is ignored when Script is launched within AEDT.
 
     Examples
     --------

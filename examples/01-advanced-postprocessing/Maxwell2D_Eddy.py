@@ -119,9 +119,9 @@ Setup.enable_expression_cache([p_plate, p_coil], "Fields", "Phase=\'0deg\' ", Tr
 M3D.analyze_nominal()
 
 ###############################################################################
-# Get Report Data 
+# Get Report Data
 # ~~~~~~~~~~~~~~~
-# :func:`PostProcessor.get_report_data` returns a data class with all data produced from 
+# :func:`PostProcessor.get_report_data` returns a data class with all data produced from
 # the simulation.
 
 val = M3D.post.get_report_data(expression="SolidLoss")
