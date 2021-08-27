@@ -1,4 +1,4 @@
-"""This module contains these classes: `Hfss3dLayout` and `SweepString`."""
+"""This module contains these classes: `Hfss3dLayout`."""
 
 from __future__ import absolute_import
 import os
@@ -7,72 +7,6 @@ from .application.Analysis3DLayout import FieldAnalysis3DLayout
 from .desktop import exception_to_desktop
 from .modules.SolveSetup import Setup3DLayout
 from .generic.general_methods import generate_unique_name, aedt_exception_handler
-
-
-
-class SweepString(object):
-    """Generates a sweep string.
-    
-    For example, ``"LIN 10GHz 20GHz 0.05GHz LINC 20GHz 30GHz 10 DEC 30GHz 40GHz 10 40GHz``.
-    
-    Parameters
-    ----------
-    unit : str, optional
-        Units for the sweep string. The default is ``"GHz"``.
-     """
-        
-    def __init__(self, unit='GHz'):
-    
-        self.unit = unit
-        self.sweep_string = ""
-
-    @aedt_exception_handler
-    def add_sweep(self, sweep, line_type, unit=None):
-        """Add a line to the sweep string.
-
-        Parameters
-        ----------
-        sweep : list
-            List of frequencies,
-            if linear_step [start, stop, step]
-            if linear_count [start, stop, number of steps]
-            if log_scale [start, stop, samples]
-            if single [f1, f2,... fn]
-        line_type :
-            linear_step", "linear_count", "log_scale", "single"
-        unit : str
-            Units such as ``"MHz"`` or ``"GHz"``. The default is ``None``.
-
-        Returns
-        -------
-
-        """
-        if not unit:
-            unit = self.unit
-        if self.sweep_string != "":
-            self.sweep_string += " "
-        if line_type == "linear_step" and len(sweep) == 3:
-            string = "LIN " + str(sweep[0]) + unit + " " + str(sweep[1]) + unit + " " + str(sweep[2]) + unit
-        elif line_type == "linear_count" and len(sweep) == 3:
-            string = "LINC " + str(sweep[0]) + unit + " " + str(sweep[1]) + unit + " " + str(sweep[2])
-        elif line_type == "log_scale" and len(sweep) == 3:
-            string = "DEC " + str(sweep[0]) + unit + " " + str(sweep[1]) + unit + " " + str(sweep[2])
-        elif line_type == "single":
-            string = ""
-            for f in sweep:
-                string += str(f) + unit + " "
-            string = string[:-1]
-        else:
-            raise ValueError('Wrong format for sweep list!')
-        self.sweep_string += string
-
-    @aedt_exception_handler
-    def get_string(self):
-        """ """
-        if self.sweep_string:
-            return self.sweep_string
-        else:
-            return None
 
 
 class Hfss3dLayout(FieldAnalysis3DLayout):
@@ -180,8 +114,8 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
             ["NAME:Contents", "edge:=", ["et:=", "pe", "prim:=", primivitivename, "edge:=", edgenumber], "circuit:=",
              iscircuit, "btype:=", 0])
         listnew = self.port_list
-        a=[i for i in listnew if i not in listp]
-        if len(a)>0:
+        a = [i for i in listnew if i not in listp]
+        if len(a) > 0:
             return a[0]
         else:
             return False
@@ -618,65 +552,21 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
         if not save_fields:
             save_rad_fields_only = False
         interpolation_tol = interpolation_tol_percent / 100.
-        sweep = SweepString()
-        sweep.add_sweep([freqstart, freqstop, num_of_freq_points], "linear_count", unit)
-        # the add_sweep function supports all sweeps type e.g.
-        #   sweep.add_sweep([10, 20, 1], "linear_step", "MHz")
-        #   sweep.add_sweep([1, 1000, 100], "log_scale", "kHz")
-        #   sweep.add_sweep([7,13,17,19,23], "single", unit)
-        sweep_string = sweep.get_string()
         setup = self.get_setup(setupname)
         if sweepname in [name.name for name in setup.sweeps]:
             sweepname = generate_unique_name(sweepname)
-        sweep= setup.add_sweep(sweepname=sweepname)
-        sweep.change_range("LinearCount", freqstart,freqstop, num_of_freq_points )
-        setup.props["GenerateSurfaceCurrent"]=save_fields
-        setup.props["SaveRadFieldsOnly"] = save_rad_fields_only
-        setup.props["FastSweep"] = interpolation
-        setup.props["SAbsError"] = interpolation_tol
-        setup.props["EnforcePassivity"] = interpolation
-        setup.props["UseQ3DForDC"] = use_q3d_for_dc
-        setup.props["MaxSolutions"] = interpolation_max_solutions
-        setup.update()
-        # arg = ["NAME:" + sweepname,
-        #        [
-        #         "NAME:Properties",
-        #         "Enable:=", "true"
-        #        ],
-        #        [
-        #         "NAME:Sweeps",
-        #         "Variable:=", sweepname,
-        #         "Data:=", sweep_string,
-        #         "OffsetF1:=", False,
-        #         "Synchronize:=", 0
-        #        ],
-        #        "GenerateSurfaceCurrent:=", save_fields,
-        #        "SaveRadFieldsOnly:=", save_rad_fields_only,
-        #        "FastSweep:=", interpolation,
-        #        "ZoSelected:=", False,
-        #        "SAbsError:=", interpolation_tol,
-        #        "ZoPercentError:=", 1,
-        #        "GenerateStateSpace:=", False,
-        #        "EnforcePassivity:=", interpolation,
-        #        "PassivityTolerance:=", 0.0001,
-        #        "UseQ3DForDC:=", use_q3d_for_dc,
-        #        "ResimulateDC:=", False,
-        #        "MaxSolutions:=", interpolation_max_solutions,
-        #        "InterpUseSMatrix:=", True,
-        #        "InterpUsePortImpedance:=", True,
-        #        "InterpUsePropConst:=", True,
-        #        "InterpUseFullBasis:=", True,
-        #        "CustomFrequencyString:=", "",
-        #        "AllEntries:=", False,
-        #        "AllDiagEntries:=", False,
-        #        "AllOffDiagEntries:=", False,
-        #        "MagMinThreshold:=", 0.01
-        #        ]
-        #
-        # self.oanalysis.AddSweep(setupname, arg)
-        # self.oanalysis_setup.AddSweep(setupname, arg)
-        # self._messenger.add_debug_message("Sweep Setup created correctly")
-        return setup
+        sweep = setup.add_sweep(sweepname=sweepname)
+        sweep.change_range("LinearCount", freqstart, freqstop, num_of_freq_points )
+        sweep.props["GenerateSurfaceCurrent"] = save_fields
+        sweep.props["SaveRadFieldsOnly"] = save_rad_fields_only
+        sweep.props["FastSweep"] = interpolation
+        sweep.props["SAbsError"] = interpolation_tol
+        sweep.props["EnforcePassivity"] = interpolation
+        sweep.props["UseQ3DForDC"] = use_q3d_for_dc
+        sweep.props["MaxSolutions"] = interpolation_max_solutions
+        sweep.update()
+
+        return sweep
 
     @aedt_exception_handler
     def import_gds(self, gds_path, aedb_path=None, xml_path=None, set_as_active=True, close_active_project=False):

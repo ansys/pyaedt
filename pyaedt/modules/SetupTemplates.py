@@ -918,7 +918,7 @@ class SweepHFSS3DLayout(object):
             if sweeptype == "Interpolating":
                 self.props["FastSweep"] = True
             else:
-                self.props["FastSweep"] = True
+                self.props["FastSweep"] = False
 
             self.props["SaveSingleField"] = False
             self.props["ZoSelected"] = False

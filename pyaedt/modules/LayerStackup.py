@@ -4,14 +4,12 @@ This module contains these classes: `Layer` and `Layers`.
 This module provides all layer stackup functionalities for the Circuit and HFSS 3D Layout tools.
 """
 from __future__ import absolute_import
-import random
-import string
-import sys
 from collections import defaultdict
 from ..generic.general_methods import aedt_exception_handler
 
+
 @aedt_exception_handler
-def str2bool(str0):
+def _str2bool(str0):
     """Convert a string to a Boolean value.
 
     Parameters
@@ -31,12 +29,13 @@ def str2bool(str0):
     else:
         return ""
 
-def conv_number(number, typen=float):
+
+def _conv_number(number, typen=float):
     """Convert a number.
 
     Parameters
     ----------
-    float
+    number
        Number represented a float.
         
     typen : 
@@ -59,7 +58,7 @@ def conv_number(number, typen=float):
 
 
 @aedt_exception_handler
-def getIfromRGB(rgb):
+def _getIfromRGB(rgb):
     """Retrieve if from a specific layer color.
 
     Parameters
@@ -85,7 +84,7 @@ class Layer(object):
     ----------
     editor :
     
-    type : string, optional
+    layertype : string, optional
         The default is ``"signal"``.
     layerunits : str, optional
         The default is ``"mm"``.
@@ -119,12 +118,12 @@ class Layer(object):
                 visflag += 16
         return visflag
 
-    def __init__(self, editor, type="signal", layerunits="mm", roughunit="um", negative=False):
+    def __init__(self, editor, layertype="signal", layerunits="mm", roughunit="um", negative=False):
         self.LengthUnit = layerunits
         self.LengthUnitRough = roughunit
         self.oeditor = editor
         self.name = None
-        self.type = type
+        self.type = layertype
         self.id = 0
         self.color = 8026109
         self.transparency = 60
@@ -148,10 +147,13 @@ class Layer(object):
         self.sideroughness = 0
         self.material = "copper"
         self.fillmaterial = "FR4_epoxy"
+        self.index = 1
+        self.IsNegative = negative
+        # Etch option
+        self.useetch = False
         self.etch = 0
-        self.usp = True
-        self.useetch = True
-        self.user = True
+        # Rough option
+        self.user = False
         self.RMdl = "Huray"
         self.NR = 0.5
         self.HRatio = 2.9
@@ -161,10 +163,10 @@ class Layer(object):
         self.SRMdl = "Huray"
         self.SNR = 0.5
         self.SHRatio = 2.9
-        self.hfssSp = {"Sn": "HFSS", "Sv": None}
-        self.planaremSp = {"Sn": "PlanarEM", "Sv": None}
-        self.index = 1
-        self.IsNegative = negative
+        # Solver option
+        self.usp = False
+        self.hfssSp = {"si": True, "dt": 0, 'dtv': 0.1}
+        self.planaremSp = {"ifg": False, "vly": False}
 
     @aedt_exception_handler
     def set_layer_color(self, r, g, b):
@@ -186,7 +188,7 @@ class Layer(object):
 
         """
         rgb = [r, g, b]
-        self.color = getIfromRGB(rgb)
+        self.color = _getIfromRGB(rgb)
         self.update_stackup_layer()
         return True
 
@@ -219,25 +221,37 @@ class Layer(object):
                     "NAME:Sublayer",
                     "Thickness:=", self.thickness,
                     "LowerElevation:=", self.lowerelevation,
-                    "Roughness:=", self.arg_with_dim(self.roughness, self.LengthUnitRough),
-                    "BotRoughness:=", self.arg_with_dim(self.botroughness, self.LengthUnitRough),
-                    "SideRoughness:=", self.arg_with_dim(self.toprounghenss, self.LengthUnitRough),
-                    "Material:=", self.arg_with_dim(self.material),
-                    "FillMaterial:=", self.arg_with_dim(self.fillmaterial)
+                    "Roughness:=", self._arg_with_dim(self.roughness, self.LengthUnitRough),
+                    "BotRoughness:=", self._arg_with_dim(self.botroughness, self.LengthUnitRough),
+                    "SideRoughness:=", self._arg_with_dim(self.toprounghenss, self.LengthUnitRough),
+                    "Material:=", self._arg_with_dim(self.material),
+                    "FillMaterial:=", self._arg_with_dim(self.fillmaterial)
                 ],
-                "Neg:="		, self.IsNegative,
+                "Neg:=", self.IsNegative,
                 "Usp:=", self.usp,
+                [
+                    "NAME:Sp",
+                    "Sn:=", "HFSS",
+                    "Sv:=", "so(si=" + str(self.hfssSp["si"]).lower() + " , dt=" + str(self.hfssSp["dt"]) +
+                            ", dtv=\'" + self._arg_with_dim(self.hfssSp["dtv"]) + "\')"
+                ],
+                [
+                    "NAME:Sp",
+                    "Sn:=", "PlanarEM",
+                    "Sv:=", "so(ifg=" + str(self.planaremSp["ifg"]).lower() +
+                            ", vly=" + str(self.planaremSp["vly"]).lower() + ")"
+                ],
                 "Etch:=", str(self.etch),
                 "UseEtch:=", self.useetch,
                 "UseR:=", self.user,
                 "RMdl:=", self.RMdl,
-                "NR:=", self.arg_with_dim(self.NR, self.LengthUnitRough),
+                "NR:=", self._arg_with_dim(self.NR, self.LengthUnitRough),
                 "HRatio:=", str(self.HRatio),
                 "BRMdl:=", self.BRMdl,
-                "BNR:=", self.arg_with_dim(self.BNR, self.LengthUnitRough),
+                "BNR:=", self._arg_with_dim(self.BNR, self.LengthUnitRough),
                 "BHRatio:=", str(self.BHRatio),
                 "SRMdl:=", self.SRMdl,
-                "SNR:=", self.arg_with_dim(self.SNR, self.LengthUnitRough),
+                "SNR:=", self._arg_with_dim(self.SNR, self.LengthUnitRough),
                 "SHRatio:=", str(self.SHRatio)
             ])
         else:
@@ -259,8 +273,7 @@ class Layer(object):
                     "Roughness:=", 0,
                     "BotRoughness:=", 0,
                     "SideRoughness:=", 0,
-                    "Material:=", self.arg_with_dim(self.material),
-                    "FillMaterial:=", ""
+                    "Material:=", self._arg_with_dim(self.material),
                 ]
             ])
         infos = self.oeditor.GetLayerInfo(self.name)
@@ -270,26 +283,26 @@ class Layer(object):
         return True
 
     @aedt_exception_handler
-    def arg_with_dim(self, Value, sUnits=None):
+    def _arg_with_dim(self, value, units=None):
         """Argument with dimensions.
 
         Parameters
         ----------
-        Value :
+        value :
             
-        sUnits :
+        units :
              The default is ``None``.
 
         Returns
         -------
 
         """
-        if type(Value) is str:
-            val = Value
+        if type(value) is str:
+            val = value
         else:
-            if sUnits is None:
-                sUnits = self.LengthUnit
-            val = "{0}{1}".format(Value, sUnits)
+            if units is None:
+                units = self.LengthUnit
+            val = "{0}{1}".format(value, units)
 
         return val
 
@@ -324,24 +337,37 @@ class Layer(object):
                     "NAME:Sublayer",
                     "Thickness:=", self.thickness,
                     "LowerElevation:=", self.lowerelevation,
-                    "Roughness:=", self.arg_with_dim(self.roughness, self.LengthUnitRough),
-                    "BotRoughness:=", self.arg_with_dim(self.botroughness, self.LengthUnitRough),
-                    "SideRoughness:=", self.arg_with_dim(self.toprounghenss, self.LengthUnitRough),
+                    "Roughness:=", self._arg_with_dim(self.roughness, self.LengthUnitRough),
+                    "BotRoughness:=", self._arg_with_dim(self.botroughness, self.LengthUnitRough),
+                    "SideRoughness:=", self._arg_with_dim(self.toprounghenss, self.LengthUnitRough),
                     "Material:=", self.material,
                     "FillMaterial:=", self.fillmaterial
                 ],
+                "Neg:=", self.IsNegative,
                 "Usp:=", self.usp,
+                [
+                    "NAME:Sp",
+                    "Sn:=", "HFSS",
+                    "Sv:=", "so(si=" + str(self.hfssSp["si"]).lower() + " , dt=" + str(self.hfssSp["dt"]) +
+                            ", dtv=\'" + self._arg_with_dim(self.hfssSp["dtv"]) + "\')"
+                ],
+                [
+                    "NAME:Sp",
+                    "Sn:=", "PlanarEM",
+                    "Sv:=", "so(ifg=" + str(self.planaremSp["ifg"]).lower() +
+                            ", vly=" + str(self.planaremSp["vly"]).lower() + ")"
+                ],
                 "Etch:=", str(self.etch),
                 "UseEtch:=", self.useetch,
                 "UseR:=", self.user,
                 "RMdl:=", self.RMdl,
-                "NR:=", self.arg_with_dim(self.NR, self.LengthUnitRough),
+                "NR:=", self._arg_with_dim(self.NR, self.LengthUnitRough),
                 "HRatio:=", str(self.HRatio),
                 "BRMdl:=", self.BRMdl,
-                "BNR:=", self.arg_with_dim(self.BNR, self.LengthUnitRough),
+                "BNR:=", self._arg_with_dim(self.BNR, self.LengthUnitRough),
                 "BHRatio:=", str(self.BHRatio),
                 "SRMdl:=", self.SRMdl,
-                "SNR:=", self.arg_with_dim(self.SNR, self.LengthUnitRough),
+                "SNR:=", self._arg_with_dim(self.SNR, self.LengthUnitRough),
                 "SHRatio:=", str(self.SHRatio)
             ])
         elif self.type == "dielectric":
@@ -371,7 +397,6 @@ class Layer(object):
         else:
             return False
         return True
-
 
     @aedt_exception_handler
     def remove_stackup_layer(self):
@@ -515,8 +540,11 @@ class Layers(object):
             infos = self.oeditor.GetLayerInfo(el)
             infos = [i.split(": ") for i in infos]
             infosdict = {i[0].strip(): i[1].strip() for i in infos}
-            o.type = infosdict["Type"]
-            o.locked = str2bool(infosdict["IsLocked"])
+            if infosdict["Type"] == 'metalizedsignal':
+                o.type = 'signal'
+            else:
+                o.type = infosdict["Type"]
+            o.locked = _str2bool(infosdict["IsLocked"])
             o.id = int(infosdict["LayerId"])
             o.topbottom = infosdict["TopBottomAssociation"].lower()
             o.IsVisible = infosdict["IsVisible"]
@@ -528,27 +556,66 @@ class Layers(object):
                 o.IsVisibleHole = infosdict["IsVisibleHole"]
             o.color = int(infosdict["Color"][:-1])
             o.index = int(infosdict["Index"])
-            o.thickness = conv_number(infosdict["LayerThickness"])
-            o.lowerelevation = conv_number(infosdict["LowerElevation0"])
+            o.thickness = _conv_number(infosdict["LayerThickness"])
+            o.lowerelevation = _conv_number(infosdict["LowerElevation0"])
             o.fillmaterial = infosdict['FillMaterial0']
             o.material = infosdict["Material0"]
+            if "EtchFactor" in infosdict:
+                o.useetch = True
+                o.etch = _conv_number(infosdict["EtchFactor"])
             if "Roughness0 Type" in infosdict:
+                o.user = True
                 o.RMdl = infosdict["Roughness0 Type"]
                 o.NR = infosdict["Roughness0"].split(", ")[0]
-                o.HRatio = conv_number(infosdict["Roughness0"].split(", ")[1])
+                o.HRatio = _conv_number(infosdict["Roughness0"].split(", ")[1])
             if "BottomRoughness0 Type" in infosdict:
+                o.user = True
                 o.BRMdl = infosdict["BottomRoughness0 Type"]
                 o.BNR = infosdict["BottomRoughness0"].split(", ")[0]
-                o.BHRatio = conv_number(infosdict["BottomRoughness0"].split(", ")[1])
+                o.BHRatio = _conv_number(infosdict["BottomRoughness0"].split(", ")[1])
             if "SideRoughness0 Type" in infosdict:
+                o.user = True
                 o.SRMdl = infosdict["SideRoughness0 Type"]
                 o.SNR = infosdict["SideRoughness0"].split(", ")[0]
-                o.SHRatio = conv_number(infosdict["SideRoughness0"].split(", ")[1])
-            self.layers[o.id] = o
+                o.SHRatio = _conv_number(infosdict["SideRoughness0"].split(", ")[1])
+
+            if o.id in self.layers:  # updating the existing one
+                layer = self.layers[o.id]
+                layer.name = o.name
+                layer.type = o.type
+                layer.locked = o.locked
+                layer.topbottom = o.topbottom
+                layer.IsVisible = o.IsVisible
+                layer.IsVisiblePath = o.IsVisiblePath
+                layer.IsVisiblePad = o.IsVisiblePad
+                layer.IsVisibleComponent = o.IsVisibleComponent
+                layer.IsVisibleShape = o.IsVisibleShape
+                layer.IsVisibleHole = o.IsVisibleHole
+                layer.color = o.color
+                layer.index = o.index
+                layer.thickness = o.thickness
+                layer.lowerelevation = o.lowerelevation
+                layer.fillmaterial = o.fillmaterial
+                layer.material = o.material
+                layer.useetch = o.useetch
+                layer.etch = o.etch
+                layer.user = o.user
+                layer.RMdl = o.RMdl
+                layer.NR = o.NR
+                layer.HRatio = o.HRatio
+                layer.BRMdl = o.BRMdl
+                layer.BNR = o.BNR
+                layer.BHRatio = o.BHRatio
+                layer.SRMdl = o.SRMdl
+                layer.SNR = o.SNR
+                layer.SHRatio = o.SHRatio
+            else:  # creating the new layer
+                self.layers[o.id] = o
         return len(self.layers)
 
     @aedt_exception_handler
-    def add_layer(self, layername, layertype="signal", thickness="0mm", elevation="0mm", material="copper", isnegative=False):
+    def add_layer(self, layername, layertype="signal", thickness="0mm", elevation="0mm", material="copper",
+                  isnegative=False):
         """Add a layer.
 
         Parameters
@@ -563,6 +630,8 @@ class Layers(object):
             Elevation with units. The default is ``"0mm"``.
         material : str, optional
             Name of the material. The default is ``"copper"``.
+        isnegative : bool, optional
+            If ``True``, the geometry on the layer is cut away from the layer. The default is ``False``.
 
         Returns
         -------
