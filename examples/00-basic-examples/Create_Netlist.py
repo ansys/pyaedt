@@ -1,8 +1,8 @@
 """
 Netlist Example Analysis
 ------------------------
-# This example shows how to import Netlist data into a 
-# Circuit design. Supported Netlist files are HSPICE and, 
+# This example shows how to import Netlist data into a
+# Circuit design. Supported Netlist files are HSPICE and,
 # partially, Mentor.
 """
 

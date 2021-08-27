@@ -31,7 +31,7 @@ def dB(x, inverse=True):
 @aedt_exception_handler
 def fah2kel(val, inverse=True):
     """Convert a temperature from Fahrenheit to Kelvin.
-    
+
     Parameters
     ----------
     val : float
@@ -43,7 +43,7 @@ def fah2kel(val, inverse=True):
     -------
     float
         Temperature value converted to Kelvin.
-    
+
     """
     if inverse:
         return (val - 273.15) * 9 / 5 + 32
@@ -54,21 +54,21 @@ def fah2kel(val, inverse=True):
 @aedt_exception_handler
 def cel2kel(val, inverse=True):
     """Convert a temperature from Celsius to Kelvin.
-    
+
     Parameters
     ----------
     val : float
         Temperature value in Celsius.
     inverse : bool, optional
         The default is ``True``.
-    
+
     Returns
     -------
     float
         Temperature value converted to Kelvin.
 
     """
-    
+
     if inverse:
         return val - 273.15
     else:
@@ -77,13 +77,13 @@ def cel2kel(val, inverse=True):
 
 @aedt_exception_handler
 def unit_system(units):
-    """Retrieve the name of the unit system associated with a unit string. 
-    
+    """Retrieve the name of the unit system associated with a unit string.
+
     Parameters
     ----------
     units : str
         Units for retrieving the associated unit system name.
-    
+
     Returns
     -------
     str
@@ -212,28 +212,28 @@ def _resolve_unit_system(unit_system_1, unit_system_2, operation):
 
 class CSVDataset:
     """Reads in a CSV file and extracts data, which can be augmented with constant values.
-    
+
     Parameters
     ----------
     csv_file: str, optional
         Input file consisting of delimited data with the first line as the header.
-        The CSV value includes the header and data, which supports AEDT units information 
+        The CSV value includes the header and data, which supports AEDT units information
         such as ``"1.23Wb"``. You can also augment the data with constant values.
     separator: str, optional
-        Value to use for the delimiter. The default is``None`` in which case a comma is 
+        Value to use for the delimiter. The default is``None`` in which case a comma is
         assumed.
     units_dict: dict, optional
         Dictionary consisting of ``{Variable Name: unit}`` to rescale the data
         if it is not in the desired unit system.
     append_dict: dict, optional
-        Dictionary consisting of ``{New Variable Name: value}`` to add variables 
-        with constant values to all data points. This dictionary is used to add 
+        Dictionary consisting of ``{New Variable Name: value}`` to add variables
+        with constant values to all data points. This dictionary is used to add
         multiple sweeps to one result file.
     valid_solutions : bool, optional
         The default is ``True``.
     invalid_solutions : bool, optional
         The default is ``False``.
-         
+
     """
     @property
     def number_of_rows(self):
@@ -265,7 +265,7 @@ class CSVDataset:
         return os.path.dirname(os.path.realpath(self._csv_file))
 
     def __init__(self, csv_file=None, separator=None, units_dict=None, append_dict=None, valid_solutions=True, invalid_solutions=False):
-        
+
         self._header = []
         self._data = {}
         self._unit_dict = {}
@@ -355,12 +355,12 @@ class CSVDataset:
 
     def __iadd__(self, other):
         """Incrementally add the dataset in one CSV file to a dataset in another CSV file.
-        
+
         .. note:
            This assumes that the number of columns in both datasets are the same,
-           or that one of the datasets is empty. No checking is done for 
+           or that one of the datasets is empty. No checking is done for
            equivalency of units or variable names.
-          
+
          """
 
         # Handle the case of an empty data set and create empty lists for the column data
@@ -412,7 +412,7 @@ def decompose_variable_value(variable_value):
     variable_value : float
 
     Returns
-    -------  
+    -------
 
     """
     # set default return values - then check for valid units
@@ -442,11 +442,11 @@ def decompose_variable_value(variable_value):
 
 
 class VariableManager(object):
-    """Manages design properties and project variables. 
-    
-    Design properties are the local variables in a design. Project variables are defined at the project 
-    level and start with ``$``. 
-    
+    """Manages design properties and project variables.
+
+    Design properties are the local variables in a design. Project variables are defined at the project
+    level and start with ``$``.
+
     This class provides access to all variables or a subset of the variables. Manipulation
     of the numerical or string definitions of variable values is provided in the
     :class:`pyaedt.application.Variables.Variable` class.
@@ -462,12 +462,12 @@ class VariableManager(object):
     dependent_variables : dict
         Dictionary of all dependent variables available to the active design (key by variable name).
     independent_variables : dict
-       Dictionary of all independent variables (constant numeric values) available to the active 
+       Dictionary of all independent variables (constant numeric values) available to the active
        design (key by variable name).
     independent_design_variables : dict
 
     independent_project_variables : dict
-    
+
     variable_names : str or list
         One or more variable names.
     project_variable_names : str or list
@@ -491,20 +491,20 @@ class VariableManager(object):
     >>> from pyaedt.desktop import Desktop
     >>> d = Desktop()
     >>> aedtapp = Maxwell3d()
-    
+
     Define some test variables.
-    
+
     >>> aedtapp["Var1"] = 3
     >>> aedtapp["Var2"] = "12deg"
     >>> aedtapp["Var3"] = "Var1 * Var2"
     >>> aedtapp["$PrjVar1"] = "pi"
 
     Get the variable manager for the active design.
-    
+
     >>> v = aedtapp.variable_manager
-    
+
     Get a dictionary of all project and design variables.
-    
+
     >>> v.variables
     {'Var1': <pyaedt.application.Variables.Variable at 0x2661f34c448>,
      'Var2': <pyaedt.application.Variables.Variable at 0x2661f34c308>,
@@ -519,7 +519,7 @@ class VariableManager(object):
      'Var3': <pyaedt.application.Variables.Expression at 0x2661f341808>}
 
     Get a dictionary of only the independent design variables.
-    
+
     >>> v.independent_design_variables
     {'Var1': <pyaedt.application.Variables.Variable at 0x2661f335d08>,
      'Var2': <pyaedt.application.Variables.Variable at 0x2661f3557c8>}
@@ -527,26 +527,26 @@ class VariableManager(object):
     See Also
     --------
     :class:`pyaedt.application.Variables.Variable` class.
-    
+
     """
 
     @property
     def variables(self):
         """Variables.
-        
+
         Returns
         -------
         dict
             Dictionary of the `Variable` objects for each project variable and each
             design property in the active design.
-            
+
         """
         return self._variable_dict([self.odesign, self.oproject])
 
     @property
     def design_variables(self):
         """Design variables
-        
+
         Returns
         -------
         dict
@@ -557,7 +557,7 @@ class VariableManager(object):
     @property
     def project_variables(self):
         """Project variables.
-        
+
         Returns
         -------
         dict
@@ -568,7 +568,7 @@ class VariableManager(object):
     @property
     def independent_variables(self):
         """Independent variables.
-        
+
         Returns
         -------
         dict
@@ -579,7 +579,7 @@ class VariableManager(object):
     @property
     def independent_project_variables(self):
         """Independent project variables.
-        
+
         Returns
         -------
         dict
@@ -590,7 +590,7 @@ class VariableManager(object):
     @property
     def independent_design_variables(self):
         """Independent design variables.
-        
+
         Returns
         -------
         dict
@@ -601,12 +601,12 @@ class VariableManager(object):
     @property
     def dependent_variables(self):
         """Dependent variables.
-        
+
         Returns
         -------
         dict
             Dictionary of the dependent design properties (local variables) and project variables available to the design.
-        
+
         """
         return self._variable_dict([self.odesign, self.oproject], independent=False)
 
@@ -712,7 +712,7 @@ class VariableManager(object):
     @aedt_exception_handler
     def aedt_object(self, variable):
         """Retrieve an AEDT object.
-        
+
         Parameters
         ----------
         variable : str
@@ -727,29 +727,29 @@ class VariableManager(object):
     @aedt_exception_handler
     def set_variable(self, variable_name, expression=None, readonly=False, hidden=False,
                      description=None, overwrite=True):
-        """Set the value of a design property or project variable. 
+        """Set the value of a design property or project variable.
 
         Parameters
         ----------
         variable_name : str
-            Name of the design property or project variable (``$var``). If this variable 
+            Name of the design property or project variable (``$var``). If this variable
             does not exist, a new one is created and a value is set.
         expression : str
             Valid string expression within the AEDT design and project structure.
             For example, ``"3*cos(34deg)"``.
         readonly : bool, optional
-           Whether to set the design property or project variable to read-only. The 
+           Whether to set the design property or project variable to read-only. The
            default is ``False``.
         hidden :  bool, optional
-            Whether to hide the design property or project variable. The 
+            Whether to hide the design property or project variable. The
            default is ``False``.
-        description : str, optional 
-           Text to display for the design property or project variable in the 
+        description : str, optional
+           Text to display for the design property or project variable in the
             ``Properties`` window. The default is ``None``.
         overwrite : bool, optional
             Whether to overwrite an existing value for the design property or
-            project variable. The default is ``False``, in which case this method is 
-            ignored. 
+            project variable. The default is ``False``, in which case this method is
+            ignored.
 
         Returns
         -------
@@ -758,24 +758,24 @@ class VariableManager(object):
 
         Examples
         --------
-        Set the value of design property ``p1`` to ``"10mm"``, creating the property 
+        Set the value of design property ``p1`` to ``"10mm"``, creating the property
         if it does not already eixst.
-        
+
         >>> aedtapp.variable_manager.set_variable("p1", expression="10mm")
 
-        Set the value of design property ``p1`` to ``"20mm"`` only if the property does 
+        Set the value of design property ``p1`` to ``"20mm"`` only if the property does
         not already exist.
-        
+
         >>> aedtapp.variable_manager.set_variable("p1", expression="20mm", overwrite=False)
 
-        Set the value of design property ``p2`` to ``"10mm"``, creating the property 
+        Set the value of design property ``p2`` to ``"10mm"``, creating the property
         if it does not already exist. Also make it read-only and hidden and add a description.
-        
+
         >>> aedtapp.variable_manager.set_variable(variable_name="p2", expression="10mm", readonly=True, hidden=True,
         ...                                       description="This is the description of this variable.")
 
         Set the value of the project variable ``$p1`` to ``"30mm"``, creating the variable if it does not exist.
-        
+
         >>> aedtapp.variable_manager.set_variable["$p1"] == "30mm"
 
         """
@@ -874,17 +874,17 @@ class VariableManager(object):
     @aedt_exception_handler
     def delete_separator(self, separator_name):
         """Delete a separator from either the active project or design.
-        
+
         Parameters
         ----------
         separator_name : str
-	      Value to use for the delimiter. 
-        
+	      Value to use for the delimiter.
+
         Returns
         -------
 	  bool
             ``True`` when the separator exists and can be deleted, ``False`` otherwise.
-            
+
         """
         object_list = [ (self.odesign, "Local"),
                         (self.oproject, "Project")]
@@ -970,19 +970,19 @@ class Variable(object):
 
     Examples
     --------
-    
+
     >>> from pyaedt.application.Variables import Variable
 
     Define a variable using a string value consistent with the AEDT properties.
-    
+
     >>> v = Variable("45mm")
 
     Define an unitless variable with a value of 3.0.
-   
+
     >>> v = Variable(3.0)
 
     Define a variable defined by a numeric result and a unit string.
-    
+
     >>> v = Variable(3.0 * 4.5, units="mm")
     >>> assert v.numeric_value = 13.5
     >>> assert v.units = "mm"
@@ -1040,18 +1040,18 @@ class Variable(object):
     @property
     def string_value(self):
         """String value.
-        
-        The numeric value with the unit is concatenated and returned as a string. The numeric display 
-        in the modeler and the string value can differ. For example, you might see ``10mm`` in the 
+
+        The numeric value with the unit is concatenated and returned as a string. The numeric display
+        in the modeler and the string value can differ. For example, you might see ``10mm`` in the
         modeler and see ``10.0mm`` returned as the string value.
-        
+
         """
         return ('{}{}').format(self.numeric_value, self._units)
 
     @aedt_exception_handler
     def rescale_to(self, units):
         """Rescale the expression to a new unit within the current unit system.
-	
+
 	  Parameters
 	  ----------
 	  units : str
@@ -1083,9 +1083,9 @@ class Variable(object):
         Parameters
         ----------
         format : str
-            Format for the numeric value of the string. For example, ``'06.2f'``. For 
+            Format for the numeric value of the string. For example, ``'06.2f'``. For
             more information, see the `PyFormat documentation <https://pyformat.info/>`_.
-		
+
         Returns
         -------
         str
@@ -1121,7 +1121,7 @@ class Variable(object):
         --------
         >>> from pyaedt.application.Variables import Variable
 
-        Multiply ``'Length1'`` by unitless ``'None'``` to obtain ``'Length'``. 
+        Multiply ``'Length1'`` by unitless ``'None'``` to obtain ``'Length'``.
         A numerical value is also considered to be unitless.
 
         >>> v1 = Variable("10mm")
@@ -1134,7 +1134,7 @@ class Variable(object):
         >>> assert result_2.unit_system == result_1.unit_system
 
         Multiply voltage times current to obtain power.
-        
+
         >>> v3 = Variable("3mA")
         >>> v4 = Variable("40V")
         >>> result_3 = v3 * v4
@@ -1217,7 +1217,7 @@ class Variable(object):
 
         Examples
         --------
-        
+
         >>> from pyaedt.application.Variables import Variable
         >>> v3 = Variable("3mA")
         >>> v4 = Variable("10A")
@@ -1257,9 +1257,9 @@ class Variable(object):
 
         Examples
         --------
-        Divide a variable with units ``"W"`` by a variable with units ``"V"`` and automatically 
+        Divide a variable with units ``"W"`` by a variable with units ``"V"`` and automatically
         resolve the new units to ``"A"``.
-	
+
         >>> from pyaedt.application.Variables import Variable
 
         >>> v1 = Variable("10W")
@@ -1301,9 +1301,9 @@ class Variable(object):
 
         Examples
         --------
-        Divide a number by a variable with units ``"s"`` and automatically determine that 
+        Divide a number by a variable with units ``"s"`` and automatically determine that
         the result is in ``"Hz"``.
-        
+
         >>> from pyaedt.application.Core.Variables import Variable
         >>> v = Variable("1s")
         >>> result = 3.0 / v
@@ -1324,13 +1324,13 @@ class Variable(object):
 
 class Expression(Variable, object):
     """Provides a framework for manipulating variable expressions.
-    
+
     Parameters
     ----------
     expression :
-    
+
     float_value :
-    
+
     """
 
     def __init__(self, expression, float_value):
@@ -1351,7 +1351,7 @@ class Expression(Variable, object):
 
 class DataSet(object):
     """Manages datasets.
-    
+
     Parameters
     ----------
     parent :
@@ -1369,8 +1369,8 @@ class DataSet(object):
     zunit : str, optional
        The default is ``""``.
     vunit : str, optional
-       The default is ``""``. 
-    
+       The default is ``""``.
+
     """
 
     def __init__(self, parent, name, x, y, z=None, v=None, xunit='', yunit='', zunit='', vunit=''):
@@ -1465,7 +1465,7 @@ class DataSet(object):
         Parameters
         ----------
         x : float
-       
+
         Returns
         -------
         bool
@@ -1507,12 +1507,12 @@ class DataSet(object):
     @aedt_exception_handler
     def update(self):
         """Update the dataset.
-        
+
         Returns
         -------
         bool
             ``True`` when successful, ``False`` when failed.
-        
+
         """
         args = self._args()
         if not args:
@@ -1526,12 +1526,12 @@ class DataSet(object):
     @aedt_exception_handler
     def delete(self):
         """Delete the dataset.
-        
+
         Returns
         ------
         bool
             ``True`` when successful, ``False`` when failed.
-            
+
         """
         if self.name[0] == "$":
             self._parent._oproject.DeleteDataset(self.name)
@@ -1550,7 +1550,7 @@ class DataSet(object):
         dataset_path : str, optional
             Path to export the dataset to. The default is ``None``, in which
             case the dataset is exported to the project path.
-        
+
         Returns
         -------
         bool

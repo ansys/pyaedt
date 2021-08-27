@@ -4,7 +4,7 @@ Maxwell 2D  Coil Analysis
 This example shows how you can use PyAEDT to create a project in
 Maxwell2D and run an eddy current simulation.
 
-To provide the advanced postprocessing features needed for this example, Matplotlib, NumPy, and 
+To provide the advanced postprocessing features needed for this example, Matplotlib, NumPy, and
 PyVista must be installed on the machine.
 
 This examples runs only on Windows using CPython.

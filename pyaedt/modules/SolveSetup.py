@@ -23,7 +23,7 @@ class Setup(object):
     ----------
     parent: str
         Inherited parent object.
-    solutiontype: 
+    solutiontype:
         Type of the setup.
     setupname: str, optional
         Name of the setup. The default is ``"MySetupAuto"``.
@@ -139,13 +139,13 @@ class Setup(object):
         Parameters
         ----------
         expressions_list : list
-            List of formulas to retrieve. 
+            List of formulas to retrieve.
         report_type_list : list
-            List of report types for the expressions. 
+            List of report types for the expressions.
         intrinsics_list : list
-            List of intrinsic expressions for the expressions. 
+            List of intrinsic expressions for the expressions.
         isconvergence_list : list
-            List of Boolean values indicating whether the expressions are in 
+            List of Boolean values indicating whether the expressions are in
             the convergence criteria.
         isrelativeconvergence : bool
             
@@ -228,7 +228,7 @@ class Setup(object):
         Parameters
         ----------
         expressions : str or list
-            One or more formulas to add to the expression cache. 
+            One or more formulas to add to the expression cache.
         report_type : str or list, optional
             Type of the report for the expression. The default is ``Fields``. If a list of expressions
             is supplied, supply a corresponding list of report types.
@@ -363,11 +363,11 @@ class Setup(object):
 
     @aedt_exception_handler
     def add_mesh_link(self, design_name, solution_name, parameters_dict, project_name="This Project*"):
-        """Add a mesh link to another design. 
+        """Add a mesh link to another design.
 
         Parameters
         ----------
-        design_name : str, 
+        design_name : str
             Name of the design.
         solution_name : str
             Name of the solution in the format ``"setupname : solutionname"``.
@@ -375,11 +375,11 @@ class Setup(object):
             nominal adaptive or :attr:`appname.nominal_sweep` to get the
             nominal sweep.
         parameters_dict : dict
-            Dictionary of the parameters. Optionally use 
+            Dictionary of the parameters. Optionally use
             :attr:`appname.available_variations.nominal_w_values_dict`
             to get the nominal values.
         project_name : str, optional
-            Name of the project with the design. The default is ``"This Project*"``. 
+            Name of the project with the design. The default is ``"This Project*"``.
             However, you can supply the full path and name to another project.
 
         Returns
@@ -414,13 +414,13 @@ class SetupCircuit(object):
     ----------
     parent: str
         Inherited parent object.
-    solutiontype: 
+    solutiontype:
         Type of the setup.
     setupname: str, optional
         Name of the setup. The default is ``"MySetupAuto"``.
     isnewsetup: bool, optional
       Whether to create the setup from a template. The default is ``True.``
-      If ``False``, access is to the existing setup.     
+      If ``False``, access is to the existing setup.
 
     """
     @property
@@ -599,15 +599,15 @@ class SetupCircuit(object):
         Parameters
         ----------
         expressions_list : list
-            List of formulas to retrieve. 
+            List of formulas to retrieve.
         report_type_list : list
-            List of report types for the expressions. 
+            List of report types for the expressions.
         intrinsics_list : list
             List of intrinsic functions for the expressions.
         isconvergence_list : list
-            List of Boolean values indicating whether the expressions are in 
+            List of Boolean values indicating whether the expressions are in
             the convergence criteria.
-        isrelativeconvergence : 
+        isrelativeconvergence :
             
         conv_criteria:
         
@@ -689,7 +689,7 @@ class SetupCircuit(object):
         Parameters
         ----------
         expressions : str or list
-            One or more formulas to add to the expression cache. 
+            One or more formulas to add to the expression cache.
         report_type : str or list, optional
             Type of the report for the expression. The default is ``"Fields"``. If a list of expressions
             is supplied, a corresponding list of report types must be supplied.
@@ -697,7 +697,7 @@ class SetupCircuit(object):
             Intrinsic functions for the expressions. The default is ``""``. If a list of expressions
             is supplied, a corresponding list of intrinsic expressesions must be supplied.
         isconvergence : bool, str, or list, optional
-            Whether the expression is in the convergence criteria. The  default is ``True``.  
+            Whether the expression is in the convergence criteria. The  default is ``True``.
             If a list of expressions is supplied, a corresponding list of Boolean values must be
             supplied.
         isrelativeconvergence : bool, optional
@@ -789,7 +789,7 @@ class Setup3DLayout(object):
     ----------
     parent: str
         Inherited parent object.
-    solutiontype: 
+    solutiontype:
         Type of the setup.
     setupname: str, optional
         Name of the setup. The default is ``"MySetupAuto"``.
@@ -965,7 +965,7 @@ class Setup3DLayout(object):
         sweepname : str, optional
             Name of the sweep. The default is ``None``.
         sweeptype : str, optional
-            Type of the sweep. Options are ``"Fast"``, ``"Interpolating"``, and 
+            Type of the sweep. Options are ``"Fast"``, ``"Interpolating"``, and
             ``"Discrete"``. The default is ``"Interpolating"``.
 
         Returns
