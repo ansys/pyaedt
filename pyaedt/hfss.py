@@ -741,12 +741,12 @@ class Hfss(FieldAnalysis3D, object):
         Examples
         --------
         >>> from pyaedt import Hfss
-        >>> hfss = Hfss(solution_type="SBR+")
+        >>> hfss = Hfss(solution_type="SBR+")  # doctest: +SKIP
         pyaedt Info: Added design 'HFSS_IPO' of type HFSS.
-        >>> parm = {"polarization": "Vertical"}
+        >>> parm = {"polarization": "Vertical"}  # doctest: +SKIP
         >>> par_beam = hfss.create_sbr_antenna(hfss.SbrAntennas.ShortDipole, 
         ...                                    parameters_dict=parm,
-        ...                                    antenna_name="TX1")
+        ...                                    antenna_name="TX1")  # doctest: +SKIP
 
         Returns
         -------
@@ -827,16 +827,18 @@ class Hfss(FieldAnalysis3D, object):
         target_cs : str, optional
             Target coordinate system. The default is the active coordinate system.
         model_units: str, optional
-            Model units to be applied to the object. Default is ``None`` which is the active modeler units.
+            Model units to be applied to the object. Default is
+            ``None`` which is the active modeler units.
         antenna_name : str, optional
-            3D component name. The default is the auto-generated based on the antenna type.
+            3D component name. The default is the auto-generated based
+            on the antenna type.
 
         Examples
         --------
         >>> from pyaedt import Hfss
-        >>> hfss = Hfss(solution_type="SBR+")
+        >>> hfss = Hfss(solution_type="SBR+")  # doctest: +SKIP
         >>> ffd_file = "full_path/to/ffdfile.ffd"
-        >>> par_beam = hfss.create_sbr_file_based_antenna(ffd_file)
+        >>> par_beam = hfss.create_sbr_file_based_antenna(ffd_file)  # doctest: +SKIP
 
         Returns
         -------
