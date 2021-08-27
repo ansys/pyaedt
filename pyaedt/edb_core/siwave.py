@@ -710,7 +710,7 @@ class EdbSiwave(object):
 
     @aedt_exception_handler
     def add_siwave_dc_analysis(self,  setup_settings=SiwaveDCSetupTemplate()):
-        """This method creates a Siwave DC Analysis in EDB
+        """This method creates a Siwave DC Analysis in EDB. If Setup is present it will be deleted and replaced by new actual settings.
 
         .. note::
            Source Reference to Ground settings works only from 2021.2
@@ -766,6 +766,13 @@ class EdbSiwave(object):
             exec_file.write("ExecDcSim\n")
             exec_file.close()
             return True
+        else:
+            self._cell.DeleteSimulationSetup(setup_settings.name)
+            if self._cell.AddSimulationSetup(simulationSetup):
+                exec_file = self.create_exec_file()
+                exec_file.write("ExecDcSim\n")
+                exec_file.close()
+                return True
         return False
 
     @aedt_exception_handler

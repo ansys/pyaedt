@@ -158,9 +158,10 @@ edb.core_siwave.add_siwave_ac_analysis()
 settings = edb.core_siwave.get_siwave_dc_setup_template()
 settings.accuracy_level = 0
 settings.use_dc_custom_settings  = True
-settings.name = "myDCIR_3"
+settings.name = "myDCIR_4"
 # settings.pos_term_to_ground = "I1"
 # settings.neg_term_to_ground = "V1"
+edb.core_siwave.add_siwave_dc_analysis(settings)
 edb.core_siwave.add_siwave_dc_analysis(settings)
 
 ###############################################################################
