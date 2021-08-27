@@ -75,7 +75,8 @@ class SiwaveDCSetupTemplate(object):
             self._pos_term_to_ground = [terms]
         else:
             self._pos_term_to_ground= terms
-
+else:
+    self._pos_term_to_ground = [terms]
     @property
     def neg_term_to_ground(self):
         return self._neg_term_to_ground
