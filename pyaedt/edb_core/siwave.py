@@ -177,7 +177,8 @@ class SiwaveDCSetupTemplate(object):
         """
         if not isinstance(terms, list):
             self._neg_term_to_ground = [terms]
-
+else:
+    self._neg_term_to_ground = terms
     @property
     def source_terms_toground(self):
         a = Dictionary[String, int]()
