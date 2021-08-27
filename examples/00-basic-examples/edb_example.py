@@ -155,13 +155,19 @@ edb.core_stackup.stackup_layers.layers['UNNAMED_002'].material_name = "My_Debye"
 edb.core_siwave.create_circuit_port("U2A5", "DDR3_DM0")
 
 edb.core_siwave.add_siwave_ac_analysis()
+
+###############################################################################
+# Create a Voltage Source and Siwave DC IR Simulation
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# This example creates a Voltage Source and then setup a DCIR Analysis.
+
+edb.core_siwave.create_voltage_source("U2A5","V1P5_S3","U2A5","GND",3.3,0,"V1")
 settings = edb.core_siwave.get_siwave_dc_setup_template()
 settings.accuracy_level = 0
 settings.use_dc_custom_settings  = True
 settings.name = "myDCIR_4"
 # settings.pos_term_to_ground = "I1"
-# settings.neg_term_to_ground = "V1"
-edb.core_siwave.add_siwave_dc_analysis(settings)
+settings.neg_term_to_ground = "V1"
 edb.core_siwave.add_siwave_dc_analysis(settings)
 
 ###############################################################################
