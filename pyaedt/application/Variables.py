@@ -878,11 +878,11 @@ class VariableManager(object):
         Parameters
         ----------
         separator_name : str
-	      Value to use for the delimiter.
+            Value to use for the delimiter.
 
         Returns
         -------
-	  bool
+        bool
             ``True`` when the separator exists and can be deleted, ``False`` otherwise.
 
         """
@@ -1052,10 +1052,10 @@ class Variable(object):
     def rescale_to(self, units):
         """Rescale the expression to a new unit within the current unit system.
 
-	  Parameters
-	  ----------
-	  units : str
-	      Units to rescale to.
+        Parameters
+        ----------
+        units : str
+            Units to rescale to.
 
         Examples
         --------

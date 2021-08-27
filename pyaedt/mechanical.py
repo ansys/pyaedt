@@ -105,12 +105,12 @@ class Mechanical(FieldAnalysis3D, object):
             Name of the EM sweep to use for the mapping. The default is ``"LastAdaptive"``.
         map_frequency : str, optional
             Frequency to map. The default is ``None``. The value must be ``None`` for
-	      Eigenmode analysis.
+            Eigenmode analysis.
         surface_objects : list, optional
             List objects in the source that are metals. The default is ``[]``.
         source_project_name : str, optional
             Name of the source project. The default is ``None``, in which case
-	      the source from the same project is used.
+            the source from the same project is used.
         paramlist : list, optional
             List of all parameters in the EM to map. The default is ``[]``.
         object_list : list, optional
@@ -184,14 +184,14 @@ class Mechanical(FieldAnalysis3D, object):
             Name of the EM sweep to use for the mapping. The default is ``"SteadyState"``.
         source_project_name : str, optional
             Name of the source project. The default is ``None``, in which case the
-	      source from the same project is used.
+            source from the same project is used.
         paramlist : list, optional
             List of all parameters in the EM to map. The default is ``[]``.
 
         Returns
         -------
-	  :class:`aedt.modules.Boundary.Boundary object`
-	      Boundary object.
+        :class:`aedt.modules.Boundary.Boundary object`
+            Boundary object.
         """
 
         assert self.solution_type == "Structural", "This method works only in a Mechanical structural solution."
@@ -252,7 +252,7 @@ class Mechanical(FieldAnalysis3D, object):
         Returns
         -------
         :class:`aedt.modules.Boundary.Boundary object`
-	      Boundary object.
+            Boundary object.
 
         """
         assert self.solution_type == "Thermal", "This method works only in a Mechanical structural solution."
@@ -283,7 +283,7 @@ class Mechanical(FieldAnalysis3D, object):
         """Assign a uniform temperature boundary.
 
         .. note::
-	     This method works only in a Mechanical thermal analysis.
+            This method works only in a Mechanical thermal analysis.
 
         Parameters
         ----------
@@ -297,7 +297,7 @@ class Mechanical(FieldAnalysis3D, object):
         Returns
         -------
         :class:`aedt.modules.Boundary.Boundary object`
-	      Boundary object.
+            Boundary object.
 
         """
         assert self.solution_type == "Thermal", "This method works only in a Mechanical structural analysis."
@@ -327,7 +327,7 @@ class Mechanical(FieldAnalysis3D, object):
         """Assign a Mechanical frictionless support.
 
         .. note::
-	     This method works only in a Mechanical structural analysis.
+            This method works only in a Mechanical structural analysis.
 
         Parameters
         ----------
@@ -339,7 +339,7 @@ class Mechanical(FieldAnalysis3D, object):
         Returns
         -------
         :class:`aedt.modules.Boundary.Boundary object`
-	      Boundary object.
+            Boundary object.
 
         """
 
@@ -381,7 +381,7 @@ class Mechanical(FieldAnalysis3D, object):
         Returns
         -------
         :class:`aedt.modules.Boundary.Boundary object
-	      Boundary object.
+            Boundary object.
 
         """
         if not (self.solution_type == "Structural" or self.solution_type == "Modal"):
