@@ -744,7 +744,7 @@ class Hfss(FieldAnalysis3D, object):
         >>> hfss = Hfss(solution_type="SBR+")  # doctest: +SKIP
         pyaedt Info: Added design 'HFSS_IPO' of type HFSS.
         >>> parm = {"polarization": "Vertical"}  # doctest: +SKIP
-        >>> par_beam = hfss.create_sbr_antenna(hfss.SbrAntennas.ShortDipole, 
+        >>> par_beam = hfss.create_sbr_antenna(hfss.SbrAntennas.ShortDipole,
         ...                                    parameters_dict=parm,
         ...                                    antenna_name="TX1")  # doctest: +SKIP
 
