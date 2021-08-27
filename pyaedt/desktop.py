@@ -3,7 +3,7 @@ This module contains the `Desktop` class.
 
 This module is used to initialize AEDT and Message Manager to manage AEDT.
 
-You can initialize this module before launching an app or 
+You can initialize this module before launching an app or
 have the app automatically initialize it to the latest installed AEDT version.
 """
 from __future__ import absolute_import
@@ -55,7 +55,7 @@ elif IsWindows:
 
 def exception_to_desktop(self, ex_value, tb_data):
     """Writes the trace stack to the desktop when a Python error occurs.
-    
+
     The message is added to the AEDT global Message Manager and to the log file (if present).
 
     Parameters
@@ -88,10 +88,10 @@ def exception_to_desktop(self, ex_value, tb_data):
 
 def update_aedt_registry(key, value, desktop_version="211"):
     """Update the AEDT registry key.
-    
+
     .. note::
        This method is only supported on Windows.
-    
+
     Parameters
     ----------
     key : str
@@ -99,25 +99,25 @@ def update_aedt_registry(key, value, desktop_version="211"):
     value : str
         Value for the registry key. The value includes "" if needed.
     desktop_version : str, optional
-        Version of AEDT to use. The default is ``"211"`` 
+        Version of AEDT to use. The default is ``"211"``
         to use 2021 R1.
-    
+
     Examples
     --------
     Update the HPC license type for HFSS in the AEDT registry.
-    
+
     >>> update_aedt_registry("HFSS/HPCLicenseType", "12") # doctest: +SKIP
-    
+
     Update the HPC license type for Icepak in the AEDT registry.
-    
+
     >>> update_aedt_registry("Icepak/HPCLicenseType", "8") # doctest: +SKIP
-    
+
     Update the legacy HPC license type for HFSS in the AEDT registry.
-    
+
     >>> update_aedt_registry("HFSS/UseLegacyElectronicsHPC", "0") # doctest: +SKIP
-    
+
     Update the MPI vendor for HFSS in the AEDT registry.
-    
+
     >>> update_aedt_registry("HFSS/MPIVendor", "Intel") # doctest: +SKIP
 
     """
@@ -153,8 +153,8 @@ def release_desktop(close_projects=True, close_desktop=True):
         ``True`` when successful, ``False`` when failed.
 
     """
-    if _com == "pythonnet":
-        Module = sys.modules['__main__']
+    Module = sys.modules['__main__']
+    if sys.modules['__main__'].interpreter == "ironpython":
         desktop = Module.oDesktop
         scopeID = desktop.ScopeID
         i = 0
@@ -162,19 +162,25 @@ def release_desktop(close_projects=True, close_desktop=True):
             proj_list = desktop.GetProjectList()
             for prj in proj_list:
                 desktop.CloseProject(prj)
-
-        while i <= scopeID:
-            Module.COMUtil.ReleaseCOMObjectScope(Module.COMUtil.PInvokeProxyAPI, i)
-            i += 1
-        try:
-            del Module.oDesktop
-            return True
-        except:
-            Module.oMessenger.add_info_message("Attributes not present")
-            return False
-
-    elif _com == "pythonnet_v3":
-        Module = sys.modules['__main__']
+        if "COMUtil" in dir(Module):
+            while i <= scopeID:
+                Module.COMUtil.ReleaseCOMObjectScope(Module.COMUtil.PInvokeProxyAPI, i)
+                i += 1
+            try:
+                del Module.oDesktop
+                return True
+            except:
+                Module.oMessenger.add_info_message("Attributes not present")
+                return False
+        else:
+            pid = Module.oDesktop.GetProcessID()
+            try:
+                os.kill(pid, 9)
+                return True
+            except:
+                Module.oMessenger.add_error_message("something went wrong in Closing AEDT")
+                return False
+    else:
         desktop = Module.oDesktop
         i = 0
         if close_projects:
@@ -260,7 +266,7 @@ def force_close_desktop():
 
 class Desktop:
     """Initializes AEDT based on the inputs provided.
-    
+
     .. note::
        On Windows, this class works without limitations in IronPython and CPython.
        On Linux, this class works only in embedded IronPython in AEDT.
@@ -271,10 +277,10 @@ class Desktop:
         Version of AEDT to use. The default is ``None``, in which case the
         active setup or latest installed version is used.
     NG: bool, optional
-        Whether to launch AEDT in the non-graphical mode. The default 
+        Whether to launch AEDT in the non-graphical mode. The default
         is ``False``, in which case AEDT is launched in the graphical mode.
     AlwaysNew : bool, optional
-        Whether to launch an instance of AEDT in a new thread, even if 
+        Whether to launch an instance of AEDT in a new thread, even if
         another instance of the ``specified_version`` is active on the machine.
         The default is ``True``.
     release_on_exit : bool, optional
@@ -300,9 +306,9 @@ class Desktop:
     pyaedt Info: pyaedt v...
     pyaedt Info: Python version ...
     >>> hfss = pyaedt.Hfss(designname="HFSSDesign1")
-    
+
     """
-            
+
     @property
     def version_keys(self):
         """Version keys for AEDT."""
@@ -351,6 +357,8 @@ class Desktop:
     def __init__(self, specified_version=None, NG=False, AlwaysNew=True, release_on_exit=True, student_version=False):
         """Initialize desktop."""
         self._main = sys.modules['__main__']
+        self._main.interpreter = _com
+
         self._main.close_on_exit = False
         self._main.isoutsideDesktop = False
         self._main.pyaedt_version = pyaedtversion
@@ -389,7 +397,6 @@ class Desktop:
             else:
                 version = "Ansoft.ElectronicsDesktop." + version_key
             self._main.AEDTVersion = version_key
-            self._main.interpreter = _com
             self._main.interpreter_ver = _pythonver
             if "oDesktop" in dir(self._main):
                 del self._main.oDesktop
@@ -561,7 +568,7 @@ class Desktop:
             Type of the exception.
         tb_data : str
             Traceback data.
-            
+
         Returns
         -------
         str
@@ -594,10 +601,10 @@ class Desktop:
         Parameters
         ----------
         close_projects : bool, optional
-            Whether to close the AEDT projects opened in the session. 
+            Whether to close the AEDT projects opened in the session.
             The default is ``True``.
         close_on_exit : bool, optional
-            Whether to close the active AEDT session on exiting AEDT. 
+            Whether to close the active AEDT session on exiting AEDT.
             The default is ``True``.
 
         Examples
@@ -613,7 +620,7 @@ class Desktop:
 
     def force_close_desktop(self):
         """Forcibly close all AEDT projects and shut down AEDT.
-    
+
         Examples
         --------
         >>> import pyaedt
@@ -627,7 +634,7 @@ class Desktop:
 
     def close_desktop(self):
         """Close all AEDT projects and shut down AEDT.
-    
+
         Examples
         --------
         >>> import pyaedt

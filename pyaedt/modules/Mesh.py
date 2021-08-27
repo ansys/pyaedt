@@ -18,17 +18,17 @@ meshers = {"HFSS": "MeshSetup",
 
 class MeshOperation(object):
     """MeshOperation class.
-    
+
     Parameters
     ----------
     parent :
-    
+
     name:
-    
+
     props :
-    
+
     meshoptpe :
-    
+
     """
     def __init__(self, parent, name, props, meshoptype):
         self._parent = parent
@@ -47,11 +47,11 @@ class MeshOperation(object):
     @aedt_exception_handler
     def create(self):
         """Create a mesh.
-        
+
         Returns
         -------
         type
-        
+
         """
         if self.type == "SurfApproxBased":
             self._parent.omeshmodule.AssignTrueSurfOp(self._get_args())
@@ -80,12 +80,12 @@ class MeshOperation(object):
     @aedt_exception_handler
     def update(self):
         """Update the mesh.
-        
+
         Returns
         -------
         bool
             ``True`` when successful, ``False`` when failed.
-        
+
         """
         if self.type == "SurfApproxBased":
             self._parent.omeshmodule.EditTrueSurfOp(self.name, self._get_args())
@@ -114,12 +114,12 @@ class MeshOperation(object):
     @aedt_exception_handler
     def delete(self):
         """Delete the mesh.
-        
+
         Returns
         -------
         bool
             ``True`` when successful, ``False`` when failed.
-        
+
         """
         self._parent.omeshmodule.DeleteOp([self.name])
         for el in self._parent.meshoperations:
@@ -129,14 +129,14 @@ class MeshOperation(object):
 
 
 class Mesh(object):
-    """Mesh class.   
-    
+    """Mesh class.
+
     This class manages AEDT mesh functions.
-    
+
     Parameters
     ----------
     parent :
-    
+
     """
 
     def __init__(self, parent):
@@ -208,7 +208,7 @@ class Mesh(object):
         -------
         :class:`pyaedt.modules.Mesh.MeshOperation`
             Mesh operation object.
-            
+
         """
         names = self.modeler.convert_to_selections(names, True)
         if meshop_name:
@@ -252,7 +252,7 @@ class Mesh(object):
         -------
         :class:`pyaedt.modules.Mesh.MeshOperation`
             Mesh operation object.
-            
+
         """
         names = self.modeler.convert_to_selections(names, True)
         if meshop_name:
@@ -298,7 +298,7 @@ class Mesh(object):
         names : list
             List of objects to defeature.
         defeature_length : float, optional
-            Defeaturing length in millimeters. The default is ``None``, in which case 
+            Defeaturing length in millimeters. The default is ``None``, in which case
             automatic defeaturing is used.
         meshop_name : str, optional
             Name of the mesh operation. The default is ``None``.
@@ -307,7 +307,7 @@ class Mesh(object):
         -------
         :class:`pyaedt.modules.Mesh.MeshOperation`
             Mesh operation object.
-        
+
         """
         names = self.modeler.convert_to_selections(names, True)
         if meshop_name:
@@ -342,7 +342,7 @@ class Mesh(object):
         level : int, optional
             Level of the surface mesh. Options are ``1`` through ``10``. The default is ``5.``
         method : str, optional
-            Meshing method. Options are ``"Auto"``, ``"AnsoftTAU"``, and ``"AnsoftClassic"`` 
+            Meshing method. Options are ``"Auto"``, ``"AnsoftTAU"``, and ``"AnsoftClassic"``
             The default is ``"Auto"``.
         usedynamicsurface : bool, optional
             Whether to use a dynamic surface. The default is ``True``.
@@ -353,11 +353,11 @@ class Mesh(object):
         usefallback : bool, optional
             Whether to retain as a fallback. The default is ``True``.
         usephi : bool, optional
-            Whether to use the Phi mesher for layered geometry. 
+            Whether to use the Phi mesher for layered geometry.
             The default is ``True``.
         automodelresolution : bool, optional
             Whether to automatically calculate the resolution length
-            based on each object's effective thickness. The default is ``True``.  
+            based on each object's effective thickness. The default is ``True``.
         modelresolutionlength : float, optional
              Resolution thickness with units if ``automodelresolution=False``.
              The default ``"0.0001mm"``.
@@ -366,7 +366,7 @@ class Mesh(object):
         -------
         bool
             ``True`` when successful, ``False`` when failed.
-            
+
         """
         if self._parent.design_type == "2D Extractor" or self._parent.design_type == "Maxwell 2D":
             mesh_methods = ["Auto", "AnsoftClassic"]
@@ -410,7 +410,7 @@ class Mesh(object):
         -------
         :class:`pyaedt.modules.Mesh.MeshOperation`
             Mesh operation object.
-        
+
         """
         meshop_name = generate_unique_name("SurfaceRepPriority")
         props = OrderedDict({"Type": "SurfaceRepPriority", "Objects": object_lists, "SurfaceRepPriority": surfpriority})
@@ -433,14 +433,14 @@ class Mesh(object):
         -------
         bool
             ``True`` when successful, ``False`` when failed.
-            
+
         """
         return self.odesign.GenerateMesh(name) == 0
 
 
     @aedt_exception_handler
     def delete_mesh_operations(self, mesh_type=None):
-        """Remove mesh operations from a design. 
+        """Remove mesh operations from a design.
 
         Parameters
         ----------
@@ -452,7 +452,7 @@ class Mesh(object):
         -------
         bool
             ``True`` when successful, ``False`` when failed.
-        
+
         """
         # Type "Area Based" not included since the delete command causes
         # desktop to crash
@@ -486,7 +486,7 @@ class Mesh(object):
         isinside : bool, optional
             Whether the length mesh is inside the selection. The default is ``True``.
         maxlength : int, optional
-            Maximum element length. The default is ``1``. When ``None``, 
+            Maximum element length. The default is ``1``. When ``None``,
             this parameter is disabled.
         maxel : int, optional
             Maximum number of elements. The default is ``1000``. When ``None``, this parameter
@@ -554,12 +554,12 @@ class Mesh(object):
         names : list
            List of the object names or face IDs.
         skindepth : bool
-            Whether the length mesh is inside the selection. The default is ``True``. 
+            Whether the length mesh is inside the selection. The default is ``True``.
         maxelements : int, optional
             Maximum number of elements. The default is ``None``, which means
             this parameter is disabled.
         triangulation_max_length : str, optional
-            Maximum surface triangulation length with units. The default 
+            Maximum surface triangulation length with units. The default
             is ``"0.1mm"`.
         numlayers : str, optional
             Number of layers. The default is ``"2"``.
@@ -570,7 +570,7 @@ class Mesh(object):
         -------
         :class:`pyaedt.modules.Mesh.MeshOperation`
             Mesh operation object.
-            
+
         """
         names = self.modeler.convert_to_selections(names, True)
 
@@ -627,7 +627,7 @@ class Mesh(object):
         -------
         :class:`pyaedt.modules.Mesh.MeshOperation`
             Mesh operation object.
-            
+
         """
         names = self.modeler.convert_to_selections(names, True)
 
@@ -666,7 +666,7 @@ class Mesh(object):
         names : list
             List of objects or faces.
         disable_for_faceted_surf : bool, optional
-            Whether curvature extraction is enabled for faceted surfaces. 
+            Whether curvature extraction is enabled for faceted surfaces.
             The default is ``True``.
         meshop_name : str, optional
             Name of the mesh operation. The default is ``None``.
@@ -675,7 +675,7 @@ class Mesh(object):
         -------
        :class:`pyaedt.modules.Mesh.MeshOperation`
             Mesh operation object.
-        
+
         """
         names = self.modeler.convert_to_selections(names, True)
 
@@ -725,7 +725,7 @@ class Mesh(object):
         -------
         :class:`pyaedt.modules.Mesh.MeshOperation`
             Mesh operation object.
-            
+
         """
         names = self.modeler.convert_to_selections(names, True)
 
@@ -764,7 +764,7 @@ class Mesh(object):
         -------
         :class:`pyaedt.modules.Mesh.MeshOperation`
             Mesh operation object.
-            
+
         """
         names = self.modeler.convert_to_selections(names, True)
 
@@ -808,7 +808,7 @@ class Mesh(object):
         -------
         :class:`pyaedt.modules.Mesh.MeshOperation`
             Mesh operation object.
-            
+
         """
         names = self.modeler.convert_to_selections(names, True)
 

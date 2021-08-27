@@ -94,7 +94,7 @@ class IcepakMesh(object):
         @aedt_exception_handler
         def update(self):
             """Update mesh region settings with the settings in the object variable.
-            
+
             Returns
             -------
             bool
@@ -117,7 +117,7 @@ class IcepakMesh(object):
         @aedt_exception_handler
         def create(self):
             """Create a new mesh region.
-            
+
             Returns
             -------
             bool
@@ -148,23 +148,23 @@ class IcepakMesh(object):
     @property
     def odesign(self):
         """Design.
-        
+
         Returns
         -------
         type
             Design object.
-        
+
         """
         return self._parent._odesign
 
     @property
     def modeler(self):
         """Modeler.
-        
+
         Returns
         -------
         :class:`pyaedt.modules.Modeler`
-        
+
         """
         return self._parent._modeler
 
@@ -206,7 +206,7 @@ class IcepakMesh(object):
         Parameters
         ----------
         mesh_order : dict
-            Dictionary where the key is the object name and the value is 
+            Dictionary where the key is the object name and the value is
             the mesh level.
         meshop_name :  str, optional
             Name of the mesh operation. The default is ``None``.
@@ -241,7 +241,7 @@ class IcepakMesh(object):
         Parameters
         ----------
         accuracy : int, optional
-            Type of the mesh. Options are ``1``, ``2``, and ``3``, which represent 
+            Type of the mesh. Options are ``1``, ``2``, and ``3``, which represent
             respectively a coarse, standard, or very accurate mesh. The default is ``2``.
 
         Returns
@@ -274,8 +274,8 @@ class IcepakMesh(object):
         Parameters
         ----------
         accuracy2 : int
-            Type of the mesh. Options are ``1``, ``2``, and ``3``, which represent respectively 
-            a coarse, standard, or very accurate mesh. 
+            Type of the mesh. Options are ``1``, ``2``, and ``3``, which represent respectively
+            a coarse, standard, or very accurate mesh.
         stairStep : bool, optional
             Whether to enable a stair step. The default is ``True``.
 
@@ -283,7 +283,7 @@ class IcepakMesh(object):
         -------
          bool
             ``True`` when successful, ``False`` when failed.
-        
+
         """
         xsize = self.boundingdimension[0] / (10 * accuracy2 * accuracy2)
         ysize = self.boundingdimension[1] / (10 * accuracy2 * accuracy2)
@@ -353,7 +353,7 @@ class IcepakMesh(object):
         Parameters
         ----------
         objectlist : list, optional
-            List of objects to apply the mesh region to. The default 
+            List of objects to apply the mesh region to. The default
             is ``[]``.
         level : int, optional
             Level of the surface mesh. Options are ``1`` through ``5``. The default
@@ -364,7 +364,7 @@ class IcepakMesh(object):
         Returns
         -------
         :class:`pyaedt.modules.MeshIcepak.IcepakMesh.MeshRegion`
-        
+
         """
         if not name:
             name = generate_unique_name("MeshRegion")
@@ -406,7 +406,7 @@ class IcepakMesh(object):
         Parameters
         ----------
         mesh_level : int
-            Level of mesh to assign. Options are ``1`` through ``5``.   
+            Level of mesh to assign. Options are ``1`` through ``5``.
         groupName : str
             Name of the group.
         localMeshParamEn : bool, optional
@@ -419,7 +419,7 @@ class IcepakMesh(object):
         Returns
         -------
         :class:`pyaedt.modules.Mesh.MeshOperation`
-       
+
         """
         if meshop_name:
             for el in self.meshoperations:

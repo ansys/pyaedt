@@ -108,7 +108,7 @@ class EdbStackup(object):
             Dictionary of materials.
         """
         mats = {}
-        for el in self.parent.edbutils.MaterialSetupInfo.GetFromLayout(self.parent._active_layout):
+        for el in self.parent.edbutils.MaterialSetupInfo.GetFromLayout(self.parent.active_layout):
             mats[el.Name] = el
         return mats
 

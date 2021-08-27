@@ -66,7 +66,7 @@ class EdbNets(object):
     @property
     def nets(self):
         """Nets.
-        
+
         Returns
         -------
         dict
@@ -78,7 +78,7 @@ class EdbNets(object):
     @property
     def signal_nets(self):
         """Signal nets.
-        
+
         Return
         ------
         dict
@@ -90,7 +90,7 @@ class EdbNets(object):
     @property
     def power_nets(self):
         """Power nets.
-        
+
         Returns
         -------
         dict
@@ -118,7 +118,7 @@ class EdbNets(object):
 
     def get_dcconnected_net_list(self, ground_nets=["GND"]):
         """Retrieve the nets connected to DC through inductors.
-        
+
         .. note::
            Only inductors are considered.
 
@@ -130,7 +130,7 @@ class EdbNets(object):
         Returns
         -------
         list
-            List of nets connected to DC through inductors. 
+            List of nets connected to DC through inductors.
         """
         temp_list = []
         for refdes, comp_obj in self.parent.core_components.inductors.items():
@@ -167,7 +167,7 @@ class EdbNets(object):
         power_net_name : str
             Name of the power net.
         ground_nets :
-            
+
 
         Returns
         -------
@@ -220,7 +220,7 @@ class EdbNets(object):
     @aedt_exception_handler
     def delete_nets(self, netlist):
         """Delete one or more nets from EDB.
-       
+
         Parameters
         ----------
         netlist : str or list
@@ -233,7 +233,7 @@ class EdbNets(object):
 
         Examples
         --------
-        
+
         >>> deleted_nets = edb_core.core_nets.delete_nets(["Net1","Net2"])
         """
         if type(netlist) is str:
@@ -269,5 +269,3 @@ class EdbNets(object):
         if net.IsNull():
             net = self._edb.Cell.Net.Create(self._active_layout, net_name)
         return net
-
-

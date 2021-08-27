@@ -156,10 +156,6 @@ class TestClass():
         assert os.path.exists(os.path.join(self.local_scratch.path,"my_variables.csv"))
 
 
-    def test_18_reload_project(self):
-        #self.aedtapp.close_project(test_project_name, saveproject=False)
-        assert self.aedtapp.load_project(self.test_project, design_name="HFSSDesign",close_active_proj=True)
-
     def test_19_create_design_dataset(self):
         x = [1, 100]
         y = [1000, 980]

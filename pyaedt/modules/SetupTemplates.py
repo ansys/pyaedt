@@ -746,7 +746,7 @@ class SweepHFSS(object):
     setupname : str
         Name of the setup.
     sweeptype : str, optional
-        Type of the sweep. Options are ``"Fast"``, ``"Interpolating"``, 
+        Type of the sweep. Options are ``"Fast"``, ``"Interpolating"``,
         and ``"Discrete"``. The default is ``"Interpolating"``.
     props : dict, optional
         Dictionary of the properties. The default is ``None``, in which case
@@ -801,7 +801,7 @@ class SweepHFSS(object):
         Parameters
         ----------
         rangetype : str
-            Type of the subrange. Options are ``"LinearCount"``, 
+            Type of the subrange. Options are ``"LinearCount"``,
             ``"LinearStep"``, and ``"LogScale"``.
         start : float
             Starting frequency.
@@ -892,7 +892,7 @@ class SweepHFSS3DLayout(object):
     sweepname : str
         Name of the sweep.
     sweeptype : str, optional
-        Type of the sweep. Options are ``"Fast"``, ``"Interpolating"``, 
+        Type of the sweep. Options are ``"Fast"``, ``"Interpolating"``,
         and ``"Discrete"``. The default is ``"Interpolating"``.
     props : dict, optional
         Dictionary of the properties. The default is ``None``, in which
@@ -950,8 +950,8 @@ class SweepHFSS3DLayout(object):
         Parameters
         ----------
         rangetype : str
-            Type of the subrange. Options are ``"LinearCount"``, 
-           ``"LinearStep"``, and ``"LogScale"``.      
+            Type of the subrange. Options are ``"LinearCount"``,
+           ``"LinearStep"``, and ``"LogScale"``.
         start : float
             Starting frequency.
         end : float
@@ -982,8 +982,8 @@ class SweepHFSS3DLayout(object):
         ----------
         rangetype : str
             rangetype : str
-            Type of the subrange. Options are ``"LinearCount"``, 
-            ``"LinearStep"``, and ``"LogScale"``.   
+            Type of the subrange. Options are ``"LinearCount"``,
+            ``"LinearStep"``, and ``"LogScale"``.
         start : float
             Starting frequency.
         end : float
@@ -1068,7 +1068,7 @@ class SweepQ3D(object):
     sweepname: str
         Name of the sweep.
     sweeptype : str, optional
-        Type of the sweep. Options are ``"Fast"``, ``"Interpolating"``, 
+        Type of the sweep. Options are ``"Fast"``, ``"Interpolating"``,
         and ``"Discrete"``. The default is ``"Interpolating"``.
     props : dict
         Dictionary of the properties.  The default is ``None``, in which case
@@ -1104,8 +1104,8 @@ class SweepQ3D(object):
         Parameters
         ----------
         type : str
-            Type of the subrange. Options are ``"LinearCount"``, 
-           ``"LinearStep"``, and ``"LogScale"``.   
+            Type of the subrange. Options are ``"LinearCount"``,
+           ``"LinearStep"``, and ``"LogScale"``.
         start : float
             Starting frequency.
         end : float

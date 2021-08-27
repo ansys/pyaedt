@@ -19,14 +19,14 @@ class ModelerRMxprt(Modeler):
 
 class Modeler2D(GeometryModeler):
     """Provides the Modeler 2D application interface.
-    
+
     Parameters
     ----------
     application :
-    
+
     is3d : bool, optional
         Whether the model is 3D. The default is ``False``.
-    
+
     """
 
     def __init__(self, application):
@@ -41,11 +41,11 @@ class Modeler2D(GeometryModeler):
     @property
     def primitives(self):
         """Primitives.
-        
+
         Returns
         -------
-        :class:`pyaedt.modeler.Primitives2D.Primitives2D` 
-        
+        :class:`pyaedt.modeler.Primitives2D.Primitives2D`
+
         """
         if self._primitivesDes != self._parent.project_name + self._parent.design_name:
             self._primitives.refresh()
@@ -54,7 +54,7 @@ class Modeler2D(GeometryModeler):
 
     @aedt_exception_handler
     def calculate_radius_2D(self, object_name, inner=False):
-        """Calculate the extremity of an object in the radial direction. 
+        """Calculate the extremity of an object in the radial direction.
 
         Parameters
         ----------
@@ -98,10 +98,10 @@ class Modeler2D(GeometryModeler):
         Parameters
         ----------
         radius : float
-            Radius of the circle.   
+            Radius of the circle.
         name : str
-            Name of the circle. 
-            
+            Name of the circle.
+
         Returns
         -------
         bool

@@ -193,14 +193,14 @@ class EdbLayout(object):
     @aedt_exception_handler
     def get_polygons_by_layer(self, layer_name, net_list=None):
         """Retrieve polygons by a layer.
-        
+
         Parameters
         ----------
         layer_name: str
             Name of the layer.
         net_list : list, optional
             List of net names.
-        
+
         Returns
         -------
         list
@@ -218,10 +218,10 @@ class EdbLayout(object):
     @aedt_exception_handler
     def get_polygon_bounding_box(self, polygon):
         """Retrieve a polygon bounding box.
-        
+
         Parameters
         ----------
-        polygon : 
+        polygon :
             Name of the polygon.
 
         Returns
@@ -244,11 +244,11 @@ class EdbLayout(object):
 
     @aedt_exception_handler
     def get_polygon_points(self, polygon):
-        """Retrieve polygon points. 
-        
+        """Retrieve polygon points.
+
         .. note::
            For arcs, one point is returned.
-        
+
         Parameters
         ----------
         polygon :
@@ -261,10 +261,10 @@ class EdbLayout(object):
 
         Examples
         --------
-        
+
         >>> poly = edb_core.core_primitives.get_polygons_by_layer("GND")
         >>> points  = edb_core.core_primitives.get_polygon_points(poly[0])
-        
+
         """
         points = []
         i=0
@@ -292,22 +292,22 @@ class EdbLayout(object):
 
         Parameters
         ----------
-        polygon : 
+        polygon :
             Name of the polygon.
-        selection_polygon : 
+        selection_polygon :
             Polygon to use as a filter.
         offset_name : str, optional
             Name of the offset to create.  The default is ``"offsetx"``.
         origin : list, optional
-            List of the X and Y origins, which impacts the vector 
-            computation and is needed to determine expansion direction. 
+            List of the X and Y origins, which impacts the vector
+            computation and is needed to determine expansion direction.
             The default is ``None``, in which case the vector is
             computed from the polygon's center.
 
         Returns
         -------
         bool
-            ``True`` when successful, ``False`` when failed.   
+            ``True`` when successful, ``False`` when failed.
         """
         def calc_slope(point, origin):
             if point[0] - origin[0] != 0:
@@ -390,15 +390,15 @@ class EdbLayout(object):
         net_name : str, optional
             Name of the net. The default is ``""``.
         start_cap_style : str, optional
-            Style of the cap at its start. Options are ``"Round"``, 
-            ``"Extended",`` and ``"Flat"``. The default is 
+            Style of the cap at its start. Options are ``"Round"``,
+            ``"Extended",`` and ``"Flat"``. The default is
             ``"Round"``.
         end_cap_style : str, optional
-            Style of the cap at its end. Options are ``"Round"``, 
-            ``"Extended",`` and ``"Flat"``. The default is 
+            Style of the cap at its end. Options are ``"Round"``,
+            ``"Extended",`` and ``"Flat"``. The default is
             ``"Round"``.
         corner_style : str, optional
-            Style of the corner. Options are ``"Round"`` and 
+            Style of the corner. Options are ``"Round"`` and
             ``"Flat"``. The default is ``"Round"``.
 
         Returns
@@ -447,7 +447,7 @@ class EdbLayout(object):
 
         Parameters
         ----------
-        main_shape : 
+        main_shape :
             Shape of the main object.
         layer_name : str
             Name of the layer on which to create the polygon.
@@ -578,7 +578,7 @@ class EdbLayout(object):
 
     class Shape(object):
         """Shape class.
-                   
+
         Parameters
         ----------
         type : str, optional

@@ -1,7 +1,7 @@
 """
 This module contains these classes: `Design` and `DesignCache`.
 
-This module provides all functionalities for basic project information and objects. 
+This module provides all functionalities for basic project information and objects.
 These classes are inherited in the main tool class.
 
 """
@@ -210,18 +210,18 @@ def list_difference(list1, list2):
 
 class DesignCache(object):
     """Analyzes the differences in the state of a design between two points in time.
-    
+
     The contents of the design tracked in the Message Manager currently are:
 
         * global-level messages
         * project-level messages
         * design-level messages
-    
+
     Parameters
     ----------
     parent: str
         Name of the parent object.
-        
+
     """
     def __init__(self, parent):
         self._parent = parent
@@ -243,7 +243,7 @@ class DesignCache(object):
     @property
     def no_change(self):
         """Check if the design snapshot is unchanged since the last update.
-        
+
         Returns
         --------
         bool
@@ -254,7 +254,7 @@ class DesignCache(object):
     @property
     def delta_global_messages(self):
         """Check for any new or missing global-level messages since the last update.
-        
+
         Returns
         -------
         list
@@ -265,7 +265,7 @@ class DesignCache(object):
     @property
     def delta_project_messages(self):
         """Check for any new or missing project-level messages since the last update.
-        
+
         Returns
         -------
         list
@@ -276,7 +276,7 @@ class DesignCache(object):
     @property
     def delta_design_messages(self):
         """Check for any new or missing design-level messages since the last update.
-        
+
         Returns
         -------
         list
@@ -287,7 +287,7 @@ class DesignCache(object):
     @property
     def delta_error_messages(self):
         """Check for any new or missing error messages since the last update.
-        
+
         Returns
         -------
         list
@@ -298,7 +298,7 @@ class DesignCache(object):
     @property
     def no_new_messages(self):
         """Check for any new messages that have appeared since the last update or since the Message Manager was cleared.
-        
+
         Returns
         -------
         bool
@@ -310,7 +310,7 @@ class DesignCache(object):
     @property
     def no_new_errors(self):
         """Check for any new error messages that have appeared since the last uodate.
-        
+
         Returns
         -------
         bool
@@ -321,7 +321,7 @@ class DesignCache(object):
     @property
     def no_new_warnings(self):
         """Check for any new warning messages that have appeared since the last uodate.
-        
+
         Returns
         -------
         bool
@@ -332,7 +332,7 @@ class DesignCache(object):
     @property
     def no_change(self):
         """Check if cache elements are unchanged since the last update.
-        
+
         Returns
         -------
         bool
@@ -342,7 +342,7 @@ class DesignCache(object):
 
     def design_snapshot(self):
         """Retrieve the design snapshot.
-        
+
         Returns
         -------
         type
@@ -364,13 +364,13 @@ class DesignCache(object):
 
     def update(self):
         """Retrieve the current state values from the design and perform a delta calculation with the cached values.
-        Then replace the cached values with the current values. 
-        
+        Then replace the cached values with the current values.
+
         .. note::
            The update is done automatically when the property
            ``'no_change'`` is accessed.
         """
-        
+
         messages = self._parent._messenger.messages
 
         # Check whether the design snapshot has changed since the last update
@@ -413,7 +413,7 @@ class DesignCache(object):
 
 class Design(object):
     """Contains all functions and objects connected to the active project and design.
-    
+
     Parameters
     ----------
     design_type : str
@@ -421,10 +421,10 @@ class Design(object):
     project_name : str, optional
         Name of the project to select or the full path to the project
         or AEDTZ archive to open. The default is ``None``, in which
-        case an attempt is made to get an active project. If no 
+        case an attempt is made to get an active project. If no
         projects are present, an empty project is created.
     design_name : str, optional
-        Name of the design to select. The default is ``None``, in 
+        Name of the design to select. The default is ``None``, in
         which case an attempt is made to get an active design. If no
         designs are present, an empty design is created.
     solution_type : str, optional
@@ -434,8 +434,8 @@ class Design(object):
         Version of AEDT to use. The default is ``None``, in which case
         the active version or latest installed version is used.
     NG : bool, optional
-        Whether to run AEDT in the non-graphical mode. The default 
-        is ``False``, in which case AEDT launches in the graphical mode.  
+        Whether to run AEDT in the non-graphical mode. The default
+        is ``False``, in which case AEDT launches in the graphical mode.
     AlwaysNew : bool, optional
         Whether to launch an instance of AEDT in a new thread, even if
         another instance of the ``specified_version`` is active on the
@@ -443,7 +443,7 @@ class Design(object):
     release_on_exit : bool, optional
         Whether to release AEDT on exit. The default is ``False``.
     student_version : bool, optional
-        Whether to enable the student version of AEDT. The default 
+        Whether to enable the student version of AEDT. The default
         is ``False``.
 
     """
@@ -510,7 +510,7 @@ class Design(object):
     @property
     def project_properies(self):
         """Project properties.
-        
+
         Returns
         -------
         dict
@@ -530,7 +530,7 @@ class Design(object):
         Parameters
         ----------
         design_name : str, optional
-            Name of the design to select. The default is ``None``, in 
+            Name of the design to select. The default is ``None``, in
             which case an attempt is made to get an active design. If no
             designs are present, an empty design is created.
 
@@ -628,13 +628,13 @@ class Design(object):
     @property
     def design_type(self):
         """Design type.
-        
-        Options are ``"Circuit Design"``, ``"Emit"``, ``"HFSS"``, 
-        ``"HFSS 3D Layout Design"``, ``"Icepak"``, ``"Maxwell 2D"``, 
-        ``"Maxwell 3D"``, ``"Mechanical"``, ``"ModelCreation"``, 
-        ``"Q2D Extractor"``, ``"Q3D Extractor"``, ``"RMxprtSolution"``, 
+
+        Options are ``"Circuit Design"``, ``"Emit"``, ``"HFSS"``,
+        ``"HFSS 3D Layout Design"``, ``"Icepak"``, ``"Maxwell 2D"``,
+        ``"Maxwell 3D"``, ``"Mechanical"``, ``"ModelCreation"``,
+        ``"Q2D Extractor"``, ``"Q3D Extractor"``, ``"RMxprtSolution"``,
         and ``"Twin Builder"``.
-    
+
         Returns
         --------
         str
@@ -662,8 +662,8 @@ class Design(object):
 
     @property
     def project_list(self):
-        """Project list.     
-        
+        """Project list.
+
         Returns
         -------
         list
@@ -699,24 +699,24 @@ class Design(object):
     @property
     def lock_file(self):
         """Lock file.
-      
+
         Returns
         -------
         str
             Full absolute name and path for the project lock file.
-        
+
         """
         return os.path.join(self.project_path, self.project_name + '.aedt.lock')
 
     @property
     def results_directory(self):
         """Results directory.
-       
+
         Returns
         -------
         str
             Full absolute path for the ``aedtresults`` directory.
-  
+
         """
         return os.path.join(self.project_path, self.project_name + '.aedtresults')
 
@@ -757,7 +757,7 @@ class Design(object):
     @property
     def valid_design(self):
         """Valid design.
-       
+
         Returns
         -------
         bool
@@ -820,7 +820,7 @@ class Design(object):
     @property
     def pyaedt_dir(self):
         """PyAEDT directory.
-       
+
         Returns
         -------
         str
@@ -860,7 +860,7 @@ class Design(object):
         Returns
         -------
         str
-            Full absolute path for the ``toolkit`` directory for this project. 
+            Full absolute path for the ``toolkit`` directory for this project.
             If this directory does not exist, it is created.
 
         """
@@ -876,7 +876,7 @@ class Design(object):
         Returns
         -------
         str
-             Full absolute path for the project's working directory. 
+             Full absolute path for the project's working directory.
              If this directory does not exist, it is created.
 
         """
@@ -959,7 +959,7 @@ class Design(object):
         -------
         type
             ModelSetup module object.
-            
+
         """
         return self._odesign.GetModule("ModelSetup")
 
@@ -1165,7 +1165,7 @@ class Design(object):
         Returns
         -------
         :class:`pyaedt.application.Variables.VariableManager
-            
+
         """
         return self._variable_manager
 
@@ -1313,7 +1313,7 @@ class Design(object):
     @aedt_exception_handler
     def activate_variable_tuning(self, variable_name, min_val=None, max_val=None):
         """Activate tuning analysis for a variable and optionally set up ranges.
-        
+
         Parameters
         ----------
         variable_name : str
@@ -1518,7 +1518,7 @@ class Design(object):
     @aedt_exception_handler
     def close_desktop(self):
         """Close the desktop and release AEDT.
-        
+
         Returns
         -------
         bool
@@ -1552,9 +1552,9 @@ class Design(object):
     def generate_temp_project_directory(self, subdir_name):
         """Generate a unique directory string to save a project to.
 
-        This method creates a directory for storage of a project in the ``temp`` directory 
-        of the AEDT installation because this location is guaranteed to exist. If the ``name`` 
-        parameter is defined, a subdirectory is added within the ``temp`` directory and a 
+        This method creates a directory for storage of a project in the ``temp`` directory
+        of the AEDT installation because this location is guaranteed to exist. If the ``name``
+        parameter is defined, a subdirectory is added within the ``temp`` directory and a
         hash suffix is added to ensure that this directory is empty and has a unique name.
 
         Parameters
@@ -1606,21 +1606,17 @@ class Design(object):
             ``True`` when successful, ``False`` when failed.
 
         """
-        if close_active_proj:
-            self._desktop.CloseProject(self.project_name)
+        legacy_project = self.project_name
         proj = self._desktop.OpenProject(project_file)
-        time.sleep(0.5)
-        self._odesign = None
-        self._oproject = None
-        self.oproject = proj.GetName()
-        time.sleep(0.5)
-        self.odesign = design_name
-        time.sleep(0.5)
+
         if proj:
             self.__init__(projectname=proj.GetName(), designname=design_name)
+            if close_active_proj:
+                self._desktop.CloseProject(legacy_project)
             return True
         else:
             return False
+
 
     @aedt_exception_handler
     def create_dataset1d_design(self, dsname, xlist, ylist, xunit="", yunit=""):
@@ -1695,8 +1691,8 @@ class Design(object):
         zunit : str, optional
             Units for the Z axis for a 3D dataset only. The default is ``""``.
         vunit : str, optional
-            Units for the V axis for a 3D dataset only. The default is ``""``.    
-                
+            Units for the V axis for a 3D dataset only. The default is ``""``.
+
         Returns
         -------
         type
@@ -1732,8 +1728,8 @@ class Design(object):
         zunit : str, optional
             Units for the Z axis for a 3D dataset only. The default is ``""``.
         vunit : str, optional
-            Units for the V axis for a 3D dataset only. The default is ``""``.    
-                
+            Units for the V axis for a 3D dataset only. The default is ``""``.
+
         Returns
         -------
         type
@@ -1790,12 +1786,12 @@ class Design(object):
         Parameters
         ----------
         lossy_dielectric : bool, optional
-            Whether to enable causal materials. 
+            Whether to enable causal materials.
             The default is ``True``.
 
         Returns
         -------
-        bool    
+        bool
             ``True`` when successful, ``False`` when failed.
 
         """
@@ -1814,9 +1810,9 @@ class Design(object):
         Parameters
         ----------
         material_override : bool, optional
-            Whether to enable the material override. 
+            Whether to enable the material override.
             The default is ``True``.
-        
+
         Returns
         -------
         bool
@@ -1849,7 +1845,7 @@ class Design(object):
         -------
         bool
             ``True`` when successful, ``False`` when failed.
-            
+
         """
         self._messenger.add_info_message("Changing the validation design settings")
         self.odesign.SetDesignSettings(["NAME:Design Settings Data"],
@@ -1869,14 +1865,14 @@ class Design(object):
             Name of the directory. The default is ``None``, in which case the active project is
             deleted from the ``aedtresults`` directory.
         name : str, optional
-            Name of the project. The default is ``None``, in which case the data for the 
+            Name of the project. The default is ``None``, in which case the data for the
             active project is deleted.
 
         Returns
         -------
         bool
             ``True`` when successful, ``False`` when failed.
-            
+
         """
         if not name:
             name=self.project_name
@@ -1893,7 +1889,7 @@ class Design(object):
     @aedt_exception_handler
     def copy_project(self, path, dest):
         """Copy the project to another destination.
-        
+
         .. note::
            This method saves the project before copying it.
 
@@ -1928,7 +1924,7 @@ class Design(object):
         -------
         bool
             ``True`` when successful, ``False`` when failed.
-            
+
         """
         self._messenger.add_info_message("Creating new Project ")
         prj = self._desktop.NewProject(proj_name)
@@ -1977,7 +1973,7 @@ class Design(object):
     @aedt_exception_handler
     def delete_design(self, name=None, fallback_design=None):
         """Delete a design from the current project.
-        
+
         .. warning::
            This method does not work from the toolkit.
 
@@ -1985,13 +1981,13 @@ class Design(object):
         ----------
         name : str, optional
             Name of the design. The default is ``None``, in which case
-            the active design is deleted. 
+            the active design is deleted.
 
         Returns
         -------
         bool
             ``True`` when successful, ``False`` when failed.
-            
+
         """
         if not name:
             name = self.design_name
@@ -2034,23 +2030,23 @@ class Design(object):
         ----------
         sVarName :
             Name of the variable.
-       
+
         """
         return  self.variable_manager.delete_variable(sVarName)
 
     @aedt_exception_handler
     def insert_design(self, design_name=None):
-        """Add a design of a specified type. 
-        
-        The default design type is taken from the derived application class. 
-       
+        """Add a design of a specified type.
+
+        The default design type is taken from the derived application class.
+
         Parameters
         ----------
         design_name : str, optional
-            Name of the design. The default is ``None``, in which case the 
-            default design name is ``<Design-Type>Design<_index>``. If the 
-            given or default design name is in use, then an underscore and 
-            index is added to ensure that the design name is unique. 
+            Name of the design. The default is ``None``, in which case the
+            default design name is ``<Design-Type>Design<_index>``. If the
+            given or default design name is in use, then an underscore and
+            index is added to ensure that the design name is unique.
             The inserted object is assigned to the `Design` object.
 
         Returns
@@ -2126,7 +2122,7 @@ class Design(object):
         --------
         str
             Unique project name in the form ``"Project_<unique_name>.aedt".
-        
+
         """
         char_set = string.ascii_uppercase + string.digits
         uName = ''.join(random.sample(char_set, 3))
@@ -2154,17 +2150,17 @@ class Design(object):
 
     @aedt_exception_handler
     def copy_design_from(self, project_fullname, design_name):
-        """Copy a design from a project into the active design.       
-       
+        """Copy a design from a project into the active design.
+
         Parameters
         ----------
         project_fullname : str
-            Full path and name for the project containing the design to copy. 
+            Full path and name for the project containing the design to copy.
             The active design is maintained.
         design_name : str
-            Name of the design to copy into the active design. If a design with this 
-            name is already present in the destination project, AEDT automatically 
-            changes the name. 
+            Name of the design to copy into the active design. If a design with this
+            name is already present in the destination project, AEDT automatically
+            changes the name.
 
         Returns
         -------
@@ -2205,9 +2201,9 @@ class Design(object):
     @aedt_exception_handler
     def duplicate_design(self, label):
         """Copy a design to a new name.
-        
-        The new name consists of the original 
-        design name plus a suffix of ``MMode`` and a running index 
+
+        The new name consists of the original
+        design name plus a suffix of ``MMode`` and a running index
         as necessary to allow for multiple calls.
 
         Parameters
@@ -2219,7 +2215,7 @@ class Design(object):
         -------
         bool
             ``True`` when successful, ``False`` when failed.
-      
+
         """
 
         active_design = self.design_name
@@ -2250,13 +2246,13 @@ class Design(object):
             Whether to export project variables. The default is ``True``.
         export_design : bool, optional
             Whether to export design properties. The default is ``True``.
-        
+
 
         Returns
         -------
         bool
             ``True`` when successful, ``False`` when failed.
-            
+
         """
         varnames = []
         desnames = []
@@ -2278,12 +2274,12 @@ class Design(object):
     @aedt_exception_handler
     def read_design_data(self):
         """Read back the design data as a dictionary.
-        
+
         Returns
         -------
         dict
             Dictionary of the design data.
-        
+
         """
         design_file = os.path.join(self.working_directory, "design_data.json")
         with open(design_file, 'r') as fps:
@@ -2301,7 +2297,7 @@ class Design(object):
         overwrite : bool, optional
             Whether to overwrite the existing project. The default is ``True``.
         refresh_obj_ids_after_save : bool, optional
-            Whether to refresh object IDs after saving the project.  
+            Whether to refresh object IDs after saving the project.
             The default is ``False``.
 
         Returns
@@ -2380,7 +2376,7 @@ class Design(object):
         ----------
         name :
             Name of the design to make active.
-        
+
         """
         self.oproject.SetActiveDesign(name)
         self.odesign = name
@@ -2395,7 +2391,7 @@ class Design(object):
         ----------
         filename : str
             Full path and name of the configuration file, which can be an ACF or TXT file.
-        
+
         """
         self._desktop.SetRegistryFromFile(r'%s' % os.path.abspath(filename))
         return True
@@ -2408,7 +2404,7 @@ class Design(object):
         ----------
         logfile : str, optional
             Name of the log file to save validation information to.
-            The default is ``None``. 
+            The default is ``None``.
 
         Returns
         -------
@@ -2425,15 +2421,15 @@ class Design(object):
     @aedt_exception_handler
     def get_evaluated_value(self, variable_name, variation=None):
         """Retrieve the evaluated value of a design property or project variable in SI units.
-        
+
         Parameters
         ----------
-        variable_name : str 
+        variable_name : str
             Name of the design property or project variable.
         variation : float, optional
             Variation value for the evaluation. The default is ``None``,
             in which case the nominal variation is used.
-            
+
         Examples
         --------
 
@@ -2492,7 +2488,7 @@ class Design(object):
         """Generate a string to specify a desired variation.
 
         This method converts an input string defining a desired solution variation into a valid
-        string taking into account all existing design properties and project variables, including 
+        string taking into account all existing design properties and project variables, including
         dependent (non-sweep) properties.
 
         This is needed because the standard method COM function ``GetVariationVariableValue`` does not work for obtaining
@@ -2561,7 +2557,7 @@ class Design(object):
     @aedt_exception_handler
     def _check_solution_consistency(self):
         """Check solution consistency.
-        
+
         """
         if self._solution_type:
             return self._odesign.GetSolutionType() in self._solution_type

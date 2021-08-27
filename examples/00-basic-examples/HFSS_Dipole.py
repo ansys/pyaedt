@@ -19,7 +19,7 @@ temp_folder = os.path.join(tmpfold, generate_unique_name("Example"))
 if not os.path.exists(temp_folder):
     os.mkdir(temp_folder)
 
-###############################################################################  
+###############################################################################
 # Launch AEDT in Graphical Mode
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # This examples launches AEDT 2021.1 in graphical mode.
@@ -44,9 +44,9 @@ hfss['l_dipole'] = "13.5cm"
 ###############################################################################
 # Get a 3D Component from the `syslib` Directory
 # ----------------------------------------------
-# To run this example correctly, you must get all geometry parameters of the  
-# 3D component or, in case of an encrypted 3D component, create a dictionary 
-# of the parameters. 
+# To run this example correctly, you must get all geometry parameters of the
+# 3D component or, in case of an encrypted 3D component, create a dictionary
+# of the parameters.
 
 compfile = hfss.components3d['Dipole_Antenna_DM']
 geometryparams = hfss.get_components3d_vars('Dipole_Antenna_DM')
@@ -97,7 +97,7 @@ hfss.post.create_rectangular_plot("db(GainTotal)",hfss.nominal_adaptive, variati
 ###############################################################################
 # Close AEDT
 # ~~~~~~~~~~
-# After the simulaton is completed, you can close AEDT or release it using the 
+# After the simulaton is completed, you can close AEDT or release it using the
 # :func:`pyaedt.Desktop.release_desktop` method.
 # All methods provide for saving the project before exiting.
 

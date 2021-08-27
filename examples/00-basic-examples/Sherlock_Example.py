@@ -1,7 +1,7 @@
 """
 Icepack Setup from Sherlock Inputs
 ----------------------------------
-This example shows how to create an Icepak project starting from Sherlock 
+This example shows how to create an Icepak project starting from Sherlock
 # files (STEP and CSV) and an AEDB board.
 """
 # sphinx_gallery_thumbnail_path = 'Resources/sherlock.png'
@@ -45,7 +45,7 @@ from pyaedt import Desktop
 ###############################################################################
 # Launch AEDT in Non-Graphical Mode
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-# You can change the Boolean parameter ``NonGraphical`` to ``False`` to launch  
+# You can change the Boolean parameter ``NonGraphical`` to ``False`` to launch
 # AEDT in graphical mode.
 
 NonGraphical = False
@@ -87,7 +87,7 @@ ipk.create_pcb_from_3dlayout(component_name, odb_path, aedt_odb_design_name, ext
 ###############################################################################
 # Create an Offset Ccoordinate System
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-# This command create an offset coordinate system to match odb++ with the 
+# This command create an offset coordinate system to match odb++ with the
 # Sherlock STEP file.
 
 ipk.modeler.create_coordinate_system([0, 0, stackup_thickness/2], mode="view", view="XY")
@@ -100,9 +100,9 @@ ipk.modeler.create_coordinate_system([0, 0, stackup_thickness/2], mode="view", v
 ipk.modeler.import_3d_cad(file_path, refresh_all_ids=False)
 
 ###############################################################################
-# Save the CAD File 
+# Save the CAD File
 # ~~~~~~~~~~~~~~~~~
-# This command saves the CAD file and refreshes properties from AEDT file 
+# This command saves the CAD file and refreshes properties from AEDT file
 # parsing.
 
 ipk.save_project(project_name, refresh_obj_ids_after_save=True)
@@ -169,7 +169,7 @@ ipk.assign_openings(ipk.modeler.primitives.get_object_faces("Region"))
 ###############################################################################
 # Check for Intersection
 # ~~~~~~~~~~~~~~~~~~~~~~
-# This command checks for intersection using validation and fixes it by 
+# This command checks for intersection using validation and fixes it by
 # assigning priorities.
 
 ipk.assign_priority_on_intersections()
