@@ -391,7 +391,7 @@ class Mechanical(FieldAnalysis3D, object):
         objects_list = self.modeler._convert_list_to_ids(objects_list)
 
         if type(objects_list) is list:
-                props["Faces"] = objects_list
+            props["Faces"] = objects_list
 
 
         if not boundary_name:
@@ -415,5 +415,5 @@ class Mechanical(FieldAnalysis3D, object):
         setup_list = self.existing_analysis_setups
         sweep_list=[]
         for el in setup_list:
-                sweep_list.append(el + " : Solution")
+            sweep_list.append(el + " : Solution")
         return sweep_list

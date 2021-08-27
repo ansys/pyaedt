@@ -1133,11 +1133,11 @@ class GeometryModeler(Modeler, object):
             if not center:
                 continue
             if axisdir > 2 and center[axisdir-3] > obj_cent[axisdir-3]:
-                    obj_cent = center
-                    face_ob=face
+                obj_cent = center
+                face_ob=face
             elif axisdir <= 2 and center[axisdir] < obj_cent[axisdir]:
-                    obj_cent = center
-                    face_ob = face
+                obj_cent = center
+                face_ob = face
         vertx = face_ob.vertices
         start = vertx[0].position
 

@@ -611,12 +611,12 @@ class CommonMaterial(object):
 
         """
         if isinstance(provpavlue, list) and self.__dict__["_"+propname].type != "simple" and self.__dict__["_"+propname].type != "nonlinear":
-                i=1
-                for val in provpavlue:
-                    self._props[propname]["component"+str(i)] = str(val)
-                    i += 1
-                if update_aedt:
-                    return self.update()
+            i=1
+            for val in provpavlue:
+                self._props[propname]["component"+str(i)] = str(val)
+                i += 1
+            if update_aedt:
+                return self.update()
         elif  isinstance(provpavlue, (str, float, int)):
             self._props[propname] = str(provpavlue)
             if update_aedt:
