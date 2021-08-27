@@ -2631,10 +2631,10 @@ class GeometryModeler(Modeler, object):
 
         """
         objectname = self.convert_to_selections(objectname)
-        self.oeditor.GenerateHistory(
-            ["NAME:Selections", "Selections:=", objectname, "NewPartsModelFlag:=", "Model",
-             "UseCurrentCS:=", True
-            ])
+        self.oeditor.GenerateHistory([
+            "NAME:Selections", "Selections:=", objectname, "NewPartsModelFlag:=", "Model",
+            "UseCurrentCS:=", True
+        ])
         self.primitives.cleanup_objects()
         return True
 
@@ -2653,7 +2653,7 @@ class GeometryModeler(Modeler, object):
         min_size : float
             Minimum size of the subsegment of the new polyline. The default is ``0.2``.
         numberofsegments : int, optional
-             Number of segments. The default is ``8``.
+            Number of segments. The default is ``8``.
 
         Returns
         -------
