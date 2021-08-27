@@ -40,8 +40,8 @@ from pyaedt import Edb
 # This example uses EDB 2021.1 and uses SI units.
 
 if os.path.exists(aedt_file): os.remove(aedt_file)
-#edb = Edb(edbpath=targetfile, edbversion="2021.2")
-edb = Edb(edbpath=r"C:\Users\mcapodif\AppData\Local\Temp\Example_TE6DEL\Galileo.aedb", edbversion="2021.2")
+edb = Edb(edbpath=targetfile, edbversion="2021.2")
+
 ###############################################################################
 # Compute Nets and Components
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~
