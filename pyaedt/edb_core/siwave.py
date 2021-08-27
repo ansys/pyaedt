@@ -94,7 +94,6 @@ class SiwaveDCSetupTemplate(object):
         else:
             self._neg_term_to_ground = terms
 
-
     @property
     def source_terms_toground(self):
         a = Dictionary[String, int]()
