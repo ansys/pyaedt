@@ -420,7 +420,6 @@ class CoordinateSystem(object):
 
         self.props = orientationParameters
         self._parent.oeditor.CreateRelativeCS(self.orientation, self.attributes)
-
         self.ref_cs = reference_cs
         self.update()
 

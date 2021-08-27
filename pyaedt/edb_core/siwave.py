@@ -18,7 +18,7 @@ except ImportError:
 
 
 class SiwaveDCSetupTemplate(object):
-    """Siwave DC Settings Data Class. This class contains all the settings for an Siwave DC Analysis and is used as input
+    """Siwave DC Settings Data Class. This class contains all the settings for a Siwave DC Analysis and is used as input
 
         Examples
         --------
@@ -54,7 +54,7 @@ class SiwaveDCSetupTemplate(object):
         self.mesh_vias = False
         self.perform_adaptive_refinement = False
         self.use_dc_custom_settings = False
-        self._SourceTermsToGround = None
+        self._source_terms_to_ground = None
         self._pos_term_to_ground = []
         self._neg_term_to_ground = []
 
@@ -95,14 +95,14 @@ class SiwaveDCSetupTemplate(object):
             self._neg_term_to_ground = terms
 
     @property
-    def source_terms_toground(self):
+    def source_terms_to_ground(self):
         a = Dictionary[String, int]()
         for el in self._neg_term_to_ground:
             a[el] = 1
         for el in self._pos_term_to_ground:
             a[el] = 2
-        self._SourceTermsToGround = a
-        return self._SourceTermsToGround
+        self._source_terms_to_ground = a
+        return self._source_terms_to_ground
 
 
 class SourceType(object):
@@ -762,7 +762,7 @@ class EdbSiwave(object):
         sim_setup_info.SimulationSettings.DCAdvancedSettings.MeshVias = setup_settings.mesh_vias
         sim_setup_info.SimulationSettings.DCAdvancedSettings.PerformAdaptiveRefinement = setup_settings.perform_adaptive_refinement
         sim_setup_info.SimulationSettings.DCSettings.UseDCCustomSettings = setup_settings.use_dc_custom_settings
-        sim_setup_info.SimulationSettings.DCIRSettings.SourceTermsToGround = setup_settings.source_terms_toground
+        sim_setup_info.SimulationSettings.DCIRSettings.SourceTermsToGround = setup_settings.source_terms_to_ground
         simulationSetup = self._edb.Utility.SIWaveDCIRSimulationSetup(sim_setup_info)
         if self._cell.AddSimulationSetup(simulationSetup):
             exec_file = self.create_exec_file()
