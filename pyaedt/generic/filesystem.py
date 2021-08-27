@@ -76,7 +76,7 @@ class Scratch():
         Parameters
         ----------
         src_file :
-            
+
 
         Returns
         -------
@@ -92,9 +92,9 @@ class Scratch():
         Parameters
         ----------
         src_folder :
-            
+
         destfolder :
-            
+
 
         Returns
         -------

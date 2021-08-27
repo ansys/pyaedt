@@ -83,7 +83,7 @@ class Layer(object):
     Parameters
     ----------
     editor :
-    
+
     layertype : string, optional
         The default is ``"signal"``.
     layerunits : str, optional

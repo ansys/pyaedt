@@ -12,7 +12,7 @@ class BoundaryCommon(object):
     @aedt_exception_handler
     def _get_args(self, props=None):
         """Retrieve boundary properties.
-        
+
         Parameters
         ----------
         props : dict, optional
@@ -33,12 +33,12 @@ class BoundaryCommon(object):
     @aedt_exception_handler
     def delete(self):
         """Delete the boundary.
-        
+
         Returns
         -------
         bool
             ``True`` when successful, ``False`` when failed.
-        
+
         """
         self._parent.oboundary.DeleteBoundaries([self.name])
         for el in self._parent.boundaries:
@@ -184,7 +184,7 @@ class NativeComponentObject(BoundaryCommon, object):
 
 class BoundaryObject(BoundaryCommon, object):
     """Manages boundary data and execution.
-    
+
     Examples
     --------
 
@@ -217,7 +217,7 @@ class BoundaryObject(BoundaryCommon, object):
         -------
         list
             List of boundary properties.
-            
+
         """
         if props is None:
             props = self.props
@@ -228,7 +228,7 @@ class BoundaryObject(BoundaryCommon, object):
     @aedt_exception_handler
     def create(self):
         """Create a boundary.
-        
+
         Returns
         -------
         bool
@@ -354,7 +354,7 @@ class BoundaryObject(BoundaryCommon, object):
     @aedt_exception_handler
     def update(self):
         """Update the boundary.
-                
+
         Returns
         -------
         bool
@@ -462,7 +462,7 @@ class BoundaryObject(BoundaryCommon, object):
     @aedt_exception_handler
     def update_assignment(self):
         """Update the boundary assignment.
-        
+
         Returns
         -------
         bool

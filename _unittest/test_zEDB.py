@@ -286,7 +286,7 @@ class TestClass:
         for poly in polys:
             points = self.edbapp.core_primitives.get_polygon_points(poly)
             assert points
-            
+
     def test_49_get_padstack(self):
         for el in self.edbapp.core_padstack.padstacks:
             pad = self.edbapp.core_padstack.padstacks[el]
