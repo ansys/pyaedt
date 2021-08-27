@@ -130,7 +130,7 @@ class CoordinateSystem(object):
             self._change_property(self.name, ["NAME:ChangedProps", ["NAME:Mode", "Value:=", self.props["Mode"]]])
         except:
             raise ValueError(
-            "Mode must be 'Axis/Position', 'Euler Angle ZYZ' or 'Euler Angle ZXZ', not {}.".format(self.props["Mode"]))
+                "Mode must be 'Axis/Position', 'Euler Angle ZYZ' or 'Euler Angle ZXZ', not {}.".format(self.props["Mode"]))
 
         props = ["NAME:ChangedProps"]
 

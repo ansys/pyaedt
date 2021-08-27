@@ -1123,8 +1123,7 @@ class PostProcessor(PostProcessorCommon, object):
         bool
             ``True`` when successful, ``False`` when failed.
         """
-        self.odesign.ChangeProperty(
-        [
+        self.odesign.ChangeProperty([
             "NAME:AllTabs",
             [
                 "NAME:FieldsPostProcessorTab",

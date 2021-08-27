@@ -673,8 +673,8 @@ class Hfss(FieldAnalysis3D, object):
     class SbrAntennas:
         (ConicalHorn, CrossDipole, HalfWaveDipole, HorizontalDipole, ParametricBeam, ParametricSlot, PyramidalHorn,
          QuarterWaveMonopole, ShortDipole, SmallLoop, WireDipole, WireMonopole) = (
-        "Conical Horn", "Cross Dipole", "Half-Wave Dipole", "Horizontal Dipole", "Parametric Beam", "Parametric Slot",
-        "Pyramidal Horn", "Quarter-Wave Monopole", "Short Dipole", "Small Loop", "Wire Dipole", "Wire Monopole")
+            "Conical Horn", "Cross Dipole", "Half-Wave Dipole", "Horizontal Dipole", "Parametric Beam", "Parametric Slot",
+            "Pyramidal Horn", "Quarter-Wave Monopole", "Short Dipole", "Small Loop", "Wire Dipole", "Wire Monopole")
 
     class SBRAntennaDefaults:
         _conical = OrderedDict(
