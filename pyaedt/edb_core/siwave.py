@@ -18,6 +18,21 @@ except ImportError:
 
 
 class SiwaveDCSetupTemplate(object):
+    """Siwave DC Settings Data Class. This class contains all the settings for an Siwave DC Analysis and is used as input
+
+        Examples
+        --------
+        >>> from pyaedt import Edb
+        >>> edb  = Edb("pathtoaedb", edbversion="2021.2")
+        >>> edb.core_siwave.add_siwave_ac_analysis()
+        >>> settings = edb.core_siwave.get_siwave_dc_setup_template()
+        >>> settings.accuracy_level = 0
+        >>> settings.use_dc_custom_settings  = True
+        >>> settings.name = "myDCIR_3"
+        >>> settings.pos_term_to_ground = "I1"
+        >>> settings.neg_term_to_ground = "V1"
+        >>> edb.core_siwave.add_siwave_dc_analysis2(settings)
+    """
     def __init__(self):
         self.name = "DC IR 1"
         self.dcreport_show_active_devices = True
@@ -50,6 +65,13 @@ class SiwaveDCSetupTemplate(object):
 
     @pos_term_to_ground.setter
     def pos_term_to_ground(self, terms):
+        """Set Positive Terminals to ground
+
+        Parameters
+        ----------
+        terms : list, str
+            List of Terminals with Positive nodes to ground
+        """
         if not isinstance(terms, list):
             self._pos_term_to_ground = [terms]
 
@@ -59,6 +81,13 @@ class SiwaveDCSetupTemplate(object):
 
     @neg_term_to_ground.setter
     def neg_term_to_ground(self, terms):
+        """Set Negative Terminals to ground
+
+        Parameters
+        ----------
+        terms : list, str
+            List of Terminals with Negative nodes to ground
+        """
         if not isinstance(terms, list):
             self._neg_term_to_ground = [terms]
 
