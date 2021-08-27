@@ -21,9 +21,9 @@ jobs:
           pip install -r requirements_style.txt --disable-pip-version-check
 
       - name: Codespell
-        run: | 
+        run: |
           make codespell
 
-       - name: flake8 
-        run: | 
+      - name: flake8
+        run: |
           make flake8
