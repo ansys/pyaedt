@@ -609,9 +609,9 @@ class Hfss(FieldAnalysis3D, object):
         >>> from pyaedt import Hfss
         >>> target_project = "my/path/to/targetProject.aedt"
         >>> source_project = "my/path/to/sourceProject.aedt"
-        >>> target = Hfss(projectname=target_project, solution_type="SBR+", specified_version="2021.1", AlwaysNew=False)
-        >>> source = Hfss(projectname=source_project, designname="feeder", specified_version="2021.1", AlwaysNew=False)
-        >>> target.create_sbr_linked_antenna(source, target_cs="feederPosition", fieldtype="farfield")
+        >>> target = Hfss(projectname=target_project, solution_type="SBR+", specified_version="2021.1", AlwaysNew=False)  # doctest: +SKIP
+        >>> source = Hfss(projectname=source_project, designname="feeder", specified_version="2021.1", AlwaysNew=False)  # doctest: +SKIP
+        >>> target.create_sbr_linked_antenna(source, target_cs="feederPosition", fieldtype="farfield")  # doctest: +SKIP
 
         Returns
         -------
