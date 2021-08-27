@@ -10,10 +10,13 @@ import itertools
 import threading
 import shutil
 import warnings
+from collections import OrderedDict
+
 from ..modeler.modeler_constants import CoordinateSystemPlane, CoordinateSystemAxis, GravityDirection, Plane
 from ..modules.SolveSetup import Setup
 from ..modules.SolutionType import SolutionType, SetupTypes
 from ..modules.SetupTemplates import SetupKeys
+from ..modules.Boundary import NativeComponentObject
 from ..modules.DesignXPloration import DOESetups, DXSetups, ParametericsSetups, SensitivitySetups, StatisticalSetups, OptimizationSetups
 from .Design import Design
 from ..modules.MaterialLib import Materials
@@ -81,6 +84,7 @@ class Analysis(Design, object):
         self.opti_designxplorer = DXSetups(self)
         self.opti_sensitivity = SensitivitySetups(self)
         self.opti_statistical = StatisticalSetups(self)
+        self.native_components = self._get_native_data()
 
 
     @property
@@ -391,6 +395,28 @@ class Analysis(Design, object):
         """
         return SolutionType()
 
+    @aedt_exception_handler
+    def _get_native_data(self):
+        """Retrieve Native Components data."""
+        boundaries = []
+        try:
+            data_vals = self.design_properties['ModelSetup']["GeometryCore"]['GeometryOperations']['SubModelDefinitions']['NativeComponentDefinition']
+            if not isinstance(data_vals, list) and  type(data_vals) is OrderedDict:
+                boundaries.append(
+                    NativeComponentObject(self, data_vals['NativeComponentDefinitionProvider']['Type'],
+                                          data_vals['BasicComponentInfo']['ComponentName'],
+                                          data_vals))
+            for ds in data_vals:
+                try:
+                    if type(ds) is OrderedDict:
+                        boundaries.append(NativeComponentObject(self, ds['NativeComponentDefinitionProvider']['Type'],
+                                                        ds['BasicComponentInfo']['ComponentName'],
+                                                        ds))
+                except:
+                    pass
+        except:
+            pass
+        return boundaries
 
     class AvailableVariations(object):
 
