@@ -1650,10 +1650,10 @@ class Primitives(object):
                         actual_point = new_point
                         mindist = vert_dist_sum
                     elif port_direction <= 2 and new_point - actual_point < tol and vert_dist_sum - mindist < pos_tol:
-                            edge_list = [el, el1]
-                            is_parallel = parallel_edges
-                            actual_point = new_point
-                            mindist = vert_dist_sum
+                        edge_list = [el, el1]
+                        is_parallel = parallel_edges
+                        actual_point = new_point
+                        mindist = vert_dist_sum
                     elif port_direction > 2 and actual_point - new_point < tol and vert_dist_sum - mindist < pos_tol:
                         edge_list = [el, el1]
                         is_parallel = parallel_edges
@@ -2103,7 +2103,6 @@ class Primitives(object):
                 edgeID = self.oeditor.GetEdgeByPosition(vArg1)
                 return edgeID
             except Exception as e:
-            #except pywintypes.com_error:
                 pass
 
     @aedt_exception_handler

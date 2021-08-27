@@ -598,8 +598,8 @@ class Object3d(object):
         """
         faces = []
         for face in self.m_Editor.GetFaceIDs(self.name):
-                face = int(face)
-                faces.append(FacePrimitive(self, face))
+            face = int(face)
+            faces.append(FacePrimitive(self, face))
         return faces
 
     @property
@@ -639,8 +639,8 @@ class Object3d(object):
         """
         edges = []
         for edge in self._parent.get_object_edges(self.name):
-                edge = int(edge)
-                edges.append(EdgePrimitive(self, edge))
+            edge = int(edge)
+            edges.append(EdgePrimitive(self, edge))
         return edges
 
     @property
@@ -654,8 +654,8 @@ class Object3d(object):
         """
         vertices = []
         for vertex in self._parent.get_object_vertices(self.name):
-                vertex = int(vertex)
-                vertices.append(VertexPrimitive(self, vertex))
+            vertex = int(vertex)
+            vertices.append(VertexPrimitive(self, vertex))
         return vertices
 
     @property

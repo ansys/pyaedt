@@ -43,19 +43,20 @@ with open(os.path.join(root_path, "pyaedt", "version.txt"), "r") as f:
 # Add any Sphinx_PyAEDT extension module names here, as strings. They can be
 # extensions coming with Sphinx_PyAEDT (named 'sphinx.ext.*') or your custom
 # ones.
-extensions = ['sphinx.ext.autodoc',
-              'sphinx.ext.todo',
-              "sphinx.ext.viewcode",
-              "sphinx.ext.autosummary",
-              #"nbsphinx",
-              "sphinx.ext.intersphinx",
-              'sphinx.ext.napoleon',
-              'sphinx.ext.coverage',
-              "sphinx_copybutton",
-              'recommonmark',
-              'sphinx.ext.graphviz',
-              'sphinx.ext.mathjax',
-              'sphinx.ext.inheritance_diagram'
+extensions = [
+    'sphinx.ext.autodoc',
+    'sphinx.ext.todo',
+    "sphinx.ext.viewcode",
+    "sphinx.ext.autosummary",
+    #"nbsphinx",
+    "sphinx.ext.intersphinx",
+    'sphinx.ext.napoleon',
+    'sphinx.ext.coverage',
+    "sphinx_copybutton",
+    'recommonmark',
+    'sphinx.ext.graphviz',
+    'sphinx.ext.mathjax',
+    'sphinx.ext.inheritance_diagram'
 ]
 
 

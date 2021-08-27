@@ -611,12 +611,12 @@ class CommonMaterial(object):
 
         """
         if isinstance(provpavlue, list) and self.__dict__["_"+propname].type != "simple" and self.__dict__["_"+propname].type != "nonlinear":
-                i=1
-                for val in provpavlue:
-                    self._props[propname]["component"+str(i)] = str(val)
-                    i += 1
-                if update_aedt:
-                    return self.update()
+            i=1
+            for val in provpavlue:
+                self._props[propname]["component"+str(i)] = str(val)
+                i += 1
+            if update_aedt:
+                return self.update()
         elif  isinstance(provpavlue, (str, float, int)):
             self._props[propname] = str(provpavlue)
             if update_aedt:
@@ -664,11 +664,10 @@ class Material(CommonMaterial, object):
             if property in self._props:
                 mods = None
                 if "ModifierData" in self._props:
-                    for mod in self._props["ModifierData"]["ThermalModifierData"]["all_thermal_modifiers"]:
-                        if isinstance(self._props["ModifierData"]["ThermalModifierData"]["all_thermal_modifiers"][mod],
-                                      list):
-                            for one_tm in self._props["ModifierData"]["ThermalModifierData"]["all_thermal_modifiers"][
-                                mod]:
+                    modifiers = self._props["ModifierData"]["ThermalModifierData"]["all_thermal_modifiers"]
+                    for mod in modifiers:
+                        if isinstance(modifiers[mod], list):
+                            for one_tm in modifiers[mod]:
                                 if one_tm["Property:"] == property:
                                     if mods:
                                         mods = [mods]
@@ -676,9 +675,8 @@ class Material(CommonMaterial, object):
                                     else:
                                         mods = one_tm
                         else:
-                            if self._props["ModifierData"]["ThermalModifierData"]["all_thermal_modifiers"][mod][
-                                "Property:"] == property:
-                                mods = self._props["ModifierData"]["ThermalModifierData"]["all_thermal_modifiers"][mod]
+                            if modifiers[mod]["Property:"] == property:
+                                mods = modifiers[mod]
                 self.__dict__["_" + property] = MatProperty(self, property, self._props[property], mods)
             else:
                 self.__dict__["_" + property] = MatProperty(self, property,
@@ -1114,11 +1112,10 @@ class SurfaceMaterial(CommonMaterial, object):
             if property in self._props:
                 mods = None
                 if "ModifierData" in self._props:
-                    for mod in self._props["ModifierData"]["ThermalModifierData"]["all_thermal_modifiers"]:
-                        if isinstance(self._props["ModifierData"]["ThermalModifierData"]["all_thermal_modifiers"][mod],
-                                      list):
-                            for one_tm in self._props["ModifierData"]["ThermalModifierData"]["all_thermal_modifiers"][
-                                mod]:
+                    modifiers = self._props["ModifierData"]["ThermalModifierData"]["all_thermal_modifiers"]
+                    for mod in modifiers:
+                        if isinstance(modifiers[mod], list):
+                            for one_tm in modifiers[mod]:
                                 if one_tm["Property:"] == property:
                                     if mods:
                                         mods = [mods]
@@ -1126,9 +1123,8 @@ class SurfaceMaterial(CommonMaterial, object):
                                     else:
                                         mods = one_tm
                         else:
-                            if self._props["ModifierData"]["ThermalModifierData"]["all_thermal_modifiers"][mod][
-                                "Property:"] == property:
-                                mods = self._props["ModifierData"]["ThermalModifierData"]["all_thermal_modifiers"][mod]
+                            if modifiers[mod]["Property:"] == property:
+                                mods = modifiers[mod]
                 self.__dict__["_" + property] = MatProperty(self, property, self._props[property], mods)
             else:
                 self.__dict__["_" + property] = MatProperty(self, property, SurfMatProperties.get_defaultvalue(aedtname=property))

@@ -599,10 +599,10 @@ class EdbLayout(object):
         """
         def __init__(self, type='unknown', pointA=None, pointB=None, centerPoint=None, radius=None, points=None,
                          properties={}):
-                self.type = type
-                self.pointA = pointA
-                self.pointB = pointB
-                self.centerPoint = centerPoint
-                self.radius = radius
-                self.points = points
-                self.properties = properties
+            self.type = type
+            self.pointA = pointA
+            self.pointB = pointB
+            self.centerPoint = centerPoint
+            self.radius = radius
+            self.points = points
+            self.properties = properties

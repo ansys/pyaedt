@@ -62,7 +62,7 @@ class TestClass:
         assert self.aedtapp.assign_winding(self.aedtapp.modeler.primitives["Coil_Section1"].faces[0].id)
 
     def test_05_draw_region(self):
-         assert self.aedtapp.modeler.create_air_region(*[300] * 6)
+        assert self.aedtapp.modeler.create_air_region(*[300] * 6)
 
     def test_06_eddycurrent(self):
         assert self.aedtapp.eddy_effects_on(['Plate'])

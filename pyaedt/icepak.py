@@ -115,7 +115,7 @@ class Icepak(FieldAnalysisIcepak):
         sweep_list=[]
         s_type = self.solution_type
         for el in setup_list:
-                sweep_list.append(el + " : " +s_type)
+            sweep_list.append(el + " : " +s_type)
         return sweep_list
 
     @aedt_exception_handler
@@ -1411,8 +1411,8 @@ class Icepak(FieldAnalysisIcepak):
                                                  custom_y_resolution=custom_y_resolution)
 
         if close_linked_project_after_import and ".aedt" in project_name:
-                prjname = os.path.splitext(os.path.basename(project_name))[0]
-                self.close_project(prjname, saveproject=False)
+            prjname = os.path.splitext(os.path.basename(project_name))[0]
+            self.close_project(prjname, saveproject=False)
         self._messenger.add_info_message("PCB component correctly created in Icepak.")
         return status
 

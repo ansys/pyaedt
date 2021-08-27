@@ -130,7 +130,7 @@ class CoordinateSystem(object):
             self._change_property(self.name, ["NAME:ChangedProps", ["NAME:Mode", "Value:=", self.props["Mode"]]])
         except:
             raise ValueError(
-            "Mode must be 'Axis/Position', 'Euler Angle ZYZ' or 'Euler Angle ZXZ', not {}.".format(self.props["Mode"]))
+                "Mode must be 'Axis/Position', 'Euler Angle ZYZ' or 'Euler Angle ZXZ', not {}.".format(self.props["Mode"]))
 
         props = ["NAME:ChangedProps"]
 
@@ -1132,11 +1132,11 @@ class GeometryModeler(Modeler, object):
             if not center:
                 continue
             if axisdir > 2 and center[axisdir-3] > obj_cent[axisdir-3]:
-                    obj_cent = center
-                    face_ob=face
+                obj_cent = center
+                face_ob=face
             elif axisdir <= 2 and center[axisdir] < obj_cent[axisdir]:
-                    obj_cent = center
-                    face_ob = face
+                obj_cent = center
+                face_ob = face
         vertx = face_ob.vertices
         start = vertx[0].position
 
@@ -2630,10 +2630,10 @@ class GeometryModeler(Modeler, object):
 
         """
         objectname = self.convert_to_selections(objectname)
-        self.oeditor.GenerateHistory(
-            ["NAME:Selections", "Selections:=", objectname, "NewPartsModelFlag:=", "Model",
-             "UseCurrentCS:=", True
-            ])
+        self.oeditor.GenerateHistory([
+            "NAME:Selections", "Selections:=", objectname, "NewPartsModelFlag:=", "Model",
+            "UseCurrentCS:=", True
+        ])
         self.primitives.cleanup_objects()
         return True
 
@@ -2652,7 +2652,7 @@ class GeometryModeler(Modeler, object):
         min_size : float
             Minimum size of the subsegment of the new polyline. The default is ``0.2``.
         numberofsegments : int, optional
-             Number of segments. The default is ``8``.
+            Number of segments. The default is ``8``.
 
         Returns
         -------
