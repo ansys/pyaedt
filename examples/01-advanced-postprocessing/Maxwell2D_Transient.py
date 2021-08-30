@@ -83,7 +83,8 @@ setup.update()
 # ~~~~~~~~~~~~~~~~~~~~~~~~~
 # This command creates a rectangular plot.
 
-maxwell_2d.post.create_rectangular_plot("InputCurrent(PHA)",primary_sweep_variable="Time", families_dict={"Time":["All"]}, plotname="Winding Plot 1")
+maxwell_2d.post.create_rectangular_plot("InputCurrent(PHA)",primary_sweep_variable="Time", families_dict={
+                                        "Time":["All"]}, plotname="Winding Plot 1")
 
 ###############################################################################
 # Solve the Model

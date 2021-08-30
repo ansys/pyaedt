@@ -30,9 +30,11 @@ from pyaedt import Hfss
 # Define two designs, one source and one target, with each one connected to
 # a different object.
 
-target = Hfss(projectname=project_full_name, designname="Cassegrain_", solution_type="SBR+", specified_version="2021.1", AlwaysNew=False)
+target = Hfss(projectname=project_full_name, designname="Cassegrain_",
+              solution_type="SBR+", specified_version="2021.1", AlwaysNew=False)
 target.save_project(os.path.join(temp_folder,project_name+".aedt"))
-source = Hfss(projectname=project_name, designname="feeder", specified_version="2021.1", AlwaysNew=False)
+source = Hfss(projectname=project_name, designname="feeder",
+              specified_version="2021.1", AlwaysNew=False)
 
 ###############################################################################
 # Define a Linked Antenna
@@ -73,6 +75,7 @@ variations = target.available_variations.nominal_w_values_dict
 variations["Freq"] = ["10GHz"]
 variations["Theta"] = ["All"]
 variations["Phi"] = ["All"]
-target.post.create_rectangular_plot("db(GainTotal)",target.nominal_adaptive, variations, "Theta", "ATK_3D",plottype="Far Fields")
+target.post.create_rectangular_plot(
+    "db(GainTotal)",target.nominal_adaptive, variations, "Theta", "ATK_3D",plottype="Far Fields")
 if os.name != "posix":
     target.close_desktop()

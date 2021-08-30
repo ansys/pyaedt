@@ -138,7 +138,8 @@ def ff_calc(x=0, y=0, qty='rETotal', dB=True):
     all_qtys = {}
     all_qtys['rEPhi'] = rEphi_fields
     all_qtys['rETheta'] = rEtheta_fields
-    all_qtys['rETotal'] = np.sqrt(np.power(np.abs(rEphi_fields), 2) + np.power(np.abs(rEtheta_fields), 2))
+    all_qtys['rETotal'] = np.sqrt(np.power(np.abs(rEphi_fields), 2) + \
+                                  np.power(np.abs(rEtheta_fields), 2))
 
     pin = np.sum(w)
     print(str(pin))
