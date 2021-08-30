@@ -107,13 +107,15 @@ class AEDTMessageManager(object):
             if 'oDesktop' in dir(sys.modules['__main__']):
                 self.MainModule = sys.modules['__main__']
                 self._desktop = self.MainModule.oDesktop
-                self._log_on_desktop = os.getenv('PYAEDT_DESKTOP_LOGS', 'True').lower() in ('true', '1', 't', 'yes', 'y')
+                self._log_on_desktop = os.getenv(
+                    'PYAEDT_DESKTOP_LOGS', 'True').lower() in ('true', '1', 't', 'yes', 'y')
             else:
                 self._log_on_desktop = False
                 self._desktop = None
         else:
             self._desktop = self._parent._desktop
-            self._log_on_desktop = os.getenv('PYAEDT_DESKTOP_LOGS', 'True').lower() in ('true', '1', 't')
+            self._log_on_desktop = os.getenv(
+                'PYAEDT_DESKTOP_LOGS', 'True').lower() in ('true', '1', 't')
         self._log_on_file = os.getenv('PYAEDT_FILE_LOGS', 'True').lower() in ('true', '1', 't')
         self._log_on_screen = os.getenv('PYAEDT_SCREEN_LOGS', 'True').lower() in ('true', '1', 't')
 

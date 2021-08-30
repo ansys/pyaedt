@@ -400,7 +400,8 @@ class Analysis(Design, object):
         """Retrieve Native Components data."""
         boundaries = []
         try:
-            data_vals = self.design_properties['ModelSetup']["GeometryCore"]['GeometryOperations']['SubModelDefinitions']['NativeComponentDefinition']
+            data_vals = self.design_properties['ModelSetup']["GeometryCore"][
+                'GeometryOperations']['SubModelDefinitions']['NativeComponentDefinition']
             if not isinstance(data_vals, list) and  type(data_vals) is OrderedDict:
                 boundaries.append(
                     NativeComponentObject(self, data_vals['NativeComponentDefinitionProvider']['Type'],
@@ -762,9 +763,11 @@ class Analysis(Design, object):
         """
         oModule = self.odesign.GetModule("OutputVariable")
         if variable in self.output_variables:
-            oModule.EditOutputVariable(variable, expression, variable, self.existing_analysis_sweeps[0], self.solution_type, [])
+            oModule.EditOutputVariable(variable, expression, variable,
+                                       self.existing_analysis_sweeps[0], self.solution_type, [])
         else:
-            oModule.CreateOutputVariable(variable, expression, self.existing_analysis_sweeps[0], self.solution_type, [])
+            oModule.CreateOutputVariable(
+                variable, expression, self.existing_analysis_sweeps[0], self.solution_type, [])
         return True
 
     @aedt_exception_handler
@@ -786,10 +789,12 @@ class Analysis(Design, object):
             Value of the output variable.
         """
         oModule = self.odesign.GetModule("OutputVariable")
-        assert variable in self.output_variables, "Output variable {} does not exist.".format(variable)
+        assert variable in self.output_variables, "Output variable {} does not exist.".format(
+            variable)
         nominal_variation = self.odesign.GetNominalVariation()
         sol_type = self.solution_type
-        value = oModule.GetOutputVariableValue(variable, nominal_variation, self.existing_analysis_sweeps[0], self.solution_type, [])
+        value = oModule.GetOutputVariableValue(
+            variable, nominal_variation, self.existing_analysis_sweeps[0], self.solution_type, [])
         return value
 
     @aedt_exception_handler
@@ -951,15 +956,19 @@ class Analysis(Design, object):
         if not aedt_full_exe_path:
             version = self.odesktop.GetVersion()[2:6]
             if os.path.exists(r"\\"+clustername+r"\AnsysEM\AnsysEM{}\Win64\ansysedt.exe".format(version)):
-                aedt_full_exe_path = r"\\\\\\\\"+clustername+r"\\\\AnsysEM\\\\AnsysEM{}\\\\Win64\\\\ansysedt.exe".format(version)
+                aedt_full_exe_path = r"\\\\\\\\"+clustername+ \
+                    r"\\\\AnsysEM\\\\AnsysEM{}\\\\Win64\\\\ansysedt.exe".format(version)
             elif os.path.exists(r"\\"+clustername+r"\AnsysEM\AnsysEM{}\Linux64\ansysedt".format(version)):
-                aedt_full_exe_path = r"\\\\\\\\"+clustername+r"\\\\AnsysEM\\\\AnsysEM{}\\\\Linux64\\\\ansysedt".format(version)
+                aedt_full_exe_path = r"\\\\\\\\"+clustername+ \
+                    r"\\\\AnsysEM\\\\AnsysEM{}\\\\Linux64\\\\ansysedt".format(version)
             else:
-                self._messenger.add_error_message("Aedt Path doesn't exists. Please provide a full path")
+                self._messenger.add_error_message(
+                    "Aedt Path doesn't exists. Please provide a full path")
                 return False
         else:
             if not os.path.exists(aedt_full_exe_path):
-                self._messenger.add_error_message("Aedt Path doesn't exists. Please provide a full path")
+                self._messenger.add_error_message(
+                    "Aedt Path doesn't exists. Please provide a full path")
                 return False
             aedt_full_exe_path.replace("\\", "\\\\")
 

@@ -297,7 +297,8 @@ class CSVDataset:
                             for j, value in enumerate(line_data):
                                 var_name = self._header[j]
                                 if var_name in self._unit_dict:
-                                    var_value = Variable(value).rescale_to(self._unit_dict[var_name]).numeric_value
+                                    var_value = Variable(value).rescale_to(
+                                        self._unit_dict[var_name]).numeric_value
                                 else:
                                     var_value = Variable(value).value
                                 self._data[var_name].append(var_value)
@@ -327,7 +328,8 @@ class CSVDataset:
                 if variable in key_string:
                     found_variable = True
                     break
-            assert found_variable, "Input string {} is not a key of the data dictionary.".format(variable)
+            assert found_variable, "Input string {} is not a key of the data dictionary.".format(
+                variable)
             data_out._data[variable] = self._data[key_string]
             data_out._header.append(variable)
         return data_out
@@ -1002,7 +1004,8 @@ class Variable(object):
         # If units have been specified, check for a conflict and otherwise use the specified unit system
         if units:
             assert not self._units, \
-                "The unit specification {} is inconsistent with the identified units {}.".format(specified_units, self._units)
+                "The unit specification {} is inconsistent with the identified units {}.".format(
+                    specified_units, self._units)
             self._units = specified_units
 
         if is_number(self._value):
@@ -1143,7 +1146,8 @@ class Variable(object):
         >>> assert result_3.unit_system == "Power"
 
         """
-        assert is_number(other) or isinstance(other, Variable), "Multiplier must be a scalar quantity or a variable."
+        assert is_number(other) or isinstance(
+            other, Variable), "Multiplier must be a scalar quantity or a variable."
         if is_number(other):
             result_value = self.numeric_value * other
             result_units = self.units
@@ -1156,7 +1160,8 @@ class Variable(object):
                 result_value = self.value * other.value
                 result_units = _resolve_unit_system(self.unit_system, other.unit_system, "multiply")
                 if not result_units:
-                    result_units = _resolve_unit_system(other.unit_system, self.unit_system, "multiply")
+                    result_units = _resolve_unit_system(
+                        other.unit_system, self.unit_system, "multiply")
 
         return Variable("{}{}".format(result_value, result_units))
 
@@ -1227,7 +1232,8 @@ class Variable(object):
         >>> assert result_2.unit_system == "Current"
 
         """
-        assert isinstance(other, Variable), "You can only subtract a variable from another variable."
+        assert isinstance(
+            other, Variable), "You can only subtract a variable from another variable."
         assert self.unit_system == other.unit_system, "Only ``Variable`` objects with the same unit system can be subtracted."
         result_value = self.value - other.value
         result_units = SI_units[self.unit_system]
@@ -1270,7 +1276,8 @@ class Variable(object):
         >>> assert result_1.unit_system == "Current"
 
         """
-        assert is_number(other) or isinstance(other, Variable), "Divisor must be a scalar quantity or a variable."
+        assert is_number(other) or isinstance(
+            other, Variable), "Divisor must be a scalar quantity or a variable."
         if is_number(other):
             result_value = self.numeric_value / other
             result_units = self.units

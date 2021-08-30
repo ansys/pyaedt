@@ -199,7 +199,8 @@ class FieldAnalysis3D(Analysis, object):
             for propserv in propservs:
                 properties = list(self.odesign.GetProperties(propserv, objectname))
                 if property in properties:
-                    val = retry_ntimes(10, self.odesign.GetPropertyValue, propserv, objectname, property)
+                    val = retry_ntimes(10, self.odesign.GetPropertyValue,
+                                       propserv, objectname, property)
                     return val
         return None
 
