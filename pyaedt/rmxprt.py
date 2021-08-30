@@ -31,7 +31,8 @@ class RMXprtModule(object):
                 prop_server = key
                 break
         assert prop_server is not None,\
-            "Unknown parameter name {0} exists in component {1}.".format(prop_server, self.component)
+            "Unknown parameter name {0} exists in component {1}.".format(
+                prop_server, self.component)
         return prop_server
 
     def __init__(self, oeditor):

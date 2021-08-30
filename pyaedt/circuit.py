@@ -243,7 +243,8 @@ class Circuit(FieldAnalysisCircuit, object):
         return self._desktop.GetTool("NdExplorer")
 
     def _get_number_from_string(self, stringval):
-        value = stringval[stringval.find("=") + 1:].strip().replace("{", "").replace("}", "").replace(",", ".")
+        value = stringval[stringval.find(
+            "=") + 1:].strip().replace("{", "").replace("}", "").replace(",", ".")
         try:
             float(value)
             return value
@@ -582,7 +583,8 @@ class Circuit(FieldAnalysisCircuit, object):
             if "GND" in netname.upper():
                 self.modeler.components.create_gnd(xpos, ypos)
                 page_pos = ypos + 0.00254
-                id, name = self.modeler.components.create_page_port(netname, xpos, ypos, 6.28318530717959)
+                id, name = self.modeler.components.create_page_port(
+                    netname, xpos, ypos, 6.28318530717959)
                 mod1 = self.modeler.components[id]
                 mod1.set_location(str(xpos) + "meter", str(page_pos) + "meter")
                 ypos += delta
@@ -750,14 +752,16 @@ class Circuit(FieldAnalysisCircuit, object):
             for v, vv in zip(variation, variations_value):
                 appendix += "_" + v + vv.replace("\'", "")
             ext = ".S" + str(self.oboundary.GetNumExcitations()) + "p"
-            filename = os.path.join(self.project_path, solutionname + "_" + sweepname + appendix + ext)
+            filename = os.path.join(self.project_path, solutionname + \
+                                    "_" + sweepname + appendix + ext)
         else:
             filename = filename.replace("//", "/").replace("\\", "/")
         print("Exporting Touchstone " + filename)
         DesignVariations = ""
         i = 0
         for el in variation:
-            DesignVariations += str(variation[i]) + "=\'" + str(variations_value[i].replace("\'", "")) + "\' "
+            DesignVariations += str(variation[i]) + "=\'" + \
+                                    str(variations_value[i].replace("\'", "")) + "\' "
             i += 1
             # DesignVariations = "$AmbientTemp=\'22cel\' $PowerIn=\'100\'"
         # array containing "SetupName:SolutionName" pairs (note that setup and solution are separated by a colon)
@@ -766,7 +770,8 @@ class Circuit(FieldAnalysisCircuit, object):
         # 7=Matlab (.m), 8=Terminal Z0 spreadsheet
         FileFormat = 3
         OutFile = filename  # full path of output file
-        FreqsArray = ["all"]  # array containin the frequencies to export, use ["all"] for all frequencies
+        # array containin the frequencies to export, use ["all"] for all frequencies
+        FreqsArray = ["all"]
         DoRenorm = True  # perform renormalization before export
         RenormImped = 50  # Real impedance value in ohm, for renormalization
         DataType = "S"  # Type: "S", "Y", or "Z" matrix to export
@@ -854,10 +859,13 @@ class Circuit(FieldAnalysisCircuit, object):
                                                          "TouchStonePrecision:=", 15,
                                                          "SubcircuitName:=", "",
                                                          "SYZDataInAutoMode:=", False,
-                                                         "ExportDirectory:=", os.path.dirname(filename) + "\\",
-                                                         "ExportSpiceFileName:=", os.path.basename(filename),
+                                                         "ExportDirectory:=", os.path.dirname(
+                                                             filename) + "\\",
+                                                         "ExportSpiceFileName:=", os.path.basename(
+                                                             filename),
                                                          "FullwaveSpiceFileName:=",
-                                                         os.path.basename(filename), "UseMultipleCores:=",
+                                                         os.path.basename(
+                                                             filename), "UseMultipleCores:=",
                                                          True, "NumberOfCores:=", 20])
         return filename
 
@@ -888,7 +896,8 @@ class Circuit(FieldAnalysisCircuit, object):
         if variation_dict:
             for el in variation_dict:
                 variations[el] = [variation_dict[el]]
-        ctxt = ["NAME:Context", "SimValueContext:=",[3, 0, 2, 0, False, False, -1, 1, 0, 1, 1, "", 0, 0]]
+        ctxt = ["NAME:Context", "SimValueContext:=",[
+            3, 0, 2, 0, False, False, -1, 1, 0, 1, 1, "", 0, 0]]
         return self.post.create_rectangular_plot(curvenames,solution_name, variations, plotname=plot_name, context=ctxt)
 
     @aedt_exception_handler
@@ -916,5 +925,6 @@ class Circuit(FieldAnalysisCircuit, object):
         if variation_dict:
             for el in variation_dict:
                 variations[el] = [variation_dict[el]]
-        ctxt = ["NAME:Context", "SimValueContext:=", [3, 0, 2, 0, False, False, -1, 1, 0, 1, 1, "", 0, 0]]
+        ctxt = ["NAME:Context", "SimValueContext:=", [
+            3, 0, 2, 0, False, False, -1, 1, 0, 1, 1, "", 0, 0]]
         return self.post.get_solution_data_per_variation("Standard", solution_name, ctxt, variations, curvenames)

@@ -248,10 +248,12 @@ class Icepak(FieldAnalysisIcepak):
                 listmcad.append(row)
                 if num_power>1:
                     self[row[0]+"_P"] = str(row[1:])
-                    out = self.create_source_block(row[0], row[0]+"_P[P_index]", assign_material, default_material)
+                    out = self.create_source_block(
+                        row[0], row[0]+"_P[P_index]", assign_material, default_material)
 
                 else:
-                    out = self.create_source_block(row[0], str(row[1]) + "W", assign_material, default_material)
+                    out = self.create_source_block(row[0], str(
+                        row[1]) + "W", assign_material, default_material)
                 if out:
                     listmcad.append(out)
 
@@ -539,7 +541,8 @@ class Icepak(FieldAnalysisIcepak):
         if not monitor_name:
             monitor_name = generate_unique_name("Monitor")
         oModule = self.odesign.GetModule("Monitor")
-        oModule.AssignFaceMonitor(["NAME:" + monitor_name, "Quantities:=", [monitor_type], "Objects:=", [face_name]])
+        oModule.AssignFaceMonitor(["NAME:" + monitor_name, "Quantities:=",
+                                  [monitor_type], "Objects:=", [face_name]])
         return True
 
     @aedt_exception_handler
@@ -579,7 +582,8 @@ class Icepak(FieldAnalysisIcepak):
         if not monitor_name:
             monitor_name = generate_unique_name("Monitor")
         oModule = self.odesign.GetModule("Monitor")
-        oModule.AssignPointMonitor(["NAME:" + monitor_name, "Quantities:=", [monitor_type], "Points:=", [point_name]])
+        oModule.AssignPointMonitor(["NAME:" + monitor_name, "Quantities:=",
+                                   [monitor_type], "Points:=", [point_name]])
         return True
 
 
@@ -614,7 +618,8 @@ class Icepak(FieldAnalysisIcepak):
             try:
                 float(power)
                 if "COMP_" + component_data["Ref Des"][i] in all_objects:
-                    status = self.create_source_block("COMP_" + component_data["Ref Des"][i], str(power)+"W",assign_material=False)
+                    status = self.create_source_block(
+                        "COMP_" + component_data["Ref Des"][i], str(power)+"W",assign_material=False)
                     if not status:
                         self._messenger.add_warning_message(
                             "Warning. Block {} skipped with {}W power.".format(component_data["Ref Des"][i], power))
@@ -622,7 +627,8 @@ class Icepak(FieldAnalysisIcepak):
                         total_power += float(power)
                         # print("Block {} created with {}W power".format(component_data["Ref Des"][i], power))
                 elif component_data["Ref Des"][i] in all_objects:
-                    status = self.create_source_block(component_data["Ref Des"][i], str(power)+"W",assign_material=False)
+                    status = self.create_source_block(
+                        component_data["Ref Des"][i], str(power)+"W",assign_material=False)
                     if not status:
                         self._messenger.add_warning_message(
                             "Warning. Block {} skipped with {}W power.".format(component_data["Ref Des"][i], power))
@@ -632,7 +638,8 @@ class Icepak(FieldAnalysisIcepak):
             except:
                 pass
             i += 1
-        self._messenger.add_info_message("Blocks inserted with total power {}W.".format(total_power))
+        self._messenger.add_info_message(
+            "Blocks inserted with total power {}W.".format(total_power))
         return total_power
 
     @aedt_exception_handler
@@ -777,17 +784,20 @@ class Icepak(FieldAnalysisIcepak):
         self['Tolerance'] = self.modeler.primitives._arg_with_dim(tolerance)
 
         #self.modeler.primitives.create_box([0, 0, '-HSBaseThick'], ['HSWidth', 'HSHeight', 'FinHeight+HSBaseThick'], "Outline")
-        self.modeler.primitives.create_box(['-HSWidth/200', '-HSHeight/200', '-HSBaseThick'], ['HSWidth*1.01', 'HSHeight*1.01', 'HSBaseThick+Tolerance'], "HSBase", matname)
+        self.modeler.primitives.create_box(['-HSWidth/200', '-HSHeight/200', '-HSBaseThick'], [
+                                           'HSWidth*1.01', 'HSHeight*1.01', 'HSBaseThick+Tolerance'], "HSBase", matname)
         Fin_Line = []
         Fin_Line.append(self.Position(0, 0, 0))
         Fin_Line.append(self.Position(0, 'FinThickness', 0))
-        Fin_Line.append(self.Position('FinLength', 'FinThickness + FinLength*sin(PatternAngle*3.14/180)', 0))
+        Fin_Line.append(self.Position(
+            'FinLength', 'FinThickness + FinLength*sin(PatternAngle*3.14/180)', 0))
         Fin_Line.append(self.Position('FinLength', 'FinLength*sin(PatternAngle*3.14/180)', 0))
         Fin_Line.append(self.Position(0, 0, 0))
         self.modeler.primitives.create_polyline(Fin_Line, cover_surface=True, name="Fin")
         Fin_Line2 = []
         Fin_Line2.append(self.Position(0, 'sin(DraftAngle*3.14/180)*FinThickness', 'FinHeight'))
-        Fin_Line2.append(self.Position(0, 'FinThickness-sin(DraftAngle*3.14/180)*FinThickness', 'FinHeight'))
+        Fin_Line2.append(self.Position(
+            0, 'FinThickness-sin(DraftAngle*3.14/180)*FinThickness', 'FinHeight'))
         Fin_Line2.append(
             self.Position('FinLength', 'FinThickness + FinLength*sin(PatternAngle*3.14/180)-sin(DraftAngle*3.14/180)*FinThickness',
                          'FinHeight'))
@@ -799,8 +809,10 @@ class Icepak(FieldAnalysisIcepak):
         self.modeler.primitives["Fin"].material_name = matname
         # self.modeler.thicken_sheet("Fin",'-FinHeight')
         num = int((hs_width / (separation+thick))/(max(1-math.sin(patternangle*3.14/180),0.1)))
-        self.modeler.duplicate_along_line("Fin", self.Position(0, 'FinSeparation+FinThickness', 0), num,True)
-        self.modeler.duplicate_along_line("Fin", self.Position(0, '-FinSeparation-FinThickness', 0), num/4, True)
+        self.modeler.duplicate_along_line("Fin", self.Position(
+            0, 'FinSeparation+FinThickness', 0), num,True)
+        self.modeler.duplicate_along_line("Fin", self.Position(
+            0, '-FinSeparation-FinThickness', 0), num/4, True)
 
         all_names = self.modeler.primitives.object_names
         list = [i for i in all_names if "Fin" in i]
@@ -815,7 +827,8 @@ class Icepak(FieldAnalysisIcepak):
         self.modeler.split(list, self.CoordinateSystemPlane.ZXPlane, "PositiveOnly")
         all_names = self.modeler.primitives.object_names
         list = [i for i in all_names if "Fin" in i]
-        self.modeler.create_coordinate_system(self.Position(0, 'HSHeight', 0), mode="view", view="XY", name="TopRight")
+        self.modeler.create_coordinate_system(self.Position(
+            0, 'HSHeight', 0), mode="view", view="XY", name="TopRight")
 
         self.modeler.split(list, self.CoordinateSystemPlane.ZXPlane, "NegativeOnly")
 
@@ -831,8 +844,10 @@ class Icepak(FieldAnalysisIcepak):
             Center_Line = []
             Center_Line.append(self.Position('-SymSeparation', 'Tolerance','-Tolerance'))
             Center_Line.append(self.Position('SymSeparation', 'Tolerance', '-Tolerance'))
-            Center_Line.append(self.Position('VerticalSeparation', '-HSHeight-Tolerance', '-Tolerance'))
-            Center_Line.append(self.Position('-VerticalSeparation', '-HSHeight-Tolerance', '-Tolerance'))
+            Center_Line.append(self.Position('VerticalSeparation',
+                               '-HSHeight-Tolerance', '-Tolerance'))
+            Center_Line.append(self.Position('-VerticalSeparation',
+                               '-HSHeight-Tolerance', '-Tolerance'))
             Center_Line.append(self.Position('-SymSeparation', 'Tolerance', '-Tolerance'))
             self.modeler.primitives.create_polyline(Center_Line, cover_surface=True, name="Center")
             self.modeler.thicken_sheet("Center", '-FinHeight-2*Tolerance')
@@ -1025,7 +1040,8 @@ class Icepak(FieldAnalysisIcepak):
             sweep_name=self.nominal_sweep
         self.osolution.EditFieldsSummarySetting(
             [
-                "Calculation:=", ["Object", "Surface", name, quantity_name, "", "Default", "AmbientTemp"],
+                "Calculation:=", ["Object", "Surface", name,
+                    quantity_name, "", "Default", "AmbientTemp"],
             ])
         string = ""
         for el in parameter_dict_with_values:
@@ -1075,7 +1091,8 @@ class Icepak(FieldAnalysisIcepak):
             sweep_name=self.nominal_sweep
         self.osolution.EditFieldsSummarySetting(
             [
-                "Calculation:=", ["Object", "Volume", ",".join(object_list), quantity_name, "", "Default", "AmbientTemp"],
+                "Calculation:=", ["Object", "Volume", ",".join(
+                    object_list), quantity_name, "", "Default", "AmbientTemp"],
             ])
         string = ""
         for el in parameter_dict_with_values:
@@ -1198,7 +1215,8 @@ class Icepak(FieldAnalysisIcepak):
         if variation:
             for l in variationlist:
                 self.osolution.ExportFieldsSummary(["SolutionName:=",solution_name ,
-                                                          "DesignVariationKey:=", variation + "=\'" + str(l) + "\'",
+                                                          "DesignVariationKey:=", variation + \
+                                                              "=\'" + str(l) + "\'",
                                                           "ExportFileName:=",
                                                          os.path.join(output_dir,
                                                                       "IPKsummaryReport" + quantity + "_" + str(

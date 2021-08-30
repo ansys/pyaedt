@@ -31,7 +31,8 @@ try:
         _ironpython = True
     edb_initialized = True
 except ImportError:
-    warnings.warn("The clr is missing. Install Python.NET or use an IronPython version if you want to use the EDB module.")
+    warnings.warn(
+        "The clr is missing. Install Python.NET or use an IronPython version if you want to use the EDB module.")
     edb_initialized = False
 
 
@@ -250,7 +251,8 @@ class Edb(object):
             clr.AddReferenceToFile('Ansys.Ansoft.EdbBuilderUtils.dll')
             clr.AddReferenceToFile('EdbLib.dll')
             clr.AddReferenceToFile('DataModel.dll')
-            clr.AddReferenceToFileAndPath(os.path.join(self.base_path, 'Ansys.Ansoft.SimSetupData.dll'))
+            clr.AddReferenceToFileAndPath(os.path.join(
+                self.base_path, 'Ansys.Ansoft.SimSetupData.dll'))
         else:
             if self.student_version:
                 self.base_path = env_path_student(self.edbversion)
@@ -317,7 +319,8 @@ class Edb(object):
 
         if self._db and self._active_cell:
             time.sleep(1)
-            dllpath = os.path.join(os.path.abspath(os.path.dirname(__file__)), "dlls", "EDBLib", "DataModel.dll")
+            dllpath = os.path.join(os.path.abspath(os.path.dirname(__file__)),
+                                   "dlls", "EDBLib", "DataModel.dll")
             self._messenger.add_info_message(dllpath)
             self.layout_methods.LoadDataModel(dllpath)
             self.builder = self.layout_methods.GetBuilder(self._db, self._active_cell, self.edbpath,
@@ -358,10 +361,12 @@ class Edb(object):
                 self.builder = None
                 return None
             self._db = db
-            self._active_cell = self.edb.Cell.Cell.FindByName(self.db, self.edb.Cell.CellType.CircuitCell, self.cellname)
+            self._active_cell = self.edb.Cell.Cell.FindByName(
+                self.db, self.edb.Cell.CellType.CircuitCell, self.cellname)
             if self._active_cell is None:
                 self._active_cell = list(self._db.TopCircuitCells)[0]
-            dllpath = os.path.join(os.path.abspath(os.path.dirname(__file__)), "dlls", "EDBLib", "DataModel.dll")
+            dllpath = os.path.join(os.path.abspath(os.path.dirname(__file__)),
+                                   "dlls", "EDBLib", "DataModel.dll")
             if self._db and self._active_cell:
                 self.layout_methods.LoadDataModel(dllpath)
                 self.builder = self.layout_methods.GetBuilder(self._db, self._active_cell, self.edbpath,
@@ -403,11 +408,13 @@ class Edb(object):
         self._db = db
         if not self.cellname:
             self.cellname = generate_unique_name("Cell")
-        self._active_cell = self.edb.Cell.Cell.Create(self._db,  self.edb.Cell.CellType.CircuitCell, self.cellname)
+        self._active_cell = self.edb.Cell.Cell.Create(
+            self._db,  self.edb.Cell.CellType.CircuitCell, self.cellname)
         dllpath = os.path.join(os.path.dirname(__file__), "dlls", "EDBLib", "DataModel.dll")
         if self._db and self._active_cell:
             self.layout_methods.LoadDataModel(dllpath)
-            self.builder = self.layout_methods.GetBuilder(self._db, self._active_cell, self.edbpath, self.edbversion, self.standalone)
+            self.builder = self.layout_methods.GetBuilder(
+                self._db, self._active_cell, self.edbpath, self.edbversion, self.standalone)
             self._init_objects()
             return self.builder
         self.builder = None
@@ -653,7 +660,8 @@ class Edb(object):
         VoltageProbe :
 
         """
-        (Port, Pec, RLC, CurrentSource, VoltageSource, NexximGround, NexximPort, DcTerminal, VoltageProbe) = range(0, 9)
+        (Port, Pec, RLC, CurrentSource, VoltageSource, NexximGround,
+         NexximPort, DcTerminal, VoltageProbe) = range(0, 9)
 
     @aedt_exception_handler
     def edb_value(self, val):
@@ -841,14 +849,19 @@ class Edb(object):
                                                            use_round_corner,
                                                            1)
 
-        _cutout = self.active_cell.CutOut(net_signals, _netsClip, _poly)  # Create new cutout cell/design
+        # Create new cutout cell/design
+        _cutout = self.active_cell.CutOut(net_signals, _netsClip, _poly)
 
-        for _setup in self.active_cell.SimulationSetups:  # The analysis setup(s) do not come over with the clipped design copy, so add the analysis setup(s) from the original here
-            _setup_name = _setup.GetName()  # Empty string '' if coming from setup copy and don't set explicitly.
+        # The analysis setup(s) do not come over with the clipped design copy, so add the analysis setup(s) from the original here
+        for _setup in self.active_cell.SimulationSetups:
+            # Empty string '' if coming from setup copy and don't set explicitly.
+            _setup_name = _setup.GetName()
             if "GetSimSetupInfo" in dir(_setup):
-                _hfssSimSetupInfo = _setup.GetSimSetupInfo()  # setup is an Ansys.Ansoft.Edb.Utility.HFSSSimulationSetup object
+                # setup is an Ansys.Ansoft.Edb.Utility.HFSSSimulationSetup object
+                _hfssSimSetupInfo = _setup.GetSimSetupInfo()
                 _hfssSimSetupInfo.Name = 'HFSS Setup 1'  # Set name of analysis setup
-                _setup.SetSimSetupInfo(_hfssSimSetupInfo)  # Write the simulation setup info into the cell/design setup
+                # Write the simulation setup info into the cell/design setup
+                _setup.SetSimSetupInfo(_hfssSimSetupInfo)
                 _cutout.AddSimulationSetup(_setup)  # Add simulation setup to the cutout design
 
         _dbCells = [_cutout]
