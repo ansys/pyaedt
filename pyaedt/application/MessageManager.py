@@ -389,7 +389,7 @@ class EDBMessageManager(object):
                     project_dir = "C:\\Temp"
             if not self.logger.handlers:
                 logging.basicConfig(
-                    filename=os.path.join(project_dir, "EDBTLib.log"),
+                    filename=os.path.join(project_dir, "pyaedt_edb.log"),
                     level=logging.DEBUG,
                     format='%(asctime)s:%(name)s:%(levelname)-8s:%(message)s',
                     datefmt='%Y/%m/%d %H.%M.%S')
