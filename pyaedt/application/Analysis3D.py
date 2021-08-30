@@ -21,10 +21,10 @@ class FieldAnalysis3D(Analysis, object):
     projectname : str, optional
         Name of the project to select or the full path to the project
         or AEDTZ archive to open. The default is ``None``, in which
-        case an attempt is made to get an active project. If no 
+        case an attempt is made to get an active project. If no
         projects are present, an empty project is created.
     designname : str, optional
-        Name of the design to select. The default is ``None``, in 
+        Name of the design to select. The default is ``None``, in
         which case an attempt is made to get an active design. If no
         designs are present, an empty design is created.
     solution_type : str, optional
@@ -32,14 +32,14 @@ class FieldAnalysis3D(Analysis, object):
         ``None``, in which case the default type is applied.
     setup_name : str, optional
         Name of the setup to use as the nominal. The default is
-        ``None``, in which case the active setup is used or 
+        ``None``, in which case the active setup is used or
         nothing is used.
     specified_version: str, optional
         Version of AEDT  to use. The default is ``None``, in which case
         the active version or latest installed version is used.
     NG : bool, optional
-        Whether to run AEDT in the non-graphical mode. The default 
-        is ``False``, in which case AEDT is launched in the graphical mode.  
+        Whether to run AEDT in the non-graphical mode. The default
+        is ``False``, in which case AEDT is launched in the graphical mode.
     AlwaysNew : bool, optional
         Whether to launch an instance of AEDT in a new thread, even if
         another instance of the ``specified_version`` is active on the
@@ -47,9 +47,9 @@ class FieldAnalysis3D(Analysis, object):
     release_on_exit : bool, optional
         Whether to release  AEDT on exit. The default is ``False``.
     student_version : bool, optional
-        Whether to enable the student version of AEDT. The default 
+        Whether to enable the student version of AEDT. The default
         is ``False``.
-   
+
     """
     def __init__(self, application, projectname, designname, solution_type, setup_name=None,
                  specified_version=None, NG=False, AlwaysNew=False, release_on_exit=False, student_version=False):
@@ -116,12 +116,12 @@ class FieldAnalysis3D(Analysis, object):
 
     @aedt_exception_handler
     def get_components3d_vars(self, component3dname):
-        """Read the A3DCOMP file and check for variables. 
+        """Read the A3DCOMP file and check for variables.
 
         Parameters
         ----------
         component3dname :
-            Name of the 3D component, which must be in the ``syslib`` or ``userlib`` directory. Otherwise, 
+            Name of the 3D component, which must be in the ``syslib`` or ``userlib`` directory. Otherwise,
             you must specify the full absolute path to the AEDCOMP file with the file name and the extension.
 
         Returns
@@ -160,8 +160,8 @@ class FieldAnalysis3D(Analysis, object):
         property : str
             Name of the property,
         type : str, optional
-            Type of the property. Options are ``"boundary"``, ``"excitation"``, 
-            ``"setup",`` and ``"mesh"``. The default is ``None``.    
+            Type of the property. Options are ``"boundary"``, ``"excitation"``,
+            ``"setup",`` and ``"mesh"``. The default is ``None``.
 
         Returns
         -------
@@ -215,20 +215,20 @@ class FieldAnalysis3D(Analysis, object):
         object_list : list, optional
             List of objects to copy. The default is ``None``.
         no_vacuum : bool, optional
-            Whether to include vacuum objects for the copied objects. 
+            Whether to include vacuum objects for the copied objects.
             The default is ``True``.
         no_pec :
-            Whether to include pec objects for the copied objects. The 
+            Whether to include pec objects for the copied objects. The
             default is ``True``.
         include_sheets :
-            Whether to include sheets for the copied objects. The 
+            Whether to include sheets for the copied objects. The
             default is ``False``.
 
         Returns
         -------
         bool
             ``True`` when successful, ``False`` when failed.
-            
+
         """
         body_list = design.modeler.primitives.solid_names
         if include_sheets:
@@ -279,7 +279,7 @@ class FieldAnalysis3D(Analysis, object):
         -------
         bool
             ``True`` when successful, ``False`` when failed.
-            
+
         """
 
         contexts = []
@@ -384,7 +384,7 @@ class FieldAnalysis3D(Analysis, object):
     @aedt_exception_handler
     def get_all_conductors_names(self):
         """Retrieve all conductors in the active design.
-                
+
         Returns
         -------
         list
@@ -403,7 +403,7 @@ class FieldAnalysis3D(Analysis, object):
     @aedt_exception_handler
     def get_all_dielectrics_names(self):
         """Retrieve all dielectrics in the active design.
-              
+
         Returns
         -------
         List

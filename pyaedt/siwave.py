@@ -1,5 +1,5 @@
 """
-This module contains the `Siwave` class.  
+This module contains the `Siwave` class.
 
 The `Siwave` module can be initialized as standalone before launching an app or automatically initialized by an app to the latest installed AEDT version.
 
@@ -43,7 +43,7 @@ class Siwave:
     Parameters
     ----------
     specified_version : str, optional
-        Version of AEDT to use. The default is ``None``, in which case 
+        Version of AEDT to use. The default is ``None``, in which case
         the active setup is used or the latest installed version is used.
 
     """
@@ -141,12 +141,12 @@ class Siwave:
     @property
     def project_name(self):
         """Project name.
-        
+
         Returns
         -------
         str
             Name of the project.
-        
+
         """
         return self._oproject.GetName()
 
@@ -154,43 +154,43 @@ class Siwave:
     @property
     def project_path(self):
         """Project path.
-        
+
         Returns
         -------
         str
             Full absolute path for the project.
-        
+
         """
         return os.path.normpath(self.oSiwave.GetProjectDirectory())
 
     @property
     def project_file(self):
         """Project file.
-        
+
         Returns
         -------
         str
             Full absolute path and name for the project file.
-        
+
         """
         return os.path.join(self.project_path, self.project_name + '.siw')
 
     @property
     def lock_file(self):
         """Lock file.
-        
+
         Returns
         -------
         str
             Full absolute path and name for the project lock file.
-            
+
         """
         return os.path.join(self.project_path, self.project_name + '.siw.lock')
 
     @property
     def results_directory(self):
         """Results directory.
-        
+
         Returns
         -------
         str
@@ -202,7 +202,7 @@ class Siwave:
     @property
     def src_dir(self):
         """Source directory.
-        
+
         Returns
         -------
         str
@@ -213,7 +213,7 @@ class Siwave:
     @property
     def pyaedt_dir(self):
         """PyAEDT directory.
-        
+
         Returns
         -------
         str
@@ -273,12 +273,12 @@ class Siwave:
     @aedt_exception_handler
     def quit_application(self):
         """Quit the application.
-        
+
         Returns
         -------
         bool
             ``True`` when successful, ``False`` when failed.
-        
+
         """
         self._main.oSiwave.Quit()
         return True

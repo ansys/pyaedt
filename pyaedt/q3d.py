@@ -12,13 +12,13 @@ import os
 
 class QExtractor(FieldAnalysis3D, FieldAnalysis2D, object):
     """Extracts a 2D or 3D field analysis.
-    
+
     Parameters
     ----------
     FieldAnalysis3D :
-    
+
     FieldAnalysis2D :
-    
+
     object :
 
 
@@ -86,7 +86,7 @@ class Q3d(QExtractor, object):
         ``None``, in which case the default type is applied.
     setup_name : str, optional
         Name of the setup to use as the nominal. The default is
-        ``None``, in which case the active setup is used or nothing 
+        ``None``, in which case the active setup is used or nothing
         is used.
     specified_version: str, optional
         Version of AEDT to use. The default is ``None``, in which case
@@ -110,7 +110,7 @@ class Q3d(QExtractor, object):
 
     >>> from pyaedt import Q3d
     >>> app = Q3d()
-    
+
     """
     def __init__(self, projectname=None, designname=None, solution_type=None, setup_name=None,
                  specified_version=None, NG=False, AlwaysNew=False, release_on_exit=False, student_version=True):
@@ -125,16 +125,16 @@ class Q3d(QExtractor, object):
         -------
         bool
             ``True`` when successful, ``False`` when failed.
-        
+
         """
         self.oboundary.AutoIdentifyNets()
         return True
 
     @aedt_exception_handler
     def assign_source_to_objectface(self, object_name, axisdir=0, source_name=None, net_name=None):
-        """Generate a source on a face of an object. 
-        
-        The face ID is selected based on ``axisdir``. It is the face that 
+        """Generate a source on a face of an object.
+
+        The face ID is selected based on ``axisdir``. It is the face that
         has the maximum/minimum in this axis direction.
 
         Parameters
@@ -210,8 +210,8 @@ class Q3d(QExtractor, object):
     @aedt_exception_handler
     def assign_sink_to_objectface(self, object_name, axisdir=0, sink_name=None, net_name=None):
         """Generate a sink on a face of an object.
-        
-        The face ID is selected based on ``axisdir``. It is the face that has 
+
+        The face ID is selected based on ``axisdir``. It is the face that has
         the maximum/minimum in this axis direction.
 
         Parameters
@@ -248,8 +248,8 @@ class Q3d(QExtractor, object):
 
     @aedt_exception_handler
     def assign_sink_to_sheet(self, sheetname, objectname=None, netname=None, sinkname=None):
-        """Generate a sink on a sheet.  
-        
+        """Generate a sink on a sheet.
+
         Parameters
         ----------
         sheetname :
@@ -296,7 +296,7 @@ class Q3d(QExtractor, object):
             Unit of the frequency. For example, ``"MHz"`` or ``"GHz"``. The default is ``"GHz"`.
         freqstart :
             Starting frequency of the sweep.
-        freqstop : 
+        freqstop :
             Stopping frequency of the sweep.
         freqstep : optional
             Frequency step point.
@@ -307,7 +307,7 @@ class Q3d(QExtractor, object):
         -------
         bool
             ``True`` when successful, ``False`` when failed.
-        
+
         """
         if sweepname is None:
             sweepname = generate_unique_name("Sweep")

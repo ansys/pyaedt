@@ -18,4 +18,5 @@ documentation.
    Setup
    Post
    SetupTemplates
+   Boundaries
 

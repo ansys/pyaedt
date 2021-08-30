@@ -49,7 +49,7 @@ class Hfss(FieldAnalysis3D, object):
     release_on_exit : bool, optional
         Whether to release AEDT on exit. The default is ``False``.
     student_version : bool, optional
-        Whether to open the AEDT student version. The default is 
+        Whether to open the AEDT student version. The default is
         ``False``. This parameter is ignored when Script is launched within AEDT.
 
     Examples
@@ -147,7 +147,7 @@ class Hfss(FieldAnalysis3D, object):
         -------
         :class:`pyaedt.modules.Boundary.BoundaryObject`
             Boundary object.
-        
+
         """
 
         bound = BoundaryObject(self, name, props, boundary_type)
@@ -292,7 +292,7 @@ class Hfss(FieldAnalysis3D, object):
         issheelElement : bool, optional
             The default is ``False``.
         usehuray : bool, optional
-            Whether to use an Huray coefficient. The default is ``False``. 
+            Whether to use an Huray coefficient. The default is ``False``.
         radius : str, optional
             Radius value if ``usehuray=True``. The default is ``"0.5um"``.
         ratio : str, optional
@@ -380,9 +380,9 @@ class Hfss(FieldAnalysis3D, object):
         interpolation_tol : float, optional
             Error tolerance threshold for the interpolation process. The default is ``0.5``.
         interpolation_max_solutions : int, optional
-            Maximum number of solutions evaluated for the interpolation process. The default is 
+            Maximum number of solutions evaluated for the interpolation process. The default is
             ``250``.
-        
+
         Returns
         -------
         :class:`pyaedt.modules.SetupTemplates.SweepHFSS`, :class:`pyaedt.modules.SetupTemplates.SweepQ3D`, or bool
@@ -516,7 +516,7 @@ class Hfss(FieldAnalysis3D, object):
         setupname : str
             Name of the setup.
         unit : str
-            Unit of the frequency. For example, ``"MHz`` or ``"GHz"``. The default is ``"GHz"``. 
+            Unit of the frequency. For example, ``"MHz`` or ``"GHz"``. The default is ``"GHz"``.
         freqstart : float
             Starting frequency of the sweep.
         freqstop : float
@@ -673,8 +673,8 @@ class Hfss(FieldAnalysis3D, object):
     class SbrAntennas:
         (ConicalHorn, CrossDipole, HalfWaveDipole, HorizontalDipole, ParametricBeam, ParametricSlot, PyramidalHorn,
          QuarterWaveMonopole, ShortDipole, SmallLoop, WireDipole, WireMonopole) = (
-        "Conical Horn", "Cross Dipole", "Half-Wave Dipole", "Horizontal Dipole", "Parametric Beam", "Parametric Slot",
-        "Pyramidal Horn", "Quarter-Wave Monopole", "Short Dipole", "Small Loop", "Wire Dipole", "Wire Monopole")
+            "Conical Horn", "Cross Dipole", "Half-Wave Dipole", "Horizontal Dipole", "Parametric Beam", "Parametric Slot",
+            "Pyramidal Horn", "Quarter-Wave Monopole", "Short Dipole", "Small Loop", "Wire Dipole", "Wire Monopole")
 
     class SBRAntennaDefaults:
         _conical = OrderedDict(
@@ -744,7 +744,7 @@ class Hfss(FieldAnalysis3D, object):
         >>> hfss = Hfss(solution_type="SBR+")  # doctest: +SKIP
         pyaedt Info: Added design 'HFSS_IPO' of type HFSS.
         >>> parm = {"polarization": "Vertical"}  # doctest: +SKIP
-        >>> par_beam = hfss.create_sbr_antenna(hfss.SbrAntennas.ShortDipole, 
+        >>> par_beam = hfss.create_sbr_antenna(hfss.SbrAntennas.ShortDipole,
         ...                                    parameters_dict=parm,
         ...                                    antenna_name="TX1")  # doctest: +SKIP
 
@@ -1211,12 +1211,12 @@ class Hfss(FieldAnalysis3D, object):
         sheet_name : str
             Name of the sheet.
         point1 :
-            
+
         point2 :
-            
+
         sourcename : str
             Name of the source.
-            
+
         sourcetype : str, optional
             Type of the source. The default is ``"Voltage"``.
 
@@ -1422,8 +1422,8 @@ class Hfss(FieldAnalysis3D, object):
         endobject :
             Second object (ending object for integration line)
         axisdir : str, optional
-            Position of the port. It should be one of the values for ``Application.AxisDir``, 
-            which are: ``"XNeg"``, ``"YNeg"``, ``"ZNeg"``, ``"XPos"``, ``"YPos"``, and ``"ZPos"``. 
+            Position of the port. It should be one of the values for ``Application.AxisDir``,
+            which are: ``"XNeg"``, ``"YNeg"``, ``"ZNeg"``, ``"XPos"``, ``"YPos"``, and ``"ZPos"``.
             The default is ``"0"``.
         sourcename : str, optional
             Perfect E name. The default is ``None``.
@@ -1431,7 +1431,7 @@ class Hfss(FieldAnalysis3D, object):
             Whether the Perfect E is an infinite ground. The default is ``False``.
         bound_on_plane : bool, optional
             Whether to create the Perfect E on the plane orthogonal to ``AxisDir``. The default is ``True``.
-        
+
         Returns
         -------
         :class:`pyaedt.modules.Boundary.BoundaryObject` or bool
@@ -1446,7 +1446,7 @@ class Hfss(FieldAnalysis3D, object):
         ...                                           "perfect1", "Copper")
         >>> box2 = hfss.modeler.primitives.create_box([0, 0, 10], [10, 10, 5],
         ...                                           "perfect2", "copper")
-        >>> perfect_e = hfss.create_perfecte_from_objects("perfect1", "perfect2", 
+        >>> perfect_e = hfss.create_perfecte_from_objects("perfect1", "perfect2",
         ...                                               hfss.AxisDir.ZNeg, "PerfectE")
         pyaedt Info: Connection Correctly created
         >>> type(perfect_e)
@@ -1480,8 +1480,8 @@ class Hfss(FieldAnalysis3D, object):
         endobject :
             Second (ending) object for the integration line.
         axisdir : str, optional
-            Position of the port. It should be one of the values for ``Application.AxisDir``, 
-            which are: ``"XNeg"``, ``"YNeg"``, ``"ZNeg"``, ``"XPos"``, ``"YPos"``, and ``"ZPos"``. 
+            Position of the port. It should be one of the values for ``Application.AxisDir``,
+            which are: ``"XNeg"``, ``"YNeg"``, ``"ZNeg"``, ``"XPos"``, ``"YPos"``, and ``"ZPos"``.
             The default is ``"0"``.
         sourcename : str, optional
             Perfect H name. The default is ``None``.
@@ -1502,7 +1502,7 @@ class Hfss(FieldAnalysis3D, object):
         ...                                           "perfect1", "Copper")
         >>> box2 = hfss.modeler.primitives.create_box([0, 0, 30], [10, 10, 5],
         ...                                           "perfect2", "copper")
-        >>> perfect_h = hfss.create_perfecth_from_objects("perfect1", "perfect2", 
+        >>> perfect_h = hfss.create_perfecth_from_objects("perfect1", "perfect2",
         ...                                               hfss.AxisDir.ZNeg, "PerfectH")
         pyaedt Info: Connection Correctly created
         >>> type(perfect_h)
@@ -1570,7 +1570,7 @@ class Hfss(FieldAnalysis3D, object):
         -------
         bool
             ``True`` when successful, ``False`` when failed.
-        
+
         """
         vars = [
             "NAME:Settings",
@@ -1597,8 +1597,8 @@ class Hfss(FieldAnalysis3D, object):
         endobject :
             Second (ending) object for the integration line.
         axisdir : str, optional
-            Position of the port. It should be one of the values for ``Application.AxisDir``, 
-            which are: ``"XNeg"``, ``"YNeg"``, ``"ZNeg"``, ``"XPos"``, ``"YPos"``, and ``"ZPos"``. 
+            Position of the port. It should be one of the values for ``Application.AxisDir``,
+            which are: ``"XNeg"``, ``"YNeg"``, ``"ZNeg"``, ``"XPos"``, ``"YPos"``, and ``"ZPos"``.
             The default is ``"0"``.
         sourcename : str, optional
             Perfect H name. The default is ``None``.
@@ -1626,7 +1626,7 @@ class Hfss(FieldAnalysis3D, object):
         Examples
         --------
 
-        Create two boxes that will be used to create a lumped RLC named 
+        Create two boxes that will be used to create a lumped RLC named
         ``'LumpedRLC'``.
 
         >>> box1 = hfss.modeler.primitives.create_box([0, 0, 50], [10, 10, 5],
@@ -1669,7 +1669,7 @@ class Hfss(FieldAnalysis3D, object):
             if Cvalue:
                 props["UseCap"] = True
                 props["Capacitance"] = str(Cvalue) + "F"
-            
+
             return self._create_boundary(sourcename, props, "LumpedRLC")
         return False
 
@@ -1763,7 +1763,7 @@ class Hfss(FieldAnalysis3D, object):
         -------
         :class:`pyaedt.modules.Boundary.BoundaryObject`
             Boundary object.
-        
+
         """
 
         props = {}
@@ -1837,8 +1837,8 @@ class Hfss(FieldAnalysis3D, object):
         deemb : float, optional
             Deembedding value distance in model units. The default is ``0``.
         axisdir : str, optional
-            Position of the reference object. It should be one of the values for ``Application.AxisDir``, 
-            which are: ``"XNeg"``, ``"YNeg"``, ``"ZNeg"``, ``"XPos"``, ``"YPos"``, and ``"ZPos"``. 
+            Position of the reference object. It should be one of the values for ``Application.AxisDir``,
+            which are: ``"XNeg"``, ``"YNeg"``, ``"ZNeg"``, ``"XPos"``, ``"YPos"``, and ``"ZPos"``.
             The default is ``"0"``.
         impedance : float, optional
             Port impedance. The default is ``50``.
@@ -1908,8 +1908,8 @@ class Hfss(FieldAnalysis3D, object):
         sheet_name : str
             Name of the sheet.
         axisdir : optional
-            Direction of the port. It should be one of the values for ``Application.AxisDir``, 
-            which are: ``"XNeg"``, ``"YNeg"``, ``"ZNeg"``, ``"XPos"``, ``"YPos"``, and ``"ZPos"``. 
+            Direction of the port. It should be one of the values for ``Application.AxisDir``,
+            which are: ``"XNeg"``, ``"YNeg"``, ``"ZNeg"``, ``"XPos"``, ``"YPos"``, and ``"ZPos"``.
             The default is ``"0"``.
         impedance : float, optional
             Port impedance. The default is ``50``.
@@ -1993,8 +1993,8 @@ class Hfss(FieldAnalysis3D, object):
         sheet_name : str
             Name of the sheet to apply the boundary to.
         axisdir : str, optional
-            Position of the voltage source. It should be one of the values for ``Application.AxisDir``, 
-            which are: ``"XNeg"``, ``"YNeg"``, ``"ZNeg"``, ``"XPos"``, ``"YPos"``, and ``"ZPos"``. 
+            Position of the voltage source. It should be one of the values for ``Application.AxisDir``,
+            which are: ``"XNeg"``, ``"YNeg"``, ``"ZNeg"``, ``"XPos"``, ``"YPos"``, and ``"ZPos"``.
             The default is ``"0"``.
         sourcename : str, optional
             Name of the source. The default is ``None``.
@@ -2037,8 +2037,8 @@ class Hfss(FieldAnalysis3D, object):
         sheet_name : str
             Name of the sheet to apply the boundary to.
         axisdir : str, optional
-            Position of the current source. It should be one of the values for ``Application.AxisDir``, 
-            which are: ``"XNeg"``, ``"YNeg"``, ``"ZNeg"``, ``"XPos"``, ``"YPos"``, and ``"ZPos"``. 
+            Position of the current source. It should be one of the values for ``Application.AxisDir``,
+            which are: ``"XNeg"``, ``"YNeg"``, ``"ZNeg"``, ``"XPos"``, ``"YPos"``, and ``"ZPos"``.
             The default is ``"0"``.
         sourcename : str, optional
             Name of the source. The default is ``None``.
@@ -2174,7 +2174,7 @@ class Hfss(FieldAnalysis3D, object):
         Cvalue : optional
             Capacitance value in F. The default is ``None``, in which
             case this parameter is disabled.
-       
+
         Returns
         -------
         :class:`pyaedt.modules.Boundary.BoundaryObject`
@@ -2278,7 +2278,7 @@ class Hfss(FieldAnalysis3D, object):
                                        renormalize=False, renorm_impedance="50",
                                        deembed=False):
         """Create a circuit port from two edges.
-        
+
         The integration line is from edge 2 to edge 1.
 
         Parameters
@@ -2390,7 +2390,7 @@ class Hfss(FieldAnalysis3D, object):
     @aedt_exception_handler
     def thicken_port_sheets(self, inputlist, value, internalExtr=True, internalvalue=1):
         """Create thickened sheets over a list of input port sheets.
-       
+
         Parameters
         ----------
         inputlist : list
@@ -2398,7 +2398,7 @@ class Hfss(FieldAnalysis3D, object):
         value :
             Value in millimeters for thickening the faces.
         internalExtr : bool, optional
-            Whether to extrude the sheets internally (vgoing into the model). 
+            Whether to extrude the sheets internally (vgoing into the model).
             The default is ``True``.
         internalvalue : optional
             Value in millimeters for thickening the sheets internally if ``internalExtr=True``.
@@ -2792,7 +2792,7 @@ class Hfss(FieldAnalysis3D, object):
         -------
         bool
             ``True`` when successful, ``False`` when failed.
-        
+
         """
         npath = os.path.normpath(project_dir)
 
@@ -2882,7 +2882,7 @@ class Hfss(FieldAnalysis3D, object):
         -------
         bool
             ``True`` when successful, ``False`` when failed.
-        
+
         """
         settings = []
         if activate:

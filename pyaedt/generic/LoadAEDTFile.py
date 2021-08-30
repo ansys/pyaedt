@@ -67,7 +67,7 @@ def _parse_value(v):
     Parameters
     ----------
     v :
-        
+
 
     Returns
     -------
@@ -101,7 +101,7 @@ def _separate_list_elements(v):
     Parameters
     ----------
     v :
-        
+
 
     Returns
     -------
@@ -121,11 +121,11 @@ def _decode_value_and_save(k, v, d):
     Parameters
     ----------
     k :
-        
+
     v :
-        
+
     d :
-        
+
 
     Returns
     -------
@@ -164,9 +164,9 @@ def _decode_key(l, d):
     Parameters
     ----------
     l :
-        
+
     d :
-        
+
 
     Returns
     -------
@@ -211,9 +211,9 @@ def _walk_through_structure(keyword, save_dict):
     Parameters
     ----------
     keyword :
-        
+
     save_dict :
-        
+
 
     Returns
     -------

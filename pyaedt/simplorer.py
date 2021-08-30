@@ -18,10 +18,10 @@ class Simplorer(FieldAnalysisSimplorer, object):
     projectname : str, optional
         Name of the project to select or the full path to the project
         or AEDTZ archive to open.  The default is ``None``, in which
-        case an attempt is made to get an active project. If no 
+        case an attempt is made to get an active project. If no
         projects are present, an empty project is created.
     designname : str, optional
-        Name of the design to select. The default is ``None``, in 
+        Name of the design to select. The default is ``None``, in
         which case an attempt is made to get an active design. If no
         designs are present, an empty design is created.
     solution_type : str, optional
@@ -29,7 +29,7 @@ class Simplorer(FieldAnalysisSimplorer, object):
         ``None``, in which case the default type is applied.
     setup_name : str, optional
         Name of the setup to use as the nominal. The default is
-        ``None``, in which case the active setup is used or 
+        ``None``, in which case the active setup is used or
         nothing is used.
     specified_version : str, optional
         Version of AEDT to use. The default is ``None``. If ``None``,
@@ -83,9 +83,9 @@ class Simplorer(FieldAnalysisSimplorer, object):
     @aedt_exception_handler
     def create_schematic_from_netlist(self, file_to_import):
         """Create a circuit schematic from an HSpice net list.
-        
+
         Supported currently are:
-        
+
         * R
         * L
         * C
@@ -162,7 +162,7 @@ class Simplorer(FieldAnalysisSimplorer, object):
         Parameters
         ----------
         expression :
-            
+
 
         Returns
         -------
@@ -178,7 +178,7 @@ class Simplorer(FieldAnalysisSimplorer, object):
         Parameters
         ----------
         expression :
-            
+
 
         Returns
         -------
@@ -196,7 +196,7 @@ class Simplorer(FieldAnalysisSimplorer, object):
         Parameters
         ----------
         expression :
-            
+
 
         Returns
         -------
@@ -214,9 +214,9 @@ class Simplorer(FieldAnalysisSimplorer, object):
         Parameters
         ----------
         var_str : string
-            Name of the variable.   
+            Name of the variable.
         expression :
-            
+
         analysis_name : str, optional
              Name of the analysis. The default is ``"TR"``.
 

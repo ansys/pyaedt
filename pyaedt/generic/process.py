@@ -112,9 +112,9 @@ class AedtSolve(object):
 
     def solve(self):
         if os.name == "posix":
-                self.command.append(os.path.join(self.installer_path,'ansysedt'))
+            self.command.append(os.path.join(self.installer_path,'ansysedt'))
         else:
-               self.command.append(os.path.join(self.installer_path,'ansysedt.exe'))
+            self.command.append(os.path.join(self.installer_path,'ansysedt.exe'))
         if self.nongraphical:
             self.command.append('-Batchsolve')
             self.command.append('-ng')
@@ -202,7 +202,7 @@ class SiwaveSolve(object):
             if os.name == "posix":
                 exe_path = os.path.join(self.installer_path, 'siwave_ng')
             else:
-                 exe_path = os.path.join(self.installer_path, 'siwave_ng.exe')
+                exe_path = os.path.join(self.installer_path, 'siwave_ng.exe')
             exec_file = os.path.splitext(self._project_path)[0] + '.exec'
             if os.path.exists(exec_file):
                 with open(exec_file,"r+") as f:

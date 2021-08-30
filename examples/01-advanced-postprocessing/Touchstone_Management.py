@@ -3,7 +3,7 @@ Manage Touchstone Objects
 --------------------------
 This example shows how to use Touchstone objects without opening AEDT.
 
-To provide the advanced postprocessing features needed for this example, Matplotlib and NumPy 
+To provide the advanced postprocessing features needed for this example, Matplotlib and NumPy
 must be installed on the machine.
 
 This example runs only on Windows using CPython.

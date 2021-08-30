@@ -255,26 +255,26 @@ class EDBLayer(object):
     @aedt_exception_handler
     def update_layer_vals(self, layerName, newLayer, etchMap, materialMap, fillMaterialMap, thicknessMap, layerTypeMap):
         """Update layer properties.
-        
+
         Parameters
         ----------
         layerName :
-        
+
         newLayer :
-        
+
         materialMap :
-        
+
         fillMaterialMap :
-        
+
         thicknessMap :
-        
+
         layerTypeMap :
-        
+
         Returns
         -------
         type
             Layer object.
-            
+
         """
         newLayer.SetName(layerName)
 
@@ -321,7 +321,7 @@ class EDBLayer(object):
     @aedt_exception_handler
     def update_layers(self):
         """Update all layers.
-      
+
         Returns
         -------
         bool
@@ -362,12 +362,12 @@ class EDBLayer(object):
 
 class EDBLayers(object):
     """Manages EDB functionalities for all primitive layers.
-    
+
     Parameters
     ----------
-    parent : 
+    parent :
         Inherited AEDT object.
-    
+
     """
 
     def __init__(self, parent):
@@ -687,18 +687,18 @@ class EDBLayers(object):
 
 class EDBPadProperties(object):
     """Manages EDB functionalities for pad properties.
-    
+
     Parameters
     ----------
     edb_padstack :
-    
+
     layer_name : str
         Name of the layer.
-    pad_type : 
+    pad_type :
         Type of the pad.
     parent : str
         Inherited AEDT object.
-        
+
     """
 
     def __init__(self, edb_padstack, layer_name, pad_type, parent):
@@ -862,14 +862,14 @@ class EDBPadProperties(object):
 
 class EDBPadstack(object):
     """Manages EDB functionalities for a padstack.
-    
+
     Parameters
     ----------
     edb_padstack :
-    
+
     parent : str
         Inherited AEDT object.
-        
+
     """
 
     def __init__(self, edb_padstack, parent):
@@ -1280,15 +1280,15 @@ class EDBPinInstances(object):
 
 class EDBComponent(object):
     """Manages EDB functionalities for components.
-    
+
     Parameters
     ----------
     parent : str
         Inherited AEDT object.
     component :
-    
-    name : 
-    
+
+    name :
+
     """
 
     def __init__(self, parent, component, name):

@@ -1,5 +1,5 @@
 """
-This module contains these classes: `AEDTMessageManager`, `EDBMessageManager`, 
+This module contains these classes: `AEDTMessageManager`, `EDBMessageManager`,
 and `MessageList`.
 
 This module provides all functionalities for logging errors and messages
@@ -23,11 +23,11 @@ class MessageList:
 
     Parameters
     ---------
-    msg_list : list 
+    msg_list : list
         List of messages extracted from AEDT by the :class:`AEDTMessageManager` class.
     project_name : str
         Name of the project. The default is the active project.
-    design_name : str 
+    design_name : str
         Name of the design within the specified project. The default is the active design.
 
 
@@ -69,7 +69,7 @@ class MessageList:
 
 class AEDTMessageManager(object):
     """Manages AEDT messaging to both the logger and the AEDT Message Manager window.
-  
+
     Parameters
     ----------
     parent :
@@ -130,22 +130,22 @@ class AEDTMessageManager(object):
         -------
         list
            List of messages for the active project and design.
-           
+
         """
         return self.get_messages(self._project_name, self._design_name)
 
     @aedt_exception_handler
     def get_messages(self, project_name, design_name):
         """Retrieve the Message Manager content for a specified project and design.
-        
+
         If the specified project and design names are invalid, they are ignored.
-        
+
         Parameters
         ----------
         project_name : str
             Name of the project.
         design_name : str
-            Name of the design within the specified project.     
+            Name of the design within the specified project.
 
         Returns
         -------
@@ -169,8 +169,8 @@ class AEDTMessageManager(object):
         message_text : str
             Text to display as the error message.
         level : str, optional
-            Level to add the error message to. Options are ``"Global"``, 
-            ``"Project"``, and ``"Design"``. The default is ``None``, 
+            Level to add the error message to. Options are ``"Global"``,
+            ``"Project"``, and ``"Design"``. The default is ``None``,
             in which case the error message gets added to the ``"Design"``
             level.
 
@@ -186,7 +186,7 @@ class AEDTMessageManager(object):
     @aedt_exception_handler
     def add_warning_message(self, message_text, level=None):
         """Add a type 1 "Warning" message to the Message Manager tree.
-        
+
         Also add a warning message to the logger if the handler is present.
 
         Parameters
@@ -194,8 +194,8 @@ class AEDTMessageManager(object):
         message_text : str
             Text to display as the warning message.
         level : str, optional
-            Level to add the warning message to. Options are ``"Global"``, 
-            ``"Project"``, and ``"Design"``. The default is ``None``, 
+            Level to add the warning message to. Options are ``"Global"``,
+            ``"Project"``, and ``"Design"``. The default is ``None``,
             in which case the warning message gets added to the ``"Design"``
             level.
 
@@ -219,8 +219,8 @@ class AEDTMessageManager(object):
         message_text : str
             Text to display as the info message.
         level : str, optional
-            Level to add the info message to. Options are ``"Global"``, 
-            ``"Project"``, and ``"Design"``. The default is ``None``, 
+            Level to add the info message to. Options are ``"Global"``,
+            ``"Project"``, and ``"Design"``. The default is ``None``,
             in which case the info message gets added to the ``"Design"``
             level.
 
@@ -253,12 +253,12 @@ class AEDTMessageManager(object):
             * 0: Info
             * 1: Warning
             * 2: Error
-        
+
         message_text : str
             Text to display as the message.
         level : str, optional
-            Level to add the message to. Options are ``"Global"``, 
-            ``"Project"``, and ``"Design"``. The default is ``None``, 
+            Level to add the message to. Options are ``"Global"``,
+            ``"Project"``, and ``"Design"``. The default is ``None``,
             in which case the message gets added to the ``"Design"``level.
         proj_name : str, optional
             Name of the project.
@@ -318,7 +318,7 @@ class AEDTMessageManager(object):
             for all projects.
         des_name : str, optional
             Name of the design within the specified project. The default
-            is ``None,`` in which case the current design is used. 
+            is ``None,`` in which case the current design is used.
             If blank, all designs are used.
         level : int, optional
             Level of the messages to clear. Options are:
@@ -328,7 +328,7 @@ class AEDTMessageManager(object):
             * ``2`` : Clear all info, warning, and error messages.
             * ``3`` : Clear all messages, which include info, warning,
               error, and fatal-error messages.
-              
+
             The default is ``2.``
 
         Examples
@@ -370,7 +370,7 @@ class AEDTMessageManager(object):
 
 class EDBMessageManager(object):
     """Manages EDB messaging to the logger.
-    
+
     Parameters
     ----------
     project_dir : str, optional
@@ -389,7 +389,7 @@ class EDBMessageManager(object):
                     project_dir = "C:\\Temp"
             if not self.logger.handlers:
                 logging.basicConfig(
-                    filename=os.path.join(project_dir, "EDBTLib.log"),
+                    filename=os.path.join(project_dir, "pyaedt_edb.log"),
                     level=logging.DEBUG,
                     format='%(asctime)s:%(name)s:%(levelname)-8s:%(message)s',
                     datefmt='%Y/%m/%d %H.%M.%S')
@@ -404,7 +404,7 @@ class EDBMessageManager(object):
         ----------
         message_text : str
             Text to display as the message.
-                
+
         """
         if self._log_on_file:
             self.logger.error(message_text)
@@ -417,7 +417,7 @@ class EDBMessageManager(object):
 
         message_text : str
             Text to display as the message.
-        
+
         """
         if self._log_on_file:
             self.logger.warning(message_text)

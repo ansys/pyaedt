@@ -1,7 +1,7 @@
 """
 Advanced Far Field Postprocessing Example
 -----------------------------------------
-This example shows how to use advanced postprocessing functions to create plots 
+This example shows how to use advanced postprocessing functions to create plots
 using Matplotlib without opening the HFSS user interface.
 This examples runs only on Windows using CPython.
 """

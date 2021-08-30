@@ -12,7 +12,7 @@ class BoundaryCommon(object):
     @aedt_exception_handler
     def _get_args(self, props=None):
         """Retrieve boundary properties.
-        
+
         Parameters
         ----------
         props : dict, optional
@@ -33,12 +33,12 @@ class BoundaryCommon(object):
     @aedt_exception_handler
     def delete(self):
         """Delete the boundary.
-        
+
         Returns
         -------
         bool
             ``True`` when successful, ``False`` when failed.
-        
+
         """
         self._parent.oboundary.DeleteBoundaries([self.name])
         for el in self._parent.boundaries:
@@ -184,18 +184,19 @@ class NativeComponentObject(BoundaryCommon, object):
 
 class BoundaryObject(BoundaryCommon, object):
     """Manages boundary data and execution.
-    
-    Parameters
-    ----------
-    parent:
-    
-    name :
-    
-    props :
-    
-    boundarytype :
-    
-        
+
+    Examples
+    --------
+
+    Create a cylinder at the XY working plane and assign a copper coating of 0.2 mm to it. The Coating is a boundary
+    operation and coat will return a ``pyaedt.modules.Boundary.BoundaryObject``
+
+    >>> from pyaedt import Hfss
+    >>> hfss =Hfss()
+    >>> origin = hfss.modeler.Position(0, 0, 0)
+    >>> inner = hfss.modeler.primitives.create_cylinder(hfss.CoordinateSystemPlane.XYPlane, origin, 3, 200, 0, "inner")
+    >>> inner_id = hfss.modeler.primitives.get_obj_id("inner")
+    >>> coat = hfss.assigncoating([inner_id], "copper", usethickness=True, thickness="0.2mm")
     """
     def __init__(self, parent, name, props, boundarytype):
         self._parent = parent
@@ -216,7 +217,7 @@ class BoundaryObject(BoundaryCommon, object):
         -------
         list
             List of boundary properties.
-            
+
         """
         if props is None:
             props = self.props
@@ -227,7 +228,7 @@ class BoundaryObject(BoundaryCommon, object):
     @aedt_exception_handler
     def create(self):
         """Create a boundary.
-        
+
         Returns
         -------
         bool
@@ -353,7 +354,7 @@ class BoundaryObject(BoundaryCommon, object):
     @aedt_exception_handler
     def update(self):
         """Update the boundary.
-                
+
         Returns
         -------
         bool
@@ -461,7 +462,7 @@ class BoundaryObject(BoundaryCommon, object):
     @aedt_exception_handler
     def update_assignment(self):
         """Update the boundary assignment.
-        
+
         Returns
         -------
         bool

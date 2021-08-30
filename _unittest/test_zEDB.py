@@ -240,7 +240,12 @@ class TestClass:
         assert self.edbapp.core_siwave.add_siwave_ac_analysis()
 
     def test_41_create_siwave_dc_analsyis(self):
-        assert self.edbapp.core_siwave.add_siwave_dc_analysis()
+        settings = self.edbapp.core_siwave.get_siwave_dc_setup_template()
+        settings.accuracy_level = 0
+        settings.use_dc_custom_settings  = True
+        settings.name = "myDCIR_3"
+        settings.pos_term_to_ground = "I1"
+        assert self.edbapp.core_siwave.add_siwave_dc_analysis(settings)
 
     def test_42_get_nets_from_pin_list(self):
         cmp_pinlist = self.edbapp.core_padstack.get_pinlist_from_component_and_net("U2A5", "GND")
@@ -281,7 +286,7 @@ class TestClass:
         for poly in polys:
             points = self.edbapp.core_primitives.get_polygon_points(poly)
             assert points
-            
+
     def test_49_get_padstack(self):
         for el in self.edbapp.core_padstack.padstacks:
             pad = self.edbapp.core_padstack.padstacks[el]

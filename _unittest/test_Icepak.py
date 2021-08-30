@@ -177,7 +177,7 @@ class TestClass:
 
     def test_17_analyze(self):
         self.aedtapp.analyze_nominal()
-    
+
     def test_17_get_output_variable(self):
         value = self.aedtapp.get_output_variable("OutputVariable1")
         assert value == 0.5235987755982988

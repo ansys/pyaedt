@@ -1,4 +1,4 @@
-"""This module contains these classes: `Hfss3dLayout` and `SweepString`."""
+"""This module contains these classes: `Hfss3dLayout`."""
 
 from __future__ import absolute_import
 import os
@@ -7,72 +7,6 @@ from .application.Analysis3DLayout import FieldAnalysis3DLayout
 from .desktop import exception_to_desktop
 from .modules.SolveSetup import Setup3DLayout
 from .generic.general_methods import generate_unique_name, aedt_exception_handler
-
-
-
-class SweepString(object):
-    """Generates a sweep string.
-    
-    For example, ``"LIN 10GHz 20GHz 0.05GHz LINC 20GHz 30GHz 10 DEC 30GHz 40GHz 10 40GHz``.
-    
-    Parameters
-    ----------
-    unit : str, optional
-        Units for the sweep string. The default is ``"GHz"``.
-     """
-        
-    def __init__(self, unit='GHz'):
-    
-        self.unit = unit
-        self.sweep_string = ""
-
-    @aedt_exception_handler
-    def add_sweep(self, sweep, line_type, unit=None):
-        """Add a line to the sweep string.
-
-        Parameters
-        ----------
-        sweep : list
-            List of frequencies,
-            if linear_step [start, stop, step]
-            if linear_count [start, stop, number of steps]
-            if log_scale [start, stop, samples]
-            if single [f1, f2,... fn]
-        line_type :
-            linear_step", "linear_count", "log_scale", "single"
-        unit : str
-            Units such as ``"MHz"`` or ``"GHz"``. The default is ``None``.
-
-        Returns
-        -------
-
-        """
-        if not unit:
-            unit = self.unit
-        if self.sweep_string != "":
-            self.sweep_string += " "
-        if line_type == "linear_step" and len(sweep) == 3:
-            string = "LIN " + str(sweep[0]) + unit + " " + str(sweep[1]) + unit + " " + str(sweep[2]) + unit
-        elif line_type == "linear_count" and len(sweep) == 3:
-            string = "LINC " + str(sweep[0]) + unit + " " + str(sweep[1]) + unit + " " + str(sweep[2])
-        elif line_type == "log_scale" and len(sweep) == 3:
-            string = "DEC " + str(sweep[0]) + unit + " " + str(sweep[1]) + unit + " " + str(sweep[2])
-        elif line_type == "single":
-            string = ""
-            for f in sweep:
-                string += str(f) + unit + " "
-            string = string[:-1]
-        else:
-            raise ValueError('Wrong format for sweep list!')
-        self.sweep_string += string
-
-    @aedt_exception_handler
-    def get_string(self):
-        """ """
-        if self.sweep_string:
-            return self.sweep_string
-        else:
-            return None
 
 
 class Hfss3dLayout(FieldAnalysis3DLayout):
@@ -86,10 +20,10 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
     projectname : str, optional
         Name of the project to select or the full path to the project
         or AEDTZ archive to open.  The default is ``None``, in which
-        case an attempt is made to get an active project. If no 
+        case an attempt is made to get an active project. If no
         projects are present, an empty project is created.
     designname : str, optional
-        Name of the design to select. The default is ``None``, in 
+        Name of the design to select. The default is ``None``, in
         which case an attempt is made to get an active design. If no
         designs are present, an empty design is created.
     solution_type : str, optional
@@ -97,20 +31,20 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
         ``None``, in which case the default type is applied.
     setup_name : str, optional
         Name of the setup to use as the nominal. The default is
-        ``None``, in which case the active setup is used or 
+        ``None``, in which case the active setup is used or
         nothing is used.
     specified_version : str, optional
         Version of AEDT to use. The default is ``None``, in which case
         the active version or latest installed version is used.
     NG : bool, optional
-        Whether to launch AEDT in the non-graphical mode. The default 
-        is``False``, in which case AEDT is launched in the graphical mode.  
+        Whether to launch AEDT in the non-graphical mode. The default
+        is``False``, in which case AEDT is launched in the graphical mode.
     AlwaysNew : bool, optional
         Whether to launch an instance of AEDT in a new thread, even if
         another instance of the ``specified_version`` is active on the
         machine. The default is ``True``.
     release_on_exit : bool, optional
-        Whether to release AEDT on exit. 
+        Whether to release AEDT on exit.
     student_version : bool, optional
         Whether to open the AEDT student version. The default is ``False``.
 
@@ -141,7 +75,7 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
     `Hfss3dLayout` object and open the specified project.
 
     >>> aedtapp = Hfss3dLayout(specified_version="2021.1", projectname="myfile.aedt")
-    
+
     """
     def __init__(self, projectname=None, designname=None, solution_type=None, setup_name=None,
                  specified_version=None, NG=False, AlwaysNew=False, release_on_exit=False, student_version=False):
@@ -180,8 +114,8 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
             ["NAME:Contents", "edge:=", ["et:=", "pe", "prim:=", primivitivename, "edge:=", edgenumber], "circuit:=",
              iscircuit, "btype:=", 0])
         listnew = self.port_list
-        a=[i for i in listnew if i not in listp]
-        if len(a)>0:
+        a = [i for i in listnew if i not in listp]
+        if len(a) > 0:
             return a[0]
         else:
             return False
@@ -215,7 +149,7 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
         -------
         str
             Name of the port when successful, ``False`` when failed.
-        
+
         """
         listp = self.port_list
         if type(layer) is str:
@@ -248,7 +182,7 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
         rotation : float, optional
             Rotation of the pin in degrees. The default is ``0``.
         top_layer : str, optional
-            Top layer of the pin. The default is ``None``, in which case the top 
+            Top layer of the pin. The default is ``None``, in which case the top
             layer is assigned automatically.
         bot_layer : str
             Bottom layer of the pin. The default is ``None``, in which case the
@@ -258,7 +192,7 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
         -------
         bool
             ``True`` when successful, ``False`` when failed.
-        
+
         """
         self.modeler.layers.refresh_all_layers()
         layers = self.modeler.layers.all_signal_layers
@@ -292,13 +226,13 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
         Parameters
         ----------
         portname : str
-            Name of the port.          
+            Name of the port.
 
         Returns
         -------
         bool
             ``True`` when successful, ``False`` when failed.
-        
+
         """
         self.oexcitation.Delete(portname)
         return True
@@ -311,12 +245,12 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
         ----------
         edb_full_path : str
             Full path to EDB.
-            
+
         Returns
         -------
         bool
-            ``True`` when successful, ``False`` when failed. 
-        
+            ``True`` when successful, ``False`` when failed.
+
         """
         oTool = self.odesktop.GetTool("ImportExport")
         oTool.ImportEDB(edb_full_path)
@@ -441,7 +375,7 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
         -------
         bool
             ``True`` when successful, ``False`` when failed.
-        
+
         """
         Families = ["Freq:=", ["All"]]
         if variations:
@@ -480,11 +414,11 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
     @aedt_exception_handler
     def export_touchstone(self, solutionname, sweepname, filename, variation, variations_value):
         """Export a Touchstone file.
-        
+
         Parameters
         ----------
         solutionname : str
-            Name of the solution that has been solved.    
+            Name of the solution that has been solved.
         sweepname : str
             Name of the sweep that has been solved.
         filename : str
@@ -498,7 +432,7 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
         -------
         bool
             ``True`` when successful, ``False`` when failed.
-        
+
         """
         # normalize the save path
         if not filename:
@@ -550,7 +484,7 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
         -------
         bool
             ``True`` when successful, ``False`` when failed.
-        
+
         """
         settings = []
         if activate:
@@ -589,7 +523,7 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
         sweepname : str, optional
             Name of the sweep. The default is ``None``.
         sweeptype : str, optional
-            Type of the sweep. Options are ``"Fast"``, ``"Interpolating"``, and ``"Discrete"``. 
+            Type of the sweep. Options are ``"Fast"``, ``"Interpolating"``, and ``"Discrete"``.
             The default is ``"Interpolating"``.
         interpolation_tol_percent : float, optional
             Error tolerance threshold for the interpolation process. The default is ``0.5``.
@@ -606,7 +540,7 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
         -------
         str
             Name of the setup when successful, ``False`` otherwise.
-        
+
         """
         if sweepname is None:
             sweepname = generate_unique_name("Sweep")
@@ -618,65 +552,21 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
         if not save_fields:
             save_rad_fields_only = False
         interpolation_tol = interpolation_tol_percent / 100.
-        sweep = SweepString()
-        sweep.add_sweep([freqstart, freqstop, num_of_freq_points], "linear_count", unit)
-        # the add_sweep function supports all sweeps type e.g.
-        #   sweep.add_sweep([10, 20, 1], "linear_step", "MHz")
-        #   sweep.add_sweep([1, 1000, 100], "log_scale", "kHz")
-        #   sweep.add_sweep([7,13,17,19,23], "single", unit)
-        sweep_string = sweep.get_string()
         setup = self.get_setup(setupname)
         if sweepname in [name.name for name in setup.sweeps]:
             sweepname = generate_unique_name(sweepname)
-        sweep= setup.add_sweep(sweepname=sweepname)
-        sweep.change_range("LinearCount", freqstart,freqstop, num_of_freq_points )
-        setup.props["GenerateSurfaceCurrent"]=save_fields
-        setup.props["SaveRadFieldsOnly"] = save_rad_fields_only
-        setup.props["FastSweep"] = interpolation
-        setup.props["SAbsError"] = interpolation_tol
-        setup.props["EnforcePassivity"] = interpolation
-        setup.props["UseQ3DForDC"] = use_q3d_for_dc
-        setup.props["MaxSolutions"] = interpolation_max_solutions
-        setup.update()
-        # arg = ["NAME:" + sweepname,
-        #        [
-        #         "NAME:Properties",
-        #         "Enable:=", "true"
-        #        ],
-        #        [
-        #         "NAME:Sweeps",
-        #         "Variable:=", sweepname,
-        #         "Data:=", sweep_string,
-        #         "OffsetF1:=", False,
-        #         "Synchronize:=", 0
-        #        ],
-        #        "GenerateSurfaceCurrent:=", save_fields,
-        #        "SaveRadFieldsOnly:=", save_rad_fields_only,
-        #        "FastSweep:=", interpolation,
-        #        "ZoSelected:=", False,
-        #        "SAbsError:=", interpolation_tol,
-        #        "ZoPercentError:=", 1,
-        #        "GenerateStateSpace:=", False,
-        #        "EnforcePassivity:=", interpolation,
-        #        "PassivityTolerance:=", 0.0001,
-        #        "UseQ3DForDC:=", use_q3d_for_dc,
-        #        "ResimulateDC:=", False,
-        #        "MaxSolutions:=", interpolation_max_solutions,
-        #        "InterpUseSMatrix:=", True,
-        #        "InterpUsePortImpedance:=", True,
-        #        "InterpUsePropConst:=", True,
-        #        "InterpUseFullBasis:=", True,
-        #        "CustomFrequencyString:=", "",
-        #        "AllEntries:=", False,
-        #        "AllDiagEntries:=", False,
-        #        "AllOffDiagEntries:=", False,
-        #        "MagMinThreshold:=", 0.01
-        #        ]
-        #
-        # self.oanalysis.AddSweep(setupname, arg)
-        # self.oanalysis_setup.AddSweep(setupname, arg)
-        # self._messenger.add_debug_message("Sweep Setup created correctly")
-        return setup
+        sweep = setup.add_sweep(sweepname=sweepname)
+        sweep.change_range("LinearCount", freqstart, freqstop, num_of_freq_points )
+        sweep.props["GenerateSurfaceCurrent"] = save_fields
+        sweep.props["SaveRadFieldsOnly"] = save_rad_fields_only
+        sweep.props["FastSweep"] = interpolation
+        sweep.props["SAbsError"] = interpolation_tol
+        sweep.props["EnforcePassivity"] = interpolation
+        sweep.props["UseQ3DForDC"] = use_q3d_for_dc
+        sweep.props["MaxSolutions"] = interpolation_max_solutions
+        sweep.update()
+
+        return sweep
 
     @aedt_exception_handler
     def import_gds(self, gds_path, aedb_path=None, xml_path=None, set_as_active=True, close_active_project=False):
@@ -689,7 +579,7 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
         aedb_path : str, optional
             Full path to the AEDB file.
         xml_path : str, optional
-            Path to the XML file with the stackup information. The default is ``None``, in 
+            Path to the XML file with the stackup information. The default is ``None``, in
             which case the stackup is not edited.
         set_as_active : bool, optional
             Whether to set the GDS file as active. The default is ``True``.
@@ -700,7 +590,7 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
         -------
         bool
             ``True`` when successful, ``False`` when failed.
-        
+
         """
         active_project = self.project_name
         project_name = os.path.basename(gds_path)[:-4]
