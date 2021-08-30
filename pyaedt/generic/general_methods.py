@@ -36,13 +36,13 @@ def _exception(ex_info, func, args, kwargs, message="Type Error"):
     Parameters
     ----------
     ex_info :
-        
+
     func :
-        
+
     args :
-        
+
     kwargs :
-        
+
     message :
          (Default value = "Type Error")
 
@@ -161,7 +161,7 @@ def env_path(input_version):
     Parameters
     ----------
     input_version :
-        
+
 
     Returns
     -------
@@ -267,7 +267,7 @@ def get_filename_without_extension(path):
     Parameters
     ----------
     path :
-        
+
 
     Returns
     -------
@@ -307,13 +307,13 @@ def retry_ntimes(n, function, *args, **kwargs):
     Parameters
     ----------
     n :
-        
+
     function :
-        
+
     *args :
-        
+
     **kwargs :
-        
+
 
     Returns
     -------

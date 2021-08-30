@@ -4,7 +4,7 @@ def unique_string_list(element_list, only_string=True):
     Parameters
     ----------
     element_list :
-        
+
     only_string :
          (Default value = True)
 
@@ -37,7 +37,7 @@ def string_list(element_list):
     Parameters
     ----------
     element_list :
-        
+
 
     Returns
     -------
@@ -55,7 +55,7 @@ def ensure_list(element_list):
     Parameters
     ----------
     element_list :
-        
+
 
     Returns
     -------

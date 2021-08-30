@@ -43,7 +43,7 @@ class TestClass(BasisTest):
             pass
         new_object = self.aedtapp.modeler.primitives.create_box([0, 0, 0], [10, 10, 5], name, "Copper")
         return new_object
-    
+
     def create_copper_sphere(self, name=None):
         if not name:
             name = "Mysphere"

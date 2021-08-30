@@ -21,9 +21,9 @@ def tuple2dict(t, d):
     Parameters
     ----------
     t :
-        
+
     d :
-        
+
 
     Returns
     -------
@@ -51,9 +51,9 @@ def dict2arg(d, arg_out):
     Parameters
     ----------
     d :
-        
+
     arg_out :
-        
+
 
     Returns
     -------
@@ -87,9 +87,9 @@ def arg2dict(arg, dict_out):
     Parameters
     ----------
     arg :
-        
+
     dict_out :
-        
+
 
     Returns
     -------
@@ -124,7 +124,7 @@ def create_list_for_csharp(input_list, return_strings=False):
     Parameters
     ----------
     input_list :
-        
+
     return_strings :
          (Default value = False)
 
@@ -152,7 +152,7 @@ def create_table_for_csharp(input_list_of_list, return_strings=True):
     Parameters
     ----------
     input_list_of_list :
-        
+
     return_strings :
          (Default value = True)
 
@@ -174,7 +174,7 @@ def format_decimals(el):
     Parameters
     ----------
     el :
-        
+
 
     Returns
     -------

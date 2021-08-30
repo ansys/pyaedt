@@ -72,12 +72,12 @@ def real(arg):
     Parameters
     ----------
     arg :
-        
+
 
     Returns
     -------
     type
-        
+
 
     """
     return arg.real
@@ -89,12 +89,12 @@ def imag(arg):
     Parameters
     ----------
     arg :
-        
+
 
     Returns
     -------
     type
-        
+
 
     """
     return arg.imag
@@ -106,12 +106,12 @@ def mag(arg):
     Parameters
     ----------
     arg :
-        
+
 
     Returns
     -------
     type
-        
+
 
     """
     return abs(arg)
@@ -123,12 +123,12 @@ def db10(arg):
     Parameters
     ----------
     arg :
-        
+
 
     Returns
     -------
     type
-        
+
 
     """
     return 10.0 * math.log10(mag(arg))
@@ -140,12 +140,12 @@ def db20(arg):
     Parameters
     ----------
     arg :
-        
+
 
     Returns
     -------
     type
-        
+
 
     """
     return 20.0 * math.log10(mag(arg))
@@ -157,12 +157,12 @@ def rad(arg):
     Parameters
     ----------
     arg :
-        
+
 
     Returns
     -------
     type
-        
+
 
     """
     return arg*math.pi/180
@@ -174,12 +174,12 @@ def deg(arg):
     Parameters
     ----------
     arg :
-        
+
 
     Returns
     -------
     type
-        
+
 
     """
     return arg*180/math.pi
@@ -228,7 +228,7 @@ class TouchstoneData(object):
         Parameters
         ----------
         matrix :
-            
+
 
         Returns
         -------
@@ -570,7 +570,7 @@ def read_touchstone(file_path, verbose=False):
     Parameters
     ----------
     file_path :
-        
+
     verbose :
          (Default value = False)
 
@@ -619,7 +619,7 @@ def _parse_ports_name(file):
     Parameters
     ----------
     file :
-        
+
 
     Returns
     -------
@@ -641,7 +641,7 @@ def _parse_option_line(file, verbose=False):
     Parameters
     ----------
     file :
-        
+
     verbose :
          (Default value = False)
 
@@ -702,7 +702,7 @@ def _get_next_line_data(file):
     Parameters
     ----------
     file :
-        
+
 
     Returns
     -------
@@ -728,11 +728,11 @@ def _parse_next_sample(file, ports, format):
     Parameters
     ----------
     file :
-        
+
     ports :
-        
+
     format :
-        
+
 
     Returns
     -------
