@@ -496,52 +496,8 @@ class Edb(object):
 
     @property
     def db(self):
-        """ """
-        # if self.builder:
-        #     self._db = self.builder.EdbHandler.dB
-        #     return self._db
-        # else:
-        #     self.db = self.edbpath
         return self._db
 
-    # @db.setter
-    # def db(self, edbpath):
-    #     # if self.edb_core:
-    #     #     if os.path.exists(os.path.join(edbpath, "edb.def")):
-    #     #         self._db = self.edb_core.Database.Open(edbpath, self.isreadonly)
-    #     #     else:
-    #     #         self._db = None
-    #     #         self._messenger.add_error_message("Edb path not found")
-    #     try:
-    #         if self.oproject:
-    #             if self._main.isoutsideDesktop:
-    #                 self._messenger.add_info_message("Opening EDB from File")
-    #                 self.edb_core.Database.SetRunAsStandAlone(True)
-    #                 if self.edbutils:
-    #                     if os.path.exists(os.path.join(edbpath, "edb.def")):
-    #                         self.builder = self.edbutils.HfssUtilities(edbpath)
-    #                         self._db = self.builder.dB
-    #                     else:
-    #                         self._db = None
-    #                         self._messenger.add_warning_message("Edb path not found")
-    #             else:
-    #                 self._messenger.add_info_message("Opening EDB from HDL")
-    #                 self.edb_core.Database.SetRunAsStandAlone(False)
-    #                 hdl = Convert.ToUInt64(self.oproject.GetEDBHandle())
-    #                 self._db = self.edb_core.Database.Attach(hdl)
-    #
-    #         else:
-    #             self.edb_core.Database.SetRunAsStandAlone(True)
-    #             if self.edbutils:
-    #                 if os.path.exists(os.path.join(edbpath, "edb.def")):
-    #                     self.builder = self.edbutils.HfssUtilities(edbpath)
-    #                     self._db = self.builder.dB
-    #                 else:
-    #                     self._db = None
-    #                     self._messenger.add_warning_message("Edb path not found")
-    #         self.active_cell = self.cellname
-    #     except:
-    #         self._db = None
 
     @property
     def active_cell(self):
@@ -681,6 +637,7 @@ class Edb(object):
 
         """
         self._db.Close()
+
         self._clean_variables()
         return True
 
