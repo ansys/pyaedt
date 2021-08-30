@@ -2382,12 +2382,12 @@ class Hfss(FieldAnalysis3D, object):
         >>> wave_port = hfss.create_wave_port_from_sheet(sheet, 5, hfss.AxisDir.XNeg, 40,
         ...                                              2, "SheetWavePort", True)
         >>> hfss.edit_source("SheetWavePort" + ":1", "10W")
-        pyaedt Info: Setting up power to Eigenmode 10WWatt
+        pyaedt Info: Setting up power to Eigenmode 10W
         True
 
         """
 
-        self._messenger.add_info_message("Setting up power to Eigenmode " + powerin + "Watt")
+        self._messenger.add_info_message("Setting up power to Eigenmode " + powerin)
         if self.solution_type != "Eigenmode":
             self.osolution.EditSources([["IncludePortPostProcessing:=", True, "SpecifySystemPower:=", False],
                                         ["Name:=", portandmode, "Magnitude:=", powerin, "Phase:=", phase]])
