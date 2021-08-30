@@ -27,7 +27,8 @@ def unique_string_list(element_list, only_string=True):
 
         if only_string:
             non_string_entries = [x for x in element_list if type(x) is not str]
-            assert not non_string_entries, "Invalid list entries {} are not a string!".format(non_string_entries)
+            assert not non_string_entries, "Invalid list entries {} are not a string!".format(
+                non_string_entries)
 
     return element_list
 

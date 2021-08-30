@@ -48,8 +48,10 @@ def load_keyword_in_aedt_file(filename, keyword):
 # precompile all Regular expressions
 _remove_quotes = re.compile(r"^'(.*?)'$")
 _split_list_elements = re.compile(",(?=(?:[^']*'[^']*')*[^']*$)")
-_round_bracket_list = re.compile(r"^(?P<KEY1>[^\s]+?)\((?P<LIST1>.+)\)|^'(?P<KEY2>.+?\s.+)'(?<=')\((?P<LIST2>.+)\)")
-_square_bracket_list = re.compile(r"^(?P<KEY1>[^\s]+?)\[\d+:(?P<LIST1>.+)\]|^'(?P<KEY2>.+?\s.+)'(?<=')\[\d+:(?P<LIST2>.+)\]")
+_round_bracket_list = re.compile(
+    r"^(?P<KEY1>[^\s]+?)\((?P<LIST1>.+)\)|^'(?P<KEY2>.+?\s.+)'(?<=')\((?P<LIST2>.+)\)")
+_square_bracket_list = re.compile(
+    r"^(?P<KEY1>[^\s]+?)\[\d+:(?P<LIST1>.+)\]|^'(?P<KEY2>.+?\s.+)'(?<=')\[\d+:(?P<LIST2>.+)\]")
 _key_parse = re.compile(r"(^'(?P<KEY1>.+?)')(?<=')=(?P<VAL1>.+$)|(?P<KEY2>^.+?)=(?P<VAL2>.+$)")
 _value_parse1 = re.compile(r"\s")
 _value_parse2 = re.compile(r"^'([^']*\s[^']*)(?=')")
@@ -179,8 +181,10 @@ def _decode_key(l, d):
             value2 = value.replace("\\'", '"')
         else:
             value2 = value
-        if not _value_parse1.search(value2) or _value_parse2.search(value2):  # if there are no spaces in value
-            key = m.group('KEY1')                                           # or values with spaces are between quote
+        # if there are no spaces in value
+        if not _value_parse1.search(value2) or _value_parse2.search(value2):
+            # or values with spaces are between quote
+            key = m.group('KEY1')
             _decode_value_and_save(key, value, d)
         else:  # spaces in value without quotes
             key = l
@@ -192,8 +196,10 @@ def _decode_key(l, d):
             value2 = value.replace("\\'", '"')
         else:
             value2 = value
-        if not _value_parse1.search(value2) or _value_parse2.search(value2):  # if there are no spaces in value
-            key = m.group('KEY2')                                           # or values with spaces are between quote
+        # if there are no spaces in value
+        if not _value_parse1.search(value2) or _value_parse2.search(value2):
+            # or values with spaces are between quote
+            key = m.group('KEY2')
             _decode_value_and_save(key, value, d)
         else:  # spaces in value without quotes
             key = l
@@ -230,7 +236,8 @@ def _walk_through_structure(keyword, save_dict):
         if begin_key == line.strip():
             found = True
             saved_value = save_dict.get(keyword)               # if the keyword is already present
-            if saved_value and type(saved_value) is not list:  # makes the value a list, if it's not already
+            # makes the value a list, if it's not already
+            if saved_value and type(saved_value) is not list:
                 saved_value = [saved_value]
             save_dict[keyword] = OrderedDict()
             _count += 1
