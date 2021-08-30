@@ -899,7 +899,6 @@ class Primitives(object):
         retry_ntimes(10, self.oeditor.ChangeProperty, vOut)
         return True
 
-
     @aedt_exception_handler
     def update_object(self, obj):
         """Update any :class:`pyaedt.modeler.Object3d.Object3d` derivatives
@@ -1036,7 +1035,6 @@ class Primitives(object):
                 "UseMaterialAppearance:=", False, "IsLightweight:=", False]
         self.oeditor.CreateRegion(arg, arg2)
         return self._create_object("Region")
-
 
     @aedt_exception_handler
     def create_object_from_edge(self, edge):

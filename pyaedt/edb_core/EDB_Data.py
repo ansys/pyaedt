@@ -15,7 +15,6 @@ except ImportError:
 class EDBLayer(object):
     """Manages EDB functionalities for a layer."""
 
-
     def __init__(self, edblayer, parent):
         self._layer = edblayer
         self._name = None
@@ -376,7 +375,6 @@ class EDBLayers(object):
         self._edb_object = OrderedDict(defaultdict(EDBLayer))
         self._update_edb_objects()
 
-
     def __getitem__(self, layername):
         """Retrieve a layer.
 
@@ -454,7 +452,6 @@ class EDBLayers(object):
             if edblayer._layer_type == self._edb.Cell.LayerType.SignalLayer or edblayer._layer_type == self._edb.Cell.LayerType.ConductingLayer:
                 self._signal_layers[layer]= edblayer
         return self._signal_layers
-
 
     @property
     def layer_collection(self):

@@ -20,7 +20,6 @@ from .GeometryOperators import GeometryOperators
 from ..generic.general_methods import time_fn
 
 
-
 clamp = lambda n, minn, maxn: max(min(maxn, n), minn)
 
 rgb_color_codes = {
@@ -265,7 +264,6 @@ class VertexPrimitive(EdgeTypePrimitive, object):
         except Exception as e:
             return None
 
-
     def __repr__(self):
         return "Vertex "+str(self.id)
 
@@ -394,7 +392,6 @@ class FacePrimitive(object):
             return GeometryOperators.get_polygon_centroid([pos.position for pos in self.vertices])
         else:
             return self.vertices[0].position
-
 
     @property
     def area(self):
@@ -584,7 +581,6 @@ class Object3d(object):
             self.odesign.Undo()
         return bounding
 
-
     @property
     def odesign(self):
         """Design."""
@@ -741,7 +737,6 @@ class Object3d(object):
         else:
             self._messenger.add_warning_message("Material {} does not exist.".format(mat))
 
-
     @surface_material_name.setter
     def surface_material_name(self, mat):
         try:
@@ -751,7 +746,6 @@ class Object3d(object):
             self._surface_material = mat
         except:
             self._messenger.add_warning_message("Material {} does not exist".format(mat))
-
 
     @property
     def id(self):
@@ -1269,7 +1263,6 @@ class Object3d(object):
         #self._parent._refresh_object_types()
         self._parent.cleanup_objects()
 
-
     def __str__(self):
         return """
          {}
@@ -1740,7 +1733,6 @@ class CircuitComponent(object):
         vMaterial = ["NAME:Use Symbol Color", "Value:=", symbol_color]
         self.change_property(vMaterial)
         return True
-
 
     @aedt_exception_handler
     def set_color(self, R=255, G=128, B=0):

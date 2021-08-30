@@ -25,7 +25,6 @@ class TestClass:
         self.local_scratch.remove()
         gc.collect()
 
-
     def create_example_coil(self, name=None):
         if not name:
             name = "test_coil"
@@ -108,7 +107,6 @@ class TestClass:
         assert len(a.faces) == 7
         assert len(b.faces) == 9
 
-
     def test_02_face_edge_vertex(self):
         o = self.create_copper_box("faces_box")
         object_faces = o.faces
@@ -150,7 +148,6 @@ class TestClass:
         o_box = self.create_copper_box("Valid2")
         o_box.material_name = "aluminum"
         assert o_box.material_name == "aluminum"
-
 
     def test_05_object3d_properties_transparency(self):
         o = self.create_copper_box("TransparencyBox")

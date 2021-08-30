@@ -35,7 +35,6 @@ if not os.path.exists(project_dir): os.makedirs(project_dir)
 print(project_dir)
 
 
-
 from pyaedt import Hfss
 from pyaedt import Icepak
 import numpy as np

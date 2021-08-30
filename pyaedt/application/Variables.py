@@ -376,7 +376,6 @@ class CSVDataset:
             for value in row_data:
                 self._data[column].append(value)
 
-
         return self
 
     # Called when iteration is initialized
@@ -1075,7 +1074,6 @@ class Variable(object):
         self._units = units
         return self
 
-
     @aedt_exception_handler
     def format(self, format):
         """Retrieve the string value with the specified numerical formatting.
@@ -1477,7 +1475,6 @@ class DataSet(object):
             return False
         id_to_remove = self.x.index(x)
         return self.remove_point_from_index(id_to_remove)
-
 
     @aedt_exception_handler
     def remove_point_from_index(self, id_to_remove):

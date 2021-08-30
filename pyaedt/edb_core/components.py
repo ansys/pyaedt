@@ -229,7 +229,6 @@ class Components(object):
                 self._ind[el] = val
         return self._ind
 
-
     @property
     def ICs(self):
         """Integrated circuits.
@@ -253,7 +252,6 @@ class Components(object):
                 self._ics[el] = val
         return self._ics
 
-
     @property
     def IOs(self):
         """Circuit inupts and outputs.
@@ -276,7 +274,6 @@ class Components(object):
             if val.type == 'IO':
                 self._ios[el] = val
         return self._ios
-
 
     @property
     def Others(self):
@@ -304,7 +301,6 @@ class Components(object):
                 self._others[el] = val
         return self._others
 
-
     @property
     def components_by_partname(self):
         """Components by part name.
@@ -329,7 +325,6 @@ class Components(object):
             else:
                 self._comps_by_part[val.partname] = [val]
         return self._comps_by_part
-
 
     @aedt_exception_handler
     def get_component_list(self):
@@ -393,7 +388,6 @@ class Components(object):
             if set(cmpnets).intersection(set(netlist)):
                 cmp_list.append(refdes)
         return cmp_list
-
 
     @aedt_exception_handler
     def create_component_from_pins(self, pins, component_name):
@@ -563,7 +557,6 @@ class Components(object):
         else:
             return (True, pingroup)
 
-
     @aedt_exception_handler
     def delete_single_pin_rlc(self):
         """Delete all RLC components with a single pin.
@@ -624,7 +617,6 @@ class Components(object):
                 del self.components[edb_cmp]
             return True
         return False
-
 
     @aedt_exception_handler
     def disable_rlc_component(self, component_name):
@@ -831,7 +823,6 @@ class Components(object):
                     p.GetObjType() == self._edb.Cell.LayoutObjType.PadstackInstance and
                     p.IsLayoutPin()]
         return pins
-
 
     @aedt_exception_handler
     def get_aedt_pin_name(self, pin):

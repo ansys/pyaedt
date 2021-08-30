@@ -84,14 +84,11 @@ class TestClass:
     def test_22_create_length_mesh(self):
         assert self.aedtapp.mesh.assign_length_mesh(['Plate'])
 
-
     def test_23_create_skin_depth(self):
         assert self.aedtapp.mesh.assign_skin_depth(['Plate'], "1mm")
 
-
     def test_24_create_curvilinear(self):
         assert self.aedtapp.mesh.assign_curvilinear_elements(['Coil'], "1mm")
-
 
     def test_24_create_edge_cut(self):
         assert self.aedtapp.mesh.assign_edge_cut(["Coil"])

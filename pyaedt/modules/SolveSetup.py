@@ -955,7 +955,6 @@ class Setup3DLayout(object):
         self.omodule.ExportToHfss(self.name, file_fullname)
         return True
 
-
     @aedt_exception_handler
     def add_sweep(self, sweepname=None, sweeptype="Interpolating"):
         """Add a frequency sweep.

@@ -34,7 +34,6 @@ class TestClass:
                                                      matname="brass", name="MyCylinder")
         assert isinstance(o.id, int)
 
-
     def test_03_get_properties(self):
         assert self.aedtapp.odefinition_manager
         assert self.aedtapp.omaterial_manager

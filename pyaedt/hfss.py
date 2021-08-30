@@ -172,7 +172,6 @@ class Hfss(FieldAnalysis3D, object):
                              "Impedance": str(impedance) + "ohm"})
         return self._create_boundary(portname, props, "LumpedPort")
 
-
     @aedt_exception_handler
     def _create_port_terminal(self, objectname, int_line_stop, portname, iswaveport=False):
         ref_conductors = self.modeler.convert_to_selections(int_line_stop, False)
@@ -647,7 +646,6 @@ class Hfss(FieldAnalysis3D, object):
             native_props["Thin Sources"] = thin_sources
             native_props[ "Power Fraction"] = power_fraction
         return self._create_native_component("Linked Antenna", target_cs, self.modeler.model_units, native_props, uniquename )
-
 
     @aedt_exception_handler
     def _create_native_component(self, antenna_type, target_cs=None, model_units=None, parameters_dict=None,
@@ -1305,7 +1303,6 @@ class Hfss(FieldAnalysis3D, object):
                 faces = self.modeler.primitives.get_object_faces(sheet_name)
                 return self._create_port_terminal(faces[0], endobject, portname, iswaveport=True)
         return False
-
 
     def _create_pec_cap(self, sheet_name, obj_name, pecthick):
         # TODO check method
@@ -2271,7 +2268,6 @@ class Hfss(FieldAnalysis3D, object):
             return self._create_boundary(sourcename, props, "Impedance")
         return False
 
-
     @aedt_exception_handler
     def create_circuit_port_from_edges(self, edge_signal, edge_gnd, port_name="",
                                        port_impedance="50",
@@ -2769,7 +2765,6 @@ class Hfss(FieldAnalysis3D, object):
                 [])
             return True
         return False
-
 
     @aedt_exception_handler
     def create_qfactor_report(self, project_dir, outputlist, setupname, plotname, Xaxis="X"):

@@ -567,7 +567,6 @@ class PostProcessor(Post):
 
         return files_list
 
-
     @aedt_exception_handler
     def _animation_from_aedtflt(self, aedtplt_files=None, variation_var="Time", variation_list=[],
                                 plot_label="Temperature", model_color="#8faf8f", export_gif=False, off_screen=False):
@@ -739,7 +738,6 @@ class PostProcessor(Post):
         cpos = plot.show(interactive=False, auto_close=False,
                          interactive_update=not off_screen)
 
-
         sargs = dict(title_font_size=10, label_font_size=10,
                      shadow=True, n_labels=9, italic=True, fmt="%.1f",
                      font_family="arial")
@@ -793,7 +791,6 @@ class PostProcessor(Post):
         for el in  aedtplt_files:
             os.remove(el)
         return gifname
-
 
     @aedt_exception_handler
     def export_model_obj(self):
@@ -1093,7 +1090,6 @@ class PostProcessor(Post):
             v += 1
 
         return self._animation_from_aedtflt(files_to_add, variation_variable, variation_list, export_gif=export_gif, off_screen=off_screen)
-
 
     @aedt_exception_handler
     def far_field_plot(self, ff_data, x=0, y=0, qty='rETotal', dB=True, array_size=[4, 4]):

@@ -943,7 +943,6 @@ class SweepHFSS3DLayout(object):
             self.props["AllOffDiagEntries"] = False
             self.props["MagMinThreshold"] = 0.01
 
-
     @aedt_exception_handler
     def add_subrange(self, rangetype, start, end, count):
         """Add a subrange to the sweep.

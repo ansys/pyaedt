@@ -420,7 +420,6 @@ class Mesh(object):
         self.meshoperations.append(mop)
         return mop
 
-
     @aedt_exception_handler
     def generate_mesh(self, name):
         """Generate the mesh for a design.
@@ -437,7 +436,6 @@ class Mesh(object):
 
         """
         return self.odesign.GenerateMesh(name) == 0
-
 
     @aedt_exception_handler
     def delete_mesh_operations(self, mesh_type=None):
@@ -474,7 +472,6 @@ class Mesh(object):
                     self.meshoperations.remove(el)
 
         return True
-
 
     @aedt_exception_handler
     def assign_length_mesh(self, names, isinside=True, maxlength=1, maxel=1000, meshop_name=None):
@@ -544,7 +541,6 @@ class Mesh(object):
         self.meshoperations.append(mop)
         return mop
 
-
     @aedt_exception_handler
     def assign_skin_depth(self, names, skindepth, maxelements=None, triangulation_max_length="0.1mm", numlayers="2",
                           meshop_name=None):
@@ -610,7 +606,6 @@ class Mesh(object):
         self.meshoperations.append(mop)
         return mop
 
-
     @aedt_exception_handler
     def assign_curvilinear_elements(self, names, enable=True, meshop_name=None):
         """Assign curvilinear elements.
@@ -656,7 +651,6 @@ class Mesh(object):
         mop.create()
         self.meshoperations.append(mop)
         return mop
-
 
     @aedt_exception_handler
     def assign_curvature_extraction(self, names, disable_for_faceted_surf=True, meshop_name=None):
@@ -705,7 +699,6 @@ class Mesh(object):
         self.meshoperations.append(mop)
         return mop
 
-
     @aedt_exception_handler
     def assign_rotational_layer(self, names, num_layers=3, total_thickness="1mm", meshop_name=None):
         """Assign a rotational layer mesh.
@@ -747,7 +740,6 @@ class Mesh(object):
         self.meshoperations.append(mop)
         return mop
 
-
     @aedt_exception_handler
     def assign_edge_cut(self, names, layer_thickness="1mm", meshop_name=None):
         """Assign an edge cut layer mesh.
@@ -784,7 +776,6 @@ class Mesh(object):
         mop.create()
         self.meshoperations.append(mop)
         return mop
-
 
     @aedt_exception_handler
     def assign_density_control(self, names, refine_inside=True, maxelementlength=None, layerNum=None, meshop_name=None):

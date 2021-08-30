@@ -413,7 +413,6 @@ class EDBMessageManager(object):
         if self._log_on_screen:
             print(message_text)
 
-
     def add_warning_message(self, message_text):
         """Add a "Warning" message to the logger.
 

@@ -109,7 +109,6 @@ class CommonOptimetrics(object):
 
         inputd = copy.deepcopy(dictinputs)
 
-
         if optimtype == "OptiParametric":
             self.props = inputd or defaultparametricSetup
         if optimtype == "OptiDesignExplorer":
@@ -1242,8 +1241,6 @@ class OptimizationSetups(object):
                         self.setups.append(self.Setup(parent, data, setups_data[data]))
             except:
                 pass
-
-
 
     @aedt_exception_handler
     def add_optimization(self, calculation, calculation_value, calculation_type="Freq",

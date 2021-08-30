@@ -69,7 +69,6 @@ class Scratch():
         except:
             pass
 
-
     def copyfile(self, src_file):
         """
 

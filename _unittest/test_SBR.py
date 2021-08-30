@@ -27,7 +27,6 @@ class TestClass:
         self.local_scratch.remove()
         gc.collect()
 
-
     def test_01A_open_source(self):
         assert self.aedtapp.create_sbr_linked_antenna(self.source, target_cs="feederPosition", fieldtype="farfield")
         assert len(self.aedtapp.native_components) == 1
@@ -54,7 +53,6 @@ class TestClass:
         array = self.aedtapp.create_sbr_antenna(self.aedtapp.SbrAntennas.WireMonopole, use_current_source_representation=False, is_array=True)
         array.native_properties['Array Length In Wavelength'] = "10"
         assert array.update()
-
 
     def test_03_add_ffd_antenna(self):
         assert self.aedtapp.create_sbr_file_based_antenna(ffd_full_path=os.path.join(local_path, 'example_models', 'test.ffd'))

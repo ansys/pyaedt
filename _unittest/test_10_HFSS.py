@@ -106,7 +106,6 @@ class TestClass:
                                                    sweeptype="Fast")
         assert self.aedtapp.create_discrete_sweep("MySetup")
 
-
     def test_06B_setup_exists(self):
         assert self.aedtapp.analysis_setup is not None
         assert self.aedtapp.nominal_sweep is not None
@@ -194,7 +193,6 @@ class TestClass:
         assert not self.aedtapp.create_circuit_port_between_objects("BoxCircuit44", "BoxCircuit2", self.aedtapp.AxisDir.XNeg,
                                                                 50, "Circ1", True, 50, False)
 
-
     def test_12_create_perfects_on_objects(self):
         box1 = self.aedtapp.modeler.primitives.create_box([0,0,0], [10,10,5], "perfect1", "Copper")
         box2 = self.aedtapp.modeler.primitives.create_box([0, 0, 10], [10, 10, 5], "perfect2", "copper")
@@ -211,7 +209,6 @@ class TestClass:
         imp = self.aedtapp.create_impedance_between_objects("imp1", "imp2", self.aedtapp.AxisDir.XPos, "TL2", 50, 25)
         assert imp.name in self.aedtapp.modeler.get_boundaries_name()
         assert imp.update()
-
 
     def test_14_create_lumpedrlc_on_objects(self):
         box1 = self.aedtapp.modeler.primitives.create_box([0,0,0], [10,10,5], "rlc1", "Copper")
@@ -274,7 +271,6 @@ class TestClass:
         assert self.aedtapp.create_open_region("1GHz")
         assert self.aedtapp.create_open_region("1GHz","FEBI")
         assert self.aedtapp.create_open_region("1GHz","PML",True, "-z")
-
 
     def test_22_create_length_mesh(self):
         mesh = self.aedtapp.mesh.assign_length_mesh(["BoxCircuit1"])
@@ -341,7 +337,6 @@ class TestClass:
         sub = self.aedtapp.modeler.primitives.create_box([0,5,-2],[20,100,2],name="SUB1", matname="FR4_epoxy")
         gnd = self.aedtapp.modeler.primitives.create_box([0,5,-2.2],[20,100,0.2],name="GND1", matname="FR4_epoxy")
         port = self.aedtapp.create_wave_port_microstrip_between_objects(gnd.name, ms.name,   portname="MS1", axisdir=1)
-
 
         assert port.name == "MS1"
         assert port.update()

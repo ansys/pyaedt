@@ -571,7 +571,6 @@ class Primitives3DLayout(object):
                 self._geometries[name].set_net_name(netname)
         return name
 
-
     @aedt_exception_handler
     def arg_with_dim(self, Value, sUnits=None):
         """Retrieve arguments with dimensions.

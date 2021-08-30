@@ -29,7 +29,6 @@ class FieldAnalysisCircuit(Analysis):
         self._modeler.primitives.init_padstacks()
         self._post = CircuitPostProcessor(self)
 
-
     @property
     def post(self):
         """PostProcessor.
@@ -45,7 +44,6 @@ class FieldAnalysisCircuit(Analysis):
     def solution_type(self):
         """Solution type. """
         return self._solution_type
-
 
     @solution_type.setter
     def solution_type(self, soltype):
@@ -314,7 +312,6 @@ class FieldAnalysisCircuit(Analysis):
         self.analysis_setup = name
         self.setups.append(setup)
         return setup
-
 
     # @property
     # def mesh(self):

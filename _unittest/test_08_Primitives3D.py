@@ -119,7 +119,6 @@ class TestClass(BasisTest):
         assert "MyCreatedBox_11" in self.aedtapp.modeler.primitives.solid_names
         assert len(self.aedtapp.modeler.primitives.object_names) == len(self.aedtapp.modeler.primitives.objects)
 
-
     @pyaedt_unittest_check_desktop_error
     def test_03_create_box_assertions(self):
         try:
@@ -623,8 +622,6 @@ class TestClass(BasisTest):
         assert prim3D.create_polyline(position_list=[[100, 100, 0]],
                                       segment_type=PolylineSegment("AngularArc", arc_angle="30deg"),
                                       name="PL04_center_point_arc")
-
-
 
     @pyaedt_unittest_check_desktop_error
     def test_45_create_circle_from_2_arc_segments(self):

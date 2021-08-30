@@ -547,7 +547,6 @@ class GeometryModeler(Modeler, object):
         """
         return self._parent.materials
 
-
     @aedt_exception_handler
     def _convert_list_to_ids(self,input_list, convert_objects_ids_to_name=True):
         """Convert a list to IDs.
@@ -1098,7 +1097,6 @@ class GeometryModeler(Modeler, object):
                     angle += 90
         return position
 
-
     @aedt_exception_handler
     def create_sheet_to_ground(self, objectname, groundname=None, axisdir=0, sheet_dim=1):
         """Create a sheet between an object and a ground plane.
@@ -1257,7 +1255,6 @@ class GeometryModeler(Modeler, object):
         dup_factor = divmod((hfactor + 1), 2)[0]
         coeff = float(hfactor - 1) / 2 / dup_factor
 
-
         if divmod(axisdir, 3)[1] == 0 and abs(vect[1]) < tol:
             duplicate_and_unite(sheet_name, [0, len * coeff, 0],[0, -len * coeff, 0], dup_factor)
         elif divmod(axisdir, 3)[1] == 0 and abs(vect[2]) < tol:
@@ -1270,7 +1267,6 @@ class GeometryModeler(Modeler, object):
             duplicate_and_unite(sheet_name, [len * coeff, 0, 0], [-len * coeff, 0, 0], dup_factor)
         elif divmod(axisdir, 3)[1] == 2 and abs(vect[1]) < tol:
             duplicate_and_unite(sheet_name,  [0, len * coeff, 0], [0, -len * coeff, 0], dup_factor)
-
 
         return sheet_name, point0, point1
 
@@ -1776,7 +1772,6 @@ class GeometryModeler(Modeler, object):
 
         """
         selections = self.convert_to_selections(objid)
-
 
         vArg1 = ['NAME:Selections', 'Selections:=', selections, 'NewPartsModelFlag:=', 'Model']
         vArg2 = ['NAME:AxisSweepParameters', 'DraftAngle:=',
@@ -2499,7 +2494,6 @@ class GeometryModeler(Modeler, object):
             elif wg_direction_axis == self._parent.CoordinateSystemAxis.YAxis:
                 airbox = self.primitives.create_box(origin, [w, wg_length, h])
 
-
                 if type(wg_thickness) is str:
                     origin[0] = str(origin[0]) + "-" + wg_thickness
                     origin[2] = str(origin[2]) + "-" + wg_thickness
@@ -2638,7 +2632,6 @@ class GeometryModeler(Modeler, object):
         ])
         self.primitives.cleanup_objects()
         return True
-
 
     @aedt_exception_handler
     def create_faceted_bondwire_from_true_surface(self, bondname, bond_direction, min_size = 0.2, numberofsegments=8):
@@ -3078,7 +3071,6 @@ class GeometryModeler(Modeler, object):
             self.primitives.refresh_all_ids()
         self._messenger.add_info_message("Step file {} imported".format(filename))
         return True
-
 
     @aedt_exception_handler
     def import_spaceclaim_document(self, SCFile):

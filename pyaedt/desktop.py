@@ -263,7 +263,6 @@ def force_close_desktop():
             return successfully_closed
 
 
-
 class Desktop:
     """Initializes AEDT based on the inputs provided.
 

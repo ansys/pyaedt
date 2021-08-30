@@ -49,7 +49,6 @@ class MatProperties(object):
         else:
             raise TypeError("get_defaultunit: Either the full name or category name must be defined.")
 
-
     @classmethod
     def get_defaultvalue(cls, aedtname):
         """Retrieve the default value for a full name or a category name.
@@ -101,7 +100,6 @@ class SurfMatProperties(object):
         else:
             raise TypeError("get_defaultunit: either fullname or catname MUST be defined")
 
-
     @classmethod
     def get_defaultvalue(cls, aedtname=None):
         """Get the default value for a full name or a category name.
@@ -151,7 +149,6 @@ class BasicValue(object):
     value = None
     dataset = None
     thermalmodifier = None
-
 
 
 class MatProperty(object):
@@ -279,8 +276,6 @@ class MatProperty(object):
             for i in thermal_value:
                 self._add_thermal_modifier(i, thermal_value.index(i))
 
-
-
     def _add_thermal_modifier(self,formula, index):
         """Add a thermal modifier.
 
@@ -365,7 +360,6 @@ class MatProperty(object):
         """
         self._property_value[index].thermalmodifier = formula
         return self._add_thermal_modifier(formula, index)
-
 
     def add_thermal_modifier_dataset(self, dataset_name, index=0):
         """Add a thermal modifier to a material property using an existing dataset.
@@ -580,7 +574,6 @@ class CommonMaterial(object):
         if "ModSinceLib" in self._props:
             self.mod_since_lib = self._props["ModSinceLib"]
             del self._props["ModSinceLib"]
-
 
     @aedt_exception_handler
     def _get_args(self, props=None):
@@ -1084,7 +1077,6 @@ class Material(CommonMaterial, object):
             return True
         else:
             return False
-
 
 
 class SurfaceMaterial(CommonMaterial, object):

@@ -692,7 +692,6 @@ def _parse_option_line(file, verbose=False):
         print("  Format:         %s" % format)
         print("  Reference R:    %g" % z0)
 
-
     return (frequnit, type, format, z0)
 
 
@@ -750,7 +749,6 @@ def _parse_next_sample(file, ports, format):
 
     port1 = port2 = 1
     list_data = [None for i in range(ports*ports)]
-
 
     while True:
         for i in range(int(len(data) / 2)):

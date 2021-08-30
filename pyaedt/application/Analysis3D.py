@@ -59,7 +59,6 @@ class FieldAnalysis3D(Analysis, object):
         self._modeler = Modeler3D(self)
         self._mesh = Mesh(self)
 
-
     @property
     def modeler(self):
         """Modeler.

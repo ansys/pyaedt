@@ -598,7 +598,6 @@ class Primitives3D(Primitives, object):
                  "Version:="		, 1,
                  x_section]
 
-
         vArg2 = self._default_object_attributes(name)
 
         new_name = self.oeditor.CreateEquationCurve(vArg1, vArg2)

@@ -136,8 +136,6 @@ class Siwave:
         # self._main.oMessenger.add_info_messge(info_msg2, 'Global')
         # self._main.oMessenger.add_info_message(info_msg3, 'Global')
 
-
-
     @property
     def project_name(self):
         """Project name.
@@ -149,7 +147,6 @@ class Siwave:
 
         """
         return self._oproject.GetName()
-
 
     @property
     def project_path(self):
@@ -198,7 +195,6 @@ class Siwave:
         """
         return os.path.join(self.project_path, self.project_name + '.siwresults')
 
-
     @property
     def src_dir(self):
         """Source directory.
@@ -220,7 +216,6 @@ class Siwave:
             Full absolute path to the ``pyaedt`` directory.
         """
         return os.path.realpath(os.path.join(self.src_dir, '..'))
-
 
     @property
     def oproject(self):
@@ -245,7 +240,6 @@ class Siwave:
             self.oSiwave.OpenProject(proj_path)
             self._oproject = self.oSiwave.GetActiveProject()
 
-
     @aedt_exception_handler
     def save_project(self, projectpath=None, projectName=None):
         """Save the project.
@@ -268,7 +262,6 @@ class Siwave:
         else:
             self.oproject.Save()
         return True
-
 
     @aedt_exception_handler
     def quit_application(self):

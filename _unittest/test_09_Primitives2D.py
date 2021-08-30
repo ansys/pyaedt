@@ -98,7 +98,6 @@ class TestClass(BasisTest):
         self.aedtapp.assignmaterial(["Rectangle1"], material)
         assert self.aedtapp.modeler.primitives["Rectangle1"].material_name == material
 
-
     @pyaedt_unittest_check_desktop_error
     def test_07_assign_material(self, material="steel_stainless"):
         self.aedtapp.assignmaterial(["Rectangle1"], material)
