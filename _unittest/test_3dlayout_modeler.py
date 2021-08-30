@@ -117,7 +117,8 @@ class TestClass:
         assert n1 == "mycircle"
 
     def test_04_create_create_rectangle(self):
-        n2 = self.aedtapp.modeler.primitives.create_rectangle("Top", [0, 0], [6, 8], 3, 2, "myrectangle")
+        n2 = self.aedtapp.modeler.primitives.create_rectangle(
+            "Top", [0, 0], [6, 8], 3, 2, "myrectangle")
         assert n2 == "myrectangle"
 
     def test_05_subtract(self):
@@ -125,12 +126,14 @@ class TestClass:
 
     def test_06_unite(self):
         n1 = self.aedtapp.modeler.primitives.create_circle("Top", 0, 5, 8, "mycircle2")
-        n2 = self.aedtapp.modeler.primitives.create_rectangle("Top", [0, 0], [6, 8], 3, 2, "myrectangle2")
+        n2 = self.aedtapp.modeler.primitives.create_rectangle(
+            "Top", [0, 0], [6, 8], 3, 2, "myrectangle2")
         assert self.aedtapp.modeler.unite([n1, n2])
 
     def test_07_intersect(self):
         n1 = self.aedtapp.modeler.primitives.create_circle("Top", 0, 5, 8, "mycircle3")
-        n2 = self.aedtapp.modeler.primitives.create_rectangle("Top", [0, 0], [6, 8], 3, 2, "myrectangle3")
+        n2 = self.aedtapp.modeler.primitives.create_rectangle(
+            "Top", [0, 0], [6, 8], 3, 2, "myrectangle3")
         assert self.aedtapp.modeler.intersect([n1, n2])
 
     def test_08_objectlist(self):
@@ -159,11 +162,13 @@ class TestClass:
     def test_11_create_via(self):
         via = self.aedtapp.modeler.primitives.create_via("My_padstack2", x=0, y=0)
         assert type(via) is str
-        via = self.aedtapp.modeler.primitives.create_via("My_padstack2", x=10, y=10, name="Via123", netname="VCC")
+        via = self.aedtapp.modeler.primitives.create_via(
+            "My_padstack2", x=10, y=10, name="Via123", netname="VCC")
         assert via == "Via123"
 
     def test_12_create_line(self):
-        line = self.aedtapp.modeler.primitives.create_line("Bottom",[[0,0],[10,30],[20,30]],lw=1,name="line1", netname="VCC")
+        line = self.aedtapp.modeler.primitives.create_line(
+            "Bottom",[[0,0],[10,30],[20,30]],lw=1,name="line1", netname="VCC")
         assert line == "line1"
 
     def test_13a_create_edge_port(self):
@@ -255,7 +260,8 @@ class TestClass:
         assert isinstance(self.aedtapp.available_variations.nominal_w_values, list)
 
     def test_21_get_all_sparameter_list(self):
-        assert self.aedtapp.get_all_sparameter_list == ["S(Port1,Port1)", "S(Port1,Port2)", "S(Port2,Port2)"]
+        assert self.aedtapp.get_all_sparameter_list == [
+            "S(Port1,Port1)", "S(Port1,Port2)", "S(Port2,Port2)"]
 
     def test_22_get_all_return_loss_list(self):
         assert self.aedtapp.get_all_return_loss_list() == ["S(Port1,Port1)", "S(Port2,Port2)"]
@@ -284,13 +290,17 @@ class TestClass:
         assert new_material.name == "secondmaterial"
 
     def test_expand(self):
-        self.aedtapp.modeler.primitives.create_rectangle("Bottom", [20, 20], [50, 50], name="rect_1")
+        self.aedtapp.modeler.primitives.create_rectangle(
+            "Bottom", [20, 20], [50, 50], name="rect_1")
         self.aedtapp.modeler.primitives.create_line("Bottom", [[25, 25], [40, 40]], name="line_3")
-        out1 = self.aedtapp.modeler.expand("line_3",size=1, expand_type="ROUND", replace_original=False)
+        out1 = self.aedtapp.modeler.expand(
+            "line_3",size=1, expand_type="ROUND", replace_original=False)
         assert isinstance(out1, str)
 
     def test_heal(self):
-        l1 = self.aedtapp.modeler.primitives.create_line("Bottom", [[0, 0], [100, 0]], 0.5, name="poly_1111")
-        l2 = self.aedtapp.modeler.primitives.create_line("Bottom", [[100, 0], [120, -35]], 0.5, name="poly_2222")
+        l1 = self.aedtapp.modeler.primitives.create_line(
+            "Bottom", [[0, 0], [100, 0]], 0.5, name="poly_1111")
+        l2 = self.aedtapp.modeler.primitives.create_line(
+            "Bottom", [[100, 0], [120, -35]], 0.5, name="poly_2222")
         self.aedtapp.modeler.unite([l1, l2])
         assert self.aedtapp.modeler.colinear_heal("poly_2222", tolerance=0.25)

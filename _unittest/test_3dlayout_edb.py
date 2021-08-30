@@ -15,7 +15,8 @@ class TestClass:
         with Scratch(scratch_path) as self.local_scratch:
             try:
                 pass
-                example_project = os.path.join(local_path, 'example_models', test_project_name + '.aedt')
+                example_project = os.path.join(
+                    local_path, 'example_models', test_project_name + '.aedt')
 
                 self.test_project = self.local_scratch.copyfile(example_project)
 

@@ -132,8 +132,10 @@ aedtapp.mesh.assign_length_mesh(o2.faces, False, 1, 2000)
 # and then creates a sheet to cover the faces and assigns a port to this face.
 # If selected, a PEC cap is also created.
 
-aedtapp.create_wave_port_between_objects("inner", "outer",axisdir=0, add_pec_cap=True, portname="P1")
-aedtapp.create_wave_port_between_objects("inner", "outer",axisdir=3, add_pec_cap=True, portname="P2")
+aedtapp.create_wave_port_between_objects(
+    "inner", "outer",axisdir=0, add_pec_cap=True, portname="P1")
+aedtapp.create_wave_port_between_objects(
+    "inner", "outer",axisdir=3, add_pec_cap=True, portname="P2")
 
 portnames = aedtapp.get_all_sources()
 aedtapp.modeler.fit_all()
@@ -174,7 +176,8 @@ ipkapp.copy_solid_bodies_from(aedtapp)
 # After the model is imported, you must link sources to EM Losses.
 
 surfaceobj = ["inner", "outer"]
-ipkapp.assign_em_losses(aedtapp.design_name, "MySetup", "LastAdaptive", "1GHz", surfaceobj, paramlist=["$coax_dimension","inner"])
+ipkapp.assign_em_losses(aedtapp.design_name, "MySetup", "LastAdaptive",
+                        "1GHz", surfaceobj, paramlist=["$coax_dimension","inner"])
 
 #################################################################################
 # The gravity setting is important for a fluid analysis.
@@ -262,7 +265,8 @@ import time
 start = time.time()
 cutlist = ["Global:XY"]
 phases=[str(i*5)+"deg" for i in range(18)]
-aedtapp.post.animate_fields_from_aedtplt_2(quantityname="Mag_E",object_list=cutlist,plottype="CutPlane",meshplot=False, setup_name=aedtapp.nominal_adaptive,intrinsic_dict={"Freq":"1GHz", "Phase":"0deg"},project_path=results_folder, variation_variable="Phase",variation_list=phases, off_screen=True,export_gif=True)
+aedtapp.post.animate_fields_from_aedtplt_2(quantityname="Mag_E",object_list=cutlist,plottype="CutPlane",meshplot=False, setup_name=aedtapp.nominal_adaptive,intrinsic_dict={
+                                           "Freq":"1GHz", "Phase":"0deg"},project_path=results_folder, variation_variable="Phase",variation_list=phases, off_screen=True,export_gif=True)
 endtime = time.time() - start
 print("Total Time", endtime)
 
@@ -278,7 +282,8 @@ intrinsic = ""
 surflist = ipkapp.modeler.primitives.get_object_faces("inner")
 plot5 = ipkapp.post.create_fieldplot_surface(surflist, "SurfTemperature")
 
-ipkapp.post.plot_field_from_fieldplot(plot5.name, project_path=results_folder, meshplot=False, setup_name=setup_name, imageformat="jpg", view="iso", off_screen=True)
+ipkapp.post.plot_field_from_fieldplot(plot5.name, project_path=results_folder,
+                                      meshplot=False, setup_name=setup_name, imageformat="jpg", view="iso", off_screen=True)
 
 aedtapp.save_project()
 
