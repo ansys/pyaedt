@@ -226,6 +226,7 @@ class Circuit(FieldAnalysisCircuit, object):
     >>> hfss = Circuit(specified_version="2021.2", projectname="myfile.aedt", student_version=True)
 
     """
+
     def __init__(self, projectname=None, designname=None, solution_type=None, setup_name=None,
                  specified_version=None, NG=False, AlwaysNew=False, release_on_exit=False, student_version=False):
         FieldAnalysisCircuit.__init__(self, "Circuit Design", projectname, designname, solution_type, setup_name,

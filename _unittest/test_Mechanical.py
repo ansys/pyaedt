@@ -62,7 +62,6 @@ class TestClass:
         mysetup.props["Solver"] = "Direct"
         assert mysetup.update()
 
-
     @pytest.mark.skipif(config["desktopVersion"] < "2021.2", reason="Skipped on versions lower than 2021.2")
     def test_07_assign_thermal_loss(self):
         ipk = Icepak(solution_type=self.aedtapp.SolutionTypes.Icepak.SteadyTemperatureAndFlow)

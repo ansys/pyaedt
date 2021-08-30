@@ -73,7 +73,6 @@ class FieldAnalysisRMxprt(Analysis):
         self.solution_type = solution_type
         return True
 
-
     @aedt_exception_handler
     def enable_modelcreation(self, solution_type = None):
         """Enable model creation for the Maxwell model wizard.

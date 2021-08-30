@@ -52,6 +52,7 @@ class FieldAnalysisIcepak(Analysis, object):
         is ``False``.
 
     """
+
     def __init__(self, application, projectname, designname, solutiontype, setup_name=None,
                  specified_version=None, NG=False, AlwaysNew=False, release_on_exit=False, student_version=False):
         Analysis.__init__(self, application, projectname, designname, solutiontype, setup_name,

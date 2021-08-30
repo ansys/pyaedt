@@ -25,7 +25,6 @@ class TestClass:
         self.local_scratch.remove()
         gc.collect()
 
-
     def create_example_coil(self, name=None):
         if not name:
             name = "test_coil"
@@ -73,6 +72,7 @@ class TestClass:
             self.aedtapp.modeler.primitives.delete(name)
         return self.aedtapp.modeler.primitives.create_cylinder(cs_axis="Y", position=[0, 0, 0], radius=1, height=20,
                                                             numSides=8, name=name, matname="Copper")
+
     def test_00_uname(self):
         test = _uname()
         assert test.startswith("NewObject")
@@ -106,7 +106,6 @@ class TestClass:
 
         assert len(a.faces) == 7
         assert len(b.faces) == 9
-
 
     def test_02_face_edge_vertex(self):
         o = self.create_copper_box("faces_box")
@@ -149,7 +148,6 @@ class TestClass:
         o_box = self.create_copper_box("Valid2")
         o_box.material_name = "aluminum"
         assert o_box.material_name == "aluminum"
-
 
     def test_05_object3d_properties_transparency(self):
         o = self.create_copper_box("TransparencyBox")

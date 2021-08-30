@@ -117,7 +117,6 @@ class TestClass:
         assert self.aedtapp.materials.export_materials_to_file(os.path.join(self.local_scratch.path, "materials.json"))
         assert os.path.exists(os.path.join(self.local_scratch.path, "materials.json"))
 
-
     def test_import_materials(self):
         assert self.aedtapp.materials.import_materials_from_file(os.path.join(local_path, 'example_models', 'mats.json'))
         assert "$copper_ds1" in self.aedtapp.project_datasets.keys()

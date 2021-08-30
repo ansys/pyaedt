@@ -82,6 +82,7 @@ class Mechanical(FieldAnalysis3D, object):
 
         FieldAnalysis3D.__init__(self, "Mechanical", projectname, designname, solution_type, setup_name,
                                  specified_version, NG, AlwaysNew, release_on_exit, student_version)
+
     def __enter__(self):
         return self
 
@@ -321,7 +322,6 @@ class Mechanical(FieldAnalysis3D, object):
             return bound
         return False
 
-
     @aedt_exception_handler
     def assign_frictionless_support(self, objects_list,  boundary_name=""):
         """Assign a Mechanical frictionless support.
@@ -354,7 +354,6 @@ class Mechanical(FieldAnalysis3D, object):
                 props["Objects"] = objects_list
             else:
                 props["Faces"] = objects_list
-
 
         if not boundary_name:
             boundary_name = generate_unique_name("Temp")
@@ -392,7 +391,6 @@ class Mechanical(FieldAnalysis3D, object):
 
         if type(objects_list) is list:
             props["Faces"] = objects_list
-
 
         if not boundary_name:
             boundary_name = generate_unique_name("Temp")

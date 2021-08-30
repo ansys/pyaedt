@@ -27,7 +27,6 @@ class FieldAnalysisSimplorer(Analysis):
         """ """
         return self._solution_type
 
-
     @solution_type.setter
     def solution_type(self, soltype):
         """Solution Type
@@ -56,7 +55,6 @@ class FieldAnalysisSimplorer(Analysis):
     def setup_names(self):
         """ """
         return list(self.oanalysis.GetAllSolutionSetups())
-
 
     def __init__(self, application, projectname, designname, solution_type, setup_name=None,
                  specified_version=None, NG=False, AlwaysNew=False, release_on_exit=False, student_version=False):

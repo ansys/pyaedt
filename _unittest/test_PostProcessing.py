@@ -34,7 +34,6 @@ class TestClass:
             except:
                 pass
 
-
     def teardown_class(self):
         assert self.aedtapp.close_project(self.aedtapp.project_name)
         self.local_scratch.remove()
@@ -63,8 +62,6 @@ class TestClass:
                                                    project_path=self.local_scratch.path, variation_variable="Phase",
                                                    variation_list=phases, off_screen=True, export_gif=True)
         assert os.path.exists(gif_file)
-
-
 
     @pytest.mark.skipif(config["build_machine"]==True, reason="Not running in non-graphical mode")
     def test_02_export_fields(self):
@@ -99,7 +96,6 @@ class TestClass:
         assert my_data.data_imag(trace_names[0])
         assert my_data.data_real(trace_names[0])
         assert my_data.data_magnitude(trace_names[0])
-
 
     def test_04_export_touchstone(self):
         self.aedtapp.export_touchstone( "Setup1","Sweep", os.path.join(self.local_scratch.path, "Setup1_Sweep.S2p"))

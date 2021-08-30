@@ -112,6 +112,7 @@ class Q3d(QExtractor, object):
     >>> app = Q3d()
 
     """
+
     def __init__(self, projectname=None, designname=None, solution_type=None, setup_name=None,
                  specified_version=None, NG=False, AlwaysNew=False, release_on_exit=False, student_version=True):
         QExtractor.__init__(self, "Q3D Extractor", projectname, designname, solution_type, setup_name,
@@ -168,7 +169,6 @@ class Q3d(QExtractor, object):
                 self.boundaries.append(bound)
                 return bound
         return False
-
 
     @aedt_exception_handler
     def assign_source_to_sheet(self, sheetname, objectname=None, netname=None, sourcename=None):
@@ -462,7 +462,6 @@ class Q2d(QExtractor, object):
     def dim(self):
         """Dimension."""
         return self.modeler.dimension
-
 
     def __init__(self, projectname=None, designname=None, solution_type=None, setup_name=None,
                  specified_version=None, NG=False, AlwaysNew=False, release_on_exit=False, student_version=False):

@@ -155,7 +155,6 @@ class SiwaveSolve(object):
         else:
             self._exe = os.path.join(self.installer_path, executable+'.exe')
 
-
     @property
     def siwave_exe(self):
         return self._exe

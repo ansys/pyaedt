@@ -47,7 +47,6 @@ class FieldAnalysisEmit(Design):
         """Setup names."""
         return []
 
-
     def __init__(self, application, projectname, designname, solution_type, setup_name=None,
                  specified_version=None, NG=False, AlwaysNew=True, release_on_exit=True, student_version=False):
         self.solution_type = solution_type

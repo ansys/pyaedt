@@ -57,15 +57,12 @@ class TestClass:
         assert len(self.edbapp.core_primitives.polygons_by_layer["TOP"])>0
         assert len(self.edbapp.core_primitives.polygons_by_layer["UNNAMED_000"]) == 0
 
-
     def test_04_get_stackup(self):
         stackup = self.edbapp.core_stackup.stackup_layers
         assert (len(stackup.layers)>2)
         assert  self.edbapp.core_stackup.stackup_layers["TOP"]._builder
         assert  self.edbapp.core_stackup.stackup_layers["TOP"].id
         assert  isinstance(self.edbapp.core_stackup.stackup_layers["TOP"].layer_type, int)
-
-
 
     def test_05_get_signal_layers(self):
         signal_layers = self.edbapp.core_stackup.signal_layers
@@ -156,11 +153,9 @@ class TestClass:
         assert "R1" in  list(self.edbapp.core_components.resistors.keys())
         assert "C1" not in list(self.edbapp.core_components.resistors.keys())
 
-
     def test_20_capacitors(self):
         assert "C1" in list(self.edbapp.core_components.capacitors.keys())
         assert "R1" not in list(self.edbapp.core_components.capacitors.keys())
-
 
     def test_21_inductors(self):
         assert "L3M1" in list(self.edbapp.core_components.inductors.keys())
@@ -426,7 +421,6 @@ class TestClass:
         out= edb.export_hfss(scratch_path)
         assert os.path.exists(out)
         edb.close_edb()
-
 
     @pytest.mark.skipif(config["build_machine"], reason="Not running in non-graphical mode")
     def test_63_export_to_q3d(self):

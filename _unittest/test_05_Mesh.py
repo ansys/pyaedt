@@ -35,7 +35,6 @@ class TestClass:
         mr2 = self.aedtapp.mesh.assign_model_resolution(o.faces[0], 1e-4,"ModelRes2")
         assert not mr2
 
-
     def test_assign_surface_mesh(self):
         udp = self.aedtapp.modeler.Position(10, 10, 0)
         coax_dimension = 200

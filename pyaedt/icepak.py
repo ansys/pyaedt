@@ -582,7 +582,6 @@ class Icepak(FieldAnalysisIcepak):
         oModule.AssignPointMonitor(["NAME:" + monitor_name, "Quantities:=", [monitor_type], "Points:=", [point_name]])
         return True
 
-
     @aedt_exception_handler
     def assign_block_from_sherlock_file(self, csv_name):
         """Assign block power to components based on a CSV file from Sherlock.
@@ -963,7 +962,6 @@ class Icepak(FieldAnalysisIcepak):
         else:
             intr = []
 
-
         argparam = OrderedDict({})
         for el in self.available_variations.nominal_w_values_dict:
             argparam[el] = self.available_variations.nominal_w_values_dict[el]
@@ -985,7 +983,6 @@ class Icepak(FieldAnalysisIcepak):
             self._messenger.add_info_message('EM losses mapped from design {}.'.format(designname))
             return bound
         return False
-
 
     @aedt_exception_handler
     def eval_surface_quantity_from_field_summary(self, faces_list, quantity_name="HeatTransCoeff", savedir=None,
@@ -1145,7 +1142,6 @@ class Icepak(FieldAnalysisIcepak):
         for fr in filetoremove:
             os.remove(fr)
         return True
-
 
     def export_summary(self, output_dir=None, solution_name=None, type="Object", geometryType="Volume", quantity="Temperature",
                        variation="", variationlist=[]):
@@ -1335,7 +1331,6 @@ class Icepak(FieldAnalysisIcepak):
              "LowSide": OrderedDict({"Radiate": lowRad}), "HighSide": OrderedDict({"Radiate": highRad})})})
         native_props["BasicComponentInfo"] = OrderedDict({"IconType":"PCB"})
 
-
         if custom_x_resolution and custom_y_resolution:
             native_props["NativeComponentDefinitionProvider"]["UseThermalLink"] = solutionFreq != ""
             native_props["NativeComponentDefinitionProvider"]["CustomResolution"] = True
@@ -1500,7 +1495,6 @@ class Icepak(FieldAnalysisIcepak):
 
         self.modeler.oeditor.Export(arg)
         return True
-
 
     @aedt_exception_handler
     def globalMeshSettings(self, meshtype, gap_min_elements="1", noOgrids=False, MLM_en=True, MLM_Type="3D",

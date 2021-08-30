@@ -339,7 +339,6 @@ class CircuitComponents(object):
         self.add_id_to_component(id)
         return id, self.components[id].composed_name
 
-
     @aedt_exception_handler
     def create_component(self, inst_name=None, component_library="Resistors",
                          component_name="RES_", xpos=0.1, ypos=0.1, angle=0, use_instance_id_netlist=False,

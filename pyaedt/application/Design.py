@@ -223,6 +223,7 @@ class DesignCache(object):
         Name of the parent object.
 
     """
+
     def __init__(self, parent):
         self._parent = parent
         self._allow_errors_local = []
@@ -555,7 +556,6 @@ class Design(object):
         except:
             return OrderedDict()
 
-
     @property
     def aedt_version_id(self):
         """AEDT version.
@@ -643,7 +643,6 @@ class Design(object):
         """
         #return self._odesign.GetDesignType()
         return self. _design_type
-
 
     @property
     def project_name(self):
@@ -751,8 +750,6 @@ class Design(object):
                     self.odesign.SetSolutionType(sol)
             except:
                 pass
-
-
 
     @property
     def valid_design(self):
@@ -963,7 +960,6 @@ class Design(object):
         """
         return self._odesign.GetModule("ModelSetup")
 
-
     @property
     def oimportexport(self):
         """Import/Export.
@@ -1057,7 +1053,6 @@ class Design(object):
 
         """
         return self._desktop_install_dir
-
 
     @aedt_exception_handler
     def add_info_message(self, message_text, message_type=None):
@@ -1445,7 +1440,6 @@ class Design(object):
                     pass
         return boundaries
 
-
     @aedt_exception_handler
     def _get_ds_data(self, name, datas):
         """
@@ -1501,7 +1495,6 @@ class Design(object):
         except:
             pass
         return datasets
-
 
     @aedt_exception_handler
     def _get_design_datasets(self):
@@ -1586,7 +1579,6 @@ class Design(object):
         except OSError:
             return False
 
-
     @aedt_exception_handler
     def load_project(self, project_file, design_name=None, close_active_proj=False):
         """Open an AEDT project based on a project file and an optional design.
@@ -1616,7 +1608,6 @@ class Design(object):
             return True
         else:
             return False
-
 
     @aedt_exception_handler
     def create_dataset1d_design(self, dsname, xlist, ylist, xunit="", yunit=""):
@@ -1777,7 +1768,6 @@ class Design(object):
             #self.odesign.ExportDataSet(name, os.path.join(self.temp_directory, "ds.tab"))
         self._messenger.add_info_message("Dataset {} doesn't exist.".format(name))
         return False
-
 
     @aedt_exception_handler
     def change_automatically_use_causal_materials(self, lossy_dielectric=True):
@@ -2003,7 +1993,6 @@ class Design(object):
         else:
             self.odesign = None
         return True
-
 
     @aedt_exception_handler
     def delete_separator(self, separator_name):
@@ -2416,7 +2405,6 @@ class Design(object):
             return self._odesign.ValidateDesign(logfile)
         else:
             return self._odesign.ValidateDesign()
-
 
     @aedt_exception_handler
     def get_evaluated_value(self, variable_name, variation=None):

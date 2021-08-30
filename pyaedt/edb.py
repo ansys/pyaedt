@@ -81,6 +81,7 @@ class Edb(object):
     >>> app = Edb("myfile.aedb")
 
     """
+
     def __init__(self, edbpath=None, cellname=None, isreadonly=False, edbversion="2021.1", isaedtowned=False, oproject=None, student_version=False):
         self._clean_variables()
         if _ironpython and inside_desktop:
@@ -583,8 +584,6 @@ class Edb(object):
                 pins += temp
         return pins
 
-
-
     class Boundaries:
         """Boundaries.
 
@@ -777,7 +776,6 @@ class Edb(object):
             _netobj = self.edb.Cell.Net.FindByName(self.active_layout, _ref)
             _ref_nets.append(_netobj)
 
-
         from .edb_core.general import convert_py_list_to_net_list
         _netsClip = [self.edb.Cell.Net.FindByName(self.active_layout, reference_list[i]) for i, p in
                      enumerate(reference_list)]
@@ -925,7 +923,6 @@ class Edb(object):
 
         siwave_s = SiwaveSolve(self.edbpath, aedt_installer_path=self.base_path)
         return siwave_s.export_3d_cad("Q3D", path_to_output, net_list)
-
 
     @aedt_exception_handler
     def export_maxwell(self, path_to_output, net_list=None):

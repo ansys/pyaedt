@@ -119,7 +119,6 @@ class TestClass(BasisTest):
         assert "MyCreatedBox_11" in self.aedtapp.modeler.primitives.solid_names
         assert len(self.aedtapp.modeler.primitives.object_names) == len(self.aedtapp.modeler.primitives.objects)
 
-
     @pyaedt_unittest_check_desktop_error
     def test_03_create_box_assertions(self):
         try:
@@ -568,6 +567,7 @@ class TestClass(BasisTest):
                                                       allow_perpendicular=True, tol=1e-6)
         edges2 = self.aedtapp.modeler.primitives.get_edges_for_circuit_port_from_sheet("MyGND", XY_plane=True, YZ_plane=False, XZ_plane=False,
                                                       allow_perpendicular=True, tol=1e-6)
+
     @pyaedt_unittest_check_desktop_error
     def test_42_chamfer(self):
         self.cache.ignore_error_message_local("Wrong Type Entered. Type must be integer from 0 to 3")
@@ -622,8 +622,6 @@ class TestClass(BasisTest):
         assert prim3D.create_polyline(position_list=[[100, 100, 0]],
                                       segment_type=PolylineSegment("AngularArc", arc_angle="30deg"),
                                       name="PL04_center_point_arc")
-
-
 
     @pyaedt_unittest_check_desktop_error
     def test_45_create_circle_from_2_arc_segments(self):

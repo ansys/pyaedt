@@ -116,7 +116,6 @@ def arg2dict(arg, dict_out):
         raise ValueError('Incorrect data argument format')
 
 
-
 @aedt_exception_handler
 def create_list_for_csharp(input_list, return_strings=False):
     """

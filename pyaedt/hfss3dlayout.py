@@ -77,6 +77,7 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
     >>> aedtapp = Hfss3dLayout(specified_version="2021.1", projectname="myfile.aedt")
 
     """
+
     def __init__(self, projectname=None, designname=None, solution_type=None, setup_name=None,
                  specified_version=None, NG=False, AlwaysNew=False, release_on_exit=False, student_version=False):
         FieldAnalysis3DLayout.__init__(self, "HFSS 3D Layout Design", projectname, designname, solution_type,

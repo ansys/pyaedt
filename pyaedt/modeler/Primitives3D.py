@@ -15,6 +15,7 @@ class Primitives3D(Primitives, object):
         Name of the modeler.
 
     """
+
     def __init__(self, parent, modeler):
         Primitives.__init__(self, parent, modeler)
 
@@ -596,7 +597,6 @@ class Primitives3D(Primitives, object):
                  "NumOfPointsOnCurve:="	, num_points,
                  "Version:="		, 1,
                  x_section]
-
 
         vArg2 = self._default_object_attributes(name)
 

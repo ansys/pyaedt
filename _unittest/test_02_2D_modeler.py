@@ -86,8 +86,6 @@ class TestClass(BasisTest):
         assert isclose(pg2.faces[0].area, 5.196152422706631)
 
 
-
-
 '''
     def test_05_split(self):
         box1 = self.aedtapp.modeler.primitives.create_rectangle([-10, -10, -10], [20, 20, 20], "box_to_split")

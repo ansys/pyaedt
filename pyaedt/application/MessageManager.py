@@ -43,6 +43,7 @@ class MessageList:
         List of strings representing the message content for the specified design within the specified project
 
     """
+
     def __init__(self, msg_list, project_name, design_name):
         self.global_level = []
         self.project_level = []
@@ -101,6 +102,7 @@ class AEDTMessageManager(object):
     >>> hfss._messenger.add_error_message("This is a project error message", "Project")
 
     """
+
     def __init__(self, parent=None):
         self._parent = parent
         if not parent:
@@ -410,7 +412,6 @@ class EDBMessageManager(object):
             self.logger.error(message_text)
         if self._log_on_screen:
             print(message_text)
-
 
     def add_warning_message(self, message_text):
         """Add a "Warning" message to the logger.

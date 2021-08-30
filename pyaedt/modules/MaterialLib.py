@@ -65,7 +65,6 @@ class Materials(object):
         elif item in list(self.surface_material_keys.keys()):
             return self.surface_material_keys[item]
 
-
     @aedt_exception_handler
     def _get_materials(self):
         """Get materials."""
@@ -86,7 +85,6 @@ class Materials(object):
         except:
             pass
         return mats
-
 
     @aedt_exception_handler
     def checkifmaterialexists(self, mat):
@@ -227,7 +225,6 @@ class Materials(object):
             self._messenger.add_info_message("Material has been added. Edit it to update in Desktop.")
             self.surface_material_keys[materialname] = material
             return self.surface_material_keys[materialname]
-
 
     @aedt_exception_handler
     def _create_mat_project_vars(self, matlist):

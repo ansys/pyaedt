@@ -20,6 +20,7 @@ class ModelerCircuit(Modeler):
     parent :
 
     """
+
     def __init__(self, parent):
         self._parent = parent
         Modeler.__init__(self, parent)

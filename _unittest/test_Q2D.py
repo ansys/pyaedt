@@ -30,7 +30,6 @@ class TestClass:
         o = self.aedtapp.modeler.primitives.create_rectangle(udp,[5,3],name="Rectangle1")
         assert isinstance(o.id, int)
 
-
     def test_06a_create_setup(self):
         mysetup = self.aedtapp.create_setup()
         mysetup.props["SaveFields"] = True

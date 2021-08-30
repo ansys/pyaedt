@@ -109,7 +109,6 @@ class CommonOptimetrics(object):
 
         inputd = copy.deepcopy(dictinputs)
 
-
         if optimtype == "OptiParametric":
             self.props = inputd or defaultparametricSetup
         if optimtype == "OptiDesignExplorer":
@@ -343,6 +342,7 @@ class DXSetups(object):
             Type of the optimization. The default is ``"OptiDesignExplorer"``.
 
         """
+
         def __init__(self, parent, name, dictinputs=None):
             CommonOptimetrics.__init__(self, parent, name, dictinputs=dictinputs, optimtype="OptiDesignExplorer")
 
@@ -421,6 +421,7 @@ class DXSetups(object):
                                   domain=domain, calculation_type=calculation_type, calculation=calculation,
                                   calc_val1=calculation_value, calc_val2=calculation_stop, goal_name=goal_name,
                                   goal_weight=goal_weight, goal_value=goal_value, condition=condition)
+
     @property
     def parent(self):
         """Parent."""
@@ -529,6 +530,7 @@ class ParametericsSetups(object):
             Type of the optimization. The default is ``"OptiParametric"``.
 
         """
+
         def __init__(self, parent, name, dictinputs=None):
             CommonOptimetrics.__init__(self, parent, name, dictinputs=dictinputs, optimtype="OptiParametric")
             pass
@@ -687,6 +689,7 @@ class SensitivitySetups(object):
             Type of the optimization. The default is ``"OptiSensitivity"``.
 
         """
+
         def __init__(self, parent, name, dictinputs=None):
             CommonOptimetrics.__init__(self, parent, name, dictinputs=dictinputs, optimtype="OptiSensitivity")
 
@@ -823,6 +826,7 @@ class StatisticalSetups(object):
             Type of the optimization. The default is ``"OptiStatistical"``.
 
         """
+
         def __init__(self, parent, name, dictinputs=None):
             CommonOptimetrics.__init__(self, parent, name, dictinputs=dictinputs, optimtype="OptiStatistical")
             pass
@@ -959,9 +963,11 @@ class DOESetups(object):
             Type of the optimization. The default is ``"OptiDXDOE"``.
 
         """
+
         def __init__(self, parent, name, dictinputs=None):
             CommonOptimetrics.__init__(self, parent, name, dictinputs=dictinputs, optimtype="OptiDXDOE")
             pass
+
         @aedt_exception_handler
         def add_calculation(self, calculation="", calculation_value="", reporttype="Modal Solution Data", solution=None,
                             domain="Sweep", calculation_name=None):
@@ -1235,8 +1241,6 @@ class OptimizationSetups(object):
                         self.setups.append(self.Setup(parent, data, setups_data[data]))
             except:
                 pass
-
-
 
     @aedt_exception_handler
     def add_optimization(self, calculation, calculation_value, calculation_type="Freq",

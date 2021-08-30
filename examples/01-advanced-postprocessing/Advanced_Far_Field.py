@@ -177,11 +177,8 @@ ff_calc()
 #          y=widgets.FloatSlider(value=0, min=-180, max=180, step=1))
 
 
-
 vals = hfss.post.get_far_field_data(setup_sweep_name=hfss.nominal_sweep, expression="RealizedGainTotal",
                                     domain="Elevation")
-
-
 
 
 def Polar_Plot(Phase=0, Freq=76):

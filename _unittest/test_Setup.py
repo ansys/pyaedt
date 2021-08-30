@@ -22,7 +22,6 @@ class TestClass:
             except:
                 pass
 
-
     def teardown_class(self):
         assert self.aedtapp.close_project(self.aedtapp.project_name)
         self.local_scratch.remove()

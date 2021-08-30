@@ -14,6 +14,7 @@ class Modeler3D(GeometryModeler):
         Whether the model is 3D. The default is ``True``.
 
     """
+
     def __init__(self, application):
         GeometryModeler.__init__(self, application, is3d=True)
         self._primitives = Primitives3D(self._parent, self)

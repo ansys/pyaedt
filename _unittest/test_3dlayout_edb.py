@@ -42,7 +42,6 @@ class TestClass:
         assert comp['L3A1'].get_part_type()
         assert comp['L3A1'].set_property_value("Angle", "0deg")
 
-
     def test_get_geometries(self):
         geo = self.aedtapp.modeler.primitives.geometries
         assert len(geo)>0

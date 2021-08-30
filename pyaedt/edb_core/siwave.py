@@ -32,6 +32,7 @@ class SiwaveDCSetupTemplate(object):
         >>> settings.neg_term_to_ground = "V1"
         >>> edb.core_siwave.add_siwave_dc_analysis(settings)
     """
+
     def __init__(self):
         self.name = "DC IR 1"
         self.dcreport_show_active_devices = True
@@ -112,6 +113,7 @@ class SourceType(object):
 
 class PinGroup(object):
     """Manages pin groups."""
+
     def __init__(self):
         self._name = ""
         self._component = ""
@@ -213,6 +215,7 @@ class Source(object):
 
 class CircuitPort(Source):
     """Manages a circuit port."""
+
     def __init(self):
         super(CircuitPort, self).__init__()
         self._impedance = "50"
@@ -235,6 +238,7 @@ class CircuitPort(Source):
 
 class VoltageSource(Source):
     """Manages a voltage source."""
+
     def __init__(self):
         super(VoltageSource, self).__init__()
         self._magnitude = "1V"
@@ -277,6 +281,7 @@ class VoltageSource(Source):
 
 class CurrentSource(Source):
     """Manages a current source."""
+
     def __init__(self):
         super(CurrentSource, self).__init__()
         self._magnitude = "0.1A"
@@ -319,6 +324,7 @@ class CurrentSource(Source):
 
 class ResistorSource(Source):
     """Manages a resistor source."""
+
     def __init__(self):
         super(ResistorSource, self).__init__()
         self._rvalue = "50"
@@ -398,7 +404,6 @@ class EdbSiwave(object):
         """ """
         return self.parent.db
 
-
     @aedt_exception_handler
     def create_circuit_port(self, positive_component_name, positive_net_name, negative_component_name=None,
                               negative_net_name="GND", impedance_value=50, port_name=""):
@@ -443,7 +448,6 @@ class EdbSiwave(object):
         pos_node_pins = self.parent.core_components.get_pin_from_component(positive_component_name, positive_net_name)
         neg_node_pins = self.parent.core_components.get_pin_from_component(negative_component_name, negative_net_name)
 
-
         if port_name == "":
             port_name = "Port_{}_{}_{}_{}".format(positive_component_name,positive_net_name,negative_component_name,negative_net_name)
         circuit_port.name = port_name
@@ -453,7 +457,6 @@ class EdbSiwave(object):
         circuit_port.negative_node.node_pins = neg_node_pins
         self.create_pin_group_terminal(circuit_port)
         return True
-
 
     @aedt_exception_handler
     def create_voltage_source(self, positive_component_name, positive_net_name, negative_component_name=None,
@@ -698,7 +701,6 @@ class EdbSiwave(object):
         exec_file.close()
         return True
 
-
     @aedt_exception_handler
     def get_siwave_dc_setup_template(self):
         """
@@ -709,7 +711,6 @@ class EdbSiwave(object):
         """
         settings = SiwaveDCSetupTemplate()
         return settings
-
 
     @aedt_exception_handler
     def add_siwave_dc_analysis(self,  setup_settings=SiwaveDCSetupTemplate()):

@@ -86,7 +86,6 @@ class Analysis(Design, object):
         self.opti_statistical = StatisticalSetups(self)
         self.native_components = self._get_native_data()
 
-
     @property
     def materials(self):
         """Manages materials in the project.
@@ -110,7 +109,6 @@ class Analysis(Design, object):
 
         """
         return self.modeler.Position
-
 
     @property
     def available_variations(self):
@@ -347,7 +345,6 @@ class Analysis(Design, object):
 
         return setups
 
-
     @property
     def ooptimetrics(self):
         """Optimetrics.
@@ -382,7 +379,6 @@ class Analysis(Design, object):
             List of all simulation setup types categorized by application.
         """
         return SetupTypes()
-
 
     @property
     def SolutionTypes(self):
@@ -527,8 +523,6 @@ class Analysis(Design, object):
                 families.append(["All"])
             return families
 
-
-
     class AxisDir(object):
         """Contains constants for the axis directions.
         """
@@ -602,7 +596,6 @@ class Analysis(Design, object):
         self.ooptimetrics.ExportParametricResults(sweepname, filename, exportunits)
         return True
 
-
     @aedt_exception_handler
     def analyze_from_initial_mesh(self):
         """Revert the solution to the initial mesh and re-run the solve.
@@ -616,7 +609,6 @@ class Analysis(Design, object):
         self.analyze_nominal()
         return True
 
-
     @aedt_exception_handler
     def analyse_nominal(self):
         """Revert the solution to the initial mesh and re-run the solve.
@@ -627,7 +619,6 @@ class Analysis(Design, object):
         warnings.warn('`analyse_nominal` is deprecated. Use `analyze_nominal` instead.',
                       DeprecationWarning)
         self.analyze_nominal()
-
 
     @aedt_exception_handler
     def analyze_nominal(self):
@@ -640,7 +631,6 @@ class Analysis(Design, object):
         """
         self.odesign.Analyze(self.analysis_setup)
         return True
-
 
     @aedt_exception_handler
     def generate_unique_setup_name(self, setup_name=None):
@@ -721,7 +711,6 @@ class Analysis(Design, object):
         setup.update(properties_dict)
         self.analysis_setup = setupname
         return setup
-
 
     @aedt_exception_handler
     def get_setup(self, setupname):
@@ -834,7 +823,6 @@ class Analysis(Design, object):
                     dict[entry][prop_name] = mat_props._props[prop_name]
         return dict
 
-
     @aedt_exception_handler
     def analyze_setup(self, name):
         """Analyze a specific design setup.
@@ -918,7 +906,6 @@ class Analysis(Design, object):
             os.system(batch_run)
         print("Batch Job finished")
         return True
-
 
     @aedt_exception_handler
     def submit_job(self, clustername, aedt_full_exe_path=None, numnodes=1, numcores=32, wait_for_license=True, setting_file=None):

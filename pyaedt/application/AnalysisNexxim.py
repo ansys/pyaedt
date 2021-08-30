@@ -19,6 +19,7 @@ class FieldAnalysisCircuit(Analysis):
     ----------
 
     """
+
     def __init__(self, application, projectname, designname, solution_type, setup_name=None,
                  specified_version=None, NG=False, AlwaysNew=False, release_on_exit=False, student_version=False):
         self.solution_type = solution_type
@@ -27,7 +28,6 @@ class FieldAnalysisCircuit(Analysis):
         self._modeler = ModelerNexxim(self)
         self._modeler.primitives.init_padstacks()
         self._post = CircuitPostProcessor(self)
-
 
     @property
     def post(self):
@@ -44,7 +44,6 @@ class FieldAnalysisCircuit(Analysis):
     def solution_type(self):
         """Solution type. """
         return self._solution_type
-
 
     @solution_type.setter
     def solution_type(self, soltype):
@@ -313,7 +312,6 @@ class FieldAnalysisCircuit(Analysis):
         self.analysis_setup = name
         self.setups.append(setup)
         return setup
-
 
     # @property
     # def mesh(self):
