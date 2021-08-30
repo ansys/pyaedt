@@ -383,10 +383,14 @@ class DesignCache(object):
 
         self._snapshot = new_snapshot
 
-        self._delta_global_messages = list_difference(messages.global_level, self._messages_global_level)
-        self._delta_project_messages = list_difference(messages.project_level, self._messages_project_level)
-        self._delta_design_messages = list_difference(messages.design_level, self._messages_design_level)
-        self._delta_messages_unfiltered = self._delta_global_messages + self._delta_project_messages + self._delta_design_messages
+        self._delta_global_messages = list_difference(
+            messages.global_level, self._messages_global_level)
+        self._delta_project_messages = list_difference(
+            messages.project_level, self._messages_project_level)
+        self._delta_design_messages = list_difference(
+            messages.design_level, self._messages_design_level)
+        self._delta_messages_unfiltered = self._delta_global_messages + \
+            self._delta_project_messages + self._delta_design_messages
 
         # filter out allowed messages
         self._delta_messages = []
@@ -401,7 +405,8 @@ class DesignCache(object):
                 self._delta_messages.append(msg)
 
         self._new_error_messages = [msg for msg in self._delta_messages if msg.find("[error]") == 0]
-        self._new_warning_messages = [msg for msg in self._delta_messages if msg.find("[warning]") == 0]
+        self._new_warning_messages = [
+            msg for msg in self._delta_messages if msg.find("[warning]") == 0]
 
         self._messages_global_level = messages.global_level
         self._messages_project_level = messages.project_level
@@ -454,7 +459,8 @@ class Design(object):
         pyaedt_details += "pyaedt running AEDT Version {} \n".format(self._aedt_version)
         pyaedt_details += "Running {} tool in AEDT\n".format(self.design_type)
         pyaedt_details += "Solution Type: {} \n".format(self.solution_type)
-        pyaedt_details += "Project Name: {}    Design Name{} \n".format(self.project_name, self.design_name)
+        pyaedt_details += "Project Name: {}    Design Name{} \n".format(
+            self.project_name, self.design_name)
         pyaedt_details += "Project Path: \"{}\" \n".format(self.project_path)
         return pyaedt_details
 
@@ -492,11 +498,13 @@ class Design(object):
         self._messenger = AEDTMessageManager(self)
         self.logger = logging.getLogger(__name__)
 
-        assert design_type in design_solutions, "Invalid design type is specified: {}.".format(design_type)
+        assert design_type in design_solutions, "Invalid design type is specified: {}.".format(
+            design_type)
         self._design_type = design_type
         if solution_type:
             assert solution_type in design_solutions[design_type], \
-                "Invalid solution type {0} exists for design type {1}.".format(solution_type, design_type)
+                "Invalid solution type {0} exists for design type {1}.".format(
+                    solution_type, design_type)
         self._solution_type = solution_type
         self._odesign = None
         self._oproject = None
@@ -912,7 +920,8 @@ class Design(object):
         activedes = des_name
         if des_name:
             if self._assert_consistent_design_type(des_name) == des_name:
-                self._insert_design(self._design_type, design_name=des_name, solution_type=self._solution_type)
+                self._insert_design(self._design_type, design_name=des_name,
+                                    solution_type=self._solution_type)
         else:
             # self._odesign = self._oproject.GetActiveDesign()
             if self.design_list:
@@ -995,7 +1004,8 @@ class Design(object):
                     name = self._generate_unique_project_name()
 
                     path = os.path.dirname(proj_name)
-                    self._desktop.RestoreProjectArchive(proj_name, os.path.join(path, name), True, True)
+                    self._desktop.RestoreProjectArchive(
+                        proj_name, os.path.join(path, name), True, True)
                     time.sleep(0.5)
                     proj = self._desktop.GetActiveProject()
                 elif ".def" in proj_name:
@@ -1215,7 +1225,8 @@ class Design(object):
         if mean:
             arg2.append("Mean:=")
             arg2.append(mean)
-        arg3 = [tab, ["NAME:PropServers", propserver], ["NAME:ChangedProps", ["NAME:" + variable_name, arg2]]]
+        arg3 = [tab, ["NAME:PropServers", propserver], [
+            "NAME:ChangedProps", ["NAME:" + variable_name, arg2]]]
         arg.append(arg3)
 
     @aedt_exception_handler
@@ -1244,7 +1255,8 @@ class Design(object):
 
         """
         arg = ["NAME:AllTabs"]
-        self._optimetrics_variable_args(arg, "Statistical", variable_name, min_val, max_val, tolerance, probability, mean)
+        self._optimetrics_variable_args(
+            arg, "Statistical", variable_name, min_val, max_val, tolerance, probability, mean)
         if "$" in variable_name:
             self.oproject.ChangeProperty(arg)
         else:
@@ -1472,7 +1484,8 @@ class Design(object):
                     z.append(el['CoordPoint'][2])
                     v.append(el['CoordPoint'][3])
         else:
-            new_list = [datas['Points'][i:i + numcol] for i in range(0, len(datas['Points']), numcol)]
+            new_list = [datas['Points'][i:i + numcol]
+                for i in range(0, len(datas['Points']), numcol)]
             for el in new_list:
                 x.append(el[0])
                 y.append(el[1])
@@ -1868,7 +1881,8 @@ class Design(object):
             name=self.project_name
         if not directory:
             directory = self.results_directory
-        self._messenger.add_info_message("Cleanup folder {} from project {}".format(directory, name))
+        self._messenger.add_info_message(
+            "Cleanup folder {} from project {}".format(directory, name))
         if os.path.exists(directory):
             shutil.rmtree(directory, True)
             if not os.path.exists(directory):
@@ -1949,7 +1963,8 @@ class Design(object):
         else:
             name = self.project_name
             msg_txt = "active "+ self.project_name
-        self._messenger.add_info_message("Closing the {} AEDT Project".format(msg_txt), level="Global")
+        self._messenger.add_info_message(
+            "Closing the {} AEDT Project".format(msg_txt), level="Global")
         if name != self.project_name:
             oproj = self.odesktop.SetActiveProject(name)
         else:
@@ -2050,20 +2065,25 @@ class Design(object):
         self.__init__(projectname=self.project_name, designname=design_name)
 
     def _insert_design(self, design_type, design_name=None, solution_type=None):
-        assert design_type in design_solutions, "Invalid design type for insert: {}".format(design_type)
+        assert design_type in design_solutions, "Invalid design type for insert: {}".format(
+            design_type)
         # self.save_project() ## Commented because it saves a Projectxxx.aedt when launched on an empty Desktop
         unique_design_name = self._generate_unique_design_name(design_name)
         if solution_type:
             assert solution_type in design_solutions[self._design_type], \
-                "Solution type {0} is invalid for design type {1}.".format(solution_type, self._design_type)
+                "Solution type {0} is invalid for design type {1}.".format(
+                    solution_type, self._design_type)
         else:
             solution_type = self.default_solution_type
         if design_type == "RMxprtSolution":
-            new_design = self._oproject.InsertDesign("RMxprt", unique_design_name, "Inner-Rotor Induction Machine", "")
+            new_design = self._oproject.InsertDesign(
+                "RMxprt", unique_design_name, "Inner-Rotor Induction Machine", "")
         elif design_type == "ModelCreation":
-            new_design = self._oproject.InsertDesign("RMxprt", unique_design_name, "Model Creation Inner-Rotor Induction Machine", "")
+            new_design = self._oproject.InsertDesign(
+                "RMxprt", unique_design_name, "Model Creation Inner-Rotor Induction Machine", "")
         else:
-            new_design = self._oproject.InsertDesign(design_type, unique_design_name, solution_type, "")
+            new_design = self._oproject.InsertDesign(
+                design_type, unique_design_name, solution_type, "")
         self._messenger.add_info_message("Added design '{0}' of type {1}.".format(unique_design_name, design_type),
                                          level='Project')
         name = new_design.GetName()
@@ -2250,7 +2270,8 @@ class Design(object):
         if export_design:
             desnames = self.odesign.GetProperties("LocalVariableTab", "LocalVariables")
         with open(filename, 'w') as csvfile:
-            filewriter = csv.writer(csvfile, delimiter=',', quotechar='|', quoting=csv.QUOTE_MINIMAL)
+            filewriter = csv.writer(csvfile, delimiter=',', quotechar='|',
+                                    quoting=csv.QUOTE_MINIMAL)
             filewriter.writerow(['Name', 'Value'])
             for el in varnames:
                 value = self.oproject.GetVariableValue(el)

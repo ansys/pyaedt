@@ -128,7 +128,8 @@ class Hfss(FieldAnalysis3D, object):
         LumpedRLC :
         FiniteCond :
         """
-        (PerfectE, PerfectH, Aperture, Radiation, Impedance, LayeredImp, LumpedRLC, FiniteCond) = range(0, 8)
+        (PerfectE, PerfectH, Aperture, Radiation, Impedance,
+         LayeredImp, LumpedRLC, FiniteCond) = range(0, 8)
 
     @aedt_exception_handler
     def _create_boundary(self, name, props, boundary_type):
@@ -626,7 +627,8 @@ class Hfss(FieldAnalysis3D, object):
         if source_object.project_name == self.project_name:
             project_name = "This Project*"
         else:
-            project_name = os.path.join(source_object.project_path, source_object.project_name + ".aedt")
+            project_name = os.path.join(source_object.project_path,
+                                        source_object.project_name + ".aedt")
         design_name = source_object.design_name
         if not solution:
             solution = source_object.nominal_adaptive
@@ -661,7 +663,8 @@ class Hfss(FieldAnalysis3D, object):
         if isinstance(parameters_dict, dict):
             for el in parameters_dict:
                 if el not in ["antenna_type", "offset", "rotation", "rotation_axis", "mode"] and parameters_dict[el] is not None:
-                    native_props["NativeComponentDefinitionProvider"][el.replace("_", " ").title()] = parameters_dict[el]
+                    native_props["NativeComponentDefinitionProvider"][el.replace(
+                        "_", " ").title()] = parameters_dict[el]
         native = NativeComponentObject(self, antenna_type,antenna_name, native_props)
         if native.create():
             self.native_components.append(native)
@@ -881,7 +884,8 @@ class Hfss(FieldAnalysis3D, object):
         id = 0
         props=OrderedDict({})
         for el, val in txrx_settings.items():
-            props["Tx/Rx List " + str(id)] = OrderedDict({"Tx Antenna": el, "Rx Antennas": txrx_settings[el]})
+            props["Tx/Rx List " + \
+                str(id)] = OrderedDict({"Tx Antenna": el, "Rx Antennas": txrx_settings[el]})
             id += 1
         return self._create_boundary("SBRTxRxSettings", props, "SBRTxRxSettings")
 
@@ -1074,7 +1078,8 @@ class Hfss(FieldAnalysis3D, object):
             elif portname + ":1" in self.modeler.get_excitations_name():
                 portname = generate_unique_name(portname)
             if self.solution_type == "DrivenModal":
-                self._create_lumped_driven(sheet_name, point0, point1, impedance, portname, renorm, deemb)
+                self._create_lumped_driven(sheet_name, point0, point1,
+                                           impedance, portname, renorm, deemb)
             else:
                 faces = self.modeler.primitives.get_object_faces(sheet_name)
                 self._create_port_terminal(faces[0], endobject, portname, iswaveport=False)
@@ -1134,7 +1139,8 @@ class Hfss(FieldAnalysis3D, object):
                 sourcename = generate_unique_name("Voltage")
             elif sourcename + ":1" in self.modeler.get_excitations_name():
                 sourcename = generate_unique_name(sourcename)
-            status = self.create_source_excitation(sheet_name, point0, point1, sourcename, sourcetype="Voltage")
+            status = self.create_source_excitation(
+                sheet_name, point0, point1, sourcename, sourcetype="Voltage")
             if status:
                 return sourcename
             else:
@@ -1193,7 +1199,8 @@ class Hfss(FieldAnalysis3D, object):
                 sourcename = generate_unique_name("Current")
             elif sourcename + ":1" in self.modeler.get_excitations_name():
                 sourcename = generate_unique_name(sourcename)
-            status = self.create_source_excitation(sheet_name, point0, point1, sourcename, sourcetype="Current")
+            status = self.create_source_excitation(
+                sheet_name, point0, point1, sourcename, sourcetype="Current")
             if status:
                 return sourcename
             else:
@@ -1545,7 +1552,8 @@ class Hfss(FieldAnalysis3D, object):
             SARSetup object.
 
         """
-        self.odesign.SARSetup(TissueMass, MaterialDensity, Tissue_object_List_ID, voxel_size, Average_SAR_method)
+        self.odesign.SARSetup(TissueMass, MaterialDensity,
+                              Tissue_object_List_ID, voxel_size, Average_SAR_method)
         return True
 
     @aedt_exception_handler
@@ -1881,7 +1889,8 @@ class Hfss(FieldAnalysis3D, object):
             elif portname + ":1" in self.modeler.get_excitations_name():
                 portname = generate_unique_name(portname)
             if self.solution_type == "DrivenModal":
-                b = self._create_waveport_driven(obj, int_start, int_stop, impedance, portname, renorm, nummodes, deemb)
+                b = self._create_waveport_driven(
+                    obj, int_start, int_stop, impedance, portname, renorm, nummodes, deemb)
                 if b:
                     portnames.append(b)
             else:
@@ -1954,7 +1963,8 @@ class Hfss(FieldAnalysis3D, object):
             elif portname + ":1" in self.modeler.get_excitations_name():
                 portname = generate_unique_name(portname)
             if self.solution_type == "DrivenModal":
-                self._create_lumped_driven(sheet_name, point0, point1, impedance, portname, renorm, deemb)
+                self._create_lumped_driven(sheet_name, point0, point1,
+                                           impedance, portname, renorm, deemb)
             else:
                 if not reference_object_list:
                     cond = self.get_all_conductors_names()
@@ -1964,7 +1974,8 @@ class Hfss(FieldAnalysis3D, object):
                         if el in cond:
                             reference_object_list.append(el)
                 faces = self.modeler.primitives.get_object_faces(sheet_name)
-                self._create_port_terminal(faces[0], reference_object_list, portname, iswaveport=False)
+                self._create_port_terminal(
+                    faces[0], reference_object_list, portname, iswaveport=False)
             return portname
         return False
 
@@ -2020,7 +2031,8 @@ class Hfss(FieldAnalysis3D, object):
                 sourcename = generate_unique_name("Voltage")
             elif sourcename + ":1" in self.modeler.get_excitations_name():
                 sourcename = generate_unique_name(sourcename)
-            status = self.create_source_excitation(sheet_name, point0, point1, sourcename, sourcetype="Voltage")
+            status = self.create_source_excitation(
+                sheet_name, point0, point1, sourcename, sourcetype="Voltage")
             if status:
                 return sourcename
         return False
@@ -2063,7 +2075,8 @@ class Hfss(FieldAnalysis3D, object):
                 sourcename = generate_unique_name("Current")
             elif sourcename + ":1" in self.modeler.get_excitations_name():
                 sourcename = generate_unique_name(sourcename)
-            status = self.create_source_excitation(sheet_name, point0, point1, sourcename, sourcetype="Current")
+            status = self.create_source_excitation(
+                sheet_name, point0, point1, sourcename, sourcetype="Current")
             if status:
                 return sourcename
         return False
@@ -2603,7 +2616,8 @@ class Hfss(FieldAnalysis3D, object):
         val_list.append(msg)
         temp_msg = list(self._desktop.GetMessages(pname, dname, 0))
         if temp_msg:
-            temp2_msg = [i.strip('Project: ' + pname + ', Design: ' + dname + ', ').strip('\r\n') for i in temp_msg]
+            temp2_msg = [i.strip('Project: ' + pname + ', Design: ' + \
+                                 dname + ', ').strip('\r\n') for i in temp_msg]
             val_list.extend(temp2_msg)
 
         # Run design validation and write out the lines to the log.
@@ -2636,7 +2650,8 @@ class Hfss(FieldAnalysis3D, object):
             detected_excitations = self.modeler.get_excitations_name()
             if ports:
                 if self.solution_type == 'DrivenTerminal':
-                    ports_t = ports * 2  # For each port, there is terminal and reference excitations.
+                    # For each port, there is terminal and reference excitations.
+                    ports_t = ports * 2
                 else:
                     ports_t = ports
                 if ports_t != len(detected_excitations):
@@ -2725,7 +2740,8 @@ class Hfss(FieldAnalysis3D, object):
         if not sweep_name:
             sweep_name = self.existing_analysis_sweeps[1]
         elif sweep_name not in self.existing_analysis_sweeps:
-            self._messenger.add_error_message("Setup {} doesn't exist in the Setup list.".format(sweep_name))
+            self._messenger.add_error_message(
+                "Setup {} doesn't exist in the Setup list.".format(sweep_name))
             return False
         if not port_names:
             port_names = self.modeler.get_excitations_name()
@@ -2830,14 +2846,16 @@ class Hfss(FieldAnalysis3D, object):
             for v, vv in zip(variation, variations_value):
                 appendix += "_" + v + vv.replace("\'", "")
             ext = ".S" + str(self.oboundary.GetNumExcitations()) + "p"
-            filename = os.path.join(self.project_path, solutionname + "_" + sweepname + appendix + ext)
+            filename = os.path.join(self.project_path, solutionname + \
+                                    "_" + sweepname + appendix + ext)
         else:
             filename = filename.replace("//", "/").replace("\\", "/")
         print("Exporting Touchstone " + filename)
         DesignVariations = ""
         i = 0
         for el in variation:
-            DesignVariations += str(variation[i]) + "=\'" + str(variations_value[i].replace("\'", "")) + "\' "
+            DesignVariations += str(variation[i]) + "=\'" + \
+                                    str(variations_value[i].replace("\'", "")) + "\' "
             i += 1
             # DesignVariations = "$AmbientTemp=\'22cel\' $PowerIn=\'100\'"
         # array containing "SetupName:SolutionName" pairs (note that setup and solution are separated by a colon)
@@ -2846,7 +2864,8 @@ class Hfss(FieldAnalysis3D, object):
         # 7=Matlab (.m), 8=Terminal Z0 spreadsheet
         FileFormat = 3
         OutFile = filename  # full path of output file
-        FreqsArray = ["all"]  # array containin the frequencies to export, use ["all"] for all frequencies
+        # array containin the frequencies to export, use ["all"] for all frequencies
+        FreqsArray = ["all"]
         DoRenorm = True  # perform renormalization before export
         RenormImped = 50  # Real impedance value in ohm, for renormalization
         DataType = "S"  # Type: "S", "Y", or "Z" matrix to export

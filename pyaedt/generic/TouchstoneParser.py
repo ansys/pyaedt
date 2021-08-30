@@ -356,7 +356,8 @@ def get_return_losses(excitation_names, excitation_name_prefix=''):
     """
     spar = []
     if excitation_name_prefix:
-        excitation_names = [i for i in excitation_names if excitation_name_prefix.lower() in i.lower()]
+        excitation_names = [
+            i for i in excitation_names if excitation_name_prefix.lower() in i.lower()]
     for i in excitation_names:
         spar.append("S({},{})".format(i, i))
     return spar

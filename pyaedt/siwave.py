@@ -28,7 +28,8 @@ elif os.name == 'nt':
         import win32com.client
         _com = 'pywin32'
     else:
-        raise Exception("Error. No win32com.client or Python.NET modules found. They need to be installed.")
+        raise Exception(
+            "Error. No win32com.client or Python.NET modules found. They need to be installed.")
 
 
 # if _pythonver == 3:
@@ -105,7 +106,8 @@ class Siwave:
                 del self._main.oSiwave
 
             if _com == 'pythonnet':
-                self._main.oSiwave = System.Activator.CreateInstance(System.Type.GetTypeFromProgID(version))
+                self._main.oSiwave = System.Activator.CreateInstance(
+                    System.Type.GetTypeFromProgID(version))
 
             elif _com == 'pythonnet_v3': #TODO check if possible to use pythonnet. at the moment the tool open AEDt but doesn't return the wrapper of oApp
                 print("Launching AEDT with Module win32com")

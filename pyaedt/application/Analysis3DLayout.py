@@ -148,7 +148,8 @@ class FieldAnalysis3DLayout(Analysis):
         if not excitation_names:
             excitation_names = self.get_excitations_name
         if excitation_name_prefix:
-            excitation_names = [i for i in excitation_names if excitation_name_prefix.lower() in i.lower()]
+            excitation_names = [
+                i for i in excitation_names if excitation_name_prefix.lower() in i.lower()]
         spar = []
         for i in excitation_names:
             spar.append("S({},{})".format(i, i))
