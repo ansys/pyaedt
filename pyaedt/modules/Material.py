@@ -23,9 +23,12 @@ class MatProperties(object):
     Internal names are used in scripts, and XML names are used in the XML syntax.
 
     """
-    aedtname =     ['permittivity', 'permeability', 'conductivity', 'dielectric_loss_tangent', 'magnetic_loss_tangent', 'thermal_conductivity', 'mass_density', 'specific_heat', 'thermal_expansion_coefficient', 'youngs_modulus',   'poissons_ratio',   'diffusivity', 'molecular_mass', 'viscosity', 'core_loss_kh', 'core_loss_kc', 'core_loss_ke']
-    defaultvalue = [1.0,             1.0,            0,              0,                         0,                       0.01,                      0,              0,               0,                               0,                  0,                  0.8,         0,                   0,                 0,                   0,                      0,                          0]
-    defaultunit  = [None,            None,          '[siemens m^-1]', None,                     None,                   '[W m^-1 C^-1]',        '[Kg m^-3]',    '[J Kg^-1 C^-1]', '[C^-1]',                       '[Pa]',             None,               None,               None,               None,               None,           None,                  None,                       None]
+    aedtname =     ['permittivity', 'permeability', 'conductivity', 'dielectric_loss_tangent', 'magnetic_loss_tangent', 'thermal_conductivity', 'mass_density', 'specific_heat',
+        'thermal_expansion_coefficient', 'youngs_modulus',   'poissons_ratio',   'diffusivity', 'molecular_mass', 'viscosity', 'core_loss_kh', 'core_loss_kc', 'core_loss_ke']
+    defaultvalue = [1.0,             1.0,            0,              0,                         0,                       0.01,                      0,              0,               0,
+        0,                  0,                  0.8,         0,                   0,                 0,                   0,                      0,                          0]
+    defaultunit  = [None,            None,          '[siemens m^-1]', None,                     None,                   '[W m^-1 C^-1]',        '[Kg m^-3]',    '[J Kg^-1 C^-1]', '[C^-1]',
+        '[Pa]',             None,               None,               None,               None,               None,           None,                  None,                       None]
     diel_order =   [3, 0, 1, 4, 5, 6, 7, 8, 9, 10, 11, 1]
     cond_order =   [2, 0, 1, 4, 5, 6, 7, 8, 9, 10, 11, 3]
 
@@ -47,7 +50,8 @@ class MatProperties(object):
         if aedtname:
             return cls.defaultunit[cls.aedtname.index(aedtname)]
         else:
-            raise TypeError("get_defaultunit: Either the full name or category name must be defined.")
+            raise TypeError(
+                "get_defaultunit: Either the full name or category name must be defined.")
 
 
     @classmethod
@@ -68,7 +72,8 @@ class MatProperties(object):
         if aedtname:
             return cls.defaultvalue[cls.aedtname.index(aedtname)]
         else:
-            raise TypeError("get_defaultunit: Either the full name or category name must be defined.")
+            raise TypeError(
+                "get_defaultunit: Either the full name or category name must be defined.")
 
 class SurfMatProperties(object):
     """Contains a list of constant names for all surface materials with
@@ -77,7 +82,8 @@ class SurfMatProperties(object):
     Internal names are used in scripts, and XML names are used in the XML syntax.
 
     """
-    aedtname =     ['surface_emissivity', 'surface_roughness', 'surface_diffuse_absorptance', 'surface_incident_absorptance']
+    aedtname =     ['surface_emissivity', 'surface_roughness',
+        'surface_diffuse_absorptance', 'surface_incident_absorptance']
     defaultvalue = [1.0,             0,            0.4,              0.4]
     defaultunit  = [None,            '[m]',          None, None]
 
@@ -120,7 +126,8 @@ class SurfMatProperties(object):
         if aedtname:
             return cls.defaultvalue[cls.aedtname.index(aedtname)]
         else:
-            raise TypeError("get_defaultunit: Either the full name or category name must be defined.")
+            raise TypeError(
+                "get_defaultunit: Either the full name or category name must be defined.")
 
 
 class ClosedFormTM(object):
@@ -198,7 +205,8 @@ class MatProperty(object):
                     self._property_value[tm["Index:"]].thermalmodifier.C2 = tm["C2"]
                     self._property_value[tm["Index:"]].thermalmodifier.TL = tm["TL"]
                     self._property_value[tm["Index:"]].thermalmodifier.TU = tm["TU"]
-                    self._property_value[tm["Index:"]].thermalmodifier.autocalculation = tm["auto_calculation"]
+                    self._property_value[tm["Index:"]
+                        ].thermalmodifier.autocalculation = tm["auto_calculation"]
 
     @property
     def type(self):
@@ -319,24 +327,31 @@ class MatProperty(object):
                     if not found:
                         tm = OrderedDict({'Property:': self.name, 'Index:': index, "prop_modifier": "thermal_modifier",
                                           "use_free_form": True, "free_form_value": formula})
-                        self._parent._props["ModifierData"]["ThermalModifierData"]["all_thermal_modifiers"][tmname].append(tm)
+                        self._parent._props["ModifierData"]["ThermalModifierData"]["all_thermal_modifiers"][tmname].append(
+                            tm)
                 elif self.name ==self._parent._props["ModifierData"]["ThermalModifierData"]["all_thermal_modifiers"][tmname][
                             'Property:'] and index ==self._parent._props["ModifierData"]["ThermalModifierData"]["all_thermal_modifiers"][tmname][
                             'Index:']:
                     self._parent._props["ModifierData"]["ThermalModifierData"]["all_thermal_modifiers"][tmname]['use_free_form'] = True
                     self._parent._props["ModifierData"]["ThermalModifierData"]["all_thermal_modifiers"][tmname]['free_form_value'] = formula
-                    self._parent._props["ModifierData"]["ThermalModifierData"]["all_thermal_modifiers"][tmname].pop("Tref", None)
-                    self._parent._props["ModifierData"]["ThermalModifierData"]["all_thermal_modifiers"][tmname].pop("C1", None)
-                    self._parent._props["ModifierData"]["ThermalModifierData"]["all_thermal_modifiers"][tmname].pop("C2", None)
-                    self._parent._props["ModifierData"]["ThermalModifierData"]["all_thermal_modifiers"][tmname].pop("TL", None)
-                    self._parent._props["ModifierData"]["ThermalModifierData"]["all_thermal_modifiers"][tmname].pop("TU", None)
+                    self._parent._props["ModifierData"]["ThermalModifierData"]["all_thermal_modifiers"][tmname].pop(
+                        "Tref", None)
+                    self._parent._props["ModifierData"]["ThermalModifierData"]["all_thermal_modifiers"][tmname].pop(
+                        "C1", None)
+                    self._parent._props["ModifierData"]["ThermalModifierData"]["all_thermal_modifiers"][tmname].pop(
+                        "C2", None)
+                    self._parent._props["ModifierData"]["ThermalModifierData"]["all_thermal_modifiers"][tmname].pop(
+                        "TL", None)
+                    self._parent._props["ModifierData"]["ThermalModifierData"]["all_thermal_modifiers"][tmname].pop(
+                        "TU", None)
 
                 else:
                     self._parent._props["ModifierData"]["ThermalModifierData"]["all_thermal_modifiers"][tmname] = [
                         self._parent._props["ModifierData"]["ThermalModifierData"]["all_thermal_modifiers"][tmname]]
                     tm = OrderedDict({'Property:': self.name, 'Index:': index, "prop_modifier": "thermal_modifier",
                                       "use_free_form": True, "free_form_value": formula})
-                    self._parent._props["ModifierData"]["ThermalModifierData"]["all_thermal_modifiers"][tmname].append(tm)
+                    self._parent._props["ModifierData"]["ThermalModifierData"]["all_thermal_modifiers"][tmname].append(
+                        tm)
         return self._parent.update()
 
     def add_thermal_modifier_free_form(self, formula, index=0):
@@ -648,12 +663,16 @@ class Material(CommonMaterial, object):
             self.physics_type = self._props["PhysicsTypes"]["set"]
         else:
             self.physics_type = ['Electromagnetic', 'Thermal', 'Structural']
-            self._props["PhysicsTypes"] = OrderedDict({"set": ['Electromagnetic', 'Thermal', 'Structural']})
+            self._props["PhysicsTypes"] = OrderedDict(
+                {"set": ['Electromagnetic', 'Thermal', 'Structural']})
         if "AttachedData" in self._props:
             self._material_appearance = []
-            self._material_appearance.append(self._props["AttachedData"]["MatAppearanceData"]["Red"])
-            self._material_appearance.append(self._props["AttachedData"]["MatAppearanceData"]["Green"])
-            self._material_appearance.append(self._props["AttachedData"]["MatAppearanceData"]["Blue"])
+            self._material_appearance.append(
+                self._props["AttachedData"]["MatAppearanceData"]["Red"])
+            self._material_appearance.append(
+                self._props["AttachedData"]["MatAppearanceData"]["Green"])
+            self._material_appearance.append(
+                self._props["AttachedData"]["MatAppearanceData"]["Blue"])
         else:
             self._material_appearance = [128, 128, 128]
             self._props["AttachedData"] = OrderedDict({"MatAppearanceData":
@@ -677,7 +696,8 @@ class Material(CommonMaterial, object):
                         else:
                             if modifiers[mod]["Property:"] == property:
                                 mods = modifiers[mod]
-                self.__dict__["_" + property] = MatProperty(self, property, self._props[property], mods)
+                self.__dict__[
+                    "_" + property] = MatProperty(self, property, self._props[property], mods)
             else:
                 self.__dict__["_" + property] = MatProperty(self, property,
                                                             MatProperties.get_defaultvalue(aedtname=property), None)
@@ -823,7 +843,8 @@ class Material(CommonMaterial, object):
 
         self._thermal_conductivity.value = value
         self.physics_type = ['Electromagnetic', 'Thermal', 'Structural']
-        self._props["PhysicsTypes"] = OrderedDict({"set": ['Electromagnetic', 'Thermal', 'Structural']})
+        self._props["PhysicsTypes"] = OrderedDict(
+            {"set": ['Electromagnetic', 'Thermal', 'Structural']})
         self._update_props("thermal_conductivity", value)
 
     @property
@@ -895,7 +916,8 @@ class Material(CommonMaterial, object):
     def youngs_modulus(self, value):
         self._youngs_modulus.value = value
         self.physics_type = ['Electromagnetic', 'Thermal', 'Structural']
-        self._props["PhysicsTypes"] = OrderedDict({"set": ['Electromagnetic', 'Thermal', 'Structural']})
+        self._props["PhysicsTypes"] = OrderedDict(
+            {"set": ['Electromagnetic', 'Thermal', 'Structural']})
         self._update_props("youngs_modulus", value)
 
     @property
@@ -913,7 +935,8 @@ class Material(CommonMaterial, object):
     def poissons_ratio(self, value):
         self._poissons_ratio.value = value
         self.physics_type = ['Electromagnetic', 'Thermal', 'Structural']
-        self._props["PhysicsTypes"] = OrderedDict({"set": ['Electromagnetic', 'Thermal', 'Structural']})
+        self._props["PhysicsTypes"] = OrderedDict(
+            {"set": ['Electromagnetic', 'Thermal', 'Structural']})
         self._update_props("poissons_ratio", value)
 
     @property
@@ -1125,9 +1148,11 @@ class SurfaceMaterial(CommonMaterial, object):
                         else:
                             if modifiers[mod]["Property:"] == property:
                                 mods = modifiers[mod]
-                self.__dict__["_" + property] = MatProperty(self, property, self._props[property], mods)
+                self.__dict__[
+                    "_" + property] = MatProperty(self, property, self._props[property], mods)
             else:
-                self.__dict__["_" + property] = MatProperty(self, property, SurfMatProperties.get_defaultvalue(aedtname=property))
+                self.__dict__[
+                    "_" + property] = MatProperty(self, property, SurfMatProperties.get_defaultvalue(aedtname=property))
         pass
 
     @property

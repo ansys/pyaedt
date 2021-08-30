@@ -413,7 +413,8 @@ class Mesh(object):
 
         """
         meshop_name = generate_unique_name("SurfaceRepPriority")
-        props = OrderedDict({"Type": "SurfaceRepPriority", "Objects": object_lists, "SurfaceRepPriority": surfpriority})
+        props = OrderedDict({"Type": "SurfaceRepPriority",
+                            "Objects": object_lists, "SurfaceRepPriority": surfpriority})
         mop = MeshOperation(self, meshop_name, props, "SurfaceRepPriority")
         mop.create()
         self.meshoperations.append(mop)
@@ -777,7 +778,8 @@ class Mesh(object):
         else:
             meshop_name = generate_unique_name("EdgeCut")
         seltype = "Objects"
-        props = OrderedDict({"Type": "RotationalLayerMesh", seltype: names, "Layer Thickenss": layer_thickness})
+        props = OrderedDict({"Type": "RotationalLayerMesh", seltype: names,
+                            "Layer Thickenss": layer_thickness})
 
         mop = MeshOperation(self, meshop_name, props, "RotationalLayerMesh")
         mop.create()

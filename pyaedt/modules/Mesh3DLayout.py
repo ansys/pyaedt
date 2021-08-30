@@ -77,7 +77,8 @@ class Mesh3DOperation(object):
             ``True`` when successful, ``False`` when failed.
 
         """
-        self._parent.omeshmodule.EditMeshOperation(self.hfss_setup_name, self.name, self._get_args())
+        self._parent.omeshmodule.EditMeshOperation(
+            self.hfss_setup_name, self.name, self._get_args())
         return True
 
     @aedt_exception_handler
@@ -243,9 +244,11 @@ class Mesh(object):
             assignment = OrderedDict({"MeshEntityInfo":[]})
             for l, n in zip(layer_name,net_name):
                 meshbody = OrderedDict({"Id": -1, "Nam": "", "Layer": l, "Net": n, "OrigNet": n})
-                assignment["MeshEntityInfo"].append(OrderedDict({"IsFcSel": False, "EntID": -1, "FcIDs": [], "MeshBody": meshbody, "BBox": []}))
+                assignment["MeshEntityInfo"].append(OrderedDict(
+                    {"IsFcSel": False, "EntID": -1, "FcIDs": [], "MeshBody": meshbody, "BBox": []}))
         else:
-            meshbody = OrderedDict({"Id": -1, "Nam": "", "Layer": layer_name, "Net": net_name, "OrigNet": net_name})
+            meshbody = OrderedDict({"Id": -1, "Nam": "", "Layer": layer_name,
+                                   "Net": net_name, "OrigNet": net_name})
             assignment = OrderedDict({"MeshEntityInfo": OrderedDict(
                 {"IsFcSel": False, "EntID": -1, "FcIDs": [], "MeshBody": meshbody, "BBox": []})})
         props = OrderedDict({"Type": "LengthBased", "RefineInside": isinside, "Enabled": True, "Assignment": assignment,
@@ -302,8 +305,10 @@ class Mesh(object):
             restrictlength = True
         skindepth = self.modeler.modeler_variable(skindepth)
         triangulation_max_length= self.modeler.modeler_variable(triangulation_max_length)
-        meshbody = OrderedDict({"Id": -1, "Nam": "", "Layer": layer_name,  "Net": net_name, "OrigNet": net_name})
-        assignment = OrderedDict({"MeshEntityInfo": OrderedDict({"IsFcSel": False, "EntID": -1, "FcIDs": [], "MeshBody": meshbody, "BBox": []})})
+        meshbody = OrderedDict({"Id": -1, "Nam": "", "Layer": layer_name,
+                               "Net": net_name, "OrigNet": net_name})
+        assignment = OrderedDict({"MeshEntityInfo": OrderedDict(
+            {"IsFcSel": False, "EntID": -1, "FcIDs": [], "MeshBody": meshbody, "BBox": []})})
         props = OrderedDict({"Type": "SkinDepthLengthBased", "Enabled": True, "Assignment": assignment,
                              "Region":"", "SkinDepth": skindepth, "SurfTriMaxLength": triangulation_max_length, "NumLayers": numlayers,
                              "RestrictElem": restrictlength, "NumMaxElem": maxelements})

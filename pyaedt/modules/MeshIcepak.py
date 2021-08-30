@@ -11,7 +11,8 @@ class IcepakMesh(object):
         self.id = 0
         self._oeditor = self.modeler.oeditor
         self._model_units = self.modeler.model_units
-        self.global_mesh_region = self.MeshRegion(self.omeshmodule, self.boundingdimension, self._model_units)
+        self.global_mesh_region = self.MeshRegion(
+            self.omeshmodule, self.boundingdimension, self._model_units)
         self.meshoperations = self._get_design_mesh_operations()
         self.meshregions = self._get_design_mesh_regions()
         self._priorities_args = []
@@ -64,7 +65,8 @@ class IcepakMesh(object):
             arg = ["MeshMethod:=", "MesherHD", "UserSpecifiedSettings:=", self.UserSpecifiedSettings, "ComputeGap:=",
                    self.ComputeGap, "MeshRegionResolution:=", self.Level, "MinGapX:=",
                    self._dim_arg(self.MinGapX), "MinGapY:=",
-                   self._dim_arg(self.MinGapY) , "MinGapZ:=", self._dim_arg(self.MinGapZ), "Objects:=",
+                   self._dim_arg(self.MinGapY) , "MinGapZ:=", self._dim_arg(
+                       self.MinGapZ), "Objects:=",
                    self.Objects]
             return arg
 
@@ -188,7 +190,8 @@ class IcepakMesh(object):
         try:
             for ds in self._parent.design_properties['MeshRegion']['MeshSetup']['MeshRegions']:
                 if type(self._parent.design_properties['MeshRegion']['MeshSetup']['MeshRegions'][ds]) is OrderedDict:
-                    meshop = self.MeshRegion(self.omeshmodule, self.boundingdimension, self.modeler.model_units)
+                    meshop = self.MeshRegion(
+                        self.omeshmodule, self.boundingdimension, self.modeler.model_units)
                     dict_prop = self._parent.design_properties['MeshRegion']['MeshSetup']['MeshRegions'][ds]
                     self.name = ds
                     for el in dict_prop:
@@ -227,7 +230,8 @@ class IcepakMesh(object):
                 meshop_name = generate_unique_name(meshop_name, "L_" + str(level))
             else:
                 meshop_name = generate_unique_name("Icepak", "L_" + str(level))
-            props = OrderedDict({"Enable": True, "Level": str(level), "Objects": level_order[level]})
+            props = OrderedDict({"Enable": True, "Level": str(level),
+                                "Objects": level_order[level]})
             mop = MeshOperation(self, meshop_name, props, "Icepak")
             mop.create()
             self.meshoperations.append(mop)
@@ -368,7 +372,8 @@ class IcepakMesh(object):
         """
         if not name:
             name = generate_unique_name("MeshRegion")
-        meshregion = self.MeshRegion(self.omeshmodule, self.boundingdimension, self.modeler.model_units)
+        meshregion = self.MeshRegion(
+            self.omeshmodule, self.boundingdimension, self.modeler.model_units)
         meshregion.UserSpecifiedSettings = False
         meshregion.Level = level
         meshregion.name = name

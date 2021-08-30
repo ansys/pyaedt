@@ -161,7 +161,8 @@ class NativeComponentObject(BoundaryCommon, object):
         self.update_props["Version"] = self.props["BasicComponentInfo"]["Version"]
         self.update_props["Notes"] = self.props["BasicComponentInfo"]["Notes"]
         self.update_props["IconType"] = self.props["BasicComponentInfo"]["IconType"]
-        self._parent.modeler.oeditor.EditNativeComponentDefinition(self._get_args(self.update_props))
+        self._parent.modeler.oeditor.EditNativeComponentDefinition(
+            self._get_args(self.update_props))
 
         return True
 
@@ -482,7 +483,8 @@ class BoundaryObject(BoundaryCommon, object):
             self._parent.oboundary.ReassignBoundary(["Name:"+self.name, "Faces:=", faces_out])
         elif "Objects" in self.props:
 
-            self._parent.oboundary.ReassignBoundary(["Name:"+self.name, "Objects:=", self.props["Objects"]])
+            self._parent.oboundary.ReassignBoundary(
+                ["Name:"+self.name, "Objects:=", self.props["Objects"]])
         else:
             return False
         return True

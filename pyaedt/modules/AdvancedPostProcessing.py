@@ -91,7 +91,8 @@ class PostProcessor(Post):
            Jupyter notebook image.
 
         """
-        file_name = self.export_model_picture(show_axis=show_axis, show_grid=show_grid, show_ruler=show_ruler)
+        file_name = self.export_model_picture(
+            show_axis=show_axis, show_grid=show_grid, show_ruler=show_ruler)
         return Image(file_name, width=500)
 
     @aedt_exception_handler
@@ -125,7 +126,8 @@ class PostProcessor(Post):
         all_sources_with_modes = [s + ':1' for s in all_sources]
 
         for n, source in enumerate(all_sources_with_modes):
-            edit_sources_ctxt = [["IncludePortPostProcessing:=", False, "SpecifySystemPower:=", False]]
+            edit_sources_ctxt = [["IncludePortPostProcessing:=",
+                False, "SpecifySystemPower:=", False]]
             for m, each in enumerate(all_sources_with_modes):
                 if n == m:  # set only 1 source to 1W, all the rest to 0
                     mag = 1
@@ -355,7 +357,8 @@ class PostProcessor(Post):
                         pass
                     plot.add_mesh(mesh, show_scalar_bar=False, opacity=opacity, cmap=[model_color], name="3D Model",
                                   show_edges=show_model_edge, edge_color=model_color)
-                plot.add_slider_widget(create_object_mesh, [0, 1], style='modern', value=0.75, pointa=[0.81, 0.98], pointb=[0.95, 0.98], title="Opacity")
+                plot.add_slider_widget(create_object_mesh, [0, 1], style='modern', value=0.75, pointa=[
+                                       0.81, 0.98], pointb=[0.95, 0.98], title="Opacity")
         filename = os.path.splitext(aedtplt_files[0])[0]
         print(filename)
         for drawing_lines in lines:
@@ -381,10 +384,12 @@ class PostProcessor(Post):
                     # sols = [float(i.strip()) for i in sols]
                     num_solution_per_element = int(sols[2])
                     sols = sols[3:]
-                    sols = [sols[i:i + num_solution_per_element] for i in range(0, len(sols), num_solution_per_element)]
+                    sols = [sols[i:i + num_solution_per_element]
+                        for i in range(0, len(sols), num_solution_per_element)]
                     solution = [sum(i) / num_solution_per_element for i in sols]
 
-            nodes = [[nodes_list[i], nodes_list[i + 1], nodes_list[i + 2]] for i in range(0, len(nodes_list), 3)]
+            nodes = [[nodes_list[i], nodes_list[i + 1], nodes_list[i + 2]]
+                for i in range(0, len(nodes_list), 3)]
             num_nodes = elements[0]
             num_elements = elements[1]
             elements = elements[2:]
@@ -398,7 +403,8 @@ class PostProcessor(Post):
                 take_all_nodes = True  # solution case
             else:
                 take_all_nodes = False  # mesh case
-            trg_vertex = self._triangle_vertex(elements_nodes, num_nodes_per_element, take_all_nodes)
+            trg_vertex = self._triangle_vertex(
+                elements_nodes, num_nodes_per_element, take_all_nodes)
             # remove duplicates
             nodup_list = [list(i) for i in list(set([frozenset(t) for t in trg_vertex]))]
             sols_vertex = []
@@ -469,7 +475,8 @@ class PostProcessor(Post):
                                            rng=[np.min(temps), np.max(temps)], title='Upper', style='modern',
                                            value=np.max(temps), pointa=(.66, .98), pointb=(.8, .98))
                 else:
-                    plot.add_box_widget(surf, show_edges=True, line_width=0.1, color="grey", pickable=True, smooth_shading=True)
+                    plot.add_box_widget(surf, show_edges=True, line_width=0.1,
+                                        color="grey", pickable=True, smooth_shading=True)
             else:
                 plot.add_text("Full Plot", font_size=15)
                 if solution:
@@ -512,7 +519,8 @@ class PostProcessor(Post):
                                            rng=[np.min(temps), np.max(temps)], title='Upper', style='modern',
                                            value=np.max(temps), pointa=(.66, .98), pointb=(.8, .98))
                 else:
-                    plot.add_mesh(surf, show_edges=True, line_width=0.1, color="grey", pickable=True, smooth_shading=True)
+                    plot.add_mesh(surf, show_edges=True, line_width=0.1,
+                                  color="grey", pickable=True, smooth_shading=True)
             plot.show_axes()
             plot.show_grid()
             if view == "iso":
@@ -664,10 +672,12 @@ class PostProcessor(Post):
 
                     num_solution_per_element = int(sols[2])
                     sols = sols[3:]
-                    sols = [sols[i:i + num_solution_per_element] for i in range(0, len(sols), num_solution_per_element)]
+                    sols = [sols[i:i + num_solution_per_element]
+                        for i in range(0, len(sols), num_solution_per_element)]
                     solution = [sum(i) / num_solution_per_element for i in sols]
 
-            nodes = [[nodes_list[i], nodes_list[i + 1], nodes_list[i + 2]] for i in range(0, len(nodes_list), 3)]
+            nodes = [[nodes_list[i], nodes_list[i + 1], nodes_list[i + 2]]
+                for i in range(0, len(nodes_list), 3)]
             num_nodes = elements[0]
             num_elements = elements[1]
             elements = elements[2:]
@@ -681,7 +691,8 @@ class PostProcessor(Post):
                 take_all_nodes = True  # solution case
             else:
                 take_all_nodes = False  # mesh case
-            trg_vertex = self._triangle_vertex(elements_nodes, num_nodes_per_element, take_all_nodes)
+            trg_vertex = self._triangle_vertex(
+                elements_nodes, num_nodes_per_element, take_all_nodes)
             # remove duplicates
             nodup_list = [list(i) for i in list(set([frozenset(t) for t in trg_vertex]))]
             sols_vertex = []
@@ -725,7 +736,8 @@ class PostProcessor(Post):
         def p_callback():
             """exit when user wants to leave"""
             self._pause = not self._pause
-        plot.add_text('Press p for Play/Pause, Press q to exit ', font_size=8, position='upper_left')
+        plot.add_text('Press p for Play/Pause, Press q to exit ',
+                      font_size=8, position='upper_left')
         plot.add_text(' ', font_size=10, position=[0, 0])
         plot.add_key_event("q", q_callback)
         plot.add_key_event("p", p_callback)
@@ -795,7 +807,8 @@ class PostProcessor(Post):
     @aedt_exception_handler
     def export_model_obj(self):
         """Export the model."""
-        assert self._parent._aedt_version >= "2021.2", self._messenger.add_error_message("Object is supported from AEDT 2021 R2.")
+        assert self._parent._aedt_version >= "2021.2", self._messenger.add_error_message(
+            "Object is supported from AEDT 2021 R2.")
         project_path = self._parent.project_path
         obj_list = self._parent.modeler.primitives.object_names
         obj_list = [i for i in obj_list if not self._parent.modeler.primitives.objects[
@@ -860,13 +873,15 @@ class PostProcessor(Post):
         list
             List of plot files.
         """
-        assert self._parent._aedt_version >= "2021.2", self._messenger.add_error_message("Object is supported from AEDT 2021 R2.")
+        assert self._parent._aedt_version >= "2021.2", self._messenger.add_error_message(
+            "Object is supported from AEDT 2021 R2.")
         files = [self.export_model_obj()]
         if export_afterplot:
             imageformat='jpg'
         else:
             imageformat=None
-        file_list = self._plot_from_aedtplt(files, imageformat=imageformat, plot_label="3D Model", model_color="#8faf8f", show_model_edge=False, jupyter=jupyter)
+        file_list = self._plot_from_aedtplt(
+            files, imageformat=imageformat, plot_label="3D Model", model_color="#8faf8f", show_model_edge=False, jupyter=jupyter)
         return file_list
 
     @aedt_exception_handler
@@ -1011,9 +1026,11 @@ class PostProcessor(Post):
                         ]
                     ]
                 ])
-            files_to_add.append(self.export_field_plot(plotname, project_path,plotname+variation_variable+str(el)))
+            files_to_add.append(self.export_field_plot(
+                plotname, project_path,plotname+variation_variable+str(el)))
 
-        self._animation_from_aedtflt(files_to_add, variation_variable, variation_list, export_gif=export_gif, off_screen=off_screen)
+        self._animation_from_aedtflt(files_to_add, variation_variable,
+                                     variation_list, export_gif=export_gif, off_screen=off_screen)
         return True
 
     @aedt_exception_handler
@@ -1077,11 +1094,14 @@ class PostProcessor(Post):
         for el in variation_list:
             intrinsic_dict[variation_variable] = el
             if plottype == "Surface":
-                plotf = self.create_fieldplot_surface(object_list, quantityname, setup_name, intrinsic_dict)
+                plotf = self.create_fieldplot_surface(
+                    object_list, quantityname, setup_name, intrinsic_dict)
             elif plottype == "Volume":
-                plotf = self.create_fieldplot_volume(object_list, quantityname, setup_name, intrinsic_dict)
+                plotf = self.create_fieldplot_volume(
+                    object_list, quantityname, setup_name, intrinsic_dict)
             else:
-                plotf = self.create_fieldplot_cutplane(object_list, quantityname, setup_name, intrinsic_dict)
+                plotf = self.create_fieldplot_cutplane(
+                    object_list, quantityname, setup_name, intrinsic_dict)
             if plotf:
                 file_to_add = self.export_field_plot(plotf.name, project_path, plotf.name + str(v))
                 if file_to_add:
@@ -1132,7 +1152,8 @@ class PostProcessor(Post):
                 mag_val = mag[m][n]
                 ang = np.radians(xphase * m) + np.radians(yphase * n)
                 weight[m][n] = np.sqrt(mag_val) * np.exp(1j * ang)
-                current_index_str = '[' + str(m + 1 + loc_offset) + ',' + str(n + 1 + loc_offset) + ']'
+                current_index_str = '[' + str(m + 1 + loc_offset) + \
+                                              ',' + str(n + 1 + loc_offset) + ']'
                 port_name = [y for y in all_ports if current_index_str in y]
                 w_dict[port_name[0]] = weight[m][n]
 
@@ -1172,7 +1193,8 @@ class PostProcessor(Post):
         all_qtys = {}
         all_qtys['rEPhi'] = rEphi_fields
         all_qtys['rETheta'] = rEtheta_fields
-        all_qtys['rETotal'] = np.sqrt(np.power(np.abs(rEphi_fields), 2) + np.power(np.abs(rEtheta_fields), 2))
+        all_qtys['rETotal'] = np.sqrt(np.power(np.abs(rEphi_fields), 2) + \
+                                      np.power(np.abs(rEtheta_fields), 2))
 
         pin = np.sum(w)
         print(str(pin))

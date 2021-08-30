@@ -3,7 +3,8 @@ from ..application.DataHandlers import dict2arg
 from collections import OrderedDict
 
 meshlink = [("ImportMesh", False)]
-autosweep = [("RangeType", "LinearStep"), ("RangeStart", "1GHz"), ("RangeEnd", "10GHz"), ("RangeStep", "1GHz")]
+autosweep = [("RangeType", "LinearStep"), ("RangeStart", "1GHz"),
+              ("RangeEnd", "10GHz"), ("RangeStep", "1GHz")]
 autosweeps = [("Sweep", autosweep)]
 multifreq = [("1GHz", [0.02]), ("2GHz", [0.02]), ("5GHz", [0.02])]
 sweepsbr = [("RangeType", "LinearStep"), ("RangeStart", "1GHz"),
@@ -27,7 +28,8 @@ HFSSDrivenDefault = [("AdaptMultipleFreqs", False), ("MultipleAdaptiveFreqsSetup
                      ("MaxDeltaS", 0.02), ("PortsOnly", False),
                      ("UseMatrixConv", False), ("MaximumPasses", 6), ("MinimumPasses", 1),
                      ("MinimumConvergedPasses", 1),
-                     ("PercentRefinement", 30), ("IsEnabled", True), ("MeshLink", meshlink), ("BasisOrder", 1),
+                     ("PercentRefinement", 30), ("IsEnabled",
+                      True), ("MeshLink", meshlink), ("BasisOrder", 1),
                      ("DoLambdaRefine", True), ("DoMaterialLambda", True), ("SetLambdaTarget", False),
                      ("Target", 0.3333),
                      ("UseMaxTetIncrease", False), ("PortAccuracy", 2), ("UseABCOnPort", False), ("SetPortMinMaxTri",
@@ -56,7 +58,8 @@ HFSSSBR = [("IsEnabled", True), ("MeshLink", meshlink), ("IsSbrRangeDoppler", Fa
 """HFSS SBR+ setup properties and default values."""
 
 MaxwellTransient = [("Enabled", True), ("MeshLink", meshlink), ("NonlinearSolverResidual", "0.005"),
-                    ("ScalarPotential", "Second Order"), ("SmoothBHCurve", False), ("StopTime", "10000000ns"),
+                    ("ScalarPotential", "Second Order"), ("SmoothBHCurve",
+                     False), ("StopTime", "10000000ns"),
                     ("TimeStep", "2000000ns"),
                     ("OutputError", False), ("UseControlProgram", False), ("ControlProgramName", ""),
                     ("ControlProgramArg", ""), ("CallCtrlProgAfterLastStep", False),
@@ -80,7 +83,8 @@ Electrostatic = [("Enabled", True), ("MeshLink", meshlink), ("MaximumPasses", 10
 """Maxwell electrostatic setup properties and default values."""
 
 EddyCurrent = [("Enabled", True), ("MeshLink", meshlink), ("MaximumPasses", 6), ("MinimumPasses", 1),
-               ("MinimumConvergedPasses", 1), ("PercentRefinement", 30), ("SolveFieldOnly", False), ("PercentError", 1),
+               ("MinimumConvergedPasses", 1), ("PercentRefinement",
+                30), ("SolveFieldOnly", False), ("PercentError", 1),
                ("SolveMatrixAtLast", True), ("PercentError", 1), ("UseIterativeSolver", False),
                ("RelativeResidual", 1E-5), ("NonLinearResidual", 0.0001), ("SmoothBHCurve", False),
                ("Frequency", "60Hz"), ("HasSweepSetup", False), ("SweepSetupType", "LinearStep"),
@@ -116,7 +120,8 @@ SteadyTemperatureAndFlow = [("Enabled", True), ("Flow Regime", "Laminar"), ("Inc
                             ("Under-relaxation - Specific Dissipation Rate", "0.8"),
                             ("Discretization Scheme - Pressure", "Standard"),
                             ("Discretization Scheme - Momentum", "First"),
-                            ("Discretization Scheme - Temperature", "Second"), ("Secondary Gradient", False),
+                            ("Discretization Scheme - Temperature",
+                             "Second"), ("Secondary Gradient", False),
                             ("Discretization Scheme - Turbulent Kinetic Energy", "First"),
                             ("Discretization Scheme - Turbulent Dissipation Rate", "First"),
                             ("Discretization Scheme - Specific Dissipation Rate", "First"),
@@ -169,7 +174,8 @@ SteadyTemperatureOnly = [("Enabled", True), ("Flow Regime", "Laminar"), ("Includ
                          ("Under-relaxation - Specific Dissipation Rate", "0.8"),
                          ("Discretization Scheme - Pressure", "Standard"),
                          ("Discretization Scheme - Momentum", "First"),
-                         ("Discretization Scheme - Temperature", "Second"), ("Secondary Gradient", False),
+                         ("Discretization Scheme - Temperature",
+                          "Second"), ("Secondary Gradient", False),
                          ("Discretization Scheme - Turbulent Kinetic Energy", "First"),
                          ("Discretization Scheme - Turbulent Dissipation Rate", "First"),
                          ("Discretization Scheme - Specific Dissipation Rate", "First"),
@@ -214,10 +220,12 @@ SteadyFlowOnly = [("Enabled", True), ("Flow Regime", "Laminar"), ("Include Flow"
                   ("Convergence Criteria - Discrete Ordinates", "1e-06"),
                   ("IsEnabled", False), ("Radiation Model", "Off"),
                   ("Under-relaxation - Pressure", "0.7"), ("Under-relaxation - Momentum", "0.3"),
-                  ("Under-relaxation - Temperature", "1"), ("Under-relaxation - Turbulent Kinetic Energy", "0.8"),
+                  ("Under-relaxation - Temperature",
+                   "1"), ("Under-relaxation - Turbulent Kinetic Energy", "0.8"),
                   ("Under-relaxation - Turbulent Dissipation Rate", "0.8"),
                   ("Under-relaxation - Specific Dissipation Rate", "0.8"),
-                  ("Discretization Scheme - Pressure", "Standard"), ("Discretization Scheme - Momentum", "First"),
+                  ("Discretization Scheme - Pressure",
+                   "Standard"), ("Discretization Scheme - Momentum", "First"),
                   ("Discretization Scheme - Temperature", "First"), ("Secondary Gradient", False),
                   ("Discretization Scheme - Turbulent Kinetic Energy", "First"),
                   ("Discretization Scheme - Turbulent Dissipation Rate", "First"),
@@ -264,14 +272,16 @@ NoiseOutputQuantities = []
 SweepDefinition = [("Variable", "Freq"), ("Data", "LINC 1GHz 5GHz 501"), ("OffsetF1", False),
                    ("Synchronize", 0)]
 NexximLNA = [("DataBlockID", 16), ("OptionName", "(Default Options)"), ("AdditionalOptions", ""),
-             ("AlterBlockName", ""), ("FilterText", ""), ("AnalysisEnabled", 1), ("OutputQuantities", OutputQuantities),
+             ("AlterBlockName", ""), ("FilterText", ""), ("AnalysisEnabled",
+              1), ("OutputQuantities", OutputQuantities),
              ("NoiseOutputQuantities", NoiseOutputQuantities), ("Name", "LinearFrequency"),
              ("LinearFrequencyData", [False, 0.1, False, "", False]),
              ("SweepDefinition", SweepDefinition)]
 """Nexxim linear network setup properties and default values."""
 
 NexximDC = [("DataBlockID", 15), ("OptionName", "(Default Options)"), ("AdditionalOptions", ""),
-            ("AlterBlockName", ""), ("FilterText", ""), ("AnalysisEnabled", 1), ("OutputQuantities", OutputQuantities),
+            ("AlterBlockName", ""), ("FilterText", ""), ("AnalysisEnabled",
+             1), ("OutputQuantities", OutputQuantities),
             ("NoiseOutputQuantities", NoiseOutputQuantities), ("Name", "LinearFrequency")]
 """Nexxim DC setup properties and default values."""
 
@@ -279,7 +289,8 @@ NexximTransient = [("DataBlockID", 10), ("OptionName", "(Default Options)"), ("A
                    ("AlterBlockName", ""), ("FilterText", ""), ("AnalysisEnabled", 1),
                    ("OutputQuantities", OutputQuantities), ("NoiseOutputQuantities", NoiseOutputQuantities),
                    ("Name", "LinearFrequency"),
-                   ("TransientData", ["0.1ns", "10ns"]), ("TransientNoiseData", [False, "", "", 0, 1, 0, False, 1]),
+                   ("TransientData", ["0.1ns", "10ns"]), ("TransientNoiseData",
+                    [False, "", "", 0, 1, 0, False, 1]),
                    ("TransientOtherData", ["default"])]
 """Nexxim transient setup properties and default values."""
 
@@ -411,7 +422,8 @@ Close = [("AdaptiveFreq", "1GHz"), ("SaveFields", True), ("Enabled", True), ("Me
 
 
 TransientTemperatureAndFlow = [("Enabled", True), ("Flow Regime", "Laminar"), ("Include Temperature", True),
-                               ("Include Flow", True), ("Include Gravity", False), ("Include Solar", False),
+                               ("Include Flow", True), ("Include Gravity",
+                                False), ("Include Solar", False),
                                ("Solution Initialization - X Velocity", "0m_per_sec"),
                                ("Solution Initialization - Y Velocity", "0m_per_sec"),
                                ("Solution Initialization - Z Velocity", "0m_per_sec"),
@@ -425,7 +437,8 @@ TransientTemperatureAndFlow = [("Enabled", True), ("Flow Regime", "Laminar"), ("
                                ("Convergence Criteria - Turbulent Kinetic Energy", "0.001"),
                                ("Convergence Criteria - Turbulent Dissipation Rate", "0.001"),
                                ("Convergence Criteria - Specific Dissipation Rate", "0.001"),
-                               ("Convergence Criteria - Discrete Ordinates", "1e-06"), ("IsEnabled:=", False),
+                               ("Convergence Criteria - Discrete Ordinates",
+                                "1e-06"), ("IsEnabled:=", False),
                                ("Radiation Model", "Off"),
                                ("Solar Radiation Model", "Solar Radiation Calculator"),
                                ("Solar Radiation - Scattering Fraction", "0"),
@@ -433,24 +446,29 @@ TransientTemperatureAndFlow = [("Enabled", True), ("Flow Regime", "Laminar"), ("
                                ("Solar Radiation - Hours", 0),
                                ("Solar Radiation - Minutes", 0), ("Solar Radiation - GMT", "0"),
                                ("Solar Radiation - Latitude", "0"),
-                               ("Solar Radiation - Latitude Direction", "East"), ("Solar Radiation - Longitude", "0"),
+                               ("Solar Radiation - Latitude Direction",
+                                "East"), ("Solar Radiation - Longitude", "0"),
                                ("Solar Radiation - Longitude Direction", "North"),
                                ("Solar Radiation - Ground Reflectance", "0"),
-                               ("Solar Radiation - Sunshine Fraction", "0"), ("Solar Radiation - North X", "0"),
+                               ("Solar Radiation - Sunshine Fraction",
+                                "0"), ("Solar Radiation - North X", "0"),
                                ("Solar Radiation - North Y", "0"), ("Solar Radiation - North Z", "1"),
                                ("Under-relaxation - Pressure", "0.3"),
-                               ("Under-relaxation - Momentum", "0.7"), ("Under-relaxation - Temperature", "1"),
+                               ("Under-relaxation - Momentum",
+                                "0.7"), ("Under-relaxation - Temperature", "1"),
                                ("Under-relaxation - Turbulent Kinetic Energy", "0.8"),
                                ("Under-relaxation - Turbulent Dissipation Rate", "0.8"),
                                ("Under-relaxation - Specific Dissipation Rate", "0.8"),
                                ("Discretization Scheme - Pressure", "Standard"),
                                ("Discretization Scheme - Momentum", "First"),
-                               ("Discretization Scheme - Temperature", "First"), ("Secondary Gradient", False),
+                               ("Discretization Scheme - Temperature",
+                                "First"), ("Secondary Gradient", False),
                                ("Discretization Scheme - Turbulent Kinetic Energy", "First"),
                                ("Discretization Scheme - Turbulent Dissipation Rate", "First"),
                                ("Discretization Scheme - Specific Dissipation Rate", "First"),
                                ("Discretization Scheme - Discrete Ordinates", "First"),
-                               ("Linear Solver Type - Pressure", "V"), ("Linear Solver Type - Momentum", "flex"),
+                               ("Linear Solver Type - Pressure",
+                                "V"), ("Linear Solver Type - Momentum", "flex"),
                                ("Linear Solver Type - Temperature", "F"),
                                ("Linear Solver Type - Turbulent Kinetic Energy", "flex"),
                                ("Linear Solver Type - Turbulent Dissipation Rate", "flex"),
@@ -470,8 +488,10 @@ TransientTemperatureAndFlow = [("Enabled", True), ("Flow Regime", "Laminar"), ("
                                ("Linear Solver Stabilization - Pressure", "None"),
                                ("Linear Solver Stabilization - Temperature", "None"),
                                ("Coupled pressure-velocity formulation", False),
-                               ("Frozen Flow Simulation", False), ("Start Time:=", "0s"), ("Stop Time:=", "20s"),
-                               ("Time Step:=", "1s"), ("Iterations per Time Step", 20), ("Import Start Time", False),
+                               ("Frozen Flow Simulation", False), ("Start Time:=",
+                                "0s"), ("Stop Time:=", "20s"),
+                               ("Time Step:=", "1s"), ("Iterations per Time Step",
+                                20), ("Import Start Time", False),
                                ("Copy Fields From Source", False), ("SaveFieldsType", "Every N Steps"),
                                ("N Steps:=", "10s"), ("Enable Control Program", False), ("Control Program Name", "")]
 
@@ -490,7 +510,8 @@ TransientTemperatureOnly = [("Enabled", True), ("Flow Regime", "Laminar"), ("Inc
                             ("Convergence Criteria - Turbulent Kinetic Energy", "0.001"),
                             ("Convergence Criteria - Turbulent Dissipation Rate", "0.001"),
                             ("Convergence Criteria - Specific Dissipation Rate", "0.001"),
-                            ("Convergence Criteria - Discrete Ordinates", "1e-06"), ("IsEnabled:=", False),
+                            ("Convergence Criteria - Discrete Ordinates",
+                             "1e-06"), ("IsEnabled:=", False),
                             ("Radiation Model", "Off"),
                             ("Solar Radiation Model", "Solar Radiation Calculator"),
                             ("Solar Radiation - Scattering Fraction", "0"),
@@ -498,10 +519,12 @@ TransientTemperatureOnly = [("Enabled", True), ("Flow Regime", "Laminar"), ("Inc
                             ("Solar Radiation - Hours", 0),
                             ("Solar Radiation - Minutes", 0), ("Solar Radiation - GMT", "0"),
                             ("Solar Radiation - Latitude", "0"),
-                            ("Solar Radiation - Latitude Direction", "East"), ("Solar Radiation - Longitude", "0"),
+                            ("Solar Radiation - Latitude Direction",
+                             "East"), ("Solar Radiation - Longitude", "0"),
                             ("Solar Radiation - Longitude Direction", "North"),
                             ("Solar Radiation - Ground Reflectance", "0"),
-                            ("Solar Radiation - Sunshine Fraction", "0"), ("Solar Radiation - North X", "0"),
+                            ("Solar Radiation - Sunshine Fraction",
+                             "0"), ("Solar Radiation - North X", "0"),
                             ("Solar Radiation - North Y", "0"), ("Solar Radiation - North Z", "1"),
                             ("Under-relaxation - Pressure", "0.3"),
                             ("Under-relaxation - Momentum", "0.7"), ("Under-relaxation - Temperature", "1"),
@@ -510,12 +533,14 @@ TransientTemperatureOnly = [("Enabled", True), ("Flow Regime", "Laminar"), ("Inc
                             ("Under-relaxation - Specific Dissipation Rate", "0.8"),
                             ("Discretization Scheme - Pressure", "Standard"),
                             ("Discretization Scheme - Momentum", "First"),
-                            ("Discretization Scheme - Temperature", "First"), ("Secondary Gradient", False),
+                            ("Discretization Scheme - Temperature",
+                             "First"), ("Secondary Gradient", False),
                             ("Discretization Scheme - Turbulent Kinetic Energy", "First"),
                             ("Discretization Scheme - Turbulent Dissipation Rate", "First"),
                             ("Discretization Scheme - Specific Dissipation Rate", "First"),
                             ("Discretization Scheme - Discrete Ordinates", "First"),
-                            ("Linear Solver Type - Pressure", "V"), ("Linear Solver Type - Momentum", "flex"),
+                            ("Linear Solver Type - Pressure",
+                             "V"), ("Linear Solver Type - Momentum", "flex"),
                             ("Linear Solver Type - Temperature", "F"),
                             ("Linear Solver Type - Turbulent Kinetic Energy", "flex"),
                             ("Linear Solver Type - Turbulent Dissipation Rate", "flex"),
@@ -535,8 +560,10 @@ TransientTemperatureOnly = [("Enabled", True), ("Flow Regime", "Laminar"), ("Inc
                             ("Linear Solver Stabilization - Pressure", "None"),
                             ("Linear Solver Stabilization - Temperature", "None"),
                             ("Coupled pressure-velocity formulation", False),
-                            ("Frozen Flow Simulation", False), ("Start Time:=", "0s"), ("Stop Time:=", "20s"),
-                            ("Time Step:=", "1s"), ("Iterations per Time Step", 20), ("Import Start Time", False),
+                            ("Frozen Flow Simulation", False), ("Start Time:=",
+                             "0s"), ("Stop Time:=", "20s"),
+                            ("Time Step:=", "1s"), ("Iterations per Time Step",
+                             20), ("Import Start Time", False),
                             ("Copy Fields From Source", False), ("SaveFieldsType", "Every N Steps"),
                             ("N Steps:=", "10s"), ("Enable Control Program", False), ("Control Program Name", "")]
 
@@ -563,7 +590,8 @@ TransientFlowOnly = [("Enabled", True), ("Flow Regime", "Laminar"), ("Include Te
                      ("Solar Radiation - Hours", 0),
                      ("Solar Radiation - Minutes", 0), ("Solar Radiation - GMT", "0"),
                      ("Solar Radiation - Latitude", "0"),
-                     ("Solar Radiation - Latitude Direction", "East"), ("Solar Radiation - Longitude", "0"),
+                     ("Solar Radiation - Latitude Direction",
+                      "East"), ("Solar Radiation - Longitude", "0"),
                      ("Solar Radiation - Longitude Direction", "North"),
                      ("Solar Radiation - Ground Reflectance", "0"),
                      ("Solar Radiation - Sunshine Fraction", "0"), ("Solar Radiation - North X", "0"),
@@ -705,7 +733,8 @@ HFSS3DLayout = [
     ("InclBBoxOption", 1),
     ("AuxBlock", []),
     ("DoAdaptive", True),
-    ("Color", ["R:=", 0, "G:=", 0, "B:=", 0], None),  # TODO: create something smart for color arrays, like a class
+    # TODO: create something smart for color arrays, like a class
+    ("Color", ["R:=", 0, "G:=", 0, "B:=", 0], None),
     ("AdvancedSettings", HFSS3DLayout_AdvancedSettings),
     ("CurveApproximation", HFSS3DLayout_CurveApproximation),
     ("Q3D_DCSettings", HFSS3DLayout_Q3D_DCSettings),
@@ -730,7 +759,8 @@ MechStructural = [("Enabled", True), ("MeshLink", meshlink), ("Solver", "Program
 GRM = [("Enabled", True), ("MeshLink", meshlink),
        ("RatedOutputPower", "1W"), ("RatedVoltage", "208V"), ("RatedSpeed", "3600rpm"),
        ("OperatingTemperature", "75cel"),
-       ("OperationType", "Motor"), ("LoadType", "ConstPower"), ("RatedPowerFactor", "0.8"), ("Frequency", "60Hz"),
+       ("OperationType", "Motor"), ("LoadType",
+        "ConstPower"), ("RatedPowerFactor", "0.8"), ("Frequency", "60Hz"),
        ("CapacitivePowerFactor", False)]
 
 TR = []

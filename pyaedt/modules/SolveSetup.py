@@ -71,7 +71,8 @@ class Setup(object):
                 setups_data = self.parent.design_properties["AnalysisSetup"]["SolveSetups"]
                 if setupname in setups_data:
                     setup_data = setups_data[setupname]
-                    if "Sweeps" in setup_data and self.setuptype not in [0,7]:   #0 and 7 represent setup HFSSDrivenAuto
+                    #0 and 7 represent setup HFSSDrivenAuto
+                    if "Sweeps" in setup_data and self.setuptype not in [0,7]:
                         if self.setuptype <= 4:
                             app = setup_data["Sweeps"]
                             app.pop('NextUniqueID', None)
@@ -79,13 +80,15 @@ class Setup(object):
                             app.pop('MoveBackwards', None)
                             for el in app:
                                 if type(app[el]) is OrderedDict:
-                                    self.sweeps.append(SweepHFSS(self.omodule, setupname, el, props=app[el]))
+                                    self.sweeps.append(
+                                        SweepHFSS(self.omodule, setupname, el, props=app[el]))
 
                         else:
                             app = setup_data["Sweeps"]
                             for el in app:
                                 if type(app[el]) is OrderedDict:
-                                    self.sweeps.append(SweepQ3D(self.omodule, setupname, el, props=app[el]))
+                                    self.sweeps.append(
+                                        SweepQ3D(self.omodule, setupname, el, props=app[el]))
                         setup_data.pop('Sweeps', None)
                     self.props = OrderedDict(setup_data)
             except:
@@ -564,7 +567,8 @@ class SetupCircuit(object):
                 self.omodule.EditAMIAnalysis(self.name,arg)
 
             else:
-                raise NotImplementedError("Solution type '{}' is not implemented yet".format(soltype))
+                raise NotImplementedError(
+                    "Solution type '{}' is not implemented yet".format(soltype))
         return True
 
     @aedt_exception_handler
@@ -833,7 +837,8 @@ class Setup3DLayout(object):
                         app = setup_data["Data"]
                         for el in app:
                             if type(app[el]) is OrderedDict:
-                                self.sweeps.append(SweepHFSS3DLayout(self.omodule, setupname, el, props=app[el]))
+                                self.sweeps.append(SweepHFSS3DLayout(
+                                    self.omodule, setupname, el, props=app[el]))
 
                     self.props = OrderedDict(setup_data)
             except:

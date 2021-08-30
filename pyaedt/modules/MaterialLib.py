@@ -72,7 +72,8 @@ class Materials(object):
         mats = {}
         try:
             for ds in self._parent.project_properies['AnsoftProject']['Definitions']['Materials']:
-                mats[ds.lower()] = Material(self, ds.lower(), self._parent.project_properies['AnsoftProject']['Definitions']['Materials'][ds])
+                mats[ds.lower()] = Material(self, ds.lower(),
+                              self._parent.project_properies['AnsoftProject']['Definitions']['Materials'][ds])
         except:
             pass
         return mats
@@ -82,7 +83,8 @@ class Materials(object):
         mats = {}
         try:
             for ds in self._parent.project_properies['AnsoftProject']['Definitions']['SurfaceMaterials']:
-                mats[ds.lower()] = SurfaceMaterial(self, ds.lower(), self._parent.project_properies['AnsoftProject']['Definitions']['SurfaceMaterials'][ds])
+                mats[ds.lower()] = SurfaceMaterial(self, ds.lower(
+                ), self._parent.project_properies['AnsoftProject']['Definitions']['SurfaceMaterials'][ds])
         except:
             pass
         return mats
@@ -174,7 +176,8 @@ class Materials(object):
 
         """
         materialname = materialname.lower()
-        self._messenger.add_info_message('Adding new material to the Project Library: ' + materialname)
+        self._messenger.add_info_message(
+            'Adding new material to the Project Library: ' + materialname)
         if materialname in self.material_keys:
             self._messenger.add_warning_message(
                 "Warning. The material is already in the database. Change or edit the name.")
@@ -182,7 +185,8 @@ class Materials(object):
         else:
             material = Material(self._parent, materialname, props)
             material.update()
-            self._messenger.add_info_message("Material has been added. Edit it to update in Desktop.")
+            self._messenger.add_info_message(
+                "Material has been added. Edit it to update in Desktop.")
             self.material_keys[materialname] = material
             return self.material_keys[materialname]
 
@@ -214,7 +218,8 @@ class Materials(object):
         """
 
         materialname = material_name.lower()
-        self._messenger.add_info_message('Adding a surface material to the project library: ' + materialname)
+        self._messenger.add_info_message(
+            'Adding a surface material to the project library: ' + materialname)
         if materialname in self.surface_material_keys:
             self._messenger.add_warning_message(
                 "Warning. The material is already in the database. Change the name or edit it.")
@@ -224,7 +229,8 @@ class Materials(object):
             if emissivity:
                 material.emissivity = emissivity
                 material.update()
-            self._messenger.add_info_message("Material has been added. Edit it to update in Desktop.")
+            self._messenger.add_info_message(
+                "Material has been added. Edit it to update in Desktop.")
             self.surface_material_keys[materialname] = material
             return self.surface_material_keys[materialname]
 
@@ -239,7 +245,8 @@ class Materials(object):
                 try:
                     matprop[prop].append(float(mat.__dict__["_"+prop].value))
                 except:
-                    self._messenger.add_warning_message("Warning. Wrong parsed property. Reset to 0")
+                    self._messenger.add_warning_message(
+                        "Warning. Wrong parsed property. Reset to 0")
                     matprop[prop].append(0)
             try:
                 a = sum(matprop[prop])
@@ -365,7 +372,8 @@ class Materials(object):
         if not material.lower() in list(self.surface_material_keys.keys()):
             self._messenger.add_error_message("Material {} is not present".format(material))
             return False
-        newmat = SurfaceMaterial(self, new_name.lower(), self.surface_material_keys[material.lower()]._props)
+        newmat = SurfaceMaterial(self, new_name.lower(
+        ), self.surface_material_keys[material.lower()]._props)
         newmat.update()
         self.surface_material_keys[new_name.lower()] = newmat
         return newmat
@@ -443,7 +451,8 @@ class Materials(object):
                 try:
                     self._aedmattolibrary(el)
                 except Exception as e:
-                    self._messenger.add_info_message('aedmattolibrary failed for material {}'.format(el))
+                    self._messenger.add_info_message(
+                        'aedmattolibrary failed for material {}'.format(el))
 
     @aedt_exception_handler
     def _aedmattolibrary(self, matname):
@@ -543,7 +552,8 @@ class Materials(object):
         for el, val in data["materials"].items():
             if el.lower() in list(self.material_keys.keys()):
                 newname =generate_unique_name(el)
-                self._messenger.add_warning_message("Material {} already exists. Renaming to {}".format(el, newname))
+                self._messenger.add_warning_message(
+                    "Material {} already exists. Renaming to {}".format(el, newname))
             else:
                 newname = el
             newmat = Material(self, newname, val)

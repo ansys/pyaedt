@@ -140,7 +140,8 @@ class CommonOptimetrics(object):
                                 break
                     else:
                         if self._parent.design_properties["SolutionManager"]['ID Map']['Setup']['I'] == el:
-                            setups[setups.index(el)] = self._parent.design_properties["SolutionManager"]['ID Map']['Setup']['N']
+                            setups[setups.index(
+                                el)] = self._parent.design_properties["SolutionManager"]['ID Map']['Setup']['N']
                             break
             if inputd.get("Goals", None):
                 oparams = self.omodule.GetChildObject(self.name).GetCalculationInfo()
@@ -313,7 +314,8 @@ class CommonOptimetrics(object):
         sweepdefinition["Weight"] = "[{};]".format(goal_weight)
         if "Goal" in self.props[optigoalname]:
             if type(self.props[optigoalname]["Goal"]) is not list:
-                self.props[optigoalname]["Goal"] = [self.props[optigoalname]["Goal"], sweepdefinition]
+                self.props[optigoalname]["Goal"] = [
+                    self.props[optigoalname]["Goal"], sweepdefinition]
             else:
                 self.props[optigoalname]["Goal"].append(sweepdefinition)
         else:
@@ -344,7 +346,8 @@ class DXSetups(object):
 
         """
         def __init__(self, parent, name, dictinputs=None):
-            CommonOptimetrics.__init__(self, parent, name, dictinputs=dictinputs, optimtype="OptiDesignExplorer")
+            CommonOptimetrics.__init__(
+                self, parent, name, dictinputs=dictinputs, optimtype="OptiDesignExplorer")
 
         @aedt_exception_handler
         def add_calculation(self, calculation="", calculation_value="", reporttype="Modal Solution Data", solution=None, domain="Sweep",  calculation_name=None):
@@ -530,7 +533,8 @@ class ParametericsSetups(object):
 
         """
         def __init__(self, parent, name, dictinputs=None):
-            CommonOptimetrics.__init__(self, parent, name, dictinputs=dictinputs, optimtype="OptiParametric")
+            CommonOptimetrics.__init__(
+                self, parent, name, dictinputs=dictinputs, optimtype="OptiParametric")
             pass
 
         @aedt_exception_handler
@@ -688,7 +692,8 @@ class SensitivitySetups(object):
 
         """
         def __init__(self, parent, name, dictinputs=None):
-            CommonOptimetrics.__init__(self, parent, name, dictinputs=dictinputs, optimtype="OptiSensitivity")
+            CommonOptimetrics.__init__(
+                self, parent, name, dictinputs=dictinputs, optimtype="OptiSensitivity")
 
         @aedt_exception_handler
         def add_calculation(self, calculation="", calculation_value="", reporttype="Modal Solution Data", solution=None,
@@ -824,7 +829,8 @@ class StatisticalSetups(object):
 
         """
         def __init__(self, parent, name, dictinputs=None):
-            CommonOptimetrics.__init__(self, parent, name, dictinputs=dictinputs, optimtype="OptiStatistical")
+            CommonOptimetrics.__init__(
+                self, parent, name, dictinputs=dictinputs, optimtype="OptiStatistical")
             pass
 
         @aedt_exception_handler
@@ -929,7 +935,8 @@ class StatisticalSetups(object):
         sweepdefinition["SimValueContext"] = OrderedDict({"Domain": domain})
         sweepdefinition["Calculation"] = calculation_name
         sweepdefinition["Name"] = calculation_name
-        sweepdefinition["Ranges"] = OrderedDict({"Range": ["Var:=", calculation_type,	"Type:=", "d", "DiscreteValues:=", calc_variation_value]})
+        sweepdefinition["Ranges"] = OrderedDict(
+            {"Range": ["Var:=", calculation_type,	"Type:=", "d", "DiscreteValues:=", calc_variation_value]})
         setup.props["Goals"]["Goal"] = sweepdefinition
         setup.create()
         self.setups.append(setup)
@@ -960,7 +967,8 @@ class DOESetups(object):
 
         """
         def __init__(self, parent, name, dictinputs=None):
-            CommonOptimetrics.__init__(self, parent, name, dictinputs=dictinputs, optimtype="OptiDXDOE")
+            CommonOptimetrics.__init__(
+                self, parent, name, dictinputs=dictinputs, optimtype="OptiDXDOE")
             pass
         @aedt_exception_handler
         def add_calculation(self, calculation="", calculation_value="", reporttype="Modal Solution Data", solution=None,
@@ -1159,7 +1167,8 @@ class OptimizationSetups(object):
         """
 
         def __init__(self, parent, name, dictinputs=None):
-            CommonOptimetrics.__init__(self, parent, name, dictinputs=dictinputs, optimtype="OptiOptimization")
+            CommonOptimetrics.__init__(
+                self, parent, name, dictinputs=dictinputs, optimtype="OptiOptimization")
             pass
 
         @aedt_exception_handler
@@ -1289,7 +1298,8 @@ class OptimizationSetups(object):
         sweepdefinition["SimValueContext"] = OrderedDict({"Domain": domain})
         sweepdefinition["Calculation"] = calculation
         sweepdefinition["Name"] = calculation
-        sweepdefinition["Ranges"] = OrderedDict({"Range": ["Var:=", calculation_type,	"Type:=", "d", "DiscreteValues:=", calculation_value]})
+        sweepdefinition["Ranges"] = OrderedDict(
+            {"Range": ["Var:=", calculation_type,	"Type:=", "d", "DiscreteValues:=", calculation_value]})
         sweepdefinition["Condition"] = condition
         sweepdefinition["GoalValue"] = OrderedDict(
             {"GoalValueType": "Independent", "Format": "Real/Imag", "bG": ["v:=", "[{};]".format(goal_value)]})

@@ -41,7 +41,8 @@ class SolutionData(object):
         """SI units for the sweep."""
         data = {}
         for el in self._sweeps:
-            data[el] = self._convert_list_to_SI(self._sweeps[el], self._quantity(self.units_sweeps[el]), self.units_sweeps[el])
+            data[el] = self._convert_list_to_SI(self._sweeps[el], self._quantity(
+                self.units_sweeps[el]), self.units_sweeps[el])
         return data
 
     @property
@@ -260,7 +261,8 @@ class SolutionData(object):
                 temp[position]=el
                 sol.append(0)
         if convert_to_SI and self._quantity(self.units_data[expression]):
-            sol = self._convert_list_to_SI(sol, self._quantity(self.units_data[expression]), self.units_data[expression])
+            sol = self._convert_list_to_SI(sol, self._quantity(
+                self.units_data[expression]), self.units_data[expression])
         return sol
 
     @aedt_exception_handler
@@ -350,7 +352,8 @@ class SolutionData(object):
                 temp[position]=el
                 sol.append(0)
         if convert_to_SI and self._quantity(self.units_data[expression]):
-            sol = self._convert_list_to_SI(sol, self._quantity(self.units_data[expression]), self.units_data[expression])
+            sol = self._convert_list_to_SI(sol, self._quantity(
+                self.units_data[expression]), self.units_data[expression])
         return sol
 
     def data_imag(self, expression=None, convert_to_SI=False):
@@ -391,7 +394,8 @@ class SolutionData(object):
                 temp[position]=el
                 sol.append(0)
         if convert_to_SI and self._quantity(self.units_data[expression]):
-            sol = self._convert_list_to_SI(sol, self._quantity(self.units_data[expression]), self.units_data[expression])
+            sol = self._convert_list_to_SI(sol, self._quantity(
+                self.units_data[expression]), self.units_data[expression])
         return sol
 
 
@@ -926,7 +930,8 @@ class PostProcessorCommon(object):
             else:
                 sweep_list.append([sweeps[el]])
 
-        data = self.oreportsetup.GetSolutionDataPerVariation(soltype, setup_sweep_name, ctxt, sweep_list, expression)
+        data = self.oreportsetup.GetSolutionDataPerVariation(
+            soltype, setup_sweep_name, ctxt, sweep_list, expression)
         return SolutionData(data)
 
     @aedt_exception_handler
@@ -939,7 +944,8 @@ class PostProcessorCommon(object):
             ``True`` when successful, ``False`` when failed.
         """
         self._desktop.RestoreWindow()
-        param = ["NAME:SphereParameters", "XCenter:=", "0mm", "YCenter:=", "0mm", "ZCenter:=", "0mm", "Radius:=", "1mm"]
+        param = ["NAME:SphereParameters", "XCenter:=", "0mm",
+            "YCenter:=", "0mm", "ZCenter:=", "0mm", "Radius:=", "1mm"]
         attr = ["NAME:Attributes", "Name:=", "DUMMYSPHERE1", "Flags:=", "NonModel#"]
         self.oeditor.CreateSphere(param, attr)
         self.oeditor.Delete(["NAME:Selections", "Selections:=", "DUMMYSPHERE1"])
@@ -1193,7 +1199,8 @@ class PostProcessor(PostProcessorCommon, object):
         if not filename:
             appendix = ""
             ext = ".fld"
-            filename = os.path.join(self._parent.project_path, solution.replace(" : ", "_") + appendix + ext)
+            filename = os.path.join(self._parent.project_path,
+                                    solution.replace(" : ", "_") + appendix + ext)
         else:
             filename = filename.replace("//", "/").replace("\\", "/")
         self.ofieldsreporter.CalcStack("clear")
@@ -1217,14 +1224,20 @@ class PostProcessor(PostProcessorCommon, object):
             grid_step_wu = [str(i)+units for i in grid_step]
         elif gridtype == "Cylinidrical":
             grid_center = [str(i)+units for i in grid_center]
-            grid_start_wu = [str(grid_start[0])+units, str(grid_start[1])+ang_units, str(grid_start[2])+units]
-            grid_stop_wu = [str(grid_stop[0])+units, str(grid_stop[1])+ang_units, str(grid_stop[2])+units]
-            grid_step_wu = [str(grid_step[0])+units, str(grid_step[1])+ang_units, str(grid_step[2])+units]
+            grid_start_wu = [str(grid_start[0])+units, str(grid_start[1])+ \
+                                 ang_units, str(grid_start[2])+units]
+            grid_stop_wu = [str(grid_stop[0])+units, str(grid_stop[1])+ \
+                                ang_units, str(grid_stop[2])+units]
+            grid_step_wu = [str(grid_step[0])+units, str(grid_step[1])+ \
+                                ang_units, str(grid_step[2])+units]
         elif gridtype == "Spherical":
             grid_center = [str(i)+units for i in grid_center]
-            grid_start_wu = [str(grid_start[0])+units, str(grid_start[1])+ang_units, str(grid_start[2])+ang_units]
-            grid_stop_wu = [str(grid_stop[0])+units, str(grid_stop[1])+ang_units, str(grid_stop[2])+ang_units]
-            grid_step_wu = [str(grid_step[0])+units, str(grid_step[1])+ang_units, str(grid_step[2])+ang_units]
+            grid_start_wu = [str(grid_start[0])+units, str(grid_start[1])+ \
+                                 ang_units, str(grid_start[2])+ang_units]
+            grid_stop_wu = [str(grid_stop[0])+units, str(grid_stop[1])+ \
+                                ang_units, str(grid_stop[2])+ang_units]
+            grid_step_wu = [str(grid_step[0])+units, str(grid_step[1])+ \
+                                ang_units, str(grid_step[2])+ang_units]
         else:
             self._parent._messenger.add_error_message("Error in the type of the grid.")
             return False
@@ -1299,7 +1312,8 @@ class PostProcessor(PostProcessorCommon, object):
         if not filename:
             appendix = ""
             ext = ".fld"
-            filename = os.path.join(self._parent.project_path, solution.replace(" : ","_") + appendix + ext)
+            filename = os.path.join(self._parent.project_path,
+                                    solution.replace(" : ","_") + appendix + ext)
         else:
             filename = filename.replace("//", "/").replace("\\", "/")
         self.ofieldsreporter.CalcStack("clear")
@@ -1337,16 +1351,19 @@ class PostProcessor(PostProcessorCommon, object):
                     variation_dict.append("0deg")
         if not sample_points_file and not sample_points_lists:
 
-            self.ofieldsreporter.CalculatorWrite(filename, ["Solution:="	, solution], variation_dict)
+            self.ofieldsreporter.CalculatorWrite(
+                filename, ["Solution:="	, solution], variation_dict)
         elif sample_points_file:
 
-            self.ofieldsreporter.ExportToFile(filename, sample_points_file, solution, variation_dict, export_with_sample_points)
+            self.ofieldsreporter.ExportToFile(
+                filename, sample_points_file, solution, variation_dict, export_with_sample_points)
         else:
             sample_points_file = os.path.join(self._parent.project_path, "temp_points.pts")
             with open(sample_points_file, "w") as f:
                 for point in sample_points_lists:
                     f.write(" ".join([str(i) for i in point])+"\n")
-            self.ofieldsreporter.ExportToFile(filename, sample_points_file, solution, variation_dict, export_with_sample_points)
+            self.ofieldsreporter.ExportToFile(
+                filename, sample_points_file, solution, variation_dict, export_with_sample_points)
 
         return os.path.exists(filename)
 
@@ -1373,7 +1390,8 @@ class PostProcessor(PostProcessorCommon, object):
         """
         if not filename:
             filename = plotname
-        self.ofieldsreporter.ExportFieldPlot(plotname, False, os.path.join(filepath, filename + ".aedtplt"))
+        self.ofieldsreporter.ExportFieldPlot(
+            plotname, False, os.path.join(filepath, filename + ".aedtplt"))
         return os.path.join(filepath, filename+".aedtplt")
 
     @aedt_exception_handler
@@ -1549,7 +1567,8 @@ class PostProcessor(PostProcessorCommon, object):
         center = [(float(bound[0]) + float(bound[3])) / 2,
                   (float(bound[1]) + float(bound[4])) / 2,
                   (float(bound[2]) + float(bound[5])) / 2]
-        coordinateSystemForExportPlot = self.modeler.create_coordinate_system(origin=center, mode='view', view=view)
+        coordinateSystemForExportPlot = self.modeler.create_coordinate_system(
+            origin=center, mode='view', view=view)
         wireframes = []
         if wireframe:
             names = self._primitives.object_names
@@ -1674,7 +1693,8 @@ class PostProcessor(PostProcessorCommon, object):
             setup_sweep_name = self._parent.nominal_adaptive
         if families_dict is None:
             families_dict = {"Theta": ["All"], "Phi": ["All"], "Freq": ["All"]}
-        solution_data = self.get_solution_data_per_variation("Far Fields", setup_sweep_name, ['Context:=', domain], families_dict, expression)
+        solution_data = self.get_solution_data_per_variation(
+            "Far Fields", setup_sweep_name, ['Context:=', domain], families_dict, expression)
         if not solution_data:
             print("No Data Available. Check inputs")
             return False
