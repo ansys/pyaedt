@@ -66,6 +66,7 @@ class PostProcessor(Post):
         Inherited parent object.
 
     """
+
     def __init__(self, parent):
         Post.__init__(self, parent)
 
@@ -432,6 +433,7 @@ class PostProcessor(Post):
                 if solution:
                     class MyCustomRoutine():
                         """ """
+
                         def __init__(self, mesh):
                             self.output = mesh  # Expected PyVista mesh type
                             # default parameters
@@ -475,6 +477,7 @@ class PostProcessor(Post):
                 if solution:
                     class MyCustomRoutine():
                         """ """
+
                         def __init__(self, mesh):
                             self.output = mesh  # Expected PyVista mesh type
                             # default parameters

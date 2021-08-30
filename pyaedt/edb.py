@@ -81,6 +81,7 @@ class Edb(object):
     >>> app = Edb("myfile.aedb")
 
     """
+
     def __init__(self, edbpath=None, cellname=None, isreadonly=False, edbversion="2021.1", isaedtowned=False, oproject=None, student_version=False):
         self._clean_variables()
         if _ironpython and inside_desktop:

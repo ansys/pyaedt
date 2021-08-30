@@ -413,6 +413,7 @@ class FieldPlot:
         Name of the intrinsic dictionary. The default is ``{}``.
 
     """
+
     def __init__(self, oField, objlist, solutionName, quantityName, intrinsincList={}):
         self.oField = oField
         self.faceIndexes = objlist
@@ -1010,6 +1011,7 @@ class PostProcessor(PostProcessorCommon, object):
         `_modeler`, `_desktop`, `_odesign`, and `_messenger`.
 
     """
+
     def __init__(self, parent):
         self._parent = parent
         self.FieldsPlot = {}

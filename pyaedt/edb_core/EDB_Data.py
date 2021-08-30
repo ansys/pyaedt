@@ -777,6 +777,7 @@ class EDBPadProperties(object):
     def offset_x(self, offset_value):
 
         self._update_pad_parameters_parameters(offsetx= offset_value)
+
     @property
     def offset_y(self):
         """Offset for the Y axis.

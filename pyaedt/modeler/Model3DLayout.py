@@ -17,6 +17,7 @@ class Modeler3DLayout(Modeler):
         Inherited parent object.
 
     """
+
     def __init__(self, parent):
         self._parent = parent
         self._messenger.add_info_message("Loading Modeler.")

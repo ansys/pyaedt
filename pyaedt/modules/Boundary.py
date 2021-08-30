@@ -198,6 +198,7 @@ class BoundaryObject(BoundaryCommon, object):
     >>> inner_id = hfss.modeler.primitives.get_obj_id("inner")
     >>> coat = hfss.assigncoating([inner_id], "copper", usethickness=True, thickness="0.2mm")
     """
+
     def __init__(self, parent, name, props, boundarytype):
         self._parent = parent
         self.name = name

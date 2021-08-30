@@ -223,6 +223,7 @@ class DesignCache(object):
         Name of the parent object.
 
     """
+
     def __init__(self, parent):
         self._parent = parent
         self._allow_errors_local = []

@@ -241,6 +241,7 @@ class VertexPrimitive(EdgeTypePrimitive, object):
         Object ID as determined by the parent object.
 
     """
+
     def __init__(self, parent, id):
         self.id = id
         self._parent = parent
@@ -283,6 +284,7 @@ class EdgePrimitive(EdgeTypePrimitive, object):
         Object ID as determined by the parent object.
 
     """
+
     def __init__(self, parent, edge_id):
         self.id = edge_id
         self._parent = parent
@@ -535,6 +537,7 @@ class Object3d(object):
     >>> part = prim[id]
 
     """
+
     def __init__(self, parent, name=None):
         if name:
             self._m_name = name
@@ -1296,6 +1299,7 @@ class Padstack(object):
         The default is ``mm``.
 
     """
+
     def __init__(self, name="Padstack", padstackmanager=None, units="mm"):
         self.name = name
         self.padstackmgr = padstackmanager
@@ -1330,6 +1334,7 @@ class Padstack(object):
             Rotation in degrees. The default is ``"0deg"``.
 
         """
+
         def __init__(self, holetype="Cir", sizes=["1mm"], xpos="0mm", ypos="0mm", rot="0deg"):
             self.shape = holetype
             self.sizes = sizes
@@ -1413,6 +1418,7 @@ class Padstack(object):
                 Rotation in degrees. The default is ``"0deg"``.
 
             """
+
             def __init__(self, holetype="Cir", sizes=["1mm"], xpos="0mm", ypos="0mm", rot="0deg"):
                 self.shape = holetype
                 self.sizes = sizes
@@ -1852,6 +1858,7 @@ class Objec3DLayout(object):
     parent :
 
     """
+
     def __init__(self, parent):
         self._parent = parent
         self._n = 10
@@ -1928,6 +1935,7 @@ class Components3DLayout(Objec3DLayout, object):
         The default is ``""``.
 
     """
+
     def __init__(self, parent, name=""):
         Objec3DLayout.__init__(self, parent)
         self.name = name
@@ -2004,6 +2012,7 @@ class Nets3DLayout(Objec3DLayout, object):
         The default is ``""``.
 
     """
+
     def __init__(self, parent, name=""):
         Objec3DLayout.__init__(self, parent)
         self.name = name
@@ -2024,6 +2033,7 @@ class Pins3DLayout(Objec3DLayout, object):
         The default is ``""``.
 
     """
+
     def __init__(self, parent, componentname="", pinname="", name=""):
         Objec3DLayout.__init__(self, parent)
         self.componentname = componentname
@@ -2105,6 +2115,7 @@ class Geometries3DLayout(Objec3DLayout, object):
         The default is ``0``.
 
     """
+
     def __init__(self, parent, name, id=0):
         Objec3DLayout.__init__(self, parent)
         self.name = name

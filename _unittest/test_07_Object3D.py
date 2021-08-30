@@ -73,6 +73,7 @@ class TestClass:
             self.aedtapp.modeler.primitives.delete(name)
         return self.aedtapp.modeler.primitives.create_cylinder(cs_axis="Y", position=[0, 0, 0], radius=1, height=20,
                                                             numSides=8, name=name, matname="Copper")
+
     def test_00_uname(self):
         test = _uname()
         assert test.startswith("NewObject")

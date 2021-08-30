@@ -736,6 +736,7 @@ class Primitives(object):
         Pointer to the Modeler object.
 
     """
+
     def __init__(self, parent, modeler):
         self._modeler = modeler
         self._parent = parent

@@ -30,6 +30,7 @@ class MeshOperation(object):
     meshoptpe :
 
     """
+
     def __init__(self, parent, name, props, meshoptype):
         self._parent = parent
         self.name = name

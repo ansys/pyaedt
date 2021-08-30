@@ -82,6 +82,7 @@ class Mechanical(FieldAnalysis3D, object):
 
         FieldAnalysis3D.__init__(self, "Mechanical", projectname, designname, solution_type, setup_name,
                                  specified_version, NG, AlwaysNew, release_on_exit, student_version)
+
     def __enter__(self):
         return self
 

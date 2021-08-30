@@ -35,6 +35,7 @@ class CoordinateSystem(object):
         The default is ``None``.
 
     """
+
     def __init__(self, parent, props=None, name=None):
         self._parent = parent
         self.model_units = self._parent.model_units
@@ -527,6 +528,7 @@ class GeometryModeler(Modeler, object):
         ``True`` when successful, ``False`` when failed.
 
     """
+
     def __init__(self, parent, is3d=True):
         self._parent = parent
         Modeler.__init__(self, parent)

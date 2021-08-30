@@ -568,6 +568,7 @@ class TestClass(BasisTest):
                                                       allow_perpendicular=True, tol=1e-6)
         edges2 = self.aedtapp.modeler.primitives.get_edges_for_circuit_port_from_sheet("MyGND", XY_plane=True, YZ_plane=False, XZ_plane=False,
                                                       allow_perpendicular=True, tol=1e-6)
+
     @pyaedt_unittest_check_desktop_error
     def test_42_chamfer(self):
         self.cache.ignore_error_message_local("Wrong Type Entered. Type must be integer from 0 to 3")

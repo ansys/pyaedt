@@ -60,6 +60,7 @@ class Components(object):
     >>> edbapp.core_components
 
     """
+
     def __init__(self, parent):
         self.parent = parent
         self._cmp = {}

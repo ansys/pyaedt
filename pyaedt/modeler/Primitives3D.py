@@ -15,6 +15,7 @@ class Primitives3D(Primitives, object):
         Name of the modeler.
 
     """
+
     def __init__(self, parent, modeler):
         Primitives.__init__(self, parent, modeler)
 

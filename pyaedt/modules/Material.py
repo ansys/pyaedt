@@ -806,6 +806,7 @@ class Material(CommonMaterial, object):
 
         self._magnetic_loss_tangent.value = value
         self._update_props("magnetic_loss_tangent", value)
+
     @property
     def thermal_conductivity(self):
         """Thermal conductivity.

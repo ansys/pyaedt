@@ -899,6 +899,7 @@ class SweepHFSS3DLayout(object):
         case the default properties are retrieved.
 
     """
+
     def __init__(self, oanalysis, setupname, sweepname, sweeptype="Interpolating", props=None):
         self.oanalysis = oanalysis
         self.props = {}
@@ -1075,6 +1076,7 @@ class SweepQ3D(object):
         the default properties are retrieved.
 
     """
+
     def __init__(self, oanalysis, setupname, sweepname, sweeptype="Interpolating", props=None):
         self.oanalysis = oanalysis
         self.setupname = setupname
