@@ -420,7 +420,8 @@ class Components(object):
 
         """
         try:
-            new_cmp = self._edb.Cell.Hierarchy.Component.Create(self._builder.EdbHandler, component_name)
+            new_cmp = self._edb.Cell.Hierarchy.Component.Create(
+                self._builder.EdbHandler, component_name)
             new_group = self._edb.Cell.Hierarchy.Group.Create(self._builder.EdbHandler.layout,
                                                                     component_name)
             for pin in pins:
@@ -504,7 +505,8 @@ class Components(object):
 
             nPortModelName = modelname
             edbComponentDef = edbComponent.GetComponentDef()
-            nPortModel = self._edb.Definition.NPortComponentModel.FindByName(edbComponentDef, nPortModelName)
+            nPortModel = self._edb.Definition.NPortComponentModel.FindByName(
+                edbComponentDef, nPortModelName)
             if nPortModel.IsNull():
                 nPortModel = self._edb.Definition.NPortComponentModel.Create(nPortModelName)
                 nPortModel.SetReferenceFile(modelpath)
@@ -550,13 +552,15 @@ class Components(object):
 
         """
         if len(pins) < 1:
-            self._messenger.add_error_message('No pins specified for pin group {}'.format(group_name))
+            self._messenger.add_error_message(
+                'No pins specified for pin group {}'.format(group_name))
             return (False, None)
         if group_name is None:
             cmp_name = pins[0].GetComponent().GetName()
             net_name = pins[0].GetNet().GetName()
             group_name = "{}_{}_{}".format(cmp_name, net_name, random.randint(0, 100))
-        pingroup = self._edb.Cell.Hierarchy.PinGroup.Create(self._active_layout, group_name, convert_py_list_to_net_list(pins))
+        pingroup = self._edb.Cell.Hierarchy.PinGroup.Create(
+            self._active_layout, group_name, convert_py_list_to_net_list(pins))
         if pingroup.IsNull():
             return (False, None)
         else:
@@ -724,7 +728,8 @@ class Components(object):
                 "Component {} has not been assigned because either it is not present in the layout or it contains a number of pins not equal to 2".format(
                     componentname))
             return False
-        self._messenger.add_warning_message("RLC properties for Component {} has been assigned.".format(componentname))
+        self._messenger.add_warning_message(
+            "RLC properties for Component {} has been assigned.".format(componentname))
         return True
 
     @aedt_exception_handler

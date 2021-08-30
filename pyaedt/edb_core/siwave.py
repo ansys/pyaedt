@@ -440,12 +440,15 @@ class EdbSiwave(object):
             negative_component_name = positive_component_name
         pos_node_cmp = self.parent.core_components.get_component_by_name(positive_component_name)
         neg_node_cmp = self.parent.core_components.get_component_by_name(negative_component_name)
-        pos_node_pins = self.parent.core_components.get_pin_from_component(positive_component_name, positive_net_name)
-        neg_node_pins = self.parent.core_components.get_pin_from_component(negative_component_name, negative_net_name)
+        pos_node_pins = self.parent.core_components.get_pin_from_component(
+            positive_component_name, positive_net_name)
+        neg_node_pins = self.parent.core_components.get_pin_from_component(
+            negative_component_name, negative_net_name)
 
 
         if port_name == "":
-            port_name = "Port_{}_{}_{}_{}".format(positive_component_name,positive_net_name,negative_component_name,negative_net_name)
+            port_name = "Port_{}_{}_{}_{}".format(
+                positive_component_name,positive_net_name,negative_component_name,negative_net_name)
         circuit_port.name = port_name
         circuit_port.positive_node.component_node = pos_node_cmp
         circuit_port.positive_node.node_pins = pos_node_pins
@@ -497,8 +500,10 @@ class EdbSiwave(object):
         voltage_source.phase = phase_value
         pos_node_cmp = self.parent.core_components.get_component_by_name(positive_component_name)
         neg_node_cmp = self.parent.core_components.get_component_by_name(negative_component_name)
-        pos_node_pins = self.parent.core_components.get_pin_from_component(positive_component_name, positive_net_name)
-        neg_node_pins = self.parent.core_components.get_pin_from_component(negative_component_name, negative_net_name)
+        pos_node_pins = self.parent.core_components.get_pin_from_component(
+            positive_component_name, positive_net_name)
+        neg_node_pins = self.parent.core_components.get_pin_from_component(
+            negative_component_name, negative_net_name)
 
         if source_name == "":
             source_name = "Vsource_{}_{}_{}_{}".format(positive_component_name, positive_net_name, negative_component_name,
@@ -553,8 +558,10 @@ class EdbSiwave(object):
         current_source.phase = phase_value
         pos_node_cmp = self.parent.core_components.get_component_by_name(positive_component_name)
         neg_node_cmp = self.parent.core_components.get_component_by_name(negative_component_name)
-        pos_node_pins = self.parent.core_components.get_pin_from_component(positive_component_name, positive_net_name)
-        neg_node_pins = self.parent.core_components.get_pin_from_component(negative_component_name, negative_net_name)
+        pos_node_pins = self.parent.core_components.get_pin_from_component(
+            positive_component_name, positive_net_name)
+        neg_node_pins = self.parent.core_components.get_pin_from_component(
+            negative_component_name, negative_net_name)
 
         if source_name == "":
             source_name = "Port_{}_{}_{}_{}".format(positive_component_name, positive_net_name, negative_component_name,
@@ -606,8 +613,10 @@ class EdbSiwave(object):
         resistor.magnitude = rvalue
         pos_node_cmp = self.parent.core_components.get_component_by_name(positive_component_name)
         neg_node_cmp = self.parent.core_components.get_component_by_name(negative_component_name)
-        pos_node_pins = self.parent.core_components.get_pin_from_component(positive_component_name, positive_net_name)
-        neg_node_pins = self.parent.core_components.get_pin_from_component(negative_component_name, negative_net_name)
+        pos_node_pins = self.parent.core_components.get_pin_from_component(
+            positive_component_name, positive_net_name)
+        neg_node_pins = self.parent.core_components.get_pin_from_component(
+            negative_component_name, negative_net_name)
 
         if resistor_name == "":
             resistor_name = "Port_{}_{}_{}_{}".format(positive_component_name, positive_net_name, negative_component_name,
@@ -624,7 +633,8 @@ class EdbSiwave(object):
     def create_exec_file(self):
         """Create an executable file."""
         workdir = os.path.dirname(self.parent.edbpath)
-        file_name = os.path.join(workdir,os.path.splitext(os.path.basename(self.parent.edbpath))[0] + '.exec')
+        file_name = os.path.join(workdir,os.path.splitext(
+            os.path.basename(self.parent.edbpath))[0] + '.exec')
         if os.path.isfile(file_name):
             os.remove(file_name)
         f = open(file_name,"w")
@@ -656,7 +666,8 @@ class EdbSiwave(object):
         bool
             ``True`` when successful, ``False`` when failed.
         """
-        self._siwave_setup.AddACSimSetup(self._builder, accuracy_level, str(decade_count), sweeptype, str(start_freq), str(stop_freq), str(step_freq), discrete_sweep)
+        self._siwave_setup.AddACSimSetup(self._builder, accuracy_level, str(
+            decade_count), sweeptype, str(start_freq), str(stop_freq), str(step_freq), discrete_sweep)
         exec_file = self.create_exec_file()
         exec_file.write("ExecAcSim\n")
         exec_file.close()
@@ -740,7 +751,8 @@ class EdbSiwave(object):
         bool
             Command Execution Result.
         """
-        sim_setup_info = self.parent.simsetupdata.SimSetupInfo[self.parent.simsetupdata.SIwave.SIWDCIRSimulationSettings]()
+        sim_setup_info = self.parent.simsetupdata.SimSetupInfo[self.parent.simsetupdata.SIwave.SIWDCIRSimulationSettings](
+        )
         sim_setup_info.Name = setup_settings.name
         sim_setup_info.SimulationSettings.DCIRSettings.DCReportShowActiveDevices = setup_settings.dcreport_show_active_devices
         sim_setup_info.SimulationSettings.DCIRSettings.ExportDCThermalData = setup_settings.export_dcthermal_data
@@ -788,14 +800,18 @@ class EdbSiwave(object):
             Name of the source.
 
         """
-        pos_pin_group = self.parent.core_components.create_pingroup_from_pins(source.positive_node.node_pins)
-        neg_pin_group = self.parent.core_components.create_pingroup_from_pins(source.negative_node.node_pins)
+        pos_pin_group = self.parent.core_components.create_pingroup_from_pins(
+            source.positive_node.node_pins)
+        neg_pin_group = self.parent.core_components.create_pingroup_from_pins(
+            source.negative_node.node_pins)
         pos_node_net = self.parent.core_nets.get_net_by_name(source.positive_node.net)
         neg_node_net = self.parent.core_nets.get_net_by_name(source.negative_node.net)
         pos_pingroup_term_name = "{}_{}".format(source.positive_node.net,source.name)
         neg_pingroup_term_name = "{}_{}".format(source.negative_node.net,source.name)
-        pos_pingroup_terminal = self._edb.Cell.Terminal.PinGroupTerminal.Create(self._active_layout,pos_node_net,pos_pingroup_term_name , pos_pin_group[1], False)
-        neg_pingroup_terminal = self._edb.Cell.Terminal.PinGroupTerminal.Create(self._active_layout,neg_node_net,neg_pingroup_term_name , neg_pin_group[1], False)
+        pos_pingroup_terminal = self._edb.Cell.Terminal.PinGroupTerminal.Create(
+            self._active_layout,pos_node_net,pos_pingroup_term_name , pos_pin_group[1], False)
+        neg_pingroup_terminal = self._edb.Cell.Terminal.PinGroupTerminal.Create(
+            self._active_layout,neg_node_net,neg_pingroup_term_name , neg_pin_group[1], False)
 
         if source.type == SourceType.Port:
             pos_pingroup_terminal.SetBoundaryType(self._edb.Cell.Terminal.BoundaryType.PortBoundary)
@@ -806,8 +822,10 @@ class EdbSiwave(object):
             pos_pingroup_terminal.SetReferenceTerminal(neg_pingroup_terminal)
 
         elif source.type == SourceType.CurrentSource:
-            pos_pingroup_terminal.SetBoundaryType(self._edb.Cell.Terminal.BoundaryType.kCurrentSource)
-            neg_pingroup_terminal.SetBoundaryType(self._edb.Cell.Terminal.BoundaryType.kCurrentSource)
+            pos_pingroup_terminal.SetBoundaryType(
+                self._edb.Cell.Terminal.BoundaryType.kCurrentSource)
+            neg_pingroup_terminal.SetBoundaryType(
+                self._edb.Cell.Terminal.BoundaryType.kCurrentSource)
             pos_pingroup_terminal.SetSourceAmplitude(self._edb.Utility.Value(source.magnitude))
             pos_pingroup_terminal.SetSourcePhase(self._edb.Utility.Value(source.phase))
             pos_pingroup_terminal.SetIsCircuitPort(True)
@@ -816,8 +834,10 @@ class EdbSiwave(object):
             pos_pingroup_terminal.SetName(source.name)
 
         elif source.type == SourceType.VoltageSource:
-            pos_pingroup_terminal.SetBoundaryType(self._edb.Cell.Terminal.BoundaryType.kVoltageSource)
-            neg_pingroup_terminal.SetBoundaryType(self._edb.Cell.Terminal.BoundaryType.kVoltageSource)
+            pos_pingroup_terminal.SetBoundaryType(
+                self._edb.Cell.Terminal.BoundaryType.kVoltageSource)
+            neg_pingroup_terminal.SetBoundaryType(
+                self._edb.Cell.Terminal.BoundaryType.kVoltageSource)
             pos_pingroup_terminal.SetSourceAmplitude(self._edb.Utility.Value(source.magnitude))
             pos_pingroup_terminal.SetSourcePhase(self._edb.Utility.Value(source.phase))
             pos_pingroup_terminal.SetIsCircuitPort(True)

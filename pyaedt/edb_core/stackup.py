@@ -134,7 +134,8 @@ class EdbStackup(object):
             material_def = self._edb.Definition.MaterialDef.Create(self._db,name)
             material_def.SetProperty(self._edb.Definition.MaterialPropertyId.Permittivity,
                                                 self._edb_value(permittivity))
-            material_def.SetProperty(self._edb.Definition.MaterialPropertyId.DielectricLossTangent,self._edb_value(loss_tangent))
+            material_def.SetProperty(
+                self._edb.Definition.MaterialPropertyId.DielectricLossTangent,self._edb_value(loss_tangent))
             return material_def
         return False
 
@@ -262,6 +263,7 @@ class EdbStackup(object):
             topz = Double(0.)
             bottoml = None
             bottomz = Double(0.)
-            res, topl, topz, bottoml, bottomz = stackup.GetTopBottomStackupLayers(input_layers, topl, topz, bottoml, bottomz)
+            res, topl, topz, bottoml, bottomz = stackup.GetTopBottomStackupLayers(
+                input_layers, topl, topz, bottoml, bottomz)
         h_stackup = abs(float(topz) - float(bottomz))
         return topl.GetName(), topz, bottoml.GetName(), bottomz

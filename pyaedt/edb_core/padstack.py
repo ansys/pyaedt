@@ -127,7 +127,8 @@ class EdbPadstacks(object):
 
         """
         if self._builder:
-            pinlist = self._padstack_methods.GetPinsFromComponentAndNets(self._builder, refdes, netname)
+            pinlist = self._padstack_methods.GetPinsFromComponentAndNets(
+                self._builder, refdes, netname)
             if pinlist.Item1:
                 return pinlist.Item2
 
@@ -188,7 +189,8 @@ class EdbPadstacks(object):
                 value0,
                 value0
             )
-            antipad_array = Array[type(self._edb_value(antipaddiam))]([self._edb_value(antipaddiam)])
+            antipad_array = Array[type(self._edb_value(antipaddiam))]([
+                                       self._edb_value(antipaddiam)])
 
             padstackData.SetPadParameters(
                 layer,
@@ -199,8 +201,10 @@ class EdbPadstacks(object):
                 value0,
                 value0
             )
-        padstackLayerIdMap = {k: v for k, v in zip(padstackData.GetLayerNames(), padstackData.GetLayerIds())}
-        padstackLayerMap = self._edb.Utility.LayerMap(self._edb.Utility.UniqueDirection.ForwardUnique)
+        padstackLayerIdMap = {k: v for k, v in zip(
+            padstackData.GetLayerNames(), padstackData.GetLayerIds())}
+        padstackLayerMap = self._edb.Utility.LayerMap(
+            self._edb.Utility.UniqueDirection.ForwardUnique)
         for layer, padstackLayerName in zip(
                 self._active_layout.GetLayerCollection().Layers(
                     self._edb.Cell.LayerTypeSet.SignalLayerSet
@@ -249,7 +253,8 @@ class EdbPadstacks(object):
         for pad in list(self.padstacks.keys()):
             if pad == definition_name:
                 padstack = self.padstacks[pad].edb_padstack
-        position = self._edb.Geometry.PointData(self._edb_value(position[0]), self._edb_value(position[1]))
+        position = self._edb.Geometry.PointData(
+            self._edb_value(position[0]), self._edb_value(position[1]))
         net = self.parent.core_nets.find_or_create_net(net_name)
         rotation = self._edb_value(rotation)
         sign_layers = list(self.parent.core_stackup.signal_layers.keys())

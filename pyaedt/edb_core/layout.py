@@ -237,7 +237,8 @@ class EdbLayout(object):
         bounding = []
         try:
             bbox = polygon.GetPolygonData().GetBBox()
-            bounding =[bbox.Item1.X.ToDouble(), bbox.Item1.Y.ToDouble(), bbox.Item2.X.ToDouble(), bbox.Item2.Y.ToDouble()]
+            bounding =[bbox.Item1.X.ToDouble(), bbox.Item1.Y.ToDouble(),
+                                             bbox.Item2.X.ToDouble(), bbox.Item2.Y.ToDouble()]
         except:
             pass
         return bounding
@@ -358,10 +359,12 @@ class EdbLayout(object):
                 if prev_point != point:
                     check_inside = selection_polygon_data.PointInPolygon(point)
                     if check_inside:
-                        xcoeff, ycoeff = calc_slope([point.X.ToDouble(), point.X.ToDouble()], origin)
+                        xcoeff, ycoeff = calc_slope(
+                            [point.X.ToDouble(), point.X.ToDouble()], origin)
 
                         new_points = self._edb.Geometry.PointData(
-                            self._edb.Utility.Value(point.X.ToString() + '{}*{}'.format(xcoeff, offset_name), var_server),
+                            self._edb.Utility.Value(
+                                point.X.ToString() + '{}*{}'.format(xcoeff, offset_name), var_server),
                             self._edb.Utility.Value(point.Y.ToString() + '{}*{}'.format(ycoeff, offset_name), var_server))
                         poligon_data.SetPoint(i, new_points)
                     prev_point = point
@@ -423,8 +426,10 @@ class EdbLayout(object):
             corner_style = 0
         else:
             corner_style = 1
-        pointlists = [self._edb.Geometry.PointData(self._edb_value(i[0]), self._edb_value(i[1])) for i in path_list.points]
-        polygonData =  self._edb.Geometry.PolygonData(convert_py_list_to_net_list(pointlists), False)
+        pointlists = [self._edb.Geometry.PointData(self._edb_value(
+            i[0]), self._edb_value(i[1])) for i in path_list.points]
+        polygonData =  self._edb.Geometry.PolygonData(
+            convert_py_list_to_net_list(pointlists), False)
         polygon = self._edb.Cell.Primitive.Path.Create(
             self._active_layout,
             layer_name,
@@ -497,7 +502,8 @@ class EdbLayout(object):
         elif shape.type == 'rectangle':
             return self._createPolygonDataFromRectangle(shape)
         else:
-            self._messenger.add_error_message('Unsupported shape type {} when creating a polygon primitive.'.format(shape.type))
+            self._messenger.add_error_message(
+                'Unsupported shape type {} when creating a polygon primitive.'.format(shape.type))
             return None
 
     def _createPolygonDataFromPolygon(self, shape):
@@ -525,7 +531,8 @@ class EdbLayout(object):
                 elif endPoint[2].ToString() == 'ccw':
                     rotationDirection = self._edb.Geometry.RotationDirection.CCW
                 else:
-                    self._messenger.add_error_message('Invalid rotation direction {} is specified.'.format(endPoint[2]))
+                    self._messenger.add_error_message(
+                        'Invalid rotation direction {} is specified.'.format(endPoint[2]))
                     return None
                 arc = self._edb.Geometry.ArcData(
                     self._edb.Geometry.PointData(startPoint[0], startPoint[1]),
@@ -546,7 +553,8 @@ class EdbLayout(object):
             return True
         elif len(point) == 5:
             if not allowArcs:
-                self._messenger.add_error_message('Arc found but arcs are not allowed in _validatePoint.')
+                self._messenger.add_error_message(
+                    'Arc found but arcs are not allowed in _validatePoint.')
                 return False
             if not isinstance(point[0], (int,float)):
                 self._messenger.add_error_message('Point X value must be a float.')
@@ -565,14 +573,17 @@ class EdbLayout(object):
                 return False
             return True
         else:
-            self._messenger.add_error_message('Arc point descriptor has incorrect number of elements ({})'.format(len(point)))
+            self._messenger.add_error_message(
+                'Arc point descriptor has incorrect number of elements ({})'.format(len(point)))
             return False
 
     def _createPolygonDataFromRectangle(self, shape):
         if not self._validatePoint(shape.pointA, False) or not self._validatePoint(shape.pointB, False):
             return None
-        pointA = self._edb.Geometry.PointData(self._edb_value(shape.pointA[0]),self._edb_value(shape.pointA[1]))
-        pointB = self._edb.Geometry.PointData(self._edb_value(shape.pointB[0]), self._edb_value(shape.pointB[1]))
+        pointA = self._edb.Geometry.PointData(self._edb_value(
+            shape.pointA[0]),self._edb_value(shape.pointA[1]))
+        pointB = self._edb.Geometry.PointData(self._edb_value(
+            shape.pointB[0]), self._edb_value(shape.pointB[1]))
         points = Tuple[self._edb.Geometry.PointData, self._edb.Geometry.PointData](pointA, pointB)
         return self._edb.Geometry.PolygonData.CreateFromBBox(points)
 

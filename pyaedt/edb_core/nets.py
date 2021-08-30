@@ -208,7 +208,8 @@ class EdbNets(object):
             pins = self.parent.core_components.get_pin_from_component(cmpName=refdes, netName=el[2])
             el.append("-".join([i.GetName() for i in pins]))
 
-        component_list_columns = ["refdes", "pin_name", "net_name", "component_type", "component_partname", "pin_list"]
+        component_list_columns = ["refdes", "pin_name", "net_name",
+            "component_type", "component_partname", "pin_list"]
         return component_list, component_list_columns, net_group
 
     @aedt_exception_handler
