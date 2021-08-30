@@ -53,7 +53,8 @@ class Modeler3DLayout(Modeler):
 
         """
         if os.name != "posix":
-            edb_folder = os.path.join(self._parent.project_path, self._parent.project_name + ".aedb")
+            edb_folder = os.path.join(self._parent.project_path,
+                                      self._parent.project_name + ".aedb")
             edb_file = os.path.join(edb_folder, "edb.def")
             _mttime = os.path.getmtime(edb_file)
             if _mttime != self._mttime:
@@ -179,16 +180,19 @@ class Modeler3DLayout(Modeler):
         line_4
 
         """
-        layer = retry_ntimes(10, self.oeditor.GetPropertyValue, "BaseElementTab", object_to_expand, 'PlacementLayer')
+        layer = retry_ntimes(10, self.oeditor.GetPropertyValue,
+                             "BaseElementTab", object_to_expand, 'PlacementLayer')
         poly = self.oeditor.GetPolygonDef(object_to_expand).GetPoints()
         pos = [poly[0].GetX(), poly[0].GetY()]
         geom_names = self.oeditor.FindObjectsByPoint(self.oeditor.Point().Set(pos[0],pos[1]), layer)
         self.oeditor.Expand(self.primitives.arg_with_dim(size), expand_type, replace_original,
                             ["NAME:elements", object_to_expand])
         if not replace_original:
-            new_geom_names = [i for i in self.oeditor.FindObjectsByPoint(self.oeditor.Point().Set(pos[0],pos[1]), layer) if i not in geom_names]
+            new_geom_names = [i for i in self.oeditor.FindObjectsByPoint(
+                self.oeditor.Point().Set(pos[0],pos[1]), layer) if i not in geom_names]
             if self.primitives.isoutsideDesktop:
-                self.primitives._geometries[new_geom_names[0]] = Geometries3DLayout(self, new_geom_names[0])
+                self.primitives._geometries[new_geom_names[0]
+                    ] = Geometries3DLayout(self, new_geom_names[0])
             return new_geom_names[0]
         return object_to_expand
 

@@ -66,7 +66,8 @@ class NexximComponents(CircuitComponents):
 
         """
         self._parent._oproject.CopyDesign(sourcename)
-        self.oeditor.PasteDesign(0, ["NAME:Attributes", "Page:=", 1, "X:=", 0, "Y:=", 0, "Angle:=", 0, "Flip:=", False])
+        self.oeditor.PasteDesign(0, ["NAME:Attributes", "Page:=", 1,
+                                 "X:=", 0, "Y:=", 0, "Angle:=", 0, "Flip:=", False])
         self.refresh_all_ids()
         for el in self.components:
             if sourcename in self.components[el].composed_name:
@@ -232,7 +233,8 @@ class NexximComponents(CircuitComponents):
             Name of the resistor.
 
         """
-        cmpid, cmpname = self.create_component(compname, xpos=xpos, ypos=ypos, angle=angle, use_instance_id_netlist=use_instance_id_netlist)
+        cmpid, cmpname = self.create_component(
+            compname, xpos=xpos, ypos=ypos, angle=angle, use_instance_id_netlist=use_instance_id_netlist)
 
         self.components[cmpid].set_property("R", value)
         return cmpid, cmpname
@@ -659,7 +661,8 @@ class NexximComponents(CircuitComponents):
                 arg2.append("ValueProp:=")
                 arg2.append([el, "D", "", val, False, ""])
         arg2.append("ButtonProp:=")
-        arg2.append(["CosimDefinition", "D", "", "Edit", "Edit", 40501, "ButtonPropClientData:=", []])
+        arg2.append(["CosimDefinition", "D", "", "Edit", "Edit",
+                    40501, "ButtonPropClientData:=", []])
         arg2.append("MenuProp:=")
         arg2.append(["CoSimulator", "D", "", "DefaultNetlist", 0])
 
@@ -1037,16 +1040,20 @@ class NexximComponents(CircuitComponents):
                    "FDSFileName:=", "",
                    ["NAME:Properties",
                     "TextProp:=", ["LabelID","HD","Property string for netlist ID","V@ID"],
-                    "ValueProp:=", ["ACMAG","OD","AC magnitude for small-signal analysis (Volts)",settings[0],0],
-                    "ValuePropNU:=", ["ACPHASE","OD","AC phase for small-signal analysis",settings[1],0,"deg"],
+                    "ValueProp:=", ["ACMAG","OD",
+                        "AC magnitude for small-signal analysis (Volts)",settings[0],0],
+                    "ValuePropNU:=", ["ACPHASE","OD",
+                        "AC phase for small-signal analysis",settings[1],0,"deg"],
                     "ValueProp:=", ["DC","OD","DC voltage (Volts)",settings[2],0],
                     "ValueProp:=", ["VO","OD","Voltage offset from zero (Volts)",settings[3],0],
                     "ValueProp:=", ["VA","OD","Voltage amplitude (Volts)",settings[4],0],
                     "ValueProp:=", ["FREQ","OD","Frequency (Hz)",settings[5],0],
-                    "ValueProp:=", ["TD","OD","Delay to start of sine wave (seconds)",settings[6],0],
+                    "ValueProp:=", [
+                        "TD","OD","Delay to start of sine wave (seconds)",settings[6],0],
                     "ValueProp:=", ["ALPHA","OD","Damping factor (1/seconds)",settings[7],0],
                     "ValuePropNU:=", ["THETA","OD","Phase delay",settings[8],0,"deg"],
-                    "ValueProp:=", ["TONE","OD","Frequency (Hz) to use for harmonic balance analysis, should be a submultiple of (or equal to) the driving frequency and should also be included in the HB analysis setup",settings[9],0],
+                    "ValueProp:=", [
+                        "TONE","OD","Frequency (Hz) to use for harmonic balance analysis, should be a submultiple of (or equal to) the driving frequency and should also be included in the HB analysis setup",settings[9],0],
                     "TextProp:=", ["ModelName","SHD","","V_SIN"],
                     "MenuProp:=", ["CoSimulator","D","","DefaultNetlist",0],
                     "ButtonProp:=", ["CosimDefinition","D","","","Edit",40501, "ButtonPropClientData:=", [] ] ] ] ] ] ]
@@ -1058,7 +1065,8 @@ class NexximComponents(CircuitComponents):
 
         for prt in ports:
             arg_temp = []
-            arg_temp = ["NAME:EnabledAnalyses", ["NAME:"+str(prt), str(prt)+":=", [] ], ["NAME:VoltageSinusoidal"+str(id), str(prt)+":=", [] ] ]
+            arg_temp = ["NAME:EnabledAnalyses", [
+                "NAME:"+str(prt), str(prt)+":=", [] ], ["NAME:VoltageSinusoidal"+str(id), str(prt)+":=", [] ] ]
             arg3.append(arg_temp)
 
         arg2.append(arg3)

@@ -157,7 +157,8 @@ class CircuitComponents(object):
         """
         id = self.create_unique_id()
         arg1 = ["NAME:IPortProps", "Name:=", name, "Id:=", id]
-        arg2 = ["NAME:Attributes", "Page:=", 1, "X:=", posx, "Y:=", posy, "Angle:=", angle, "Flip:=", False]
+        arg2 = ["NAME:Attributes", "Page:=", 1, "X:=", posx,
+            "Y:=", posy, "Angle:=", angle, "Flip:=", False]
         id = self.oeditor.CreateIPort(arg1, arg2)
 
         id = int(id.split(";")[1])
@@ -274,9 +275,11 @@ class CircuitComponents(object):
         num_terminal = int(touchstone_full_path[-2:-1])
         arg = ["NAME:" + model_name, "Name:=", model_name, "ModTime:=", 0, "Library:=", "", "LibLocation:=", "Project",
                "ModelType:=", "nport", "Description:=", "", "ImageFile:=", "", "SymbolPinConfiguration:=", 0,
-               ["NAME:PortInfoBlk"], ["NAME:PortOrderBlk"], "filename:=", touchstone_full_path, "numberofports:=",
+               ["NAME:PortInfoBlk"], [
+                   "NAME:PortOrderBlk"], "filename:=", touchstone_full_path, "numberofports:=",
                num_terminal, "sssfilename:=", "", "sssmodel:=", False, "PortNames:=",
-               ["Port" + str(i + 1) for i in range(num_terminal)], "domain:=", "frequency", "datamode:=",
+               ["Port" + str(i + 1) for i in range(num_terminal)
+                             ], "domain:=", "frequency", "datamode:=",
                "Link", "devicename:=", "", "SolutionName:=", "", "displayformat:=", "MagnitudePhase", "datatype:=",
                "SMatrix", ["NAME:DesignerCustomization", "DCOption:=", 0, "InterpOption:=", 0, "ExtrapOption:=", 1,
                            "Convolution:=", 0, "Passivity:=", 0, "Reciprocal:=", False, "ModelOption:=", "",
@@ -298,7 +301,8 @@ class CircuitComponents(object):
                "ModSinceLib:=", False]
         for i in range(num_terminal):
             arg.append("Terminal:=")
-            arg.append(["Port" + str(i + 1), "Port" + str(i + 1), "A", False, i + 6, 1, "", "Electrical", "0"])
+            arg.append(["Port" + str(i + 1), "Port" + str(i + 1),
+                       "A", False, i + 6, 1, "", "Electrical", "0"])
         arg.append("CompExtID:=")
         arg.append(num_terminal)
         arg.append(["NAME:Parameters", "MenuProp:=", ["CoSimulator", "SD", "", "Default", 0], "ButtonProp:=",
@@ -496,7 +500,8 @@ class CircuitComponents(object):
              "Project", "HighestLevel:=", 1, "Normalize:=", True, "InitialLevels:=", [0, 1], ["NAME:Graphics"]])
         arg = ["NAME:" + symbol_name, "ModTime:=", 1591858265, "Library:=", "", "ModSinceLib:=", False, "LibLocation:=",
                "Project", "HighestLevel:=", 1, "Normalize:=", False, "InitialLevels:=", [0, 1]]
-        oDefinitionEditor = self._parent._oproject.SetActiveDefinitionEditor("SymbolEditor", symbol_name)
+        oDefinitionEditor = self._parent._oproject.SetActiveDefinitionEditor(
+            "SymbolEditor", symbol_name)
         id = 2
         oDefinitionEditor.CreateRectangle(["NAME:RectData", "X1:=", x1, "Y1:=", y1, "X2:=", x2, "Y2:=", y2,
                                            "LineWidth:=", 0, "BorderColor:=", 0, "Fill:=", 0, "Color:=", 0, "Id:=", id],
@@ -570,7 +575,8 @@ class CircuitComponents(object):
                 arg2.append("ValueProp:=")
                 arg2.append([el, "D", "", val, False, ""])
         arg2.append("ButtonProp:=")
-        arg2.append(["CosimDefinition", "D", "", "Edit", "Edit", 40501, "ButtonPropClientData:=", []])
+        arg2.append(["CosimDefinition", "D", "", "Edit", "Edit",
+                    40501, "ButtonPropClientData:=", []])
         arg2.append("MenuProp:=")
         arg2.append(["CoSimulator", "D", "", "DefaultNetlist", 0])
 
@@ -749,7 +755,8 @@ class CircuitComponents(object):
             pins = retry_ntimes(10, self.oeditor.GetComponentPins, partid)
             #pins = self.oeditor.GetComponentPins(partid)
         else:
-            pins = retry_ntimes(10, self.oeditor.GetComponentPins, self.components[partid].composed_name)
+            pins = retry_ntimes(10, self.oeditor.GetComponentPins,
+                                self.components[partid].composed_name)
             #pins = self.oeditor.GetComponentPins(self.components[partid].composed_name)
         return list(pins)
 
@@ -774,8 +781,10 @@ class CircuitComponents(object):
             x = retry_ntimes(30, self.oeditor.GetComponentPinLocation, partid, pinname, True)
             y = retry_ntimes(30, self.oeditor.GetComponentPinLocation, partid, pinname, False)
         else:
-            x = retry_ntimes(30, self.oeditor.GetComponentPinLocation, self.components[partid].composed_name, pinname, True)
-            y = retry_ntimes(30, self.oeditor.GetComponentPinLocation, self.components[partid].composed_name, pinname, False)
+            x = retry_ntimes(30, self.oeditor.GetComponentPinLocation,
+                             self.components[partid].composed_name, pinname, True)
+            y = retry_ntimes(30, self.oeditor.GetComponentPinLocation,
+                             self.components[partid].composed_name, pinname, False)
         return [x, y]
 
     @aedt_exception_handler

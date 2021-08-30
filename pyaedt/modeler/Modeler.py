@@ -124,10 +124,12 @@ class CoordinateSystem(object):
             ``True`` when successful, ``False`` when failed.
 
         """
-        self._change_property(self.name, ["NAME:ChangedProps", ["NAME:Reference CS", "Value:=", self.ref_cs]])
+        self._change_property(self.name, ["NAME:ChangedProps", [
+                              "NAME:Reference CS", "Value:=", self.ref_cs]])
 
         try:
-            self._change_property(self.name, ["NAME:ChangedProps", ["NAME:Mode", "Value:=", self.props["Mode"]]])
+            self._change_property(self.name, ["NAME:ChangedProps", [
+                                  "NAME:Mode", "Value:=", self.props["Mode"]]])
         except:
             raise ValueError(
                 "Mode must be 'Axis/Position', 'Euler Angle ZYZ' or 'Euler Angle ZXZ', not {}.".format(self.props["Mode"]))
@@ -244,7 +246,8 @@ class CoordinateSystem(object):
                 del self.props["YAxisZvec"]
                 self.update()
         else:
-            raise ValueError('mode_type=0 for "Axis/Position", =1 for "Euler Angle ZXZ", =2 for "Euler Angle ZYZ"')
+            raise ValueError(
+                'mode_type=0 for "Axis/Position", =1 for "Euler Angle ZXZ", =2 for "Euler Angle ZYZ"')
         return True
 
     @aedt_exception_handler
@@ -331,7 +334,8 @@ class CoordinateSystem(object):
         originX = self._dim_arg(origin[0], self.model_units)
         originY = self._dim_arg(origin[1], self.model_units)
         originZ = self._dim_arg(origin[2], self.model_units)
-        orientationParameters = OrderedDict({"OriginX": originX, "OriginY": originY, "OriginZ": originZ})
+        orientationParameters = OrderedDict(
+            {"OriginX": originX, "OriginY": originY, "OriginZ": originZ})
 
         if mode == "view":
             orientationParameters["Mode"] = "Axis/Position"
@@ -376,12 +380,18 @@ class CoordinateSystem(object):
             self.quaternion = GeometryOperators.euler_zyz_to_quaternion(a, b, g)
         elif mode == "axis":
             orientationParameters["Mode"] = "Axis/Position"
-            orientationParameters["XAxisXvec"] = self._dim_arg((x_pointing[0]), self.model_units) + " - " + self._dim_arg((origin[0]), self.model_units)
-            orientationParameters["XAxisYvec"] = self._dim_arg((x_pointing[1]), self.model_units) + " - " + self._dim_arg((origin[1]), self.model_units)
-            orientationParameters["XAxisZvec"] = self._dim_arg((x_pointing[2]), self.model_units) + " - " + self._dim_arg((origin[2]), self.model_units)
-            orientationParameters["YAxisXvec"] = self._dim_arg((y_pointing[0]), self.model_units) + " - " + self._dim_arg((origin[0]), self.model_units)
-            orientationParameters["YAxisYvec"] = self._dim_arg((y_pointing[1]), self.model_units) + " - " + self._dim_arg((origin[1]), self.model_units)
-            orientationParameters["YAxisZvec"] = self._dim_arg((y_pointing[2]), self.model_units) + " - " + self._dim_arg((origin[2]), self.model_units)
+            orientationParameters["XAxisXvec"] = self._dim_arg(
+                (x_pointing[0]), self.model_units) + " - " + self._dim_arg((origin[0]), self.model_units)
+            orientationParameters["XAxisYvec"] = self._dim_arg(
+                (x_pointing[1]), self.model_units) + " - " + self._dim_arg((origin[1]), self.model_units)
+            orientationParameters["XAxisZvec"] = self._dim_arg(
+                (x_pointing[2]), self.model_units) + " - " + self._dim_arg((origin[2]), self.model_units)
+            orientationParameters["YAxisXvec"] = self._dim_arg(
+                (y_pointing[0]), self.model_units) + " - " + self._dim_arg((origin[0]), self.model_units)
+            orientationParameters["YAxisYvec"] = self._dim_arg(
+                (y_pointing[1]), self.model_units) + " - " + self._dim_arg((origin[1]), self.model_units)
+            orientationParameters["YAxisZvec"] = self._dim_arg(
+                (y_pointing[2]), self.model_units) + " - " + self._dim_arg((origin[2]), self.model_units)
             x, y, z = GeometryOperators.pointing_to_axis(x_pointing, y_pointing)
             a, b, g = GeometryOperators.axis_to_euler_zyz(x, y, z)
             self.quaternion = GeometryOperators.euler_zyz_to_quaternion(a, b, g)
@@ -864,9 +874,12 @@ class GeometryModeler(Modeler, object):
         def get_total_transformation(p, cs):
             idx = cs_names.index(cs)
             q = self.coordinate_systems[idx].quaternion
-            ox = GeometryOperators.parse_dim_arg(self.coordinate_systems[idx].props['OriginX'], self.model_units)
-            oy = GeometryOperators.parse_dim_arg(self.coordinate_systems[idx].props['OriginY'], self.model_units)
-            oz = GeometryOperators.parse_dim_arg(self.coordinate_systems[idx].props['OriginZ'], self.model_units)
+            ox = GeometryOperators.parse_dim_arg(
+                self.coordinate_systems[idx].props['OriginX'], self.model_units)
+            oy = GeometryOperators.parse_dim_arg(
+                self.coordinate_systems[idx].props['OriginY'], self.model_units)
+            oz = GeometryOperators.parse_dim_arg(
+                self.coordinate_systems[idx].props['OriginZ'], self.model_units)
             o = [ox, oy, oz]
             refcs = self.coordinate_systems[idx].ref_cs
             if refcs == 'Global':
@@ -1032,7 +1045,8 @@ class GeometryModeler(Modeler, object):
 
         """
         out, parallel = self.primitives.find_closest_edges(startobj, endobject, axisdir)
-        port_edges = self.primitives.get_equivalent_parallel_edges(out, portonplane, axisdir, startobj, endobject)
+        port_edges = self.primitives.get_equivalent_parallel_edges(
+            out, portonplane, axisdir, startobj, endobject)
         if port_edges is None or port_edges is False:
             port_edges = []
             for e in out:
@@ -1233,7 +1247,8 @@ class GeometryModeler(Modeler, object):
 
         tol = 1e-6
         out, parallel = self.primitives.find_closest_edges(startobj, endobject, axisdir)
-        port_edges = self.primitives.get_equivalent_parallel_edges(out, True, axisdir, startobj, endobject)
+        port_edges = self.primitives.get_equivalent_parallel_edges(
+            out, True, axisdir, startobj, endobject)
         if port_edges is None:
             return False
         sheet_name = port_edges[0].name
@@ -1563,7 +1578,8 @@ class GeometryModeler(Modeler, object):
 
         vArg1 = ['NAME:Selections', 'Selections:=', selections, 'NewPartsModelFlag:=', 'Model']
         vArg2 = ["NAME:DuplicateAroundAxisParameters", "CreateNewObjects:=", create_new_objects, "WhichAxis:=",
-                 GeometryOperators.cs_axis_str(cs_axis), "AngleStr:=", self.primitives._arg_with_dim(angle, 'deg'), "Numclones:=",
+                 GeometryOperators.cs_axis_str(cs_axis), "AngleStr:=", self.primitives._arg_with_dim(
+                     angle, 'deg'), "Numclones:=",
                  str(nclones)]
         vArg3 = ["NAME:Options", "DuplicateBoundaries:=", "true"]
 
@@ -1706,7 +1722,8 @@ class GeometryModeler(Modeler, object):
         vectorx, vectory, vectorz = self.primitives._pos_with_arg(sweep_vector)
         vArg1 = ['NAME:Selections', 'Selections:=', selections, 'NewPartsModelFlag:=', 'Model']
         vArg2 = ["NAME:VectorSweepParameters"]
-        vArg2.append('DraftAngle:='), vArg2.append(self.primitives._arg_with_dim(draft_angle, 'deg'))
+        vArg2.append('DraftAngle:='), vArg2.append(
+            self.primitives._arg_with_dim(draft_angle, 'deg'))
         vArg2.append('DraftType:='), vArg2.append(GeometryOperators.draft_type_str(draft_type))
         vArg2.append('SweepVectorX:='), vArg2.append(vectorx)
         vArg2.append('SweepVectorY:='), vArg2.append(vectory)
@@ -1742,10 +1759,12 @@ class GeometryModeler(Modeler, object):
             ``True`` when successful, ``False`` when failed.
 
         """
-        selections = self.convert_to_selections(objid) + "," + self.convert_to_selections(sweep_object)
+        selections = self.convert_to_selections(
+            objid) + "," + self.convert_to_selections(sweep_object)
         vArg1 = ['NAME:Selections', 'Selections:=', selections, 'NewPartsModelFlag:=', 'Model']
         vArg2 = ["NAME:PathSweepParameters"]
-        vArg2.append('DraftAngle:='), vArg2.append(self.primitives._arg_with_dim(draft_angle, 'deg'))
+        vArg2.append('DraftAngle:='), vArg2.append(
+            self.primitives._arg_with_dim(draft_angle, 'deg'))
         vArg2.append('DraftType:='), vArg2.append(GeometryOperators.draft_type_str(draft_type))
         vArg2.append('CheckFaceFaceIntersection:='), vArg2.append(is_check_face_intersection)
         vArg2.append('TwistAngle:='), vArg2.append(str(twist_angle) + 'deg')
@@ -1779,7 +1798,8 @@ class GeometryModeler(Modeler, object):
         vArg1 = ['NAME:Selections', 'Selections:=', selections, 'NewPartsModelFlag:=', 'Model']
         vArg2 = ['NAME:AxisSweepParameters', 'DraftAngle:=',
                  self.primitives._arg_with_dim(draft_angle, 'deg'),
-                 'DraftType:=', 'Round', 'CheckFaceFaceIntersection:=', False, 'SweepAxis:=', GeometryOperators.cs_axis_str(cs_axis),
+                 'DraftType:=', 'Round', 'CheckFaceFaceIntersection:=', False, 'SweepAxis:=', GeometryOperators.cs_axis_str(
+                     cs_axis),
                  'SweepAngle:=', self.primitives._arg_with_dim(sweep_angle, 'deg'), 'NumOfSegments:=', '0']
 
         self.oeditor.SweepAroundAxis(vArg1, vArg2)
@@ -2116,7 +2136,8 @@ class GeometryModeler(Modeler, object):
 
 
         """
-        self._messenger.add_info_message("Subtract all objects from Chassis object - exclude vacuum objs")
+        self._messenger.add_info_message(
+            "Subtract all objects from Chassis object - exclude vacuum objs")
         mat_names = self.omaterial_manager.GetNames()
         num_obj_start = self.oeditor.GetNumObjects()
         blank_part = chassis_part
@@ -2208,9 +2229,12 @@ class GeometryModeler(Modeler, object):
             off1, off2, off3 = self._offset_on_plane(i, offset)
             vArg1 = ['NAME:FaceParameters']
             vArg1.append('BodyName:='), vArg1.append(obj)
-            vArg1.append('XPosition:='), vArg1.append(Xvec + "+" + self.primitives._arg_with_dim(off1))
-            vArg1.append('YPosition:='), vArg1.append(Yvec + "+" + self.primitives._arg_with_dim(off2))
-            vArg1.append('ZPosition:='), vArg1.append(Zvec + "+" + self.primitives._arg_with_dim(off3))
+            vArg1.append('XPosition:='), vArg1.append(
+                Xvec + "+" + self.primitives._arg_with_dim(off1))
+            vArg1.append('YPosition:='), vArg1.append(
+                Yvec + "+" + self.primitives._arg_with_dim(off2))
+            vArg1.append('ZPosition:='), vArg1.append(
+                Zvec + "+" + self.primitives._arg_with_dim(off3))
             try:
                 face_id = self.oeditor.GetFaceByPosition(vArg1)
                 if i < 4:
@@ -2475,7 +2499,8 @@ class GeometryModeler(Modeler, object):
                 hb = wgmodel + "_H + 2*" + self.primitives._arg_with_dim(wg_thickness)
             else:
                 h = self.primitives._arg_with_dim(wgheight)
-                hb = self.primitives._arg_with_dim(wgheight) + " + 2*" + self.primitives._arg_with_dim(wg_thickness)
+                hb = self.primitives._arg_with_dim(
+                    wgheight) + " + 2*" + self.primitives._arg_with_dim(wg_thickness)
 
             if parametrize_w:
                 self._parent[wgmodel + "_W"] = self.primitives._arg_with_dim(wgwidth)
@@ -2483,7 +2508,8 @@ class GeometryModeler(Modeler, object):
                 wb = wgmodel + "_W + " + self.primitives._arg_with_dim(2 * wg_thickness)
             else:
                 w = self.primitives._arg_with_dim(wgwidth)
-                wb = self.primitives._arg_with_dim(wgwidth) + " + 2*" + self.primitives._arg_with_dim(wg_thickness)
+                wb = self.primitives._arg_with_dim(
+                    wgwidth) + " + 2*" + self.primitives._arg_with_dim(wg_thickness)
             if wg_direction_axis == self._parent.CoordinateSystemAxis.ZAxis:
                 airbox = self.primitives.create_box(origin, [w, h, wg_length])
 
@@ -2918,7 +2944,8 @@ class GeometryModeler(Modeler, object):
             try:
                 line_ids[line_object] = str(self.oeditor.GetObjectIDByName(line_object))
             except:
-                self._messenger.add_warning_message('Line {} has an invalid ID!'.format(line_object))
+                self._messenger.add_warning_message(
+                    'Line {} has an invalid ID!'.format(line_object))
         return line_ids
 
     @aedt_exception_handler
@@ -3612,7 +3639,8 @@ class GeometryModeler(Modeler, object):
 
         """
         if components is None and groups is None and objects is None:
-            raise AttributeError("At least one between ``objects``, ``components``, ``groups`` has to be defined.")
+            raise AttributeError(
+                "At least one between ``objects``, ``components``, ``groups`` has to be defined.")
 
         all_objects = self.primitives.object_names
         if objects:

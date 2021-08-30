@@ -245,7 +245,8 @@ class Polyline(Object3d):
         position_list = self._positions
         segment_types = self._segment_types
 
-        assert len(position_list) > 0, "The ``position_list`` argument must be a list of positions with at least one point."
+        assert len(
+            position_list) > 0, "The ``position_list`` argument must be a list of positions with at least one point."
         if not segment_types:
             segment_types = [PolylineSegment("Line")] * (len(position_list) - 1)
         elif isinstance(segment_types, str):
@@ -295,7 +296,8 @@ class Polyline(Object3d):
                 raise ("Number of segments inconsistent with the number of points!")
 
             if current_segment:
-                seg_str = self._segment_array(current_segment, start_index=index_count, start_point=position_list[pos_count])
+                seg_str = self._segment_array(
+                    current_segment, start_index=index_count, start_point=position_list[pos_count])
                 segment_str.append(seg_str)
 
                 pos_count_incr = 0
@@ -506,7 +508,8 @@ class Polyline(Object3d):
                     at_start = True
                 break
 
-        assert found_vertex, "Specified vertex {} not found in polyline {}.".format(position, self._m_name)
+        assert found_vertex, "Specified vertex {} not found in polyline {}.".format(
+            position, self._m_name)
         self._parent.oeditor.DeletePolylinePoint(
             [
                 "NAME:Delete Point",
@@ -548,7 +551,8 @@ class Polyline(Object3d):
                     "Segment Indices:=", edge_id,
                     "At Start:="	, True])
         except:
-            raise ValueError("Invalid edge ID {} is specified on polyline {}.".format(edge_id, self.name))
+            raise ValueError(
+                "Invalid edge ID {} is specified on polyline {}.".format(edge_id, self.name))
         return True
 
     @aedt_exception_handler
@@ -1069,7 +1073,8 @@ class Primitives(object):
             varg2 = ['NAME:BodyFromEdgeToParameters']
             varg2.append('Edges:='), varg2.append([edge_id])
 
-            new_object_name = self.oeditor.CreateObjectFromEdges(varg1, ['NAME:Parameters', varg2])[0]
+            new_object_name = self.oeditor.CreateObjectFromEdges(
+                varg1, ['NAME:Parameters', varg2])[0]
             return self._create_object(new_object_name)
 
     @aedt_exception_handler
@@ -1099,7 +1104,8 @@ class Primitives(object):
 
             varg2 = ['NAME:BodyFromFaceToParameters']
             varg2.append('FacesToDetach:='), varg2.append([face_id])
-            new_object_name = self.oeditor.CreateObjectFromFaces(varg1, ['NAME:Parameters', varg2])[0]
+            new_object_name = self.oeditor.CreateObjectFromFaces(
+                varg1, ['NAME:Parameters', varg2])[0]
             return self._create_object(new_object_name)
 
     @aedt_exception_handler
@@ -1264,9 +1270,11 @@ class Primitives(object):
 
         """
         if ".dll" not in udp_dll_name:
-            vArg1 = ["NAME:UserDefinedPrimitiveParameters", "DllName:=", udp_dll_name + ".dll", "Library:=", upd_library]
+            vArg1 = ["NAME:UserDefinedPrimitiveParameters", "DllName:=",
+                udp_dll_name + ".dll", "Library:=", upd_library]
         else:
-            vArg1 = ["NAME:UserDefinedPrimitiveParameters", "DllName:=", udp_dll_name, "Library:=", upd_library]
+            vArg1 = ["NAME:UserDefinedPrimitiveParameters",
+                "DllName:=", udp_dll_name, "Library:=", upd_library]
 
         vArgParamVector = ["NAME:ParamVector"]
 
@@ -1617,10 +1625,12 @@ class Primitives(object):
                         continue  #skip perperndicular edges
                     if GeometryOperators.is_parallel(vertex1_i, vertex2_i, vertex1_j, vertex2_j):
                         parallel_edges = True
-                    vert_dist_sum = GeometryOperators.arrays_positions_sum([vertex1_i, vertex2_i], [vertex1_j, vertex2_j])
+                    vert_dist_sum = GeometryOperators.arrays_positions_sum(
+                        [vertex1_i, vertex2_i], [vertex1_j, vertex2_j])
                     vect = GeometryOperators.distance_vector(start_midpoint, vertex1_j, vertex2_j)
                 else:
-                    vert_dist_sum = GeometryOperators.arrays_positions_sum([start_midpoint], [end_midpoint])
+                    vert_dist_sum = GeometryOperators.arrays_positions_sum(
+                        [start_midpoint], [end_midpoint])
 
                 # dist = abs(_v_norm(vect))
 
@@ -1640,10 +1650,12 @@ class Primitives(object):
                 if actual_point is None:
                     edge_list = [el, el1]
                     is_parallel = parallel_edges
-                    actual_point = GeometryOperators.find_point_on_plane([start_midpoint, end_midpoint], port_direction)
+                    actual_point = GeometryOperators.find_point_on_plane(
+                        [start_midpoint, end_midpoint], port_direction)
                     mindist = vert_dist_sum
                 else:
-                    new_point = GeometryOperators.find_point_on_plane([start_midpoint, end_midpoint], port_direction)
+                    new_point = GeometryOperators.find_point_on_plane(
+                        [start_midpoint, end_midpoint], port_direction)
                     if (port_direction <= 2 and new_point - actual_point < 0) or (port_direction > 2 and actual_point - new_point < 0):
                         edge_list = [el, el1]
                         is_parallel = parallel_edges
@@ -2345,7 +2357,8 @@ class Primitives(object):
                         abs(GeometryOperators._v_dot(GeometryOperators.v_points(vertex1_i, vertex2_i), GeometryOperators.v_points(vertex1_j, vertex2_j))) < tol:
                     continue
 
-                normal1 = GeometryOperators.v_cross(GeometryOperators.v_points(vertex1_i, vertex2_i), GeometryOperators.v_points(vertex1_i, vertex1_j))
+                normal1 = GeometryOperators.v_cross(GeometryOperators.v_points(
+                    vertex1_i, vertex2_i), GeometryOperators.v_points(vertex1_i, vertex1_j))
                 normal1_norm = GeometryOperators.v_norm(normal1)
                 if YZ_plane and abs(abs(GeometryOperators._v_dot(normal1, ux)) - normal1_norm) < tol:
                     pass
@@ -2478,7 +2491,8 @@ class Primitives(object):
                         abs(GeometryOperators._v_dot(GeometryOperators.v_points(vertex1_i, vertex2_i), GeometryOperators.v_points(vertex1_j, vertex2_j))) < tol:
                     continue
 
-                normal1 = GeometryOperators.v_cross(GeometryOperators.v_points(vertex1_i, vertex2_i), GeometryOperators.v_points(vertex1_i, vertex1_j))
+                normal1 = GeometryOperators.v_cross(GeometryOperators.v_points(
+                    vertex1_i, vertex2_i), GeometryOperators.v_points(vertex1_i, vertex1_j))
                 normal1_norm = GeometryOperators.v_norm(normal1)
                 if YZ_plane and abs(abs(GeometryOperators._v_dot(normal1, ux)) - normal1_norm) < tol:
                     pass
@@ -2799,7 +2813,8 @@ class Primitives(object):
             if units is None:
                 units = self.model_units
 
-                assert is_number(prop_value), "Argument {} must be a numeric value".format(prop_value)
+                assert is_number(
+                    prop_value), "Argument {} must be a numeric value".format(prop_value)
             val = "{0}{1}".format(prop_value, units)
         return val
 

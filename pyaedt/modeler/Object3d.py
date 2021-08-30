@@ -145,10 +145,12 @@ class EdgeTypePrimitive(object):
             if self._parent.is3d:
                 edge_id_list = [self.id]
             else:
-                self._parent._messenger.add_error_message("Filet is possible only on a vertex in 2D designs.")
+                self._parent._messenger.add_error_message(
+                    "Filet is possible only on a vertex in 2D designs.")
                 return False
 
-        vArg1 = ['NAME:Selections', 'Selections:=', self._parent.name, 'NewPartsModelFlag:=', 'Model']
+        vArg1 = ['NAME:Selections', 'Selections:=',
+            self._parent.name, 'NewPartsModelFlag:=', 'Model']
         vArg2 = ["NAME:FilletParameters"]
         vArg2.append('Edges:='), vArg2.append(edge_id_list)
         vArg2.append('Vertices:='), vArg2.append(vertex_id_list)
@@ -157,7 +159,8 @@ class EdgeTypePrimitive(object):
         self._parent.m_Editor.Fillet(vArg1, ["NAME:Parameters", vArg2])
         if self._parent.name in list(self._parent.m_Editor.GetObjectsInGroup("UnClassified")):
             self._parent.odesign.Undo()
-            self._parent._messenger.add_error_message("Operation failed, generating an unclassified object. Check and retry.")
+            self._parent._messenger.add_error_message(
+                "Operation failed, generating an unclassified object. Check and retry.")
             return False
         return True
 
@@ -197,35 +200,43 @@ class EdgeTypePrimitive(object):
             if self._parent.is3d:
                 edge_id_list = [self.id]
             else:
-                self._parent._messenger.add_error_message("chamfer is possible only on Vertex in 2D Designs ")
+                self._parent._messenger.add_error_message(
+                    "chamfer is possible only on Vertex in 2D Designs ")
                 return False
-        vArg1 = ['NAME:Selections', 'Selections:=', self._parent.name, 'NewPartsModelFlag:=', 'Model']
+        vArg1 = ['NAME:Selections', 'Selections:=',
+            self._parent.name, 'NewPartsModelFlag:=', 'Model']
         vArg2 = ["NAME:ChamferParameters"]
         vArg2.append('Edges:='), vArg2.append(edge_id_list)
         vArg2.append('Vertices:='), vArg2.append(vertex_id_list)
-        vArg2.append('LeftDistance:='), vArg2.append(self._parent._parent._arg_with_dim(left_distance))
+        vArg2.append('LeftDistance:='), vArg2.append(
+            self._parent._parent._arg_with_dim(left_distance))
         if not right_distance:
             right_distance = left_distance
         if chamfer_type == 0:
-            vArg2.append('RightDistance:='), vArg2.append(self._parent._parent._arg_with_dim(right_distance))
+            vArg2.append('RightDistance:='), vArg2.append(
+                self._parent._parent._arg_with_dim(right_distance))
             vArg2.append('ChamferType:='), vArg2.append('Symmetric')
         elif chamfer_type == 1:
-            vArg2.append('RightDistance:='), vArg2.append(self._parent._parent._arg_with_dim(right_distance))
+            vArg2.append('RightDistance:='), vArg2.append(
+                self._parent._parent._arg_with_dim(right_distance))
             vArg2.append('ChamferType:='), vArg2.append('Left Distance-Right Distance')
         elif chamfer_type == 2:
             vArg2.append('Angle:='), vArg2.append(str(angle) + "deg")
             vArg2.append('ChamferType:='), vArg2.append('Left Distance-Right Distance')
         elif chamfer_type == 3:
             vArg2.append("LeftDistance:="), vArg2.append(str(angle) + "deg")
-            vArg2.append("RightDistance:="), vArg2.append(self._parent._parent._arg_with_dim(right_distance))
+            vArg2.append("RightDistance:="), vArg2.append(
+                self._parent._parent._arg_with_dim(right_distance))
             vArg2.append('ChamferType:='), vArg2.append('Right Distance-Angle')
         else:
-            self._parent._messenger.add_error_message("Wrong Type Entered. Type must be integer from 0 to 3")
+            self._parent._messenger.add_error_message(
+                "Wrong Type Entered. Type must be integer from 0 to 3")
             return False
         self._parent.m_Editor.Chamfer(vArg1, ["NAME:Parameters", vArg2])
         if self._parent.name in list(self._parent.m_Editor.GetObjectsInGroup("UnClassified")):
             self._parent.odesign.Undo()
-            self._parent._messenger.add_error_message("Operation Failed generating Unclassified object. Check and retry")
+            self._parent._messenger.add_error_message(
+                "Operation Failed generating Unclassified object. Check and retry")
             return False
         return True
 
@@ -305,7 +316,8 @@ class EdgePrimitive(EdgeTypePrimitive, object):
         """
 
         if len(self.vertices) == 2:
-            midpoint = GeometryOperators.get_mid_point(self.vertices[0].position, self.vertices[1].position)
+            midpoint = GeometryOperators.get_mid_point(
+                self.vertices[0].position, self.vertices[1].position)
             return list(midpoint)
         elif len(self.vertices) == 1:
             return self.vertices[0].position
@@ -321,7 +333,8 @@ class EdgePrimitive(EdgeTypePrimitive, object):
 
         """
         if len(self.vertices) == 2:
-            length = GeometryOperators.points_distance(self.vertices[0].position, self.vertices[1].position)
+            length = GeometryOperators.points_distance(
+                self.vertices[0].position, self.vertices[1].position)
             return float(length)
         else:
             return False
@@ -373,7 +386,8 @@ class FacePrimitive(object):
         try:
             c = self._parent.m_Editor.GetFaceCenter(self.id)
         except:
-            self._parent._messenger.add_warning_message("Non-planar face does not provide a face center.")
+            self._parent._messenger.add_warning_message(
+                "Non-planar face does not provide a face center.")
             return False
         center = [float(i) for i in c]
         return center
@@ -503,7 +517,8 @@ class FacePrimitive(object):
         inv_norm = [-i for i in normal]
         mv1 = GeometryOperators.v_sum(fc, normal)
         mv2 = GeometryOperators.v_sum(fc, inv_norm)
-        bb_center = GeometryOperators.get_mid_point(self._parent.bounding_box[0:3], self._parent.bounding_box[3:6])
+        bb_center = GeometryOperators.get_mid_point(
+            self._parent.bounding_box[0:3], self._parent.bounding_box[3:6])
         d1 = GeometryOperators.points_distance(mv1, bb_center)
         d2 = GeometryOperators.points_distance(mv2, bb_center)
         if d1 > d2:
@@ -708,7 +723,8 @@ class Object3d(object):
 
         """
         if 'Group' in self.valid_properties:
-            self.m_groupName = retry_ntimes(10, self.m_Editor.GetPropertyValue, "Geometry3DAttributeTab", self._m_name, 'Group')
+            self.m_groupName = retry_ntimes(
+                10, self.m_Editor.GetPropertyValue, "Geometry3DAttributeTab", self._m_name, 'Group')
             return self.m_groupName
 
     @property
@@ -722,7 +738,8 @@ class Object3d(object):
 
         """
         if 'Material' in self.valid_properties:
-            mat = retry_ntimes(10, self.m_Editor.GetPropertyValue, "Geometry3DAttributeTab", self._m_name, 'Material')
+            mat = retry_ntimes(10, self.m_Editor.GetPropertyValue,
+                               "Geometry3DAttributeTab", self._m_name, 'Material')
             self._material_name = ''
             if mat:
                 self._material_name = mat.strip('"').lower()
@@ -835,7 +852,8 @@ class Object3d(object):
     def valid_properties(self):
         """Valid properties."""
         if not self._all_props:
-            self._all_props = retry_ntimes(10, self.m_Editor.GetProperties, "Geometry3DAttributeTab", self._m_name)
+            self._all_props = retry_ntimes(
+                10, self.m_Editor.GetProperties, "Geometry3DAttributeTab", self._m_name)
         return self._all_props
 
     @property
@@ -850,7 +868,8 @@ class Object3d(object):
 
         """
         if 'Color' in self.valid_properties:
-            color = retry_ntimes(10, self.m_Editor.GetPropertyValue, "Geometry3DAttributeTab", self._m_name, 'Color')
+            color = retry_ntimes(10, self.m_Editor.GetPropertyValue,
+                                 "Geometry3DAttributeTab", self._m_name, 'Color')
             if color:
                 b = (int(color) >> 16) & 255
                 g = (int(color) >> 8) & 255
@@ -903,7 +922,8 @@ class Object3d(object):
 
         """
         if 'Transparent' in self.valid_properties:
-            transp = retry_ntimes(10, self.m_Editor.GetPropertyValue, "Geometry3DAttributeTab", self._m_name, 'Transparent')
+            transp = retry_ntimes(10, self.m_Editor.GetPropertyValue,
+                                  "Geometry3DAttributeTab", self._m_name, 'Transparent')
             try:
                 self._transparency = float(transp)
             except:
@@ -962,7 +982,8 @@ class Object3d(object):
 
         """
         if 'Solve Inside' in self.valid_properties:
-            solveinside = retry_ntimes(10, self.m_Editor.GetPropertyValue, "Geometry3DAttributeTab", self._m_name, 'Solve Inside')
+            solveinside = retry_ntimes(10, self.m_Editor.GetPropertyValue,
+                                       "Geometry3DAttributeTab", self._m_name, 'Solve Inside')
             if solveinside == 'false' or solveinside == 'False':
                 self._solve_inside = False
             else:
@@ -1020,7 +1041,8 @@ class Object3d(object):
 
         """
         if 'Model' in self.valid_properties:
-            mod = retry_ntimes(10, self.m_Editor.GetPropertyValue, "Geometry3DAttributeTab", self._m_name, 'Model')
+            mod = retry_ntimes(10, self.m_Editor.GetPropertyValue,
+                               "Geometry3DAttributeTab", self._m_name, 'Model')
             if mod == 'false' or mod == 'False':
                 self._model = False
             else:
@@ -1049,7 +1071,8 @@ class Object3d(object):
            Object 3D object.
 
         """
-        unite_list = [self.name] + self._parent.modeler.convert_to_selections(object_list, return_list=True)
+        unite_list = [self.name] + \
+            self._parent.modeler.convert_to_selections(object_list, return_list=True)
         self._parent.modeler.unite(unite_list)
         return self
 
@@ -1073,7 +1096,8 @@ class Object3d(object):
             List of names of the newly added objects.
 
         """
-        ret, added_objects = self._parent.modeler.duplicate_around_axis(self, cs_axis, angle, nclones, create_new_objects)
+        ret, added_objects = self._parent.modeler.duplicate_around_axis(
+            self, cs_axis, angle, nclones, create_new_objects)
         return added_objects
 
     @aedt_exception_handler
@@ -1095,7 +1119,8 @@ class Object3d(object):
             List of names of the newly added objects.
 
        """
-        ret, added_objects = self._parent.modeler.duplicate_along_line(self, vector, nclones, attachObject)
+        ret, added_objects = self._parent.modeler.duplicate_along_line(
+            self, vector, nclones, attachObject)
         return added_objects
 
     @aedt_exception_handler
@@ -1942,7 +1967,8 @@ class Components3DLayout(Objec3DLayout, object):
            List of ``(x, y, z)`` coordinates for the component location.
 
         """
-        location = retry_ntimes(self._n, self.m_Editor.GetPropertyValue, "BaseElementTab", self.name, 'Location')
+        location = retry_ntimes(self._n, self.m_Editor.GetPropertyValue,
+                                "BaseElementTab", self.name, 'Location')
         return list(location)
 
     @aedt_exception_handler
@@ -2040,7 +2066,8 @@ class Pins3DLayout(Objec3DLayout, object):
            List of ``(x, y, z)`` coordinates for the pin location.
 
         """
-        location = retry_ntimes(self._n, self.m_Editor.GetPropertyValue, "BaseElementTab", self.name, 'Location')
+        location = retry_ntimes(self._n, self.m_Editor.GetPropertyValue,
+                                "BaseElementTab", self.name, 'Location')
         return location
 
     @aedt_exception_handler

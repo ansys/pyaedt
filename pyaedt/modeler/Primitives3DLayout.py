@@ -293,9 +293,12 @@ class Primitives3DLayout(object):
                             if i!= 1:
                                 self.padstacks[name].add_layer(lay_name)
                             self.padstacks[name].layers[lay_name].layername = lay_name
-                            self.padstacks[name].layers[lay_name].pad = self.padstacks[name].add_hole(lay[6][1],list(lay[6][3]),lay[6][5],lay[6][7],lay[6][9])
-                            self.padstacks[name].layers[lay_name].antipad = self.padstacks[name].add_hole(lay[8][1],list(lay[8][3]),lay[8][5],lay[8][7],lay[8][9])
-                            self.padstacks[name].layers[lay_name].thermal = self.padstacks[name].add_hole(lay[10][1],list(lay[10][3]),lay[10][5],lay[10][7],lay[10][9])
+                            self.padstacks[name].layers[lay_name].pad = self.padstacks[name].add_hole(
+                                lay[6][1],list(lay[6][3]),lay[6][5],lay[6][7],lay[6][9])
+                            self.padstacks[name].layers[lay_name].antipad = self.padstacks[name].add_hole(
+                                lay[8][1],list(lay[8][3]),lay[8][5],lay[8][7],lay[8][9])
+                            self.padstacks[name].layers[lay_name].thermal = self.padstacks[name].add_hole(
+                                lay[10][1],list(lay[10][3]),lay[10][5],lay[10][7],lay[10][9])
                             self.padstacks[name].layers[lay_name].connectionx = lay[12]
                             self.padstacks[name].layers[lay_name].connectiony = lay[14]
                             self.padstacks[name].layers[lay_name].connectiondir = lay[16]

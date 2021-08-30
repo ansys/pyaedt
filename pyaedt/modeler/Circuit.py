@@ -74,7 +74,8 @@ class ModelerCircuit(Modeler):
         """
         obj1 = self.components[firstcomponent]
         if "Port" in obj1.composed_name:
-            pos1 = self.oeditor.GetPropertyValue("BaseElementTab", obj1.composed_name, "Component Location").split(", ")
+            pos1 = self.oeditor.GetPropertyValue(
+                "BaseElementTab", obj1.composed_name, "Component Location").split(", ")
             pos1 = [float(i.strip()[:-3]) * 0.0000254 for i in pos1]
             if "GPort" in obj1.composed_name:
                 pos1[1] += 0.00254
@@ -83,7 +84,8 @@ class ModelerCircuit(Modeler):
             pos1 = self.components.get_pin_location(firstcomponent, pins1[pinnum_first - 1])
         obj2 = self.components[secondcomponent]
         if "Port" in obj2.composed_name:
-            pos2 = self.oeditor.GetPropertyValue("BaseElementTab", obj2.composed_name, "Component Location").split(", ")
+            pos2 = self.oeditor.GetPropertyValue(
+                "BaseElementTab", obj2.composed_name, "Component Location").split(", ")
             pos2 = [float(i.strip()[:-3]) * 0.0000254 for i in pos2]
             if "GPort" in obj2.composed_name:
                 pos2[1] += 0.00254
