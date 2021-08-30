@@ -24,7 +24,8 @@ class TestClass():
     def setup_class(self):
         with Scratch(scratch_path) as self.local_scratch:
             self.test_project = self.local_scratch.copyfile(example_project)
-            self.aedtapp = Hfss(projectname=self.test_project, specified_version=desktop_version, AlwaysNew=new_thread, NG=non_graphical)
+            self.aedtapp = Hfss(projectname=self.test_project,
+                                specified_version=desktop_version, AlwaysNew=new_thread, NG=non_graphical)
             #self.aedtapp.save_project()
             #self.cache = DesignCache(self.aedtapp)
 
@@ -106,7 +107,8 @@ class TestClass():
         ambient_temp = 22
         objects = [o for o in self.aedtapp.modeler.primitives.solid_names
                     if self.aedtapp.modeler.primitives[o].model]
-        assert self.aedtapp.modeler.set_objects_temperature(objects, ambient_temp=ambient_temp, create_project_var=True)
+        assert self.aedtapp.modeler.set_objects_temperature(
+            objects, ambient_temp=ambient_temp, create_project_var=True)
 
     def test_10_change_material_override(self):
         assert self.aedtapp.change_material_override(True)
@@ -114,7 +116,8 @@ class TestClass():
 
     def test_11_change_validation_settings(self):
         assert self.aedtapp.change_validation_settings()
-        assert self.aedtapp.change_validation_settings(ignore_unclassified=True, skip_intersections= True)
+        assert self.aedtapp.change_validation_settings(
+            ignore_unclassified=True, skip_intersections= True)
 
     def test_12_variables(self):
         self.aedtapp["test"] = "1mm"
@@ -122,12 +125,14 @@ class TestClass():
         assert val == "1.0mm"
 
     def test_13_designs(self):
-        assert self.aedtapp._insert_design("HFSS", design_name="TestTransient", solution_type="Transient Network") == "TestTransient"
+        assert self.aedtapp._insert_design(
+            "HFSS", design_name="TestTransient", solution_type="Transient Network") == "TestTransient"
         self.aedtapp.delete_design("TestTransient")
 
 
     def test_14_get_nominal_variation(self):
-        assert (self.aedtapp.get_nominal_variation() != [] or self.aedtapp.get_nominal_variation() is not None)
+        assert (self.aedtapp.get_nominal_variation() != []
+                or self.aedtapp.get_nominal_variation() is not None)
 
     def test_15a_duplicate_design(self):
         self.aedtapp.duplicate_design("myduplicateddesign")
@@ -152,7 +157,8 @@ class TestClass():
 
 
     def test_17_export_proj_var(self):
-        self.aedtapp.export_variables_to_csv(os.path.join(self.local_scratch.path,"my_variables.csv"))
+        self.aedtapp.export_variables_to_csv(os.path.join(
+            self.local_scratch.path,"my_variables.csv"))
         assert os.path.exists(os.path.join(self.local_scratch.path,"my_variables.csv"))
 
 

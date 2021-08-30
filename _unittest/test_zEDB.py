@@ -22,7 +22,8 @@ class TestClass:
             aedbproject = os.path.join(self.local_scratch.path, test_project_name + '.aedb')
             self.local_scratch.copyfolder(os.path.join(local_path, 'example_models', test_project_name + '.aedb'),
                                           os.path.join(self.local_scratch.path, test_project_name + '.aedb'))
-            self.edbapp = Edb(aedbproject, 'Galileo_G87173_204', edbversion=desktop_version, isreadonly=False)
+            self.edbapp = Edb(aedbproject, 'Galileo_G87173_204',
+                              edbversion=desktop_version, isreadonly=False)
             time.sleep(5)
 
     def teardown_class(self):
@@ -87,8 +88,10 @@ class TestClass:
         assert (len(powernets) > 2)
 
     def test_09_assign_rlc(self):
-        assert self.edbapp.core_components.set_component_rlc("C3B14", res_value=1e-3, cap_value="10e-6", isparallel=False)
-        assert self.edbapp.core_components.set_component_rlc("L3A1", res_value=1e-3, ind_value="10e-6", isparallel=True)
+        assert self.edbapp.core_components.set_component_rlc(
+            "C3B14", res_value=1e-3, cap_value="10e-6", isparallel=False)
+        assert self.edbapp.core_components.set_component_rlc(
+            "L3A1", res_value=1e-3, ind_value="10e-6", isparallel=True)
 
     def test_10_add_layer(self):
         layers = self.edbapp.core_stackup.stackup_layers
@@ -107,7 +110,8 @@ class TestClass:
         assert diel
 
     def test_14_add_debye(self):
-        diel = self.edbapp.core_stackup.create_debye_material("My_Debye", 3, 2.5, 0.02, 0.04, 1e6, 1e9)
+        diel = self.edbapp.core_stackup.create_debye_material(
+            "My_Debye", 3, 2.5, 0.02, 0.04, 1e6, 1e9)
         assert diel
 
     def test_15_update_layer(self):
@@ -195,7 +199,8 @@ class TestClass:
     def test_29_get_power_tree(self):
         OUTPUT_NET = "BST_V1P0_S0"
         GROUND_NETS = ["GND", "PGND"]
-        component_list, component_list_columns, net_group = self.edbapp.core_nets.get_powertree(OUTPUT_NET, GROUND_NETS)
+        component_list, component_list_columns, net_group = self.edbapp.core_nets.get_powertree(
+            OUTPUT_NET, GROUND_NETS)
         assert component_list
         assert component_list_columns
         assert net_group
@@ -419,7 +424,8 @@ class TestClass:
 
     @pytest.mark.skipif(config["build_machine"], reason="Not running in non-graphical mode")
     def test_62_export_to_hfss(self):
-        edb = Edb(edbpath=os.path.join(local_path, 'example_models', "simple.aedb"), edbversion="2021.1")
+        edb = Edb(edbpath=os.path.join(local_path, 'example_models',
+                  "simple.aedb"), edbversion="2021.1")
         options_config = {'UNITE_NETS' : 1, 'LAUNCH_Q3D' : 0}
         out = edb.write_export3d_option_config_file(scratch_path, options_config)
         assert os.path.exists(out)
@@ -430,7 +436,8 @@ class TestClass:
 
     @pytest.mark.skipif(config["build_machine"], reason="Not running in non-graphical mode")
     def test_63_export_to_q3d(self):
-        edb = Edb(edbpath=os.path.join(local_path, 'example_models', "simple.aedb"), edbversion="2021.1")
+        edb = Edb(edbpath=os.path.join(local_path, 'example_models',
+                  "simple.aedb"), edbversion="2021.1")
         options_config = {'UNITE_NETS' : 1, 'LAUNCH_Q3D' : 0}
         out = edb.write_export3d_option_config_file(scratch_path, options_config)
         assert os.path.exists(out)
@@ -440,7 +447,8 @@ class TestClass:
 
     @pytest.mark.skipif(config["build_machine"], reason="Not running in non-graphical mode")
     def test_64_export_to_maxwell(self):
-        edb = Edb(edbpath=os.path.join(local_path, 'example_models', "simple.aedb"), edbversion="2021.1")
+        edb = Edb(edbpath=os.path.join(local_path, 'example_models',
+                  "simple.aedb"), edbversion="2021.1")
         options_config = {'UNITE_NETS' : 1, 'LAUNCH_MAXWELL' : 0}
         out = edb.write_export3d_option_config_file(scratch_path, options_config)
         assert os.path.exists(out)
