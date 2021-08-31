@@ -304,3 +304,7 @@ class TestClass:
             "Bottom", [[100, 0], [120, -35]], 0.5, name="poly_2222")
         self.aedtapp.modeler.unite([l1, l2])
         assert self.aedtapp.modeler.colinear_heal("poly_2222", tolerance=0.25)
+
+    def test_cosim_simulation(self):
+        assert self.aedtapp.edit_cosim_options()
+        assert not self.aedtapp.edit_cosim_options(interpolation_alghoritm="auto1")
