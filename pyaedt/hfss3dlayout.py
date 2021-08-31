@@ -561,7 +561,7 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
         if sweepname in [name.name for name in setup.sweeps]:
             sweepname = generate_unique_name(sweepname)
         sweep = setup.add_sweep(sweepname=sweepname)
-        sweep.change_range("LinearCount", freqstart, freqstop, num_of_freq_points )
+        sweep.change_range("LinearCount", str(freqstart)+unit, str(freqstop)+unit, num_of_freq_points )
         sweep.props["GenerateSurfaceCurrent"] = save_fields
         sweep.props["SaveRadFieldsOnly"] = save_rad_fields_only
         sweep.props["FastSweep"] = interpolation
