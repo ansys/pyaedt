@@ -26,4 +26,3 @@ class TestClass:
         assert isinstance(self.aedtapp.setup_names, list)
         assert self.aedtapp.modeler
         assert self.aedtapp.oanalysis is None
-

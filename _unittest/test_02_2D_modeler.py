@@ -25,9 +25,9 @@ class TestClass(BasisTest):
         assert len(bounding) == 6
 
     def test_03_objects(self):
-            assert self.aedtapp.modeler.oeditor
-            assert self.aedtapp.modeler.odefinition_manager
-            assert self.aedtapp.modeler.omaterial_manager
+        assert self.aedtapp.modeler.oeditor
+        assert self.aedtapp.modeler.odefinition_manager
+        assert self.aedtapp.modeler.omaterial_manager
 
     def test_create_rectangle(self):
         rect1 = self.aedtapp.modeler.primitives.create_rectangle([0, -2, -2], [3, 4])

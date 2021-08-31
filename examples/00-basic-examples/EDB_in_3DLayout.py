@@ -48,7 +48,7 @@ desktopVersion = "2021.1"
 ###############################################################################
 # Launch AEDT in Non-Graphical Mode
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-# Change the Boolean parameter ``NonGraphical`` to ``False`` to launch AEDT in 
+# Change the Boolean parameter ``NonGraphical`` to ``False`` to launch AEDT in
 # graphical mode.
 
 NonGraphical = True
@@ -115,7 +115,7 @@ h3d.modeler.fit_all()
 # Disable Component Visibility
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # The example disable component visibility for ``"TOP"`` and ``"BOTTOM"``.
-# The :func:`pyaedt.modules.LayerStackup.Layer.update_stackup_layer` method 
+# The :func:`pyaedt.modules.LayerStackup.Layer.update_stackup_layer` method
 # will apply modifications to the layout.
 
 top = h3d.modeler.layers.layers[h3d.modeler.layers.layer_id("TOP")]
@@ -137,7 +137,7 @@ h3d.modeler.fit_all()
 ###############################################################################
 # Close AEDT
 # ~~~~~~~~~~
-# After the simulaton is completed, you can close AEDT or release it using the 
+# After the simulaton is completed, you can close AEDT or release it using the
 # :func:`pyaedt.Desktop.release_desktop` method.
 # All methods provide for saving the project before exiting.
 

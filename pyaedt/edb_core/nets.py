@@ -66,7 +66,7 @@ class EdbNets(object):
     @property
     def nets(self):
         """Nets.
-        
+
         Returns
         -------
         dict
@@ -78,7 +78,7 @@ class EdbNets(object):
     @property
     def signal_nets(self):
         """Signal nets.
-        
+
         Return
         ------
         dict
@@ -90,7 +90,7 @@ class EdbNets(object):
     @property
     def power_nets(self):
         """Power nets.
-        
+
         Returns
         -------
         dict
@@ -118,7 +118,7 @@ class EdbNets(object):
 
     def get_dcconnected_net_list(self, ground_nets=["GND"]):
         """Retrieve the nets connected to DC through inductors.
-        
+
         .. note::
            Only inductors are considered.
 
@@ -130,7 +130,7 @@ class EdbNets(object):
         Returns
         -------
         list
-            List of nets connected to DC through inductors. 
+            List of nets connected to DC through inductors.
         """
         temp_list = []
         for refdes, comp_obj in self.parent.core_components.inductors.items():
@@ -167,7 +167,7 @@ class EdbNets(object):
         power_net_name : str
             Name of the power net.
         ground_nets :
-            
+
 
         Returns
         -------
@@ -184,7 +184,7 @@ class EdbNets(object):
         if not flag_in_ng:
             net_group.append(power_net_name)
 
-        df_list = []
+        component_list = []
         rats = self.parent.core_components.get_rats()
         for net in net_group:
             for el in rats:
@@ -193,16 +193,23 @@ class EdbNets(object):
                     for n in el['net_name']:
                         if n == net:
                             df = [el['refdes'][i], el['pin_name'][i],net ]
-                            df_list.append(df)
+                            component_list.append(df)
                         i += 1
 
         component_type = []
-        for el in df_list:
+        for el in component_list:
             refdes = el[0]
             comp_type = self.parent.core_components._cmp[refdes].type
             component_type.append(comp_type)
             el.append(comp_type)
-        return df_list, net_group
+
+            comp_partname = self.parent.core_components._cmp[refdes].partname
+            el.append(comp_partname)
+            pins = self.parent.core_components.get_pin_from_component(cmpName=refdes, netName=el[2])
+            el.append("-".join([i.GetName() for i in pins]))
+
+        component_list_columns = ["refdes", "pin_name", "net_name", "component_type", "component_partname", "pin_list"]
+        return component_list, component_list_columns, net_group
 
     @aedt_exception_handler
     def get_net_by_name(self, net_name):
@@ -213,7 +220,7 @@ class EdbNets(object):
     @aedt_exception_handler
     def delete_nets(self, netlist):
         """Delete one or more nets from EDB.
-       
+
         Parameters
         ----------
         netlist : str or list
@@ -226,7 +233,7 @@ class EdbNets(object):
 
         Examples
         --------
-        
+
         >>> deleted_nets = edb_core.core_nets.delete_nets(["Net1","Net2"])
         """
         if type(netlist) is str:
@@ -262,5 +269,3 @@ class EdbNets(object):
         if net.IsNull():
             net = self._edb.Cell.Net.Create(self._active_layout, net_name)
         return net
-
-

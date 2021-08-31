@@ -3,7 +3,7 @@ Manage Touchstone Objects
 --------------------------
 This example shows how to use Touchstone objects without opening AEDT.
 
-To provide the advanced postprocessing features needed for this example, Matplotlib and NumPy 
+To provide the advanced postprocessing features needed for this example, Matplotlib and NumPy
 must be installed on the machine.
 
 This example runs only on Windows using CPython.
@@ -39,7 +39,7 @@ data = read_touchstone(example_path)
 ###############################################################################
 # Get Curve Names
 # ~~~~~~~~~~~~~~~
-# These methods identify the list of insertion losses, return losses, fext, 
+# These methods identify the list of insertion losses, return losses, fext,
 # and next based on a few inputs and port names.
 
 rl_list = get_return_losses(data.ports)

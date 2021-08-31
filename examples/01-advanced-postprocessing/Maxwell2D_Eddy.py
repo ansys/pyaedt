@@ -4,7 +4,7 @@ Maxwell 2D  Coil Analysis
 This example shows how you can use PyAEDT to create a project in
 Maxwell2D and run an eddy current simulation.
 
-To provide the advanced postprocessing features needed for this example, Matplotlib, NumPy, and 
+To provide the advanced postprocessing features needed for this example, Matplotlib, NumPy, and
 PyVista must be installed on the machine.
 
 This examples runs only on Windows using CPython.
@@ -119,9 +119,9 @@ Setup.enable_expression_cache([p_plate, p_coil], "Fields", "Phase=\'0deg\' ", Tr
 M3D.analyze_nominal()
 
 ###############################################################################
-# Get Report Data 
+# Get Report Data
 # ~~~~~~~~~~~~~~~
-# :func:`PostProcessor.get_report_data` returns a data class with all data produced from 
+# :func:`PostProcessor.get_report_data` returns a data class with all data produced from
 # the simulation.
 
 val = M3D.post.get_report_data(expression="SolidLoss")

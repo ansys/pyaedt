@@ -80,7 +80,7 @@ The main advantages of PyAEDT are:
 
 Example Workflow
 -----------------
-1. Initialize the ``Desktop`` class with the version of AEDT to use.
+1. Initialize the `Desktop` class with the version of AEDT to use.
 2. Initialize the application to use within AEDT.
 
 

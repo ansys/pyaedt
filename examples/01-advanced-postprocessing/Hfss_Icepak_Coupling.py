@@ -1,11 +1,11 @@
 """
 HFSS-Icepack Coupling Analysis
 ------------------------------
-This example shows how to create a full project from scratch in HFSS and Icepak (linked to HFSS). 
+This example shows how to create a full project from scratch in HFSS and Icepak (linked to HFSS).
 The project creates a setup, solves it, and creates post-processing output. It includes several
 commands to show PyAEDT's capabilities.
 
-To provide the advanced postprocessing features needed for this example, Matplotlib, NumPy, and 
+To provide the advanced postprocessing features needed for this example, Matplotlib, NumPy, and
 PyVista must be installed on the machine.
 
 This examples runs only on Windows using CPython.
@@ -53,7 +53,7 @@ desktopVersion = "2021.1"
 ###############################################################################
 # Launch AEDT in Non-Graphical Mode
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-# You can change the Boolean parameter ``NonGraphical`` to ``False`` to launch  
+# You can change the Boolean parameter ``NonGraphical`` to ``False`` to launch
 # AEDT in graphical mode.
 
 NonGraphical = False
@@ -65,7 +65,7 @@ project_file = os.path.join(project_dir, project_name + ".aedt")
 # Launch AEDT and Initialize HFSS
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # This example launches AEDT and initializes HFSS.
-# If there is an active HFSS design, ``aedtapp`` is linked to it. Otherwise, a 
+# If there is an active HFSS design, ``aedtapp`` is linked to it. Otherwise, a
 # new design is created.
 
 aedtapp = Hfss(specified_version=desktopVersion, NG=NonGraphical, AlwaysNew=NewThread)
@@ -100,7 +100,7 @@ o3 = aedtapp.modeler.primitives.create_cylinder(aedtapp.CoordinateSystemPlane.XY
 ###############################################################################
 # Assign a Material
 # ~~~~~~~~~~~~~~~~~~
-# You can assign a material either directly when creating the primitive, 
+# You can assign a material either directly when creating the primitive,
 # as done for ``id2``, or after the object is created.
 
 o1.material_name = "Copper"
@@ -109,7 +109,7 @@ o3.material_name = "Copper"
 ###############################################################################
 # Perform Modeler Operations
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~
-# You can subtract, add, and perform other operations using either 
+# You can subtract, add, and perform other operations using either
 # the object ID or object name.
 
 aedtapp.modeler.subtract(o3, o2, True)
@@ -119,7 +119,7 @@ aedtapp.modeler.subtract(o2, o1, True)
 # Perform Mesh Operations
 # ~~~~~~~~~~~~~~~~~~~~~~~
 # Most mesh operations are available.
-# After a mesh is created, a mesh operation is accessible for 
+# After a mesh is created, a mesh operation is accessible for
 # editing or reviewing parameters.
 
 aedtapp.mesh.assign_initial_mesh_from_slider(6)
@@ -129,8 +129,8 @@ aedtapp.mesh.assign_length_mesh(o2.faces, False, 1, 2000)
 ###############################################################################
 # Create Excitations
 # ~~~~~~~~~~~~~~~~~~
-# This method automatically identifies the closest faces on a predefined direction 
-# and then creates a sheet to cover the faces and assigns a port to this face. 
+# This method automatically identifies the closest faces on a predefined direction
+# and then creates a sheet to cover the faces and assigns a port to this face.
 # If selected, a PEC cap is also created.
 
 aedtapp.create_wave_port_between_objects("inner", "outer",axisdir=0, add_pec_cap=True, portname="P1")
@@ -142,7 +142,7 @@ aedtapp.modeler.fit_all()
 ###############################################################################
 # Generate a Setup
 # ~~~~~~~~~~~~~~~~
-# A setup is created with default values. After it is created, 
+# A setup is created with default values. After it is created,
 # you can apply any change and then update the setup.
 # The update method returns a Boolean value.
 
@@ -163,9 +163,9 @@ sweepname = aedtapp.create_frequency_sweep("MySetup", "GHz", 0.8, 1.2)
 ################################################################################
 # Create an Icepak Model
 # ~~~~~~~~~~~~~~~~~~~~~~
-# After an HFSS setup is ready, link it to an Icepak project to run a 
+# After an HFSS setup is ready, link it to an Icepak project to run a
 # coupled physics analysis.
-# The :func:`FieldAnalysisIcepak.copy_solid_bodies_from` imports a model 
+# The :func:`FieldAnalysisIcepak.copy_solid_bodies_from` imports a model
 # from HFSS with all material settings.
 
 ipkapp = Icepak()
@@ -186,7 +186,7 @@ ipkapp.edit_design_settings(aedtapp.GravityDirection.ZNeg)
 # Set Up the Icepak Project
 # ~~~~~~~~~~~~~~~~~~~~~~~~~
 # When you create a setup, default settings are applied.
-# When you need to change a property of the setup, you can use the ``props`` 
+# When you need to change a property of the setup, you can use the ``props``
 # command and pass the correct value to the property value.
 # The update function applies the settings to the setup.
 # The setup creation process is identical for all tools.
@@ -198,7 +198,7 @@ setup_ipk.update()
 ################################################################################
 # Edit or Review Mesh Parameters
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-# After a mesh is created, a mesh operation is accessible for 
+# After a mesh is created, a mesh operation is accessible for
 # editing or reviewing parameters.
 
 airbox = ipkapp.modeler.primitives.get_obj_id("Region")
@@ -209,7 +209,7 @@ ipkapp.assign_openings(airfaces)
 ################################################################################
 # Close and Open Projects
 # ~~~~~~~~~~~~~~~~~~~~~~~
-# Closing and opening the projects is necessary to ensure that 
+# Closing and opening the projects is necessary to ensure that
 # the HFSS - Icepak coupling works correctly in AEDT versions
 # 2019 R3 - 2021 R1.
 # This can be helpful when performing operations on multiple projects.
@@ -235,7 +235,7 @@ aedtapp.analyze_setup("MySetup")
 ################################################################################
 # Generate Field Plots and Export as an Image
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-# This example generates field plots on the HFSS project and 
+# This example generates field plots on the HFSS project and
 # exports them as an image.
 
 cutlist = ["Global:XY", "Global:XZ", "Global:YZ"]
@@ -270,7 +270,7 @@ print("Total Time", endtime)
 ################################################################################
 # Create Icepak Plots and Export as an Image
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-# This example uses the same functions as used above for HFSS. Only the quantity 
+# This example uses the same functions as used above for HFSS. Only the quantity
 # is different.
 
 quantity_name = "Temperature"

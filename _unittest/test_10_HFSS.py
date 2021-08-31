@@ -31,7 +31,7 @@ class TestClass:
         assert os.path.exists(test_project)
 
     def test_01A_check_setup(self):
-         assert self.aedtapp.analysis_setup is None
+        assert self.aedtapp.analysis_setup is None
 
     def test_02_create_primitive(self):
         udp = self.aedtapp.modeler.Position(0, 0, 0)
@@ -58,7 +58,7 @@ class TestClass:
         "object_name, kwargs",
         [
             ("inner", {"mat": "copper"}),
-            ("outer", {"mat": "aluminum", "usethickness": True, "thickness": "0.5mm", "istwoside": True, 
+            ("outer", {"mat": "aluminum", "usethickness": True, "thickness": "0.5mm", "istwoside": True,
                         "issheelElement": True, "usehuray": True, "radius": "0.75um", "ratio": "3"}),
             ("die", {})
         ]

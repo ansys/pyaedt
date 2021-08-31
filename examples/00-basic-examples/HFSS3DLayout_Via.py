@@ -8,12 +8,12 @@ This example shows how to use HFSS 3D Layout to create and solve a parametric de
 ###############################################################################
 # # Import the `Hfss3dlayout` Object
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-# This example imports the `Hfss3dlayout` object and initializes it on version 
+# This example imports the `Hfss3dlayout` object and initializes it on version
 # 2021.1.
 
 from pyaedt import Hfss3dLayout
 import os
-h3d = Hfss3dLayout(specified_version="2021.1", AlwaysNew=False)
+h3d = Hfss3dLayout(specified_version="2021.1", AlwaysNew=True, NG=True)
 
 ###############################################################################
 # Set Up Parametric Variables
@@ -69,7 +69,7 @@ h3d.create_edge_port("microstrip", 2)
 # ~~~~~~~~~~~~~~~~~~~~~~~~
 # This example create a setup and sweep.
 
-setup=h3d.create_setup()
+setup = h3d.create_setup()
 h3d.create_frequency_sweep(setupname=setup.name, unit='GHz', freqstart=3, freqstop=7, num_of_freq_points=1001,
                                                    sweepname="sweep1", sweeptype="interpolating",
                                                    interpolation_tol_percent=1, interpolation_max_solutions=255,
@@ -87,7 +87,7 @@ h3d.post.create_rectangular_plot(["db(S(Port1,Port1))", "db(S(Port1,Port2))"],
 ###############################################################################
 # Close AEDT
 # ~~~~~~~~~~
-# After the simulaton is completed, you can close AEDT or release it using the 
+# After the simulaton is completed, you can close AEDT or release it using the
 # :func:`pyaedt.Desktop.release_desktop` method.
 # All methods provide for saving the project before exiting.
 

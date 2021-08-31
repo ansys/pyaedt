@@ -71,7 +71,19 @@ class TestClass:
         assert mat1.specific_heat.value == MatProperties.get_defaultvalue(aedtname="specific_heat")
         assert mat1.thermal_expansion_coefficient.value == MatProperties.get_defaultvalue(aedtname="thermal_expansion_coefficient")
         assert self.aedtapp.change_validation_settings()
-        assert self.aedtapp.change_validation_settings(ignore_unclassified=True, skip_intersections= True)
+        assert self.aedtapp.change_validation_settings(ignore_unclassified=True, skip_intersections=True)
+
+        assert mat1.material_appearance == [128, 128, 128]
+        mat1.material_appearance = [11, 22, 0]
+        assert mat1.material_appearance == [11, 22, 0]
+        mat1.material_appearance = ['11', '22', '10']
+        assert mat1.material_appearance == [11, 22, 10]
+        with pytest.raises(ValueError):
+            mat1.material_appearance = [11, 22, 300]
+        with pytest.raises(ValueError):
+            mat1.material_appearance = [11, -22, 0]
+        with pytest.raises(ValueError):
+            mat1.material_appearance = [11, 22]
 
     def test_create_thermal_modifier(self):
         assert self.aedtapp.materials["new_copper2"].mass_density.add_thermal_modifier_free_form("if(Temp > 1000cel, 1, if(Temp < -273.15cel, 1, 1))")

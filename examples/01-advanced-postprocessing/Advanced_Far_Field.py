@@ -1,7 +1,7 @@
 """
 Advanced Far Field Postprocessing Example
 -----------------------------------------
-This example shows how to use advanced postprocessing functions to create plots 
+This example shows how to use advanced postprocessing functions to create plots
 using Matplotlib without opening the HFSS user interface.
 This examples runs only on Windows using CPython.
 """
@@ -56,9 +56,9 @@ desktop = Desktop(desktopVersion, NonGraphical, NewThread)
 hfss = Hfss(project_name, "4X4_MultiCell_CA-Array")
 
 ###############################################################################
-# Solve the HFSS Project 
+# Solve the HFSS Project
 # ~~~~~~~~~~~~~~~~~~~~~~
-# This command solves the HFSS. project. 
+# This command solves the HFSS. project.
 # Solution time is computed.
 
 start = time.time()
@@ -80,7 +80,7 @@ print("Post Processing Time", end)
 ###############################################################################
 # Function to Calculate Far Field Values
 # --------------------------------------
-# This example generates the plot using Matplotlib by reading the solution 
+# This example generates the plot using Matplotlib by reading the solution
 # generated in ``ff_data`` and processing the field based on Phi and Theta.
 
 def ff_calc(x=0, y=0, qty='rETotal', dB=True):

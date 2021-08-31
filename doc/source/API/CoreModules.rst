@@ -35,6 +35,7 @@ information to AEDB files.
    EDB_Data.EDBPadstack
    EDB_Data.EDBPinInstances
    EDB_Data.EDBComponent
+   siwave.SiwaveDCSetupTemplate
 
 
 Design

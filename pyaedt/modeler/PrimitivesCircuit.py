@@ -5,8 +5,8 @@ from ..generic.general_methods import aedt_exception_handler, retry_ntimes
 from .Object3d import CircuitComponent
 
 class CircuitComponents(object):
-    """CircutComponents class. 
-    
+    """CircutComponents class.
+
      This is the common class for managing all circuit components for Nexxim and Simplorer.
      """
 
@@ -67,8 +67,8 @@ class CircuitComponents(object):
         Parameters
         ----------
         partname : int or str
-           Part ID or part name. 
-        
+           Part ID or part name.
+
         Returns
         -------
         type
@@ -92,12 +92,12 @@ class CircuitComponents(object):
     @aedt_exception_handler
     def create_unique_id(self):
         """Create an unique ID.
-        
+
         Returns
         -------
         int
             Unique ID in the range of ``[1, 65535]``.
-            
+
         """
         id = random.randint(1, 65535)
         while id in self.components:
@@ -220,7 +220,7 @@ class CircuitComponents(object):
             Position on the X axis. The default is ``0.1``.
         posy : float, optional
             Position on the Y axis. The default is ``0.1``.
-       
+
         Returns
         -------
         type
@@ -265,7 +265,7 @@ class CircuitComponents(object):
         Returns
         -------
         bool
-            ``True`` when successful, ``False`` when failed.     
+            ``True`` when successful, ``False`` when failed.
 
         """
         if not model_name:
@@ -785,14 +785,14 @@ class CircuitComponents(object):
         Parameters
         ----------
         Value : str
-            
+
         sUnits :
             The default is ``None``.
 
         Returns
         -------
         type
-            
+
 
         """
         if type(Value) is str:

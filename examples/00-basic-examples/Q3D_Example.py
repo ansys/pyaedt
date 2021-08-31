@@ -14,7 +14,7 @@ from pyaedt import Q3d
 ###############################################################################
 # Launch AEDT in Non-Graphical Mode
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-# You can change the Boolean parameter ``NonGraphical`` to ``False`` to launch 
+# You can change the Boolean parameter ``NonGraphical`` to ``False`` to launch
 # AEDT in graphical mode.
 
 NonGraphical = True
@@ -67,7 +67,7 @@ q.assign_sink_to_objectface("Bar3",axisdir=q.AxisDir.YPos, sink_name="Sink3")
 ###############################################################################
 # Add a Q3D Setup
 # ~~~~~~~~~~~~~~~
-# This command adds a setup to the project and defines the adaptive frequency 
+# This command adds a setup to the project and defines the adaptive frequency
 # value.
 
 q.create_setup(props={"AdaptiveFreq":"100MHz"})
@@ -89,7 +89,7 @@ q.analyze_nominal()
 ###############################################################################
 # Close AEDT
 # ~~~~~~~~~~
-# After the simulaton is completed, you can close AEDT or release it using the 
+# After the simulaton is completed, you can close AEDT or release it using the
 # `release_desktop` method.
 # All methods provide for saving projects before exiting.
 if os.name != "posix":

@@ -1,5 +1,5 @@
 """
-This module contains these data classes for creating a material library: 
+This module contains these data classes for creating a material library:
 
 * `BasicValue`
 * `ClosedFormTM`
@@ -17,11 +17,11 @@ from ..generic.general_methods import aedt_exception_handler, generate_unique_na
 from ..application.DataHandlers import dict2arg, arg2dict
 
 class MatProperties(object):
-    """Contains a list of constant names for all materials with 
-    mappings to their internal XML names. 
-    
+    """Contains a list of constant names for all materials with
+    mappings to their internal XML names.
+
     Internal names are used in scripts, and XML names are used in the XML syntax.
-    
+
     """
     aedtname =     ['permittivity', 'permeability', 'conductivity', 'dielectric_loss_tangent', 'magnetic_loss_tangent', 'thermal_conductivity', 'mass_density', 'specific_heat', 'thermal_expansion_coefficient', 'youngs_modulus',   'poissons_ratio',   'diffusivity', 'molecular_mass', 'viscosity', 'core_loss_kh', 'core_loss_kc', 'core_loss_ke']
     defaultvalue = [1.0,             1.0,            0,              0,                         0,                       0.01,                      0,              0,               0,                               0,                  0,                  0.8,         0,                   0,                 0,                   0,                      0,                          0]
@@ -71,11 +71,11 @@ class MatProperties(object):
             raise TypeError("get_defaultunit: Either the full name or category name must be defined.")
 
 class SurfMatProperties(object):
-    """Contains a list of constant names for all surface materials with 
-    mappings to their internal XML names. 
-    
+    """Contains a list of constant names for all surface materials with
+    mappings to their internal XML names.
+
     Internal names are used in scripts, and XML names are used in the XML syntax.
- 
+
     """
     aedtname =     ['surface_emissivity', 'surface_roughness', 'surface_diffuse_absorptance', 'surface_incident_absorptance']
     defaultvalue = [1.0,             0,            0.4,              0.4]
@@ -156,7 +156,7 @@ class BasicValue(object):
 
 class MatProperty(object):
     """Manages simple, anisotropic, tensor, and non-linear properties.
-    
+
     Parameters
     ----------
     parent :
@@ -203,12 +203,12 @@ class MatProperty(object):
     @property
     def type(self):
         """Type of the material property.
-        
+
         Parameters
         ----------
         type : str
-            Type of properties. Options are ``simple"``, 
-            ``"anisotropic",`` ``"tensor"``, and ``"nonlinear",`` 
+            Type of properties. Options are ``simple"``,
+            ``"anisotropic",`` ``"tensor"``, and ``"nonlinear",``
         """
         return self._type
 
@@ -283,18 +283,18 @@ class MatProperty(object):
 
     def _add_thermal_modifier(self,formula, index):
         """Add a thermal modifier.
-        
+
         Parameters
         ----------
         formula : str
             Formula to apply.
-        index : int 
-            Value for the index. 
-        
+        index : int
+            Value for the index.
+
         Returns
         -------
         type
-        
+
         """
         if "ModifierData" not in self._parent._props:
             tm = OrderedDict({'Property:': self.name, 'Index:': index, "prop_modifier": "thermal_modifier",
@@ -353,7 +353,7 @@ class MatProperty(object):
         -------
         bool
             ``True`` when successful, ``False`` when failed.
-        
+
 
         Examples
         --------
@@ -361,7 +361,7 @@ class MatProperty(object):
         >>> from pyaedt import Hfss
         >>> hfss = Hfss(specified_version="2021.1")
         >>> mat1 = hfss.materials.add_material("new_copper2")
-        >>> mat1.aadd_thermal_modifier_free_form("if(Temp > 1000cel, 1, if(Temp < -273.15cel, 1, 1))")
+        >>> mat1.add_thermal_modifier_free_form("if(Temp > 1000cel, 1, if(Temp < -273.15cel, 1, 1))")
         """
         self._property_value[index].thermalmodifier = formula
         return self._add_thermal_modifier(formula, index)
@@ -381,7 +381,7 @@ class MatProperty(object):
         -------
         bool
             ``True`` when successful, ``False`` when failed.
-            
+
 
         Examples
         --------
@@ -413,17 +413,17 @@ class MatProperty(object):
         tu : float, optional
             Upper temperature limit. The default is ``1000``.
         units : str, optional
-            Units for the reference temperature. The default 
+            Units for the reference temperature. The default
             is ``"cel"``.
         auto_calc : bool, optional
             Whether to calculate the lower and upper
-            temperature limits automatically. The default is 
+            temperature limits automatically. The default is
             ``True``.
         tml : float, optional
-            Lower temperature limit when ``auto_calc=True.`` 
+            Lower temperature limit when ``auto_calc=True.``
             The default is ``1000``.
         tmu : float, optional
-            Upper temperature limit when ``auto_calc=True.`` 
+            Upper temperature limit when ``auto_calc=True.``
             The default is ``1000``.
         index : int, optional
             Value for the index. The default is ``0``.
@@ -432,7 +432,7 @@ class MatProperty(object):
         -------
         bool
             ``True`` when successful, ``False`` when failed.
-            
+
 
         Examples
         --------
@@ -517,16 +517,16 @@ class MatProperty(object):
 
 class CommonMaterial(object):
     """Manages datasets with frequency-dependent materials.
-    
+
     Parameters
     ----------
     parent :
-    
+
     name :
-    
-    props :  
+
+    props :
         The default is ``None``.
-    
+
     """
 
     @property
@@ -585,7 +585,7 @@ class CommonMaterial(object):
     @aedt_exception_handler
     def _get_args(self, props=None):
         """Retrieve the arguments for a property.
-        
+
         Parameters:
             prop: str, optoinal
                 Name of the property.
@@ -599,7 +599,7 @@ class CommonMaterial(object):
 
     def _update_props(self, propname, provpavlue, update_aedt=True):
         """Update properties.
-        
+
         Parameters
         ----------
         propname: str
@@ -608,15 +608,15 @@ class CommonMaterial(object):
             Value of the property.
         update_aedt : bool, optional
             Whether to update the property in AEDT. The default is ``True``.
-        
+
         """
         if isinstance(provpavlue, list) and self.__dict__["_"+propname].type != "simple" and self.__dict__["_"+propname].type != "nonlinear":
-                i=1
-                for val in provpavlue:
-                    self._props[propname]["component"+str(i)] = str(val)
-                    i += 1
-                if update_aedt:
-                    return self.update()
+            i=1
+            for val in provpavlue:
+                self._props[propname]["component"+str(i)] = str(val)
+                i += 1
+            if update_aedt:
+                return self.update()
         elif  isinstance(provpavlue, (str, float, int)):
             self._props[propname] = str(provpavlue)
             if update_aedt:
@@ -627,7 +627,7 @@ class CommonMaterial(object):
 
 class Material(CommonMaterial, object):
     """Manages material properties.
-    
+
     Parameters
     ----------
     parent :
@@ -636,9 +636,9 @@ class Material(CommonMaterial, object):
         Name of the material.
     props  :
         The default is ``None``.
-        
+
     """
-    
+
     def __init__(self, parent, name, props=None):
         CommonMaterial.__init__(self, parent, name, props)
         self.thermal_material_type = "Solid"
@@ -648,17 +648,26 @@ class Material(CommonMaterial, object):
             self.physics_type = self._props["PhysicsTypes"]["set"]
         else:
             self.physics_type = ['Electromagnetic', 'Thermal', 'Structural']
-            self._props["PhysicsTypes"] = OrderedDict({"set":['Electromagnetic', 'Thermal', 'Structural']})
+            self._props["PhysicsTypes"] = OrderedDict({"set": ['Electromagnetic', 'Thermal', 'Structural']})
+        if "AttachedData" in self._props:
+            self._material_appearance = []
+            self._material_appearance.append(self._props["AttachedData"]["MatAppearanceData"]["Red"])
+            self._material_appearance.append(self._props["AttachedData"]["MatAppearanceData"]["Green"])
+            self._material_appearance.append(self._props["AttachedData"]["MatAppearanceData"]["Blue"])
+        else:
+            self._material_appearance = [128, 128, 128]
+            self._props["AttachedData"] = OrderedDict({"MatAppearanceData":
+                                                       OrderedDict({'property_data': 'appearance_data',
+                                                                    'Red': 128, 'Green': 128, 'Blue': 128})})
 
         for property in MatProperties.aedtname:
             if property in self._props:
                 mods = None
                 if "ModifierData" in self._props:
-                    for mod in self._props["ModifierData"]["ThermalModifierData"]["all_thermal_modifiers"]:
-                        if isinstance(self._props["ModifierData"]["ThermalModifierData"]["all_thermal_modifiers"][mod],
-                                      list):
-                            for one_tm in self._props["ModifierData"]["ThermalModifierData"]["all_thermal_modifiers"][
-                                mod]:
+                    modifiers = self._props["ModifierData"]["ThermalModifierData"]["all_thermal_modifiers"]
+                    for mod in modifiers:
+                        if isinstance(modifiers[mod], list):
+                            for one_tm in modifiers[mod]:
                                 if one_tm["Property:"] == property:
                                     if mods:
                                         mods = [mods]
@@ -666,14 +675,53 @@ class Material(CommonMaterial, object):
                                     else:
                                         mods = one_tm
                         else:
-                            if self._props["ModifierData"]["ThermalModifierData"]["all_thermal_modifiers"][mod][
-                                "Property:"] == property:
-                                mods = self._props["ModifierData"]["ThermalModifierData"]["all_thermal_modifiers"][mod]
+                            if modifiers[mod]["Property:"] == property:
+                                mods = modifiers[mod]
                 self.__dict__["_" + property] = MatProperty(self, property, self._props[property], mods)
             else:
                 self.__dict__["_" + property] = MatProperty(self, property,
                                                             MatProperties.get_defaultvalue(aedtname=property), None)
         pass
+
+    @property
+    def material_appearance(self):
+        """Material Appearance specified as an RGB list.
+
+        Returns
+        -------
+        list
+            Color of the material in RGB.  Values are in the range ``[0, 255]``.
+
+        Examples
+        --------
+        Create a new material with color ``[0, 153, 153]`` (darker cyan).
+
+        >>> from pyaedt import Hfss
+        >>> hfss = Hfss(specified_version="2021.1")
+        >>> mat1 = hfss.materials.add_material("new_material")
+        >>> rgbcolor = mat1.material_appearance
+        >>> mat1.material_appearance = [0, 153, 153]
+        """
+        return self._material_appearance
+
+    @material_appearance.setter
+    def material_appearance(self, rgb):
+        if not isinstance(rgb, (list, tuple)):
+            raise TypeError('`material_apperance` must be a list or tuple')
+        if len(rgb) != 3:
+            raise ValueError('`material_appearance` must be three items (RGB)')
+        value_int = []
+        for rgb_item in rgb:
+            rgb_int = int(rgb_item)
+            if rgb_int < 0 or rgb_int > 255:
+                raise ValueError('RGB value must be between 0 and 255')
+            value_int.append(rgb_int)
+        self._material_appearance = value_int
+        self._props["AttachedData"] = OrderedDict({"MatAppearanceData":
+                                                   OrderedDict({'property_data': 'appearance_data',
+                                                                'Red': value_int[0],
+                                                                'Green': value_int[1],
+                                                                'Blue': value_int[2]})})
 
     @property
     def permittivity(self):
@@ -871,7 +919,7 @@ class Material(CommonMaterial, object):
     @property
     def diffusivity(self):
         """Diffusivity.
-        
+
         Returns
         -------
         type
@@ -887,7 +935,7 @@ class Material(CommonMaterial, object):
     @property
     def molecular_mass(self):
         """Molecular mass.
-        
+
         Returns
         -------
         type
@@ -903,7 +951,7 @@ class Material(CommonMaterial, object):
     @property
     def viscosity(self):
         """Viscosity.
-         
+
         Returns
         -------
         type
@@ -919,7 +967,7 @@ class Material(CommonMaterial, object):
     @property
     def core_loss_kh(self):
         """Core loss in kilohertz.
-        
+
         Returns
         -------
         type
@@ -935,7 +983,7 @@ class Material(CommonMaterial, object):
     @property
     def core_loss_kc(self):
         """Core loss in kilocalories.
-        
+
         Returns
         -------
         type
@@ -951,7 +999,7 @@ class Material(CommonMaterial, object):
     @property
     def core_loss_ke(self):
         """Core loss in kinetic energy.
-        
+
         Returns
         -------
         type
@@ -972,8 +1020,8 @@ class Material(CommonMaterial, object):
         threshold : float, optional
             Threshold to define if a material is a conductor. The
             default is ``100000``. If the conductivity is equal to or
-            greater than the threshold, the material is 
-            considered a conductor.  
+            greater than the threshold, the material is
+            considered a conductor.
 
         Returns
         -------
@@ -1001,8 +1049,8 @@ class Material(CommonMaterial, object):
         threshold : float, optional
             Threshold to define if a material is dielectric. The
             default is ``100000``. If the conductivity is equal to or
-            greater than the threshold, the material is 
-            considered dielectric. 
+            greater than the threshold, the material is
+            considered dielectric.
 
         Returns
         -------
@@ -1040,7 +1088,7 @@ class Material(CommonMaterial, object):
 
 class SurfaceMaterial(CommonMaterial, object):
     """Manages surface material properties.
-       
+
     Parameters
     ----------
     parent :
@@ -1064,11 +1112,10 @@ class SurfaceMaterial(CommonMaterial, object):
             if property in self._props:
                 mods = None
                 if "ModifierData" in self._props:
-                    for mod in self._props["ModifierData"]["ThermalModifierData"]["all_thermal_modifiers"]:
-                        if isinstance(self._props["ModifierData"]["ThermalModifierData"]["all_thermal_modifiers"][mod],
-                                      list):
-                            for one_tm in self._props["ModifierData"]["ThermalModifierData"]["all_thermal_modifiers"][
-                                mod]:
+                    modifiers = self._props["ModifierData"]["ThermalModifierData"]["all_thermal_modifiers"]
+                    for mod in modifiers:
+                        if isinstance(modifiers[mod], list):
+                            for one_tm in modifiers[mod]:
                                 if one_tm["Property:"] == property:
                                     if mods:
                                         mods = [mods]
@@ -1076,9 +1123,8 @@ class SurfaceMaterial(CommonMaterial, object):
                                     else:
                                         mods = one_tm
                         else:
-                            if self._props["ModifierData"]["ThermalModifierData"]["all_thermal_modifiers"][mod][
-                                "Property:"] == property:
-                                mods = self._props["ModifierData"]["ThermalModifierData"]["all_thermal_modifiers"][mod]
+                            if modifiers[mod]["Property:"] == property:
+                                mods = modifiers[mod]
                 self.__dict__["_" + property] = MatProperty(self, property, self._props[property], mods)
             else:
                 self.__dict__["_" + property] = MatProperty(self, property, SurfMatProperties.get_defaultvalue(aedtname=property))
@@ -1087,7 +1133,7 @@ class SurfaceMaterial(CommonMaterial, object):
     @property
     def emissivity(self):
         """Emissivity.
-        
+
         Returns
         -------
         type
@@ -1104,7 +1150,7 @@ class SurfaceMaterial(CommonMaterial, object):
     @property
     def surface_diffuse_absorptance(self):
         """Surface diffuse absorptance.
-        
+
         Returns
         -------
         type
@@ -1121,7 +1167,7 @@ class SurfaceMaterial(CommonMaterial, object):
     @property
     def surface_incident_absorptance(self):
         """Surface incident absorptance.
-        
+
         Returns
         -------
         type
@@ -1138,7 +1184,7 @@ class SurfaceMaterial(CommonMaterial, object):
     @property
     def surface_roughness(self):
         """Surface roughness.
-        
+
         Returns
         -------
         type
