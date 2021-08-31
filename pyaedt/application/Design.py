@@ -518,8 +518,7 @@ class Design(object):
 
         def __del__(self, key):
             """Implement destructor with array name or index."""
-            object_to_delete = self._variable_manager(key)
-            del object_to_delete
+            del self._variable_manager[key]
 
     @property
     def project_properies(self):
