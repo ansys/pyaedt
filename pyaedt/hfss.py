@@ -560,7 +560,7 @@ class Hfss(FieldAnalysis3D, object):
                 sweepdata.props["SaveFields"] = save_fields
                 sweepdata.props["SaveRadFields"] = save_rad_fields
                 sweepdata.props["ExtrapToDC"] = False
-                sweepdata.props["Type"] = "Discrete"
+                sweepdata.props["Type"] = sweep_type
                 sweepdata.props["RangeType"] = "LinearStep"
                 if sweep_type == "Interpolating":
                     sweepdata.props["InterpTolerance"] = 0.5
