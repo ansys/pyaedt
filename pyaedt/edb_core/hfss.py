@@ -204,7 +204,6 @@ class Edb3DLayout(object):
     def create_circuit_port_on_net(self, positive_component_name, positive_net_name, negative_component_name=None,
                                    negative_net_name="GND", impedance_value=50, port_name=""):
         """Create a circuit port on a NET.
-        
         It groups all pins belonging to the specified net and then applies the port on PinGroups.
 
         Parameters
