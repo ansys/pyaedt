@@ -542,7 +542,6 @@ class Edb(object):
     #         self.active_cell = self.cellname
     #     except:
     #         self._db = None
-
     @property
     def active_cell(self):
         """Active cell."""
