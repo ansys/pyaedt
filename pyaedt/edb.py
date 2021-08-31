@@ -506,7 +506,6 @@ class Edb(object):
     def db(self):
         return self._db
 
-
     @property
     def active_cell(self):
         """Active cell."""
