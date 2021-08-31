@@ -307,4 +307,4 @@ class TestClass:
 
     def test_cosim_simulation(self):
         assert self.aedtapp.edit_cosim_options()
-        assert not self.aedtapp.edit_cosim_options(interpolation_algorithm"auto1")
+        assert not self.aedtapp.edit_cosim_options(interpolation_algorithm="auto1")
