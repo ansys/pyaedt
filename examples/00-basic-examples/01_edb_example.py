@@ -26,7 +26,7 @@ if os.path.exists(targetfolder):
 shutil.copytree(example_path[:-8], targetfolder)
 targetfile=os.path.join(targetfolder)
 print(targetfile)
-aedt_file = targetfile[:-12] + "aedt"
+aedt_file = targetfile[:-4] + "aedt"
 
 
 ###############################################################################
@@ -40,7 +40,7 @@ from pyaedt import Edb
 # This example uses EDB 2021.1 and uses SI units.
 
 if os.path.exists(aedt_file): os.remove(aedt_file)
-edb = Edb(edbpath=targetfile, edbversion="2021.2")
+edb = Edb(edbpath=targetfile, edbversion="2021.1")
 
 ###############################################################################
 # Compute Nets and Components
@@ -153,7 +153,7 @@ edb.core_stackup.stackup_layers.layers['UNNAMED_002'].material_name = "My_Debye"
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # This example creates a circuit port for SIwave simulation.
 
-edb.core_siwave.create_circuit_port("U2A5", "DDR3_DM0")
+edb.core_siwave.create_circuit_port_on_net("U2A5", "DDR3_DM0")
 
 edb.core_siwave.add_siwave_ac_analysis()
 

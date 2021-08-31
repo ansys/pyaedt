@@ -387,7 +387,7 @@ class EdbSiwave(object):
     @property
     def _messenger(self):
         """EDB."""
-        return self.parent.messenger
+        return self.parent._messenger
 
     @property
     def _active_layout(self):
@@ -405,9 +405,290 @@ class EdbSiwave(object):
         return self.parent.db
 
     @aedt_exception_handler
-    def create_circuit_port(self, positive_component_name, positive_net_name, negative_component_name=None,
-                              negative_net_name="GND", impedance_value=50, port_name=""):
-        """Create a circuit port.
+    def _create_terminal_on_pins(self, source):
+        """Create a terminal on pins.
+
+        Parameters
+        ----------
+        source : ``VoltageSource`` or ``CircuitPort`` or ``CurrentSource`` or ``ResistorSource``
+            Name of the source.
+
+        """
+        pos_pin = source.positive_node.node_pins
+        neg_pin = source.negative_node.node_pins
+
+        if "IronPython" in sys.version or ".NETFramework" in sys.version:
+            res, fromLayer_pos, toLayer_pos = pos_pin.GetLayerRange()
+            res, fromLayer_neg, toLayer_neg = neg_pin.GetLayerRange()
+        else:
+            res, fromLayer_pos, toLayer_pos = source.positive_node.node_pins.GetLayerRange(None, None)
+            res, fromLayer_neg, toLayer_neg = source.negative_node.node_pins.GetLayerRange(None, None)
+        pos_pingroup_terminal = self._edb.Cell.Terminal.PadstackInstanceTerminal.Create(self._active_layout, pos_pin.GetNet(),
+                                                                           pos_pin.GetName(), pos_pin, toLayer_pos)
+        neg_pingroup_terminal = self._edb.Cell.Terminal.PadstackInstanceTerminal.Create(self._active_layout, neg_pin.GetNet(),
+                                                                           neg_pin.GetName(), neg_pin, toLayer_neg)
+
+
+        if source.type == SourceType.Port:
+            pos_pingroup_terminal.SetBoundaryType(self._edb.Cell.Terminal.BoundaryType.PortBoundary)
+            neg_pingroup_terminal.SetBoundaryType(self._edb.Cell.Terminal.BoundaryType.PortBoundary)
+            pos_pingroup_terminal.SetSourceAmplitude(self._edb.Utility.Value(source.impedance))
+            pos_pingroup_terminal.SetIsCircuitPort(True)
+            neg_pingroup_terminal.SetIsCircuitPort(True)
+            pos_pingroup_terminal.SetReferenceTerminal(neg_pingroup_terminal)
+            try:
+                pos_pingroup_terminal.SetName(source.name)
+            except:
+                name = generate_unique_name(source.name)
+                pos_pingroup_terminal.SetName(name)
+                self._messenger.add_warning_message("{} already exists. Renaming to {}".format(source.name, name))
+        elif source.type == SourceType.CurrentSource:
+            pos_pingroup_terminal.SetBoundaryType(self._edb.Cell.Terminal.BoundaryType.kCurrentSource)
+            neg_pingroup_terminal.SetBoundaryType(self._edb.Cell.Terminal.BoundaryType.kCurrentSource)
+            pos_pingroup_terminal.SetSourceAmplitude(self._edb.Utility.Value(source.magnitude))
+            pos_pingroup_terminal.SetSourcePhase(self._edb.Utility.Value(source.phase))
+            pos_pingroup_terminal.SetReferenceTerminal(neg_pingroup_terminal)
+            try:
+                pos_pingroup_terminal.SetName(source.name)
+            except Exception as e:
+                name = generate_unique_name(source.name)
+                pos_pingroup_terminal.SetName(name)
+                self._messenger.add_warning_message("{} already exists. Renaming to {}".format(source.name, name))
+
+        elif source.type == SourceType.VoltageSource:
+            pos_pingroup_terminal.SetBoundaryType(self._edb.Cell.Terminal.BoundaryType.kVoltageSource)
+            neg_pingroup_terminal.SetBoundaryType(self._edb.Cell.Terminal.BoundaryType.kVoltageSource)
+            pos_pingroup_terminal.SetSourceAmplitude(self._edb.Utility.Value(source.magnitude))
+            pos_pingroup_terminal.SetSourcePhase(self._edb.Utility.Value(source.phase))
+            pos_pingroup_terminal.SetReferenceTerminal(neg_pingroup_terminal)
+            try:
+                pos_pingroup_terminal.SetName(source.name)
+            except:
+                name = generate_unique_name(source.name)
+                pos_pingroup_terminal.SetName(name)
+                self._messenger.add_warning_message("{} already exists. Renaming to {}".format(source.name, name))
+
+        elif source.type == SourceType.Resistor:
+            pos_pingroup_terminal.SetBoundaryType(self._edb.Cell.Terminal.BoundaryType.RlcBoundary)
+            neg_pingroup_terminal.SetBoundaryType(self._edb.Cell.Terminal.BoundaryType.RlcBoundary)
+            pos_pingroup_terminal.SetReferenceTerminal(neg_pingroup_terminal)
+            pos_pingroup_terminal.SetSourceAmplitude(self._edb.Utility.Value(source.rvalue))
+            Rlc = self._edb.Utility.Rlc()
+            Rlc.CEnabled = False
+            Rlc.LEnabled = False
+            Rlc.REnabled = True
+            Rlc.R = self._edb.Utility.Value(source.rvalue)
+            pos_pingroup_terminal.SetRlcBoundaryParameters(Rlc)
+            try:
+                pos_pingroup_terminal.SetName(source.name)
+            except:
+                name = generate_unique_name(source.name)
+                pos_pingroup_terminal.SetName(name)
+                self._messenger.add_warning_message("{} already exists. Renaming to {}".format(source.name, name))
+        else:
+            pass
+        return pos_pingroup_terminal.GetName()
+
+    @aedt_exception_handler
+    def create_circuit_port_on_pin(self, pos_pin, neg_pin, impedance=50, port_name=None):
+        """Create Circuit Port on Pin
+
+        Parameters
+        ----------
+        pos_pin: Object
+            Edb Pin
+        neg_pin: Object
+            Edb Pin
+        impedance: float
+            Port Impedance
+        port_name: str, Optional
+            Port Name
+
+        >>> from pyaedt import Edb
+        >>> edbapp = Edb("myaedbfolder", "project name", "release version")
+        >>> pins =edbapp.core_components.get_pin_from_component("U2A5")
+        >>> edbapp.core_siwave.create_circuit_port_on_pin(pins[0], pins[1],50,"port_name")
+
+        Returns
+        -------
+        str
+            Port Name.
+
+        """
+        circuit_port = CircuitPort()
+        circuit_port.positive_node.net = pos_pin.GetNet().GetName()
+        circuit_port.negative_node.net = neg_pin.GetNet().GetName()
+        circuit_port.impedance = impedance
+
+        if not port_name:
+            port_name = "Port_{}_{}_{}_{}".format(pos_pin.GetComponent().GetName(), pos_pin.GetNet().GetName(),
+                                                  neg_pin.GetComponent().GetName(), neg_pin.GetNet().GetName())
+        circuit_port.name = port_name
+        circuit_port.positive_node.component_node = pos_pin.GetComponent()
+        circuit_port.positive_node.node_pins = pos_pin
+        circuit_port.negative_node.component_node = neg_pin.GetComponent()
+        circuit_port.negative_node.node_pins = neg_pin
+        return  self._create_terminal_on_pins(circuit_port)
+
+    @aedt_exception_handler
+    def create_voltage_source_on_pin(self, pos_pin, neg_pin, voltage_value=3.3, phase_value=0,source_name=""):
+        """Create a voltage source.
+
+        Parameters
+        ----------
+        pos_pin : Object
+            Positive Pin.
+        neg_pin : Object
+            Negative Pin.
+        voltage_value : float, optional
+            Value for the voltage. The default is ``3.3``.
+        phase_value : optional
+            Value for the phase. The default is ``0``.
+        source_name : str, optional
+            Name of the source. The default is ``""``.
+
+        Returns
+        -------
+        str
+            Source Name
+
+        Examples
+        --------
+
+        >>> from pyaedt import Edb
+        >>> edbapp = Edb("myaedbfolder", "project name", "release version")
+        >>> pins =edbapp.core_components.get_pin_from_component("U2A5")
+        >>> edbapp.core_siwave.create_voltage_source_on_pin(pins[0], pins[1],50,"source_name")
+        """
+
+        voltage_source = VoltageSource()
+        voltage_source.positive_node.net = pos_pin.GetNet().GetName()
+        voltage_source.negative_node.net = neg_pin.GetNet().GetName()
+        voltage_source.magnitude = voltage_value
+        voltage_source.phase = phase_value
+        if not source_name:
+            source_name = "VSource_{}_{}_{}_{}".format(pos_pin.GetComponent().GetName(), pos_pin.GetNet().GetName(),
+                                                       neg_pin.GetComponent().GetName(), neg_pin.GetNet().GetName())
+        voltage_source.name = source_name
+        voltage_source.positive_node.component_node = pos_pin.GetComponent()
+        voltage_source.positive_node.node_pins = pos_pin
+        voltage_source.negative_node.component_node = neg_pin.GetComponent()
+        voltage_source.negative_node.node_pins = pos_pin
+        return self._create_terminal_on_pins(voltage_source)
+
+
+    @aedt_exception_handler
+    def create_current_source_on_pin(self, pos_pin, neg_pin, current_value=0.1, phase_value=0, source_name=""):
+        """Create a current source.
+
+        Parameters
+        ----------
+        pos_pin : Object
+            Positive Pin.
+        neg_pin : Object
+            Negative Pin.
+        current_value : float, optional
+            Value for the current. The default is ``0.1``.
+        phase_value: optional
+            Value for the phase. The default is ``0``.
+        source_name : str, optional
+            Name of the source. The default is ``""``.
+
+        Returns
+        -------
+        str
+            Source Name.
+
+        Examples
+        --------
+
+        >>> from pyaedt import Edb
+        >>> edbapp = Edb("myaedbfolder", "project name", "release version")
+        >>> pins =edbapp.core_components.get_pin_from_component("U2A5")
+        >>> edbapp.core_siwave.create_current_source_on_pin(pins[0], pins[1],50,"source_name")
+        """
+
+        current_source = CurrentSource()
+        current_source.positive_node.net = pos_pin.GetNet().GetName()
+        current_source.negative_node.net = neg_pin.GetNet().GetName()
+        current_source.magnitude = current_value
+        current_source.phase = phase_value
+
+
+        if not source_name:
+            source_name = "ISource_{}_{}_{}_{}".format(pos_pin.GetComponent().GetName(), pos_pin.GetNet().GetName(),
+                                                       neg_pin.GetComponent().GetName(), neg_pin.GetNet().GetName())
+        current_source.name = source_name
+        current_source.positive_node.component_node = pos_pin.GetComponent()
+        current_source.positive_node.node_pins = pos_pin
+        current_source.negative_node.component_node = neg_pin.GetComponent()
+        current_source.negative_node.node_pins = pos_pin
+        return self._create_terminal_on_pins(current_source)
+
+    @aedt_exception_handler
+    def create_resistor_on_pin(self, pos_pin, neg_pin, rvalue=1, resistor_name=""):
+        """Create a voltage source.
+
+        Parameters
+        ----------
+        pos_pin : Object
+            Positive Pin.
+        neg_pin : Object
+            Negative Pin.
+        rvalue : float, optional
+            Resistance value. The default is ``1``.
+        resistor_name : str, optional
+            Name of the resistor. The default is ``""``.
+
+        Returns
+        -------
+        str
+            Resistor Name
+
+        Examples
+        --------
+
+        >>> from pyaedt import Edb
+        >>> edbapp = Edb("myaedbfolder", "project name", "release version")
+        >>> pins =edbapp.core_components.get_pin_from_component("U2A5")
+        >>> edbapp.core_siwave.create_resistor_on_pin(pins[0], pins[1],50,"res_name")
+        """
+        resistor = ResistorSource()
+        resistor.positive_node.net = pos_pin.GetNet().GetName()
+        resistor.negative_node.net = neg_pin.GetNet().GetName()
+        resistor.magnitude = rvalue
+
+
+        if not resistor_name:
+            resistor_name = "Res_{}_{}_{}_{}".format(pos_pin.GetComponent().GetName(), pos_pin.GetNet().GetName(),
+                                                       neg_pin.GetComponent().GetName(), neg_pin.GetNet().GetName())
+        resistor.name = resistor_name
+        resistor.positive_node.component_node = pos_pin.GetComponent()
+        resistor.positive_node.node_pins = pos_pin
+        resistor.negative_node.component_node = neg_pin.GetComponent()
+        resistor.negative_node.node_pins = neg_pin
+        return self._create_terminal_on_pins(resistor)
+
+
+    @aedt_exception_handler
+    def _check_gnd(self, component_name):
+        negative_net_name = None
+        if self.parent.core_nets.is_net_in_component(component_name, "GND"):
+            negative_net_name = "GND"
+        elif self.parent.core_nets.is_net_in_component(component_name, "PGND"):
+            negative_net_name = "PGND"
+        elif self.parent.core_nets.is_net_in_component(component_name, "AGND"):
+            negative_net_name = "AGND"
+        elif self.parent.core_nets.is_net_in_component(component_name, "DGND"):
+            negative_net_name = "DGND"
+        if not negative_net_name:
+            raise ValueError("No GND, PGND, AGND, DGND found. Please setup Negative Net Name manually")
+        return negative_net_name
+
+    @aedt_exception_handler
+    def create_circuit_port_on_net(self, positive_component_name, positive_net_name, negative_component_name=None,
+                              negative_net_name=None, impedance_value=50, port_name=""):
+        """Create a circuit port on a NET. it groups all Pins belongin to specified nets and then applies port on PinGroups
 
         Parameters
         ----------
@@ -419,7 +700,7 @@ class EdbSiwave(object):
             Name of the negative component. The default is ``None``, in which case the name of
             the positive net is assigned.
         negative_net_name : str, optional
-            Name of the negative net name. The default is ``"GND"``.
+            Name of the negative net name. The default is ``None`` which will look for *GND Nets.
         impedance_value : float, optional
             Port impedance value. The default is ``50``.
         port_name: str, optional
@@ -427,27 +708,28 @@ class EdbSiwave(object):
 
         Returns
         -------
-        bool
-            ``True`` when successful, ``False`` when failed.
+        str
+            Port Name
 
         Examples
         --------
 
         >>> from pyaedt import Edb
         >>> edbapp = Edb("myaedbfolder", "project name", "release version")
-        >>> edbapp.core_siwave.create_circuit_port("U2A5","V1P5_S3","U2A5","GND",50,"port_name")
+        >>> edbapp.core_siwave.create_circuit_port_on_net("U2A5","V1P5_S3","U2A5","GND",50,"port_name")
         """
+        if not negative_component_name:
+            negative_component_name = positive_component_name
+        if not negative_net_name:
+            negative_net_name = self._check_gnd(negative_component_name)
         circuit_port = CircuitPort()
         circuit_port.positive_node.net = positive_net_name
         circuit_port.negative_node.net = negative_net_name
         circuit_port.impedance = impedance_value
-        if not negative_component_name:
-            negative_component_name = positive_component_name
         pos_node_cmp = self.parent.core_components.get_component_by_name(positive_component_name)
         neg_node_cmp = self.parent.core_components.get_component_by_name(negative_component_name)
         pos_node_pins = self.parent.core_components.get_pin_from_component(positive_component_name, positive_net_name)
         neg_node_pins = self.parent.core_components.get_pin_from_component(negative_component_name, negative_net_name)
-
         if port_name == "":
             port_name = "Port_{}_{}_{}_{}".format(positive_component_name,positive_net_name,negative_component_name,negative_net_name)
         circuit_port.name = port_name
@@ -455,12 +737,11 @@ class EdbSiwave(object):
         circuit_port.positive_node.node_pins = pos_node_pins
         circuit_port.negative_node.component_node = neg_node_cmp
         circuit_port.negative_node.node_pins = neg_node_pins
-        self.create_pin_group_terminal(circuit_port)
-        return True
+        return self.create_pin_group_terminal(circuit_port)
 
     @aedt_exception_handler
-    def create_voltage_source(self, positive_component_name, positive_net_name, negative_component_name=None,
-                              negative_net_name="GND", voltage_value=3.3, phase_value=0,source_name=""):
+    def create_voltage_source_on_net(self, positive_component_name, positive_net_name, negative_component_name=None,
+                              negative_net_name=None, voltage_value=3.3, phase_value=0,source_name=""):
         """Create a voltage source.
 
         Parameters
@@ -473,7 +754,7 @@ class EdbSiwave(object):
             Name of the negative component. The default is ``None``, in which case the name of
             the positive net is assigned.
         negative_net_name : str, optional
-            Name of the negative net. The default is ``"GND"``.
+            Name of the negative net name. The default is ``None`` which will look for *GND Nets.
         voltage_value : float, optional
             Value for the voltage. The default is ``3.3``.
         phase_value : optional
@@ -483,16 +764,20 @@ class EdbSiwave(object):
 
         Returns
         -------
-        bool
-            ``True`` when successful, ``False`` when failed.
+        str
+            Source Name
 
         Examples
         --------
 
         >>> from pyaedt import Edb
         >>> edbapp = Edb("myaedbfolder", "project name", "release version")
-        >>> edb.core_siwave.create_voltage_source("U2A5","V1P5_S3","U2A5","GND",3.3,0,"source_name")
+        >>> edb.core_siwave.create_voltage_source_on_net("U2A5","V1P5_S3","U2A5","GND",3.3,0,"source_name")
         """
+        if not negative_component_name:
+            negative_component_name = positive_component_name
+        if not negative_net_name:
+            negative_net_name = self._check_gnd(negative_component_name)
         voltage_source = VoltageSource()
         voltage_source.positive_node.net = positive_net_name
         voltage_source.negative_node.net = negative_net_name
@@ -511,12 +796,11 @@ class EdbSiwave(object):
         voltage_source.positive_node.node_pins = pos_node_pins
         voltage_source.negative_node.component_node = neg_node_cmp
         voltage_source.negative_node.node_pins = neg_node_pins
-        self.create_pin_group_terminal(voltage_source)
-        return  True
+        return self.create_pin_group_terminal(voltage_source)
 
     @aedt_exception_handler
-    def create_current_source(self, positive_component_name, positive_net_name, negative_component_name=None,
-                              negative_net_name="GND", current_value=0.1, phase_value=0, source_name=""):
+    def create_current_source_on_net(self, positive_component_name, positive_net_name, negative_component_name=None,
+                              negative_net_name=None, current_value=0.1, phase_value=0, source_name=""):
         """Create a current source.
 
         Parameters
@@ -529,7 +813,7 @@ class EdbSiwave(object):
             Name of the negative component. The default is ``None``, in which case the name of
             the positive net is assigned.
         negative_net_name : str, optional
-            Name of the negative net. The default is ``"GND"``.
+            Name of the negative net name. The default is ``None`` which will look for *GND Nets.
         current_value : float, optional
             Value for the current. The default is ``0.1``.
         phase_value: optional
@@ -539,16 +823,20 @@ class EdbSiwave(object):
 
         Returns
         -------
-        bool
-            ``True`` when successful, ``False`` when failed.
+        str
+            Source Name.
 
         Examples
         --------
 
         >>> from pyaedt import Edb
         >>> edbapp = Edb("myaedbfolder", "project name", "release version")
-        >>> edb.core_siwave.create_current_source("U2A5","V1P5_S3","U2A5","GND",0.1,0,"source_name")
+        >>> edb.core_siwave.create_current_source_on_net("U2A5","V1P5_S3","U2A5","GND",0.1,0,"source_name")
         """
+        if not negative_component_name:
+            negative_component_name = positive_component_name
+        if not negative_net_name:
+            negative_net_name = self._check_gnd(negative_component_name)
         current_source = CurrentSource()
         current_source.positive_node.net = positive_net_name
         current_source.negative_node.net = negative_net_name
@@ -567,12 +855,11 @@ class EdbSiwave(object):
         current_source.positive_node.node_pins = pos_node_pins
         current_source.negative_node.component_node = neg_node_cmp
         current_source.negative_node.node_pins = neg_node_pins
-        self.create_pin_group_terminal(current_source)
-        return True
+        return self.create_pin_group_terminal(current_source)
 
     @aedt_exception_handler
-    def create_resistor(self, positive_component_name, positive_net_name, negative_component_name=None,
-                              negative_net_name="GND", rvalue=1, resistor_name=""):
+    def create_resistor_on_net(self, positive_component_name, positive_net_name, negative_component_name=None,
+                              negative_net_name=None, rvalue=1, resistor_name=""):
         """Create a voltage source.
 
         Parameters
@@ -585,7 +872,7 @@ class EdbSiwave(object):
             Name of the negative component. The default is ``None``, in which case the name of
             the positive net is assigned.
         negative_net_name : str, optional
-            Name of the negative net. The default is ``"GND"``.
+            Name of the negative net name. The default is ``None`` which will look for *GND Nets.
         rvalue : float, optional
             Resistance value. The default is ``1``.
         resistor_name : str, optional
@@ -593,16 +880,20 @@ class EdbSiwave(object):
 
         Returns
         -------
-        bool
-            ``True`` when successful, ``False`` when failed.
+        str
+            Resistor Name
 
         Examples
         --------
 
         >>> from pyaedt import Edb
         >>> edbapp = Edb("myaedbfolder", "project name", "release version")
-        >>> edb.core_siwave.create_resistor("U2A5", "V1P5_S3", "U2A5", "GND", 1, "resistor_name")
+        >>> edb.core_siwave.create_resistor_on_net("U2A5", "V1P5_S3", "U2A5", "GND", 1, "resistor_name")
         """
+        if not negative_component_name:
+            negative_component_name = positive_component_name
+        if not negative_net_name:
+            negative_net_name = self._check_gnd(negative_component_name)
         resistor = ResistorSource()
         resistor.positive_node.net = positive_net_name
         resistor.negative_node.net = negative_net_name
@@ -620,8 +911,7 @@ class EdbSiwave(object):
         resistor.positive_node.node_pins = pos_node_pins
         resistor.negative_node.component_node = neg_node_cmp
         resistor.negative_node.node_pins = neg_node_pins
-        self.create_pin_group_terminal(resistor)
-        return True
+        return self.create_pin_group_terminal(resistor)
 
     @aedt_exception_handler
     def create_exec_file(self):
@@ -785,7 +1075,7 @@ class EdbSiwave(object):
 
         Parameters
         ----------
-        source : ``VoltageSource``
+        source : ``VoltageSource`` or ``CircuitPort`` or ``CurrentSource`` or ``ResistorSource``
             Name of the source.
 
         """
@@ -793,8 +1083,8 @@ class EdbSiwave(object):
         neg_pin_group = self.parent.core_components.create_pingroup_from_pins(source.negative_node.node_pins)
         pos_node_net = self.parent.core_nets.get_net_by_name(source.positive_node.net)
         neg_node_net = self.parent.core_nets.get_net_by_name(source.negative_node.net)
-        pos_pingroup_term_name = "{}_{}".format(source.positive_node.net,source.name)
-        neg_pingroup_term_name = "{}_{}".format(source.negative_node.net,source.name)
+        pos_pingroup_term_name = generate_unique_name(source.name+"_POS")
+        neg_pingroup_term_name = generate_unique_name(source.name+"_NEG")
         pos_pingroup_terminal = self._edb.Cell.Terminal.PinGroupTerminal.Create(self._active_layout,pos_node_net,pos_pingroup_term_name , pos_pin_group[1], False)
         neg_pingroup_terminal = self._edb.Cell.Terminal.PinGroupTerminal.Create(self._active_layout,neg_node_net,neg_pingroup_term_name , neg_pin_group[1], False)
 
@@ -805,40 +1095,53 @@ class EdbSiwave(object):
             pos_pingroup_terminal.SetIsCircuitPort(True)
             neg_pingroup_terminal.SetIsCircuitPort(True)
             pos_pingroup_terminal.SetReferenceTerminal(neg_pingroup_terminal)
+            try:
+                pos_pingroup_terminal.SetName(source.name)
+            except:
+                name = generate_unique_name(source.name)
+                pos_pingroup_terminal.SetName(name)
+                self._messenger.add_warning_message("{} already exists. Renaming to {}".format(source.name, name))
+
 
         elif source.type == SourceType.CurrentSource:
             pos_pingroup_terminal.SetBoundaryType(self._edb.Cell.Terminal.BoundaryType.kCurrentSource)
             neg_pingroup_terminal.SetBoundaryType(self._edb.Cell.Terminal.BoundaryType.kCurrentSource)
             pos_pingroup_terminal.SetSourceAmplitude(self._edb.Utility.Value(source.magnitude))
             pos_pingroup_terminal.SetSourcePhase(self._edb.Utility.Value(source.phase))
-            pos_pingroup_terminal.SetIsCircuitPort(True)
-            neg_pingroup_terminal.SetIsCircuitPort(True)
             pos_pingroup_terminal.SetReferenceTerminal(neg_pingroup_terminal)
-            pos_pingroup_terminal.SetName(source.name)
+            try:
+                pos_pingroup_terminal.SetName(source.name)
+            except Exception as e:
+                name = generate_unique_name(source.name)
+                pos_pingroup_terminal.SetName(name)
+                self._messenger.add_warning_message("{} already exists. Renaming to {}".format(source.name, name))
 
         elif source.type == SourceType.VoltageSource:
             pos_pingroup_terminal.SetBoundaryType(self._edb.Cell.Terminal.BoundaryType.kVoltageSource)
             neg_pingroup_terminal.SetBoundaryType(self._edb.Cell.Terminal.BoundaryType.kVoltageSource)
             pos_pingroup_terminal.SetSourceAmplitude(self._edb.Utility.Value(source.magnitude))
             pos_pingroup_terminal.SetSourcePhase(self._edb.Utility.Value(source.phase))
-            pos_pingroup_terminal.SetIsCircuitPort(True)
-            neg_pingroup_terminal.SetIsCircuitPort(True)
             pos_pingroup_terminal.SetReferenceTerminal(neg_pingroup_terminal)
-            pos_pingroup_terminal.SetName(source.name)
+            try:
+                pos_pingroup_terminal.SetName(source.name)
+            except:
+                name = generate_unique_name(source.name)
+                pos_pingroup_terminal.SetName(name)
+                self._messenger.add_warning_message("{} already exists. Renaming to {}".format(source.name, name))
 
         elif source.type == SourceType.Resistor:
             pos_pingroup_terminal.SetBoundaryType(self._edb.Cell.Terminal.BoundaryType.RlcBoundary)
             neg_pingroup_terminal.SetBoundaryType(self._edb.Cell.Terminal.BoundaryType.RlcBoundary)
             pos_pingroup_terminal.SetReferenceTerminal(neg_pingroup_terminal)
             pos_pingroup_terminal.SetSourceAmplitude(self._edb.Utility.Value(source.rvalue))
-            pos_pingroup_terminal.SetIsCircuitPort(True)
-            neg_pingroup_terminal.SetIsCircuitPort(True)
             Rlc = self._edb.Utility.Rlc()
             Rlc.CEnabled = False
             Rlc.LEnabled = False
             Rlc.REnabled = True
-            Rlc.R = source.rvalue
+            Rlc.R = self._edb.Utility.Value(source.rvalue)
             pos_pingroup_terminal.SetRlcBoundaryParameters(Rlc)
 
         else:
             pass
+        return pos_pingroup_terminal.GetName()
+

@@ -251,6 +251,7 @@ class EdbNets(object):
 
         return nets_deleted
 
+    @aedt_exception_handler
     def find_or_create_net(self, net_name=''):
         """Find or create the net with the given name in the layout.
 
@@ -269,3 +270,27 @@ class EdbNets(object):
         if net.IsNull():
             net = self._edb.Cell.Net.Create(self._active_layout, net_name)
         return net
+
+    @aedt_exception_handler
+    def is_net_in_component(self,component_name, net_name):
+        """Check if a net belongs to a Component
+
+        Parameters
+        ----------
+        component_name: str
+            Name of component
+        net_name: str
+            Name of the net
+
+        Returns
+        -------
+        bool
+            ``True`` if net is found in component pins.
+
+        """
+        if component_name not in self.parent.core_components.components:
+            return False
+        for net in self.parent.core_components.components[component_name].nets:
+            if net_name == net.GetName():
+                return True
+        return False

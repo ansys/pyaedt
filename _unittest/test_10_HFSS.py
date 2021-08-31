@@ -112,21 +112,36 @@ class TestClass:
         assert self.aedtapp.create_frequency_sweep(setupname="MySetup", sweepname="MySweepFast", unit="MHz",
                                                    freqstart=1.1e3, freqstop=1200.1, num_of_freq_points=1234,
                                                    sweeptype="Fast")
-        assert self.aedtapp.create_discrete_sweep("MySetup")
+        assert self.aedtapp.create_single_point_sweep("MySetup")
 
     def test_06B_setup_exists(self):
         assert self.aedtapp.analysis_setup is not None
         assert self.aedtapp.nominal_sweep is not None
 
     def test_06b_create_linear_count_sweep(self):
-        assert self.aedtapp.create_linear_count_sweep(setupname="MySetup", sweepname=None,
-                                                      unit="MHz", freqstart=1.1e3, freqstop=1200.1,
-                                                      num_of_freq_points=1658)
+        num_points = 1752
+        freq_start = 1.1e3
+        freq_stop = 1200.1
+        units = "MHz"
+        sweep = self.aedtapp.create_linear_count_sweep(setupname="MySetup", sweepname=None,
+                                                      unit=units, freqstart=freq_start, freqstop=freq_stop,
+                                                      num_of_freq_points=num_points)
+        assert sweep.props["RangeCount"] == num_points
+        assert sweep.props["RangeStart"] == str(freq_start)+units
+        assert sweep.props["RangeEnd"] == str(freq_stop)+units
+
 
     def test_06c_create_linear_step_sweep(self):
-        assert self.aedtapp.create_linear_step_sweep(setupname="MySetup", sweepname=None,
-                                                     unit="MHz", freqstart=1.1e3, freqstop=1200.1,
-                                                     step_size=153.8)
+        step_size = 153.8
+        freq_start = 1.1e3
+        freq_stop = 1200.1
+        units = "MHz"
+        sweep= self.aedtapp.create_linear_step_sweep(setupname="MySetup", sweepname=None,
+                                                     unit=units, freqstart=freq_start, freqstop=freq_stop,
+                                                     step_size=step_size)
+        assert sweep.props["RangeStep"] == str(step_size)+units
+        assert sweep.props["RangeStart"] == str(freq_start)+units
+        assert sweep.props["RangeEnd"] == str(freq_stop)+units
 
     def test_06z_validate_setup(self):
         list, ok = self.aedtapp.validate_full_design(ports=5)
