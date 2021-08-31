@@ -427,8 +427,6 @@ class EdbSiwave(object):
                                                                            pos_pin.GetName(), pos_pin, toLayer_pos)
         neg_pingroup_terminal = self._edb.Cell.Terminal.PadstackInstanceTerminal.Create(self._active_layout, neg_pin.GetNet(),
                                                                            neg_pin.GetName(), neg_pin, toLayer_neg)
-
-
         if source.type == SourceType.Port:
             pos_pingroup_terminal.SetBoundaryType(self._edb.Cell.Terminal.BoundaryType.PortBoundary)
             neg_pingroup_terminal.SetBoundaryType(self._edb.Cell.Terminal.BoundaryType.PortBoundary)
@@ -576,7 +574,6 @@ class EdbSiwave(object):
         voltage_source.negative_node.node_pins = pos_pin
         return self._create_terminal_on_pins(voltage_source)
 
-
     @aedt_exception_handler
     def create_current_source_on_pin(self, pos_pin, neg_pin, current_value=0.1, phase_value=0, source_name=""):
         """Create a current source.
@@ -607,14 +604,11 @@ class EdbSiwave(object):
         >>> pins =edbapp.core_components.get_pin_from_component("U2A5")
         >>> edbapp.core_siwave.create_current_source_on_pin(pins[0], pins[1],50,"source_name")
         """
-
         current_source = CurrentSource()
         current_source.positive_node.net = pos_pin.GetNet().GetName()
         current_source.negative_node.net = neg_pin.GetNet().GetName()
         current_source.magnitude = current_value
         current_source.phase = phase_value
-
-
         if not source_name:
             source_name = "ISource_{}_{}_{}_{}".format(pos_pin.GetComponent().GetName(), pos_pin.GetNet().GetName(),
                                                        neg_pin.GetComponent().GetName(), neg_pin.GetNet().GetName())
@@ -657,8 +651,6 @@ class EdbSiwave(object):
         resistor.positive_node.net = pos_pin.GetNet().GetName()
         resistor.negative_node.net = neg_pin.GetNet().GetName()
         resistor.magnitude = rvalue
-
-
         if not resistor_name:
             resistor_name = "Res_{}_{}_{}_{}".format(pos_pin.GetComponent().GetName(), pos_pin.GetNet().GetName(),
                                                        neg_pin.GetComponent().GetName(), neg_pin.GetNet().GetName())
@@ -1144,4 +1136,3 @@ class EdbSiwave(object):
         else:
             pass
         return pos_pingroup_terminal.GetName()
-

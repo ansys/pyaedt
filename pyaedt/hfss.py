@@ -491,7 +491,6 @@ class Hfss(FieldAnalysis3D, object):
                                            sweep_type, interpolation_tol=0.5, interpolation_max_solutions=250,
                                            save_fields=save_fields, save_rad_fields=save_rad_fields)
 
-
     @aedt_exception_handler
     def create_linear_step_sweep(self, setupname, unit, freqstart, freqstop, step_size,
                                  sweepname=None, save_fields=True, save_rad_fields=False, sweep_type="Discrete"):
@@ -920,7 +919,6 @@ class Hfss(FieldAnalysis3D, object):
         pyaedt Info: Sweep was created correctly.
 
         """
-
 
         if sweepname is None:
             sweepname = generate_unique_name("Sweep")

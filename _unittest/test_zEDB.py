@@ -238,15 +238,11 @@ class TestClass:
         p4 = self.edbapp.core_hfss.create_circuit_port_on_net("U2A5","V1P5_S3")
         assert "GND" in p4 and "V1P5_S3" in p4
 
-
-
-
     def test_38_create_voltage_source(self):
         time.sleep(1)
         assert "Vsource_" in self.edbapp.core_siwave.create_voltage_source_on_net("U2A5","V1P5_S3","U2A5","GND",3.3,0)
         pins = self.edbapp.core_components.get_pin_from_component("U2A5")
         assert "VSource_" in self.edbapp.core_siwave.create_voltage_source_on_pin(pins[300],pins[10],3.3,0)
-
 
     def test_39_create_current_source(self):
         time.sleep(1)

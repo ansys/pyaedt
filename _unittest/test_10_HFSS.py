@@ -130,7 +130,6 @@ class TestClass:
         assert sweep.props["RangeStart"] == str(freq_start)+units
         assert sweep.props["RangeEnd"] == str(freq_stop)+units
 
-
     def test_06c_create_linear_step_sweep(self):
         step_size = 153.8
         freq_start = 1.1e3
