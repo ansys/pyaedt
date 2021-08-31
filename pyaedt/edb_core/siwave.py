@@ -661,7 +661,6 @@ class EdbSiwave(object):
         resistor.negative_node.node_pins = neg_pin
         return self._create_terminal_on_pins(resistor)
 
-
     @aedt_exception_handler
     def _check_gnd(self, component_name):
         negative_net_name = None
@@ -1093,7 +1092,6 @@ class EdbSiwave(object):
                 name = generate_unique_name(source.name)
                 pos_pingroup_terminal.SetName(name)
                 self._messenger.add_warning_message("{} already exists. Renaming to {}".format(source.name, name))
-
 
         elif source.type == SourceType.CurrentSource:
             pos_pingroup_terminal.SetBoundaryType(self._edb.Cell.Terminal.BoundaryType.kCurrentSource)

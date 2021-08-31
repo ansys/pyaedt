@@ -352,7 +352,6 @@ class Edb3DLayout(object):
                                                               negative_component_name, negative_net_name,
                                                               rvalue, resistor_name)
 
-
     @aedt_exception_handler
     def create_coax_port_on_component(self, ref_des_list, net_list):
         """Create a coaxial port on a component or component list on a net or net list.
