@@ -659,7 +659,7 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
             ``True`` if it is succeedeed.
         """
         if interpolation_algorithm not in ["auto", "lin", "shadH", "shadNH"]:
-            self.add_error_message("Wrong Interpolation Alghoritm")
+            self.add_error_message("Wrong Interpolation Algorithm")
             return False
         arg = ["NAME:CoSimOptions", "Override:="]
 
