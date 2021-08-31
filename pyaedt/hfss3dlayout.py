@@ -623,7 +623,7 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
     @aedt_exception_handler
     def edit_cosim_options(self, simulate_missing_solution=True, align_ports=True, renormalize_ports=True,
                            renorm_impedance=50, setup_override_name=None, sweep_override_name=None,
-                           use_interpolating_sweep=False, use_y_matrix=True, interpolation_alghoritm="auto"):
+                           use_interpolating_sweep=False, use_y_matrix=True, interpolation_algorithm="auto"):
         """Edit Cosimulation Options
 
         Parameters
@@ -631,7 +631,7 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
         simulate_missing_solution : bool, Optional
             ``True`` if the the solver has to simulate missing solution. ``False`` to Interpolate Missing Solution
         align_ports : bool, Optional
-            ``True`` if the the solver  has to aligne microwave ports
+            ``True`` if the the solver  has to align microwave ports
         renormalize_ports : bool, Optional
             ``True`` if the the Port impedance has to be renormalized.
         renorm_impedance : float, Optional
@@ -643,22 +643,22 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
         use_interpolating_sweep : bool, Optional
             ``True`` if the the solver has to use interpolating sweep. ``False`` to use Discrete Sweep.
         use_y_matrix : bool, Optional
-            ``True`` if the the interpolation alghoritm has to use YMatrix.
-        interpolation_alghoritm : str, Optional
-                Defines which interpolation alghoritm to use. Default is ``auto``. Options are ``auto``, ``lin``, ``shadH``, ``shadNH``
+            ``True`` if the the interpolation algorithm has to use YMatrix.
+        interpolation_algorithm : str, Optional
+                Defines which interpolation algorithm to use. Default is ``auto``. Options are ``auto``, ``lin``, ``shadH``, ``shadNH``
 
         Examples
         --------
         >>> from pyaedt import Hfss3dLayout
         >>> h3d = Hfss3dLayout()
-        >>> h3d.edit_cosim_options(simulate_missing_solution=True, align_ports=True, renormalize_ports=True,renorm_impedance=50, setup_override_name=None, sweep_override_name=None, use_interpolating_sweep=False, use_y_matrix=True, interpolation_alghoritm="auto")
+        >>> h3d.edit_cosim_options(simulate_missing_solution=True, align_ports=True, renormalize_ports=True,renorm_impedance=50, setup_override_name=None, sweep_override_name=None, use_interpolating_sweep=False, use_y_matrix=True, interpolation_algorithm="auto")
 
         Returns
         -------
         bool
             ``True`` if it is succeedeed.
         """
-        if interpolation_alghoritm not in ["auto", "lin", "shadH", "shadNH"]:
+        if interpolation_algorithm not in ["auto", "lin", "shadH", "shadNH"]:
             self.add_error_message("Wrong Interpolation Alghoritm")
             return False
         arg = ["NAME:CoSimOptions", "Override:="]
@@ -693,7 +693,7 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
         arg.append("AutoAlignPorts:=")
         arg.append(align_ports)
         arg.append("InterpAlg:=")
-        arg.append(interpolation_alghoritm)
+        arg.append(interpolation_algorithm)
         arg.append("Renormalize:=")
         arg.append(renormalize_ports)
         arg.append("RenormImpedance:=")
