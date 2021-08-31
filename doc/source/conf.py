@@ -151,7 +151,7 @@ if not os.path.exists(pyvista.FIGURE_PATH):
     os.makedirs(pyvista.FIGURE_PATH)
 
 # gallery build requires AEDT install
-if os.name != 'posix':
+if os.name != 'posix' and 'PYAEDT_CI_NO_EXAMPLES' not in os.environ:
 
     # suppress annoying matplotlib bug
     warnings.filterwarnings(
