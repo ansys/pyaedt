@@ -527,7 +527,7 @@ class VariableManager(object):
 
     See Also
     --------
-    :class:`pyaedt.application.Variables.Variable` class.
+    pyaedt.application.Variables.Variable
 
     """
 

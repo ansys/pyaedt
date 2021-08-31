@@ -48,20 +48,24 @@ extensions = [
     'sphinx.ext.todo',
     "sphinx.ext.viewcode",
     "sphinx.ext.autosummary",
-    #"nbsphinx",
     "sphinx.ext.intersphinx",
-    'sphinx.ext.napoleon',
     'sphinx.ext.coverage',
     "sphinx_copybutton",
     'recommonmark',
     'sphinx.ext.graphviz',
     'sphinx.ext.mathjax',
-    'sphinx.ext.inheritance_diagram'
+    'sphinx.ext.inheritance_diagram',
+    'numpydoc',
 ]
 
 
-# return type inline with the description.
-napoleon_use_rtype = False
+numpydoc_use_plots = True
+numpydoc_show_class_members = False
+numpydoc_xref_param_type = True
+
+# see https://github.com/pyvista/pyvista/pull/1612
+numpydoc_validate = True
+numpydoc_validation_checks = set()  # none at the moment
 
 
 # Add any paths that contain templates here, relative to this directory.

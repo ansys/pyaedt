@@ -637,12 +637,6 @@ class Design(object):
     def design_type(self):
         """Design type.
 
-        Options are ``"Circuit Design"``, ``"Emit"``, ``"HFSS"``,
-        ``"HFSS 3D Layout Design"``, ``"Icepak"``, ``"Maxwell 2D"``,
-        ``"Maxwell 3D"``, ``"Mechanical"``, ``"ModelCreation"``,
-        ``"Q2D Extractor"``, ``"Q3D Extractor"``, ``"RMxprtSolution"``,
-        and ``"Twin Builder"``.
-
         Returns
         --------
         str
